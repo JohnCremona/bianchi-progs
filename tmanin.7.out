@@ -1,4 +1,7 @@
-Enter field: Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
+Enter field: Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
+Euclidean
+169 primes initialised, max norm = 1000
+Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level (-2+4a), norm = 28 <<<<
 

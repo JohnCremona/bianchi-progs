@@ -11,7 +11,7 @@
 
 int main(void)
 {
- int d,max=10000,limit;
+ int d,max=10000;
  int np,ip,jp,nq; 
  long firstn, lastn; Quad n; int verbose, plusflag;
  cout << "Enter field: " << flush;  cin >> d;

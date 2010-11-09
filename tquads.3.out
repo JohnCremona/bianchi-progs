@@ -40,7 +40,7 @@ a/3 = 2+2w
 c = a+b = -6+102w
 c-b (=a?)  = 5+6w 	--OK!
 pos(a) = 1
-Residues modulo a: [ 0 1 2 3 4 5 1-6w 2-6w -3+5w -2+5w -1+5w 5w -4-w -3-w -2-w -1-w -w 1-w 2-w 3-w 4-w 5-w 6-w -4+4w -3+4w -2+4w -1+4w 4w 1+4w -3-2w -2-2w -1-2w -2w 1-2w 2-2w 3-2w 4-2w 5-2w -5+3w -4+3w -3+3w -2+3w -1+3w 3w 1+3w 2+3w -2-3w -1-3w -3w 1-3w 2-3w 3-3w 4-3w 5-3w -5+2w -4+2w -3+2w -2+2w -1+2w 2w 1+2w 2+2w 3+2w -1-4w -4w 1-4w 2-4w 3-4w 4-4w -6+w -5+w -4+w -3+w -2+w -1+w w 1+w 2+w 3+w 4+w -5w 1-5w 2-5w 3-5w -2+6w -1+6w -5 -4 -3 -2 -1 ]
+91 residues modulo a: [ 0 1 2 3 4 5 1-6w 2-6w -3+5w -2+5w -1+5w 5w -4-w -3-w -2-w -1-w -w 1-w 2-w 3-w 4-w 5-w 6-w -4+4w -3+4w -2+4w -1+4w 4w 1+4w -3-2w -2-2w -1-2w -2w 1-2w 2-2w 3-2w 4-2w 5-2w -5+3w -4+3w -3+3w -2+3w -1+3w 3w 1+3w 2+3w -2-3w -1-3w -3w 1-3w 2-3w 3-3w 4-3w 5-3w -5+2w -4+2w -3+2w -2+2w -1+2w 2w 1+2w 2+2w 3+2w -1-4w -4w 1-4w 2-4w 3-4w 4-4w -6+w -5+w -4+w -3+w -2+w -1+w w 1+w 2+w 3+w 4+w -5w 1-5w 2-5w 3-5w -2+6w -1+6w -5 -4 -3 -2 -1 ]
 Testing primes divisor functions.
 Enter a: A prime divisor of a: 2
 The list of all prime divisors of a: [ 2 2+w 5+4w ]

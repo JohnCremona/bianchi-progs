@@ -59,7 +59,7 @@ int main ()
 
 //Test of residues
  vector<Quad> resmoda = residues(a);  long norma=quadnorm(a);
- cout << "Residues modulo a: "<<resmoda<<endl;
+ cout << norma << " residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions
  cout<<"Testing primes divisor functions.\nEnter a: "; cin>>a;

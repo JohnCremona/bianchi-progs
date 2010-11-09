@@ -1,6 +1,6 @@
 #include <fstream>
 #include "manin.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
 #endif

@@ -1,4 +1,7 @@
-Enter field: Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
+Enter field: Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
+Euclidean
+169 primes initialised, max norm = 1000
+Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level (4t), norm = 32 <<<<
 
@@ -33,6 +36,39 @@ p = 9+t	    0
 p = -9+t	    0 
 p = 9+2t	   10 
 p = -9+2t	   10 
+Enter level: 
+>>>> Level (7+t), norm = 51 <<<<
+
+1 newform(s) at level 7+t:
+1:	basis = [0,1,0,0];	aplist = [ 1 1 -2 ]
+Sign of F.E. = -1
+Twisting prime lambda = 3+2t
+L/P ratio    = 4
+p = t	   -2 
+p = 1+t	    1    *** bad prime
+p = -1+t	   -2 
+p = 3+t	   -2 
+p = -3+t	   -4 
+p = 3+2t	   -6 
+p = -3+2t	    1    *** bad prime
+p = 1+3t	   -4 
+p = -1+3t	    0 
+p = 5	   -2 
+p = 3+4t	   -2 
+p = -3+4t	   -2 
+p = 5+3t	   10 
+p = -5+3t	   -2 
+p = 7	   -2 
+p = 3+5t	  -10 
+p = -3+5t	    6 
+p = 7+3t	    0 
+p = -7+3t	   -8 
+p = 1+6t	   14 
+p = -1+6t	  -10 
+p = 9+t	   14 
+p = -9+t	   -2 
+p = 9+2t	    6 
+p = -9+2t	   -6 
 Enter level: 
 >>>> Level (2+5t), norm = 54 <<<<
 
@@ -104,6 +140,40 @@ p = 9+t	   -6
 p = -9+t	   -6 
 p = 9+2t	   -6 
 p = -9+2t	   -6 
+Enter level: 
+>>>> Level (9+3t), norm = 99 <<<<
+
+1 newform(s) at level 9+3t:
+1:	basis = [0,0,0,0,1,0,0,0];	aplist = [ 1 -1 1 -1 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1
+L/P ratio    = 1/8
+L(f,1) nonzero for each form
+p = t	   -1 
+p = 1+t	    1    *** bad prime
+p = -1+t	   -1    *** bad prime
+p = 3+t	    1    *** bad prime
+p = -3+t	    4 
+p = 3+2t	   -6 
+p = -3+2t	    2 
+p = 1+3t	    4 
+p = -1+3t	    4 
+p = 5	    2 
+p = 3+4t	   -6 
+p = -3+4t	   -6 
+p = 5+3t	   12 
+p = -5+3t	    4 
+p = 7	   -6 
+p = 3+5t	   -4 
+p = -3+5t	  -12 
+p = 7+3t	  -12 
+p = -7+3t	    4 
+p = 1+6t	   -6 
+p = -1+6t	  -14 
+p = 9+t	   -4 
+p = -9+t	   -4 
+p = 9+2t	   10 
+p = -9+2t	    2 
 Enter level: 
 >>>> Level (10), norm = 100 <<<<
 
@@ -243,36 +313,39 @@ p = 9+2t	   15
 p = -9+2t	   15 
 Enter level: 
 >>>> Level (12), norm = 144 <<<<
-Error in splitting eigenspaces: apparently found more 1D newforms (2) than the total new-dimension (1).
 
-1 newform(s) at level 12:
+2 newform(s) at level 12:
 1:	basis = [0,0,0,1,-1,1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];	aplist = [ 1 1 1 4 ]
 Sign of F.E. = -1
 Twisting prime lambda = 3+2t
 L/P ratio    = 4
-p = t	    1    *** bad prime
-p = 1+t	    1    *** bad prime
-p = -1+t	    1    *** bad prime
-p = 3+t	    4 
-p = -3+t	    4 
-p = 3+2t	    2 
-p = -3+2t	    2 
-p = 1+3t	   -4 
-p = -1+3t	   -4 
-p = 5	   -6 
-p = 3+4t	   -6 
-p = -3+4t	   -6 
-p = 5+3t	    4 
-p = -5+3t	    4 
-p = 7	  -14 
-p = 3+5t	    4 
-p = -3+5t	    4 
-p = 7+3t	   -4 
-p = -7+3t	   -4 
-p = 1+6t	   10 
-p = -1+6t	   10 
-p = 9+t	   -4 
-p = -9+t	   -4 
-p = 9+2t	   -6 
-p = -9+2t	   -6 
+2:	basis = [0,0,0,1,1,-1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];	aplist = [ -1 -1 -1 -4 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1
+L/P ratio    = 5/8
+p = t	    1    -1    *** bad prime
+p = 1+t	    1    -1    *** bad prime
+p = -1+t	    1    -1    *** bad prime
+p = 3+t	    4     1 
+p = -3+t	    4     1 
+p = 3+2t	    2     5 
+p = -3+2t	    2     5 
+p = 1+3t	   -4     4 
+p = -1+3t	   -4     4 
+p = 5	   -6    -1 
+p = 3+4t	   -6     1 
+p = -3+4t	   -6     1 
+p = 5+3t	    4     6 
+p = -5+3t	    4     6 
+p = 7	  -14    -4 
+p = 3+5t	    4     8 
+p = -3+5t	    4     8 
+p = 7+3t	   -4    11 
+p = -7+3t	   -4    11 
+p = 1+6t	   10    20 
+p = -1+6t	   10    20 
+p = 9+t	   -4    14 
+p = -9+t	   -4    14 
+p = 9+2t	   -6     8 
+p = -9+2t	   -6     8 
 Enter level: 

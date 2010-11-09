@@ -17,7 +17,7 @@ level::level(const Quad& n, long neigs)
   nap=neigs;
   primelist=plist;
   vector<Quad>::const_iterator pr = quadprimes.begin();
-  while(pr!=quadprimes.end() && (primelist.size()<nap))
+  while(pr!=quadprimes.end() && (primelist.size()<(unsigned)nap))
     {
       Quad p = *pr++;
       if (ndiv(p,modulus)) 

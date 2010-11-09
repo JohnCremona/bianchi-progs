@@ -185,7 +185,6 @@ void Quad::initquadprimes()
 {
   int d=Quad::d, disc=-Quad::disc, t=Quad::t;
   vector<Quad> list1,list2;
-  int i;
   long p ; long a,b;
   Quad pi;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
@@ -280,7 +279,6 @@ vector<Quad> pdivs(const Quad& aa)
 vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
 {
   vector<Quad> plist=pdivs(a); Quad p; 
-  int np = plist.size();
   int e, nu = 1; int nd=nu;
   vector<int> elist;
   vector<Quad>::const_iterator pr;
@@ -309,7 +307,6 @@ vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
 vector<Quad> alldivs(const Quad& a)       // all divisors
 {
   vector<Quad> plist=pdivs(a); Quad p; 
-  int np = plist.size();
   int e, nu = Quad::nunits; int nd=nu;
   vector<int> elist;
   vector<Quad>::const_iterator pr;
@@ -338,7 +335,6 @@ vector<Quad> alldivs(const Quad& a)       // all divisors
 vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to +/-
 {
   vector<Quad> plist=pdivs(a); Quad p;
-  int np = plist.size();
   int e, nu = Quad::nunits/2; int nd=nu;
   vector<int> elist;
   vector<Quad>::const_iterator pr;
@@ -367,7 +363,6 @@ vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to
 vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
 {
   vector<Quad> plist=pdivs(a); Quad p;
-  int np = plist.size();
   int e, nu = 2; int nd=nu;
   vector<int> elist;
   vector<Quad>::const_iterator pr;
@@ -462,7 +457,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
 long vecbezout(int n, long* a, long* c) 
 //returns g = content(a) = a.c
 {
-  long x=0,ai=0,ci=0,g=0;  //This does not initialise them properly
+  long x=0,ci=0,g=0;       //This does not initialise them properly
                            //for the call to bezout.  Don't know why.
   x++; ci++;               //This does the trick!
 //cout<<"In vecbezout with a="<<a<<", c="<<c<<endl;
