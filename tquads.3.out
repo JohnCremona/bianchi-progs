@@ -1,0 +1,159 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Euclidean
+167 primes initialised, max norm = 1000
+
+w   = w
+w*w = -1+w
+Enter a Quad, a: a = 5+6w
+real(a) = 5
+imag(a) = 6
+quadconj(a) = 11-6w
+quadnorm(a) = 91
+Here are the first 20 primes out of 167 (one per line):
+1+w
+2
+2+w
+1+2w
+3+w
+1+3w
+3+2w
+2+3w
+5
+5+w
+1+5w
+4+3w
+3+4w
+6+w
+1+6w
+5+4w
+4+5w
+7+2w
+2+7w
+8+w
+1+8w
+b=a*a=-11+96w
+val(a,b) = 2
+div(a,b) = 1
+div(b,a) = 0
+b/a (=a?) = 5+6w 	--OK!
+a/3 = 2+2w
+c = a+b = -6+102w
+c-b (=a?)  = 5+6w 	--OK!
+pos(a) = 1
+Residues modulo a: [ 0 1 2 3 4 5 1-6w 2-6w -3+5w -2+5w -1+5w 5w -4-w -3-w -2-w -1-w -w 1-w 2-w 3-w 4-w 5-w 6-w -4+4w -3+4w -2+4w -1+4w 4w 1+4w -3-2w -2-2w -1-2w -2w 1-2w 2-2w 3-2w 4-2w 5-2w -5+3w -4+3w -3+3w -2+3w -1+3w 3w 1+3w 2+3w -2-3w -1-3w -3w 1-3w 2-3w 3-3w 4-3w 5-3w -5+2w -4+2w -3+2w -2+2w -1+2w 2w 1+2w 2+2w 3+2w -1-4w -4w 1-4w 2-4w 3-4w 4-4w -6+w -5+w -4+w -3+w -2+w -1+w w 1+w 2+w 3+w 4+w -5w 1-5w 2-5w 3-5w -2+6w -1+6w -5 -4 -3 -2 -1 ]
+Testing primes divisor functions.
+Enter a: A prime divisor of a: 2
+The list of all prime divisors of a: [ 2 2+w 5+4w ]
+Exponents: [ 1 1 1 ]
+The list of 8 divisors of a (up to units): 
+[ 1 2 2+w 4+2w 5+4w 10+8w 6+17w 12+34w ]
+The list of all 48 divisors of a: 
+[ 1 w -1+w -1 -w 1-w 2 2w -2+2w -2 -2w 2-2w 2+w -1+3w -3+2w -2-w 1-3w 3-2w 4+2w -2+6w -6+4w -4-2w 2-6w 6-4w 5+4w -4+9w -9+5w -5-4w 4-9w 9-5w 10+8w -8+18w -18+10w -10-8w 8-18w 18-10w 6+17w -17+23w -23+6w -6-17w 17-23w 23-6w 12+34w -34+46w -46+12w -12-34w 34-46w 46-12w ]
+The list of 3 divisors of a whose square divides: 
+[ 1 w -1+w ]
+The list of 16 square-free divisors of a: 
+[ 1 w 2 2w 2+w -1+3w 4+2w -2+6w 5+4w -4+9w 10+8w -8+18w 6+17w -17+23w 12+34w -34+46w ]
+Testing gcd and bezout.
+Enter Quads a and b (a=0 to stop): gcd(12+34w,56+78w) = 2
+bezout returns x=-25+2w, y=8+w, g=2.  OK!
+Enter Quads a and b (a=0 to stop): Systematic testing of bezout...quadbezout(1+w,1+w) = 1+w
+quadbezout(1+w,2) = 1
+quadbezout(1+w,2+w) = 1
+quadbezout(1+w,1+2w) = 1
+quadbezout(1+w,3+w) = 1
+quadbezout(1+w,1+3w) = 1
+quadbezout(1+w,3+2w) = 1
+quadbezout(1+w,2+3w) = 1
+quadbezout(1+w,5) = 1
+quadbezout(1+w,5+w) = 1
+quadbezout(2,1+w) = 1
+quadbezout(2,2) = 2
+quadbezout(2,2+w) = 1
+quadbezout(2,1+2w) = 1
+quadbezout(2,3+w) = 1
+quadbezout(2,1+3w) = 1
+quadbezout(2,3+2w) = 1
+quadbezout(2,2+3w) = 1
+quadbezout(2,5) = 1
+quadbezout(2,5+w) = 1
+quadbezout(2+w,1+w) = 1
+quadbezout(2+w,2) = 1
+quadbezout(2+w,2+w) = 2+w
+quadbezout(2+w,1+2w) = 1
+quadbezout(2+w,3+w) = 1
+quadbezout(2+w,1+3w) = 1
+quadbezout(2+w,3+2w) = 1
+quadbezout(2+w,2+3w) = 1
+quadbezout(2+w,5) = 1
+quadbezout(2+w,5+w) = 1
+quadbezout(1+2w,1+w) = 1
+quadbezout(1+2w,2) = 1
+quadbezout(1+2w,2+w) = 1
+quadbezout(1+2w,1+2w) = 1+2w
+quadbezout(1+2w,3+w) = 1
+quadbezout(1+2w,1+3w) = 1
+quadbezout(1+2w,3+2w) = 1
+quadbezout(1+2w,2+3w) = 1
+quadbezout(1+2w,5) = 1
+quadbezout(1+2w,5+w) = 1
+quadbezout(3+w,1+w) = 1
+quadbezout(3+w,2) = 1
+quadbezout(3+w,2+w) = 1
+quadbezout(3+w,1+2w) = 1
+quadbezout(3+w,3+w) = 3+w
+quadbezout(3+w,1+3w) = 1
+quadbezout(3+w,3+2w) = 1
+quadbezout(3+w,2+3w) = 1
+quadbezout(3+w,5) = 1
+quadbezout(3+w,5+w) = 1
+quadbezout(1+3w,1+w) = 1
+quadbezout(1+3w,2) = 1
+quadbezout(1+3w,2+w) = 1
+quadbezout(1+3w,1+2w) = 1
+quadbezout(1+3w,3+w) = 1
+quadbezout(1+3w,1+3w) = 1+3w
+quadbezout(1+3w,3+2w) = 1
+quadbezout(1+3w,2+3w) = 1
+quadbezout(1+3w,5) = 1
+quadbezout(1+3w,5+w) = 1
+quadbezout(3+2w,1+w) = 1
+quadbezout(3+2w,2) = 1
+quadbezout(3+2w,2+w) = 1
+quadbezout(3+2w,1+2w) = 1
+quadbezout(3+2w,3+w) = 1
+quadbezout(3+2w,1+3w) = 1
+quadbezout(3+2w,3+2w) = 3+2w
+quadbezout(3+2w,2+3w) = 1
+quadbezout(3+2w,5) = 1
+quadbezout(3+2w,5+w) = 1
+quadbezout(2+3w,1+w) = 1
+quadbezout(2+3w,2) = 1
+quadbezout(2+3w,2+w) = 1
+quadbezout(2+3w,1+2w) = 1
+quadbezout(2+3w,3+w) = 1
+quadbezout(2+3w,1+3w) = 1
+quadbezout(2+3w,3+2w) = 1
+quadbezout(2+3w,2+3w) = 2+3w
+quadbezout(2+3w,5) = 1
+quadbezout(2+3w,5+w) = 1
+quadbezout(5,1+w) = 1
+quadbezout(5,2) = 1
+quadbezout(5,2+w) = 1
+quadbezout(5,1+2w) = 1
+quadbezout(5,3+w) = 1
+quadbezout(5,1+3w) = 1
+quadbezout(5,3+2w) = 1
+quadbezout(5,2+3w) = 1
+quadbezout(5,5) = 5
+quadbezout(5,5+w) = 1
+quadbezout(5+w,1+w) = 1
+quadbezout(5+w,2) = 1
+quadbezout(5+w,2+w) = 1
+quadbezout(5+w,1+2w) = 1
+quadbezout(5+w,3+w) = 1
+quadbezout(5+w,1+3w) = 1
+quadbezout(5+w,3+2w) = 1
+quadbezout(5+w,2+3w) = 1
+quadbezout(5+w,5) = 1
+quadbezout(5+w,5+w) = 5+w
+done.

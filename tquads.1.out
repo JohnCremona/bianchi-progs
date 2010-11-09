@@ -1,0 +1,159 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Euclidean
+167 primes initialised, max norm = 1000
+
+w   = i
+w*w = -1
+Enter a Quad, a: a = 5+6i
+real(a) = 5
+imag(a) = 6
+quadconj(a) = 5-6i
+quadnorm(a) = 61
+Here are the first 20 primes out of 167 (one per line):
+1+i
+2+i
+1+2i
+3
+3+2i
+2+3i
+4+i
+1+4i
+5+2i
+2+5i
+6+i
+1+6i
+5+4i
+4+5i
+7
+7+2i
+2+7i
+6+5i
+5+6i
+8+3i
+3+8i
+b=a*a=-11+60i
+val(a,b) = 2
+div(a,b) = 1
+div(b,a) = 0
+b/a (=a?) = 5+6i 	--OK!
+a/3 = 2+2i
+c = a+b = -6+66i
+c-b (=a?)  = 5+6i 	--OK!
+pos(a) = 1
+Residues modulo a: [ 0 1 2 3 4 5 5i -4-i -3-i -2-i -1-i -i 1-i 2-i 3-i 4-i -1+4i 4i 1+4i -3-2i -2-2i -1-2i -2i 1-2i 2-2i 3-2i -2+3i -1+3i 3i 1+3i 2+3i -2-3i -1-3i -3i 1-3i 2-3i -3+2i -2+2i -1+2i 2i 1+2i 2+2i 3+2i -1-4i -4i 1-4i -4+i -3+i -2+i -1+i i 1+i 2+i 3+i 4+i -5i -5 -4 -3 -2 -1 ]
+Testing primes divisor functions.
+Enter a: A prime divisor of a: 1+i
+The list of all prime divisors of a: [ 1+i 1+2i 3+2i ]
+Exponents: [ 2 2 1 ]
+The list of 18 divisors of a (up to units): 
+[ 1 1+i 2 1+2i 3+i 2+4i 4+3i 1+7i 8+6i 3+2i 1+5i 6+4i 8+i 7+9i 16+2i 6+17i 23+11i 12+34i ]
+The list of all 72 divisors of a: 
+[ 1 i -1 -i 1+i -1+i -1-i 1-i 2i -2 -2i 2 1+2i -2+i -1-2i 2-i -1+3i -3-i 1-3i 3+i -4+2i -2-4i 4-2i 2+4i -3+4i -4-3i 3-4i 4+3i -7+i -1-7i 7-i 1+7i -8-6i 6-8i 8+6i -6+8i 3+2i -2+3i -3-2i 2-3i 1+5i -5+i -1-5i 5-i -4+6i -6-4i 4-6i 6+4i -1+8i -8-i 1-8i 8+i -9+7i -7-9i 9-7i 7+9i -16-2i 2-16i 16+2i -2+16i -17+6i -6-17i 17-6i 6+17i -23-11i 11-23i 23+11i -11+23i -12-34i 34-12i 12+34i -34+12i ]
+The list of 8 divisors of a whose square divides: 
+[ 1 i 1+i -1+i 1+2i -2+i -1+3i -3-i ]
+The list of 16 square-free divisors of a: 
+[ 1 i 1+i -1+i 1+2i -2+i -1+3i -3-i 3+2i -2+3i 1+5i -5+i -1+8i -8-i -9+7i -7-9i ]
+Testing gcd and bezout.
+Enter Quads a and b (a=0 to stop): gcd(12+34i,56+78i) = 2
+bezout returns x=-15-4i, y=5+3i, g=2.  OK!
+Enter Quads a and b (a=0 to stop): Systematic testing of bezout...quadbezout(1+i,1+i) = 1+i
+quadbezout(1+i,2+i) = 1
+quadbezout(1+i,1+2i) = 1
+quadbezout(1+i,3) = 1
+quadbezout(1+i,3+2i) = 1
+quadbezout(1+i,2+3i) = 1
+quadbezout(1+i,4+i) = 1
+quadbezout(1+i,1+4i) = 1
+quadbezout(1+i,5+2i) = 1
+quadbezout(1+i,2+5i) = 1
+quadbezout(2+i,1+i) = 1
+quadbezout(2+i,2+i) = 2+i
+quadbezout(2+i,1+2i) = 1
+quadbezout(2+i,3) = 1
+quadbezout(2+i,3+2i) = 1
+quadbezout(2+i,2+3i) = 1
+quadbezout(2+i,4+i) = 1
+quadbezout(2+i,1+4i) = 1
+quadbezout(2+i,5+2i) = 1
+quadbezout(2+i,2+5i) = 1
+quadbezout(1+2i,1+i) = 1
+quadbezout(1+2i,2+i) = 1
+quadbezout(1+2i,1+2i) = 1+2i
+quadbezout(1+2i,3) = 1
+quadbezout(1+2i,3+2i) = 1
+quadbezout(1+2i,2+3i) = 1
+quadbezout(1+2i,4+i) = 1
+quadbezout(1+2i,1+4i) = 1
+quadbezout(1+2i,5+2i) = 1
+quadbezout(1+2i,2+5i) = 1
+quadbezout(3,1+i) = 1
+quadbezout(3,2+i) = 1
+quadbezout(3,1+2i) = 1
+quadbezout(3,3) = 3
+quadbezout(3,3+2i) = 1
+quadbezout(3,2+3i) = 1
+quadbezout(3,4+i) = 1
+quadbezout(3,1+4i) = 1
+quadbezout(3,5+2i) = 1
+quadbezout(3,2+5i) = 1
+quadbezout(3+2i,1+i) = 1
+quadbezout(3+2i,2+i) = 1
+quadbezout(3+2i,1+2i) = 1
+quadbezout(3+2i,3) = 1
+quadbezout(3+2i,3+2i) = 3+2i
+quadbezout(3+2i,2+3i) = 1
+quadbezout(3+2i,4+i) = 1
+quadbezout(3+2i,1+4i) = 1
+quadbezout(3+2i,5+2i) = 1
+quadbezout(3+2i,2+5i) = 1
+quadbezout(2+3i,1+i) = 1
+quadbezout(2+3i,2+i) = 1
+quadbezout(2+3i,1+2i) = 1
+quadbezout(2+3i,3) = 1
+quadbezout(2+3i,3+2i) = 1
+quadbezout(2+3i,2+3i) = 2+3i
+quadbezout(2+3i,4+i) = 1
+quadbezout(2+3i,1+4i) = 1
+quadbezout(2+3i,5+2i) = 1
+quadbezout(2+3i,2+5i) = 1
+quadbezout(4+i,1+i) = 1
+quadbezout(4+i,2+i) = 1
+quadbezout(4+i,1+2i) = 1
+quadbezout(4+i,3) = 1
+quadbezout(4+i,3+2i) = 1
+quadbezout(4+i,2+3i) = 1
+quadbezout(4+i,4+i) = 4+i
+quadbezout(4+i,1+4i) = 1
+quadbezout(4+i,5+2i) = 1
+quadbezout(4+i,2+5i) = 1
+quadbezout(1+4i,1+i) = 1
+quadbezout(1+4i,2+i) = 1
+quadbezout(1+4i,1+2i) = 1
+quadbezout(1+4i,3) = 1
+quadbezout(1+4i,3+2i) = 1
+quadbezout(1+4i,2+3i) = 1
+quadbezout(1+4i,4+i) = 1
+quadbezout(1+4i,1+4i) = 1+4i
+quadbezout(1+4i,5+2i) = 1
+quadbezout(1+4i,2+5i) = 1
+quadbezout(5+2i,1+i) = 1
+quadbezout(5+2i,2+i) = 1
+quadbezout(5+2i,1+2i) = 1
+quadbezout(5+2i,3) = 1
+quadbezout(5+2i,3+2i) = 1
+quadbezout(5+2i,2+3i) = 1
+quadbezout(5+2i,4+i) = 1
+quadbezout(5+2i,1+4i) = 1
+quadbezout(5+2i,5+2i) = 5+2i
+quadbezout(5+2i,2+5i) = 1
+quadbezout(2+5i,1+i) = 1
+quadbezout(2+5i,2+i) = 1
+quadbezout(2+5i,1+2i) = 1
+quadbezout(2+5i,3) = 1
+quadbezout(2+5i,3+2i) = 1
+quadbezout(2+5i,2+3i) = 1
+quadbezout(2+5i,4+i) = 1
+quadbezout(2+5i,1+4i) = 1
+quadbezout(2+5i,5+2i) = 1
+quadbezout(2+5i,2+5i) = 2+5i
+done.

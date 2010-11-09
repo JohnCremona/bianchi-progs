@@ -1,0 +1,12 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-67))	discriminant = 67	min poly(a) = a^2-a+17.
+Non-Euclidean
+27 primes initialised, max norm = 100
+
+Enter Quads, a and b: a = 12+34a
+b = 56+78a
+q = a/b = (6+17a)/(28+39a)
+b*q==a? 1
+round(q) = 0
+reduce(q) = (6+17a)/(28+39a)
+q==round(q)+reduce(q)? 1
+recip(q) = (28+39a)/(6+17a)

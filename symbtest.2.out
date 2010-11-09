@@ -1,0 +1,198 @@
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level (t), norm = 2 <<<<	
+Level = t
+Number of symbols = 3
+2 non-trivial divisors: [ 1 t ]
+1 prime divisors: [ t ]
+residues: 0,1
+invlist: [ 0 1 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (1+t), norm = 3 <<<<	
+Level = 1+t
+Number of symbols = 4
+2 non-trivial divisors: [ 1 1+t ]
+1 prime divisors: [ 1+t ]
+residues: 0,1,-1
+invlist: [ 0 1 2 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2), norm = 4 <<<<	
+Level = 2
+Number of symbols = 6
+3 non-trivial divisors: [ 1 t 2 ]
+1 prime divisors: [ t ]
+residues: 0,-1,-t,-1-t
+invlist: [ 0 1 -1 3 ]
+noninvlist: [ 0 2 ]
+noninvdlist: [ -1 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2+t), norm = 6 <<<<	
+Level = 2+t
+Number of symbols = 12
+4 non-trivial divisors: [ 1 t -1+t 2+t ]
+2 prime divisors: [ t -1+t ]
+residues: 0,1,-t,1-t,t,-1
+invlist: [ 0 1 -1 -2 -3 5 ]
+noninvlist: [ 0 2 3 4 ]
+noninvdlist: [ -1 1 2 1 ]
+dstarts = [ ]
+Number of special symbols = 2
+0:	(t:1-t)
+1:	(-1+t:-t)
+ OK
+>>>> Level (2t), norm = 8 <<<<	
+Level = 2t
+Number of symbols = 12
+4 non-trivial divisors: [ 1 t 2 2t ]
+1 prime divisors: [ t ]
+residues: 0,1,2,-1,-t,1-t,2-t,-1-t
+invlist: [ 0 1 -1 3 -2 7 -3 5 ]
+noninvlist: [ 0 2 4 6 ]
+noninvdlist: [ -1 2 1 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (3), norm = 9 <<<<	
+Level = 3
+Number of symbols = 16
+4 non-trivial divisors: [ 1 1+t -1+t 3 ]
+2 prime divisors: [ 1+t -1+t ]
+residues: 0,1,-1,t,1+t,-1+t,-t,1-t,-1-t
+invlist: [ 0 1 2 3 -1 -2 6 -3 -4 ]
+noninvlist: [ 0 4 5 7 8 ]
+noninvdlist: [ -1 1 2 2 1 ]
+dstarts = [ ]
+Number of special symbols = 2
+0:	(1+t:-1+t)
+1:	(-1+t:1+t)
+ OK
+>>>> Level (1+2t), norm = 9 <<<<	
+Level = 1+2t
+Number of symbols = 12
+3 non-trivial divisors: [ 1 -1+t 1+2t ]
+1 prime divisors: [ -1+t ]
+residues: 0,1,2,-1+t,t,-t,1-t,-2,-1
+invlist: [ 0 1 5 -1 7 2 -2 4 8 ]
+noninvlist: [ 0 3 6 ]
+noninvdlist: [ -1 1 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (3+t), norm = 11 <<<<	
+Level = 3+t
+Number of symbols = 12
+2 non-trivial divisors: [ 1 3+t ]
+1 prime divisors: [ 3+t ]
+residues: 0,1,-1-t,-t,1-t,2-t,-2+t,-1+t,t,1+t,-1
+invlist: [ 0 1 6 4 3 9 2 8 7 5 10 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2+2t), norm = 12 <<<<	
+Level = 2+2t
+Number of symbols = 24
+6 non-trivial divisors: [ 1 t 2 1+t -2+t 2+2t ]
+2 prime divisors: [ t 1+t ]
+residues: 0,1,2,1-2t,-2,-1,t,-1-t,-t,1-t,2-t,-1+t
+invlist: [ 0 1 -1 -2 -3 5 -4 -5 -6 9 -7 11 ]
+noninvlist: [ 0 2 3 4 6 7 8 10 ]
+noninvdlist: [ -1 2 3 2 1 3 1 4 ]
+dstarts = [ ]
+Number of special symbols = 4
+0:	(t:1-2t)
+1:	(2:1-2t)
+2:	(1+t:2)
+3:	(1+t:t)
+ OK
+>>>> Level (4), norm = 16 <<<<	
+Level = 4
+Number of symbols = 24
+5 non-trivial divisors: [ 1 t 2 2t 4 ]
+1 prime divisors: [ t ]
+residues: 0,1,-2,-1,t,1+t,-2+t,-1+t,-2t,1-2t,-2-2t,-1-2t,-t,1-t,-2-t,-1-t
+invlist: [ 0 1 -1 3 -2 7 -3 5 -4 9 -5 11 -6 15 -7 13 ]
+noninvlist: [ 0 2 4 6 8 10 12 14 ]
+noninvdlist: [ -1 2 1 1 3 2 1 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (3+2t), norm = 17 <<<<	
+Level = 3+2t
+Number of symbols = 18
+2 non-trivial divisors: [ 1 3+2t ]
+1 prime divisors: [ 3+2t ]
+residues: 0,1,2,-2t,1-2t,-2+t,-1+t,t,1+t,-1-t,-t,1-t,2-t,-1+2t,2t,-2,-1
+invlist: [ 0 1 9 6 13 7 3 5 15 2 12 14 10 4 11 8 16 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (4+t), norm = 18 <<<<	
+Level = 4+t
+Number of symbols = 36
+6 non-trivial divisors: [ 1 t 1+t -2+t -1+2t 4+t ]
+2 prime divisors: [ t 1+t ]
+residues: 0,1,2,-1-t,-t,1-t,2-t,-1-2t,-2t,1-2t,2t,1+2t,-2+t,-1+t,t,1+t,-2,-1
+invlist: [ 0 1 -1 -2 -3 11 -4 13 -5 -6 -7 5 -8 7 -9 -10 -11 17 ]
+noninvlist: [ 0 2 3 4 6 8 9 10 12 14 15 16 ]
+noninvdlist: [ -1 1 2 1 3 1 4 1 3 1 2 1 ]
+dstarts = [ ]
+Number of special symbols = 6
+0:	(t:-1-t)
+1:	(t:1-2t)
+2:	(t:1+t)
+3:	(1+t:2)
+4:	(1+t:-t)
+5:	(-1+2t:2)
+ OK
+>>>> Level (3t), norm = 18 <<<<	
+Level = 3t
+Number of symbols = 48
+8 non-trivial divisors: [ 1 t 1+t -2+t -1+t 2+t 3 3t ]
+3 prime divisors: [ t 1+t -1+t ]
+residues: 0,1,2,3,-2,-1,t,1+t,2+t,3+t,-2+t,-1+t,-t,1-t,2-t,3-t,-2-t,-1-t
+invlist: [ 0 1 -1 -2 -3 5 -4 -5 -6 9 -7 -8 -9 -10 -11 15 -12 -13 ]
+noninvlist: [ 0 2 3 4 6 7 8 10 11 12 13 14 16 17 ]
+noninvdlist: [ -1 1 6 1 1 2 5 3 4 1 4 3 5 2 ]
+dstarts = [ ]
+Number of special symbols = 16
+0:	(t:3)
+1:	(t:1+t)
+2:	(t:-1+t)
+3:	(t:1-t)
+4:	(t:-1-t)
+5:	(1+t:2)
+6:	(1+t:-2)
+7:	(1+t:2+t)
+8:	(1+t:-1+t)
+9:	(-2+t:-1+t)
+10:	(-1+t:2)
+11:	(-1+t:-2)
+12:	(-1+t:1+t)
+13:	(-1+t:-2+t)
+14:	(2+t:1+t)
+15:	(3:2)
+ OK
+>>>> Level (1+3t), norm = 19 <<<<	
+Level = 1+3t
+Number of symbols = 20
+2 non-trivial divisors: [ 1 1+3t ]
+1 prime divisors: [ 1+3t ]
+residues: 0,1,2,3,-2+t,-1+t,t,1+t,2+t,3+t,-3-t,-2-t,-1-t,-t,1-t,2-t,-3,-2,-1
+invlist: [ 0 1 10 13 5 4 16 11 12 17 2 7 8 3 15 14 6 9 18 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK

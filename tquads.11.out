@@ -1,0 +1,159 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
+Euclidean
+173 primes initialised, max norm = 1000
+
+w   = a
+w*w = -3+a
+Enter a Quad, a: a = 5+6a
+real(a) = 5
+imag(a) = 6
+quadconj(a) = 11-6a
+quadnorm(a) = 163
+Here are the first 20 primes out of 173 (one per line):
+a
+-1+a
+2
+1+a
+-2+a
+-1+2a
+4+a
+-5+a
+1+3a
+-4+3a
+2+3a
+-5+3a
+5+2a
+-7+2a
+7
+1+4a
+-5+4a
+7+a
+-8+a
+5+3a
+-8+3a
+b=a*a=-83+96a
+val(a,b) = 2
+div(a,b) = 1
+div(b,a) = 0
+b/a (=a?) = 5+6a 	--OK!
+a/3 = 2+2a
+c = a+b = -78+102a
+c-b (=a?)  = 5+6a 	--OK!
+pos(a) = 1
+Residues modulo a: [ 0 1 2 3 4 5 6 7 8 9 10 6-6a 7-6a 8-6a -9+5a -8+5a -7+5a -6+5a -5+5a -4+5a -3+5a -7-a -6-a -5-a -4-a -3-a -2-a -1-a -a 1-a 2-a 3-a 4-a 5-a 6-a 7-a 8-a 9-a 10-a 11-a 12-a -10+4a -9+4a -8+4a -7+4a -6+4a -5+4a -4+4a -3+4a -2+4a -1+4a -5-2a -4-2a -3-2a -2-2a -1-2a -2a 1-2a 2-2a 3-2a 4-2a 5-2a 6-2a 7-2a 8-2a 9-2a 10-2a 11-2a -11+3a -10+3a -9+3a -8+3a -7+3a -6+3a -5+3a -4+3a -3+3a -2+3a -1+3a 3a 1+3a 2+3a -2-3a -1-3a -3a 1-3a 2-3a 3-3a 4-3a 5-3a 6-3a 7-3a 8-3a 9-3a 10-3a 11-3a -11+2a -10+2a -9+2a -8+2a -7+2a -6+2a -5+2a -4+2a -3+2a -2+2a -1+2a 2a 1+2a 2+2a 3+2a 4+2a 5+2a 1-4a 2-4a 3-4a 4-4a 5-4a 6-4a 7-4a 8-4a 9-4a 10-4a -12+a -11+a -10+a -9+a -8+a -7+a -6+a -5+a -4+a -3+a -2+a -1+a a 1+a 2+a 3+a 4+a 5+a 6+a 7+a 3-5a 4-5a 5-5a 6-5a 7-5a 8-5a 9-5a -8+6a -7+6a -6+6a -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
+Testing primes divisor functions.
+Enter a: A prime divisor of a: a
+The list of all prime divisors of a: [ a 2 -2+a 5+3a ]
+Exponents: [ 1 1 1 1 ]
+The list of 16 divisors of a (up to units): 
+[ 1 a 2 2a -2+a 3+a -4+2a 6+2a 5+3a -9+8a 10+6a -18+16a -19+2a 6+17a -38+4a 12+34a ]
+The list of all 32 divisors of a: 
+[ 1 -1 a -a 2 -2 2a -2a -2+a 2-a -3-a 3+a -4+2a 4-2a -6-2a 6+2a 5+3a -5-3a -9+8a 9-8a 10+6a -10-6a -18+16a 18-16a -19+2a 19-2a -6-17a 6+17a -38+4a 38-4a -12-34a 12+34a ]
+The list of 1 divisors of a whose square divides: 
+[ 1 ]
+The list of 32 square-free divisors of a: 
+[ 1 -1 a -a 2 -2 2a -2a -2+a 2-a -3-a 3+a -4+2a 4-2a -6-2a 6+2a 5+3a -5-3a -9+8a 9-8a 10+6a -10-6a -18+16a 18-16a -19+2a 19-2a -6-17a 6+17a -38+4a 38-4a -12-34a 12+34a ]
+Testing gcd and bezout.
+Enter Quads a and b (a=0 to stop): gcd(12+34a,56+78a) = 2
+bezout returns x=-69+21a, y=28-6a, g=2.  OK!
+Enter Quads a and b (a=0 to stop): Systematic testing of bezout...quadbezout(a,a) = a
+quadbezout(a,-1+a) = 1
+quadbezout(a,2) = 1
+quadbezout(a,1+a) = 1
+quadbezout(a,-2+a) = 1
+quadbezout(a,-1+2a) = 1
+quadbezout(a,4+a) = 1
+quadbezout(a,-5+a) = 1
+quadbezout(a,1+3a) = 1
+quadbezout(a,-4+3a) = 1
+quadbezout(-1+a,a) = 1
+quadbezout(-1+a,-1+a) = -1+a
+quadbezout(-1+a,2) = 1
+quadbezout(-1+a,1+a) = 1
+quadbezout(-1+a,-2+a) = 1
+quadbezout(-1+a,-1+2a) = 1
+quadbezout(-1+a,4+a) = 1
+quadbezout(-1+a,-5+a) = 1
+quadbezout(-1+a,1+3a) = 1
+quadbezout(-1+a,-4+3a) = 1
+quadbezout(2,a) = 1
+quadbezout(2,-1+a) = 1
+quadbezout(2,2) = 2
+quadbezout(2,1+a) = 1
+quadbezout(2,-2+a) = 1
+quadbezout(2,-1+2a) = 1
+quadbezout(2,4+a) = 1
+quadbezout(2,-5+a) = 1
+quadbezout(2,1+3a) = 1
+quadbezout(2,-4+3a) = 1
+quadbezout(1+a,a) = 1
+quadbezout(1+a,-1+a) = 1
+quadbezout(1+a,2) = 1
+quadbezout(1+a,1+a) = 1+a
+quadbezout(1+a,-2+a) = 1
+quadbezout(1+a,-1+2a) = 1
+quadbezout(1+a,4+a) = 1
+quadbezout(1+a,-5+a) = 1
+quadbezout(1+a,1+3a) = 1
+quadbezout(1+a,-4+3a) = 1
+quadbezout(-2+a,a) = 1
+quadbezout(-2+a,-1+a) = 1
+quadbezout(-2+a,2) = 1
+quadbezout(-2+a,1+a) = 1
+quadbezout(-2+a,-2+a) = -2+a
+quadbezout(-2+a,-1+2a) = 1
+quadbezout(-2+a,4+a) = 1
+quadbezout(-2+a,-5+a) = 1
+quadbezout(-2+a,1+3a) = 1
+quadbezout(-2+a,-4+3a) = 1
+quadbezout(-1+2a,a) = 1
+quadbezout(-1+2a,-1+a) = 1
+quadbezout(-1+2a,2) = 1
+quadbezout(-1+2a,1+a) = 1
+quadbezout(-1+2a,-2+a) = 1
+quadbezout(-1+2a,-1+2a) = -1+2a
+quadbezout(-1+2a,4+a) = 1
+quadbezout(-1+2a,-5+a) = 1
+quadbezout(-1+2a,1+3a) = 1
+quadbezout(-1+2a,-4+3a) = 1
+quadbezout(4+a,a) = 1
+quadbezout(4+a,-1+a) = 1
+quadbezout(4+a,2) = 1
+quadbezout(4+a,1+a) = 1
+quadbezout(4+a,-2+a) = 1
+quadbezout(4+a,-1+2a) = 1
+quadbezout(4+a,4+a) = 4+a
+quadbezout(4+a,-5+a) = 1
+quadbezout(4+a,1+3a) = 1
+quadbezout(4+a,-4+3a) = 1
+quadbezout(-5+a,a) = 1
+quadbezout(-5+a,-1+a) = 1
+quadbezout(-5+a,2) = 1
+quadbezout(-5+a,1+a) = 1
+quadbezout(-5+a,-2+a) = 1
+quadbezout(-5+a,-1+2a) = 1
+quadbezout(-5+a,4+a) = 1
+quadbezout(-5+a,-5+a) = -5+a
+quadbezout(-5+a,1+3a) = 1
+quadbezout(-5+a,-4+3a) = 1
+quadbezout(1+3a,a) = 1
+quadbezout(1+3a,-1+a) = 1
+quadbezout(1+3a,2) = 1
+quadbezout(1+3a,1+a) = 1
+quadbezout(1+3a,-2+a) = 1
+quadbezout(1+3a,-1+2a) = 1
+quadbezout(1+3a,4+a) = 1
+quadbezout(1+3a,-5+a) = 1
+quadbezout(1+3a,1+3a) = 1+3a
+quadbezout(1+3a,-4+3a) = 1
+quadbezout(-4+3a,a) = 1
+quadbezout(-4+3a,-1+a) = 1
+quadbezout(-4+3a,2) = 1
+quadbezout(-4+3a,1+a) = 1
+quadbezout(-4+3a,-2+a) = 1
+quadbezout(-4+3a,-1+2a) = 1
+quadbezout(-4+3a,4+a) = 1
+quadbezout(-4+3a,-5+a) = 1
+quadbezout(-4+3a,1+3a) = 1
+quadbezout(-4+3a,-4+3a) = -4+3a
+done.

@@ -1,0 +1,12 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Euclidean
+25 primes initialised, max norm = 100
+
+Enter Quads, a and b: a = 12+34w
+b = 56+78w
+q = a/b = (6+17w)/(28+39w)
+b*q==a? 1
+round(q) = 0
+reduce(q) = (6+17w)/(28+39w)
+q==round(q)+reduce(q)? 1
+recip(q) = (28+39w)/(6+17w)

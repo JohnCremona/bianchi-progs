@@ -1,0 +1,159 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
+Euclidean
+169 primes initialised, max norm = 1000
+
+w   = t
+w*w = -2
+Enter a Quad, a: a = 5+6t
+real(a) = 5
+imag(a) = 6
+quadconj(a) = 5-6t
+quadnorm(a) = 97
+Here are the first 20 primes out of 169 (one per line):
+t
+1+t
+-1+t
+3+t
+-3+t
+3+2t
+-3+2t
+1+3t
+-1+3t
+5
+3+4t
+-3+4t
+5+3t
+-5+3t
+7
+3+5t
+-3+5t
+7+3t
+-7+3t
+1+6t
+-1+6t
+b=a*a=-47+60t
+val(a,b) = 2
+div(a,b) = 1
+div(b,a) = 0
+b/a (=a?) = 5+6t 	--OK!
+a/3 = 2+2t
+c = a+b = -42+66t
+c-b (=a?)  = 5+6t 	--OK!
+pos(a) = 1
+Residues modulo a: [ 0 1 2 3 4 5 6 7 8 -3+5t -7-t -6-t -5-t -4-t -3-t -2-t -1-t -t 1-t 2-t 3-t 4-t 5-t 6-t 7-t -4+4t -3+4t -2+4t -1+4t 4t -4-2t -3-2t -2-2t -1-2t -2t 1-2t 2-2t 3-2t 4-2t 5-2t 6-2t -5+3t -4+3t -3+3t -2+3t -1+3t 3t 1+3t 2+3t -2-3t -1-3t -3t 1-3t 2-3t 3-3t 4-3t 5-3t -6+2t -5+2t -4+2t -3+2t -2+2t -1+2t 2t 1+2t 2+2t 3+2t 4+2t -4t 1-4t 2-4t 3-4t 4-4t -7+t -6+t -5+t -4+t -3+t -2+t -1+t t 1+t 2+t 3+t 4+t 5+t 6+t 7+t 3-5t -8 -7 -6 -5 -4 -3 -2 -1 ]
+Testing primes divisor functions.
+Enter a: A prime divisor of a: t
+The list of all prime divisors of a: [ t -17+3t ]
+Exponents: [ 3 1 ]
+The list of 8 divisors of a (up to units): 
+[ 1 t 2 2t -17+3t 6+17t -34+6t 12+34t ]
+The list of all 16 divisors of a: 
+[ 1 -1 t -t -2 2 -2t 2t -17+3t 17-3t -6-17t 6+17t 34-6t -34+6t 12+34t -12-34t ]
+The list of 2 divisors of a whose square divides: 
+[ 1 t ]
+The list of 8 square-free divisors of a: 
+[ 1 -1 t -t -17+3t 17-3t -6-17t 6+17t ]
+Testing gcd and bezout.
+Enter Quads a and b (a=0 to stop): gcd(12+34t,56+78t) = 2t
+bezout returns x=9-4t, y=-4+t, g=2t.  OK!
+Enter Quads a and b (a=0 to stop): Systematic testing of bezout...quadbezout(t,t) = t
+quadbezout(t,1+t) = 1
+quadbezout(t,-1+t) = 1
+quadbezout(t,3+t) = 1
+quadbezout(t,-3+t) = 1
+quadbezout(t,3+2t) = 1
+quadbezout(t,-3+2t) = 1
+quadbezout(t,1+3t) = 1
+quadbezout(t,-1+3t) = 1
+quadbezout(t,5) = 1
+quadbezout(1+t,t) = 1
+quadbezout(1+t,1+t) = 1+t
+quadbezout(1+t,-1+t) = 1
+quadbezout(1+t,3+t) = 1
+quadbezout(1+t,-3+t) = 1
+quadbezout(1+t,3+2t) = 1
+quadbezout(1+t,-3+2t) = 1
+quadbezout(1+t,1+3t) = 1
+quadbezout(1+t,-1+3t) = 1
+quadbezout(1+t,5) = 1
+quadbezout(-1+t,t) = 1
+quadbezout(-1+t,1+t) = 1
+quadbezout(-1+t,-1+t) = -1+t
+quadbezout(-1+t,3+t) = 1
+quadbezout(-1+t,-3+t) = 1
+quadbezout(-1+t,3+2t) = 1
+quadbezout(-1+t,-3+2t) = 1
+quadbezout(-1+t,1+3t) = 1
+quadbezout(-1+t,-1+3t) = 1
+quadbezout(-1+t,5) = 1
+quadbezout(3+t,t) = 1
+quadbezout(3+t,1+t) = 1
+quadbezout(3+t,-1+t) = 1
+quadbezout(3+t,3+t) = 3+t
+quadbezout(3+t,-3+t) = 1
+quadbezout(3+t,3+2t) = 1
+quadbezout(3+t,-3+2t) = 1
+quadbezout(3+t,1+3t) = 1
+quadbezout(3+t,-1+3t) = 1
+quadbezout(3+t,5) = 1
+quadbezout(-3+t,t) = 1
+quadbezout(-3+t,1+t) = 1
+quadbezout(-3+t,-1+t) = 1
+quadbezout(-3+t,3+t) = 1
+quadbezout(-3+t,-3+t) = -3+t
+quadbezout(-3+t,3+2t) = 1
+quadbezout(-3+t,-3+2t) = 1
+quadbezout(-3+t,1+3t) = 1
+quadbezout(-3+t,-1+3t) = 1
+quadbezout(-3+t,5) = 1
+quadbezout(3+2t,t) = 1
+quadbezout(3+2t,1+t) = 1
+quadbezout(3+2t,-1+t) = 1
+quadbezout(3+2t,3+t) = 1
+quadbezout(3+2t,-3+t) = 1
+quadbezout(3+2t,3+2t) = 3+2t
+quadbezout(3+2t,-3+2t) = 1
+quadbezout(3+2t,1+3t) = 1
+quadbezout(3+2t,-1+3t) = 1
+quadbezout(3+2t,5) = 1
+quadbezout(-3+2t,t) = 1
+quadbezout(-3+2t,1+t) = 1
+quadbezout(-3+2t,-1+t) = 1
+quadbezout(-3+2t,3+t) = 1
+quadbezout(-3+2t,-3+t) = 1
+quadbezout(-3+2t,3+2t) = 1
+quadbezout(-3+2t,-3+2t) = -3+2t
+quadbezout(-3+2t,1+3t) = 1
+quadbezout(-3+2t,-1+3t) = 1
+quadbezout(-3+2t,5) = 1
+quadbezout(1+3t,t) = 1
+quadbezout(1+3t,1+t) = 1
+quadbezout(1+3t,-1+t) = 1
+quadbezout(1+3t,3+t) = 1
+quadbezout(1+3t,-3+t) = 1
+quadbezout(1+3t,3+2t) = 1
+quadbezout(1+3t,-3+2t) = 1
+quadbezout(1+3t,1+3t) = 1+3t
+quadbezout(1+3t,-1+3t) = 1
+quadbezout(1+3t,5) = 1
+quadbezout(-1+3t,t) = 1
+quadbezout(-1+3t,1+t) = 1
+quadbezout(-1+3t,-1+t) = 1
+quadbezout(-1+3t,3+t) = 1
+quadbezout(-1+3t,-3+t) = 1
+quadbezout(-1+3t,3+2t) = 1
+quadbezout(-1+3t,-3+2t) = 1
+quadbezout(-1+3t,1+3t) = 1
+quadbezout(-1+3t,-1+3t) = -1+3t
+quadbezout(-1+3t,5) = 1
+quadbezout(5,t) = 1
+quadbezout(5,1+t) = 1
+quadbezout(5,-1+t) = 1
+quadbezout(5,3+t) = 1
+quadbezout(5,-3+t) = 1
+quadbezout(5,3+2t) = 1
+quadbezout(5,-3+2t) = 1
+quadbezout(5,1+3t) = 1
+quadbezout(5,-1+3t) = 1
+quadbezout(5,5) = 5
+done.

@@ -1,0 +1,182 @@
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level (a), norm = 2 <<<<	
+Level = a
+Number of symbols = 3
+2 non-trivial divisors: [ 1 a ]
+1 prime divisors: [ a ]
+residues: 0,1
+invlist: [ 0 1 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2), norm = 4 <<<<	
+Level = 2
+Number of symbols = 9
+4 non-trivial divisors: [ 1 a -1+a 2 ]
+2 prime divisors: [ a -1+a ]
+residues: 0,-1,-a,1-a
+invlist: [ 0 1 -1 -2 ]
+noninvlist: [ 0 2 3 ]
+noninvdlist: [ -1 1 2 ]
+dstarts = [ ]
+Number of special symbols = 2
+0:	(a:1-a)
+1:	(-1+a:-a)
+ OK
+>>>> Level (1+a), norm = 4 <<<<	
+Level = 1+a
+Number of symbols = 6
+3 non-trivial divisors: [ 1 -1+a 1+a ]
+1 prime divisors: [ -1+a ]
+residues: 0,1,1-a,-1
+invlist: [ 0 1 -1 3 ]
+noninvlist: [ 0 2 ]
+noninvdlist: [ -1 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (-1+2a), norm = 7 <<<<	
+Level = -1+2a
+Number of symbols = 8
+2 non-trivial divisors: [ 1 -1+2a ]
+1 prime divisors: [ -1+2a ]
+residues: 0,1,-1-a,-a,1-a,2-a,-1
+invlist: [ 0 1 4 5 2 3 6 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2+a), norm = 8 <<<<	
+Level = 2+a
+Number of symbols = 12
+4 non-trivial divisors: [ 1 a -2+a 2+a ]
+1 prime divisors: [ a ]
+residues: 0,1,-a,1-a,2-a,-1+a,a,-1
+invlist: [ 0 1 -1 3 -2 5 -3 7 ]
+noninvlist: [ 0 2 4 6 ]
+noninvdlist: [ -1 1 2 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (2a), norm = 8 <<<<	
+Level = 2a
+Number of symbols = 18
+6 non-trivial divisors: [ 1 a -2+a -1+a 2 2a ]
+2 prime divisors: [ a -1+a ]
+residues: 0,1,2,-1,-a,1-a,2-a,-1+a
+invlist: [ 0 1 -1 3 -2 -3 -4 -5 ]
+noninvlist: [ 0 2 4 5 6 7 ]
+noninvdlist: [ -1 4 1 3 2 3 ]
+dstarts = [ ]
+Number of special symbols = 4
+0:	(a:1-a)
+1:	(-2+a:1-a)
+2:	(-1+a:-a)
+3:	(-1+a:2-a)
+ OK
+>>>> Level (3), norm = 9 <<<<	
+Level = 3
+Number of symbols = 10
+2 non-trivial divisors: [ 1 3 ]
+1 prime divisors: [ 3 ]
+residues: 0,1,-1,a,-2+a,-1+a,-a,1-a,-1-a
+invlist: [ 0 1 2 5 8 3 7 6 4 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (1+2a), norm = 11 <<<<	
+Level = 1+2a
+Number of symbols = 12
+2 non-trivial divisors: [ 1 1+2a ]
+1 prime divisors: [ 1+2a ]
+residues: 0,1,2,-2+a,-1+a,a,-a,1-a,2-a,-2,-1
+invlist: [ 0 1 6 4 3 9 2 8 7 5 10 ]
+noninvlist: [ 0 ]
+noninvdlist: [ -1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (3+a), norm = 14 <<<<	
+Level = 3+a
+Number of symbols = 24
+4 non-trivial divisors: [ 1 -1+a -1+2a 3+a ]
+2 prime divisors: [ -1+a -1+2a ]
+residues: 0,1,-1-a,-a,1-a,2-a,-2a,1-2a,-3+a,-2+a,-1+a,a,-2,-1
+invlist: [ 0 1 -1 5 -2 3 -3 -4 -5 11 -6 9 -7 13 ]
+noninvlist: [ 0 2 4 6 7 8 10 12 ]
+noninvdlist: [ -1 1 1 1 2 1 1 1 ]
+dstarts = [ ]
+Number of special symbols = 2
+0:	(-1+a:1-2a)
+1:	(-1+2a:-1-a)
+ OK
+>>>> Level (4), norm = 16 <<<<	
+Level = 4
+Number of symbols = 36
+9 non-trivial divisors: [ 1 a -2+a -1+a 2 2a 1+a -2+2a 4 ]
+2 prime divisors: [ a -1+a ]
+residues: 0,1,-2,-1,a,1+a,-2+a,-1+a,-2a,1-2a,2-2a,-1-2a,-a,1-a,2-a,-1-a
+invlist: [ 0 1 -1 3 -2 -3 -4 -5 -6 9 -7 11 -8 -9 -10 -11 ]
+noninvlist: [ 0 2 4 5 6 7 8 10 12 13 14 15 ]
+noninvdlist: [ -1 4 1 6 2 3 5 7 1 3 2 6 ]
+dstarts = [ ]
+Number of special symbols = 8
+0:	(a:1+a)
+1:	(a:-1+a)
+2:	(-2+a:1+a)
+3:	(-2+a:-1+a)
+4:	(-1+a:a)
+5:	(-1+a:-2+a)
+6:	(1+a:a)
+7:	(1+a:-2+a)
+ OK
+>>>> Level (2+2a), norm = 16 <<<<	
+Level = 2+2a
+Number of symbols = 36
+8 non-trivial divisors: [ 1 a -1+a 2 1+a -2+2a -3+a 2+2a ]
+2 prime divisors: [ a -1+a ]
+residues: 0,1,2,1-2a,2-2a,-1+2a,-2,-1,a,-1-a,-a,1-a,2-a,3-a,-2+a,-1+a
+invlist: [ 0 1 -1 3 -2 5 -3 7 -4 -5 -6 -7 -8 -9 -10 -11 ]
+noninvlist: [ 0 2 4 6 8 9 10 11 12 13 14 15 ]
+noninvdlist: [ -1 3 5 3 1 4 1 2 1 6 1 2 ]
+dstarts = [ ]
+Number of special symbols = 8
+0:	(a:-1-a)
+1:	(a:1-a)
+2:	(a:3-a)
+3:	(a:-1+a)
+4:	(-1+a:a)
+5:	(-1+a:-a)
+6:	(1+a:a)
+7:	(-3+a:a)
+ OK
+>>>> Level (-1+3a), norm = 16 <<<<	
+Level = -1+3a
+Number of symbols = 24
+5 non-trivial divisors: [ 1 -1+a 1+a -3+a -1+3a ]
+1 prime divisors: [ -1+a ]
+residues: 0,1,2,-2-a,-1-a,-a,1-a,2-a,3-a,-2+a,-1+a,a,1+a,2+a,-2,-1
+invlist: [ 0 1 -1 11 -2 13 -3 7 -4 9 -5 3 -6 5 -7 15 ]
+noninvlist: [ 0 2 4 6 8 10 12 14 ]
+noninvdlist: [ -1 1 2 1 3 1 2 1 ]
+dstarts = [ ]
+Number of special symbols = 0
+ OK
+>>>> Level (3a), norm = 18 <<<<	
+Level = 3a
+Number of symbols = 30
+4 non-trivial divisors: [ 1 a 3 3a ]
+2 prime divisors: [ a 3 ]
+residues: 0,1,2,3,-2,-1,a,1+a,2-2a,3-2a,-2+a,-1+a,-a,1-a,2-a,3-a,-2-a,-1-a
+invlist: [ 0 1 -1 -2 -3 5 -4 17 -5 11 -6 9 -7 15 -8 13 -9 7 ]
+noninvlist: [ 0 2 3 4 6 8 10 12 14 16 ]
+noninvdlist: [ -1 1 2 1 1 1 1 1 1 1 ]
+dstarts = [ ]
+Number of special symbols = 2
+0:	(a:3)
+1:	(3:2)
+ OK
