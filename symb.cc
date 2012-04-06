@@ -119,8 +119,12 @@ int symbdata::check(int verbose) const
   if (i!=j) cout << i << "-->" << s << "-->" << j << endl;
  }
  if(verbose)
-   if (ok) cout << "symbols check OK!"<<endl;
-   else cout << "symbols check found errors!"<<endl;
+   {
+     if (ok) 
+       cout << "symbols check OK!"<<endl;
+     else 
+       cout << "symbols check found errors!"<<endl;
+   }
  return ok&&moddataok;
 }
 

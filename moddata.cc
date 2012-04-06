@@ -121,10 +121,12 @@ int moddata::check(int verbose) const //checks whether resnum & numres work OK
       ok&=(i==numres(resi));
     }
   if(verbose)
-    if(ok)
-      cout << "residue numering OK!" << endl;
-    else 
-      cout << "residue numering NOT OK!" << endl;
+    {
+      if(ok)
+        cout << "residue numering OK!" << endl;
+      else 
+        cout << "residue numering NOT OK!" << endl;
+    }
   return ok;
 }
 

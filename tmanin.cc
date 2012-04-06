@@ -43,6 +43,7 @@ int main ()
                // (level, use_old, verbose)
      machine.display();
      machine.getap(startp,stopp,output,efilename,1);
+     cout<<"==========================================="<<endl;
    }
  cout<<endl;
 }

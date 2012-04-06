@@ -111,10 +111,15 @@ void manin::getap(int first, int last, int output, string eigfile, int verbose)
 {
   ofstream out;
   if(output) 
-    if(first>1) {out.open(eigfile.c_str(),ios::app);}   //append
-    else {out.open(eigfile.c_str());
+    {
+      if(first>1) 
+        {out.open(eigfile.c_str(),ios::app);}   //append
+      else 
+        {
+          out.open(eigfile.c_str());
           out<<n1ds<<" "<<n2ds<<endl;
         }
+    }
   if(n1ds>0)
     {
       if(output&&(first==1))out<<last<<endl<<endl;

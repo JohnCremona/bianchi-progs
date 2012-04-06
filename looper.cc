@@ -28,7 +28,12 @@ void Quadlooper::bstep()
 void Quadlooper::nstep()
 {
   n++;
-  while(kronecker(-d,n)==-1) n++;
+  if (n==nlim) return;
+  while(kronecker(-d,n)==-1) 
+    {
+      n++;
+      if (n==nlim) return;
+    }
   setbsqlim();
 }
 

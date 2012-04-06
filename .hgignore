@@ -1,0 +1,10 @@
+# use glob syntax.
+syntax: glob
+
+*~
+eigs1/
+eigs2/
+eigs3/
+eigs7/
+eigs11/
+luiz/

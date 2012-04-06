@@ -1,8 +1,9 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-#define USE_SMATS   // define in Makefile to use sparse matrix methods
+//#define USE_SMATS   // define in Makefile to use sparse matrix methods
 
 #include "homspace.h"
+#include "msubspace.h"
 const string W_opname("W");
 const string T_opname("T");
 
@@ -370,6 +371,9 @@ if(verbose)
       cout << "Finished face relations: ";
       cout << "number of relations = " << numrel;
       cout << " (bound was "<<maxnumrel<<")"<<endl;
+#ifdef USE_SMATS
+      cout << "relmat = \n" << relmat<<endl;
+#endif
     }
 
    vec pivs, npivs;
@@ -396,11 +400,11 @@ if(verbose)
     {
       cout << "relmat = "; relmat.output_pari(cout); cout << endl;
     }
-  subspace sp = kernel(relmat,2);
+  msubspace sp = kernel(mat_m(relmat),0);
   rk = dim(sp);
-  coord = basis(sp);
+  coord = basis(sp).shorten((int)1);
   pivs = pivots(sp);
-  denom1 = denom(sp);
+  denom1 = I2int(denom(sp));
   relmat.init(); newrel.init(); sp.clear(); 
 #endif
   if (verbose) 
@@ -534,7 +538,7 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
      { vec colj = applyop(mlist,freemods[j]);
        m.setcol(j+1,colj);
      }
-  m = restrict(m,kern);
+  m = restrict_mat(m,kern);
   if(dual) {  m=transpose(m);}
   if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
   if (display && (dimension>1)) cout << endl;
