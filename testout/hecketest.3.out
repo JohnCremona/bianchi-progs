@@ -1,14 +1,22 @@
 Enter field: Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
 Euclidean
 1236 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? Enter level: >>>> Level (21), norm = 441 <<<<
-Dimension = 3
-Computing W(1+w)...  done. Involution!
-Computing W(2+w)...  done. Involution!
-Computing W(1+2w)...  done. Involution!
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level (21), norm = 441 <<<<
+Dimension = 14
+Computing W(1+w)...  done. 
+Involution!
+Computing W(2+w)...  done. 
+Involution!
+Computing W(1+2w)...  done. 
+Involution!
 How many Hecke matrices T_p (max 1236)? Computing T_p for p = 2
-done. Computing T_p for p = 3+w
-done. Computing T_p for p = 1+3w
-done. Computing T_p for p = 3+2w
-done. Computing T_p for p = 2+3w
-done. Enter level: 
+done. 
+Computing T_p for p = 3+w
+done. 
+Computing T_p for p = 1+3w
+done. 
+Computing T_p for p = 3+2w
+done. 
+Computing T_p for p = 2+3w
+done. 
+Enter level: 

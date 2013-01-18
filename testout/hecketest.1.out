@@ -1,48 +1,20 @@
 Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? Enter level: >>>> Level (12), norm = 144 <<<<
-Dimension = 3
-Computing W(1+i)...  Matrix of W(1+i) = 
-[[0,0,-1],
-[0,-1,0],
-[-1,0,0]]
-
-done. Involution!
-Computing W(3)...  Matrix of W(3) = 
-[[-1,0,0],
-[0,-1,0],
-[0,0,-1]]
-
-done. Involution!
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level (12), norm = 144 <<<<
+Dimension = 14
+Computing W(1+i)...  done. 
+Involution!
+Computing W(3)...  done. 
+Involution!
 How many Hecke matrices T_p (max 1232)? Computing T_p for p = 2+i
-Matrix of T(2+i) = 
-[[0,-2,2],
-[0,-2,0],
-[2,-2,0]]
-
-done. Computing T_p for p = 1+2i
-Matrix of T(1+2i) = 
-[[-2,0,0],
-[0,-2,0],
-[0,0,-2]]
-
-done. Computing T_p for p = 3+2i
-Matrix of T(3+2i) = 
-[[-2,0,0],
-[0,-2,0],
-[0,0,-2]]
-
-done. Computing T_p for p = 2+3i
-Matrix of T(2+3i) = 
-[[0,-2,2],
-[0,-2,0],
-[2,-2,0]]
-
-done. Computing T_p for p = 4+i
-Matrix of T(4+i) = 
-[[0,2,-2],
-[0,2,0],
-[-2,2,0]]
-
-done. Enter level: 
+done. 
+Computing T_p for p = 1+2i
+done. 
+Computing T_p for p = 3+2i
+done. 
+Computing T_p for p = 2+3i
+done. 
+Computing T_p for p = 4+i
+done. 
+Enter level: 

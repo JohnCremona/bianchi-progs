@@ -1,13 +1,20 @@
 Enter field: Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
 Euclidean
 1237 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? Enter level: >>>> Level (3+5a), norm = 99 <<<<
-Dimension = 4
-Computing W(a)...  done. Involution!
-Computing W(-1+2a)...  done. Involution!
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level (3+5a), norm = 99 <<<<
+Dimension = 9
+Computing W(a)...  done. 
+Involution!
+Computing W(-1+2a)...  done. 
+Involution!
 How many Hecke matrices T_p (max 1237)? Computing T_p for p = -1+a
-done. Computing T_p for p = 2
-done. Computing T_p for p = 1+a
-done. Computing T_p for p = -2+a
-done. Computing T_p for p = 4+a
-done. Enter level: 
+done. 
+Computing T_p for p = 2
+done. 
+Computing T_p for p = 1+a
+done. 
+Computing T_p for p = -2+a
+done. 
+Computing T_p for p = 4+a
+done. 
+Enter level: 
