@@ -1,5 +1,5 @@
 #include <iostream>
-#include "arith.h"
+#include "eclib/arith.h"
 #include "ratquads.h"
 
 int main ()

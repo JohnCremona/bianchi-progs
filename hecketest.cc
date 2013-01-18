@@ -1,6 +1,6 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
-#include "subspace.h"
+#include <eclib/subspace.h>
 #include "homspace.h"
 //#define LOOPER
 #ifdef LOOPER
@@ -13,7 +13,7 @@ int main(void)
 {
  int d,max=10000;
  int np,ip,jp,nq; 
- long firstn, lastn; Quad n; int verbose, plusflag;
+ long firstn, lastn; Quad n; int mats, pols, plusflag;
  cout << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
@@ -23,7 +23,8 @@ int main(void)
  Quad::field(d,max);
  Quad::displayfield(cout);
  cout << "Plus space (0/1)? "; cin>>plusflag;
- cout << "See the hecke matrices (0/1)? "; cin >> verbose;
+ cout << "See the hecke matrices (0/1)? "; cin >> mats;
+ cout << "See the char polys (0/1)? "; cin >> pols;
 #ifdef LOOPER
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
@@ -55,8 +56,11 @@ int main(void)
 	{
 	  Quad q=*pr;
 	  cout << "Computing W("<<q<<")...  " << flush;
-	  wq=h.heckeop(q,0,verbose);
+	  wq=h.heckeop(q,0,mats);
 	  cout << "done. " << flush;
+          if (pols)
+            cout << "char poly coeffs = " << charpoly(wq);
+          cout << endl;
 	  if (wq*wq==id) cout << "Involution!" << "\n";
 	  else           cout << "NOT an involution...." << "\n";
 	  wqlist.push_back(wq);
@@ -73,8 +77,11 @@ int main(void)
 	  while (n%(*pr)==0) {pr++; np++;}
 	  p=*pr;
 	  cout << "Computing T_p for p = " << p << "\n";
-	  tp = h.heckeop(p,0,verbose);
+	  tp = h.heckeop(p,0,mats);
 	  cout << "done. " << flush;
+          if (pols)
+            cout << "char poly coeffs = " << charpoly(tp);
+          cout<<endl;
 	  for (int kp=0; kp<nq; kp++)
 	    {
 	      if (wqlist[kp]*tp!=tp*wqlist[kp])

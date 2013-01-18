@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "arith.h"
+#include <eclib/arith.h>
 #include "quads.h"
 
 int main ()

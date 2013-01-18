@@ -4,9 +4,9 @@ METHOD = 2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -g  -Wall -DMETHOD=$(METHOD)
+OPTFLAG = -g  -Wall -DMETHOD=$(METHOD) -DNTL_ALL -DUSE_PARI_FACTORING
 
-ECLIB_BASE=$(HOME)/progs
+ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -15,7 +15,7 @@ RANLIB = ranlib
 CP = cp -p
 
 CFLAGS = -c $(OPTFLAG)  -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
-LFLAGS = -ljc -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
+LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
 
 sources: ccs headers
 	chmod a+r *.h *.cc

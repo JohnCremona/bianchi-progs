@@ -4,9 +4,9 @@
 #define _NEWFORMS_H      1       //flags that this file has been included
 
 #ifdef USE_XSPLIT
-#include "xsplit.h"   // which includes method.h
+#include <eclib/xsplit.h>   // which includes method.h
 #endif
-#include "rat.h"
+#include <eclib/rat.h>
 #include "oldforms.h"
 #include "homspace.h"
 

@@ -1,4 +1,4 @@
-#include "subspace.h"
+#include <eclib/subspace.h>
 #include "homspace.h"   // which includes quads.h & moddata.h
 #define LOOPER
 #ifdef LOOPER
@@ -37,7 +37,7 @@ int main ()
      if(verbose) cout<<endl;
      else cout << "\t";
      homspace h(n,plusflag,verbose);  //level, plusflag, verbose
-     cout << "Dimension = " << h.h1dim() << endl;
+     cout << "Dimension = " << h.h1cuspdim() << endl;
    }
 
 }

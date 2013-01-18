@@ -3,12 +3,12 @@
 #if     !defined(_HOMSPACE_H)
 #define _HOMSPACE_H      1       //flags that this file has been included
 
-#include "arith.h"
-#include "method.h"
-#include "subspace.h"
-#include "smatrix.h"
+#include <eclib/arith.h>
+#include <eclib/method.h>
+#include <eclib/subspace.h>
+#include <eclib/smatrix.h>
 #ifdef USE_SMATS
-#include "smatrix_elim.h"
+#include <eclib/smatrix_elim.h>
 #endif
 #include "moddata.h"
 #include "cusp.h"
@@ -20,7 +20,7 @@ private:
   int verbose;
    int *coordindex,*needed,*freegens;
    long rk,denom1,denom2;
-   subspace kern;
+   ssubspace kern;
    modsym *freemods;
    mat opmat(long, int dual=1, int verb=0);
    mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
@@ -28,11 +28,11 @@ private:
    smat s_opmat(int i,int dual,int verb=0);
    smat s_opmat_restricted(int i,const ssubspace& s, int dual,int verb=0);
    long matdim(void) {return dimension;} 
-   long matden(void) {return denom3;}
    vector<long> eigrange(long i);
  protected:
    mat coord, projcoord;
    long dimension, denom3, ncusps;
+   int cuspidal;  // if 1 then compute cuspidal homology
    mat relmat; long numrel, maxnumrel;
    void userel(vec& rel);
  public:
@@ -40,8 +40,10 @@ private:
    ~homspace() {delete[] coordindex; delete[] needed; 
                 delete[] freegens; delete[] freemods;
               }
+   long h1cuspdim() const {return dim(kern);}
    long h1dim() const {return dimension;}  // No confusion with subspace::dim
-   long h1denom() const {return denom3;}
+   long h1denom() const {return denom1;}
+   long h1cdenom() const {return denom3;}
    long h1ncusps() const {return ncusps;}
  public:
    vec chain(const symb& s) const;

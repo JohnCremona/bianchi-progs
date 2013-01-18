@@ -3,7 +3,7 @@
 #if     !defined(_MODDATA_H)
 #define _MODDATA_H      1       //flags that this file has been included
 
-#include "arith.h"   // even better, get quads.h to include this
+#include <eclib/arith.h>   // even better, get quads.h to include this
 #include "quads.h"
 
 class level {

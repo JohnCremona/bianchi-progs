@@ -5,7 +5,7 @@
 #include <iostream>
 
 //#include "vector.h"  // needed for zbasis functions for non-Euclidean fields.
-#include "arith.h"
+#include <eclib/arith.h>
 #include "quads.h"
 
 //Declare static data members of class Quad:

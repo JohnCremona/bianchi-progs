@@ -3,7 +3,7 @@
 #if     !defined(_QUADS_H)
 #define _QUADS_H      1       //flags that this file has been included
 
-#include <interface.h>
+#include <eclib/interface.h>
 #define PI M_PI
 
 long roundover(long aa, long bb);

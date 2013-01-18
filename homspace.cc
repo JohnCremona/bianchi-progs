@@ -2,8 +2,8 @@
 
 //#define USE_SMATS   // define in Makefile to use sparse matrix methods
 
+#include <eclib/msubspace.h>
 #include "homspace.h"
-#include "msubspace.h"
 const string W_opname("W");
 const string T_opname("T");
 
@@ -24,6 +24,7 @@ void homspace::userel(vec& rel)
 homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
 {
   verbose=verb;
+  cuspidal=0;
   if (verbose) symbdata::display();
   long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp
@@ -442,22 +443,29 @@ if(verbose)
        }
      ncusps=cusps.count();
      if(verbose)cout << "ncusps = " << ncusps << endl;
-     kern = kernel(deltamat);
+     kern = kernel(smat(deltamat));
+     vec pivs, npivs;
+     int d2;
+     smat sk = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,d2);
+     denom2=d2;
   }
-  dimension = dim(kern);
-  denom2 = denom(kern);
+   if(cuspidal)
+     dimension = dim(kern);
+   else
+     dimension = rk;
   denom3 = denom1 * denom2;
   freemods = new modsym[rk]; if (!freemods) exit(1);
   needed   = new int[rk];    if (!needed) exit(1);
   
   if (dimension>0)
     {
-      const mat& basiskern = basis(kern);
+      const smat& basiskern = basis(kern);
       if (verbose)  cout << "Freemods:\n";
       for (i=0; i<rk; i++)
         {
           freemods[i] = modsym(symbol(freegens[i])) ;
-          needed[i]   =  ! trivial(basiskern.row(i+1));
+          needed[i]   =  (cuspidal? ! trivial(basiskern.row(i+1).as_vec())
+                          : 1);
           if (verbose) 
             {
               cout << i << ": " << freemods[i];
@@ -538,7 +546,7 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
      { vec colj = applyop(mlist,freemods[j]);
        m.setcol(j+1,colj);
      }
-  m = restrict_mat(m,kern);
+  if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
   if(dual) {  m=transpose(m);}
   if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
   if (display && (dimension>1)) cout << endl;
@@ -553,7 +561,12 @@ smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist,
      { svec colj = applyop(mlist,freemods[j]);
        m.setrow(j+1,colj);
      }
-  if(!dual) {m=transpose(m);}
+  if(cuspidal)
+    {
+      m = restrict_mat(transpose(m),kern);
+      if(dual) m = transpose(m);
+    }
+  else if(!dual) {m=transpose(m);}
   if (display) 
     {
       cout << "Matrix of " << opname << "(" << p << ") = ";
@@ -590,10 +603,13 @@ smat homspace::s_calcop_restricted(const string opname, const Quad& p, const mat
        svec colj = applyop(mlist,freemods[jj-1]);
        m.setrow(j,colj);
      }
-  m = m*basis(s);
+  m = mult_mod_p(m,basis(s),MODULUS);
   if(!dual) m=transpose(m); // dual is default for restricted ops
-  if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
-  if (display && (dimension>1)) cout << endl;
+  if (display)
+    {
+      cout << "Matrix of " << opname << "(" << p << ") = " << m.as_mat();
+      if (dimension>1) cout << endl;
+    }
   return m;
 }
  

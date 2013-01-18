@@ -1,4 +1,4 @@
-#include "arith.h"
+#include <eclib/arith.h>
 #include "looper.h"
 
 int issquare(int asq, int& a)
