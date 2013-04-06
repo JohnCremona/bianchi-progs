@@ -15,7 +15,8 @@ int main ()
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;
- for(Quadlooper alpha(d,firstn,lastn); alpha.ok(); ++alpha)
+ int both_conj=0;
+ for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)

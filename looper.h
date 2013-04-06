@@ -2,21 +2,23 @@
 
 class Quadlooper {
 
-public: 
-  Quadlooper(int dd, int nn, int nmax) :d(dd), n(nn), nlim(nmax)
-    { setbsqlim();
-      b=0; while(!finda()) bstep();
+public:
+  Quadlooper(int dd, int nn, int nmax, int conj=0)
+    :d(dd), n(nn), nlim(nmax), include_conjugates(conj)
+    { setblims();
+      b=bmin; while(!finda()) bstep();
     }
   void operator++();
   operator Quad() const {return Quad(a,b);}
   int ok() const {return n<=nlim;}
 
-private: 
-  int d,n,a,b,bsqlim,nlim;
+private:
+  int d,n,a,b,bmin,bmax,nlim;
+  int include_conjugates;
   int finda();
   void nstep();
   void bstep();
-  void setbsqlim();
+  void setblims();
 };
 
 int issquare(int asq, int& a);

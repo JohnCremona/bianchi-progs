@@ -1,6 +1,6 @@
 #include <fstream>
 #include "manin.h"   // which includes quads.h & moddata.h & etc.
-//#define LOOPER
+#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
 #endif
@@ -28,7 +28,8 @@ int main ()
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;
- for(Quadlooper alpha(d,firstn,lastn); alpha.ok(); ++alpha)
+ int both_conj=1;
+ for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)

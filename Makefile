@@ -44,6 +44,10 @@ check: $(TESTS9) $(TESTS5)
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout && diff -a $$p.$$d.testout testout/$$p.$$d.out; \
 	 done; done
+	 for d in $(FIELDS9); do \
+	 echo "running looptest (both conjugates) for d=$$d";\
+	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout && diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
+	 done
 	 for p in $(TESTS5); do for d in $(FIELDS5); do \
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout && diff -a $$p.$$d.testout testout/$$p.$$d.out; \

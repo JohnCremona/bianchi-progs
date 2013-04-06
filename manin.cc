@@ -26,10 +26,10 @@ void manin::findq()
   //  Look for a rational q for which {q,infinity} is nontrivial
   int i,stillok,foundq=0, field=Quad::d;
   qdotlist.resize(n1ds);
-  for (Quadlooper dl(field, 2, 1000); dl.ok()&&!foundq; ++dl)
+  for (Quadlooper dl(field, 2, 1000, 1); dl.ok()&&!foundq; ++dl)
     { Quad d=(Quad)dl;
       if (coprime(d,modulus))
-        { for (Quadlooper nl(field,1,quadnorm(d)/2); nl.ok() && !foundq; ++nl)
+        { for (Quadlooper nl(field,1,quadnorm(d)/2,1); nl.ok() && !foundq; ++nl)
             { Quad n=(Quad)nl;
 	      if (coprime(n,d))
                 {   // found a candidate n/d

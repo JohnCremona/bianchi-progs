@@ -8,3 +8,15 @@ eigs3/
 eigs7/
 eigs11/
 luiz/
+*.o
+eigs*.bak/*
+hecketest
+homtest
+looptest
+modtest
+nftest
+runmodtest
+symbtest
+tmanin
+tquads
+tratquad

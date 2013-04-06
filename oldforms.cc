@@ -167,13 +167,27 @@ void oldforms::display(void) const
  cout<<"Total dimension of oldclasses = "<<totalolddim<<endl;
 }
 
+
+string ideal_code(const Quad& d) // string code for a (principal)  ideal
+{
+  stringstream s;
+  long r=real(d), i=imag(d);
+  if(r<0)    s << "m";
+  s << abs(r);
+  s << "i";
+  if(i<0)    s << "m";
+  s << abs(i);
+  s << char(0);
+  return s.str();
+}
+
 string eigfile(const Quad& d)    //returns filename for eigs at level d
 {
   stringstream s;
-  s << "eigs"<<Quad::d<<"/e";
-  long r=real(d), i=imag(d);
-  if(r<0)s<<"m";  s<<abs(r)<<"i";
-  if(i<0)s<<"m";  s<<abs(i)<<char(0);
+  s << getenv("NF_DIR");
+  if (s.str().empty()) {s.clear(); s<<"./newforms";}
+  s << "/" << Quad::d << "/e";
+  s << ideal_code(d);
   return s.str();
 }
 
