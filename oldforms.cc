@@ -2,8 +2,6 @@
 #include <sstream>
 #include "oldforms.h"
 
-#define EIG_FILE_PREFIX "eigs/e"
-
 inline int testbit(long a, long i) {return (a& (1<<i));}
 
 // Implementation of eigdata constructor -- reads data from file
@@ -186,7 +184,7 @@ string eigfile(const Quad& d)    //returns filename for eigs at level d
   stringstream s;
   s << getenv("NF_DIR");
   if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/" << Quad::d << "/e";
+  s << "/Qsqrt-" << Quad::d << "/e";
   s << ideal_code(d);
   return s.str();
 }
