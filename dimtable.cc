@@ -14,13 +14,19 @@ int main ()
  cout << "Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
  long firstn, lastn; Quad n;
- int both_conj;
+ int both_conj, plusflag;
  int dimplus, dimminus, dimall;
  cout<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cout<<"Plus space only? (0/1) "; cin >> plusflag;
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cout<<endl;
- cout << "Field\t Weight\t Level\t Norm\t dim(all)\t dim(plus)\t dim(minus)" << endl;
+ cout << "Field\t Weight\t Level\t Norm\t ";
+ if (plusflag)
+   cout << "dim(plus)" << endl;
+ else
+   cout << "dim(all)\t dim(plus)\t dim(minus)" << endl;
+
  if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
@@ -29,12 +35,19 @@ int main ()
      long normn = quadnorm(n);
      cout << d << "\t2\t";                  // field and weight
      cout << "("<<n<<")\t "<<normn<<"\t\t"; // level and norm
-     homspace hall(n,0,0);  //level, plusflag, verbose
-     dimall = hall.h1cuspdim();
      homspace hplus(n,1,0);  //level, plusflag, verbose
      dimplus = hplus.h1cuspdim();
-     dimminus = dimall-dimplus;
-     cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;
+     if (!plusflag)
+       {
+         homspace hall(n,0,0);  //level, plusflag, verbose
+         dimall = hall.h1cuspdim();
+         dimminus = dimall-dimplus;
+         cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;
+       }
+     else
+       {
+         cout << dimplus << endl;
+       }
    }
 
 }

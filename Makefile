@@ -30,7 +30,7 @@ headers:cusp.h homspace.h lf1.h looper.h manin.h moddata.h mquads.h newforms.h o
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = tquads tratquad looptest modtest symbtest homtest hecketest tmanin  nftest # tmquads xtmanin testlf1
+TESTS = tquads tratquad looptest modtest symbtest homtest hecketest tmanin  nftest dimtable # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163

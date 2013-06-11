@@ -1,5 +1,5 @@
 Enter field (1,2,3,7,11): Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-3))
-Both conjugates? (0/1) Enter first and last norm for Quad loop: 
+Both conjugates? (0/1) Plus space only? (0/1) Enter first and last norm for Quad loop: 
 Field	 Weight	 Level	 Norm	 dim(all)	 dim(plus)	 dim(minus)
 3	2	(1+w)	 3		0		0		0
 3	2	(2)	 4		0		0		0
