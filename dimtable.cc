@@ -20,7 +20,7 @@ int main ()
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cout<<endl;
- cout << "Level\t Norm\t dim(all)\t dim(plus)\t dim(minus)" << endl;
+ cout << "Field\t Weight\t Level\t Norm\t dim(all)\t dim(plus)\t dim(minus)" << endl;
  if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
