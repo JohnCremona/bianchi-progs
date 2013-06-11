@@ -19,11 +19,13 @@ int main ()
  cout << "Verbose? "; cin>>verbose;
  cout << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
+ int both_conj;
+ cout<<"Both conjugates? (0/1) "; cin >> both_conj;
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cout<<endl;
  if(firstn<2) firstn=2;
- for(Quadlooper alphaloop(d,firstn,lastn); alphaloop.ok(); ++alphaloop)
+ for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;
 #else

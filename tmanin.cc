@@ -1,6 +1,6 @@
 #include <fstream>
 #include "manin.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
 #endif
@@ -21,14 +21,15 @@ int main ()
  cout << "Verbose? "; cin>>verbose;
   cout << "Which primes for Hecke eigenvalues (first#, last#)? ";
   cin >> startp >> stopp; cout << endl;
-  int output=1; 
+  int output=1;
   cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
- long firstn, lastn; 
+ long firstn, lastn;
+ int both_conj;
+ cout<<"Both conjugates? (0/1) "; cin >> both_conj;
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;
- int both_conj=1;
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;

@@ -1,4 +1,4 @@
-Enter field (1,2,3,7,11): Verbose? Plus space? Enter first and last norm for Quad loop: 
+Enter field (1,2,3,7,11): Verbose? Plus space? Both conjugates? (0/1) Enter first and last norm for Quad loop: 
 >>>> Level (a), norm = 2 <<<<	Dimension = 0
 >>>> Level (2), norm = 4 <<<<	Dimension = 0
 >>>> Level (1+a), norm = 4 <<<<	Dimension = 0

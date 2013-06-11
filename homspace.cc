@@ -403,6 +403,7 @@ if(verbose)
     }
   msubspace sp = kernel(mat_m(relmat),0);
   rk = dim(sp);
+  if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
   coord = basis(sp).shorten((int)1);
   pivs = pivots(sp);
   denom1 = I2int(denom(sp));
