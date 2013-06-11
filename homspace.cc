@@ -39,6 +39,7 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
+  symbop J(this,fundunit,0,0,1);
   symbop eps(this,unit,0,0,1);
   symbop sof(this,0,-1,1,0);
   int *a=new int[lenrel], *b=new int[lenrel],  triv;
@@ -49,7 +50,7 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
       if (check[j]==0)
         { 
 	  if(verbose>1) cout << "j = " << j << ":\t";
-          a[0]=j; b[0]=sof(j); triv=0;
+          a[0]=j; b[0]=sof(j); triv=(j==b[0]);
           for(k=1; k<lenrel; k++)
             {
               a[k]= eps(a[k-1]);
@@ -243,13 +244,13 @@ if(verbose)
           for (j=1; j<=ngens; j++) newrel[j]=0;
 #endif
           rel[3]=uof(rel[2]=uof(rel[1]=uof(rel[0]=k)));
-          if (verbose)   
+          if (verbose)
             cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<" "<<rel[3]<<" --> ";
           for (j=0; j<4; j++)
             {
               check[ij=rel[j]] = 1;
               if (plusflag) check[sof(ij)] = 1;
-              fix = coordindex[ij];
+              fix = coordindex[J(ij)]; // since uof() has det -1
               if (verbose)  cout << fix << " ";
 #ifdef USE_SMATS
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
@@ -259,7 +260,7 @@ if(verbose)
             }
           if (verbose)  cout << endl;
 #ifdef USE_SMATS
-	  if(newrel.size()!=0) 
+	  if(newrel.size()!=0)
 	    {
 	      numrel++;
 	      make_primitive(newrel);

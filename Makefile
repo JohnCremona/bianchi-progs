@@ -22,8 +22,8 @@ sources: ccs headers
 
 ccs: ccs1 ccs2 ccs3
 ccs1: cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
-ccs2: manin.cc moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc 
-ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc
+ccs2: manin.cc moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
+ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc
 
 headers:cusp.h homspace.h lf1.h looper.h manin.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
@@ -54,7 +54,7 @@ check: $(TESTS9) $(TESTS5)
 	 done; done
 	 rm -f *.testout
 
-clean: 
+clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
@@ -89,11 +89,15 @@ tratquad: tratquad.o
 modtest: modtest.o  moddata.o quads.o looper.o
 	$(CC) -o modtest modtest.o moddata.o quads.o looper.o $(LFLAGS)
 
-symbtest: symbtest.o symb.o moddata.o quads.o looper.o 
+symbtest: symbtest.o symb.o moddata.o quads.o looper.o
 	$(CC) -o symbtest symbtest.o symb.o moddata.o quads.o looper.o $(LFLAGS)
 
 homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
 	$(CC) -o homtest homtest.o symb.o moddata.o quads.o looper.o \
+                       cusp.o homspace.o $(LFLAGS)
+
+dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+	$(CC) -o dimtable dimtable.o symb.o moddata.o quads.o looper.o \
                        cusp.o homspace.o $(LFLAGS)
 
 hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
@@ -114,6 +118,8 @@ tmquads.o: tmquads.cc mquads.h
 modtest.o: modtest.cc moddata.h quads.h looper.h
 symbtest.o: symbtest.cc symb.h moddata.h ratquads.h quads.h looper.h
 homtest.o: homtest.cc cusp.h homspace.h symb.h moddata.h ratquads.h quads.h \
+           looper.h
+dimtable.o: homtest.cc cusp.h homspace.h symb.h moddata.h ratquads.h quads.h \
            looper.h
 hecketest.o: hecketest.cc cusp.h homspace.h symb.h moddata.h ratquads.h \
              quads.h looper.h
