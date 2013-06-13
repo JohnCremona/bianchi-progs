@@ -248,9 +248,20 @@ if(verbose)
             cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<" "<<rel[3]<<" --> ";
           for (j=0; j<4; j++)
             {
-              check[ij=rel[j]] = 1;
-              if (plusflag) check[sof(ij)] = 1;
-              fix = coordindex[J(ij)]; // since uof() has det -1
+              ij=rel[j];
+              if(plusflag) // NB det(uof)=-1
+                {
+                  check[ij] = 1;
+                  check[sof(ij)] = 1;
+                }
+              else
+                {
+                  if(j%2)
+                    ij=J(ij);  // since uof() has det -1
+                  else
+                    check[ij] = 1;
+                }
+              fix = coordindex[ij];
               if (verbose)  cout << fix << " ";
 #ifdef USE_SMATS
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
@@ -291,7 +302,7 @@ if(verbose)
             cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<
                   " "<<rel[3]<<" --> ";
           check[k]=check[rel[2]]=1;
-          check[rof(rel[1])]=check[rof(rel[3])]=1;
+          if (plusflag) check[rof(rel[1])]=check[rof(rel[3])]=1;
           for (j=0; j<4; j++)
             { 
               fix = coordindex[rel[j]];
@@ -336,7 +347,7 @@ if(verbose)
             cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<
                   " "<<rel[3]<<" "<<rel[4]<<" "<<rel[5]<<" --> ";
           check[k]=check[rel[2]]=check[rel[4]]=1;
-          check[rof(rel[1])]=check[rof(rel[3])]=check[rof(rel[5])]=1;
+          if(plusflag) check[rof(rel[1])]=check[rof(rel[3])]=check[rof(rel[5])]=1;
           for (j=0; j<6; j++)
             { 
               fix = coordindex[rel[j]];

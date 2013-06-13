@@ -143,3 +143,15 @@ lf1.o: lf1.cc lf1.h moddata.h quads.h symb.h homspace.h ratquads.h
 test.o: test.cc
 
 
+# Some tables
+paperdims: paperdims1 paperdims2 paperdims3 paperdims7 paperdims1 1
+paperdims1: dimtable
+	echo 1 0 0 1 500 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.1.out
+paperdims2: dimtable
+	echo 2 0 0 1 300 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.2.out
+paperdims3: dimtable
+	echo 3 0 0 1 500 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.3.out
+paperdims7: dimtable
+	echo 7 0 0 1 200 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.7.out
+paperdims11: dimtable
+	echo 11 0 0 1 200 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.11.out
