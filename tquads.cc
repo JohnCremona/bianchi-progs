@@ -22,6 +22,8 @@ int main ()
  cout << "imag(a) = " << imag(a) << endl;
  cout << "quadconj(a) = " << quadconj(a) << endl;
  cout << "quadnorm(a) = " << quadnorm(a) << endl;
+ cout << "HNF(a) = " << HNF(a) << endl;
+ cout << "ideal_label(a) = " << ideal_label(a) << endl;
 
  cout << "Here are the first 20 primes out of "<<quadprimes.size()
       << " (one per line):\n";

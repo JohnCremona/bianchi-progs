@@ -23,20 +23,20 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3
 ccs1: cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: manin.cc moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
-ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc
+ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc
 
 headers:cusp.h homspace.h lf1.h looper.h manin.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = tquads tratquad looptest modtest symbtest homtest hecketest tmanin  nftest dimtable # tmquads xtmanin testlf1
+TESTS = tquads tratquad looptest modtest symbtest homtest hecketest tmanin  nftest dimtable dimtabeis # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
 TESTS9 =  tquads tratquad looptest modtest
-TESTS5 =  symbtest homtest hecketest tmanin dimtable
+TESTS5 =  symbtest homtest hecketest tmanin dimtable dimtabeis
 check: $(TESTS9) $(TESTS5)
 	 rm -f t
 	 LDLIBRARY_PATH=$(LD_LIBRARY_PATH):$(LIBDIR)
@@ -100,6 +100,10 @@ dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
 	$(CC) -o dimtable dimtable.o symb.o moddata.o quads.o looper.o \
                        cusp.o homspace.o $(LFLAGS)
 
+dimtabeis: dimtabeis.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+	$(CC) -o dimtabeis dimtabeis.o symb.o moddata.o quads.o looper.o \
+                       cusp.o homspace.o $(LFLAGS)
+
 hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
 	$(CC) -o hecketest hecketest.o symb.o moddata.o quads.o looper.o \
                        cusp.o homspace.o $(LFLAGS)
@@ -119,8 +123,10 @@ modtest.o: modtest.cc moddata.h quads.h looper.h
 symbtest.o: symbtest.cc symb.h moddata.h ratquads.h quads.h looper.h
 homtest.o: homtest.cc cusp.h homspace.h symb.h moddata.h ratquads.h quads.h \
            looper.h
-dimtable.o: homtest.cc cusp.h homspace.h symb.h moddata.h ratquads.h quads.h \
+dimtable.o: dimtable.cc cusp.h homspace.h symb.h moddata.h ratquads.h quads.h \
            looper.h
+dimtabeis.o: dimtabeis.cc cusp.h homspace.h symb.h moddata.h ratquads.h \
+	quads.h looper.h
 hecketest.o: hecketest.cc cusp.h homspace.h symb.h moddata.h ratquads.h \
              quads.h looper.h
 tmanin.o: tmanin.cc manin.h looper.h symb.h moddata.h ratquads.h quads.h \
@@ -144,7 +150,10 @@ test.o: test.cc
 
 
 # Some tables
-paperdims: paperdims1 paperdims2 paperdims3 paperdims7 paperdims1 1
+
+# 1. Data tabulated in 1984 Compositio paper Tables 3.{2,3,4,5,6}.1:
+
+paperdims: paperdims1 paperdims2 paperdims3 paperdims7 paperdims1
 paperdims1: dimtable
 	echo 1 0 0 1 500 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.1.out
 paperdims2: dimtable

@@ -667,3 +667,38 @@ long roundover(long aa, long bb)
   //cout<<ans<<endl;
   return ans;
 }
+
+// HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
+//
+// a,d>0; c>=0
+// N=a*d = Norm(alpha)
+// d|a and d|b
+// 0 <=c < a
+
+vector<long> HNF(const Quad& alpha)
+{
+  long N = quadnorm(alpha);
+  long xa = real(alpha), ya = imag(alpha), u, v;
+  long g = bezout(xa,ya,u,v);  // g=u*xa+v*ya=gcd(xa,ya)
+  long x = xa/g, y = ya/g;
+  // Now the HNF is g*[a, b+w] for some b mod a=N/g
+  long t = Quad::t, n = Quad::n;
+  long a = N/(g*g);
+  long b = posmod(((v-t*u)*x - n*u*y), a);
+  vector<long> ans;
+  ans.push_back(a*g);
+  ans.push_back(b*g);
+  ans.push_back(g);
+  return ans;
+}
+
+// Ideal label: formed from the Norm and HNF of the ideal (alpha)
+// (subject to change!)
+
+string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
+{
+  vector<long>H = HNF(alpha);
+  stringstream s;
+  s << "[" << quadnorm(alpha) << "," << H[1] << "," << H[2] << "]";
+  return s.str();
+}

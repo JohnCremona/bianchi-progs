@@ -161,8 +161,8 @@ inline Quad operator+(long m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(long m, const Quad& a) {return Quad(m-a.r,-a.i);}
 inline istream& operator>>(istream& s, Quad& x) {return s >> x.r >> x.i;}
 
-
-
+vector<long> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
+string ideal_label(const Quad& alpha);  // returns label of ideal (alpha)
 
 Quad primdiv(const Quad&);           // "First" prime divisor
 vector<Quad> pdivs(const Quad&);         // list of prime divisors

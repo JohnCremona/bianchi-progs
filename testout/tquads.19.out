@@ -9,6 +9,8 @@ real(a) = 5
 imag(a) = 6
 quadconj(a) = 11-6a
 quadnorm(a) = 235
+HNF(a) = [ 235 40 1 ]
+ideal_label(a) = [235,40,1]
 Here are the first 20 primes out of 172 (one per line):
 2
 a

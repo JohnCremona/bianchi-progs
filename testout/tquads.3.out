@@ -9,6 +9,8 @@ real(a) = 5
 imag(a) = 6
 quadconj(a) = 11-6w
 quadnorm(a) = 91
+HNF(a) = [ 91 16 1 ]
+ideal_label(a) = [91,16,1]
 Here are the first 20 primes out of 167 (one per line):
 1+w
 2
