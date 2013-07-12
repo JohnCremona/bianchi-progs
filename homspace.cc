@@ -1,11 +1,15 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-//#define USE_SMATS   // define in Makefile to use sparse matrix methods
+#define USE_SMATS   // define in Makefile to use sparse matrix methods
 
 #include <eclib/msubspace.h>
+#include <eclib/xmod.h>
 #include "homspace.h"
 const string W_opname("W");
 const string T_opname("T");
+
+int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
+                     smat& m, scalar& dd);
 
 void homspace::userel(vec& rel)
 {
@@ -45,7 +49,8 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
   int *a=new int[lenrel], *b=new int[lenrel],  triv;
   i=nsymb; while (i--) check[i]=0;
   if(verbose) cout << "About to start on 2-term relations.\n";
-  for (j=0; j<nsymb; j++)  
+  //  for (j=0; j<nsymb; j++)  
+  for (j=nsymb-1; j>=0; j--)  
     {
       if (check[j]==0)
         { 
@@ -123,6 +128,7 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
   symbop rof(this,0,1,1,0);
   i=nsymb; while (i--) check[i]=0;
   for (k=0; k<nsymb; k++) if (check[k]==0)
+  //for (k=nsymb-1; k>=0; k--) if (check[k]==0)
     {
 #ifdef USE_SMATS
       newrel.clear();
@@ -137,7 +143,8 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
 	cout<<"Error in TS-relation!"<<endl;
       for (j=0; j<3; j++)
         {
-          check[ij=rel[j]] = 1;
+          ij = rel[j];
+          check[ij] = 1;
 	  if (plusflag) check[rof(ij)] = 1;
           fix = coordindex[ij];
           if (verbose)  cout << fix << " ";
@@ -392,11 +399,43 @@ if(verbose)
    vec pivs, npivs;
 #ifdef USE_SMATS
    smat_elim sme(relmat);
-   relmat=smat(0,0);
    int d1;
-   smat sp = liftmat(sme.kernel(npivs,pivs),MODULUS,d1);
+   smat ker = sme.kernel(npivs,pivs), sp;
+   int ok = liftmat(ker,MODULUS,sp,d1);
+   if (!ok)
+     {
+       if(verbose)
+         cout << "failed to lift modular kernel using one modulus "
+              << MODULUS << endl;
+       int mod2 = 1073741783; // 2^30-41
+       if(verbose)
+         cout << "repeating kernel computation, modulo " << mod2 << endl;
+       smat_elim sme2(relmat,mod2);
+       vec pivs2, npivs2;
+       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
+       ok = (pivs==pivs2);
+       if (!ok)
+         {
+           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
+         }
+       else
+         {
+           if(verbose) cout << " pivs agree" << endl;
+           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+         }
+       if (ok)
+         {
+           if(verbose)
+             cout << "success using CRT, denominator= " << d1 << "\n";
+         }
+       else
+         {
+           cout << "CRT combination failed\n" << endl;
+         }
+     }
    denom1=d1;
-   if(verbose>1) 
+   relmat=smat(0,0);
+   if(verbose>1)
      {
        cout << "kernel of relmat = " << sp.as_mat() << endl;
        cout << "pivots = "<<pivs << endl;
@@ -459,7 +498,10 @@ if(verbose)
      kern = kernel(smat(deltamat));
      vec pivs, npivs;
      int d2;
-     smat sk = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,d2);
+     smat sk;
+     int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
+     if (!ok)
+       cout << "**!!!** failed to lift modular kernel\n" << endl;
      denom2=d2;
   }
    if(cuspidal)
@@ -829,84 +871,53 @@ void mergeposval(long* pos, long* val, long& npos, long f)
 }
 #endif
 
-#ifndef USE_XSPLIT
 
-int startswith(const vector<long>& a, const vector<long>& b, long l)
+#define DEBUG_CHINESE
+
+int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
+                     smat& m, scalar& dd)
 {
-  int ans=1;
-  for (int i=0; (i<l)&&ans; i++) ans = (a(i)==b(i));
-  return ans;
-}
+  long modulus=(long)pr1*(long)pr2,n,d,mij;
+  long nr,nc,u,v;
+  float lim=floor(sqrt(modulus/2.0));
 
-#define MODULUS 92681
+  dd = bezout(pr1,pr2,u,v); //==1
+  if (dd!=1) return 0;
 
-splitter::splitter(homspace* h, long d, int dualflag, int meth, int v)
-:h1(h), maxdepth(d), dual(dualflag), depth(0), method(meth), verbose(v)
-{
-  h1denom = h1->h1denom();
-  nest = new subspace[d];
-  nest[0] = subspace(h->h1dim());
-  aplist = vector<long>(d);
-  havemat = new int[d]; long i=d; while(i--) havemat[i]=0;
-  opmats = new mat[d];
-  vector<Quad>::const_iterator pr=quadprimes.begin();
-  for(i=0; i<d; i++) 
-    {
-      if(i<level::npdivs) plist.push_back(level::plist(i));
-      else 
-        {
-          while(div(*pr,level::modulus)) pr++; 
-          plist.push_back(*pr++); 
-        }
-    }
-}
-
-void splitter::splitoff(const vector<long>& apl)
-{
-  long targetdim= 1;
-  if(verbose)cout<<"Entering splitter, old depth = "<<depth<<endl;
-  if(verbose&&(depth>0))cout<<"Old aplist = "<<aplist<<endl;
-  if(verbose)cout<<"New aplist = "<<apl<<endl;
-  while(!startswith(aplist,apl,depth)) nest[depth--]=subspace(1);
-  if(verbose)cout<<"Starting depth = "<<depth<<endl;
-  while((dim(nest[depth])>targetdim) && (depth<maxdepth))
-    {
-      if(verbose)cout<<"Increasing depth to "<<depth+1<<endl;
-      aplist[depth]=apl(depth);
-      if(!havemat[depth])
-        {
-          if(depth<level::npdivs)
-            {
-            if(verbose)cout<<"Computing W("<<plist[depth]<<")"<<endl;
-            opmats[depth] = h1->wop(plist[depth]);
+  // First time through: compute CRTs, common denominator and success flag
+  m = m1; // NB We assume that m1 and m2 have nonzero entries in the same places
+  for(nr=0; nr<m1.nro; nr++)
+    for(nc=0; nc<m1.col[nr][0]; nc++)
+      {
+        mij = mod(v*m1.val[nr][nc],pr1)*pr2 + mod(u*m2.val[nr][nc],pr2)*pr1;
+        mij = mod(mij,modulus);
+#ifdef DEBUG_CHINESE
+        if (((mij-m1.val[nr][nc])%pr1)||((mij-m2.val[nr][nc])%pr2))
+          {
+            cout<< "bad CRT(["<<m1.val[nr][nc]<<","<<m2.val[nr][nc]<<"],["<<pr1<<","<<pr2<<"]) = "<<mij<<endl;
           }
-          else
-            {
-            if(verbose)cout<<"Computing T("<<plist[depth]<<")"<<endl;
-            opmats[depth] = h1->heckeop(plist[depth]);
+#endif
+        m.val[nr][nc] = mij;
+	if (modrat(mij,modulus,lim,n,d))
+          dd=lcm(d,dd);
+        else
+          {
+#ifdef DEBUG_CHINESE
+            cout<<"CRT("<<m1.val[nr][nc]<<","<<m2.val[nr][nc]<<")="<<mij<<" (mod "<<modulus<<") fails to lift (lim="<<lim<<")\n";
+            cout << "Problems encountered in chinese lifting of smat modulo "<<pr1<<" and "<<pr2<< endl;
+#endif
+            return 0;
           }
-          if(dual)opmats[depth]=transpose(opmats[depth]);
-          havemat[depth]=1;
-        }
-      if(method<3)
-        nest[depth+1] = subeigenspace(opmats[depth],h1denom*aplist[depth],nest[depth],method);
-      else
-        nest[depth+1] = psubeigenspace(opmats[depth],h1denom*aplist[depth],nest[depth],MODULUS);
-      depth++;
-    }
-  long finaldim=dim(nest[depth]);
-  if(finaldim!=targetdim)
-    {
-      cerr<<"error in splitter::splitoff with aplist = "<<apl<<endl;
-      cerr<<"final subspace has dimension "<<finaldim<<endl;
-    }
-  subspace s = nest[depth];
-  basisvector = basis(s).col(1);
-  if(method==3)
-    basisvector = lift(basisvector,MODULUS);
-  else 
-    makeprimitive(basisvector);
+      }
+  dd=abs(dd);
+#ifdef DEBUG_CHINESE
+  cout << "Common denominator = " << dd << "\n";
+#endif
+  // Second time through: rescale
+  for(nr=0; nr<m.nro; nr++)
+    for(nc=0; nc<m.col[nr][0]; nc++)
+      {
+        m.val[nr][nc] = mod(xmodmul((dd/d),(long)m.val[nr][nc],modulus),modulus);
+      }
+  return 1;
 }
-
-#endif // ifndef USE_XSPLIT
-
