@@ -88,3 +88,24 @@ def make_dimtabnew(d, fname, maxnorm=0):
 
         print "%s dimensions: %s %s (%s new) %s"%(ideal_label(I),dimall,dimcusp,dimcuspnew,dimeis)
         outfile.write("%s \t%s \t%s \t%s \t%s \t%s \t%s\n"%(dd,w,label,dimall,dimcusp,dimcuspnew,dimeis))
+
+def edit_haluk_output(f, fname):
+    infile = file(fname)
+    outfile = file(fname+'.new', mode='w')
+    for L in infile.readlines():
+        if L[0]!="[":
+            continue
+#        print L
+        L = L.replace(',',' , ')
+        L = L.replace(']',' ]')
+        lab = range(6)
+        lab[0],lab[1],lab[2],lab[3],lab[4],lab[5], dimcusp, dimeis = L.split(None,7)
+        dimcusp = int(dimcusp)
+        dimeis = int(dimeis.split()[0])
+        dimall = dimcusp+dimeis
+        label = "".join(lab)
+        print label
+        outfile.write("%s\t2\t%s\t %s\t %s\t %s\n"%(f,label,dimall,dimcusp,dimeis))
+    infile.close()
+    outfile.close()
+
