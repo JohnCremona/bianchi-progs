@@ -24,7 +24,8 @@ eigdata::eigdata(const Quad& m, int neigs, int verbose) :sublevel(m)
   data >> nforms >> nforms2 >> neigsonfile;
   neigsonfile++;  //NB this is because the no. on file is the last index,
                   //which is 1 less than the number of eigs!
-  if(verbose) cout<<nforms<<" newforms found at level "<<m<<endl;
+  if(verbose)
+    cout<<nforms<<" newforms found at level "<<m<<", total new dimension = "<<(nforms+nforms2)<<endl;
   if(nforms>0){
     if(neigs<0)nap=neigs=neigsonfile;
     else nap= (neigsonfile<neigs?neigsonfile:neigs);
@@ -73,12 +74,16 @@ oldforms::oldforms(int verbose)
 {  
    nap = level::nap;
    ntp = nap-level::npdivs;
-   noldclasses=totalolddim=olddim2=0;
+   noldclasses=olddim1=olddim2=0;
    vector<Quad>::const_iterator d=(level::dlist).begin();
    while(d!=(level::dlist).end()) getoldclasses(*d++,verbose);
-   for (int i=0; i<noldclasses; i++) totalolddim+=oldclassdims[i];
-   //cout<<"Leaving oldform constructor with totalolddim = "<<totalolddim;
-   //cout<<" and olddim2 = "<<olddim2<<endl;
+   for (int i=0; i<noldclasses; i++) olddim1+=oldclassdims[i];
+   olddimall = olddim1+olddim2;
+   if(verbose)
+     {
+       cout<<"Leaving oldform constructor with olddim1 = "<<olddim1;
+       cout<<", olddim2 = "<<olddim2<<", olddimall="<<olddimall<<endl;
+     }
 }
 
 void oldforms::getoldclasses(const Quad& d, int verbose) //really a subroutine of the
@@ -161,8 +166,9 @@ void oldforms::display(void) const
       cout << oldformap[i] << endl;
     }
   }
- cout<<"Total number of oldclasses = "<<noldclasses<<endl;
- cout<<"Total dimension of oldclasses = "<<totalolddim<<endl;
+ cout<<"Total number of (rational) oldclasses = "<<noldclasses<<endl;
+ cout<<"Total dimension of (rational) oldclasses = "<<olddim1<<endl;
+ cout<<"Total dimension of all oldclasses = "<<olddimall<<endl;
 }
 
 

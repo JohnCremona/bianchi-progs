@@ -21,7 +21,7 @@ public:
 class oldforms {
  public:
   int noldclasses, nap, ntp;
-  int totalolddim, olddim2;
+  int olddim1, olddim2, olddimall;  // total dim of rational oldforms, resp. non-rational, all oldform
  private:
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims; 

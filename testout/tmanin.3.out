@@ -6,7 +6,7 @@ Output Hecke eigenvalues? (0/1) Enter level:
 >>>> Level (8+w), norm = 73 <<<<
 
 1 newform(s) at level 8+w:
-1:	basis = [1,1];	aplist = [ -1 -2 ]
+1:	basis = [1,-1];	aplist = [ -1 -2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1/6
@@ -41,10 +41,10 @@ Enter level:
 >>>> Level (5+5w), norm = 75 <<<<
 
 1 newform(s) at level 5+5w:
-1:	basis = [3,-2,-4,-3];	aplist = [ 1 -1 -3 ]
+1:	basis = [2,-3,3,8];	aplist = [ 1 -1 -3 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
-L/P ratio    = 1/2
+L/P ratio    = 1
 L(f,1) nonzero for each form
 p = 1+w	    1    *** bad prime
 p = 2	   -3 
@@ -80,7 +80,7 @@ Enter level:
 >>>> Level (11), norm = 121 <<<<
 
 1 newform(s) at level 11:
-1:	basis = [3,5];	aplist = [ -1 -1 ]
+1:	basis = [6,-5];	aplist = [ -1 -1 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1
@@ -115,7 +115,7 @@ Enter level:
 >>>> Level (10+2w), norm = 124 <<<<
 
 1 newform(s) at level 10+2w:
-1:	basis = [3,5,-2,-3];	aplist = [ 1 -1 -1 ]
+1:	basis = [4,5,-6,5];	aplist = [ 1 -1 -1 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1
@@ -150,7 +150,7 @@ Enter level:
 >>>> Level (7+7w), norm = 147 <<<<
 
 1 newform(s) at level 7+7w:
-1:	basis = [3,-1,3,3,-1,-3,0,3];	aplist = [ -1 1 1 -3 ]
+1:	basis = [1,-4,-4,1,-3,0,-3,8];	aplist = [ -1 1 1 -3 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1/2
@@ -185,7 +185,7 @@ Enter level:
 >>>> Level (9+6w), norm = 171 <<<<
 
 1 newform(s) at level 9+6w:
-1:	basis = [2,-1,1,-1,1,-2];	aplist = [ 1 -1 -1 ]
+1:	basis = [1,-1,1,-2,2,2];	aplist = [ 1 -1 -1 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1/3
@@ -220,7 +220,7 @@ Enter level:
 >>>> Level (8+8w), norm = 192 <<<<
 
 1 newform(s) at level 8+8w:
-1:	basis = [3,-1,2,0,2,1,-3,-2];	aplist = [ 1 -1 0 ]
+1:	basis = [2,4,2,1,-1,-3,3,-4];	aplist = [ 1 -1 0 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1/2
@@ -255,7 +255,7 @@ Enter level:
 >>>> Level (14), norm = 196 <<<<
 
 1 newform(s) at level 14:
-1:	basis = [1,0,-2,1,0,0,1,-1];	aplist = [ -1 -1 -1 -2 ]
+1:	basis = [0,0,2,2,-1,0,-1,3];	aplist = [ -1 -1 -1 -2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1
 L/P ratio    = 1/6

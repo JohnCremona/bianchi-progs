@@ -137,10 +137,12 @@ void newforms::createfromscratch()
   maxdepth = nap;
   long mindepth = npdivs;
   dimsplit = n1ds = 0;
-  nnflist = upperbound = h1->dimension; //-(of->totalolddim)-(of->olddim2);
-//N.B. For later reference, upperbound=n1ds+n2ds;
+  long olddimall = (of->olddimall);
+  if(verbose>1) cout<<"olddimall = "<<olddimall<<endl;
+  nnflist = upperbound = (h1->h1cuspdim()) - olddimall;
+  if(verbose>1) cout<<"upperbound = "<<upperbound<<endl;
   if(upperbound>0)  // Else no newforms certainly so do no work!
-    {  
+    {
 #ifdef USE_XSPLIT
        form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
        ff.find();
@@ -161,12 +163,13 @@ void newforms::createfromscratch()
        delete[] tpknown;
 #endif
      }
-  n2ds=upperbound-n1ds;
+  if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
+  n2ds=upperbound-n1ds; // dimension of new, non-rational forms
+  if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
   if(verbose)
     {cout << "Total dimension " << h1->h1dim() << " made up as follows:\n";
      cout << "dim(newforms) = " << n1ds+n2ds << " of which " << n1ds << " is rational; \n";
-     cout << "dim(oldforms) = " << (of->totalolddim)+(of->olddim2) << " of which " << (of->totalolddim) << " is rational; \n";
-     if(h1->dimension==(of->totalolddim)+n1ds)cout<<"The whole space splits over Q.\n";
+     cout << "dim(oldforms) = " << olddimall << " of which " << (of->olddim1) << " is rational; \n";
      cout<<endl;
    }
   delete of;

@@ -51,6 +51,8 @@ void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
   vec v;
   int i,ap; int good = ndiv(p,modulus);
   if(verbose) cout << "p = " << p << "\t"; 
+  long maxap=(long)(2*sqrt((double)quadnorm(p))); // for validity check
+
   if ( easy)  //   Symbol {0,infinity} non-trivial in all cases
     { 
       if (!good)
@@ -59,6 +61,12 @@ void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
             { 
 	      int ip = find(plist.begin(),plist.end(),p)-plist.begin();
               ap = nflist[i].aplist[ip];
+              if((ap>maxap)||(-ap>maxap))
+                {
+                  cout<<"Error:  eigenvalue "<<ap<<" for p="<<p
+                      <<" for form # "<<(i+1)<<" is outside valid range "
+                      <<-maxap<<"..."<<maxap<<endl;
+                }
               if(verbose) cout<<setw(5)<<ap<<" ";
               if(output) out<<setw(5)<<ap;
             }
@@ -69,8 +77,14 @@ void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
         {  // good prime
           v = h1->projmaninvector(p);   //starts at 1
           for (i=0; i<n1ds; i++)
-            { 
+            {
               ap = 1+quadnorm(p)-((v[i+1]*nflist[i].dp0) / nflist[i].pdot);
+              if((ap>maxap)||(-ap>maxap))
+                {
+                  cout<<"Error:  eigenvalue "<<ap<<" for p="<<p
+                      <<" for form # "<<(i+1)<<" is outside valid range "
+                      <<-maxap<<"..."<<maxap<<endl;
+                }
               if(verbose)cout<<setw(5)<<ap<<" ";
               if(output) out<<setw(5)<<ap;
             }
