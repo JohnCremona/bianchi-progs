@@ -5,8 +5,8 @@
 modsym::modsym(const symb& s) //Constructor for modsym, converting from symb:
 {
  Quad c,d,h,x,y;
- c = s.c % level::modulus; 
- d = s.d % level::modulus;
+ c = s.c % ((s.N)->modulus);
+ d = s.d % ((s.N)->modulus);
  h = quadbezout(c , d, x, y);
  a=RatQuad(-x , d/h);
  b=RatQuad( y , c/h);
@@ -33,7 +33,7 @@ symb symblist::item(int n) const
 {
  if ((n>num)||(n<0)) 
  {cerr<<"Error in symblist::item: index out of range!\n";
-  return symb(0,1);
+   exit(1); //return symb(0,1,this);
  }
  else return list[n];
 }
@@ -55,7 +55,7 @@ symbdata::symbdata(const Quad &n) :moddata(n),specials(nsymb2)
      for (id=1; (id<normod-phi)&&(specials.count()<nsymb2); id++)  
      { d = resnum(noninvlist[id]);
        if (coprime(d,c))
-       {  s = symb(c,d);
+         {  s = symb(c,d,this);
 //cout<<"s = "<<s<<": "; int oldnum=specials.count();
           specials.add(s,start);     //only adds it if not there already!
 //if(oldnum<specials.count())cout<<"new one\n"; else cout<<"old one\n";
@@ -85,7 +85,7 @@ int symbdata::index2(const Quad& c, const Quad& d) const
     {
 //cout<<"\nkc="<<kc<<" kd="<<kd;
      int start = dstarts[noninvdlist[-kc]];
-     symb s(c,d);
+     symb s(c,d,this);
 //cout<<" start="<<start<<endl;
      return nsymb1+specials.index(s,start);  // should be(?): start);
     }
@@ -93,8 +93,8 @@ int symbdata::index2(const Quad& c, const Quad& d) const
 }
 
 symb symbdata::symbol(int i) const
-{ if (i<normod) return symb(resnum(i),1);
-  else if (i<nsymb1) return symb(1,resnum(noninvlist[i-normod]));
+{ if (i<normod) return symb(resnum(i),1,this);
+  else if (i<nsymb1) return symb(1,resnum(noninvlist[i-normod]),this);
   else return specials.item(i-nsymb1);
 }
 

@@ -3,11 +3,11 @@
 
 #include "moddata.h"
 
-int level::plusflag;
-long level::npdivs, level::ndivs, level::nap, level::normod, level::n0m0, 
-     level::n0, level::m0, level::wmodz;
-Quad level::modulus;
-vector<Quad> level::plist, level::dlist, level::primelist;
+// int level::plusflag;
+// long level::npdivs, level::ndivs, level::nap, level::normod, level::n0m0, 
+//      level::n0, level::m0, level::wmodz;
+// Quad level::modulus;
+// vector<Quad> level::plist, level::dlist, level::primelist;
 
 level::level(const Quad& n, long neigs)
 {
@@ -32,7 +32,7 @@ level::level(const Quad& n, long neigs)
 //cout<<"n0, n0m0, wmodz = "<<n0<<", "<<n0m0<<", "<<wmodz<<endl;
 }
 
-long level::numres(const Quad& a)  // what number is this residue a mod modulus?
+long level::numres(const Quad& a) const // what number is this residue a mod modulus?
 {
   long y = imag(a), x = real(a);
   long r = posmod(y,n0);
@@ -40,7 +40,7 @@ long level::numres(const Quad& a)  // what number is this residue a mod modulus?
   return  rdash + r*n0m0;
 }
 
-Quad level::resnum(long i)  // which is the i'th residue mod modulus?
+Quad level::resnum(long i) const // which is the i'th residue mod modulus?
 {
   long rdash = i % n0m0;
   long r = (i-rdash)/n0m0;

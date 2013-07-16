@@ -15,13 +15,14 @@ class symbop;
 class symb {
  private:
    Quad c,d;
+   const moddata *N;
  public:
    symb() :c(0), d(0)   {;}
-   symb(const Quad& cc, const Quad& dd) :c(cc), d(dd)  {;}
+   symb(const Quad& cc, const Quad& dd, const moddata * iN) :c(cc), d(dd), N(iN)  {;}
    Quad cee() const        {return c;}
    Quad dee() const        {return d;}
    int operator==(const symb& s) const 
-       {Quad sc=d*s.c, sd=c*s.d, m=level::modulus; 
+       {Quad sc=d*s.c, sd=c*s.d, m=N->modulus; 
 	Quad a = sd-sc; 
 	return div(m,a);}
    friend inline ostream& operator<< (ostream&s, const symb&);
@@ -89,7 +90,7 @@ public:
 class matop {  // formal sum of 2x2 matrices
  private: mat22* mats;
  public:  int length;
-          matop(const Quad& p, const Quad& n=level::modulus); 
+          matop(const Quad& p, const Quad& n); 
 	  // constructor for hecke ops
           ~matop() {delete[] mats;length=0;}
           mat22 operator[](int i) const {return mats[i];}

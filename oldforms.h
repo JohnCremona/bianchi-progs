@@ -10,11 +10,12 @@ class eigdata {
 // Constructor can be used to get eigs from a lower level to construct oldforms
 //  and also to retrieve data for this level.
 public:
+  const level *N;
   Quad sublevel;
   int nforms,nforms2;
   int nap;
   vector<vector<long> > eigs;
-  eigdata(const Quad& m, int neigs=-1, int verbose=0);
+  eigdata(const level *iN, const Quad& m, int neigs=-1, int verbose=0);
 };
 
 
@@ -23,12 +24,13 @@ class oldforms {
   int noldclasses, nap, ntp;
   int olddim1, olddim2, olddimall;  // total dim of rational oldforms, resp. non-rational, all oldform
  private:
+  const level* N;
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims; 
   vector<Quad> oldlevels;
   void getoldclasses(const Quad& d, int verbose);
  public:
-  oldforms(int verbose=0);   
+  oldforms(const level* iN, int verbose=0);
   long dimoldpart(const vector<long> aplist);
   void display(void) const;
 };

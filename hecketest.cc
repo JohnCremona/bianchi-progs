@@ -44,7 +44,7 @@ int main(void)
   cout << "Dimension = " << d << endl;
   if(den!=1) cout << "denominator = " << den << endl;
 
-  vector<Quad> badprimes = level::plist;
+  vector<Quad> badprimes = h.plist;
   vector<Quad>::const_iterator pr;
   nq = badprimes.size();
   if (d>0)

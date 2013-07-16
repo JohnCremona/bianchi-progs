@@ -132,7 +132,7 @@ newforms::newforms(const Quad& n, int useolddata, int disp)
 
 void newforms::createfromscratch()
 {
-  of = new oldforms(verbose>1);
+  of = new oldforms(this,verbose>1);
   if(verbose)of->display();
   maxdepth = nap;
   long mindepth = npdivs;
@@ -245,7 +245,7 @@ void newforms::createfromeigs()
 //
 //STEP ONE: Read number of newforms and their eigenvalues from file
 //
-  eigdata filedata(modulus,-1,0);  // neigs=-1 means get ALL from file
+  eigdata filedata(this,modulus,-1,0);  // neigs=-1 means get ALL from file
   nnflist=n1ds=filedata.nforms;
   n2ds=filedata.nforms2;
   if(n1ds==0) return;

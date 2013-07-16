@@ -5,8 +5,9 @@
 inline int testbit(long a, long i) {return (a& (1<<i));}
 
 // Implementation of eigdata constructor -- reads data from file
-eigdata::eigdata(const Quad& m, int neigs, int verbose) :sublevel(m)
+eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublevel(m)
 {
+  N = iN;
   if(verbose) cout << "Getting eigdata for " << m << endl;
   string eigfilename = eigfile(m);
   ifstream data(eigfilename.c_str());
@@ -29,7 +30,7 @@ eigdata::eigdata(const Quad& m, int neigs, int verbose) :sublevel(m)
   if(nforms>0){
     if(neigs<0)nap=neigs=neigsonfile;
     else nap= (neigsonfile<neigs?neigsonfile:neigs);
-    int nwq=level::npdivs;
+    int nwq=N->npdivs;
     int ntp=nap-nwq;
     eigs.resize(nforms);
     for(i=0; i<nforms; i++) eigs[i].resize(nap);
@@ -39,7 +40,7 @@ eigdata::eigdata(const Quad& m, int neigs, int verbose) :sublevel(m)
 	 (pr-quadprimes.begin())<=neigsonfile && ((countp<ntp) || (countq<nwq)); pr++)
       { 
 	if(verbose) cout<<"p="<<(*pr)<<endl;
-	if (div(*pr,level::modulus))
+	if (div(*pr,N->modulus))
           {
             for(i=0; i<nforms; i++) data>>eigs[i][countq];
             countq++; 
@@ -70,13 +71,14 @@ eigdata::eigdata(const Quad& m, int neigs, int verbose) :sublevel(m)
 
 // Implementation of oldform member functions
 
-oldforms::oldforms(int verbose)
-{  
-   nap = level::nap;
-   ntp = nap-level::npdivs;
+oldforms::oldforms(const level* iN, int verbose)
+{
+   N = iN;
+   nap = N->nap;
+   ntp = nap-N->npdivs;
    noldclasses=olddim1=olddim2=0;
-   vector<Quad>::const_iterator d=(level::dlist).begin();
-   while(d!=(level::dlist).end()) getoldclasses(*d++,verbose);
+   vector<Quad>::const_iterator d=(N->dlist).begin();
+   while(d!=(N->dlist).end()) getoldclasses(*d++,verbose);
    for (int i=0; i<noldclasses; i++) olddim1+=oldclassdims[i];
    olddimall = olddim1+olddim2;
    if(verbose)
@@ -88,18 +90,17 @@ oldforms::oldforms(int verbose)
 
 void oldforms::getoldclasses(const Quad& d, int verbose) //really a subroutine of the
 {                                                 //constructor
-  Quad N = level::modulus;
   long normd = quadnorm(d);
-  if ((normd>1) && (level::normod>normd))
+  if ((normd>1) && (N->normod>normd))
     {
       if(verbose) cout << "Getting oldclasses for divisor " << d << endl;
-      eigdata olddata(d,nap,verbose);
+      eigdata olddata(N,d,nap,verbose);
       int nforms=olddata.nforms;
-      Quad m = N/d;
+      Quad m = N->modulus/d;
       int k=0, oldmult=1, xmult, mult, j, beta; 
       vector<long> betalist;
-      vector<Quad>::const_iterator p=(level::plist).begin();
-      while(p!=(level::plist).end()) 
+      vector<Quad>::const_iterator p=(N->plist).begin();
+      while(p!=(N->plist).end()) 
         {
 	  beta=val(*p++,m);
 	  oldmult*=1+beta;
@@ -115,9 +116,9 @@ void oldforms::getoldclasses(const Quad& d, int verbose) //really a subroutine o
                if(verbose) cout << "c = " << c << endl;
                mult=1; j=0;
 	       vector<Quad>::const_iterator q;
-               for (q=(level::plist).begin(); 
-		    q!=(level::plist).end()&&(mult>0); q++)
-                 {  int i = q-(level::plist).begin(); 
+               for (q=(N->plist).begin(); 
+		    q!=(N->plist).end()&&(mult>0); q++)
+                 {  int i = q-(N->plist).begin(); 
 		    beta=betalist[i];
                     if (beta>0)
                       { int bit = testbit(c,j); j++;
@@ -133,7 +134,7 @@ void oldforms::getoldclasses(const Quad& d, int verbose) //really a subroutine o
                if(verbose) cout << "Multiplicity = " << mult << endl;
                if (mult>0)
                  {
-                   for(int i=level::npdivs; i<nap; i++)
+                   for(int i=N->npdivs; i<nap; i++)
 		     nextoldformap[i] = olddata.eigs[iform][i];
 		   oldformap.push_back(nextoldformap);
 		   oldclassdims.push_back(mult);
@@ -160,7 +161,7 @@ void oldforms::display(void) const
   if (noldclasses>0)
   {
     cout << "\nOld classes\n~~~~~~~~~~~\n";
-    cout << "Level   Dimension " << level::primelist << endl;
+    cout << "Level   Dimension " << N->primelist << endl;
     for (int i=0; i<noldclasses; i++)
     { cout << oldlevels[i] << "       " << oldclassdims[i] << "       ";
       cout << oldformap[i] << endl;

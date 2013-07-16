@@ -8,15 +8,15 @@
 
 class level {
 public:
- static Quad modulus;
- static int plusflag;
- static vector<Quad> plist,dlist,primelist;
- static long npdivs,ndivs,normod,nap;
+ Quad modulus;
+ int plusflag;
+ vector<Quad> plist,dlist,primelist;
+ long npdivs,ndivs,normod,nap;
 protected:
 //If modulus=(a,b) with norm normod, n0=gcd(a,b), n0m0=normod/n0=n0*m0
- static long n0m0, n0,m0, wmodz;
- static long numres(const Quad& a);  // what number is this residue a mod modulus?
- static Quad resnum(long i);  // which is the i'th residue mod modulus?
+ long n0m0, n0,m0, wmodz;
+ long numres(const Quad& a) const;  // what number is this residue a mod modulus?
+ Quad resnum(long i) const;  // which is the i'th residue mod modulus?
 // The constructor:
   level(const Quad& n, long neigs=10); // neigs controls the maximum depth for recursion in newform finding
 };

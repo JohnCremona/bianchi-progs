@@ -481,14 +481,14 @@ if(verbose)
   delete [] check; delete [] gens; delete [] rel; 
   pivs.init();
   {
-     cusplist cusps(2*rk);
+    cusplist cusps(2*rk,this);
      mat deltamat(2*rk,rk);
      for (i=0; i<rk; i++)
        {
          modsym m(symbol(freegens[i]));
          for (j=1; j>-3; j-=2)
            {
-             cusp c = (j==1 ? m.beta() : m.alpha());
+             RatQuad c = (j==1 ? m.beta() : m.alpha());
              k = cusps.index(c);   //adds automatically if new
              deltamat(k+1,i+1) += j;  // N.B. offset of 1
            }
