@@ -1,7 +1,7 @@
 Enter field: Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
 Euclidean
 1237 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level (3+5a), norm = 99 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level [99,60,1] = (3+5a), norm = 99 <<<<
 Dimension = 9
 Computing W(a)...  done. 
 Involution!

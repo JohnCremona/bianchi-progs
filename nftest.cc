@@ -24,7 +24,7 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);  long normn = quadnorm(n);
-     cout << ">>>> Level ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,1,verbose);
      nf.display();
      int denom = nf.h1->h1denom();

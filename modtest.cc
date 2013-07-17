@@ -24,7 +24,7 @@ int main ()
    {
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      long normn = quadnorm(n);
-     cout << ">>>> Level ("<<n<<"), norm = "<<normn<<" <<<<\t";
+     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<\t";
      moddata md(n);
      if(verbose) cout<<"\n",md.display();
      int ok = md.check();

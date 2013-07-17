@@ -3,7 +3,7 @@ Euclidean
 169 primes initialised, max norm = 1000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
->>>> Level (-2+4a), norm = 28 <<<<
+>>>> Level [28,6,2] = (-2+4a), norm = 28 <<<<
 
 1 newform(s) at level -2+4a:
 1:	basis = [1,1,0,3,-3,-4,-1,-3];	aplist = [ 1 1 -1 -2 ]
@@ -38,7 +38,7 @@ p = 9+2a	   12
 p = -11+2a	   12 
 ===========================================
 Enter level: 
->>>> Level (2+4a), norm = 44 <<<<
+>>>> Level [44,12,2] = (2+4a), norm = 44 <<<<
 
 1 newform(s) at level 2+4a:
 1:	basis = [1,-1,0,-1,-1,0,-1,-3];	aplist = [ 1 -1 1 -4 ]
@@ -73,7 +73,7 @@ p = 9+2a	  -12
 p = -11+2a	    0 
 ===========================================
 Enter level: 
->>>> Level (-1+5a), norm = 46 <<<<
+>>>> Level [46,9,1] = (-1+5a), norm = 46 <<<<
 
 1 newform(s) at level -1+5a:
 1:	basis = [1,1,1,4];	aplist = [ -1 1 -1 ]
@@ -108,11 +108,11 @@ p = 9+2a	   12
 p = -11+2a	    4 
 ===========================================
 Enter level: 
->>>> Level (6+2a), norm = 56 <<<<
+>>>> Level [56,6,2] = (6+2a), norm = 56 <<<<
 No newforms.
 ===========================================
 Enter level: 
->>>> Level (-3+6a), norm = 63 <<<<
+>>>> Level [63,9,3] = (-3+6a), norm = 63 <<<<
 
 1 newform(s) at level -3+6a:
 1:	basis = [4,-5,-1,-8];	aplist = [ 1 -1 -1 ]
@@ -147,7 +147,7 @@ p = 9+2a	    4
 p = -11+2a	    4 
 ===========================================
 Enter level: 
->>>> Level (4+5a), norm = 86 <<<<
+>>>> Level [86,18,1] = (4+5a), norm = 86 <<<<
 
 1 newform(s) at level 4+5a:
 1:	basis = [2,6,-2,-9];	aplist = [ 1 -1 0 ]
@@ -182,7 +182,7 @@ p = 9+2a	    0
 p = -11+2a	    0 
 ===========================================
 Enter level: 
->>>> Level (-3+7a), norm = 86 <<<<
+>>>> Level [86,61,1] = (-3+7a), norm = 86 <<<<
 
 1 newform(s) at level -3+7a:
 1:	basis = [1,1,1,-2];	aplist = [ -1 1 1 ]
@@ -217,11 +217,11 @@ p = 9+2a	  -20
 p = -11+2a	   -8 
 ===========================================
 Enter level: 
->>>> Level (8+2a), norm = 88 <<<<
+>>>> Level [88,8,2] = (8+2a), norm = 88 <<<<
 No newforms.
 ===========================================
 Enter level: 
->>>> Level (7+3a), norm = 88 <<<<
+>>>> Level [88,61,1] = (7+3a), norm = 88 <<<<
 
 1 newform(s) at level 7+3a:
 1:	basis = [0,0,1,1,0,-1,1,2];	aplist = [ -1 1 1 ]
@@ -256,7 +256,7 @@ p = 9+2a	  -12
 p = -11+2a	   16 
 ===========================================
 Enter level: 
->>>> Level (2+6a), norm = 88 <<<<
+>>>> Level [88,30,2] = (2+6a), norm = 88 <<<<
 
 1 newform(s) at level 2+6a:
 1:	basis = [1,-1,0,1,-1,-3,0,-2,-1,1,-1,0,-3,0];	aplist = [ 1 -1 1 2 ]
@@ -291,7 +291,7 @@ p = 9+2a	   18
 p = -11+2a	   12 
 ===========================================
 Enter level: 
->>>> Level (-2+7a), norm = 88 <<<<
+>>>> Level [88,50,1] = (-2+7a), norm = 88 <<<<
 
 1 newform(s) at level -2+7a:
 1:	basis = [0,2,-1,1,-2,1,-1,-4];	aplist = [ -1 1 -1 ]
@@ -326,11 +326,11 @@ p = 9+2a	  -12
 p = -11+2a	  -12 
 ===========================================
 Enter level: 
->>>> Level (9+a), norm = 92 <<<<
+>>>> Level [92,9,1] = (9+a), norm = 92 <<<<
 No newforms.
 ===========================================
 Enter level: 
->>>> Level (6+4a), norm = 92 <<<<
+>>>> Level [92,26,2] = (6+4a), norm = 92 <<<<
 No newforms.
 ===========================================
 Enter level: 

@@ -99,7 +99,7 @@ moddata::~moddata()  { ; }
 
 void moddata::display() const
 {
- cout << "Level = " << modulus << endl;
+ cout << "Level = " << ideal_label(modulus) <<" = (" << modulus << ")" << endl;
  cout << "Number of symbols = " << nsymb << endl;
  cout << ndivs << " non-trivial divisors: " << dlist << endl;
  cout << npdivs << " prime divisors: " << plist << endl;

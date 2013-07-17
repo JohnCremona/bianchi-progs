@@ -1,5 +1,5 @@
-Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level (a), norm = 3 <<<<	
-Level = a
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level [3,0,1] = (a), norm = 3 <<<<	
+Level = [3,0,1] = (a)
 Number of symbols = 4
 2 non-trivial divisors: [ 1 a ]
 1 prime divisors: [ a ]
@@ -8,8 +8,8 @@ invlist: [ 0 1 2 ]
 noninvlist: [ 0 ]
 noninvdlist: [ -1 ]
  OK
->>>> Level (2), norm = 4 <<<<	
-Level = 2
+>>>> Level [4,0,2] = (2), norm = 4 <<<<	
+Level = [4,0,2] = (2)
 Number of symbols = 5
 2 non-trivial divisors: [ 1 2 ]
 1 prime divisors: [ 2 ]
@@ -18,8 +18,8 @@ invlist: [ 0 1 3 2 ]
 noninvlist: [ 0 ]
 noninvdlist: [ -1 ]
  OK
->>>> Level (1+a), norm = 5 <<<<	
-Level = 1+a
+>>>> Level [5,1,1] = (1+a), norm = 5 <<<<	
+Level = [5,1,1] = (1+a)
 Number of symbols = 6
 2 non-trivial divisors: [ 1 1+a ]
 1 prime divisors: [ 1+a ]
@@ -28,8 +28,8 @@ invlist: [ 0 1 3 2 4 ]
 noninvlist: [ 0 ]
 noninvdlist: [ -1 ]
  OK
->>>> Level (3), norm = 9 <<<<	
-Level = 3
+>>>> Level [9,0,3] = (3), norm = 9 <<<<	
+Level = [9,0,3] = (3)
 Number of symbols = 16
 4 non-trivial divisors: [ 1 a -1+a 3 ]
 2 prime divisors: [ a -1+a ]
@@ -38,8 +38,8 @@ invlist: [ 0 1 2 -1 4 -2 -3 -4 8 ]
 noninvlist: [ 0 3 5 6 7 ]
 noninvdlist: [ -1 1 2 1 2 ]
  OK
->>>> Level (2+a), norm = 9 <<<<	
-Level = 2+a
+>>>> Level [9,2,1] = (2+a), norm = 9 <<<<	
+Level = [9,2,1] = (2+a)
 Number of symbols = 12
 3 non-trivial divisors: [ 1 -1+a 2+a ]
 1 prime divisors: [ -1+a ]

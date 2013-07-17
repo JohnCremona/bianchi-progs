@@ -1,7 +1,7 @@
 Enter field: Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
 Euclidean
 1231 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level (2+6a), norm = 88 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level [88,30,2] = (2+6a), norm = 88 <<<<
 Dimension = 14
 Computing W(a)...  done. 
 Involution!

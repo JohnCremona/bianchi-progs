@@ -40,7 +40,7 @@ int main ()
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      long normn = quadnorm(n);
      string efilename = eigfile(n);
-     cout << ">>>> Level ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      manin machine(n,0,verbose);   
                // (level, use_old, verbose)
      machine.display();
