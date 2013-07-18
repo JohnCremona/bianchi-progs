@@ -37,8 +37,14 @@ FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
 TESTS9 =  tquads tratquad looptest modtest
 TESTS5 =  symbtest homtest hecketest tmanin dimtable dimtabeis
+export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5)
 	 rm -f t
+	 rm -rf $(NF_DIR)
+	 mkdir $(NF_DIR)
+	 for d in $(FIELDS5); do \
+         mkdir $(NF_DIR)/Qsqrt-$$d; \
+	 done
 	 LDLIBRARY_PATH=$(LD_LIBRARY_PATH):$(LIBDIR)
 	 for p in $(TESTS9); do for d in $(FIELDS9); do \
 	 echo "running $$p for d=$$d";\
@@ -52,6 +58,7 @@ check: $(TESTS9) $(TESTS5)
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout && diff -a $$p.$$d.testout testout/$$p.$$d.out; \
 	 done; done
+	 rm -rf $(NF_DIR)
 	 rm -f *.testout
 
 clean:

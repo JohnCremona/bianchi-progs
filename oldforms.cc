@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "oldforms.h"
+#include "manin.h"
 
 inline int testbit(long a, long i) {return (a& (1<<i));}
 
@@ -14,11 +15,18 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
   if (!data)
     {
       if(verbose)
-        {cout << "No data file for m = " << m; 
-         cout << "  so assuming no newforms at that level." << endl;
-       }
-      nforms=nforms2=nap=0;
-      return;
+        {
+          cout << "No data file for m = " << m;
+          cout << "  so creating newforms at that level..." << endl;
+        }
+      manin olddata(m,0,verbose);
+      olddata.getap(1,iN->nap,1,eigfilename);
+      if(verbose)
+        {
+          cout << "  finsihed creating newforms at level " << m << endl;
+          olddata.display();
+        }
+      data.open(eigfilename.c_str());
     }
   int dump,i,neigsonfile;
   nforms = nforms2 = neigsonfile = 0;
@@ -71,6 +79,13 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 
 // Implementation of oldform member functions
 
+//This must include newforms in the minus space for tests to pass!
+static long min_newform_level_norm[12] = {0,65,
+                                          32,
+                                          49,
+                                          0,0,25,
+                                          0,0,0,0,9};
+
 oldforms::oldforms(const level* iN, int verbose)
 {
    N = iN;
@@ -78,7 +93,20 @@ oldforms::oldforms(const level* iN, int verbose)
    ntp = nap-N->npdivs;
    noldclasses=olddim1=olddim2=0;
    vector<Quad>::const_iterator d=(N->dlist).begin();
-   while(d!=(N->dlist).end()) getoldclasses(*d++,verbose);
+   long min_norm = min_newform_level_norm[Quad::d];
+   while(d!=(N->dlist).end())
+     {
+       if (quadnorm(*d)<min_norm)
+         {
+           if(verbose)
+             cout<<"Skipping oldforms from sublevel "<<(*d)<<" of norm "<<quadnorm(*d)<<" which is less than "<< min_norm <<endl;
+         }
+       else
+         {
+           getoldclasses(*d,verbose);
+         }
+       d++;
+     }
    for (int i=0; i<noldclasses; i++) olddim1+=oldclassdims[i];
    olddimall = olddim1+olddim2;
    if(verbose)
