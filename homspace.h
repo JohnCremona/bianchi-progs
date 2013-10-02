@@ -31,6 +31,8 @@ private:
    vector<long> eigrange(long i);
  protected:
    mat coord, projcoord;
+   long hmod; // if >0, failed to lift from modular linear algebra
+              //so coord is modulo this
    long dimension, denom3, ncusps;
    int cuspidal;  // if 1 then compute cuspidal homology
    mat relmat; long numrel, maxnumrel;
@@ -45,6 +47,7 @@ private:
    long h1denom() const {return denom1;}
    long h1cdenom() const {return denom3;}
    long h1ncusps() const {return ncusps;}
+   long h1hmod() const {return hmod;}
  public:
    vec chain(const symb& s) const;
    vec chaincd(const Quad& c, const Quad& d) const;
@@ -84,32 +87,5 @@ public:
    vec manintwist(const Quad& lambda, const vector<Quad>& res, int* chitable) const;
    vec newhecke(const Quad& p, const Quad& n, const Quad& d) const;
 };
-
-#ifndef USE_XSPLIT
-
-int startswith(const vector<long>& a, const vector<long>& b, long l);
-
-class splitter {
-private:
-  homspace* h1;
-  long maxdepth, depth, h1denom;
-  subspace* nest;
-  vector<long> aplist; Quadlist plist;
-  vec basisvector;
-  int *havemat;
-  mat *opmats;
-  int dual, method, verbose;
-//method=0 for usual elimination using longs
-//method=1 uses long longs
-//method=2 uses large prime modulus P for elimination only
-//method=3 works mod P throughout, lifting only at end.
-public:
-  splitter(homspace* h, long d, int dualflag, int meth, int v=0);
-  ~splitter(void) {delete[] nest; delete[] havemat; delete[] opmats;}
-  void splitoff(const vector<long>& apl);
-  vec getbasis() const {return basisvector;}
-};
-
-#endif  // #ifndef USE_XSPLIT
 
 #endif

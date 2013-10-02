@@ -3,9 +3,7 @@
 #if     !defined(_NEWFORMS_H)
 #define _NEWFORMS_H      1       //flags that this file has been included
 
-#ifdef USE_XSPLIT
 #include <eclib/xsplit.h>   // which includes method.h
-#endif
 #include <eclib/rat.h>
 #include "oldforms.h"
 #include "homspace.h"
@@ -41,10 +39,6 @@ class newforms :public level, splitter_base {
 friend class newform;
 private:
   int dimsplit, maxdepth, upperbound;
-#ifndef USE_XSPLIT
-  mat* tpmats, *wmats;
-  int* tpknown;
-#endif
   mat opmat(int i, int d, int v=0) {return h1->opmat(i,d,v);}
   mat opmat_restricted(int i, const subspace& s, int d, int v=0) 
   {return h1->opmat_restricted(i,s,d,v);}
@@ -62,6 +56,7 @@ protected:
 public:
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1;
+  long hmod;
   vector<newform> nflist;
   newforms(const Quad& n, int useolddata=0, int disp=0);
   ~newforms(void) {
@@ -78,11 +73,6 @@ public:
  private:
   void createfromscratch();
   void createfromeigs();
-#ifndef USE_XSPLIT
-  void usespace(const SUBSP& s, const vector<long>& aplist);
-  void wsplit(const SUBSP& s,int iq,int depth,const vector<long>& aplist);
-  void tsplit(const SUBSP& s,int ip,int depth,const longlist& aplist);
-#endif
 };
 
 #endif

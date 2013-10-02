@@ -1,6 +1,7 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
 #include <eclib/subspace.h>
+#include <eclib/mmatrix.h>
 #include "homspace.h"
 //#define LOOPER
 #ifdef LOOPER
@@ -41,8 +42,10 @@ int main(void)
   homspace h(n,plusflag,0);  //level, plusflag, verbose
   int d = h.h1dim();
   int den = h.h1denom();
+  long hmod = h.h1hmod();
   cout << "Dimension = " << d << endl;
   if(den!=1) cout << "denominator = " << den << endl;
+  if(hmod) cout << "modulus = " << hmod << endl;
 
   vector<Quad> badprimes = h.plist;
   vector<Quad>::const_iterator pr;
@@ -80,7 +83,7 @@ int main(void)
 	  tp = h.heckeop(p,0,mats);
 	  cout << "done. " << flush;
           if (pols)
-            cout << "char poly coeffs = " << charpoly(tp);
+            cout << "char poly coeffs = " << charpoly(mat_m(tp));
           cout<<endl;
 	  for (int kp=0; kp<nq; kp++)
 	    {

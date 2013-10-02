@@ -26,6 +26,13 @@ void manin::findq()
   //  Look for a rational q for which {q,infinity} is nontrivial
   int i,stillok,foundq=0, field=Quad::d;
   qdotlist.resize(n1ds);
+  if (hmod) qdotlistinv.resize(n1ds);
+  for (i=0; i<n1ds; i++)
+    {
+      pdotlist.push_back(nflist[i].pdot);
+      if (hmod)
+	pdotlistinv.push_back(invmod(nflist[i].pdot,hmod));
+    }
   for (Quadlooper dl(field, 2, 1000, 1); dl.ok()&&!foundq; ++dl)
     { Quad d=(Quad)dl;
       if (coprime(d,modulus))
@@ -36,6 +43,12 @@ void manin::findq()
                   initvec=h1->projcycle(n,d);  //starts at 1
                   for (i=0, stillok=1; (i<n1ds) && stillok; i++)
                     { qdotlist[i]= nflist[i].pdot-nflist[i].dp0*initvec[i+1];
+		      if(hmod) 
+			{
+			  qdotlist[i]=mod(qdotlist[i],h1->h1hmod());
+			  if (qdotlist[i])
+			    qdotlistinv[i]=invmod(qdotlist[i],hmod);
+			}
                       stillok = (qdotlist[i]!=0);
                     }
                   foundq = stillok;
@@ -49,7 +62,7 @@ void manin::findq()
 void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
 {
   vec v;
-  int i,ap; int good = ndiv(p,modulus);
+  int i,ap,np; int good = ndiv(p,modulus);
   if(verbose) cout << "p = " << p << "\t"; 
   long maxap=(long)(2*sqrt((double)quadnorm(p))); // for validity check
 
@@ -78,7 +91,11 @@ void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
           v = h1->projmaninvector(p);   //starts at 1
           for (i=0; i<n1ds; i++)
             {
-              ap = 1+quadnorm(p)-((v[i+1]*nflist[i].dp0) / nflist[i].pdot);
+	      if (hmod)
+		np = mod((v[i+1]*nflist[i].dp0) * pdotlistinv[i], hmod);
+	      else
+		np = ((v[i+1]*nflist[i].dp0) / pdotlist[i]);
+	      ap = 1+quadnorm(p)-np;
               if((ap>maxap)||(-ap>maxap))
                 {
                   cout<<"Error:  eigenvalue "<<ap<<" for p="<<p
@@ -111,7 +128,11 @@ void manin::getoneap(const Quad& p, int output, ofstream& out, int verbose)
           v = h1->newhecke(p,nq,dq) - (quadnorm(p)+1)*initvec;  //starts at 1
           for (i=0; i<n1ds; i++)
             { 
-              ap = 1+quadnorm(p)- ( (v[i+1] * nflist[i].dp0) / qdotlist[i] );
+	      if (hmod)
+		np = mod((v[i+1] * nflist[i].dp0) * qdotlistinv[i],hmod);
+	      else
+		np = ( (v[i+1] * nflist[i].dp0) / qdotlist[i] );
+              ap = 1+quadnorm(p)- np;
               if(verbose)cout<<setw(5)<<ap<<" ";
               if(output) out<<setw(5)<<ap;
             }

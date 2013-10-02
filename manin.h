@@ -10,7 +10,7 @@ class manin :public newforms {
 private:
   int easy; 
   Quad nq, dq;
-  vector<long> qdotlist;
+  vector<long> qdotlist, qdotlistinv, pdotlist, pdotlistinv;
   vec initvec;
   void findq();    //Computes nq, dq, qdotlist
   void getoneap(const Quad& p, int output, ofstream& out, int verbose=0);

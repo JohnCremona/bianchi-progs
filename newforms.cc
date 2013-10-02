@@ -28,6 +28,7 @@ newforms::newforms(const Quad& n, int useolddata, int disp)
   ntp=nap-nwq;
   h1=0; 
   makeh1plus();   // necessary until we implement newforms file data
+  hmod = h1->h1hmod();
   of=0;
 //
 // get smallest "good" prime and manin-vector:
@@ -143,25 +144,8 @@ void newforms::createfromscratch()
   if(verbose>1) cout<<"upperbound = "<<upperbound<<endl;
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
-#ifdef USE_XSPLIT
        form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
        ff.find();
-#else
-       tpmats = new mat[ntp];           //Won't be computed until needed
-       tpknown= new int[ntp];
-       int i=ntp;
-       while(i--) tpknown[i]=0;
-       wmats = new mat[npdivs]; i=0;          //All computed at start
-       vector<Quad>::const_iterator pr;
-       for(pr=plist.begin(); pr!=plist.end(); pr++, i++)
-         {wmats[i] = transpose(h1->wop(*pr,0));}
-       subspace startingspace(h1->dimension);            //The full space
-       vector<long> v0;                               //Null list, length 0
-       if(verbose)cout << "W matrices computed; calling wsplit." << endl;
-       wsplit( startingspace, 0, 0, v0);
-       delete[] tpmats; delete[] wmats;
-       delete[] tpknown;
-#endif
      }
   if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
   n2ds=upperbound-n1ds; // dimension of new, non-rational forms
@@ -226,7 +210,9 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
       vec coordi = h1->coord.row(i);
       for (int j=1; j<=n1ds; j++)
         { 
-          h1->projcoord.set(i,j, coordi * (nflist[j-1].basis));
+	  long pcij = coordi * (nflist[j-1].basis);
+	  if (hmod) pcij = mod(pcij,hmod);
+          h1->projcoord.set(i,j, pcij);
         }
     }
 }
@@ -236,11 +222,6 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
 
 void newforms::createfromeigs()
 {
-#ifndef USE_XSPLIT
-  cout << "newforms::createfromeigs() not implemented without USE_XSPLIT"<<endl;
-  return;
-#endif
-
   if(verbose) cout << "Retrieving newform data for N = " << modulus << endl;
 //
 //STEP ONE: Read number of newforms and their eigenvalues from file
@@ -266,132 +247,4 @@ void newforms::createfromeigs()
 
 }
 
-#ifndef USE_XSPLIT
-
-void newforms::usespace(const SUBSP& s, const vector<long>& aplist)
-{
-  if (verbose) 
-  { 
-    cout << "Found a 1D eigenspace! (#" << n1ds+1 << ")" << endl;
-    cout << "List of ap: " << aplist << endl;
-  }
-  vec bas =  getbasis1(&s);
-  use(bas,bas,aplist);  // second parameter is dummy
-}
-
-void newforms::tsplit(const SUBSP& s,int ip,int depth,const vector<long>& aplist)
-{
-   if (verbose) 
-      cout << "In split, depth = " << depth << ", aplist = " << aplist << "\n";
-   int dimsofar = dim(s), dimold = of->dimoldpart(aplist);
-   if (verbose) cout<<"dimsofar="<<dimsofar
-                    <<", dimold="<<dimold
-                    <<", dimnew="<<dimsofar-dimold<<endl;
-   if (dimold==dimsofar)
-     {dimsplit+=dimsofar;
-      if (verbose)
-        {cout<<"Abandoning a common eigenspace of dimension "<<dimsofar;
-         cout<<" which is a sum of oldclasses."<<endl;
-         cout<<"List of ap:"<<aplist<<endl;
-       }
-      return;   // This branch of the recursion ends: all is old
-    }
-   if ((dimsofar==1) && (depth>npdivs)) //Want at least one good p!
-   { usespace(s,aplist); 
-     dimsplit ++;
-     return;
-   }
-   if (depth==maxdepth)
-   { if (1) // we want to see THIS message whatever the verbosity level!
-     { cout << "\nFound a "<<dimsofar<<"D common eigenspace\n";
-       cout << "List of ap: "<<aplist<<"\n";
-       cout << "Abandoning, even though oldforms only make up ";
-       cout << dimold << "D of this." << endl;
-      }
-     dimsplit += dimsofar;
-     return;
-   }
-// The recursive part:
-   int inewp=ip+1; Quad newp = primelist[npdivs+ip];
-   if (! tpknown[ip])
-   { tpmats[ip] = transpose(h1->heckeop(newp,0));
-     tpknown[ip] = 1;
-   }
-   int aplim=0;
-   while (aplim*aplim<=4*quadnorm(newp)) aplim++; aplim--;
-   if (verbose) cout << "Using p = " << newp << ", |ap| up to "<<aplim<<"\n";
-   MAT t = RESTRICT(tpmats[ip] , s);
-
-   for (int a=1; (a<= 2*aplim+1) ; a++)
-   { long ap = (odd(a) ? (1-a)/2 : a/2);
-     SCALAR lambda = h1->h1denom()*ap*denom(s);
-     SUBSP temp = EIGENSPACE(t,lambda);
-     SUBSP newspace = COMBINE(s,temp);
-     int newdim = dim(newspace);
-     if (newdim>0)
-     { int newdepth = depth+1;
-       vector<long> newaplist(newdepth);
-       int i;
-       for (i=0; i<depth; i++) newaplist[i]=aplist(i);
-       newaplist[depth] = ap;
-       tsplit(newspace,inewp,newdepth,newaplist);
-     }
-   }
-}
-
-void newforms::wsplit(const SUBSP& s,int iq,int depth,const vector<long>& aplist)
-{
-   if (verbose) 
-     cout << "In wsplit, depth = " << depth << ", aplist = " << aplist <<endl;
-   int dimsofar = dim(s), dimold = of->dimoldpart(aplist);
-   if (verbose) cout<<"dimsofar="<<dimsofar
-                    <<", dimold="<<dimold
-                    <<", dimnew="<<dimsofar-dimold<<endl;
-   if (dimold==dimsofar)
-     {dimsplit+=dimsofar;
-      if (verbose)
-        {cout<<"Abandoning a common eigenspace of dimension "<<dimsofar;
-         cout<<" which is a sum of oldclasses."<<endl;
-         cout<<"List of ap:"<<aplist<<endl;
-       }
-      return;  //This branch of the recursion ends
-    }
-   if (depth==maxdepth)  // Can't happen as maxdepth>nplist always!
-   { if (verbose)
-     { cout << "\nFound a "<<dimsofar<<"D common eigenspace\n";
-       cout << "List of ap: "<<aplist<<"\n";
-       cout << "Abandoning, even though oldforms only make up ";
-       cout << dimold << "D of this." << endl;
-      }
-     dimsplit += dimsofar;
-     return;
-   }
-
-// The recursive part:
-
-   int inewq=iq+1; Quad newq=primelist[iq];
-   if (verbose) cout << "Using q = " << newq << endl;
-   MAT t = RESTRICT(wmats[iq] , s);
-
-   for (int a=1; (a>-2) ; a-=2)
-   { int aq = a;
-     SCALAR lambda = h1->h1denom()*aq*denom(s);
-     SUBSP temp = EIGENSPACE(t,lambda);
-     SUBSP newspace = COMBINE(s,temp);
-     int newdim = dim(newspace);
-     if (newdim>0)
-     { int newdepth = depth+1;
-       vector<long> newaplist(newdepth);
-       for (int i=0; i<depth; i++) newaplist[i]=aplist(i);
-       newaplist[depth] = aq;
-       if (inewq==npdivs)
-          tsplit(newspace,    0,newdepth,newaplist);
-       else
-          wsplit(newspace,inewq,newdepth,newaplist);
-     }
-   }
-}
-
-#endif // #ifndef USE_XSPLIT
- 
 //end of newforms.cc

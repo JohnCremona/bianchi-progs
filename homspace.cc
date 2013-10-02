@@ -392,7 +392,7 @@ if(verbose)
       cout << "number of relations = " << numrel;
       cout << " (bound was "<<maxnumrel<<")"<<endl;
 #ifdef USE_SMATS
-      cout << "relmat = \n" << relmat<<endl;
+      cout << "relmat = \n" << relmat.as_mat().slice(numrel,ngens)<<endl;
 #endif
     }
 
@@ -401,39 +401,19 @@ if(verbose)
    smat_elim sme(relmat);
    int d1;
    smat ker = sme.kernel(npivs,pivs), sp;
-   int ok = liftmat(ker,MODULUS,sp,d1);
-   if (!ok)
+   if (liftmat(ker,MODULUS,sp,d1))
      {
-       if(verbose)
-         cout << "failed to lift modular kernel using one modulus "
-              << MODULUS << endl;
-       int mod2 = 1073741783; // 2^30-41
-       if(verbose)
-         cout << "repeating kernel computation, modulo " << mod2 << endl;
-       smat_elim sme2(relmat,mod2);
-       vec pivs2, npivs2;
-       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
-       ok = (pivs==pivs2);
-       if (!ok)
-         {
-           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
-         }
-       else
-         {
-           if(verbose) cout << " pivs agree" << endl;
-           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
-         }
-       if (ok)
-         {
-           if(verbose)
-             cout << "success using CRT, denominator= " << d1 << "\n";
-         }
-       else
-         {
-           cout << "CRT combination failed\n" << endl;
-         }
+       hmod = 0;
+       denom1 = d1;
      }
-   denom1=d1;
+   else
+     {
+       hmod = MODULUS;
+       denom1 = 1;
+       if(verbose)
+         cout << "failed to lift modular kernel using modulus "
+              << MODULUS << endl;
+     }
    relmat=smat(0,0);
    if(verbose>1)
      {
@@ -445,6 +425,7 @@ if(verbose)
    coord.init(ngens+1,rk); // 0'th is unused
    for(i=1; i<=ngens; i++) 
      coord.setrow(i,sp.row(i).as_vec());
+   // if hmod>0, coord is only defined modulo hmod
    sp=smat(0,0); // clear space
 #else
   relmat = relmat.slice(numrel,ngens);
@@ -464,7 +445,12 @@ if(verbose)
     {
       cout << "rk = " << rk << endl;
       cout << "coord:" << coord;
-      if(denom1!=1) cout << "denominator = " << denom1 << endl;
+      if(hmod)
+	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
+      else
+	{
+	  cout << "lifted ok, denominator = " << denom1 << endl;
+	}
       cout << "pivots = " << pivs <<endl;
     }
   if (rk>0)
@@ -786,14 +772,11 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
       while (aplim*aplim<=4*normp) aplim++; aplim--;
       if(verbose)
 	cout << "|ap| up to "<<aplim<<":\t";
-      long ap, j, l = 2*aplim+1;
+      long ap, l = 2*aplim+1;
       vector<long> ans(l);
       ans[0]=0;
-      for(ap=1, j=1; ap<=aplim; ap++)
-	{
-	  ans[j++] = ap;
-	  ans[j++] = -ap;
-	}
+      for(ap=-aplim; ap<=aplim; ap++)
+	ans[ap+aplim] = ap;
       if (verbose) 
 	cout << ans << endl;
       return ans;
