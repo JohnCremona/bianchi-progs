@@ -13,10 +13,10 @@ How many Hecke matrices T_p (max 1225)? Computing T_p for p = 3+t
 done. 
 Computing T_p for p = -3+t
 done. 
-Computing T_p for p = 3+2t
-done. 
 Computing T_p for p = -3+2t
 done. 
-Computing T_p for p = 1+3t
+Computing T_p for p = 3+2t
+done. 
+Computing T_p for p = -1+3t
 done. 
 Enter level: 

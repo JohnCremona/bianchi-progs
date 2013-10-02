@@ -12,27 +12,27 @@ quadnorm(a) = 163
 HNF(a) = [ 163 28 1 ]
 ideal_label(a) = [163,28,1]
 Here are the first 20 primes out of 173 (one per line):
-a
--1+a
-2
-1+a
--2+a
--1+2a
-4+a
--5+a
-1+3a
--4+3a
-2+3a
--5+3a
-5+2a
--7+2a
-7
-1+4a
--5+4a
-7+a
--8+a
-5+3a
--8+3a
+a has norm 3 and label [3,0,1]
+-1+a has norm 3 and label [3,2,1]
+2 has norm 4 and label [4,0,2]
+1+a has norm 5 and label [5,1,1]
+-2+a has norm 5 and label [5,3,1]
+-1+2a has norm 11 and label [11,5,1]
+4+a has norm 23 and label [23,4,1]
+-5+a has norm 23 and label [23,18,1]
+-4+3a has norm 31 and label [31,9,1]
+1+3a has norm 31 and label [31,21,1]
+2+3a has norm 37 and label [37,13,1]
+-5+3a has norm 37 and label [37,23,1]
+-7+2a has norm 47 and label [47,20,1]
+5+2a has norm 47 and label [47,26,1]
+7 has norm 49 and label [49,0,7]
+-5+4a has norm 53 and label [53,12,1]
+1+4a has norm 53 and label [53,40,1]
+7+a has norm 59 and label [59,7,1]
+-8+a has norm 59 and label [59,51,1]
+5+3a has norm 67 and label [67,24,1]
+-8+3a has norm 67 and label [67,42,1]
 b=a*a=-83+96a
 val(a,b) = 2
 div(a,b) = 1
@@ -66,8 +66,8 @@ quadbezout(a,-2+a) = 1
 quadbezout(a,-1+2a) = 1
 quadbezout(a,4+a) = 1
 quadbezout(a,-5+a) = 1
-quadbezout(a,1+3a) = 1
 quadbezout(a,-4+3a) = 1
+quadbezout(a,1+3a) = 1
 quadbezout(-1+a,a) = 1
 quadbezout(-1+a,-1+a) = -1+a
 quadbezout(-1+a,2) = 1
@@ -76,8 +76,8 @@ quadbezout(-1+a,-2+a) = 1
 quadbezout(-1+a,-1+2a) = 1
 quadbezout(-1+a,4+a) = 1
 quadbezout(-1+a,-5+a) = 1
-quadbezout(-1+a,1+3a) = 1
 quadbezout(-1+a,-4+3a) = 1
+quadbezout(-1+a,1+3a) = 1
 quadbezout(2,a) = 1
 quadbezout(2,-1+a) = 1
 quadbezout(2,2) = 2
@@ -86,8 +86,8 @@ quadbezout(2,-2+a) = 1
 quadbezout(2,-1+2a) = 1
 quadbezout(2,4+a) = 1
 quadbezout(2,-5+a) = 1
-quadbezout(2,1+3a) = 1
 quadbezout(2,-4+3a) = 1
+quadbezout(2,1+3a) = 1
 quadbezout(1+a,a) = 1
 quadbezout(1+a,-1+a) = 1
 quadbezout(1+a,2) = 1
@@ -96,8 +96,8 @@ quadbezout(1+a,-2+a) = 1
 quadbezout(1+a,-1+2a) = 1
 quadbezout(1+a,4+a) = 1
 quadbezout(1+a,-5+a) = 1
-quadbezout(1+a,1+3a) = 1
 quadbezout(1+a,-4+3a) = 1
+quadbezout(1+a,1+3a) = 1
 quadbezout(-2+a,a) = 1
 quadbezout(-2+a,-1+a) = 1
 quadbezout(-2+a,2) = 1
@@ -106,8 +106,8 @@ quadbezout(-2+a,-2+a) = -2+a
 quadbezout(-2+a,-1+2a) = 1
 quadbezout(-2+a,4+a) = 1
 quadbezout(-2+a,-5+a) = 1
-quadbezout(-2+a,1+3a) = 1
 quadbezout(-2+a,-4+3a) = 1
+quadbezout(-2+a,1+3a) = 1
 quadbezout(-1+2a,a) = 1
 quadbezout(-1+2a,-1+a) = 1
 quadbezout(-1+2a,2) = 1
@@ -116,8 +116,8 @@ quadbezout(-1+2a,-2+a) = 1
 quadbezout(-1+2a,-1+2a) = -1+2a
 quadbezout(-1+2a,4+a) = 1
 quadbezout(-1+2a,-5+a) = 1
-quadbezout(-1+2a,1+3a) = 1
 quadbezout(-1+2a,-4+3a) = 1
+quadbezout(-1+2a,1+3a) = 1
 quadbezout(4+a,a) = 1
 quadbezout(4+a,-1+a) = 1
 quadbezout(4+a,2) = 1
@@ -126,8 +126,8 @@ quadbezout(4+a,-2+a) = 1
 quadbezout(4+a,-1+2a) = 1
 quadbezout(4+a,4+a) = 4+a
 quadbezout(4+a,-5+a) = 1
-quadbezout(4+a,1+3a) = 1
 quadbezout(4+a,-4+3a) = 1
+quadbezout(4+a,1+3a) = 1
 quadbezout(-5+a,a) = 1
 quadbezout(-5+a,-1+a) = 1
 quadbezout(-5+a,2) = 1
@@ -136,18 +136,8 @@ quadbezout(-5+a,-2+a) = 1
 quadbezout(-5+a,-1+2a) = 1
 quadbezout(-5+a,4+a) = 1
 quadbezout(-5+a,-5+a) = -5+a
-quadbezout(-5+a,1+3a) = 1
 quadbezout(-5+a,-4+3a) = 1
-quadbezout(1+3a,a) = 1
-quadbezout(1+3a,-1+a) = 1
-quadbezout(1+3a,2) = 1
-quadbezout(1+3a,1+a) = 1
-quadbezout(1+3a,-2+a) = 1
-quadbezout(1+3a,-1+2a) = 1
-quadbezout(1+3a,4+a) = 1
-quadbezout(1+3a,-5+a) = 1
-quadbezout(1+3a,1+3a) = 1+3a
-quadbezout(1+3a,-4+3a) = 1
+quadbezout(-5+a,1+3a) = 1
 quadbezout(-4+3a,a) = 1
 quadbezout(-4+3a,-1+a) = 1
 quadbezout(-4+3a,2) = 1
@@ -156,6 +146,16 @@ quadbezout(-4+3a,-2+a) = 1
 quadbezout(-4+3a,-1+2a) = 1
 quadbezout(-4+3a,4+a) = 1
 quadbezout(-4+3a,-5+a) = 1
-quadbezout(-4+3a,1+3a) = 1
 quadbezout(-4+3a,-4+3a) = -4+3a
+quadbezout(-4+3a,1+3a) = 1
+quadbezout(1+3a,a) = 1
+quadbezout(1+3a,-1+a) = 1
+quadbezout(1+3a,2) = 1
+quadbezout(1+3a,1+a) = 1
+quadbezout(1+3a,-2+a) = 1
+quadbezout(1+3a,-1+2a) = 1
+quadbezout(1+3a,4+a) = 1
+quadbezout(1+3a,-5+a) = 1
+quadbezout(1+3a,-4+3a) = 1
+quadbezout(1+3a,1+3a) = 1+3a
 done.

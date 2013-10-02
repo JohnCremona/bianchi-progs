@@ -12,27 +12,27 @@ quadnorm(a) = 97
 HNF(a) = [ 97 17 1 ]
 ideal_label(a) = [97,17,1]
 Here are the first 20 primes out of 169 (one per line):
-t
-1+t
--1+t
-3+t
--3+t
-3+2t
--3+2t
-1+3t
--1+3t
-5
-3+4t
--3+4t
-5+3t
--5+3t
-7
-3+5t
--3+5t
-7+3t
--7+3t
-1+6t
--1+6t
+t has norm 2 and label [2,0,1]
+1+t has norm 3 and label [3,1,1]
+-1+t has norm 3 and label [3,2,1]
+3+t has norm 11 and label [11,3,1]
+-3+t has norm 11 and label [11,8,1]
+-3+2t has norm 17 and label [17,7,1]
+3+2t has norm 17 and label [17,10,1]
+-1+3t has norm 19 and label [19,6,1]
+1+3t has norm 19 and label [19,13,1]
+5 has norm 25 and label [25,0,5]
+3+4t has norm 41 and label [41,11,1]
+-3+4t has norm 41 and label [41,30,1]
+5+3t has norm 43 and label [43,16,1]
+-5+3t has norm 43 and label [43,27,1]
+7 has norm 49 and label [49,0,7]
+-3+5t has norm 59 and label [59,23,1]
+3+5t has norm 59 and label [59,36,1]
+-7+3t has norm 67 and label [67,20,1]
+7+3t has norm 67 and label [67,47,1]
+-1+6t has norm 73 and label [73,12,1]
+1+6t has norm 73 and label [73,61,1]
 b=a*a=-47+60t
 val(a,b) = 2
 div(a,b) = 1
@@ -63,99 +63,99 @@ quadbezout(t,1+t) = 1
 quadbezout(t,-1+t) = 1
 quadbezout(t,3+t) = 1
 quadbezout(t,-3+t) = 1
-quadbezout(t,3+2t) = 1
 quadbezout(t,-3+2t) = 1
-quadbezout(t,1+3t) = 1
+quadbezout(t,3+2t) = 1
 quadbezout(t,-1+3t) = 1
+quadbezout(t,1+3t) = 1
 quadbezout(t,5) = 1
 quadbezout(1+t,t) = 1
 quadbezout(1+t,1+t) = 1+t
 quadbezout(1+t,-1+t) = 1
 quadbezout(1+t,3+t) = 1
 quadbezout(1+t,-3+t) = 1
-quadbezout(1+t,3+2t) = 1
 quadbezout(1+t,-3+2t) = 1
-quadbezout(1+t,1+3t) = 1
+quadbezout(1+t,3+2t) = 1
 quadbezout(1+t,-1+3t) = 1
+quadbezout(1+t,1+3t) = 1
 quadbezout(1+t,5) = 1
 quadbezout(-1+t,t) = 1
 quadbezout(-1+t,1+t) = 1
 quadbezout(-1+t,-1+t) = -1+t
 quadbezout(-1+t,3+t) = 1
 quadbezout(-1+t,-3+t) = 1
-quadbezout(-1+t,3+2t) = 1
 quadbezout(-1+t,-3+2t) = 1
-quadbezout(-1+t,1+3t) = 1
+quadbezout(-1+t,3+2t) = 1
 quadbezout(-1+t,-1+3t) = 1
+quadbezout(-1+t,1+3t) = 1
 quadbezout(-1+t,5) = 1
 quadbezout(3+t,t) = 1
 quadbezout(3+t,1+t) = 1
 quadbezout(3+t,-1+t) = 1
 quadbezout(3+t,3+t) = 3+t
 quadbezout(3+t,-3+t) = 1
-quadbezout(3+t,3+2t) = 1
 quadbezout(3+t,-3+2t) = 1
-quadbezout(3+t,1+3t) = 1
+quadbezout(3+t,3+2t) = 1
 quadbezout(3+t,-1+3t) = 1
+quadbezout(3+t,1+3t) = 1
 quadbezout(3+t,5) = 1
 quadbezout(-3+t,t) = 1
 quadbezout(-3+t,1+t) = 1
 quadbezout(-3+t,-1+t) = 1
 quadbezout(-3+t,3+t) = 1
 quadbezout(-3+t,-3+t) = -3+t
-quadbezout(-3+t,3+2t) = 1
 quadbezout(-3+t,-3+2t) = 1
-quadbezout(-3+t,1+3t) = 1
+quadbezout(-3+t,3+2t) = 1
 quadbezout(-3+t,-1+3t) = 1
+quadbezout(-3+t,1+3t) = 1
 quadbezout(-3+t,5) = 1
-quadbezout(3+2t,t) = 1
-quadbezout(3+2t,1+t) = 1
-quadbezout(3+2t,-1+t) = 1
-quadbezout(3+2t,3+t) = 1
-quadbezout(3+2t,-3+t) = 1
-quadbezout(3+2t,3+2t) = 3+2t
-quadbezout(3+2t,-3+2t) = 1
-quadbezout(3+2t,1+3t) = 1
-quadbezout(3+2t,-1+3t) = 1
-quadbezout(3+2t,5) = 1
 quadbezout(-3+2t,t) = 1
 quadbezout(-3+2t,1+t) = 1
 quadbezout(-3+2t,-1+t) = 1
 quadbezout(-3+2t,3+t) = 1
 quadbezout(-3+2t,-3+t) = 1
-quadbezout(-3+2t,3+2t) = 1
 quadbezout(-3+2t,-3+2t) = -3+2t
-quadbezout(-3+2t,1+3t) = 1
+quadbezout(-3+2t,3+2t) = 1
 quadbezout(-3+2t,-1+3t) = 1
+quadbezout(-3+2t,1+3t) = 1
 quadbezout(-3+2t,5) = 1
-quadbezout(1+3t,t) = 1
-quadbezout(1+3t,1+t) = 1
-quadbezout(1+3t,-1+t) = 1
-quadbezout(1+3t,3+t) = 1
-quadbezout(1+3t,-3+t) = 1
-quadbezout(1+3t,3+2t) = 1
-quadbezout(1+3t,-3+2t) = 1
-quadbezout(1+3t,1+3t) = 1+3t
-quadbezout(1+3t,-1+3t) = 1
-quadbezout(1+3t,5) = 1
+quadbezout(3+2t,t) = 1
+quadbezout(3+2t,1+t) = 1
+quadbezout(3+2t,-1+t) = 1
+quadbezout(3+2t,3+t) = 1
+quadbezout(3+2t,-3+t) = 1
+quadbezout(3+2t,-3+2t) = 1
+quadbezout(3+2t,3+2t) = 3+2t
+quadbezout(3+2t,-1+3t) = 1
+quadbezout(3+2t,1+3t) = 1
+quadbezout(3+2t,5) = 1
 quadbezout(-1+3t,t) = 1
 quadbezout(-1+3t,1+t) = 1
 quadbezout(-1+3t,-1+t) = 1
 quadbezout(-1+3t,3+t) = 1
 quadbezout(-1+3t,-3+t) = 1
-quadbezout(-1+3t,3+2t) = 1
 quadbezout(-1+3t,-3+2t) = 1
-quadbezout(-1+3t,1+3t) = 1
+quadbezout(-1+3t,3+2t) = 1
 quadbezout(-1+3t,-1+3t) = -1+3t
+quadbezout(-1+3t,1+3t) = 1
 quadbezout(-1+3t,5) = 1
+quadbezout(1+3t,t) = 1
+quadbezout(1+3t,1+t) = 1
+quadbezout(1+3t,-1+t) = 1
+quadbezout(1+3t,3+t) = 1
+quadbezout(1+3t,-3+t) = 1
+quadbezout(1+3t,-3+2t) = 1
+quadbezout(1+3t,3+2t) = 1
+quadbezout(1+3t,-1+3t) = 1
+quadbezout(1+3t,1+3t) = 1+3t
+quadbezout(1+3t,5) = 1
 quadbezout(5,t) = 1
 quadbezout(5,1+t) = 1
 quadbezout(5,-1+t) = 1
 quadbezout(5,3+t) = 1
 quadbezout(5,-3+t) = 1
-quadbezout(5,3+2t) = 1
 quadbezout(5,-3+2t) = 1
-quadbezout(5,1+3t) = 1
+quadbezout(5,3+2t) = 1
 quadbezout(5,-1+3t) = 1
+quadbezout(5,1+3t) = 1
 quadbezout(5,5) = 5
 done.

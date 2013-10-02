@@ -161,6 +161,7 @@ return s;
 //quadprimes.  NB all primes are "pos" i.e. normalized w.r.t. units
 
 void factorp0(long p, long& a, long& b, int d)
+// finds a,b s.t. a^2+d*b^2=0 (mod p)
 { int found=0;
   for (b=1; !found; b++)
   { long a2 = p - d*b*b;
@@ -171,6 +172,7 @@ void factorp0(long p, long& a, long& b, int d)
 }
  
 void factorp1(long p, long& a, long& b, int d)
+// finds a,b s.t. a^2+a*b+((d+1)/4)*b^2=0 (mod p)
 { int found=0; long fourp = 4*p;
   for (b=1; !found; b++)
   { long a2 = fourp -d*b*b;
@@ -186,7 +188,7 @@ void Quad::initquadprimes()
   int d=Quad::d, disc=-Quad::disc, t=Quad::t;
   vector<Quad> list1,list2;
   long p ; long a,b;
-  Quad pi;
+  Quad pi, piconj;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
     { p=pr;
       int sig = kronecker(disc,p);
@@ -207,9 +209,19 @@ void Quad::initquadprimes()
       case 1:
         if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
 	pi = makepos(Quad(a,b));
-        list1.push_back(pi);
-	pi = makepos(quadconj(pi));
-        list1.push_back(pi);
+	piconj = makepos(quadconj(pi));
+	// We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
+	int c = posmod(a*invmod(b,p),p);
+	if (2*c<p)
+	  {
+	    list1.push_back(pi);
+	    list1.push_back(piconj);
+	  }
+	else
+	  {
+	    list1.push_back(piconj);
+	    list1.push_back(pi);
+	  }
       }
     }
 

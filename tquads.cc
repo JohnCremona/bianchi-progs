@@ -13,7 +13,7 @@ int main ()
  Quad w(0,1);
  cout << "w   = " << w << endl;
  cout << "w*w = " << (w*w) << endl;
- Quad a,b,c;
+ Quad a,b,c,p;
 
  cout << "Enter a Quad, a: ";
  cin >> a;
@@ -29,7 +29,10 @@ int main ()
       << " (one per line):\n";
  vector<Quad>::iterator pr = quadprimes.begin();
  while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
-   cout << *pr++ << endl;
+   {
+     p = *pr++;
+     cout << p << " has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+   }
    
  /*
  cout << "Here are all the primes:\n";
