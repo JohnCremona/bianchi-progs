@@ -4,17 +4,23 @@ METHOD = 2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -g  -Wall -DMETHOD=$(METHOD) -DNTL_ALL -DUSE_PARI_FACTORING
+OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING -UECLIB_MULTITHREAD
 
-ECLIB_BASE=$(HOME)/eclib
+ECLIB_BASE=$(HOME)/eclib#-parallel
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
+
+BOOST_ASIO_LIB = -lboost_system-mt
+BOOST_CPPFLAGS =  -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
+BOOST_LDFLAGS = -L/usr/lib
+BOOST_SYSTEM_LIB = -lboost_system
+BOOST_THREAD_LIB = -lboost_thread
 
 CLEAN = rcsclean
 RANLIB = ranlib
 CP = cp -p
 
-CFLAGS = -c $(OPTFLAG)  -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
+CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
 LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
 
 sources: ccs headers
