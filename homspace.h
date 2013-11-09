@@ -27,7 +27,7 @@ private:
   // versions returning an smat:
    smat s_opmat(int i,int dual,int verb=0);
    smat s_opmat_restricted(int i,const ssubspace& s, int dual,int verb=0);
-   long matdim(void) {return dimension;} 
+   long matdim(void) {return dimension;}
    vector<long> eigrange(long i);
  protected:
    mat coord, projcoord;
@@ -39,7 +39,7 @@ private:
    void userel(vec& rel);
  public:
    homspace(const Quad& n, int hp, int verb);
-   ~homspace() {delete[] coordindex; delete[] needed; 
+   ~homspace() {delete[] coordindex; delete[] needed;
                 delete[] freegens; delete[] freemods;
               }
    long h1cuspdim() const {return dim(kern);}
@@ -87,5 +87,8 @@ public:
    vec manintwist(const Quad& lambda, const vector<Quad>& res, int* chitable) const;
    vec newhecke(const Quad& p, const Quad& n, const Quad& d) const;
 };
+
+vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
+mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 
 #endif

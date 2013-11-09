@@ -550,41 +550,61 @@ vec homspace::projchaincd(const Quad& c, const Quad& d) const
 
 vec homspace::chain(const Quad& nn, const Quad& dd) const //=old qtovec2
 {
-   vec ans = chaincd(0,1);
+   vec ans = chaincd(0,1), part;
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
    while (b!=0)
-   { q=a/b; 
-     f=a; a=-b; b= f-q*b; 
+   { q=a/b;
+     f=a; a=-b; b= f-q*b;
      e=d; d= c; c= e+q*c; c=-c;
-     ans += chaincd(c,d);
+     part = chaincd(c,d);
+     if(hmod)
+       ans.addmodp(part,hmod);
+     else
+       ans += part;
    }
+   if(hmod) ans=reduce_modp(ans,hmod);
    return ans;
 }
 
 vec homspace::projcycle(const Quad& nn, const Quad& dd) const  //
 {
-   vec ans = projchaincd(0,1);
+  vec ans = projchaincd(0,1), part;
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
    while (b!=0)
-   { q=a/b; 
-     f=a; a=-b; b= f-q*b; 
+   { q=a/b;
+     f=a; a=-b; b= f-q*b;
      e=d; d= c; c= e+q*c; c=-c;
-     ans += projchaincd(c,d);
+     part = projchaincd(c,d);
+     if(hmod)
+       ans.addmodp(part,hmod);
+     else
+       ans += part;
    }
+   if(hmod) ans=reduce_modp(ans,hmod);
    return ans;
 }
 
 vec homspace::applyop(const matop& mlist, const RatQuad& q) const
-{ vec ans(rk);  long i=mlist.length;
-  while (i--) ans += chain(mlist[i](q));
+{ vec ans(rk), part;
+  long i=mlist.length;
+  while (i--)
+    {
+      part = chain(mlist[i](q));
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+    }
+  if(hmod) ans=reduce_modp(ans,hmod);
   return ans;
 }
- 
+
 mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int dual, int display) const
 {
   mat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
      { vec colj = applyop(mlist,freemods[j]);
+       if(hmod) colj=reduce_modp(colj,hmod);
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
@@ -600,6 +620,7 @@ smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist,
   smat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
      { svec colj = applyop(mlist,freemods[j]);
+       if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j+1,colj);
      }
   if(cuspidal)
@@ -625,9 +646,13 @@ mat homspace::calcop_restricted(const string opname, const Quad& p, const matop&
      { 
        long jj = pivots(s)[j+1]-1;
        svec colj = applyop(mlist,freemods[jj]);
+       if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j+1,colj.as_vec());
      }
-  m = m*basis(s);
+  if(hmod)
+    m = matmulmodp(m,basis(s),hmod);
+  else
+    m = m*basis(s);
   if(!dual) m=transpose(m); // dual is default for restricted ops
   if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
   if (display && (dimension>1)) cout << endl;
@@ -642,9 +667,11 @@ smat homspace::s_calcop_restricted(const string opname, const Quad& p, const mat
      { 
        long jj = pivots(s)[j];
        svec colj = applyop(mlist,freemods[jj-1]);
+       if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j,colj);
      }
   m = mult_mod_p(m,basis(s),MODULUS);
+  m.reduce_mod_p();
   if(!dual) m=transpose(m); // dual is default for restricted ops
   if (display)
     {
@@ -760,8 +787,8 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
   if(div(p,modulus))
     {
       vector<long> ans(2);
-      ans[0]=1;
-      ans[1]=-1;
+      ans[0]=-1;
+      ans[1]=1;
       if (verbose) 
 	cout << ans << endl;
       return ans;
@@ -785,45 +812,71 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
 
 vec homspace::maninvector(const Quad& p) const
 {
-  vector<Quad> resmodp=residues(p); 
-  vec tvec = chain(0,p);             // =0, but sets the right length.
+  vector<Quad> resmodp=residues(p);
+  vec ans = chain(0,p), part;             // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
-    tvec += chain(*res++,p);
-  //  return kernelpart(tvec);
-  return tvec;
+    {
+      part = chain(*res++,p);
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+    }
+  if(hmod) ans=reduce_modp(ans,hmod);
+  return ans;
 }
 
 vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, int* chitable) const
 {
- vec sum = chain(0,lambda);          // =0, but sets the right length.
+  vec ans = chain(0,lambda), part;          // =0, but sets the right length.
  int *chi=chitable;
  vector<Quad>::const_iterator r=res.begin();
  while(r!=res.end())
-   sum += (*chi++)*chain(*r++,lambda);
- // return kernelpart(sum);
- return sum;
+   {
+     part = (*chi++)*chain(*r++,lambda);
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+   }
+  if(hmod) ans=reduce_modp(ans,hmod);
+ return ans;
 }
 
 vec homspace::projmaninvector(const Quad& p) const    // Will only work after "proj"
 {
-  vector<Quad> resmodp=residues(p); 
-  vec tvec = projcycle(0,p);             // =0, but sets the right length.
+  vector<Quad> resmodp=residues(p);
+  vec ans = projcycle(0,p), part;         // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
-    tvec += projcycle(*res++,p);
-  return tvec;
+    {
+      part = projcycle(*res++,p);
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+    }
+  if(hmod) ans=reduce_modp(ans,hmod);
+  return ans;
 }
 
 vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d) const
                                      // Will only work after "proj"
 { 
-  vec tvec = projcycle(p*n,d);
+  vec ans = projcycle(p*n,d), part;
   vector<Quad> resmodp=residues(p);  Quad dp = d*p;
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
-    tvec += projcycle(n+d*(*res++),dp);
-  return tvec;
+    {
+      part = projcycle(n+d*(*res++),dp);
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+    }
+  if(hmod) ans=reduce_modp(ans,hmod);
+  return ans;
 }
 
 #ifdef USE_SMATS
@@ -904,3 +957,23 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
       }
   return 1;
 }
+
+vec reduce_modp(const vec& v, const scalar& p)
+{
+  int i, d=dim(v);
+  vec ans(d);
+  for(i=1; i<=dim(v); i++)
+    ans[i]=xmod(v[i],p);
+  return ans;
+}
+
+mat reduce_modp(const mat& m, const scalar& p)
+{
+  int i, j, nr=nrows(m), nc=ncols(m);
+  mat ans(nr,nc);
+  for(i=1; i<=nr; i++)
+    for(j=1; j<=nc; j++)
+      ans(i,j)=xmod(m(i,j),p);
+  return ans;
+}
+

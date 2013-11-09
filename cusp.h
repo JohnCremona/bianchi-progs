@@ -15,12 +15,14 @@ class cusplist {
     const moddata* N;
     RatQuad *list;
     int number,maxnumber;
-    int cuspeq(const RatQuad& c1, const RatQuad& c2, int plusflag=0) const;
+    int cuspeq(const RatQuad& c1, const RatQuad& c2) const;
  public:
-  cusplist(int n=0, const moddata* iN=0) :N(iN) {maxnumber=n; number=0; list=new RatQuad[n];}
+  cusplist(int n=0, const moddata* iN=0)
+    :N(iN), number(0), maxnumber(n)
+  {list=new RatQuad[n];}
     ~cusplist() {delete[] list;}
     int index(const RatQuad& a);
     RatQuad item(int n) const {return list[n];}  //should check n really
     void display() const {for(int i=0; i<number; i++) cout<<i<<"\t"<<list[i]<<endl;}
     int count() const {return number;}
-};   
+};

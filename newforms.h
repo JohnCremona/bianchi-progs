@@ -14,23 +14,28 @@ class newform {
 friend class newforms;
 public:
   vec basis; 
-  vector<long> aplist; 
+  vector<long> aplist; // list of Fourier coefficients, all primes in norm order
+  vector<long> aqlist; // list of W-eigenvalues, bad primes in norm order
   Quad lambda;  // twisting prime
 //Quad a,b,c,d,dot;
   rational loverp;
   int dp0, pdot, sfe;            // sign of F.E.
+  int j0; long fac;
   newform(void) :basis(0), aplist(0) {;}
   newform(const newforms* nfs, const vec& v, const vector<long>& ap);
-  newform(const newform& nf) 
-    :basis(nf.basis),aplist(nf.aplist),
+  newform(const newform& nf)
+    :basis(nf.basis),aplist(nf.aplist),aqlist(nf.aqlist),
      lambda(nf.lambda), loverp(nf.loverp),
-     dp0(nf.dp0),pdot(nf.pdot),sfe(nf.sfe) {;}
-  void operator=(const newform& nf) 
+     dp0(nf.dp0),pdot(nf.pdot),sfe(nf.sfe),
+     j0(nf.j0), fac(nf.fac) {;}
+  void operator=(const newform& nf)
     {
-      basis =nf.basis;    aplist   =nf.aplist; 
+      basis =nf.basis;
+      aplist   =nf.aplist;     aqlist   =nf.aqlist;
       lambda=nf.lambda;
       loverp=nf.loverp;   sfe      =nf.sfe;
       pdot  =nf.pdot;     dp0      =nf.dp0;
+      j0 = nf.j0;         fac      =nf.fac;
     }
   void display(void) const;
 };
@@ -50,6 +55,27 @@ private:
   long matden(void) {return h1->denom3;}
   vector<long> eigrange(int i) {return h1->eigrange(i);}
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
+
+  // data used for ap computation
+  int easy;
+  vector<long> pdotlist, pdotlistinv;
+
+  // q stuff now redundant...
+  Quad nq, dq;
+  vector<long> qdotlist, qdotlistinv;
+  vec initvec;
+  void findq();    //Computes nq, dq, qdotlist
+
+  long j0;
+  std::set<long> jlist;
+  // Look for a j0 such that nflist[i].basis[j0]!=0 for all i,
+  //or a set of such j
+  void find_jlist();
+
+  void getoneap(const Quad& p, int verbose=0);
+  vector<long> apvec(const Quad& p);  // computes a[p] for each newform
+  void addap(long last); // adds ap for primes up to the last'th prime
+
 protected:
   oldforms* of;
   Quad p0; vec mvp;
@@ -68,11 +94,15 @@ public:
   void allproj(void);  //Replaces "coord" member of homspace with projections
                        //onto eigenspaces, to save time
   void makeh1plus(void);
-  void use(const vec& b1, const vec& b2, const vector<long> l); 
 // add newform with basis b1, eiglist l to current list (b2 not used)
+  void use(const vec& b1, const vec& b2, const vector<long> l); 
+// originally in manin class (which no longer exists):
+  void getap(int first, int last, int verbose=0);
+  void output_to_file(string eigfile) const;
  private:
   void createfromscratch();
   void createfromeigs();
+  void get_lambda();
 };
 
 #endif

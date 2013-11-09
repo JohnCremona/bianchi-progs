@@ -12,6 +12,7 @@ public:
  int plusflag;
  vector<Quad> plist,dlist,primelist;
  long npdivs,ndivs,normod,nap;
+ int is_square;
 protected:
 //If modulus=(a,b) with norm normod, n0=gcd(a,b), n0m0=normod/n0=n0*m0
  long n0m0, n0,m0, wmodz;
@@ -34,5 +35,9 @@ public:
  int check(int verbose=0) const;     //checks whether resnum & numres work OK
  void abort(char* mess) const {cerr<<"Out of memory ("<<mess<<")\n";  exit(1);}
 };
+
+string ideal_code(const Quad& N); // string code for a (principal)  ideal
+string eigfile(const Quad& N);    //returns filename for eigs at level N
+
 
 #endif

@@ -3,20 +3,18 @@
 
 #include "moddata.h"
 
-// int level::plusflag;
-// long level::npdivs, level::ndivs, level::nap, level::normod, level::n0m0, 
-//      level::n0, level::m0, level::wmodz;
-// Quad level::modulus;
-// vector<Quad> level::plist, level::dlist, level::primelist;
-
 level::level(const Quad& n, long neigs)
 {
   modulus=makepos(n); normod=quadnorm(n);
   plist=pdivs(n); npdivs=plist.size();
   dlist=posdivs(n); ndivs=dlist.size();
+  is_square=1;
+  vector<Quad>::const_iterator pr;
+  for(pr=plist.begin(); pr!=plist.end() && is_square; pr++)
+    if (val(*pr,n)%2) is_square=0;
   nap=neigs;
   primelist=plist;
-  vector<Quad>::const_iterator pr = quadprimes.begin();
+  pr = quadprimes.begin();
   while(pr!=quadprimes.end() && (primelist.size()<(unsigned)nap))
     {
       Quad p = *pr++;
@@ -100,6 +98,7 @@ moddata::~moddata()  { ; }
 void moddata::display() const
 {
  cout << "Level = " << ideal_label(modulus) <<" = (" << modulus << ")" << endl;
+ //if(is_square) cout << "** square level **" << endl;
  cout << "Number of symbols = " << nsymb << endl;
  cout << ndivs << " non-trivial divisors: " << dlist << endl;
  cout << npdivs << " prime divisors: " << plist << endl;
@@ -172,5 +171,46 @@ double gauss(const Quad& m, const vector<Quad>& reslist)
   return ans1;
 }
 
+string ideal_code(const Quad& N) // string code for a (principal) ideal N
+{
+  vector<long>H = HNF(N);
+  stringstream s;
+  s << quadnorm(N) << "." << H[1] << "." << H[2];
+  return s.str();
+}
 
+string eigfile(const Quad& N)    //returns filename for eigs at level N
+{
+  stringstream s;
+  s << getenv("NF_DIR");
+  if (s.str().empty()) {s.clear(); s<<"./newforms";}
+  s << "/2.0." << (Quad::disc) << ".1/";
+  s << ideal_code(N);
+  return s.str();
+}
+
+// old versions:
+
+string old_ideal_code(const Quad& N) // string code for a (principal) ideal N
+{
+  stringstream s;
+  long r=real(N), i=imag(N);
+  if(r<0)    s << "m";
+  s << abs(r);
+  s << "i";
+  if(i<0)    s << "m";
+  s << abs(i);
+  s << char(0);
+  return s.str();
+}
+
+string old_eigfile(const Quad& d)    //returns filename for eigs at level d
+{
+  stringstream s;
+  s << getenv("NF_DIR");
+  if (s.str().empty()) {s.clear(); s<<"./newforms";}
+  s << "/Qsqrt-" << Quad::d << "/e";
+  s << ideal_code(d);
+  return s.str();
+}
 

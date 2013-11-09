@@ -12,7 +12,7 @@
 
 int main(void)
 {
- int d,max=10000;
+  int i,d,max=10000;
  int np,ip,jp,nq; 
  long firstn, lastn; Quad n; int mats, pols, plusflag;
  cout << "Enter field: " << flush;  cin >> d;
@@ -53,7 +53,7 @@ int main(void)
   if (d>0)
     {
       mat id = (den*den)*idmat(int(d));
-      mat wq(d);
+      mat wq(d), wq2;
       vector<mat> wqlist;
       for (pr=badprimes.begin(); pr!=badprimes.end(); pr++)
 	{
@@ -64,13 +64,18 @@ int main(void)
           if (pols)
             cout << "char poly coeffs = " << charpoly(wq);
           cout << endl;
-	  if (wq*wq==id) cout << "Involution!" << "\n";
-	  else           cout << "NOT an involution...." << "\n";
+          wq2 = reduce_modp(matmulmodp(wq,wq,MODULUS),MODULUS);
+	  if (wq2==id) cout << "Involution!" << "\n";
+	  else
+            {
+              cout << "wq^2 = " << matmulmodp(wq,wq,MODULUS) << endl;
+              cout << "NOT an involution...." << "\n";
+            }
 	  wqlist.push_back(wq);
 	}
       cout << "How many Hecke matrices T_p (max "<<nquadprimes<<")? "; 
       cin >> np;
-      mat tp(d);
+      mat tp(d), tpwq, wqtp;
       vector<mat> tplist;
       ip=0;
       for (pr=quadprimes.begin(); 
@@ -87,7 +92,9 @@ int main(void)
           cout<<endl;
 	  for (int kp=0; kp<nq; kp++)
 	    {
-	      if (wqlist[kp]*tp!=tp*wqlist[kp])
+              tpwq = reduce_modp(matmulmodp(tp,wqlist[kp],MODULUS),MODULUS);
+              wqtp = reduce_modp(matmulmodp(wqlist[kp],tp,MODULUS),MODULUS);
+	      if (wqtp!=tpwq)
 	      {
 		cout << "Problem: T_p matrix for p = "<<p
 		     <<" and W_q matrix "<<kp<<" do not commute!" << "\n";
@@ -95,7 +102,9 @@ int main(void)
 	    }
 	  for (jp=0; jp<ip; jp++)
 	    {
-	      if (tp*tplist[jp]!=tplist[jp]*tp)
+              tpwq = reduce_modp(matmulmodp(tp,tplist[jp],MODULUS),MODULUS);
+              wqtp = reduce_modp(matmulmodp(tplist[jp],tp,MODULUS),MODULUS);
+	      if (tpwq!=wqtp)
 		{
 		  cout << "Problem: T_p matrix for p= "<<p
 		       <<" does not commute!" << "\n";

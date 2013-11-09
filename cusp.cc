@@ -4,7 +4,7 @@
 
 //#define DEBUG_CUSP_EQ
 
-int cusplist::cuspeq(const RatQuad& c1, const RatQuad& c2, int plusflag) const
+int cusplist::cuspeq(const RatQuad& c1, const RatQuad& c2) const
 {
 #ifdef DEBUG_CUSP_EQ
   cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
@@ -20,17 +20,17 @@ int cusplist::cuspeq(const RatQuad& c1, const RatQuad& c2, int plusflag) const
 #endif
   int equiv=0; Quad u=1;
   for(int i=0; (!equiv)&&(i<(Quad::nunits)); i++,  u*=fundunit)
-    {equiv = div(q3,(s1-u*s2)); 
-     if(!(plusflag)) {i++; u*=fundunit;}
+    {equiv = div(q3,(s1-u*s2));
+     if(!(N->plusflag)) {i++; u*=fundunit;}
    }
 #ifdef DEBUG_CUSP_EQ
-  cout<<"Returning "<<equiv<<endl;   
+  cout<<"Returning "<<equiv<<endl;
 #endif
   return equiv;
 }
- 
+
 int cusplist::index(const RatQuad& c)
-{  
+{
   // adds c to list if not there already, and return index
   int ans=-1;
   for (int i=0; (i<number) && (ans<0); i++) if (cuspeq(c,list[i]))  ans=i;

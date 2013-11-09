@@ -5,7 +5,7 @@
 
 #include "moddata.h"
 
-class eigdata {  
+class eigdata {
 // Contains eigs info about a sub-level
 // Constructor can be used to get eigs from a lower level to construct oldforms
 //  and also to retrieve data for this level.
@@ -26,7 +26,7 @@ class oldforms {
  private:
   const level* N;
   vector< vector<long> >  oldformap;
-  vector<long> oldclassdims; 
+  vector<long> oldclassdims;
   vector<Quad> oldlevels;
   void getoldclasses(const Quad& d, int verbose);
  public:
@@ -34,7 +34,5 @@ class oldforms {
   long dimoldpart(const vector<long> aplist);
   void display(void) const;
 };
-
-string eigfile(const Quad& d);    //returns filename for eigs at level d
 
 #endif

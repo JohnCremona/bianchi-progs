@@ -28,10 +28,10 @@ sources: ccs headers
 
 ccs: ccs1 ccs2 ccs3
 ccs1: cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
-ccs2: manin.cc moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
+ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
 ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc
 
-headers:cusp.h homspace.h lf1.h looper.h manin.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
+headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -48,8 +48,8 @@ check: $(TESTS9) $(TESTS5)
 	 rm -f t
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
-	 for d in $(FIELDS5); do \
-         mkdir $(NF_DIR)/Qsqrt-$$d; \
+	 for d in 4 8 3 7 11; do \
+         mkdir $(NF_DIR)/2.0.$$d.1; \
 	 done
 	 LDLIBRARY_PATH=$(LD_LIBRARY_PATH):$(LIBDIR)
 	 for p in $(TESTS9); do for d in $(FIELDS9); do \
@@ -78,7 +78,7 @@ tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
 OBJS = symb.o moddata.o quads.o looper.o cusp.o homspace.o \
-       newforms.o oldforms.o manin.o
+       newforms.o oldforms.o
 
 
 tmanin: tmanin.o $(OBJS)
@@ -142,18 +142,16 @@ dimtabeis.o: dimtabeis.cc cusp.h homspace.h symb.h moddata.h ratquads.h \
 	quads.h looper.h
 hecketest.o: hecketest.cc cusp.h homspace.h symb.h moddata.h ratquads.h \
              quads.h looper.h
-tmanin.o: tmanin.cc manin.h looper.h symb.h moddata.h ratquads.h quads.h \
+tmanin.o: tmanin.cc looper.h symb.h moddata.h ratquads.h quads.h \
           looper.h homspace.h newforms.h oldforms.h cusp.h
-testlf1.o : testlf1.cc manin.h oldforms.h moddata.h quads.h newforms.h \
+testlf1.o : testlf1.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h lf1.h
-nftest.o : nftest.cc manin.h oldforms.h moddata.h quads.h newforms.h \
+nftest.o : nftest.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
 moddata.o: moddata.cc moddata.h quads.h
 symb.o: symb.cc symb.h moddata.h ratquads.h quads.h
 cusp.o: quads.h ratquads.h moddata.h symb.h cusp.h cusp.cc
 homspace.o: quads.h ratquads.h moddata.h symb.h cusp.h homspace.h homspace.cc
-manin.o: manin.h manin.cc quads.h ratquads.h moddata.h symb.h cusp.h \
-         homspace.h looper.h newforms.h
 oldforms.o: oldforms.h oldforms.cc moddata.h quads.h
 newforms.o: newforms.h newforms.cc moddata.h quads.h symb.h homspace.h
 looper.o: looper.h looper.cc quads.h

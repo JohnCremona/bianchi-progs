@@ -1,5 +1,5 @@
 #include <fstream>
-#include "manin.h"   // which includes quads.h & moddata.h & etc.
+#include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
@@ -7,7 +7,7 @@
 
 int main ()
 {
- int d,max=1000;
+ int d,max=10000;
  cout << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
@@ -21,6 +21,11 @@ int main ()
  cout << "Verbose? "; cin>>verbose;
   cout << "Which primes for Hecke eigenvalues (first#, last#)? ";
   cin >> startp >> stopp; cout << endl;
+  if (stopp>nquadprimes)
+    {
+      cout<<"Reducing last# to "<<nquadprimes<<endl;
+      stopp=nquadprimes;
+    }
   int output=1;
   cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
@@ -41,10 +46,17 @@ int main ()
      long normn = quadnorm(n);
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     manin machine(n,0,verbose);   
+     newforms nf(n,0,verbose);
                // (level, use_old, verbose)
-     machine.display();
-     machine.getap(startp,stopp,output,efilename,1);
+     //nf.display();
+     nf.getap(startp,stopp,verbose);
+     nf.display();
+     if(output)
+       {
+	 cout << "Writing data to file "<<efilename<<"..."<<flush;
+	 nf.output_to_file(efilename);
+	 cout << "done." << endl;
+       }
      cout<<"==========================================="<<endl;
    }
  cout<<endl;
