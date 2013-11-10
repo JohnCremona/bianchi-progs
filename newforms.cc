@@ -36,7 +36,7 @@ newforms::newforms(const Quad& n, int useolddata, int disp)
   ntp=nap-nwq;
   h1=0; 
   makeh1plus();   // necessary until we implement newforms file data
-  hmod = h1->h1hmod();
+  nfhmod=hmod = h1->h1hmod();
   of=0;
 //
 // get smallest "good" prime and manin-vector:
@@ -255,6 +255,31 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
           h1->projcoord.set(i,j, pcij);
         }
     }
+  if(!hmod) return;
+
+  // Check lifts of projcoord columns
+  vec c1, c2(ncoord);
+  for (int j=1; j<=n1ds; j++)
+    {
+      c1 = h1->projcoord.col(j);
+      if (lift(c1,hmod,c2))
+        {
+          if((c1==c2)||(c1==-c2))
+            {
+              cout<<"projcoord column "<<j<<" is already Z-primitive"<<endl;
+            }
+          else
+            {
+              cout<<"projcoord column "<<j<<"="<<c1<<" lifts ok to Z-primitive "<<c2<<endl;
+              h1->projcoord.setcol(j,c2);
+            }
+          nfhmod=0;
+        }
+      else
+        {
+          cout<<"projcoord column "<<j<<" cannot be lifted to Z"<<endl;
+        }
+    }
 }
 
 // Second constructor, in which data is read from file in directory newforms/ 
@@ -379,6 +404,7 @@ void newforms::find_jlist()
 	{
 	  nflist[i].j0 = j0;
           nflist[i].fac = nflist[i].basis[j0];
+          if(nfhmod) nflist[i].facinv=invmod(nflist[i].fac,nfhmod);
 	}
     }
   else
@@ -461,7 +487,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 
   long maxap=(long)(2*sqrt((double)normp)); // for validity check
 
-  map<long,vec> images; // [j,v] stores image of j'th M-symbol in v
+  map<int,vec> images; // [j,v] stores image of j'th M-symbol in v
                         // (so we don't compute any more than once)
   Quad a,b,c,q,u1,u2,u3;
 
@@ -494,13 +520,13 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 #ifdef DEBUG_APVEC
       cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
 #endif
-      if(ind) update(pcd,imagej,ind,h1->hmod);
+      if(ind) update(pcd,imagej,ind,nfhmod);
 // Matrix [p,0;0,1]
       ind = h1->coordindex[h1->index2(p*u,v)];
 #ifdef DEBUG_APVEC
       cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
 #endif
-      if(ind) update(pcd,imagej,ind,h1->hmod);
+      if(ind) update(pcd,imagej,ind,nfhmod);
 // Other matrices
       vector<Quad> resmodp=residues(p);
       vector<Quad>::const_iterator res=resmodp.begin();
@@ -515,7 +541,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
           cout<<"Residue class "<<b<<": ";
           cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif
-          if(ind) update(pcd,imagej,ind,h1->hmod);
+          if(ind) update(pcd,imagej,ind,nfhmod);
           while(b!=0)
             {
               q=a/b; c=a-b*q; u3=q*u2-u1;
@@ -524,7 +550,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 #ifdef DEBUG_APVEC
               cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif
-              if(ind) update(pcd,imagej,ind,h1->hmod);
+              if(ind) update(pcd,imagej,ind,nfhmod);
             }
 #ifdef DEBUG_APVEC
           cout<<" image after term is "<<imagej<<endl;
@@ -543,7 +569,11 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
       cout << "numer = " << images[nflist[i].j0][i+1] << endl;
       cout << "denom = " << nflist[i].fac << endl;
 #endif
-      apv[i]=ap=images[nflist[i].j0][i+1]/nflist[i].fac;
+      if(nfhmod)
+        ap=xmodmul(images[nflist[i].j0][i+1],nflist[i].facinv,nfhmod);
+      else
+        ap=images[nflist[i].j0][i+1]/nflist[i].fac;
+      apv[i]=ap;
 #ifdef DEBUG_APVEC
       cout << "ap = " << ap << endl;
 #endif

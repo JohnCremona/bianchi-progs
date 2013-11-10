@@ -8,7 +8,7 @@ inline int testbit(long a, long i) {return (a& (1<<i));}
 // Implementation of eigdata constructor -- reads data from file
 eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublevel(m)
 {
-  N = iN;
+  N = iN; //verbose=1;
   if(verbose) cout << "Getting eigdata for " << m << endl;
   string eigfilename = eigfile(m);
   ifstream data(eigfilename.c_str());
@@ -89,7 +89,7 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
     int countp=0, countq=0, pindex;
     vector<Quad>::const_iterator pr;
     for (pr=quadprimes.begin();
-	 (pr-quadprimes.begin())<=neigsonfile && ((countp<ntp) || (countq<nwq));
+	 /*(pr-quadprimes.begin())<=neigsonfile &&*/ ((countp<ntp) || (countq<nwq));
 	 pr++)
       {
 	pindex = pr-quadprimes.begin();
@@ -139,11 +139,11 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 	cout<<"Error: not enough T_p eigs in file "
 	    <<eigfilename<<endl;
       }
-    if(countq<nwq)
-      {
-	cout<<"Error: not enough W_q eigs in file "
-	    <<eigfilename<<endl;
-      }
+    // if(countq<nwq)
+    //   {
+    //     cout<<"Error: not enough W_q eigs in file "
+    //         <<eigfilename<<endl;
+    //   }
     if(verbose)
       {
 	cout << "eigs = " << endl;

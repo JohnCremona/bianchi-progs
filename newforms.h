@@ -20,7 +20,7 @@ public:
 //Quad a,b,c,d,dot;
   rational loverp;
   int dp0, pdot, sfe;            // sign of F.E.
-  int j0; long fac;
+  int j0; int fac, facinv;
   newform(void) :basis(0), aplist(0) {;}
   newform(const newforms* nfs, const vec& v, const vector<long>& ap);
   newform(const newform& nf)
@@ -82,7 +82,7 @@ protected:
 public:
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1;
-  long hmod;
+  long hmod, nfhmod;
   vector<newform> nflist;
   newforms(const Quad& n, int useolddata=0, int disp=0);
   ~newforms(void) {
