@@ -489,6 +489,12 @@ if(verbose)
      if (!ok)
        cout << "**!!!** failed to lift modular kernel\n" << endl;
      denom2=d2;
+    tkernbas = transpose(kern.bas());         // dim(kern) x rank
+    deltamat.init(0); // clear space.
+    if(verbose>1)
+      {
+        cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
+      }
   }
    if(cuspidal)
      dimension = dim(kern);

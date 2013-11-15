@@ -10,34 +10,81 @@
 
 class newforms;
 
+/* Data stored in a newform data files:
+   (Numbers refer to lines of data file)
+The first two lines relate to the level:
+
+1. n1ds : number of rational newforms
+   n2ds : total dimension of non-rational newforms
+2. nap  : number of Fourier coefficients
+
+The next 11 lines (3--13) have n1ds (or 2*n1ds) entries each, one per
+newform for integers and 2 per newform for quads:
+
+3.  sfe : sign of functional equation (= - product of aq)
+4.  pdot: projection of Manin vector
+5.  dp0 : np0=1+Norm(p0)-a_p0, p0 = first good prime
+6.  cuspidalfactor : ratio of period / cuspidal period
+7.  lambda : twisting prime (or 1), a quad
+8.  lambdadot : scaling factor for lambda
+9-12. a, b, c, d : entries of a matrix M=[a,b;N*c,d] in Gamma_0(N) s.t.
+13. matdot       : the integral of f over {0,M(0)} is matdot*x
+
+The next lines contain the Atkin-Lehner eigenvalues for the bad primes
+(in standard order):
+
+aq : list of Wq-eigenvalues at bad primes
+
+The last nap lines contain the Fourier Coefficients indexed by primes,
+in standard order, including bad primes:
+
+ap : list of Fourier coefficients at all primes
+
+*/
+
+
 class newform {
 friend class newforms;
 public:
-  vec basis; 
+  newforms *nf;  // the "parent"
+  vec basis;
   vector<long> aplist; // list of Fourier coefficients, all primes in norm order
   vector<long> aqlist; // list of W-eigenvalues, bad primes in norm order
-  Quad lambda;  // twisting prime
-//Quad a,b,c,d,dot;
-  rational loverp;
-  int dp0, pdot, sfe;            // sign of F.E.
+  int dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good prime
+  int pdot;              // Manin vector's projection factor
+  rational loverp;       // = pdot/(dp0*nunuits)
+  int sfe;               // sign of F.E.
+  Quad lambda; int lambdadot;  // twisting prime and factor
+  Quad a,b,c,d; int matdot;    // integration matrix and factor
   int j0; int fac, facinv;
+  long cuspidalfactor;
   newform(void) :basis(0), aplist(0) {;}
-  newform(const newforms* nfs, const vec& v, const vector<long>& ap);
-  newform(const newform& nf)
-    :basis(nf.basis),aplist(nf.aplist),aqlist(nf.aqlist),
-     lambda(nf.lambda), loverp(nf.loverp),
-     dp0(nf.dp0),pdot(nf.pdot),sfe(nf.sfe),
-     j0(nf.j0), fac(nf.fac) {;}
-  void operator=(const newform& nf)
+  newform(newforms* nfs, const vec& v, const vector<long>& ap);
+  newform(const newform& f)
+    :nf(f.nf), basis(f.basis),aplist(f.aplist),aqlist(f.aqlist),
+     dp0(f.dp0),pdot(f.pdot),
+     loverp(f.loverp),sfe(f.sfe),
+     lambda(f.lambda), lambdadot(f.lambdadot),
+     a(f.a), b(f.b), c(f.c), d(f.d), matdot(f.matdot),
+     j0(f.j0), fac(f.fac) , cuspidalfactor(f.cuspidalfactor) {;}
+  void operator=(const newform& f)
     {
-      basis =nf.basis;
-      aplist   =nf.aplist;     aqlist   =nf.aqlist;
-      lambda=nf.lambda;
-      loverp=nf.loverp;   sfe      =nf.sfe;
-      pdot  =nf.pdot;     dp0      =nf.dp0;
-      j0 = nf.j0;         fac      =nf.fac;
+      nf = f.nf;
+      basis =f.basis;
+      aplist   =f.aplist;     aqlist   =f.aqlist;
+      lambda=f.lambda;
+      loverp=f.loverp;   sfe      =f.sfe;
+      pdot  =f.pdot;     dp0      =f.dp0;
+      a = f.a; b = f.b;  c = f.c; d = f.d;
+      matdot = f.matdot;
+      j0 = f.j0;         fac      =f.fac;
+      cuspidalfactor = f.cuspidalfactor;
     }
   void display(void) const;
+  // To find cuspidal factor:
+  void find_cuspidal_factor(void);
+  // To find matrix for integration:
+  void find_matrix(void);
 };
 
 class newforms :public level, splitter_base {
@@ -64,7 +111,6 @@ private:
   Quad nq, dq;
   vector<long> qdotlist, qdotlistinv;
   vec initvec;
-  void findq();    //Computes nq, dq, qdotlist
 
   long j0;
   std::set<long> jlist;

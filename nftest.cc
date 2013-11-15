@@ -7,7 +7,7 @@
 
 int main ()
 {
- int d,max=1000;
+ int d,max=10000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
  long firstn, lastn; Quad n; int verbose=0;
@@ -24,11 +24,15 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);  long normn = quadnorm(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,1,verbose);
-     nf.display();
-     int denom = nf.h1->h1denom();
-     if(denom!=1) cout << "Denom = " << denom << endl;
+     int nnf = nf.n1ds;
+     if(verbose||nnf)
+       {
+         cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+         nf.display();
+         int denom = nf.h1->h1denom();
+         if(denom!=1) cout << "Denom = " << denom << endl;
        }
+   }
 }
 

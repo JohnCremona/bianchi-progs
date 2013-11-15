@@ -6,15 +6,19 @@
 #include "moddata.h"
 
 class eigdata {
-// Contains eigs info about a sub-level
-// Constructor can be used to get eigs from a lower level to construct oldforms
-//  and also to retrieve data for this level.
+
+// Contains eigs info about a sub-level.  The constructor can be used
+// to get eigs from a lower level to construct oldforms, and also to
+// retrieve data for this level.
+
 public:
   const level *N;
   Quad sublevel;
   int nforms,nforms2;
   int nap;
   vector<vector<long> > eigs;
+  vector<long> sfe, pdot, dp0, cuspidalfactor, lambdadot, matdot;
+  vector<Quad> lambda, a, b, c, d;
   eigdata(const level *iN, const Quad& m, int neigs=-1, int verbose=0);
 };
 

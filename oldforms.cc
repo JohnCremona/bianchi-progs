@@ -48,6 +48,17 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
     eigs.resize(nforms);
     aps.resize(nforms);
     aqs.resize(nforms);
+    sfe.resize(nforms);
+    pdot.resize(nforms);
+    dp0.resize(nforms);
+    cuspidalfactor.resize(nforms);
+    lambda.resize(nforms);
+    lambdadot.resize(nforms);
+    a.resize(nforms);
+    b.resize(nforms);
+    c.resize(nforms);
+    d.resize(nforms);
+    matdot.resize(nforms);
     for(i=0; i<nforms; i++)
       {
 	eigs[i].resize(nap);
@@ -55,7 +66,20 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 	aps[i].resize(nap);
       }
 
-    // First read the W-eigenvalues at level M into aqs:
+    // Read the auxiliary data:
+    for (i=0; i<nforms; i++) data>>sfe[i];
+    for (i=0; i<nforms; i++) data>>pdot[i];
+    for (i=0; i<nforms; i++) data>>dp0[i];
+    for (i=0; i<nforms; i++) data>>cuspidalfactor[i];
+    for (i=0; i<nforms; i++) data>>lambda[i];
+    for (i=0; i<nforms; i++) data>>lambdadot[i];
+    for (i=0; i<nforms; i++) data>>a[i];
+    for (i=0; i<nforms; i++) data>>b[i];
+    for (i=0; i<nforms; i++) data>>c[i];
+    for (i=0; i<nforms; i++) data>>d[i];
+    for (i=0; i<nforms; i++) data>>matdot[i];
+
+    //  Read the W-eigenvalues at level M into aqs:
     vector<vector<long> >::iterator f; long eig;
     for(i=0; i<nq; i++)
       for(f=aqs.begin(); f!=aqs.end(); f++)

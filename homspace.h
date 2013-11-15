@@ -16,11 +16,12 @@
 
 class homspace :public symbdata {
 friend class newforms;
-private:
+public:
   int verbose;
    int *coordindex,*needed,*freegens;
    long rk,denom1,denom2;
    ssubspace kern;
+   smat tkernbas; // transpose of kernel(delta) basis
    modsym *freemods;
    mat opmat(long, int dual=1, int verb=0);
    mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
@@ -29,7 +30,6 @@ private:
    smat s_opmat_restricted(int i,const ssubspace& s, int dual,int verb=0);
    long matdim(void) {return dimension;}
    vector<long> eigrange(long i);
- protected:
    mat coord, projcoord;
    long hmod; // if >0, failed to lift from modular linear algebra
               //so coord is modulo this
@@ -37,7 +37,6 @@ private:
    int cuspidal;  // if 1 then compute cuspidal homology
    mat relmat; long numrel, maxnumrel;
    void userel(vec& rel);
- public:
    homspace(const Quad& n, int hp, int verb);
    ~homspace() {delete[] coordindex; delete[] needed;
                 delete[] freegens; delete[] freemods;
@@ -48,7 +47,6 @@ private:
    long h1cdenom() const {return denom3;}
    long h1ncusps() const {return ncusps;}
    long h1hmod() const {return hmod;}
- public:
    vec chain(const symb& s) const;
    vec chaincd(const Quad& c, const Quad& d) const;
    vec projchaincd(const Quad& c, const Quad& d) const;

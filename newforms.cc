@@ -10,17 +10,93 @@
 #include "oldforms.h"
 #include "newforms.h"
 
-newform::newform(const newforms* nfs, const vec& v, const vector<long>& ap)
+scalar dotmodp(const vec& v1, const vec& v2, scalar pr)
+{
+  scalar ans=0;
+  for(long i=1; i<=dim(v1); i++) ans=xmod(ans+xmodmul(v1[i],v2[i],pr),pr);
+  return mod(ans,pr);
+}
+
+newform::newform(newforms* nfs, const vec& v, const vector<long>& ap)
  :basis(v)
 {
   //cout<<"Constructing newform with aplist = "<<ap<<endl;
-  copy(ap.begin(), ap.begin()+(nfs->npdivs), back_inserter(aqlist));
-  dp0    =  1 + quadnorm(nfs->p0) - ap[nfs->npdivs];
-  pdot   =  (nfs->mvp)*basis;
-  if(nfs->hmod) pdot=mod(pdot,nfs->hmod);
+  nf=nfs;
+  copy(ap.begin(), ap.begin()+(nf->npdivs), back_inserter(aqlist));
+  dp0    =  1 + quadnorm(nf->p0) - ap[nf->npdivs];
+  if(nf->hmod)
+    pdot = dotmodp((nf->mvp),basis,nf->hmod);
+  else
+    pdot = (nf->mvp)*basis;
   //cout<<"dp0 = "<<dp0<<", pdot="<<pdot<<endl;
-  loverp = rational(abs(pdot),dp0*(Quad::nunits));  //No division by h1denom()
+  //No division by h1denom() here:
+  loverp = rational(abs(pdot),dp0*(Quad::nunits));
   sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+  // Find the ratio of the least period w.r.t. integral homology
+  // divided by the least period w.r.t. homology relative to cusps.
+  find_cuspidal_factor();
+  find_matrix();
+}
+
+void newform::find_cuspidal_factor(void)
+{
+  vec bc;
+  int verbose = nf->verbose;
+  cuspidalfactor=1;
+
+  if(!(nf->h1->cuspidal))
+    {
+      bc=(nf->h1->tkernbas)*basis;
+      cuspidalfactor = vecgcd(bc);
+      bc /= cuspidalfactor;
+    }
+  if(verbose&&(cuspidalfactor>1))
+    {
+      cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
+      if(verbose>2) cout<<"bc = "<<bc<<endl;
+    }
+}
+
+void newform::find_matrix()
+{
+  int verbose=(nf->verbose);
+  if(verbose) cout<<"computing a,b,c,d..."<<flush;
+  Quad N = nf->modulus;
+  matdot=0;
+   //  Look for a QuadRational q=b/d for which {0,q}={0,g(0)} is
+   //  nontrivial, and record the matrix g and matdot = the multiple
+   //  of the fundamental period which the integral over {0,g(0)} is.
+  for (Quadlooper dl(Quad::d, 2, 1000, 1); dl.ok()&&!matdot; ++dl)
+    { d=(Quad)dl;
+      if (coprime(d,N))
+        {
+          //cout<<"d="<<d<<endl;
+          vector<Quad> reslist = residues(d);
+          vector<Quad>::const_iterator res;
+          for(res=reslist.begin(); res!=reslist.end() && !matdot; res++)
+            {
+              b=*res;
+              Quad g = quadbezout(N*b,d,c,a);  // b*N*c+a*d=1
+              if (quadnorm(g)==1)
+                {   // found a candidate q=b/d
+                  //cout<<"b="<<b<<endl;
+                  vec v=nf->h1->chain(b,d);  //starts at 1
+                  //cout<<"v="<<v<<endl;
+                  if(nf->hmod)
+                    matdot = dotmodp(v,basis,nf->hmod);
+                  else
+                    matdot = v*basis;
+                  //cout<<"matdot="<<matdot<<endl;
+                  if (matdot)
+                    {
+                      c = -N*c;
+                      if (!(a*d-b*c==1))
+                        cout<<"Error computing matrix"<<endl;
+                    }
+                } // b coprime to d
+            } // loop over b
+        } // d coprime to modulus
+    } // loop over d
 }
 
 void newforms::makeh1plus(void)
@@ -74,36 +150,34 @@ void newforms::get_lambda()
   int* gotlambda = new int[n1ds];
   int i, nfound=0;
 #ifdef DEBUG_LAMBDA
-  if(verbose)
-  {
-   cout<<"Newform data so far:\n";
-   for(int k=0; k<n1ds; k++) nflist[k].display();
-   cout<<"Now looking for twisting primes.\n";
-  }
+  if(verbose) cout<<"Looking for twisting primes.\n";
 #endif
-  for (i=0; i<n1ds; i++) 
-    if(nflist[i].pdot!=0) 
+  for (i=0; i<n1ds; i++)
+    if(nflist[i].pdot!=0)
       {
 #ifdef DEBUG_LAMBDA
-        if(verbose)cout<<"Newform "<<i<<": lambda=1 will do.\n";
+        if(verbose) cout<<"Newform "<<i<<": lambda=1 will do.\n";
 #endif
         nflist[i].lambda=Quad(1);
+        nflist[i].lambdadot=nflist[i].pdot;
         gotlambda[i]=1;
         nfound++;
       }
-    else 
+    else
       {
         nflist[i].lambda=Quad(0); // indicates no lambda exists
+        nflist[i].lambdadot=0;
 	gotlambda[i]=0;
       }
 #ifdef DEBUG_LAMBDA
   if(verbose)cout<<nfound<<" easy cases out of "<<n1ds<<endl;
 #endif
-  if (is_square) 
+  if (is_square)
     {
       delete[] gotlambda;
       return;
     }
+
   vector<Quad>::const_iterator pr;
   for(pr=quadprimes.begin(); pr!=quadprimes.end() && (nfound<n1ds); pr++)
     { Quad lam = *pr;
@@ -134,8 +208,11 @@ void newforms::get_lambda()
                       if(verbose)cout<<"trying: ";
 #endif
                       newform& nfj = nflist[j];
-                      int dot = abs(mvtw*nfj.basis);
-                      if(hmod) dot=mod(dot,hmod);
+                      int dot;
+                      if(hmod)
+                        dot = abs(dotmodp(mvtw,nfj.basis,hmod));
+                      else
+                        dot = abs(mvtw*nfj.basis);
                       if(dot&&((chimod*nfj.sfe)==+1))
                         {
 #ifdef DEBUG_LAMBDA
@@ -143,6 +220,7 @@ void newforms::get_lambda()
 #endif
                           nfj.loverp = rational(dot,(Quad::nunits));
                           nfj.lambda = lam;
+                          nfj.lambdadot = dot;
                           gotlambda[j] = 1;
                           nfound++;
                         }
@@ -209,7 +287,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> aplist)
 void newforms::display(void) const
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
- cout << "\n"<<n1ds<<" newform(s) at level " << modulus << ":" << endl;
+ cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(modulus) << " = " << modulus << ":" << endl;
  for(int i=0; i<n1ds; i++)
    {cout<<i+1<<":\t";
     nflist[i].display();
@@ -222,8 +300,9 @@ void newform::display(void) const
       << ";\taqlist = " << aqlist 
       << ";\taplist = " << aplist << endl;
  cout << "Sign of F.E. = " << sfe << endl;
- cout << "Twisting prime lambda = " << lambda << endl;
- cout << "L/P ratio    = " << loverp << endl;
+ cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
+ cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+ cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 }
 
 vec newforms::proj(const vec& v)  //returns vec of components in each eig-space
@@ -231,13 +310,6 @@ vec newforms::proj(const vec& v)  //returns vec of components in each eig-space
   vec ans(n1ds);
   for (int i=0; i<n1ds; i++) ans[i+1]=(nflist[i].basis)*v;
   return ans;
-}
-
-scalar dotmodp(const vec& v1, const vec& v2, scalar pr)
-{
-  scalar ans=0;
-  for(long i=1; i<=dim(v1); i++) ans=xmod(ans+xmodmul(v1[i],v2[i],pr),pr);
-  return mod(ans,pr);
 }
 
 void newforms::allproj() //Replaces "coord" member of homspace with projections
@@ -282,8 +354,8 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
     }
 }
 
-// Second constructor, in which data is read from file in directory newforms/ 
-// If not, recreates it from eigs
+// Second constructor, in which data is read from file in directory
+// newforms. If not, recreates it from eigs
 
 void newforms::createfromeigs()
 {
@@ -297,12 +369,14 @@ void newforms::createfromeigs()
   if(n1ds==0) return;
 //
 //STEP 2: Find bases
-//We now have the aplists for the newforms (in filedata.eigs), and must 
-//find the corresponding basis vectors. 
+//We now have the aplists for the newforms (in filedata.eigs), and must
+//find the corresponding basis vectors.
 //
 
   form_finder splitspace(this, 1, nap, 0, 1, verbose);
-  upperbound = n1ds; n1ds=0;  
+  // cout<<"About to recover "<<n1ds<<" eigenspaces with eigs:"<<endl;
+  // for(int i=0; i<n1ds; i++) cout<<filedata.eigs[i]<<endl;
+  upperbound = n1ds; n1ds=0;
   splitspace.recover(filedata.eigs);
   if(n1ds!=upperbound)
     {
@@ -355,12 +429,99 @@ void newforms::output_to_file(string eigfile) const
   int echo=0;
   ofstream out;
   out.open(eigfile.c_str());
+  // Line 1
   out<<n1ds<<" "<<n2ds<<endl;
   if(echo) cout<<n1ds<<" "<<n2ds<<endl;
-  out<<nap<<endl;
-  if(echo) cout<<nap<<endl;
+  if(!n1ds)
+    {
+      out.close();
+      return;
+    }
+  // Line 2
+  out<<nap<<endl;  if(echo) cout<<nap<<endl;
   vector<newform>::const_iterator f;
   vector<long>::const_iterator ap;
+  // Line 3: SFEs
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->sfe)<<" ";
+      if(echo) cout<<setw(5)<<(f->sfe)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 4: pdots
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->pdot)<<" ";
+      if(echo) cout<<setw(5)<<(f->pdot)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 5: dp0s
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->dp0)<<" ";
+      if(echo) cout<<setw(5)<<(f->dp0)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 6: cuspidal factors
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->cuspidalfactor)<<" ";
+      if(echo) cout<<setw(5)<<(f->cuspidalfactor)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 7: lambdas
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      Quad lambda = f->lambda;
+      out<<setw(5)<<real(lambda)<<" "<<imag(lambda)<<" ";
+      if(echo) cout<<setw(5)<<real(lambda)<<" "<<imag(lambda)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 8: lambdadots
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->lambdadot)<<" ";
+      if(echo) cout<<setw(5)<<(f->lambdadot)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Lines 9,10,11,12: a,b,c,d:
+  Quad a;
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      a = f->a;
+      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      a = f->b;
+      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      a = f->c;
+      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      a = f->d;
+      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  // Line 13: matdots
+  for(f=nflist.begin(); f!=nflist.end(); f++)
+    {
+      out<<setw(5)<<(f->matdot)<<" ";
+      if(echo) cout<<setw(5)<<(f->matdot)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+  out<<endl;  if(echo) cout<<endl;
   for(int i=0; i<nwq; i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); f++)
@@ -371,8 +532,7 @@ void newforms::output_to_file(string eigfile) const
       out<<endl;
       if(echo) cout<<endl;
     }
-  out<<endl;
-  if(echo) cout<<endl;
+  out<<endl;  if(echo) cout<<endl;
   for(int i=0; i<nap; i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); f++)
@@ -380,8 +540,7 @@ void newforms::output_to_file(string eigfile) const
 	  out<<setw(5)<<(f->aplist)[i]<<" ";
 	  if(echo) cout<<setw(5)<<(f->aplist)[i]<<" ";
 	}
-      out<<endl;
-      if(echo) cout<<endl;
+      out<<endl;      if(echo) cout<<endl;
     }
   out.close();
 }
