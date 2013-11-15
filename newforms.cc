@@ -38,6 +38,27 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& ap)
   find_matrix();
 }
 
+newform::newform(newforms* nfs,
+                 const vector<int>& intdata, const vector<Quad>& Quaddata,
+                 const vector<long>& aq, const vector<long>& ap)
+{
+  nf=nfs;
+  sfe = intdata[0];
+  pdot = intdata[1];
+  dp0 = intdata[2];
+  loverp = rational(abs(pdot),dp0*(Quad::nunits));
+  cuspidalfactor = intdata[3];
+  lambda = Quaddata[0];
+  lambdadot = intdata[4];
+  a = Quaddata[1];
+  b = Quaddata[2];
+  c = Quaddata[3];
+  d = Quaddata[4];
+  matdot = intdata[5];
+  aqlist = aq;
+  aplist = ap;
+}
+
 void newform::find_cuspidal_factor(void)
 {
   vec bc;
@@ -110,38 +131,18 @@ newforms::newforms(const Quad& n, int useolddata, int disp)
   nap=level::nap;
   nwq=level::npdivs;
   ntp=nap-nwq;
-  h1=0; 
-  makeh1plus();   // necessary until we implement newforms file data
-  nfhmod=hmod = h1->h1hmod();
+  h1=0;
   of=0;
+  nfhmod=0;
 //
-// get smallest "good" prime and manin-vector:
+// get smallest "good" prime:
 //
   vector<Quad>::const_iterator pr=quadprimes.begin();
-  p0 = *pr; 
+  p0 = *pr;
   while (div(p0,modulus)) p0=*pr++;     // First "good" prime
-  mvp=h1->maninvector(p0);
-  if(verbose) 
-    {
-      cout<<"Constructing newforms\n";
-      cout<<"p0 = "<<p0<<", mvp = "<<mvp<<"\n";
-    }
 
-  if(useolddata)createfromeigs(); 
+  if(useolddata)createfromdata();
   else createfromscratch();
-
-  if(n1ds==0) return; // else no work to do
-
-// Find the twisting primes for each newform (more efficient to do
-// this here instead of within the newform constructors, as one lambda
-// might work for more than one newform). NB If the level is square
-// SFE=-1 then no such lambda will exist.
-
-  get_lambda();
-
-  makeh1plus(); // In case it wasn't done in the newforms constructor
-  allproj();    // Compute homspace::projcoord, so projcycle can be used
-  find_jlist();
 }
 
 void newforms::get_lambda()
@@ -237,8 +238,24 @@ void newforms::get_lambda()
 
 void newforms::createfromscratch()
 {
+  if(verbose)
+    cout<<"Constructing homspace...\n";
+  makeh1plus();
+  nfhmod=hmod = h1->h1hmod();
+  mvp=h1->maninvector(p0);
+  int dimcusp = h1->h1cuspdim();
+  int dimall = h1->h1dim();
+  if(verbose)
+      cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
+
+  if(verbose)
+    cout<<"Retrieving oldform data...\n";
   of = new oldforms(this,verbose>1);
-  if(verbose)of->display();
+  if(verbose)
+    of->display();
+
+  if(verbose)
+    cout<<"Finding rational newforms...\n";
   maxdepth = nap;
   long mindepth = npdivs;
   dimsplit = n1ds = 0;
@@ -260,12 +277,25 @@ void newforms::createfromscratch()
   n2ds=upperbound-n1ds; // dimension of new, non-rational forms
   if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
   if(verbose)
-    {cout << "Total dimension " << h1->h1dim() << " made up as follows:\n";
+    {cout << "Total dimension " << dimall << " made up as follows:\n";
      cout << "dim(newforms) = " << n1ds+n2ds << " of which " << n1ds << " is rational; \n";
      cout << "dim(oldforms) = " << olddimall << " of which " << (of->olddim1) << " is rational; \n";
      cout<<endl;
    }
   delete of;
+
+  if(n1ds==0) return; // else no work to do
+
+// Find the twisting primes for each newform (more efficient to do
+// this here instead of within the newform constructors, as one lambda
+// might work for more than one newform). NB If the level is square
+// SFE=-1 then no such lambda will exist.
+
+  get_lambda();
+  makeh1plus(); // In case it wasn't done in the newforms constructor
+  allproj();    // Compute homspace::projcoord, so projcycle can be used
+  find_jlist();
+
 }
 
 void newforms::use(const vec& b1, const vec& b2, const vector<long> aplist)
@@ -287,7 +317,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> aplist)
 void newforms::display(void) const
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
- cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(modulus) << " = " << modulus << ":" << endl;
+ cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(modulus) << " = (" << modulus << "):" << endl;
  for(int i=0; i<n1ds; i++)
    {cout<<i+1<<":\t";
     nflist[i].display();
@@ -305,12 +335,12 @@ void newform::display(void) const
  cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 }
 
-vec newforms::proj(const vec& v)  //returns vec of components in each eig-space
-{
-  vec ans(n1ds);
-  for (int i=0; i<n1ds; i++) ans[i+1]=(nflist[i].basis)*v;
-  return ans;
-}
+// vec newforms::proj(const vec& v)  //returns vec of components in each eig-space
+// {
+//   vec ans(n1ds);
+//   for (int i=0; i<n1ds; i++) ans[i+1]=(nflist[i].basis)*v;
+//   return ans;
+// }
 
 void newforms::allproj() //Replaces "coord" member of homspace with projections
                       //onto eigenspaces, to save time
@@ -357,22 +387,31 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
 // Second constructor, in which data is read from file in directory
 // newforms. If not, recreates it from eigs
 
-void newforms::createfromeigs()
+void newforms::createfromdata()
 {
   if(verbose) cout << "Retrieving newform data for N = " << modulus << endl;
-//
-//STEP ONE: Read number of newforms and their eigenvalues from file
-//
-  eigdata filedata(this,modulus,-1,0);  // neigs=-1 means get ALL from file
+
+// Read newform data from file into eigdata structure.
+
+  eigdata filedata(this,modulus,-1,verbose>1);  // neigs=-1 means get ALL from file
+
+// Extract number of newforms and their eigenvalues from this.
+
   nnflist=n1ds=filedata.nforms;
   n2ds=filedata.nforms2;
-  if(n1ds==0) return;
+
+ // construct the newforms from this data
+  for(int i=0; i<n1ds; i++)
+    nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
+                                  filedata.aqs[i],filedata.aps[i]));
+}
+
+#if(0)
 //
 //STEP 2: Find bases
 //We now have the aplists for the newforms (in filedata.eigs), and must
 //find the corresponding basis vectors.
 //
-
   form_finder splitspace(this, 1, nap, 0, 1, verbose);
   // cout<<"About to recover "<<n1ds<<" eigenspaces with eigs:"<<endl;
   // for(int i=0; i<n1ds; i++) cout<<filedata.eigs[i]<<endl;
@@ -384,7 +423,7 @@ void newforms::createfromeigs()
            << "only successfully reconstructed " << n1ds << endl;
     }
 
-}
+#endif
 
 void newforms::getoneap(const Quad& p, int verbose)
 {

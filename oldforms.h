@@ -16,9 +16,10 @@ public:
   Quad sublevel;
   int nforms,nforms2;
   int nap;
-  vector<vector<long> > eigs;
-  vector<long> sfe, pdot, dp0, cuspidalfactor, lambdadot, matdot;
-  vector<Quad> lambda, a, b, c, d;
+  vector<vector<long> > aqs, aps, eigs;
+  vector<vector<int> > intdata;  // sfe, pdot, dp0, cuspidalfactor,
+                                 // lambdadot, matdot
+  vector<vector<Quad> > Quaddata; // lambda, a, b, c, d
   eigdata(const level *iN, const Quad& m, int neigs=-1, int verbose=0);
 };
 

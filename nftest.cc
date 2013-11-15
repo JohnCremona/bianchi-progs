@@ -1,6 +1,6 @@
 #include <fstream>
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
 #endif
@@ -28,10 +28,8 @@ int main ()
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {
-         cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+         cout << "\n>>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
          nf.display();
-         int denom = nf.h1->h1denom();
-         if(denom!=1) cout << "Denom = " << denom << endl;
        }
    }
 }

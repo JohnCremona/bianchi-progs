@@ -44,40 +44,32 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
     int ntp=nap-nwq;
     vector<Quad> qlist = pdivs(m);
     int nq = qlist.size();
-    vector<vector<long> > aps, aqs;
     eigs.resize(nforms);
     aps.resize(nforms);
     aqs.resize(nforms);
-    sfe.resize(nforms);
-    pdot.resize(nforms);
-    dp0.resize(nforms);
-    cuspidalfactor.resize(nforms);
-    lambda.resize(nforms);
-    lambdadot.resize(nforms);
-    a.resize(nforms);
-    b.resize(nforms);
-    c.resize(nforms);
-    d.resize(nforms);
-    matdot.resize(nforms);
+    intdata.resize(nforms);
+    Quaddata.resize(nforms);
     for(i=0; i<nforms; i++)
       {
 	eigs[i].resize(nap);
 	aqs[i].resize(nq);
 	aps[i].resize(nap);
+        intdata[i].resize(6);
+        Quaddata[i].resize(5);
       }
 
     // Read the auxiliary data:
-    for (i=0; i<nforms; i++) data>>sfe[i];
-    for (i=0; i<nforms; i++) data>>pdot[i];
-    for (i=0; i<nforms; i++) data>>dp0[i];
-    for (i=0; i<nforms; i++) data>>cuspidalfactor[i];
-    for (i=0; i<nforms; i++) data>>lambda[i];
-    for (i=0; i<nforms; i++) data>>lambdadot[i];
-    for (i=0; i<nforms; i++) data>>a[i];
-    for (i=0; i<nforms; i++) data>>b[i];
-    for (i=0; i<nforms; i++) data>>c[i];
-    for (i=0; i<nforms; i++) data>>d[i];
-    for (i=0; i<nforms; i++) data>>matdot[i];
+    for (i=0; i<nforms; i++) data>>intdata[i][0];  // sfe
+    for (i=0; i<nforms; i++) data>>intdata[i][1];  // pdot
+    for (i=0; i<nforms; i++) data>>intdata[i][2];  // dp0
+    for (i=0; i<nforms; i++) data>>intdata[i][3];  // cuspidalfactor
+    for (i=0; i<nforms; i++) data>>Quaddata[i][0]; // lambda
+    for (i=0; i<nforms; i++) data>>intdata[i][4];  // lambdadot
+    for (i=0; i<nforms; i++) data>>Quaddata[i][1]; // a
+    for (i=0; i<nforms; i++) data>>Quaddata[i][2]; // b
+    for (i=0; i<nforms; i++) data>>Quaddata[i][3]; // c
+    for (i=0; i<nforms; i++) data>>Quaddata[i][4]; // d
+    for (i=0; i<nforms; i++) data>>intdata[i][5];  // matdot
 
     //  Read the W-eigenvalues at level M into aqs:
     vector<vector<long> >::iterator f; long eig;
@@ -105,6 +97,10 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 	for(i=0; i<nforms; i++) cout<<i<<": "<<aqs[i]<<endl;
 	cout << "aps = " << endl;
 	for(i=0; i<nforms; i++) cout<<i<<": "<<aps[i]<<endl;
+	cout << "intdata = " << endl;
+	for(i=0; i<nforms; i++) cout<<i<<": "<<intdata[i]<<endl;
+	cout << "Quaddata = " << endl;
+	for(i=0; i<nforms; i++) cout<<i<<": "<<Quaddata[i]<<endl;
       }
 
     // Now construct the eigenvalue sequence, first Wq eigenvalues for

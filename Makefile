@@ -42,7 +42,7 @@ tests: $(TESTS)
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
 TESTS9 =  tquads tratquad looptest modtest
-TESTS5 =  symbtest homtest hecketest tmanin dimtable dimtabeis
+TESTS5 =  symbtest homtest hecketest tmanin nftest dimtable dimtabeis
 export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5)
 	 rm -f t

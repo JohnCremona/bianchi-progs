@@ -60,6 +60,9 @@ public:
   long cuspidalfactor;
   newform(void) :basis(0), aplist(0) {;}
   newform(newforms* nfs, const vec& v, const vector<long>& ap);
+  newform(newforms* nfs,
+          const vector<int>& intdata, const vector<Quad>& Quaddata,
+          const vector<long>& aq, const vector<long>& ap);
   newform(const newform& f)
     :nf(f.nf), basis(f.basis),aplist(f.aplist),aqlist(f.aqlist),
      dp0(f.dp0),pdot(f.pdot),
@@ -147,7 +150,7 @@ public:
   void output_to_file(string eigfile) const;
  private:
   void createfromscratch();
-  void createfromeigs();
+  void createfromdata();
   void get_lambda();
 };
 
