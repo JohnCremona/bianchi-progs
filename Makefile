@@ -27,21 +27,21 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs1 ccs2 ccs3
-ccs1: cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
+ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
-ccs3: quads.cc symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc
+ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc
 
 headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap nftest nflist dimtable dimtabeis # tmquads xtmanin testlf1
+TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap nftest nflist dimtable dimtabeis # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
-TESTS9 =  tquads tratquad looptest modtest
+TESTS9 =  tquads tratquad looptest modtest fieldinfo
 TESTS5 =  symbtest homtest hecketest tmanin nftest moreap dimtable dimtabeis
 export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5)
@@ -73,6 +73,9 @@ clean:
 
 tquads: tquads.o quads.o
 	$(CC) -o tquads tquads.o quads.o $(LFLAGS)
+
+fieldinfo: fieldinfo.o quads.o
+	$(CC) -o fieldinfo fieldinfo.o quads.o $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
@@ -133,6 +136,7 @@ roundtest: roundtest.o quads.o
 # DEPENDENCIES
 
 quads.o: quads.cc quads.h
+fieldinfo.o: quads.h
 ratquads.o: quads.h ratquads.h
 tratquad.o: tratquad.cc ratquads.h quads.h
 tquads.o: tquads.cc quads.h

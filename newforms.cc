@@ -9,6 +9,7 @@
 #include "looper.h"
 #include "oldforms.h"
 #include "newforms.h"
+#include "eclib/curvesort.h" // for letter codes
 
 scalar dotmodp(const vec& v1, const vec& v2, scalar pr)
 {
@@ -364,7 +365,7 @@ void newforms::list(long nap) const
   string id = ideal_label(modulus);
   for(int i=0; i<n1ds; i++)
     {
-      cout << id << " ("<<modulus<<") ";
+      cout << id << "." << codeletter(i)<< " ("<<modulus<<") ";
       nflist[i].list(nap);
       cout << endl;
     }
