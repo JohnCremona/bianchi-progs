@@ -65,6 +65,7 @@ public:
           const vector<int>& intdata, const vector<Quad>& Quaddata,
           const vector<long>& aq, const vector<long>& ap);
   void display(void) const;
+  void list(long nap=-1) const;
   // To find cuspidal factor:
   void find_cuspidal_factor(void);
   // To find matrix for integration:
@@ -114,8 +115,8 @@ public:
   ~newforms(void) {
                    if(h1)delete h1;
                   }
-  //NB tpmats,tpknown,wmats are created and deleted in the constructor
   void display(void) const;
+  void list(long nap=-1) const;
   vec proj(const vec&);   //returns vec of components in each eig-space
   void allproj(void);  //Replaces "coord" member of homspace with projections
                        //onto eigenspaces, to save time

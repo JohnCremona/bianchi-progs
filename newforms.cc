@@ -359,6 +359,36 @@ void newform::display(void) const
  cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 }
 
+void newforms::list(long nap) const
+{
+  string id = ideal_label(modulus);
+  for(int i=0; i<n1ds; i++)
+    {
+      cout << id << " ("<<modulus<<") ";
+      nflist[i].list(nap);
+      cout << endl;
+    }
+}
+
+void newform::list(long nap) const
+{
+  if(nap==-1) nap=aplist.size();
+  cout << sfe << " " << loverp << " [";
+  vector<long>::const_iterator ai;
+  for(ai=aqlist.begin(); ai!=aqlist.end(); ai++)
+    {
+      if(ai!=aqlist.begin()) cout<<",";
+      cout<<(*ai);
+    }
+  cout << "] [";
+  for(ai=aplist.begin(); ai!=aplist.begin()+nap; ai++)
+    {
+      if(ai!=aplist.begin()) cout<<",";
+      cout<<(*ai);
+    }
+  cout <<"]";
+}
+
 // Sorting functions
 
 // Compare two integers, using the natural order ...-2,-1.0,1,2,...
