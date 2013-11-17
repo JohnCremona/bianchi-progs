@@ -11,6 +11,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4
 L/P ratio    = 1/2, cuspidal factor = 2
 Integration matrix = [3-t,1;-4t,1-t], factor   = 2
+Writing data to file nftmp/2.0.8.1/32.0.4...done.
 ===========================================
 Enter level: 
 >>>> Level [51,7,1] = (7+t), norm = 51 <<<<
@@ -21,6 +22,7 @@ Sign of F.E. = -1
 Twisting prime lambda = 3+2t, factor = 8
 L/P ratio    = 4, cuspidal factor = 1
 Integration matrix = [3+4t,-1;-5-8t,2], factor   = 1
+Writing data to file nftmp/2.0.8.1/51.7.1...done.
 ===========================================
 Enter level: 
 >>>> Level [54,22,1] = (2+5t), norm = 54 <<<<
@@ -31,6 +33,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -6
 L/P ratio    = 1, cuspidal factor = 3
 Integration matrix = [3-2t,1;-2-5t,1-t], factor   = -3
+Writing data to file nftmp/2.0.8.1/54.22.1...done.
 ===========================================
 Enter level: 
 >>>> Level [72,0,6] = (6t), norm = 72 <<<<
@@ -41,6 +44,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1/2, cuspidal factor = 4
 Integration matrix = [-15-t,2+t;-12+12t,3-t], factor   = 4
+Writing data to file nftmp/2.0.8.1/72.0.6...done.
 ===========================================
 Enter level: 
 >>>> Level [98,0,7] = (7t), norm = 98 <<<<
@@ -51,6 +55,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/2, cuspidal factor = 3
 Integration matrix = [5-2t,1;-7t,1-t], factor   = 3
+Writing data to file nftmp/2.0.8.1/98.0.7...done.
 ===========================================
 Enter level: 
 >>>> Level [99,9,3] = (9+3t), norm = 99 <<<<
@@ -61,6 +66,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4
 L/P ratio    = 1/2, cuspidal factor = 4
 Integration matrix = [-3+4t,1;-9-3t,t], factor   = 4
+Writing data to file nftmp/2.0.8.1/99.9.3...done.
 ===========================================
 Enter level: 
 >>>> Level [100,0,10] = (10), norm = 100 <<<<
@@ -71,10 +77,12 @@ Sign of F.E. = -1
 Twisting prime lambda = -3+2t, factor = 4
 L/P ratio    = 2, cuspidal factor = 1
 Integration matrix = [9-2t,2;-10t,1-2t], factor   = -1
+Writing data to file nftmp/2.0.8.1/100.0.10...done.
 ===========================================
 Enter level: 
 >>>> Level [102,44,1] = (2+7t), norm = 102 <<<<
 No newforms.
+Writing data to file nftmp/2.0.8.1/102.44.1...done.
 ===========================================
 Enter level: 
 >>>> Level [114,82,1] = (4+7t), norm = 114 <<<<
@@ -85,6 +93,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4
 L/P ratio    = 1/2, cuspidal factor = 2
 Integration matrix = [-3+4t,1;4+7t,1-t], factor   = 2
+Writing data to file nftmp/2.0.8.1/114.82.1...done.
 ===========================================
 Enter level: 
 >>>> Level [121,0,11] = (11), norm = 121 <<<<
@@ -95,6 +104,7 @@ Sign of F.E. = -1
 Twisting prime lambda = -3+2t, factor = 20
 L/P ratio    = 10, cuspidal factor = 5
 Integration matrix = [5-t,1;-11t,1-2t], factor   = -5
+Writing data to file nftmp/2.0.8.1/121.0.11...done.
 ===========================================
 Enter level: 
 >>>> Level [144,0,12] = (12), norm = 144 <<<<
@@ -105,5 +115,6 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -32
 L/P ratio    = 1, cuspidal factor = 4
 Integration matrix = [-15-t,-1+t;24+12t,3-t], factor   = -4
+Writing data to file nftmp/2.0.8.1/144.0.12...done.
 ===========================================
 Enter level: 

@@ -48,6 +48,7 @@ friend class newforms;
 public:
   newforms *nf;  // the "parent"
   vec basis;
+  vector<long> eigs;   // list of eigenvalues which split off this 1D subspace
   vector<long> aplist; // list of Fourier coefficients, all primes in norm order
   vector<long> aqlist; // list of W-eigenvalues, bad primes in norm order
   int dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good prime
@@ -59,30 +60,10 @@ public:
   int j0; int fac, facinv;
   long cuspidalfactor;
   newform(void) :basis(0), aplist(0) {;}
-  newform(newforms* nfs, const vec& v, const vector<long>& ap);
+  newform(newforms* nfs, const vec& v, const vector<long>& eigs);
   newform(newforms* nfs,
           const vector<int>& intdata, const vector<Quad>& Quaddata,
           const vector<long>& aq, const vector<long>& ap);
-  newform(const newform& f)
-    :nf(f.nf), basis(f.basis),aplist(f.aplist),aqlist(f.aqlist),
-     dp0(f.dp0),pdot(f.pdot),
-     loverp(f.loverp),sfe(f.sfe),
-     lambda(f.lambda), lambdadot(f.lambdadot),
-     a(f.a), b(f.b), c(f.c), d(f.d), matdot(f.matdot),
-     j0(f.j0), fac(f.fac) , cuspidalfactor(f.cuspidalfactor) {;}
-  void operator=(const newform& f)
-    {
-      nf = f.nf;
-      basis =f.basis;
-      aplist   =f.aplist;     aqlist   =f.aqlist;
-      lambda=f.lambda;
-      loverp=f.loverp;   sfe      =f.sfe;
-      pdot  =f.pdot;     dp0      =f.dp0;
-      a = f.a; b = f.b;  c = f.c; d = f.d;
-      matdot = f.matdot;
-      j0 = f.j0;         fac      =f.fac;
-      cuspidalfactor = f.cuspidalfactor;
-    }
   void display(void) const;
   // To find cuspidal factor:
   void find_cuspidal_factor(void);
@@ -121,10 +102,6 @@ private:
   //or a set of such j
   void find_jlist();
 
-  void getoneap(const Quad& p, int verbose=0);
-  vector<long> apvec(const Quad& p);  // computes a[p] for each newform
-  void addap(long last); // adds ap for primes up to the last'th prime
-
 protected:
   oldforms* of;
   Quad p0; vec mvp;
@@ -143,15 +120,23 @@ public:
   void allproj(void);  //Replaces "coord" member of homspace with projections
                        //onto eigenspaces, to save time
   void makeh1plus(void);
-// add newform with basis b1, eiglist l to current list (b2 not used)
-  void use(const vec& b1, const vec& b2, const vector<long> l); 
-// originally in manin class (which no longer exists):
+// add newform with basis b1, eiglist eigs to current list (b2 not used)
+// if use_nf_number=-1;  if >=0 just store eigs and basis in that preexisting nf
+  int use_nf_number;
+  void use(const vec& b1, const vec& b2, const vector<long> eigs);
   void getap(int first, int last, int verbose=0);
+  void getoneap(const Quad& p, int verbose=0);
+  vector<long> apvec(const Quad& p);  // computes a[p] for each newform
   void output_to_file(string eigfile) const;
+  // sorting functions
+  void sort_eigs(void);
+  void sort_lmfdb(void);
  private:
   void createfromscratch();
   void createfromdata();
   void get_lambda();
+ public:
+  void makebases(); // if created from stored data but need bases and homspace
 };
 
 #endif

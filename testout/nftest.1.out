@@ -3,7 +3,7 @@ Enter field: Verbose? Enter level: Retrieving newform data for N = 7+4i
 >>>> Level [65,18,1] = (7+4i), norm = 65 <<<<
 
 1 newform(s) at level [65,18,1] = (7+4i):
-1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 -1 -2 1 -4 0 6 6 -6 ]
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 -1 -2 1 -4 0 6 6 -6 2 2 6 0 -4 6 -6 -10 -10 2 2 6 6 -10 8 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 12
 L/P ratio    = 1, cuspidal factor = 6
@@ -13,7 +13,7 @@ Enter level: Retrieving newform data for N = 6+6i
 >>>> Level [72,6,6] = (6+6i), norm = 72 <<<<
 
 1 newform(s) at level [72,6,6] = (6+6i):
-1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 -2 -2 1 -2 -2 2 2 6 6 ]
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 -2 -2 1 -2 -2 2 2 6 6 6 6 -6 -6 -14 -2 -2 -2 -2 10 10 -6 -6 2 2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1/4, cuspidal factor = 2

@@ -50,6 +50,8 @@ int main ()
                // (level, use_old, verbose)
      //nf.display();
      nf.getap(startp,stopp,verbose);
+     //cout << "After sort_lmfdb():\n";
+     nf.sort_lmfdb();
      nf.display();
      if(output)
        {

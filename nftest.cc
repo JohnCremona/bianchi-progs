@@ -10,9 +10,10 @@ int main ()
  int d,max=10000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
- long firstn, lastn; Quad n; int verbose=0;
+ Quad n; int verbose=0;
  cout << "Verbose? "; cin>>verbose;
 #ifdef LOOPER
+ long firstn, lastn;
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;

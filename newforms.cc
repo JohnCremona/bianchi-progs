@@ -17,13 +17,13 @@ scalar dotmodp(const vec& v1, const vec& v2, scalar pr)
   return mod(ans,pr);
 }
 
-newform::newform(newforms* nfs, const vec& v, const vector<long>& ap)
- :basis(v)
+newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
+  :basis(v), eigs(eigs)
 {
-  //cout<<"Constructing newform with aplist = "<<ap<<endl;
+  //cout<<"Constructing newform with eigs "<<eigs<<endl;
   nf=nfs;
-  copy(ap.begin(), ap.begin()+(nf->npdivs), back_inserter(aqlist));
-  dp0    =  1 + quadnorm(nf->p0) - ap[nf->npdivs];
+  copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
+  dp0    =  1 + quadnorm(nf->p0) - eigs[nf->npdivs];
   if(nf->hmod)
     pdot = dotmodp((nf->mvp),basis,nf->hmod);
   else
@@ -57,6 +57,17 @@ newform::newform(newforms* nfs,
   matdot = intdata[5];
   aqlist = aq;
   aplist = ap;
+  // recreate eigs list (in case we need to recover basis vector):
+  // start with Atkin-Lehner eigs aq, then Tp eigs ap for good p
+  eigs = aq;
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<long>::const_iterator api=aplist.begin();
+  while ((eigs.size()<20) && (api!=aplist.end()))
+    {
+      while (div(*pr,nf->modulus))  { pr++; api++; }
+      eigs.push_back(*api++);
+      pr++;
+    }
 }
 
 void newform::find_cuspidal_factor(void)
@@ -122,7 +133,11 @@ void newform::find_matrix()
 
 void newforms::makeh1plus(void)
 {
-  if(!h1) h1 = new homspace(modulus,1,0);
+  if(!h1)
+    {
+      h1 = new homspace(modulus,1,0);
+      nfhmod=hmod = h1->h1hmod();
+    }
 }
 
 newforms::newforms(const Quad& n, int useolddata, int disp)
@@ -270,8 +285,9 @@ void newforms::createfromscratch()
     }
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
-       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
-       ff.find();
+      use_nf_number=-1; // flags to use() that the nfs found are new
+      form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
+      ff.find();
      }
   if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
   n2ds=upperbound-n1ds; // dimension of new, non-rational forms
@@ -292,25 +308,32 @@ void newforms::createfromscratch()
 // SFE=-1 then no such lambda will exist.
 
   get_lambda();
-  makeh1plus(); // In case it wasn't done in the newforms constructor
   allproj();    // Compute homspace::projcoord, so projcycle can be used
   find_jlist();
-
+  nap=0;
 }
 
-void newforms::use(const vec& b1, const vec& b2, const vector<long> aplist)
+void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
 {
-  if (n1ds<upperbound)
+  if (use_nf_number==-1)
     {
-      nflist.push_back(newform(this,b1,aplist));
-      n1ds++;
+      if (n1ds<upperbound)
+        {
+          nflist.push_back(newform(this,b1,eigs));
+          n1ds++;
+        }
+      else
+        {
+          cout << "Error in splitting eigenspaces: apparently found more ";
+          cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
+               <<upperbound<<").\n";
+          exit(1);
+        }
     }
-  else
+  else // store eigs and basis
     {
-      cout << "Error in splitting eigenspaces: apparently found more ";
-      cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
-           <<upperbound<<").\n";
-      exit(1);
+      nflist[use_nf_number].eigs = eigs;
+      nflist[use_nf_number].basis = b1;
     }
 }
 
@@ -327,6 +350,7 @@ void newforms::display(void) const
 void newform::display(void) const
 {
  cout << "basis = " << basis 
+   //      << ";\teigs = " << eigs 
       << ";\taqlist = " << aqlist 
       << ";\taplist = " << aplist << endl;
  cout << "Sign of F.E. = " << sfe << endl;
@@ -334,6 +358,58 @@ void newform::display(void) const
  cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
  cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 }
+
+// Sorting functions
+
+// Compare two integers, using the natural order ...-2,-1.0,1,2,...
+int less_ap(long a, long b)
+{
+  return sign(a-b);
+}
+
+// Compare two integer vectors lexicographically, using less_ap():
+int less_apvec(const vector<long>& v, const vector<long>& w)
+{
+  vector<long>::const_iterator vi=v.begin(), wi=w.begin();
+  while(vi!=v.end())
+    {
+      int s = less_ap(*vi++,*wi++);
+      if(s) return s;
+    }
+  return 0;
+}
+
+struct less_newform_eigs : public binary_function<newform, newform, bool> {
+  bool operator()(const newform& f, const newform& g)
+  {
+    return less_apvec(f.eigs,g.eigs)==-1;
+  }
+};
+
+struct less_newform_lmfdb : public binary_function<newform, newform, bool> {
+  bool operator()(const newform& f, const newform& g)
+  {
+    return less_apvec(f.aplist,g.aplist)==-1;
+  }
+};
+
+// struct less_apvec_function : public binary_function<const vector<long>&, const vector<long>&, bool> {
+//   bool operator()(const vector<long>& f, const vector<long>& g)
+//   {
+//     return 1==less_apvec(f,g);
+//   }
+// };
+
+void newforms::sort_eigs(void)
+{
+  ::sort(nflist.begin(),nflist.end(),less_newform_eigs());
+}
+
+void newforms::sort_lmfdb(void)
+{
+  ::sort(nflist.begin(),nflist.end(),less_newform_lmfdb());
+}
+
 
 // vec newforms::proj(const vec& v)  //returns vec of components in each eig-space
 // {
@@ -404,26 +480,28 @@ void newforms::createfromdata()
   for(int i=0; i<n1ds; i++)
     nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
                                   filedata.aqs[i],filedata.aps[i]));
+  nap=filedata.nap;
 }
 
-#if(0)
-//
-//STEP 2: Find bases
-//We now have the aplists for the newforms (in filedata.eigs), and must
-//find the corresponding basis vectors.
-//
-  form_finder splitspace(this, 1, nap, 0, 1, verbose);
-  // cout<<"About to recover "<<n1ds<<" eigenspaces with eigs:"<<endl;
-  // for(int i=0; i<n1ds; i++) cout<<filedata.eigs[i]<<endl;
-  upperbound = n1ds; n1ds=0;
-  splitspace.recover(filedata.eigs);
-  if(n1ds!=upperbound)
+void newforms::makebases()
+{
+  if(!h1) makeh1plus();  // create the homology space
+  sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
+  form_finder splitspace(this, 1, nap, 0, 1, 0, verbose);
+  cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
+  for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {
-      cout << "Error: out of " << upperbound << " newform(s) expected, "
-           << "only successfully reconstructed " << n1ds << endl;
+      if (verbose) cout<<"Recovering newform #"<<(use_nf_number+1)
+                       <<", eigs "<<nflist[use_nf_number].eigs<< "...\n";
+      splitspace.splitoff(nflist[use_nf_number].eigs);
     }
-
-#endif
+  if(verbose) cout<<"Finished recovering newform bases, resorting back into lmfdb order..."<<endl;
+  sort_lmfdb();
+  if(verbose>1) cout<<"Doing allproj() and find_jlist()..."<<endl;
+  allproj();
+  find_jlist();
+  if(verbose) cout<<"Finished makebases()"<<endl;
+}
 
 void newforms::getoneap(const Quad& p, int verbose)
 {
@@ -449,17 +527,23 @@ void newforms::getoneap(const Quad& p, int verbose)
 
 void newforms::getap(int first, int last, int verbose)
 {
-  nap=0;
-  if(n1ds>0)
+  if (n1ds==0) return;
+  if(last>nquadprimes)
     {
-      vector<Quad>::const_iterator pr;
-      for(pr=quadprimes.begin(); pr!=quadprimes.end(); pr++)
-	{
-	  long index = pr-quadprimes.begin()+1;
-	  if ( (index>=first) && (index<=last) )
-	    getoneap(*pr,verbose);
-	}
-      nap = nflist[0].aplist.size();
+      last=nquadprimes;
+      cout<<"Cannot compute more than "<<nquadprimes
+          <<" ap since we only have that many primes precomputed"<<endl;
+    }
+  if(last<=nap)
+    {
+      cout<<"Already have "<<nquadprimes <<" ap so no need to compute more"<<endl;
+    }
+  // now nap < last <= nquadprimes
+  vector<Quad>::const_iterator pr = quadprimes.begin()+first-1;
+  while((pr!=quadprimes.end()) && (nap<last))
+    {
+      getoneap(*pr++,verbose);
+      nap++;
     }
 }
 
@@ -785,10 +869,6 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 	}
     }
   return apv;
-}
-
-void newforms::addap(long last) // adds ap for primes up to the last'th prime
-{
 }
 
 //end of newforms.cc

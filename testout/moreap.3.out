@@ -1,0 +1,54 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+Enter field: Verbose? Output new eigs to file (1/0)? Output new eigs to screen (1/0)? Display newforms (1/0)? Enter level: How many primes for Hecke eigenvalues? 
+>>>> Level [73,8,1] = (8+w), norm = 73 <<<<
+Retrieving newform data for N = 8+w
+
+1 newform(s) at level [73,8,1] = (8+w):
+1:	basis = [];	aqlist = [ -1 ];	aplist = [ -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 1 2 14 -10 14 2 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = -6
+L/P ratio    = 1/6, cuspidal factor = 1
+Integration matrix = [3+3w,-w;-8-w,1+w], factor   = -3
+Making homspace and bases...
+About to recover 1 newform bases (nap=25)
+Recovering newform #1, eigs [ -1 -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 ]...
+Entering form_finder, depth = 0, dimension 2
+restarting at depth = 0, dimension 2
+Computing W(8+w)...done.
+ eig -1 gives new subspace at depth 1 of dimension 2
+Computing T(1+w) restricted to subspace of dimension 2 ...done.
+ eig -2 gives new subspace at depth 2 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+j0=1
+Finished makebases()
+About to start computing ap...
+p = 2+9w	   -4 
+p = 9+2w	   14 
+p = 7+5w	    2 
+p = 5+7w	    2 
+p = 11	    2 
+p = 6+7w	   20 
+p = 7+6w	  -16 
+p = 3+10w	   20 
+p = 10+3w	  -10 
+p = 9+5w	  -22 
+p = 5+9w	   -4 
+p = 12+w	    2 
+p = 1+12w	  -22 
+p = 11+3w	    2 
+p = 3+11w	  -16 
+p = 11+4w	    2 
+p = 4+11w	    2 
+p = 9+7w	    2 
+p = 7+9w	   14 
+p = 2+13w	    2 
+p = 13+2w	   20 
+p = 14+w	    8 
+p = 1+14w	  -16 
+p = 11+6w	  -16 
+p = 6+11w	    8 
+...done.
+Writing data to file nftmp/2.0.3.1/73.8.1......done.
+Enter level: 

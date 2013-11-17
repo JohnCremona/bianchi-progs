@@ -2,7 +2,7 @@ Enter field: Verbose? Enter level:
 >>>> Level [11,5,1] = (-1+2a), norm = 11 <<<<
 
 1 newform(s) at level [11,5,1] = (-1+2a):
-1:	basis = [];	aqlist = [ -1 ];	aplist = [ -1 -1 0 1 1 1 -1 -1 7 7 ]
+1:	basis = [];	aqlist = [ -1 ];	aplist = [ -1 -1 0 1 1 1 -1 -1 7 7 3 3 8 8 -10 -6 -6 5 5 -7 -7 -3 -3 15 15 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -20
 L/P ratio    = 2, cuspidal factor = 5
@@ -11,7 +11,7 @@ Enter level:
 >>>> Level [27,0,3] = (3a), norm = 27 <<<<
 
 1 newform(s) at level [27,0,3] = (3a):
-1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -1 1 -2 2 0 4 -4 0 0 ]
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -1 1 -2 2 0 4 -4 0 0 -2 -2 -8 8 -6 -6 6 0 0 12 12 -8 8 -14 14 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -8
 L/P ratio    = 1, cuspidal factor = 4
