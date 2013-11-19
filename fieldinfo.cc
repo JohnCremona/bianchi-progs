@@ -32,7 +32,7 @@ int main ()
           np = ip*ip;
           f = 2;
         }
-      e = 1;      if (((d==1)&&(p==2)) || (p==d)) e=2;
+      e = 1;      if (((d==1)&&(ip==2)) || (ip==d)) e=2;
       cout << np << " "
            << ideal_label(p) << " "
            << ip << " "
