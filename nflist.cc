@@ -1,6 +1,6 @@
 #include <fstream>
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
 #endif
@@ -23,7 +23,7 @@ int main ()
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
- while(cerr<<"Enter level: ", cin>>alpha, alpha!=0, cerr<<endl)
+ while(cerr<<"Enter level: ", cin>>alpha, cerr<<endl, alpha!=0)
 #endif
    {
      n = makepos((Quad)alpha);
