@@ -34,7 +34,8 @@ int main ()
         }
       e = 1;      if (((d==1)&&(ip==2)) || (ip==d)) e=2;
       cout << np << " "
-           << ideal_label(p) << " "
+           << ideal_label(p)
+           << " (" << p << ") "
            << ip << " "
            << e << " "
            << f << endl;
