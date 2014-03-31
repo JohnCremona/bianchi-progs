@@ -539,7 +539,7 @@ void newforms::makebases()
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 
-void newforms::getoneap(const Quad& p, int verbose)
+void newforms::getoneap(const Quad& p, int verbose, int store)
 {
   vector<long> apv=apvec(p);
   int vp = val(p,modulus), ap, cp, i;
@@ -555,7 +555,8 @@ void newforms::getoneap(const Quad& p, int verbose)
       cp = (vp==0?ap:(vp==1?-ap:0));
       if(verbose)
         cout<<setw(5)<<ap<<" ";
-      nflist[i].aplist.push_back(cp);
+      if(store)
+        nflist[i].aplist.push_back(cp);
     }
   if(verbose)
     cout << endl;

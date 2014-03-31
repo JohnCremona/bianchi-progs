@@ -126,7 +126,7 @@ public:
   int use_nf_number;
   void use(const vec& b1, const vec& b2, const vector<long> eigs);
   void getap(int first, int last, int verbose=0);
-  void getoneap(const Quad& p, int verbose=0);
+  void getoneap(const Quad& p, int verbose=0, int store=1);
   vector<long> apvec(const Quad& p);  // computes a[p] for each newform
   void output_to_file(string eigfile) const;
   // sorting functions

@@ -32,20 +32,20 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3
 ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
-ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc
+ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc
 
 headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap nftest nflist dimtable dimtabeis # tmquads xtmanin testlf1
+TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
 TESTS9 =  tquads tratquad looptest modtest fieldinfo
-TESTS5 =  symbtest homtest hecketest tmanin nftest nflist moreap dimtable dimtabeis
+TESTS5 =  symbtest homtest hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis
 export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5)
 	 rm -f t
@@ -104,6 +104,9 @@ nflist: nflist.o $(OBJS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)
+
+moreap1: moreap1.o $(OBJS)
+	$(CC) -o moreap1 moreap1.o $(OBJS) $(LFLAGS)
 
 looptest: looptest.o looper.o quads.o
 	$(CC) -o looptest looptest.o looper.o quads.o $(LFLAGS)
@@ -164,6 +167,8 @@ nftest.o : nftest.cc oldforms.h moddata.h quads.h newforms.h \
 nflist.o : nflist.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
 moreap.o : moreap.cc oldforms.h moddata.h quads.h newforms.h \
+            looper.h homspace.h cusp.h ratquads.h symb.h
+moreap1.o : moreap1.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
 moddata.o: moddata.cc moddata.h quads.h
 symb.o: symb.cc symb.h moddata.h ratquads.h quads.h
