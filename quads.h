@@ -62,6 +62,7 @@ public:
   static void field(int dd, int max=1000);
   static void displayfield(ostream& s = cout);
   static void initquadprimes();
+  static vector<Quad> primes_above(long p, int& sig);
 
 // Now the actual data elements:
  private:

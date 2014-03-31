@@ -183,59 +183,82 @@ void factorp1(long p, long& a, long& b, int d)
   a=(a-b)/2;
 }
 
-void Quad::initquadprimes()
+vector<Quad> Quad::primes_above(long p, int& sig)
 {
   int d=Quad::d, disc=-Quad::disc, t=Quad::t;
-  vector<Quad> list1,list2;
-  long p ; long a,b;
-  Quad pi, piconj;
+  long a,b;  Quad pi, piconj;
+  vector<Quad> list;
+  sig = kronecker(disc,p);
+  switch (sig) {
+  case  0: // ramified
+    pi =  (d==1 ? Quad(1,1) :
+           d==2 ? Quad(0,1) :
+           d==3 ? Quad(1,1) :
+           Quad(-1,2));
+    list.push_back(pi);
+    break;
+  case -1: // inert
+    pi = Quad(p,0);
+    list.push_back(pi);
+    break;
+  case 1: // split
+    if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
+    pi = makepos(Quad(a,b));
+    piconj = makepos(quadconj(pi));
+    // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
+    int c = posmod(a*invmod(b,p),p);
+    if (2*c<p)
+      {
+        list.push_back(pi);
+        list.push_back(piconj);
+      }
+    else
+      {
+        list.push_back(piconj);
+        list.push_back(pi);
+      }
+  }
+  //cout << "primes_above("<<p<<") = " << list << endl;
+  return list;
+}
+
+void Quad::initquadprimes()
+{
+  long p; int sig;
+  vector<Quad> list, list1, list2;
+  vector<Quad>::const_iterator pi, alpha, beta;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
     { p=pr;
-      int sig = kronecker(disc,p);
-      switch (sig) {
-      case  0: 
-	pi =  (d==1 ? Quad(1,1) :
-	       d==2 ? Quad(0,1) : 
-	       d==3 ? Quad(1,1) :
-	       Quad(-1,2)); 
-	list1.push_back(pi);
-	break;
-      case -1: if(p*p<=maxnorm) 
-	  {
-	    pi = Quad(p,0);
-	    list2.push_back(pi);
-	  }
-	break;
-      case 1:
-        if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
-	pi = makepos(Quad(a,b));
-	piconj = makepos(quadconj(pi));
-	// We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
-	int c = posmod(a*invmod(b,p),p);
-	if (2*c<p)
-	  {
-	    list1.push_back(pi);
-	    list1.push_back(piconj);
-	  }
-	else
-	  {
-	    list1.push_back(piconj);
-	    list1.push_back(pi);
-	  }
-      }
+      list = Quad::primes_above(p, sig);
+      for (pi = list.begin(); pi!=list.end(); )
+        switch (sig) {
+        case  0:
+          list1.push_back(*pi++);
+          break;
+        case -1:
+          if(p*p<=maxnorm)
+            list2.push_back(*pi);
+          pi++;
+          break;
+        case 1:
+          {
+            list1.push_back(*pi++);
+            list1.push_back(*pi++);
+          }
+        }
     }
 
   // Now list1 contains the degree 1 primes and list2 the degree 2
   // primes, each ordered by norm; we merge these lists so that they
   // are still sorted by norm:
 
-  vector<Quad>::const_iterator alpha=list1.begin(), beta=list2.begin();
+  alpha=list1.begin(); beta=list2.begin();
   while ((alpha!=list1.end()) && (beta!=list2.end()))
     if (quadnorm(*alpha)<quadnorm(*beta))
-      quadprimes.push_back(*alpha++);  
-    else 
-      quadprimes.push_back(*beta++);   
-  
+      quadprimes.push_back(*alpha++);
+    else
+      quadprimes.push_back(*beta++);
+
   while (alpha!=list1.end()) quadprimes.push_back(*alpha++);
   while ( beta!=list2.end()) quadprimes.push_back(*beta++);
 
