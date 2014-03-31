@@ -25,7 +25,8 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);  long normn = quadnorm(n);
-     newforms nf(n,1,verbose);
+     newforms nf(n,verbose);
+     nf.createfromdata();
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {

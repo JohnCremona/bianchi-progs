@@ -46,8 +46,8 @@ int main ()
      long normn = quadnorm(n);
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,0,verbose);
-               // (level, use_old, verbose)
+     newforms nf(n,verbose);
+     nf.createfromscratch();
      //nf.display();
      nf.getap(startp,stopp,verbose);
      //cout << "After sort_lmfdb():\n";

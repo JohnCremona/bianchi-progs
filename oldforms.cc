@@ -19,7 +19,8 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
           cout << "No data file for m = " << m;
           cout << "  so creating newforms at that level..." << endl;
         }
-      newforms olddata(m,0,verbose);
+      newforms olddata(m,verbose);
+      olddata.createfromscratch();
       olddata.getap(1,iN->nap,0);
       olddata.output_to_file(eigfilename);
       if(verbose)

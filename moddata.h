@@ -19,7 +19,7 @@ protected:
  long numres(const Quad& a) const;  // what number is this residue a mod modulus?
  Quad resnum(long i) const;  // which is the i'th residue mod modulus?
 // The constructor:
-  level(const Quad& n, long neigs=10); // neigs controls the maximum depth for recursion in newform finding
+  level(const Quad& n, long neigs=20); // neigs controls the maximum depth for recursion in newform finding
 };
 
 class moddata :public level {

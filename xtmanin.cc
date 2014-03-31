@@ -42,7 +42,8 @@ int main ()
 	     if(verbose)
 	       cout << "No data file for beta = " << beta 
 		 << "  so constructing newforms at that level..." << endl;
-	     newforms nf(beta,0,0);   
+	     newforms nf(beta,0);
+             nf.createfromscratch();
 	     nf.getap(startp,stopp,output,eigfilename,0);
 	   }
 	 else 

@@ -14,9 +14,10 @@ int main ()
  cout << "Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
  long firstn, lastn; Quad n;
- int both_conj, plusflag;
+ int both_conj;
  int dimcusp, dimeis, dimall;
  cout<<"Both conjugates? (0/1) "; cin >> both_conj;
+ // int plusflag;
  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
@@ -29,7 +30,6 @@ int main ()
    {
      Quad alpha = (Quad)alphaloop;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-     long normn = quadnorm(n);
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(n)<<"\t\t"; // level and norm
      homspace hplus(n,1,0);  //level, plusflag, verbose

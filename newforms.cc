@@ -141,7 +141,10 @@ void newforms::makeh1plus(void)
     }
 }
 
-newforms::newforms(const Quad& n, int useolddata, int disp)
+long newforms::matdim(void) {return h1->dimension;}
+long newforms::matden(void) {return h1->denom3;}
+
+newforms::newforms(const Quad& n, int disp)
  :level(n), verbose(disp)
 {
   nap=level::nap;
@@ -156,9 +159,6 @@ newforms::newforms(const Quad& n, int useolddata, int disp)
   vector<Quad>::const_iterator pr=quadprimes.begin();
   p0 = *pr;
   while (div(p0,modulus)) p0=*pr++;     // First "good" prime
-
-  if(useolddata)createfromdata();
-  else createfromscratch();
 }
 
 void newforms::get_lambda()
@@ -278,7 +278,12 @@ void newforms::createfromscratch()
   long olddimall = (of->olddimall);
   if(verbose>1) cout<<"olddimall = "<<olddimall<<endl;
   nnflist = upperbound = (h1->h1cuspdim()) - olddimall;
-  if(verbose>1) cout<<"upperbound = "<<upperbound<<endl;
+  if(verbose>1)
+    {
+      cout<<"upperbound = "<<upperbound<<endl;
+      cout<<"maxdepth = "<<maxdepth<<endl;
+      cout<<"mindepth = "<<mindepth<<endl;
+    }
   if(upperbound<0) // check for error condition
     {
       cout<<"Error:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<(h1->h1cuspdim())<<" -- aborting"<<endl;

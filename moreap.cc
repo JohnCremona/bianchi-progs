@@ -23,7 +23,8 @@ int main(void)
      cout << "How many primes for Hecke eigenvalues? ";
      cin  >> lastp; cout << endl;
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,1,verbose);
+     newforms nf(n,verbose);
+     nf.createfromdata();
      if (showforms) nf.display();
 
      int nnf = nf.n1ds;

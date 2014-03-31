@@ -12,9 +12,9 @@
 
 int main(void)
 {
-  int i,d,max=10000;
+ int d,max=10000;
  int np,ip,jp,nq; 
- long firstn, lastn; Quad n; int mats, pols, plusflag;
+ Quad n; int mats, pols, plusflag;
  cout << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
@@ -27,6 +27,7 @@ int main(void)
  cout << "See the hecke matrices (0/1)? "; cin >> mats;
  cout << "See the char polys (0/1)? "; cin >> pols;
 #ifdef LOOPER
+ long firstn, lastn;
  cout<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;

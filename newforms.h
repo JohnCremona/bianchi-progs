@@ -83,8 +83,8 @@ private:
   {return h1->s_opmat(i,d,v);}
   smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0) 
   {return h1->s_opmat_restricted(i,s,d,v);}
-  long matdim(void) {return h1->dimension;} 
-  long matden(void) {return h1->denom3;}
+  long matdim(void);
+  long matden(void);
   vector<long> eigrange(int i) {return h1->eigrange(i);}
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
 
@@ -111,7 +111,7 @@ public:
   homspace* h1;
   long hmod, nfhmod;
   vector<newform> nflist;
-  newforms(const Quad& n, int useolddata=0, int disp=0);
+  newforms(const Quad& n, int disp=0);
   ~newforms(void) {
                    if(h1)delete h1;
                   }
@@ -132,9 +132,9 @@ public:
   // sorting functions
   void sort_eigs(void);
   void sort_lmfdb(void);
- private:
   void createfromscratch();
   void createfromdata();
+ private:
   void get_lambda();
  public:
   void makebases(); // if created from stored data but need bases and homspace

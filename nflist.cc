@@ -27,7 +27,8 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);
-     newforms nf(n,1,0);
+     newforms nf(n,0);
+     nf.createfromdata();
      nf.list(nap);
    }
 }

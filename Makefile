@@ -4,24 +4,27 @@ METHOD = 2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING -UECLIB_MULTITHREAD
+OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING -DECLIB_MULTITHREAD
 
-ECLIB_BASE=$(HOME)/eclib#-parallel
+# NB If used with a multithreaded build of eclib then you MUST define
+# ECLIB_MULTITHREAD above and include the BOOST libraries below.
+
+ECLIB_BASE=$(HOME)/eclib-parallel
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
 BOOST_ASIO_LIB = -lboost_system-mt
 BOOST_CPPFLAGS =  -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
-BOOST_LDFLAGS = -L/usr/lib
 BOOST_SYSTEM_LIB = -lboost_system
 BOOST_THREAD_LIB = -lboost_thread
+BOOST_LDFLAGS = -L/usr/lib $(BOOST_SYSTEM_LIB) $(BOOST_THREAD_LIB)
 
 CLEAN = rcsclean
 RANLIB = ranlib
 CP = cp -p
 
 CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
-LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
+LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 sources: ccs headers
 	chmod a+r *.h *.cc
@@ -54,15 +57,15 @@ check: $(TESTS9) $(TESTS5)
 	 LDLIBRARY_PATH=$(LD_LIBRARY_PATH):$(LIBDIR)
 	 for p in $(TESTS9); do for d in $(FIELDS9); do \
 	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null && diff -a $$p.$$d.testout testout/$$p.$$d.out; \
+	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
 	 done; done
 	 for d in $(FIELDS9); do \
 	 echo "running looptest (both conjugates) for d=$$d";\
-	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout && diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
+	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout; diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
 	 done
 	 for p in $(TESTS5); do for d in $(FIELDS5); do \
 	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null && diff -a $$p.$$d.testout testout/$$p.$$d.out; \
+	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
 	 done; done
 	 rm -rf $(NF_DIR)
 	 rm -f *.testout
