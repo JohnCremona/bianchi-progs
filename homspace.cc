@@ -421,9 +421,9 @@ if(verbose)
        cout << "pivots = "<<pivs << endl;
        cout << "denom = "<<d1 << endl;
      }
-   rk = ncols(sp);
+   rk = sp.ncols();
    coord.init(ngens+1,rk); // 0'th is unused
-   for(i=1; i<=ngens; i++) 
+   for(i=1; i<=ngens; i++)
      coord.setrow(i,sp.row(i).as_vec());
    // if hmod>0, coord is only defined modulo hmod
    sp=smat(0,0); // clear space
@@ -533,7 +533,7 @@ if(verbose)
 vec homspace::chain(const symb& s) const  //=old getcoord
 {
  long i= coordindex[index(s)];
- vec ans(ncols(coord));
+ vec ans(coord.ncols());
  if (i) ans = sign(i)*(coord.row(abs(i)));
  return ans;
 }
@@ -541,7 +541,7 @@ vec homspace::chain(const symb& s) const  //=old getcoord
 vec homspace::chaincd(const Quad& c, const Quad& d) const //=old getcoord2
 {
  long i= coordindex[index2(c,d)];
- vec ans(ncols(coord));
+ vec ans(coord.ncols());
  if (i) ans = sign(i)*(coord.row(abs(i)));
  return ans;
 }
@@ -549,7 +549,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d) const //=old getcoord2
 vec homspace::projchaincd(const Quad& c, const Quad& d) const 
 {
  long i= coordindex[index2(c,d)];
- vec ans(ncols(projcoord));
+ vec ans(projcoord.ncols());
  if (i) ans = sign(i)*(projcoord.row(abs(i)));
  return ans;
 }
@@ -975,7 +975,7 @@ vec reduce_modp(const vec& v, const scalar& p)
 
 mat reduce_modp(const mat& m, const scalar& p)
 {
-  int i, j, nr=nrows(m), nc=ncols(m);
+  int i, j, nr=m.nrows(), nc=m.ncols();
   mat ans(nr,nc);
   for(i=1; i<=nr; i++)
     for(j=1; j<=nc; j++)

@@ -63,7 +63,7 @@ int main(void)
 	  wq=h.heckeop(q,0,mats);
 	  cout << "done. " << flush;
           if (pols)
-            cout << "char poly coeffs = " << charpoly(wq);
+            cout << "char poly coeffs = " << wq.charpoly();
           cout << endl;
           wq2 = reduce_modp(matmulmodp(wq,wq,MODULUS),MODULUS);
 	  if (wq2==id) cout << "Involution!" << "\n";
@@ -89,7 +89,7 @@ int main(void)
 	  tp = h.heckeop(p,0,mats);
 	  cout << "done. " << flush;
           if (pols)
-            cout << "char poly coeffs = " << charpoly(mat_m(tp));
+            cout << "char poly coeffs = " << mat_m(tp).charpoly();
           cout<<endl;
 	  for (int kp=0; kp<nq; kp++)
 	    {

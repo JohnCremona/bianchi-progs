@@ -4,12 +4,12 @@ METHOD = 2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING -DECLIB_MULTITHREAD
+OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING# -DECLIB_MULTITHREAD
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # ECLIB_MULTITHREAD above and include the BOOST libraries below.
 
-ECLIB_BASE=$(HOME)/eclib-parallel
+ECLIB_BASE=/usr/local# $(HOME)/eclib-parallel
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -23,8 +23,10 @@ CLEAN = rcsclean
 RANLIB = ranlib
 CP = cp -p
 
-CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
-LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+#CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
+#LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+CFLAGS = -c $(OPTFLAG) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
+LFLAGS = -lec -lntl -lstdc++ -L$(LIBDIR) -Wl,-rpath
 
 sources: ccs headers
 	chmod a+r *.h *.cc
@@ -111,7 +113,7 @@ moreap1: moreap1.o $(OBJS)
 looptest: looptest.o looper.o quads.o
 	$(CC) -o looptest looptest.o looper.o quads.o $(LFLAGS)
 
-tratquad: tratquad.o
+tratquad: tratquad.o quads.o
 	$(CC) -o tratquad tratquad.o quads.o $(LFLAGS)
 
 modtest: modtest.o  moddata.o quads.o looper.o
@@ -186,7 +188,7 @@ test.o: test.cc
 
 # 1. Data tabulated in 1984 Compositio paper Tables 3.{2,3,4,5,6}.1:
 
-paperdims: paperdims1 paperdims2 paperdims3 paperdims7 paperdims1
+paperdims: paperdims1 paperdims2 paperdims3 paperdims7 paperdims11
 paperdims1: dimtable
 	echo 1 0 0 1 500 | ./dimtable | awk '$$5>0' | tail -n +3 > paperdims.1.out
 paperdims2: dimtable

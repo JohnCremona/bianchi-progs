@@ -457,7 +457,7 @@ void newforms::sort_lmfdb(void)
 void newforms::allproj() //Replaces "coord" member of homspace with projections
                       //onto eigenspaces, to save time
 {
-  int ncoord = nrows(h1->coord); long pcij;
+  int ncoord = (h1->coord).nrows(); long pcij;
   h1->projcoord.init(ncoord,n1ds);
   for (int i=1; i<=ncoord; i++)
     {
