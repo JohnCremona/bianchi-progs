@@ -74,10 +74,6 @@ Computing W(4+5i) restricted to subspace of dimension 4 ...done.
 Computing T(1+2i) restricted to subspace of dimension 2 ...done.
  eig 3 gives new subspace at depth 5 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
-projcoord column 1 is already Z-primitive
-projcoord column 2 is already Z-primitive
-projcoord column 3 is already Z-primitive
-projcoord column 4 is already Z-primitive
 j0=1
 Finished makebases()
 About to start computing ap...

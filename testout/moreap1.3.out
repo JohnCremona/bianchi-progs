@@ -10,8 +10,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/6, cuspidal factor = 3
 Integration matrix = [-4+9w,-w;-14w,1+w], factor   = 3
-Making homspace and bases...About to recover 1 newform bases (nap=25)
-done.
+Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for 101: [ -202 ]
 Enter a rational prime p (0 to finish): 

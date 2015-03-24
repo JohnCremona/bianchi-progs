@@ -9,7 +9,7 @@ OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING# 
 # NB If used with a multithreaded build of eclib then you MUST define
 # ECLIB_MULTITHREAD above and include the BOOST libraries below.
 
-ECLIB_BASE=/usr/local# $(HOME)/eclib-parallel
+ECLIB_BASE=$(HOME)
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -26,7 +26,7 @@ CP = cp -p
 #CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
 #LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 CFLAGS = -c $(OPTFLAG) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
-LFLAGS = -lec -lntl -lstdc++ -L$(LIBDIR) -Wl,-rpath
+LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
 
 sources: ccs headers
 	chmod a+r *.h *.cc
@@ -34,29 +34,30 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3
 ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
-ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc
+ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc modularity.cc
 
 headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis # tmquads xtmanin testlf1
+TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
+FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo
 TESTS5 =  symbtest homtest hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis
+TESTS1 =  modularity
 export NF_DIR:=nftmp
-check: $(TESTS9) $(TESTS5)
+check: $(TESTS9) $(TESTS5) $(TESTS1)
 	 rm -f t
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
 	 for d in 4 8 3 7 11; do \
          mkdir $(NF_DIR)/2.0.$$d.1; \
 	 done
-	 LDLIBRARY_PATH=$(LD_LIBRARY_PATH):$(LIBDIR)
 	 for p in $(TESTS9); do for d in $(FIELDS9); do \
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
@@ -66,6 +67,10 @@ check: $(TESTS9) $(TESTS5)
 	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout; diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
 	 done
 	 for p in $(TESTS5); do for d in $(FIELDS5); do \
+	 echo "running $$p for d=$$d";\
+	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
+	 done; done
+	 for p in $(TESTS1); do for d in $(FIELDS1); do \
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
 	 done; done
@@ -109,6 +114,9 @@ moreap: moreap.o $(OBJS)
 
 moreap1: moreap1.o $(OBJS)
 	$(CC) -o moreap1 moreap1.o $(OBJS) $(LFLAGS)
+
+modularity: modularity.o $(OBJS)
+	$(CC) -o modularity modularity.o $(OBJS) $(LFLAGS)
 
 looptest: looptest.o looper.o quads.o
 	$(CC) -o looptest looptest.o looper.o quads.o $(LFLAGS)
@@ -170,7 +178,7 @@ nflist.o : nflist.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
 moreap.o : moreap.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
-moreap1.o : moreap1.cc oldforms.h moddata.h quads.h newforms.h \
+modularity.o : modularity.cc oldforms.h moddata.h quads.h newforms.h \
             looper.h homspace.h cusp.h ratquads.h symb.h
 moddata.o: moddata.cc moddata.h quads.h
 symb.o: symb.cc symb.h moddata.h ratquads.h quads.h

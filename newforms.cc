@@ -473,6 +473,7 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
 
   // Check lifts of projcoord columns
   vec c1, c2(ncoord);
+  int test_prim = 0;
   for (int j=1; j<=n1ds; j++)
     {
       c1 = h1->projcoord.col(j);
@@ -480,18 +481,21 @@ void newforms::allproj() //Replaces "coord" member of homspace with projections
         {
           if((c1==c2)||(c1==-c2))
             {
-              cout<<"projcoord column "<<j<<" is already Z-primitive"<<endl;
+              if(test_prim) 
+		cout<<"projcoord column "<<j<<" is already Z-primitive"<<endl;
             }
           else
             {
-              cout<<"projcoord column "<<j<<"="<<c1<<" lifts ok to Z-primitive "<<c2<<endl;
+              if(test_prim) 
+		cout<<"projcoord column "<<j<<"="<<c1<<" lifts ok to Z-primitive "<<c2<<endl;
               h1->projcoord.setcol(j,c2);
             }
           nfhmod=0;
         }
       else
         {
-          cout<<"projcoord column "<<j<<" cannot be lifted to Z"<<endl;
+	  if(test_prim) 
+	    cout<<"projcoord column "<<j<<" cannot be lifted to Z"<<endl;
         }
     }
 }
@@ -524,7 +528,7 @@ void newforms::makebases()
   if(!h1) makeh1plus();  // create the homology space
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
   form_finder splitspace(this, 1, nap, 0, 1, 0, verbose);
-  cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
+  if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {
       if (verbose) cout<<"Recovering newform #"<<(use_nf_number+1)
