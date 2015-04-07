@@ -33,45 +33,31 @@ Entering form_finder, depth = 0, dimension 39
 restarting at depth = 0, dimension 39
 Computing W(1+i)...done.
  eig -1 gives new subspace at depth 1 of dimension 16
-Computing W(2+i) restricted to subspace of dimension 16 ...done.
  eig -1 gives new subspace at depth 2 of dimension 7
-Computing W(3+2i) restricted to subspace of dimension 7 ...done.
  eig 1 gives new subspace at depth 3 of dimension 5
-Computing W(4+5i) restricted to subspace of dimension 5 ...done.
  eig 1 gives new subspace at depth 4 of dimension 3
-Computing T(1+2i) restricted to subspace of dimension 3 ...done.
  eig -1 gives new subspace at depth 5 of dimension 1
 Recovering newform #2, eigs [ -1 1 -1 1 -3 2 -3 -5 -3 -10 5 -6 -6 -2 -2 4 -1 7 -4 0 ]...
 Entering form_finder, depth = 0, dimension 39
 restarting at depth = 1, dimension 16
  eig 1 gives new subspace at depth 2 of dimension 9
-Computing W(3+2i) restricted to subspace of dimension 9 ...done.
  eig -1 gives new subspace at depth 3 of dimension 6
-Computing W(4+5i) restricted to subspace of dimension 6 ...done.
  eig 1 gives new subspace at depth 4 of dimension 4
-Computing T(1+2i) restricted to subspace of dimension 4 ...done.
  eig -3 gives new subspace at depth 5 of dimension 1
 Recovering newform #3, eigs [ 1 -1 -1 1 -3 -2 5 -3 -3 -6 3 2 -10 -6 2 -12 9 -7 8 8 ]...
 Entering form_finder, depth = 0, dimension 39
 restarting at depth = 0, dimension 39
  eig 1 gives new subspace at depth 1 of dimension 23
-Computing W(2+i) restricted to subspace of dimension 23 ...done.
  eig -1 gives new subspace at depth 2 of dimension 10
-Computing W(3+2i) restricted to subspace of dimension 10 ...done.
  eig -1 gives new subspace at depth 3 of dimension 5
-Computing W(4+5i) restricted to subspace of dimension 5 ...done.
  eig 1 gives new subspace at depth 4 of dimension 4
-Computing T(1+2i) restricted to subspace of dimension 4 ...done.
  eig -3 gives new subspace at depth 5 of dimension 1
 Recovering newform #4, eigs [ 1 1 1 1 3 -4 1 -5 -7 -2 1 8 -2 -8 12 -10 -3 -1 -2 -4 ]...
 Entering form_finder, depth = 0, dimension 39
 restarting at depth = 1, dimension 23
  eig 1 gives new subspace at depth 2 of dimension 13
-Computing W(3+2i) restricted to subspace of dimension 13 ...done.
  eig 1 gives new subspace at depth 3 of dimension 4
-Computing W(4+5i) restricted to subspace of dimension 4 ...done.
  eig 1 gives new subspace at depth 4 of dimension 2
-Computing T(1+2i) restricted to subspace of dimension 2 ...done.
  eig 3 gives new subspace at depth 5 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
 j0=1

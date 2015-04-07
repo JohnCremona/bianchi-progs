@@ -18,7 +18,6 @@ Entering form_finder, depth = 0, dimension 8
 restarting at depth = 0, dimension 8
 Computing W(t)...done.
  eig -1 gives new subspace at depth 1 of dimension 5
-Computing T(1+t) restricted to subspace of dimension 5 ...done.
  eig 0 gives new subspace at depth 2 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
 j0=3

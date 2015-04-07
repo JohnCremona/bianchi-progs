@@ -23,11 +23,15 @@ public:
    ssubspace kern;
    smat tkernbas; // transpose of kernel(delta) basis
    modsym *freemods;
-   mat opmat(long, int dual=1, int verb=0);
+   mat opmat(int, int dual=1, int verb=0);
+   vec opmat_col(int, int j, int verb=0);
+   mat opmat_cols(int, const vec& jlist, int verb=0);
    mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
   // versions returning an smat:
-   smat s_opmat(int i,int dual,int verb=0);
-   smat s_opmat_restricted(int i,const ssubspace& s, int dual,int verb=0);
+   smat s_opmat(int i,int dual, int verb=0);
+   svec s_opmat_col(int i, int j, int verb=0);
+   smat s_opmat_cols(int i, const vec& jlist, int verb=0);
+   smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
    long matdim(void) {return dimension;}
    vector<long> eigrange(long i);
    mat coord, projcoord;
@@ -68,13 +72,23 @@ public:
    vec applyop(const matop& mlist, const modsym& m) const 
                    {return applyop(mlist,m.beta())-applyop(mlist,m.alpha());} 
    mat calcop(const string opname, const Quad& p, const matop& mlist, int dual=1, int display=0) const;
+   vec calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display=0) const;
+   mat calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display=0) const;
    smat s_calcop(const string  opname, const Quad& p, const matop& mlist, 
 		 int dual, int display) const;
+   svec s_calcop_col(const string  opname, const Quad& p, const matop& mlist, 
+		 int j, int display) const;
+   smat s_calcop_cols(const string  opname, const Quad& p, const matop& mlist, 
+		 const vec& jlist, int display) const;
    mat calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s, int dual, int display) const;
    smat s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s, int dual, int display) const;
 public:
    mat heckeop(const Quad& p, int dual=1, int display=0) const;
+   vec heckeop_col(const Quad& p, int j, int display=0) const;
+   mat heckeop_cols(const Quad& p, const vec& jlist, int display=0) const;
    smat s_heckeop(const Quad& p, int dual, int display) const;
+   svec s_heckeop_col(const Quad& p, int j, int display) const;
+   smat s_heckeop_cols(const Quad& p, const vec& jlist, int display) const;
    mat heckeop_restricted(const Quad& p, const subspace& s, int dual, int display) const;
    smat s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display) const;
    mat wop(const Quad& q, int dual=1, int display=0) const;

@@ -620,6 +620,41 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
   return m;
 }
  
+vec homspace::calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display) const
+{
+  vec colj = applyop(mlist,freemods[j-1]);
+  if(hmod) colj=reduce_modp(colj,hmod);
+  return colj;
+}
+
+mat homspace::calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display) const
+{
+  int i, j, d = dim(jlist);
+  mat m(d,rk);
+  for (i=1; i<=d; i++)
+    {
+      j = jlist[i];
+      vec colj = applyop(mlist,freemods[j-1]);
+      if(hmod) colj=reduce_modp(colj,hmod);
+      m.setcol(i,colj);
+     }
+  return m;
+}
+ 
+smat homspace::s_calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display) const
+{
+  int i, j, d = dim(jlist);
+  smat m(d,rk);
+  for (i=1; i<=d; i++)
+    {
+      j = jlist[i];
+      svec colj = applyop(mlist,freemods[j-1]);
+      if(hmod) colj.reduce_mod_p(hmod);
+      m.setrow(i,colj);
+     }
+  return m;
+}
+ 
 smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist, 
 			int dual, int display) const
 {
@@ -649,11 +684,11 @@ mat homspace::calcop_restricted(const string opname, const Quad& p, const matop&
   long d=dim(s);
   mat m(d,rk);
   for (long j=0; j<d; j++)
-     { 
+     {
        long jj = pivots(s)[j+1]-1;
-       svec colj = applyop(mlist,freemods[jj]);
-       if(hmod) colj.reduce_mod_p(hmod);
-       m.setrow(j+1,colj.as_vec());
+       vec colj = applyop(mlist,freemods[jj]);
+       if(hmod) colj=reduce_modp(colj,hmod);
+       m.setrow(j+1,colj);
      }
   if(hmod)
     m = matmulmodp(m,basis(s),hmod);
@@ -694,6 +729,27 @@ mat homspace::heckeop(const Quad& p, int dual, int display) const
  return calcop(name,p,matlist,dual,display);
 }
  
+vec homspace::heckeop_col(const Quad& p, int j, int display) const
+{
+ matop matlist(p,modulus);
+ string name = (div(p,modulus)) ? W_opname : T_opname;
+ return calcop_col(name,p,matlist,j,display);
+}
+ 
+mat homspace::heckeop_cols(const Quad& p, const vec& jlist, int display) const
+{
+ matop matlist(p,modulus);
+ string name = (div(p,modulus)) ? W_opname : T_opname;
+ return calcop_cols(name,p,matlist,jlist,display);
+}
+ 
+smat homspace::s_heckeop_cols(const Quad& p, const vec& jlist, int display) const
+{
+ matop matlist(p,modulus);
+ string name = (div(p,modulus)) ? W_opname : T_opname;
+ return s_calcop_cols(name,p,matlist,jlist,display);
+}
+ 
 smat homspace::s_heckeop(const Quad& p, int dual, int display) const
 {
  matop matlist(p,modulus);
@@ -727,13 +783,40 @@ mat homspace::fricke(int dual, int display) const
  return calcop(W_opname,modulus,frickelist,dual,display);
 }
 
-mat homspace::opmat(long i, int dual, int verb)
+mat homspace::opmat(int i, int dual, int verb)
 {
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
   Quad p = primelist[i];
   if(verbose) 
       cout<<"Computing " << ((div(p,modulus)) ? W_opname : T_opname) <<"("<<p<<")...";
   return heckeop(p,dual,verb); // Automatically chooses W or T
+}
+
+vec homspace::opmat_col(int i, int j, int verb)
+{
+  if((i<0)||(i>=nap)) return vec(dimension);  // shouldn't happen
+  Quad p = primelist[i];
+  if(verbose) 
+      cout<<"Computing " << ((div(p,modulus)) ? W_opname : T_opname) <<"("<<p<<")...";
+  return heckeop_col(p,j,verb); // Automatically chooses W or T
+}
+
+mat homspace::opmat_cols(int i, const vec& jlist, int verb)
+{
+  if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
+  Quad p = primelist[i];
+  if(verbose) 
+      cout<<"Computing " << ((div(p,modulus)) ? W_opname : T_opname) <<"("<<p<<")...";
+  return heckeop_cols(p,jlist,verb); // Automatically chooses W or T
+}
+
+smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
+{
+  if((i<0)||(i>=nap)) return smat(dimension);  // shouldn't happen
+  Quad p = primelist[i];
+  if(verbose)
+    cout<<"Computing " << ((div(p,modulus)) ? W_opname : T_opname) <<"("<<p<<")..."<<flush;
+  return s_heckeop_cols(p,jlist,verb); // Automatically chooses W or T
 }
 
 mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
