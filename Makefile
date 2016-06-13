@@ -1,15 +1,16 @@
 #Makefile for QUADS directory with test programs
 
-METHOD = 2
+METHOD=2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -g -O0 -Wall -DMETHOD=$(METHOD) -fPIC -DNTL_ALL -DUSE_PARI_FACTORING# -DECLIB_MULTITHREAD
+OPTFLAG = -O0 -Wall -DNTL_ALL -fPIC # -DECLIB_MULTITHREAD
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # ECLIB_MULTITHREAD above and include the BOOST libraries below.
 
-ECLIB_BASE=$(HOME)
+ECLIB_BASE=$(HOME)/eclib
+#ECLIB_BASE=/usr/local
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -23,9 +24,7 @@ CLEAN = rcsclean
 RANLIB = ranlib
 CP = cp -p
 
-#CFLAGS = -c $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
-#LFLAGS = -lec -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
-CFLAGS = -c $(OPTFLAG) -I$(INCDIR)  -DMETHOD=$(METHOD) -DUSE_XSPLIT
+CFLAGS = -c -g $(OPTFLAG) -I$(INCDIR)  -DMETHOD=$(METHOD)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
 
 sources: ccs headers
@@ -34,7 +33,7 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3
 ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
-ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc modularity.cc
+ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc modularity.cc
 
 headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h
 
@@ -96,6 +95,9 @@ OBJS = symb.o moddata.o quads.o looper.o cusp.o homspace.o \
 
 tmanin: tmanin.o $(OBJS)
 	$(CC) -o tmanin tmanin.o $(OBJS) $(LFLAGS)
+
+pmanin: pmanin.o $(OBJS)
+	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
 
 xtmanin: xtmanin.o $(OBJS)
 	$(CC) -o xtmanin xtmanin.o $(OBJS) $(LFLAGS)
