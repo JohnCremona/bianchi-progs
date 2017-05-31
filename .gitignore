@@ -36,3 +36,7 @@ moreap1
 modularity
 nflist
 fieldinfo
+
+# temporary test output files
+*.testout
+nftmp/*
