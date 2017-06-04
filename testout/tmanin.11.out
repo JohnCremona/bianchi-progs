@@ -1,11 +1,11 @@
 Enter field: Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
 Euclidean
-1237 primes initialised, max norm = 10000
+9609 primes initialised, max norm = 100000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
->>>> Level [11,5,1] = (-1+2a), norm = 11 <<<<
+>>>> Level 11.5.1 = (-1+2a), norm = 11 <<<<
 
-1 newform(s) at level [11,5,1] = (-1+2a):
+1 newform(s) at level 11.5.1 = (-1+2a):
 1:	basis = [4,5];	aqlist = [ -1 ];	aplist = [ -1 -1 0 1 1 1 -1 -1 7 7 3 3 8 8 -10 -6 -6 5 5 -7 -7 -3 -3 15 15 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -20
@@ -14,9 +14,9 @@ Integration matrix = [2,1;1-2a,1-a], factor   = -10
 Writing data to file nftmp/2.0.11.1/11.5.1...done.
 ===========================================
 Enter level: 
->>>> Level [27,0,3] = (3a), norm = 27 <<<<
+>>>> Level 27.0.3 = (3a), norm = 27 <<<<
 
-1 newform(s) at level [27,0,3] = (3a):
+1 newform(s) at level 27.0.3 = (3a):
 1:	basis = [2,4,3,-1,2,-4];	aqlist = [ -1 1 ];	aplist = [ 0 -1 1 -2 2 0 4 -4 0 0 -2 -2 -8 8 -6 -6 6 0 0 12 12 -8 8 -14 14 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -8
@@ -25,19 +25,19 @@ Integration matrix = [-4-3a,-a;9-3a,2], factor   = -8
 Writing data to file nftmp/2.0.11.1/27.0.3...done.
 ===========================================
 Enter level: 
->>>> Level [33,5,1] = (5+a), norm = 33 <<<<
+>>>> Level 33.5.1 = (5+a), norm = 33 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/33.5.1...done.
 ===========================================
 Enter level: 
->>>> Level [44,10,2] = (-2+4a), norm = 44 <<<<
+>>>> Level 44.10.2 = (-2+4a), norm = 44 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/44.10.2...done.
 ===========================================
 Enter level: 
->>>> Level [47,26,1] = (5+2a), norm = 47 <<<<
+>>>> Level 47.26.1 = (5+2a), norm = 47 <<<<
 
-1 newform(s) at level [47,26,1] = (5+2a):
+1 newform(s) at level 47.26.1 = (5+2a):
 1:	basis = [0,1];	aqlist = [ 1 ];	aplist = [ 1 -3 0 -3 -1 -4 -3 3 -5 5 7 7 0 -1 2 10 -2 -9 -5 -3 7 -11 -3 -9 3 ]
 Sign of F.E. = -1
 Twisting prime lambda = 1+a, factor = 4
@@ -46,24 +46,24 @@ Integration matrix = [-7-3a,-a;11-5a,2], factor   = 1
 Writing data to file nftmp/2.0.11.1/47.26.1...done.
 ===========================================
 Enter level: 
->>>> Level [55,38,1] = (4+3a), norm = 55 <<<<
+>>>> Level 55.38.1 = (4+3a), norm = 55 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/55.38.1...done.
 ===========================================
 Enter level: 
->>>> Level [81,0,9] = (9), norm = 81 <<<<
+>>>> Level 81.0.9 = (9), norm = 81 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/81.0.9...done.
 ===========================================
 Enter level: 
->>>> Level [81,6,3] = (6+3a), norm = 81 <<<<
+>>>> Level 81.6.3 = (6+3a), norm = 81 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/81.6.3...done.
 ===========================================
 Enter level: 
->>>> Level [89,36,1] = (2+5a), norm = 89 <<<<
+>>>> Level 89.36.1 = (2+5a), norm = 89 <<<<
 
-1 newform(s) at level [89,36,1] = (2+5a):
+1 newform(s) at level 89.36.1 = (2+5a):
 1:	basis = [1,-2];	aqlist = [ -1 ];	aplist = [ 0 2 -1 2 2 -4 0 6 -2 4 -6 2 12 -8 10 2 -6 -6 -4 14 10 -2 6 1 -6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -8
@@ -72,9 +72,9 @@ Integration matrix = [5-2a,1;-2-5a,1-a], factor   = -2
 Writing data to file nftmp/2.0.11.1/89.36.1...done.
 ===========================================
 Enter level: 
->>>> Level [92,8,2] = (8+2a), norm = 92 <<<<
+>>>> Level 92.8.2 = (8+2a), norm = 92 <<<<
 
-1 newform(s) at level [92,8,2] = (8+2a):
+1 newform(s) at level 92.8.2 = (8+2a):
 1:	basis = [1,3,-2,-3];	aqlist = [ -1 1 ];	aplist = [ -2 1 1 0 3 3 -1 0 5 -4 -7 2 3 -6 5 0 9 -9 -6 14 -4 -15 -12 6 12 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 24
@@ -83,9 +83,9 @@ Integration matrix = [2-3a,1;-8-2a,1-a], factor   = 6
 Writing data to file nftmp/2.0.11.1/92.8.2...done.
 ===========================================
 Enter level: 
->>>> Level [99,60,1] = (3+5a), norm = 99 <<<<
+>>>> Level 99.60.1 = (3+5a), norm = 99 <<<<
 
-1 newform(s) at level [99,60,1] = (3+5a):
+1 newform(s) at level 99.60.1 = (3+5a):
 1:	basis = [1,0,2,1,-2,-2,0,-2,4];	aqlist = [ 1 -1 ];	aplist = [ 0 2 3 -2 -2 1 -4 8 4 -2 -12 0 2 -4 8 -12 6 -4 -4 8 2 0 6 6 0 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4
@@ -94,9 +94,9 @@ Integration matrix = [-5+3a,1;3+5a,1-a], factor   = 2
 Writing data to file nftmp/2.0.11.1/99.60.1...done.
 ===========================================
 Enter level: 
->>>> Level [99,15,3] = (-3+6a), norm = 99 <<<<
+>>>> Level 99.15.3 = (-3+6a), norm = 99 <<<<
 
-1 newform(s) at level [99,15,3] = (-3+6a):
+1 newform(s) at level 99.15.3 = (-3+6a):
 1:	basis = [1,1,-2,-2,-1,-8,-1,0,-4,-8,0,-8];	aqlist = [ 1 1 -1 ];	aplist = [ -1 -1 -3 -2 -2 1 8 8 -8 -8 6 6 8 8 2 6 6 -4 -4 -4 -4 0 0 -6 -6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8

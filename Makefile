@@ -4,7 +4,7 @@ METHOD=2
 
 GCC=g++
 CC = $(GCC)
-OPTFLAG = -O0 -Wall -DNTL_ALL -fPIC # -DECLIB_MULTITHREAD
+OPTFLAG = -O3 -Wall -DNTL_ALL -fPIC # -DECLIB_MULTITHREAD
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # ECLIB_MULTITHREAD above and include the BOOST libraries below.
@@ -94,7 +94,13 @@ OBJS = symb.o moddata.o quads.o looper.o cusp.o homspace.o \
 
 
 tmanin: tmanin.o $(OBJS)
-	$(CC) -o tmanin tmanin.o $(OBJS) $(LFLAGS)
+	$(CC) -g -o tmanin tmanin.o $(OBJS) $(LFLAGS)
+
+tmanin_loop.o: tmanin.cc $(OBJS)
+	$(CC) -DLOOPER $(CFLAGS) tmanin.cc -o tmanin_loop.o
+
+tmanin_loop: tmanin_loop.o $(OBJS)
+	$(CC) -g -o tmanin_loop tmanin_loop.o $(OBJS) $(LFLAGS)
 
 pmanin: pmanin.o $(OBJS)
 	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
@@ -110,6 +116,12 @@ nftest: nftest.o $(OBJS)
 
 nflist: nflist.o $(OBJS)
 	$(CC) -o nflist nflist.o $(OBJS) $(LFLAGS)
+
+nflist_loop.o: nflist.cc $(OBJS)
+	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
+
+nflist_loop: nflist_loop.o $(OBJS)
+	$(CC) -o nflist_loop nflist_loop.o $(OBJS) $(LFLAGS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)

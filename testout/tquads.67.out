@@ -10,29 +10,29 @@ imag(a) = 6
 quadconj(a) = 11-6a
 quadnorm(a) = 667
 HNF(a) = [ 667 112 1 ]
-ideal_label(a) = [667,112,1]
+ideal_label(a) = 667.112.1
 Here are the first 20 primes out of 186 (one per line):
-2 has norm 4 and label [4,0,2]
-3 has norm 9 and label [9,0,3]
-a has norm 17 and label [17,0,1]
--1+a has norm 17 and label [17,16,1]
-1+a has norm 19 and label [19,1,1]
--2+a has norm 19 and label [19,17,1]
-2+a has norm 23 and label [23,2,1]
--3+a has norm 23 and label [23,20,1]
-5 has norm 25 and label [25,0,5]
-3+a has norm 29 and label [29,3,1]
--4+a has norm 29 and label [29,25,1]
-4+a has norm 37 and label [37,4,1]
--5+a has norm 37 and label [37,32,1]
-5+a has norm 47 and label [47,5,1]
--6+a has norm 47 and label [47,41,1]
-7 has norm 49 and label [49,0,7]
-6+a has norm 59 and label [59,6,1]
--7+a has norm 59 and label [59,52,1]
--1+2a has norm 67 and label [67,33,1]
--3+2a has norm 71 and label [71,34,1]
-1+2a has norm 71 and label [71,36,1]
+(2) has norm 4 and label 4.0.2
+(3) has norm 9 and label 9.0.3
+(a) has norm 17 and label 17.0.1
+(-1+a) has norm 17 and label 17.16.1
+(1+a) has norm 19 and label 19.1.1
+(-2+a) has norm 19 and label 19.17.1
+(2+a) has norm 23 and label 23.2.1
+(-3+a) has norm 23 and label 23.20.1
+(5) has norm 25 and label 25.0.5
+(3+a) has norm 29 and label 29.3.1
+(-4+a) has norm 29 and label 29.25.1
+(4+a) has norm 37 and label 37.4.1
+(-5+a) has norm 37 and label 37.32.1
+(5+a) has norm 47 and label 47.5.1
+(-6+a) has norm 47 and label 47.41.1
+(7) has norm 49 and label 49.0.7
+(6+a) has norm 59 and label 59.6.1
+(-7+a) has norm 59 and label 59.52.1
+(-1+2a) has norm 67 and label 67.33.1
+(-3+2a) has norm 71 and label 71.34.1
+(1+2a) has norm 71 and label 71.36.1
 b=a*a=-587+96a
 val(a,b) = 2
 div(a,b) = 1

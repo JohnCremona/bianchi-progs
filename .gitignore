@@ -26,6 +26,7 @@ modtest
 nftest
 symbtest
 tmanin
+tmanin_loop
 pmanin
 tquads
 tratquad
@@ -35,6 +36,7 @@ moreap
 moreap1
 modularity
 nflist
+nflist_loop
 fieldinfo
 
 # temporary test output files

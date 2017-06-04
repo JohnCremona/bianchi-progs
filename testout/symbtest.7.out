@@ -1,5 +1,5 @@
-Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level [2,0,1] = (a), norm = 2 <<<<	
-Level = [2,0,1] = (a)
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level 2.0.1 = (a), norm = 2 <<<<	
+Level = 2.0.1 = (a)
 Number of symbols = 3
 2 non-trivial divisors: [ 1 a ]
 1 prime divisors: [ a ]
@@ -10,8 +10,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [4,0,2] = (2), norm = 4 <<<<	
-Level = [4,0,2] = (2)
+>>>> Level 4.0.2 = (2), norm = 4 <<<<	
+Level = 4.0.2 = (2)
 Number of symbols = 9
 4 non-trivial divisors: [ 1 a -1+a 2 ]
 2 prime divisors: [ a -1+a ]
@@ -24,8 +24,8 @@ Number of special symbols = 2
 0:	(a:1-a)
 1:	(-1+a:-a)
  OK
->>>> Level [4,1,1] = (1+a), norm = 4 <<<<	
-Level = [4,1,1] = (1+a)
+>>>> Level 4.1.1 = (1+a), norm = 4 <<<<	
+Level = 4.1.1 = (1+a)
 Number of symbols = 6
 3 non-trivial divisors: [ 1 -1+a 1+a ]
 1 prime divisors: [ -1+a ]
@@ -36,8 +36,8 @@ noninvdlist: [ -1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [7,3,1] = (-1+2a), norm = 7 <<<<	
-Level = [7,3,1] = (-1+2a)
+>>>> Level 7.3.1 = (-1+2a), norm = 7 <<<<	
+Level = 7.3.1 = (-1+2a)
 Number of symbols = 8
 2 non-trivial divisors: [ 1 -1+2a ]
 1 prime divisors: [ -1+2a ]
@@ -48,8 +48,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [8,2,1] = (2+a), norm = 8 <<<<	
-Level = [8,2,1] = (2+a)
+>>>> Level 8.2.1 = (2+a), norm = 8 <<<<	
+Level = 8.2.1 = (2+a)
 Number of symbols = 12
 4 non-trivial divisors: [ 1 a -2+a 2+a ]
 1 prime divisors: [ a ]
@@ -60,8 +60,8 @@ noninvdlist: [ -1 1 2 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [8,0,2] = (2a), norm = 8 <<<<	
-Level = [8,0,2] = (2a)
+>>>> Level 8.0.2 = (2a), norm = 8 <<<<	
+Level = 8.0.2 = (2a)
 Number of symbols = 18
 6 non-trivial divisors: [ 1 a -2+a -1+a 2 2a ]
 2 prime divisors: [ a -1+a ]
@@ -76,8 +76,8 @@ Number of special symbols = 4
 2:	(-1+a:-a)
 3:	(-1+a:2-a)
  OK
->>>> Level [9,0,3] = (3), norm = 9 <<<<	
-Level = [9,0,3] = (3)
+>>>> Level 9.0.3 = (3), norm = 9 <<<<	
+Level = 9.0.3 = (3)
 Number of symbols = 10
 2 non-trivial divisors: [ 1 3 ]
 1 prime divisors: [ 3 ]
@@ -88,8 +88,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [11,6,1] = (1+2a), norm = 11 <<<<	
-Level = [11,6,1] = (1+2a)
+>>>> Level 11.6.1 = (1+2a), norm = 11 <<<<	
+Level = 11.6.1 = (1+2a)
 Number of symbols = 12
 2 non-trivial divisors: [ 1 1+2a ]
 1 prime divisors: [ 1+2a ]
@@ -100,8 +100,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [14,3,1] = (3+a), norm = 14 <<<<	
-Level = [14,3,1] = (3+a)
+>>>> Level 14.3.1 = (3+a), norm = 14 <<<<	
+Level = 14.3.1 = (3+a)
 Number of symbols = 24
 4 non-trivial divisors: [ 1 -1+a -1+2a 3+a ]
 2 prime divisors: [ -1+a -1+2a ]
@@ -114,8 +114,8 @@ Number of special symbols = 2
 0:	(-1+a:1-2a)
 1:	(-1+2a:-1-a)
  OK
->>>> Level [16,0,4] = (4), norm = 16 <<<<	
-Level = [16,0,4] = (4)
+>>>> Level 16.0.4 = (4), norm = 16 <<<<	
+Level = 16.0.4 = (4)
 Number of symbols = 36
 9 non-trivial divisors: [ 1 a -2+a -1+a 2 2a 1+a -2+2a 4 ]
 2 prime divisors: [ a -1+a ]
@@ -134,8 +134,8 @@ Number of special symbols = 8
 6:	(1+a:a)
 7:	(1+a:-2+a)
  OK
->>>> Level [16,2,2] = (2+2a), norm = 16 <<<<	
-Level = [16,2,2] = (2+2a)
+>>>> Level 16.2.2 = (2+2a), norm = 16 <<<<	
+Level = 16.2.2 = (2+2a)
 Number of symbols = 36
 8 non-trivial divisors: [ 1 a -1+a 2 1+a -2+2a -3+a 2+2a ]
 2 prime divisors: [ a -1+a ]
@@ -154,8 +154,8 @@ Number of special symbols = 8
 6:	(1+a:a)
 7:	(-3+a:a)
  OK
->>>> Level [16,5,1] = (-1+3a), norm = 16 <<<<	
-Level = [16,5,1] = (-1+3a)
+>>>> Level 16.5.1 = (-1+3a), norm = 16 <<<<	
+Level = 16.5.1 = (-1+3a)
 Number of symbols = 24
 5 non-trivial divisors: [ 1 -1+a 1+a -3+a -1+3a ]
 1 prime divisors: [ -1+a ]
@@ -166,8 +166,8 @@ noninvdlist: [ -1 1 2 1 3 1 2 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [18,0,3] = (3a), norm = 18 <<<<	
-Level = [18,0,3] = (3a)
+>>>> Level 18.0.3 = (3a), norm = 18 <<<<	
+Level = 18.0.3 = (3a)
 Number of symbols = 30
 4 non-trivial divisors: [ 1 a 3 3a ]
 2 prime divisors: [ a 3 ]

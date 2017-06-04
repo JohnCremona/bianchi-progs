@@ -1,7 +1,7 @@
 Enter field: Verbose? Enter level: 
->>>> Level [73,8,1] = (8+w), norm = 73 <<<<
+>>>> Level 73.8.1 = (8+w), norm = 73 <<<<
 
-1 newform(s) at level [73,8,1] = (8+w):
+1 newform(s) at level 73.8.1 = (8+w):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 1 2 14 -10 14 2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -6

@@ -1,7 +1,7 @@
 Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level [144,0,12] = (12), norm = 144 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
 Dimension = 14
 Computing W(1+i)...  done. 
 Involution!

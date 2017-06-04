@@ -1,5 +1,5 @@
-Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level [2,0,1] = (t), norm = 2 <<<<	
-Level = [2,0,1] = (t)
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level 2.0.1 = (t), norm = 2 <<<<	
+Level = 2.0.1 = (t)
 Number of symbols = 3
 2 non-trivial divisors: [ 1 t ]
 1 prime divisors: [ t ]
@@ -10,8 +10,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [3,1,1] = (1+t), norm = 3 <<<<	
-Level = [3,1,1] = (1+t)
+>>>> Level 3.1.1 = (1+t), norm = 3 <<<<	
+Level = 3.1.1 = (1+t)
 Number of symbols = 4
 2 non-trivial divisors: [ 1 1+t ]
 1 prime divisors: [ 1+t ]
@@ -22,8 +22,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [4,0,2] = (2), norm = 4 <<<<	
-Level = [4,0,2] = (2)
+>>>> Level 4.0.2 = (2), norm = 4 <<<<	
+Level = 4.0.2 = (2)
 Number of symbols = 6
 3 non-trivial divisors: [ 1 t 2 ]
 1 prime divisors: [ t ]
@@ -34,8 +34,8 @@ noninvdlist: [ -1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [6,2,1] = (2+t), norm = 6 <<<<	
-Level = [6,2,1] = (2+t)
+>>>> Level 6.2.1 = (2+t), norm = 6 <<<<	
+Level = 6.2.1 = (2+t)
 Number of symbols = 12
 4 non-trivial divisors: [ 1 t -1+t 2+t ]
 2 prime divisors: [ t -1+t ]
@@ -48,8 +48,8 @@ Number of special symbols = 2
 0:	(t:1-t)
 1:	(-1+t:-t)
  OK
->>>> Level [8,0,2] = (2t), norm = 8 <<<<	
-Level = [8,0,2] = (2t)
+>>>> Level 8.0.2 = (2t), norm = 8 <<<<	
+Level = 8.0.2 = (2t)
 Number of symbols = 12
 4 non-trivial divisors: [ 1 t 2 2t ]
 1 prime divisors: [ t ]
@@ -60,8 +60,8 @@ noninvdlist: [ -1 2 1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [9,0,3] = (3), norm = 9 <<<<	
-Level = [9,0,3] = (3)
+>>>> Level 9.0.3 = (3), norm = 9 <<<<	
+Level = 9.0.3 = (3)
 Number of symbols = 16
 4 non-trivial divisors: [ 1 1+t -1+t 3 ]
 2 prime divisors: [ 1+t -1+t ]
@@ -74,8 +74,8 @@ Number of special symbols = 2
 0:	(1+t:-1+t)
 1:	(-1+t:1+t)
  OK
->>>> Level [9,5,1] = (1+2t), norm = 9 <<<<	
-Level = [9,5,1] = (1+2t)
+>>>> Level 9.5.1 = (1+2t), norm = 9 <<<<	
+Level = 9.5.1 = (1+2t)
 Number of symbols = 12
 3 non-trivial divisors: [ 1 -1+t 1+2t ]
 1 prime divisors: [ -1+t ]
@@ -86,8 +86,8 @@ noninvdlist: [ -1 1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [11,3,1] = (3+t), norm = 11 <<<<	
-Level = [11,3,1] = (3+t)
+>>>> Level 11.3.1 = (3+t), norm = 11 <<<<	
+Level = 11.3.1 = (3+t)
 Number of symbols = 12
 2 non-trivial divisors: [ 1 3+t ]
 1 prime divisors: [ 3+t ]
@@ -98,8 +98,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [12,2,2] = (2+2t), norm = 12 <<<<	
-Level = [12,2,2] = (2+2t)
+>>>> Level 12.2.2 = (2+2t), norm = 12 <<<<	
+Level = 12.2.2 = (2+2t)
 Number of symbols = 24
 6 non-trivial divisors: [ 1 t 2 1+t -2+t 2+2t ]
 2 prime divisors: [ t 1+t ]
@@ -114,8 +114,8 @@ Number of special symbols = 4
 2:	(1+t:2)
 3:	(1+t:t)
  OK
->>>> Level [16,0,4] = (4), norm = 16 <<<<	
-Level = [16,0,4] = (4)
+>>>> Level 16.0.4 = (4), norm = 16 <<<<	
+Level = 16.0.4 = (4)
 Number of symbols = 24
 5 non-trivial divisors: [ 1 t 2 2t 4 ]
 1 prime divisors: [ t ]
@@ -126,8 +126,8 @@ noninvdlist: [ -1 2 1 1 3 2 1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [17,10,1] = (3+2t), norm = 17 <<<<	
-Level = [17,10,1] = (3+2t)
+>>>> Level 17.10.1 = (3+2t), norm = 17 <<<<	
+Level = 17.10.1 = (3+2t)
 Number of symbols = 18
 2 non-trivial divisors: [ 1 3+2t ]
 1 prime divisors: [ 3+2t ]
@@ -138,8 +138,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [18,4,1] = (4+t), norm = 18 <<<<	
-Level = [18,4,1] = (4+t)
+>>>> Level 18.4.1 = (4+t), norm = 18 <<<<	
+Level = 18.4.1 = (4+t)
 Number of symbols = 36
 6 non-trivial divisors: [ 1 t 1+t -2+t -1+2t 4+t ]
 2 prime divisors: [ t 1+t ]
@@ -156,8 +156,8 @@ Number of special symbols = 6
 4:	(1+t:-t)
 5:	(-1+2t:2)
  OK
->>>> Level [18,0,3] = (3t), norm = 18 <<<<	
-Level = [18,0,3] = (3t)
+>>>> Level 18.0.3 = (3t), norm = 18 <<<<	
+Level = 18.0.3 = (3t)
 Number of symbols = 48
 8 non-trivial divisors: [ 1 t 1+t -2+t -1+t 2+t 3 3t ]
 3 prime divisors: [ t 1+t -1+t ]
@@ -184,8 +184,8 @@ Number of special symbols = 16
 14:	(2+t:1+t)
 15:	(3:2)
  OK
->>>> Level [19,13,1] = (1+3t), norm = 19 <<<<	
-Level = [19,13,1] = (1+3t)
+>>>> Level 19.13.1 = (1+3t), norm = 19 <<<<	
+Level = 19.13.1 = (1+3t)
 Number of symbols = 20
 2 non-trivial divisors: [ 1 1+3t ]
 1 prime divisors: [ 1+3t ]

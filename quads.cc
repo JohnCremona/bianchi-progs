@@ -730,10 +730,18 @@ vector<long> HNF(const Quad& alpha)
 // Ideal label: formed from the Norm and HNF of the ideal (alpha)
 // (subject to change!)
 
-string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
+string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
   vector<long>H = HNF(alpha);
   stringstream s;
   s << "[" << quadnorm(alpha) << "," << H[1] << "," << H[2] << "]";
+  return s.str();
+}
+
+string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
+{
+  vector<long>H = HNF(alpha);
+  stringstream s;
+  s << quadnorm(alpha) << "." << H[1] << "." << H[2];
   return s.str();
 }

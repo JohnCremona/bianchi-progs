@@ -1,5 +1,5 @@
-Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level [3,1,1] = (1+w), norm = 3 <<<<	
-Level = [3,1,1] = (1+w)
+Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level 3.1.1 = (1+w), norm = 3 <<<<	
+Level = 3.1.1 = (1+w)
 Number of symbols = 4
 2 non-trivial divisors: [ 1 1+w ]
 1 prime divisors: [ 1+w ]
@@ -10,8 +10,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [4,0,2] = (2), norm = 4 <<<<	
-Level = [4,0,2] = (2)
+>>>> Level 4.0.2 = (2), norm = 4 <<<<	
+Level = 4.0.2 = (2)
 Number of symbols = 5
 2 non-trivial divisors: [ 1 2 ]
 1 prime divisors: [ 2 ]
@@ -22,8 +22,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [7,2,1] = (2+w), norm = 7 <<<<	
-Level = [7,2,1] = (2+w)
+>>>> Level 7.2.1 = (2+w), norm = 7 <<<<	
+Level = 7.2.1 = (2+w)
 Number of symbols = 8
 2 non-trivial divisors: [ 1 2+w ]
 1 prime divisors: [ 2+w ]
@@ -34,8 +34,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [9,0,3] = (3), norm = 9 <<<<	
-Level = [9,0,3] = (3)
+>>>> Level 9.0.3 = (3), norm = 9 <<<<	
+Level = 9.0.3 = (3)
 Number of symbols = 12
 3 non-trivial divisors: [ 1 1+w 3 ]
 1 prime divisors: [ 1+w ]
@@ -46,8 +46,8 @@ noninvdlist: [ -1 1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [12,2,2] = (2+2w), norm = 12 <<<<	
-Level = [12,2,2] = (2+2w)
+>>>> Level 12.2.2 = (2+2w), norm = 12 <<<<	
+Level = 12.2.2 = (2+2w)
 Number of symbols = 20
 4 non-trivial divisors: [ 1 1+w 2 2+2w ]
 2 prime divisors: [ 1+w 2 ]
@@ -60,8 +60,8 @@ Number of special symbols = 2
 0:	(1+w:-2w)
 1:	(2:1-2w)
  OK
->>>> Level [13,3,1] = (3+w), norm = 13 <<<<	
-Level = [13,3,1] = (3+w)
+>>>> Level 13.3.1 = (3+w), norm = 13 <<<<	
+Level = 13.3.1 = (3+w)
 Number of symbols = 14
 2 non-trivial divisors: [ 1 3+w ]
 1 prime divisors: [ 3+w ]
@@ -72,8 +72,8 @@ noninvdlist: [ -1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [16,0,4] = (4), norm = 16 <<<<	
-Level = [16,0,4] = (4)
+>>>> Level 16.0.4 = (4), norm = 16 <<<<	
+Level = 16.0.4 = (4)
 Number of symbols = 20
 3 non-trivial divisors: [ 1 2 4 ]
 1 prime divisors: [ 2 ]
@@ -84,8 +84,8 @@ noninvdlist: [ -1 1 1 1 ]
 dstarts = [ ]
 Number of special symbols = 0
  OK
->>>> Level [19,11,1] = (3+2w), norm = 19 <<<<	
-Level = [19,11,1] = (3+2w)
+>>>> Level 19.11.1 = (3+2w), norm = 19 <<<<	
+Level = 19.11.1 = (3+2w)
 Number of symbols = 20
 2 non-trivial divisors: [ 1 3+2w ]
 1 prime divisors: [ 3+2w ]

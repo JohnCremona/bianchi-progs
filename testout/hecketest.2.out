@@ -1,7 +1,7 @@
 Enter field: Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
 Euclidean
 1225 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level [144,0,12] = (12), norm = 144 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
 Dimension = 26
 Computing W(t)...  done. 
 Involution!

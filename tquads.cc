@@ -31,7 +31,7 @@ int main ()
  while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
    {
      p = *pr++;
-     cout << p << " has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+     cout << "("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
    }
    
  /*
