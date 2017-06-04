@@ -370,7 +370,7 @@ void newforms::list(long nap) const
   string id = ideal_label(modulus);
   for(int i=0; i<n1ds; i++)
     {
-      cout << id << "." << codeletter(i)<< " ("<<modulus<<") ";
+      cout << id << "-" << codeletter(i)<< " ("<<modulus<<") ";
       nflist[i].list(nap);
       cout << endl;
     }
