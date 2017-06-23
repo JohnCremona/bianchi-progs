@@ -15,21 +15,22 @@ def ideal_from_HNF(K,H):
 
 def ideal_HNF(I):
     H = I.pari_hnf().python()
-    return [H[0,0],H[0,1],H[1,1]]
+    print H
+    return [H[0][0],H[0][1],H[1][1]]
 
-def ideal_label(I):
+def old_ideal_label(I):
     H = ideal_HNF(I)
     N = H[0]*H[2]
     return "[%s,%s,%s]"%(N,H[1],H[2])
 
 import re
-ideal_label_regex = re.compile(r'\[\d+,\d+,\d+]')
+ideal_label_regex = re.compile(r'\d+\.\d+\.\d+')
 
 def parse_ideal_label(s):
     if not ideal_label_regex.match(s):
         raise ValueError, "invalid label %s"%s
-    s = re.sub(r']','',re.sub(r'\[','',s))
-    return [int(i) for i in s.split(r',')]
+    #s = re.sub(r']','',re.sub(r'\[','',s))
+    return [int(i) for i in s.split(r'.')]
 
 def ideal_from_label(K,s):
     H = parse_ideal_label(s)
@@ -57,7 +58,11 @@ def read_dimtabeis(d, fname):
         I = ideal_from_label(K,label)
         print "%s dimensions: %s %s %s"%(I,dimall,dimcusp,dimeis)
 
-def make_dimtabnew(d, fname, maxnorm=0):
+# NB The following function takes as input a dimeistab as produced by
+# the C++ program dimeistab.cc, but will only work if this input file
+# starts at level norm 1.
+
+def make_dimtabnew(d, fname, min_norm=1, max_norm=None, verbose=False):
     K, a = field(d)
     infile = file(fname)
     outfname = fname+'.newdims'
@@ -65,29 +70,31 @@ def make_dimtabnew(d, fname, maxnorm=0):
     dimscuspnew={}
     for L in infile.readlines():
         if L.count('Table'):
-            outfile.write(L)
+            outfile.write("#"+L)
             continue
         if L.count('Field'):
             #outfile.write(L[:-1]+'\tdim(cuspidal, new)\n')
-            outfile.write('Field\tWeight\tLevel\t\tall\tcusp\tcusp(new)\teis\n')
+            outfile.write('#Field\tWeight\tLevel\t\tall\tcusp\tcusp(new)\teis\n')
             continue
         dd, w, label, dimall, dimcusp, dimeis = L.split()
         assert (int(dd)==d) and int(w)==2
         dimcusp = int(dimcusp)
         I = ideal_from_label(K,label)
-        if maxnorm and I.norm()>maxnorm: break
+        Inorm = I.norm()
+        if max_norm!=None and Inorm>max_norm: break
         dimcuspnew = dimcusp
         if dimcuspnew:
             for J,m in ideal_divisor_iterator_multi(I):
                 if dimcuspnew==0:
                     break
                 if m>1:  # else J=I
-                    #print "J=%s: %s,%s,%s"%(ideal_label(J),dimsallnew[J],dimscuspnew[J],dimseisnew[J])
                     dimcuspnew -= m*dimscuspnew[J]
         dimscuspnew[I] = dimcuspnew
 
-        print "%s dimensions: %s %s (%s new) %s"%(ideal_label(I),dimall,dimcusp,dimcuspnew,dimeis)
-        outfile.write("%s \t%s \t%s \t%s \t%s \t%s \t%s\n"%(dd,w,label,dimall,dimcusp,dimcuspnew,dimeis))
+        if Inorm>=min_norm:
+            if verbose:
+                print "%s dimensions: %s %s (%s new) %s"%(old_ideal_label(I),dimall,dimcusp,dimcuspnew,dimeis)
+            outfile.write("%s \t%s \t%s \t%s \t%s \t%s \t%s\n"%(dd,w,label,dimall,dimcusp,dimcuspnew,dimeis))
 
 def edit_haluk_output(f, fname):
     infile = file(fname)
@@ -95,7 +102,6 @@ def edit_haluk_output(f, fname):
     for L in infile.readlines():
         if L[0]!="[":
             continue
-#        print L
         L = L.replace(',',' , ')
         L = L.replace(']',' ]')
         lab = range(6)
