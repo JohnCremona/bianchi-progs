@@ -159,6 +159,50 @@ int newform::is_base_change(void) const
   return 1;
 }
 
+long squarefree_part(long d)
+{
+  if (d==0) return d;
+  vector<long> sd = sqdivs(d);
+  long maxd = sd[sd.size()-1];
+  long ans = d/(maxd*maxd);
+  //cout << "d has max square divisor "<<maxd<<"^2"<<" and squarefree part "<<ans<<endl;
+  return ans;
+}
+
+
+int newform::is_CM(void) const
+{
+  int cmd = 0;
+  long ap, dp;
+  Quad p;
+  vector<long>::const_iterator api = aplist.begin();
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  while(api!=aplist.end())
+    {
+      ap = *api++;
+      p = *pr++;
+      if (ap==0) continue;
+      dp = ap*ap-4*quadnorm(p);
+      //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
+      dp = squarefree_part(dp);
+      //cout<<" with squarefree part "<<dp<<endl;
+      if (dp==0) continue;
+      if (cmd==0) // first one
+        {
+          cmd = dp;
+        }
+      else
+        {
+          if (dp!=cmd) // mismatch: not CM
+            {
+              //cout<<"mismatch: CM=0"<<endl;
+              return 0;
+            }
+        }
+    }
+  return cmd;
+}
+
 
 void newforms::makeh1plus(void)
 {
@@ -404,7 +448,7 @@ void newforms::list(long nap) const
       cout << "2 ";
       cout << nflist[i].is_base_change() << " ";
       // This field should be 0/1 for is_cm: not yet implemented
-      cout << "? ";
+      cout << nflist[i].is_CM() << " ";
       nflist[i].list(nap);
       cout << endl;
     }
