@@ -28,6 +28,7 @@ int main ()
     }
   int output=1;
   cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
+ int dimcusp, dimeis, dimall;
 #ifdef LOOPER
  long firstn, lastn;
  int both_conj;
@@ -48,6 +49,14 @@ int main ()
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
      nf.createfromscratch();
+     // output lines as in dimtabeis:
+     cout << "DIMTAB " << d << "\t2\t";           // field and weight
+     cout << ideal_label(n)<<"\t\t"; // level and norm
+     dimcusp = nf.h1->h1cuspdim();
+     dimall = nf.h1->h1dim();
+     dimeis = dimall-dimcusp;
+     cout << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
+
      //nf.display();
      nf.getap(startp,stopp,verbose);
      //cout << "After sort_lmfdb():\n";

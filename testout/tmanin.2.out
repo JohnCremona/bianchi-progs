@@ -4,6 +4,7 @@ Euclidean
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 32.0.4 = (4t), norm = 32 <<<<
+DIMTAB 2	2	32.0.4		8		1		7
 
 1 newform(s) at level 32.0.4 = (4t):
 1:	basis = [0,0,1,-1,0,1,-1,-2];	aqlist = [ -1 ];	aplist = [ 0 0 0 0 0 2 2 0 0 -6 10 10 0 0 -14 0 0 0 0 -6 -6 0 0 10 10 ]
@@ -15,6 +16,7 @@ Writing data to file nftmp/2.0.8.1/32.0.4...done.
 ===========================================
 Enter level: 
 >>>> Level 51.7.1 = (7+t), norm = 51 <<<<
+DIMTAB 2	2	51.7.1		4		1		3
 
 1 newform(s) at level 51.7.1 = (7+t):
 1:	basis = [0,0,0,1];	aqlist = [ 1 1 ];	aplist = [ -2 -1 -2 -2 -4 -1 -6 0 -4 -2 -2 -2 10 -2 -2 6 -10 -8 0 -10 14 14 -2 -6 6 ]
@@ -26,6 +28,7 @@ Writing data to file nftmp/2.0.8.1/51.7.1...done.
 ===========================================
 Enter level: 
 >>>> Level 54.22.1 = (2+5t), norm = 54 <<<<
+DIMTAB 2	2	54.22.1		8		1		7
 
 1 newform(s) at level 54.22.1 = (2+5t):
 1:	basis = [1,-1,3,6,0,-4,2,-3];	aqlist = [ 1 -1 ];	aplist = [ -1 0 1 3 0 -3 -6 2 2 -1 0 -3 8 -10 -4 9 6 -13 5 2 2 -12 6 9 0 ]
@@ -37,6 +40,7 @@ Writing data to file nftmp/2.0.8.1/54.22.1...done.
 ===========================================
 Enter level: 
 >>>> Level 72.0.6 = (6t), norm = 72 <<<<
+DIMTAB 2	2	72.0.6		16		1		15
 
 1 newform(s) at level 72.0.6 = (6t):
 1:	basis = [1,-1,-1,1,0,0,2,-2,2,-2,1,0,-1,1,-1,4];	aqlist = [ -1 1 1 ];	aplist = [ 0 -1 -1 4 4 2 2 -4 -4 -6 -6 -6 4 4 -14 4 4 -4 -4 10 10 -4 -4 -6 -6 ]
@@ -48,6 +52,7 @@ Writing data to file nftmp/2.0.8.1/72.0.6...done.
 ===========================================
 Enter level: 
 >>>> Level 98.0.7 = (7t), norm = 98 <<<<
+DIMTAB 2	2	98.0.7		4		1		3
 
 1 newform(s) at level 98.0.7 = (7t):
 1:	basis = [3,2,-1,-3];	aqlist = [ 1 -1 ];	aplist = [ -1 -2 -2 0 0 6 6 2 2 -10 6 6 8 8 1 -6 -6 -4 -4 2 2 -6 -6 -6 -6 ]
@@ -59,6 +64,7 @@ Writing data to file nftmp/2.0.8.1/98.0.7...done.
 ===========================================
 Enter level: 
 >>>> Level 99.9.3 = (9+3t), norm = 99 <<<<
+DIMTAB 2	2	99.9.3		8		1		7
 
 1 newform(s) at level 99.9.3 = (9+3t):
 1:	basis = [1,-1,-2,-1,2,1,-1,4];	aqlist = [ 1 -1 1 ];	aplist = [ -1 -1 1 -1 4 2 -6 4 4 2 -6 -6 12 4 -6 -12 -4 4 -12 -14 -6 -4 -4 2 10 ]
@@ -70,6 +76,7 @@ Writing data to file nftmp/2.0.8.1/99.9.3...done.
 ===========================================
 Enter level: 
 >>>> Level 100.0.10 = (10), norm = 100 <<<<
+DIMTAB 2	2	100.0.10		6		1		5
 
 1 newform(s) at level 100.0.10 = (10):
 1:	basis = [0,1,0,-1,0,1];	aqlist = [ -1 -1 ];	aplist = [ 0 -2 -2 0 0 -6 -6 -4 -4 1 6 6 -10 -10 -10 12 12 2 2 2 2 6 6 -6 -6 ]
@@ -81,11 +88,13 @@ Writing data to file nftmp/2.0.8.1/100.0.10...done.
 ===========================================
 Enter level: 
 >>>> Level 102.44.1 = (2+7t), norm = 102 <<<<
+DIMTAB 2	2	102.44.1		9		2		7
 No newforms.
 Writing data to file nftmp/2.0.8.1/102.44.1...done.
 ===========================================
 Enter level: 
 >>>> Level 114.82.1 = (4+7t), norm = 114 <<<<
+DIMTAB 2	2	114.82.1		8		1		7
 
 1 newform(s) at level 114.82.1 = (4+7t):
 1:	basis = [1,0,0,-1,-1,0,-1,-2];	aqlist = [ -1 1 1 ];	aplist = [ 1 -1 0 4 4 -6 -2 -1 0 -2 -10 6 -4 0 2 4 -4 -12 4 -14 -14 12 -16 10 -6 ]
@@ -97,6 +106,7 @@ Writing data to file nftmp/2.0.8.1/114.82.1...done.
 ===========================================
 Enter level: 
 >>>> Level 121.0.11 = (11), norm = 121 <<<<
+DIMTAB 2	2	121.0.11		4		1		3
 
 1 newform(s) at level 121.0.11 = (11):
 1:	basis = [2,2,0,5];	aqlist = [ -1 -1 ];	aplist = [ -2 -1 -1 1 1 -2 -2 0 0 -9 -8 -8 -6 -6 -10 5 5 -7 -7 4 4 -6 -6 15 15 ]
@@ -108,6 +118,7 @@ Writing data to file nftmp/2.0.8.1/121.0.11...done.
 ===========================================
 Enter level: 
 >>>> Level 144.0.12 = (12), norm = 144 <<<<
+DIMTAB 2	2	144.0.12		26		3		23
 
 1 newform(s) at level 144.0.12 = (12):
 1:	basis = [2,-2,1,-1,-1,-2,2,1,0,-2,0,-2,-2,-2,-2,-4,-1,-2,-1,-2,1,0,2,1,2,0];	aqlist = [ -1 -1 -1 ];	aplist = [ 0 1 1 -4 -4 2 2 4 4 -6 -6 -6 -4 -4 -14 -4 -4 4 4 10 10 4 4 -6 -6 ]
