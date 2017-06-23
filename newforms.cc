@@ -132,6 +132,34 @@ void newform::find_matrix()
     } // loop over d
 }
 
+int newform::is_base_change(void) const
+{
+  if(!(nf->is_Galois_stable))
+    return 0;
+  vector<long>::const_iterator ap = aplist.begin();
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  while(ap!=aplist.end())
+    {
+      long api = *ap++;
+      Quad p0 = *pr++;
+      //cout<<"p="<<p0<<" has ap="<<api<<endl;
+      if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
+        {
+          long apj = *ap++;
+          //cout<<"Next prime has ap="<<apj<<endl;
+          if(api!=apj) // ap mismatch
+            {
+              //cout<<"Mismatch -- not base-change"<<endl;
+              return 0;
+            }
+          pr++;
+        }
+    }
+  //cout<<"All OK -- base-change"<<endl;
+  return 1;
+}
+
+
 void newforms::makeh1plus(void)
 {
   if(!h1)
@@ -368,9 +396,15 @@ void newform::display(void) const
 void newforms::list(long nap) const
 {
   string id = ideal_label(modulus);
+  string flabel = field_label();
   for(int i=0; i<n1ds; i++)
     {
-      cout << id << "-" << codeletter(i)<< " ("<<modulus<<") ";
+      cout << flabel << " " << id << " " << codeletter(i) << " (" << modulus <<") ";
+      // weight
+      cout << "2 ";
+      cout << nflist[i].is_base_change() << " ";
+      // This field should be 0/1 for is_cm: not yet implemented
+      cout << "? ";
       nflist[i].list(nap);
       cout << endl;
     }
@@ -379,14 +413,20 @@ void newforms::list(long nap) const
 void newform::list(long nap) const
 {
   if(nap==-1) nap=aplist.size();
-  cout << sfe << " " << loverp << " [";
+  cout << sfe << " " << loverp << " ";
+  cout << "[";
   vector<long>::const_iterator ai;
   for(ai=aqlist.begin(); ai!=aqlist.end(); ai++)
     {
       if(ai!=aqlist.begin()) cout<<",";
       cout<<(*ai);
     }
-  cout << "] [";
+  cout << "] ";
+  // The x here is essentially a place-holder representing the Hecke
+  // field defining polynomial so that the output here will be
+  // consistent with newforms whose Hecke field has degree >1
+  cout << "x ";
+  cout << "[";
   for(ai=aplist.begin(); ai!=aplist.begin()+nap; ai++)
     {
       if(ai!=aplist.begin()) cout<<",";

@@ -5,24 +5,24 @@
 int main ()
 {
  int d,max=1000;
- cout << "Enter field (1,2,3,7,11): " << flush;  cin >> d;
+ cerr << "Enter field (1,2,3,7,11): " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
-     cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: 1, 2, 3, 7, 11!\n";
      exit(1);
    }
- cout << "Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
+ cout << "# Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
  long firstn, lastn; Quad n;
  int both_conj;
  int dimcusp, dimeis, dimall;
- cout<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  // int plusflag;
  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
- cout<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cout<<endl;
- cout << "Field\t Weight\t Level label\t ";
+ cout << "# Field\t Weight\t Level label\t ";
  cout << "dim(all)\t dim(cuspidal)\t dim(eisenstein)" << endl;
 
  if(firstn<2) firstn=2;

@@ -164,6 +164,7 @@ inline istream& operator>>(istream& s, Quad& x) {return s >> x.r >> x.i;}
 
 vector<long> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
 string ideal_label(const Quad& alpha);  // returns label of ideal (alpha)
+string field_label(); // returns field label, e.g. '2.0.4.1'
 
 Quad primdiv(const Quad&);           // "First" prime divisor
 vector<Quad> pdivs(const Quad&);         // list of prime divisors
@@ -173,6 +174,8 @@ vector<Quad> sqdivs(const Quad&);        // returns divisors whose square divide
                               // (up to +/- sign)
 vector<Quad> sqfreedivs(const Quad&);    // returns square-free divisors
 
+int are_associate(const Quad&, const Quad&);
+int is_ideal_Galois_stable(const Quad&);
 
 // some other general-purpose functions
 

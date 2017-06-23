@@ -745,3 +745,25 @@ string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
   s << quadnorm(alpha) << "." << H[1] << "." << H[2];
   return s.str();
 }
+
+string field_label() // returns field label, e.g. '2.0.4.1'
+{
+  stringstream s;
+  s << "2.0." << Quad::disc << ".1";
+  return s.str();
+}
+
+int are_associate(const Quad& a, const Quad& b)
+{
+  if(a==0) return (b==0);
+  if(quadnorm(a)!=quadnorm(b)) return 0;
+  vector<Quad>::const_iterator eps;
+  for(eps=quadunits.begin(); eps!=quadunits.end(); eps++)
+    if(a*(*eps)==b) return 1;
+  return 0;
+}
+
+int is_ideal_Galois_stable(const Quad& a)
+{
+  return are_associate(a, quadconj(a));
+}

@@ -70,6 +70,10 @@ public:
   void find_cuspidal_factor(void);
   // To find matrix for integration:
   void find_matrix(void);
+  // Test if form is base-change
+  int is_base_change(void) const;
+  // Test if form is CM
+  int is_CM(void) const;
 };
 
 class newforms :public level, splitter_base {

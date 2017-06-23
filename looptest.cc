@@ -16,6 +16,7 @@ int main(void)
     {
       Quad a = (Quad)alpha;  long norma = quadnorm(a);
       cout << "Quad = " << a << "\twith norm " << norma << endl;
+      //cout << field_label() << " " << ideal_label(makepos(alpha)) << endl;
     }
 }
 

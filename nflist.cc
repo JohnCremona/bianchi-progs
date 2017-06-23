@@ -27,9 +27,17 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);
-     newforms nf(n,0);
-     nf.createfromdata();
-     nf.list(nap);
+     ifstream data(eigfile(n).c_str());
+     if(!data)
+       {
+         cout<<"No data for level "<<n<<endl;
+       }
+     else
+       {
+         newforms nf(n,0);
+         nf.createfromdata();
+         nf.list(nap);
+       }
    }
 }
 

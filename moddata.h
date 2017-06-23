@@ -13,6 +13,7 @@ public:
  vector<Quad> plist,dlist,primelist;
  long npdivs,ndivs,normod,nap;
  int is_square;
+  int is_Galois_stable; 
 protected:
 //If modulus=(a,b) with norm normod, n0=gcd(a,b), n0m0=normod/n0=n0*m0
  long n0m0, n0,m0, wmodz;

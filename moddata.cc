@@ -12,6 +12,7 @@ level::level(const Quad& n, long neigs)
   vector<Quad>::const_iterator pr;
   for(pr=plist.begin(); pr!=plist.end() && is_square; pr++)
     if (val(*pr,n)%2) is_square=0;
+  is_Galois_stable = are_associate(n, quadconj(n));
   nap=neigs;
   primelist=plist;
   pr = quadprimes.begin();
