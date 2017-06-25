@@ -159,6 +159,31 @@ int newform::is_base_change(void) const
   return 1;
 }
 
+int newform::is_base_change_twist(void) const
+{
+  vector<long>::const_iterator ap = aplist.begin();
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  while(ap!=aplist.end())
+    {
+      long api = *ap++;
+      Quad p0 = *pr++;
+      //cout<<"p="<<p0<<" has ap="<<api<<endl;
+      if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
+        {
+          long apj = *ap++;
+          //cout<<"Next prime has ap="<<apj<<endl;
+          if(abs(api)!=abs(apj)) // ap mismatch
+            {
+              //cout<<"Mismatch -- not base-change"<<endl;
+              return 0;
+            }
+          pr++;
+        }
+    }
+  //cout<<"All OK -- base-change up to twist"<<endl;
+  return 1;
+}
+
 long squarefree_part(long d)
 {
   if (d==0) return d;
@@ -169,6 +194,43 @@ long squarefree_part(long d)
   return ans;
 }
 
+// if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
+int newform::base_change_discriminant(void) const
+{
+  if (is_base_change()==0) return 0;
+  int bcd = 1;
+  long ap, dp;
+  Quad p;
+  vector<long>::const_iterator api = aplist.begin();
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  while(api!=aplist.end())
+    {
+      ap = *api++;
+      p = *pr++;
+      if(imag(p)!=0) // this prime is not inert
+        continue;
+      if(div(p,nf->modulus)) // this prime is bad
+        continue;
+      dp = ap+2*real(p);
+      //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
+      dp = squarefree_part(dp);
+      //cout<<" with squarefree part "<<dp<<endl;
+      if (dp==0) continue;
+      if (bcd==1) // first one
+        {
+          bcd = dp;
+        }
+      else
+        {
+          if (dp!=bcd) // mismatch: not possible?
+            {
+              //cout<<"mismatch: bcd=0"<<endl;
+              return 1;
+            }
+        }
+    }
+  return bcd;
+}
 
 int newform::is_CM(void) const
 {
@@ -441,13 +503,29 @@ void newforms::list(long nap) const
 {
   string id = ideal_label(modulus);
   string flabel = field_label();
+  int bc, bcd, bct;
   for(int i=0; i<n1ds; i++)
     {
       cout << flabel << " " << id << " " << codeletter(i) << " (" << modulus <<") ";
       // weight
       cout << "2 ";
-      cout << nflist[i].is_base_change() << " ";
-      // This field should be 0/1 for is_cm: not yet implemented
+      bc = nflist[i].is_base_change();
+      if (bc)
+        {
+          bcd = nflist[i].base_change_discriminant();
+          bct = 0;
+          cout << bcd;
+        }
+      else
+        {
+          bcd = 0;
+          bct = nflist[i].is_base_change_twist();
+          if (bct)
+            cout << "-1";
+          else
+            cout << "0";
+        }
+      cout << " ";
       cout << nflist[i].is_CM() << " ";
       nflist[i].list(nap);
       cout << endl;
@@ -471,7 +549,7 @@ void newform::list(long nap) const
   // consistent with newforms whose Hecke field has degree >1
   cout << "x ";
   cout << "[";
-  for(ai=aplist.begin(); ai!=aplist.begin()+nap; ai++)
+  for(ai=aplist.begin(); ai!=aplist.begin()+nap && ai!=aplist.end(); ai++)
     {
       if(ai!=aplist.begin()) cout<<",";
       cout<<(*ai);

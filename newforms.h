@@ -72,6 +72,10 @@ public:
   void find_matrix(void);
   // Test if form is base-change
   int is_base_change(void) const;
+  // Test if form is base-change up to twist
+  int is_base_change_twist(void) const;
+  // if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
+  int base_change_discriminant(void) const;
   // Test if form is CM
   int is_CM(void) const;
 };
