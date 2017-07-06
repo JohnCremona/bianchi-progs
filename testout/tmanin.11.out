@@ -1,6 +1,6 @@
 Enter field: Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
 Euclidean
-9609 primes initialised, max norm = 100000
+17989 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 11.5.1 = (-1+2a), norm = 11 <<<<

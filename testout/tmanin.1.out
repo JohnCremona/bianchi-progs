@@ -1,6 +1,6 @@
 Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
 Euclidean
-9601 primes initialised, max norm = 100000
+17999 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 65.18.1 = (7+4i), norm = 65 <<<<

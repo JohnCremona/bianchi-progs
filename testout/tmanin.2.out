@@ -1,6 +1,6 @@
 Enter field: Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
 Euclidean
-9621 primes initialised, max norm = 100000
+17968 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 32.0.4 = (4t), norm = 32 <<<<

@@ -7,7 +7,7 @@
 
 int main ()
 {
- int d,max=100000;
+ int d,max=1000000;
  cerr << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
  Quad n;

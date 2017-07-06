@@ -7,7 +7,7 @@
 
 int main ()
 {
- int d,max=100000;
+ int d,max=200000;
  cout << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
