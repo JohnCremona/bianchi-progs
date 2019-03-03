@@ -2,7 +2,7 @@
 
 METHOD=2
 
-GCC=g++
+GCC=g++ -std=c++11
 CC = $(GCC)
 OPTFLAG = -O3 -Wall -DNTL_ALL -fPIC # -DECLIB_MULTITHREAD
 
