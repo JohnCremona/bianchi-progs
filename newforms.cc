@@ -145,6 +145,8 @@ int newform::is_base_change(void) const
       //cout<<"p="<<p0<<" has ap="<<api<<endl;
       if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
         {
+          if (ap==aplist.end()) // the conjugate ap is not known
+            return 1;
           long apj = *ap++;
           //cout<<"Next prime has ap="<<apj<<endl;
           if(api!=apj) // ap mismatch
@@ -170,14 +172,24 @@ int newform::is_base_change_twist(void) const
       //cout<<"p="<<p0<<" has ap="<<api<<endl;
       if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
         {
+          if (ap==aplist.end()) // the conjugate ap is not known
+            {
+              //cout<<"All OK -- base-change up to twist"<<endl;
+              return 1;
+            }
+            // read next (conjugate) prime and eigenvalue:
           long apj = *ap++;
-          //cout<<"Next prime has ap="<<apj<<endl;
+          Quad p1 =  *pr++;
+          //cout<<"p'="<<p1<<" has ap="<<apj<<endl;
+          // skip if either divides level:
+          if(div(p0,nf->modulus) || div(p1,nf->modulus))
+            continue;
+          // Check the ap agree up to sign:
           if(abs(api)!=abs(apj)) // ap mismatch
             {
-              //cout<<"Mismatch -- not base-change"<<endl;
+              //cout<<"Mismatch -- not base-change-twist"<<endl;
               return 0;
             }
-          pr++;
         }
     }
   //cout<<"All OK -- base-change up to twist"<<endl;
@@ -232,6 +244,61 @@ int newform::base_change_discriminant(void) const
   return bcd;
 }
 
+// if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
+int newform::base_change_twist_discriminant(void) const
+{
+  if (is_base_change_twist()==0) return 0;
+  int bcd1, bcd2, cmd = is_CM();
+  if (cmd!=0)
+    {
+      bcd1 = -cmd/(Quad::d);
+      //cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd1<<endl;
+      return bcd1;
+    }
+  bcd1 = bcd2 = 1;
+  long ap, dp1, dp2;
+  Quad p;
+  vector<long>::const_iterator api = aplist.begin();
+  vector<Quad>::const_iterator pr=quadprimes.begin();
+  while(api!=aplist.end())
+    {
+      ap = *api++;
+      p = *pr++;
+      if(imag(p)!=0) // this prime is not inert
+        continue;
+      if(div(p,nf->modulus)) // this prime is bad
+        continue;
+      dp1 =  ap+2*real(p);
+      dp2 = -ap+2*real(p);
+      //cout<<"p="<<p<<" has ap="<<ap<<", discs "<<dp1<<", "<<dp2;
+      dp1 = squarefree_part(dp1);
+      dp2 = squarefree_part(dp2);
+      //cout<<" with squarefree parts "<<dp1<<", "<<dp2<<endl;
+      if (dp1*dp2==0) continue;
+      if (dp1==dp2) return dp1; // no ambiguity!
+      if ((bcd1==1)&&(bcd2==1))  // first pair, store
+        {
+          bcd1 = dp1;
+          bcd2 = dp2;
+        }
+      else // see if only one is a repeatl if so it's the value we want
+        {
+          if ((dp1!=bcd1)&&(dp1!=bcd2))
+            {
+              return dp2;
+            }
+          if ((dp2!=bcd1)&&(dp2!=bcd2))
+            {
+              return dp1;
+            }
+          // otherwise we have the same two values as before so we go on
+        }
+    }
+  //cout<<"Warning from base_change_twist_discriminant(): unable to eliminate either of "<<bcd1<<" or "<<bcd2<<" so returning 1";
+  return 1;
+}
+
+// Test if form is CM, return 0 or the CM disc
 int newform::is_CM(void) const
 {
   int cmd = 0;
@@ -521,7 +588,13 @@ void newforms::list(long nap) const
           bcd = 0;
           bct = nflist[i].is_base_change_twist();
           if (bct)
-            cout << "-1";
+            {
+              // NB if we have not enough inert a_P we might not be
+              // able to determine the discriminant; the following
+              // will return 1 in this case.
+              bcd = nflist[i].base_change_twist_discriminant();
+              cout << (-bcd);
+            }
           else
             cout << "0";
         }

@@ -59,6 +59,7 @@ public:
   Quad a,b,c,d; int matdot;    // integration matrix and factor
   int j0; int fac, facinv;
   long cuspidalfactor;
+
   newform(void) :basis(0), aplist(0) {;}
   newform(newforms* nfs, const vec& v, const vector<long>& eigs);
   newform(newforms* nfs,
@@ -76,7 +77,9 @@ public:
   int is_base_change_twist(void) const;
   // if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
   int base_change_discriminant(void) const;
-  // Test if form is CM
+  // if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
+  int base_change_twist_discriminant(void) const;
+  // Test if form is CM, return 0 or the CM disc
   int is_CM(void) const;
 };
 

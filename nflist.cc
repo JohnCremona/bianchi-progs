@@ -13,6 +13,16 @@ int main ()
  Quad n;
  long nap;
  cerr << "How many coefficients ap? "<<flush; cin>>nap;
+ vector<Quad>::const_iterator pr=quadprimes.begin();
+ long np=0;
+ cout << "Primes: "<<endl;
+ while(np<nap)
+   {
+     Quad p = *pr++;
+     np ++;
+     cout << p << ", ";
+   }
+ cout << "..." << endl;
 #ifdef LOOPER
  long firstn, lastn;
  cerr<<"Enter first and last norm for Quads: ";
