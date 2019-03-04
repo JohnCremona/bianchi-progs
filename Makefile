@@ -1,31 +1,40 @@
-#Makefile for QUADS directory with test programs
+#Makefile for bianchi-progs with test programs
 
-METHOD=2
+# eclib is a requirement.  If installed in the usual place /usr/local
+# the following line might not be necessary.  If installed anywhere
+# else set the install directory here:
 
-GCC=g++ -std=c++11
-CC = $(GCC)
-OPTFLAG = -O3 -Wall -DNTL_ALL -fPIC # -DECLIB_MULTITHREAD
-
-# NB If used with a multithreaded build of eclib then you MUST define
-# ECLIB_MULTITHREAD above and include the BOOST libraries below.
-
-ECLIB_BASE=$(HOME)/eclib
-#ECLIB_BASE=/usr/local
+ECLIB_BASE=/usr/local
+#ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
-BOOST_ASIO_LIB = -lboost_system-mt
-BOOST_CPPFLAGS =  -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
-BOOST_SYSTEM_LIB = -lboost_system
-BOOST_THREAD_LIB = -lboost_thread
-BOOST_LDFLAGS = -L/usr/lib $(BOOST_SYSTEM_LIB) $(BOOST_THREAD_LIB)
-
+METHOD=2
 CLEAN = rcsclean
 RANLIB = ranlib
 CP = cp -p
 
-CFLAGS = -c -g $(OPTFLAG) -I$(INCDIR)  -DMETHOD=$(METHOD)
-LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR)
+GCC=g++ -std=c++11
+CC = $(GCC)
+OPTFLAG = -O3 -Wall -fPIC
+
+# NB If used with a multithreaded build of eclib then you MUST define
+# USE_BOOST=1 below so that the correct compiler and linker stuff is
+# appended below.  Otherwise set USE_BOOST=0.
+
+USE_BOOST=1
+
+ifeq ($(USE_BOOST), 1)
+ BOOST_ASIO_LIB = -lboost_system-mt
+ BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
+ BOOST_SYSTEM_LIB = -lboost_system
+ BOOST_THREAD_LIB = -lboost_thread
+ BOOST_LDFLAGS = -L/usr/lib $(BOOST_SYSTEM_LIB) $(BOOST_THREAD_LIB)
+endif
+
+
+CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD)
+LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 sources: ccs headers
 	chmod a+r *.h *.cc
