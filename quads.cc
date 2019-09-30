@@ -89,7 +89,7 @@ Quad::Quad(const bigcomplex& z)
 {bigfloat x=real(z), y=imag(z);
  if(d>1) y/=sqrt(to_bigfloat(d));
  if(d>2) {x-=y; y*=2.0;}
- r=longify(x+0.5); i=longify(y+0.5);    //Rounded
+ longify(x, r); longify(y, i);    //Rounded
 }
 
 Quad::operator bigcomplex() const
@@ -580,9 +580,7 @@ long* findminquad(Quad alpha, Quad beta, Quad& gen)
   long v;
   c[0] = 1; c[1] = 0; d[0] = 0; d[1] = 1;
   while (
-//       n = roundover(real(alpha*quadconj(beta)),normbeta),
-	 n = longify(real(bigcomplex(alpha)/bigcomplex(beta))),
-//  (      = round(real(alpha/beta))  )
+	 longify(real(bigcomplex(alpha)/bigcomplex(beta)), n),
          alpha -= n*beta,
 //       d     -= n*c,
          d[0]     -= n*c[0],
