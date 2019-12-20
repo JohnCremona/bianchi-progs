@@ -33,12 +33,18 @@ int main ()
      p = *pr++;
      cout << "("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
    }
-   
+
+
  /*
  cout << "Here are all the primes:\n";
  pr = quadprimes.begin();
+ int np=0;
  while(pr!=quadprimes.end())
-   cout << *pr++ << endl;
+   {
+     p = *pr++;
+     np++;
+     cout << "#"<<np<<":\t("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+   }
  */
 
  b=a*a;

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include "newforms.h"
+#include "looper.h"
 
 int main(void)
 {
@@ -10,18 +11,24 @@ int main(void)
  int d,max=150000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
- Quad n; int verbose=0, output, showeigs, showforms, lastp;
+ Quad n; int verbose=0, output=0, showeigs=0, showforms=0, lastp;
  cout << "Verbose? "; cin>>verbose;
  cout << "Output new eigs to file (1/0)? ";  cin>>output;
  cout << "Output new eigs to screen (1/0)? "; cin>>showeigs;
  cout << "Display newforms (1/0)? "; cin>>showforms;
-
- while (cout<<"Enter level: ", cin>>n, n!=0) {
-     n = makepos(n);
+ long firstn, lastn;
+ int both_conj;
+ cout<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cout << "How many primes for Hecke eigenvalues? ";
+ cin  >> lastp; cout << endl;
+ cout<<"Enter first and last norm for Quads: ";
+ cin >> firstn >> lastn;
+ if(firstn<2) firstn=2;
+ for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
+   {
+     n = makepos((Quad)alpha);
      long normn = quadnorm(n);
      string efilename = eigfile(n);
-     cout << "How many primes for Hecke eigenvalues? ";
-     cin  >> lastp; cout << endl;
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
      nf.createfromdata();

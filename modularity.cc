@@ -4,6 +4,11 @@
 #include "newforms.h"
 #include "eclib/curvesort.h" // for letter codes
 
+long prime_index(const Quad& p)
+{
+  return find(quadprimes.begin(), quadprimes.end(), makepos(p)) - quadprimes.begin();
+}
+
 int main(void)
 {
   cerr << "Program modularity: for given field and level, reads newforms from\n";
@@ -15,15 +20,16 @@ int main(void)
   cerr << "followed by nprimes lines each containing a prime's coefficients (2 integers) and nforms integers:\n";
   cerr << "<prime> <ap_1> <ap_2> ... <ap_nforms>\n";
   cerr << "----------------------------------------------------------------\n\n";
-  int d,max=10000;
+  // max is the maximum norm of precomputed primes.  It should be
+  // large enough to include all prime factors of levels computed,
+  int d,max=250000;
   cerr<<"Enter field (1, 2, 3, 7 or 11): \n";
   cin >> d;
   Quad::field(d,max);
   Quad n;
-  // int verbose=1, showforms=1;
   int verbose=0, showforms=0;
-  // cerr << "Verbose? "; cin>>verbose;
-  // cerr << "Display newforms (1/0)? "; cin>>showforms;
+  //cerr << "Verbose? "; cin>>verbose;
+  //cerr << "Display newforms (1/0)? "; cin>>showforms;
 
   cerr<<"Enter level: \n";
   cin>>n;
@@ -42,6 +48,7 @@ int main(void)
   if (verbose && showforms)
     nf.display();
   int nnf = nf.n1ds;
+  int nap = nf.nap;
   if((nnf==0)||(nprimes==0))
     {
       if (verbose)
@@ -50,13 +57,18 @@ int main(void)
         cout<<"?"<<endl;
       exit(0);
     }
-  if(verbose>1) cout << "Making homspace and bases..."<<flush;
-  nf.makebases();
-  if(verbose>1)
-    cout << "done."<<endl;
 
   Quad p;
-  long np, nform, kform;
+  // primes_needed will be a list of the (quad) primes for which
+  // values of a_p will be input, and prime_indexes will be a list of
+  // the index (starting at 0) of these in the standard list
+  // quadprimes of all primes
+
+  vector<Quad> primes_needed(nprimes);
+  vector<int> prime_indexes(nprimes);
+  long normp, maxnormp=0, maxip=0;
+  long ip, np, nform, kform;
+  int computation_needed = 0;
   vector< vector<long> > apvecs_in(nforms);
   vector< vector<long> > apvecs_comp(nnf);
   for (nform=0; nform<nforms; nform++)
@@ -77,12 +89,58 @@ int main(void)
       cin >> p;
       for (nform=0; nform<nforms; nform++)
 	cin >> apvecs_in[nform][np];
-      vector<long> apv = nf.apvec(p);
-      if(verbose)
-	cerr << "List of a_p for p="<<p<<": "<<apv<<endl;
-      for (nform=0; nform<nnf; nform++)
-	apvecs_comp[nform][np] = apv[nform];
+      primes_needed[np] = p;
+      prime_indexes[np] = ip = prime_index(p);
+      if (ip>maxip)
+        maxip = ip;
+      normp = quadnorm(p);
+      if (normp>maxnormp)
+        maxnormp = normp;
     }       // end of prime loop
+
+  // See whether we need to compute more ap:
+
+  if (maxip>nap)
+    {
+      computation_needed = 1;
+      if(verbose)
+        {
+          cout << "No stored ap for p = " << p << " which is the " << ip << "'th prime (only " << nap << " ap are on file)" << endl;
+          cout << "We'll have to compute the modular symbol space and eigenspaces in order to compute ap" << endl;
+        }
+    }
+  else
+    {
+      if(verbose)
+        {
+          cout << "All required ap are on file (the last is for the " << maxip << "th prime, and we have " << nap << ")" << endl;
+        }
+    }
+
+  if (computation_needed)   // Compute ap for these primes
+    {
+
+      if(verbose>1) cout << "Making homspace and bases..."<<flush;
+      nf.makebases();
+      if(verbose>1)
+        cout << "done."<<endl;
+
+      for(np=0; np<nprimes; np++)
+        {
+          p = primes_needed[np];
+          vector<long> apv = nf.apvec(p);
+          if(verbose)
+            cerr << "List of a_p for p="<<p<<": "<<apv<<endl;
+          for (nform=0; nform<nnf; nform++)
+            apvecs_comp[nform][np] = apv[nform];
+        }       // end of prime loop
+    }
+  else   // Extract the ap for these primes from the newform data
+    {
+      for(np=0; np<nprimes; np++)
+        for (nform=0; nform<nnf; nform++)
+          apvecs_comp[nform][np] = nf.nflist[nform].aplist[prime_indexes[np]];
+    }
 
   // Find each input ap list in the newforms aplists:
 

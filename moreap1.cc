@@ -7,7 +7,7 @@ int main(void)
 {
  cout << "Program moreap1: for given field and level, assumes that the newforms file exists, and computes more individual Hecke eigenvalues.\n";
  cout << "---------------\n\n";
- int d,max=10000;
+ int d,max=150000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
  Quad n; int verbose=0, showforms=1;
