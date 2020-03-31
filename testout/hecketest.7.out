@@ -1,22 +1,49 @@
 Enter field: Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
 Euclidean
 1231 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 88.30.2 = (2+6a), norm = 88 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Factor the char polys (0/1)? Enter level: >>>> Level 88.30.2 = (2+6a), norm = 88 <<<<
 Dimension = 14
-Computing W(a)...  done. 
+Computing W(a)...  done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 6
+2:	[1 1]	(degree 1)	 to power 8
+
 Involution!
-Computing W(-1+a)...  done. 
+Computing W(-1+a)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 6
+2:	[-1 1]	(degree 1)	 to power 8
+
 Involution!
-Computing W(-3+2a)...  done. 
+Computing W(-3+2a)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 6
+2:	[-1 1]	(degree 1)	 to power 8
+
 Involution!
 How many Hecke matrices T_p (max 1231)? Computing T_p for p = -1+2a
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+2:	[4 1]	(degree 1)	 to power 2
+3:	[-8 1]	(degree 1)	 to power 11
+
 Computing T_p for p = 3
-done. 
+done. Factors are:
+1:	[-4 1]	(degree 1)	 to power 1
+2:	[2 1]	(degree 1)	 to power 2
+3:	[-10 1]	(degree 1)	 to power 11
+
 Computing T_p for p = 1+2a
-done. 
+done. Factors are:
+1:	[6 1]	(degree 1)	 to power 1
+2:	[0 1]	(degree 1)	 to power 2
+3:	[-12 1]	(degree 1)	 to power 11
+
 Computing T_p for p = -5+2a
-done. 
+done. Factors are:
+1:	[0 1]	(degree 1)	 to power 3
+2:	[-24 1]	(degree 1)	 to power 11
+
 Computing T_p for p = 3+2a
-done. 
+done. Factors are:
+1:	[0 1]	(degree 1)	 to power 3
+2:	[-24 1]	(degree 1)	 to power 11
+
 Enter level: 

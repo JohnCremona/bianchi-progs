@@ -1,22 +1,52 @@
 Enter field: Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
 Euclidean
 1225 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Factor the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
 Dimension = 26
-Computing W(t)...  done. 
+Computing W(t)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 10
+2:	[-1 1]	(degree 1)	 to power 16
+
 Involution!
-Computing W(1+t)...  done. 
+Computing W(1+t)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 13
+2:	[-1 1]	(degree 1)	 to power 13
+
 Involution!
-Computing W(-1+t)...  done. 
+Computing W(-1+t)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 13
+2:	[-1 1]	(degree 1)	 to power 13
+
 Involution!
 How many Hecke matrices T_p (max 1225)? Computing T_p for p = 3+t
-done. 
+done. Factors are:
+1:	[4 1]	(degree 1)	 to power 1
+2:	[-4 1]	(degree 1)	 to power 2
+3:	[12 1]	(degree 1)	 to power 4
+4:	[-12 1]	(degree 1)	 to power 19
+
 Computing T_p for p = -3+t
-done. 
+done. Factors are:
+1:	[4 1]	(degree 1)	 to power 1
+2:	[-4 1]	(degree 1)	 to power 2
+3:	[12 1]	(degree 1)	 to power 4
+4:	[-12 1]	(degree 1)	 to power 19
+
 Computing T_p for p = -3+2t
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 3
+2:	[-18 1]	(degree 1)	 to power 23
+
 Computing T_p for p = 3+2t
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 3
+2:	[-18 1]	(degree 1)	 to power 23
+
 Computing T_p for p = -1+3t
-done. 
+done. Factors are:
+1:	[-4 1]	(degree 1)	 to power 1
+2:	[4 1]	(degree 1)	 to power 2
+3:	[20 1]	(degree 1)	 to power 4
+4:	[-20 1]	(degree 1)	 to power 19
+
 Enter level: 

@@ -1050,19 +1050,30 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
 vec reduce_modp(const vec& v, const scalar& p)
 {
   int i, d=dim(v);
+  scalar ai, p2 = p>>1;
   vec ans(d);
   for(i=1; i<=dim(v); i++)
-    ans[i]=xmod(v[i],p);
+    {
+      ai = v[i]%p;
+      while( ai>p2) ai-=p;
+      while(-ai>p2) ai+=p;
+      ans[i] = ai;
+    }
   return ans;
 }
 
 mat reduce_modp(const mat& m, const scalar& p)
 {
   int i, j, nr=m.nrows(), nc=m.ncols();
+  scalar aij, p2 = p>>1;
   mat ans(nr,nc);
   for(i=1; i<=nr; i++)
     for(j=1; j<=nc; j++)
-      ans(i,j)=xmod(m(i,j),p);
+      {
+        aij = m(i,j)%p;
+        while( aij>p2) aij-=p;
+        while(-aij>p2) aij+=p;
+        ans(i,j) = aij;
+      }
   return ans;
 }
-

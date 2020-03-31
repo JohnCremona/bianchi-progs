@@ -1,20 +1,47 @@
 Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
+Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Factor the char polys (0/1)? Enter level: >>>> Level 144.0.12 = (12), norm = 144 <<<<
 Dimension = 14
-Computing W(1+i)...  done. 
+Computing W(1+i)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 6
+2:	[-1 1]	(degree 1)	 to power 8
+
 Involution!
-Computing W(3)...  done. 
+Computing W(3)...  done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 5
+2:	[1 1]	(degree 1)	 to power 9
+
 Involution!
 How many Hecke matrices T_p (max 1232)? Computing T_p for p = 2+i
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+2:	[6 1]	(degree 1)	 to power 2
+3:	[2 1]	(degree 1)	 to power 2
+4:	[-6 1]	(degree 1)	 to power 9
+
 Computing T_p for p = 1+2i
-done. 
+done. Factors are:
+1:	[2 1]	(degree 1)	 to power 3
+2:	[-6 1]	(degree 1)	 to power 11
+
 Computing T_p for p = 2+3i
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+2:	[14 1]	(degree 1)	 to power 2
+3:	[2 1]	(degree 1)	 to power 2
+4:	[-14 1]	(degree 1)	 to power 9
+
 Computing T_p for p = 3+2i
-done. 
+done. Factors are:
+1:	[2 1]	(degree 1)	 to power 3
+2:	[-14 1]	(degree 1)	 to power 11
+
 Computing T_p for p = 4+i
-done. 
+done. Factors are:
+1:	[2 1]	(degree 1)	 to power 1
+2:	[18 1]	(degree 1)	 to power 2
+3:	[-2 1]	(degree 1)	 to power 2
+4:	[-18 1]	(degree 1)	 to power 9
+
 Enter level: 
