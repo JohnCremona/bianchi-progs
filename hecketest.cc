@@ -13,7 +13,7 @@
 
 #define MAXPRIME 10000
 
-vector<bigint> char_poly(mat_m A, int show_factors=0); // using NTL
+vector<bigint> char_poly(mat_m A, long denom=1, int show_factors=0); // using NTL
 
 int main(void)
 {
@@ -71,7 +71,7 @@ int main(void)
 	  cout << "Computing W("<<q<<")...  " << flush;
 	  wq = reduce_modp(h.heckeop(q,0,mats),MODULUS);
 	  cout << "done. " << flush;
-          charpol = char_poly(wq, facs);
+          charpol = char_poly(wq, den, facs);
           if (pols)
             cout << "char poly coeffs = " << charpol;
           cout << endl;
@@ -99,7 +99,7 @@ int main(void)
 	  cout << "Computing T_p for p = " << p << "\n";
 	  tp = reduce_modp(h.heckeop(p,0,mats),MODULUS);
 	  cout << "done. " << flush;
-          charpol = char_poly(tp, facs);
+          charpol = char_poly(tp, den, facs);
           if (pols)
             cout << "char poly coeffs = " << charpol;
           cout<<endl;
@@ -135,19 +135,38 @@ int main(void)
 exit(0);
 }       // end of main()
 
-vector<bigint> char_poly(mat_m A, int show_factors) // using NTL
+vector<bigint> char_poly(mat_m A,  long denom, int show_factors) // using NTL
 {
   int i, j, d = A.nrows();
+
+  // copy into an NTL matrix:
   mat_ZZ ntl_A;
   ntl_A.SetDims(d,d);
   for(i=1; i<=d; i++)
     for(j=1; j<=d; j++)
       ntl_A(i,j)=A(i,j);
+
+  // compute char poly in NTL:
   ZZX ntl_cp;
   CharPoly(ntl_cp, ntl_A);
+
+  // rescale if d>1:
+  if (denom>1)
+    {
+      bigint dpow = to_ZZ(1);
+      for(i=0; i<=d; i++)
+        {
+          SetCoeff(ntl_cp, d-i, coeff(ntl_cp, d-i)/dpow);
+          dpow *= denom;
+        }
+    }
+
+  // convert char poly back from NTL:
   vector<bigint> cp(d+1);
   for(i=0; i<=d; i++)
     cp[i] = coeff(ntl_cp,i);
+
+  // compute and display factorization:
   if(show_factors)
     {
       vec_pair_ZZX_long factors;
