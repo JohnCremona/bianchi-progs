@@ -153,12 +153,14 @@ vector<bigint> char_poly(mat_m A,  long denom, int show_factors) // using NTL
   // rescale if d>1:
   if (denom>1)
     {
+      // cout<<"Before rescaling, char poly = "<<ntl_cp<<endl;
       bigint dpow = to_ZZ(1);
       for(i=0; i<=d; i++)
         {
           SetCoeff(ntl_cp, d-i, coeff(ntl_cp, d-i)/dpow);
           dpow *= denom;
         }
+      // cout<<"After rescaling, char poly = "<<ntl_cp<<endl;
     }
 
   // convert char poly back from NTL:
