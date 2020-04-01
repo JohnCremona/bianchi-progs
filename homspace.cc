@@ -25,10 +25,10 @@ void homspace::userel(vec& rel)
     }
 }
  
-homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
+homspace::homspace(const Quad& n, int cuspid, int hp, int verb) :symbdata(n)
 {
   verbose=verb;
-  cuspidal=0;
+  cuspidal=cuspid;
   if (verbose) symbdata::display();
   long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp

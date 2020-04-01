@@ -38,7 +38,7 @@ int main ()
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<";
      if(verbose) cout<<endl;
      else cout << "\t";
-     homspace h(n,plusflag,verbose);  //level, plusflag, verbose
+     homspace h(n,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
      cout << "Dimension = " << h.h1cuspdim() << endl;
    }
 
