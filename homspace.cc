@@ -25,7 +25,7 @@ void homspace::userel(vec& rel)
     }
 }
  
-homspace::homspace(const Quad& n, int cuspid, int hp, int verb) :symbdata(n)
+homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
   verbose=verb;
   cuspidal=cuspid;
@@ -614,12 +614,12 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
-  if(dual) {  m=transpose(m);}
+  if(dual) m = transpose(m);
   if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
   if (display && (dimension>1)) cout << endl;
   return m;
 }
- 
+
 vec homspace::calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display) const
 {
   vec colj = applyop(mlist,freemods[j-1]);

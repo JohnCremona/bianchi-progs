@@ -19,42 +19,50 @@ int main(void)
 {
  int d,max=10000;
  int np,ip,jp,nq; 
- Quad n; int mats, pols, facs, plusflag;
- cout << "Enter field: " << flush;  cin >> d;
+ Quad n; int mats, pols, facs, plusflag, cuspidal=1;
+ cerr << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
-     cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: 1, 2, 3, 7, 11!\n";
      exit(1);
    }
  Quad::field(d,max);
  Quad::displayfield(cout);
- cout << "Plus space (0/1)? "; cin>>plusflag;
- cout << "See the hecke matrices (0/1)? "; cin >> mats;
- cout << "See the char polys (0/1)? "; cin >> pols;
- cout << "Factor the char polys (0/1)? "; cin >> facs;
+ cerr << "Plus space (0/1)? "; cin>>plusflag;
+ cerr << "Cuspidal subspace (0/1)? "; cin>>cuspidal;
+ cerr << "See the hecke matrices (0/1)? "; cin >> mats;
+ cerr << "See the char polys (0/1)? "; cin >> pols;
+ cerr << "Factor the char polys (0/1)? "; cin >> facs;
 #ifdef LOOPER
  long firstn, lastn;
- cout<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;
  for(Quadlooper alpha(d,firstn,lastn); alpha.ok(); alpha++)
 #else
  Quad alpha, p; 
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
+ while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
 #endif
 {
   n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
   long normn = quadnorm(n);
   cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-  homspace h(n,plusflag,0,0);  //level, plusflag, cuspidal, verbose
+  homspace h(n,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
   int d = h.h1dim();
   int den = h.h1denom();
   int cden = h.h1cdenom();
   long hmod = h.h1hmod();
-  cout << "Dimension = " << d << endl;
-  if(den!=1) cout << "denominator = " << den << endl;
-  if(cden!=1) cout << "cuspidal denominator = " << cden << endl;
-  if(hmod) cout << "modulus = " << hmod << endl;
+  if (cuspidal)
+    {
+      cout << "Cuspidal dimension = " << d << endl;
+      den=cden;
+    }
+  else
+    {
+      cout << "Dimension = " << d << endl;
+    }
+  if(den!=1) cout << " denominator = " << den << endl;
+  if(hmod) cout << "modulus for linear algebra = " << hmod << endl;
 
   vector<Quad> badprimes = h.plist;
   vector<Quad>::const_iterator pr;
@@ -69,8 +77,13 @@ int main(void)
 	{
 	  Quad q=*pr;
 	  cout << "Computing W("<<q<<")...  " << flush;
-	  wq = reduce_modp(h.heckeop(q,0,mats),MODULUS);
+	  wq =  h.heckeop(q,0,mats);
 	  cout << "done. " << flush;
+          // bigint lambda = to_ZZ(den);
+          // int dimplus = addscalar(wq,-lambda).nullity();
+          // cout << "+1 eigenspace has dimension "<<dimplus<<endl;
+          // int dimminus = addscalar(wq,lambda).nullity();
+          // cout << "-1 eigenspace has dimension "<<dimminus<<endl;
           charpol = char_poly(wq, den, facs);
           if (pols)
             cout << "char poly coeffs = " << charpol;
@@ -82,10 +95,11 @@ int main(void)
             {
               if(d<20) cout << "wq^2 = " << wq2 << endl;
               cout << "NOT an involution...." << "\n";
+              exit(1);
             }
 	  wqlist.push_back(wq);
 	}
-      cout << "How many Hecke matrices T_p (max "<<nquadprimes<<")? "; 
+      cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? "; 
       cin >> np;
       mat_m tp(d), tpwq, wqtp;
       vector<mat_m> tplist;
@@ -153,12 +167,14 @@ vector<bigint> char_poly(mat_m A,  long denom, int show_factors) // using NTL
   // rescale if d>1:
   if (denom>1)
     {
+      cout<<"denom = "<<denom<<", char poly before scaling = "<<ntl_cp<<endl;
       bigint dpow = to_ZZ(1);
       for(i=0; i<=d; i++)
         {
           SetCoeff(ntl_cp, d-i, coeff(ntl_cp, d-i)/dpow);
           dpow *= denom;
         }
+      cout<<"char poly after scaling = "<<ntl_cp<<endl;
     }
 
   // convert char poly back from NTL:
