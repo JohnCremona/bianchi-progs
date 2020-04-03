@@ -29,6 +29,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
   verbose=verb;
   cuspidal=cuspid;
+  hmod = 0;
   if (verbose) symbdata::display();
   long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp
@@ -441,16 +442,14 @@ if(verbose)
   denom1 = I2int(denom(sp));
   relmat.init(); newrel.init(); sp.clear(); 
 #endif
-  if (verbose) 
+  if (verbose)
     {
       cout << "rk = " << rk << endl;
       cout << "coord:" << coord;
-      if(hmod)
+      if (hmod)
 	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
       else
-	{
-	  cout << "lifted ok, denominator = " << denom1 << endl;
-	}
+        cout << "lifted ok, denominator = " << denom1 << endl;
       cout << "pivots = " << pivs <<endl;
     }
   if (rk>0)
@@ -484,8 +483,8 @@ if(verbose)
      kern = kernel(smat(deltamat));
      vec pivs, npivs;
      int d2;
-     smat sk;
-     int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
+     smat sk; 
+    int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
      if (!ok)
        cout << "**!!!** failed to lift modular kernel\n" << endl;
      denom2=d2;

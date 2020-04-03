@@ -51,7 +51,6 @@ int main(void)
   int d = h.h1dim();
   int den = h.h1denom();
   int cden = h.h1cdenom();
-  long hmod = h.h1hmod();
   if (cuspidal)
     {
       cout << "Cuspidal dimension = " << d << endl;
@@ -62,12 +61,19 @@ int main(void)
       cout << "Dimension = " << d << endl;
     }
   if(den!=1) cout << " denominator = " << den << endl;
-  if(hmod) cout << "modulus for linear algebra = " << hmod << endl;
+  long hmod = h.h1hmod();
+  if(hmod)
+    {
+      cout << "Failed to lift basis from Z/"<<hmod<<" to Z!" << endl;
+      cout << "Hence characteristic polynomials are only correct modulo "<<hmod
+           <<" and their factorizations are not useful."<<endl;
+    }
 
   vector<Quad> badprimes = h.plist;
   vector<Quad>::const_iterator pr;
   nq = badprimes.size();
   vector<bigint> charpol;
+  bigint MMODULUS = to_ZZ(MODULUS);
   if (d>0)
     {
       mat_m id = (den*den)*idmat(int(d));
@@ -84,12 +90,11 @@ int main(void)
           // cout << "+1 eigenspace has dimension "<<dimplus<<endl;
           // int dimminus = addscalar(wq,lambda).nullity();
           // cout << "-1 eigenspace has dimension "<<dimminus<<endl;
-          charpol = char_poly(wq, den, facs);
+          charpol = char_poly(wq, den, facs&&!hmod);
           if (pols)
             cout << "char poly coeffs = " << charpol;
           cout << endl;
-          //wq2 = reduce_modp(matmulmodp(wq,wq,MODULUS),MODULUS);
-          wq2 = wq*wq;
+          wq2 = matmulmodp(wq, wq, MMODULUS);
 	  if (wq2==id) cout << "Involution!" << "\n";
 	  else
             {
@@ -101,7 +106,7 @@ int main(void)
 	}
       cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? "; 
       cin >> np;
-      mat_m tp(d), tpwq, wqtp;
+      mat_m tp(d), tpwq(d), wqtp(d);
       vector<mat_m> tplist;
       ip=0;
       for (pr=quadprimes.begin(); 
@@ -111,19 +116,17 @@ int main(void)
 	  while (n%(*pr)==0) {pr++; np++;}
 	  p=*pr;
 	  cout << "Computing T_p for p = " << p << "\n";
-	  tp = reduce_modp(h.heckeop(p,0,mats),MODULUS);
+	  tp = h.heckeop(p,0,mats);
 	  cout << "done. " << flush;
-          charpol = char_poly(tp, den, facs);
+          charpol = char_poly(tp, den, facs&&!hmod);
           if (pols)
             cout << "char poly coeffs = " << charpol;
           cout<<endl;
 	  for (int kp=0; kp<nq; kp++)
 	    {
-              //tpwq = reduce_modp(matmulmodp(tp,wqlist[kp],MODULUS),MODULUS);
-              //wqtp = reduce_modp(matmulmodp(wqlist[kp],tp,MODULUS),MODULUS);
-              tpwq = tp*wqlist[kp];
-              wqtp = wqlist[kp]*tp;
-	      if (wqtp!=tpwq)
+              tpwq = matmulmodp(tp, wqlist[kp], MMODULUS);
+              wqtp = matmulmodp(wqlist[kp], tp, MMODULUS);
+	      if (tpwq!=wqtp)
 	      {
 		cout << "Problem: T_p matrix for p = "<<p
 		     <<" and W_q matrix "<<kp<<" do not commute!" << "\n";
@@ -131,10 +134,8 @@ int main(void)
 	    }
 	  for (jp=0; jp<ip; jp++)
 	    {
-              //tpwq = reduce_modp(matmulmodp(tp,tplist[jp],MODULUS),MODULUS);
-              //wqtp = reduce_modp(matmulmodp(tplist[jp],tp,MODULUS),MODULUS);
-              tpwq = tp*tplist[jp];
-              wqtp = tplist[jp]*tp;
+              tpwq = matmulmodp(tp, tplist[jp], MMODULUS);
+              wqtp = matmulmodp(tplist[jp], tp, MMODULUS);
 	      if (tpwq!=wqtp)
 		{
 		  cout << "Problem: T_p matrix for p= "<<p
