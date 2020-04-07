@@ -1,6 +1,7 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-#define USE_SMATS   // define in Makefile to use sparse matrix methods
+//#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
+                // NB this is experimental only
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
@@ -402,18 +403,51 @@ if(verbose)
    smat_elim sme(relmat);
    int d1;
    smat ker = sme.kernel(npivs,pivs), sp;
-   if (liftmat(ker,MODULUS,sp,d1))
+   int ok = liftmat(ker,MODULUS,sp,d1);
+   int mod2 = 1073741783; // 2^30-41
+   bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
+   if (!ok)
      {
-       hmod = 0;
+       if(verbose)
+         cout << "failed to lift modular kernel using modulus "
+              << MODULUS << endl;
+#ifdef USE_CRT
+       if(verbose)
+         cout << "repeating kernel computation, modulo " << mod2 << endl;
+       smat_elim sme2(relmat,mod2);
+       vec pivs2, npivs2;
+       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
+       ok = (pivs==pivs2);
+       if (!ok)
+         {
+           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
+         }
+       else
+         {
+           if(verbose) cout << " pivs agree" << endl;
+           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+         }
+       if (ok)
+         {
+           if(verbose)
+             cout << "success using CRT, combined modulus = "<<mmod
+                  <<", denominator= " << d1 << "\n";
+         }
+       else
+         {
+           if(verbose)
+             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
+         }
+#endif
+     }
+   if (ok)
+     {
        denom1 = d1;
      }
    else
      {
        hmod = MODULUS;
        denom1 = 1;
-       if(verbose)
-         cout << "failed to lift modular kernel using modulus "
-              << MODULUS << endl;
      }
    relmat=smat(0,0);
    if(verbose>1)

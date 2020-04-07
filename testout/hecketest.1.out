@@ -16,8 +16,8 @@ Involution!
 Computing T_p for p = 2+i
 done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
-2:	[6 1]	(degree 1)	 to power 2
-3:	[2 1]	(degree 1)	 to power 2
+2:	[2 1]	(degree 1)	 to power 2
+3:	[6 1]	(degree 1)	 to power 2
 4:	[-6 1]	(degree 1)	 to power 9
 
 Computing T_p for p = 1+2i

@@ -94,7 +94,6 @@ Writing data to file nftmp/2.0.4.1/144.0.12...done.
 ===========================================
 Enter level: 
 >>>> Level 5330.2387.1 = (29+67i), norm = 5330 <<<<
-failed to lift, coord is only defined modulo 1073741789
 DIMTAB 1	2	5330.2387.1		39		24		15
 
 4 newform(s) at level 5330.2387.1 = (29+67i):

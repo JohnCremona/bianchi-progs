@@ -25,8 +25,7 @@ Sign of F.E. = -1
 Twisting prime lambda = 3, factor = 8
 L/P ratio    = 0, cuspidal factor = 1
 Integration matrix = [13-32i,i;-96-38i,3], factor   = 1
-Making homspace and bases...failed to lift, coord is only defined modulo 1073741789
-done.
+Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for 10+i: [ -3 3 -5 -3 ]
 ap for 1+10i: [ 7 -9 -1 11 ]
