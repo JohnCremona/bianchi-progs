@@ -1,6 +1,6 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-#define USE_SMATS   // define in Makefile to use sparse matrix methods
+//#define USE_SMATS   // define in Makefile to use sparse matrix methods
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>

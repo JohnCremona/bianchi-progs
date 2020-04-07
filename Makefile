@@ -4,8 +4,9 @@
 # the following line might not be necessary.  If installed anywhere
 # else set the install directory here:
 
-ECLIB_BASE=/usr/local
+#ECLIB_BASE=/usr/local
 #ECLIB_BASE=$(HOME)/eclib
+ECLIB_BASE=$(HOME)
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
