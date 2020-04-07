@@ -109,7 +109,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 
   maxnumrel=2*nsymb;
 
-#ifdef USE_SMATS
+#if(USE_SMATS)
    smat relmat(maxnumrel,ngens);
    svec newrel(ngens);
 #else
@@ -132,7 +132,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   for (k=0; k<nsymb; k++) if (check[k]==0)
   //for (k=nsymb-1; k>=0; k--) if (check[k]==0)
     {
-#ifdef USE_SMATS
+#if(USE_SMATS)
       newrel.clear();
 #else
       for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -150,14 +150,14 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 	  if (plusflag) check[rof(ij)] = 1;
           fix = coordindex[ij];
           if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
           if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
         }
       if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
      if(newrel.size()!=0) 
        {
 	 numrel++;
@@ -205,7 +205,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -220,14 +220,14 @@ if(verbose)
               check[ij=rel[j]] = 1;
               fix = coordindex[ij];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -247,7 +247,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -272,14 +272,14 @@ if(verbose)
                 }
               fix = coordindex[ij];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0)
 	    {
 	      numrel++;
@@ -299,7 +299,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -316,14 +316,14 @@ if(verbose)
             { 
               fix = coordindex[rel[j]];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -343,7 +343,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -361,14 +361,14 @@ if(verbose)
             { 
               fix = coordindex[rel[j]];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -393,13 +393,13 @@ if(verbose)
       cout << "Finished face relations: ";
       cout << "number of relations = " << numrel;
       cout << " (bound was "<<maxnumrel<<")"<<endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
       cout << "relmat = \n" << relmat.as_mat().slice(numrel,ngens)<<endl;
 #endif
     }
 
    vec pivs, npivs;
-#ifdef USE_SMATS
+#if(USE_SMATS)
    smat_elim sme(relmat);
    int d1;
    smat ker = sme.kernel(npivs,pivs), sp;
@@ -1001,7 +1001,7 @@ vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d) const
   return ans;
 }
 
-#ifdef USE_SMATS
+#if(USE_SMATS)
 void mergeposval(long* pos, long* val, long& npos, long f)
 {
   if(f==0) return;
