@@ -9,10 +9,16 @@ ECLIB_BASE=/usr/local
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
-METHOD=2
-CLEAN = rcsclean
-RANLIB = ranlib
-CP = cp -p
+USE_SMATS=1
+#  It is recommended to USE_SMATS when finding rational newforms
+#  only, since the linear algebra is done correctly modulo p=2^30-35
+#  and only lifted to Z when an eigenvector is found. Programs which
+#  compute Hecke matrices and their characteristic polynomials such
+#  as hecketest.cc try to lift the whole modular symbol space and
+#  this easily fails.  In that case so not USE_SMATS and the linear
+#  algebra will be done using multiprecisino integer arithmetic
+#  instead.  This is much slower: e.g. with level (128), field 1 it
+#  takes 20m instead of <1s.
 
 GCC=g++ -std=c++11
 CC = $(GCC)
@@ -33,8 +39,10 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)  -DMETHOD=$(METHOD)
+CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR) -DUSE_SMATS=$(USE_SMATS)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+
+all: tests
 
 sources: ccs headers
 	chmod a+r *.h *.cc

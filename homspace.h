@@ -41,7 +41,7 @@ public:
    int cuspidal;  // if 1 then compute cuspidal homology
    mat relmat; long numrel, maxnumrel;
    void userel(vec& rel);
-   homspace(const Quad& n, int hp, int verb);
+   homspace(const Quad& n, int hp, int cuspid, int verb);
    ~homspace() {delete[] coordindex; delete[] needed;
                 delete[] freegens; delete[] freemods;
               }

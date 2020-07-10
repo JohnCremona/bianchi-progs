@@ -35,11 +35,11 @@ int main ()
      long normn = quadnorm(n);
      cout << d << "\t2\t";                  // field and weight
      cout << "("<<n<<")\t "<<normn<<"\t\t"; // level and norm
-     homspace hplus(n,1,0);  //level, plusflag, verbose
+     homspace hplus(n,1,0,0);  //level, plusflag, cuspidal, verbose
      dimplus = hplus.h1cuspdim();
      if (!plusflag)
        {
-         homspace hall(n,0,0);  //level, plusflag, verbose
+         homspace hall(n,0,0,0);  //level, plusflag, cuspidal, verbose
          dimall = hall.h1cuspdim();
          dimminus = dimall-dimplus;
          cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;

@@ -32,7 +32,7 @@ int main ()
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(n)<<"\t\t"; // level and norm
-     homspace hplus(n,1,0);  //level, plusflag, verbose
+     homspace hplus(n,1,0,0);  //level, plusflag, cuspidal, verbose
      dimcusp = hplus.h1cuspdim();
      dimall = hplus.h1dim();
      dimeis = dimall-dimcusp;

@@ -1,6 +1,7 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-#define USE_SMATS   // define in Makefile to use sparse matrix methods
+//#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
+                // NB this is experimental only
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
@@ -25,10 +26,11 @@ void homspace::userel(vec& rel)
     }
 }
  
-homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
+homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
   verbose=verb;
-  cuspidal=0;
+  cuspidal=cuspid;
+  hmod = 0;
   if (verbose) symbdata::display();
   long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp
@@ -107,7 +109,7 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
 
   maxnumrel=2*nsymb;
 
-#ifdef USE_SMATS
+#if(USE_SMATS)
    smat relmat(maxnumrel,ngens);
    svec newrel(ngens);
 #else
@@ -130,7 +132,7 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
   for (k=0; k<nsymb; k++) if (check[k]==0)
   //for (k=nsymb-1; k>=0; k--) if (check[k]==0)
     {
-#ifdef USE_SMATS
+#if(USE_SMATS)
       newrel.clear();
 #else
       for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -148,14 +150,14 @@ homspace::homspace(const Quad& n, int hp, int verb) :symbdata(n)
 	  if (plusflag) check[rof(ij)] = 1;
           fix = coordindex[ij];
           if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
           if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
         }
       if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
      if(newrel.size()!=0) 
        {
 	 numrel++;
@@ -203,7 +205,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -218,14 +220,14 @@ if(verbose)
               check[ij=rel[j]] = 1;
               fix = coordindex[ij];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -245,7 +247,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -270,14 +272,14 @@ if(verbose)
                 }
               fix = coordindex[ij];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0)
 	    {
 	      numrel++;
@@ -297,7 +299,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -314,14 +316,14 @@ if(verbose)
             { 
               fix = coordindex[rel[j]];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -341,7 +343,7 @@ if(verbose)
       i=nsymb; while (i--) check[i]=0;
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  newrel.clear();
 #else
           for (j=1; j<=ngens; j++) newrel[j]=0;
@@ -359,14 +361,14 @@ if(verbose)
             { 
               fix = coordindex[rel[j]];
               if (verbose)  cout << fix << " ";
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
 #else
               if (fix!=0) newrel[abs(fix)] += sign(fix);
 #endif
             }
           if (verbose)  cout << endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
 	  if(newrel.size()!=0) 
 	    {
 	      numrel++;
@@ -391,28 +393,61 @@ if(verbose)
       cout << "Finished face relations: ";
       cout << "number of relations = " << numrel;
       cout << " (bound was "<<maxnumrel<<")"<<endl;
-#ifdef USE_SMATS
+#if(USE_SMATS)
       cout << "relmat = \n" << relmat.as_mat().slice(numrel,ngens)<<endl;
 #endif
     }
 
    vec pivs, npivs;
-#ifdef USE_SMATS
+#if(USE_SMATS)
    smat_elim sme(relmat);
    int d1;
    smat ker = sme.kernel(npivs,pivs), sp;
-   if (liftmat(ker,MODULUS,sp,d1))
+   int ok = liftmat(ker,MODULUS,sp,d1);
+   int mod2 = 1073741783; // 2^30-41
+   bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
+   if (!ok)
      {
-       hmod = 0;
+       if(verbose)
+         cout << "failed to lift modular kernel using modulus "
+              << MODULUS << endl;
+#ifdef USE_CRT
+       if(verbose)
+         cout << "repeating kernel computation, modulo " << mod2 << endl;
+       smat_elim sme2(relmat,mod2);
+       vec pivs2, npivs2;
+       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
+       ok = (pivs==pivs2);
+       if (!ok)
+         {
+           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
+         }
+       else
+         {
+           if(verbose) cout << " pivs agree" << endl;
+           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+         }
+       if (ok)
+         {
+           if(verbose)
+             cout << "success using CRT, combined modulus = "<<mmod
+                  <<", denominator= " << d1 << "\n";
+         }
+       else
+         {
+           if(verbose)
+             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
+         }
+#endif
+     }
+   if (ok)
+     {
        denom1 = d1;
      }
    else
      {
        hmod = MODULUS;
        denom1 = 1;
-       if(verbose)
-         cout << "failed to lift modular kernel using modulus "
-              << MODULUS << endl;
      }
    relmat=smat(0,0);
    if(verbose>1)
@@ -441,16 +476,14 @@ if(verbose)
   denom1 = I2int(denom(sp));
   relmat.init(); newrel.init(); sp.clear(); 
 #endif
-  if (verbose) 
+  if (verbose)
     {
       cout << "rk = " << rk << endl;
       cout << "coord:" << coord;
-      if(hmod)
+      if (hmod)
 	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
       else
-	{
-	  cout << "lifted ok, denominator = " << denom1 << endl;
-	}
+        cout << "lifted ok, denominator = " << denom1 << endl;
       cout << "pivots = " << pivs <<endl;
     }
   if (rk>0)
@@ -484,8 +517,8 @@ if(verbose)
      kern = kernel(smat(deltamat));
      vec pivs, npivs;
      int d2;
-     smat sk;
-     int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
+     smat sk; 
+    int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
      if (!ok)
        cout << "**!!!** failed to lift modular kernel\n" << endl;
      denom2=d2;
@@ -614,12 +647,12 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
-  if(dual) {  m=transpose(m);}
+  if(dual) m = transpose(m);
   if (display) cout << "Matrix of " << opname << "(" << p << ") = " << m;
   if (display && (dimension>1)) cout << endl;
   return m;
 }
- 
+
 vec homspace::calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display) const
 {
   vec colj = applyop(mlist,freemods[j-1]);
@@ -968,7 +1001,7 @@ vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d) const
   return ans;
 }
 
-#ifdef USE_SMATS
+#if(USE_SMATS)
 void mergeposval(long* pos, long* val, long& npos, long f)
 {
   if(f==0) return;
@@ -1050,19 +1083,30 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
 vec reduce_modp(const vec& v, const scalar& p)
 {
   int i, d=dim(v);
+  scalar ai, p2 = p>>1;
   vec ans(d);
   for(i=1; i<=dim(v); i++)
-    ans[i]=xmod(v[i],p);
+    {
+      ai = v[i]%p;
+      while( ai>p2) ai-=p;
+      while(-ai>p2) ai+=p;
+      ans[i] = ai;
+    }
   return ans;
 }
 
 mat reduce_modp(const mat& m, const scalar& p)
 {
   int i, j, nr=m.nrows(), nc=m.ncols();
+  scalar aij, p2 = p>>1;
   mat ans(nr,nc);
   for(i=1; i<=nr; i++)
     for(j=1; j<=nc; j++)
-      ans(i,j)=xmod(m(i,j),p);
+      {
+        aij = m(i,j)%p;
+        while( aij>p2) aij-=p;
+        while(-aij>p2) aij+=p;
+        ans(i,j) = aij;
+      }
   return ans;
 }
-

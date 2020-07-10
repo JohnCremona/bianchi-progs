@@ -49,7 +49,7 @@ int main(void)
     nf.display();
   int nnf = nf.n1ds;
   int nap = nf.nap;
-  if((nnf==0)||(nprimes==0))
+  if((nnf==0)||(nap==0))
     {
       if (verbose)
         cout<<"No newforms."<<endl;
@@ -57,7 +57,8 @@ int main(void)
         cout<<"?"<<endl;
       exit(0);
     }
-
+  if (verbose)
+    cerr << "There are " << nnf << " newforms on file, with ap for the first " << nap << " primes (with index 0.." << (nap-1) << ")" << endl;
   Quad p;
   // primes_needed will be a list of the (quad) primes for which
   // values of a_p will be input, and prime_indexes will be a list of
@@ -67,7 +68,7 @@ int main(void)
   vector<Quad> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
   long normp, maxnormp=0, maxip=0;
-  long ip, np, nform, kform;
+  long ip, np, ap, nform, kform;
   int computation_needed = 0;
   vector< vector<long> > apvecs_in(nforms);
   vector< vector<long> > apvecs_comp(nnf);
@@ -84,11 +85,14 @@ int main(void)
 
   for(np=0; np<nprimes; np++)
     {
-      if(verbose)
-	cerr << "Enter a prime p followed by "<<nforms<<" ap: "<<endl;
+      // if(verbose)
+      //   cerr << "Enter a prime p followed by "<<nforms<<" ap: "<<endl;
       cin >> p;
       for (nform=0; nform<nforms; nform++)
-	cin >> apvecs_in[nform][np];
+        {
+          cin >> ap;
+          apvecs_in[nform][np] = ap;
+        }
       primes_needed[np] = p;
       prime_indexes[np] = ip = prime_index(p);
       if (ip>maxip)
@@ -96,16 +100,20 @@ int main(void)
       normp = quadnorm(p);
       if (normp>maxnormp)
         maxnormp = normp;
-    }       // end of prime loop
+      // if(verbose)
+      //   cerr << "p=" << p <<" (index "<<ip<<", norm "<<normp<<"): ap = "<<ap<<endl;
+        }       // end of prime loop
 
   // See whether we need to compute more ap:
 
-  if (maxip>nap)
+  if(verbose)
+    cerr << "Largest prime index (based at 0) for which we need ap is " << maxip <<"."<<endl;
+  if (maxip>nap-1)
     {
       computation_needed = 1;
       if(verbose)
         {
-          cout << "No stored ap for p = " << p << " which is the " << ip << "'th prime (only " << nap << " ap are on file)" << endl;
+          cout << "No stored ap for p = " << p << " which is has index " << ip << "(starting from 0): only " << nap << " ap are on file." << endl;
           cout << "We'll have to compute the modular symbol space and eigenspaces in order to compute ap" << endl;
         }
     }
@@ -148,9 +156,11 @@ int main(void)
     {
       int not_found = 1;
       if (verbose)
-        cout << "Hecke eigenvalue data ap = " << apvecs_in[nform];
+        cout << "Input Hecke eigenvalue data ap = " << apvecs_in[nform] << endl;
       for (kform=0; (kform<nnf) &&not_found; kform++)
         {
+          if (verbose)
+            cout << "Comparing with computed form "<<codeletter(kform)<<" with ap = " << apvecs_comp[kform] << endl;
           if (apvecs_comp[kform] == apvecs_in[nform])
             {
               if (verbose)
@@ -163,9 +173,9 @@ int main(void)
       if (not_found)
         {
           if (verbose)
-            cout << "?"<<endl;
-          else
             cout << " HAS NO MATCH" << endl;
+          else
+            cout << "?"<<endl;
         }
     }
 }       // end of main()

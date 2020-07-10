@@ -1,22 +1,45 @@
-Enter field: Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
 Euclidean
 1236 primes initialised, max norm = 10000
-Plus space (0/1)? See the hecke matrices (0/1)? See the char polys (0/1)? Enter level: >>>> Level 441.0.21 = (21), norm = 441 <<<<
-Dimension = 14
-Computing W(1+w)...  done. 
+>>>> Level 441.0.21 = (21), norm = 441 <<<<
+Cuspidal dimension = 3
+Computing W(1+w)...  done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 1
+2:	[1 1]	(degree 1)	 to power 2
+
 Involution!
-Computing W(2+w)...  done. 
+Computing W(2+w)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 1
+2:	[-1 1]	(degree 1)	 to power 2
+
 Involution!
-Computing W(1+2w)...  done. 
+Computing W(1+2w)...  done. Factors are:
+1:	[1 1]	(degree 1)	 to power 1
+2:	[-1 1]	(degree 1)	 to power 2
+
 Involution!
-How many Hecke matrices T_p (max 1236)? Computing T_p for p = 2
-done. 
+Computing T_p for p = 2
+done. Factors are:
+1:	[1 1]	(degree 1)	 to power 1
+2:	[3 1]	(degree 1)	 to power 2
+
 Computing T_p for p = 3+w
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+2:	[2 1]	(degree 1)	 to power 2
+
 Computing T_p for p = 1+3w
-done. 
+done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+2:	[2 1]	(degree 1)	 to power 2
+
 Computing T_p for p = 2+3w
-done. 
+done. Factors are:
+1:	[4 1]	(degree 1)	 to power 1
+2:	[-4 1]	(degree 1)	 to power 2
+
 Computing T_p for p = 3+2w
-done. 
-Enter level: 
+done. Factors are:
+1:	[4 1]	(degree 1)	 to power 1
+2:	[-4 1]	(degree 1)	 to power 2
+

@@ -337,7 +337,7 @@ void newforms::makeh1plus(void)
 {
   if(!h1)
     {
-      h1 = new homspace(modulus,1,0);
+      h1 = new homspace(modulus,1,0,0);
       nfhmod=hmod = h1->h1hmod();
     }
 }
