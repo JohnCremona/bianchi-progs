@@ -41,7 +41,7 @@ int main ()
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
 #endif
    {
-     cout<<endl;
+     //cout<<endl;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      vector<Quad> plist=pdivs(n); if(plist.size()>1) continue;
      long normn = quadnorm(n);
@@ -62,5 +62,5 @@ int main ()
        }
      cout<<"==========================================="<<endl;
    }
- cout<<endl;
+ // cout<<endl;
 }
