@@ -19,10 +19,14 @@ def check_modularity(E, primes, verbose=False):
     if verbose:
         print("command line: {}".format(cmd))
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            shell=True, cwd='/home/jec/bianchi-progs/')
+                            shell=True, text=True, cwd='/home/jec/bianchi-progs/')
     if pipe.returncode:
         return None
-    return pipe.stdout.readlines()[0].replace("\n","")
+    outputlines = [str(L) for L in pipe.stdout.readlines()]
+    if outputlines:
+        return outputlines[0].replace("\n","")
+    else:
+        return False
 
 # example:
 
@@ -33,4 +37,8 @@ def test1():
     E = EllipticCurve([i + 1, i - 1, i + 1, -5*i, 2*i])
     NE = E.conductor()
     primes = [P for P in K.primes_of_bounded_norm(100) if NE.valuation(P)==0]
-    print("{} matches Bianchi modular form {}".format(E,check_modularity(E,primes)))
+    res = check_modularity(E,primes)
+    if res:
+        print("{} matches Bianchi modular form {}".format(E, res))
+    else:
+        print("No Bianchi modular form found which matches {}".format(E))
