@@ -68,9 +68,11 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 	  if(verbose>1)
 	    {
 	      cout<<"+:\t";
-	      for (k=0; k<lenrel; k++) cout<<a[k]<<" "; cout<<endl;
+	      for (k=0; k<lenrel; k++) cout<<a[k]<<" ";
+              cout<<endl;
 	      cout<<"\t-:\t";
-	      for (k=0; k<lenrel; k++) cout<<b[k]<<" "; cout<<endl;
+	      for (k=0; k<lenrel; k++) cout<<b[k]<<" ";
+              cout<<endl;
 	    }
           if (triv)
             for (k=0; k<lenrel; k++) coordindex[a[k]]=coordindex[b[k]]=0;
@@ -918,7 +920,8 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
   else
     {
       long aplim=2;
-      while (aplim*aplim<=4*normp) aplim++; aplim--;
+      while (aplim*aplim<=4*normp) aplim++;
+      aplim--;
       if(verbose)
 	cout << "|ap| up to "<<aplim<<":\t";
       long ap, l = 2*aplim+1;
