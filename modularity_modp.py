@@ -1,5 +1,7 @@
 import subprocess
 
+BIANCHI_BIN_DIR = '/home/jec/bianchi-progs/'
+
 def ideal_gen_coeffs(I):
     return " ".join([str(c) for c in list(I.gens_reduced()[0])])
 
@@ -19,7 +21,7 @@ def check_modularity_modp(E, primes, p=3, verbose=False):
     if verbose:
         print("command line: {}".format(cmd))
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            shell=True, text=True, cwd='/home/jec/bianchi-progs/')
+                            shell=True, text=True, cwd=BIANCHI_BIN_DIR)
     if pipe.returncode:
         return None
     outputlines = [str(L) for L in pipe.stdout.readlines()]
