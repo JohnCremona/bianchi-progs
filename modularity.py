@@ -1,3 +1,4 @@
+from sage.all import polygen, QQ, NumberField, EllipticCurve
 import subprocess
 
 BIANCHI_BIN_DIR = '/home/jec/bianchi-progs/'
