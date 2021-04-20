@@ -28,8 +28,8 @@ done. Factors are:
 Computing T_p for p = 2+3i
 done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
-2:	[14 1]	(degree 1)	 to power 2
-3:	[2 1]	(degree 1)	 to power 2
+2:	[2 1]	(degree 1)	 to power 2
+3:	[14 1]	(degree 1)	 to power 2
 4:	[-14 1]	(degree 1)	 to power 9
 
 Computing T_p for p = 3+2i
@@ -40,7 +40,7 @@ done. Factors are:
 Computing T_p for p = 4+i
 done. Factors are:
 1:	[2 1]	(degree 1)	 to power 1
-2:	[18 1]	(degree 1)	 to power 2
-3:	[-2 1]	(degree 1)	 to power 2
+2:	[-2 1]	(degree 1)	 to power 2
+3:	[18 1]	(degree 1)	 to power 2
 4:	[-18 1]	(degree 1)	 to power 9
 

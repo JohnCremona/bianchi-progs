@@ -15,6 +15,26 @@
 
 vector<bigint> char_poly(mat_m A, long denom=1, int show_factors=0); // using NTL
 
+// function to sort a factorization vector, first by degree of factor
+// then exponent of factor then lexicographically
+
+struct factor_comparison {
+  bool operator()(pair_ZZX_long& fac1, pair_ZZX_long& fac2)
+  {
+    // first sort by degree of the factor
+    int s = deg(fac1.a) - deg(fac2.a);
+    if(s) return (s<0); // true if fac1 has smaller degree
+
+    // then sort by exponent of the factor
+    s = fac1.b - fac2.b;
+    if(s) return (s<0); // true if fac1 is to a lower exponent
+
+    // finally lexicographically compare the coefficient lists
+    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(), fac2.a.rep.begin(), fac2.a.rep.end());
+  }
+}
+    fact_cmp;
+
 int main(void)
 {
  int d,max=10000;
@@ -184,11 +204,15 @@ vector<bigint> char_poly(mat_m A,  long denom, int show_factors) // using NTL
     cp[i] = coeff(ntl_cp,i);
 
   // compute and display factorization:
+
+  // NB the order the factors are found is random, so we sort them
+
   if(show_factors)
     {
       vec_pair_ZZX_long factors;
       ZZ cont;
       factor(cont,factors,ntl_cp);
+      ::sort(factors.begin(), factors.end(), fact_cmp);
       cout<<"Factors are:"<<endl;
       long nf = factors.length();
       for(i=0; i<nf; i++)

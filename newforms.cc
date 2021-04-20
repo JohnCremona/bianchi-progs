@@ -650,35 +650,30 @@ int less_apvec(const vector<long>& v, const vector<long>& w)
   return 0;
 }
 
-struct less_newform_eigs : public binary_function<newform, newform, bool> {
+struct newform_eigs_comparer {
   bool operator()(const newform& f, const newform& g)
   {
     return less_apvec(f.eigs,g.eigs)==-1;
   }
-};
+}
+  less_newform_eigs;
 
-struct less_newform_lmfdb : public binary_function<newform, newform, bool> {
+struct newform_aplist_comparer {
   bool operator()(const newform& f, const newform& g)
   {
     return less_apvec(f.aplist,g.aplist)==-1;
   }
-};
-
-// struct less_apvec_function : public binary_function<const vector<long>&, const vector<long>&, bool> {
-//   bool operator()(const vector<long>& f, const vector<long>& g)
-//   {
-//     return 1==less_apvec(f,g);
-//   }
-// };
+}
+  less_newform_lmfdb;
 
 void newforms::sort_eigs(void)
 {
-  ::sort(nflist.begin(),nflist.end(),less_newform_eigs());
+  ::sort(nflist.begin(),nflist.end(),less_newform_eigs);
 }
 
 void newforms::sort_lmfdb(void)
 {
-  ::sort(nflist.begin(),nflist.end(),less_newform_lmfdb());
+  ::sort(nflist.begin(),nflist.end(),less_newform_lmfdb);
 }
 
 
