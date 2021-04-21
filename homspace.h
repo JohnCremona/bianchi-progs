@@ -31,21 +31,30 @@ public:
 
 #ifdef USE_SMATS
   smat relmat;
+  svec relation;
 #else
   mat relmat;
+  vec relation;
 #endif
-  long numrel, maxnumrel;
+  long ngens, numrel, maxnumrel;
+  void use_rel();
+  void clear_rel();
+  void fill_rel(int c);
 
-#ifndef USE_SMATS
-   void userel(vec& rel);
-#endif
-   homspace(const Quad& n, int hp, int cuspid, int verb);
+  homspace(const Quad& n, int hp, int cuspid, int verb);
 
   // The next methods are called only in the constructor, but are
   // separted out for clarity and for ease of separating thec ode for
   // different fields.
   void use_edge_relations();    // computes coordindex, gens
   void use_face_relations();    // computes relations, fills and elims relmat
+
+  void triangle_relation_0();   // triangle relation for all fields
+  void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
+  void square_relation_2();   // extra square relation for field 2
+  void rectangle_relation_7();   // extra rectangle relation for field 7
+  void hexagon_relation_11();   // extra hexagon relation for field 11
+
   void kernel_delta();          // computes ker(delta) for cuspidal homology
 
    mat opmat(int, int dual=1, int verb=0);

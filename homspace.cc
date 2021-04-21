@@ -12,85 +12,81 @@ const string T_opname("T");
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
                      smat& m, scalar& dd);
 
-#ifndef USE_SMATS
-void homspace::userel(vec& rel)
+int sign(int a)
 {
-  long h = vecgcd(rel);
+  if (a) return (a>0? 1: -1);
+  return 0;
+}
+
+#ifdef USE_SMATS
+void homspace::use_rel()
+{
+  if(relation.size()==0)
+    return;
+  numrel++;
+  if(numrel<=maxnumrel)
+    {
+      make_primitive(relation);
+      relmat.setrow(numrel,relation);
+    }
+  else
+    cerr<<"Too many n-term relations (numrel="<<numrel
+        <<", maxnumrel="<<maxnumrel<<")"<<endl;
+}
+
+void homspace::clear_rel()
+{
+  relation.clear();
+}
+
+void homspace::fill_rel(int c)
+{
+  if(c)
+    relation.add(abs(c), sign(c));
+}
+
+#else
+
+void homspace::use_rel()
+{
+  long h = vecgcd(relation);
   if (h)
-    {  
-      if (h>1) rel/=h;
+    {
+      if (h>1) relation/=h;
       if(numrel<maxnumrel)
-        relmat.setrow(++numrel,rel);
-      else 
+        relmat.setrow(++numrel,relation);
+      else
         cerr<<"Too many relations! numrel="<<numrel
 	    <<", maxnumrel="<<maxnumrel<<endl;
     }
 }
+
+void homspace::clear_rel()
+{
+  relation.init(ngens);
+}
+
+void homspace::fill_rel(int c)
+{
+  if(c)
+    relation[abs(c)] += sign(c);
+}
 #endif
- 
+
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
   verbose=verb;
   cuspidal=cuspid;
   hmod = 0;
   if (verbose) symbdata::display();
-  long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp
-  long i,j,k,ngens=0;
+  long i,j,k;
+  ngens=0;
   coordindex.resize(nsymb);
-  vector<int> check(nsymb, 0);
   gens.resize(nsymb+1);
   //NB start of gens array is at 1 not 0
 
-// 2-term (edge) relations:
-
-  Quad unit = fundunit;
-  long lenrel = Quad::nunits;
-  if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  symbop J(this,fundunit,0,0,1);
-  symbop eps(this,unit,0,0,1);
-  symbop sof(this,0,-1,1,0);
-  vector<int> a(lenrel), b(lenrel);
-  int triv;
-  if(verbose) cout << "About to start on 2-term relations.\n";
-  //  for (j=0; j<nsymb; j++)  
-  for (j=nsymb-1; j>=0; j--)  
-    {
-      if (check[j]==0)
-        { 
-	  if(verbose>1) cout << "j = " << j << ":\t";
-          a[0]=j; b[0]=sof(j); triv=(j==b[0]);
-          for(k=1; k<lenrel; k++)
-            {
-              a[k]= eps(a[k-1]);
-              b[k]= eps(b[k-1]);
-              triv= triv | (j==b[k]);
-            }
-          for (k=0; k<lenrel; k++) check[a[k]]=check[b[k]]=1;
-	  if(verbose>1)
-	    {
-	      cout<<"+:\t";
-	      for (k=0; k<lenrel; k++) cout<<a[k]<<" ";
-              cout<<endl;
-	      cout<<"\t-:\t";
-	      for (k=0; k<lenrel; k++) cout<<b[k]<<" ";
-              cout<<endl;
-	    }
-          if (triv)
-            for (k=0; k<lenrel; k++) coordindex[a[k]]=coordindex[b[k]]=0;
-          else
-            {   
-              gens[++ngens] = j;
-              for(k=0; k<lenrel; k++)
-                {
-                  coordindex[a[k]] =  ngens;
-                  coordindex[b[k]] = -ngens;
-                }
-            }
-        }
-    }
-
-// end of 2-term relations
+  use_edge_relations(); // sets coordindex
 
   if (verbose)
     {
@@ -103,301 +99,14 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 	cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i] << "\n";
       cout << endl;
     }
-//
-// face relations
-//
-  if(plusflag)  maxnumrel = 2*ngens+10;
-  else          maxnumrel = 3*ngens+10;
 
-  maxnumrel=2*nsymb;
+  use_face_relations(); //fills relmat with the relations
 
-#if(USE_SMATS)
-   relmat = smat(maxnumrel,ngens);
-   svec newrel(ngens);
-#else
-  relmat.init(maxnumrel,ngens);
-  vec newrel(ngens);
-#endif
-  numrel = 0;
-  vector<int> rel(6);  //max length
-  long ij, fix;
-//
-// first the 3-term relation for all fields:
-//
   if(verbose)
-    {
-      cout << "Face relation type 1 (triangles):\n";
-    }
-  symbop tof(this,1,1,-1,0);
-  symbop rof(this,0,1,1,0);
-  i=nsymb; while (i--) check[i]=0;
-  for (k=0; k<nsymb; k++) if (check[k]==0)
-  //for (k=nsymb-1; k>=0; k--) if (check[k]==0)
-    {
-#if(USE_SMATS)
-      newrel.clear();
-#else
-      for (j=1; j<=ngens; j++) newrel[j]=0;
-#endif
-      rel[2]=tof(rel[1]=tof(rel[0]=k));
-      if (verbose)   
-//      cout << "Relation: " << rel[0]<<" "<<rel[1]<<" "<<rel[2]<<" --> ";
-        cout<<"Relation: "<<rel[0]<<symbol(rel[0])<<" "<<rel[1]<<symbol(rel[1])<<" "<<rel[2]<<symbol(rel[2])<<" --> ";
-      if(tof(rel[2])!=k)
-	cout<<"Error in TS-relation!"<<endl;
-      for (j=0; j<3; j++)
-        {
-          ij = rel[j];
-          check[ij] = 1;
-	  if (plusflag) check[rof(ij)] = 1;
-          fix = coordindex[ij];
-          if (verbose)  cout << fix << " ";
-#if(USE_SMATS)
-	  if(fix) newrel.add(abs(fix),(fix>0?1:-1));
-#else
-          if (fix!=0) newrel[abs(fix)] += sign(fix);
-#endif
-        }
-      if (verbose)  cout << endl;
-#if(USE_SMATS)
-     if(newrel.size()!=0) 
-       {
-	 numrel++;
-	 make_primitive(newrel);
-	 if(numrel<=maxnumrel)
-	   relmat.setrow(numrel,newrel);
-	 else 
-	   cout<<"Too many 3-term relations (numrel="<<numrel
-	       <<", maxnumrel="<<maxnumrel<<")"<<endl;
-       }
-#else
-      userel(newrel);
-#endif
-    }
-
-if(verbose)
-  {
-    cout << "After face relation type 1, number of relations = " << numrel <<"\n";
-    cout << "Face relation type 2:\n";
-  }
-
-//
-// Now one extra depending on the field:
-//
-  Quad w(0,1);
-  
-  //Define extra ops needed:
-  // field 1:
-  symbop x1of(this,w,1,1,0);      
-  // field 3:
-  symbop x3of(this,1,w,w-1,0);
-  // field 2:
-  symbop uof(this,w,1,1,0);
-  // field 7:
-  symbop yof(this,1,-w,1-w,-1);
-  symbop us7of(this,w,-1,1,0);
-  // field 11:
-  symbop xof(this,1,-w,1-w,-2);
-  symbop us11of(this,w,-1,1,0);
-
-  switch (field) 
-    {
-    case 1: case 3:
-      if(plusflag) break;
-      std::fill(check.begin(), check.end(), 0);
-      for (k=0; k<nsymb; k++) if (check[k]==0)
-        {
-#if(USE_SMATS)
-	  newrel.clear();
-#else
-          for (j=1; j<=ngens; j++) newrel[j]=0;
-#endif
-          if(field==1) rel[2]=x1of(rel[1]=x1of(rel[0]=k));
-          else         rel[2]=x3of(rel[1]=x3of(rel[0]=k));
-          if (verbose)   
-	    //  cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<" --> ";
-            cout<<"Relation: "<<symbol(rel[0])<<" "<<symbol(rel[1])<<" "<<symbol(rel[2])<<" --> ";
-          for (j=0; j<3; j++)
-            {
-              check[ij=rel[j]] = 1;
-              fix = coordindex[ij];
-              if (verbose)  cout << fix << " ";
-#if(USE_SMATS)
-	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
-#else
-              if (fix!=0) newrel[abs(fix)] += sign(fix);
-#endif
-            }
-          if (verbose)  cout << endl;
-#if(USE_SMATS)
-	  if(newrel.size()!=0) 
-	    {
-	      numrel++;
-	      make_primitive(newrel);
-	      if(numrel<=maxnumrel)
-		relmat.setrow(numrel,newrel);
-	      else 
-		cout<<"Too many n-term relations (numrel="<<numrel
-		    <<", maxnumrel="<<maxnumrel<<")"<<endl;
-	    }
-#else
-          userel(newrel);
-#endif
-        }
-      break;
-    case 2:
-      i=nsymb; while (i--) check[i]=0;
-      for (k=0; k<nsymb; k++) if (check[k]==0)
-        {
-#if(USE_SMATS)
-	  newrel.clear();
-#else
-          for (j=1; j<=ngens; j++) newrel[j]=0;
-#endif
-          rel[3]=uof(rel[2]=uof(rel[1]=uof(rel[0]=k)));
-          if (verbose)
-            cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<" "<<rel[3]<<" --> ";
-          for (j=0; j<4; j++)
-            {
-              ij=rel[j];
-              if(plusflag) // NB det(uof)=-1
-                {
-                  check[ij] = 1;
-                  check[sof(ij)] = 1;
-                }
-              else
-                {
-                  if(j%2)
-                    ij=J(ij);  // since uof() has det -1
-                  else
-                    check[ij] = 1;
-                }
-              fix = coordindex[ij];
-              if (verbose)  cout << fix << " ";
-#if(USE_SMATS)
-	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
-#else
-              if (fix!=0) newrel[abs(fix)] += sign(fix);
-#endif
-            }
-          if (verbose)  cout << endl;
-#if(USE_SMATS)
-	  if(newrel.size()!=0)
-	    {
-	      numrel++;
-	      make_primitive(newrel);
-	      if(numrel<=maxnumrel)
-		relmat.setrow(numrel,newrel);
-	      else 
-		cout<<"Too many n-term relations (numrel="<<numrel
-		    <<", maxnumrel="<<maxnumrel<<")"<<endl;
-	    }
-#else
-          userel(newrel);
-#endif
-        }
-      break;
-    case 7:
-      i=nsymb; while (i--) check[i]=0;
-      for (k=0; k<nsymb; k++) if (check[k]==0)
-        {
-#if(USE_SMATS)
-	  newrel.clear();
-#else
-          for (j=1; j<=ngens; j++) newrel[j]=0;
-#endif
-          rel[2]=yof(rel[0]=k);
-          rel[1]=us7of(rel[0]); 
-          rel[3]=us7of(rel[2]);
-          if (verbose)   
-            cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<
-                  " "<<rel[3]<<" --> ";
-          check[k]=check[rel[2]]=1;
-          if (plusflag) check[rof(rel[1])]=check[rof(rel[3])]=1;
-          for (j=0; j<4; j++)
-            { 
-              fix = coordindex[rel[j]];
-              if (verbose)  cout << fix << " ";
-#if(USE_SMATS)
-	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
-#else
-              if (fix!=0) newrel[abs(fix)] += sign(fix);
-#endif
-            }
-          if (verbose)  cout << endl;
-#if(USE_SMATS)
-	  if(newrel.size()!=0) 
-	    {
-	      numrel++;
-	      make_primitive(newrel);
-	      if(numrel<=maxnumrel)
-		relmat.setrow(numrel,newrel);
-	      else 
-		cout<<"Too many 3-term relations (numrel="<<numrel
-		    <<", maxnumrel="<<maxnumrel<<")"<<endl;
-	    }
-#else
-          userel(newrel);
-#endif
-        }
-      break;
-    case 11:
-      i=nsymb; while (i--) check[i]=0;
-      for (k=0; k<nsymb; k++) if (check[k]==0)
-        {
-#if(USE_SMATS)
-	  newrel.clear();
-#else
-          for (j=1; j<=ngens; j++) newrel[j]=0;
-#endif
-          rel[4]=xof(rel[2]=xof(rel[0]=k));
-          rel[1]=us11of(rel[0]); 
-          rel[3]=us11of(rel[2]); 
-          rel[5]=us11of(rel[4]);
-          if (verbose)   
-            cout<<"Relation: "<<rel[0]<<" "<<rel[1]<<" "<<rel[2]<<
-                  " "<<rel[3]<<" "<<rel[4]<<" "<<rel[5]<<" --> ";
-          check[k]=check[rel[2]]=check[rel[4]]=1;
-          if(plusflag) check[rof(rel[1])]=check[rof(rel[3])]=check[rof(rel[5])]=1;
-          for (j=0; j<6; j++)
-            { 
-              fix = coordindex[rel[j]];
-              if (verbose)  cout << fix << " ";
-#if(USE_SMATS)
-	      if(fix) newrel.add(abs(fix),(fix>0?1:-1));
-#else
-              if (fix!=0) newrel[abs(fix)] += sign(fix);
-#endif
-            }
-          if (verbose)  cout << endl;
-#if(USE_SMATS)
-	  if(newrel.size()!=0) 
-	    {
-	      numrel++;
-	      make_primitive(newrel);
-	      if(numrel<=maxnumrel)
-		relmat.setrow(numrel,newrel);
-	      else 
-		cout<<"Too many n-term relations (numrel="<<numrel
-		    <<", maxnumrel="<<maxnumrel<<")"<<endl;
-	    }
-#else
-          userel(newrel);
-#endif
-        }
-      break;
-    default: cerr<<"homspace not implemented for field "<<field<<endl;
-      exit(1);
-    }
-
-  if(verbose) 
     {
       cout << "Finished face relations: ";
       cout << "number of relations = " << numrel;
       cout << " (bound was "<<maxnumrel<<")"<<endl;
-#if(USE_SMATS)
-      cout << "relmat = \n" << relmat.as_mat().slice(numrel,ngens)<<endl;
-#endif
     }
 
    vec pivs, npivs;
@@ -476,7 +185,7 @@ if(verbose)
   coord = basis(sp).shorten((int)1);
   pivs = pivots(sp);
   denom1 = I2int(denom(sp));
-  relmat.init(); newrel.init(); sp.clear(); 
+  relmat.init(); relation.init(); sp.clear(); 
 #endif
   if (verbose)
     {
@@ -564,17 +273,332 @@ if(verbose)
   if (verbose) cout << "Finished constructing homspace.\n";
 }
 
+// 2-term (edge) relations
+
 void homspace::use_edge_relations()    // computes coordindex
 {
-  
+  Quad unit = fundunit;
+  long lenrel = Quad::nunits;
+  if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
+  symbop eps(this,unit,0,0,1);
+  symbop sof(this,0,-1,1,0);
+  vector<int> a(lenrel), b(lenrel);
+  vector<int> check(nsymb, 0);
+  int j, k, triv;
+  if(verbose) cout << "About to start on 2-term relations.\n";
+  //  for (j=0; j<nsymb; j++)  
+  for (j=nsymb-1; j>=0; j--)  
+    {
+      if (check[j]==0)
+        { 
+	  if(verbose>1) cout << "j = " << j << ":\t";
+          a[0]=j; b[0]=sof(j); triv=(j==b[0]);
+          for(k=1; k<lenrel; k++)
+            {
+              a[k]= eps(a[k-1]);
+              b[k]= eps(b[k-1]);
+              triv= triv | (j==b[k]);
+            }
+          for (k=0; k<lenrel; k++) check[a[k]]=check[b[k]]=1;
+	  if(verbose>1)
+	    {
+	      cout<<"+:\t";
+	      for (k=0; k<lenrel; k++) cout<<a[k]<<" ";
+              cout<<endl;
+	      cout<<"\t-:\t";
+	      for (k=0; k<lenrel; k++) cout<<b[k]<<" ";
+              cout<<endl;
+	    }
+          if (triv)
+            for (k=0; k<lenrel; k++) coordindex[a[k]]=coordindex[b[k]]=0;
+          else
+            {   
+              gens[++ngens] = j;
+              for(k=0; k<lenrel; k++)
+                {
+                  coordindex[a[k]] =  ngens;
+                  coordindex[b[k]] = -ngens;
+                }
+            }
+        }
+    }
 }
+
+//
+// face relations
+//
+
 void homspace::use_face_relations()
 {
-  
+  long field = Quad::d;
+
+  if(plusflag)  maxnumrel = 2*ngens+10;
+  else          maxnumrel = 3*ngens+10;
+
+  maxnumrel=2*nsymb;
+  numrel = 0;
+
+#if(USE_SMATS)
+  relmat = smat(maxnumrel,ngens);
+#else
+  relmat.init(maxnumrel,ngens);
+#endif
+  triangle_relation_0();
+
+  if(verbose)
+    {
+      cout << "After face relation type 1, number of relations = " << numrel <<"\n";
+      cout << "Face relation type 2:\n";
+    }
+
+  switch (field)
+    {
+    case 1:
+    case 3:
+      {
+        if(!plusflag)
+          triangle_relation_1_3();
+        break;
+      }
+    case 2:
+      {
+        square_relation_2();
+        break;
+      }
+    case 7:
+      {
+        rectangle_relation_7();
+        break;
+      }
+    case 11:
+      {
+        hexagon_relation_11();
+        break;
+      }
+    default:
+      {
+        cerr<<"homspace not implemented for field "<<field<<endl;
+        exit(1);
+      }
+    }
 }
+
+// triangle relation for all fields
+void homspace::triangle_relation_0()
+{
+  if(verbose)
+    {
+      cout << "Face relation type 1 (triangles):\n";
+    }
+#if(USE_SMATS)
+  svec relation(ngens);
+#else
+  vec relation(ngens);
+#endif
+  vector<int> rel(3);
+  long ij, j, k, fix;
+  symbop tof(this,1,1,-1,0);
+  symbop rof(this,0,1,1,0);
+  vector<int> check(nsymb, 0);
+  for (k=0; k<nsymb; k++) if (check[k]==0)
+    {
+      rel[0]=k;
+      for(j=0; j<2; j++)
+        rel[j+1]=tof(rel[j]);
+      if (verbose)
+        {
+          cout<<"Relation: "<<rel[0]<<symbol(rel[0])
+              <<" "<<rel[1]<<symbol(rel[1])
+              <<" "<<rel[2]<<symbol(rel[2])
+              <<" --> ";
+        }
+      for (j=0; j<3; j++)
+        {
+          ij = rel[j];
+          check[ij] = 1;
+	  if (plusflag) check[rof(ij)] = 1;
+          fix = coordindex[ij];
+          if (verbose)
+            cout << fix << " ";
+          fill_rel(fix);
+        }
+      if (verbose)
+        cout << endl;
+      use_rel();
+    }
+}
+
+// extra triangle relation for fields 1, 3
+void homspace::triangle_relation_1_3()
+{
+  vector<int> rel(3);
+  long j, k, ij, fix;
+
+  Quad w(0,1);
+  long field = Quad::d;
+  symbop xof = (field==1? symbop(this,w,1,1,0): symbop(this,1,w,w-1,0));
+
+  vector<int> check(nsymb, 0);
+  for (k=0; k<nsymb; k++)
+    if (check[k]==0)
+      {
+        clear_rel();
+        rel[0]=k;
+        for(j=0; j<2; j++)
+          rel[j+1]=xof(rel[j]);
+        if (verbose)
+          cout<<"Relation: "<<symbol(rel[0])<<
+            " "<<symbol(rel[1])<<
+            " "<<symbol(rel[2])<<
+            " --> ";
+        for (j=0; j<3; j++)
+          {
+            check[ij=rel[j]] = 1;
+            fix = coordindex[ij];
+            if (verbose)  cout << fix << " ";
+            fill_rel(fix);
+          }
+        if (verbose)
+          cout << endl;
+        use_rel();
+      }
+}
+
+// extra square relation for field 2
+void homspace::square_relation_2()
+{
+  vector<int> rel(4);
+  long j, k, ij, fix;
+
+  Quad w(0,1);
+  symbop uof(this,w,1,1,0);
+  symbop sof(this,0,-1,1,0);
+  symbop J(this,fundunit,0,0,1);
+
+  vector<int> check(nsymb, 0);
+  for (k=0; k<nsymb; k++)
+    if (check[k]==0)
+      {
+        clear_rel();
+        rel[0]=k;
+        for(j=0; j<3; j++)
+          rel[j+1]=uof(rel[j]);
+        if (verbose)
+          cout<<"Relation: "<<rel[0]<<
+            " "<<rel[1]<<
+            " "<<rel[2]<<
+            " "<<rel[3]<<
+            " --> ";
+        for (j=0; j<4; j++)
+          {
+            ij=rel[j];
+            if(plusflag) // NB det(uof)=-1
+              {
+                check[ij] = 1;
+                check[sof(ij)] = 1;
+              }
+            else
+              {
+                if(j%2)
+                  ij=J(ij);  // since uof() has det -1
+                else
+                  check[ij] = 1;
+              }
+            fix = coordindex[ij];
+            if (verbose)  cout << fix << " ";
+            fill_rel(fix);
+          }
+        if (verbose)  cout << endl;
+        use_rel();
+      }
+}
+
+// extra rectangle relation for field 7
+void homspace::rectangle_relation_7()
+{
+  vector<int> rel(4);
+  long j, k, fix;
+
+  Quad w(0,1);
+  symbop yof(this,1,-w,1-w,-1);
+  symbop us7of(this,w,-1,1,0);
+  symbop rof(this,0,1,1,0);
+
+  vector<int> check(nsymb, 0);
+  for (k=0; k<nsymb; k++)
+    if (check[k]==0)
+      {
+        clear_rel();
+          rel[0]=k;
+          rel[1]=us7of(rel[0]);
+          rel[2]=yof(rel[0]);
+          rel[3]=us7of(rel[2]);
+          if (verbose)
+            cout<<"Relation: "<<rel[0]<<
+              " "<<rel[1]<<
+              " "<<rel[2]<<
+              " "<<rel[3]<<
+              " --> ";
+          check[k]=check[rel[2]]=1;
+          if (plusflag) check[rof(rel[1])]=check[rof(rel[3])]=1;
+          for (j=0; j<4; j++)
+            {
+              fix = coordindex[rel[j]];
+              if (verbose)  cout << fix << " ";
+              fill_rel(fix);
+            }
+          if (verbose)  cout << endl;
+          use_rel();
+        }
+}
+
+// extra hexagon relation for field 11
+void homspace::hexagon_relation_11()
+{
+  vector<int> rel(6);
+  long j, k, fix;
+
+  Quad w(0,1);
+  symbop xof(this,1,-w,1-w,-2);
+  symbop us11of(this,w,-1,1,0);
+  symbop sof(this,0,-1,1,0);
+  symbop rof(this,0,1,1,0);
+
+  vector<int> check(nsymb, 0);
+  for (k=0; k<nsymb; k++)
+    if (check[k]==0)
+      {
+        clear_rel();
+        rel[0]=k;
+        rel[1]=us11of(rel[0]);
+        rel[2]=xof(rel[0]);
+        rel[3]=us11of(rel[2]);
+        rel[4]=xof(rel[2]);
+        rel[5]=us11of(rel[4]);
+        if (verbose)
+          cout<<"Relation: "<<rel[0]<<
+            " "<<rel[1]<<
+            " "<<rel[2]<<
+            " "<<rel[3]<<
+            " "<<rel[4]<<
+            " "<<rel[5]<<
+            " --> ";
+        check[k]=check[rel[2]]=check[rel[4]]=1;
+        if(plusflag) check[rof(rel[1])]=check[rof(rel[3])]=check[rof(rel[5])]=1;
+        for (j=0; j<6; j++)
+          {
+            fix = coordindex[rel[j]];
+            if (verbose)  cout << fix << " ";
+            fill_rel(fix);
+          }
+        if (verbose)  cout << endl;
+        use_rel();
+      }
+}
+
 void homspace::kernel_delta()
 {
-  
+
 }
 
 vec homspace::chain(const symb& s) const  //=old getcoord
