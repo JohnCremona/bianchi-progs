@@ -639,7 +639,7 @@ vec homspace::projcycle(const Quad& nn, const Quad& dd) const  //
 
 vec homspace::applyop(const matop& mlist, const RatQuad& q) const
 { vec ans(rk), part;
-  long i=mlist.length;
+  long i=mlist.length();
   while (i--)
     {
       part = chain(mlist[i](q));

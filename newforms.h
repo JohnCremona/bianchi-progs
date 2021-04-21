@@ -46,7 +46,7 @@ ap : list of Fourier coefficients at all primes
 class newform {
 friend class newforms;
 public:
-  newforms *nf;  // the "parent"
+  newforms *nf;  // pointer to the "parent"
   vec basis;
   vector<long> eigs;   // list of eigenvalues which split off this 1D subspace
   vector<long> aplist; // list of Fourier coefficients, all primes in norm order
@@ -124,11 +124,11 @@ private:
   void find_jlist();
 
 protected:
-  oldforms* of;
+  oldforms *of; // pointer to one, not an array
   Quad p0; vec mvp;
 public:
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
-  homspace* h1;
+  homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   vector<newform> nflist;
   newforms(const Quad& n, int disp=0);

@@ -85,12 +85,12 @@ public:
 };
 
 class matop {  // formal sum of 2x2 matrices
- private: mat22* mats;
- public:  int length;
-          matop(const Quad& p, const Quad& n); 
-	  // constructor for hecke ops
-          ~matop() {delete[] mats;length=0;}
-          mat22 operator[](int i) const {return mats[i];}
+private:
+  vector<mat22> mats;
+ public:
+  matop(const Quad& p, const Quad& n);  // constructor for hecke ops
+  mat22 operator[](int i) const {return mats[i];}
+  int length() const {return mats.size();}
 };
 
 class symbop 
