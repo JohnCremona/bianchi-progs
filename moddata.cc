@@ -3,6 +3,34 @@
 
 #include "moddata.h"
 
+//#define DEBUG_CUSP_EQ
+int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag)
+{
+#ifdef DEBUG_CUSP_EQ
+  cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
+  cout<<" (N="<<modulus<<")"<<endl;
+#endif
+  Quad p1 = num(c1), p2 = num(c2), q1 = den(c1), q2 = den(c2);
+  Quad s1,r1,s2,r2,temp;
+  temp=quadbezout(p1,q1,s1,r1);  s1*=q2;
+  temp=quadbezout(p2,q2,s2,r2);  s2*=q1;
+  Quad q3 = quadgcd(q1*q2,modulus);
+#ifdef DEBUG_CUSP_EQ
+  cout<<"s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
+#endif
+  int equiv=0; Quad u=1;
+  for(int i=0; (!equiv)&&(i<(Quad::nunits)); i++,  u*=fundunit)
+    {equiv = div(q3,(s1-u*s2));
+     if(!(plusflag)) {i++; u*=fundunit;}
+   }
+#ifdef DEBUG_CUSP_EQ
+  cout<<"Returning "<<equiv<<endl;
+#endif
+  return equiv;
+}
+
+
+
 level::level(const Quad& n, long neigs)
 {
   modulus=makepos(n); normod=quadnorm(n);

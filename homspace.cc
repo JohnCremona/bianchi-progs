@@ -12,6 +12,7 @@ const string T_opname("T");
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
                      smat& m, scalar& dd);
 
+#ifndef USE_SMATS
 void homspace::userel(vec& rel)
 {
   long h = vecgcd(rel);
@@ -25,6 +26,7 @@ void homspace::userel(vec& rel)
 	    <<", maxnumrel="<<maxnumrel<<endl;
     }
 }
+#endif
  
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
@@ -36,8 +38,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   plusflag=hp;                  // Sets static level::plusflag = hp
   long i,j,k,ngens=0;
   coordindex = new int[nsymb];
-  int* check = new int[nsymb];
-  int* gens = new int[nsymb+1];
+  vector<int> check(nsymb, 0);
+  gens = new int[nsymb+1];
   //NB start of gens array is at 1 not 0
 
 // 2-term (edge) relations:
@@ -48,8 +50,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   symbop J(this,fundunit,0,0,1);
   symbop eps(this,unit,0,0,1);
   symbop sof(this,0,-1,1,0);
-  int *a=new int[lenrel], *b=new int[lenrel],  triv;
-  i=nsymb; while (i--) check[i]=0;
+  vector<int> a(lenrel), b(lenrel);
+  int triv;
   if(verbose) cout << "About to start on 2-term relations.\n";
   //  for (j=0; j<nsymb; j++)  
   for (j=nsymb-1; j>=0; j--)  
@@ -97,12 +99,10 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       for (i=1; i<=ngens; i++) cout << gens[i] << " ";
       cout << endl;
       cout << "coordindex = \n";
-      for (i=0; i<nsymb; i++) 
+      for (i=0; i<nsymb; i++)
 	cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i] << "\n";
       cout << endl;
     }
-  delete[] a; delete[] b;
-   
 //
 // face relations
 //
@@ -112,14 +112,14 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   maxnumrel=2*nsymb;
 
 #if(USE_SMATS)
-   smat relmat(maxnumrel,ngens);
+   relmat = smat(maxnumrel,ngens);
    svec newrel(ngens);
 #else
   relmat.init(maxnumrel,ngens);
   vec newrel(ngens);
 #endif
   numrel = 0;
-  int * rel = new int[6];  //max length
+  vector<int> rel(6);  //max length
   long ij, fix;
 //
 // first the 3-term relation for all fields:
@@ -204,7 +204,7 @@ if(verbose)
     {
     case 1: case 3:
       if(plusflag) break;
-      i=nsymb; while (i--) check[i]=0;
+      std::fill(check.begin(), check.end(), 0);
       for (k=0; k<nsymb; k++) if (check[k]==0)
         {
 #if(USE_SMATS)
@@ -499,7 +499,6 @@ if(verbose)
           cout << endl;
         }
     }
-  delete [] check; delete [] gens; delete [] rel; 
   pivs.init();
   {
     cusplist cusps(2*rk,this);
@@ -563,6 +562,19 @@ if(verbose)
         }
     }
   if (verbose) cout << "Finished constructing homspace.\n";
+}
+
+void homspace::use_edge_relations()    // computes coordindex
+{
+  
+}
+void homspace::use_face_relations()
+{
+  
+}
+void homspace::kernel_delta()
+{
+  
 }
 
 vec homspace::chain(const symb& s) const  //=old getcoord

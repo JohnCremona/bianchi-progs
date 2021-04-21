@@ -18,11 +18,40 @@ class homspace :public symbdata {
 friend class newforms;
 public:
   int verbose;
-   int *coordindex,*needed,*freegens;
+  int *coordindex,*gens,*needed,*freegens;
    long rk,denom1,denom2;
    ssubspace kern;
    smat tkernbas; // transpose of kernel(delta) basis
    modsym *freemods;
+   mat coord, projcoord;
+   long hmod; // if >0, failed to lift from modular linear algebra
+              //so coord is modulo this
+   long dimension, denom3, ncusps;
+   int cuspidal;  // if 1 then compute cuspidal homology
+
+#ifdef USE_SMATS
+  smat relmat;
+#else
+  mat relmat;
+#endif
+  long numrel, maxnumrel;
+
+#ifndef USE_SMATS
+   void userel(vec& rel);
+#endif
+   homspace(const Quad& n, int hp, int cuspid, int verb);
+
+  // The next methods are called only in the constructor, but are
+  // separted out for clarity and for ease of separating thec ode for
+  // different fields.
+  void use_edge_relations();    // computes coordindex, gens
+  void use_face_relations();    // computes relations, fills and elims relmat
+  void kernel_delta();          // computes ker(delta) for cuspidal homology
+
+  ~homspace() {delete[] coordindex; delete[] gens; delete[] needed;
+                delete[] freegens; delete[] freemods;
+              }
+
    mat opmat(int, int dual=1, int verb=0);
    vec opmat_col(int, int j, int verb=0);
    mat opmat_cols(int, const vec& jlist, int verb=0);
@@ -34,17 +63,7 @@ public:
    smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
    long matdim(void) {return dimension;}
    vector<long> eigrange(long i);
-   mat coord, projcoord;
-   long hmod; // if >0, failed to lift from modular linear algebra
-              //so coord is modulo this
-   long dimension, denom3, ncusps;
-   int cuspidal;  // if 1 then compute cuspidal homology
-   mat relmat; long numrel, maxnumrel;
-   void userel(vec& rel);
-   homspace(const Quad& n, int hp, int cuspid, int verb);
-   ~homspace() {delete[] coordindex; delete[] needed;
-                delete[] freegens; delete[] freemods;
-              }
+
    long h1cuspdim() const {return dim(kern);}
    long h1dim() const {return dimension;}  // No confusion with subspace::dim
    long h1denom() const {return denom1;}

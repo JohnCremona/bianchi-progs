@@ -5,6 +5,9 @@
 
 #include <eclib/arith.h>   // even better, get quads.h to include this
 #include "quads.h"
+#include "ratquads.h"
+
+int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag);
 
 class level {
 public:
@@ -13,7 +16,8 @@ public:
  vector<Quad> plist,dlist,primelist;
  long npdivs,ndivs,normod,nap;
  int is_square;
-  int is_Galois_stable; 
+  int is_Galois_stable;
+
 protected:
 //If modulus=(a,b) with norm normod, n0=gcd(a,b), n0m0=normod/n0=n0*m0
  long n0m0, n0,m0, wmodz;
