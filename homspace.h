@@ -18,11 +18,11 @@ class homspace :public symbdata {
 friend class newforms;
 public:
   int verbose;
-  int *coordindex,*gens,*needed,*freegens;
+  vector<int> coordindex, gens, needed, freegens;
    long rk,denom1,denom2;
    ssubspace kern;
    smat tkernbas; // transpose of kernel(delta) basis
-   modsym *freemods;
+  vector<modsym> freemods;
    mat coord, projcoord;
    long hmod; // if >0, failed to lift from modular linear algebra
               //so coord is modulo this
@@ -47,10 +47,6 @@ public:
   void use_edge_relations();    // computes coordindex, gens
   void use_face_relations();    // computes relations, fills and elims relmat
   void kernel_delta();          // computes ker(delta) for cuspidal homology
-
-  ~homspace() {delete[] coordindex; delete[] gens; delete[] needed;
-                delete[] freegens; delete[] freemods;
-              }
 
    mat opmat(int, int dual=1, int verb=0);
    vec opmat_col(int, int j, int verb=0);

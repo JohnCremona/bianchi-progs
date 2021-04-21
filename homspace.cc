@@ -37,9 +37,9 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   long field = Quad::d;
   plusflag=hp;                  // Sets static level::plusflag = hp
   long i,j,k,ngens=0;
-  coordindex = new int[nsymb];
+  coordindex.resize(nsymb);
   vector<int> check(nsymb, 0);
-  gens = new int[nsymb+1];
+  gens.resize(nsymb+1);
   //NB start of gens array is at 1 not 0
 
 // 2-term (edge) relations:
@@ -490,7 +490,7 @@ if(verbose)
     }
   if (rk>0)
     {
-      freegens = new int[rk]; if (!freegens) exit(1);
+      freegens.resize(rk);
       for (i=0; i<rk; i++) freegens[i] = gens[pivs[i+1]];
       if (verbose)
         { 
@@ -535,9 +535,9 @@ if(verbose)
    else
      dimension = rk;
   denom3 = denom1 * denom2;
-  freemods = new modsym[rk]; if (!freemods) exit(1);
-  needed   = new int[rk];    if (!needed) exit(1);
-  
+  freemods.resize(rk);
+  needed.resize(rk);
+ 
   if (dimension>0)
     {
       const smat& basiskern = basis(kern);
