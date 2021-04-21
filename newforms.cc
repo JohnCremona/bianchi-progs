@@ -365,7 +365,7 @@ newforms::newforms(const Quad& n, int disp)
 void newforms::get_lambda()
 {
 //#define DEBUG_LAMBDA
-  int* gotlambda = new int[n1ds];
+  vector<int> gotlambda(n1ds);
   int i, nfound=0;
 #ifdef DEBUG_LAMBDA
   if(verbose) cout<<"Looking for twisting primes.\n";
@@ -392,7 +392,6 @@ void newforms::get_lambda()
 #endif
   if (is_square)
     {
-      delete[] gotlambda;
       return;
     }
 
@@ -449,7 +448,6 @@ void newforms::get_lambda()
             }
         }
     }
-  delete[] gotlambda;
 }
 
 void newforms::createfromscratch()
