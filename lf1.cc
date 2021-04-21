@@ -99,7 +99,6 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
     cout<<"lf1chivalue = "<<lf1chivalue<<", ratio = "<<ratio;
     cout<<", period = "<<period<<endl;
   }
-  delete chitable;
 }
 
  

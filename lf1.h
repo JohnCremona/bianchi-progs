@@ -11,7 +11,7 @@ private:
   long limitnorm;
   double factor, sum;
   Quad lambda; Quadlist lambdares;
-  int *chitable; // created and deleted in the constructor
+  vector<int> chitable;
   int chi(const Quad& n) {return chitable[lambdares.locate(n%lambda)];}
   int nap;  vector<long> aplist;
   rational ratio;

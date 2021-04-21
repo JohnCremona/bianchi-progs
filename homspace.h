@@ -115,7 +115,7 @@ public:
 //   mat conj(int display=0) const;
    vec maninvector(const Quad& p) const;
    vec projmaninvector(const Quad& p) const;
-   vec manintwist(const Quad& lambda, const vector<Quad>& res, int* chitable) const;
+  vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const;
    vec newhecke(const Quad& p, const Quad& n, const Quad& d) const;
 };
 

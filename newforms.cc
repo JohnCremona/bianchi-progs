@@ -414,9 +414,8 @@ void newforms::get_lambda()
               if(verbose)cout<<"passed second general test"<<endl;
 #endif
               int chimod  = squaremod(modulus,lam,lamres);
-              int* chitab = makechitable(lam,lamres);
+              vector<int> chitab = makechitable(lam,lamres);
               vec mvtw = h1->manintwist(lam,lamres,chitab);
-              delete[] chitab;
               for(int j=0; (j<n1ds)&&(nfound<n1ds); j++)
                 {
                   if(gotlambda[j]==0)

@@ -158,6 +158,8 @@ int moddata::check(int verbose) const //checks whether resnum & numres work OK
   return ok;
 }
 
+// brute force test whether a is a square of some element of reslist, mod m
+
 int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
 {
   if (div(m,a)) return 0;
@@ -170,19 +172,18 @@ int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
   return -1;
 }
 
-int* makechitable(const Quad& lambda, const vector<Quad>& reslist)
+vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
 {
-  long normlambda = reslist.size();
-  int* ans = new int[normlambda]; int i=0;
-  if(normlambda==1) 
-    ans[0]=1;
+  vector<int> chi;
+  if(reslist.size()==1) 
+    chi[0]=1;
   else
-    { 
+    {
       vector<Quad>::const_iterator r=reslist.begin();
       while(r!=reslist.end())
-	ans[i++]=squaremod(*r++,lambda,reslist);
+	chi.push_back(squaremod(*r++,lambda,reslist));
     }
-  return ans;
+  return chi;
 }
 
 double gauss(const Quad& m, const vector<Quad>& reslist)

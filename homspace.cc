@@ -964,12 +964,12 @@ vec homspace::maninvector(const Quad& p) const
   return ans;
 }
 
-vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, int* chitable) const
+vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const
 {
   vec ans = chain(0,lambda), part;          // =0, but sets the right length.
- int *chi=chitable;
- vector<Quad>::const_iterator r=res.begin();
- while(r!=res.end())
+  vector<int>::const_iterator chi=chitable.begin();
+  vector<Quad>::const_iterator r=res.begin();
+  while(r!=res.end())
    {
      part = (*chi++)*chain(*r++,lambda);
       if(hmod)
