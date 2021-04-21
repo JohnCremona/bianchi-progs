@@ -1,8 +1,8 @@
 // lf1.cc : class period_via_lfchi for integrating newforms
 
-#include "interface.h"
 #include <values.h>
-#include "kbessel.h"
+#include "eclib/interface.h"
+#include "eclib/kbessel.h"
 #include "lf1.h"
 
 const double twopi = 2.0*PI;

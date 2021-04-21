@@ -13,33 +13,39 @@ modsym::modsym(const symb& s) //Constructor for modsym, converting from symb:
 }
 
 //Members of class symblist:
-void symblist::add(const symb& s, int start)
+
+void symblist::display() const
 {
- if (index(s,start)==-1) 
- {
-  if (num<maxnum) list[num++]=s; 
-  else cerr << "Error in symblist::add: attempt to add too many symbols to list!\n";
- }
+  int i;
+  vector<symb>::const_iterator s;
+  for(i=0, s = symbols.begin(); s!=symbols.end(); i++, s++)
+    cout<<i<<":\t"<< *s <<"\n";
 }
 
-int symblist::index(const symb& s, int start) const
+void symblist::add(symb& s, int start)
 {
- int i,ans;
- for (i=start,ans=-1; ((i<num)&&(ans==-1)); i++) if (list[i]==s) ans=i;
- return ans;
+ if (std::find(symbols.begin()+start, symbols.end(), s) == symbols.end())
+   symbols.push_back(s);
+}
+
+int symblist::index(symb& s, int start) const
+{
+ vector<symb>::const_iterator si = std::find(symbols.begin()+start, symbols.end(), s);
+ return (si==symbols.end()? -1: si-symbols.begin());
 }
 
 symb symblist::item(int n) const
 {
- if ((n>num)||(n<0)) 
- {cerr<<"Error in symblist::item: index out of range!\n";
-   exit(1); //return symb(0,1,this);
- }
- else return list[n];
+  if ((n>=(int)symbols.size())||(n<0)) 
+    {
+      cerr<<"Error in symblist::item: index out of range!\n";
+      exit(1);
+    }
+  return symbols[n];
 }
 
 //Member functions for class symbdata:
-symbdata::symbdata(const Quad &n) :moddata(n),specials(nsymb2)
+symbdata::symbdata(const Quad &n) :moddata(n),specials()
 {
 // cout << "In constructor symbdata::symbdata.\n";
 // cout << "nsymb2 = " << nsymb2 << "\n";

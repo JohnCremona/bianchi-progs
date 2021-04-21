@@ -3,7 +3,7 @@
 #if     !defined(_MQUADS_H)
 #define _MQUADS_H      1       //flags that this file has been included
 
-#include "marith.h"
+#include "eclib/marith.h"
 #define complex bigcomplex
 
 class mQuad;

@@ -46,17 +46,14 @@ class modsym {
 
 class symblist {
  private:
-    symb *list;
-    int num,maxnum;
+  vector<symb> symbols;
  public:
-    symblist(int n=0) {maxnum=n; num=0; list=new symb[n];}
-    ~symblist() {delete[] list;}
-    void add(const symb& s, int start=0);
-    int index(const symb& s, int start=0) const;
+    symblist() {;}
+    void add(symb& s, int start=0);
+    int index(symb& s, int start=0) const;
     symb item(int n) const;
-    void display() const 
-      {for(int i=0; i<num; i++) cout<<i<<":\t"<<list[i]<<"\n";}
-    int count() const {return num;}
+    void display() const;
+  int count() const {return symbols.size();}
 };
 
 class symbdata :public moddata {

@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-#include "marith.h"
+#include "eclib/marith.h"
 #include "mquads.h"
 
 // (pointer) functions declared extern in mquads.h

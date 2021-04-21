@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "marith.h"
+#include "eclib/marith.h"
 #include "mquads.h"
 
 int main ()

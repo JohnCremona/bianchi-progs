@@ -1,5 +1,5 @@
 #include <fstream>
-#include "manin.h"   // which includes quads.h & moddata.h & etc.
+#include "newforms.h"
 #include "lf1.h"
 //#define LOOPER
 #ifdef LOOPER
