@@ -18,10 +18,16 @@ int sign(int a)
   return 0;
 }
 
-#ifdef USE_SMATS
+// In add_rel(rel), rel is a list of (positive) (c:d)-symbol numbers i
+// such that the corresponding symbols add to 0 in homology.  We use
+// the map i -> j=coordindex[i] to convert this to a vector of
+// dimension ngens, and append that as a new row to the relation
+// matrix relmat.
+
 void homspace::add_rel(const vector<int>& rel)
 {
   vector<int>::const_iterator r;
+  long c;
   if (verbose)
     {
       cout<<"Relation: ";
@@ -29,110 +35,38 @@ void homspace::add_rel(const vector<int>& rel)
         cout<<(*r)<<" "<<symbol(*r)<<" ";
       cout <<" --> ";
     }
+#ifdef USE_SMATS
   svec relation(ngens);
+#else
+  vec relation(ngens);
+#endif
   for (r = rel.begin(); r!=rel.end(); r++)
     {
-      long c = coordindex[*r];
+      c = coordindex[*r];
       if(c)
+#ifdef USE_SMATS
         relation.add(abs(c), sign(c));
-    }
-  if (verbose) cout<<relation<<endl;
-  if(relation.size()==0)
-    return;
-  numrel++;
-  if(numrel<=maxnumrel)
-    {
-      make_primitive(relation);
-      relmat.setrow(numrel,relation);
-    }
-  else
-    cerr<<"Too many n-term relations (numrel="<<numrel
-        <<", maxnumrel="<<maxnumrel<<")"<<endl;
-}
-
-void homspace::use_rel()
-{
-  if(relation.size()==0)
-    return;
-  numrel++;
-  if(numrel<=maxnumrel)
-    {
-      make_primitive(relation);
-      relmat.setrow(numrel,relation);
-    }
-  else
-    cerr<<"Too many n-term relations (numrel="<<numrel
-        <<", maxnumrel="<<maxnumrel<<")"<<endl;
-}
-
-void homspace::clear_rel()
-{
-  relation.clear();
-}
-
-void homspace::fill_rel(int c)
-{
-  if(c)
-    relation.add(abs(c), sign(c));
-}
-
 #else
-
-void homspace::add_rel(const vector<int>& rel)
-{
-  vector<int>::const_iterator r;
-  if (verbose)
-    {
-      cout<<"Relation: ";
-      for (r = rel.begin(); r!=rel.end(); r++)
-        cout<<(*r)<<" "<<symbol(*r)<<" ";
-      cout <<" --> ";
-    }
-  vec relation(ngens);
-  for (vector<int>::const_iterator r = rel.begin(); r!=rel.end(); r++)
-    {
-      long c = coordindex[*r];
-      if(c)
         relation[abs(c)] += sign(c);
-    }
-  long h = vecgcd(relation);
-  if (verbose) cout<<relation<<endl;
-  if (h)
-    {
-      if (h>1) relation/=h;
-      if(numrel<maxnumrel)
-        relmat.setrow(++numrel,relation);
-      else
-        cerr<<"Too many relations! numrel="<<numrel
-	    <<", maxnumrel="<<maxnumrel<<endl;
-    }
-}
-
-void homspace::use_rel()
-{
-  long h = vecgcd(relation);
-  if (h)
-    {
-      if (h>1) relation/=h;
-      if(numrel<maxnumrel)
-        relmat.setrow(++numrel,relation);
-      else
-        cerr<<"Too many relations! numrel="<<numrel
-	    <<", maxnumrel="<<maxnumrel<<endl;
-    }
-}
-
-void homspace::clear_rel()
-{
-  relation.init(ngens);
-}
-
-void homspace::fill_rel(int c)
-{
-  if(c)
-    relation[abs(c)] += sign(c);
-}
 #endif
+    }
+  if (verbose) cout<<relation<<endl;
+#ifdef USE_SMATS
+  if(relation.size()==0)
+#else
+  if(trivial(relation))
+#endif
+  return;
+  numrel++;
+  if(numrel<=maxnumrel)
+    {
+      make_primitive(relation);
+      relmat.setrow(numrel,relation);
+    }
+  else
+    cerr<<"Too many face relations (numrel="<<numrel
+        <<", maxnumrel="<<maxnumrel<<")"<<endl;
+}
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
@@ -549,7 +483,7 @@ void homspace::rectangle_relation_7()
       cout << "Face relation type 2 (rectangles):\n";
     }
   vector<int> rel(4);
-  long j, k, fix;
+  long j, k;
 
   Quad w(0,1);
   symbop yof(this,1,-w,1-w,-1);
@@ -560,32 +494,16 @@ void homspace::rectangle_relation_7()
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
-        clear_rel();
-          rel[0]=k;
-          rel[1]=us7of(rel[0]);
-          rel[2]=yof(rel[0]);
-          rel[3]=us7of(rel[2]);
-          if (verbose)
-            cout<<"Relation: "<<rel[0]<<
-              " "<<rel[1]<<
-              " "<<rel[2]<<
-              " "<<rel[3]<<
-              " --> ";
-          check[k]=check[rel[2]]=1;
-          if (plusflag) check[rof(rel[1])]=check[rof(rel[3])]=1;
-          for (j=0; j<4; j++)
-            {
-              fix = coordindex[rel[j]];
-              if (verbose)  cout << fix << " ";
-              fill_rel(fix);
-            }
-          if (verbose)  cout << endl;
-          use_rel();
-        }
-  if(verbose)
-    {
-      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
-    }
+        for(j=0; j<4; j+=2) // j=0,2; j+1=1,3
+          {
+            rel[j] = (j? yof(rel[j-2]): k);
+            check[rel[j]] = 1;
+            rel[j+1] = us7of(rel[j]);
+            if (plusflag)
+              check[rof(rel[j+1])]=1;
+          }
+        add_rel(rel);
+      }
 }
 
 // extra hexagon relation for field 11
@@ -596,7 +514,7 @@ void homspace::hexagon_relation_11()
       cout << "Face relation type 2 (hexagons):\n";
     }
   vector<int> rel(6);
-  long j, k, fix;
+  long j, k;
 
   Quad w(0,1);
   symbop xof(this,1,-w,1-w,-2);
@@ -608,31 +526,15 @@ void homspace::hexagon_relation_11()
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
-        clear_rel();
-        rel[0]=k;
-        rel[1]=us11of(rel[0]);
-        rel[2]=xof(rel[0]);
-        rel[3]=us11of(rel[2]);
-        rel[4]=xof(rel[2]);
-        rel[5]=us11of(rel[4]);
-        if (verbose)
-          cout<<"Relation: "<<rel[0]<<
-            " "<<rel[1]<<
-            " "<<rel[2]<<
-            " "<<rel[3]<<
-            " "<<rel[4]<<
-            " "<<rel[5]<<
-            " --> ";
-        check[k]=check[rel[2]]=check[rel[4]]=1;
-        if(plusflag) check[rof(rel[1])]=check[rof(rel[3])]=check[rof(rel[5])]=1;
-        for (j=0; j<6; j++)
+        for(j=0; j<6; j+=2) // j=0,2,4; j+1=1,3,5
           {
-            fix = coordindex[rel[j]];
-            if (verbose)  cout << fix << " ";
-            fill_rel(fix);
+            rel[j] = (j? xof(rel[j-2]): k);
+            check[rel[j]] = 1;
+            rel[j+1] = us11of(rel[j]);
+            if(plusflag)
+              check[rof(rel[j+1])]=1;
           }
-        if (verbose)  cout << endl;
-        use_rel();
+        add_rel(rel);
       }
   if(verbose)
     {

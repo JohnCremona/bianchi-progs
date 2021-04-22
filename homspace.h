@@ -31,16 +31,11 @@ public:
 
 #ifdef USE_SMATS
   smat relmat;
-  svec relation;
 #else
   mat relmat;
-  vec relation;
 #endif
   long ngens, numrel, maxnumrel;
   void add_rel(const vector<int>& rel);
-  void use_rel();
-  void clear_rel();
-  void fill_rel(int c);
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
