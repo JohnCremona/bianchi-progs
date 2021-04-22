@@ -393,6 +393,7 @@ void homspace::triangle_relation_0()
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++) if (check[k]==0)
     {
+      clear_rel();
       rel[0]=k;
       for(j=0; j<2; j++)
         rel[j+1]=tof(rel[j]);
