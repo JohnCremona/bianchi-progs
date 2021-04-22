@@ -18,16 +18,15 @@ class homspace :public symbdata {
 friend class newforms;
 public:
   int verbose;
+  int cuspidal;  // if 1 then compute cuspidal homology
   vector<int> coordindex, gens, needed, freegens;
-   long rk,denom1,denom2;
-   ssubspace kern;
-   smat tkernbas; // transpose of kernel(delta) basis
+  long rk, denom1, denom2, dimension, denom3, ncusps;
+  ssubspace kern;
+  smat tkernbas; // transpose of kernel(delta) basis
   vector<modsym> freemods;
-   mat coord, projcoord;
-   long hmod; // if >0, failed to lift from modular linear algebra
-              //so coord is modulo this
-   long dimension, denom3, ncusps;
-   int cuspidal;  // if 1 then compute cuspidal homology
+  mat coord, projcoord;
+  long hmod; // if >0, failed to lift from modular linear algebra
+             // so coord is modulo this
 
 #ifdef USE_SMATS
   smat relmat;
@@ -39,11 +38,11 @@ public:
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
-  // The next methods are called only in the constructor, but are
-  // separted out for clarity and for ease of separating thec ode for
-  // different fields.
+  // The next several methods are called only in the constructor, but
+  // are separted out for clarity and for ease of separating thec ode
+  // for different fields.
   void edge_relations();    // computes coordindex, gens
-  void face_relations();    // computes relations, fills and elims relmat
+  void face_relations();    // computes face relations, fills relmat
 
   void triangle_relation_0();   // triangle relation for all fields
   void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
@@ -51,7 +50,9 @@ public:
   void rectangle_relation_7();   // extra rectangle relation for field 7
   void hexagon_relation_11();   // extra hexagon relation for field 11
 
+  void solve_relations();       // computes kernel of relmat and sets rk, denom1, coord, freegens
   void kernel_delta();          // computes ker(delta) for cuspidal homology
+  void make_freemods();         // computes freemods and needed
 
    mat opmat(int, int dual=1, int verb=0);
    vec opmat_col(int, int j, int verb=0);

@@ -75,7 +75,6 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   hmod = 0;
   if (verbose) symbdata::display();
   plusflag=hp;                  // Sets static level::plusflag = hp
-  long i,j,k;
   ngens=0;
   coordindex.resize(nsymb);
   gens.resize(nsymb+1);
@@ -87,6 +86,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
     {
       cout << "After 2-term relations, ngens = "<<ngens<<endl;
       cout << "gens = ";
+      int i;
       for (i=1; i<=ngens; i++) cout << gens[i] << " ";
       cout << endl;
       cout << "coordindex = \n";
@@ -104,167 +104,24 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       cout << " (bound was "<<maxnumrel<<")"<<endl;
     }
 
-   vec pivs, npivs;
-#if(USE_SMATS)
-   smat_elim sme(relmat);
-   int d1;
-   smat ker = sme.kernel(npivs,pivs), sp;
-   int ok = liftmat(ker,MODULUS,sp,d1);
-   int mod2 = 1073741783; // 2^30-41
-   bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
-   if (!ok)
-     {
-       if(verbose)
-         cout << "failed to lift modular kernel using modulus "
-              << MODULUS << endl;
-#ifdef USE_CRT
-       if(verbose)
-         cout << "repeating kernel computation, modulo " << mod2 << endl;
-       smat_elim sme2(relmat,mod2);
-       vec pivs2, npivs2;
-       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
-       ok = (pivs==pivs2);
-       if (!ok)
-         {
-           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
-         }
-       else
-         {
-           if(verbose) cout << " pivs agree" << endl;
-           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
-         }
-       if (ok)
-         {
-           if(verbose)
-             cout << "success using CRT, combined modulus = "<<mmod
-                  <<", denominator= " << d1 << "\n";
-         }
-       else
-         {
-           if(verbose)
-             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
-         }
-#endif
-     }
-   if (ok)
-     {
-       denom1 = d1;
-     }
-   else
-     {
-       hmod = MODULUS;
-       denom1 = 1;
-     }
-   relmat=smat(0,0);
-   if(verbose>1)
-     {
-       cout << "kernel of relmat = " << sp.as_mat() << endl;
-       cout << "pivots = "<<pivs << endl;
-       cout << "denom = "<<d1 << endl;
-     }
-   rk = sp.ncols();
-   coord.init(ngens+1,rk); // 0'th is unused
-   for(i=1; i<=ngens; i++)
-     coord.setrow(i,sp.row(i).as_vec());
-   // if hmod>0, coord is only defined modulo hmod
-   sp=smat(0,0); // clear space
-#else
-  relmat = relmat.slice(numrel,ngens);
-  if(verbose) 
-    {
-      cout << "relmat = "; relmat.output_pari(cout); cout << endl;
-    }
-  msubspace sp = kernel(mat_m(relmat),0);
-  rk = dim(sp);
-  if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
-  coord = basis(sp).shorten((int)1);
-  pivs = pivots(sp);
-  denom1 = I2int(denom(sp));
-  relmat.init(); relation.init(); sp.clear(); 
-#endif
+  solve_relations();
+
   if (verbose)
     {
-      cout << "rk = " << rk << endl;
-      cout << "coord:" << coord;
-      if (hmod)
-	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
-      else
-        cout << "lifted ok, denominator = " << denom1 << endl;
-      cout << "pivots = " << pivs <<endl;
+      cout << "dimension (relative to cusps) = " << rk << endl;
     }
-  if (rk>0)
+
+  kernel_delta();
+
+  if(verbose)
     {
-      freegens.resize(rk);
-      for (i=0; i<rk; i++) freegens[i] = gens[pivs[i+1]];
-      if (verbose)
-        { 
-          cout << "freegens: ";
-          for (i=0; i<rk; i++) cout << freegens[i] << " ";
-          cout << endl;
-        }
+      cout << "number of cusps = " << ncusps << endl;
+      if (cuspidal)
+        cout << "dimension = " << dimension << endl;
     }
-  pivs.init();
-  {
-    cusplist cusps(2*rk,this);
-     mat deltamat(2*rk,rk);
-     for (i=0; i<rk; i++)
-       {
-         modsym m(symbol(freegens[i]));
-         for (j=1; j>-3; j-=2)
-           {
-             RatQuad c = (j==1 ? m.beta() : m.alpha());
-             k = cusps.index(c);   //adds automatically if new
-             deltamat(k+1,i+1) += j;  // N.B. offset of 1
-           }
-       }
-     ncusps=cusps.count();
-     if(verbose)cout << "ncusps = " << ncusps << endl;
-     kern = kernel(smat(deltamat));
-     vec pivs, npivs;
-     int d2;
-     smat sk; 
-    int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
-     if (!ok)
-       cout << "**!!!** failed to lift modular kernel\n" << endl;
-     denom2=d2;
-    tkernbas = transpose(kern.bas());         // dim(kern) x rank
-    deltamat.init(0); // clear space.
-    if(verbose>1)
-      {
-        cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
-      }
-  }
-   if(cuspidal)
-     dimension = dim(kern);
-   else
-     dimension = rk;
-  denom3 = denom1 * denom2;
-  freemods.resize(rk);
-  needed.resize(rk);
- 
-  if (dimension>0)
-    {
-      const smat& basiskern = basis(kern);
-      if (verbose)  cout << "Freemods:\n";
-      for (i=0; i<rk; i++)
-        {
-          freemods[i] = modsym(symbol(freegens[i])) ;
-          needed[i]   =  (cuspidal? ! trivial(basiskern.row(i+1).as_vec())
-                          : 1);
-          if (verbose) 
-            {
-              cout << i << ": " << freemods[i];
-              if (!needed[i]) cout << " (not needed)";
-              cout << endl;
-            }
-        }
-      if (verbose)
-        {
-          cout << "Basis of ker(delta):\n";
-          cout << basiskern;
-          cout << "pivots: " << pivots(kern) << endl;
-        }
-    }
+
+  make_freemods();
+
   if (verbose) cout << "Finished constructing homspace.\n";
 }
 
@@ -542,10 +399,166 @@ void homspace::hexagon_relation_11()
     }
 }
 
+void homspace::solve_relations()
+{
+   vec pivs, npivs;
+   int i;
+#if(USE_SMATS)
+   smat_elim sme(relmat);
+   int d1;
+   smat ker = sme.kernel(npivs,pivs), sp;
+   int ok = liftmat(ker,MODULUS,sp,d1);
+   if (!ok)
+     {
+       if(verbose)
+         cout << "failed to lift modular kernel using modulus "
+              << MODULUS << endl;
+#ifdef USE_CRT
+       int mod2 = 1073741783; // 2^30-41
+       bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
+       if(verbose)
+         cout << "repeating kernel computation, modulo " << mod2 << endl;
+       smat_elim sme2(relmat,mod2);
+       vec pivs2, npivs2;
+       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
+       ok = (pivs==pivs2);
+       if (!ok)
+         {
+           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
+         }
+       else
+         {
+           if(verbose) cout << " pivs agree" << endl;
+           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+         }
+       if (ok)
+         {
+           if(verbose)
+             cout << "success using CRT, combined modulus = "<<mmod
+                  <<", denominator= " << d1 << "\n";
+         }
+       else
+         {
+           if(verbose)
+             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
+         }
+#endif
+     }
+   if (ok)
+     {
+       denom1 = d1;
+     }
+   else
+     {
+       hmod = MODULUS;
+       denom1 = 1;
+     }
+   relmat=smat(0,0); // clear space
+   if(verbose>1)
+     {
+       cout << "kernel of relmat = " << sp.as_mat() << endl;
+       cout << "pivots = "<<pivs << endl;
+       cout << "denom = "<<d1 << endl;
+     }
+   rk = sp.ncols();
+   coord.init(ngens+1,rk); // 0'th is unused
+   for(i=1; i<=ngens; i++)
+     coord.setrow(i,sp.row(i).as_vec());
+   // if hmod>0, coord is only defined modulo hmod
+   sp=smat(0,0); // clear space
+#else
+  relmat = relmat.slice(numrel,ngens);
+  if(verbose) 
+    {
+      cout << "relmat = "; relmat.output_pari(cout); cout << endl;
+    }
+  msubspace sp = kernel(mat_m(relmat),0);
+  rk = dim(sp);
+  if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
+  coord = basis(sp).shorten((int)1);
+  pivs = pivots(sp);
+  denom1 = I2int(denom(sp));
+  relmat.init(); sp.clear(); 
+#endif
+  if (verbose)
+    {
+      cout << "rk = " << rk << endl;
+      cout << "coord:" << coord;
+      if (hmod)
+	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
+      else
+        cout << "lifted ok, denominator = " << denom1 << endl;
+      cout << "pivots = " << pivs <<endl;
+    }
+  if (rk>0)
+    {
+      freegens.resize(rk);
+      for (i=0; i<rk; i++) freegens[i] = gens[pivs[i+1]];
+      if (verbose)
+        {
+          cout << "freegens: ";
+          for (i=0; i<rk; i++) cout << freegens[i] << " ";
+          cout << endl;
+        }
+    }
+}
+
 void homspace::kernel_delta()
 {
+  cusplist cusps(2*rk,this);
+  mat deltamat(2*rk,rk);
+  int i;
+  for (i=0; i<rk; i++)
+    {
+      modsym m(symbol(freegens[i]));
+      deltamat(cusps.index(m.beta())+1, i+1) += 1;  // N.B. offset of 1
+      deltamat(cusps.index(m.alpha())+1, i+1) -= 1;
+    }
+  ncusps=cusps.count();
 
+  kern = kernel(smat(deltamat));
+  vec pivs, npivs;
+  int d2;
+  smat sk;
+  int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
+  if (!ok)
+    cout << "**!!!** failed to lift modular kernel\n" << endl;
+
+  tkernbas = transpose(kern.bas());         // dim(kern) x rank
+  if(verbose>1)
+    cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
+
+  dimension = (cuspidal? dim(kern): rk);
+  denom2 = d2;
+  denom3 = denom1 * denom2;
 }
+
+void homspace::make_freemods()
+{
+  const smat& basiskern = basis(kern);
+  if (verbose)  cout << "Freemods:\n";
+  int i;
+  for (i=0; i<rk; i++)
+    {
+      modsym m = modsym(symbol(freegens[i]));
+      freemods.push_back(m);
+      int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
+      needed.push_back(n);
+      if (verbose)
+        {
+          cout << i << ": " << m;
+          if (!n) cout << " (not needed)";
+          cout << endl;
+        }
+    }
+  if (verbose)
+    {
+      cout << "Basis of ker(delta):\n";
+      cout << basiskern;
+      cout << "pivots: " << pivots(kern) << endl;
+    }
+}
+
 
 vec homspace::chain(const symb& s) const  //=old getcoord
 {
