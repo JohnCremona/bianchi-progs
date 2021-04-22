@@ -19,6 +19,37 @@ int sign(int a)
 }
 
 #ifdef USE_SMATS
+void homspace::add_rel(const vector<int>& rel)
+{
+  vector<int>::const_iterator r;
+  if (verbose)
+    {
+      cout<<"Relation: ";
+      for (r = rel.begin(); r!=rel.end(); r++)
+        cout<<(*r)<<" "<<symbol(*r)<<" ";
+      cout <<" --> ";
+    }
+  svec relation(ngens);
+  for (r = rel.begin(); r!=rel.end(); r++)
+    {
+      long c = coordindex[*r];
+      if(c)
+        relation.add(abs(c), sign(c));
+    }
+  if (verbose) cout<<relation<<endl;
+  if(relation.size()==0)
+    return;
+  numrel++;
+  if(numrel<=maxnumrel)
+    {
+      make_primitive(relation);
+      relmat.setrow(numrel,relation);
+    }
+  else
+    cerr<<"Too many n-term relations (numrel="<<numrel
+        <<", maxnumrel="<<maxnumrel<<")"<<endl;
+}
+
 void homspace::use_rel()
 {
   if(relation.size()==0)
@@ -46,6 +77,36 @@ void homspace::fill_rel(int c)
 }
 
 #else
+
+void homspace::add_rel(const vector<int>& rel)
+{
+  vector<int>::const_iterator r;
+  if (verbose)
+    {
+      cout<<"Relation: ";
+      for (r = rel.begin(); r!=rel.end(); r++)
+        cout<<(*r)<<" "<<symbol(*r)<<" ";
+      cout <<" --> ";
+    }
+  vec relation(ngens);
+  for (vector<int>::const_iterator r = rel.begin(); r!=rel.end(); r++)
+    {
+      long c = coordindex[*r];
+      if(c)
+        relation[abs(c)] += sign(c);
+    }
+  long h = vecgcd(relation);
+  if (verbose) cout<<relation<<endl;
+  if (h)
+    {
+      if (h>1) relation/=h;
+      if(numrel<maxnumrel)
+        relmat.setrow(++numrel,relation);
+      else
+        cerr<<"Too many relations! numrel="<<numrel
+	    <<", maxnumrel="<<maxnumrel<<endl;
+    }
+}
 
 void homspace::use_rel()
 {
@@ -387,44 +448,33 @@ void homspace::triangle_relation_0()
       cout << "Face relation type 1 (triangles):\n";
     }
   vector<int> rel(3);
-  long ij, j, k, fix;
+  long j, k;
   symbop tof(this,1,1,-1,0);
   symbop rof(this,0,1,1,0);
   vector<int> check(nsymb, 0);
-  for (k=0; k<nsymb; k++) if (check[k]==0)
-    {
-      clear_rel();
-      rel[0]=k;
-      for(j=0; j<2; j++)
-        rel[j+1]=tof(rel[j]);
-      if (verbose)
-        {
-          cout<<"Relation: "<<rel[0]<<symbol(rel[0])
-              <<" "<<rel[1]<<symbol(rel[1])
-              <<" "<<rel[2]<<symbol(rel[2])
-              <<" --> ";
-        }
-      for (j=0; j<3; j++)
-        {
-          ij = rel[j];
-          check[ij] = 1;
-	  if (plusflag) check[rof(ij)] = 1;
-          fix = coordindex[ij];
-          if (verbose)
-            cout << fix << " ";
-          fill_rel(fix);
-        }
-      if (verbose)
-        cout << endl;
-      use_rel();
-    }
+  for (k=0; k<nsymb; k++)
+    if (check[k]==0)
+      {
+        for(j=0; j<3; j++)
+          {
+            rel[j] = (j? tof(rel[j-1]): k);
+            check[rel[j]] = 1;
+            if (plusflag)
+              check[rof(rel[j])] = 1;
+          }
+        add_rel(rel);
+      }
 }
 
 // extra triangle relation for fields 1, 3
 void homspace::triangle_relation_1_3()
 {
+  if(verbose)
+    {
+      cout << "Face relation type 2 (triangles):\n";
+    }
   vector<int> rel(3);
-  long j, k, ij, fix;
+  long j, k;
 
   Quad w(0,1);
   long field = Quad::d;
@@ -434,33 +484,24 @@ void homspace::triangle_relation_1_3()
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
-        clear_rel();
-        rel[0]=k;
-        for(j=0; j<2; j++)
-          rel[j+1]=xof(rel[j]);
-        if (verbose)
-          cout<<"Relation: "<<symbol(rel[0])<<
-            " "<<symbol(rel[1])<<
-            " "<<symbol(rel[2])<<
-            " --> ";
-        for (j=0; j<3; j++)
+        for(j=0; j<3; j++)
           {
-            check[ij=rel[j]] = 1;
-            fix = coordindex[ij];
-            if (verbose)  cout << fix << " ";
-            fill_rel(fix);
+            rel[j] = (j? xof(rel[j-1]): k);
+            check[rel[j]] = 1;
           }
-        if (verbose)
-          cout << endl;
-        use_rel();
+        add_rel(rel);
       }
 }
 
 // extra square relation for field 2
 void homspace::square_relation_2()
 {
+  if(verbose)
+    {
+      cout << "Face relation type 2 (squares):\n";
+    }
   vector<int> rel(4);
-  long j, k, ij, fix;
+  long j, k;
 
   Quad w(0,1);
   symbop uof(this,w,1,1,0);
@@ -471,36 +512,25 @@ void homspace::square_relation_2()
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
-        clear_rel();
-        rel[0]=k;
-        for(j=0; j<3; j++)
-          rel[j+1]=uof(rel[j]);
-        if (verbose)
-          cout<<"Relation: "<<rel[0]<<
-            " "<<rel[1]<<
-            " "<<rel[2]<<
-            " "<<rel[3]<<
-            " --> ";
-        for (j=0; j<4; j++)
+        for(j=0; j<4; j++)
           {
-            ij=rel[j];
+            rel[j] = (j? uof(rel[j-1]): k);
             if(plusflag) // NB det(uof)=-1
               {
-                check[ij] = 1;
-                check[sof(ij)] = 1;
+                check[rel[j]] = 1;
+                check[sof(rel[j])] = 1;
               }
             else
               {
-                if(j%2)
-                  ij=J(ij);  // since uof() has det -1
-                else
-                  check[ij] = 1;
+                if(j%2==0)
+                  check[rel[j]] = 1;
               }
-            fix = coordindex[ij];
-            if (verbose)  cout << fix << " ";
-            fill_rel(fix);
           }
-        if (verbose)  cout << endl;
+        if (!plusflag) // since uof() has det -1
+          {
+            rel[1] = J(rel[1]);
+            rel[3] = J(rel[3]);
+          }
         use_rel();
       }
 }

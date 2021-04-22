@@ -37,6 +37,7 @@ public:
   vec relation;
 #endif
   long ngens, numrel, maxnumrel;
+  void add_rel(const vector<int>& rel);
   void use_rel();
   void clear_rel();
   void fill_rel(int c);
