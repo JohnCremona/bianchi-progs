@@ -21,7 +21,7 @@ int Quad::nunits;
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below
 long nquadprimes;         //The number of them.
-vector<Quad> quadunits;   
+vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
 
@@ -61,10 +61,13 @@ void Quad::field(int dd, int max)
    cerr << "Field does not have class number one!" << endl;
    exit(1);    //abort program instantly!
  }
+ int i;
  quadunits.push_back(1);
  quadunits.push_back(fundunit);
- for(int i=2; i<nunits; i++) 
+ for(i=2; i<nunits; i++)
    quadunits.push_back(fundunit*quadunits[i-1]);
+ for(i=0; 2*i<nunits; i++)
+   squareunits.push_back(quadunits[2*i]);
  maxnorm=max; initquadprimes();
 }
 

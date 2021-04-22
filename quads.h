@@ -37,7 +37,7 @@ vector<Quad> residues(const Quad& a);
 //Primes
 extern vector<Quad> quadprimes;  
 extern long nquadprimes;     //The number of them.
-extern vector<Quad> quadunits;
+extern vector<Quad> quadunits, squareunits;
 extern Quad fundunit;
 
 class Quad {

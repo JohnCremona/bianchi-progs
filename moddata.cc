@@ -18,18 +18,15 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag)
 #ifdef DEBUG_CUSP_EQ
   cout<<"s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
 #endif
-  int equiv=0; Quad u=1;
-  for(int i=0; (!equiv)&&(i<(Quad::nunits)); i++,  u*=fundunit)
-    {equiv = div(q3,(s1-u*s2));
-     if(!(plusflag)) {i++; u*=fundunit;}
-   }
+  int equiv=0;
+  vector<Quad> units = (plusflag? quadunits: squareunits);
+  for (vector<Quad>::const_iterator u = units.begin(); u!= units.end() && !equiv; u++)
+    equiv = div(q3,(s1-(*u)*s2));
 #ifdef DEBUG_CUSP_EQ
   cout<<"Returning "<<equiv<<endl;
 #endif
   return equiv;
 }
-
-
 
 level::level(const Quad& n, long neigs)
 {
@@ -47,7 +44,7 @@ level::level(const Quad& n, long neigs)
   while(pr!=quadprimes.end() && (primelist.size()<(unsigned)nap))
     {
       Quad p = *pr++;
-      if (ndiv(p,modulus)) 
+      if (ndiv(p,modulus))
 	primelist.push_back(p);
     }
 

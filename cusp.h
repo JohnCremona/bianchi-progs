@@ -3,13 +3,6 @@
 #include "moddata.h"
 #include "ratquads.h"
 
-// class cusp :public RatQuad {
-//  public:
-//   cusp(const RatQuad& r) :RatQuad(r) {;}
-//   cusp(int n=0, int d=0) :RatQuad(n,d) {;}
-//   int eq(const cusp& c) const;
-// };
-
 class cusplist {
  private:
     const moddata* N;

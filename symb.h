@@ -73,14 +73,14 @@ private:
    Quad a,b,c,d;
 public: 
    mat22() :a(0),b(0),c(0),d(0) {}
-   mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id) 
+   mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
     :a(ia),b(ib),c(ic),d(id) {}
-   RatQuad operator()(const RatQuad& q)const 
+   RatQuad operator()(const RatQuad& q)const
     {Quad n=num(q),de=den(q); 
-     Quad n1=a*n, n2=b*de;
-     Quad d1=c*n, d2=d*de;
-     Quad nn=n1+n2, dd=d1+d2;
-     return RatQuad(nn,dd);}
+     // Quad n1=a*n, n2=b*de;
+     // Quad d1=c*n, d2=d*de;
+     // Quad nn=n1+n2, dd=d1+d2;
+     return RatQuad(a*n+b*de, c*n+d*de);}
    friend class symbop;
 };
 
@@ -104,11 +104,7 @@ public:
   int operator()(int i) const 
     {
       symb s = sd->symbol(i);
-      Quad c(s.c), d(s.d);
-      Quad c1=c*m.a, c2=d*m.c;
-      Quad d1=c*m.b, d2=d*m.d;
-      int ans = sd->index2(c1+c2,d1+d2);
-      return ans;
+      return sd->index2(s.c*m.a+s.d*m.c, s.c*m.b+s.d*m.d);
     }
 };
   

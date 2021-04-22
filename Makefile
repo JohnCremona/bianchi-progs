@@ -61,8 +61,8 @@ tests: $(TESTS)
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS5=1 2 3 7 11
 FIELDS1=1
-TESTS9 =  tquads tratquad looptest modtest fieldinfo
-TESTS5 =  symbtest homtest hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis modularity modularity_modp
+TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
+TESTS5 =  homtest hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis modularity modularity_modp
 TESTS1 =
 export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5) $(TESTS1)
