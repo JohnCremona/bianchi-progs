@@ -402,12 +402,6 @@ void homspace::face_relations()
 #endif
   triangle_relation_0();
 
-  if(verbose)
-    {
-      cout << "After face relation type 1, number of relations = " << numrel <<"\n";
-      cout << "Face relation type 2:\n";
-    }
-
   switch (field)
     {
     case 1:
@@ -464,6 +458,10 @@ void homspace::triangle_relation_0()
           }
         add_rel(rel);
       }
+  if(verbose)
+    {
+      cout << "After face relation type 1, number of relations = " << numrel <<"\n";
+    }
 }
 
 // extra triangle relation for fields 1, 3
@@ -491,6 +489,10 @@ void homspace::triangle_relation_1_3()
           }
         add_rel(rel);
       }
+  if(verbose)
+    {
+      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+    }
 }
 
 // extra square relation for field 2
@@ -531,13 +533,21 @@ void homspace::square_relation_2()
             rel[1] = J(rel[1]);
             rel[3] = J(rel[3]);
           }
-        use_rel();
+        add_rel(rel);
       }
+  if(verbose)
+    {
+      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+    }
 }
 
 // extra rectangle relation for field 7
 void homspace::rectangle_relation_7()
 {
+  if(verbose)
+    {
+      cout << "Face relation type 2 (rectangles):\n";
+    }
   vector<int> rel(4);
   long j, k, fix;
 
@@ -572,11 +582,19 @@ void homspace::rectangle_relation_7()
           if (verbose)  cout << endl;
           use_rel();
         }
+  if(verbose)
+    {
+      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+    }
 }
 
 // extra hexagon relation for field 11
 void homspace::hexagon_relation_11()
 {
+  if(verbose)
+    {
+      cout << "Face relation type 2 (hexagons):\n";
+    }
   vector<int> rel(6);
   long j, k, fix;
 
@@ -616,6 +634,10 @@ void homspace::hexagon_relation_11()
         if (verbose)  cout << endl;
         use_rel();
       }
+  if(verbose)
+    {
+      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+    }
 }
 
 void homspace::kernel_delta()
