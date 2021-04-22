@@ -86,7 +86,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   gens.resize(nsymb+1);
   //NB start of gens array is at 1 not 0
 
-  use_edge_relations(); // sets coordindex
+  edge_relations(); // sets coordindex
 
   if (verbose)
     {
@@ -100,7 +100,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       cout << endl;
     }
 
-  use_face_relations(); //fills relmat with the relations
+  face_relations(); //fills relmat with the relations
 
   if(verbose)
     {
@@ -275,7 +275,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 
 // 2-term (edge) relations
 
-void homspace::use_edge_relations()    // computes coordindex
+void homspace::edge_relations()    // computes coordindex
 {
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
@@ -286,8 +286,7 @@ void homspace::use_edge_relations()    // computes coordindex
   vector<int> check(nsymb, 0);
   int j, k, triv;
   if(verbose) cout << "About to start on 2-term relations.\n";
-  //  for (j=0; j<nsymb; j++)  
-  for (j=nsymb-1; j>=0; j--)  
+  for (j=nsymb-1; j>=0; j--)
     {
       if (check[j]==0)
         { 
@@ -328,12 +327,9 @@ void homspace::use_edge_relations()    // computes coordindex
 // face relations
 //
 
-void homspace::use_face_relations()
+void homspace::face_relations()
 {
   long field = Quad::d;
-
-  if(plusflag)  maxnumrel = 2*ngens+10;
-  else          maxnumrel = 3*ngens+10;
 
   maxnumrel=2*nsymb;
   numrel = 0;
@@ -390,11 +386,6 @@ void homspace::triangle_relation_0()
     {
       cout << "Face relation type 1 (triangles):\n";
     }
-#if(USE_SMATS)
-  svec relation(ngens);
-#else
-  vec relation(ngens);
-#endif
   vector<int> rel(3);
   long ij, j, k, fix;
   symbop tof(this,1,1,-1,0);

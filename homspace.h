@@ -46,8 +46,8 @@ public:
   // The next methods are called only in the constructor, but are
   // separted out for clarity and for ease of separating thec ode for
   // different fields.
-  void use_edge_relations();    // computes coordindex, gens
-  void use_face_relations();    // computes relations, fills and elims relmat
+  void edge_relations();    // computes coordindex, gens
+  void face_relations();    // computes relations, fills and elims relmat
 
   void triangle_relation_0();   // triangle relation for all fields
   void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
