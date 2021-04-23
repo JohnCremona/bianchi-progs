@@ -1,0 +1,103 @@
+Notes on "QUADS" programs,  tests etc.
+
+** These Notes sketchily describe the JQUADS programs, based on QUADS
+** code by JEC, as modified by (LF and, mainly) JSB.
+** Lines beginning ** added by JSB to describe the main changes.
+** Last modified 16/12/1999
+
+** The code relies on some underlying libraries by JEC (libjc?),
+** including (at least) arith.h, interface.h and subspace.h
+** For other dependencies, see the Makefile.
+
+quads.h/cc implement quadratic integers in one of the 9 class numer 1
+fields.  Must be initialised with one of the 9 numbers 1, 2, 3, 7, 11,
+19, 43, 67, 163.   Test program tquads.
+
+** Implemented also for h=2, i.e. d=5, 6, 10, ..., 427.
+** The files quads.h/cc still exist for backwards-compatibility, but
+**  just bundle the files that really matter:
+** -- field.h/cc, quadarith.h/cc  for basic quad arithmetic in fields
+**  of class number h<=2.
+**  (The class "field" was split off by LF in an attempt to improve
+**  the C++ structure, but it's still a compromise: field really just
+**  bundles global variables which quadarith routines have to refer to.
+**  If quads from different fields ever needed to coexist, we would
+**  need to create one instance of each field, and each quad would
+**  need to have a pointer to the field it lived in.  For just one
+**  field, this would still be cleaner C++, but vastly more
+**  expensive.  Or, we could scrap the pretty overloaded operators for
+**  quads (a great pity!) and ask *the field* to add etc two quads.)
+** -- qideal.h  if MAX_CLASSNUM exceeds 1
+** -- primes.h  for making and working with lists of primes
+**  (There are two versions of primes, depending on whether ideals may
+**  be needed, but this compile-time switch is rather crude.)
+
+** JEC had classes "quadlist" and "quadvar" and the like, with much
+**  duplication of code.  This is now obsolete: a new file by JSB,
+**  tlistvar, implements a template class, so Tlist<Quad> replaces
+**  Quadlist, and so on --- see tlistvar.h for details.
+
+ratquads.h implements "rational quads" i.e. ratios of quads.  Test
+with tratquads.
+
+** abolished since the only cusps we used were obtained as the images
+** of fixed cusps under matrices, and we later had to find matrices to
+** map them back to infty --- now we just use the matrices all along
+** (i.e. a cusp is just the first col of a matrix mappping infty to it)
+
+mquads.h/cc implement multiprecision versions of quads.h/cc.  Test
+with tmquads.  N.B.  None of the other programs use these yet -- they
+will be needed for elliptic curve programs which are not yet ready.
+
+** not implemented; as they stand, these programs mainly use built-in
+** integer types; some procedures especially prone to overflow have ad
+** hoc use of doubles to stave off errors.  Eventually, the routines
+** do overflow, sometimes without warning: caveat emptor
+
+looper.h/cc implement an easy way of sysematically looping through all
+quads with norms in a given range, up to units and conjugates.  This
+should be extended to allow both conjugates to be used if required.
+
+** Souped up by JSB, now includes flags to select conjugates and/or
+** associates.  One of the more elegant sections of code here!
+** test program: looptest
+** Similarly, for ideals use qidloop.h/cc and qidltest.
+
+Modular symbol programs (fields 1,2,3,7,11 only at present):
+
+modtest  tests basic modular arithmetic.  Run on a range of norms;
+should give OK for each.  With verbose=1 also gives info about
+divisors etc.
+
+symbtest tests basic modular symbol generation and routines.  Test as
+before. 
+
+** implemented also for d=5
+
+homtest finds dimension of space of cusp forms of weight 2 at a given
+level (group Gamma_0(level) always).  "plusspace=1" means only find
+forms invariant under unit involution, i.e. invariant under GL rather
+than SL.
+
+** implemented for d=5; finds dim of principal homology piece
+
+tmanin is the main program despite its name ("test manin"); as well as
+finding the homspace as in homtest (plusspace) it eliminates oldforms
+and computes Hecke operators.  (Primes are numbered from 0, so to get
+the first 50 ap answer "0 49" to the prompt) For this you MUST have
+run it on all divisors of the level first (i.e. all divisors where
+there are newforms), so it is best to run it systematically over all
+levels of norm up to some bound.  Unfortunately it is currently
+necessary to have the oldforms data for conjugate levels too.  (e.g.
+(7+4i)(1+i) = 3+11i so to run 3+11i successfully you should have
+previously run 7+4i, but to run 3-11i or 11+3i you need to have run
+4+7i).  The oldform data is stored in files in subdirectories eigs1,
+eigs2, ..., eigs 11 which should be created.
+
+** only hecketest implemented for d=5 (it outputs raw hecke mxs);
+** splitting of eigenspaces and finding of evals was done in maple code
+
+testlf1: for a level for which quite a few eigenvalues have been
+computed and stored using tmanin, run this to compute periods etc.
+
+** for the future!

@@ -1,0 +1,515 @@
+The normaliser character computed via prime P3a
+                                     [ -1 ]
+
+Self-conjugate level: Computing effect of complex conjugation ... 
+                                     [ 1 ]
+
+T(p) P5
+                                     [ -2 ]
+
+T(p) P29a
+                                     [ -2 ]
+
+T(p) P29b
+                                     [ -2 ]
+
+T(p) P41a
+                                     [ 2 ]
+
+T(p) P41b
+                                     [ 2 ]
+
+T(p) P61a
+                                    [ -10 ]
+
+T(p) P61b
+                                    [ -10 ]
+
+T(p) P89a
+                                     [ -6 ]
+
+T(p) P89b
+                                     [ -6 ]
+
+T(p) P101a
+                                     [ 6 ]
+
+T(p) P101b
+                                     [ 6 ]
+
+T(p) P109a
+                                     [ 6 ]
+
+T(p) P109b
+                                     [ 6 ]
+
+T(p) P11
+                                     [ -6 ]
+
+T(p) P149a
+                                    [ -18 ]
+
+T(p) P149b
+                                    [ -18 ]
+
+T(p) P13
+                                     [ 10 ]
+
+T(p) P181a
+                                     [ 22 ]
+
+T(p) P181b
+                                     [ 22 ]
+
+T(p) P229a
+                                     [ 6 ]
+
+T(p) P229b
+                                     [ 6 ]
+
+T(p) P241a
+                                    [ -22 ]
+
+T(p) P241b
+                                    [ -22 ]
+
+T(p) P269a
+                                     [ 6 ]
+
+T(p) P269b
+                                     [ 6 ]
+
+T(p) P281a
+                                     [ 18 ]
+
+T(p) P281b
+                                     [ 18 ]
+
+T(p) P17
+                                     [ 34 ]
+
+T(p) P349a
+                                     [ -2 ]
+
+T(p) P349b
+                                     [ -2 ]
+
+T(p) P19
+                                    [ -22 ]
+
+T(p) P389a
+                                     [ 30 ]
+
+T(p) P389b
+                                     [ 30 ]
+
+T(p)^2 P3a
+                                     [ 4 ]
+
+T(p)^2 P3b
+                                     [ 4 ]
+
+T(p)^2 P7a
+                                     [ 4 ]
+
+T(p)^2 P7b
+                                     [ 4 ]
+
+T(p)^2 P23a
+                                     [ 4 ]
+
+T(p)^2 P23b
+                                     [ 4 ]
+
+T(p)^2 P43a
+                                     [ 36 ]
+
+T(p)^2 P43b
+                                     [ 36 ]
+
+T(p)^2 P47a
+                                     [ 36 ]
+
+T(p)^2 P47b
+                                     [ 36 ]
+
+T(p)^2 P67a
+                                    [ 196 ]
+
+T(p)^2 P67b
+                                    [ 196 ]
+
+T(p)^2 P83a
+                                     [ 4 ]
+
+T(p)^2 P83b
+                                     [ 4 ]
+
+T(p)^2 P103a
+                                    [ 196 ]
+
+T(p)^2 P103b
+                                    [ 196 ]
+
+T(p)^2 P107a
+                                    [ 100 ]
+
+T(p)^2 P107b
+                                    [ 100 ]
+
+T(p)^2 P127a
+                                     [ 36 ]
+
+T(p)^2 P127b
+                                     [ 36 ]
+
+T(p)^2 P163a
+                                     [ 4 ]
+
+T(p)^2 P163b
+                                     [ 4 ]
+
+T(pq) P3a P3b
+                                     [ 4 ]
+
+T(pq) P3a P7a
+                                     [ -4 ]
+
+T(pq) P3a P7b
+                                     [ -4 ]
+
+T(pq) P3a P23a
+                                     [ -4 ]
+
+T(pq) P3a P23b
+                                     [ -4 ]
+
+T(pq) P3a P43a
+                                    [ -12 ]
+
+T(pq) P3a P43b
+                                    [ -12 ]
+
+T(pq) P3a P47a
+                                     [ 12 ]
+
+T(pq) P3a P47b
+                                     [ 12 ]
+
+T(pq) P3a P67a
+                                    [ -28 ]
+
+T(pq) P3a P67b
+                                    [ -28 ]
+
+T(pq) P3a P83a
+                                     [ 4 ]
+
+T(pq) P3a P83b
+                                     [ 4 ]
+
+T(pq) P3a P103a
+                                     [ 28 ]
+
+T(pq) P3a P103b
+                                     [ 28 ]
+
+T(pq) P3a P107a
+                                     [ 20 ]
+
+T(pq) P3a P107b
+                                     [ 20 ]
+
+T(pq) P3a P127a
+                                     [ 12 ]
+
+T(pq) P3a P127b
+                                     [ 12 ]
+
+T(pq) P3a P163a
+                                     [ 4 ]
+
+T(pq) P3a P163b
+                                     [ 4 ]
+
+T(pq) P3b P7a
+                                     [ -4 ]
+
+T(pq) P3b P7b
+                                     [ -4 ]
+
+T(pq) P3b P23a
+                                     [ -4 ]
+
+T(pq) P3b P23b
+                                     [ -4 ]
+
+T(pq) P3b P43a
+                                    [ -12 ]
+
+T(pq) P3b P43b
+                                    [ -12 ]
+
+T(pq) P3b P47a
+                                     [ 12 ]
+
+T(pq) P3b P47b
+                                     [ 12 ]
+
+T(pq) P3b P67a
+                                    [ -28 ]
+
+T(pq) P3b P67b
+                                    [ -28 ]
+
+T(pq) P3b P83a
+                                     [ 4 ]
+
+T(pq) P3b P83b
+                                     [ 4 ]
+
+T(pq) P3b P103a
+                                     [ 28 ]
+
+T(pq) P3b P103b
+                                     [ 28 ]
+
+T(pq) P3b P107a
+                                     [ 20 ]
+
+T(pq) P3b P107b
+                                     [ 20 ]
+
+T(pq) P3b P127a
+                                     [ 12 ]
+
+T(pq) P3b P127b
+                                     [ 12 ]
+
+T(pq) P3b P163a
+                                     [ 4 ]
+
+T(pq) P3b P163b
+                                     [ 4 ]
+
+T(pq) P7a P7b
+                                     [ 4 ]
+
+T(pq) P7a P23a
+                                     [ 4 ]
+
+T(pq) P7a P23b
+                                     [ 4 ]
+
+T(pq) P7a P43a
+                                     [ 12 ]
+
+T(pq) P7a P43b
+                                     [ 12 ]
+
+T(pq) P7a P47a
+                                    [ -12 ]
+
+T(pq) P7a P47b
+                                    [ -12 ]
+
+T(pq) P7a P67a
+                                     [ 28 ]
+
+T(pq) P7a P67b
+                                     [ 28 ]
+
+T(pq) P7a P83a
+                                     [ -4 ]
+
+T(pq) P7a P83b
+                                     [ -4 ]
+
+T(pq) P7a P103a
+                                    [ -28 ]
+
+T(pq) P7a P103b
+                                    [ -28 ]
+
+T(pq) P7a P107a
+                                    [ -20 ]
+
+T(pq) P7a P107b
+                                    [ -20 ]
+
+T(pq) P7a P127a
+                                    [ -12 ]
+
+T(pq) P7a P127b
+                                    [ -12 ]
+
+T(pq) P7a P163a
+                                     [ -4 ]
+
+T(pq) P7a P163b
+                                     [ -4 ]
+
+T(pq) P7b P23a
+                                     [ 4 ]
+
+T(pq) P7b P23b
+                                     [ 4 ]
+
+T(pq) P7b P43a
+                                     [ 12 ]
+
+T(pq) P7b P43b
+                                     [ 12 ]
+
+T(pq) P7b P47a
+                                    [ -12 ]
+
+T(pq) P7b P47b
+                                    [ -12 ]
+
+T(pq) P7b P67a
+                                     [ 28 ]
+
+T(pq) P7b P67b
+                                     [ 28 ]
+
+T(pq) P7b P83a
+                                     [ -4 ]
+
+T(pq) P7b P83b
+                                     [ -4 ]
+
+T(pq) P7b P103a
+                                    [ -28 ]
+
+T(pq) P7b P103b
+                                    [ -28 ]
+
+T(pq) P7b P107a
+                                    [ -20 ]
+
+T(pq) P7b P107b
+                                    [ -20 ]
+
+T(pq) P7b P127a
+                                    [ -12 ]
+
+T(pq) P7b P127b
+                                    [ -12 ]
+
+T(pq) P7b P163a
+                                     [ -4 ]
+
+T(pq) P7b P163b
+                                     [ -4 ]
+
+T(pq) P23a P23b
+                                     [ 4 ]
+
+T(pq) P23a P43a
+                                     [ 12 ]
+
+T(pq) P23a P43b
+                                     [ 12 ]
+
+T(pq) P23a P47a
+                                    [ -12 ]
+
+T(pq) P23a P47b
+                                    [ -12 ]
+
+T(pq) P23a P67a
+                                     [ 28 ]
+
+T(pq) P23a P67b
+                                     [ 28 ]
+
+T(pq) P23a P83a
+                                     [ -4 ]
+
+T(pq) P23a P83b
+                                     [ -4 ]
+
+T(pq) P23a P103a
+                                    [ -28 ]
+
+T(pq) P23a P103b
+                                    [ -28 ]
+
+T(pq) P23a P107a
+                                    [ -20 ]
+
+T(pq) P23a P107b
+                                    [ -20 ]
+
+T(pq) P23a P127a
+                                    [ -12 ]
+
+T(pq) P23a P127b
+                                    [ -12 ]
+
+T(pq) P23a P163a
+                                     [ -4 ]
+
+T(pq) P23a P163b
+                                     [ -4 ]
+
+T(pq) P23b P43a
+                                     [ 12 ]
+
+T(pq) P23b P43b
+                                     [ 12 ]
+
+T(pq) P23b P47a
+                                    [ -12 ]
+
+T(pq) P23b P47b
+                                    [ -12 ]
+
+T(pq) P23b P67a
+                                     [ 28 ]
+
+T(pq) P23b P67b
+                                     [ 28 ]
+
+T(pq) P23b P83a
+                                     [ -4 ]
+
+T(pq) P23b P83b
+                                     [ -4 ]
+
+T(pq) P23b P103a
+                                    [ -28 ]
+
+T(pq) P23b P103b
+                                    [ -28 ]
+
+T(pq) P23b P107a
+                                    [ -20 ]
+
+T(pq) P23b P107b
+                                    [ -20 ]
+
+T(pq) P23b P127a
+                                    [ -12 ]
+
+T(pq) P23b P127b
+                                    [ -12 ]
+
+T(pq) P23b P163a
+                                     [ -4 ]
+
+T(pq) P23b P163b
+                                     [ -4 ]
+
+The splitting type is:
+                                     [ 1 ]
+
+The nplist is:
+  [P3a, P3b, P7a, P7b, P23a, P23b, P43a, P43b, P47a, P47b, P67a, P67b, P83a,
+
+      P83b, P103a, P103b, P107a, P107b, P127a, P127b, P163a, P163b]
+
+The np_pivots are:
+                                     [ 1 ]
+

@@ -1,0 +1,6 @@
+# include this file in makefiles for use on mordell
+INCDIR = /home/cremona/curves/include
+LIBDIR = /usr/people/cremona/c++/lib
+LIDIAINCDIR = LiDIA
+LIDIALIBDIR = /usr/local/lib/LiDIA/i586-unknown-linux/c++
+IOLIB = -lstdc++  # for gcc-2.7.2 and above

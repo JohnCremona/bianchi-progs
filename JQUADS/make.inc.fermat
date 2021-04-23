@@ -1,0 +1,7 @@
+# include this file in makefiles for use on fermat
+INCDIR = /home/jec/curves/include
+LIBDIR = /home/jec/curves/lib
+LIDIAINCDIR = /usr/local/LiDIA/include
+LIDIALIBDIR = /usr/local/LiDIA/lib
+NTLINCDIR = /usr/local/include
+NTLLIBDIR = /usr/local/lib

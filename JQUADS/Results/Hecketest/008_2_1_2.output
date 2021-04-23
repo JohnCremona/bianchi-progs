@@ -1,0 +1,735 @@
+
+TEST PROGRAM FOR HECKE MATRICES (Version 2) (Output from 16-03-98)
+Enter field: Verbose? (0/1) 
+Field Q(sqrt(-5))	discriminant = -20	min poly(a) = a^2+5.
+Class Number Two
+
+Geometry for field d=5
+aitch2_nonprinc_det_value: 2
+Number of types of edges: 3
+The basic edges:
+0	{(0)/(1),(1)/(0)}
+1	{(1+a)/(2),(1)/(0)}
+2	{(2)/(1-a),(1+a)/(2)}
+Length of longest face rel: 4
+
+Max num of rels as multiple of ngens: 2
+Enter level (1 0 0 to finish): The bad primes: P2
+
+The good principal primes: P5, P29a, P29b, P41a, P41b, P61a, P61b, P89a, P89b, P101a, P101b, P109a, P109b, P11, P149a, P149b, P13, P181a, P181b, P229a, P229b, P241a, P241b, P269a, P269b, P281a, P281b, P17, P349a, P349b, P19, P389a, P389b, P401a, P401b, P409a, P409b, P421a, P421b, P449a, P449b, P461a, P461b, P509a, P509b, P521a, P521b, P541a, P541b, P569a, P569b, P601a, P601b, P641a, P641b, P661a, P661b, P701a, P701b, P709a, P709b, P761a, P761b, P769a, P769b, P809a, P809b, P821a, P821b, P829a, P829b, P881a, P881b, P929a, P929b, P941a, P941b, P31
+
+The good non-principal primes: P3a, P3b, P7a, P7b, P23a, P23b, P43a, P43b, P47a, P47b, P67a, P67b, P83a, P83b, P103a, P103b, P107a, P107b, P127a, P127b, P163a, P163b, P167a, P167b, P223a, P223b, P227a, P227b, P263a, P263b, P283a, P283b, P307a, P307b, P347a, P347b, P367a, P367b, P383a, P383b, P443a, P443b, P463a, P463b, P467a, P467b, P487a, P487b, P503a, P503b, P523a, P523b, P547a, P547b, P563a, P563b, P587a, P587b, P607a, P607b, P643a, P643b, P647a, P647b, P683a, P683b, P727a, P727b, P743a, P743b, P787a, P787b, P823a, P823b, P827a, P827b, P863a, P863b, P883a, P883b, P887a, P887b, P907a, P907b, P947a, P947b, P967a, P967b, P983a, P983b
+
+Dimension = 1
+denominator = 1
+The normaliser character computed via prime P3a
+
+[[-1]]
+Self-conjugate level: Computing effect of complex conjugation ... 
+
+[[1]]
+
+
+Options for analysing level 2[2,1+a]
+ 0) quit
+ 1) T(p) for given p
+ 2) T(p) for loop of p
+ 3) T(p^2) for given p
+ 4) T(p^2) for loop of p
+ 5) T(pq) for given p,q
+ 6) T(pq) for loop of p,q
+ 7) principal good primes of norm < 50
+ 8) hecke_npnp for *all* (sic) good primes of norm < 50
+ 9) chi_p for loop of non-principal p
+10) T(p^2) for loop of principal (sic!) p
+11) T(p^2) with chi-adjust, for loop of p
+12) T(pq) with chi-adjust, for loop of p,q
+13) complex conjugation (may fail if level not self-conj)
+
+Choice of proc: 
+Computing (unadjusted) T(p) ...
+Number of good princ primes available: 78
+Enter index (min 1) for start of loop: Enter index (max 78) for end of loop: 
+T(p) P5
+
+[[-2]]
+
+T(p) P29a
+
+[[-2]]
+
+T(p) P29b
+
+[[-2]]
+
+T(p) P41a
+
+[[2]]
+
+T(p) P41b
+
+[[2]]
+
+T(p) P61a
+
+[[-10]]
+
+T(p) P61b
+
+[[-10]]
+
+T(p) P89a
+
+[[-6]]
+
+T(p) P89b
+
+[[-6]]
+
+T(p) P101a
+
+[[6]]
+
+T(p) P101b
+
+[[6]]
+
+T(p) P109a
+
+[[6]]
+
+T(p) P109b
+
+[[6]]
+
+T(p) P11
+
+[[-6]]
+
+T(p) P149a
+
+[[-18]]
+
+T(p) P149b
+
+[[-18]]
+
+T(p) P13
+
+[[10]]
+
+T(p) P181a
+
+[[22]]
+
+T(p) P181b
+
+[[22]]
+
+T(p) P229a
+
+[[6]]
+
+T(p) P229b
+
+[[6]]
+
+T(p) P241a
+
+[[-22]]
+
+T(p) P241b
+
+[[-22]]
+
+T(p) P269a
+
+[[6]]
+
+T(p) P269b
+
+[[6]]
+
+T(p) P281a
+
+[[18]]
+
+T(p) P281b
+
+[[18]]
+
+T(p) P17
+
+[[34]]
+
+T(p) P349a
+
+[[-2]]
+
+T(p) P349b
+
+[[-2]]
+
+T(p) P19
+
+[[-22]]
+
+T(p) P389a
+
+[[30]]
+
+T(p) P389b
+
+[[30]]
+
+
+Choice of proc: 
+Computing T(p^2) with adjustment by chi_r: 
+Number of good non-princ primes available: 90
+Enter index (min 1) for start of loop: Enter index (max 90) for end of loop: 
+T(p^2) P3a
+
+[[1]]
+
+T(p^2) P3b
+
+[[1]]
+
+T(p^2) P7a
+
+[[-3]]
+
+T(p^2) P7b
+
+[[-3]]
+
+T(p^2) P23a
+
+[[-19]]
+
+T(p^2) P23b
+
+[[-19]]
+
+T(p^2) P43a
+
+[[-7]]
+
+T(p^2) P43b
+
+[[-7]]
+
+T(p^2) P47a
+
+[[-11]]
+
+T(p^2) P47b
+
+[[-11]]
+
+T(p^2) P67a
+
+[[129]]
+
+T(p^2) P67b
+
+[[129]]
+
+T(p^2) P83a
+
+[[-79]]
+
+T(p^2) P83b
+
+[[-79]]
+
+T(p^2) P103a
+
+[[93]]
+
+T(p^2) P103b
+
+[[93]]
+
+T(p^2) P107a
+
+[[-7]]
+
+T(p^2) P107b
+
+[[-7]]
+
+T(p^2) P127a
+
+[[-91]]
+
+T(p^2) P127b
+
+[[-91]]
+
+T(p^2) P163a
+
+[[-159]]
+
+T(p^2) P163b
+
+[[-159]]
+
+Choice of proc: 
+Computing T(pq) with adjustment by chi_r ...
+Number of good non-princ primes available: 90
+Enter index (min 1) for start of p-loop: Starting p-loop at P3a
+Enter index (max 90) for end of p-loop: Ending p-loop at P23b
+Enter index for start of inner loop (q-loop): Enter index (max 90) for end of inner loop (q-loop): Computing T(pq) with p = P3a
+T(pq) P3a P3b
+
+[[4]]
+
+T(pq) P3a P7a
+
+[[-4]]
+
+T(pq) P3a P7b
+
+[[-4]]
+
+T(pq) P3a P23a
+
+[[-4]]
+
+T(pq) P3a P23b
+
+[[-4]]
+
+T(pq) P3a P43a
+
+[[-12]]
+
+T(pq) P3a P43b
+
+[[-12]]
+
+T(pq) P3a P47a
+
+[[12]]
+
+T(pq) P3a P47b
+
+[[12]]
+
+T(pq) P3a P67a
+
+[[-28]]
+
+T(pq) P3a P67b
+
+[[-28]]
+
+T(pq) P3a P83a
+
+[[4]]
+
+T(pq) P3a P83b
+
+[[4]]
+
+T(pq) P3a P103a
+
+[[28]]
+
+T(pq) P3a P103b
+
+[[28]]
+
+T(pq) P3a P107a
+
+[[20]]
+
+T(pq) P3a P107b
+
+[[20]]
+
+T(pq) P3a P127a
+
+[[12]]
+
+T(pq) P3a P127b
+
+[[12]]
+
+T(pq) P3a P163a
+
+[[4]]
+
+T(pq) P3a P163b
+
+[[4]]
+
+Computing T(pq) with p = P3b
+T(pq) P3b P7a
+
+[[-4]]
+
+T(pq) P3b P7b
+
+[[-4]]
+
+T(pq) P3b P23a
+
+[[-4]]
+
+T(pq) P3b P23b
+
+[[-4]]
+
+T(pq) P3b P43a
+
+[[-12]]
+
+T(pq) P3b P43b
+
+[[-12]]
+
+T(pq) P3b P47a
+
+[[12]]
+
+T(pq) P3b P47b
+
+[[12]]
+
+T(pq) P3b P67a
+
+[[-28]]
+
+T(pq) P3b P67b
+
+[[-28]]
+
+T(pq) P3b P83a
+
+[[4]]
+
+T(pq) P3b P83b
+
+[[4]]
+
+T(pq) P3b P103a
+
+[[28]]
+
+T(pq) P3b P103b
+
+[[28]]
+
+T(pq) P3b P107a
+
+[[20]]
+
+T(pq) P3b P107b
+
+[[20]]
+
+T(pq) P3b P127a
+
+[[12]]
+
+T(pq) P3b P127b
+
+[[12]]
+
+T(pq) P3b P163a
+
+[[4]]
+
+T(pq) P3b P163b
+
+[[4]]
+
+Computing T(pq) with p = P7a
+T(pq) P7a P7b
+
+[[4]]
+
+T(pq) P7a P23a
+
+[[4]]
+
+T(pq) P7a P23b
+
+[[4]]
+
+T(pq) P7a P43a
+
+[[12]]
+
+T(pq) P7a P43b
+
+[[12]]
+
+T(pq) P7a P47a
+
+[[-12]]
+
+T(pq) P7a P47b
+
+[[-12]]
+
+T(pq) P7a P67a
+
+[[28]]
+
+T(pq) P7a P67b
+
+[[28]]
+
+T(pq) P7a P83a
+
+[[-4]]
+
+T(pq) P7a P83b
+
+[[-4]]
+
+T(pq) P7a P103a
+
+[[-28]]
+
+T(pq) P7a P103b
+
+[[-28]]
+
+T(pq) P7a P107a
+
+[[-20]]
+
+T(pq) P7a P107b
+
+[[-20]]
+
+T(pq) P7a P127a
+
+[[-12]]
+
+T(pq) P7a P127b
+
+[[-12]]
+
+T(pq) P7a P163a
+
+[[-4]]
+
+T(pq) P7a P163b
+
+[[-4]]
+
+Computing T(pq) with p = P7b
+T(pq) P7b P23a
+
+[[4]]
+
+T(pq) P7b P23b
+
+[[4]]
+
+T(pq) P7b P43a
+
+[[12]]
+
+T(pq) P7b P43b
+
+[[12]]
+
+T(pq) P7b P47a
+
+[[-12]]
+
+T(pq) P7b P47b
+
+[[-12]]
+
+T(pq) P7b P67a
+
+[[28]]
+
+T(pq) P7b P67b
+
+[[28]]
+
+T(pq) P7b P83a
+
+[[-4]]
+
+T(pq) P7b P83b
+
+[[-4]]
+
+T(pq) P7b P103a
+
+[[-28]]
+
+T(pq) P7b P103b
+
+[[-28]]
+
+T(pq) P7b P107a
+
+[[-20]]
+
+T(pq) P7b P107b
+
+[[-20]]
+
+T(pq) P7b P127a
+
+[[-12]]
+
+T(pq) P7b P127b
+
+[[-12]]
+
+T(pq) P7b P163a
+
+[[-4]]
+
+T(pq) P7b P163b
+
+[[-4]]
+
+Computing T(pq) with p = P23a
+T(pq) P23a P23b
+
+[[4]]
+
+T(pq) P23a P43a
+
+[[12]]
+
+T(pq) P23a P43b
+
+[[12]]
+
+T(pq) P23a P47a
+
+[[-12]]
+
+T(pq) P23a P47b
+
+[[-12]]
+
+T(pq) P23a P67a
+
+[[28]]
+
+T(pq) P23a P67b
+
+[[28]]
+
+T(pq) P23a P83a
+
+[[-4]]
+
+T(pq) P23a P83b
+
+[[-4]]
+
+T(pq) P23a P103a
+
+[[-28]]
+
+T(pq) P23a P103b
+
+[[-28]]
+
+T(pq) P23a P107a
+
+[[-20]]
+
+T(pq) P23a P107b
+
+[[-20]]
+
+T(pq) P23a P127a
+
+[[-12]]
+
+T(pq) P23a P127b
+
+[[-12]]
+
+T(pq) P23a P163a
+
+[[-4]]
+
+T(pq) P23a P163b
+
+[[-4]]
+
+Computing T(pq) with p = P23b
+T(pq) P23b P43a
+
+[[12]]
+
+T(pq) P23b P43b
+
+[[12]]
+
+T(pq) P23b P47a
+
+[[-12]]
+
+T(pq) P23b P47b
+
+[[-12]]
+
+T(pq) P23b P67a
+
+[[28]]
+
+T(pq) P23b P67b
+
+[[28]]
+
+T(pq) P23b P83a
+
+[[-4]]
+
+T(pq) P23b P83b
+
+[[-4]]
+
+T(pq) P23b P103a
+
+[[-28]]
+
+T(pq) P23b P103b
+
+[[-28]]
+
+T(pq) P23b P107a
+
+[[-20]]
+
+T(pq) P23b P107b
+
+[[-20]]
+
+T(pq) P23b P127a
+
+[[-12]]
+
+T(pq) P23b P127b
+
+[[-12]]
+
+T(pq) P23b P163a
+
+[[-4]]
+
+T(pq) P23b P163b
+
+[[-4]]
+
+
+Choice of proc: 
+Enter level (1 0 0 to finish): Deallocating pseudo_euclid!

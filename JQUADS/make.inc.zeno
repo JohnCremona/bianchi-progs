@@ -1,0 +1,6 @@
+# include this file in makefiles for use on zeno
+INCDIR = /home/cremona/curves/include
+LIBDIR = /home/cremona/curves/sgilib5
+LIDIAINCDIR = . #/usr/local/include
+LIDIALIBDIR = /usr/local/lib/LiDIA/mips-sgi-irix5.3/c++
+IOLIB = -lstdc++  # for gcc-2.7.2 and above

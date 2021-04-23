@@ -1,0 +1,6 @@
+# include this file in makefiles for use on magnet
+INCDIR = /home/cremona/curves/include
+LIBDIR = /home/cremona/curves/lib
+LIDIAINCDIR = /usr/SunOS/include
+LIDIALIBDIR = /usr/SunOS/lib/LiDIA/sparc7-sun-sunos4.1.1/g++
+IOLIB = -lstdc++  # for gcc-2.7.2 and above

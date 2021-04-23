@@ -1,0 +1,6 @@
+# include this file in makefiles for use on selmer
+INCDIR = /home/jec/curves/include
+LIBDIR = /home/jec/curves/lib
+LIDIALIBDIR = /usr/local/lib/LiDIA-1.4/alpha-dec-osf4.0/c++
+LIDIAINCDIR = /usr/local/include/LiDIA-1.4
+IOLIB = -lstdc++  # for gcc-2.7.2 and above
