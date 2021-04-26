@@ -1,0 +1,38 @@
+DECS intstuff USE gibasics:
+ 
+PROC(REF REAL, REF INT)REAL xk1 = ALIEN "S18ADF";
+PROC k1 = (REAL x)REAL: (INT i:=0; REAL xx := x; xk1(xx,i));
+ 
+PROC realnorm = (GI z)REAL: sqrt(norm(z));
+ 
+REAL factor,sum;  INT limitnorm;   GI level;   [100]INT ap;
+ 
+PROC use = (GI z, INT coeff)VOID:
+BEGIN
+   REAL rnz = realnorm(z);
+   sum +:= coeff * k1(2*factor*rnz)/rnz
+END;
+ 
+PROC add = (GI n, INT pindex, y, z)VOID:
+BEGIN
+   IF y/=0 THEN use(n,y) FI;
+   GI p,pn;
+   FOR i FROM (y=0|pindex|1) TO pindex 
+   WHILE p:=primes[i]; norm(pn:=p*n) <= limitnorm
+   DO INT x := y*ap[i];
+      IF (i=pindex) AND (p NDIV level) THEN x-:=z*norm(p) FI;
+      add(pn, i, x, y)
+   OD
+END;
+ 
+PROC initint = (GI n,INT limit)VOID:
+BEGIN level:=n; 
+      factor:=pi/sqrt(realnorm(level)); 
+      limitnorm:=limit;  
+      sum:=0.0;
+      use(one,1)
+END
+ 
+KEEP k1,xk1,realnorm,factor,sum,level,limitnorm,use,add,initint,ap
+ 
+FINISH

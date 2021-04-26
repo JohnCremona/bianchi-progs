@@ -1,0 +1,34 @@
+PROGRAM primes USE gibasics
+ 
+BEGIN
+ 
+PROC eof = (REF FILE f)BOOL:(stop;FALSE);
+onlogicalfileend(standin,eof);
+i OF standard style := i OF long style := 0;
+FILE in,out;
+STRING infile,outfile;
+ 
+print(("Field?",newline));read(field);setuparithmetic;
+ 
+infile:=":ema999.bin.z"+whole(field,0)+"primes";
+outfile:=":ema999.euclid.bin"+whole(field,0)+".primes";
+open(in,infile,alieninchannel);
+onlogicalfileend(in,eof);
+establish(out,outfile,alienoutchannel,1,1,1);close(out);
+open(out,outfile,alienoutchannel);
+ 
+LONG INT rp,ip;
+ 
+FOR i DO
+     getbin(in,(rp,ip));
+     IF i > nprimes THEN putbin(out,(SHORTEN rp,SHORTEN ip))
+     ELSE putbin(out,primes[i])
+     FI;
+     IF i MOD 10 = 0 THEN newline(out) FI
+OD;
+ 
+SKIP
+ 
+END
+ 
+FINISH

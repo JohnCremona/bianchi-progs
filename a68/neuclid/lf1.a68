@@ -1,0 +1,195 @@
+PROGRAM lf1 USE lf1procs,gibasics
+ 
+{*****************************************************
+ 
+ Program reads in field, filename for TeX output,
+ and a succession of "levels" mod,
+ then reads Hecke eigenvalues from data file.  Computes
+ L(F,1) where nonzero, or L(FxChi,1), and hence period.
+ In latter case, you must input the twisting prime lambda
+ and the ratio "lambdadot" manually as they are not on file.
+ 
+ Rescaling 11/10/91 to agree with version of BSD which has
+ the factor 2/sqrt(|disc|) in it.
+ 
+*****************************************************}
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+w OF standard style := -12;
+a OF standard style := 8;
+e OF standard style := 0;
+PROC code = (INT x)STRING:(x<0|"m"|"")+whole(ABS x,0);
+PROC texputgi = (REF FILE out, GI a)VOID:
+BEGIN
+INT  i = Ia;
+IF (i =0) THEN put(out,Ra)
+ELIF (Ra =0) THEN
+   IF i = 1 THEN put(out,(space,"\i"))
+   ELIF i = -1 THEN put(out,(space,"-","\i"))
+   ELSE put(out,(i,"\i"))
+   FI
+ELSE put(out,(Ra, (i >0| " +" | " -" )));
+IF ABS(i) = 1 THEN put(out,(space,"\i")) ELSE put(out,(ABS(i),"\i")) FI
+FI;
+put(out,("  "))
+END;
+ 
+PROC out1 = (REF FILE out, GI level,INT nforms, iform, nlp,dlp, REAL lf1,per)VOID:
+BEGIN
+   put(out,("\row[("));texputgi(out,level);
+   put(out,("),",(nforms=1|""|"abcdefg"[iform]),","));
+   put(out,("+,1,",nlp));
+   IF dlp>1 THEN put(out,("/",dlp)) FI;
+   put(out,(",",lf1,",",per,"]",newline))
+END;
+ 
+PROC out2 = (REF FILE out, GI level,INT nforms, iform, INT sfe, GI lambda, INT nlp,dlp, REAL lf1chi,per)VOID:
+BEGIN
+   put(out,("\row[("));texputgi(out,level);
+   put(out,("),",(nforms=1|""|"abcdefg"[iform]),","));
+   put(out,((sfe>0|"+"|"-"),","));
+   texputgi(out,lambda);put(out,",");
+   put(out,nlp);
+   IF dlp>1 THEN put(out,("/",dlp)) FI;
+   put(out,(",",lf1chi,",",per,"]",newline))
+END;
+PROC zgcd = (INT a,b)INT:
+(INT c := ABS(a), d := ABS(b);
+ WHILE d>0 DO INT e:=d;d:= c%*d ;c:=e OD;
+ c);
+ 
+ 
+WHILE
+print(("Field?",newline)); read(field);
+field/=0
+DO
+ 
+setuparithmetic;
+INT nunits = (whichfield | 4,2,6,2,2,2,2,2,2);
+discriminant := (field<3 | 4*field | field);
+REAL sqrtdisc = sqrt(discriminant);
+FILE pfile; STRING filename="BIN"+whole(field,0)+".PRIMES";
+open(pfile,filename,alieninchannel);
+npr:=500;
+pr:=HEAP[npr]GI;
+FOR i TO npr DO getbin(pfile,pr[i]) OD;
+close(pfile);
+FOR i TO ngiprimes
+DO IF giprimes[i]=pr[i] THEN SKIP
+   ELSE print(("Warning: giprime",i," = "));printgi(giprimes[i]);
+        print(("; file prime ",i," = "));printgi(pr[i]);print(newline)
+   FI
+OD;
+ 
+ 
+FILE texout; STRING texfilename;
+print(("Enter filename for tex output:",newline));
+read((newline,texfilename));
+establish(texout,texfilename,alienoutchannel,1,1,1);close(texout);
+open(texout,texfilename,alienoutchannel);
+ 
+GI mod;
+ 
+WHILE
+print(("Conductor?",newline));  readgi(mod);
+INT normod := norm(mod);
+normod/=0
+DO
+ 
+print((">>>>>>>Level   ")); printgi(mod); print(("<<<<<<<"));
+print((" norm",normod,newline));
+ 
+FILE data;
+open(data,":ema999.neuclid.data"+whole(field,0)+".e"+code(Rmod)+"i"+code(Imod),alieninchannel);
+ 
+INT n1ds;
+get(data,n1ds);
+[n1ds]INT nloverplist,dloverplist;
+get(data,(nloverplist,dloverplist));
+ 
+INT neigs;
+get(data,neigs);
+[n1ds][neigs]INT eiglists;
+INT eig;  GI p;
+ 
+FOR ip TO neigs
+DO FOR i TO n1ds
+   DO get(data,eig);
+      p:=pr[ip];
+      eiglists[i][ip] :=
+                          IF p DIV mod
+                          THEN IF p DIV mod%p THEN 0 ELSE -eig FI
+                          ELSE eig
+                          FI
+   OD
+OD;
+close(data);
+ 
+print(("Using ",neigs," primes",newline));
+level := mod;
+factor := 4*pi/sqrt(discriminant*realnorm(mod));
+limitnorm := 5000;
+ 
+print(("Number of forms = ",n1ds,newline));
+ 
+FOR iform TO n1ds
+DO
+ 
+   print(("Form number ",iform,newline));
+   INT nloverp = nloverplist[iform],
+       dloverp = dloverplist[iform];
+   print(("L/P = ",whole(nloverp,0),(dloverp>1|"/"+whole(dloverp,0)|""),newline));
+ 
+IF nloverp/=0 THEN
+   ap := eiglists[iform];
+   sum := k1(factor);
+ 
+   FOR ip TO neigs
+   DO add(pr[ip],ip,ap[ip],1);
+      print(("Value of L(F,1) so far = ",2*factor*sum,newline))
+   OD;
+ 
+   REAL lf1value = 2*factor*sum;
+   print(("L(F,1) = ",lf1value,newline));
+   REAL period = lf1value*dloverp/nloverp;
+   print(("Period = ",ABS period,newline,newline));
+   out1(texout,mod,n1ds,iform,nloverp,dloverp,lf1value,period);
+   SKIP
+ELSE print(("L(F,1) = 0",newline));
+   ap := eiglists[iform];
+   print(("Enter twisting prime lambda:",newline));
+   read(lambda);
+   print(("Enter lamda_dot:",newline));
+   INT lambdadot; read(lambdadot);
+   lambdares:=giresidues(lambda);
+   chitable:=makechitable(lambda,lambdares);
+   chifactor:=factor/realnorm(lambda);
+   sum := k1(chifactor);
+ 
+   FOR ip TO neigs
+   DO addchi(pr[ip],ip,ap[ip],1);
+      print(("Value of L(F_chi,1) so far = ",2*chifactor*sum,newline))
+   OD;
+ 
+   REAL lf1chivalue = 2*chifactor*sum;
+   print(("L(F_chi,1) = ",lf1chivalue,newline));
+   REAL ratio = gauss*lambdadot/(nunits*norm(lambda));
+   REAL period = lf1chivalue/ratio;
+   print(("Period = ",ABS period,newline,newline));
+   INT nrat:=lambdadot, drat:=nunits;
+   INT g = zgcd(nrat,drat);
+   IF g>1 THEN nrat%:=g; drat%:=g FI;
+   IF drat<0 THEN nrat:=-nrat; drat:=-drat FI;
+   out2(texout,mod,n1ds,iform,-1,lambda,nrat,drat,lf1chivalue,period);
+   SKIP
+ 
+FI
+OD
+ 
+OD;
+close(texout)
+OD {closes "DO" at very beginning}
+END
+FINISH

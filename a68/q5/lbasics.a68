@@ -1,0 +1,871 @@
+DECS lbasics USE zbasics,basics:
+ 
+MODE LGI = STRUCT(LONG INT r,i);
+MODE LQI = STRUCT(LGI num,LONG INT denom);
+LGI lzero=(LONG 0,LONG 0),lone=(LONG 1,LONG 0),ltwo=(LONG 2,LONG 0),lw=(LONG 0,LONG 1);
+OP G = (LONG INT n)REF LGI:BEGIN HEAP LGI ans := LGI(n,LONG 0); ans END;
+OP W = (LONG INT a,b)REF LGI:BEGIN HEAP LGI ans := LGI(a,b); ans END;
+OP R = (LGI x)LONG INT: (r OF x);
+OP I = (LGI x)LONG INT: (i OF x);
+OP - = (LGI x)REF LGI:BEGIN HEAP LGI ans :=  (-Rx,-Ix); ans END;
+OP * = (LGI x,y)REF LGI:BEGIN HEAP LGI ans := (Rx*Ry -(LONG 5)*Ix*Iy, Ix*Ry + Rx*Iy); ans END;
+OP - = (LGI a,b)REF LGI:BEGIN HEAP LGI ans := (Ra - Rb, Ia - Ib); ans END;
+OP + = (LGI a,b)REF LGI:BEGIN HEAP LGI ans := (Ra + Rb, Ia + Ib); ans END;
+PROC lconj = (LGI x)REF LGI:BEGIN HEAP LGI ans := (Rx,-Ix); ans END;
+PROC lnorm = (LGI a)LONG INT:(Ra*Ra+(LONG 5)*Ia*Ia);
+OP = = (LGI a,b)BOOL:(Ra = Rb) AND (Ia = Ib);
+ 
+PROC lcompare = (LGI g, []LGI table, INT ntable)INT:
+(INT ans := 0;
+FOR i TO ntable WHILE (ans=0) DO IF g=table[i] THEN ans:=i FI OD; ans);
+ 
+PROC linhalfplane = (LGI a)BOOL:
+((Ra>(LONG 0)) OR ((Ra=(LONG 0)) AND (Ia>=(LONG 0))));
+ 
+PROC printlgi = (LGI a)VOID:
+BEGIN
+   LONG INT  i = Ia;
+   IF (i =LONG 0) THEN print(Ra)
+   ELIF (Ra =LONG 0) THEN
+      IF i = LONG 1 THEN print((space,name))
+      ELIF i = -LONG 1 THEN print((space,"-",name))
+      ELSE print((i,name))
+      FI
+   ELSE print((Ra, (i >LONG 0| " +" | " -" )));
+   IF ABS(i) = LONG 1 THEN print((space,name)) ELSE print((ABS(i),name)) FI
+   FI;
+   print(("  "))
+END;
+ 
+ 
+OP LENG = (GI a)REF LGI:BEGIN HEAP LGI ans := (LENG Ra, LENG Ia); ans END;
+OP SHORTEN = (LGI a)REF GI:BEGIN HEAP GI ans := (SHORTEN Ra, SHORTEN Ia); ans END;
+OP LENG = (QI a)REF LQI:BEGIN HEAP LQI ans := (LENG Na, LENG Da); ans END;
+ 
+OP * = (LONG INT m,LGI a)REF LGI:BEGIN HEAP LGI ans :=  (m*Ra,m*Ia); ans END;
+OP * = (INT m,LGI a)REF LGI:BEGIN HEAP LGI ans :=  ((LENG m)*Ra,(LENG m)*Ia); ans END;
+ 
+OP / = (LGI a, LONG INT d)REF LGI:BEGIN HEAP LGI ans :=  (Ra%d,Ia%d); ans END;
+ 
+OP / = (LGI a,b)REF LGI:
+{Exact division if possible; use (a-(a MOD b))/b for standard rounding}
+BEGIN IF b=lzero THEN print(("/ called with b = zero",newline));SKIP
+      ELSE
+         ( a * lconj(b) ) / lnorm(b)
+      FI
+END;
+ 
+OP DIV = (LGI a,b)BOOL:
+IF (a=lzero) THEN (b=lzero) ELSE (b=(b/a)*a) FI;
+ 
+OP NDIV = (LGI a,b)BOOL: NOT (a DIV b);
+ 
+ 
+ 
+ 
+ 
+OP N = (LQI q)REF LGI:BEGIN HEAP LGI ans :=  num OF q; ans END;
+OP D = (LQI q)LONG INT: denom OF q;
+ 
+OP SHORTEN = (LQI a)REF QI:BEGIN HEAP QI ans := (SHORTEN Na, SHORTEN Da); ans END;
+ 
+OP CANCEL = (LQI q)REF LQI:
+BEGIN LONG INT g = lzgcd(lzgcd(R Nq, I Nq), Dq);
+      HEAP LQI ans;
+      num OF ans := (R Nq % g)W( I Nq % g);
+      IF (denom OF ans := Dq%g) < LONG 0
+      THEN num OF ans := -N ans;
+           denom OF ans := -D ans
+      FI;
+      ans
+END;
+ 
+PROC printlqi = (LQI q)VOID:
+BEGIN LONG INT d = Dq;
+      IF d=LONG 0 THEN print("infinity")
+    ELIF d=LONG 1 THEN printlgi(Nq)
+    ELSE print("(");printlgi(Nq);print((")/"));print(d)
+      FI
+END;
+ 
+LQI linfinity = (lone,LONG 0),
+   lqzero = (lzero,LONG 1),
+   lqone  = (lone,LONG 1),
+   lqw    =  (lw,LONG 1);
+ 
+OP OVER = (LGI a, LONG INT d)REF LQI:
+BEGIN HEAP LQI ans :=
+      IF d=LONG 0 THEN
+             IF a=lzero THEN print(("OVER called with zero/0",newline));SKIP
+                       ELSE linfinity
+             FI
+      ELSE CANCEL(LQI(a,d))
+      FI; ans
+END;
+ 
+OP OVER = (LGI a,b)REF LQI:
+BEGIN HEAP LQI ans :=
+      IF b=lzero THEN
+         IF a=lzero THEN print(("OVER called with zero/zero",newline));SKIP
+                   ELSE linfinity
+         FI
+      ELSE (a*lconj(b)) OVER lnorm(b)
+      FI; ans
+END;
+ 
+OP = = (LQI q1,q2)BOOL:
+  Dq2*Nq1=Dq1*Nq2;
+ 
+OP + = (LQI q1,q2)REF LQI:
+     BEGIN LONG INT d1 = Dq1, d2 = Dq2; LONG INT g = lzgcd(d1,d2);
+           ( (d2%g)*Nq1 + (d1%g)*Nq2 ) OVER (d1*(d2%g))
+     END;
+OP - = (LQI q)REF LQI:BEGIN HEAP LQI ans := (-Nq,Dq);ans END;
+OP - = (LQI q1,q2)REF LQI:q1+(-q2);
+OP * = (LQI q1,q2)REF LQI:((Nq1*Nq2) OVER (Dq1*Dq2));
+OP / = (LQI q)REF LQI: ((Dq*lconj(Nq)) OVER (lnorm(Nq)));
+OP / = (LQI q1,q2)REF LQI:(Dq2*Nq1) OVER (Dq1*Nq2);
+ 
+ 
+ 
+ 
+ 
+ 
+MODE LMATRIX = [1:2,1:2]LGI;
+ 
+OP DET = (LMATRIX m)REF LGI: m[1,1]*m[2,2]-m[1,2]*m[2,1];
+ 
+PROC lmatrixtype = (LMATRIX m)INT: SHORTEN ABS R DET m;
+ 
+PROC lclear = (LMATRIX m)REF LMATRIX:
+BEGIN HEAP LMATRIX ans := m;
+      IF lmatrixtype(m) = 4
+      THEN FOR i TO 2 DO FOR j TO 2 DO
+               ans[i,j]:=ans[i,j]/ltwo
+           OD OD
+      FI;
+      ans
+END;
+ 
+OP * = (LMATRIX m1,m2)REF LMATRIX:
+BEGIN HEAP LMATRIX ans;
+      FOR i TO 2 DO FOR j TO 2 DO
+         ans[i,j] := m1[i,1]*m2[1,j] + m1[i,2]*m2[2,j]
+      OD OD;
+      ans
+END;
+ 
+OP ** = (LMATRIX m1,m2)REF LMATRIX:   lclear(m1*m2);
+ 
+PROC lmakemat = (LGI a,b,c,d)REF LMATRIX:
+BEGIN HEAP LMATRIX ans;
+      ans[1,1]:=a; ans[1,2]:=b;
+      ans[2,1]:=c; ans[2,2]:=d;
+      ans
+END;
+ 
+LMATRIX lidentity = ((lone,lzero),(lzero,lone));
+[]LMATRIX linv = (((lzero,(-LONG 1,LONG 0)),(lone,lzero)), (((LONG 1,LONG 1),(LONG 1,-LONG 1)),(ltwo,(-LONG 1,-LONG 1))));
+OP T = (LGI a)REF LMATRIX: lmakemat(lone,a,lzero,lone);
+ 
+OP / = (LMATRIX m, LGI x)REF LMATRIX:
+lmakemat(m[1,1]/x, m[1,2]/x, m[2,1]/x, m[2,2]/x);
+ 
+PROC lapply = (LMATRIX m, LQI q)REF LQI:
+BEGIN LGI n=Nq; LONG INT d=Dq;
+      HEAP LQI ans :=
+      IF d=LONG 0 THEN
+         IF m[2,1]=lzero THEN linfinity
+                        ELSE m[1,1] OVER m[2,1]
+         FI
+      ELSE LGI den = m[2,1]*n + d*m[2,2];
+           IF den=lzero THEN linfinity
+                       ELSE (m[1,1]*n + d*m[1,2]) OVER den
+           FI
+      FI; ans
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+PROC ltranslate = (LQI z)REF LQI:
+BEGIN HEAP LQI ans :=
+      IF z=linfinity THEN linfinity
+      ELSE
+         LGI n = Nz;
+         LONG INT x:=Rn, y:=In, d:=Dz;
+         x := x MOD d;
+         WHILE ABS(x)-(LONG 5)*y <= -(LONG 3)*d DO y:=y-d OD;
+         WHILE ABS(x)-(LONG 5)*y >   (LONG 2)*d DO y:=y+d OD;
+         IF x<(LONG 0) THEN IF ABS(x)+(LONG 5)*y>(LONG 2)*d THEN x:=x+d FI FI;
+         (x W y) OVER d
+      FI; ans
+END;
+ 
+PROC ltestregion = (LQI z)INT:
+BEGIN LONG INT x = R Nz, y = I Nz, d = Dz;
+      IF x+(LONG 5)*y>(LONG 2)*d THEN 2 ELSE 1 FI
+END;
+ 
+PROC linfmat = (LQI q)REF LMATRIX:
+BEGIN HEAP LMATRIX m := lidentity;
+      LMATRIX invmat;  LQI z := q;
+      WHILE NOT (z=linfinity)
+      DO LQI newz = ltranslate(z);
+         invmat := linv[ltestregion(newz)];
+         m:=m**T((Nz-Nnewz)/Dz)**invmat;
+         z:=lapply(invmat,newz)
+      OD;
+      {Check}
+      IF lapply(m,linfinity) = q THEN SKIP
+      ELSE print(("Error in PROC linfmat",newline));
+           print("Called with q = ");printlqi(q);print(newline);
+           print("Returning m = ");
+           printlgi(m[1,1]);printlgi(m[1,2]);
+           printlgi(m[2,1]);printlgi(m[2,2]);print(newline)
+      FI;
+ 
+     m
+END;
+ 
+PROC leuclid = (LGI a,b,  REF LGI x,y,g,  REF INT type)VOID:
+BEGIN LQI z := a OVER b;
+      LMATRIX m := linfmat(z);
+      IF (type:=lmatrixtype(m)) = 1
+      THEN IF m[1,1]=lzero THEN x:=lzero; y:=lone
+                          ELSE x:=m[2,2]; y:=-m[1,2]
+           FI;
+           g:= a*x + b*y;
+           IF NOT linhalfplane(g) THEN g:=-g; x:=-x; y:=-y FI;
+           {Check}
+           IF (g DIV a) AND (g DIV b) THEN SKIP
+           ELSE print(("Error in PROC euclid",newline,"Called with a = "));
+                printlgi(a);print(" and b = ");printlgi(b);print(newline);
+                print(("Returning x,y,g = "));
+                printlgi(x);printlgi(y); printlgi(g);print((newline,newline))
+           FI
+ 
+      FI
+END;
+ 
+PROC lcoprime = (LGI a,b)BOOL:
+BEGIN LGI g; INT type;
+      leuclid(a,b, LOC LGI, LOC LGI, g, type);
+      (type=1) AND (g=lone)
+END;
+ 
+OP UNIT = (LGI a)BOOL: ((a=lone) OR (a = -lone));
+ 
+OP MOD = (LGI a,b)REF LGI:
+BEGIN IF b=lzero THEN print(("MOD called with b = zero",newline));SKIP
+      ELSE LQI z = a OVER b;
+            LQI z0 = ltranslate(z);
+            a - b * N(z-z0)
+      FI
+END;
+ 
+OP INVMOD = (LGI a,b)REF LGI:
+BEGIN LGI x,y,g; x:=a; INT type;  leuclid(a,b,x,y,g,type);
+      IF NOT ((type=1) AND (UNIT g))
+     THEN printlgi(a);print(" is not invertible modulo ");printlgi(b);
+           print(newline)
+      FI;
+      x MOD b
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+MODE LZBASIS = STRUCT(LONG INT a, LGI z);
+MODE LIDEAL = STRUCT(BOOL principal,LGI gen1,gen2, LZBASIS basis);
+ 
+ 
+ 
+OP PRINC = (LIDEAL a)BOOL: principal OF a;
+ 
+PROC outputlideal = (LIDEAL a, STRING s)VOID:
+BEGIN print(s+"  (");
+      printlgi(gen1 OF a);
+      IF NOT (PRINC a) THEN print(","); printlgi(gen2 OF a) FI;
+      print((")"))
+END;
+ 
+PROC outlzbasis = (LZBASIS b)VOID:
+BEGIN print(("[",a OF b,","));printlgi(z OF b);
+      print("]")
+END;
+ 
+PROC outlideal = (STRING s, LIDEAL a)VOID:
+BEGIN print(s);outputlideal(a," = ") END;
+ 
+PROC stanlzbasis = (LGI z1,z2)REF LZBASIS:
+BEGIN LONG INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []LONG INT g = longlzgcd(b,d);
+      HEAP LZBASIS ans;
+      LONG INT e = g[1];
+      LONG INT f = (a*g[2] + c*g[3]) MOD (a OF ans := ABS((b*c-a*d)%e));
+      z OF ans := fWe;
+      ans
+END;
+ 
+PROC inlzbasis = REF LZBASIS:
+BEGIN print(("Enter Z-basis:",newline));
+      LGI a,b;
+      read((a,b));
+      stanlzbasis(a,b)
+END;
+ 
+OP + = (LZBASIS b1,b2)REF LZBASIS:
+BEGIN LONG INT a1 = a OF b1, a2 = a OF b2,
+          x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []LONG INT g = longlzgcd(y1,y2);
+      HEAP LZBASIS ans;
+      LONG INT g1 = g[1];
+ 
+      i OF z OF ans := g1;
+      a OF ans := listlzgcd((a1,a2,(y1*x2-y2*x1)%g1));
+      r OF z OF ans := (g[2]*x1 + g[3]*x2) MOD (a OF ans);
+ 
+      ans
+END;
+ 
+OP PZB = (LGI z)REF LZBASIS:
+IF z=lzero THEN print(("OP PZB called with z=zero",newline));SKIP
+          ELSE stanlzbasis(z,z*lw)
+FI;
+ 
+OP ZB = ([]LGI zlist)REF LZBASIS:
+BEGIN HEAP LZBASIS ans := PZB zlist[1];
+      FOR i FROM 2 TO UPB zlist
+      DO ans := ans + PZB zlist[i]
+      OD;
+      ans
+END;
+ 
+OP * = (LONG INT n, LZBASIS b)REF LZBASIS:
+BEGIN HEAP LZBASIS ans;
+      a OF ans := ABS(n) * a OF b;
+      z OF ans := ABS(n) * z OF b;
+      ans
+END;
+ 
+OP * = (LGI z, LZBASIS b)REF LZBASIS: stanlzbasis((a OF b)*z, (z OF b)*z);
+ 
+OP * = (LZBASIS b1,b2)REF LZBASIS: (a OF b1)*b2  +  (z OF b1)*b2;
+ 
+PROC longplzb = (LGI z1, REF[]LGI cc)REF LZBASIS:
+BEGIN LGI z2 = z1*lw;
+      LONG INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []LONG INT g = longlzgcd(b,d);
+      HEAP LZBASIS ans;
+      LONG INT e = g[1];
+      LONG INT f = a*g[2] + c*g[3];
+      LONG INT aa = (a*d-b*c)%e;
+      LONG INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      cc[1] := (d%e)W(-b%e);
+      cc[2] :=  (g[2] W g[3]) - k*cc[1];
+      BOOL check = (cc[1]*z1 = (a OF ans)*lone) AND cc[2]*z1= (z OF ans);
+      IF NOT check THEN
+         print(("Error in OP longplzb",newline));
+         print(("Called with z = "));printlgi(z1);
+         print(("Returns a = ",aa, " and z = "));printlgi(z OF ans);print(newline);
+         print("cc[1] = ");printlgi(cc[1]);print(newline);
+         print("cc[2] = ");printlgi(cc[2]);print(newline)
+      FI;
+      {returns [a,z] with a=cc[1]*z1, z=cc[2]*z1}
+      ans
+END;
+ 
+PROC lcomax = (LZBASIS b1,b2, REF[]LONG INT c)BOOL:
+BEGIN []LONG INT g1 = longlzgcd(a OF b1,a OF b2);
+      LONG INT x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []LONG INT gg = longlzgcd(y1,y2);
+      LONG INT gg1 = gg[1];
+      LONG INT a3 = (y1*x2-y2*x1)%gg1;
+      []LONG INT g2 = longlzgcd(g1[1],a3);
+      BOOL ans := (g2[1]=LONG 1);
+      IF ans THEN c[1]:= g2[2]*g1[2];
+                  c[2]:=-g2[3]*y2%gg1;
+                  c[3]:=g2[2]*g1[3];
+                  c[4]:= g2[3]*y1%gg1
+      FI;
+      {If true then 1 = c[1]a1 + c[2]z1 + c[3]a2 + c[4]z2}
+      ans
+END;
+ 
+PROC longlsum = (LZBASIS b1,b2, REF[]LONG INT ac,zc)REF LZBASIS:
+BEGIN []LONG INT g1 = longlzgcd(a OF b1,a OF b2);
+      LGI z1 = z OF b1, z2 = z OF b2;
+      LONG INT x1 = R z1, x2 = R z2,
+          y1 = I z1, y2 = I z2;
+      []LONG INT gg = longlzgcd(y1,y2);
+      LONG INT gg1 = gg[1];
+      LONG INT a3 = (y1*x2-y2*x1)%gg1;
+      []LONG INT g2 = longlzgcd(g1[1],a3);
+      ac[1]:= g2[2]*g1[2];
+      ac[2]:=-g2[3]*y2%gg1;
+      ac[3]:= g2[2]*g1[3];
+      ac[4]:= g2[3]*y1%gg1;
+ 
+      zc[1] := gg[2];
+      zc[2] := gg[3];
+ 
+      HEAP LZBASIS ans := (g2[1] , zc[1]*z1 + zc[2]*z2); ans
+END;
+ 
+PROC longlbasis = (LGI z1,z2, REF[]LONG INT c1,c2)REF LZBASIS:
+BEGIN
+      LONG INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []LONG INT g = longlzgcd(b,d);
+      HEAP LZBASIS ans;
+      LONG INT e = g[1];
+      LONG INT f = a*g[2] + c*g[3];
+      LONG INT aa = (a*d-b*c)%e;
+      LONG INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      c1[1] := d%e;  c1[2] := -b%e;
+      c2[1] :=  g[2]  - k*c1[1];
+      c2[2] :=  g[3]  - k*c1[2];
+      ans
+END;
+ 
+PROC longlprod = (LZBASIS b1,b2, REF[]LONG INT ac,zc)REF LZBASIS:
+{Returns [a,z] = b1.b2  where a = ac[1]a1a2 + ac[2]a1z2 + ac[3]a2z1 + ac[4]z1z2
+                          and z = zc[1]a1a2 + zc[2]a1z2 + zc[3]a2z1 + zc[4]z1z2.}
+BEGIN
+      LONG INT a1 = a OF b1, a2 = a OF b2;
+      LGI  z1 = z OF b1, z2 = z OF b2;
+      LONG INT a3 = a1*a2;  LGI z3 = a1*z2;
+ 
+      [2]LONG INT c1,c2,c4; [4]LONG INT c3;
+ 
+      LZBASIS b3 = (a3,z3);
+      LZBASIS b4 = longlbasis(a2*z1,z2*z1,c1,c2);
+      REF LZBASIS b5 = longlsum(b3,b4,c3,c4);
+ 
+      ac[1] := c3[1];   ac[2] := c3[2];
+      ac[3] := c3[3]*c1[1] + c3[4]*c2[1];
+      ac[4] := c3[3]*c1[2] + c3[4]*c2[2];
+ 
+      zc[1] := LONG 0;  zc[2] := c4[1];
+      zc[3] := c4[2]*c2[1];
+      zc[4] := c4[2]*c2[2];
+ 
+      b5
+END;
+ 
+PROC lprincprod = (LIDEAL id1,id2, REF[]LGI coeff)REF LGI:
+{If id1.id2 = (g), returns g with
+    g = coeff[1].a1.a2 + coeff[2].a1.z2 + coeff[3].a2.z1 + coeff[4].z1.z2
+ where id1 = [a1,z1] and id2 = [a2,z2]
+}
+BEGIN LZBASIS b1 = basis OF id1, b2 = basis OF id2;
+      HEAP LGI ans;  [4]LONG INT ac,zc;
+      LZBASIS bproduct = longlprod(b1,b2,ac,zc);
+      INT check; LGI x,y;
+      leuclid(G(a OF bproduct),z OF bproduct, x,y,ans, check);
+ 
+      IF check=1
+      THEN FOR i TO 4 DO coeff[i] := ac[i]*x + zc[i]*y OD
+      ELSE print(("Error in PROC lprincprod: product not principal",newline))
+      FI;
+      ans
+END;
+ 
+ 
+ 
+ 
+ 
+PROC makelideal1 = (LGI a)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      principal OF ans := TRUE;
+      gen1      OF ans := a;
+      gen2      OF ans := lzero;
+      basis     OF ans := PZB a;
+      ans
+END;
+ 
+PROC makelideal2 = (LGI a,b)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      principal OF ans := FALSE;
+      gen1      OF ans := a;
+      gen2      OF ans := b;
+      basis     OF ans := PZB a + PZB b;
+      ans
+END;
+ 
+PROC lmakelideal1 = (GI a)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      principal OF ans := TRUE;
+      gen1      OF ans := LENG a;
+      gen2      OF ans := lzero;
+      basis     OF ans := PZB LENG a;
+      ans
+END;
+ 
+PROC lmakelideal2 = (GI a,b)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      principal OF ans := FALSE;
+      gen1      OF ans := LENG a;
+      gen2      OF ans := LENG b;
+      basis     OF ans := PZB LENG a + PZB LENG b;
+      ans
+END;
+ 
+PROC inputlideal = (STRING s)REF LIDEAL:
+BEGIN print((s,newline));
+      BOOL p; print(("principal?",newline));read(p);
+      LGI a,b;
+      IF p THEN print(("generator?",newline));
+                read(a);
+                makelideal1(a)
+           ELSE print(("generator 1?",newline));
+                read(a);
+                print(("generator 2?",newline));
+                read(b);
+                makelideal2(a,b)
+      FI
+END;
+ 
+PROC lidealnorm = (LIDEAL a)LONG INT:
+   a OF basis OF a  *  I(z OF basis OF a);
+ 
+OP MOD = (LGI a, LIDEAL m)REF LGI:
+BEGIN HEAP LGI ans := a;  LZBASIS b = basis OF m;
+      LGI zb = z OF b;  LONG INT ab = a OF b;
+      ans := ans - (Ians OVER Izb)*zb;
+      ans := ans - ((Rans OVER ab)*ab)*lone;
+      ans
+END;
+ 
+PROC lidealresidues = (LIDEAL a)REF []LGI:
+BEGIN
+       LZBASIS b = basis OF a;
+           INT ax = SHORTEN a OF b, ay = SHORTEN I(z OF b);
+           HEAP[ax*ay]LGI ans;
+           INT count:=0;
+           FOR i TO ax DO FOR j TO ay DO
+              ans[count+:=1] := (LENG (i W j)) MOD a
+           OD OD;
+           ans
+END;
+ 
+PROC lideallzbasis = (LZBASIS b)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      basis OF ans := b;
+      REF LGI g1 = gen1 OF ans, g2 = gen2 OF ans;
+      g1:=G(a OF b);
+      g2:=z OF b;
+      LGI g; INT type;
+      leuclid(g1,g2,LOC LGI,LOC LGI,g,type);
+      IF (principal OF ans := (type = 1))
+      THEN g1:=g; g2:=lzero
+      FI;
+      ans
+END;
+ 
+OP ID = ([]LGI zlist)REF LIDEAL: lideallzbasis(ZB zlist);
+ 
+OP = = (LZBASIS b1,b2)BOOL:   (a OF b1 = a OF b2) AND (z OF b1 = z OF b2);
+ 
+OP = = (LIDEAL a1,a2)BOOL: (basis OF a1) = (basis OF a2);
+ 
+OP DIV = (LIDEAL a1,a2)BOOL:
+BEGIN LZBASIS b1=basis OF a1, b2=basis OF a2;
+      BOOL ans := a OF b1 DIV a OF b2;
+      IF ans THEN ans:= I(z OF b1) DIV I(z OF b2) FI;
+      IF ans THEN a OF b1 DIV (R(z OF b1)*I(z OF b2)%I(z OF b1)-R(z OF b2))
+             ELSE FALSE
+      FI
+END;
+ 
+OP ISIN = (LGI z, LIDEAL a)BOOL:
+BEGIN LZBASIS b = basis OF a;
+      LONG INT a = a OF b,
+          d = R(z OF b), c = I(z OF b),
+          x = Rz, y = Iz;
+      (c DIV y) AND (a DIV (x-d*(y%c)))
+END;
+ 
+OP DIV = (LIDEAL a, LGI z)BOOL: z ISIN a;
+ 
+OP * = (LIDEAL a1,a2)REF LIDEAL:
+BEGIN BOOL p1 = PRINC a1, p2 = PRINC a2;
+      LZBASIS b1 = basis OF a1, b2 = basis OF a2;
+      IF p1 THEN
+      IF p2 THEN makelideal1(gen1 OF a1 * gen1 OF a2)
+            ELSE lideallzbasis((gen1 OF a1) * b2)
+      FI
+      ELSE
+      IF p2 THEN lideallzbasis((gen1 OF a2) * b1)
+            ELSE lideallzbasis(b1*b2)
+      FI
+      FI
+END;
+ 
+OP + = (LIDEAL a1,a2)REF LIDEAL: lideallzbasis(basis OF a1 + basis OF a2);
+ 
+PROC linvertible = (LGI z, LIDEAL a, REF LGI inverse)BOOL:
+BEGIN IF z=lzero THEN FALSE ELSE
+      [2]LGI c1;   [4]LONG INT c2;
+      LZBASIS b = longplzb(z, c1);
+      BOOL ans = lcomax(b,basis OF a, c2);
+      IF ans THEN
+          inverse := (c2[1]*c1[1] + c2[2]*c1[2] ) MOD a
+      FI;
+      ans
+      FI
+END;
+ 
+OP INVMOD = (LGI z, LIDEAL a)REF LGI:
+BEGIN HEAP LGI ans;
+      IF NOT linvertible(z,a,ans)
+      THEN printlgi(z);print((" is not linvertible modulo",newline));
+           outputlideal(a,"");print(newline)
+      FI;
+      ans
+END;
+ 
+OP DIV = (LGI z, LIDEAL a)BOOL: (z DIV (gen1 OF a)) AND (z DIV (gen2 OF a));
+ 
+OP / = (LIDEAL a, LGI z)REF LIDEAL:
+BEGIN IF z DIV a
+      THEN IF PRINC a THEN makelideal1((gen1 OF a)/z)
+                      ELSE makelideal2((gen1 OF a)/z,(gen2 OF a)/z)
+                FI
+      ELSE printlgi(z);
+           outputlideal(a," does not divide");print(newline);
+           SKIP
+      FI
+END;
+ 
+PROC conjlideal = (LIDEAL a)REF LIDEAL:
+BEGIN HEAP LIDEAL ans;
+      principal OF ans := principal OF a;
+      gen1 OF ans := lconj(gen1 OF a);
+      gen2 OF ans := lconj(gen2 OF a);
+      a OF basis OF ans := a OF basis OF a;
+      r OF z OF basis OF ans := (-r OF z OF basis OF a) MOD (a OF basis OF a);
+      i OF z OF basis OF ans := i OF z OF basis OF a;
+      ans
+END;
+ 
+OP / = (LIDEAL a1,a2)REF LIDEAL:
+BEGIN IF a2 DIV a1
+      THEN LIDEAL a2bar = conjlideal(a2);
+            LGI divisor = G lidealnorm(a2);
+           (a1*a2bar)/divisor
+      ELSE outputlideal(a2,"");
+           outputlideal(a1," does not divide ");
+           print(newline);
+           SKIP
+      FI
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+MODE LPRIME = STRUCT(STRING name,
+                    BOOL   ramified,
+                    INT degree,  characteristic,
+                    LIDEAL ideal);
+ 
+OP RAM = (LPRIME p)BOOL:(ramified OF p);
+OP CH = (LPRIME p)INT:(characteristic OF p);
+OP PRINC =(LPRIME p)BOOL:(principal OF ideal OF p);
+OP = = (LPRIME p,q)BOOL:ideal OF p = ideal OF q;
+OP DIV = (LPRIME p, LGI a)BOOL: ideal OF p DIV a;
+ 
+PROC lord = (LPRIME p, LGI a)INT:
+BEGIN INT ans:=0; LIDEAL ip:=ideal OF p, test:=makelideal1(a);
+      WHILE ip DIV test DO ans+:=1; test:=test/ip OD;
+      ans
+END;
+ 
+PROC outlprime = (LPRIME p)VOID: outlideal(name OF p, ideal OF p);
+ 
+INT nlprimes = 92;
+[nlprimes]LPRIME lprimes;
+LZBASIS unitlbasis = (LONG 1,lw);
+LIDEAL unitlideal = (TRUE,lone,lzero,unitlbasis);
+ 
+ 
+PROC setlprimes = VOID:
+BEGIN
+   lprimes[1] :=("p2  ",TRUE,1,2,lmakelideal2(two,one+w));
+   lprimes[2] :=("p3a ",FALSE,1,3,lmakelideal2(three,one+w));
+   lprimes[3] :=("p3b ",FALSE,1,3,lmakelideal2(three,one-w));
+   lprimes[4] :=("p5  ",TRUE,1,5,lmakelideal1(w));
+   lprimes[5] :=("p7a ",FALSE,1,7,lmakelideal2(G 7, 3 W 1));
+   lprimes[6] :=("p7b ",FALSE,1,7,lmakelideal2(G 7, 3 W -1));
+   lprimes[7] :=("p23a",FALSE,1,23,lmakelideal2(G 23, 8 W 1));
+   lprimes[8] :=("p23b",FALSE,1,23,lmakelideal2(G 23, 8 W -1));
+   lprimes[9] :=("p29a",FALSE,1,29,lmakelideal1(3 W 2));
+   lprimes[10]:=("p29b",FALSE,1,29,lmakelideal1(3 W -2));
+   lprimes[11]:=("p41a",FALSE,1,41,lmakelideal1(6 W 1));
+   lprimes[12]:=("p41b",FALSE,1,41,lmakelideal1(6 W -1));
+   lprimes[13]:=("p43a",FALSE,1,43,lmakelideal2(G 43, 9 W 1));
+   lprimes[14]:=("p43b",FALSE,1,43,lmakelideal2(G 43, 9 W -1));
+   lprimes[15]:=("p47a",FALSE,1,47,lmakelideal2(G 47, 18 W 1));
+   lprimes[16]:=("p47b",FALSE,1,47,lmakelideal2(G 47, 18 W -1));
+   lprimes[17]:=("p61a",FALSE,1, 61,lmakelideal1( 4 W  3));
+   lprimes[18]:=("p61b",FALSE,1, 61,lmakelideal1( 4 W  -3));
+   lprimes[19]:=("p67a",FALSE,1, 67,lmakelideal2(G  67, 14 W 1));
+   lprimes[20]:=("p67b",FALSE,1, 67,lmakelideal2(G  67, 14 W -1));
+   lprimes[21]:=("p83a",FALSE,1, 83,lmakelideal2(G  83, 24 W 1));
+   lprimes[22]:=("p83b",FALSE,1, 83,lmakelideal2(G  83, 24 W -1));
+   lprimes[23]:=("p89a",FALSE,1, 89,lmakelideal1( 3 W  4));
+   lprimes[24]:=("p89b",FALSE,1, 89,lmakelideal1( 3 W  -4));
+   lprimes[25]:=("p101a",FALSE,1, 101,lmakelideal1( 9 W  2));
+   lprimes[26]:=("p101b",FALSE,1, 101,lmakelideal1( 9 W  -2));
+   lprimes[27]:=("p103a",FALSE,1, 103,lmakelideal2(G  103, 43 W 1));
+   lprimes[28]:=("p103b",FALSE,1, 103,lmakelideal2(G  103, 43 W -1));
+   lprimes[29]:=("p107a",FALSE,1, 107,lmakelideal2(G  107, 40 W 1));
+   lprimes[30]:=("p107b",FALSE,1, 107,lmakelideal2(G  107, 40 W -1));
+   lprimes[31]:=("p109a",FALSE,1, 109,lmakelideal1( 8 W  3));
+   lprimes[32]:=("p109b",FALSE,1, 109,lmakelideal1( 8 W  -3));
+   lprimes[33]:=("p11 ",FALSE,2,11,lmakelideal1(G 11));
+   lprimes[34]:=("p127a",FALSE,1, 127,lmakelideal2(G  127, 54 W 1));
+   lprimes[35]:=("p127b",FALSE,1, 127,lmakelideal2(G  127, 54 W -1));
+   lprimes[36]:=("p149a",FALSE,1, 149,lmakelideal1( 12 W  1));
+   lprimes[37]:=("p149b",FALSE,1, 149,lmakelideal1( 12 W  -1));
+   lprimes[38]:=("p163a",FALSE,1, 163,lmakelideal2(G  163, 22 W 1));
+   lprimes[39]:=("p163b",FALSE,1, 163,lmakelideal2(G  163, 22 W -1));
+   lprimes[40]:=("p167a",FALSE,1, 167,lmakelideal2(G  167, 50 W 1));
+   lprimes[41]:=("p167b",FALSE,1, 167,lmakelideal2(G  167, 50 W -1));
+   lprimes[42]:=("p13 ",FALSE,2,13,lmakelideal1(G 13));
+   lprimes[43]:=("p181a",FALSE,1, 181,lmakelideal1( 1 W  6));
+   lprimes[44]:=("p181b",FALSE,1, 181,lmakelideal1( 1 W  -6));
+   lprimes[45]:=("p223a",FALSE,1, 223,lmakelideal2(G  223, 21 W 1));
+   lprimes[46]:=("p223b",FALSE,1, 223,lmakelideal2(G  223, 21 W -1));
+   lprimes[47]:=("p227a",FALSE,1, 227,lmakelideal2(G  227, 26 W 1));
+   lprimes[48]:=("p227b",FALSE,1, 227,lmakelideal2(G  227, 26 W -1));
+   lprimes[49]:=("p229a",FALSE,1, 229,lmakelideal1( 7 W  6));
+   lprimes[50]:=("p229b",FALSE,1, 229,lmakelideal1( 7 W  -6));
+   lprimes[51]:=("p241a",FALSE,1, 241,lmakelideal1( 14 W  3));
+   lprimes[52]:=("p241b",FALSE,1, 241,lmakelideal1( 14 W  -3));
+   lprimes[53]:=("p263a",FALSE,1, 263,lmakelideal2(G  263, 28 W 1));
+   lprimes[54]:=("p263b",FALSE,1, 263,lmakelideal2(G  263, 28 W -1));
+   lprimes[55]:=("p269a",FALSE,1, 269,lmakelideal1( 12 W  5));
+   lprimes[56]:=("p269b",FALSE,1, 269,lmakelideal1( 12 W  -5));
+   lprimes[57]:=("p281a",FALSE,1, 281,lmakelideal1( 6 W  7));
+   lprimes[58]:=("p281b",FALSE,1, 281,lmakelideal1( 6 W  -7));
+   lprimes[59]:=("p283a",FALSE,1, 283,lmakelideal2(G  283, 109 W 1));
+   lprimes[60]:=("p283b",FALSE,1, 283,lmakelideal2(G  283, 109 W -1));
+   lprimes[61]:=("p17 ",FALSE,2,17,lmakelideal1(G 17));
+   lprimes[62]:=("p307a",FALSE,1, 307,lmakelideal2(G  307, 84 W 1));
+   lprimes[63]:=("p307b",FALSE,1, 307,lmakelideal2(G  307, 84 W -1));
+   lprimes[64]:=("p347a",FALSE,1, 347,lmakelideal2(G  347, 79 W 1));
+   lprimes[65]:=("p347b",FALSE,1, 347,lmakelideal2(G  347, 79 W -1));
+   lprimes[66]:=("p349a",FALSE,1, 349,lmakelideal1( 13 W  6));
+   lprimes[67]:=("p349b",FALSE,1, 349,lmakelideal1( 13 W  -6));
+   lprimes[68]:=("p19 ",FALSE,2,19,lmakelideal1(G 19));
+   lprimes[69]:=("p367a",FALSE,1, 367,lmakelideal2(G  367, 27 W 1));
+   lprimes[70]:=("p367b",FALSE,1, 367,lmakelideal2(G  367, 27 W -1));
+   lprimes[71]:=("p383a",FALSE,1, 383,lmakelideal2(G  383, 83 W 1));
+   lprimes[72]:=("p383b",FALSE,1, 383,lmakelideal2(G  383, 83 W -1));
+   lprimes[73]:=("p389a",FALSE,1, 389,lmakelideal1( 12 W  7));
+   lprimes[74]:=("p389b",FALSE,1, 389,lmakelideal1( 12 W  -7));
+   lprimes[75]:=("p401a",FALSE,1, 401,lmakelideal1( 9 W  8));
+   lprimes[76]:=("p401b",FALSE,1, 401,lmakelideal1( 9 W  -8));
+   lprimes[77]:=("p409a",FALSE,1, 409,lmakelideal1( 2 W  9));
+   lprimes[78]:=("p409b",FALSE,1, 409,lmakelideal1( 2 W  -9));
+   lprimes[79]:=("p421a",FALSE,1, 421,lmakelideal1( 4 W  9));
+   lprimes[80]:=("p421b",FALSE,1, 421,lmakelideal1( 4 W  -9));
+   lprimes[81]:=("p443a",FALSE,1, 443,lmakelideal2(G  443, 138 W 1));
+   lprimes[82]:=("p443b",FALSE,1, 443,lmakelideal2(G  443, 138 W -1));
+   lprimes[83]:=("p449a",FALSE,1, 449,lmakelideal1( 18 W  5));
+   lprimes[84]:=("p449b",FALSE,1, 449,lmakelideal1( 18 W  -5));
+   lprimes[85]:=("p461a",FALSE,1, 461,lmakelideal1( 21 W  2));
+   lprimes[86]:=("p461b",FALSE,1, 461,lmakelideal1( 21 W  -2));
+   lprimes[87]:=("p463a",FALSE,1, 463,lmakelideal2(G  463, 213 W 1));
+   lprimes[88]:=("p463b",FALSE,1, 463,lmakelideal2(G  463, 213 W -1));
+   lprimes[89]:=("p467a",FALSE,1, 467,lmakelideal2(G  467, 205 W 1));
+   lprimes[90]:=("p467b",FALSE,1, 467,lmakelideal2(G  467, 205 W -1));
+   lprimes[91]:=("p487a",FALSE,1, 487,lmakelideal2(G  487, 143 W 1));
+   lprimes[92]:=("p487b",FALSE,1, 487,lmakelideal2(G  487, 143 W -1));
+ 
+      SKIP
+END;
+ 
+PROC lprimeidealfactors = (LIDEAL a, BOOL out)REF []PPOWER:
+BEGIN LIDEAL rest := a;
+     LIDEAL check := unitlideal;
+      HEAP[nlprimes]PPOWER ans;
+      INT count := 0;
+ 
+      IF out THEN outputlideal(a,"Prime factorization of ");
+                  print(newline)
+      FI;
+ 
+ 
+      FOR i TO nlprimes WHILE NOT (rest=unitlideal)
+      DO LIDEAL pi = ideal OF lprimes[i];
+         INT e := 0;
+         WHILE pi DIV rest
+         DO rest := rest/pi; e+:=1; check := check * pi
+         OD;
+         IF e>0
+         THEN ans[count+:=1] := (i,e);
+              IF out THEN print((name OF lprimes[i]," to the power ",e,newline)) FI
+         FI
+      OD;
+     IF check = a THEN SKIP
+     ELSE print(("Error in PROC lprimeidealfactors",newline));
+          outputlideal(a,"Called with  ");print(newline);
+          outputlideal(check,"but product of factors is ");print(newline)
+     FI;
+ 
+      ans[1:count]
+END;
+ 
+SKIP
+ 
+KEEP LGI,LQI,LMATRIX,LZBASIS,LIDEAL,LPRIME,
+ 
+     PRINC(LIDEAL),MOD(LGI,LIDEAL),UNIT(LGI),INVMOD(LGI,LGI),=(LIDEAL,LIDEAL),
+     DIV(LIDEAL,LIDEAL),ISIN(LGI,LIDEAL),DIV(LIDEAL,LGI),RAM(LPRIME),
+     CH(LPRIME),PRINC(LPRIME),*(LIDEAL,LIDEAL),
+     PZB(LGI),ZB([]LGI),*(LONG INT,LZBASIS),*(LGI,LZBASIS),*(LZBASIS,LZBASIS),
+     ID([]LGI),=(LZBASIS,LZBASIS),=(LPRIME,LPRIME),DIV(LPRIME,LGI),
+     +(LZBASIS,LZBASIS),+(LIDEAL,LIDEAL),
+     DIV(LGI,LIDEAL),/(LIDEAL,LGI),/(LIDEAL,LIDEAL),
+     INVMOD(LGI,LIDEAL),*(LONG INT,LGI),*(INT,LGI),MOD(LGI,LGI),
+ 
+     makelideal1,makelideal2,inputlideal,outputlideal,lidealnorm,
+     lmakelideal1,lmakelideal2,lcompare,
+    leuclid,lidealresidues,lideallzbasis,setlprimes,
+     lcomax,lcoprime,lord,linvertible,
+     conjlideal,lprimeidealfactors,longlsum,longlprod,longlbasis,lprincprod,
+     stanlzbasis,longplzb,inlzbasis,outlzbasis,outlideal,outlprime,
+ 
+     lzero,lone,ltwo,lw,linfinity,lqzero,lqone,lqw,lidentity,linv,
+     nlprimes,lprimes,unitlbasis,unitlideal,
+ 
+     G(LONG INT),W(LONG INT,LONG INT),R(LGI),I(LGI),-(LGI),
+     +(LGI,LGI),-(LGI,LGI),*(LGI,LGI),=(LGI,LGI),/(LGI,LGI),OVER(LGI,LGI),
+     LENG(GI),/(LGI,LONG INT),DIV(LGI,LGI),NDIV(LGI,LGI),N(LQI),D(LQI),
+     SHORTEN(LGI),LENG(QI),SHORTEN(LQI),
+     CANCEL(LQI),OVER(LGI,LONG INT),=(LQI,LQI),+(LQI,LQI),-(LQI,LQI),
+     *(LQI,LQI),/(LQI,LQI),-(LQI),/(LQI),DET(LMATRIX),
+     *(LMATRIX,LMATRIX),**(LMATRIX,LMATRIX),T(LGI),/(LMATRIX,LGI),
+     lconj,lnorm,linhalfplane,printlgi,printlqi,lmatrixtype,lclear,
+     lmakemat,lapply,ltestregion,ltranslate,linfmat
+ 
+ 
+FINISH

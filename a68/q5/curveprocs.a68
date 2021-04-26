@@ -1,0 +1,463 @@
+DECS curveprocs USE basics,lbasics,zbasics:
+ 
+MODE CURVEDATA   = STRUCT(LGI a1,a2,a3,a4,a6,b2,b4,b6,b8,c4,c6,dl);
+MODE CURVECOORDS = STRUCT(LGI a1,a2,a3,a4,a6);
+MODE QCURVEDATA   = STRUCT(LQI a1,a2,a3,a4,a6,b2,b4,b6,b8,c4,c6,dl);
+MODE QCURVECOORDS = STRUCT(LQI a1,a2,a3,a4,a6);
+ 
+GI three = (3,0), twelve = (12,0);
+LGI lthree = (LONG 3,LONG 0), ltwelve = (LONG 12,LONG 0);
+ 
+OP Q = (LGI a)LQI:(a,LONG 1);
+OP Q = (GI a)LQI:(LENG a,LONG 1);
+OP Q = (INT a)LQI:LQI(LENG G a,LONG 1);
+ 
+PROC setup = (CURVECOORDS c)REF CURVEDATA:
+BEGIN
+LGI a1=a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c;
+LGI b2 = a1*a1 +  4*a2;
+LGI b4 = a1*a3 +  2*a4;
+LGI b6 = a3*a3 +  4*a6;
+LGI b8 = a1*a1*a6 - a1*a3*a4 +  4*a2*a6 + a2*a3*a3 - a4*a4;
+LGI c4 = b2*b2 -  24*b4;
+LGI c6 =  36*b2*b4 - b2*b2*b2 -  216*b6;
+LGI dl =  9*b2*b4*b6 - b2*b2*b8 -  8*b4*b4*b4 -  27*b6*b6;
+HEAP CURVEDATA ans := (a1,a2,a3,a4,a6,b2,b4,b6,b8,c4,c6,dl);
+ans
+END;
+ 
+PROC qsetup = (QCURVECOORDS c)REF QCURVEDATA:
+BEGIN
+LQI a1=a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c;
+LQI b2 = a1*a1 +  (Q 4)*a2;
+LQI b4 = a1*a3 +  (Q 2)*a4;
+LQI b6 = a3*a3 +  (Q 4)*a6;
+LQI b8 = a1*a1*a6 - a1*a3*a4 + (Q 4)*a2*a6 + a2*a3*a3 - a4*a4;
+LQI c4 = b2*b2 -  (Q 24)*b4;
+LQI c6 =  (Q 36)*b2*b4 - b2*b2*b2 -  (Q 216)*b6;
+LQI dl =  (Q 9)*b2*b4*b6 - b2*b2*b8 -  (Q 8)*b4*b4*b4 -  (Q 27)*b6*b6;
+HEAP QCURVEDATA ans := (a1,a2,a3,a4,a6,b2,b4,b6,b8,c4,c6,dl);
+ans
+END;
+ 
+PROC transc = (LGI r,s,t,REF CURVEDATA c)VOID:
+BEGIN
+LGI a1 = a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c;
+LGI na6 = a6 + r*(a4 + r*(a2+r)) - t*(a3 + r*a1 + t);
+LGI na4 = a4 - s*a3 + ltwo*r*a2 - (t + r*s)*a1 + lthree*r*r - ltwo*s*t;
+LGI na3 = a3 + r*a1 + t+t;
+LGI na2 = a2 - s*a1 +  3*r - s*s;
+LGI na1 = a1 + s+s;
+c := setup(CURVECOORDS(na1,na2,na3,na4,na6))
+END;
+ 
+PROC qtransc = (LQI r,s,t,REF QCURVEDATA c)VOID:
+BEGIN
+LQI a1 = a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c;
+LQI na6 = a6 + r*(a4 + r*(a2+r)) - t*(a3 + r*a1 + t);
+LQI na4 = a4 - s*a3 + (Q two)*r*a2 - (t + r*s)*a1 + (Q three)*r*r - (Q two)*s*t;
+LQI na3 = a3 + r*a1 + t+t;
+LQI na2 = a2 - s*a1 +  (Q 3)*r - s*s;
+LQI na1 = a1 + s+s;
+c := qsetup(QCURVECOORDS(na1,na2,na3,na4,na6))
+END;
+ 
+PROC stdform = (REF CURVEDATA c)VOID:
+BEGIN
+LGI a1=a1 OF c,a2=a2 OF c,a3=a3 OF c;
+LGI s = -a1 / ltwo;
+LGI r = (((a1+s)*s)-a2) / lthree;
+LGI t = (-a3-(r*a1)) / ltwo;
+transc(r,s,t,c)
+END;
+ 
+PROC end = (REF BOOL x)VOID:(x:=FALSE);
+ 
+PROC p1type = (CURVEDATA cd,LPRIME p,REF INT koda,retf,REF BOOL minimal)VOID:
+{For use when p is principal}
+BEGIN
+CURVEDATA c := cd;
+LIDEAL ip = ideal OF p;
+LGI r,s,t,p1,p2,p3,p4,p6;
+p1:=gen1 OF ip;
+p4:=p1*(p3:=p1*(p2:=p1*p1));p6:=p3*p3;
+BOOL bigloop := TRUE;  minimal:=TRUE;
+BOOL pdiv2 = ip DIV ltwo,pdiv3 = ip DIV lthree, pdiv6 = pdiv2 OR pdiv3;
+LGI halfmodp;IF NOT pdiv2 THEN halfmodp := ltwo INVMOD ip FI;
+REF LGI a1=a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c,b2=b2 OF c,
+       b4=b4 OF c,b6=b6 OF c,b8=b8 OF c,c4=c4 OF c,c6=c6 OF c,dl=dl OF c;
+INT exit;INT vpdl := lord(p,dl);
+ 
+PROC zp = (LGI a)BOOL:ip DIV a;
+PROC invp = (LGI a)LGI:a INVMOD ip;
+[]LGI resmodp = lidealresidues(ip);INT normp = UPB resmodp;
+PROC root = (LGI a,INT e)LGI:
+BEGIN
+BOOL found := FALSE;LGI ans;
+FOR i TO normp WHILE NOT found DO
+   ans := resmodp[i];found := zp((e=2|ans*ans-a|ans*ans*ans-a))
+OD;ans
+END;
+ 
+WHILE bigloop DO
+ 
+IF   NOT zp(dl) THEN koda:=0;retf:=0;end(bigloop)                              {Type I0}
+ELIF NOT zp(c4) THEN koda:=10*vpdl;retf:=1;end(bigloop)                        {Type In (n = val(p,disc)}
+ELSE {Change coords so that p|a3,a4,a6}
+    IF   pdiv2 THEN r:= root(-a4,2);    t:= root((a2*a4)-a6,2)
+    ELIF pdiv3 THEN r:= root(-b6,3);    t:= a3+(r*a1)
+    ELSE            r:= -invp(ltwelve)*b2;t:= -((r*a1)+a3)* halfmodp
+    FI;
+    r:=r MOD ip;t:=t MOD ip;
+    transc(r,lzero,t,c);
+    IF  p2 NDIV a6 THEN koda:=2;retf:=vpdl;end(bigloop)               {Type II}
+    ELIF p3 NDIV b8 THEN koda:=3;retf:=vpdl-1;end(bigloop)             {Type III}
+    ELIF p3 NDIV b6 THEN koda:=4;retf:=vpdl-2;end(bigloop)             {Type IV}
+    ELSE {Change coords so that p|a1,a2, p2|a3,a4, p3|a6}
+        IF   pdiv2 THEN s:=root(a2,2);t:=p1*root(a6/p2,2)
+        ELIF pdiv3 THEN s:=a1;        t:=a3
+        ELSE            s:=-a1*halfmodp;t:=-a3*halfmodp
+        FI;
+        transc(lzero,s,t,c);
+ 
+        {                            3     2
+         Analyse roots of the cubic T  + bT  + cT + d = 0, where
+         b=a2/p, c=a4/p2, d=a6/p3}
+ 
+        LGI b=a2/p1,cc=a4/p2,d=a6/p3,b2=b*b,c2=cc*cc,bc=b*cc;
+        LGI w= 27*d*d - b2*c2 + 4*b*b2*d - 18*bc*d + 4*cc*c2;
+        LGI x= 3*cc - b2;
+ 
+        exit := ( zp(w) | ( zp(x) | 3 | 2 ) | 1 );
+ 
+        CASE exit IN
+ 
+        {Case 1: Three distinct roots  -                                        Type I*0}
+        (koda := 1; retf := vpdl-4; end(bigloop)),
+ 
+        {Case 2: One double root  -                                             Type I*m for some m}
+        BEGIN
+        r := (pdiv2|root(cc,2)|(pdiv3|cc*invp(b)|(bc-9*d)*invp(2*x)));
+        r := p1 * (r MOD ip); INT ix :=3; INT iy := 3; LGI mx :=p2; LGI my := p2;
+        transc(r,lzero,lzero,c);
+        LGI a2t,a3t,a4t,a6t;
+        BOOL loop := TRUE;
+        WHILE loop DO
+           a2t:=a2/p1;a3t:=a3/my;a4t:=a4/(p1*mx);a6t:=a6/(mx*my);
+           IF zp(a3t*a3t + 4*a6t) THEN
+              t:=(pdiv2|my*root(a6t,2)|my*((-a3t*halfmodp) MOD ip));
+              transc(lzero,lzero,t,c);
+              my:=my*p1;iy:=iy+1;
+              a2t:=a2/p1;a3t:=a3/my;a4t:=a4/(p1*mx);a6t:=a6/(mx*my);
+              IF zp(a4t*a4t - 4*a6t*a2t) THEN
+                 r:=(pdiv2|mx*root(a6t*invp(a2t),2)|mx*(-a4t*invp(ltwo*a2t) MOD ip));
+                 transc(r,lzero,lzero,c);
+                 mx:=mx*p1;ix:=ix+1
+                 {continue loop}
+              ELSE end(loop)
+              FI
+           ELSE end(loop)
+           FI
+        OD;
+        retf := vpdl - ix - iy + 1;
+        koda := 10 * (ix + iy) - 49;
+        end(bigloop)
+        END,
+ 
+ 
+        {Case 3: Triple root}
+        BEGIN
+        r := (pdiv2|b|(pdiv3|root(-d,3)|-b*invp(lthree)));
+        r := p1 * (r MOD ip);
+        transc(r,lzero,lzero,c);
+        LGI a3t := a3 / p2;LGI a6t := a6 / p4;
+        IF NOT zp(a3t*a3t + 4*a6t)   THEN koda:=5;retf:=vpdl-6;end(bigloop)    {Type IV*}
+        ELSE
+             t:=(pdiv2|-p2*root(a6t,2)|p2*((-a3t*halfmodp) MOD ip));
+             transc(lzero,lzero,t,c);
+             IF   p4 NDIV a4 THEN koda:=6;retf:=vpdl-7;end(bigloop)    {Type III*}
+             ELIF p6 NDIV a6 THEN koda:=7;retf:=vpdl-8;end(bigloop)    {Type II*}
+             ELSE  {Equation was not minimal}
+                  a1:=a1/p1;a2:=a2/p2;a3:=a3/p3;a4:=a4/p4;a6:=a6/p6;
+                  minimal := FALSE;
+                  c := setup(CURVECOORDS(a1,a2,a3,a4,a6));
+                  vpdl := lord(p,dl)
+                  {continue bigloop}
+             FI
+        FI
+        END
+ 
+        OUT SKIP ESAC
+    FI
+FI
+OD {bigloop}
+END;
+ 
+PROC p2type = (CURVEDATA c,LPRIME p,REF INT koda,retf,REF BOOL minimal)VOID:
+{For use when p is NOT principal}
+BEGIN
+LIDEAL ip = ideal OF p;
+LQI r,s,t;
+BOOL bigloop := TRUE;  minimal:=TRUE;
+BOOL pdiv2 = (CH p = 2),pdiv3 = (CH p = 3), pdiv6 = pdiv2 OR pdiv3;
+QCURVEDATA qc;
+REF LQI a1 = (a1 OF qc := Q(a1 OF c) ),
+       a2 = (a2 OF qc := Q(a2 OF c) ),
+       a3 = (a3 OF qc := Q(a3 OF c) ),
+       a4 = (a4 OF qc := Q(a4 OF c) ),
+       a6 = (a6 OF qc := Q(a6 OF c) ),
+       b2 = (b2 OF qc := Q(b2 OF c) ),
+       b4 = (b4 OF qc := Q(b4 OF c) ),
+       b8 = (b8 OF qc := Q(b8 OF c) ),
+       b6 = (b6 OF qc := Q(b6 OF c) ),
+       c4 = (c4 OF qc := Q(c4 OF c) ),
+       c6 = (c6 OF qc := Q(c6 OF c) ),
+       dl = (dl OF qc := Q(dl OF c) );
+ 
+OP ORDP = (LGI a)INT: IF a=lzero THEN 100000 ELSE lord(p,a) FI;
+OP ORDP = (LQI q)INT: IF q=lqzero THEN 100000 ELSE lord(p,N q)-lord(p,G D q) FI;
+OP ZP   = (LQI q)BOOL: ORDP(q)>0;
+[]LGI resmodp = lidealresidues(ip);
+INT normp = UPB resmodp;
+[normp]LQI qresmodp;
+FOR i TO normp DO qresmodp[i] := Q resmodp[i] OD;
+ 
+PROC root = (LQI a,INT e)LQI:
+BEGIN BOOL found := FALSE;
+      LQI ans;
+      FOR i TO normp WHILE NOT found
+      DO ans:=qresmodp[i];
+         found:=ZP((e|ans,ans*ans,ans*ans*ans) - a)
+      OD;
+      ans
+END;
+ 
+OP MODP = (LQI a)LQI:root(a,1);
+ 
+OP INVP = (LQI a)LQI:
+BEGIN IF ORDP a = 0
+      THEN BOOL found := FALSE; LQI ans;
+           FOR i TO normp WHILE NOT found
+           DO ans:=qresmodp[i];
+              found := ZP(lqone-a*ans)
+           OD;
+           ans
+      ELSE print("OP INVP called with nonunit ");printlqi(a);print(newline);
+           SKIP
+      FI
+END;
+ 
+LQI halfmodp; IF NOT pdiv2 THEN halfmodp := INVP(Q ltwo) FI;
+ 
+LQI pi = Q(gen2 OF ip);    {local uniformizer}
+LQI p1,p2,p3,p4,p6;
+p1:=pi;p2:=pi*pi;p3:=pi*p2;p4:=pi*p3;p6:=p3*p3;
+ 
+INT exit;INT vpdl := ORDP dl;
+ 
+ 
+WHILE bigloop DO
+ 
+IF   NOT ZP(dl) THEN koda:=0;retf:=0;end(bigloop)                              {Type I0}
+ELIF NOT ZP(c4) THEN koda:=10*vpdl;retf:=1;end(bigloop)                        {Type In (n = val(p,disc)}
+ELSE {Change coords so that p|a3,a4,a6}
+    IF   pdiv2 THEN r:= root(-a4,2);    t:= root((a2*a4)-a6,2)
+    ELIF pdiv3 THEN r:= root(-b6,3);    t:= a3+(r*a1)
+    ELSE            r:= -INVP(Q ltwelve)*b2;t:= -((r*a1)+a3)* halfmodp
+    FI;
+    r:=MODP r;t:=MODP t;
+    qtransc(r,lqzero,t,qc);
+    IF  ORDP(a6)<2 THEN koda:=2;retf:=vpdl;end(bigloop)               {Type II}
+    ELIF ORDP(b8)<3 THEN koda:=3;retf:=vpdl-1;end(bigloop)             {Type III}
+    ELIF ORDP(b6)<3 THEN koda:=4;retf:=vpdl-2;end(bigloop)             {Type IV}
+    ELSE {Change coords so that p|a1,a2, p2|a3,a4, p3|a6}
+        IF   pdiv2 THEN s:=root(a2,2);t:=pi*root(a6/(pi*pi),2)
+        ELIF pdiv3 THEN s:=a1;        t:=a3
+        ELSE            s:=-a1*halfmodp;t:=-a3*halfmodp
+        FI;
+        qtransc(lqzero,s,t,qc);
+ 
+        {                            3     2
+         Analyse roots of the cubic T  + bT  + cT + d = 0, where
+         b=a2/p, c=a4/p2, d=a6/p3}
+ 
+        LQI b=a2/p1,cc=a4/p2,d=a6/p3,b2=b*b,c2=cc*cc,bc=b*cc;
+        LQI w= (Q 27)*d*d - b2*c2 + (Q 4)*b*b2*d - (Q 18)*bc*d + (Q 4)*cc*c2;
+        LQI x= (Q 3)*cc - b2;
+ 
+        exit := ( ZP(w) | ( ZP(x) | 3 | 2 ) | 1 );
+ 
+        CASE exit IN
+ 
+        {Case 1: Three distinct roots  -                                        Type I*0}
+        (koda := 1; retf := vpdl-4; end(bigloop)),
+ 
+        {Case 2: One double root  -                                             Type I*m for some m}
+        BEGIN
+        r := (pdiv2|root(cc,2)|(pdiv3|cc*INVP(b)|(bc-(Q 9)*d)*INVP(x+x)));
+        r := p1 * MODP(r); INT ix :=3; INT iy := 3; LQI mx :=p2; LQI my := p2;
+        qtransc(r,lqzero,lqzero,qc);
+        LQI a2t,a3t,a4t,a6t;
+        BOOL loop := TRUE;
+        WHILE loop DO
+           a2t:=a2/p1;a3t:=a3/my;a4t:=a4/(p1*mx);a6t:=a6/(mx*my);
+           IF ZP(a3t*a3t + (Q 4)*a6t) THEN
+              t:=(pdiv2|my*root(a6t,2)|my*MODP(-a3t*halfmodp));
+              qtransc(lqzero,lqzero,t,qc);
+              my:=my*p1;iy:=iy+1;
+              a2t:=a2/p1;a3t:=a3/my;a4t:=a4/(p1*mx);a6t:=a6/(mx*my);
+              IF ZP(a4t*a4t - (Q 4)*a6t*a2t) THEN
+                 r:=(pdiv2|mx*root(a6t*INVP(a2t),2)|mx*MODP(-a4t*INVP(a2t+a2t)));
+                 qtransc(r,lqzero,lqzero,qc);
+                 mx:=mx*p1;ix:=ix+1
+                 {continue loop}
+              ELSE end(loop)
+              FI
+           ELSE end(loop)
+           FI
+        OD;
+        retf := vpdl - ix - iy + 1;
+        koda := 10 * (ix + iy) - 49;
+        end(bigloop)
+        END,
+ 
+ 
+        {Case 3: Triple root}
+        BEGIN
+        r := (pdiv2|b|(pdiv3|root(-d,3)|-b*INVP(Q lthree)));
+        r := p1 * MODP(r);
+        qtransc(r,lqzero,lqzero,qc);
+        LQI a3t := a3 / p2;LQI a6t := a6 / p4;
+        IF NOT ZP(a3t*a3t + (Q 4)*a6t)   THEN koda:=5;retf:=vpdl-6;end(bigloop)    {Type IV*}
+        ELSE
+             t:=(pdiv2|-p2*root(a6t,2)|p2*MODP(-a3t*halfmodp));
+             qtransc(lqzero,lqzero,t,qc);
+             IF   ORDP(a4)<4 THEN koda:=6;retf:=vpdl-7;end(bigloop)    {Type III*}
+             ELIF ORDP(a6)<6 THEN koda:=7;retf:=vpdl-8;end(bigloop)    {Type II*}
+             ELSE  {Equation was not minimal}
+                  a1:=a1/p1;a2:=a2/p2;a3:=a3/p3;a4:=a4/p4;a6:=a6/p6;
+                  minimal := FALSE;
+                  qc := qsetup(QCURVECOORDS(a1,a2,a3,a4,a6));
+                  vpdl := ORDP(dl)
+                  {continue bigloop}
+             FI
+        FI
+        END
+ 
+        OUT SKIP ESAC
+    FI
+FI
+OD {bigloop}
+END;
+ 
+PROC ptype = (CURVEDATA c,LPRIME p,REF INT koda,retf,REF BOOL minimal)VOID:
+BEGIN (PRINC p|p1type|p2type)(c,p,koda,retf,minimal)
+END;
+ 
+PROC curvetype = (CURVEDATA c,LPRIME p,REF INT koda,f,REF BOOL minimal)VOID:
+BEGIN
+IF p DIV LENG(two*three) THEN ptype(c,p,koda,f,minimal) ELSE
+LGI c4 = c4 OF c,disc = dl OF c;
+INT vpdisc = lord(p,disc);  minimal := TRUE;
+ 
+IF c4 = lzero THEN
+  koda :=   IF vpdisc = 2 THEN 2
+          ELIF vpdisc = 4 THEN 4
+          ELIF vpdisc = 8 THEN 5
+          ELIF vpdisc = 10 THEN 7 FI;
+  f := 2
+ELSE
+  INT vpc4 = lord(p,c4), vpj = 3*vpc4 - vpdisc;
+ 
+  IF vpdisc = 0 THEN koda := f := 0
+  ELIF vpj+vpdisc = 0 THEN koda := 10*vpdisc; f:= 1
+  ELSE f:=2;
+    IF vpdisc = 2 THEN koda:=2
+    ELIF vpdisc = 3 THEN koda:=3
+    ELIF vpdisc = 4 THEN koda := 4
+    ELIF vpdisc = 6 THEN koda := 1
+    ELIF vpdisc+vpj = 6 THEN koda := 10 * (vpdisc-6) + 1
+    ELIF vpdisc = 8 THEN koda := 5
+    ELIF vpdisc = 9 THEN koda := 6
+    ELIF vpdisc = 10 THEN koda := 7
+    ELSE ptype(c,p,koda,f,minimal) {This should never happen unless the equation was not minimal}
+    FI
+  FI
+FI
+FI
+END;
+ 
+PROC tcurve = (CURVECOORDS cc,[]LPRIME plist,[]INT koda,f,[]BOOL minimal,BOOL display)REF LIDEAL:
+BEGIN
+CURVEDATA c = setup(cc);
+LGI a1=a1 OF c,a2=a2 OF c,a3=a3 OF c,a4=a4 OF c,a6=a6 OF c;
+HEAP LIDEAL conductor := unitlideal;
+CHAR star = "*";
+LPRIME pri;
+LGI disc = dl OF c,c4 = c4 OF c,c6 = c6 OF c;
+IF display THEN
+   TO 79 DO print(star) OD;print(newline);
+   print(("Coefficients of curve:  ("));printlgi(a1);print(",");
+                                        printlgi(a2);print(",");
+                                        printlgi(a3);print(",");
+                                        printlgi(a4);print(",");
+                                        printlgi(a6);print((")",newline));
+   print("c4 = ");printlgi(c4);print("  c6 = ");printlgi(c6);print(newline);
+   print("Discriminant");printlgi(disc);print(newline)
+FI;
+ 
+FOR i TO UPB plist
+DO pri:=plist[i];
+   INT kodai = koda[i],fi = f[i];
+   INT nw = lord(pri,disc);
+   IF display THEN
+      print("Reduction at ");outlprime(pri);print(" : ");
+      IF kodai MOD 10 = 1 THEN
+            INT ct = (kodai-1)%10;
+            print((" Type I*",ct," Exp. in disc. = ",nw))
+      ELIF kodai MOD 10 = 0 THEN
+            INT ct = kodai%10;
+            print((" Type I",ct," Exp. in disc. = ",nw))
+      ELSE
+            STRING type = CASE kodai IN "Type I   ","Type II  ","Type III ","Type IV  ","Type IV* ",
+                                       "Type III*","Type II* ","Type ????" OUT SKIP ESAC;
+            print((type," Exp. in disc. = ",nw))
+      FI;
+      print(("  Exp. in cond. = ",fi,newline));
+      IF NOT minimal[i]
+      THEN print(("Equation not minimal at ",name OF pri,newline))
+      FI
+   FI;
+ 
+   TO fi DO conductor := conductor * ideal OF pri OD
+OD;
+{print conductor}
+ 
+IF display THEN
+   outlideal("Conductor",conductor);print((newline,newline))
+FI;
+ 
+conductor
+END;
+ 
+PROC analyse = (CURVECOORDS curve,BOOL display)REF LIDEAL:
+BEGIN
+   CURVEDATA cdata := setup(curve);
+   LGI disc  := dl OF cdata;
+   LIDEAL idisc := makelideal1(disc);
+   []PPOWER support = lprimeidealfactors(idisc,FALSE);
+   INT nsup = UPB support;
+   [nsup]LPRIME plist;
+   FOR i TO nsup DO plist[i] := lprimes[index OF support[i]] OD;
+   [nsup]INT k,f;   [nsup]BOOL minimal;
+   FOR i TO nsup DO curvetype(cdata,plist[i],k[i],f[i],minimal[i]) OD;
+   stdform(cdata);
+   CURVECOORDS newcurve := (a1 OF cdata,a2 OF cdata,a3 OF cdata,a4 OF cdata,a6 OF cdata);
+   tcurve(newcurve,plist,k,f,minimal,display)
+END
+ 
+KEEP CURVEDATA,CURVECOORDS,setup,transc,stdform,
+     QCURVEDATA,QCURVECOORDS,qsetup,qtransc,end,
+     p1type,p2type,ptype,curvetype,tcurve,analyse
+ 
+FINISH

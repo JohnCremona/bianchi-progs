@@ -1,0 +1,161 @@
+DECS splitall USE decs,gibasics,newlinalg:
+ 
+[1:50]REF[,]INT tpmats;
+[1:50]BOOL tpknown;
+ 
+INT n1ds;
+ 
+MODE EIGENPACKET = STRUCT(REF[]INT basis,REF[]GI plist,REF[]INT aplist,INT sign);
+ 
+REF[]EIGENPACKET eplist;
+ 
+FILE out;
+ 
+PROC initstore = VOID:
+BEGIN
+   STRING filename = "bin"+whole(field,0)+".e"+whole(r OF mod,0)+"_"+whole(i OF mod,0);
+   establish(out,filename,alienoutchannel,1,500,120);
+   putbin(out,(nsymb,1 UPB coord,rank,dimension,denom1,denom2,n1ds));
+   putbin(out,coordindex);
+   putbin(out,coord);
+   putbin(out,needed);
+   putbin(out,freemods);
+   putbin(out,tbasis1);
+   SKIP
+END;
+ 
+PROC store = (EIGENPACKET ep)VOID:
+BEGIN
+   putbin(out,basis OF ep) ;
+   putbin(out,UPB aplist OF ep);
+   putbin(out,plist OF ep);
+   putbin(out,aplist OF ep);
+   putbin(out,sign OF ep)
+END;
+ 
+PROC endstore = VOID: close(out);
+ 
+PROC restore = VOID:
+BEGIN
+   FILE in;
+   STRING filename = "bin"+whole(field,0)+".e"+whole(r OF mod,0)+"_"+whole(i OF mod,0);
+   open(in,filename,alieninchannel);
+   INT ncoord;
+   getbin(in,(nsymb,ncoord,rank,dimension,denom1,denom2,n1ds));
+   codimension:=rank-dimension;
+   denom:=denom1*denom2;
+   zerovector:=HEAP[rank]INT; clear(zerovector);
+   psi := nsymb;
+   coordindex := HEAP[nsymb]INT;   getbin(in,coordindex);
+   coord := HEAP[ncoord,rank]INT;   getbin(in,coord);
+   needed:=HEAP[rank]BOOL;   getbin(in,needed);
+   freemods:=HEAP[rank]MODSYM;   getbin(in,freemods);
+   tbasis1:=HEAP[rank,dimension]INT;   getbin(in,tbasis1);
+ 
+   eplist := HEAP[n1ds]EIGENPACKET;
+   FOR i TO n1ds
+   DO HEAP EIGENPACKET ep;
+      basis OF ep := HEAP[dimension]INT;      getbin(in,basis OF ep);
+      INT nap; getbin(in,nap);
+      plist OF ep := HEAP[nap]GI;      getbin(in,plist OF ep);
+      aplist OF ep := HEAP[nap]INT;      getbin(in,aplist OF ep);
+      getbin(in,sign OF ep);
+      eplist[i]:=ep
+   OD;
+   close(in)
+END;
+ 
+PROC usespace = (SUBSPACE s, []INT aplist,[]GI plist,INT sign,BOOL display)VOID:
+BEGIN
+IF display THEN
+   print((newline,"Found a 1D eigenspace",newline));
+   print(("List of  p (good p only): "));
+   FOR i TO UPB plist DO setcharnumber(standout,20+12*i);
+                         printgi(plist[i])
+                      OD;
+   print((newline));
+   print(("List of ap (good p only): "));
+   FOR i TO UPB plist DO setcharnumber(standout,20+12*i);
+                         print(aplist[i])
+                      OD;
+   print((newline))
+FI;
+   HEAP EIGENPACKET newep;
+   basis OF newep := HEAP[dimension]INT := (basis OF s)[,1];
+   plist OF newep := HEAP[UPB plist]GI := plist;
+   aplist OF newep := HEAP[UPB aplist]INT := aplist;
+   sign OF newep := sign;
+   eplist[n1ds+:=1] := newep
+END;
+ 
+INT dimsplit;
+ 
+PROC split = (SUBSPACE s,INT ip,depth,[]INT aplist,[]GI plist,INT sign,BOOL display)VOID:
+BEGIN
+   INT dimsofar = DIM s;
+   IF ((dimsofar=1) AND (depth>0))
+   THEN usespace(s,aplist,plist,sign,display); dimsplit +:=1
+   ELIF (depth=maxdepth)
+   THEN IF display THEN
+        print((newline,"Found a "+whole(dimsofar,0)+"D common eigenspace",newline));
+        print(("List of  p (good p only): "));
+        FOR i TO UPB plist DO setcharnumber(standout,20+12*i);
+                              printgi(plist[i])
+                           OD;
+        print((newline));
+        print(("List of ap (good p only): "));
+        FOR i TO UPB plist DO setcharnumber(standout,20+12*i);
+                              print(aplist[i])
+                           OD;
+        print((newline))
+        FI;
+        dimsplit +:= dimsofar
+   ELSE BOOL temp := TRUE;
+        INT inewp:=ip; GI  newp;
+        WHILE temp DO temp:=(newp:=primes[inewp+:=1]) DIV mod OD;
+        IF NOT tpknown[inewp]
+        THEN tpmats[inewp] := transpose(heckeop(inewp,FALSE));
+             tpknown[inewp] := TRUE
+        FI;
+        REF[,]INT t := tpmats[inewp] RESTRICTEDTO s;
+        SUBSPACE spaceleft := s;
+        INT aplim = ENTIER(2*sqrt(norm(newp)));
+        FOR a TO 2*aplim+1 WHILE DIM spaceleft > 0
+        DO INT ap = (ODD a | (1-a)%2 | a%2);
+           SUBSPACE newspace = combine(spaceleft,eigenspace(t,denom*ap*(d OF spaceleft)));
+           INT newdim = DIM newspace;
+           IF (newdim>0)
+           THEN INT newdepth = depth+1;
+                [newdepth]INT newaplist;
+                newaplist[1:depth] := aplist;
+                newaplist[newdepth] := ap;
+                [newdepth]GI newplist;
+                newplist[1:depth] := plist;
+                newplist[newdepth] := newp;
+                split(newspace,inewp,newdepth,newaplist,newplist,sign,display);
+                SKIP
+           FI
+        OD
+   FI
+END;
+ 
+PROC geteigenpackets = (INT md, BOOL display)VOID:
+BEGIN maxdepth := md;
+      dimsplit := n1ds := 0;
+      clear(tpknown);
+      eplist := HEAP[dimension]EIGENPACKET;
+      [,]INT cmat = transpose(jmatrix(FALSE));
+      FOR isign TO 2
+      DO INT sign = (isign|+1,-1);
+         SUBSPACE startingspace = eigenspace(cmat,denom*sign);
+         split(startingspace,0,0,LOC[1:0]INT,LOC[1:0]GI,sign,display)
+      OD
+END;
+ 
+SKIP
+ 
+KEEP usespace,split,dimsplit,n1ds,tpmats,tpknown,
+     EIGENPACKET,eplist,geteigenpackets,
+     store,restore,initstore,endstore
+ 
+FINISH

@@ -1,0 +1,2308 @@
+DECS symb USE hyper,gibasics,newlinalg,newlinalgmodp,intbasics:
+ 
+MODE SYMB = STRUCT(GI c,d);
+MODE MODSYM = STRUCT(QI a,b);
+OP A = (MODSYM m)REF QI:BEGIN HEAP QI ans :=  a OF m; ans END;
+OP B = (MODSYM m)REF QI:BEGIN HEAP QI ans :=  b OF m; ans END;
+OP C = (SYMB s)REF GI:BEGIN HEAP GI ans :=  c OF s; ans END;
+OP D = (SYMB s)REF GI:BEGIN HEAP GI ans :=  d OF s; ans END;
+ 
+GI mod;
+BOOL verbose;
+INT normod,nplist,nsymb,phi,rank,dimension,codimension,
+    denom1,denom2,denom,sign;
+REF[]GI plist;
+INT wmodz,n0,n0m0;
+REF[]INT invtable, dstarts, starts, noninv, noninvdiv ,nistarts;
+REF[]GI divs;  INT ndivs, nnoninv;
+ 
+REF[]INT zerovector;
+REF[]SYMB symbols;
+ PROC (REF REAL) VOID rclock = ALIEN "RCLOCK";
+REAL time;
+REF[][]INT freegens;
+REF[,]INT coordindex,coord; SUBSPACE kern;
+REF[]MODSYM freemods;
+REF[]BOOL needed;
+MODE RELATION = STRUCT (REF[]INT coeff, REF[]MATRIX mat, REF[]INT newtype);
+PROC printmat = (MATRIX m)VOID: BEGIN GI det := DET(m); print("Det = ");
+                    printgi(det);print(newline) END;
+ 
+OP = = (SYMB s,t)BOOL:   mod DIV (Cs*Dt-Ct*Ds);
+ 
+PROC findsymb = (SYMB s,REF []SYMB list, INT up, start)INT:
+(INT ans:=0;
+ FOR i FROM start TO up WHILE (ans=0) DO
+ IF s = list[i] THEN ans:=i FI
+ OD;
+ans);
+ 
+PROC showsymb = (REF []SYMB s, INT n)VOID:
+(print(newline);
+ FOR i TO n
+ DO print("(");printgi(Cs[i]); print(" : "); printgi(Ds[i]);
+    print((")",newline))
+OD);
+ 
+{
+PROC findgi = (GI g, []GI list)INT:
+BEGIN INT ans := 0;
+      FOR i TO UPB list WHILE ans=0
+      DO IF g=list[i] THEN ans:=i FI
+      OD;
+      ans
+END;
+}
+ 
+PROC printsym = (SYMB s)VOID:
+BEGIN print("(");printgi(Cs);print(":");printgi(Ds);print(")") END;
+ 
+ 
+PROC numres = (GI beta)INT:
+BEGIN INT y = Ibeta, x = Rbeta;
+      INT r = y MOD n0;
+      INT rdash = (x+wmodz*(y-r)) MOD n0m0;
+      1 + rdash + r*n0m0
+END;
+ 
+PROC resnum = (INT h)GI:
+BEGIN INT h0 = h-1;
+      INT rdash = h0 MOD n0m0;
+      INT r = (h0-rdash)%n0m0;
+      GI(rdash,r)
+END;
+ 
+PROC setup = VOID:
+BEGIN
+   plist := giprimefactors(mod);  nplist:=UPB plist;
+   REF INT psi = nsymb;
+   phi:=psi:=normod := norm(mod);
+   FOR i TO nplist
+   DO INT np = norm(plist[i]);
+      phi := (phi*(np-1))%np;
+      psi := (psi*(np+1))%np
+   OD;
+   nnoninv := normod-phi;
+ 
+   INT a = Rmod, b = Imod;
+   []INT nxy = bezout(a,b);  {??? is this the right name ??}
+   n0 := nxy[1];
+   INT x = nxy[2], y = nxy[3];
+   n0m0 := normod % n0;
+   INT a0 = a%n0, b0 = b%n0;
+   wmodz := (b0 * normw + a0) * x - a0*y;   {normw = 5, 11, 17, 41}
+ 
+   invtable := HEAP[normod]INT;
+   noninv := HEAP[nnoninv]INT;
+   noninvdiv := HEAP[nnoninv]INT;
+   divs := HEAP[nnoninv]GI;      {upper bound for no. of divisors}
+ 
+   INT nx := 0;  {will count non-inv. residues as they are found}
+   ndivs := 0;  {will count divisors as they are found}
+   FOR i TO normod
+   DO GI res = resnum(i);
+      []GI bez = gibezout(res,mod);
+      GI d = bez[1];
+      IF d=one THEN invtable[i] := numres(bez[2])
+               ELSE noninv[nx+:=1] := i;
+                    invtable[i] := -nx;
+                    IF NOT (norm(d)=normod) THEN
+                    INT nxd := findgi(d,divs[1:ndivs]);
+                    IF nxd=0 THEN divs[ndivs+:=1] := d; nxd:=ndivs FI;
+                    noninvdiv[nx]:=nxd
+                    FI
+               FI
+   OD;
+ 
+   divs := divs[1:ndivs]
+ 
+END;  {end of PROC setup}
+ 
+PROC makesymbols = VOID:
+BEGIN
+   symbols := HEAP[1:nsymb]SYMB;
+   dstarts := HEAP[ndivs]INT;
+   nistarts := HEAP[nnoninv]INT;
+   FOR i TO normod DO symbols[i] := SYMB(resnum(i) MODULO mod, one) OD;
+   FOR i TO nnoninv DO symbols[normod+i] := SYMB(one,resnum(noninv[i]) MODULO mod) OD;
+   SYMB s; INT n2:=normod+nnoninv; INT n1 := n2+1;   GI c,d;
+   IF normod+nnoninv<nsymb THEN
+      FOR i TO ndivs
+      DO c := divs[i];
+         dstarts[i] := n2+1;
+         FOR j TO nnoninv
+         DO d := resnum(noninv[j]);
+            IF ((NOT(d=zero)) AND coprime(c,d))
+            THEN
+               s:=SYMB(c,d);
+               IF (findsymb(s,symbols,n2,dstarts[i]) = 0)
+               THEN symbols[n2+:=1] := s
+               FI
+            FI
+         OD
+      OD
+   FI;
+{*****    FOR i TO nnoninv DO
+   nistarts[i] := dstarts[noninvdiv[i]] OD; *****}
+   IF n2<nsymb THEN
+      print(("Error in PROC makesymbols;   only ",n2," symbols found",
+              newline,"out of ",nsymb," expected",newline,newline))
+   FI;
+IF verbose THEN
+    print(("Symbols",newline));showsymb(symbols,nsymb);
+                 print(newline)
+FI
+END; {of PROC makesymbols}
+ 
+PROC index = (SYMB s)INT:
+BEGIN
+   GI c = Cs, d = Ds;
+   INT nd = numres(d);
+   INT kd = invtable[nd];
+   IF kd>0 THEN numres(c*resnum(kd))  {d invertible}
+   ELSE INT nc = numres(c);
+        INT kc = invtable[nc];
+        IF kc>0 THEN normod-invtable[numres(resnum(kc)*d)]  {c invertible}
+        ELSE  {neither invertible}
+             INT ans = findsymb(s,symbols,nsymb,dstarts[noninvdiv[-kc]]);
+             IF ans=0 THEN print(("Error in PROC index",newline));
+                           print(("Called with "));printsym(s);print(newline)
+             FI;
+             ans
+   FI
+   FI
+END;
+ 
+ 
+OP * = (MATRIX m, SYMB s)INT:
+   index(SYMB(m[1,1]*Cs + m[2,1]*Ds, m[1,2]*Cs + m[2,2]*Ds));
+ 
+PROC symbtomat = (SYMB s)REF MATRIX:
+BEGIN
+      GI c := Cs, d := Ds;
+      []GI gba = gibezout(c,d);
+      GI aa=gba[3],bb=gba[2],g=gba[1];
+      makemat( aa, -bb, (c%g),(d%g))
+END;
+ 
+PROC convert = (SYMB s, INT type)REF MODSYM:
+BEGIN HEAP MODSYM ans;
+      REF QI a = a OF ans, b = b OF ans;
+      MATRIX m = symbtomat(s);
+      a := qicancel(apply(m,shortlist[type]));
+      b := qicancel(apply(m,infinity));
+      ans
+END;
+ 
+PROC([,]INT)SUBSPACE  ker;   {Assigned later for easy choice of method}
+LONG INT prime = LONG 2147483647;
+PROC kermodp = ([,]INT m)SUBSPACE:
+BEGIN
+   kernelmodp(m,prime)
+END;
+ 
+PROC relate19 = VOID:
+BEGIN
+MATRIX smatrix := makemat((0,0),(-1,0),(1,0),(0,0)),
+       tsmatrix := makemat((1,0),(-1,0),(1,0),(0,0)),
+       s3       := makemat((0,1),(2,0),(2,0),(1,-1)),
+       mmatrix  := makemat((1,1),(2,-1),(2,0),(0,-1)),
+       s3i      := makemat((1,-1),(-2,0),(-2,0),(0,1)),
+       jmatrix  := makemat((-1,0),(0,0),(0,0),(1,0)),
+       kmatrix  := makemat((-1,0),(0,1),(0,0),(1,0)),
+       s3is     := makemat((-2,0),(-1,1),(0,1),(2,0)),
+        rmat    := makemat((0,0),(1,0),(1,0),(0,0));
+ 
+   coordindex := HEAP[2,nsymb]INT;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*2][2]INT gens;
+ 
+{Type 2,   2-term relations}
+ 
+restart;
+FOR j FROM nsymb BY -1 TO 1
+DO IF notyet[j] THEN
+   INT k = kmatrix * symbols[j];
+   notyet[j] := notyet[k] := FALSE;
+   IF sign=-1 AND j=k
+   THEN coordindex[2,k] := 0
+   ELSE gens[ngens+:=1] := (2,j);
+        coordindex[2,j] := ngens;
+        coordindex[2,k] := sign * ngens
+   FI
+   FI
+OD;
+ 
+ 
+{Type 1,   2-term relations}
+ 
+restart;
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   IF notyet[j] THEN
+   INT k = smatrix * symbols[j];
+   INT l = jmatrix * symbols[j];
+   INT m = smatrix * symbols[l];
+   notyet[j] := notyet[k] := notyet[l] := notyet[m] := FALSE;
+   IF j=k OR j=(sign=1|m|l)
+   THEN FOR i TO 4 DO coordindex[1,(i|j,l,k,m)] := 0 OD
+   ELSE gens[ngens+:=1] := (1,j);
+        coordindex[1,j] := ngens;
+        coordindex[1,k] := -ngens;
+        coordindex[1,l] := sign * ngens;
+        coordindex[1,m] := -sign * ngens
+   FI
+   FI
+OD;
+ 
+IF TRUE THEN
+   print(("After 2-term relations, ngens = ",ngens,newline))
+FI;
+ 
+{ 3-term relations }
+ 
+HEAP[2*ngens,ngens]INT relmat;
+INT numrel := 0;
+[ngens]INT newrel;
+ 
+PROC addterm = (INT c)VOID:
+IF c/=0 THEN newrel[ABS c] +:= SIGN c FI;
+ 
+PROC userelation = VOID:
+BEGIN INT h = vecgcd(newrel);
+      IF h/=0
+      THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+           numrel+:=1;
+           IF numrel>(1 UPB relmat) THEN print(("Not enough rows in relmat!",newline)) ; stop FI;
+           relmat[numrel,] := newrel
+           FI
+END;
+ 
+{Types 1 and 2,  3-term relations}
+ 
+FOR case TO 2  {3  N.B. Change by JC 21/6/91; third type of relation redundant}
+DO MATRIX m = (case|tsmatrix,s3,mmatrix);
+   INT type = (case|    1   ,2 ,   2   );
+   restart;
+   FOR j TO nsymb
+   DO IF notyet[j]
+   THEN INT k = m * symbols[j];
+        INT l = m * symbols[k];
+        FOR i TO 3 DO notyet[(i|j,k,l)] := FALSE OD;
+        IF case=1
+        THEN FOR i TO 3 DO notyet[rmat*symbols[(i|j,k,l)]] := FALSE OD
+        FI;
+        setzero(newrel);
+        FOR i TO 3 DO addterm(coordindex[type,(i|j,k,l)]) OD;
+        userelation
+       FI
+   OD;
+   print(("After 3-term relation type ",case,", numrel = ",numrel,newline));
+   SKIP
+OD;
+ 
+{ Mixed 4-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT k = smatrix * symbols[j];
+   INT l = s3is * symbols[j];
+   INT i = s3i * symbols[j];
+   notyet[j] := notyet[l] := FALSE;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(coordindex[2,k]);
+   addterm(coordindex[1,l]);
+   addterm(coordindex[2,i]);
+   userelation
+   FI
+OD;
+ 
+ 
+ 
+IF TRUE THEN print(("All relations used; relation matrix is ",numrel," x ",ngens,newline)) FI;
+{
+FILE dump; STRING dumpname;
+print(("Enter filename for dumping relmat (<Return> for none):",newline));
+read((newline,dumpname));
+IF dumpname/=""
+THEN establish(dump,dumpname,alienoutchannel,1,numrel,5*ngens);
+     FOR i TO numrel
+     DO put(dump,(relmat[i,],newline))
+     OD;
+     close(dump);
+     print(("Dump complete.",newline))
+FI;
+}
+ 
+ 
+   {All relations have now been used}
+ 
+   SUBSPACE s = ker(relmat[1:numrel,]);
+   rank := DIM s;
+   coord := basis OF s;
+   denom1 := d OF s;
+   HEAP[rank][2]INT free;
+   []INT piv = pivots OF s;
+   FOR i TO rank DO free[i] := gens[piv[i]] OD;
+   freegens:=free;
+   coord := purge2(coordindex,coord);
+ 
+   freemods := HEAP[rank]MODSYM;
+   FOR i TO rank
+   DO freemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+ 
+   IF TRUE THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+ 
+END;   {of PROC relate19}
+ 
+{
+ New version -- should get this to work some time!
+ 
+PROC relate43 = VOID:
+BEGIN
+   MATRIX   smatrix = makemat( zero , -one , one , zero),
+            jmatrix = makemat( -one , zero , zero,  one),
+           tsmatrix = makemat(  one , -one , one , zero),
+                m13 = makemat( w-one , (5,0) , two , -w ),
+                m7  = makemat( w     , (5,-1), two , (-1,-1) ),
+                m12 = makemat( w     , (4,0) , three , one-w ),
+              m3m12 = makemat( -three, w     , w-one , (4,0) ),
+                m9  = makemat( (-4,1), (5,1) , (1,1) , (4,-1) ),
+            kmatrix = makemat( -one , w , zero , one),
+            lmatrix = makemat( (1,1) , (3,-1) , (3,0) , (-1,-1)),
+          ts2matrix = makemat( zero , -one , one , -one),
+                n4i = makemat((-4,0),w,(-1,1),(3,0));
+ 
+   coordindex := HEAP[2,nsymb]INT;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*2][2]INT gens;   {probably nsymb would do}
+ 
+{Type 2,  no 2-term relations}   {Type 2 is old type 3 !!}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(2,j);
+   coordindex[2,j] := ngens
+OD;
+ 
+   {Type 1, 2-term relations}
+ 
+      restart;
+      FOR j FROM nsymb BY -1 TO 1
+      DO IF notyet[j] THEN
+         SYMB s = symbols[j];
+         INT k = jmatrix*s;
+         INT l = smatrix*s;
+         INT m = smatrix*symbols[k];
+         FOR i TO 4 DO notyet[(i|j,k,l,m)] := FALSE OD;
+         IF j=l OR j=(sign=1|m|k)
+         THEN FOR i TO 4 DO coordindex[1,(i|j,k,l,m)] := 0 OD
+         ELSE gens[ngens+:=1] := (1,j);
+              coordindex[1,j]:= ngens;
+              coordindex[1,l]:=-ngens;
+              coordindex[1,k]:=sign*ngens;
+              coordindex[1,m]:=-sign*ngens
+         FI
+         FI
+   OD;
+ 
+ 
+IF verbose THEN
+   print(("After 2-term relations, ngens = ",ngens,newline));
+FOR i TO ngens DO print((gens[i],newline)) OD
+FI;
+ 
+   {3-term relations}
+ 
+   HEAP[2*ngens,ngens]INT relmat;
+   INT numrel := 0;
+   [ngens]INT newrel;
+ 
+   PROC addterm = (INT coeff,type,snumber)VOID:
+   BEGIN INT c = coeff*coordindex[type,snumber];
+         IF c/=0 THEN newrel[ABS c] +:= SIGN c FI
+   END;
+ 
+   PROC userelation = VOID:
+   BEGIN INT h = vecgcd(newrel);
+         IF h/=0
+         THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+              numrel+:=1;
+              IF numrel>2*ngens THEN print(("Too many relations!",newline)) FI;
+              relmat[numrel,]:=newrel
+         FI
+   END;
+ 
+   {Type 1, 3-term relation}
+ 
+      restart;
+      FOR j TO nsymb
+      DO IF notyet[j]
+      THEN INT k = tsmatrix * symbols[j];
+           INT l = tsmatrix * symbols[k];
+           notyet[j]:=notyet[k]:=notyet[l] := FALSE;
+           setzero(newrel);
+           addterm(1,1,j);
+           addterm(1,1,k);
+           addterm(1,1,l);
+           userelation
+      FI OD;
+ 
+{4-term relation #1}
+ 
+restart;
+FOR j TO nsymb
+DO IF notyet[j] THEN
+   INT k = lmatrix * symbols[j];
+   INT l = m12 * symbols[j];
+   INT m = lmatrix * symbols[l];
+    notyet[j]:=notyet[k]:=FALSE;
+   setzero(newrel);
+   addterm(1,2,j);
+   addterm(1,2,k);
+   addterm(sign,2,l);
+   addterm(sign,2,m);
+   userelation
+FI OD;
+ 
+{Mixed 6-term relation}
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT k = kmatrix * symbols[j];
+   INT l = n4i * symbols[j];
+   INT n = kmatrix * symbols[l];
+   notyet[j]:=notyet[k]:=FALSE;
+   setzero(newrel);
+   addterm(1,2,j);
+   addterm(-1,2,n);
+   addterm(1,1,n);
+   addterm(-sign,2,k);
+   addterm(-sign,1,l);
+   addterm(sign,2,l);
+   userelation
+   FI
+OD;
+ 
+{9-term relation}
+ 
+restart;
+FOR j TO nsymb
+DO IF notyet[j] THEN
+   INT n = m13 * symbols[j];
+   INT m = m13 * symbols[n];
+   INT k = n4i * symbols[j];
+   INT l = m13 * symbols[k];
+   INT p = m13 * symbols[l];
+    notyet[j]:=notyet[n]:=notyet[m]:=FALSE;
+   setzero(newrel);
+   addterm(1,2,j);
+   addterm(1,2,n);
+   addterm(1,2,m);
+   addterm(-sign,1,k);
+   addterm(-sign,1,l);
+   addterm(-sign,1,p);
+   addterm(sign,2,k);
+   addterm(sign,2,l);
+   addterm(sign,2,p);
+   userelation
+FI OD;
+ 
+   {All relations have now been used}
+ 
+   SUBSPACE s = ker(relmat[1:numrel,]);
+   rank := DIM s;
+   coord := basis OF s;
+   denom1 := d OF s;
+   HEAP[rank][2]INT free;
+   []INT piv = pivots OF s;
+   FOR i TO rank DO free[i] := gens[piv[i]] OD;
+   freegens:=free;
+   coord := purge2(coordindex,coord);
+ 
+   freemods := HEAP[rank]MODSYM;
+   FOR i TO rank
+   DO freemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+ 
+   IF verbose THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+ 
+END;   {of PROC relate43}
+ 
+ End of new version
+}
+ 
+PROC relate43 = VOID:
+BEGIN
+   MATRIX   smatrix = makemat( zero , -one , one , zero),
+            jmatrix = makemat( -one , zero , zero,  one),
+           tsmatrix = makemat(  one , -one , one , zero),
+                m13 = makemat( w-one , (5,0) , two , -w ),
+                m7  = makemat( w     , (5,-1), two , (-1,-1) ),
+                m12 = makemat( w     , (4,0) , three , one-w ),
+              m3m12 = makemat( -three, w     , w-one , (4,0) ),
+                m9  = makemat( (-4,1), (5,1) , (1,1) , (4,-1) ),
+            kmatrix = makemat( -one , w , zero , one),
+            lmatrix = makemat( (1,1) , (3,-1) , (3,0) , (-1,-1)),
+          ts2matrix = makemat( zero , -one , one , -one),
+        rmat    = makemat((0,0),(1,0),(1,0),(0,0));
+ 
+   coordindex := HEAP[4,nsymb]INT;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*4][2]INT gens;
+ 
+{Type 4,  2-term relations}
+ 
+restart;
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO IF notyet[j] THEN
+   INT k = lmatrix * symbols[j];
+   notyet[j] := notyet[k] := FALSE;
+   IF k=j THEN coordindex[4,j] := 0
+          ELSE gens[ngens+:=1]:=(4,j);
+           coordindex[4,j] := ngens;
+           coordindex[4,k] := -ngens
+   FI
+   FI
+OD;
+ 
+ 
+{Type 3,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(3,j);
+   coordindex[3,j] := ngens
+OD;
+ 
+   {Type 2, 2-term relations}
+ 
+   restart;
+   FOR j FROM nsymb BY -1 TO 1
+   DO IF notyet[j] THEN
+      INT k = kmatrix * symbols[j];
+      notyet[j] := notyet[k] := FALSE;
+      IF sign=-1 AND j=k
+      THEN coordindex[2,k]:=0
+      ELSE gens[ngens+:=1] := (2,j);
+           coordindex[2,j] := ngens;
+           coordindex[2,k] := sign * ngens
+      FI
+      FI
+   OD;
+ 
+   {Type 1, 2-term relations}
+ 
+      restart;
+      FOR j FROM nsymb BY -1 TO 1
+      DO IF notyet[j] THEN
+         SYMB s = symbols[j];
+         INT k = jmatrix*s;
+         INT l = smatrix*s;
+         INT m = smatrix*symbols[k];
+         FOR i TO 4 DO notyet[(i|j,k,l,m)] := FALSE OD;
+         IF j=l OR j=(sign=1|m|k)
+         THEN FOR i TO 4 DO coordindex[1,(i|j,k,l,m)] := 0 OD
+         ELSE gens[ngens+:=1] := (1,j);
+              coordindex[1,j]:= ngens;
+              coordindex[1,l]:=-ngens;
+              coordindex[1,k]:=sign*ngens;
+              coordindex[1,m]:=-sign*ngens
+         FI
+         FI
+   OD;
+ 
+ 
+IF TRUE THEN
+   print(("After 2-term relations, ngens = ",ngens,newline));
+   SKIP
+FI;
+ 
+   {3-term relations}
+ 
+   HEAP[2*ngens,ngens]INT relmat;
+   INT numrel := 0;
+   [ngens]INT newrel;
+ 
+   PROC addterm = (INT c)VOID:
+   IF c/=0 THEN newrel[ABS c] +:= SIGN c FI;
+ 
+   PROC userelation = VOID:
+   BEGIN INT h = vecgcd(newrel);
+         IF h/=0
+         THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+              numrel+:=1;
+              IF numrel>UPB relmat THEN print(("Not enough rows in relmat!",newline)) FI;
+              relmat[numrel,]:=newrel
+         FI
+   END;
+ 
+   {Types 1 and 2, 3-term relations}
+ 
+   FOR case TO 2     {  type 3 equivalent to type 2!}
+   DO MATRIX m = (case|tsmatrix, m13   , m7 );
+      INT type = (case|    1   ,   2   ,  2 );
+      restart;
+      FOR j TO nsymb
+      DO IF notyet[j]
+      THEN INT k = m * symbols[j];
+           INT l = m * symbols[k];
+           FOR i TO 3 DO notyet[(i|j,k,l)] := FALSE OD;
+        IF case=1
+        THEN FOR i TO 3 DO notyet[rmat*symbols[(i|j,k,l)]] := FALSE OD
+        FI;
+           setzero(newrel);
+           FOR i TO 3 DO addterm(coordindex[type,(i|j,k,l)]) OD;
+           userelation
+      FI OD
+;
+IF TRUE THEN print(("After 3-term relations type ",case," numrel = ",numrel,newline)) FI;
+SKIP
+   OD;
+ 
+{Mixed 3-term relations}
+ 
+FOR j TO nsymb
+DO INT k = m12 * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[3,j]);
+   addterm(-coordindex[4,j]);
+   addterm(sign*coordindex[3,k]);
+   userelation
+OD;
+IF TRUE THEN print(("After 3-term relations type 4 numrel = ",numrel,newline)) FI;
+ 
+{Mixed 4-term relation #1}
+ 
+FOR j TO nsymb
+DO INT k = m3m12 * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[3,j]);
+   addterm(sign*coordindex[2,k]);
+   addterm(-sign*coordindex[3,k]);
+   userelation
+OD;
+IF TRUE THEN print(("After 4-term relations type 1 numrel = ",numrel,newline)) FI;
+ 
+{Mixed 4-term relation #2}
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT k = m9 * symbols[j];
+   notyet[j]:=notyet[k]:=FALSE;
+   setzero(newrel);
+   addterm(coordindex[2,j]);
+   addterm(-coordindex[4,j]);
+   addterm(coordindex[2,k]);
+   addterm(-coordindex[4,k]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 4-term relations type 2 numrel = ",numrel,newline)) FI;
+ 
+   {All relations have now been used}
+ 
+IF TRUE THEN print(("All relations used; relation matrix is ",numrel," x ",ngens,newline)) FI;
+{
+FILE dump; STRING dumpname;
+print(("Enter filename for dumping relmat (<Return> for none):",newline));
+read((newline,dumpname));
+IF dumpname/=""
+THEN establish(dump,dumpname,alienoutchannel,1,numrel,5*ngens);
+     FOR i TO numrel
+     DO put(dump,(relmat[i,],newline))
+     OD;
+     close(dump);
+     print(("Dump complete.",newline))
+FI;
+}
+ 
+   SUBSPACE s = ker(relmat[1:numrel,]);
+   rank := DIM s;
+   coord := basis OF s;
+   denom1 := d OF s;
+   HEAP[rank][2]INT free;
+   []INT piv = pivots OF s;
+   FOR i TO rank DO free[i] := gens[piv[i]] OD;
+   freegens:=free;
+   coord := purge2(coordindex,coord);
+ 
+   freemods := HEAP[rank]MODSYM;
+   FOR i TO rank
+   DO freemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+ 
+   IF verbose THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+ 
+END;   {of PROC relate43}
+ 
+ 
+ 
+PROC relate67 = VOID:
+BEGIN
+MATRIX b2   := makemat((0,1),(6,0),(3,0),(1,-1)),
+       n14  := invmatlist[14],
+       m5   := makemat((-3,1),(6,1),(2,1),(7,-1)),
+       b4   := makemat((0,1),(6,0),(3,0),(1,-1)),
+       n1   := invmatlist[1],
+       m5i  := makemat((-7,1),(6,1),(2,1),(3,-1)),
+      m5ib4 := makemat((1,-3),(-19,0),(-8,0),(-2,3)),
+       b5b4 := makemat((5,1),(7,-2),(6,-1),(-5,-2)),
+       m3i  := makemat((0,1),(8,0),(2,0),(1,-1)),
+       c1   := makemat((-1,0),(0,1),(0,0),(1,0)),
+       b5   := makemat((1,1),(4,-1),(4,0),(-2,-1)),
+       b10  := makemat((0,1),(4,0),(4,0),(1,-1)),
+       m10  := makemat((-1,1),(4,0),(4,0),(0,-1)),
+       b3   := makemat((0,1),(8,-1),(2,0),(-1,-1)),
+       b3i  := makemat((1,1),(8,-1),(2,0),(0,-1)),
+       t    := makemat((1,0),(1,0),(0,0),(1,0)),
+       b3m5i := makemat((-16,1),(10,3),(-1,2),(8,-1)),
+       m4i := makemat((6,1),(1,-2),(3,-1),(-5,0)),
+       m3 := invmatlist[3],
+       m3im5i := makemat((-1,2),(7,-1),(5,0),(-2,-1)),
+       m4ib4 := makemat((14,-1),(-3,-5),(-2,-2),(-13,1)),
+       m3im5ib4 := makemat((-13,-2),(-16,5),(-6,2),(11,2)),
+       b3m5ib4 := makemat((13,-6),(-35,-4),(-10,-2),(-15,4)),
+       b3m3i := makemat((1,1),(9,0),(2,0),(2,-1)),
+       tm3m5i := makemat((-9,0),(4,2),(-3,1),(5,0)),
+       tm3m5ib4 := makemat((12,-3),(-16,-4),(-2,-2),(-13,1)),
+       b10b4 := makemat((-5,1),(4,2),(3,1),(8,-1)),
+       b10b5 := makemat((-1,2),(9,-1),(8,0),(-3,-2)),
+       b10b5b4 := makemat((-7,-2),(-14,3),(-9,2),(11,3)),
+       m10b4 := makemat((-5,0),(-2,2),(0,1),(7,0)),
+       m10b5 := makemat((-2,1),(5,0),(4,0),(-1,-1)),
+       m10b5b4 := makemat((-2,-1),(-7,1),(-3,1),(6,1)),
+       c1m5i := makemat((10,-2),(-11,-1),(-2,-1),(-3,1)),
+       c1m5ib4 := makemat((1,5),(32,-1),(8,0),(2,-3)),
+       c1m3i := makemat((0,-1),(-9,0),(-2,0),(-1,1)),
+       n1b4 := makemat((3,0),(1,-1),(0,-1),(-6,0)),
+       n14b2 := makemat((2,1),(6,-1),(3,0),(0,-1)),
+       ts   := makemat((1,0),(-1,0),(1,0),(0,0)),
+       jmatrix    := makemat((-1,0),(0,0),(0,0),(1,0)),
+       b13i := makemat((5,0),(1,-2),(3,-1),(-6,-1)),
+       tsb4 := makemat((-3,1),(5,1),(0,1),(6,0)),
+       tsts := makemat((0,0),(-1,0),(1,0),(-1,0)),
+       m4 := makemat((5,0),(1,-2),(3,-1),(-6,-1)),
+       m5b16m5i := makemat((-5,-3),(-11,3),(-12,0),(4,3)),
+       m5b16m5ib4 := makemat((18,1),(10,-7),(12,-3),(-17,-4)),
+       m5b16m3i := makemat((-7,2),(10,3),(3,2),(15,-1)),
+       m5b16im5i := makemat((4,3),(11,-3),(12,0),(-5,-3)),
+       m5b16im5ib4 := makemat((-18,-2),(-16,7),(-15,3),(16,5)),
+       m5b16im3i := makemat((2,-2),(-11,-1),(-6,-1),(-9,2)),
+       m5b16b2 := makemat((2,1),(4,-1),(4,0),(-1,-1)),
+       m5b16ib2 := makemat((-3,-2),(-9,1),(-8,0),(-1,2)),
+       m5b2 := makemat((1,1),(5,0),(4,0),(2,-1)),
+       tstsb4 := makemat((-3,0),(-1,1),(-3,1),(5,1)),
+       n1m5 := makemat((-2,-1),(-7,1),(-3,1),(6,1)),
+       jm5 := makemat((3,-1),(-6,-1),(2,1),(7,-1)),
+       jb4 := makemat((0,-1),(-6,0),(3,0),(1,-1)),
+       b15i := makemat((2,1),(7,-1),(5,0),(1,-2));
+ 
+   coordindex := HEAP[2,nsymb]INT;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*2][2]INT gens;
+ 
+{Type 2,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(2,j);
+   coordindex[2,j]:=ngens
+OD;
+ 
+{Type 1,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(1,j);
+   coordindex[1,j]:=ngens
+OD;
+ 
+IF TRUE THEN
+   print(("After 2-term relations, ngens = ",ngens,newline))
+FI;
+ 
+{ Higher order-term relations }
+ 
+   HEAP[4*ngens,ngens]INT relmat;
+   INT numrel := 0;
+   [ngens]INT newrel;
+ 
+   PROC addterm = (INT c)VOID:
+   IF c/=0 THEN newrel[ABS c] +:= SIGN c FI;
+ 
+   PROC userelation = VOID:
+   BEGIN INT h = vecgcd(newrel);
+         IF h/=0
+         THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+              numrel+:=1;
+              IF numrel>4*ngens THEN print(("relmat not large enough!",newline)) FI;
+              relmat[numrel,] := newrel
+         FI
+   END;
+ 
+ 
+{ 4-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = b2 * symbols[j];
+   INT b = n14 * symbols[j];
+   INT c = n14b2 * symbols[j];
+   notyet[j] := notyet[b] := FALSE;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(sign*coordindex[1,a]);
+   addterm(coordindex[1,b]);
+   addterm(sign*coordindex[1,c]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 4-term relation, numrel = ",numrel,newline)) FI;
+{ 8-term relation #1 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j] THEN
+   INT a = m5 * symbols[j];
+   INT b = b4 * symbols[j];
+   INT c = n1 * symbols[j];
+   INT d = n1m5 * symbols[j];
+   INT e = n1b4 * symbols[j];
+   notyet[j]:=notyet[c]:=FALSE;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[1,a]);
+   addterm(sign*coordindex[2,b]);
+   addterm(coordindex[2,a]);
+   addterm(coordindex[1,c]);
+   addterm(-coordindex[1,d]);
+   addterm(sign*coordindex[2,e]);
+   addterm(coordindex[2,d]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 8-term relation #1, numrel = ",numrel,newline)) FI;
+{ 8-term relation #2 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m5i * symbols[j];
+   INT b = m5ib4 * symbols[j];
+   INT c = m3i * symbols[j];
+   INT d = c1 * symbols[j];
+   INT e = c1m5i * symbols[j];
+   INT f = c1m5ib4 * symbols[j];
+   INT g = c1m3i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,d)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[1,a]);
+   addterm(-sign*coordindex[2,b]);
+   addterm(-coordindex[2,c]);
+   addterm(-sign*coordindex[1,d]);
+   addterm(sign*coordindex[1,e]);
+   addterm(coordindex[2,f]);
+   addterm(sign*coordindex[2,g]);
+   userelation
+   FI
+OD;
+IF TRUE THEN print(("After 8-term relation #2, numrel = ",numrel,newline)) FI;
+ 
+{ 8 - term relation - #3 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m5 * symbols[j];
+   INT b = b4 * symbols[j];
+   INT c = jmatrix * symbols[j];
+   INT d = jm5 * symbols[j];
+   INT e = jb4 * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,c)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[1,a]);
+   addterm(sign*coordindex[2,b]);
+   addterm(coordindex[2,a]);
+   addterm(-sign*coordindex[1,c]);
+   addterm(sign*coordindex[1,d]);
+   addterm(-coordindex[2,e]);
+   addterm(-sign*coordindex[2,d]);
+   userelation
+FI
+OD;
+IF TRUE THEN print(("After 8-term relation #3, numrel = ",numrel,newline)) FI;
+ 
+{ 12-term relation #1 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = b4 * symbols[j];
+   INT b = b5 * symbols[j];
+   INT c = b5b4 * symbols[j];
+   INT d = b10 * symbols[j];
+   INT e = b10b4 * symbols[j];
+   INT f = b10b5 * symbols[j];
+   INT g = b10b5b4 * symbols[j];
+   INT h = m10 * symbols[j];
+   INT k = m10b4 * symbols[j];
+   INT l = m10b5 * symbols[j];
+   INT m = m10b5b4 * symbols[j];
+   FOR i TO 3 DO notyet[(i|j,d,h)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(sign*coordindex[2,a]);
+   addterm(sign*coordindex[1,b]);
+   addterm(coordindex[2,c]);
+   addterm(coordindex[1,d]);
+   addterm(sign*coordindex[2,e]);
+   addterm(sign*coordindex[1,f]);
+   addterm(coordindex[2,g]);
+   addterm(coordindex[1,h]);
+   addterm(sign*coordindex[2,k]);
+   addterm(sign*coordindex[1,l]);
+   addterm(coordindex[2,m]);
+   userelation
+   FI
+OD;
+IF TRUE THEN print(("After 12-term relation #1, numrel = ",numrel,newline)) FI;
+ 
+{ 12-term relation #2 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m5i * symbols[j];
+   INT b = m5ib4 * symbols[j];
+   INT c = m3i * symbols[j];
+   INT d = b3 * symbols[j];
+   INT e = b3m5i * symbols[j];
+   INT f = b3m5ib4 * symbols[j];
+   INT g = b3m3i * symbols[j];
+   INT h = b3i * symbols[j];
+   INT k = tm3m5i * symbols[j];
+   INT l = tm3m5ib4 * symbols[j];
+   INT m = t * symbols[j];
+   FOR i TO 3 DO notyet[(i|j,d,h)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[1,a]);
+   addterm(-sign*coordindex[2,b]);
+   addterm(-coordindex[2,c]);
+   addterm(coordindex[1,d]);
+   addterm(-coordindex[1,e]);
+   addterm(-sign*coordindex[2,f]);
+   addterm(-coordindex[2,g]);
+   addterm(coordindex[1,h]);
+   addterm(-coordindex[1,k]);
+   addterm(-sign*coordindex[2,l]);
+   addterm(-coordindex[2,m]);
+   userelation
+   FI
+OD;
+IF TRUE THEN print(("After 12-term relation #2, numrel = ",numrel,newline)) FI;
+ 
+{ 12-term relation #3 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m5 * symbols[j];
+   INT b = b4 * symbols[j];
+   INT c = ts * symbols[j];
+   INT d = b13i * symbols[j];
+   INT e = tsb4 * symbols[j];
+   INT f = tsts * symbols[j];
+   INT g = b15i * symbols[j];
+   INT h = tstsb4 * symbols[j];
+   FOR i TO 3 DO notyet[(i|c,f,j)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(-coordindex[1,a]);
+   addterm(sign*coordindex[2,b]);
+   addterm(coordindex[2,a]);
+   addterm(coordindex[1,c]);
+   addterm(-coordindex[1,d]);
+   addterm(sign*coordindex[2,e]);
+   addterm(coordindex[2,d]);
+   addterm(coordindex[1,f]);
+   addterm(-coordindex[1,g]);
+   addterm(sign*coordindex[2,h]);
+   addterm(coordindex[2,g]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 12-term relation #3, numrel = ",numrel,newline)) FI;
+ 
+ 
+{ All relations have now been used }
+ 
+print(("All relations used.  relmat is ",numrel," x ",ngens,newline));
+{
+FILE dump; STRING dumpname;
+print(("Enter filename for dumping relmat (<Return> for none):",newline));
+read((newline,dumpname));
+IF dumpname/=""
+THEN establish(dump,dumpname,alienoutchannel,1,numrel,5*ngens);
+     FOR i TO numrel
+     DO put(dump,(relmat[i,],newline))
+     OD;
+     close(dump);
+     print(("Dump complete.",newline))
+FI;
+}
+ 
+ 
+   SUBSPACE s = ker(relmat[1:numrel,]);
+   rank := DIM s;
+   coord := basis OF s;
+   denom1 := d OF s;
+   HEAP[rank][2]INT free;
+   []INT piv = pivots OF s;
+   FOR i TO rank DO free[i] := gens[piv[i]] OD;
+   freegens:=free;
+   coord := purge2(coordindex,coord);
+ 
+   freemods := HEAP[rank]MODSYM;
+   FOR i TO rank
+   DO freemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+ 
+   IF verbose THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+ 
+END;
+ 
+PROC relate163 = VOID:
+BEGIN
+MATRIX m11i = makemat((0,1),(7,0),(6,0),(1,-1)),
+       b16i = makemat((2,1),(6,-1),(6,0),(-3,-1)),
+       m12i = makemat((1,1),(6,-1),(6,0),(-4,-1)),
+       m20i = makemat((-16,1),(14,4),(2,1),(11,-1)),
+       b8m20 = makemat((0,1),(14,0),(3,0),(1,-1)),
+       b8m22b1ib8i = makemat((51,3),(26,-16),(17,-4),(-50,-3)),
+       b8m22b1im20 = makemat((-45,6),(84,16),(14,4),(65,-6)),
+       b8m22tsb1ib8i = makemat((-50,-3),(-26,16),(-17,4),(51,3)),
+       b8m22tsb1im20 = makemat((-45,5),(70,16),(11,4),(64,-5)),
+       m14 = makemat((17,0),(0,-5),(1,-1),(-12,0)),
+       m9i = makemat((0,2),(33,0),(5,0),(2,-2)),
+       m9im18i = makemat((17,3),(15,-4),(9,-1),(-9,-1)),
+       m9im18im11i = makemat((33,4),(30,-6),(13,-2),(-13,-2)),
+       m2i = makemat((0,1),(14,0),(3,0),(1,-1)),
+       b8 = makemat((13,1),(10,-4),(5,-1),(-12,-1)),
+       m14m4im20i = makemat((53,10),(107,-19),(26,-3),(-38,-6)),
+       m6m6b16m11i = makemat((-14,-7),(-49,3),(-37,2),(11,6)),
+       jmatrix = makemat((-1,0),(0,0),(0,0),(1,0)),
+       b10m20 = makemat((-17,3),(44,6),(12,2),(34,-5)),
+       b10m7i = makemat((-9,1),(20,3),(3,1),(16,-2)),
+       b10m7im14 = makemat((-10,-3),(-35,4),(-15,1),(13,4)),
+       b10m7im14m20i = makemat((-49,-12),(-131,19),(-61,5),(67,15)),
+       b10m8i = makemat((-18,1),(11,7),(2,2),(33,-1)),
+       b10m8im14 = makemat((-8,6),(73,1),(26,1),(14,-8)),
+       b10m8im14m20i = makemat((13,22),(252,-13),(101,-1),(-26,-28)),
+       b10b16 = makemat((27,-3),(-28,-3),(-10,-3),(-17,3)),
+       b10b16m11i = makemat((45,-6),(-38,-7),(-21,-5),(-36,4)),
+       b9b16 = makemat((19,-2),(-20,-2),(-6,-2),(-11,2)),
+       b9b16m11i = makemat((38,-5),(-31,-6),(-16,-4),(-29,3)),
+       b10b8i = makemat((-26,-1),(-8,8),(-8,3),(37,1)),
+       b10b8im20i = makemat((-113,-5),(-40,34),(-38,13),(156,5)),
+       b10m10 = makemat((18,8),(53,-10),(39,-2),(-40,-6)),
+       m9im14 = makemat((-33,-1),(-14,10),(-5,2),(24,1)),
+       m9im14m20i = makemat((-131,2),(42,36),(-5,8),(93,-2)),
+       n2m14 = makemat((-11,4),(49,2),(9,1),(12,-3)),
+       n2m14m20i = makemat((-28,16),(189,1),(38,3),(29,-12)),
+       n2m9i = makemat((17,1),(23,-7),(5,-1),(-15,-2)),
+       n2m9im14 = makemat((25,-6),(-71,-6),(-12,-2),(-25,4)),
+       n2m9im14m20i = makemat((50,-26),(-307,-3),(-60,-5),(-49,19)),
+       n2m9im18i = makemat((-30,2),(21,4),(1,2),(13,-1)),
+       n2m9im18im11i = makemat((-44,4),(25,7),(4,3),(21,-1)),
+       n2m24i = makemat((14,-2),(-18,-1),(-3,-1),(-5,1)),
+       m20im16in4m16m20m14 = makemat((64,0),(5,-20),(3,-4),(-51,0)),
+       b16im11i = makemat((-5,-3),(-21,1),(-18,0),(-2,3)),
+       m20im16in4m16m20m14m20i = makemat((194,-9),(-131,-51),(-14,-12),(-137,9)),
+       b8m22b1ib8im20i = makemat((-231,-16),(-148,72),(-85,18),(221,16)),
+       b8m22tsb1ib8im20i = makemat((-215,-17),(-162,68),(-87,17),(210,17)),
+       m14m20i = makemat((67,-2),(-33,-18),(-1,-4),(-46,2)),
+       m5ib16 = makemat((-22,1),(14,3),(0,2),(13,-1)),
+       m5ib16m11i = makemat((-43,3),(17,7),(4,4),(28,-1)),
+       b5m14 = makemat((-11,4),(49,2),(9,1),(12,-3)),
+       b5m14m20i = makemat((-28,16),(189,1),(38,3),(29,-12)),
+       b5m9i = makemat((17,1),(23,-7),(5,-1),(-15,-2)),
+       b5m9im14 = makemat((25,-6),(-71,-6),(-12,-2),(-25,4)),
+       b5m9im14m20i = makemat((50,-26),(-307,-3),(-60,-5),(-49,19)),
+       b12b16 = makemat((7,-2),(-16,0),(-9,-1),(-3,2)),
+       b12b16m11i = makemat((14,-5),(-33,-2),(-23,-2),(-16,4)),
+       m6m7i = makemat((2,-1),(-17,0),(-5,0),(2,2)),
+       m6m7im14 = makemat((17,0),(-1,-5),(-1,-2),(-24,1)),
+       m6m7im14m20i = makemat((69,-1),(-22,-19),(-9,-8),(-91,6)),
+       m6m8i = makemat((3,-2),(-32,-1),(-10,0),(-3,4)),
+       m6m8im14 = makemat((-22,-2),(-26,7),(-9,3),(36,2)),
+       m6m8im14m20i = makemat((-95,-3),(-21,28),(-11,12),(140,-2)),
+       m6b16 = makemat((4,3),(19,-2),(15,-1),(-11,-2)),
+       m6b16m11i = makemat((9,5),(35,-2),(25,-2),(-12,-4)),
+       tib16 = makemat((-3,1),(8,0),(6,0),(-2,-1)),
+       tib16m11i = makemat((-7,2),(13,1),(12,0),(1,-2)),
+       m6m6 = makemat((0,-1),(-8,0),(-5,0),(-1,1)),
+       m6m6m7i = makemat((-1,2),(33,-1),(10,0),(-3,-4)),
+       m6m6m7im14 = makemat((-25,1),(14,7),(3,3),(36,-2)),
+       m6m6m7im14m20i = makemat((-100,5),(73,26),(17,12),(136,-10)),
+       m6m6m8i = makemat((-1,3),(49,0),(15,0),(4,-6)),
+       m6m6m8im14 = makemat((32,2),(27,-10),(13,-4),(-48,-3)),
+       m6m6m8im14m20i = makemat((130,1),(-7,-37),(17,-16),(-187,2)),
+       m6m6b16 = makemat((-7,-4),(-25,3),(-21,1),(13,3)),
+       m6ti = makemat((-1,1),(9,-1),(5,0),(-5,-1)),
+       m6tib16 = makemat((10,-3),(-24,0),(-15,-1),(-1,3)),
+       m6tib16m11i = makemat((21,-7),(-46,-3),(-35,-2),(-17,6)),
+       n1m22ib8i = makemat((-7,2),(25,1),(14,0),(-3,-4)),
+       n1m22ib8im20i = makemat((-39,9),(110,7),(66,1),(1,-19)),
+       n1m22im20 = makemat((7,2),(32,-3),(9,-2),(-29,-3)),
+       n1m22i = makemat((7,0),(1,-2),(-3,-1),(-12,1)),
+       n1b13 = makemat((-1,0),(1,0),(0,0),(-1,0)),
+       n1m22im4i = makemat((-4,1),(11,1),(7,0),(1,-2)),
+       n1m22im4im20i = makemat((-4,5),(58,-1),(28,-2),(-27,-7)),
+       n1m22im20i = makemat((28,-2),(-27,-7),(-24,-3),(-31,8)),
+       m1im14 = makemat((-20,3),(35,5),(6,1),(12,-2)),
+       c1m14 = makemat((24,0),(0,-7),(1,-1),(-12,0)),
+       c1b6i = makemat((1,-4),(-47,2),(-7,0),(2,2)),
+       c1b6im20i = makemat((28,-20),(-235,1),(-34,-1),(-6,10)),
+       c1m14m20 = makemat((23,3),(49,-9),(6,-1),(-14,-2)),
+       c1m18ib13 = makemat((1,4),(23,-3),(7,0),(-4,-1)),
+       c1m14m4i = makemat((0,4),(47,0),(7,0),(2,-2)),
+       c1m14m4im20i = makemat((70,13),(139,-25),(26,-3),(-38,-6)),
+       c1m1i = makemat((0,-1),(-21,0),(-2,0),(-1,1)),
+       c1m1im14 = makemat((-21,4),(47,5),(6,1),(12,-2)),
+       c1m1im14m20i = makemat((-61,19),(228,9),(31,3),(30,-10)),
+       c1b15i = makemat((22,-3),(-24,-2),(-4,-1),(-5,1)),
+       c1b15im11i = makemat((21,-7),(-48,-3),(-11,-1),(-8,2)),
+       jm22ib8i = makemat((-14,0),(3,4),(7,-2),(-25,-1)),
+       jm22ib8im20i = makemat((-66,-1),(-1,19),(39,-9),(-110,-7)),
+       jm22im20i = makemat((24,3),(31,-8),(-28,2),(27,7)),
+       jm22im20 = makemat((-9,2),(29,3),(-7,-2),(-32,3)),
+       jm22i = makemat((3,1),(12,-1),(-7,0),(-1,2)),
+       jb13 = makemat((0,0),(1,0),(1,0),(-1,0)),
+       jm22im4i = makemat((-7,0),(-1,2),(4,-1),(-11,-1)),
+       jm22im4im20i = makemat((-28,2),(27,7),(4,-5),(-58,1)),
+       n2 = makemat((1,1),(13,-1),(3,0),(-1,-1)),
+       m20im17 = makemat((15,4),(66,-9),(11,-1),(-20,-4)),
+       m20im16in4m16m17 = makemat((0,2),(33,-2),(5,0),(-3,-2)),
+       m20im16in4m16m20 = makemat((47,5),(85,-20),(15,-3),(-47,-5)),
+       m1im14m20i = makemat((-62,15),(182,11),(31,3),(30,-10)),
+       ti = makemat((1,0),(-1,0),(0,0),(1,0)),
+       c1 = makemat((-1,0),(0,1),(0,0),(1,0)),
+       n1 = makemat((0,0),(-1,0),(1,0),(0,0)),
+       b5 = makemat((1,1),(13,-1),(3,0),(-1,-1)),
+       b5m9im18i = makemat((-30,2),(21,4),(1,2),(13,-1)),
+       b5m9im18im11i = makemat((-44,4),(25,7),(4,3),(21,-1)),
+       b5m24i = makemat((14,-2),(-18,-1),(-3,-1),(-5,1)),
+       m24i = makemat((-16,-1),(1,3),(-4,1),(8,0)),
+       m6 = makemat((-1,1),(8,0),(5,0),(0,-1)),
+       m22ib8i = makemat((14,0),(-3,-4),(7,-2),(-25,-1)),
+       m22ib8im20i = makemat((66,1),(1,-19),(39,-9),(-110,-7)),
+       m22im20 = makemat((9,-2),(-29,-3),(-7,-2),(-32,3)),
+       m22i = makemat((-3,-1),(-12,1),(-7,0),(-1,2)),
+       b13 = makemat((0,0),(-1,0),(1,0),(-1,0)),
+       m22im4i = makemat((7,0),(1,-2),(4,-1),(-11,-1)),
+       m22im4im20i = makemat((28,-2),(-27,-7),(4,-5),(-58,1)),
+       b6im20i = makemat((13,-15),(-175,3),(-34,-1),(-6,10)),
+       m14m20 = makemat((18,2),(33,-7),(6,-1),(-14,-2)),
+       m22im20i = makemat((-24,-3),(-31,8),(-28,2),(27,7)),
+       b6i = makemat((1,3),(35,-2),(7,0),(-2,-2)),
+       m18ib13 = makemat((-1,3),(18,-2),(7,0),(-4,-1)),
+       m14m4i = makemat((0,3),(35,0),(7,0),(2,-2)),
+       m1i = makemat((0,-1),(-20,0),(-2,0),(-1,1)),
+       b15i = makemat((19,-2),(-17,-2),(-4,-1),(-5,1)),
+       b15im11i = makemat((20,-5),(-34,-3),(-11,-1),(-8,2)),
+       m7im14 = makemat((-8,1),(13,2),(2,1),(12,-1)),
+       m7im14m20i = makemat((31,-4),(-51,-7),(-8,-4),(-45,4)),
+       m8i = makemat((2,1),(17,-1),(5,0),(1,-2)),
+       m8im14 = makemat((10,0),(1,-3),(4,-1),(-12,-1)),
+       m8im14m20i = makemat((-35,2),(28,9),(-6,4),(47,0)),
+       b16 = makemat((3,1),(6,-1),(6,0),(-2,-1)),
+      b16m11i = makemat((5,2),(14,-1),(12,0),(1,-2)),
+       m5i = makemat((1,1),(10,-1),(4,0),(-2,-1)),
+       m20 = makemat((-11,1),(14,4),(2,1),(16,-1)),
+       m20m14 = makemat((-9,3),(37,2),(9,1),(13,-3)),
+       m20m14m20i = makemat((-13,11),(129,-1),(36,2),(18,-11)),
+       m16m17 = makemat((2,3),(52,-3),(7,0),(-2,-3)),
+       m16m20 = makemat((3,2),(33,-2),(5,0),(0,-2)),
+       b19i = makemat((2,1),(14,-1),(3,0),(0,-1)),
+       m23 = makemat((4,2),(23,-2),(7,0),(-1,-2)),
+       m7 = makemat((1,2),(16,-1),(5,0),(-1,-1)),
+       m7b16 = makemat((17,3),(15,-4),(9,-1),(-9,-1)),
+       m7b16m11i = makemat((33,4),(30,-6),(13,-2),(-13,-2)),
+       m7b8i = makemat((31,-7),(-89,-6),(-14,-2),(-22,5)),
+       m7b8im20i = makemat((141,-29),(-357,-27),(-57,-9),(-95,20)),
+       m17im5i = makemat((18,1),(-3,-5),(4,-1),(-12,0)),
+       m17im5ib16 = makemat((5,8),(50,-5),(19,0),(-7,-3)),
+       m17im5ib16m11i = makemat((28,17),(120,-6),(42,-1),(-3,-7)),
+       m6im11 = makemat((-7,0),(0,1),(-1,1),(6,0)),
+       m6im11m22ib8i = makemat((-16,5),(62,2),(28,2),(17,-9)),
+       m6im11m22ib8im20i = makemat((-93,23),(280,16),(127,12),(118,-41)),
+       m6im11m22im20i = makemat((86,-5),(-70,-22),(-21,-12),(-135,11)),
+       m6im11m22im20 = makemat((19,5),(80,-8),(31,-3),(-40,-11)),
+       m6im11m22i = makemat((21,0),(2,-6),(2,-3),(-35,0)),
+       m6im11b13 = makemat((0,1),(7,-1),(6,0),(-5,-1)),
+       m6im11m22im4i = makemat((-8,3),(34,2),(17,1),(15,-5)),
+       m6im11m22im4im20i = makemat((9,13),(148,-8),(78,-2),(-34,-21)),
+       m7m20 = makemat((20,6),(99,-9),(16,-1),(-13,-6)),
+       m7i = makemat((-1,-1),(-16,1),(-5,0),(1,2)),
+       b12 = makemat((0,1),(8,-1),(5,0),(-4,-1)),
+       b8i = makemat((-12,-1),(-10,4),(-5,1),(13,1)),
+       b8im20 = makemat((-11,0),(0,4),(-1,1),(15,0)),
+       b10 = makemat((9,0),(0,-2),(1,-1),(-9,0)),
+       b8im20i = makemat((49,5),(50,-16),(24,-4),(-50,-5)),
+       b9 = makemat((0,1),(10,-1),(4,0),(-3,-1));
+ 
+   coordindex := HEAP[6,nsymb]INT;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*6][2]INT gens;
+ 
+{Type 6,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(6,j);
+   coordindex[6,j]:=ngens
+OD;
+ 
+{Type 5,  no 2-term relations}
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(5,j);
+   coordindex[5,j]:=ngens
+OD;
+ 
+{Type 4,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(4,j);
+   coordindex[4,j]:=ngens
+OD;
+ 
+{Type 3,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(3,j);
+   coordindex[3,j]:=ngens
+OD;
+ 
+{Type 2,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(2,j);
+   coordindex[2,j]:=ngens
+OD;
+ 
+{Type 1,  no 2-term relations}
+ 
+FOR j FROM nsymb BY -1 TO 1
+DO
+   gens[ngens+:=1]:=(1,j);
+   coordindex[1,j]:=ngens
+OD;
+ 
+IF TRUE THEN
+   print(("After 2-term relations, ngens = ",ngens,newline))
+FI;
+ 
+{ Higher order-term relations }
+ 
+   HEAP[2*ngens,ngens]INT relmat;
+   INT numrel := 0;
+   [ngens]INT newrel;
+ 
+   PROC addterm = (INT c)VOID:
+   IF c/=0 THEN newrel[ABS c] +:= SIGN c FI;
+ 
+   PROC userelation = VOID:
+   BEGIN INT h = vecgcd(newrel);
+         IF h/=0
+         THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+              numrel+:=1;
+              IF numrel>2*ngens THEN print(("Not enough rows in relmat",newline)) FI;
+              relmat[numrel,] := newrel
+           FI
+   END;
+ 
+{ 40-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m7i * symbols[j];
+   INT b = m7im14 * symbols[j];
+   INT c = m7im14m20i * symbols[j];
+   INT d = m8i * symbols[j];
+   INT e = m8im14 * symbols[j];
+   INT f = m8im14m20i * symbols[j];
+   INT g = b16 * symbols[j];
+   INT h = b16m11i * symbols[j];
+   INT k = b12 * symbols[j];
+   INT l = b12b16 * symbols[j];
+   INT m = b12b16m11i * symbols[j];
+   INT n = b8i * symbols[j];
+   INT o = b8im20i * symbols[j];
+   INT p = m20 * symbols[j];
+   INT q = b10 * symbols[j];
+   INT r = b10m7i * symbols[j];
+   INT s = b10m7im14 * symbols[j];
+   INT t = b10m7im14m20i * symbols[j];
+   INT u = b10m8i * symbols[j];
+   INT v = b10m8im14 * symbols[j];
+   INT w = b10m8im14m20i * symbols[j];
+   INT x = b10b16 * symbols[j];
+   INT y = b10b16m11i * symbols[j];
+   INT z = b9 * symbols[j];
+   INT aa = b9b16 * symbols[j];
+   INT bb = b9b16m11i * symbols[j];
+   INT cc = b10b8i * symbols[j];
+   INT dd = b10b8im20i * symbols[j];
+   INT ee = b10m20 * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,q)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[2,j]);
+   addterm(-coordindex[3,a]);
+   addterm(coordindex[5,b]);
+   addterm(-coordindex[4,b]);
+   addterm(-coordindex[5,c]);
+   addterm(-sign*coordindex[3,d]);
+   addterm(sign*coordindex[5,e]);
+   addterm(-sign*coordindex[4,e]);
+   addterm(-sign*coordindex[5,f]);
+   addterm(sign*coordindex[6,g]);
+   addterm(-sign*coordindex[1,g]);
+   addterm(-coordindex[1,h]);
+   addterm(-coordindex[2,k]);
+   addterm(-sign*coordindex[6,l]);
+   addterm(sign*coordindex[1,l]);
+   addterm(coordindex[1,m]);
+   addterm(-sign*coordindex[5,n]);
+   addterm(sign*coordindex[4,n]);
+   addterm(sign*coordindex[5,o]);
+   addterm(coordindex[4,p]);
+   addterm(coordindex[2,q]);
+   addterm(-coordindex[3,r]);
+   addterm(coordindex[5,s]);
+   addterm(-coordindex[4,s]);
+   addterm(-coordindex[5,t]);
+   addterm(-sign*coordindex[3,u]);
+   addterm(sign*coordindex[5,v]);
+   addterm(-sign*coordindex[4,v]);
+   addterm(-sign*coordindex[5,w]);
+   addterm(-sign*coordindex[1,x]);
+   addterm(-coordindex[1,y]);
+   addterm(-coordindex[2,z]);
+   addterm(-sign*coordindex[6,aa]);
+   addterm(sign*coordindex[1,aa]);
+   addterm(coordindex[1,bb]);
+   addterm(-sign*coordindex[5,cc]);
+   addterm(sign*coordindex[4,cc]);
+   addterm(sign*coordindex[5,dd]);
+   addterm(coordindex[4,ee]);
+   addterm(sign*coordindex[6,x]);
+   userelation
+   FI
+OD;
+ 
+ 
+IF TRUE THEN print(("After 40-term relation, numrel = ",numrel,newline)) FI;
+ 
+ 
+{ 4-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m11i * symbols[j];
+   INT b = b16i * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[1,j]);
+   addterm(sign*coordindex[1,a]);
+   addterm(-coordindex[2,j]);
+   addterm(-sign*coordindex[2,b]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After  4-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 24-term relation - #2 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m14 * symbols[j];
+   INT b = m14m20i * symbols[j];
+   INT c = m9i * symbols[j];
+   INT d = m9im14 * symbols[j];
+   INT e = m9im14m20i * symbols[j];
+   INT f = m9im18i * symbols[j];
+   INT g = m9im18im11i * symbols[j];
+   INT h = m24i * symbols[j];
+   INT k = n2 * symbols[j];
+   INT l = n2m14 * symbols[j];
+   INT m = n2m14m20i * symbols[j];
+   INT o = n2m9i * symbols[j];
+   INT p = n2m9im14 * symbols[j];
+   INT q = n2m9im14m20i * symbols[j];
+   INT r = n2m9im18i * symbols[j];
+   INT s = n2m9im18im11i * symbols[j];
+   INT t = n2m24i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,k)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[3,j]);
+   addterm(-coordindex[5,a]);
+   addterm(coordindex[4,a]);
+   addterm(coordindex[5,b]);
+   addterm(sign*coordindex[3,c]);
+   addterm(-sign*coordindex[5,d]);
+   addterm(sign*coordindex[4,d]);
+   addterm(sign*coordindex[5,e]);
+   addterm(-sign*coordindex[6,f]);
+   addterm(sign*coordindex[1,f]);
+   addterm(coordindex[1,g]);
+   addterm(sign*coordindex[6,h]);
+   addterm(coordindex[3,k]);
+   addterm(-coordindex[5,l]);
+   addterm(coordindex[4,l]);
+   addterm(coordindex[5,m]);
+   addterm(sign*coordindex[3,o]);
+   addterm(-sign*coordindex[5,p]);
+   addterm(sign*coordindex[4,p]);
+   addterm(sign*coordindex[5,q]);
+   addterm(-sign*coordindex[6,r]);
+   addterm(sign*coordindex[1,r]);
+   addterm(coordindex[1,s]);
+   addterm(sign*coordindex[6,t]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 24-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 12-term relation - #2 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m20im17 * symbols[j];
+   INT b = m14 * symbols[j];
+   INT c = m14m20i * symbols[j];
+   INT d = m20im16in4m16m17 * symbols[j];
+   INT e = m20im16in4m16m20 * symbols[j];
+   INT f = m20im16in4m16m20m14 * symbols[j];
+   INT g = m20im16in4m16m20m14m20i * symbols[j];
+   setzero(newrel);
+   addterm(-sign*coordindex[3,a]);
+   addterm(coordindex[4,j]);
+   addterm(-coordindex[3,j]);
+   addterm(coordindex[5,b]);
+   addterm(-coordindex[4,b]);
+   addterm(-coordindex[5,c]);
+   addterm(-sign*coordindex[3,d]);
+   addterm(coordindex[4,e]);
+   addterm(-coordindex[3,e]);
+   addterm(coordindex[5,f]);
+   addterm(-coordindex[4,f]);
+   addterm(-coordindex[5,g]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After 12-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 6-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m11i * symbols[j];
+   INT b = m12i * symbols[j];
+   INT c = b16i * symbols[j];
+   INT d = b16im11i * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[2,j]);
+   addterm(-coordindex[1,j]);
+   addterm(-sign*coordindex[1,a]);
+   addterm(-coordindex[2,b]);
+   addterm(sign*coordindex[1,c]);
+   addterm(coordindex[1,d]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After  6-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 12-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m20i * symbols[j];
+   INT b = b8m20 * symbols[j];
+   INT c = b8m22b1ib8i * symbols[j];
+   INT d = b8m22b1ib8im20i * symbols[j];
+   INT e = b8m22b1im20 * symbols[j];
+   INT f = b8m22tsb1ib8i * symbols[j];
+   INT g = b8m22tsb1ib8im20i * symbols[j];
+   INT h = b8m22tsb1im20 * symbols[j];
+   FOR i TO 3 DO notyet[(i|j,c,f)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[5,j]);
+   addterm(-coordindex[4,j]);
+   addterm(-coordindex[5,a]);
+   addterm(-sign*coordindex[4,b]);
+   addterm(coordindex[5,c]);
+   addterm(-coordindex[4,c]);
+   addterm(-coordindex[5,d]);
+   addterm(-sign*coordindex[4,e]);
+   addterm(coordindex[5,f]);
+   addterm(-coordindex[4,f]);
+   addterm(-coordindex[5,g]);
+   addterm(-sign*coordindex[4,h]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 12-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 16-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m20i * symbols[j];
+   INT b = m14 * symbols[j];
+   INT c = m14m20i * symbols[j];
+   INT d = m9i * symbols[j];
+   INT e = m9im14 * symbols[j];
+   INT f = m9im14m20i * symbols[j];
+   INT g = m9im18i * symbols[j];
+   INT h = m9im18im11i * symbols[j];
+   INT k = m24i * symbols[j];
+   INT l = m2i * symbols[j];
+   INT m = b8 * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[4,j]);
+   addterm(-coordindex[3,j]);
+   addterm(coordindex[5,a]);
+   addterm(coordindex[5,b]);
+   addterm(-coordindex[4,b]);
+   addterm(-coordindex[5,c]);
+   addterm(-sign*coordindex[3,d]);
+   addterm(sign*coordindex[5,e]);
+   addterm(-sign*coordindex[4,e]);
+   addterm(-sign*coordindex[5,f]);
+   addterm(-sign*coordindex[1,g]);
+   addterm(-coordindex[1,h]);
+   addterm(-sign*coordindex[6,k]);
+   addterm(sign*coordindex[4,l]);
+   addterm(sign*coordindex[5,m]);
+   addterm(sign*coordindex[6,g]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After 16-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 20-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m7im14 * symbols[j];
+   INT b = m7im14m20i * symbols[j];
+   INT c = m8i * symbols[j];
+   INT d = m8im14 * symbols[j];
+   INT e = m8im14m20i * symbols[j];
+   INT f = b16 * symbols[j];
+   INT g = b16m11i * symbols[j];
+   INT h = m5i * symbols[j];
+   INT k = m20 * symbols[j];
+   INT l = m20m14 * symbols[j];
+   INT m = m20m14m20i * symbols[j];
+   INT n = m5ib16 * symbols[j];
+   INT o = m5ib16m11i * symbols[j];
+   setzero(newrel);
+   addterm(coordindex[2,j]);
+   addterm(coordindex[5,a]);
+   addterm(-coordindex[4,a]);
+   addterm(-coordindex[5,b]);
+   addterm(-sign*coordindex[3,c]);
+   addterm(sign*coordindex[5,d]);
+   addterm(-sign*coordindex[4,d]);
+   addterm(-sign*coordindex[5,e]);
+   addterm(sign*coordindex[6,f]);
+   addterm(-sign*coordindex[1,f]);
+   addterm(-coordindex[1,g]);
+   addterm(sign*coordindex[2,h]);
+   addterm(-coordindex[3,k]);
+   addterm(coordindex[5,l]);
+   addterm(-coordindex[4,l]);
+   addterm(-coordindex[5,m]);
+   addterm(coordindex[6,n]);
+   addterm(-coordindex[1,n]);
+   addterm(-sign*coordindex[1,o]);
+   addterm(coordindex[4,k]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After 20-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 20-term relation - #2}
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m22ib8i * symbols[j];
+   INT b = m22ib8im20i * symbols[j];
+   INT c = m22im20 * symbols[j];
+   INT d = m22im20i * symbols[j];
+   INT e = m22i * symbols[j];
+   INT f = b13 * symbols[j];
+   INT g = m22im4i * symbols[j];
+   INT h = m22im4im20i * symbols[j];
+   INT k = jmatrix * symbols[j];
+   INT l = jm22ib8i * symbols[j];
+   INT m = jm22ib8im20i * symbols[j];
+   INT n = jm22im20 * symbols[j];
+   INT o = jm22im20i * symbols[j];
+   INT p = jm22i * symbols[j];
+   INT q = jb13 * symbols[j];
+   INT r = jm22im4i * symbols[j];
+   INT s = jm22im4im20i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,k)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[6,j]);
+   addterm(sign*coordindex[5,a]);
+   addterm(-sign*coordindex[4,a]);
+   addterm(-sign*coordindex[5,b]);
+   addterm(-coordindex[4,c]);
+   addterm(-coordindex[5,d]);
+   addterm(-coordindex[4,e]);
+   addterm(-coordindex[6,f]);
+   addterm(coordindex[4,g]);
+   addterm(coordindex[5,h]);
+   addterm(-sign*coordindex[6,k]);
+   addterm(-coordindex[5,l]);
+   addterm(coordindex[4,l]);
+   addterm(coordindex[5,m]);
+   addterm(sign*coordindex[4,n]);
+   addterm(sign*coordindex[5,o]);
+   addterm(sign*coordindex[4,p]);
+   addterm(sign*coordindex[6,q]);
+   addterm(-sign*coordindex[4,r]);
+   addterm(-sign*coordindex[5,s]);
+   userelation
+   FI
+OD;
+ 
+ 
+IF TRUE THEN print(("After 20-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 26-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m16m17 * symbols[j];
+   INT b = m16m20 * symbols[j];
+   INT c = b19i * symbols[j];
+   INT d = m23 * symbols[j];
+   INT e = m7 * symbols[j];
+   INT f = m14 * symbols[j];
+   INT g = m14m20i * symbols[j];
+   INT h = m9i * symbols[j];
+   INT k = m9im14 * symbols[j];
+   INT l = m9im14m20i * symbols[j];
+   INT m = m7b16 * symbols[j];
+   INT n = m7b16m11i * symbols[j];
+   INT o = m7b8i * symbols[j];
+   INT p = m7b8im20i * symbols[j];
+   INT q = m7m20 * symbols[j];
+   INT r = m17im5i * symbols[j];
+   INT s = m17im5ib16 * symbols[j];
+   INT t = m17im5ib16m11i * symbols[j];
+   setzero(newrel);
+   addterm(-coordindex[3,a]);
+   addterm(sign*coordindex[4,b]);
+   addterm(-sign*coordindex[3,b]);
+   addterm(sign*coordindex[5,c]);
+   addterm(-sign*coordindex[4,c]);
+   addterm(-sign*coordindex[5,d]);
+   addterm(coordindex[2,e]);
+   addterm(-coordindex[3,j]);
+   addterm(coordindex[5,f]);
+   addterm(-coordindex[4,f]);
+   addterm(-coordindex[5,g]);
+   addterm(-sign*coordindex[3,h]);
+   addterm(sign*coordindex[5,k]);
+   addterm(-sign*coordindex[4,k]);
+   addterm(-sign*coordindex[5,l]);
+   addterm(sign*coordindex[6,m]);
+   addterm(-sign*coordindex[1,m]);
+   addterm(-coordindex[1,n]);
+   addterm(-sign*coordindex[5,o]);
+   addterm(sign*coordindex[4,o]);
+   addterm(sign*coordindex[5,p]);
+   addterm(coordindex[4,q]);
+   addterm(-coordindex[2,r]);
+   addterm(-sign*coordindex[6,s]);
+   addterm(sign*coordindex[1,s]);
+   addterm(coordindex[1,t]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After 26-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 28-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO
+   INT a = m6im11 * symbols[j];
+   INT b = m6im11m22ib8i * symbols[j];
+   INT c = m6im11m22ib8im20i * symbols[j];
+   INT d = m6im11m22im20 * symbols[j];
+   INT e = m6im11m22im20i * symbols[j];
+   INT f = m6im11m22i * symbols[j];
+   INT g = m6im11b13 * symbols[j];
+   INT h = m6im11m22im4i * symbols[j];
+   INT k = m6im11m22im4im20i * symbols[j];
+   INT l = m7i * symbols[j];
+   INT m = m7im14 * symbols[j];
+   INT n = m7im14m20i * symbols[j];
+   INT o = m8i * symbols[j];
+   INT p = m8im14 * symbols[j];
+   INT q = m8im14m20i * symbols[j];
+   INT r = b16 * symbols[j];
+   INT s = b16m11i * symbols[j];
+   INT t = b12 * symbols[j];
+   INT u = b12b16 * symbols[j];
+   INT v = b12b16m11i * symbols[j];
+   setzero(newrel);
+   addterm(sign*coordindex[6,a]);
+   addterm(coordindex[5,b]);
+   addterm(-coordindex[4,b]);
+   addterm(-coordindex[5,c]);
+   addterm(-sign*coordindex[4,d]);
+   addterm(-sign*coordindex[5,e]);
+   addterm(-sign*coordindex[4,f]);
+   addterm(-sign*coordindex[6,g]);
+   addterm(sign*coordindex[4,h]);
+   addterm(sign*coordindex[5,k]);
+   addterm(-sign*coordindex[1,a]);
+   addterm(-coordindex[1,j]);
+   addterm(coordindex[2,j]);
+   addterm(-coordindex[3,l]);
+   addterm(coordindex[5,m]);
+   addterm(-coordindex[4,m]);
+   addterm(-coordindex[5,n]);
+   addterm(-sign*coordindex[3,o]);
+   addterm(sign*coordindex[5,p]);
+   addterm(-sign*coordindex[4,p]);
+   addterm(-sign*coordindex[5,q]);
+   addterm(sign*coordindex[6,r]);
+   addterm(-sign*coordindex[1,r]);
+   addterm(-coordindex[1,s]);
+   addterm(-coordindex[2,t]);
+   addterm(-sign*coordindex[6,u]);
+   addterm(sign*coordindex[1,u]);
+   addterm(coordindex[1,v]);
+   userelation
+OD;
+ 
+IF TRUE THEN print(("After 28-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 24-term relation }
+{Seems to be equivalent to the first 24-term relation}
+ 
+{
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m14 * symbols[j];
+   INT b = m14m20i * symbols[j];
+   INT c = m9i * symbols[j];
+   INT d = m9im14 * symbols[j];
+   INT e = m9im14m20i * symbols[j];
+   INT f = m7b16 * symbols[j];
+   INT g = m7b16m11i * symbols[j];
+   INT h = b5 * symbols[j];
+   INT k = b5m14 * symbols[j];
+   INT l = b5m14m20i * symbols[j];
+   INT m = b5m9i * symbols[j];
+   INT n = b5m9im14 * symbols[j];
+   INT o = b5m9im14m20i * symbols[j];
+   INT p = b5m9im18i * symbols[j];
+   INT q = b5m9im18im11i * symbols[j];
+   INT r = b5m24i * symbols[j];
+   INT s = m24i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,h)] := FALSE OD;
+   setzero(newrel);
+   addterm(-coordindex[3,j]);
+   addterm(coordindex[5,a]);
+   addterm(-coordindex[4,a]);
+   addterm(-coordindex[5,b]);
+   addterm(-sign*coordindex[3,c]);
+   addterm(sign*coordindex[5,d]);
+   addterm(-sign*coordindex[4,d]);
+   addterm(-sign*coordindex[5,e]);
+   addterm(sign*coordindex[6,f]);
+   addterm(-sign*coordindex[1,f]);
+   addterm(-coordindex[1,g]);
+   addterm(-coordindex[3,h]);
+   addterm(coordindex[5,k]);
+   addterm(-coordindex[4,k]);
+   addterm(-coordindex[5,l]);
+   addterm(-sign*coordindex[3,m]);
+   addterm(sign*coordindex[5,n]);
+   addterm(-sign*coordindex[4,n]);
+   addterm(-sign*coordindex[5,o]);
+   addterm(sign*coordindex[6,p]);
+   addterm(-sign*coordindex[1,p]);
+   addterm(-coordindex[1,q]);
+   addterm(-sign*coordindex[6,r]);
+   addterm(-sign*coordindex[6,s]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 24-term relation, numrel = ",numrel,newline)) FI;
+}
+ 
+{ 48-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m7i * symbols[j];
+   INT b = m7im14 * symbols[j];
+   INT c = m7im14m20i * symbols[j];
+   INT d = m8i * symbols[j];
+   INT e = m8im14 * symbols[j];
+   INT f = m8im14m20i * symbols[j];
+   INT g = b16 * symbols[j];
+   INT h = b16m11i * symbols[j];
+   INT k = b12 * symbols[j];
+   INT l = b12b16 * symbols[j];
+   INT m = b12b16m11i * symbols[j];
+   INT n = m6 * symbols[j];
+   INT o = m6m7i * symbols[j];
+   INT p = m6m7im14 * symbols[j];
+   INT q = m6m7im14m20i * symbols[j];
+   INT r = m6m8i * symbols[j];
+   INT s = m6m8im14 * symbols[j];
+   INT t = m6m8im14m20i * symbols[j];
+   INT u = m6b16 * symbols[j];
+   INT v = m6b16m11i * symbols[j];
+   INT w = ti * symbols[j];
+   INT x = tib16 * symbols[j];
+   INT y = tib16m11i * symbols[j];
+   INT z = m6m6 * symbols[j];
+   INT aa = m6m6m7i * symbols[j];
+   INT bb = m6m6m7im14 * symbols[j];
+   INT cc = m6m6m7im14m20i * symbols[j];
+   INT dd = m6m6m8i * symbols[j];
+   INT ee = m6m6m8im14 * symbols[j];
+   INT ff = m6m6m8im14m20i * symbols[j];
+   INT gg = m6m6b16 * symbols[j];
+   INT hh = m6m6b16m11i * symbols[j];
+   INT ii = m6ti * symbols[j];
+   INT jj = m6tib16 * symbols[j];
+   INT kk = m6tib16m11i * symbols[j];
+   FOR i TO 3 DO notyet[(i|j,n,z)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[2,j]);
+   addterm(-coordindex[3,a]);
+   addterm(coordindex[5,b]);
+   addterm(-coordindex[4,b]);
+   addterm(-coordindex[5,c]);
+   addterm(-sign*coordindex[3,d]);
+   addterm(sign*coordindex[5,e]);
+   addterm(-sign*coordindex[4,e]);
+   addterm(-sign*coordindex[5,f]);
+   addterm(sign*coordindex[6,g]);
+   addterm(-sign*coordindex[1,g]);
+   addterm(-coordindex[1,h]);
+   addterm(-coordindex[2,k]);
+   addterm(-sign*coordindex[6,l]);
+   addterm(sign*coordindex[1,l]);
+   addterm(coordindex[1,m]);
+   addterm(coordindex[2,n]);
+   addterm(-coordindex[3,o]);
+   addterm(coordindex[5,p]);
+   addterm(-coordindex[4,p]);
+   addterm(-coordindex[5,q]);
+   addterm(-sign*coordindex[3,r]);
+   addterm(sign*coordindex[5,s]);
+   addterm(-sign*coordindex[4,s]);
+   addterm(-sign*coordindex[5,t]);
+   addterm(sign*coordindex[6,u]);
+   addterm(-sign*coordindex[1,u]);
+   addterm(-coordindex[1,v]);
+   addterm(-coordindex[2,w]);
+   addterm(-sign*coordindex[6,x]);
+   addterm(sign*coordindex[1,x]);
+   addterm(coordindex[1,y]);
+   addterm(coordindex[2,z]);
+   addterm(-coordindex[3,aa]);
+   addterm(coordindex[5,bb]);
+   addterm(-coordindex[4,bb]);
+   addterm(-coordindex[5,cc]);
+   addterm(-sign*coordindex[3,dd]);
+   addterm(sign*coordindex[5,ee]);
+   addterm(-sign*coordindex[4,ee]);
+   addterm(-sign*coordindex[5,ff]);
+   addterm(sign*coordindex[6,gg]);
+   addterm(-sign*coordindex[1,gg]);
+   addterm(-coordindex[1,hh]);
+   addterm(-coordindex[2,ii]);
+   addterm(-sign*coordindex[6,jj]);
+   addterm(sign*coordindex[1,jj]);
+   addterm(coordindex[1,kk]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 48-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 20-term relation - #2 }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m22ib8i * symbols[j];
+   INT b = m22ib8im20i * symbols[j];
+   INT c = m22im20 * symbols[j];
+   INT d = m22i * symbols[j];
+   INT e = b13 * symbols[j];
+   INT f = m22im4i * symbols[j];
+   INT g = m22im4im20i * symbols[j];
+   INT h = n1 * symbols[j];
+   INT k = n1m22ib8i * symbols[j];
+   INT l = n1m22ib8im20i * symbols[j];
+   INT m = n1m22im20 * symbols[j];
+   INT n = n1m22i * symbols[j];
+   INT o = n1b13 * symbols[j];
+   INT p = n1m22im4i * symbols[j];
+   INT q = n1m22im4im20i * symbols[j];
+   INT r = m22im20i * symbols[j];
+   INT s = n1m22im20i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,h)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[6,j]);
+   addterm(sign*coordindex[5,a]);
+   addterm(-sign*coordindex[4,a]);
+   addterm(-sign*coordindex[5,b]);
+   addterm(-coordindex[4,c]);
+   addterm(-coordindex[5,r]);
+   addterm(-coordindex[4,d]);
+   addterm(-coordindex[6,e]);
+   addterm(coordindex[4,f]);
+   addterm(coordindex[5,g]);
+   addterm(coordindex[6,h]);
+   addterm(sign*coordindex[5,k]);
+   addterm(-sign*coordindex[4,k]);
+   addterm(-sign*coordindex[5,l]);
+   addterm(-coordindex[4,m]);
+   addterm(-coordindex[5,s]);
+   addterm(-coordindex[4,n]);
+   addterm(-coordindex[6,o]);
+   addterm(coordindex[4,p]);
+   addterm(coordindex[5,q]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 20-term relation, numrel = ",numrel,newline)) FI;
+ 
+{ 32-term relation }
+ 
+restart;
+ 
+FOR j TO nsymb
+DO IF notyet[j]
+   THEN
+   INT a = m14 * symbols[j];
+   INT b = b6i * symbols[j];
+   INT c = b6im20i * symbols[j];
+   INT d = m14m20 * symbols[j];
+   INT e = m18ib13 * symbols[j];
+   INT f = m14m4i * symbols[j];
+   INT g = m14m4im20i * symbols[j];
+   INT h = m1i * symbols[j];
+   INT k = m1im14 * symbols[j];
+   INT l = m1im14m20i * symbols[j];
+   INT m = b15i * symbols[j];
+   INT n = b15im11i * symbols[j];
+   INT o = c1 * symbols[j];
+   INT p = c1m14 * symbols[j];
+   INT q = c1b6i * symbols[j];
+   INT r = c1b6im20i * symbols[j];
+   INT s = c1m14m20 * symbols[j];
+   INT t = c1m18ib13 * symbols[j];
+   INT u = c1m14m4i * symbols[j];
+   INT v = c1m14m4im20i * symbols[j];
+   INT w = c1m1i * symbols[j];
+   INT x = c1m1im14 * symbols[j];
+   INT y = c1m1im14m20i * symbols[j];
+   INT z = c1b15i * symbols[j];
+   INT aa = c1b15im11i * symbols[j];
+   FOR i TO 2 DO notyet[(i|j,o)] := FALSE OD;
+   setzero(newrel);
+   addterm(coordindex[3,j]);
+   addterm(-coordindex[5,a]);
+   addterm(sign*coordindex[5,b]);
+   addterm(-sign*coordindex[4,b]);
+   addterm(-sign*coordindex[5,c]);
+   addterm(-coordindex[4,d]);
+   addterm(-coordindex[6,e]);
+   addterm(coordindex[4,f]);
+   addterm(coordindex[5,g]);
+   addterm(-coordindex[3,h]);
+   addterm(coordindex[5,k]);
+   addterm(-coordindex[4,k]);
+   addterm(-coordindex[5,l]);
+   addterm(coordindex[6,m]);
+   addterm(-coordindex[1,m]);
+   addterm(-sign*coordindex[1,n]);
+   addterm(-sign*coordindex[3,o]);
+   addterm(sign*coordindex[5,p]);
+   addterm(-coordindex[5,q]);
+   addterm(coordindex[4,q]);
+   addterm(coordindex[5,r]);
+   addterm(sign*coordindex[4,s]);
+   addterm(sign*coordindex[6,t]);
+   addterm(-sign*coordindex[4,u]);
+   addterm(-sign*coordindex[5,v]);
+   addterm(sign*coordindex[3,w]);
+   addterm(-sign*coordindex[5,x]);
+   addterm(sign*coordindex[4,x]);
+   addterm(sign*coordindex[5,y]);
+   addterm(-sign*coordindex[6,z]);
+   addterm(sign*coordindex[1,z]);
+   addterm(coordindex[1,aa]);
+   userelation
+   FI
+OD;
+ 
+IF TRUE THEN print(("After 32-term relation, numrel = ",numrel,newline)) FI;
+ 
+ 
+IF TRUE THEN print(("All relations used; relation matrix is ",numrel," x ",ngens,newline)) FI;
+FILE dump; STRING dumpname;
+print(("Enter filename for dumping relmat (<Return> for none):",newline));
+read((newline,dumpname));
+IF dumpname/=""
+THEN establish(dump,dumpname,alienoutchannel,1,numrel,5*ngens);
+     FOR i TO numrel
+     DO put(dump,(relmat[i,],newline))
+     OD;
+     close(dump);
+     print(("Dump complete.",newline))
+FI;
+ 
+   SUBSPACE s = ker(relmat[1:numrel,]);
+   rank := DIM s;
+   coord := basis OF s;
+   denom1 := d OF s;
+   HEAP[rank][2]INT free;
+   []INT piv = pivots OF s;
+   FOR i TO rank DO free[i] := gens[piv[i]] OD;
+   freegens:=free;
+   coord := purge2(coordindex,coord);
+ 
+   freemods := HEAP[rank]MODSYM;
+  FOR i TO rank
+   DO freemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+ 
+   IF verbose THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+END;
+ 
+PROC relate = VOID:
+BEGIN
+     ker := kermodp;
+      (whichfield-5|relate19,relate43,relate67,relate163)
+END;
+ 
+ 
+ 
+ 
+PROC cuspeq = (QI a,b)BOOL:
+BEGIN MATRIX m1 = infmat(a), m2 = infmat(b);
+      GI z1 = m1[2,1] * m2[2,2],
+         z2 = m1[2,2] * m2[2,1],
+         z3 = m1[2,1] * m2[2,1];
+ 
+      gigcd(mod,z3) DIV (z1-z2)
+ 
+END;   { of PROC cuspeq }
+ 
+PROC findcusp = (QI c,REF[]QI list,INT n)INT:
+BEGIN INT ans:=0;
+      FOR i TO n WHILE (ans=0) DO IF cuspeq(c,list[i]) THEN ans:=i FI OD;
+      ans
+END;   { of PROC findcusp }
+ 
+PROC kerneldelta = VOID:
+BEGIN
+   [1:4*rank]QI cusps; INT ncusps:=0;INT k;
+   [1:4*rank,1:rank]INT matrix;
+ 
+   FOR i TO rank DO
+      MODSYM m = freemods[i];
+      FOR j TO 4 DO
+         QI cusp = ( j | Bm,Am,-Bm,-Am);
+         k := findcusp(cusp,cusps,ncusps);
+         IF k=0 THEN cusps[ncusps+:=1]:=cusp;
+                     setzero(matrix[ncusps,]);
+                     k := ncusps
+         FI;
+         matrix[k,i] +:= ( j | 1,-1,sign,-sign)
+   OD OD;
+ 
+   kern := kernel(matrix[1:ncusps,]);
+   dimension := DIM kern;
+   codimension := rank - dimension;
+   [,]INT tbasis = basis OF kern;               {Temporary definition}
+   denom2 := d OF kern;
+   denom := denom1 * denom2;
+print(("denom =",denom,newline));
+print(("denom1 =",denom1,newline));
+print(("denom2 =",denom2,newline));
+ 
+IF verbose THEN
+      print(("Free generators:",newline));
+      FOR i TO rank
+      DO printsym(symbols[freegens[i][2]]);
+         print((" type ",freegens[i][1]," --> {"));
+         printqi(A freemods[i]); print(",");
+         printqi(B freemods[i]); print(("}",newline))
+      OD;
+      print(newline);
+      print(("Coord. index:",newline,newline));
+      FOR i TO nsymb
+      DO print("Symbol ");printsym(symbols[i]);
+         print((coordindex[,i],newline))
+      OD;
+      print((newline,"Coord. table:",newline));
+      FOR i TO 1 UPB coord
+      DO print((i,":",coord[i,],newline)) OD;
+      print((newline,newline))
+FI;
+ 
+   IF dimension>0
+   THEN
+        needed := HEAP[rank]BOOL;
+        FOR i TO rank
+        DO needed[i] := NOT trivial(tbasis[i,])
+        OD;
+        zerovector := HEAP[rank]INT; setzero(zerovector);
+        IF verbose THEN
+          print(("Basis of ker(delta):",newline));
+          showmatrix(tbasis);
+          print(newline)
+        FI
+   FI
+ 
+END;  {of PROC kerneldelta}
+ 
+SKIP
+ 
+ 
+ 
+KEEP SYMB,MODSYM,findsymb,=(SYMB,SYMB),setup,makesymbols,showsymb,
+     kerneldelta,findcusp,verbose,symbtomat,relate,
+     mod,normod,nplist,nsymb,phi,rank,plist,zerovector,
+     symbols,freegens,coordindex,coord,dimension,codimension,
+     A(MODSYM),B(MODSYM),C(SYMB),D(SYMB),freemods,*(MATRIX,SYMB),convert,
+     cuspeq,printsym,index,kern,needed,
+     denom1,denom2,denom,sign
+ 
+FINISH

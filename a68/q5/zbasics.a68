@@ -1,0 +1,79 @@
+DECS zbasics:
+ 
+ 
+OP DIV = (INT b,a)BOOL:IF (b=0) THEN (a=0) ELSE ((a%*b)=0) FI;
+ 
+OP OVER = (INT a,b)INT:  {rounded integer division, halves go down}
+   IF (b DIV a)  THEN a%b
+   ELIF (b DIV (2*a)) THEN (a>0 | a%b | a%b - 1)
+   ELSE (a>0 | (2*a + b)%(2*b) | (2*a - b)%(2*b) )
+   FI;
+ 
+PROC zgcd = (INT a,b)INT:
+BEGIN INT c := ABS(a), d := ABS(b);
+      WHILE d>0 DO INT e:=d;d:= c%*d ;c:=e OD;
+      c
+END;
+ 
+PROC longzgcd = (INT pb,pc)REF[]INT:
+BEGIN INT coefa1:=1, coefb2:=1, coefa2:=0, coefb1:=0;
+    HEAP [1:3] INT result;
+    INT rem1 := pb, rem2:= pc;
+   WHILE NOT (rem2 = 0) DO
+    INT quot = rem1%rem2;
+    INT temp:=rem2; rem2:=rem1 - rem2*quot; rem1:=temp;
+    temp:=coefa2; coefa2:=coefa1 - coefa2*quot; coefa1:=temp;
+    temp:=coefb2; coefb2:=coefb1 - coefb2*quot; coefb1:=temp
+   OD;
+   IF rem1<0 THEN rem1:=-rem1; coefa1:=-coefa1; coefb1:=-coefb1 FI;
+   result := (rem1, coefa1, coefb1)
+END;
+ 
+PROC lzgcd = (LONG INT a,b)LONG INT:
+BEGIN LONG INT c := ABS(a), d := ABS(b);
+      WHILE d>LONG 0 DO LONG INT e:=d;d:= c%*d ;c:=e OD;
+      c
+END;
+ 
+PROC listzgcd = ([]INT list)INT:
+BEGIN INT ans:=0;
+      FOR i TO UPB list DO ans:=zgcd(ans,list[i]) OD;
+      ans
+END;
+ 
+OP DIV = (LONG INT b,a)BOOL:IF (b=LONG 0)
+                            THEN (a=LONG 0)
+                            ELSE ((a%*b)=LONG 0) FI;
+ 
+OP OVER = (LONG INT a,b)LONG INT:  {rounded integer division, halves go down}
+   IF (b DIV a)  THEN a%b
+   ELIF (b DIV ((LONG 2)*a)) THEN (a>LONG 0 | a%b | a%b - LONG 1)
+   ELSE (a>LONG 0 | ((LONG 2)*a + b)%((LONG 2)*b) | ((LONG 2)*a - b)%((LONG 2)*b) )
+   FI;
+ 
+PROC longlzgcd = (LONG INT pb,pc)REF[]LONG INT:
+BEGIN LONG INT coefa1:=LONG 1, coefb2:=LONG 1, coefa2:=LONG 0, coefb1:=LONG 0;
+     HEAP [1:3]LONG INT result;
+    LONG INT rem1 := pb, rem2:= pc;
+    WHILE NOT (rem2 = LONG 0) DO
+    LONG INT quot = rem1%rem2;
+    LONG INT temp:=rem2; rem2:=rem1 - rem2*quot; rem1:=temp;
+     temp:=coefa2; coefa2:=coefa1 - coefa2*quot; coefa1:=temp;
+     temp:=coefb2; coefb2:=coefb1 - coefb2*quot; coefb1:=temp
+    OD;
+    IF rem1<LONG 0 THEN rem1:=-rem1; coefa1:=-coefa1; coefb1:=-coefb1 FI;
+    result := (rem1, coefa1, coefb1)
+END;
+ 
+PROC listlzgcd = ([]LONG INT list)LONG INT:
+BEGIN LONG INT ans:=LONG 0;
+      FOR i TO UPB list DO ans:=lzgcd(ans,list[i]) OD;
+      ans
+END;
+ 
+SKIP
+ 
+KEEP DIV(INT,INT),OVER(INT,INT),DIV(LONG INT,LONG INT),OVER(LONG INT,LONG INT),
+     zgcd,lzgcd,longzgcd,longlzgcd,listzgcd,listlzgcd
+ 
+FINISH

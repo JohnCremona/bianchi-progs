@@ -1,0 +1,22 @@
+PROGRAM curvedetail USE basics,lbasics,zbasics,curveprocs
+ 
+BEGIN
+PROC eof = (REF FILE f)BOOL:(stop;FALSE);
+onlogicalfileend(standin,eof);
+i OF standard style := i OF long style := 0;
+ 
+setlprimes;
+ 
+CURVECOORDS curve;
+REF LGI a1=a1 OF curve,a2=a2 OF curve,a3=a3 OF curve,a4=a4 OF curve,a6=a6 OF curve;
+ 
+WHILE
+     read((a1,a2,a3,a4,a6));
+     NOT ((a1=lzero)AND(a2=lzero)AND(a3=lzero)AND(a4=lzero)AND(a6=lzero))
+DO
+     analyse(curve,TRUE)
+OD
+ 
+END
+ 
+FINISH

@@ -1,0 +1,163 @@
+DECS lf1procs USE gibasics:
+ 
+ 
+PROC(REF REAL, REF INT)REAL xk1 = ALIEN "S18ADF";
+PROC k1 = (REAL x)REAL: (INT i:=0; REAL xx := x; xk1(xx,i));
+ 
+PROC realnorm = (GI z)REAL: sqrt(norm(z));
+ 
+INT discriminant;
+INT limitnorm; GI level; REAL factor, sum; REF[]INT ap;
+REF[]GI pr; INT npr;
+ 
+PROC use = (GI z, INT coeff)VOID:
+BEGIN
+   REAL rnz = realnorm(z);
+   sum +:= coeff * k1(factor*rnz)/rnz
+END;
+ 
+PROC add = (GI n, INT pindex, y, z)VOID:
+BEGIN
+   IF y/=0 THEN use(n,y) FI;
+   GI p;
+   FOR i FROM (y=0|pindex|1) TO pindex WHILE norm((p:=pr[i])*n) <= limitnorm
+   DO INT x := y*ap[i];
+      IF (i=pindex) AND (p NDIV level) THEN x-:=z*norm(p) FI;
+      add(p*n, i, x, y)
+   OD
+END;
+ 
+PROC lf1 = (GI mod, REF[]INT aplist)REAL:
+BEGIN
+ 
+GI p;
+FOR i TO npr WHILE norm(p:=pr[i]) <= limitnorm
+DO
+  add(p,i,ap[i],1);
+  print((newline,"After using p = "));printgi(p);print(("  sum = ",sum*factor*2,newline))
+OD;
+ 
+sum:=sum*factor*2;
+ 
+HEAP REAL ans := sum;
+ans
+ 
+END;
+ 
+PROC squaremod = (GI a, lambda, []GI res)BOOL:
+BEGIN  {tests whether a is a square mod lambda}
+  BOOL ans := FALSE;
+  FOR i TO UPB res WHILE NOT ans
+  DO ans := lambda DIV (res[i]*res[i]-a)
+  OD;
+  ans
+END;
+ 
+PROC makechitable = (GI lambda, []GI res)REF[]INT:
+BEGIN
+  INT n = UPB res;
+  HEAP[n]INT table;
+  FOR j TO n
+  DO table[j] := IF lambda DIV res[j] THEN 0
+                 ELSE (squaremod(res[j],lambda,res) | +1 | -1)
+                 FI
+  OD;
+  table
+END;
+ 
+REF[]INT chitable;
+GI lambda;
+REAL chifactor;
+REF[]GI  lambdares;
+PROC chi = (GI alpha)INT:
+BEGIN chitable[findgi(alpha MODULO lambda,lambdares)]
+END;
+ 
+PROC fix = (REF COMPL z)VOID:
+BEGIN REF REAL x = re OF z, y = im OF z;
+      IF field > 2 THEN y/:=(2); x+:=y FI;
+      IF field > 1 THEN y*:=sqrt(field) FI
+END;
+ 
+PROC complexify = (GI a)REF COMPL:
+BEGIN
+   HEAP COMPL ans;
+   re OF ans := r OF a;
+   im OF ans := i OF a;
+   fix(ans);
+   ans
+END;
+ 
+PROC psif = (COMPL z)REAL:
+BEGIN
+   cos(4.0*pi*(re OF z))
+END;
+ 
+PROC psig = (COMPL z)REAL:
+BEGIN
+   sin(4.0*pi*(re OF z))
+END;
+ 
+PROC gauss = REAL:
+BEGIN
+   REAL ans := 0.0;  {REAL ans2 := 0.0;}
+   COMPL lrd = complexify(lambda)*(0.0 I sqrt(discriminant));
+   FOR i TO UPB lambdares
+   DO
+      COMPL beta = complexify(lambdares[i]);
+      {ans2+:=chitable[i]*psig(beta/lrd);}
+      ans+:=chitable[i]*psif(beta/lrd)
+   OD;
+{
+   print(("PROC gauss with lambda = "));printgi(lambda);print((", norm ",norm(lambda),newline));
+   print(("Returns ",ans," = sqrt(",ans*ans,")",newline));
+}
+   {print(("Imaginary part = ",ans2,newline));}
+   ans
+END;
+ 
+PROC usechi = (GI z, INT coeff)VOID:
+BEGIN
+   REAL rnz = realnorm(z);
+   sum +:= chi(z)*coeff * k1(chifactor*rnz)/rnz
+END;
+ 
+PROC addchi = (GI n, INT pindex, y, z)VOID:
+BEGIN
+   IF y/=0 THEN usechi(n,y) FI;
+   GI p;
+   FOR i FROM (y=0|pindex|1) TO pindex WHILE norm((p:=pr[i])*n) <= limitnorm
+   DO INT x := y*ap[i];
+      IF (i=pindex) AND (p NDIV level) THEN x-:=z*norm(p) FI;
+      addchi(p*n, i, x, y)
+   OD
+END;
+ 
+PROC lf1chi = (GI mod, REF[]INT aplist, GI inlambda)REAL:
+BEGIN
+   lambda:=inlambda;
+   lambdares := giresidues(lambda);
+   chitable := makechitable(lambda,lambdares);
+   chifactor := factor/realnorm(lambda);
+ 
+GI p;
+FOR i TO npr WHILE norm(p:=pr[i]) <= limitnorm
+DO
+  addchi(p,i,ap[i],1);
+  print((newline,"After using p = "));printgi(p);print(("  sum = ",sum*chifactor*2,newline))
+OD;
+ 
+sum:=sum*chifactor*2;
+ 
+HEAP REAL ans := sum;
+ans
+ 
+END;
+ 
+SKIP
+ 
+KEEP lf1,xk1,k1,realnorm,use,add,level,factor,sum,ap,limitnorm,
+     lf1chi,usechi,addchi,lambda,lambdares,makechitable,chitable,chifactor,
+     fix,complexify,gauss,discriminant,pr,npr
+ 
+FINISH

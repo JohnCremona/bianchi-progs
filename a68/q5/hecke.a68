@@ -1,0 +1,307 @@
+DECS hecke USE symb,basics,lbasics,zbasics,seg1a:
+ 
+ 
+INT nhecke;
+ 
+PROC outmat = (STRING s, MATRIX m)VOID:
+BEGIN print((s," ("));printgi(m[1,1]);print(",");printgi(m[1,2]);print(";");
+                      printgi(m[2,1]);print(",");printgi(m[2,2]);
+      print((")",newline))
+END;
+ 
+PROC adjustmat = (LMATRIX m)REF LMATRIX:
+BEGIN HEAP LMATRIX ans := m;
+      GI p = SHORTEN m[1,1], r = SHORTEN m[2,1];   BOOL notfound := TRUE;
+      FOR i TO nsymb WHILE notfound
+      DO SYMB s = symbols[i];
+         IF p*Cs+r*Ds ISIN mod
+         THEN ans := symbtomat(s) * m;  notfound := FALSE
+         FI
+      OD;
+      IF notfound
+      THEN print(("Problem in PROC adjustmat:  no suitable matrix found",newline))
+      FI;
+      ans
+END;
+ 
+PROC specialmatrix = (IDEAL p)REF LMATRIX:
+BEGIN IF PRINC p
+      THEN outputideal(p,"specialmatrix called with principal ideal: ");
+           print(newline);
+           SKIP
+      ELSE GI a = gen1 OF p, b = gen2 OF p;
+           GI c,d,g;  INT type;
+           euclid(a*a,b*b,c,d,g,type);
+           IF type=1
+           THEN adjustmat(lmakemat(LENG a,LENG(-b*d),LENG b,LENG(a*c)))
+           ELSE print(("Problem in PROC specialmatrix",newline));
+                outputideal(p,"p squared not principal, where p = ");
+                print(newline);
+                SKIP
+           FI
+      FI
+END;
+      {Of PROC specialmatrix}
+ 
+PROC isomat2 = (IDEAL p1,p2)REF LMATRIX:
+{IF p1.p2 = (g) is principal, returns a matrix M with detM = g which
+ gives an isomorphism  R+R -->  p1 + p2  .}
+BEGIN
+      [4]GI c;
+      GI a1 = G(a OF basis OF p1),
+         a2 = G(a OF basis OF p2),
+         z1 =   z OF basis OF p1,
+         z2 =   z OF basis OF p2;
+      GI g = princprod(p1,p2,c);
+      adjustmat(lmakemat(LENG a1 , LENG(-(c[3]*a2 + c[4]*z2)),
+                         LENG z1 , LENG(c[1]*a2 + c[2]*z2)  ))
+END;
+ 
+PROC getcoord = (SYMB s,INT type)REF[]INT:
+BEGIN
+INT i= coordindex[type,index(s)];
+( i=0 | zerovector | SIGN(i) * coord[ABS(i),] )
+END;
+ 
+LMATRIX binv = (((LONG 1,-LONG 1),(-LONG 2,LONG 0)),
+                ((-LONG 2,LONG 0),( LONG 1,LONG 1)));
+ 
+PROC convertmatrix = (LMATRIX m, INT type)REF[]INT:
+BEGIN INT mtype = lmatrixtype(m);
+      INT type3,sign; LMATRIX newm;
+ 
+      CASE mtype IN
+ 
+  {1} BEGIN  type3:=type; sign:=+1; newm:=m END,
+ 
+  {2} BEGIN CASE type IN
+ 
+        {1} BEGIN type3:=3; sign:=+1; newm:=m**binv END,
+        {2} BEGIN type3:=2; sign:=-1; newm:=m**linv[2] END  OUT SKIP
+ 
+            ESAC
+      END
+ 
+      OUT SKIP
+ 
+      ESAC;
+ 
+      SYMB s = (SHORTEN newm[2,1] , SHORTEN newm[2,2]);
+ 
+      sign * getcoord( s , type3 )
+END;
+ 
+PROC qtovec = (LQI q)REF[]INT:
+BEGIN HEAP[rank]INT ans := zerovector;
+      LMATRIX m := lidentity, invmat;
+      LQI z := q;
+      WHILE NOT (z=linfinity)
+      DO LQI newz = ltranslate(z);
+         INT type = ltestregion(newz);
+         invmat := linv[type];
+         m := m ** T((Nz-Nnewz)/Dz) ** invmat;
+         z := lapply(invmat,newz);
+         ans := ans + convertmatrix(m,type)
+      OD;
+      ans
+END;
+ 
+PROC reconvert = (MODSYM m)REF[]INT:  qtovec(Bm)  - qtovec(Am)  ;
+ 
+OP * = (LMATRIX m, MODSYM s)REF MODSYM: BEGIN HEAP MODSYM ans := (lapply(m,As),lapply(m,Bs)); ans END;
+ 
+INT pivot:=0; STRING pivotname;
+REF[,]INT charmat;
+ 
+PROC hitlist = ([]LMATRIX list, MODSYM m)REF[]INT:
+BEGIN HEAP[rank] INT ans := zerovector;
+      FOR i TO UPB list
+      DO ans := ans + reconvert(list[i]*m)
+      OD;
+      ans
+END;
+ 
+PROC getpivot = VOID:
+{Sets global variable 'pivot' to i where primes[i] is the first
+  nonprincipal prime which does not divide 'mod' }
+BEGIN pivot := 0;
+      FOR i TO nprimes WHILE pivot=0
+      DO IF NOT PRINC(primes[i]) AND NOT ((ideal OF primes[i]) DIV mod)
+         THEN pivot:=i;
+              pivotname:=name OF primes[i]
+         FI
+      OD;
+      IF pivot=0
+      THEN print(("Unable to find a prime to use as pivot",newline))
+      ELSE print(("Using ",pivotname," as pivotal prime",newline))
+      FI
+END;
+ 
+OP = = ([,]INT a,b)BOOL:
+BEGIN IF 1 UPB a = 1 UPB b AND
+         2 UPB a = 2 UPB b AND
+         1 LWB a = 1 LWB b AND
+         2 LWB a = 2 LWB b
+      THEN BOOL ans:= TRUE;
+           FOR i FROM 1 LWB a TO 1 UPB a WHILE ans
+           DO FOR j FROM 2 LWB a TO 2 UPB a WHILE ans
+              DO ans := a[i,j]=b[i,j]
+              OD
+           OD;
+           ans
+      ELSE FALSE
+      FI
+END;
+ 
+PROC getlist1 = (IDEAL p)REF[]LMATRIX:    {p principal}
+BEGIN
+     INT np = idealnorm(p);
+     []GI res = idealresidues(p);
+     LGI gen = LENG(gen1 OF p);
+     HEAP[np+1]LMATRIX xlist;
+     FOR j TO np DO xlist[j] := lmakemat(lone,LENG res[j],lzero,gen) OD;
+     xlist[np+1] := lmakemat(gen,lzero,lzero,lone);
+     xlist
+END;
+ 
+PROC getlist2 = (IDEAL p)REF[]LMATRIX:    {p non-principal: T(p sqd.)}
+BEGIN
+     IDEAL psq = p*p;
+     INT np = idealnorm(p);
+     LGI gen = LENG(gen1 OF psq);
+     []GI respsq = idealresidues(psq);
+     LMATRIX m = specialmatrix(p);
+     []GI resp   = idealresidues(p);
+     GI a = gen2 OF p;
+ 
+     HEAP[1+np+np*np]LMATRIX xlist;
+ 
+     FOR j TO np*np
+     DO xlist[j] := lmakemat(lone,LENG respsq[j],lzero,gen)
+     OD;
+     INT nlist := np*np;
+     FOR j TO np
+     DO xlist[nlist+:=1] := (m * lmakemat(gen,LENG(resp[j]*a),lzero,gen))/gen
+     OD;
+     xlist[nlist+:=1] := lmakemat(gen,lzero,lzero,lone);
+     xlist
+END;
+ 
+PROC getlist3 = (IDEAL p,q)REF[]LMATRIX:    {p non-principal: T(p.q)}
+BEGIN
+     INT np = idealnorm(p), nq = idealnorm(q);
+     []GI resp = idealresidues(p),
+          resq = idealresidues(q);
+     IDEAL pq = p*q;
+     []GI respq= idealresidues(pq);
+     LMATRIX m1 = isomat2(p,q);
+     LMATRIX m2 = isomat2(q,p);
+     LGI gen = LENG(gen1 OF pq);
+ 
+     HEAP[(1+np)*(1+nq)]LMATRIX xlist;  INT nlist := 0;
+ 
+     FOR j TO np*nq
+     DO xlist[nlist+:=1] := lmakemat(lone,LENG(respq[j]),lzero,gen)
+     OD;
+     FOR j TO np
+     DO xlist[nlist+:=1] := m2 * T(LENG resp[j])
+     OD;
+     FOR j TO nq
+     DO xlist[nlist+:=1] := m1 * T(LENG resq[j])
+     OD;
+     xlist[nlist+:=1] := lmakemat(gen,lzero,lzero,lone);
+     xlist
+END;
+ 
+PROC calcop = (STRING opname, []LMATRIX list, BOOL adjust)REF[,]INT:
+BEGIN
+     [rank,rank]INT mat1;
+     [rank,dimension]INT mat2;
+     HEAP[dimension,dimension]INT opmat;
+ 
+     FOR j TO rank
+     DO mat1[,j] := (needed[j] | hitlist(list,freemods[j]) | zerovector)
+     OD;
+ 
+     mat2 := mat1 * tbasis;
+     opmat := mat2[codimension+1:rank,];
+ 
+     IF tbasis * opmat = mat2
+     THEN print(("Matrix of ",opname));
+          print((dimension>1|newline|":"));
+          IF adjust THEN opmat := charmat * opmat FI;
+          showmatrix(opmat)
+     ELSE
+          {error: op has not stabilised ker delta}
+          print(("Problem in PROC calcop calculating ",opname,newline));
+          print((newline,"mat1",newline));showmatrix(mat1);print(newline);
+          print((newline,"mat2",newline));showmatrix(mat2);print(newline);
+          print((newline,"tbasis",newline));showmatrix(tbasis);print(newline)
+     FI;
+     opmat
+END;
+ 
+PROC character = VOID:
+BEGIN
+     getpivot;
+     LMATRIX m = specialmatrix(ideal OF primes[pivot]);
+     []LMATRIX list = (m);
+     print((newline,newline));
+     charmat := calcop("character",list,FALSE);
+     print((newline,newline))
+END;
+ 
+PROC heckeop = (INT i)VOID:
+BEGIN
+     PRIME pp = primes[i];
+     IDEAL  p = ideal OF pp;   STRING namep = name OF pp;
+     IDEAL  q = ideal OF primes[pivot];
+ 
+     IF p DIV mod
+     THEN print((namep, " divides mod",newline))
+     ELSE
+         IF PRINC p
+         THEN calcop("T(" + namep + ")",getlist1(p),FALSE)
+         ELSE IF i=pivot
+              THEN calcop("T("+namep+"."+namep+")",getlist2(p),TRUE)
+              ELSE calcop("T("+namep+"."+pivotname+")",getlist3(p,q),TRUE)
+              FI
+         FI
+     FI;
+     print(newline)
+ 
+END;   { of PROC heckeop }
+ 
+PROC heckeopall = (INT i)VOID:
+BEGIN
+     PRIME pp = primes[i];
+     IDEAL  p = ideal OF pp;   STRING namep = name OF pp;
+ 
+     IF p DIV mod
+     THEN print((namep, " divides mod",newline))
+     ELSE
+         IF PRINC p
+         THEN calcop("T(" + namep + ")",getlist1(p),FALSE)
+         ELSE
+              FOR j TO i
+              DO IDEAL q = ideal OF primes[j];
+                 IF NOT(PRINC(q)) AND NOT(q DIV mod)
+                 THEN IF i=j THEN calcop("T("+namep+"."+namep+")",getlist2(p),TRUE)
+                             ELSE calcop("T("+namep+"."+name OF primes[j]+")",getlist3(p,q),TRUE)
+                      FI
+                 FI
+              OD
+         FI
+     FI;
+     print(newline)
+ 
+END;   { of PROC heckeopall }
+ 
+SKIP
+ 
+KEEP specialmatrix,isomat2,binv,nhecke,getpivot,adjustmat,outmat,
+     getcoord,convertmatrix,qtovec,reconvert,*(LMATRIX,MODSYM),
+     heckeop,heckeopall,hitlist,pivot,pivotname,=([,]INT,[,]INT),
+     calcop,getlist1,getlist2,getlist3,character
+ 
+FINISH

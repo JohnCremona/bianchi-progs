@@ -1,0 +1,408 @@
+DECS mgibasics USE gibasics,intbasics,multiprocs,subs,mult:
+ 
+MODE MGI = STRUCT(MULTIPLINT r,i);
+MULTIPLINT m0,m1,m2,m3,m12;
+ 
+MGI mzero,mone,mtwo,meye,mthree,mtwelve;
+OP MULTI = (GI x)MGI:MGI(MULTI Rx,MULTI Ix);
+ 
+OP R = (MGI x)MULTIPLINT: (r OF x);
+OP I = (MGI x)MULTIPLINT: (i OF x);
+OP NARROW = (REF GI g, MGI m)BOOL: (((r OF g) NARROW Rm) AND ((i OF g) NARROW Im));
+OP - = (MGI x)MGI: (-Rx,-Ix);
+OP - = (MGI a,b)MGI:(Ra - Rb, Ia - Ib);
+OP + = (MGI a,b)MGI:(Ra + Rb, Ia + Ib);
+PROC mconj = (MGI x)MGI: (Rx+Ix,-Ix);
+ 
+ 
+ 
+OP * = (MGI x,y)MGI:(Rx*Ry - normw*Ix*Iy, Ix*Ry + (Rx + Ix)*Iy);
+ 
+PROC mnorm = (MGI a)MULTIPLINT: Ra*(Ra+Ia)+normw*Ia*Ia;
+ 
+ 
+OP DIVBY = (MULTIPLINT a,b)MULTIPLINT:  {rounded division, halves go down}
+IF b ZDIV a  THEN a%b
+ELIF b ZDIV 2*a THEN (a GT m0 | a%b | a%b - m1)
+ELSE (a GT m0 | (2*a + b)%(2*b) | (2*a - b)%(2*b) )
+FI;
+ 
+ 
+ 
+ 
+ 
+OP % = (MGI a, MULTIPLINT n)MGI: {rounded division}
+BEGIN MGI ans;
+      r OF ans := (m2*Ra + Ia - n*(i OF ans := Ia DIVBY n)) DIVBY
+      (m2*n);
+       ans
+END;
+ 
+OP % = (MGI xb,xc)MGI: (xb*mconj(xc)) % mnorm(xc) ;
+ 
+OP = = (MGI a,b)BOOL:(Ra EQ Rb) AND (Ia EQ Ib);
+OP MODULO = (MGI fa,mod)MGI: (fa - mod*(fa%mod));
+ 
+PROC printmgi = (MGI a)VOID:
+BEGIN
+MULTIPLINT  i = Ia;
+IF (i =m0) THEN print(WHOLE(Ra))
+ELIF (Ra =m0) THEN
+   IF i = m1 THEN print((space,name))
+   ELIF i = -m1 THEN print((space,"-",name))
+   ELSE print((WHOLE(i),name))
+   FI
+ELSE print((WHOLE(Ra), (i GT m0| " +" | " -" )));
+IF ABS(i) = m1 THEN print((space,name)) ELSE print((WHOLE(ABS(i)),name)) FI
+FI;
+print(("  "))
+END;
+ 
+PROC(MGI)BOOL minfirstquad;
+ 
+PROC mfirstq = (MGI a)REF[]MGI:
+BEGIN
+HEAP[2]MGI ans; REF MGI x = ans[1]:=a, y = ans[2]:=mone;
+WHILE NOT minfirstquad(x) DO   x:=-x; y := -y OD;
+ans
+END;
+ 
+OP DIV = (MGI mc,mb)BOOL: (mc*(mb%mc) = mb);
+OP NDIV = (MGI a,b)BOOL: (NOT (a DIV b));
+OP DIV = (GI g,MGI m)BOOL:(MULTI g) DIV m;
+OP NDIV = (GI g,MGI m)BOOL:(MULTI g) NDIV m;
+ 
+PROC mval = (MGI factor,number)INT:
+BEGIN INT ans:=0; MGI hold:=number; MGI hold2;
+     IF NOT (hold=mzero) THEN
+    WHILE hold2:=hold%factor;hold=hold2*factor DO hold:=hold2; ans+:=1 OD
+     ELSE ans := -1
+     FI;
+     ans
+END;
+ 
+OP + = (MGI m, GI g)MGI:m+MULTI g;
+OP + = (GI g,MGI m)MGI:m+MULTI g;
+OP - = (MGI m,GI g)MGI:m-MULTI g;
+OP - = (GI g,MGI m)MGI:(MULTI g)-m;
+OP * = (MGI m,GI g)MGI:m*MULTI g;
+OP * = (GI g,MGI m)MGI:(MULTI g)*m;
+OP * = (MULTIPLINT c,MGI m)MGI:MGI(c*Rm,c*Im);
+OP * = (INT c,MGI m)MGI:(MULTI c)*m;
+ 
+PROC mgiprimefactors = (MGI a)REF[]MGI:
+BEGIN
+MGI b:=a;INT n:=0;HEAP[20]MGI answer;MULTIPLINT nb,np;MGI p;
+FOR i TO ngiprimes
+WHILE (((nb:=mnorm(b)) GT m1)
+  AND (p:=MULTI giprimes[i];  np:=mnorm(p); np*np LE nb+1))
+DO
+   INT v = mval(p,b);
+   IF v>0 THEN answer[n+:=1] := p;
+               TO v DO b := b%p OD
+   FI
+OD;
+IF mnorm(b)>m1 THEN answer[n+:=1] :=  b FI;
+answer[1:n]
+END;
+ 
+PROC readmgi = (REF MGI a)VOID:
+BEGIN LONG INT r,i;
+      read((r,i));
+      r OF a := MULTI r;
+      i OF a := MULTI i
+END;
+ 
+ 
+PROC printmgifac = (MGI a)VOID:
+BEGIN
+MGI b:=a;
+FOR i TO UPB giprimes WHILE mnorm(b) GT m1 DO
+   GI sp = giprimes[i];
+   MGI p = MULTI sp;
+   INT v = mval(p,b);
+   IF v>0 THEN print("(");printgi(sp);print(")");
+               IF v>1 THEN print(("(^",v,")")) FI;
+               TO v DO b := b % p OD
+   FI
+OD;
+IF NOT(b=mone) THEN print("(");printmgi(b);print(")") FI
+END;
+ 
+ 
+PROC mresidues = (MGI ma)REF[]MGI:
+{Gives a standard list of residues modulo a}
+BEGIN
+GI a;
+IF a NARROW ma
+THEN
+INT norma = norm(a);
+INT l := 0;
+HEAP[norma]MGI list;
+INT r = Ra,i = Ia,m = gcd(r,i),rednorm = norma%(m*m);
+FOR j TO rednorm*m DO FOR k TO m DO
+   list[l+:=1] := MGI(MULTI j, MULTI k) MODULO ma
+OD OD;
+list
+ELSE print(("Error in PROC mresidues : modulus "));
+     printmgi(ma);
+     print((" is too big !",newline));
+     SKIP
+FI
+END;
+ 
+PROC mbezout = (MULTIPLINT pb,pc) REF [] MULTIPLINT:
+BEGIN
+   HEAP [1:3] MULTIPLINT result;
+   MULTIPLINT coefa1:=m1, coefb2:=m1, coefa2:=m0, coefb1:=m0;
+   MULTIPLINT rem1 :=pb, rem2:=pc, temp, quot;
+   WHILE NOT (rem2 = m0)
+   DO quot := rem1 % rem2;
+      temp:=rem2; rem2:=rem1 - rem2*quot; rem1:=temp;
+      temp:=coefa2; coefa2:=coefa1 - coefa2*quot; coefa1:=temp;
+      temp:=coefb2; coefb2:=coefb1 - coefb2*quot; coefb1:=temp
+   OD;
+   result := IF rem1<m0 THEN (-rem1,-coefa1,-coefb1)
+                       ELSE (rem1, coefa1, coefb1)
+             FI;
+   result
+END;
+ 
+PROC mvecbezout = ([]MULTIPLINT a,REF MULTIPLINT g)REF[]MULTIPLINT:
+     {g = c.a = gcd(ai)}
+BEGIN
+      INT n = UPB a;
+      HEAP[n]MULTIPLINT c;
+      g := m0;
+      FOR i TO n DO
+         []MULTIPLINT bez = mbezout(g,a[i]);
+         g := bez[1];
+         FOR j TO i-1 DO c[j] := bez[2] * c[j] OD;
+         c[i] := bez[3]
+      OD;
+      c
+END;
+ 
+PROC findzbasis = ([]MULTIPLINT first,second)REF[,]MULTIPLINT:
+BEGIN
+      [4]MULTIPLINT x,y,basis; MULTIPLINT e1,e2; e1 := m0;
+      [3,4]MULTIPLINT ans;
+      x := mvecbezout(second,e2);
+      FOR i TO 4 DO e1 +:= x[i] * first[i] OD;
+      {now (e1,e2) is the x-combination of the data, with e2
+       the gcd of the second coefficients}
+      [4]MULTIPLINT newfirst;
+      [4][4]MULTIPLINT z;
+      FOR i TO 4 DO
+         MULTIPLINT n = second[i] % e2;
+         newfirst[i] := first[i] - n * e1;
+         {second[i] - n * e2 = 0}
+         FOR j TO 4 DO z[i][j] := -n * x[j] OD;
+         z[i][i] +:= m1
+         {now z[i]-comb of data is (newfirst[i],0)}
+      OD;
+      MULTIPLINT f1,f2;
+      f2 := m0;
+      [4]MULTIPLINT u;
+      u := mvecbezout(newfirst,f1);
+      basis[1] := e1;
+      basis[2] := e2;
+      basis[3] := f1;
+      basis[4] := f2;
+      ans[1,] := basis;
+      ans[2,] := x;
+      FOR j TO 4 DO
+         y[j] := m0;
+         FOR i TO 4 DO y[j] +:= u[i] * z[i][j] OD
+      OD;
+      ans[3,] := y;
+{CHECK:}
+      ans
+END;
+ 
+PROC findminvec = ([]MULTIPLINT basis)REF[]MULTIPLINT:
+BEGIN
+      MULTIPLINT e1,e2,f1,f2,n,norm1,norm2,temp1,temp2;
+      [2]MULTIPLINT c,d,temp;
+      c[1]:=m1; c[2]:=m0; d[1]:=m0; d[2]:=m1;
+      e1 := basis[1]; e2 := basis[2]; f1 := basis[3]; f2 := basis[4];
+      WHILE
+            IF ((f1 = m0) AND (f2 = m0)) THEN n := m0 ELSE
+            n := ((2*e1 + e2)*f1 + (e1 + 2*normw*e2)*f2) %
+                          (2*(f1*(f1+f2) + normw*f2*f2)) FI;
+            e1 -:=  n*f1; e2 -:=  n*f2;
+            FOR i TO 2 DO d[i] -:=  n*c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            norm1 := e1*(e1 + e2) + normw*e2*e2;
+            norm2 := f1*(f1 + f2) + normw*f2*f2;
+      (norm2 > norm1)
+   DO
+            temp1 := e1; temp2 := e2;
+            e1 := -f1; e2 := -f2;
+            f1 := temp1; f2 := temp2;
+            temp := d;
+            FOR i TO 2 DO d[i] := -c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            c := temp; SKIP {FOR i TO 2 DO print(("c[",i,"] = ",c[i],newline)) OD}
+      OD;
+      c
+END;
+ 
+PROC mgibezout = (MGI alpha,beta)REF[]MGI:
+BEGIN
+      MGI coeff1,coeff2,g;  HEAP[3]MGI ans;
+      IF beta DIV alpha THEN g:=beta; coeff1:=mzero; coeff2:=mone
+      ELIF alpha DIV beta THEN g:=alpha; coeff1:=mone; coeff2:=mzero
+      ELSE
+      INT n = normw;
+      [4]MULTIPLINT z;
+      MULTIPLINT a1 = Ralpha, a2 = Ialpha,   b1 = R(beta), b2 = I(beta);
+      MULTIPLINT c1 = -n*a2, c2 = a1 + a2,   d1 = -n*b2, d2 = b1 + b2;
+      []MULTIPLINT first = (a1,b1,c1,d1); []MULTIPLINT second = (a2,b2,c2,d2);
+      [,]MULTIPLINT zbasis = findzbasis(first,second);
+      []MULTIPLINT x = zbasis[2,]; []MULTIPLINT y = zbasis[3,];
+      []MULTIPLINT coeff = findminvec(zbasis[1,]);
+      FOR i TO 4 DO z[i] := coeff[1]*y[i] + coeff[2]*x[i] OD;
+      coeff1 := MGI(z[1],z[3]);    coeff2 := MGI(z[2],z[4]);
+      g := coeff1 * alpha + coeff2 * beta
+      FI;
+      IF R(g)<m0 THEN ans := (-g,-coeff1,-coeff2)
+      ELIF (R(g)=m0) AND (I(g)<m0) THEN ans := (-g,-coeff1,-coeff2)
+      ELSE ans := (g,coeff1,coeff2)
+      FI;
+{CHECK:}
+   IF ((g DIV alpha) AND (g DIV beta)) THEN SKIP
+   ELSE print(("Error in PROC gibezout!",newline));
+        print(("alpha = "));printmgi(alpha);print(newline);
+        print(("beta  = "));printmgi(beta); print(newline);
+        print(("g   = "));printmgi(g);  print(newline)
+   FI;
+      ans
+END;
+ 
+ 
+PROC mgigcd = (MGI a,b)MGI: mgibezout(a,b)[1];
+ 
+ 
+ 
+MODE MQI = STRUCT(MGI n,d);
+OP N = (MQI q)MGI: n OF q;
+OP D = (MQI q)MGI: d OF q;
+PROC printmqi = (MQI a)VOID:
+BEGIN
+MGI n = Na, d = Da;
+IF d=mone THEN printmgi(n)
+ELSE print("(");printmgi(n);print(")/(");printmgi(d);print(")")
+FI
+END;
+OP = = (MQI p,q)BOOL:(Np * Dq = Dp * Nq);
+MQI minfinity;
+MQI mqzero,mqeye,mqone;
+PROC readmqi = (REF MQI a)VOID:(readmgi(n OF a);readmgi(d OF a));
+ 
+PROC mqicancel = (MQI q)MQI:
+BEGIN MGI nq=Nq,dq=Dq;
+MGI h=mgigcd(nq,dq); HEAP MQI ans;
+      IF (h=mzero) THEN print("mqicancel tried with 0/0");SKIP
+                  ELSE ans:=(Nq%h,Dq%h);
+                        IF NOT minfirstquad(Dans)
+                        THEN ans:=(-Nans,-Dans)
+                        FI;
+                        ans
+      FI
+END;
+ 
+ 
+ 
+ 
+OP + = (MQI p,q)MQI:mqicancel(((Np * Dq)+(Dp * Nq),Dp * Dq));
+OP - = (MQI p)MQI:(-Np,Dp);
+OP - = (MQI p,q)MQI:mqicancel(((Np * Dq)-(Dp * Nq),Dp * Dq));
+OP * = (MQI p,q)MQI:mqicancel((Np * Nq,Dp * Dq));
+OP * = (MGI a, MQI q)MQI:mqicancel((a*Nq, Dq));
+OP % = (MQI p)MQI:(Dp,Np);
+OP % = (MQI p,q)MQI:mqicancel((Np * Dq,Dp * Nq));
+ 
+ 
+PROC msetuparithmetic = VOID:
+BEGIN
+setuparithmetic;
+m0:=MULTI 0; m1:=MULTI 1; m2:=MULTI 2; m3:=MULTI 3; m12:=MULTI 12;
+mzero := (m0,m0); mone := (m1,m0); mtwo := (m2,m0); mthree := (m3,m0);
+mtwelve := (m12,m0);
+mqeye := (meye,mone);
+mqzero := (mzero,mone);mqone := (mone,mone); minfinity := (mone,mzero);
+minfirstquad :=
+   ((MGI x)BOOL:((Rx GT m0) OR (Rx = m0 AND Ix GE m0)))
+ 
+ 
+END;
+ 
+ 
+PROC printmqifac = (MQI a)VOID:
+BEGIN
+MQI b = mqicancel(a);
+MGI n := Nb, d := Db;
+FOR i TO UPB giprimes WHILE mnorm(n*d) GT m1 DO
+   GI sp = giprimes[i];
+   MGI p = MULTI sp;
+   INT v = mval(p,n) - mval(p,d);
+   IF v/=0 THEN
+      print("(");printmgi(p);print((")(^",v,")"));
+      IF v>0 THEN TO v DO n:=n%p OD ELSE TO -v DO d:=d%p OD FI
+   FI
+OD;
+IF mnorm(d)  EQ m1 THEN n:=n%d; d:=mone FI;
+IF NOT (n=mone) THEN print("(");printmgi(n);print(")") FI;
+IF NOT (d=mone) THEN print("  /  (");printmgi(d);print(")") FI
+END;
+ 
+PROC reducemodmgi = (MQI q)MQI:
+BEGIN MGI d=Dq;
+      HEAP MQI := IF d=mzero THEN  MQI(mone,mzero)
+                             ELSE MQI(Nq MODULO d,d) FI
+END;
+ 
+PROC findmgi = (MGI a, REF []MGI list)INT:
+BEGIN
+   INT ans := 0;
+   FOR i TO UPB list WHILE ans=0   DO IF a=list[i] THEN ans := i FI   OD;
+   ans
+END;
+ 
+PROC mgetprimedivisor = (MGI a, REF INT n)MGI:
+BEGIN
+   BOOL notfound:=TRUE; MGI p:=mone;
+   IF mnorm(a) LE m1
+   THEN print(("PROC getprimedivisor called with a = "));
+        printmgi(a); print(newline)
+   ELSE
+   FOR i FROM n TO ngiprimes WHILE mnorm(p*p) LE mnorm(a) AND notfound
+   DO p:=MULTI giprimes[i];   n:=i;
+      notfound:=p NDIV a
+   OD;
+   n+:=1;
+   IF notfound THEN IF mnorm(p*p) LE mnorm(a)
+                    THEN print("No prime divisor found for ");printmgi(a);
+                         print((" so assuming it is prime",newline))
+                    FI;
+                    p:=a
+   FI
+   FI;
+   mfirstq(p)[1]
+END
+ 
+KEEP MGI,m0,m1,m2,m3,m12,mone,mzero,meye,mtwo,mthree,mtwelve,
+     MQI,mqzero,mqone,mqeye,
+     mconj,mnorm,mfirstq,mval,mprimefactors,
+     readmgi,printmgi,printmgifac,mresidues,
+      mgibezout,mgigcd,
+     msetuparithmetic,mqicancel,readmqi,printmqi,printmqifac,
+     reducemodmgi,findmgi,mgetprimedivisor,
+     R(MGI),I(MGI),-(MGI),%(MGI,MGI),=(MGI,MGI),MODULO(MGI,MGI),
+     DIV(MGI,MGI),NDIV(MGI,MGI),DIV(GI,MGI),NDIV(GI,MGI),
+     MULTI(GI),+(MGI,MGI),+(MGI,GI),+(GI,MGI),-(MGI,MGI),-(MGI,GI),
+     -(GI,MGI),*(MGI,MGI),*(MGI,GI),*(GI,MGI),*(MULTIPLINT,MGI),
+     *(INT,MGI),NARROW(REF LONG INT,MULTIPLINT),NARROW(REF GI,MGI),
+     N(MQI),D(MQI),+(MQI,MQI),-(MQI),-(MQI,MQI),*(MQI,MQI),*(MGI,MQI),
+     %(MQI,MQI),%(MQI),=(MQI,MQI),DIVBY(MULTIPLINT,MULTIPLINT)
+ 
+FINISH

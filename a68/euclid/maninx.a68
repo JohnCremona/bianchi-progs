@@ -1,0 +1,184 @@
+PROGRAM maninx USE intstuff,seg2,gibasics,seg1a
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := -5;
+ 
+ 
+print(("Field?",newline)); read(field); setuparithmetic;
+ 
+ 
+DO
+ 
+print(("Conductor?",newline));
+readgi(mod);   
+normod := norm(mod);
+IF mod=zero THEN stop FI;
+print((">>>>>>>Conductor   ")); printgi(mod); print((newline,newline));
+print((" norm",normod,newline));
+ 
+setup;
+print(("Number of symbols",nsymb,newline));
+ 
+makesymbols;
+ 
+print(("prime factorization of conductor:",newline));
+printgifac(mod);print(newline);
+ 
+ 
+FOR plusorminus TO 1 DO
+print((newline,(plusorminus=1|"+1"|"-1")," eigenspace",newline));
+INT denom1;
+relate(denom1,plusorminus);
+ 
+REF[,]INT image = kernel(plusorminus);
+codimension := 1 UPB image;
+dimension := rank - codimension;
+print(("Dimension is ",dimension,newline));
+ 
+IF dimension>0 THEN
+INT denom3;
+evenup(image,denom3);
+[,]INT basis1 = perp(image);
+[,]INT tbasis1 = transpose(basis1);
+print((newline,"basis1",newline));showmatrix(basis1);
+print(newline);
+ 
+[dimension,rank]INT bigtempmat;
+[rank]MODSYM freemods;
+[rank]BOOL needed;
+HEAP[dimension]INT zvector; setzero(zvector); zerovector := zvector;
+FOR i TO rank DO freemods[i] := convert(symbols[freegens[i]]) ;
+                 needed[i] := NOT trivial(basis1[,i]) OD;
+ 
+i OF standard style := 0;
+FOR i TO rank DO IF needed[i] THEN
+print((i," : "));printsym(symbols[freegens[i]]);
+print("{");printqi(Afreemods[i]);print(",");
+ printqi(Bfreemods[i]); print(("}",newline))
+FI OD;
+i OF standard style := 5;
+ 
+ 
+   PROC findprime = (GI p, REF[]GI list)INT:
+   BEGIN
+      INT ans := 0;
+      FOR i TO UPB list WHILE ans=0
+      DO IF p DIV list[i] THEN ans := i FI OD; ans
+   END;
+ 
+   PROC opmatrix = (PROC(GI,MODSYM)REF[]MODSYM op,GI p)REF[,]INT:
+   BEGIN
+   FOR j TO rank DO
+      bigtempmat[,j] := (needed[j]|express(op(p,freemods[j]))|zerovector)
+   OD;
+   bigtempmat * tbasis1
+   END;
+ 
+{Calculate W matrices}
+ 
+IF denom1*denom3 /= 1 THEN print(("Denominator = ",denom1*denom3,newline)) FI;
+[nplist]REF[,]INT wmatrix;
+FOR i TO nplist DO
+   wmatrix[i] := opmatrix(wq,plist[i]);
+   print(("Matrix of Wq for q = "));printgi(plist[i]);
+   print(":");(dimension>1|print(newline)|setcharnumber(standout,40));
+   showmatrix(wmatrix[i])
+OD;
+ 
+{Calculate one T matrix}
+ 
+INT ngoodprimes,low,high;
+low:=1; high:=20;
+[]GI goodprimes = pickprimes(low,high,ngoodprimes);
+ngoodprimes:=1;
+GI basicprime = goodprimes[1];
+[,]INT tpmatrix = opmatrix(tp,basicprime);
+print(("Matrix of Tp for p = "));
+printgi(basicprime);print(":");
+(dimension>1|print(newline)|setcharnumber(standout,50));
+showmatrix(tpmatrix);
+ 
+INT nbp = norm(basicprime);
+INT eigenvalue;  [dimension]INT eigenvector;
+IF dimension=1
+THEN eigenvector := (1); eigenvalue := tpmatrix[1,1]%(denom1*denom3)
+ELSE
+   print((newline,newline,"Eigenvalue?",newline)); read(eigenvalue);
+   eigenvector := getlefteigenvector(transpose(tpmatrix),eigenvalue*denom1*denom3)
+FI;
+ 
+print(("Eigenvalue for "));printgi(basicprime);print((" is ",eigenvalue,newline));
+print(("Eigenvector is ",eigenvector,newline));
+[]INT mv = maninvector(basicprime);
+INT mf1 = mv*eigenvector;
+INT mf2 = 1+nbp-eigenvalue;
+print(("Manin vector is  ",mv,newline));
+print(("mf1 = ",mf1,newline,"mf2 = ",mf2,newline));
+INT howmany = nprimes;   GI p;
+ 
+print((newline,"L(F,1) / period(F) = ",mf1,"/",mf2,newline));
+ 
+INT i0 := 0;
+FOR i TO dimension WHILE i0=0
+DO IF eigenvector[i] /= 0 THEN i0 := i FI
+OD;
+INT ei0 = eigenvector[i0];
+ 
+print((newline,newline,"Coefficients of newform",newline));
+print(("  prime  "));setcharnumber(standout,30);
+print(("coefficient  ('bad' means prime divides level)",newline,newline));
+ 
+IF mf1=0 THEN
+   {Find a suitable prime q to use {0,1/q} as path}
+ 
+   GI q; INT mf3 := 0;
+   FOR i TO phi WHILE mf3=0
+   DO q:=Csymbols[i];
+      INT j = coordindex[i];
+      mf3 := (j=0|0| eigenvector*SIGN(j)*coord[ABS(j),codimension+1:rank])
+   OD;
+   IF mf3=0
+   THEN print(("No suitable path found",newline)); stop
+   ELSE   print("q = ");printgi(q);print((newline,"mf3 = ",mf3,newline))
+   FI;
+ 
+   FOR i TO howmany
+   DO GI p = primes[i];
+      ap[i]:=
+        IF   p  NDIV mod  THEN ( eigenvector * specialmv(p,q) ) % mf3
+        ELIF p*p DIV mod  THEN 0
+        ELSE - (eigenvector*wmatrix[findprime(p,plist)][,i0]) % ei0
+        FI;
+        printgi(p);
+        setcharnumber(standout,30);
+        print(ap[i]);
+        IF p DIV mod THEN print(("    bad")) FI;
+        print(newline)
+   OD
+ 
+ELSE
+initint(mod,1000);
+FOR i TO howmany
+DO GI p = primes[i];
+   ap[i] :=
+        IF   p  NDIV mod THEN  1 + norm(p) - ((maninvector(p)*eigenvector)*mf2)%mf1
+        ELIF p*p DIV mod THEN 0
+        ELSE   - (eigenvector*wmatrix[findprime(p,plist)][,i0]) % ei0
+        FI;
+   printgi(p);        setcharnumber(standout,30);
+   add(p,i,ap[i],1);
+   print((ap[i],(p DIV mod|"  bad  "|"       "),sum*factor*4,newline))
+OD;
+ 
+print(("L(F,1) = ",sum*:=factor*4,newline,
+       "period = ",sum*mf2/mf1,newline,newline))
+ 
+FI
+ 
+ 
+FI {closes "IF dimension > 0"}
+OD {closes plusorminus loop}
+OD {closes "DO" at very beginning}
+END
+FINISH

@@ -1,0 +1,544 @@
+DECS gibasics USE intbasics:
+ 
+{******************************************************************
+  Basic arithmetic for GI and QI over the four non-euclidean fields
+  19, 43, 647, 163.   Uses Z-module algorithm for gcd.   Could also
+  be used for the Euclidean fields with suitable modification to
+  setuparithmetic (N.B. we assume throughout that w^2=w-d for some d).
+  No mention of hyperbolic geometry.
+************************************************************************}
+ 
+MODE GI = STRUCT(INT r,i);
+ 
+GI zero=(0,0),one=(1,0),two=(2,0),w=(0,1);
+INT ngiprimes;REF[]GI giprimes;
+ 
+[]GI z19primes =
+((2,0),(0,1),(1,-1),(2,-1),
+(1,1),(3,0),(3,-1),(2,1),
+(4,-1),(3,1),(1,-2),(3,-2),
+(1,2),(2,-3),(1,-3),(7,-1),
+(6,1),(8,-1),(7,1),(7,-3),
+(4,3),(9,-2),(7,2),(7,-4),
+(3,4),(6,-5),(1,5),(12,-1),
+(11,1),(7,-5),(2,5),(8,-5),
+(3,5),(11,-4),(7,4),(13,-2),
+(11,2),(13,0),(11,-5),(6,5),
+(13,-4),(9,4),(14,-3),(11,3),
+(13,-5),(8,5),(4,-7),(3,-7),
+(6,-7),(1,-7),(14,-5),(9,5),
+(9,-7),(2,7),(13,-6),(7,6),
+(17,-1),(16,1),(17,-3),(14,3),
+(18,-1),(17,1),(7,-8),(1,-8),
+(19,-1),(18,1),(19,-3),(16,3),
+(11,-8),(3,8),(18,-5),(13,5),
+(17,-6),(11,6),(16,-7),(9,7),
+(8,-9),(1,-9),(21,-2),(19,2),
+(18,-7),(11,7),(13,-9),(4,9),
+(21,-5),(16,5),(22,-3),(19,3),
+(22,-1),(21,1),(7,-10),(3,-10),
+(9,-10),(1,-10),(22,-5),(17,5));
+INT n19primes = 96;
+ 
+ 
+ 
+[]GI z43primes =
+((2,0),(3,0),(1,-1),(0,1),
+(2,-1),(1,1),(3,-1),(2,1),
+(4,-1),(3,1),(5,0),(5,-1),
+(4,1),(6,-1),(5,1),(1,-2),
+(3,-2),(1,2),(7,0),(7,-1),
+(6,1),(5,-2),(3,2),(8,-1),
+(7,1),(7,-2),(5,2),(9,-1),
+(8,1),(2,-3),(1,-3),(10,-1),
+(9,1),(4,-3),(1,3),(9,-2),
+(7,2),(5,-3),(2,3),(7,-3),
+(4,3),(8,-3),(5,3),(13,-1),
+(12,1),(3,-4),(1,-4),(5,-4),
+(1,4),(14,-1),(13,1),(7,-4),
+(3,4),(13,-3),(10,3),(15,-2),
+(13,2),(16,-1),(15,1),(3,-5),
+(2,-5),(4,-5),(1,-5),(6,-5),
+(1,5),(17,-1),(16,1),(13,-4),
+(9,4),(16,-3),(13,3),(9,-5),
+(4,5),(18,-1),(17,1),(17,-3),
+(14,3),(19,-1),(18,1),(12,-5),
+(7,5),(19,0),(19,-2),(17,2),
+(13,-5),(8,5),(17,-4),(13,4),
+(14,-5),(9,5),(21,-1),(20,1),
+(20,-3),(17,3),(21,-2),(19,2),
+(19,-4),(15,4),(17,-5),(12,5),
+(13,-6),(7,6),(18,-5),(13,5),
+(19,-5),(14,5),(8,-7),(1,7),
+(9,-7),(2,7),(24,-1),(23,1),
+(10,-7),(3,7),(12,-7),(5,7));
+INT n43primes = 116;
+ 
+ 
+ 
+[]GI z67primes =
+((2,0), (3,0), (1,-1), (0,1),
+(2,-1), (1,1), (3,-1), (2,1),
+(5,0), (4,-1), (3,1), (5,-1),
+(4,1), (6,-1), (5,1), (7,0),
+(7,-1), (6,1), (1,-2), (3,-2),
+(1,2), (8,-1), (7,1), (5,-2),
+(3,2), (9,-1), (8,1), (7,-2),
+(5,2), (10,-1), (9,1), (11,0),
+(11,-1), (10,1), (9,-2), (7,2),
+(12,-1), (11,1), (2,-3), (1,-3),
+(4,-3), (1,3), (5,-3), (2,3),
+(11,-2), (9,2), (13,0), (13,-1),
+(12,1), (7,-3), (4,3), (8,-3),
+(5,3), (14,-1), (13,1), (13,-2),
+ 
+(11,2), (10,-3), (7,3), (15,-1),
+(14,1), (11,-3), (8,3), (16,-1),
+(15,1), (15,-2), (13,2), (3,-4),
+(1,-4), (5,-4), (1,4), (13,-3),
+(10,3), (7,-4), (3,4), (14,-3),
+(11,3), (9,-4), (5,4), (11,-4),
+(7,4), (19,-1), (18,1), (13,-4),
+(9,4), (20,-1), (19,1), (3,-5),
+(2,-5), (4,-5), (1,-5), (6,-5),
+(1,5), (7,-5), (2,5), (8,-5),
+(3,5), (19,-3), (16,3), (9,-5),
+(4,5), (21,-2), (19,2), (22,-1),
+(21,1), (11,-5), (6,5),
+(12,-5), (7,5), (23,-1),
+(22,1), (19,-4), (15,4), (24,-1),
+(23,1), (22,-3), (19,3), (16,-5),
+(11,5), (5,-6), (1,-6), (23,-3),
+(20,3), (25,-1), (24,1), (7,-6),
+(1,6), (25,-2), (23,2), (18,-5),
+(13,5), (19,-5), (14,5), (23,-4),
+(19,4), (27,-1), (26,1), (27,-2),
+(25,2), (26,-3), (23,3), (21,-5),
+(16,5), (28,-1), (27,1), (25,-4),
+(21,4),
+(4,-7), (3,-7), (5,-7),
+(2,-7), (6,-7), (1,-7), (29,-1),
+(28,1), (23,-5), (18,5), (28,-3),
+(25,3), (19,-6), (13,6), (10,-7),
+(3,7), (11,-7), (4,7), (24,-5),
+(19,5), (30,-1), (29,1), (29,-3),
+(26,3), (13,-7), (6,7), (31,-1),
+(30,1), (15,-7), (8,7), (31,-2),
+(29,2), (26,-5), (21,5), (16,-7),
+(9,7), (29,-4), (25,4));
+INT n67primes = 185;
+ 
+ 
+ 
+ 
+[]GI z163primes = ((2,0),(3,0),(5,0),(1,-1),(0,1),(2,-1),(1,1),(3,-1),(2,1),
+                         (7,0),(4,-1),(3,1),(5,-1),(4,1),(6,-1),(5,1),(7,-1),
+                         (6,1),(8,-1),(7,1),(9,-1),(8,1),(11,0),(10,-1),(9,1),
+                         (11,-1),(10,1),(1,-2),(3,-2),(2,1),(13,0),(12,-1),
+                         (11,1),(5,-2),(3,2),(13,-1),(12,1),(7,-2),(5,2),
+                         (14,-1),(13,1),(9,-2),(7,2),(15,-1),(14,1),(11,-2),
+                         (9,2),(16,-1),(15,1),(17,0));
+INT n163primes = 50;
+ 
+ 
+OP R = (GI x)INT: (r OF x);
+OP I = (GI x)INT: (i OF x);
+OP G = (INT n)GI: (n,0);
+OP W = (INT a,b)GI: (a,b);
+OP - = (GI x)GI: (-Rx,-Ix);
+INT normw;
+ 
+OP * = (GI x,y)GI:
+BEGIN INT ix=Ix,rx=Rx,iy=Iy,ry=Ry;
+      GI(rx*ry - normw*ix*iy, ix*ry + (rx + ix)*iy)
+END;
+OP - = (GI a,b)GI:(Ra - Rb, Ia - Ib);
+OP + = (GI a,b)GI:(Ra + Rb, Ia + Ib);
+GI wbar = (1,-1);
+INT nunits = 2;
+PROC conj = (GI x)GI: (Rx+Ix,-Ix);
+PROC norm = (GI a)INT: (INT ra=Ra,ia=Ia; ra*(ra+ia)+normw*ia*ia );
+OP % = (GI a, INT n)GI: {rounded division}
+BEGIN GI ans;
+      r OF ans := (2*Ra + Ia - n*(i OF ans := Ia OVER n)) OVER (2*n);
+     ans
+END;
+ 
+OP % = (GI xb,xc)GI: (xb*conj(xc)) % norm(xc) ;
+ 
+OP / = (GI a, INT n)GI : ((r OF a)%n, (i OF a)%n); {Not rounded - use only for exact division}
+ 
+OP / = (GI a,b)GI : (a*conj(b))/(norm(b));
+ 
+OP = = (GI a,b)BOOL:(Ra = Rb) AND (Ia = Ib);
+OP MODULO = (GI fa,mod)GI: (fa - mod*(fa%mod));
+ 
+PROC compare = (GI g, REF []GI table, INT ntable)INT:
+(INT ans := 0;
+FOR i TO ntable WHILE (ans=0) DO IF g=table[i] THEN ans:=i FI OD; ans);
+ 
+PROC infirstquad = (GI x)BOOL: ((Rx>0) OR ((Rx=0) AND (Ix>=0)));
+ 
+INT field, whichfield;
+ 
+PROC complexify = (GI z)REF COMPL:
+BEGIN REAL x := r OF z, y := i OF z;
+      x := x + y/2;
+      y := (y * sqrt(field))/2;
+      HEAP COMPL ans := (x,y);
+      ans
+END;
+ 
+OP DIV = (GI b,a)BOOL:
+BEGIN
+      IF b=zero THEN (a=zero) ELSE
+      INT n = norm(b);  GI c = a*conj(b);
+      ((r OF c)%*n = 0) AND ((i OF c)%*n = 0)
+      FI
+END;
+OP NDIV = (GI a,b)BOOL: (NOT (a DIV b));
+ 
+PROC val = (GI factor,number)INT:
+BEGIN INT ans:=0; GI hold:=number; GI hold2;
+     IF NOT (hold=zero) THEN
+    WHILE hold2:=hold%factor;hold=hold2*factor DO hold:=hold2; ans+:=1 OD
+     ELSE ans := -1
+     FI;
+     ans
+END;
+ 
+PROC giprimefactors = (GI a)REF[]GI:
+BEGIN
+GI b:=a;INT n:=0;HEAP[20]GI answer;INT nb,np;GI p;
+FOR i TO UPB giprimes WHILE (nb:=norm(b))>1 AND ((np:=(norm(p:=giprimes[i])));np*np<=nb+1)
+DO
+   INT v = val(p,b);
+   IF v>0 THEN answer[n+:=1] := p;
+               TO v DO b := b%p OD
+   FI
+OD;
+IF norm(b)>1 THEN answer[n+:=1] := b FI;
+answer[1:n]
+END;
+ 
+ 
+PROC readgi = (REF GI a)VOID:read((r OF a,i OF a));
+STRING name = "w";
+ 
+PROC printgi = (GI a)VOID:
+BEGIN
+INT  i = Ia;
+IF (i =0) THEN print(Ra)
+ELIF (Ra =0) THEN
+   IF i = 1 THEN print((space,name))
+   ELIF i = -1 THEN print((space,"-",name))
+   ELSE print((i,name))
+   FI
+ELSE print((Ra, (i >0| " +" | " -" )));
+IF ABS(i) = 1 THEN print((space,name)) ELSE print((ABS(i),name)) FI
+FI;
+print(("  "))
+END;
+ 
+PROC printgifac = (GI a)VOID:
+BEGIN
+GI b:=a;
+IF norm(b)<=1 THEN printgi(b)
+ELSE
+FOR i TO UPB giprimes WHILE norm(b)>1 DO
+   GI p = giprimes[i];
+   INT v = val(p,b);
+   IF v>0 THEN print("(");printgi(p);print(")");
+               IF v>1 THEN print(("(^",v,")")) FI;
+               TO v DO b := b % p OD
+   FI;
+   SKIP
+OD;
+IF NOT(b=one) THEN print("(");printgi(b);print(")") FI
+FI
+END;
+ 
+PROC giresidues = (GI a)REF[]GI:
+{Gives a standard list of residues modulo a}
+BEGIN
+INT norma = norm(a);
+INT l := 0;
+HEAP[norma]GI list;
+INT r = Ra,i = Ia,m = gcd(r,i),rednorm = norma%(m*m);
+FOR j TO rednorm*m DO FOR k TO m DO
+   list[l+:=1] := GI(j,k) MODULO a
+OD OD;
+list
+END;
+ 
+OP * = (INT m,GI a)GI: (m*Ra,m*Ia);
+ 
+GI three = (3,0), twelve = (12,0);
+ 
+ 
+ 
+{End of easy stuff, not involving gcd}
+PROC vecbezout = ([]INT a,REF INT g)REF[]INT:
+     {g = c.a = gcd(ai)}
+BEGIN
+      INT n = UPB a;
+      HEAP[n]INT c;
+      g := 0;
+      FOR i TO n DO
+         []INT bez = bezout(g,a[i]);
+         g := bez[1];
+         FOR j TO i-1 DO c[j] := bez[2] * c[j] OD;
+         c[i] := bez[3]
+      OD;
+      c
+END;
+ 
+PROC findzbasis = ([]INT first,second)REF[,]INT:
+BEGIN
+      [4]INT x,y,basis; INT e1,e2; e1 := 0;
+      [3,4]INT ans;
+      x := vecbezout(second,e2);
+      FOR i TO 4 DO e1 +:= x[i] * first[i] OD;
+      {now (e1,e2) is the x-combination of the data, with e2
+       the gcd of the second coefficients}
+      [4]INT newfirst;
+      [4][4]INT z;
+      FOR i TO 4 DO
+         INT n = second[i] % e2;
+         newfirst[i] := first[i] - n * e1;
+         {second[i] - n * e2 = 0}
+         FOR j TO 4 DO z[i][j] := -n * x[j] OD;
+         z[i][i] +:= 1
+         {now z[i]-comb of data is (newfirst[i],0)}
+      OD;
+      INT f1,f2;
+      f2 := 0;
+      [4]INT u;
+      u := vecbezout(newfirst,f1);
+      basis[1] := e1;
+      basis[2] := e2;
+      basis[3] := f1;
+      basis[4] := f2;
+      ans[1,] := basis;
+      ans[2,] := x;
+      FOR j TO 4 DO
+         y[j] := 0;
+         FOR i TO 4 DO y[j] +:= u[i] * z[i][j] OD
+      OD;
+      ans[3,] := y;
+{CHECK:}
+      ans
+END;
+ 
+PROC findminvec = ([]INT basis)REF[]INT:
+BEGIN
+      INT e1,e2,f1,f2,n,norm1,norm2,temp1,temp2;
+      [2]INT c,d,temp;
+      c[1]:=1; c[2]:=0; d[1]:=0; d[2]:=1;
+      e1 := basis[1]; e2 := basis[2]; f1 := basis[3]; f2 := basis[4];
+      WHILE
+            IF ((f1 = 0) AND (f2 = 0)) THEN n := 0 ELSE
+            n := ((2*e1 + e2)*f1 + (e1 + 2*normw*e2)*f2) OVER
+                          (2*(f1*(f1+f2) + normw*f2*f2)) FI;
+            e1 -:=  n*f1; e2 -:=  n*f2;
+            FOR i TO 2 DO d[i] -:=  n*c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            norm1 := e1*(e1 + e2) + normw*e2*e2;
+            norm2 := f1*(f1 + f2) + normw*f2*f2;
+      (norm2 > norm1)
+   DO
+            temp1 := e1; temp2 := e2;
+            e1 := -f1; e2 := -f2;
+            f1 := temp1; f2 := temp2;
+            temp := d;
+            FOR i TO 2 DO d[i] := -c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            c := temp; SKIP {FOR i TO 2 DO print(("c[",i,"] = ",c[i],newline)) OD}
+      OD;
+      c
+END;
+ 
+PROC gibezout = (GI alpha,beta)REF[]GI:
+BEGIN
+      GI coeff1,coeff2,g;  HEAP[3]GI ans;
+      IF beta DIV alpha THEN g:=beta; coeff1:=zero; coeff2:=one
+      ELIF alpha DIV beta THEN g:=alpha; coeff1:=one; coeff2:=zero
+      ELSE
+      INT n = normw;
+      [4]INT z;
+      INT a1 = Ralpha, a2 = Ialpha,   b1 = R(beta), b2 = I(beta);
+      INT c1 = -n*a2, c2 = a1 + a2,   d1 = -n*b2, d2 = b1 + b2;
+      []INT first = (a1,b1,c1,d1); []INT second = (a2,b2,c2,d2);
+      [,]INT zbasis = findzbasis(first,second);
+      []INT x = zbasis[2,]; []INT y = zbasis[3,];
+      []INT coeff = findminvec(zbasis[1,]);
+      FOR i TO 4 DO z[i] := coeff[1]*y[i] + coeff[2]*x[i] OD;
+      coeff1 := GI(z[1],z[3]);    coeff2 := GI(z[2],z[4]);
+      g := coeff1 * alpha + coeff2 * beta
+      FI;
+      IF R(g)<0 THEN ans := (-g,-coeff1,-coeff2)
+      ELIF (R(g)=0) AND (I(g)<0) THEN ans := (-g,-coeff1,-coeff2)
+      ELSE ans := (g,coeff1,coeff2)
+      FI;
+{CHECK:}
+   IF ((g DIV alpha) AND (g DIV beta)) THEN SKIP
+   ELSE print(("Error in PROC gibezout!",newline));
+        print(("alpha = "));printgi(alpha);print(newline);
+        print(("beta  = "));printgi(beta); print(newline);
+        print(("g   = "));printgi(g);  print(newline)
+   FI;
+      ans
+END;
+ 
+ 
+PROC gigcd = (GI a,b)GI: gibezout(a,b)[1];
+ 
+PROC coprime = (GI a,b)BOOL: gigcd(a,b)=one;
+ 
+OP UNIT = (GI a)BOOL: ((a=one) OR (a = -one));
+ 
+OP INVMOD = (GI a,b)GI:
+BEGIN []GI gxy = gibezout(a,b);
+      IF NOT (gxy[1]=one)
+     THEN printgi(a);print(" is not invertible modulo ");printgi(b);
+           print(newline)
+      FI;
+      gxy[2] MODULO b
+END;
+ 
+PROC invertible = (GI a,b, REF GI inverse)BOOL:
+BEGIN []GI gxy = gibezout(a,b);
+      inverse:=gxy[2];
+      (one = gxy[1])
+END;
+ 
+MODE QI = STRUCT(GI n,d);
+OP N = (QI q)GI: n OF q;
+OP D = (QI q)GI: d OF q;
+OP - = (QI q)QI: (-Nq,Dq);
+ 
+OP = = (QI p,q)BOOL:(Np * Dq = Dp * Nq);
+QI qzero=(zero,one),qone=(one,one),qw=(w,one),infinity=(one,zero);
+PROC readqi = (REF QI a)VOID:(readgi(n OF a);readgi(d OF a));
+PROC printqi = (QI a)VOID:
+BEGIN
+GI n = Na, d = Da;
+IF d=one THEN printgi(n)
+ELSE print("(");printgi(n);print(")/(");printgi(d);print(")")
+FI
+END;
+ 
+PROC setuparithmetic = VOID:
+BEGIN
+      whichfield := (field=19|1|(field=43|2|(field=67|3|(field=163|4|0))));
+      IF whichfield = 0 THEN print(("Invalid field",newline)) FI;
+      normw := (field+1)%4;
+      ngiprimes := (whichfield|n19primes,n43primes,n67primes,n163primes);
+      giprimes := HEAP[ngiprimes]GI := (whichfield|z19primes,z43primes,z67primes,z163primes);
+      SKIP
+END;
+ 
+ 
+PROC qicancel = (QI q)QI:
+BEGIN GI nq=Nq,dq=Dq;
+GI h=gigcd(nq,dq); HEAP QI ans;
+      IF (h=zero) THEN print("qicancel tried with 0/0");SKIP
+                  ELSE ans:=(Nq%h,Dq%h);
+                        IF NOT infirstquad(Dans)
+                        THEN ans:=(-Nans,-Dans)
+                        FI;
+                        ans
+      FI
+END;
+ 
+ 
+OP + = (QI p,q)QI:qicancel(((Np * Dq)+(Dp * Nq),Dp * Dq));
+OP - = (QI p)QI:(-Np,Dp);
+OP - = (QI p,q)QI:qicancel(((Np * Dq)-(Dp * Nq),Dp * Dq));
+OP * = (QI p,q)QI:qicancel((Np * Nq,Dp * Dq));
+OP * = (GI a, QI q)QI:qicancel((a*Nq, Dq));
+OP % = (QI p)QI:(Dp,Np);
+OP % = (QI p,q)QI:qicancel((Np * Dq,Dp * Nq));
+OP OVER = (GI a,b)QI: qicancel(QI(a,b));
+ 
+OP * = (INT m, QI q)QI: (m*Nq) OVER (Dq);
+ 
+ 
+ 
+PROC printqifac = (QI a)VOID:
+BEGIN
+QI b = qicancel(a);
+GI n := Nb, d := Db;
+FOR i TO UPB giprimes WHILE norm(n*d)>1 DO
+    GI p = giprimes[i];
+    INT v = val(p,n) - val(p,d);
+    IF v/=0 THEN
+       print("(");printgi(p);print((")(^",v,")"));
+       IF v>0 THEN TO v DO n:=n%p OD ELSE TO -v DO d:=d%p OD FI
+    FI
+OD;
+IF norm(d) = 1 THEN n:=n%d; d:=one FI;
+IF NOT (n=one) THEN print("(");printgi(n);print(")") FI;
+IF NOT (d=one) THEN print(" / (");printgi(d);print(")") FI
+END;
+ 
+PROC reducemodzi = (QI q)QI:
+(GI d=Dq; HEAP QI := (d=zero|QI(one,zero)|QI(Nq MODULO d,d)));
+ 
+PROC getprimedivisor = (GI a, REF INT n)GI:
+BEGIN
+      BOOL notfound := TRUE; GI p := one;
+      IF norm(a) <= 1
+      THEN print(("PROC getprimedivisor called with a = "));
+           printgi(a); print(newline)
+      ELSE
+      FOR i FROM n TO ngiprimes WHILE norm(p*p) <= norm(a) AND notfound
+      DO p := giprimes[i]; n := i;
+         notfound := p NDIV a
+      OD;
+      n+:=1;
+      IF notfound THEN IF norm(p*p) <= norm(a)
+                       THEN print("No prime divisor found for");printgi(a);
+                            print((" so assuming it is prime",newline))
+                       FI;
+                       p:=a
+      FI
+      FI;
+      p
+END;
+ 
+ 
+ 
+PROC show = (REF[]GI x,INT n)VOID:
+(print(newline);FOR i TO n DO printgi(x[i]);print(newline) OD);
+ 
+PROC findgi = (GI a, REF []GI list)INT:
+BEGIN
+   INT ans := 0;
+   FOR i TO UPB list WHILE ans=0   DO IF a=list[i] THEN ans := i FI   OD;
+   ans
+END;
+ 
+ 
+ 
+ 
+SKIP
+ 
+KEEP GI,QI,gibezout,gigcd,
+     complexify,printqifac,reducemodzi,getprimedivisor,
+     giresidues,*(INT,GI),*(INT,QI),
+     printgi,readgi,printgifac,field,whichfield,
+     norm,MODULO(GI,GI),compare,DIV(GI,GI),NDIV(GI,GI),val,conj,
+     findgi,R(GI),I(GI),N(QI),D(QI),
+     giprimefactors,zero,one,two,w,giprimes,three,infinity,
+     -(GI),-(GI,GI),+(GI,GI),*(GI,GI),%(GI,GI),=(GI,GI),
+     /(GI,INT), /(GI,GI),
+     ngiprimes,infirstquad,invertible,
+     name,setuparithmetic,
+     qicancel,+(QI,QI),-(QI),-(QI,QI),*(QI,QI),%(QI),%(QI,QI),=(QI,QI),
+     qzero,qone,qw,printqi,readqi,
+    show,*(GI,QI),
+     coprime, nunits,
+     G(INT),W(INT,INT),%(GI,INT),OVER(GI,GI),
+     UNIT(GI),INVMOD(GI,GI),
+     normw
+ 
+FINISH

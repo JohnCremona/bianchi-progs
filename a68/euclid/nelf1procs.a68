@@ -1,0 +1,47 @@
+DECS nelf1procs USE basics,newlinalg,symb:
+ 
+ 
+PROC(REF REAL, REF INT)REAL xk1 = ALIEN "S18ADF";
+PROC k1 = (REAL x)REAL: (INT i:=0; REAL xx := x; xk1(xx,i));
+ 
+PROC realnorm = (GI z)REAL: sqrt((norm(z)));
+ 
+INT limitnorm; GI level; REAL factor, sum; REF[]INT ap;
+ 
+PROC use = (GI z, INT coeff)VOID:
+BEGIN
+   REAL rnz = realnorm(z);
+   sum +:= coeff * k1(factor*rnz)/rnz
+END;
+ 
+PROC add = (GI n, INT pindex, y, z)VOID:
+BEGIN
+   IF y/=0 THEN use(n,y) FI;
+   GI p;
+   FOR i FROM (y=0|pindex|1) TO pindex WHILE (norm((p:=primes[i])*n)) <= limitnorm
+   DO INT x := y*ap[i];
+      IF (i=pindex) AND (p NDIV level) THEN x-:=z*(norm(p)) FI;
+      add(p*n, i, x, y)
+   OD
+END;
+ 
+PROC lf1 = (GI mod, REF[]INT aplist)REAL:
+BEGIN
+ 
+GI p;
+FOR i TO nprimes WHILE (norm(p:=primes[i])) <= limitnorm
+DO
+  add(p,i,ap[i],1);
+  print((newline,"After using p = "));printgi(p);print(("  sum = ",sum*factor*2,newline))
+OD;
+ 
+sum:=sum*factor*2;
+ 
+HEAP REAL ans := sum;
+ans
+ 
+END
+ 
+KEEP lf1,xk1,k1,realnorm,use,add,level,factor,sum,ap,limitnorm
+ 
+FINISH

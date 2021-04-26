@@ -1,0 +1,71 @@
+PROGRAM firstrun USE split,hecke,symb,hyper,gibasics,newlinalg
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+i OF long style := 0;
+ 
+BOOL fieldok := FALSE;
+WHILE NOT fieldok
+DO
+print(("Field (19,43,67,163) ?",newline));  read(field);
+fieldok := (field=19) OR (field=43) OR (field=67) OR (field=163);
+IF NOT fieldok THEN print(("Bad value -- try gain!",newline)) FI
+OD;
+ 
+setuparithmetic;
+setuphyper;
+ 
+print(("Verbose?",newline));  read(verbose);
+WHILE print((newline,"Level?",newline));readgi(mod);  NOT (mod=zero)
+DO
+ 
+print(newpage);
+setup;
+makesymbols;
+sign:=1;
+initrelation;
+relate;
+kerneldelta;
+print(("Dimension = ",dimension,newline,newline));
+IF dimension>0 THEN
+      {Calculate Hecke matrices}
+INT nheck=6;
+INT denomsq=denom*denom;
+PROC checkidentity = (REF[,]INT m)BOOL:
+BEGIN BOOL ans := TRUE;
+      FOR i TO dimension WHILE ans DO
+      FOR j TO dimension WHILE ans DO
+         ans := (m[i,j]=(i=j|denomsq|0))
+      OD OD;
+      ans
+END;
+ 
+[dimension]INT b;
+print(("Enter basis vector:",newline)); read(b);
+ 
+[nheck]REF[,]INT heckemats;
+FOR i TO nheck
+DO GI p = giprimes[i];
+   REF[,]INT mat:=heckeop(i,TRUE);
+   IF p DIV mod
+   THEN IF checkidentity(mat*mat)
+        THEN print(("...is an involution!",newline))
+        ELSE print(("...should be an involution BUT IS NOT!!",newline))
+        FI
+   FI;
+   FOR j TO i-1
+   DO REF[,]INT mat2 = heckemats[j];
+      IF mat*mat2=mat2*mat
+      THEN print(("Matrices ",j," and ",i," commute OK",newline))
+      ELSE print(("Matrices ",j," and ",i," DO NOT COMMUTE!!",newline))
+      FI
+   OD;
+   []INT mb = mat*b;
+   print(("mat*basis vector = ",mb,newline));
+   heckemats[i]:=mat
+OD
+FI
+OD
+END
+FINISH

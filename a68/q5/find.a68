@@ -1,0 +1,247 @@
+PROGRAM find USE basics,lbasics,zbasics,curveprocs
+ 
+BEGIN
+ 
+i OF standard style := i OF long style := 0;
+ 
+PROC degreeone = (LPRIME p)BOOL: degree OF p = 1;
+ 
+setlprimes;
+ 
+LIDEAL conductor;
+conductor:=inputlideal("conductor?");
+[]PPOWER badpplist = lprimeidealfactors(conductor,TRUE);
+ 
+OP ISIN = (INT x,[]INT list)BOOL:
+BEGIN BOOL ans:=FALSE;
+      FOR i TO UPB list WHILE NOT ans DO ans:= (x=list[i]) OD;
+      ans
+END;
+ 
+PROC inttracefrob = (INT c4,c6,p,[]INT squares)INT:
+BEGIN
+   INT a = -27*c4 MOD p;
+   INT b = -54*c6 MOD p;
+   INT h:=6, g:=a+1, f:=b MOD p;
+   INT count:=0;
+ 
+   FOR i TO p
+   DO IF f=0 THEN count+:=1
+      ELIF f ISIN squares THEN count+:=2
+ 
+      FI;
+      f:=(f+g) MOD p;  g:=g+h;  h := h+6
+   OD;
+ 
+   p-count
+END;
+ 
+PROC tracefrob = (LGI a1,a2,a3,a4,a6,LPRIME p,[]LGI residues)INT:
+BEGIN
+   INT count:=0; INT np = UPB residues;
+   FOR i TO np
+   DO LGI x = residues[i];
+      LGI fx = ((x+a2)*x+a4)*x+a6;
+      FOR j TO np
+      DO LGI y = residues[j];
+         IF p DIV (y*(y+a1*x+a3)-fx) THEN count+:=1 FI
+      OD
+   OD;
+   np-count
+END;
+ 
+LGI a1,a2,a3,a12,a1a3,a32,b2,b22,b23,c4help,c6help,b272,c4,c6,delta;
+ 
+PROC helpdelta = VOID:
+BEGIN
+   a12:=a1*a1; a1a3:=a1*a3; a32:=a3*a3;
+   b2:=a12 + 4 * a2; b272:=72 * b2;
+   b22:=b2*b2; b23:=b22*b2;
+   c6help:= -b23 + 36 * b2*a1a3 - 216 * a32;
+   c4help:= b22 - 24 * a1a3
+END;
+ 
+PROC getdelta = (LGI a4,a6)VOID:
+BEGIN
+   c4 := c4help - 48 * a4;
+   c6 := c6help + b272*a4 - 864 * a6;
+   LGI d1728 = c4*c4*c4 - c6*c6;
+   delta := LGI(Rd1728%LONG 1728, Id1728%LONG 1728)
+END;
+ 
+PROC try = (LGI a4,a6)VOID:
+BEGIN
+   getdelta(a4,a6);
+   BOOL oksofar:= (NOT(delta=lzero));
+   LIDEAL idelta := makelideal1(delta);
+   FOR i TO UPB badpplist WHILE oksofar
+   DO LIDEAL p = ideal OF lprimes[index OF badpplist[i]];
+      oksofar := (p DIV idelta);
+      IF oksofar THEN WHILE (p DIV idelta) DO idelta:=idelta/p OD FI
+   OD;
+   oksofar := oksofar AND idelta=unitlideal;
+   IF oksofar THEN {correct support: diplay}
+      CURVECOORDS curve = (a1,a2,a3,a4,a6);
+      IF conductor=analyse(curve,TRUE) THEN stop FI
+   FI
+END;
+ 
+INT nplist,ncases;
+print(("Number of primes to use?",newline)); read(nplist);
+[nplist]BOOL pdivd;
+[nplist]INT tp;
+[nplist]REF[]LGI a4list,a6list,c4list,c6list;
+print(("p bad (T/F)?",newline));
+FOR i TO nplist DO read(pdivd[i]) OD;
+print(("Trace of Frobenius at p?",newline));
+FOR i TO nplist DO read(tp[i]) OD;
+[nplist]LGI chinlist;
+LIDEAL bigmod := unitlideal;
+FOR i TO nplist DO bigmod := bigmod*ideal OF lprimes[i] OD;
+FOR i TO nplist
+DO [4]LONG INT temp;
+   LIDEAL pri = ideal OF lprimes[i];
+   LIDEAL rest = bigmod/pri;
+   lcomax(basis OF rest,basis OF pri,temp);
+   chinlist[i] := ( temp[1] * G(a OF basis OF rest) + temp[2] * z OF basis OF rest)
+                  MOD bigmod
+OD;
+ 
+INT keeplevel; print(("Keeplevel ?",newline));read(keeplevel);
+[keeplevel]INT startlist,stoplist;
+print(("Start list ?",newline));read(startlist);
+[keeplevel]BOOL first;
+FOR i TO keeplevel DO first[i] := TRUE OD;
+ 
+ 
+PROC look = (LIDEAL oldmodulus, LGI a4,a6, INT level)VOID:
+BEGIN
+   IF level = nplist
+   THEN try(a4 MOD oldmodulus,a6 MOD oldmodulus)
+   ELSE INT newlevel = level+1;
+        INT istart := 1;
+        IF level<keeplevel THEN IF first[newlevel]
+        THEN istart := startlist[newlevel];
+             first[newlevel] := FALSE
+        FI FI;
+        []LGI a4l = a4list[newlevel], a6l = a6list[newlevel];
+        FOR i FROM istart TO UPB a4l
+        DO (level<keeplevel|stoplist[newlevel]:=i);
+           (newlevel=keeplevel|print(("Got to :",stoplist,newline)));
+ 
+              look(ideal OF lprimes[newlevel]*oldmodulus,a4+a4l[i],a6+a6l[i],newlevel)
+        OD
+   FI
+END;
+ 
+print(("How many triples (a1,a2,a3) to test?",newline)); read(ncases);
+BOOL interactive = ncases>0;
+INT mcases = (interactive|ncases|144);
+ 
+print((newline,mcases," cases",newline,newline));
+FILE f;
+IF ncases=0 THEN open(f,"DATA.FIND",alieninchannel)
+            ELSE open(f,"IN",alieninchannel)
+FI;
+ 
+FOR case TO mcases
+DO print(("Case ",case,newline,newline));
+   IF interactive THEN print(("a1,a2,a3 ?",newline)) FI;
+   get(f,(a1,a2,a3));
+   helpdelta;
+ 
+   BOOL stillpossible := TRUE;
+   FOR i TO nplist WHILE stillpossible
+   DO LPRIME p = lprimes[i];
+      LIDEAL ip = ideal OF p;
+      IF ((case=1) OR ((CH p) DIV 6))
+      THEN
+ 
+      INT np = SHORTEN lidealnorm(ip);
+      INT nlist := 0;
+      HEAP[np*np]LGI a4l,a6l,c4l,c6l;
+ 
+      IF degreeone(p) AND NOT ( (CH p) DIV 6)
+      THEN
+          INT wmodp = (BOOL continue:=TRUE; INT keep;
+                       FOR j TO np WHILE continue
+                       DO LGI pj= LENG(GI(j,-1)); IF ip DIV pj
+                          THEN keep:=j; continue:=FALSE FI
+                       OD;
+                       keep);
+          OP RATMOD = (LGI a)INT:(GI amodp = SHORTEN (a MOD ip);
+                (Ramodp + wmodp*Iamodp) MOD np);
+          INT np2 = (np-1)%2;
+          [np2]INT squares;
+          FOR j TO np2 DO squares[j] := j*j MOD np OD;
+ 
+          FOR j FROM -np2 TO np2 DO LGI a4:=G LENG j;
+          FOR k FROM -np2 TO np2 DO LGI a6:=G LENG k;
+             IF pdivd[i] = (ip DIV (getdelta(a4,a6);delta))
+             THEN IF tp[i] = inttracefrob(RATMOD c4, RATMOD c6,np,squares)
+                  THEN nlist+:=1;
+                      a4l[nlist] := a4 * chinlist[i];
+                      a6l[nlist] := a6 * chinlist[i];
+                      c4l[nlist]:=c4; c6l[nlist]:=c6
+                  FI
+             FI
+           OD OD
+ 
+    ELSE
+ 
+      []LGI res = lidealresidues(ip);
+      FOR j TO np
+      DO LGI a4 = res[j];
+         FOR k TO np
+         DO LGI a6 = res[k];
+            IF (pdivd[i]=(ip DIV (getdelta(a4,a6);delta)))
+            THEN IF tp[i] = tracefrob(a1,a2,a3,a4,a6,p,res)
+                 THEN nlist+:=1;
+                      a4l[nlist] := a4 * chinlist[i];
+                      a6l[nlist] := a6 * chinlist[i];
+                      c4l[nlist]:=c4; c6l[nlist]:=c6
+                 FI
+            FI
+         OD
+      OD
+ 
+FI;
+ 
+      IF nlist=0
+      THEN stillpossible := FALSE;
+           IF interactive THEN print(("This case impossible modulo "));outlprime(p);print(newline) FI;
+           IF (36 MOD np)/= 0 THEN stop FI
+      ELSE a4list[i]:=a4l[1:nlist]; a6list[i]:=a6l[1:nlist];
+           c4list[i]:=c4l[1:nlist]; c6list[i]:=c6l[1:nlist];
+           IF interactive THEN print((nlist," (a4,a6) pairs modulo "));outlprime(p);print(newline) FI
+      FI
+ 
+      ELSE {case > 1  and  p ndiv 6}
+ 
+      []LGI c4l = c4list[i], c6l = c6list[i];
+      INT nlist = UPB(c4l);
+      IF nlist>0 THEN
+      LGI inv48 = (G LENG 48) INVMOD ip,
+         inv864= (G LENG 864) INVMOD ip;
+      REF[]LGI a4l = a4list[i], a6l = a6list[i];
+      FOR j TO nlist
+      DO c4:=c4l[j]; c6:=c6l[j];
+         a4l[j] := (((c4help - c4)*inv48) MOD ip) * chinlist[i];
+         a6l[j] := (((c6help + b272*a4l[j] - c6)*inv864) MOD ip) * chinlist[i]
+      OD
+      ELSE stillpossible:=FALSE;
+           IF interactive THEN print(("This case impossible modulo p = "));
+           outlprime(p);print(newline) FI
+      FI
+ 
+      FI
+ 
+   OD;
+ 
+   IF stillpossible THEN look(unitlideal,lzero,lzero,0) FI
+ 
+OD
+ 
+END
+ 
+FINISH

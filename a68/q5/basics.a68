@@ -1,0 +1,880 @@
+DECS basics USE zbasics:
+ 
+MODE GI = STRUCT(INT r,i);
+MODE SYMB = STRUCT(GI c,d);
+MODE QI = STRUCT(GI num,INT denom);
+MODE ZBASIS = STRUCT(INT a, GI z);
+MODE IDEAL = STRUCT(BOOL principal,GI gen1,gen2, ZBASIS basis);
+ 
+GI zero=(0,0),one=(1,0),two=(2,0),w=(0,1);
+OP G = (INT n)REF GI: BEGIN HEAP GI ans:=GI(n,0);ans END;
+OP W = (INT a,b)REF GI: BEGIN HEAP GI ans:=GI(a,b);ans END;
+OP R = (GI x)INT: (r OF x);
+OP I = (GI x)INT: (i OF x);
+OP - = (GI x)REF GI: BEGIN HEAP GI ans:= (-Rx,-Ix);ans END;
+OP * = (GI x,y)REF GI: BEGIN HEAP GI ans:=(Rx*Ry -5*Ix*Iy, Ix*Ry + Rx*Iy);ans END;
+OP - = (GI a,b)REF GI: BEGIN HEAP GI ans:=(Ra - Rb, Ia - Ib);ans END;
+OP + = (GI a,b)REF GI: BEGIN HEAP GI ans:=(Ra + Rb, Ia + Ib);ans END;
+GI wbar = (0,-1);
+PROC conj = (GI x)REF GI: BEGIN HEAP GI ans:=(Rx,-Ix);  ans END;
+PROC norm = (GI a)INT:(Ra*Ra+5*Ia*Ia);
+OP = = (GI a,b)BOOL:(Ra = Rb) AND (Ia = Ib);
+ 
+PROC compare = (GI g, []GI table, INT ntable)INT:
+(INT ans := 0;
+FOR i TO ntable WHILE (ans=0) DO IF g=table[i] THEN ans:=i FI OD; ans);
+ 
+PROC inhalfplane = (GI a)BOOL:
+((Ra>0) OR ((Ra=0) AND (Ia>=0)));
+ 
+PROC readgi = (REF GI a)VOID:read((r OF a,i OF a));
+STRING name = "w";
+ 
+PROC printgi = (GI a)VOID:
+BEGIN
+   INT  i = Ia;
+   IF (i =0) THEN print(Ra)
+   ELIF (Ra =0) THEN
+      IF i = 1 THEN print((space,name))
+      ELIF i = -1 THEN print((space,"-",name))
+      ELSE print((i,name))
+      FI
+   ELSE print((Ra, (i >0| " +" | " -" )));
+   IF ABS(i) = 1 THEN print((space,name)) ELSE print((ABS(i),name)) FI
+   FI;
+   print(("  "))
+END;
+ 
+ 
+ 
+OP * = (INT m,GI a)REF GI: BEGIN HEAP GI ans:= (m*Ra,m*Ia);ans END;
+ 
+GI three = (3,0), twelve = (12,0);
+PROC show = (REF[]GI x,INT n)VOID:
+(print(newline);FOR i TO n DO printgi(x[i]);print(newline) OD);
+ 
+PROC findgi = (GI a, REF []GI list)INT:
+BEGIN
+   INT ans := 0;
+   FOR i TO UPB list WHILE ans=0   DO IF a=list[i] THEN ans := i FI   OD;
+   ans
+END;
+ 
+OP / = (GI a, INT d)REF GI: BEGIN HEAP GI ans:= (Ra%d,Ia%d);ans END;
+ 
+OP / = (GI a,b)REF GI:
+{Exact division if possible; use (a-(a MOD b))/b for standard rounding}
+BEGIN IF b=zero THEN print(("/ called with b = zero",newline));SKIP
+      ELSE
+         ( a * conj(b) ) / norm(b)
+      FI
+END;
+ 
+OP DIV = (GI a,b)BOOL:
+IF (a=zero) THEN (b=zero) ELSE (b=(b/a)*a) FI;
+ 
+OP NDIV = (GI a,b)BOOL: NOT (a DIV b);
+ 
+PROC val = (GI factor,number)INT:
+BEGIN INT ans:=0; GI hold:=number;
+     IF NOT (hold=zero)
+     THEN WHILE (factor DIV hold)
+          DO hold := hold/factor;
+             ans +:= 1
+          OD
+     ELSE ans := -1
+     FI;
+     ans
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+OP N = (QI q)REF GI: BEGIN HEAP GI ans:= num OF q;ans END;
+OP D = (QI q)INT: denom OF q;
+ 
+OP CANCEL = (QI q)REF QI:
+BEGIN INT g = zgcd(zgcd(R Nq, I Nq), Dq);
+      HEAP QI ans;
+      num OF ans := (R Nq % g)W( I Nq % g);
+      IF (denom OF ans := Dq%g) < 0
+      THEN num OF ans := -N ans;
+           denom OF ans := -D ans
+      FI;
+      ans
+END;
+ 
+PROC printqi = (QI q)VOID:
+BEGIN INT d = Dq;
+      IF d=0 THEN print("infinity")
+    ELIF d=1 THEN printgi(Nq)
+    ELSE print("(");printgi(Nq);print((")/"));print(d)
+      FI
+END;
+ 
+QI infinity = (one,0),
+   qzero = (zero,1),
+   qone  = (one,1),
+   qw    =  (w,1);
+ 
+OP OVER = (GI a, INT d)REF QI:
+BEGIN  HEAP QI ans :=
+      IF d=0 THEN
+             IF a=zero THEN print(("OVER called with zero/0",newline));SKIP
+                       ELSE infinity
+             FI
+      ELSE CANCEL(QI(a,d))
+      FI;ans
+END;
+ 
+OP OVER = (GI a,b)REF QI:
+BEGIN HEAP QI ans :=
+      IF b=zero THEN
+         IF a=zero THEN print(("OVER called with zero/zero",newline));SKIP
+                   ELSE infinity
+         FI
+      ELSE (a*conj(b)) OVER norm(b)
+      FI;ans
+END;
+ 
+OP = = (QI q1,q2)BOOL:
+  Dq2*Nq1=Dq1*Nq2;
+ 
+OP + = (QI q1,q2)REF QI:
+     BEGIN INT d1 = Dq1, d2 = Dq2; INT g = zgcd(d1,d2);
+           ( (d2%g)*Nq1 + (d1%g)*Nq2 ) OVER (d1*(d2%g))
+     END;
+OP - = (QI q)REF QI:BEGIN HEAP QI ans := (-Nq,Dq);ans END;
+OP - = (QI q1,q2)REF QI:q1+(-q2);
+OP * = (QI q1,q2)REF QI:((Nq1*Nq2) OVER (Dq1*Dq2));
+OP / = (QI q)REF QI: ((Dq*conj(Nq)) OVER (norm(Nq)));
+OP / = (QI q1,q2)REF QI:(Dq2*Nq1) OVER (Dq1*Nq2);
+ 
+ 
+ 
+ 
+ 
+ 
+MODE MATRIX = [1:2,1:2]GI;
+ 
+OP DET = (MATRIX m)REF GI: m[1,1]*m[2,2]-m[1,2]*m[2,1];
+ 
+PROC matrixtype = (MATRIX m)INT: ABS R DET m;
+ 
+PROC clear = (MATRIX m)REF MATRIX:
+BEGIN HEAP MATRIX ans := m;
+      IF matrixtype(m) = 4
+      THEN FOR i TO 2 DO FOR j TO 2 DO
+               ans[i,j]:=ans[i,j]/two
+           OD OD
+      FI;
+      ans
+END;
+ 
+OP * = (MATRIX m1,m2)REF MATRIX:
+BEGIN HEAP MATRIX ans;
+      FOR i TO 2 DO FOR j TO 2 DO
+         ans[i,j] := m1[i,1]*m2[1,j] + m1[i,2]*m2[2,j]
+      OD OD;
+      ans
+END;
+ 
+OP ** = (MATRIX m1,m2)REF MATRIX:   clear(m1*m2);
+ 
+PROC makemat = (GI a,b,c,d)REF MATRIX:
+BEGIN HEAP MATRIX ans;
+      ans[1,1]:=a; ans[1,2]:=b;
+      ans[2,1]:=c; ans[2,2]:=d;
+      ans
+END;
+ 
+MATRIX identity = ((one,zero),(zero,one));
+[]MATRIX inv = (((zero,(-1,0)),(one,zero)), (((1,1),(1,-1)),(two,(-1,-1))));
+OP T = (GI a)REF MATRIX: makemat(one,a,zero,one);
+ 
+OP / = (MATRIX m, GI x)REF MATRIX:
+makemat(m[1,1]/x, m[1,2]/x, m[2,1]/x, m[2,2]/x);
+ 
+PROC apply = (MATRIX m, QI q)REF QI:
+BEGIN GI n=Nq; INT d=Dq;
+      HEAP QI ans :=
+      IF d=0 THEN
+         IF m[2,1]=zero THEN infinity
+                        ELSE m[1,1] OVER m[2,1]
+         FI
+      ELSE GI den = m[2,1]*n + d*m[2,2];
+           IF den=zero THEN infinity
+                       ELSE (m[1,1]*n + d*m[1,2]) OVER den
+           FI
+      FI;ans
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+PROC translate = (QI z)REF QI:
+BEGIN HEAP QI ans :=
+      IF z=infinity THEN infinity
+      ELSE
+         GI n = Nz;
+         INT x:=Rn, y:=In, d:=Dz;
+         x := x MOD d;
+         WHILE ABS(x)-5*y <= -3*d DO y:=y-d OD;
+         WHILE ABS(x)-5*y >   2*d DO y:=y+d OD;
+         IF x<0 THEN IF ABS(x)+5*y>2*d THEN x:=x+d FI FI;
+         (x W y) OVER d
+      FI;ans
+END;
+ 
+PROC testregion = (QI z)INT:
+BEGIN INT x = R Nz, y = I Nz, d = Dz;
+      IF x+5*y>2*d THEN 2 ELSE 1 FI
+END;
+ 
+PROC infmat = (QI q)REF MATRIX:
+BEGIN HEAP MATRIX m := identity;
+      MATRIX invmat;  QI z := q;
+      WHILE NOT (z=infinity)
+      DO QI newz = translate(z);
+         invmat := inv[testregion(newz)];
+         m:=m**T((Nz-Nnewz)/Dz)**invmat;
+         z:=apply(invmat,newz)
+      OD;
+      {Check}
+      IF apply(m,infinity) = q THEN SKIP
+      ELSE print(("Error in PROC infmat",newline));
+           print("Called with q = ");printqi(q);print(newline);
+           print("Returning m = ");
+           printgi(m[1,1]);printgi(m[1,2]);
+           printgi(m[2,1]);printgi(m[2,2]);print(newline)
+      FI;
+ 
+     m
+END;
+ 
+PROC euclid = (GI a,b,  REF GI x,y,g,  REF INT type)VOID:
+BEGIN QI z := a OVER b;
+      MATRIX m := infmat(z);
+      IF (type:=matrixtype(m)) = 1
+      THEN IF m[1,1]=zero THEN x:=zero; y:=one
+                          ELSE x:=m[2,2]; y:=-m[1,2]
+           FI;
+           g:= a*x + b*y;
+           IF NOT inhalfplane(g) THEN g:=-g; x:=-x; y:=-y FI;
+           {Check}
+           IF (g DIV a) AND (g DIV b) THEN SKIP
+           ELSE print(("Error in PROC euclid",newline,"Called with a = "));
+                printgi(a);print(" and b = ");printgi(b);print(newline);
+                print(("Returning x,y,g = "));
+                printgi(x);printgi(y); printgi(g);print((newline,newline))
+           FI
+ 
+      FI
+END;
+ 
+PROC coprime = (GI a,b)BOOL:
+BEGIN GI g; INT type;
+      euclid(a,b, LOC GI, LOC GI, g, type);
+      (type=1) AND (g=one)
+END;
+ 
+OP UNIT = (GI a)BOOL: ((a=one) OR (a = -one));
+ 
+OP MOD = (GI a,b)REF GI:
+BEGIN IF b=zero THEN print(("MOD called with b = zero",newline));SKIP
+      ELSE QI z = a OVER b;
+            QI z0 = translate(z);
+            a - b * N(z-z0)
+      FI
+END;
+ 
+OP INVMOD = (GI a,b)REF GI:
+BEGIN GI x,y,g; x:=a; INT type;  euclid(a,b,x,y,g,type);
+      IF NOT ((type=1) AND (UNIT g))
+     THEN printgi(a);print(" is not invertible modulo ");printgi(b);
+           print(newline)
+      FI;
+      x MOD b
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+OP PRINC = (IDEAL a)BOOL: principal OF a;
+ 
+PROC outputideal = (IDEAL a, STRING s)VOID:
+BEGIN print(s+"  (");
+      printgi(gen1 OF a);
+      IF NOT (PRINC a) THEN print(","); printgi(gen2 OF a) FI;
+      print((")"))
+END;
+ 
+PROC outzbasis = (ZBASIS b)VOID:
+BEGIN print(("[",a OF b,","));printgi(z OF b);
+      print("]")
+END;
+ 
+PROC outideal = (STRING s, IDEAL a)VOID:
+BEGIN print(s);outputideal(a," = ") END;
+ 
+PROC stanzbasis = (GI z1,z2)REF ZBASIS:
+BEGIN INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = longzgcd(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = (a*g[2] + c*g[3]) MOD (a OF ans := ABS((b*c-a*d)%e));
+      z OF ans := fWe;
+      ans
+END;
+ 
+PROC inzbasis = REF ZBASIS:
+BEGIN print(("Enter Z-basis:",newline));
+      GI a,b;
+      readgi(a);  readgi(b);
+      stanzbasis(a,b)
+END;
+ 
+OP + = (ZBASIS b1,b2)REF ZBASIS:
+BEGIN INT a1 = a OF b1, a2 = a OF b2,
+          x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []INT g = longzgcd(y1,y2);
+      HEAP ZBASIS ans;
+      INT g1 = g[1];
+ 
+      i OF z OF ans := g1;
+      a OF ans := listzgcd((a1,a2,(y1*x2-y2*x1)%g1));
+      r OF z OF ans := (g[2]*x1 + g[3]*x2) MOD (a OF ans);
+ 
+      ans
+END;
+ 
+OP PZB = (GI z)REF ZBASIS:
+IF z=zero THEN print(("OP PZB called with z=zero",newline));SKIP
+          ELSE stanzbasis(z,z*w)
+FI;
+ 
+OP ZB = ([]GI zlist)REF ZBASIS:
+BEGIN HEAP ZBASIS ans := PZB zlist[1];
+      FOR i FROM 2 TO UPB zlist
+      DO ans := ans + PZB zlist[i]
+      OD;
+      ans
+END;
+ 
+OP * = (INT n, ZBASIS b)REF ZBASIS:
+BEGIN HEAP ZBASIS ans;
+      a OF ans := ABS(n) * a OF b;
+      z OF ans := ABS(n) * z OF b;
+      ans
+END;
+ 
+OP * = (GI z, ZBASIS b)REF ZBASIS: stanzbasis((a OF b)*z, (z OF b)*z);
+ 
+OP * = (ZBASIS b1,b2)REF ZBASIS: (a OF b1)*b2  +  (z OF b1)*b2;
+ 
+PROC longpzb = (GI z1, REF[]GI cc)REF ZBASIS:
+BEGIN GI z2 = z1*w;
+      INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = longzgcd(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = a*g[2] + c*g[3];
+      INT aa = (a*d-b*c)%e;
+      INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      cc[1] := (d%e)W(-b%e);
+      cc[2] :=  (g[2] W g[3]) - k*cc[1];
+BOOL check = (cc[1]*z1 = (a OF ans)*one) AND cc[2]*z1= (z OF ans);
+IF NOT check THEN
+   print(("Error in OP longpzb",newline));
+   print(("Called with z = "));printgi(z1);
+   print(("Returns a = ",aa, " and z = "));printgi(z OF ans);print(newline);
+   print("cc[1] = ");printgi(cc[1]);print(newline);
+   print("cc[2] = ");printgi(cc[2]);print(newline)
+FI;
+      {returns [a,z] with a=cc[1]*z1, z=cc[2]*z1}
+      ans
+END;
+ 
+PROC comax = (ZBASIS b1,b2, REF[]INT c)BOOL:
+BEGIN []INT g1 = longzgcd(a OF b1,a OF b2);
+      INT x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []INT gg = longzgcd(y1,y2);
+      INT gg1 = gg[1];
+      INT a3 = (y1*x2-y2*x1)%gg1;
+      []INT g2 = longzgcd(g1[1],a3);
+      BOOL ans := (g2[1]=1);
+      IF ans THEN c[1]:= g2[2]*g1[2];
+                  c[2]:=-g2[3]*y2%gg1;
+                  c[3]:=g2[2]*g1[3];
+                  c[4]:= g2[3]*y1%gg1
+      FI;
+      {If true then 1 = c[1]a1 + c[2]z1 + c[3]a2 + c[4]z2}
+      ans
+END;
+ 
+PROC longsum = (ZBASIS b1,b2, REF[]INT ac,zc)REF ZBASIS:
+BEGIN []INT g1 = longzgcd(a OF b1,a OF b2);
+      GI z1 = z OF b1, z2 = z OF b2;
+      INT x1 = R z1, x2 = R z2,
+          y1 = I z1, y2 = I z2;
+      []INT gg = longzgcd(y1,y2);
+      INT gg1 = gg[1];
+      INT a3 = (y1*x2-y2*x1)%gg1;
+      []INT g2 = longzgcd(g1[1],a3);
+      ac[1]:= g2[2]*g1[2];
+      ac[2]:=-g2[3]*y2%gg1;
+      ac[3]:= g2[2]*g1[3];
+      ac[4]:= g2[3]*y1%gg1;
+ 
+      zc[1] := gg[2];
+      zc[2] := gg[3];
+ 
+      HEAP ZBASIS ans := (g2[1] , zc[1]*z1 + zc[2]*z2); ans
+END;
+ 
+PROC longbasis = (GI z1,z2, REF[]INT c1,c2)REF ZBASIS:
+BEGIN
+      INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = longzgcd(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = a*g[2] + c*g[3];
+      INT aa = (a*d-b*c)%e;
+      INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      c1[1] := d%e;  c1[2] := -b%e;
+      c2[1] :=  g[2]  - k*c1[1];
+      c2[2] :=  g[3]  - k*c1[2];
+      ans
+END;
+ 
+PROC longprod = (ZBASIS b1,b2, REF[]INT ac,zc)REF ZBASIS:
+{Returns [a,z] = b1.b2  where a = ac[1]a1a2 + ac[2]a1z2 + ac[3]a2z1 + ac[4]z1z2
+                          and z = zc[1]a1a2 + zc[2]a1z2 + zc[3]a2z1 + zc[4]z1z2.}
+BEGIN
+      INT a1 = a OF b1, a2 = a OF b2;
+      GI  z1 = z OF b1, z2 = z OF b2;
+      INT a3 = a1*a2;  GI z3 = a1*z2;
+ 
+      [2]INT c1,c2,c4; [4]INT c3;
+ 
+      ZBASIS b3 = (a3,z3);
+      ZBASIS b4 = longbasis(a2*z1,z2*z1,c1,c2);
+      REF ZBASIS b5 = longsum(b3,b4,c3,c4);
+ 
+      ac[1] := c3[1];   ac[2] := c3[2];
+      ac[3] := c3[3]*c1[1] + c3[4]*c2[1];
+      ac[4] := c3[3]*c1[2] + c3[4]*c2[2];
+ 
+      zc[1] := 0;  zc[2] := c4[1];
+      zc[3] := c4[2]*c2[1];
+      zc[4] := c4[2]*c2[2];
+ 
+      b5
+END;
+ 
+PROC princprod = (IDEAL id1,id2, REF[]GI coeff)REF GI:
+{If id1.id2 = (g), returns g with
+    g = coeff[1].a1.a2 + coeff[2].a1.z2 + coeff[3].a2.z1 + coeff[4].z1.z2
+ where id1 = [a1,z1] and id2 = [a2,z2]
+}
+BEGIN ZBASIS b1 = basis OF id1, b2 = basis OF id2;
+      HEAP GI ans;  [4]INT ac,zc;
+      ZBASIS bproduct = longprod(b1,b2,ac,zc);
+      INT check; GI x,y;
+      euclid(G(a OF bproduct),z OF bproduct, x,y,ans, check);
+ 
+      IF check=1
+      THEN FOR i TO 4 DO coeff[i] := ac[i]*x + zc[i]*y OD
+      ELSE print(("Error in PROC princprod: product not principal",newline))
+      FI;
+      ans
+END;
+ 
+ 
+ 
+ 
+ 
+PROC makeideal1 = (GI a)REF IDEAL:
+BEGIN HEAP IDEAL ans;
+      principal OF ans := TRUE;
+      gen1      OF ans := a;
+      gen2      OF ans := zero;
+      basis     OF ans := PZB a;
+      ans
+END;
+ 
+PROC makeideal2 = (GI a,b)REF IDEAL:
+BEGIN HEAP IDEAL ans;
+      principal OF ans := FALSE;
+      gen1      OF ans := a;
+      gen2      OF ans := b;
+      basis     OF ans := PZB a + PZB b;
+      ans
+END;
+ 
+PROC inputideal = (STRING s)REF IDEAL:
+BEGIN print((s,newline));
+      BOOL p; print(("principal?",newline));read(p);
+      GI a,b;
+      IF p THEN print(("generator?",newline));
+                readgi(a);
+                makeideal1(a)
+           ELSE print(("generator 1?",newline));
+                readgi(a);
+                print(("generator 2?",newline));
+                readgi(b);
+                makeideal2(a,b)
+      FI
+END;
+ 
+PROC idealnorm = (IDEAL a)INT:
+   a OF basis OF a  *  I(z OF basis OF a);
+ 
+OP MOD = (GI a, IDEAL m)REF GI:
+BEGIN HEAP GI ans := a;  ZBASIS b = basis OF m;
+      GI zb = z OF b;  INT ab = a OF b;
+      ans := ans - (Ians OVER Izb)*zb;
+      ans := ans - ((Rans OVER ab)*ab)*one;
+      ans
+END;
+ 
+PROC idealresidues = (IDEAL a)REF []GI:
+BEGIN
+       ZBASIS b = basis OF a;
+           INT ax = a OF b, ay = I(z OF b);
+           HEAP[ax*ay]GI ans;
+           INT count:=0;
+           FOR i TO ax DO FOR j TO ay DO
+              ans[count+:=1] := (i W j) MOD a
+           OD OD;
+           ans
+END;
+ 
+PROC idealzbasis = (ZBASIS b)REF IDEAL:
+BEGIN HEAP IDEAL ans;
+      basis OF ans := b;
+      REF GI g1 = gen1 OF ans, g2 = gen2 OF ans;
+      g1:=G(a OF b);
+      g2:=z OF b;
+      GI g; INT type;
+      euclid(g1,g2,LOC GI,LOC GI,g,type);
+      IF (principal OF ans := (type = 1))
+      THEN g1:=g; g2:=zero
+      FI;
+      ans
+END;
+ 
+OP ID = ([]GI zlist)REF IDEAL: idealzbasis(ZB zlist);
+ 
+OP = = (ZBASIS b1,b2)BOOL:   (a OF b1 = a OF b2) AND (z OF b1 = z OF b2);
+ 
+OP = = (IDEAL a1,a2)BOOL: (basis OF a1) = (basis OF a2);
+ 
+OP DIV = (IDEAL a1,a2)BOOL:
+BEGIN ZBASIS b1=basis OF a1, b2=basis OF a2;
+      BOOL ans := a OF b1 DIV a OF b2;
+      IF ans THEN ans:= I(z OF b1) DIV I(z OF b2) FI;
+      IF ans THEN a OF b1 DIV (R(z OF b1)*I(z OF b2)%I(z OF b1)-R(z OF b2))
+             ELSE FALSE
+      FI
+END;
+ 
+OP ISIN = (GI z, IDEAL a)BOOL:
+BEGIN ZBASIS b = basis OF a;
+      INT a = a OF b,
+          d = R(z OF b), c = I(z OF b),
+          x = Rz, y = Iz;
+      (c DIV y) AND (a DIV (x-d*(y%c)))
+END;
+ 
+OP DIV = (IDEAL a, GI z)BOOL: z ISIN a;
+ 
+OP * = (IDEAL a1,a2)REF IDEAL:
+BEGIN BOOL p1 = PRINC a1, p2 = PRINC a2;
+      ZBASIS b1 = basis OF a1, b2 = basis OF a2;
+      IF p1 THEN
+      IF p2 THEN makeideal1(gen1 OF a1 * gen1 OF a2)
+            ELSE idealzbasis((gen1 OF a1) * b2)
+      FI
+      ELSE
+      IF p2 THEN idealzbasis((gen1 OF a2) * b1)
+            ELSE idealzbasis(b1*b2)
+      FI
+      FI
+END;
+ 
+OP + = (IDEAL a1,a2)REF IDEAL: idealzbasis(basis OF a1 + basis OF a2);
+ 
+PROC invertible = (GI z, IDEAL a, REF GI inverse)BOOL:
+BEGIN IF z=zero THEN FALSE ELSE
+      [2]GI c1;   [4]INT c2;
+      ZBASIS b = longpzb(z, c1);
+      BOOL ans = comax(b,basis OF a, c2);
+      IF ans THEN
+          inverse := (c2[1]*c1[1] + c2[2]*c1[2] ) MOD a
+      FI;
+      ans
+      FI
+END;
+ 
+OP INVMOD = (GI z, IDEAL a)REF GI:
+BEGIN HEAP GI ans;
+      IF NOT invertible(z,a,ans)
+      THEN printgi(z);print((" is not invertible modulo",newline));
+           outputideal(a,"");print(newline)
+      FI;
+      ans
+END;
+ 
+OP DIV = (GI z, IDEAL a)BOOL: (z DIV (gen1 OF a)) AND (z DIV (gen2 OF a));
+ 
+OP / = (IDEAL a, GI z)REF IDEAL:
+BEGIN IF z DIV a
+      THEN IF PRINC a THEN makeideal1((gen1 OF a)/z)
+                      ELSE makeideal2((gen1 OF a)/z,(gen2 OF a)/z)
+                FI
+      ELSE printgi(z);
+           outputideal(a," does not divide");print(newline);
+           SKIP
+      FI
+END;
+ 
+PROC conjideal = (IDEAL a)REF IDEAL:
+BEGIN HEAP IDEAL ans;
+      principal OF ans := principal OF a;
+      gen1 OF ans := conj(gen1 OF a);
+      gen2 OF ans := conj(gen2 OF a);
+      a OF basis OF ans := a OF basis OF a;
+      r OF z OF basis OF ans := (-r OF z OF basis OF a) MOD (a OF basis OF a);
+      i OF z OF basis OF ans := i OF z OF basis OF a;
+      ans
+END;
+ 
+OP / = (IDEAL a1,a2)REF IDEAL:
+BEGIN IF a2 DIV a1
+      THEN IDEAL a2bar = conjideal(a2);
+            GI divisor = G idealnorm(a2);
+           (a1*a2bar)/divisor
+      ELSE outputideal(a2,"");
+           outputideal(a1," does not divide ");
+           print(newline);
+           SKIP
+      FI
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+MODE PRIME = STRUCT(STRING name,
+                    BOOL   ramified,
+                    INT degree,  characteristic,
+                    IDEAL ideal);
+ 
+OP RAM = (PRIME p)BOOL:(ramified OF p);
+OP CH = (PRIME p)INT:(characteristic OF p);
+OP PRINC =(PRIME p)BOOL:(principal OF ideal OF p);
+OP = = (PRIME p,q)BOOL:ideal OF p = ideal OF q;
+OP DIV = (PRIME p, GI a)BOOL: ideal OF p DIV a;
+ 
+PROC ord = (PRIME p, GI a)INT:
+BEGIN INT ans:=0; IDEAL ip:=ideal OF p, test:=makeideal1(a);
+      WHILE ip DIV test DO ans+:=1; test:=test/ip OD;
+      ans
+END;
+ 
+PROC outprime = (PRIME p)VOID: outideal(name OF p, ideal OF p);
+ 
+INT nprimes = 92;
+[nprimes]PRIME primes;
+ZBASIS unitbasis = (1,w);
+IDEAL unitideal = (TRUE,one,zero,unitbasis);
+ 
+ 
+PROC setprimes = VOID:
+BEGIN
+   primes[1] :=("p2  ",TRUE,1,2,makeideal2(two,one+w));
+   primes[2] :=("p3a ",FALSE,1,3,makeideal2(three,one+w));
+   primes[3] :=("p3b ",FALSE,1,3,makeideal2(three,one-w));
+   primes[4] :=("p5  ",TRUE,1,5,makeideal1(w));
+   primes[5] :=("p7a ",FALSE,1,7,makeideal2(G 7, 3 W 1));
+   primes[6] :=("p7b ",FALSE,1,7,makeideal2(G 7, 3 W -1));
+   primes[7] :=("p23a",FALSE,1,23,makeideal2(G 23, 8 W 1));
+   primes[8] :=("p23b",FALSE,1,23,makeideal2(G 23, 8 W -1));
+   primes[9] :=("p29a",FALSE,1,29,makeideal1(3 W 2));
+   primes[10]:=("p29b",FALSE,1,29,makeideal1(3 W -2));
+   primes[11]:=("p41a",FALSE,1,41,makeideal1(6 W 1));
+   primes[12]:=("p41b",FALSE,1,41,makeideal1(6 W -1));
+   primes[13]:=("p43a",FALSE,1,43,makeideal2(G 43, 9 W 1));
+   primes[14]:=("p43b",FALSE,1,43,makeideal2(G 43, 9 W -1));
+   primes[15]:=("p47a",FALSE,1,47,makeideal2(G 47, 18 W 1));
+   primes[16]:=("p47b",FALSE,1,47,makeideal2(G 47, 18 W -1));
+   primes[17]:=("p61a",FALSE,1, 61,makeideal1( 4 W  3));
+   primes[18]:=("p61b",FALSE,1, 61,makeideal1( 4 W  -3));
+   primes[19]:=("p67a",FALSE,1, 67,makeideal2(G  67, 14 W 1));
+   primes[20]:=("p67b",FALSE,1, 67,makeideal2(G  67, 14 W -1));
+   primes[21]:=("p83a",FALSE,1, 83,makeideal2(G  83, 24 W 1));
+   primes[22]:=("p83b",FALSE,1, 83,makeideal2(G  83, 24 W -1));
+   primes[23]:=("p89a",FALSE,1, 89,makeideal1( 3 W  4));
+   primes[24]:=("p89b",FALSE,1, 89,makeideal1( 3 W  -4));
+   primes[25]:=("p101a",FALSE,1, 101,makeideal1( 9 W  2));
+   primes[26]:=("p101b",FALSE,1, 101,makeideal1( 9 W  -2));
+   primes[27]:=("p103a",FALSE,1, 103,makeideal2(G  103, 43 W 1));
+   primes[28]:=("p103b",FALSE,1, 103,makeideal2(G  103, 43 W -1));
+   primes[29]:=("p107a",FALSE,1, 107,makeideal2(G  107, 40 W 1));
+   primes[30]:=("p107b",FALSE,1, 107,makeideal2(G  107, 40 W -1));
+   primes[31]:=("p109a",FALSE,1, 109,makeideal1( 8 W  3));
+   primes[32]:=("p109b",FALSE,1, 109,makeideal1( 8 W  -3));
+   primes[33]:=("p11 ",FALSE,2,11,makeideal1(G 11));
+   primes[34]:=("p127a",FALSE,1, 127,makeideal2(G  127, 54 W 1));
+   primes[35]:=("p127b",FALSE,1, 127,makeideal2(G  127, 54 W -1));
+   primes[36]:=("p149a",FALSE,1, 149,makeideal1( 12 W  1));
+   primes[37]:=("p149b",FALSE,1, 149,makeideal1( 12 W  -1));
+   primes[38]:=("p163a",FALSE,1, 163,makeideal2(G  163, 22 W 1));
+   primes[39]:=("p163b",FALSE,1, 163,makeideal2(G  163, 22 W -1));
+   primes[40]:=("p167a",FALSE,1, 167,makeideal2(G  167, 50 W 1));
+   primes[41]:=("p167b",FALSE,1, 167,makeideal2(G  167, 50 W -1));
+   primes[42]:=("p13 ",FALSE,2,13,makeideal1(G 13));
+   primes[43]:=("p181a",FALSE,1, 181,makeideal1( 1 W  6));
+   primes[44]:=("p181b",FALSE,1, 181,makeideal1( 1 W  -6));
+   primes[45]:=("p223a",FALSE,1, 223,makeideal2(G  223, 21 W 1));
+   primes[46]:=("p223b",FALSE,1, 223,makeideal2(G  223, 21 W -1));
+   primes[47]:=("p227a",FALSE,1, 227,makeideal2(G  227, 26 W 1));
+   primes[48]:=("p227b",FALSE,1, 227,makeideal2(G  227, 26 W -1));
+   primes[49]:=("p229a",FALSE,1, 229,makeideal1( 7 W  6));
+   primes[50]:=("p229b",FALSE,1, 229,makeideal1( 7 W  -6));
+   primes[51]:=("p241a",FALSE,1, 241,makeideal1( 14 W  3));
+   primes[52]:=("p241b",FALSE,1, 241,makeideal1( 14 W  -3));
+   primes[53]:=("p263a",FALSE,1, 263,makeideal2(G  263, 28 W 1));
+   primes[54]:=("p263b",FALSE,1, 263,makeideal2(G  263, 28 W -1));
+   primes[55]:=("p269a",FALSE,1, 269,makeideal1( 12 W  5));
+   primes[56]:=("p269b",FALSE,1, 269,makeideal1( 12 W  -5));
+   primes[57]:=("p281a",FALSE,1, 281,makeideal1( 6 W  7));
+   primes[58]:=("p281b",FALSE,1, 281,makeideal1( 6 W  -7));
+   primes[59]:=("p283a",FALSE,1, 283,makeideal2(G  283, 109 W 1));
+   primes[60]:=("p283b",FALSE,1, 283,makeideal2(G  283, 109 W -1));
+   primes[61]:=("p17 ",FALSE,2,17,makeideal1(G 17));
+   primes[62]:=("p307a",FALSE,1, 307,makeideal2(G  307, 84 W 1));
+   primes[63]:=("p307b",FALSE,1, 307,makeideal2(G  307, 84 W -1));
+   primes[64]:=("p347a",FALSE,1, 347,makeideal2(G  347, 79 W 1));
+   primes[65]:=("p347b",FALSE,1, 347,makeideal2(G  347, 79 W -1));
+   primes[66]:=("p349a",FALSE,1, 349,makeideal1( 13 W  6));
+   primes[67]:=("p349b",FALSE,1, 349,makeideal1( 13 W  -6));
+   primes[68]:=("p19 ",FALSE,2,19,makeideal1(G 19));
+   primes[69]:=("p367a",FALSE,1, 367,makeideal2(G  367, 27 W 1));
+   primes[70]:=("p367b",FALSE,1, 367,makeideal2(G  367, 27 W -1));
+   primes[71]:=("p383a",FALSE,1, 383,makeideal2(G  383, 83 W 1));
+   primes[72]:=("p383b",FALSE,1, 383,makeideal2(G  383, 83 W -1));
+   primes[73]:=("p389a",FALSE,1, 389,makeideal1( 12 W  7));
+   primes[74]:=("p389b",FALSE,1, 389,makeideal1( 12 W  -7));
+   primes[75]:=("p401a",FALSE,1, 401,makeideal1( 9 W  8));
+   primes[76]:=("p401b",FALSE,1, 401,makeideal1( 9 W  -8));
+   primes[77]:=("p409a",FALSE,1, 409,makeideal1( 2 W  9));
+   primes[78]:=("p409b",FALSE,1, 409,makeideal1( 2 W  -9));
+   primes[79]:=("p421a",FALSE,1, 421,makeideal1( 4 W  9));
+   primes[80]:=("p421b",FALSE,1, 421,makeideal1( 4 W  -9));
+   primes[81]:=("p443a",FALSE,1, 443,makeideal2(G  443, 138 W 1));
+   primes[82]:=("p443b",FALSE,1, 443,makeideal2(G  443, 138 W -1));
+   primes[83]:=("p449a",FALSE,1, 449,makeideal1( 18 W  5));
+   primes[84]:=("p449b",FALSE,1, 449,makeideal1( 18 W  -5));
+   primes[85]:=("p461a",FALSE,1, 461,makeideal1( 21 W  2));
+   primes[86]:=("p461b",FALSE,1, 461,makeideal1( 21 W  -2));
+   primes[87]:=("p463a",FALSE,1, 463,makeideal2(G  463, 213 W 1));
+   primes[88]:=("p463b",FALSE,1, 463,makeideal2(G  463, 213 W -1));
+   primes[89]:=("p467a",FALSE,1, 467,makeideal2(G  467, 205 W 1));
+   primes[90]:=("p467b",FALSE,1, 467,makeideal2(G  467, 205 W -1));
+   primes[91]:=("p487a",FALSE,1, 487,makeideal2(G  487, 143 W 1));
+   primes[92]:=("p487b",FALSE,1, 487,makeideal2(G  487, 143 W -1));
+ 
+      SKIP
+END;
+ 
+MODE PPOWER = STRUCT(INT index, exponent);
+ 
+PROC primeidealfactors = (IDEAL a, BOOL out)REF []PPOWER:
+BEGIN IDEAL rest := a;
+     IDEAL check := unitideal;
+      HEAP[nprimes]PPOWER ans;
+      INT count := 0;
+ 
+      IF out THEN outputideal(a,"Prime factorization of ");
+                  print(newline)
+      FI;
+ 
+ 
+      FOR i TO nprimes WHILE NOT (rest=unitideal)
+      DO IDEAL pi = ideal OF primes[i];
+         INT e := 0;
+         WHILE pi DIV rest
+         DO rest := rest/pi; e+:=1; check := check * pi
+         OD;
+         IF e>0
+         THEN ans[count+:=1] := (i,e);
+              IF out THEN print((name OF primes[i]," to the power ",e,newline)) FI
+         FI
+      OD;
+     IF check = a THEN SKIP
+     ELSE print(("Error in PROC primeidealfactors",newline));
+          outputideal(a,"Called with  ");print(newline);
+          outputideal(check,"but product of factors is ");print(newline)
+     FI;
+ 
+      ans[1:count]
+END;
+ 
+SKIP
+ 
+KEEP GI,SYMB,QI,ZBASIS,IDEAL,MATRIX,PRIME,PPOWER,
+ 
+     R(GI),I(GI),-(GI),*(GI,GI),-(GI,GI),+(GI,GI),
+     =(GI,GI),*(INT,GI),PRINC(IDEAL),N(QI),D(QI),CANCEL(QI),OVER(GI,INT),
+     OVER(GI,GI),=(QI,QI),+(QI,QI),-(QI),-(QI,QI),*(QI,QI),/(QI),/(QI,QI),
+     /(GI,GI),MOD(GI,GI),MOD(GI,IDEAL),DET(MATRIX),*(MATRIX,MATRIX),
+     **(MATRIX,MATRIX),/(GI,INT),
+     T(GI),UNIT(GI),INVMOD(GI,GI),=(IDEAL,IDEAL),DIV(GI,GI),NDIV(GI,GI),
+     DIV(IDEAL,IDEAL),ISIN(GI,IDEAL),DIV(IDEAL,GI),RAM(PRIME),
+     CH(PRIME),PRINC(PRIME),*(IDEAL,IDEAL),/(MATRIX,GI),
+     PZB(GI),ZB([]GI),*(INT,ZBASIS),*(GI,ZBASIS),*(ZBASIS,ZBASIS),
+     ID([]GI),=(ZBASIS,ZBASIS),=(PRIME,PRIME),DIV(PRIME,GI),
+     +(ZBASIS,ZBASIS),+(IDEAL,IDEAL),
+     DIV(GI,IDEAL),/(IDEAL,GI),/(IDEAL,IDEAL),
+     INVMOD(GI,IDEAL),G(INT),W(INT,INT),
+ 
+     conj,norm,compare,readgi,printgi,zgcd,longzgcd,show,findgi,
+     makeideal1,makeideal2,inputideal,outputideal,idealnorm,
+     translate,testregion,val,matrixtype,clear,makemat,
+     apply,euclid,idealresidues,idealzbasis,setprimes,listzgcd,
+     comax,invertible,inhalfplane,coprime,printqi,ord,
+      zero,one,two,w,wbar,three,twelve,infinity,qzero,qone,qw,identity,
+      inv,nprimes,primes,unitbasis,unitideal,
+     conjideal,primeidealfactors,infmat,longsum,longprod,longbasis,princprod,
+     stanzbasis,longpzb,inzbasis,outzbasis,outideal,outprime,name
+ 
+ 
+ 
+FINISH

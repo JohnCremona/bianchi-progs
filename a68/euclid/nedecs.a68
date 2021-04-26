@@ -1,0 +1,372 @@
+DECS nedecs USE longbasics,newlinalg:
+ 
+MODE MODSYM = STRUCT(QI a,b);
+OP A = (MODSYM m)QI: a OF m;
+OP B = (MODSYM m)QI: b OF m;
+OP C = (SYMB s)GI: c OF s;
+OP D = (SYMB s)GI: d OF s;
+ 
+GI mod;  INT normod;
+INT nplist,nsymb,phi,psi,rank,dimension,codimension,denom,denom1,denom2,maxdepth;
+REF[]GI plist;
+INT wmodz,n0,n0m0;
+REF[]INT invtable, dstarts, starts, noninv, noninvdiv;
+REF[]GI divs;  INT ndivs, nnoninv;
+ 
+REF[]INT zerovector;
+REF[]SYMB symbols; REF[]INT freegens;
+REF[]INT coordindex;
+REF[,]INT coord,image,basis1,tbasis1;
+REF[]MODSYM freemods;
+REF[]BOOL needed;
+ 
+OP = = (SYMB s,t)BOOL:  (mod DIV (Cs*Dt-Ct*Ds));
+ 
+ 
+PROC findsymb = (SYMB s,REF []SYMB list, INT up, start)INT:
+(INT ans:=0;
+ FOR i FROM start TO up WHILE (ans=0) DO
+ IF s = list[i] THEN ans:=i FI
+ OD;
+ans);
+ 
+PROC showsymb = (REF []SYMB s, INT n)VOID:
+BEGIN print(newline);
+      FOR i TO n
+      DO print((i,": ","("));printgi(Cs[i]);print((" : "));printgi(Ds[i]);print((")",newline))  OD
+END;
+ 
+ 
+PROC printsym = (SYMB s)VOID:
+BEGIN print("(");printgi(Cs);print(":");printgi(Ds);print(")") END;
+ 
+ 
+PROC convert = (SYMB s)MODSYM:
+BEGIN
+GI c = Cs, d = Ds;
+[]GI temp = bezout(c , d);
+GI h = temp[1], x = temp[2], y = temp[3];
+GI c0 = c%h, d0 = d%h;
+HEAP MODSYM ans := ((-x MODULO d0,d0) , (y MODULO c0,c0));
+ans
+END;
+ 
+PROC findgi = (GI g, []GI list)INT:
+BEGIN INT ans := 0;
+      FOR i TO UPB list WHILE ans=0
+      DO IF g=list[i] THEN ans:=i FI
+      OD;
+      ans
+END;
+ 
+PROC numres = (GI beta)INT:
+BEGIN INT y = SHORTEN(Ibeta), x = SHORTEN(Rbeta);
+      INT r = y MOD n0;
+      INT rdash = (x+wmodz*(y-r)) MOD n0m0;
+      1 + rdash + r*n0m0
+END;
+ 
+PROC resnum = (INT h)GI:
+BEGIN INT h0 = h-1;
+      INT rdash = h0 MOD n0m0;
+      INT r = (h0-rdash)%n0m0;
+      GI(LENG(rdash),LENG(r))
+END;
+ 
+PROC setup = VOID:
+BEGIN
+   plist := primefactors(mod);  nplist:=UPB plist;
+   normod := SHORTEN(norm(mod));
+   phi:=psi:=normod;
+   FOR i TO nplist
+   DO GI p = plist[i];
+      INT np = SHORTEN(norm(p));
+      phi := (phi*(np-1))%np;
+      psi := (psi*(np+1))%np
+   OD;
+   nsymb := psi;
+   nnoninv := normod-phi;
+ 
+   INT a = SHORTEN(Rmod), b = SHORTEN(Imod);
+   [2]INT xy;
+   n0 :=  vectorbezout((a,b),xy);
+   INT x = xy[1], y = xy[2];
+   n0m0 := normod % n0;
+   INT a0 = a%n0, b0 = b%n0;
+   wmodz := (b0 * 2 + a0) * x - a0*y;
+ 
+   invtable := HEAP[normod]INT;
+   noninv := HEAP[nnoninv]INT;
+   noninvdiv := HEAP[nnoninv]INT;
+   divs := HEAP[nnoninv]GI;      {upper bound for no. of divisors}
+ 
+   INT nx := 0;  {will count non-inv. residues as they are found}
+   ndivs := 0;  {will count divisors as they are found}
+   FOR i TO normod
+   DO GI res = resnum(i);
+      []GI bez = bezout(res,mod);
+      GI d = bez[1];
+      IF d=one THEN invtable[i] := numres(bez[2])
+               ELSE noninv[nx+:=1] := i;
+                    invtable[i] := -nx;
+                    IF NOT (SHORTEN(norm(d))=normod) THEN
+                    INT nxd := findgi(d,divs[1:ndivs]);
+                    IF nxd=0 THEN divs[ndivs+:=1] := res; nxd:=ndivs FI;
+                    noninvdiv[nx]:=nxd
+                    FI
+               FI
+   OD;
+ 
+   divs := divs[1:ndivs]
+ 
+END;
+ 
+PROC makesymbols = VOID:
+BEGIN
+   symbols := HEAP[1:nsymb]SYMB;
+   FOR i TO normod DO symbols[i] := SYMB(resnum(i) MODULO mod, one) OD;
+   FOR i TO nnoninv DO symbols[normod+i] := SYMB(one,resnum(noninv[i]) MODULO mod) OD;
+   SYMB s; INT n2:=normod+nnoninv; INT n1 := n2+1;   GI c,d;
+   IF normod+nnoninv<nsymb THEN
+      FOR i TO ndivs
+      DO c := divs[i];
+         FOR j TO nnoninv
+         DO d := resnum(noninv[j]);
+            IF ((NOT(d=zero)) AND (gcd(c,d)=one))
+            THEN
+               s:=SYMB(c,d);
+               IF (findsymb(s,symbols,n2,n1) = 0)
+               THEN symbols[n2+:=1] := s
+               FI
+            FI
+         OD
+      OD
+   FI;
+   IF n2<nsymb THEN
+      print(("Error in PROC makesymbols;   only ",n2," symbols found",
+              newline,"out of ",nsymb," expected",newline,newline))
+   FI
+END; {of PROC makesymbols}
+ 
+ 
+ 
+PROC index = (SYMB s)INT:
+BEGIN
+   GI c = Cs, d = Ds;
+   INT nd = numres(d);
+   INT kd = invtable[nd];
+   IF kd>0 THEN numres(c*resnum(kd))  {d invertible}
+   ELSE INT nc = numres(c);
+        INT kc = invtable[nc];
+        IF kc>0 THEN normod-invtable[numres(resnum(kc)*d)]  {c invertible}
+        ELSE  {neither invertible}
+             INT ans = findsymb(s,symbols,nsymb,normod+nnoninv+1);
+             IF ans=0 THEN print(("Error in PROC index",newline));
+                           print(("Called with "));printsym(s);print(newline)
+             FI;
+             ans
+   FI
+   FI
+END;
+ 
+ 
+ 
+ 
+ 
+PROC getcoord = (SYMB s)REF[]INT:
+BEGIN
+INT i= coordindex[index(s)];
+( i=0 | zerovector | SIGN(i) * coord[ABS(i),] )
+END;
+ 
+PROC convertmatrix = (MATRIX m)REF[]INT:
+    getcoord(SYMB(m[2,1],m[2,2]));
+ 
+PROC cf = (GI num,den)REF[]GI:
+BEGIN
+   HEAP[50]GI ans;
+   ans[1] := one;   ans[2] := zero;
+   INT length := 2;
+   GI a:=num, b:=den, r;
+   WHILE NOT (b=zero)
+   DO GI quot = a%b;
+      r:=a-b*quot; a:=b; b:=r;
+      ans[length+1] := quot*ans[length] + ans[length-1];
+      length+:=1
+   OD;
+   ans[1:length]
+END;
+ 
+PROC qtovec = (QI q)REF[]INT:
+BEGIN
+   []GI list = cf(Nq,Dq);
+   INT length = UPB list;
+   HEAP[rank]INT ans := zerovector;
+   IF length=2 THEN ans:=getcoord(SYMB(zero,one))
+   ELSE
+   FOR i FROM 4 TO UPB list
+   DO ans := ans + getcoord(SYMB((ODD i | -list[i] | list[i]),list[i-1]))
+   OD
+   FI;
+   ans
+END;
+ 
+PROC reconvert = (MODSYM m)REF[]INT:  qtovec(Bm)  - qtovec(Am)  ;
+ 
+OP * = (MATRIX m,MODSYM s)REF MODSYM:
+BEGIN HEAP MODSYM ans;
+      a OF ans := apply(m,As);
+      b OF ans := apply(m,Bs);
+      ans
+END;
+ 
+PROC hitlist = ([]MATRIX list, MODSYM m)REF[]INT:
+BEGIN HEAP[rank] INT ans := zerovector;
+      FOR i TO UPB list
+      DO ans := ans + reconvert(list[i]*m)
+      OD;
+      ans
+END;
+ 
+PROC getlistt = (GI p)REF[]MATRIX:
+BEGIN
+     INT np = SHORTEN(norm(p));
+     HEAP[np+1]MATRIX list;
+     []GI resmodp = residues(p);
+     FOR ij TO np
+     DO GI j = resmodp[ij];
+        list[ij] := makemat(one,j,zero,p)
+     OD;
+     IF (p NDIV mod) THEN list[np+1] := makemat(p,zero,zero,one); list
+   ELSE list[1:np]
+     FI
+END;
+ 
+PROC getlistw = (GI q)REF[]MATRIX:
+BEGIN HEAP[1]MATRIX ans;
+      GI u := one, v := mod;
+      WHILE q DIV v DO v:=v%q; u:=u*q OD;
+      []GI ab = bezout(u,v);
+      GI a = ab[2], b = -ab[3];
+      GI ua = u * a;
+      ans[1] := makemat(ua,b,mod,u);
+     ans
+END;
+ 
+PROC calcop = (STRING opname, GI p, []MATRIX list,BOOL display)REF[,]INT:
+BEGIN
+     [rank,rank]INT mat1;
+     [rank,dimension]INT mat2;
+     HEAP[dimension,dimension]INT opmat;
+ 
+     FOR j TO rank
+     DO mat1[,j] := (needed[j] | hitlist(list,freemods[j]) | zerovector)
+     OD;
+ 
+     mat2 := mat1 * tbasis1;
+     opmat := mat2[codimension+1:rank,];
+ 
+     IF tbasis1 * opmat = mat2
+     THEN IF display
+          THEN print(("Matrix of ",opname,"("));printgi(p);print((")",(dimension>1|newline|":")));
+               showmatrix(opmat)
+          FI
+     ELSE
+          {error: op has not stabilised ker delta}
+          print(("Problem in PROC calcop calculating ",opname));
+          print(("("));printgi(p);print((")",newline));
+          print((newline,"mat1",newline));showmatrix(mat1);print(newline);
+          print((newline,"mat2",newline));showmatrix(mat2);print(newline);
+          print((newline,"tbasis1",newline));showmatrix(tbasis1);print(newline)
+     FI;
+     opmat
+END;
+ 
+PROC heckeop = (INT i,BOOL display)REF[,]INT:
+BEGIN
+     GI p = primes[i];
+     REF[,]INT ans = calcop("T",p,getlistt(p),display);
+     IF display THEN print(newline) FI;
+     ans
+END;   { of PROC heckeop }
+ 
+PROC w op = (INT i,BOOL display)REF[,]INT:
+BEGIN
+     GI p = primes[i];
+     REF[,]INT ans = calcop("W",p,getlistw(p),display);
+     IF display THEN print(newline) FI;
+     ans
+END;   { of PROC heckeop }
+ 
+OP DOT = ([]INT v1,v2)INT:
+BEGIN INT ans:=0;
+      FOR i TO UPB v1 DO ans+:=v1[i]*v2[i] OD;
+      ans
+END;
+ 
+PROC jmatrix = (BOOL display)REF[,]INT:
+BEGIN
+     [rank,rank]INT mat1;
+     [rank,dimension]INT mat2;
+     HEAP[dimension,dimension]INT opmat;
+ 
+     FOR j TO rank
+     DO mat1[,j] := IF needed[j]
+                    THEN  SYMB s = symbols[freegens[j]];
+                          getcoord(SYMB(-one*Cs,Ds))
+                    ELSE zerovector
+                    FI
+     OD;
+ 
+     mat2 := mat1 * tbasis1;
+     opmat := mat2[codimension+1:rank,];
+ 
+     IF tbasis1 * opmat = mat2
+     THEN IF display
+          THEN print(("J matrix",(dimension>1|newline|":")));
+               showmatrix(opmat)
+          FI
+     ELSE
+          {error: op has not stabilised ker delta}
+          print(("Problem in PROC jmatrix",newline));
+          print((newline,"mat1",newline));showmatrix(mat1);print(newline);
+          print((newline,"mat2",newline));showmatrix(mat2);print(newline);
+          print((newline,"tbasis1",newline));showmatrix(tbasis1);print(newline)
+     FI;
+     opmat
+END;
+ 
+PROC v = (GI n,d)REF[]INT: qtovec(cancel(QI(n,d)))[codimension+1:];
+ 
+PROC minihecke = (GI p, n, d )REF[]INT:
+BEGIN
+   HEAP[dimension]INT ans := v(p*n,d);
+   []GI resmodp = residues(p);
+   FOR ia TO UPB resmodp
+   DO GI a = resmodp[ia];
+      ans := ans - v(a,p) + v(n + a*d, p*d)
+   OD;
+   ans
+END;
+ 
+PROC fricke = (BOOL display)REF[,]INT:
+BEGIN HEAP[1]MATRIX frickelist;
+      frickelist[1]:=makemat(zero,-one,mod,zero);
+      REF[,]INT ans = calcop("W",mod,frickelist,display);
+      ans
+END;
+ 
+SKIP
+ 
+KEEP MODSYM,findsymb,=(SYMB,SYMB),setup,makesymbols,plist,
+     convert,showsymb,index,printsym,getlistw,w op,
+     mod,nplist,nsymb,phi,psi,rank,zerovector,maxdepth,normod,
+     symbols,freegens,coordindex,coord,dimension,codimension,
+     denom,denom1,denom2,image,basis1,tbasis1,freemods,needed,
+     A(MODSYM),B(MODSYM),C(SYMB),D(SYMB),
+     *(MATRIX,MODSYM),DOT([]INT,[]INT),
+     infinity,getcoord,convertmatrix,
+     qtovec,reconvert,hitlist,getlistt,calcop,heckeop,
+     jmatrix,v,minihecke,fricke
+ 
+FINISH
