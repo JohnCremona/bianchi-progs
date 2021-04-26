@@ -8,47 +8,48 @@
 class RatQuad {
 
 public:
-        // constructors
-        RatQuad(Quad nn=0, Quad d=1);
+  // constructors
+  RatQuad(Quad nn=0, Quad d=1);
+  RatQuad(long a, long b, long dd); // (a+b*w)/dd
 
-        // RatQuad manipulations
-        void cancel();                           // cancel *this in situ
-        friend Quad num(const RatQuad&);         // the numerator
-        friend Quad den(const RatQuad&);         // the denominator
-        friend RatQuad recip(const RatQuad&);    // reciprocal
-	friend RatQuad reduce(const RatQuad& q); // reduce mod Quads
-        friend Quad round(const RatQuad&);       // nearest Quad
+  // RatQuad manipulations
+  void cancel();                           // cancel *this in situ
+  friend Quad num(const RatQuad&);         // the numerator
+  friend Quad den(const RatQuad&);         // the denominator
+  friend RatQuad recip(const RatQuad&);    // reciprocal
+  friend RatQuad reduce(const RatQuad& q); // reduce mod Quads
+  friend Quad round(const RatQuad&);       // nearest Quad
 
-        // Binary Operator Functions
-        friend RatQuad operator+(const RatQuad&, const RatQuad&);
-        friend RatQuad operator+(Quad, const RatQuad&);
-        friend RatQuad operator+(const RatQuad&, Quad);
-        friend RatQuad operator-(const RatQuad&, const RatQuad&);
-        friend RatQuad operator-(Quad, const RatQuad&);
-        friend RatQuad operator-(const RatQuad&, Quad);
-        friend RatQuad operator*(const RatQuad&, const RatQuad&);
-        friend RatQuad operator*(const RatQuad&, Quad);
-        friend RatQuad operator*(Quad, const RatQuad&);
-        friend RatQuad operator/(const RatQuad&, const RatQuad&);
-        friend RatQuad operator/(const RatQuad&, Quad);
-        friend RatQuad operator/(Quad, const RatQuad&);
-        friend int operator==(const RatQuad&, const RatQuad&);
-        friend int operator!=(const RatQuad&, const RatQuad&);
-        friend ostream& operator<< (ostream&s, const RatQuad&);
-        RatQuad& operator+=(const RatQuad&);
-        RatQuad& operator+=(Quad);
-        RatQuad& operator-=(const RatQuad&);
-        RatQuad& operator-=(Quad);
-        RatQuad& operator*=(const RatQuad&);
-        RatQuad& operator*=(Quad);
-        RatQuad& operator/=(const RatQuad&);
-        RatQuad& operator/=(Quad);
-        RatQuad operator+();
-        RatQuad operator-();
+  // Binary Operator Functions
+  friend RatQuad operator+(const RatQuad&, const RatQuad&);
+  friend RatQuad operator+(Quad, const RatQuad&);
+  friend RatQuad operator+(const RatQuad&, Quad);
+  friend RatQuad operator-(const RatQuad&, const RatQuad&);
+  friend RatQuad operator-(Quad, const RatQuad&);
+  friend RatQuad operator-(const RatQuad&, Quad);
+  friend RatQuad operator*(const RatQuad&, const RatQuad&);
+  friend RatQuad operator*(const RatQuad&, Quad);
+  friend RatQuad operator*(Quad, const RatQuad&);
+  friend RatQuad operator/(const RatQuad&, const RatQuad&);
+  friend RatQuad operator/(const RatQuad&, Quad);
+  friend RatQuad operator/(Quad, const RatQuad&);
+  friend int operator==(const RatQuad&, const RatQuad&);
+  friend int operator!=(const RatQuad&, const RatQuad&);
+  friend ostream& operator<< (ostream&s, const RatQuad&);
+  RatQuad& operator+=(const RatQuad&);
+  RatQuad& operator+=(Quad);
+  RatQuad& operator-=(const RatQuad&);
+  RatQuad& operator-=(Quad);
+  RatQuad& operator*=(const RatQuad&);
+  RatQuad& operator*=(Quad);
+  RatQuad& operator/=(const RatQuad&);
+  RatQuad& operator/=(Quad);
+  RatQuad operator+();
+  RatQuad operator-();
 
-// Implementation
+  // Implementation
 private:
-        Quad d, n;
+  Quad d, n;
 };
 
 
@@ -64,17 +65,24 @@ inline void RatQuad::cancel()                     // cancel *this in situ
 inline RatQuad::RatQuad(Quad nn, Quad dd)
 {
   n=nn; d=dd;
-  (*this).cancel(); 
+  (*this).cancel();
+}
+
+inline RatQuad::RatQuad(long a, long b, long dd) // (a+b*w)/dd
+{
+  n=Quad(a,b);
+  d=Quad(dd);
+  (*this).cancel();
 }
 
 inline RatQuad RatQuad::operator+()
 {
-        return *this;
+  return *this;
 }
 
 inline RatQuad RatQuad::operator-()
 {
-        return RatQuad(-n, d);
+  return RatQuad(-n, d);
 }
 
 
@@ -83,67 +91,67 @@ inline RatQuad RatQuad::operator-()
 inline RatQuad& RatQuad::operator+=(const RatQuad& q2)
 {
   Quad n1=n*q2.d, n2=d*q2.n;
-        n = n1+n2;
-        d *= q2.d;
-        (*this).cancel();
-        return *this;
+  n = n1+n2;
+  d *= q2.d;
+  (*this).cancel();
+  return *this;
 }
 
 inline RatQuad& RatQuad::operator+=(Quad n2)
 {
-        n += d*n2;
-        return *this;
+  n += d*n2;
+  return *this;
 }
 
 inline RatQuad& RatQuad::operator-=(const RatQuad& q2)
 {
   Quad n1=n*q2.d, n2=d*q2.n;
-        n = n1-n2;
-        d *= q2.d;
-        (*this).cancel();
-        return *this;
+  n = n1-n2;
+  d *= q2.d;
+  (*this).cancel();
+  return *this;
 }
 
 inline RatQuad& RatQuad::operator-=(Quad n2)
 {
-        n -= d*n2;
-        return *this;
+  n -= d*n2;
+  return *this;
 }
 
 inline RatQuad& RatQuad::operator*=(Quad n2)
 {
-        n*=n2;
-        (*this).cancel();
-        return *this;
+  n*=n2;
+  (*this).cancel();
+  return *this;
 }
 
 inline RatQuad& RatQuad::operator/=(Quad n2)
 {
-        d*=n2;
-        (*this).cancel();
-        return *this;
+  d*=n2;
+  (*this).cancel();
+  return *this;
 }
 
 // Definitions of non-member RatQuad functions
 
 inline Quad num(const RatQuad& q)
 {
-        return q.n;
+  return q.n;
 }
 
 inline Quad den(const RatQuad& q)
 {
-        return q.d;
+  return q.d;
 }
 
 inline RatQuad recip(const RatQuad& q)
 {
-        return RatQuad(q.d, q.n);
+  return RatQuad(q.d, q.n);
 }
 
 inline Quad round(const RatQuad& q)
 {
-        return q.n / q.d;   // uses rounded division of Quads
+  return q.n / q.d;   // uses rounded division of Quads
 }
 
 inline RatQuad reduce(const RatQuad& q)

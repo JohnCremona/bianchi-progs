@@ -17,6 +17,7 @@ int Quad::n;
 char Quad::name;
 int Quad::maxnorm;
 int Quad::nunits;
+Quad Quad::w;
 
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below
@@ -36,7 +37,8 @@ Quad (*quadconj)(const Quad& a);
 
 void Quad::field(int dd, int max)
 {d=dd; 
- if ((d+1)%4) {t=0; disc=4*d; n=d;       
+  w = Quad(0,1);
+  if ((d+1)%4) {t=0; disc=4*d; n=d;       
                quadconj=&quadconj0; quadnorm=&quadnorm0; 
                mult=&mult0; qdivi=&qdivi0;
               }

@@ -57,8 +57,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
  public:
   static int     disc;       // discriminant
   static int   nunits;       // number of units
+  static Quad w;
 
-public:
   static void field(int dd, int max=1000);
   static void displayfield(ostream& s = cout);
   static void initquadprimes();
