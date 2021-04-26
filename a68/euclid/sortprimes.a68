@@ -1,0 +1,29 @@
+PROGRAM sortprimes USE longgibasics
+BEGIN
+FILE in,out;
+STRING filename; print(("Name of file?",newline));          read(filename);
+INT ngi;         print(("Number of GI in file?",newline));  read(ngi);
+[ngi]GI list1,list2;
+GI temp; INT count1:=0, count2:=0;
+open(in,filename,alieninchannel);
+FOR i TO ngi
+DO getbin(in,temp);
+   IF Itemp=LONG 0 THEN list2[count2+:=1]:=temp
+                   ELSE list1[count1+:=1]:=temp
+   FI
+OD;
+close(in);
+open(out,filename,alienoutchannel);
+INT point1:=1, point2:=1;
+WHILE ((point2<=count2) AND (point1<=count1))
+DO GI a = list1[point1], b = list2[point2];
+   IF norm(a)<norm(b)
+   THEN putbin(out,a);point1+:=1
+   ELSE putbin(out,b);point2+:=1
+   FI
+OD;
+putbin(out,list1[point1:count1]);
+putbin(out,list2[point2:count2]);
+close(out)
+END
+FINISH

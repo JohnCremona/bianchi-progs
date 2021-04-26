@@ -1,0 +1,1270 @@
+DECS hecke USE symb,hyper,gibasics,newlinalg:
+ 
+MODE RELATION = STRUCT (REF[]INT coeff, REF[]MATRIX mat, REF[]INT newtype);
+ 
+REF[]RELATION relationlist;
+ 
+PROC outmat = (STRING s, MATRIX m)VOID:
+BEGIN print((s," ("));printgi(m[1,1]);print(",");printgi(m[1,2]);print(";");
+                      printgi(m[2,1]);print(",");printgi(m[2,2]);
+      print((")",newline))
+END;
+ 
+ 
+PROC showmat = (MATRIX m)VOID:
+BEGIN print((" ("));printgi(m[1,1]);print(",");printgi(m[1,2]);print(";");
+                      printgi(m[2,1]);print(",");printgi(m[2,2]);
+      print((")",newline))
+END;
+ 
+PROC initrelation19 = VOID:
+BEGIN  {Q19}
+      relationlist := HEAP[3]RELATION;
+      MATRIX m1i = makemat((-1,1),(2,0),(2,0),(0,-1));
+ 
+      coeff OF relationlist[1] := HEAP[1]INT := (1);
+      mat OF relationlist[1] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[1] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[2] := HEAP[1]INT := (1);
+      mat OF relationlist[2] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[2] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[3] := HEAP[1]INT := (-1);
+      mat OF relationlist[3] := HEAP[1]MATRIX := (m1i);
+      newtype OF relationlist[3] := HEAP[1]INT := (2)
+ 
+END;
+ 
+{
+ New version -- no used at present -- needs debugging
+ 
+PROC initrelation43 = VOID:
+BEGIN {Q43}
+      relationlist := HEAP[9]RELATION;
+      MATRIX m13  = invmatlist[2], m14 = invmatlist[5],
+             j    = makemat(-one,zero,zero,one),
+             tj   = makemat(-one,one,zero,one),
+             jm14 = makemat((-1,1),(4,0),(3,0),(0,-1)),
+             n4i = makemat((-4,0),w,(-1,1),(3,0)),
+             m13n4i = makemat((-1,1),(4,0),(3,0),(0,-1)),
+             m12 = makemat(w,(4,0),(3,0),(1,-1)),
+             tjn = makemat((3,-1),(-3,-1),(3,0),(1,-1));
+ 
+      coeff OF relationlist[1] := HEAP[1]INT := (1);
+      mat OF relationlist[1] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[1] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[2] := HEAP[3]INT := (1,-sign,sign);
+      mat OF relationlist[2] := HEAP[3]MATRIX := (identity,n4i,n4i);
+      newtype OF relationlist[2] := HEAP[3]INT := (2,1,2);
+ 
+      coeff OF relationlist[3] := HEAP[3]INT := (-1,sign,-sign);
+      mat OF relationlist[3] := HEAP[3]MATRIX := (m13,m13n4i,m13n4i);
+      newtype OF relationlist[3] := HEAP[3]INT := (2,1,2);
+ 
+      coeff OF relationlist[4] := HEAP[1]INT := (-sign);
+      mat OF relationlist[4] := HEAP[1]MATRIX := (jm14);
+      newtype OF relationlist[4] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[5] := HEAP[1]INT := (1);
+      mat OF relationlist[5] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[5] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[6] := HEAP[2]INT := (1,sign);
+      mat OF relationlist[6] := HEAP[2]MATRIX := (identity,m12);
+      newtype OF relationlist[6] := HEAP[2]INT := (2,2);
+ 
+      coeff OF relationlist[7] := HEAP[2]INT := (sign,1);
+      mat OF relationlist[7] := HEAP[2]MATRIX := (tj,tjn);
+      newtype OF relationlist[7] := HEAP[2]INT := (2,2);
+ 
+      coeff OF relationlist[8] := HEAP[1]INT := (sign);
+      mat OF relationlist[8] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[8] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[9] := HEAP[1]INT := (-1);
+      mat OF relationlist[9] := HEAP[1]MATRIX := (m14);
+      newtype OF relationlist[9] := HEAP[1]INT := (2)
+ 
+END;
+ 
+ End of new version
+}
+ 
+PROC initrelation43 = VOID:
+BEGIN {Q43}
+      relationlist := HEAP[9]RELATION;
+      MATRIX m13  = invmatlist[2], m14 = invmatlist[5],
+             j    = makemat(-one,zero,zero,one),
+             tj   = makemat(-one,one,zero,one),
+             jm14 = makemat((-1,1),(4,0),(3,0),(0,-1));
+ 
+      coeff OF relationlist[1] := HEAP[1]INT := (1);
+      mat OF relationlist[1] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[1] := HEAP[1]INT := (1);
+ 
+ 
+      coeff OF relationlist[2] := HEAP[1]INT := (1);
+      mat OF relationlist[2] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[2] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[3] := HEAP[1]INT := (-1);
+      mat OF relationlist[3] := HEAP[1]MATRIX := (m13);
+      newtype OF relationlist[3] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[4] := HEAP[1]INT := (-sign);
+      mat OF relationlist[4] := HEAP[1]MATRIX := (jm14);
+      newtype OF relationlist[4] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[5] := HEAP[1]INT := (1);
+      mat OF relationlist[5] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[5] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[6] := HEAP[1]INT := (1);
+      mat OF relationlist[6] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[6] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[7] := HEAP[1]INT := (sign);
+      mat OF relationlist[7] := HEAP[1]MATRIX := (tj);
+      newtype OF relationlist[7] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[8] := HEAP[1]INT := (sign);
+      mat OF relationlist[8] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[8] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[9] := HEAP[1]INT := (-1);
+      mat OF relationlist[9] := HEAP[1]MATRIX := (m14);
+      newtype OF relationlist[9] := HEAP[1]INT := (3)
+ 
+END;
+ 
+ 
+ 
+PROC initrelation67 = VOID:
+BEGIN {Q67}
+      relationlist := HEAP[25]RELATION;
+      MATRIX m3    := invmatlist[3],
+             m4    := makemat((5,0),(1,-2),(3,-1),(-6,-1)),
+             m25j  := makemat((2,1),(7,-1),(-3,1),(6,1)),
+             j     := makemat((-1,0),zero,zero,one),
+             m5    := invmatlist[8],
+             m24j  := makemat((-5,0),(-1,2),(-2,-1),(-7,1)),
+             m21j  := makemat((1,-1),(-6,0),(-3,0),(0,1)),
+             m7    := invmatlist[13],
+             tj    := makemat(-one,one,zero,one),
+             m10   := invmatlist[19], m11 := invmatlist[20],
+             m17j  := makemat((-1,1),(4,0),(-4,0),(0,1)),
+             m20tj := makemat((2,1),(4,-1),(4,0),(-1,-1)),
+             b4    := makemat(w,(6,0),three,(1,-1)),
+             b5    := makemat((1,1),(4,-1),(4,0),(-2,-1)),
+             b5b4  := makemat((-5,-1),(-7,2),(-6,1),(5,2)),
+             m5i   := invmatlist[9], m3i := invmatlist[2],
+             m5ib4 := makemat((-1,3),(19,0),(8,0),(2,-3)),
+             m3m5i := makemat((-6,-1),(-1,2),(-3,1),(5,0)),
+           m3m5ib4 := makemat((-14,1),(3,5),(2,2),(13,-1)),
+             jm5i  := makemat((-7,1),(6,1),(-2,-1),(-3,1)),
+            jm5ib4 := makemat((1,-3),(-19,0),(8,0),(2,-3)),
+             tjb4  := makemat((3,-1),(-5,-1),(3,0),(1,-1)),
+             jb4   := makemat((0,1),(6,0),(-3,0),(-1,1)),
+             jb5   := makemat((-1,-1),(-4,1),(4,0),(-2,-1)),
+             jb5b4 := makemat((5,1),(7,-2),(-6,1),(5,2)),
+             m10b4 := makemat((5,0),(2,-2),-w,(-7,0)),
+             m10b5 := makemat((-2,1),(5,0),(4,0),(-1,-1)),
+           m10b5b4 := makemat((-2,-1),(-7,1),(-3,1),(6,1)),
+            m17jb4 := makemat((-5,0),(-2,2),-w,(-7,0)),
+             c1    := invmatlist[4],
+             c2j   := makemat((-3,1),(6,1),(-2,-1),(-7,1)),
+            c2jm3i := makemat((5,0),(1,-2),(-3,1),(6,1)),
+             c3j   := makemat((2,-1),(-5,0),(-4,0),(1,1)),
+             m11b4 := makemat((-2,-1),(-7,1),(3,-1),(-6,-1));
+ 
+      coeff OF relationlist[1] := HEAP[4]INT := (1,sign,-1,1);
+      mat OF relationlist[1] := HEAP[4]MATRIX := (identity,b4,m5,m5);
+      newtype OF relationlist[1] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[2] := HEAP[4]INT := (-1,sign,1,1);
+      mat OF relationlist[2] := HEAP[4]MATRIX := (m3,m3m5ib4,m3m5i,identity);
+      newtype OF relationlist[2] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[3] := HEAP[4]INT := (1,-sign,-1,-1);
+      mat OF relationlist[3] := HEAP[4]MATRIX := (identity,m5ib4,m5i,m3i);
+      newtype OF relationlist[3] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[4] := HEAP[1]INT := (1);
+      mat OF relationlist[4] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[4] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[5] := HEAP[1]INT := (-1);
+      mat OF relationlist[5] := HEAP[1]MATRIX := (c1);
+      newtype OF relationlist[5] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[6] := HEAP[1]INT := (-sign);
+      mat OF relationlist[6] := HEAP[1]MATRIX := (m25j);
+      newtype OF relationlist[6] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[7] := HEAP[1]INT := (sign);
+      mat OF relationlist[7] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[7] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[8] := HEAP[3]INT := (1,-sign,-1);
+      mat OF relationlist[8] := HEAP[3]MATRIX := (identity,m5ib4,m5i);
+      newtype OF relationlist[8] := HEAP[3]INT := (1,2,1);
+ 
+      coeff OF relationlist[9] := HEAP[3]INT := (1,sign,-1);
+      mat OF relationlist[9] := HEAP[3]MATRIX := (identity,b4,m5);
+      newtype OF relationlist[9] := HEAP[3]INT := (1,2,1);
+ 
+      coeff OF relationlist[10] := HEAP[3]INT := (sign,-1,-sign);
+      mat OF relationlist[10] := HEAP[3]MATRIX := (j,jm5ib4,jm5i);
+      newtype OF relationlist[10] := HEAP[3]INT := (1,2,1);
+ 
+      coeff OF relationlist[11] := HEAP[3]INT := (sign,1,-sign);
+      mat OF relationlist[11] := HEAP[3]MATRIX := (j,jb4,c2j);
+      newtype OF relationlist[11] := HEAP[3]INT := (1,2,1);
+ 
+      coeff OF relationlist[12] := HEAP[1]INT := (-sign);
+      mat OF relationlist[12] := HEAP[1]MATRIX := (m21j);
+      newtype OF relationlist[12] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[13] := HEAP[1]INT := (1);
+      mat OF relationlist[13] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[13] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[14] := HEAP[2]INT := (1,sign);
+      mat OF relationlist[14] := HEAP[2]MATRIX := (identity,b4);
+      newtype OF relationlist[14] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[15] := HEAP[1]INT := (sign);
+      mat OF relationlist[15] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[15] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[16] := HEAP[1]INT := (-1);
+      mat OF relationlist[16] := HEAP[1]MATRIX := (m7);
+      newtype OF relationlist[16] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[17] := HEAP[2]INT := (sign,1);
+      mat OF relationlist[17] := HEAP[2]MATRIX := (tj,tjb4);
+      newtype OF relationlist[17] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[18] := HEAP[4]INT := (-1,-sign,-sign,-1);
+      mat OF relationlist[18] := HEAP[4]MATRIX := (m10,m10b4,m10b5,m10b5b4);
+      newtype OF relationlist[18] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[19] := HEAP[4]INT := (1,sign,sign,1);
+      mat OF relationlist[19] := HEAP[4]MATRIX := (identity,b4,b5,b5b4);
+      newtype OF relationlist[19] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[20] := HEAP[2]INT := (1,sign);
+      mat OF relationlist[20] := HEAP[2]MATRIX := (identity,b4);
+      newtype OF relationlist[20] := HEAP[2]INT := (1,2);
+ 
+      coeff OF relationlist[21] := HEAP[4]INT := (-sign,-1,-1,-sign);
+      mat OF relationlist[21] := HEAP[4]MATRIX := (m17j,m17jb4,m11,m11b4);
+      newtype OF relationlist[21] := HEAP[4]INT := (1,2,1,2);
+ 
+      coeff OF relationlist[22] := HEAP[2]INT := (-1,-sign);
+      mat OF relationlist[22] := HEAP[2]MATRIX := (m11,m11b4);
+      newtype OF relationlist[22] := HEAP[2]INT := (1,2);
+ 
+      coeff OF relationlist[23] := HEAP[2]INT := (sign,1);
+      mat OF relationlist[23] := HEAP[2]MATRIX := (j,jb4);
+      newtype OF relationlist[23] := HEAP[2]INT := (1,2);
+ 
+      coeff OF relationlist[24] := HEAP[2]INT := (-sign,-1);
+      mat OF relationlist[24] := HEAP[2]MATRIX := (c3j,c1);
+      newtype OF relationlist[24] := HEAP[2]INT := (1,2);
+ 
+      coeff OF relationlist[25] := HEAP[4]INT := (sign,1,1,sign);
+      mat OF relationlist[25] := HEAP[4]MATRIX := (j,jb4,jb5,jb5b4);
+      newtype OF relationlist[25] := HEAP[4]INT := (1,2,1,2)
+ 
+ 
+ 
+END;
+ 
+PROC initrelation163 = VOID:
+BEGIN {Q163}
+      relationlist := HEAP[99]RELATION;
+      MATRIX m1   := invmatlist[3], m14  := invmatlist[50],
+             m18i := invmatlist[67],
+             m13  := invmatlist[41],
+             m20  := invmatlist[74],
+             m7i  := invmatlist[20],
+             c3   := invmatlist[40], m6   := invmatlist[29],
+             c4   := invmatlist[54], m22i := invmatlist[82],
+             m1i  := invmatlist[2], m20i := invmatlist[75],
+             m7   := invmatlist[30],
+             m14i := invmatlist[51],
+             m22  := invmatlist[85],
+             c7   := invmatlist[68], m18  := invmatlist[66],
+             c8   := invmatlist[76],
+             m2    := makemat((-1,1),(14,0),(3,0),(0,-1)),
+             m8i   := makemat((-2,-1),(-17,1),(-5,0),(-1,2)),
+             m8    := makemat((-1,2),(17,-1),(5,0),(-2,-1)),
+             m9i   := makemat((0,-2),(-33,0),(-5,0),(-2,2)),
+             m11i  := makemat((0,-1),(-7,0),(-6,0),(-1,1)),
+             m9    := makemat((-2,2),(33,0),(5,0),(0,-2)),
+             m11   := makemat((-1,1),(7,0),(6,0),(0,-1)),
+             c1    := makemat((-2,1),(11,0),(4,0),(-1,-1)),
+             c5    := makemat((16,1),(7,-5),(2,-1),(-12,0)),
+             c6    := makemat((-12,0),(2,5),(1,1),(17,-1)),
+            jc9    := makemat((-3,2),(24,0),(7,0),(-1,-2)),
+             c9    := makemat((3,-2),(-24,0),(7,0),(-1,-2)),
+             c10   := makemat((4,1),(15,-2),(4,-1),(-16,-1)),
+             c11   := makemat((-17,1),(13,2),(3,1),(5,-1)),
+             jb20i     := makemat((17,0),(5,-5),(0,1),(12,0)),
+             m1m14     := makemat((3,-3),(-35,0),(-7,0),(0,2)),
+             m1m14m20i := makemat((5,13),(149,-7),(30,-1),(-16,-8)),
+             m14m20i   := makemat((-67,2),(33,18),(1,4),(46,-2)),
+             m18im11i  := makemat((-35,0),(-3,6),(-1,2),(14,0)),
+             m2m20i    := makemat((3,-2),(-24,0),(-7,0),(1,2)),
+             jm14      := makemat((17,0),(0,-5),(-1,1),(12,0)),
+             jm14m20i  := makemat((67,-2),(-33,-18),(1,4),(46,-2)),
+             b8im20i   := makemat((-49,-5),(-50,16),(-24,4),(50,5)),
+             jm4m20    := makemat((10,1),(18,-4),(-3,1),(15,1)),
+             m4b8im20i := makemat((14,-9),(-106,0),(-32,0),(5,9)),
+             jb8im20i  := makemat((49,5),(50,-16),(-24,4),(50,5)),
+            jm4b8im20i := makemat((-14,9),(106,0),(-32,0),(5,9)),
+             jm24i     := makemat((16,1),(-1,-3),(-4,1),(8,0)),
+             jm9i      := makemat((0,2),(33,0),(-5,0),(-2,2)),
+             jm9im14   := makemat((33,1),(14,-10),(-5,2),(24,1)),
+           jm9im14m20i := makemat((131,-2),(-42,-36),(-5,8),(93,-2)),
+             jm9im18i  := makemat((17,3),(15,-4),(-9,1),(9,1)),
+          jm9im18im11i := makemat((33,4),(30,-6),(-13,2),(13,2)),
+             jm2       := makemat((1,-1),(-14,0),(3,0),(0,-1)),
+             jm2m14    := makemat((3,-3),(-37,0),(10,0),(0,-3)),
+            jm2m14m20i := makemat((1,11),(127,-5),(-37,1),(17,10)),
+             jb20      := makemat((12,0),(5,-5),(0,1),(17,0)),
+             jb20m14   := makemat((4,-5),(-60,0),(17,0),(1,-5)),
+             m14b8i    := makemat((1,3),(35,-2),(7,0),(-2,-2)),
+            m14b8im20i := makemat((-13,15),(175,-3),(34,1),(6,-10)),
+             m14m20    := makemat((18,2),(33,-7),(6,-1),(-14,-2)),
+             m18ib13   := makemat((-1,3),(18,-2),(7,0),(-4,-1)),
+             m14m4i    := makemat((0,3),(35,0),(7,0),(2,-2)),
+            m14m4im20i := makemat((53,10),(107,-19),(26,-3),(-38,-6)),
+           jb20m14m20i := makemat((21,19),(216,-14),(-65,3),(44,17)),
+             jb20m18i  := makemat((14,-3),(-23,-1),(10,1),(4,-2)),
+          jb20m18im11i := makemat((15,-5),(-34,-2),(17,1),(8,-3)),
+             jm22      := makemat((-1,2),(12,-1),(-7,0),(3,1)),
+             tj        := makemat((-1,0),(1,0),(0,0),(1,0)),
+             tjm14     := makemat((16,1),(12,-5),(-1,1),(12,0)),
+             tjm14m20i := makemat((68,2),(13,-20),(1,4),(46,-2)),
+             tjm9i     := makemat((5,-2),(-31,-2),(5,0),(2,-2)),
+             tjm9im14  := makemat((28,3),(38,-9),(-5,2),(24,1)),
+          tjm9im14m20i := makemat((126,6),(51,-38),(-5,8),(93,-2)),
+             tjm9im18i := makemat((8,4),(24,-3),(-9,1),(9,1)),
+         tjm9im18im11i := makemat((20,6),(43,-4),(-13,2),(13,2)),
+             tjm24i    := makemat((12,2),(7,-3),(-4,1),(8,0)),
+             m4m20     := makemat((10,1),(18,-4),(3,-1),(-15,-1)),
+             m4b8i     := makemat((3,-2),(-24,0),(-7,0),(1,2)),
+             m8im14    := makemat((10,0),(1,-3),(4,-1),(-12,-1)),
+            m8im14m20i := makemat((35,-2),(-28,-9),(6,-4),(-47,0)),
+             b16m11i   := makemat((5,2),(14,-1),(12,0),(1,-2)),
+             jb8i      := makemat((12,1),(10,-4),(-5,1),(13,1)),
+             jb8im20   := makemat((11,0),(0,-4),(-1,1),(15,0)),
+             jm20      := makemat((11,-1),(-14,-4),(2,1),(16,-1)),
+             jm4b8i    := makemat((3,-2),(-24,0),(7,0),(-1,-2)),
+             tjm5m20   := makemat((3,-1),(-16,-1),(5,0),(1,-2)),
+            tjm5m20m14 := makemat((6,1),(13,-2),(-4,1),(12,1)),
+        tjm5m20m14m20i := makemat((29,2),(19,-9),(-6,4),(47,0)),
+             m13m11i   := makemat((7,-2),(-13,-1),(12,0),(1,-2)),
+             tjm20     := makemat((13,0),(2,-5),(2,1),(16,-1)),
+             tjm5i     := makemat((3,-1),(-12,0),(4,0),(-2,-1)),
+             tjm20m14  := makemat((18,-2),(-24,-5),(9,1),(13,-3)),
+          tjm20m14m20i := makemat((49,-9),(-111,-10),(36,2),(18,-11)),
+             tjm5ib16  := makemat((22,1),(-1,-4),(0,2),(13,-1)),
+          tjm5ib16m11i := makemat((47,1),(11,-8),(4,4),(28,-1)),
+             m9im14    := makemat((33,1),(14,-10),(5,-2),(-24,-1)),
+            m9im14m20i := makemat((131,-2),(-42,-36),(5,-8),(-93,2)),
+             m7b16     := makemat((17,3),(15,-4),(9,-1),(-9,-1)),
+             m7b16m11i := makemat((33,4),(30,-6),(13,-2),(-13,-2)),
+             m25m11i   := makemat((-26,6),(39,4),(11,2),(15,-2)),
+             jm18i     := makemat((17,1),(1,-3),(-3,1),(7,0)),
+             jm18im11i := makemat((35,0),(3,-6),(-1,2),(14,0)),
+             jm9       := makemat((2,-2),(-33,0),(5,0),(0,-2)),
+             jm2m20i   := makemat((3,-2),(-24,0),(7,0),(-1,-2)),
+             tjm10     := makemat((3,-2),(-18,1),(5,0),(-3,-1)),
+             tjm25     := makemat((17,-1),(-13,-2),(3,1),(5,-1)),
+             tjm25m11i := makemat((37,-4),(-24,-6),(11,2),(15,-2)),
+             tjm7      := makemat((4,-2),(-17,0),(5,0),(-1,-1)),
+             m6m7i     := makemat((-2,1),(17,0),(5,0),(-2,-2)),
+             m6m7im14  := makemat((-17,0),(1,5),(1,2),(24,-1)),
+          m6m7im14m20i := makemat((-69,1),(22,19),(9,8),(91,-6)),
+             m6m8i    := makemat((-3,2),(32,1),(10,0),(3,-4)),
+             m6m8im14 := makemat((22,2),(26,-7),(9,-3),(-36,-2)),
+         m6m8im14m20i := makemat((95,3),(21,-28),(11,-12),(-140,2)),
+             m6b16     := makemat((4,3),(19,-2),(15,-1),(-11,-2)),
+             m6b16m11i := makemat((9,5),(35,-2),(25,-2),(-12,-4)),
+             m6b12     := makemat((-1,0),(1,0),(0,0),(-1,0)),
+             m6b12b16  := makemat((3,-1),(-8,0),(-6,0),(2,1)),
+          m6b12b16m11i := makemat((-7,2),(13,1),(12,0),(1,-2)),
+             jm7i      := makemat((1,1),(16,-1),(-5,0),(1,2)),
+             jm7im14   := makemat((8,-1),(-13,-2),(2,1),(12,-1)),
+           jm7im14m20i := makemat((31,-4),(-51,-7),(8,4),(45,-4)),
+             jm8i      := makemat((2,1),(17,-1),(-5,0),(-1,2)),
+             jm8im14   := makemat((10,0),(1,-3),(-4,1),(12,1)),
+           jm8im14m20i := makemat((-35,2),(28,9),(6,-4),(-47,0)),
+             jb16      := makemat((3,1),(6,-1),(-6,0),(2,1)),
+             jb16m11i  := makemat((5,2),(14,-1),(-12,0),(-1,2)),
+             jb12      := makemat((0,1),(8,-1),(-5,0),(4,1)),
+             jb12b16   := makemat((7,-2),(-16,0),(9,1),(3,-2)),
+           jb12b16m11i := makemat((14,-5),(-33,-2),(23,2),(16,-4)),
+             jm6       := makemat((1,-1),(-8,0),(5,0),(0,-1)),
+             jm6m7i    := makemat((2,-1),(-17,0),(5,0),(-2,-2)),
+             jm6m7im14 := makemat((17,0),(-1,-5),(1,2),(24,-1)),
+         jm6m7im14m20i := makemat((69,-1),(-22,-19),(9,8),(91,-6)),
+             jm6m8i    := makemat((3,-2),(-32,-1),(10,0),(3,-4)),
+             jm6m8im14 := makemat((22,2),(26,-7),(-9,3),(36,2)),
+         jm6m8im14m20i := makemat((95,3),(21,-28),(-11,12),(140,-2)),
+             jm6b16    := makemat((4,3),(19,-2),(-15,1),(11,2)),
+            jm6b16m11i := makemat((9,5),(35,-2),(-25,2),(12,4)),
+             tjm8i     := makemat((3,-1),(-16,-1),(5,0),(1,-2)),
+             tjm8im14  := makemat((6,1),(13,-2),(-4,1),(12,1)),
+          tjm8im14m20i := makemat((29,2),(19,-9),(-6,4),(47,0)),
+             tjm7i     := makemat((-4,1),(17,1),(-5,0),(1,2)),
+             tjm7im14  := makemat((10,0),(-1,-3),(2,1),(12,-1)),
+          tjm7im14m20i := makemat((39,0),(-6,-11),(8,4),(45,-4)),
+             tjm13     := makemat((3,1),(6,-1),(6,0),(-2,-1)),
+             jm11      := makemat((1,-1),(-7,0),(6,0),(0,-1)),
+             m12m11i   := makemat((5,1),(7,-1),(6,0),(0,-1)),
+             tjm12     := makemat((2,-1),(-7,0),(6,0),(-1,-1)),
+             tjm12m11i := makemat((1,-1),(-7,0),(6,0),(0,-1)),
+             tjm11i    := makemat((6,-1),(-6,-1),(6,0),(1,-1)),
+             m22ib8i   := makemat((14,0),(-3,-4),(7,-2),(-25,-1)),
+           m22ib8im20i := makemat((66,1),(1,-19),(39,-9),(-110,-7)),
+             m22im20   := makemat((9,-2),(-29,-3),(-7,-2),(-32,3)),
+             m22im20i  := makemat((24,3),(31,-8),(28,-2),(-27,-7)),
+             m22im4i   := makemat((7,0),(1,-2),(4,-1),(-11,-1)),
+           m22im4im20i := makemat((28,-2),(-27,-7),(4,-5),(-58,1)),
+             m1im14    := makemat((-20,3),(35,5),(6,1),(12,-2)),
+            m1im14m20i := makemat((-62,15),(182,11),(31,3),(30,-10)),
+             b15im11i  := makemat((-20,5),(34,3),(11,1),(8,-2)),
+             m9im18i   := makemat((17,3),(15,-4),(9,-1),(-9,-1)),
+           m9im18im11i := makemat((33,4),(30,-6),(13,-2),(-13,-2)),
+             b8im20    := makemat((11,0),(0,-4),(1,-1),(-15,0)),
+             m20m14    := makemat((-9,3),(37,2),(9,1),(13,-3)),
+            m20m14m20i := makemat((-13,11),(129,-1),(36,2),(18,-11)),
+             m5ib16    := makemat((-22,1),(14,3),(0,2),(13,-1)),
+            m5ib16m11i := makemat((-43,3),(17,7),(4,4),(28,-1)),
+             m7im14    := makemat((-8,1),(13,2),(2,1),(12,-1)),
+            m7im14m20i := makemat((-31,4),(51,7),(8,4),(45,-4)),
+             b12b16    := makemat((-7,2),(16,0),(9,1),(3,-2)),
+            b12b16m11i := makemat((-14,5),(33,2),(23,2),(16,-4)),
+             m1m14b8i  := makemat((16,1),(7,-5),(2,-1),(-12,0)),
+          m1m14b8im20i := makemat((78,7),(68,-25),(15,-5),(-60,-2)),
+             m1m14m20  := makemat((20,-2),(-26,-7),(-5,-1),(-16,2)),
+             m1m18ib13 := makemat((-18,1),(16,2),(2,1),(5,-1)),
+             m1m14m4i  := makemat((17,0),(5,-5),(0,-1),(-12,0)),
+          m1m14m4im20i := makemat((57,-7),(-88,-13),(-17,-3),(-32,6)),
+             jm4b8im20 := makemat((-1,1),(14,0),(-3,0),(0,1)),
+             jm8       := makemat((1,-2),(-17,1),(5,0),(-2,-1)),
+             b14i      := makemat((2,-3),(-18,1),(-7,0),(2,1)),
+             b16       := makemat((3,1),(6,-1),(6,0),(-2,-1)),
+             j         := makemat((-1,0),(0,0),(0,0),(1,0)),
+             b8i       := makemat((12,1),(10,-4),(5,-1),(-13,-1)),
+             b12       := makemat((0,1),(8,-1),(5,0),(-4,-1)),
+             b13       := makemat((0,0),(-1,0),(1,0),(-1,0)),
+             b15i      := makemat((-19,2),(17,2),(4,1),(5,-1)),
+              tjm14i    := makemat((11,1),(17,-5),(-1,1),(17,0)),
+              b20i      := makemat((17,0),(5,-5),(0,-1),(-12,0)),
+              b20im20i  := makemat((-57,7),(88,13),(17,3),(32,-6)),
+              m15m14    := makemat((13,5),(61,-5),(17,0),(1,-5)),
+             m15m14m20i := makemat((86,16),(172,-31),(65,-3),(-44,-17)),
+              m15m18i   := makemat((-4,4),(27,-1),(10,1),(4,-2)),
+            m15m18im11i := makemat((2,6),(42,-1),(17,1),(8,-3)),
+              m15m21i   := makemat((6,2),(9,-2),(7,0),(-3,-1)),
+              m15b20i   := makemat((1,0),(1,0),(0,0),(1,0)),
+            m15b20im20i := makemat((-14,2),(25,3),(2,1),(11,-1)),
+              tjm15     := makemat((12,0),(5,-5),(0,1),(17,0)),
+              tjm15m14  := makemat((4,-5),(-60,0),(17,0),(1,-5)),
+           tjm15m14m20i := makemat((21,19),(216,-14),(-65,3),(44,17)),
+              tjm15m18i := makemat((14,-3),(-23,-1),(10,1),(4,-2)),
+          tjm15m18im11i := makemat((15,-5),(-34,-2),(17,1),(8,-3)),
+              tjm15m21i := makemat((1,-2),(-12,1),(7,0),(-3,-1)),
+              jm20i     := makemat((16,-1),(-14,-4),(2,1),(11,-1)),
+              jm21i     := makemat((18,-1),(-16,-2),(2,1),(5,-1)),
+              jb20im20i := makemat((57,-7),(-88,-13),(17,3),(32,-6)),
+              m16m20    := makemat((3,2),(33,-2),(5,0),(0,-2)),
+              m16m20m14 := makemat((2,1),(14,-1),(3,0),(0,-1)),
+          m16m20m14m20i := makemat((4,2),(23,-2),(7,0),(-1,-2)),
+              tjm16m20  := makemat((2,-2),(-33,0),(5,0),(0,-2)),
+            tjm16m20m14 := makemat((1,-1),(-14,0),(3,0),(0,-1)),
+        tjm16m20m14m20i := makemat((3,-2),(-24,0),(7,0),(-1,-2)),
+              tjm17     := makemat((12,0),(-2,-5),(1,1),(17,-1)),
+              m23m20i   := makemat((18,9),(101,-9),(32,0),(-5,-9)),
+            tjm19m2m20i := makemat((14,-9),(-106,0),(32,0),(-5,-9)),
+              tjm18     := makemat((4,1),(18,-2),(-3,1),(17,1)),
+              tjm18m14  := makemat((4,-1),(-11,-1),(7,0),(1,-2)),
+           tjm18m14m20i := makemat((4,-5),(-58,1),(28,-2),(-27,-7)),
+              m21m14    := makemat((13,1),(13,-4),(11,-1),(-11,-3)),
+             m21m14m20i := makemat((59,1),(3,-17),(34,-6),(-74,-7)),
+              tjm21     := makemat((7,0),(2,-3),(2,1),(18,-1)),
+              tjm21m14  := makemat((2,2),(24,-1),(-11,1),(11,3)),
+           tjm21m14m20i := makemat((25,7),(77,-10),(-34,6),(74,7)),
+              jm23      := makemat((4,2),(23,-2),(-7,0),(1,2)),
+              m16m17    := makemat((2,3),(52,-3),(7,0),(-2,-3)),
+              b19i      := makemat((2,1),(14,-1),(3,0),(0,-1)),
+              tjm16m17  := makemat((5,-3),(-54,0),(7,0),(-2,-3)),
+              tjb19i    := makemat((1,-1),(-14,0),(3,0),(0,-1)),
+              tjm23     := makemat((3,-2),(-24,0),(7,0),(-1,-2)),
+              tjm22i    := makemat((4,-1),(-11,-1),(7,0),(1,-2)),
+             tjm22im20i := makemat((4,-5),(-58,1),(28,-2),(-27,-7)),
+              m24m14    := makemat((12,1),(12,-4),(11,-1),(-13,-3)),
+             m24m14m20i := makemat((45,3),(28,-14),(38,-4),(-52,-9)),
+              tjm24     := makemat((4,1),(15,-2),(-4,1),(16,1)),
+              tjm24m14  := makemat((1,2),(25,-1),(-11,1),(13,3)),
+           tjm24m14m20i := makemat((7,7),(80,-5),(-38,4),(52,9)),
+              c1m20     := makemat((-3,1),(16,1),(5,0),(1,-2)),
+              c1m5i     := makemat((-1,0),(1,0),(0,0),(-1,0)),
+              c1m5ib16  := makemat((-3,1),(8,0),(6,0),(-2,-1)),
+              c1m20m14  := makemat((6,1),(13,-2),(4,-1),(-12,-1)),
+           c1m20m14m20i := makemat((29,2),(19,-9),(6,-4),(-47,0)),
+           c1m5ib16m11i := makemat((-7,2),(13,1),(12,0),(1,-2)),
+              jxi       := makemat((3,-2),(-18,1),(-5,0),(3,1)),
+            xim7im9im18i := makemat((17,-1),(-13,-2),(3,1),(5,-1)),
+          jxim7im9im18i := makemat((-17,1),(13,2),(3,1),(5,-1)),
+        xim7im9im18im11i := makemat((37,-4),(-24,-6),(11,2),(15,-2)),
+      jxim7im9im18im11i := makemat((-37,4),(24,6),(11,2),(15,-2)),
+              c2jxi     := makemat((-1,0),(1,0),(0,0),(-1,0)),
+        c2jxim7im9im18i := makemat((3,-1),(-8,0),(-6,0),(2,1)),
+    c2jxim7im9im18im11i := makemat((7,-2),(-13,-1),(-12,0),(-1,2)),
+             jc2jxi     := makemat((1,0),(-1,0),(0,0),(-1,0)),
+       jc2jxim7im9im18i := makemat((-3,1),(8,0),(-6,0),(2,1)),
+   jc2jxim7im9im18im11i := makemat((-7,2),(13,1),(-12,0),(-1,2)),
+              c4m14     := makemat((-4,5),(60,0),(17,0),(1,-5)),
+              c4m14m20i := makemat((21,19),(216,-14),(65,-3),(-44,-17)),
+              c4m18i    := makemat((14,-3),(-23,-1),(-10,-1),(-4,2)),
+             c4m18im11i := makemat((15,-5),(-34,-2),(-17,-1),(-8,3)),
+              c7m2      := makemat((3,-2),(-24,0),(-7,0),(1,2)),
+              c7m2m20i  := makemat((14,-9),(-106,0),(-32,0),(5,9)),
+              c8m14     := makemat((2,2),(24,-1),(11,-1),(-11,-3)),
+              c8m14m20i := makemat((25,7),(77,-10),(34,-6),(-74,-7)),
+              c8m18i    := makemat((2,-1),(-7,0),(-6,0),(1,1)),
+              c10m14    := makemat((1,2),(25,-1),(11,-1),(-13,-3)),
+            c10m14m20i  := makemat((7,7),(80,-5),(38,-4),(-52,-9)),
+              jm11i     := makemat((0,-1),(-7,0),(6,0),(1,-1)),
+              jm14i     := makemat((-12,0),(0,5),(1,-1),(-17,0)),
+              c4m21i    := makemat((-1,2),(12,-1),(7,0),(-3,-1)),
+              c10m9i    := makemat((7,0),(2,-3),(-2,-1),(-18,1)),
+             c10m9im14  := makemat((-2,-2),(-24,1),(-11,1),(11,3)),
+          c10m9im14m20i := makemat((-25,-7),(-77,10),(-34,6),(74,7)),
+             c10m9im18i := makemat((-2,1),(7,0),(6,0),(-1,-1)),
+               jm5i     := makemat((1,1),(10,-1),(-4,0),(2,1)),
+               jm20m14  := makemat((9,-3),(-37,-2),(9,1),(13,-3)),
+            jm20m14m20i := makemat((13,-11),(-129,1),(36,2),(18,-11)),
+               jm5ib16  := makemat((22,-1),(-14,-3),(0,2),(13,-1)),
+            jm5ib16m11i := makemat((43,-3),(-17,-7),(4,4),(28,-1)),
+               jm7      := makemat((-1,-2),(-16,1),(5,0),(-1,-1)),
+               jm13     := makemat((-3,1),(8,0),(6,0),(-2,-1)),
+               jm18     := makemat((-7,0),(-1,3),(3,-1),(-17,-1)),
+               jm18m14  := makemat((3,1),(12,-1),(-7,0),(-1,2)),
+            jm18m14m20i := makemat((24,3),(31,-8),(-28,2),(27,7)),
+               xi       := makemat((-3,2),(18,-1),(-5,0),(3,1)),
+               m5i      := makemat((1,1),(10,-1),(4,0),(-2,-1)),
+               m10      := makemat((2,2),(15,-2),(5,0),(-3,-1)),
+               m25      := makemat((8,0),(-1,-3),(4,-1),(-16,-1)),
+               m12      := makemat((4,1),(6,-1),(6,0),(-1,-1)),
+               m24i     := makemat((16,1),(-1,-3),(4,-1),(-8,0)),
+               m21i     := makemat((-18,1),(16,2),(2,1),(5,-1)),
+               m17      := makemat((-11,1),(19,4),(1,1),(17,-1)),
+               m23      := makemat((4,2),(23,-2),(7,0),(-1,-2)),
+               m24      := makemat((8,0),(-1,-3),(4,-1),(-16,-1)),
+               m21      := makemat((-5,1),(16,2),(2,1),(18,-1)),
+               m15      := makemat((-12,1),(12,5),(0,1),(17,0)),
+               m26      := makemat((-14,2),(18,1),(3,1),(5,-1)),
+              tjm26     := makemat((17,-1),(-13,-2),(3,1),(5,-1));
+ 
+ 
+ 
+      coeff OF relationlist[1] := HEAP[10]INT := (1,sign,-sign,-sign,
+                  -1,-1,-1,-1,1,1);
+      mat OF relationlist[1] := HEAP[10]MATRIX := (identity,m22ib8i,
+          m22ib8i,m22ib8im20i,m22im20,m22im20i,m22i,b13,m22im4i,m22im4im20i);
+      newtype OF relationlist[1] := HEAP[10]INT := (6,5,4,5,4,5,4,6,4,5);
+ 
+      coeff OF relationlist[2] := HEAP[16]INT := (-1,1,-sign,sign,sign,1,
+                      1,-1,-1,1,-1,1,1,-1,1,sign);
+      mat OF relationlist[2] := HEAP[16]MATRIX := (m1,m1m14,m1m14b8i,
+         m1m14b8i,m1m14b8im20i,m1m14m20,m1m18ib13,m1m14m4i,m1m14m4im20i,
+         identity,m14,m14,m14m20i,m18i,m18i,m18im11i);
+      newtype OF relationlist[2] := HEAP[16]INT := (3,5,5,4,5,4,6,
+                 4,5,3,5,4,5,6,1,1);
+ 
+ 
+      coeff OF relationlist[3] := HEAP[16]INT := (1,-1,sign,-sign,-sign,
+            -1,-1,1,1,-1,1,-1,-1,1,-1,-sign);
+      mat OF relationlist[3] := HEAP[16]MATRIX := (identity,m14,m14b8i,
+         m14b8i,m14b8im20i,m14m20,m18ib13,m14m4i,m14m4im20i,m1i,m1im14,
+         m1im14,m1im14m20i,b15i,b15i,b15im11i);
+      newtype OF relationlist[3] := HEAP[16]INT := (3,5,5,4,5,4,6,
+                 4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[4] := HEAP[2]INT := (-sign,-sign);
+      mat OF relationlist[4] := HEAP[2]MATRIX := (m2,m2m20i);
+      newtype OF relationlist[4] := HEAP[2]INT := (4,5);
+ 
+      coeff OF relationlist[5] := HEAP[2]INT := (1,1);
+      mat OF relationlist[5] := HEAP[2]MATRIX := (identity,m20i);
+      newtype OF relationlist[5] := HEAP[2]INT := (4,5);
+ 
+      coeff OF relationlist[6] := HEAP[12]INT := (1,-1,1,1,sign,
+                -sign,sign,sign,-sign,sign,1,sign);
+      mat OF relationlist[6] := HEAP[12]MATRIX := (identity,m14,m14,
+         m14m20i,m9i,m9im14,m9im14,m9im14m20i,m9im18i,m9im18i,
+         m9im18im11i,m24i);
+      newtype OF relationlist[6] := HEAP[12]INT := (3,5,4,5,3,5,4,5,6,1,1,6);
+ 
+      coeff OF relationlist[7] := HEAP[2]INT := (sign,sign);
+      mat OF relationlist[7] := HEAP[2]MATRIX := (j,jm20i);
+      newtype OF relationlist[7] := HEAP[2]INT := (4,5);
+ 
+      coeff OF relationlist[8] := HEAP[2]INT := (-1,-1);
+      mat OF relationlist[8] := HEAP[2]MATRIX := (jm2,jm2m20i);
+      newtype OF relationlist[8] := HEAP[2]INT := (4,5);
+ 
+      coeff OF relationlist[9] := HEAP[12]INT := (sign,-sign,sign,sign,1,
+                -1,1,1,-1,1,sign,1);
+      mat OF relationlist[9] := HEAP[12]MATRIX := (tj,tjm14,tjm14,tjm14m20i,
+         tjm9i,tjm9im14,tjm9im14,tjm9im14m20i,tjm9im18i,tjm9im18i,
+         tjm9im18im11i,tjm24i);
+      newtype OF relationlist[9] := HEAP[12]INT := (3,5,4,5,3,5,4,5,6,1,1,6);
+ 
+      coeff OF relationlist[10] := HEAP[4]INT := (sign,-sign,-sign,-1);
+      mat OF relationlist[10] := HEAP[4]MATRIX := (b8i,b8i,b8im20i,m20);
+      newtype OF relationlist[10] := HEAP[4]INT := (5,4,5,4);
+ 
+      coeff OF relationlist[11] := HEAP[9]INT := (1,-sign,-1,1,1,-1,1,sign,-1);
+      mat OF relationlist[11] := HEAP[9]MATRIX := (m20,m5i,m20m14,m20m14,
+              m20m14m20i,m5ib16,m5ib16,m5ib16m11i,m20);
+      newtype OF relationlist[11] := HEAP[9]INT := (3,2,5,4,5,6,1,1,4);
+ 
+      coeff OF relationlist[12] := HEAP[4]INT := (-sign,sign,sign,1);
+      mat OF relationlist[12] := HEAP[4]MATRIX := (m4b8i,m4b8i,m4b8im20i,m4m20);
+      newtype OF relationlist[12] := HEAP[4]INT := (5,4,5,4);
+ 
+      coeff OF relationlist[13] := HEAP[9]INT := (-sign,1,sign,-sign,-sign,sign,-sign,-1,sign);
+      mat OF relationlist[13] := HEAP[9]MATRIX := (c1m20,c1m5i,c1m20m14,
+         c1m20m14,c1m20m14m20i,c1m5ib16,c1m5ib16,c1m5ib16m11i,c1m20);
+      newtype OF relationlist[13] := HEAP[9]INT := (3,2,5,4,5,6,1,1,4);
+ 
+      coeff OF relationlist[14] := HEAP[4]INT := (1,-1,-1,-sign);
+      mat OF relationlist[14] := HEAP[4]MATRIX := (jb8i,jb8i,jb8im20i,jm20);
+      newtype OF relationlist[14] := HEAP[4]INT := (5,4,5,4);
+ 
+      coeff OF relationlist[15] := HEAP[4]INT := (-1,1,1,sign);
+      mat OF relationlist[15] := HEAP[4]MATRIX := (jm4b8i,jm4b8i,jm4b8im20i,jm4m20);
+      newtype OF relationlist[15] := HEAP[4]INT := (5,4,5,4);
+ 
+      coeff OF relationlist[16] := HEAP[9]INT := (-1,sign,1,-1,-1,1,-1,-sign,1);
+      mat OF relationlist[16] := HEAP[9]MATRIX := (tjm5m20,tj,tjm5m20m14,
+         tjm5m20m14,tjm5m20m14m20i,m13,m13,m13m11i,tjm5m20);
+      newtype OF relationlist[16] := HEAP[9]INT := (3,2,5,4,5,6,1,1,4);
+ 
+      coeff OF relationlist[17] := HEAP[9]INT := (sign,-1,-sign,sign,sign,-sign,sign,1,-sign);
+      mat OF relationlist[17] := HEAP[9]MATRIX := (jm20,jm5i,jm20m14,
+         jm20m14,jm20m14m20i,jm5ib16,jm5ib16,jm5ib16m11i,jm20);
+      newtype OF relationlist[17] := HEAP[9]INT := (3,2,5,4,5,6,1,1,4);
+ 
+      coeff OF relationlist[18] := HEAP[8]INT := (-sign,1,-1,1,1,-1,1,sign);
+      mat OF relationlist[18] := HEAP[8]MATRIX := (m8,identity,m14,m14,
+            m14m20i,m18i,m18i,m18im11i);
+      newtype OF relationlist[18] := HEAP[8]INT := (2,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[19] := HEAP[4]INT := (1,-1,1,1);
+      mat OF relationlist[19] := HEAP[4]MATRIX := (identity,m14,m14,m14m20i);
+      newtype OF relationlist[19] := HEAP[4]INT := (3,5,4,5);
+ 
+      coeff OF relationlist[20] := HEAP[12]INT := (-1,1,-1,1,1,sign,-sign,
+                 sign,sign,-sign,sign,1);
+      mat OF relationlist[20] := HEAP[12]MATRIX := (m7,identity,m14,m14,
+        m14m20i,m9i,m9im14,m9im14,m9im14m20i,m7b16,m7b16,m7b16m11i);
+      newtype OF relationlist[20] := HEAP[12]INT := (2,3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[21] := HEAP[4]INT := (-sign,sign,-sign,-sign);
+      mat OF relationlist[21] := HEAP[4]MATRIX := (m9,m2,m2,m2m20i);
+      newtype OF relationlist[21] := HEAP[4]INT := (3,5,4,5);
+ 
+      coeff OF relationlist[22] := HEAP[4]INT := (-1,-sign,sign,1);
+      mat OF relationlist[22] := HEAP[4]MATRIX := (jxi,jxim7im9im18i,
+           jxim7im9im18i,jxim7im9im18im11i);
+      newtype OF relationlist[22] := HEAP[4]INT := (2,6,1,1);
+ 
+      coeff OF relationlist[23] := HEAP[8]INT := (-1,sign,-sign,sign,sign,-sign,sign,1);
+      mat OF relationlist[23] := HEAP[8]MATRIX := (jm8,j,jm14,jm14,jm14m20i,
+            jm18i,jm18i,jm18im11i);
+      newtype OF relationlist[23] := HEAP[8]INT := (2,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[24] := HEAP[4]INT := (-1,1,-1,-1);
+      mat OF relationlist[24] := HEAP[4]MATRIX := (jm9,jm2,jm2,jm2m20i);
+      newtype OF relationlist[24] := HEAP[4]INT := (3,5,4,5);
+ 
+      coeff OF relationlist[25] := HEAP[4]INT := (-sign,-1,1,sign);
+      mat OF relationlist[25] := HEAP[4]MATRIX := (xi,xim7im9im18i,
+           xim7im9im18i,xim7im9im18im11i);
+      newtype OF relationlist[25] := HEAP[4]INT := (2,6,1,1);
+ 
+      coeff OF relationlist[26] := HEAP[4]INT := (sign,-sign,sign,sign);
+      mat OF relationlist[26] := HEAP[4]MATRIX := (j,jm14,jm14,jm14m20i);
+      newtype OF relationlist[26] := HEAP[4]INT := (3,5,4,5);
+ 
+      coeff OF relationlist[27] := HEAP[12]INT := (-sign,sign,-sign,sign,sign,1,-1,
+               1,1,-1,1,sign);
+      mat OF relationlist[27] := HEAP[12]MATRIX := (jm7,j,jm14,jm14,
+         jm14m20i,jm9i,jm9im14,jm9im14,jm9im14m20i,jm9im18i,
+         jm9im18i,jm9im18im11i);
+      newtype OF relationlist[27] := HEAP[12]INT := (2,3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[28] := HEAP[16]INT := (-1,1,-1,1,1,sign,-sign,
+             sign,sign,-sign,sign,1,1,sign,-sign,-1);
+      mat OF relationlist[28] := HEAP[16]MATRIX := (m6,m6m7i,m6m7im14,
+         m6m7im14,m6m7im14m20i,m6m8i,m6m8im14,m6m8im14,m6m8im14m20i,m6b16,
+         m6b16,m6b16m11i,m6b12,m6b12b16,m6b12b16,m6b12b16m11i);
+      newtype OF relationlist[28] := HEAP[16]INT := (2,3,5,4,5,3,5,4,5,6,
+             1,1,2,6,1,1);
+ 
+      coeff OF relationlist[29] := HEAP[16]INT := (1,-1,1,-1,-1,-sign,sign,
+                 -sign,-sign,sign,-sign,-1,-1,-sign,sign,1);
+      mat OF relationlist[29] := HEAP[16]MATRIX := (identity,m7i,m7im14,
+         m7im14,m7im14m20i,m8i,m8im14,m8im14,m8im14m20i,b16,b16,b16m11i,b12,
+         b12b16,b12b16,b12b16m11i);
+      newtype OF relationlist[29] := HEAP[16]INT := (2,3,5,4,5,3,5,4,5,
+                 6,1,1,2,6,1,1);
+ 
+      coeff OF relationlist[30] := HEAP[12]INT := (1,-1,1,-1,-1,-sign,sign,
+             -sign,-sign,sign,-sign,-1);
+      mat OF relationlist[30] := HEAP[12]MATRIX := (identity,m7i,m7im14,m7im14,
+         m7im14m20i,m8i,m8im14,m8im14,m8im14m20i,b16,b16,b16m11i);
+      newtype OF relationlist[30] := HEAP[12]INT := (2,3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[31] := HEAP[8]INT := (1,-sign,sign,-sign,-sign,
+             sign,-sign,-1);
+      mat OF relationlist[31] := HEAP[8]MATRIX := (identity,m8i,m8im14,m8im14,
+         m8im14m20i,b16,b16,b16m11i);
+      newtype OF relationlist[31] := HEAP[8]INT := (2,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[32] := HEAP[4]INT := (1,sign,-sign,-1);
+      mat OF relationlist[32] := HEAP[4]MATRIX := (c2jxi,c2jxim7im9im18i,
+           c2jxim7im9im18i,c2jxim7im9im18im11i);
+      newtype OF relationlist[32] := HEAP[4]INT := (2,6,1,1);
+ 
+      coeff OF relationlist[33] := HEAP[16]INT := (sign,-sign,sign,-sign,-sign,-1,1,
+              -1,-1,1,-1,-sign,-sign,-1,1,sign);
+      mat OF relationlist[33] := HEAP[16]MATRIX := (j,jm7i,jm7im14,jm7im14,
+         jm7im14m20i,jm8i,jm8im14,jm8im14,jm8im14m20i,jb16,jb16,jb16m11i,
+         jb12,jb12b16,jb12b16,jb12b16m11i);
+      newtype OF relationlist[33] := HEAP[16]INT := (2,3,5,4,5,3,5,4,5,6,
+           1,1,2,6,1,1);
+ 
+      coeff OF relationlist[34] := HEAP[16]INT := (-sign,sign,-sign,sign,sign,1,-1,1,
+            1,-1,1,sign,sign,1,-1,-sign);
+      mat OF relationlist[34] := HEAP[16]MATRIX := (jm6,jm6m7i,jm6m7im14,
+         jm6m7im14,jm6m7im14m20i,jm6m8i,jm6m8im14,jm6m8im14,jm6m8im14m20i,
+         jm6b16,jm6b16,jm6b16m11i,tj,m13,m13,m13m11i);
+      newtype OF relationlist[34] := HEAP[16]INT := (2,3,5,4,5,3,5,4,5,
+           6,1,1,2,6,1,1);
+ 
+      coeff OF relationlist[35] := HEAP[4]INT := (sign,1,-1,-sign);
+      mat OF relationlist[35] := HEAP[4]MATRIX := (jc2jxi,jc2jxim7im9im18i,
+           jc2jxim7im9im18i,jc2jxim7im9im18im11i);
+      newtype OF relationlist[35] := HEAP[4]INT := (2,6,1,1);
+ 
+      coeff OF relationlist[36] := HEAP[8]INT := (sign,-1,1,-1,-1,
+             1,-1,-sign);
+      mat OF relationlist[36] := HEAP[8]MATRIX := (tj,tjm8i,tjm8im14,
+         tjm8im14,tjm8im14m20i,m13,m13,m13m11i);
+      newtype OF relationlist[36] := HEAP[8]INT := (2,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[37] := HEAP[12]INT := (sign,-sign,sign,-sign,-sign,-1,
+             1,-1,-1,1,-1,-sign);
+      mat OF relationlist[37] := HEAP[12]MATRIX := (j,jm7i,jm7im14,jm7im14,
+         jm7im14m20i,jm8i,jm8im14,jm8im14,jm8im14m20i,jb16,jb16,jb16m11i);
+      newtype OF relationlist[37] := HEAP[12]INT := (2,3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[38] := HEAP[1]INT := (-sign);
+      mat OF relationlist[38] := HEAP[1]MATRIX := (m11);
+      newtype OF relationlist[38] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[39] := HEAP[1]INT := (1);
+      mat OF relationlist[39] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[39] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[40] := HEAP[2]INT := (1,sign);
+      mat OF relationlist[40] := HEAP[2]MATRIX := (identity,m11i);
+      newtype OF relationlist[40] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[41] := HEAP[1]INT := (1);
+      mat OF relationlist[41] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[41] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[42] := HEAP[1]INT := (-sign);
+      mat OF relationlist[42] := HEAP[1]MATRIX := (jm13);
+      newtype OF relationlist[42] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[43] := HEAP[2]INT := (-1,-sign);
+      mat OF relationlist[43] := HEAP[2]MATRIX := (c3,m11);
+      newtype OF relationlist[43] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[44] := HEAP[1]INT := (sign);
+      mat OF relationlist[44] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[44] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[45] := HEAP[1]INT := (-1);
+      mat OF relationlist[45] := HEAP[1]MATRIX := (jm11);
+      newtype OF relationlist[45] := HEAP[1]INT := (1);
+ 
+      coeff OF relationlist[46] := HEAP[2]INT := (-sign,-1);
+      mat OF relationlist[46] := HEAP[2]MATRIX := (tjm12,tjm12m11i);
+      newtype OF relationlist[46] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[47] := HEAP[1]INT := (-1);
+      mat OF relationlist[47] := HEAP[1]MATRIX := (m13);
+      newtype OF relationlist[47] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[48] := HEAP[1]INT := (sign);
+      mat OF relationlist[48] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[48] := HEAP[1]INT := (2);
+ 
+      coeff OF relationlist[49] := HEAP[2]INT := (sign,1);
+      mat OF relationlist[49] := HEAP[2]MATRIX := (j,jm11i);
+      newtype OF relationlist[49] := HEAP[2]INT := (1,1);
+ 
+      coeff OF relationlist[50] := HEAP[2]INT := (1,-1);
+      mat OF relationlist[50] := HEAP[2]MATRIX := (identity,m14i);
+      newtype OF relationlist[50] := HEAP[2]INT := (5,3);
+ 
+      coeff OF relationlist[51] := HEAP[2]INT := (-1,1);
+      mat OF relationlist[51] := HEAP[2]MATRIX := (m14,identity);
+      newtype OF relationlist[51] := HEAP[2]INT := (5,3);
+ 
+      coeff OF relationlist[52] := HEAP[2]INT := (-sign,sign);
+      mat OF relationlist[52] := HEAP[2]MATRIX := (jm14,j);
+      newtype OF relationlist[52] := HEAP[2]INT := (5,3);
+ 
+      coeff OF relationlist[53] := HEAP[2]INT := (sign,-sign);
+      mat OF relationlist[53] := HEAP[2]MATRIX := (j,jm14i);
+      newtype OF relationlist[53] := HEAP[2]INT := (5,3);
+ 
+      coeff OF relationlist[54] := HEAP[10]INT := (1,-1,1,1,-1,1,sign,1,-1,-1);
+      mat OF relationlist[54] := HEAP[10]MATRIX := (identity,m14,m14,m14m20i,
+         m18i,m18i,m18im11i,m21i,b20i,b20im20i);
+      newtype OF relationlist[54] := HEAP[10]INT := (3,5,4,5,6,1,1,6,4,5);
+ 
+      coeff OF relationlist[55] := HEAP[10]INT := (-1,1,-1,-1,1,-1,-sign,-1,1,1);
+      mat OF relationlist[55] := HEAP[10]MATRIX := (c4,c4m14,c4m14,c4m14m20i,
+         c4m18i,c4m18i,c4m18im11i,c4m21i,identity,m20i);
+      newtype OF relationlist[55] := HEAP[10]INT := (3,5,4,5,6,1,1,6,4,5);
+ 
+      coeff OF relationlist[56] := HEAP[10]INT := (-sign,sign,-sign,-sign,sign,
+              -sign,-1,-sign,sign,sign);
+      mat OF relationlist[56] := HEAP[10]MATRIX := (tjm15,tjm15m14,tjm15m14,
+         tjm15m14m20i,tjm15m18i,tjm15m18i,tjm15m18im11i,tjm15m21i,j,jm20i);
+      newtype OF relationlist[56] := HEAP[10]INT := (3,5,4,5,6,1,1,6,4,5);
+ 
+      coeff OF relationlist[57] := HEAP[10]INT := (sign,-sign,sign,sign,-sign,
+                       sign,1,sign,-sign,-sign);
+      mat OF relationlist[57] := HEAP[10]MATRIX := (j,jm14,jm14,jm14m20i,
+         jm18i,jm18i,jm18im11i,jm21i,jb20i,jb20im20i);
+      newtype OF relationlist[57] := HEAP[10]INT := (3,5,4,5,6,1,1,6,4,5);
+ 
+      coeff OF relationlist[58] := HEAP[5]INT := (1,-1,1,1,-1);
+      mat OF relationlist[58] := HEAP[5]MATRIX := (m20,m20m14,m20m14,
+         m20m14m20i,m20);
+      newtype OF relationlist[58] := HEAP[5]INT := (3,5,4,5,4);
+ 
+      coeff OF relationlist[59] := HEAP[5]INT := (-sign,sign,-sign,-sign,sign);
+      mat OF relationlist[59] := HEAP[5]MATRIX := (m9,m2,m2,m2m20i,m9);
+      newtype OF relationlist[59] := HEAP[5]INT := (3,5,4,5,4);
+ 
+      coeff OF relationlist[60] := HEAP[5]INT := (-1,1,-1,-1,1);
+      mat OF relationlist[60] := HEAP[5]MATRIX := (tjm16m20,tjm16m20m14,
+         tjm16m20m14,tjm16m20m14m20i,tjm16m20);
+      newtype OF relationlist[60] := HEAP[5]INT := (3,5,4,5,4);
+ 
+ 
+      coeff OF relationlist[61] := HEAP[5]INT := (sign,-sign,sign,sign,-sign);
+      mat OF relationlist[61] := HEAP[5]MATRIX := (jm20,jm20m14,
+         jm20m14,jm20m14m20i,jm20);
+      newtype OF relationlist[61] := HEAP[5]INT := (3,5,4,5,4);
+ 
+      coeff OF relationlist[62] := HEAP[1]INT := (1);
+      mat OF relationlist[62] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[62] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[63] := HEAP[1]INT := (-sign);
+      mat OF relationlist[63] := HEAP[1]MATRIX := (c6);
+      newtype OF relationlist[63] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[64] := HEAP[1]INT := (-1);
+      mat OF relationlist[64] := HEAP[1]MATRIX := (tjm17);
+      newtype OF relationlist[64] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[65] := HEAP[1]INT := (sign);
+      mat OF relationlist[65] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[65] := HEAP[1]INT := (3);
+ 
+      coeff OF relationlist[66] := HEAP[5]INT := (1,-1,1,1,-1);
+      mat OF relationlist[66] := HEAP[5]MATRIX := (identity,m14,m14,
+         m14m20i,m18i);
+      newtype OF relationlist[66] := HEAP[5]INT := (3,5,4,5,6);
+ 
+      coeff OF relationlist[67] := HEAP[5]INT := (-1,1,-1,-1,1);
+      mat OF relationlist[67] := HEAP[5]MATRIX := (m18,m22i,m22i,m22im20i,identity);
+      newtype OF relationlist[67] := HEAP[5]INT := (3,5,4,5,6);
+ 
+      coeff OF relationlist[68] := HEAP[3]INT := (sign,-sign,-sign);
+      mat OF relationlist[68] := HEAP[3]MATRIX := (m2,m2,m2m20i);
+      newtype OF relationlist[68] := HEAP[3]INT := (5,4,5);
+ 
+      coeff OF relationlist[69] := HEAP[3]INT := (-sign,sign,sign);
+      mat OF relationlist[69] := HEAP[3]MATRIX := (c7m2,c7m2,c7m2m20i);
+      newtype OF relationlist[69] := HEAP[3]INT := (5,4,5);
+ 
+      coeff OF relationlist[70] := HEAP[3]INT := (1,-1,-1);
+      mat OF relationlist[70] := HEAP[3]MATRIX := (jm2,jm2,jm2m20i);
+      newtype OF relationlist[70] := HEAP[3]INT := (5,4,5);
+ 
+      coeff OF relationlist[71] := HEAP[3]INT := (-1,1,1);
+      mat OF relationlist[71] := HEAP[3]MATRIX := (jm2m20i,jm2m20i,tjm19m2m20i);
+      newtype OF relationlist[71] := HEAP[3]INT := (5,4,5);
+ 
+      coeff OF relationlist[72] := HEAP[5]INT := (sign,-sign,sign,sign,-sign);
+      mat OF relationlist[72] := HEAP[5]MATRIX := (j,jm14,jm14,jm14m20i,jm18i);
+      newtype OF relationlist[72] := HEAP[5]INT := (3,5,4,5,6);
+ 
+      coeff OF relationlist[73] := HEAP[5]INT := (-sign,sign,-sign,-sign,sign);
+      mat OF relationlist[73] := HEAP[5]MATRIX := (jm18,jm18m14,
+         jm18m14,jm18m14m20i,j);
+      newtype OF relationlist[73] := HEAP[5]INT := (3,5,4,5,6);
+ 
+      coeff OF relationlist[74] := HEAP[1]INT := (1);
+      mat OF relationlist[74] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[74] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[75] := HEAP[1]INT := (-1);
+      mat OF relationlist[75] := HEAP[1]MATRIX := (m20);
+      newtype OF relationlist[75] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[76] := HEAP[7]INT := (1,-1,1,1,-1,1,sign);
+      mat OF relationlist[76] := HEAP[7]MATRIX := (identity,m14,m14,
+         m14m20i,m18i,m18i,m18im11i);
+      newtype OF relationlist[76] := HEAP[7]INT := (3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[77] := HEAP[7]INT := (-1,1,-1,-1,1,-1,-sign);
+      mat OF relationlist[77] := HEAP[7]MATRIX := (c8,c8m14,c8m14,c8m14m20i,
+           c8m18i,c8m18i,m11);
+      newtype OF relationlist[77] := HEAP[7]INT := (3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[78] := HEAP[7]INT := (sign,-sign,sign,sign,-sign,sign,1);
+      mat OF relationlist[78] := HEAP[7]MATRIX := (j,jm14,jm14,
+         jm14m20i,jm18i,jm18i,jm18im11i);
+      newtype OF relationlist[78] := HEAP[7]INT := (3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[79] := HEAP[7]INT := (-sign,sign,-sign,-sign,sign,-sign,-1);
+      mat OF relationlist[79] := HEAP[7]MATRIX := (tjm21,tjm21m14,
+         tjm21m14,tjm21m14m20i,tjm12,tjm12,tjm12m11i);
+      newtype OF relationlist[79] := HEAP[7]INT := (3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[80] := HEAP[1]INT := (sign);
+      mat OF relationlist[80] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[80] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[81] := HEAP[1]INT := (-sign);
+      mat OF relationlist[81] := HEAP[1]MATRIX := (jm20);
+      newtype OF relationlist[81] := HEAP[1]INT := (4);
+ 
+      coeff OF relationlist[82] := HEAP[3]INT := (-1,1,1);
+      mat OF relationlist[82] := HEAP[3]MATRIX := (m22,identity,m20i);
+      newtype OF relationlist[82] := HEAP[3]INT := (6,4,5);
+ 
+      coeff OF relationlist[83] := HEAP[1]INT := (1);
+      mat OF relationlist[83] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[83] := HEAP[1]INT := (5);
+ 
+      coeff OF relationlist[84] := HEAP[6]INT := (-1,sign,-sign,sign,-sign,-sign);
+      mat OF relationlist[84] := HEAP[6]MATRIX := (m16m17,m16m20,
+         m16m20,b19i,b19i,m23);
+      newtype OF relationlist[84] := HEAP[6]INT := (3,4,3,5,4,5);
+ 
+      coeff OF relationlist[85] := HEAP[3]INT := (1,-1,-1);
+      mat OF relationlist[85] := HEAP[3]MATRIX := (identity,m22i,m22im20i);
+      newtype OF relationlist[85] := HEAP[3]INT := (6,4,5);
+ 
+      coeff OF relationlist[86] := HEAP[1]INT := (-sign);
+      mat OF relationlist[86] := HEAP[1]MATRIX := (jc9);
+      newtype OF relationlist[86] := HEAP[1]INT := (5);
+ 
+      coeff OF relationlist[87] := HEAP[3]INT := (-sign,sign,sign);
+      mat OF relationlist[87] := HEAP[3]MATRIX := (jm22,j,jm20i);
+      newtype OF relationlist[87] := HEAP[3]INT := (6,4,5);
+ 
+      coeff OF relationlist[88] := HEAP[1]INT := (-1);
+      mat OF relationlist[88] := HEAP[1]MATRIX := (c9);
+      newtype OF relationlist[88] := HEAP[1]INT := (5);
+ 
+      coeff OF relationlist[89] := HEAP[6]INT := (-sign,1,-1,1,-1,-1);
+      mat OF relationlist[89] := HEAP[6]MATRIX := (tjm16m17,tjm16m20,
+         tjm16m20,tjb19i,tjb19i,tjm23);
+      newtype OF relationlist[89] := HEAP[6]INT := (3,4,3,5,4,5);
+ 
+      coeff OF relationlist[90] := HEAP[3]INT := (sign,-sign,-sign);
+      mat OF relationlist[90] := HEAP[3]MATRIX := (tj,tjm22i,tjm22im20i);
+      newtype OF relationlist[90] := HEAP[3]INT := (6,4,5);
+ 
+      coeff OF relationlist[91] := HEAP[1]INT := (sign);
+      mat OF relationlist[91] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[91] := HEAP[1]INT := (5);
+ 
+      coeff OF relationlist[92] := HEAP[11]INT := (1,-1,1,1,sign,-sign,
+                 sign,sign,-sign,sign,1);
+      mat OF relationlist[92] := HEAP[11]MATRIX := (identity,m14,m14,
+         m14m20i,m9i,m9im14,m9im14,m9im14m20i,m9im18i,m9im18i,m9im18im11i);
+      newtype OF relationlist[92] := HEAP[11]INT := (3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[93] := HEAP[11]INT := (-sign,sign,-sign,-sign,-1,
+               1,-1,-1,1,-1,-sign);
+      mat OF relationlist[93] := HEAP[11]MATRIX := (c10,c10m14,c10m14,
+           c10m14m20i,c10m9i,c10m9im14,c10m9im14,c10m9im14m20i,
+           c10m9im18i,c10m9im18i,m11);
+      newtype OF relationlist[93] := HEAP[11]INT := (3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[94] := HEAP[11]INT := (-1,1,-1,-1,-sign,
+               sign,-sign,-sign,sign,-sign,-1);
+      mat OF relationlist[94] := HEAP[11]MATRIX := (tjm24,tjm24m14,
+         tjm24m14,tjm24m14m20i,tjm21,tjm21m14,tjm21m14,tjm21m14m20i,
+         tjm12,tjm12,tjm12m11i);
+      newtype OF relationlist[94] := HEAP[11]INT := (3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[95] := HEAP[11]INT := (sign,-sign,sign,sign,1,-1,
+               1,1,-1,1,sign);
+      mat OF relationlist[95] := HEAP[11]MATRIX := (j,jm14,jm14,jm14m20i,
+         jm9i,jm9im14,jm9im14,jm9im14m20i,jm9im18i,jm9im18i,jm9im18im11i);
+      newtype OF relationlist[95] := HEAP[11]INT := (3,5,4,5,3,5,4,5,6,1,1);
+ 
+      coeff OF relationlist[96] := HEAP[1]INT := (1);
+      mat OF relationlist[96] := HEAP[1]MATRIX := (identity);
+      newtype OF relationlist[96] := HEAP[1]INT := (6);
+ 
+      coeff OF relationlist[97] := HEAP[1]INT := (-sign);
+      mat OF relationlist[97] := HEAP[1]MATRIX := (c11);
+      newtype OF relationlist[97] := HEAP[1]INT := (6);
+ 
+      coeff OF relationlist[98] := HEAP[1]INT := (-1);
+      mat OF relationlist[98] := HEAP[1]MATRIX := (tjm26);
+      newtype OF relationlist[98] := HEAP[1]INT := (6);
+ 
+      coeff OF relationlist[99] := HEAP[1]INT := (sign);
+      mat OF relationlist[99] := HEAP[1]MATRIX := (j);
+      newtype OF relationlist[99] := HEAP[1]INT := (6)
+ 
+ 
+ 
+END;
+ 
+ 
+PROC initrelation = VOID:
+BEGIN (whichfield-5|initrelation19,initrelation43,initrelation67,initrelation163)
+END;
+ 
+PROC getcoord = (SYMB s,INT ntype)REF[]INT:
+BEGIN
+INT i= coordindex[ntype,index(s)];
+( i=0 | zerovector | SIGN(i) * coord[ABS(i),] )
+END;
+ 
+PROC convertmatrix = (MATRIX m, INT type)REF[]INT:
+BEGIN
+      MATRIX newm; SYMB s; REF[]INT ans;
+      RELATION rel := relationlist[type];
+      ans := zerovector;
+      FOR i TO UPB coeff OF rel
+      DO newm := m*(mat OF rel)[i];
+         s := (newm[2,1], newm[2,2]);
+ 
+         ans := ans+(coeff OF rel)[i]*getcoord(s,(newtype OF rel)[i])
+      OD;
+      ans
+ 
+END;
+ 
+ 
+ 
+PROC qtovec = (QI q)REF[]INT:
+BEGIN
+HEAP[rank]INT ans := zerovector;
+      MATRIX m := identity;
+      MATRIX invmat;  QI z := q;  INT type;
+      WHILE NOT (z=infinity)
+      DO QI newz = translate(z,type);
+         invmat := invmatlist[type];
+         m:=m*T((Nz-Nnewz)%Dz)*inverse(invmat);
+         z:=apply(invmat,newz);
+         ans := ans + convertmatrix(m,betalist[type])
+      OD;
+      ans
+END;
+ 
+PROC reconvert = (MODSYM m)REF[]INT:
+qtovec(Bm)  - qtovec(Am)  ;
+ 
+OP * = (MATRIX m, MODSYM s)REF MODSYM: BEGIN HEAP MODSYM ans := (apply(m,As),apply(m,Bs)); ans END;
+ 
+PROC hitlist = ([]MATRIX list, MODSYM m)REF[]INT:
+BEGIN HEAP[rank] INT ans := zerovector;
+      FOR i TO UPB list
+      DO ans := ans + reconvert(list[i]*m)
+      OD;
+      ans
+END;
+ 
+{PROC hitlist = ([]MATRIX list, MODSYM m)REF[]INT:
+BEGIN HEAP[rank] INT ans := zerovector;
+      GI nam = N(A(m)), dam = D(A(m)), nbm = N(B(m)), dbm = D(B(m));
+      FOR i TO UPB list
+      DO  MATRIX mat = list[i];
+          GI mat11 = mat[1,1], mat12 = mat[1,2],
+              mat21 = mat[2,1], mat22 = mat[2,2];
+          MODSYM newm = MODSYM((mat11*nam+mat12*dam)
+                                       OVER
+                               (mat21*nam+mat22*dam),
+                                                      (mat11*nbm+mat12*dbm)
+                                                               OVER
+                                                      (mat21*nbm+mat22*dbm));
+          ans := ans + reconvert(newm)
+      OD;
+      ans
+END;}
+ 
+ 
+OP = = ([,]INT a,b)BOOL:
+BEGIN IF 1 UPB a = 1 UPB b AND
+         2 UPB a = 2 UPB b AND
+         1 LWB a = 1 LWB b AND
+         2 LWB a = 2 LWB b
+      THEN BOOL ans:= TRUE;
+           FOR i FROM 1 LWB a TO 1 UPB a WHILE ans
+           DO FOR j FROM 2 LWB a TO 2 UPB a WHILE ans
+              DO ans := a[i,j]=b[i,j]
+              OD
+           OD;
+           ans
+      ELSE FALSE
+      FI
+END;
+ 
+PROC getlistt = (GI p)REF[]MATRIX:
+BEGIN
+     INT np = norm(p);
+     []GI res = giresidues(p);
+     HEAP[np+1]MATRIX xlist;
+     FOR j TO np DO xlist[j] := makemat(one,res[j],zero,p) OD;
+     xlist[np+1] := makemat(p,zero,zero,one);
+     xlist
+END;
+ 
+ 
+PROC getlistw = (GI q)REF[]MATRIX:
+BEGIN HEAP[1]MATRIX ans;
+      GI u := one, hold := mod;
+      WHILE q DIV hold DO hold:=hold%q; u:=u*q OD;
+      []GI ab = gibezout(u,hold);
+      GI a = ab[2], b = -ab[3];
+      GI ua = u * a;
+      ans[1] := makemat(ua,b,mod,u);
+      ans
+END;
+ 
+ 
+PROC restrict = ([,]INT m, SUBSPACE s, REF BOOL check)REF[,]INT:
+BEGIN INT d = d OF s;
+      []INT p = pivots OF s;
+      [,]INT b = basis OF s;
+      INT dim = 1 UPB b, subdim = 2 UPB b;
+      HEAP[subdim,subdim]INT ans;
+      FOR i TO subdim
+      DO []INT mpi = m[p[i],];
+         FOR j TO subdim DO ans[i,j] := mpi DOT b[,j] OD
+      OD;
+ 
+      INT l := 1;
+      FOR i TO dim WHILE check
+      DO IF i=p[l] THEN (l < subdim | l+:=1)   {no need to check pivotal rows}
+         ELSE []INT mi = m[i,], bi = b[i,];
+              FOR j TO subdim WHILE check
+              DO check := ((bi DOT ans[,j]) = d * (mi DOT b[,j]))
+              OD
+         FI
+      OD;
+      ans
+END;        {end of PROC restrict}
+ 
+PROC calcop = (STRING opname, GI p, []MATRIX list, BOOL disp)REF[,]INT:
+BEGIN
+     [rank,rank]INT mat1;
+ 
+     FOR j TO rank
+     DO mat1[,j] := (needed[j] | hitlist(list,freemods[j]) | zerovector)
+     OD;
+ 
+ 
+   HEAP[dimension,dimension]INT opmat;
+   BOOL opbool := TRUE;
+   opmat := restrict(mat1,kern,opbool);
+ 
+    IF disp THEN
+      print(("Matrix of ",opname));print("(");printgi(p);print(")");
+      print((dimension>1|newline|":"));
+      showmatrix(opmat)
+    FI;
+    opmat
+ 
+END;
+ 
+PROC heckeop = (INT i, BOOL disp)REF[,]INT:
+BEGIN
+     GI p = giprimes[i];
+     IF p DIV mod
+     THEN calcop("W",p,getlistw(p),disp)
+     ELSE calcop("T",p,getlistt(p),disp)
+     FI
+END;   { of PROC heckeop }
+ 
+OP SUB = ([]INT vec, indices)REF[]INT:
+BEGIN INT n1 = UPB vec, n2 = UPB indices;
+      HEAP[n2]INT ans;
+      FOR i TO n2 DO ans[i] := vec[indices[i]] OD;
+      ans
+END;
+ 
+PROC v = (GI n,d)REF[]INT: qtovec(QI(n,d)) SUB (pivots OF kern);
+ 
+PROC maninvector = (GI p)REF[]INT:
+BEGIN HEAP[dimension]INT ans;
+      []GI res = giresidues(p);
+      ans := -(UPB res)*v(zero,one);
+      FOR i TO UPB res DO
+               []INT term = v(res[i],p);
+               ans:=ans+term
+      OD;
+      ans
+END;
+ 
+PROC minihecke = (GI p, n, d )REF[]INT:
+BEGIN
+   HEAP[dimension]INT ans := v(p*n,d) - v(zero,one);
+   []GI resmodp = giresidues(p);
+   FOR ia TO UPB resmodp
+   DO GI a = resmodp[ia];
+      ans := ans - v(a,p) + v(n + a*d, p*d)
+   OD;
+   ans
+END;
+ 
+SKIP
+ 
+KEEP outmat,v,maninvector,minihecke,relationlist,
+     getcoord,convertmatrix,qtovec,reconvert,*(MATRIX,MODSYM),
+     heckeop,hitlist,=([,]INT,[,]INT),
+     calcop,getlistt,getlistw,RELATION,initrelation
+ 
+FINISH

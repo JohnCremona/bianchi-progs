@@ -1,0 +1,25 @@
+PROGRAM listquads
+BEGIN
+INT m,limitnorm;
+DO
+read((m,limitnorm));
+IF m = 0 THEN stop FI;
+print((newline,newline,newline));
+print(("Solutions of xx + xy + kyy = n for d = 1 - 4k = ",m,newline));
+print((newline,newline,newline));
+FOR n TO limitnorm DO
+   INT fourn = 4*n;
+   INT myy;
+   FOR y FROM 0 WHILE ((myy:=m*y*y)<=fourn) DO
+      INT approx = ENTIER(sqrt(fourn-myy));
+      FOR z FROM approx TO approx+1 DO
+         IF ((z*z +  myy) = fourn) THEN
+            INT x = (z-y)%2;
+            IF m>3 OR x>=y THEN print((n,x,y,newline)) FI
+         FI
+      OD
+   OD
+OD
+OD
+END
+FINISH

@@ -1,0 +1,48 @@
+PROGRAM rowcheck USE newlinalg
+ 
+{Reads in a matrix and looks for repeated rows; used for checking large-scale
+ redundancy in relation matrices}
+ 
+BEGIN
+ 
+i OF standard style := 0;
+ 
+INT nr,nc;
+print(("Enter number of rows and cols:",newline)); read((nr,nc));
+[nr,nc]INT mat;
+FILE in; STRING name;
+print(("Enter filename for matrix:",newline));read((newline,name));
+open(in,name,alieninchannel);
+FOR i TO nr DO get(in,mat[i,]) OD;
+IF name/="" THEN print(("Finished reading matrix.",newline)) FI;
+ 
+[nr]INT multlist;
+[nr]INT duplist; 
+FOR i TO nr DO multlist[i]:=0 OD;
+ 
+FOR i TO nr
+DO IF multlist[i]=0
+   THEN []INT rowi = mat[i,];
+        INT count := 1;
+        duplist[1]:=i;
+        FOR j FROM i+1 TO nr
+        DO 
+           IF rowi=mat[j,] OR rowi=-mat[j,]
+           THEN duplist[count+:=1]:=j
+           FI
+        OD;
+        IF count>0
+        THEN print(("Row ",i," has multiplicity ",count,":"));
+             print((duplist[1:count],newline))
+        FI;
+        FOR j FROM 1 TO count
+        DO multlist[duplist[j]]:=count
+        OD
+   FI
+OD;
+ 
+SKIP
+ 
+END
+ 
+FINISH

@@ -1,0 +1,53 @@
+PROGRAM modx USE heckex,symbx,basics,lbasics,zbasics,seg1a
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+i OF long style := 0;
+ 
+print(("Trace?",newline)); read(trace);
+ 
+BOOL continue := TRUE;
+WHILE continue DO
+ 
+mod := inputideal("Conductor?");
+print(newpage);
+outputideal(mod,"Conductor = ");print((newline,newline));
+ 
+setup;     print(("Number of symbols",nsymb,newline));
+ 
+makesymbols;
+ 
+getpivot;
+ 
+FOR case TO 2
+DO sign := (case | +1 , -1);
+   print((newline,newline,(case | "+1" , "-1")," eigenspace",newline,newline));
+ 
+   relate;
+ 
+   kernel;
+ 
+   IF dimension>0 THEN
+ 
+      IF denom /= 1 THEN print(("Denominator = ",denom,newline)) FI;
+ 
+      {Calculate character}
+ 
+      character;
+ 
+      {Calculate Hecke matrices}
+ 
+      print(("Which primes for Hecke action (first#, last#)?",newline));
+      INT starthecke,stophecke;  read((starthecke,stophecke));
+      FOR i FROM starthecke TO stophecke DO heckeop(i) OD
+ 
+   FI {closes "IF dimension > 0"}
+ 
+OD;  {closes eigenspace loop}
+ 
+print((newline,newline,"Continue?",newline));read(continue)
+ 
+OD {closes "DO" at very beginning}
+END
+FINISH

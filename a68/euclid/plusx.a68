@@ -1,0 +1,164 @@
+PROGRAM plusx USE split,hom,decs,gibasics,newlinalg
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+print(("Field?",newline)); read(field); setuparithmetic;
+INT nunits = (whichd | 4,2,6,2,2);
+ 
+DO
+ 
+print(("Conductor?",newline));  readgi(mod);
+normod := norm(mod);
+IF mod=zero THEN stop FI;
+print((">>>>>>>Level   ")); printgi(mod); print(("<<<<<<<",newline,newline));
+print((" norm",normod,newline));
+ 
+setup;
+ 
+makesymbols;
+ 
+INT plusorminus := +1;
+ 
+print((newline,(plusorminus=1|"+1"|"-1")," eigenspace",newline));
+ 
+restore;
+ 
+FILE out;
+ 
+open(out,":ema999.euclid.data"+code(field)+".e"+code(Rmod)+"i"+code(Imod),alienoutchannel);
+INT startp,stopp;
+print(("Which primes for a_p (first#,last#)?",newline));
+read((startp,stopp));
+ 
+BOOL foundq:=FALSE, foundp0:=FALSE; GI nq,dq,p0;  [n1ds]INT dotlist, dp0;
+ 
+FOR i WHILE NOT foundp0
+DO p0 :=primes[i];
+   foundp0 := p0 NDIV mod
+OD;
+ 
+FOR i TO n1ds
+DO dp0[i] := 1+norm(p0)-(aplist OF eplist[i])[1]
+OD;
+ 
+[]INT mvp = maninvector(p0);
+BOOL easy := TRUE;
+FOR i TO n1ds
+DO REF[]INT b = basis OF eplist[i];
+   INT h = vecgcd(b);
+   IF h>1 THEN b:=b%h FI;
+   dotlist[i] := mvp DOT basis OF eplist[i]
+OD;
+FOR i TO n1ds WHILE easy DO easy := dotlist[i]  /= 0 OD;
+ 
+FILE pfile; STRING primefile = ":ema999.euclid.bin"+whole(field,0)+".primes";
+open(pfile,primefile,alieninchannel);
+GI p;
+ 
+PROC getnextprime = VOID:
+BEGIN
+      getbin(pfile,(r OF p, i OF p))
+END;
+ 
+TO startp-1 DO getnextprime OD;
+ 
+IF easy THEN   {Symbol {0,infinity} non-trivial in all cases}
+ 
+print(("L(F,1) nonzero for each form",newline,newline));
+ 
+FOR ip FROM startp TO stopp
+DO getnextprime;  INT ap;
+   print(("p = ",wholegi(p)));setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(w op(ip,FALSE));
+        BOOL p2divn = ((p*p) DIV mod);
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W(",wholegi(p),") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5));
+           put(out,ap)
+        OD;
+        print(("   *** bad prime",newline));
+        put(out,newline)
+   ELSE
+        []INT vec = maninvector(p);
+        FOR i TO n1ds
+        DO ap := 1+norm(p)-(((vec DOT basis OF eplist[i])*dp0[i]) % dotlist[i]);
+           print(whole(ap,-5));
+           put(out,ap)
+        OD;
+        print(newline);
+        put(out,newline)
+   FI
+OD
+ 
+ELSE   {Look for a rational q for which {0,q} is nontrivial}
+ 
+FOR xplusy FROM 2 WHILE NOT foundq
+DO FOR x TO xplusy WHILE NOT foundq
+DO GI d = (x,xplusy-x);
+   IF gcd(d,mod)=one
+   THEN []GI resmodd = residues(d);
+        FOR in TO UPB resmodd WHILE NOT foundq
+        DO GI n = resmodd[in];
+           IF gcd(n,d)=one
+           THEN   {found a candidate n/d}
+                BOOL stillokay := TRUE;
+                FOR i TO n1ds WHILE stillokay
+                DO dotlist[i]:= v(n,d) DOT (basis OF eplist[i]);
+                   stillokay := dotlist[i]/=0
+                OD;
+                IF (foundq:=stillokay)
+                THEN nq:=n; dq:=d
+                FI
+           FI
+        OD
+   FI
+OD
+OD;
+print(("q = "));printqi(QI(nq,dq)); print((newline,newline));
+FOR ip FROM startp TO stopp
+DO getnextprime;  INT ap;
+   print(("p = ",wholegi(p)));setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(w op(ip,FALSE));
+        BOOL p2divn = ((p*p) DIV mod);
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W("+wholegi(p)+") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5));
+           put(out,ap)
+        OD;
+        print(("  ***  bad prime",newline));
+        put(out,newline)
+   ELSE
+        []INT vec = minihecke(p,nq,dq);
+        FOR i TO n1ds
+        DO ap := (vec DOT basis OF eplist[i]) % dotlist[i];
+           print(whole(ap,-5));
+           put(out,ap)
+        OD;
+        print(newline);
+        put(out,newline)
+   FI
+OD
+ 
+ 
+ 
+FI;
+ 
+ 
+SKIP
+ 
+OD {closes "DO" at very beginning}
+END
+FINISH

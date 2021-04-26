@@ -1,0 +1,591 @@
+DECS symbx USE basics,lbasics,zbasics,seg1a:
+ 
+MODE MODSYM = STRUCT(LQI a,b);
+{------------------------------------------------------------------------}
+OP A = (MODSYM m)REF LQI:BEGIN HEAP LQI ans :=  a OF m; ans END;
+{------------------------------------------------------------------------}
+OP B = (MODSYM m)REF LQI:BEGIN HEAP LQI ans :=  b OF m; ans END;
+{------------------------------------------------------------------------}
+OP C = (SYMB s)REF GI:BEGIN HEAP GI ans :=  c OF s; ans END;
+{------------------------------------------------------------------------}
+OP D = (SYMB s)REF GI:BEGIN HEAP GI ans :=  d OF s; ans END;
+ 
+IDEAL mod;
+BOOL trace;
+INT normod,nplist,nsymb,phi,rank,dimension,codimension,denom1,denom2,denom,sign;
+REF[]PPOWER pplist;
+REF[]PRIME plist;
+REF[]IDEAL qlist;
+REF[]GI chinlist;
+REF[]INT zerovector;
+REF[]SYMB symbols;
+REF[][]INT freegens;
+REF[,]INT coordindex,coord,image,basis,tbasis;
+REF[]MODSYM freemods;
+REF[]BOOL needed;
+ 
+{------------------------------------------------------------------------}
+OP = = (SYMB s,t)BOOL:   (Cs*Dt-Ct*Ds) ISIN mod;
+ 
+{------------------------------------------------------------------------}
+PROC findsymb = (SYMB s,REF []SYMB list, INT up, start)INT:
+(INT ans:=0;
+ FOR i FROM start TO up WHILE (ans=0) DO
+ IF s = list[i] THEN ans:=i FI
+ OD;
+ans);
+ 
+{------------------------------------------------------------------------}
+PROC showsymb = (REF []SYMB s, INT n)VOID:
+(print(newline);
+ FOR i TO n
+ DO print("(");printgi(Cs[i]); print(" : "); printgi(Ds[i]);
+    print((")",newline))
+OD);
+ 
+ 
+{------------------------------------------------------------------------}
+PROC printsym = (SYMB s)VOID:
+BEGIN print("(");printgi(Cs);print(":");printgi(Ds);print(")") END;
+ 
+{------------------------------------------------------------------------}
+PROC stan = (SYMB s)REF SYMB:
+BEGIN HEAP SYMB ans;
+      GI c = Cs MOD mod, d = Ds MOD mod;
+      GI u,uu,inverse;
+      ans:= IF   d=zero THEN (one,zero)
+            ELIF c=zero THEN (zero,one)
+            ELIF d=one  THEN (c,d)
+            ELIF d=-one THEN (-c MOD mod,-d)
+            ELSE
+                u:= IF invertible(d,mod,inverse) THEN inverse
+                    ELIF invertible(c,mod,inverse) THEN inverse
+                    ELSE uu:=zero;
+                         FOR i TO nplist
+                         DO IDEAL q = qlist[i];
+                            IF invertible(d,q,inverse) THEN SKIP
+                          ELIF invertible(c,q,inverse) THEN SKIP
+                            FI;
+                            uu := uu + chinlist[i] * inverse
+                         OD;
+                         uu MOD mod
+                    FI;
+                ((c*u) MOD mod,(d*u) MOD mod)
+             FI;
+      ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC index = (SYMB s)INT: findsymb(s,symbols,nsymb,1);
+ 
+{------------------------------------------------------------------------}
+PROC stanindex = (SYMB s)INT:
+BEGIN
+   SYMB ss = stan(s);
+   INT n := IF   Dss = one THEN 1
+            ELIF Css = one THEN normod+1
+            ELSE 2*normod-phi+1
+            FI;
+   INT ans:=findsymb(ss,symbols,nsymb,n);
+   IF ans=0 THEN print(("Error in PROC stanindex",newline));
+                 print(("Called with "));printsym(s);print(newline);
+                 print(("Stan returned "));printsym(ss);print(newline)
+   FI;
+   ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC setup = VOID:
+BEGIN
+   setprimes;
+   []PPOWER xplist=primeidealfactors(mod,TRUE);  nplist:=UPB xplist;
+   pplist := HEAP[nplist]PPOWER := xplist;
+   plist := HEAP[nplist]PRIME;
+   FOR i TO nplist DO plist[i]:= primes[index OF (xplist[i])] OD;
+   HEAP[1:nplist]IDEAL xqlist;
+   HEAP[1:nplist]GI xchinlist;
+   FOR i TO nplist
+   DO REF IDEAL q = xqlist[i];
+      REF GI c = xchinlist[i];
+      IDEAL p = ideal OF plist[i];
+      q := unitideal;
+      TO exponent OF pplist[i] DO q:=q*p OD;
+      [4]INT temp;
+      IDEAL rest = mod/q;
+      comax(basis OF rest, basis OF q, temp);
+      c := temp[1]*GI(a OF basis OF rest,0) + temp[2]*z OF basis OF rest;
+      c := c MOD mod
+   OD;
+   qlist:=xqlist; chinlist:=xchinlist;
+ 
+   REF INT psi = nsymb;
+   phi:=psi:=normod := idealnorm(mod);
+   FOR i TO nplist
+   DO INT np = idealnorm(ideal OF plist[i]);
+      phi := (phi*(np-1))%np;
+      psi := (psi*(np+1))%np
+   OD
+END;
+ 
+{------------------------------------------------------------------------}
+PROC symbtomat = (SYMB s)REF LMATRIX:
+BEGIN
+      GI c := Cs, d := Ds;
+      GI aa,bb,g;  INT check;
+      euclid(c,d,bb,aa,g,check);
+      IF check=1
+      THEN SKIP {Symbol OK as is}
+      ELSE   {Adjust c modulo mod to make gcd(c,d)=1}
+           IDEAL help := makeideal1(d);
+           FOR i TO nplist
+           DO IDEAL pi = ideal OF plist[i];
+              WHILE (pi DIV help) DO help := help/pi OD
+           OD;
+           [4]INT cc; ZBASIS bhelp = basis OF help,
+                             bmod  = basis OF mod;
+           comax(bhelp,bmod,cc);
+           c := c * (G(cc[1]*a OF bhelp) + cc[2]*z OF bhelp)
+                 +   G(cc[3]*a OF bmod)  + cc[4]*z OF bmod;
+           IF trace
+           THEN print(("Adjusting c: new value = "));
+                printgi(c);print(newline)
+           FI;
+           euclid(c,d,bb,aa,g,check);
+           IF (check/=1)  OR NOT (mod DIV (c-Cs))
+           THEN print(("Error in PROC symbtomat",newline,"called with "));
+                printsym(s);print((newline,"New c = "));
+                printgi(c);print((newline,newline))
+           FI
+      FI;
+ 
+      lmakemat(LENG aa,LENG -bb,LENG (c/g),LENG(d/g))
+END;
+ 
+INT pivot:=0; STRING pivotname;  GI alpha;
+LMATRIX oddlmat;
+ 
+{------------------------------------------------------------------------}
+PROC outmat = (STRING s, MATRIX m)VOID:
+BEGIN print((s," ("));printgi(m[1,1]);print(",");printgi(m[1,2]);print(";");
+                      printgi(m[2,1]);print(",");printgi(m[2,2]);
+      print((")",newline))
+END;
+ 
+{------------------------------------------------------------------------}
+PROC outlmat = (STRING s, LMATRIX m)VOID:
+BEGIN print((s," ("));printlgi(m[1,1]);print(",");printlgi(m[1,2]);print(";");
+                      printlgi(m[2,1]);print(",");printlgi(m[2,2]);
+      print((")",newline))
+END;
+ 
+{------------------------------------------------------------------------}
+PROC fixmat = (MATRIX m)REF MATRIX:
+BEGIN HEAP MATRIX ans := m;
+      IF matrixtype(ans) = 2
+      THEN FOR i TO 2 DO FOR j TO 2 DO ans[i,j]:=(alpha*ans[i,j])/two OD OD
+      FI;
+      ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC fixlmat = (LMATRIX m)REF LMATRIX:
+BEGIN HEAP LMATRIX ans := m;
+      IF lmatrixtype(ans) = 2
+      THEN FOR i TO 2 DO
+           FOR j TO 2 DO ans[i,j]:=(LENG(alpha)*ans[i,j])/LENG(two)
+           OD OD
+      FI;
+      ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC adjustmat = (LMATRIX m)REF LMATRIX:
+BEGIN REF LMATRIX ans = fixlmat(m);
+      SYMB s = SYMB(- SHORTEN ans[2,1] , SHORTEN ans[1,1]);
+      symbtomat(s) * ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC isomat2 = (IDEAL p1,p2)REF LMATRIX:
+{IF p1.p2 = (g) is principal, returns a matrix M with detM = g which
+ gives an isomorphism  R+R -->  p1 + p2  .}
+BEGIN LMATRIX m :=  (((LONG 1,LONG 1),(LONG 2,LONG 0)),((LONG 2,LONG 0),(LONG 1,-LONG 1)));
+      LGI alpha1 = LENG gen1 OF (ideal OF primes[1]  *  p1),
+          alpha2 = LENG gen1 OF (ideal OF primes[1]  *  p2);
+      FOR i TO 2
+      DO m[i,1] := (alpha1*m[i,1])/LENG(two);
+         m[i,2] := (alpha2*m[i,2])/LENG(two)
+      OD;
+      adjustmat(m)
+END;
+ 
+{------------------------------------------------------------------------}
+PROC getpivot = VOID:
+{Sets global variable 'pivot' to i where primes[i] is the first
+  nonprincipal prime which does not divide 'mod' }
+BEGIN pivot := 0;
+      FOR i TO nprimes WHILE pivot=0
+      DO IF NOT PRINC(primes[i]) AND NOT ((ideal OF primes[i]) DIV mod)
+         THEN pivot:=i;
+              pivotname:=name OF primes[i];
+              IF i=1 THEN alpha:=two
+                     ELSE alpha:=gen1 OF (ideal OF primes[1] * ideal OF primes[i])
+              FI;
+              oddlmat:=isomat2(ideal OF primes[pivot],ideal OF primes[pivot])
+         FI
+      OD;
+      IF pivot=0
+      THEN print(("Unable to find a prime to use as pivot",newline))
+      ELSE print(("Using ",pivotname," as pivotal prime",newline));
+           print("alpha = ");printgi(alpha);print(newline);
+           outlmat("oddlmat = ",oddlmat)
+      FI
+END;
+ 
+{------------------------------------------------------------------------}
+PROC makesymbols = VOID:
+BEGIN
+   HEAP[1:nsymb]SYMB xsymbols;
+   []GI residues = idealresidues(mod);
+ 
+IF trace THEN print(("Residues:",newline));
+   FOR i TO normod DO printgi(residues[i]);print(newline) OD;
+   print(newline)
+FI;
+ 
+   INT n1:=0, n2:=phi, n3:=normod;
+   [normod]BOOL invert;
+   FOR i TO normod
+   DO GI res = residues[i];
+      IF (invert[i]:=invertible(res,mod,LOC GI))
+      THEN xsymbols[n1+:=1] := (res,one)
+      ELSE xsymbols[n2+:=1] := (res,one);
+           xsymbols[n3+:=1] := (one,res)
+      FI
+   OD;
+   IF n3<nsymb THEN
+      SYMB s; n1:=n3+1;  GI c,d;
+      FOR i TO normod
+      DO GI c = residues[i];
+         IF   (NOT invert[i])   AND
+              (NOT (c=zero))    AND
+              inhalfplane(c)
+         THEN ZBASIS cplus = PZB(c) + basis OF mod;
+              FOR j FROM i+1 TO normod
+              DO  IF NOT invert[j] AND NOT (d := residues[j]; d=zero)
+                  THEN
+                       IF ((cplus+PZB(d)) = unitbasis)
+                       THEN FOR k TO 2
+                            DO
+                             s := ( k | stan((c,d)) , stan((d,c)) );
+                             IF (findsymb(s,xsymbols,n3,n1) = 0)
+                             THEN xsymbols[n3+:=1] := s
+                             FI
+                            OD
+                       FI
+                  FI
+              OD
+         FI
+      OD
+   FI;
+   IF n3<nsymb THEN
+      print(("Error in PROC makesymbols;   only ",n3," symbols found",
+              newline,"out of ",nsymb," expected",newline,newline))
+   FI;
+ 
+   IF trace THEN print(("Symbols",newline));showsymb(xsymbols,nsymb);
+                 print(newline)
+   FI;
+   symbols:=xsymbols
+END; {of PROC makesymbols}
+ 
+ 
+{------------------------------------------------------------------------}
+OP * = (MATRIX m, SYMB s)INT:
+   index(SYMB(m[1,1]*Cs + m[2,1]*Ds, m[1,2]*Cs + m[2,2]*Ds));
+ 
+{------------------------------------------------------------------------}
+PROC convert = (SYMB s, INT type)REF MODSYM:
+BEGIN HEAP MODSYM ans;
+      REF LQI a = a OF ans, b = b OF ans;
+      LMATRIX m = symbtomat(s);
+      a := lapply(m,(type|lqzero,(lone+lw) OVER (LONG 2)));
+      b := lapply(m,linfinity);
+ 
+      ans
+END;
+ 
+{------------------------------------------------------------------------}
+PROC relate = VOID:
+BEGIN
+   MATRIX   smatrix = makemat( zero , -one , one , zero),
+            jmatrix = makemat( -one , zero , zero,  one),
+           tsmatrix = makemat(  one , -one , one , zero),
+            amatrix = makemat( -one ,one+w , zero,  one),
+            mmatrix = fixmat(makemat((1,1),(1,-1),(2,0),(-1,-1))),
+            bmatrix = fixmat(makemat((1,1),(2,0),(2,0),(1,-1))),
+           bsmatrix = fixmat(makemat((2,0),(-1,-1),(1,-1),(-2,0))),
+          ts2matrix = makemat( zero , -one , one , -one);
+ 
+   HEAP[2,nsymb]INT xcoordindex;
+   [nsymb]BOOL notyet;
+   PROC restart = VOID:FOR i TO nsymb DO notyet[i]:=TRUE OD;
+ 
+   INT ngens:=0;
+   [nsymb*2][2]INT gens;
+ 
+   {Type 2, 2-term relations}
+ 
+   restart;
+   FOR j FROM nsymb BY -1 TO 1
+   DO IF notyet[j] THEN
+      SYMB s = symbols[j];
+      INT k = amatrix*s;
+      INT l = mmatrix*s;
+      INT m = mmatrix*symbols[k];
+      FOR i TO 4 DO notyet[(i|j,k,l,m)] := FALSE OD;
+      IF (sign=+1) AND (j=l OR j=m)
+      THEN FOR i TO 4 DO xcoordindex[2,(i|j,k,l,m)] := 0 OD
+      ELSE gens[ngens+:=1] := (2,j);
+           xcoordindex[2,j]:=xcoordindex[2,k]:= ngens;
+           xcoordindex[2,l]:=xcoordindex[2,m]:=-sign*ngens
+      FI
+      FI
+   OD;
+ 
+   {Type 1, 2-term relations}
+ 
+   restart;
+   FOR j FROM nsymb BY -1 TO 1
+   DO IF notyet[j] THEN
+      SYMB s = symbols[j];
+      INT k = jmatrix*s;
+      INT l = smatrix*s;
+      INT m = smatrix*symbols[k];
+      FOR i TO 4 DO notyet[(i|j,k,l,m)] := FALSE OD;
+      IF j=l OR j=m
+      THEN FOR i TO 4 DO xcoordindex[1,(i|j,k,l,m)] := 0 OD
+      ELSE gens[ngens+:=1] := (1,j);
+           xcoordindex[1,j]:=xcoordindex[1,k]:= ngens;
+           xcoordindex[1,l]:=xcoordindex[1,m]:=-ngens
+      FI
+      FI
+   OD;
+ 
+IF trace THEN
+   print(("After 2-term relations, ngens = ",ngens,newline))
+FI;
+ 
+   {3- and 4-term relations}
+ 
+   [ngens]REF[]INT relmat;
+   INT numrel := 0;
+   [1:ngens]INT order:= iota(ngens);
+   [ngens]INT newrel;
+ 
+   PROC addterm = (INT type,index,switch)VOID:
+   BEGIN INT c = switch * xcoordindex[type,index];
+         IF c/=0 THEN newrel[ABS c] +:= SIGN c FI
+   END;
+ 
+   PROC userelation = VOID:
+   BEGIN INT h = hcf2(newrel);
+         IF h/=0
+         THEN IF h>1 THEN FOR i TO ngens DO newrel[i]%:=h OD FI;
+              reorder(newrel,order);
+              addrel(relmat,newrel,order,numrel)
+         FI
+   END;
+ 
+   {Type 1, 3-term relations}
+ 
+   restart;
+   FOR j TO nsymb WHILE numrel<ngens
+   DO IF notyet[j]
+   THEN INT k = tsmatrix * symbols[j];
+        INT l = tsmatrix * symbols[k];
+        FOR i TO 3 DO notyet[(i|j,k,l)] := FALSE OD;
+        setzero(newrel);
+        FOR i TO 3 DO addterm(1,(i|j,k,l),1) OD;
+        userelation
+   FI OD;
+ 
+   {Type 2, 4-term relations}
+ 
+   restart;
+ 
+   FOR j TO nsymb WHILE numrel<ngens
+   DO IF notyet[j]
+   THEN SYMB s = symbols[j];
+        INT  k = bmatrix * s;
+        INT  l = bmatrix * symbols[k];
+        INT  m = bmatrix * symbols[l];
+        notyet[j]:=notyet[k]:=notyet[l]:=notyet[m]:=FALSE;
+        setzero(newrel);
+        addterm(2,j,+1);addterm(2,k,-1);
+        addterm(2,l,+1);addterm(2,m,-1);
+        userelation
+   FI OD;
+ 
+   {4-term mixed relations}
+ 
+   FOR j TO nsymb WHILE numrel<ngens
+   DO INT k = bmatrix * symbols[j];
+      INT l = bsmatrix * symbols[j];
+      setzero(newrel);
+      addterm(1,j,1);addterm(2,j,-1);
+      addterm(1,k,-sign);addterm(2,l,-sign);
+      userelation
+   OD;
+ 
+   {All relations have now been used}
+ 
+   evenuprel(relmat[1:numrel],denom1);
+   rank := ngens - numrel;
+   [ngens]INT invorder;
+   FOR i TO ngens DO invorder[order[i]] := i OD;
+   HEAP[ngens,rank]INT xcoord;
+   FOR i TO numrel DO xcoord[i,] := relmat[i][2:1+rank] OD;
+   FOR i TO rank DO
+      setzero(xcoord[numrel+i,]);
+      xcoord[numrel+i,i] := denom1
+   OD;
+   FOR type TO 2 DO FOR i TO nsymb DO
+      REF INT ci = xcoordindex[type,i];
+      ci := ( ci=0 | 0 | SIGN(ci) * invorder[ABS(ci)] )
+   OD OD;
+   HEAP[rank][2]INT free;
+   FOR i TO rank DO free[i] := gens[order[numrel+i]] OD;
+   freegens:=free;
+   coord := purge2(xcoordindex,xcoord);
+   coordindex:=xcoordindex;
+ 
+   HEAP[rank]MODSYM  xfreemods;
+   FOR i TO rank
+   DO xfreemods[i]:=convert(symbols[freegens[i][2]],freegens[i][1])
+   OD;
+   freemods := xfreemods;
+ 
+   IF trace THEN
+      print(("All relations used; rank = ",rank,newline,newline))
+   FI
+ 
+ 
+END;   {of PROC relate}
+ 
+ 
+{------------------------------------------------------------------------}
+PROC cuspeq = (LQI a,b)BOOL:
+BEGIN REF MATRIX m1 = fixmat(infmat(SHORTEN a)),
+             m2 = fixmat(infmat(SHORTEN b));
+      IF matrixtype(m1) = matrixtype(m2)
+      THEN
+          GI z1 = m1[1,1] * m2[2,1],
+             z2 = m1[2,1] * m2[1,1],
+             z3 = m1[2,1] * m2[2,1];
+          IDEAL test = (z3=zero | mod | mod + makeideal1(z3));
+          ((z1-z2) ISIN test) OR ((z1+z2) ISIN test)
+      ELSE FALSE
+      FI
+END;   { of PROC cuspeq }
+ 
+{------------------------------------------------------------------------}
+PROC findcusp = (LQI c,REF[]LQI list,INT n)INT:
+BEGIN INT ans:=0;
+      FOR i TO n WHILE (ans=0) DO IF cuspeq(c,list[i]) THEN ans:=i FI OD;
+      ans
+END;   { of PROC findcusp }
+ 
+{------------------------------------------------------------------------}
+PROC kernel = VOID:
+BEGIN
+   HEAP[1:4*rank]LQI cusps; INT ncusps:=0;INT k;
+   HEAP[1:4*rank,1:rank]INT matrix;
+   MODSYM m; LQI cusp;
+ 
+   FOR i TO rank DO
+      m := freemods[i];
+      FOR j TO 4 DO
+         cusp := ( j | Bm,Am,lapply(oddlmat,Bm),lapply(oddlmat,Am));
+         k := findcusp(cusp,cusps,ncusps);
+         IF k=0 THEN cusps[ncusps+:=1]:=cusp;
+                     setzero(matrix[ncusps,]);
+                     k := ncusps
+         FI;
+         matrix[k,i] +:= ( j | 1,-1,sign,-sign)
+   OD OD;
+ 
+   [1:rank]INT order;
+   REF[,]INT ximage = uptri(matrix[1:ncusps,],order);
+   image := ximage;
+ 
+   {rearrange freegens and coord into new order:}
+   HEAP[rank][2]INT temp;
+   FOR i TO rank DO temp[i] := freegens[order[i]] OD;
+   freegens:=temp;
+ 
+   HEAP[UPB coord,rank]INT newcoord;
+   FOR i TO UPB coord DO
+      FOR j TO rank DO newcoord[i,j] := coord[i,order[j]] OD
+   OD;
+   coord:=newcoord;
+ 
+   HEAP[rank]MODSYM newfreemods;
+   FOR j TO rank DO newfreemods[j] := freemods[order[j]] OD;
+   freemods := newfreemods;
+ 
+IF trace THEN
+      print(("Free generators:",newline));
+      FOR i TO rank
+      DO printsym(symbols[freegens[i][2]]);
+         print((" type ",freegens[i][1]," --> {"));
+         printlqi(A freemods[i]); print(",");
+         printlqi(B freemods[i]); print(("}",newline))
+      OD;
+      print(newline);
+      print(("Coord. index:",newline,newline));
+      FOR i TO nsymb
+      DO print("Symbol ");printsym(symbols[i]);
+         print((coordindex[,i],newline))
+      OD;
+      print((newline,"Coord. table:",newline));
+      FOR i TO 1 UPB coord
+      DO print((i,":",coord[i,],newline)) OD;
+      print((newline,newline))
+FI;
+ 
+   codimension := 1 UPB image;  dimension := rank-codimension;
+   print(("Dimension is ",dimension,newline));
+   IF dimension>0
+   THEN evenup(ximage,denom2);  denom := denom1*denom2;
+        basis := perp(image);
+        tbasis := transpose(basis);
+        HEAP[rank]BOOL xneeded;
+        FOR i TO rank
+        DO xneeded[i] := NOT trivial(basis[,i])
+        OD;
+        needed := xneeded;
+        HEAP[rank]INT zvec; setzero(zvec); zerovector:= zvec;
+        IF trace THEN
+          print(("Basis of ker(delta):",newline));
+          showmatrix(basis);
+          print(newline)
+        FI
+   FI
+ 
+END;  {of PROC kernel}
+ 
+SKIP
+ 
+ 
+ 
+KEEP MODSYM,findsymb,=(SYMB,SYMB),setup,makesymbols,showsymb,stan,
+     kernel,findcusp,trace,stanindex,symbtomat,
+     mod,normod,nplist,nsymb,phi,rank,plist,qlist,chinlist,zerovector,
+     symbols,freegens,coordindex,coord,dimension,codimension,
+     A(MODSYM),B(MODSYM),C(SYMB),D(SYMB),freemods,*(MATRIX,SYMB),convert,
+     relate,cuspeq,printsym,index,image,basis,tbasis,needed,
+     denom1,denom2,denom,sign,alpha,getpivot,pivot,pivotname,fixmat,
+     oddlmat,fixlmat,adjustmat,outmat,isomat2
+ 
+FINISH

@@ -1,0 +1,41 @@
+PROGRAM test USE gibasics
+ 
+BEGIN
+ 
+i OF standard style := i OF long style := 0;
+ 
+WHILE
+print(("Field (19,43,67,163) ?",newline));read(field); field/=0
+DO
+setuparithmetic;
+ 
+GI a,b;
+WHILE
+print(("Enter a and b: ",newline));
+read((a,b));
+NOT ((a=zero) AND (b=zero))
+DO
+ 
+[]GI bez = gibezout(a,b);
+GI g = bez[1], x = bez[2], y = bez[3];
+ 
+print(("gcd = "));printgi(g);print(newline);
+print(("x   = "));printgi(x);print(newline);
+print(("y   = "));printgi(y);print(newline);
+IF ((a*x+b*y=g) AND (g DIV a) AND (g DIV b) AND infirstquad(g))
+THEN print(("OK!",newline))
+ELSE print(("Wrong!",newline))
+FI;
+ 
+print(("a = "));printgifac(a);print(newline);
+print(("b = "));printgifac(b);print(newline);
+print(("g = "));printgifac(g);print(newline);
+ 
+SKIP
+OD
+ 
+OD
+ 
+END
+ 
+FINISH

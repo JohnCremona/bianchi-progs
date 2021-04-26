@@ -1,0 +1,338 @@
+PROGRAM plusy USE split,hecke,symb,hyper,gibasics,newlinalg,intbasics
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+i OF long style := 0;
+ 
+BOOL fieldok := FALSE;
+WHILE NOT fieldok
+DO
+print(("Field?   (19,43,67,163)",newline));
+read(field);
+fieldok := (field=19) OR (field=43) OR (field=67) OR (field=163);
+IF NOT fieldok THEN print(("Bad value -- try gain!",newline)) FI
+OD;
+ 
+setuparithmetic;
+setuphyper;
+ 
+ 
+ 
+{
+print(("Verbose mode?",newline)); read(verbose);
+}
+verbose := FALSE;
+ 
+ 
+WHILE print((newline,newline,"mod ?",newline));readgi(mod);  NOT (mod=zero)
+DO
+ 
+print(newpage);
+print(("Level = "));printgi(mod);print((newline,newline));
+ 
+setup;
+ 
+print("Factorisation:  ");printgifac(mod);print((newline,newline));
+print("Norm:           ");print((normod,newline,newline));
+ 
+makesymbols;
+ 
+sign:=+1;
+ 
+initrelation;
+print(("Restoring data from file",newline));
+restore;
+print(("Restore done.",newline));
+ 
+print(("Dimension = ",dimension,newline));
+IF denom /= 1 THEN print(("Denominator = ",denom,newline)) FI;
+ 
+BOOL foundq:=FALSE, foundp0:=FALSE; GI nq,dq,p0;  [n1ds]INT qdotlist,dotlist, dp0;
+ 
+FOR i WHILE NOT foundp0
+DO p0 :=giprimes[i];
+   foundp0 := p0 NDIV mod
+OD;
+ 
+FOR i TO n1ds
+DO
+print(("Eigenspace # ",i,":",newline));
+print(("aplist = ",aplist OF eplist[i]," ( ",UPB aplist OF eplist[i]," values)",newline));
+dp0[i] := 1+norm(p0)-(aplist OF eplist[i])[1]
+;print(("dp0 = ",dp0[i],newline))
+OD;
+ 
+[]INT mvp = maninvector(p0);
+BOOL easy := TRUE;
+[n1ds]BOOL easylist;
+[n1ds]INT wlist;      {Fricke eigenvalues; MINUS signs of FE}
+ 
+PROC fricke = (BOOL display)REF[,]INT:
+BEGIN HEAP[1]MATRIX frickelist;
+      frickelist[1]:=makemat(zero,-one,mod,zero);
+      REF[,]INT ans = calcop("W",mod,frickelist,display);
+      ans
+END;
+ 
+[,]INT frickemat = transpose(fricke(FALSE));
+ 
+FOR i TO n1ds
+DO REF[]INT b = basis OF eplist[i];
+   INT h = vecgcd(b);
+   IF h>1 THEN b:=b%h FI;
+   dotlist[i] := mvp DOT basis OF eplist[i];
+   easylist[i] := (dotlist[i]  /= 0);
+   []INT v1 = frickemat*b, v2 = denom*b;
+   IF   v1= v2 THEN wlist[i]:=+1
+   ELIF v1=-v2 THEN wlist[i]:=-1
+   ELSE print(("Error: fricke matrix does not act properly on eigenspace ",i,newline))
+   FI
+OD;
+FOR i TO n1ds WHILE easy DO easy := easylist[i]  OD;
+print(("dotlist = ",dotlist,newline));
+ 
+[n1ds]INT nloverplist,dloverplist;
+ 
+FOR i TO n1ds
+DO INT nloverp := ABS dotlist[i], dloverp := denom*nunits*dp0[i];
+   INT h = gcd(nloverp,dloverp);
+   IF h>1 THEN nloverp%:=h; dloverp%:=h FI;
+   IF dloverp<0 THEN nloverp:=-nloverp; dloverp:=-dloverp FI;
+   nloverplist[i] := nloverp;
+   dloverplist[i] := dloverp;
+   print(("Newform number ",whole(i,0),":  L/P = ",whole(nloverp,0),"/",
+          whole(dloverp,0)));
+   setcharnumber(standout,40);
+   print(("Sign of functional equation = ",(wlist[i]=1|"-1"|"+1"),newline))
+OD;
+print(newline);
+ 
+[]INT vec0 = v(zero,one);    {This is non-zero for fild 67}
+ 
+FOR xplusy FROM 2 WHILE NOT foundq
+DO FOR x TO xplusy WHILE NOT foundq
+DO GI d = (x,xplusy-x);
+   IF coprime(d,mod)
+   THEN []GI resmodd = giresidues(d);
+        FOR in TO UPB resmodd WHILE NOT foundq
+        DO GI n = resmodd[in];
+           IF coprime(n,d)
+           THEN   {found a candidate n/d}
+                BOOL stillokay := TRUE;
+                FOR i TO n1ds WHILE stillokay
+                DO qdotlist[i]:= (v(n,d)-vec0) DOT (basis OF eplist[i]);
+                   stillokay := qdotlist[i]/=0
+                OD;
+                IF (foundq:=stillokay)
+                THEN nq:=n; dq:=d
+                FI
+           FI
+        OD
+   FI
+OD
+OD;
+print(("q = "));printqi(QI(nq,dq)); print((newline));
+print(("qdotlist = ",qdotlist,newline,newline));
+ 
+PROC squaremod = (GI a, lambda, []GI res)BOOL:
+BEGIN  {tests whether a is a square mod lambda}
+  BOOL ans := FALSE;
+  FOR i TO UPB res WHILE NOT ans
+  DO ans := lambda DIV (res[i]*res[i]-a)
+  OD;
+  ans
+END;
+ 
+PROC makechitable = (GI lambda, []GI res)REF[]INT:
+BEGIN
+  INT n = UPB res;
+  HEAP[n]INT table;
+  FOR j TO n
+  DO table[j] := IF lambda DIV res[j] THEN 0
+                 ELSE (squaremod(res[j],lambda,res) | +1 | -1)
+                 FI
+  OD;
+  table
+END;
+ 
+PROC manintwist = (GI lambda, []GI res, []INT chitable)REF[]INT:
+BEGIN
+  HEAP[dimension]INT ans ; clear(ans);
+  FOR i TO UPB res
+  DO ans := ans + chitable[i]*(v(-res[i],lambda)-vec0)
+  OD;
+  ans
+END;
+ 
+[n1ds]GI lambdalist;
+[n1ds]INT lambdadot;
+[n1ds]BOOL lambdafound;
+FOR i TO n1ds DO lambdalist[i]:=zero; lambdadot[i]:=0; lambdafound[i]:=easylist[i] OD;
+INT nlambdafound := 0;
+FOR i TO n1ds DO IF easylist[i] THEN nlambdafound+:=1 FI OD;
+FOR ip TO UPB primes WHILE nlambdafound<n1ds
+DO GI lambda = giprimes[ip];
+   IF lambda NDIV two*mod THEN
+      []GI res = giresidues(lambda); INT nl = UPB res;
+      IF squaremod(fundunit,lambda,res) THEN
+         []INT chitable = makechitable(lambda,res);
+         []INT mvtw = manintwist(lambda,res,chitable);
+         INT chimod = (squaremod(mod,lambda,res)|+1|-1);
+         FOR j TO n1ds WHILE nlambdafound<n1ds
+         DO
+            IF NOT lambdafound[j] THEN
+               INT dot = mvtw DOT (basis OF eplist[j]);
+               IF ((dot/=0)  AND (chimod*wlist[j]=-1)) THEN
+                  lambdafound[j]:=TRUE;
+                  lambdadot[j]:=dot;
+                  lambdalist[j]:=lambda;
+                  nlambdafound +:= 1
+               FI
+            FI
+         OD
+      FI
+   FI
+OD;
+ 
+FOR i TO n1ds
+DO IF NOT easylist[i] THEN
+      print(("Form number ",i,": twisting prime = "));
+      printgi(lambdalist[i]);
+      print((" with dot = ",lambdadot[i],newline))
+   FI
+OD;
+ 
+ 
+INT nheck=6;
+INT denomsq=denom*denom;
+PROC checkidentity = (REF[,]INT m)BOOL:
+BEGIN BOOL ans := TRUE;
+      FOR i TO dimension WHILE ans DO
+      FOR j TO dimension WHILE ans DO
+         ans := (m[i,j]=(i=j|denomsq|0))
+      OD OD;
+      ans
+END;
+ 
+[nheck]REF[,]INT heckemats;
+FOR i TO nheck
+DO GI p = giprimes[i];
+   REF[,]INT mat:=transpose(heckeop(i,FALSE));
+   IF p DIV mod
+   THEN IF checkidentity(mat*mat)
+        THEN print(("...is an involution!",newline))
+        ELSE print(("...should be an involution BUT IS NOT!!",newline))
+        FI
+   FI;
+   FOR j TO i-1
+   DO REF[,]INT mat2 = heckemats[j];
+      IF mat*mat2=mat2*mat
+      THEN print(("Matrices ",j," and ",i," commute OK",newline))
+      ELSE print(("Matrices ",j," and ",i," DO NOT COMMUTE!!",newline))
+      FI
+   OD;
+FOR i TO n1ds
+DO []INT b = basis OF eplist[i];
+   []INT mb = mat*b;
+   print(("mat*basis vector ",i," = ",mb,newline));
+   SKIP
+OD;
+   heckemats[i]:=mat
+OD;
+ 
+INT startp,stopp;
+print(("Which primes for a_p (first,last)?",newline));
+read((startp,stopp));
+FILE out;
+STRING filename = ":ema999.neuclid.data"+whole(field,0)+".e"+code(Rmod)+"i"+code(Imod);
+IF startp=1
+THEN
+    establish(out,filename,alienoutchannel,1,500,120);
+    put(out,(n1ds,newline));
+    FOR i TO n1ds DO put(out,nloverplist[i]) OD; newline(out);
+    FOR i TO n1ds DO put(out,dloverplist[i]) OD; newline(out);
+    put(out,(newline,stopp,newline,newline))
+ELSE open(out,filename,alienoutchannel)
+FI;
+ 
+FILE pfile; STRING primefile = ":ema999.neuclid.bin"+whole(field,0)+".primes";
+open(pfile,primefile,alieninchannel);
+GI p;
+ 
+PROC getnextprime = VOID:
+BEGIN
+      getbin(pfile,(r OF p, i OF p))
+END;
+ 
+TO startp-1 DO getnextprime OD;
+ 
+IF easy THEN   {Symbol {0,infinity} non-trivial in all cases}
+ 
+print(("L(F,1) nonzero for each form",newline,newline));
+ 
+FOR ip FROM startp TO stopp
+DO getnextprime;  INT ap;
+   print(("p = "));printgi(p);setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(heckeop(ip,FALSE));
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W("));printgi(p);
+              print((") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5))    ;   put(out,ap)
+        OD;
+        print(("   *** bad prime",newline))    ;   put(out,newline)
+   ELSE
+        []INT vec = maninvector(p);
+print((" maninvec = ",vec," "));
+        FOR i TO n1ds
+        DO ap := 1+norm(p)-(((vec DOT basis OF eplist[i])*dp0[i]) % dotlist[i]);
+           print(whole(ap,-5))    ;      put(out,ap)
+        OD;
+        print(newline)    ;   put(out,newline)
+   FI
+OD
+ 
+ELSE
+ 
+FOR ip FROM startp TO stopp
+DO getnextprime;  INT ap;
+   print(("p = "));printgi(p);
+   setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(heckeop(ip,FALSE));
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W("));printgi(p);print((") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5))    ;      put(out,ap)
+        OD;
+        print(("  ***  bad prime",newline))    ;   put(out,newline)
+   ELSE
+        []INT vec = minihecke(p,nq,dq);
+        FOR i TO n1ds
+        DO ap := (vec DOT basis OF eplist[i]) % qdotlist[i];
+           print(whole(ap,-5))    ;      put(out,ap)
+        OD;
+        print(newline)    ;   put(out,newline)
+   FI
+OD
+ 
+ 
+ 
+FI;
+ 
+ 
+SKIP
+ 
+OD {closes "DO" at very beginning}
+END
+FINISH

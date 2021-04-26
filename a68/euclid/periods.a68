@@ -1,0 +1,130 @@
+PROGRAM periods USE longcompstuff
+ 
+BEGIN
+ 
+w OF standard style:=21; a OF standard style:=14;
+LONG REAL two = LONG 2;
+LONG REAL twopi = two*longpi, one=LONG 1, zero=LONG 0;
+LONG COMPL eye = (zero,one);
+ 
+LONG COMPL a1,a2,a3,a4,a6,w1,w2;
+[3]LONG COMPL ei;
+REF LONG COMPL e1=ei[1], e2=ei[2], e3=ei[3];
+INT field;
+ 
+ 
+PROC reorder1 = (REF LONG COMPL e1,e2,e3)VOID:
+BEGIN LONG COMPL a:=e1, b:=e2, c:=e3;
+      IF RE a < RE c THEN swap(a,c) FI;
+      IF RE a < RE b THEN swap(a,b)
+                     ELIF RE b < RE c THEN swap(b,c)
+      FI;
+ 
+      e1:=a; e2:=b; e3:=c
+END;
+ 
+PROC reorder2 = (REF LONG COMPL e1,e2,e3)VOID:
+BEGIN IF real(e2) THEN swap(e1,e2) ELIF real(e3) THEN swap(e1,e3) FI
+END;
+ 
+PROC eiperiods = (LONG COMPL e1,e2,e3, REF LONG COMPL w1,w2)VOID:
+BEGIN
+   LONG COMPL a = root(e3-e1,2);
+   LONG COMPL b = root(e3-e2,2);
+   LONG COMPL c = root(e2-e1,2);
+   w1:= longpi/cagm(a,b);
+   w2:= longpi*eye/cagm(a,c)
+END;
+ 
+PROC getei = (LONG COMPL a1,a2,a3,a4,a6)REF[]LONG COMPL:
+BEGIN
+   LONG COMPL c1 = a2 + a1*a1/LONG 4;
+   LONG COMPL c2 = a4 + a1*a3/two;
+   LONG COMPL c3 = a6 + a3*a3/LONG 4;
+   solvecubic(c1,c2,c3)
+END;
+ 
+PROC fix = (REF LONG COMPL z, INT field)VOID:
+BEGIN REF LONG REAL x = re OF z, y = im OF z;
+      IF field > 2 THEN y:=y/two; x:=x+y FI;
+      IF field > 1 THEN y:=y*longsqrt(LENG field) FI
+END;
+ 
+PROC unfix = (REF LONG COMPL z, INT field)VOID:
+BEGIN REF LONG REAL x = re OF z, y = im OF z;
+      IF field > 1 THEN y:=y/longsqrt(LENG field) FI;
+      IF field > 2 THEN x:=x-y; y:=y*two FI
+END;
+ 
+print(("Computes periods of an elliptic curve given standard",newline));
+print(("  coefficients a1,a2,a3,a4,a6 ",newline,newline));
+ 
+WHILE
+print((newline,"Field ?",newline)); read(field);
+((field=1) OR (field=2) OR (field=3) OR (field=7) OR (field=11)
+ OR (field=19) OR (field=43) OR (field=67) OR (field=163))
+ 
+DO
+ 
+INT disc = (field<3|4*field|field);   {This is |disc| really}
+LONG REAL discfactor = LONG 2.0 / longsqrt(LENG disc);
+ 
+WHILE
+ 
+LONG INT ra1,ia1,ra2,ia2,ra3,ia3,ra4,ia4,ra6,ia6;
+print((newline,"a1, a2, a3, a4, a6:",newline));
+read((ra1,ia1,ra2,ia2,ra3,ia3,ra4,ia4,ra6,ia6));
+ 
+NOT ((ra1=LONG 0) AND (ia1=LONG 0) AND (ra2=LONG 0) AND (ia2=LONG 0) AND
+   (ra3=LONG 0) AND (ia3=LONG 0) AND (ra4=LONG 0) AND (ia4=LONG 0) AND
+   (ra6=LONG 0) AND (ia6=LONG 0))
+ 
+DO
+ 
+a1:=(ra1,ia1);a2:=(ra2,ia2);a3:=(ra3,ia3);a4:=(ra4,ia4);a6:=(ra6,ia6);
+ 
+FOR i TO 5 DO fix((i|a1,a2,a3,a4,a6),field) OD;
+ 
+ei:=getei(a1,a2,a3,a4,a6);
+BOOL realcurve = real(a1) AND real(a2) AND real(a3) AND real(a4) AND real(a6);
+BOOL allrealroots = real(e1) AND real(e2) AND real(e3);
+ 
+IF realcurve THEN IF allrealroots THEN reorder1(e1,e2,e3)
+                                  ELSE reorder2(e1,e2,e3)
+FI FI;
+ 
+ 
+{
+print(newline);
+printlongcomp("e1: ",e1);printlongcomp("e2: ",e2);printlongcomp("e3: ",e3);
+print(newline);
+}
+ 
+eiperiods(e1,e2,e3,w1,w2);
+ 
+LONG COMPL tau = normalize(w1,w2);
+printlongcomp("w1: ",w1);printlongcomp("w2: ",w2);
+{
+printlongcomp("tau = ",tau);
+}
+LONG REAL area = im OF (w1*CONJ(w2));
+print(("Area = ",area,newline));
+LONG REAL areastar = discfactor*area;
+print(("Scaled area = area*2/sqrt(|disc|) = ",areastar,newline));
+LONG COMPL c4,c6;
+getc4c6(w1,w2,c4,c6);  unfix(c4,field); unfix(c6,field);
+print((newline,"c4 and c6 from periods:",newline));
+printlongcomp("c4: ",c4);printlongcomp("c6: ",c6);
+ 
+LONG COMPL b2 = a1*a1 + LONG 4*a2;
+LONG COMPL b4 = a1*a3 + two*a4;
+LONG COMPL b6 = a3*a3 + LONG 4*a6;
+c4:=b2*b2 - LONG 24*b4;  unfix(c4,field);
+c6:=-b2*b2*b2 + LONG 36*b2*b4 - LONG 216*b6;  unfix(c6,field);
+ 
+print((newline,"c4 and c6 from coefficients",newline));
+printlongcomp("c4: ",c4);printlongcomp("c6: ",c6);
+SKIP
+OD OD
+END
+FINISH

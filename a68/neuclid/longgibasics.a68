@@ -1,0 +1,850 @@
+DECS longgibasics USE intbasics,longintbasics,longcompstuff:
+ 
+{******************************************************************
+  Basic arithmetic for GI and QI over the nine fields 1, 2, 3, 7, 11,
+  19, 43, 67, 163.   Uses Z-module algorithm for gcd.
+  No mention of hyperbolic geometry.
+ ------LONG INT VERSION---------
+************************************************************************}
+ 
+INT field, whichfield;
+[]INT fieldlist = (1,2,3,7,11,19,43,67,163);
+[]INT nprimeslist = (93,94,95,98,98,96,116,185,50);
+ 
+MODE GI = STRUCT(LONG INT r,i);
+ 
+GI zero=(LONG 0,LONG 0),one=(LONG 1,LONG 0),two=(LONG 2,LONG 0),w=(LONG 0,LONG 1);
+GI three = (LONG 3,LONG 0), twelve = (LONG 12,LONG 0), minusone = (-LONG 1,LONG 0);
+INT ngiprimes;REF[]GI giprimes;
+ 
+[]GI z1primes = (GI(LONG 1,LONG 1),GI(LONG 1,LONG 2),GI(LONG 1,-LONG 2),GI(LONG 3,LONG 0),GI(LONG 3,LONG 2),GI(LONG 3,-LONG 2),
+                 GI(LONG 1,LONG 4), GI(LONG 1,-LONG 4), GI(LONG 5,LONG 2), GI(LONG 5,-LONG 2), GI(LONG 1,LONG 6), GI(LONG 1,-LONG 6),
+                 GI(LONG 5,LONG 4), GI(LONG 5,-LONG 4), GI(LONG 7,LONG  0), GI(LONG 7,LONG 2), GI(LONG 7,-LONG 2), GI(LONG 6,LONG 5),
+                 GI(LONG 6,-LONG 5), GI(LONG 8,LONG 3), GI(LONG 8,-LONG 3), GI(LONG 8,LONG 5), GI(LONG 8,-LONG 5), GI(LONG 9,LONG 4),
+                 GI(LONG 9,-LONG 4), GI(LONG 10,LONG 1), GI(LONG 10,-LONG 1), GI(LONG 10,LONG 3), GI(LONG 10,-LONG 3), GI(LONG 8,LONG 7),
+                 GI(LONG 8,-LONG 7), GI(LONG 11,LONG  0), GI(LONG 11,LONG 4), GI(LONG 11,-LONG 4), GI(LONG 10,LONG 7), GI(LONG 10,-LONG 7),
+                 GI(LONG 11,LONG 6), GI(LONG 11,-LONG 6), GI(LONG 13,LONG 2), GI(LONG 13,-LONG 2), GI(LONG 10,LONG 9), GI(LONG 10,-LONG 9),
+                 GI(LONG 12,LONG 7), GI(LONG 12,-LONG 7), GI(LONG 14,LONG 1), GI(LONG 14,-LONG 1), GI(LONG 15,LONG 2), GI(LONG 15,-LONG 2),
+                 GI(LONG 13,LONG 8), GI(LONG 13,-LONG 8), GI(LONG 15,LONG 4), GI(LONG 15,-LONG 4), GI(LONG 16,LONG 1), GI(LONG 16,-LONG 1),
+                 GI(LONG 13,LONG 10), GI(LONG 13,-LONG 10), GI(LONG 14,LONG 9), GI(LONG 14,-LONG 9), GI(LONG 16,LONG 5), GI(LONG 16,-LONG 5),
+                 GI(LONG 17,LONG 2), GI(LONG 17,-LONG 2), GI(LONG 13,LONG 12), GI(LONG 13,-LONG 12), GI(LONG 14,LONG 11), GI(LONG 14,-LONG 11),
+                 GI(LONG 16,LONG 9), GI(LONG 16,-LONG 9), GI(LONG 18,LONG 5), GI(LONG 18,-LONG 5), GI(LONG 17,LONG 8), GI(LONG 17,-LONG 8),
+                 GI(LONG 19,LONG  0),
+                 GI(LONG 18,LONG 7), GI(LONG 18,-LONG 7), GI(LONG 17,LONG 10), GI(LONG 17,-LONG 10), GI(LONG 19,LONG 6), GI(LONG 19,-LONG 6),
+                 GI(LONG 20,LONG 1), GI(LONG 20,-LONG 1), GI(LONG 20,LONG 3), GI(LONG 20,-LONG 3), GI(LONG 15,LONG 14), GI(LONG 15,-LONG 14),
+                 GI(LONG 17,LONG 12), GI(LONG 17,-LONG 12), GI(LONG 20,LONG 7), GI(LONG 20,-LONG 7), GI(LONG 21,LONG 4), GI(LONG 21,-LONG 4),
+                 GI(LONG 19,LONG 10), GI(LONG 19,-LONG 10));
+[]GI z2primes = (GI(LONG 0,LONG 1),GI(LONG 1,LONG 1),GI(LONG 1,-LONG 1),GI(LONG 3,LONG 1),GI(LONG 3,-LONG 1),GI(LONG 3,LONG 2),
+                 GI(LONG 3,-LONG 2),GI(LONG 1,LONG 3),GI(LONG 1,-LONG 3),GI(LONG 5,LONG  0),GI(LONG 3,LONG 4),GI(LONG 3,-LONG 4),
+                 GI(LONG 5,LONG 3),GI(LONG 5,-LONG 3),GI(LONG 7,LONG  0),GI(LONG 3,LONG 5),GI(LONG 3,-LONG 5),GI(LONG 7,LONG 3),
+                 GI(LONG 7,-LONG 3),GI(LONG 1,LONG 6),GI(LONG 1,-LONG 6),GI(LONG 9,LONG 1),GI(LONG 9,-LONG 1),GI(LONG 9,LONG 2),
+                 GI(LONG 9,-LONG 2),GI(LONG 5,LONG 6),GI(LONG 5,-LONG 6),GI(LONG 3,LONG 7),GI(LONG 3,-LONG 7),GI(LONG 9,LONG 4),
+                 GI(LONG 9,-LONG 4),GI(LONG 9,LONG 5),GI(LONG 9,-LONG 5),GI(LONG 3,LONG 8),GI(LONG 3,-LONG 8),GI(LONG 11,LONG 3),
+                 GI(LONG 11,-LONG 3),GI(LONG 1,LONG 9),GI(LONG 1,-LONG 9),GI(LONG 13,LONG  0),GI(LONG 9,LONG 7),GI(LONG 9,-LONG 7),
+                 GI(LONG 11,LONG 6),GI(LONG 11,-LONG 6),GI(LONG 7,LONG 9),GI(LONG 7,-LONG 9),GI(LONG 15,LONG 1),GI(LONG 15,-LONG 1),
+                 GI(LONG 15,LONG 2),GI(LONG 15,-LONG 2),GI(LONG 13,LONG 6),GI(LONG 13,-LONG 6),GI(LONG 3,LONG 11),GI(LONG 3,-LONG 11),
+                 GI(LONG 15,LONG 4),GI(LONG 15,-LONG 4),GI(LONG 9,LONG 10),GI(LONG 9,-LONG 10),GI(LONG 11,LONG 9),GI(LONG 11,-LONG 9),
+                 GI(LONG 17,LONG 3),GI(LONG 17,-LONG 3),GI(LONG 5,LONG 12),GI(LONG 5,-LONG 12),GI(LONG 13,LONG 9),GI(LONG 13,-LONG 9),
+                 GI(LONG 7,LONG 12),GI(LONG 7,-LONG 12),GI(LONG 3,LONG 13),GI(LONG 3,-LONG 13),GI(LONG 15,LONG 8),GI(LONG 15,-LONG 8),
+                 GI(LONG 19,LONG 3),GI(LONG 19,-LONG 3),GI(LONG 3,LONG 14),GI(LONG 3,-LONG 14),GI(LONG 11,LONG 12),GI(LONG 11,-LONG 12),
+                 GI(LONG 9,LONG 13),GI(LONG 9,-LONG 13),GI(LONG 19,LONG 6),GI(LONG 19,-LONG 6),GI(LONG 21,LONG 1),GI(LONG 21,-LONG 1),
+                 GI(LONG 21,LONG 2),GI(LONG 21,-LONG 2),GI(LONG 13,LONG 12),GI(LONG 13,-LONG 12),GI(LONG 15,LONG 11),GI(LONG 15,-LONG 11),
+                 GI(LONG 21,LONG 5),GI(LONG 21,-LONG 5),GI(LONG 7,LONG 15),GI(LONG 7,-LONG 15));
+[]GI z3primes = (GI(LONG 1,LONG 1),GI(LONG 2,LONG  0),GI(LONG 1,LONG 2),GI(LONG 2,LONG 1),GI(LONG 3,LONG 1),GI(LONG 1,LONG 3),
+                 GI(LONG 3,LONG 2),GI(LONG 2,LONG 3),GI(LONG 5,LONG  0),GI(LONG 5,LONG 1),GI(LONG 1,LONG 5),GI(LONG 3,LONG 4),
+                 GI(LONG 4,LONG 3),GI(LONG 1,LONG 6),GI(LONG 6,LONG 1),GI(LONG 5,LONG 4),GI(LONG 4,LONG 5),GI(LONG 7,LONG 2),
+                 GI(LONG 2,LONG 7),GI(LONG 1,LONG 8),GI(LONG 8,LONG 1),GI(LONG 7,LONG 3),GI(LONG 3,LONG 7),GI(LONG 3,LONG 8),
+                 GI(LONG 8,LONG 3),GI(LONG 9,LONG 2),GI(LONG 2,LONG 9),GI(LONG 7,LONG 5),GI(LONG 5,LONG 7),GI(LONG 11,LONG  0),
+                 GI(LONG 7,LONG 6),GI(LONG 6,LONG 7),GI(LONG 3,LONG 10),GI(LONG 10,LONG 3),GI(LONG 9,LONG 5),GI(LONG 5,LONG 9),
+                 GI(LONG 1,LONG 12),GI(LONG 12,LONG 1),GI(LONG 11,LONG 3),GI(LONG 3,LONG 11),GI(LONG 11,LONG 4),GI(LONG 4,LONG 11),
+                 GI(LONG 9,LONG 7),GI(LONG 7,LONG 9),GI(LONG 13,LONG 2),GI(LONG 2,LONG 13),GI(LONG 1,LONG 14),GI(LONG 14,LONG 1),
+                 GI(LONG 11,LONG 6),GI(LONG 6,LONG 11),GI(LONG 5,LONG 12),GI(LONG 12,LONG 5),GI(LONG 15,LONG 1),GI(LONG 1,LONG 15),
+                 GI(LONG 9,LONG 10),GI(LONG 10,LONG 9),GI(LONG 7,LONG 12),GI(LONG 12,LONG 7),GI(LONG 13,LONG 6),GI(LONG 6,LONG 13),
+                 GI(LONG 17,LONG  0),GI(LONG 17,LONG 1),GI(LONG 1,LONG 17),GI(LONG 3,LONG 16),GI(LONG 16,LONG 3),GI(LONG 11,LONG 10),
+                 GI(LONG 10,LONG 11),GI(LONG 13,LONG 8),GI(LONG 8,LONG 13),GI(LONG 17,LONG 3),GI(LONG 3,LONG 17),GI(LONG 13,LONG 9),
+                 GI(LONG 9,LONG 13),GI(LONG 17,LONG 4),GI(LONG 4,LONG 17),GI(LONG 15,LONG 7),GI(LONG 7,LONG 15),GI(LONG 11,LONG 12),
+                 GI(LONG 12,LONG 11),GI(LONG 15,LONG 8),GI(LONG 8,LONG 15),GI(LONG 1,LONG 20),GI(LONG 20,LONG 1),GI(LONG 13,LONG 11),
+                 GI(LONG 11,LONG 13),GI(LONG 5,LONG 18),GI(LONG 18,LONG 5),GI(LONG 17,LONG 7),GI(LONG 7,LONG 17),GI(LONG 21,LONG 1),
+                 GI(LONG 1,LONG 21),GI(LONG 21,LONG 2),GI(LONG 2,LONG 21),GI(LONG 7,LONG 18),GI(LONG 18,LONG 7));
+[]GI z7primes = (GI(LONG 0,LONG 1),GI(LONG 1,-LONG 1),GI(LONG 1,-LONG 2),GI(LONG 3,LONG  0),GI(LONG 1,LONG 2),GI(LONG 3,-LONG 2),
+                 GI(LONG 3,LONG 2),GI(LONG 5,-LONG 2),GI(LONG 5,LONG  0),(-LONG 1,LONG 4),GI(LONG 3,-LONG 4),GI(LONG 1,LONG 4),
+                 GI(LONG 5,-LONG 4),GI(LONG 5,LONG 2),GI(LONG 7,-LONG 2),GI(LONG 3,LONG 4),GI(LONG 7,-LONG 4),(-LONG 1,LONG 6),
+                 GI(LONG 5,-LONG 6),GI(LONG 7,LONG 2),GI(LONG 9,-LONG 2),GI(LONG 1,LONG 6),GI(LONG 7,-LONG 6),GI(LONG 9,LONG 2),
+                 GI(LONG 11,-LONG 2),GI(LONG 7,LONG 4),GI(LONG 11,-LONG 4),(-LONG 3,LONG 8),GI(LONG 5,-LONG 8),GI(LONG 5,LONG 6),
+                 GI(LONG 11,-LONG 6),GI(LONG 1,LONG 8),GI(LONG 9,-LONG 8),GI(LONG 9,LONG 4),GI(LONG 13,-LONG 4),GI(LONG 11,LONG 2),
+                 GI(LONG 13,-LONG 2),GI(LONG 7,LONG 6),GI(LONG 13,-LONG 6),GI(LONG 13,LONG  0),(-LONG 3,LONG 10),GI(LONG 7,-LONG 10),
+                 (-LONG 1,LONG 10),GI(LONG 9,-LONG 10),GI(LONG 5,LONG 8),GI(LONG 13,-LONG 8),GI(LONG 11,LONG 4),GI(LONG 15,-LONG 4),
+                 GI(LONG 1,LONG 10),GI(LONG 11,-LONG 10),GI(LONG 7,LONG 8),GI(LONG 15,-LONG 8),GI(LONG 3,LONG 10),GI(LONG 13,-LONG 10),
+                 GI(LONG 15,LONG 2),GI(LONG 17,-LONG 2),(-LONG 1,LONG 12),GI(LONG 11,-LONG 12),GI(LONG 9,LONG 8),GI(LONG 17,-LONG 8),
+                 GI(LONG 17,LONG  0),GI(LONG 15,LONG 4),GI(LONG 19,-LONG 4),GI(LONG 17,LONG 2),GI(LONG 19,-LONG 2),GI(LONG 11,LONG 8),
+                 GI(LONG 19,-LONG 8),(-LONG 5,LONG 14),GI(LONG 9,-LONG 14),(-LONG 3,LONG 14),GI(LONG 11,-LONG 14),GI(LONG 19,LONG  0),
+                 GI(LONG 5,LONG 12),GI(LONG 17,-LONG 12),(-LONG 1,LONG 14),GI(LONG 13,-LONG 14),GI(LONG 17,LONG 4),GI(LONG 21,-LONG 4),
+                 GI(LONG 13,LONG 8),GI(LONG 21,-LONG 8),GI(LONG 7,LONG 12),GI(LONG 19,-LONG 12),GI(LONG 11,LONG 10),GI(LONG 21,-LONG 10),
+                 GI(LONG 3,LONG 14),GI(LONG 17,-LONG 14),(-LONG 7,LONG 16),GI(LONG 9,-LONG 16),(-LONG 5,LONG 16),GI(LONG 11,-LONG 16),
+                 GI(LONG 17,LONG 6),GI(LONG 23,-LONG 6),GI(LONG 5,LONG 14),GI(LONG 19,-LONG 14),GI(LONG 21,LONG 2),GI(LONG 23,-LONG 2),
+                 GI(LONG 13,LONG 10),GI(LONG 23,-LONG 10));
+[]GI z11primes = (GI(LONG 0,LONG 1),GI(LONG 1,-LONG 1),GI(LONG 2,LONG  0),GI(LONG 1,LONG 1),GI(LONG 2,-LONG 1),(-LONG 1,LONG 2),
+                 GI(LONG 4,LONG 1),GI(LONG 5,-LONG 1),GI(LONG 1,LONG 3),GI(LONG 4,-LONG 3),GI(LONG 2,LONG 3),GI(LONG 5,-LONG 3),
+                 GI(LONG 5,LONG 2),GI(LONG 7,-LONG 2),GI(LONG 7,LONG  0),GI(LONG 1,LONG 4),GI(LONG 5,-LONG 4),GI(LONG 7,LONG 1),
+                 GI(LONG 8,-LONG 1),GI(LONG 5,LONG 3),GI(LONG 8,-LONG 3),(-LONG 1,LONG 5),GI(LONG 4,-LONG 5),GI(LONG 2,LONG 5),
+                 GI(LONG 7,-LONG 5),GI(LONG 7,LONG 3),GI(LONG 10,-LONG 3),(-LONG 1,LONG 6),GI(LONG 5,-LONG 6),GI(LONG 10,LONG 1),
+                 GI(LONG 11,-LONG 1),(-LONG 2,LONG 7),GI(LONG 5,-LONG 7),GI(LONG 10,LONG 3),GI(LONG 13,-LONG 3),GI(LONG 5,LONG 6),
+                 GI(LONG 11,-LONG 6),GI(LONG 13,LONG  0),GI(LONG 8,LONG 5),GI(LONG 13,-LONG 5),GI(LONG 11,LONG 3),GI(LONG 14,-LONG 3),
+                 GI(LONG 4,LONG 7),GI(LONG 11,-LONG 7),GI(LONG 7,LONG 6),GI(LONG 13,-LONG 6),(-LONG 4,LONG 9),GI(LONG 5,-LONG 9),
+                 (-LONG 2,LONG 9),GI(LONG 7,-LONG 9),GI(LONG 11,LONG 5),GI(LONG 16,-LONG 5),GI(LONG 5,LONG 8),GI(LONG 13,-LONG 8),
+                 GI(LONG 13,LONG 4),GI(LONG 17,-LONG 4),GI(LONG 17,LONG  0),GI(LONG 1,LONG 10),GI(LONG 11,-LONG 10),GI(LONG 5,LONG 9),
+                 GI(LONG 14,-LONG 9),GI(LONG 10,LONG 7),GI(LONG 17,-LONG 7),GI(LONG 16,LONG 3),GI(LONG 19,-LONG 3),(-LONG 1,LONG 11),
+                 GI(LONG 10,-LONG 11),GI(LONG 19,LONG  0),GI(LONG 17,LONG 3),GI(LONG 20,-LONG 3),GI(LONG 8,LONG 9),GI(LONG 17,-LONG 9),
+                 GI(LONG 19,LONG 1),GI(LONG 20,-LONG 1),GI(LONG 2,LONG 11),GI(LONG 13,-LONG 11),(-LONG 5,LONG 12),GI(LONG 7,-LONG 12),
+                 GI(LONG 11,LONG 8),GI(LONG 19,-LONG 8),GI(LONG 7,LONG 10),GI(LONG 17,-LONG 10),(-LONG 1,LONG 12),GI(LONG 11,-LONG 12),
+                 GI(LONG 10,LONG 9),GI(LONG 19,-LONG 9),GI(LONG 5,LONG 11),GI(LONG 16,-LONG 11),GI(LONG 17,LONG 5),GI(LONG 22,-LONG 5),
+                 GI(LONG 11,LONG 9),GI(LONG 20,-LONG 9),(-LONG 5,LONG 13),GI(LONG 8,-LONG 13),GI(LONG 20,LONG 3),GI(LONG 23,-LONG 3),
+                 GI(LONG 17,LONG 6),GI(LONG 23,-LONG 6));
+ 
+ 
+[]GI z19primes =
+((LONG 2, LONG 0),(LONG 0, LONG 1),(LONG 1, -LONG 1),(LONG 2, -LONG 1),
+(LONG 1, LONG 1),(LONG 3, LONG 0),(LONG 3, -LONG 1),(LONG 2, LONG 1),
+(LONG 4, -LONG 1),(LONG 3, LONG 1),(LONG 1, -LONG 2),(LONG 3, -LONG 2),
+(LONG 1, LONG 2),(LONG 2, -LONG 3),(LONG 1, -LONG 3),(LONG 7, -LONG 1),
+(LONG 6, LONG 1),(LONG 8, -LONG 1),(LONG 7, LONG 1),(LONG 7, -LONG 3),
+(LONG 4, LONG 3),(LONG 9, -LONG 2),(LONG 7, LONG 2),(LONG 7, -LONG 4),
+(LONG 3, LONG 4),(LONG 6, -LONG 5),(LONG 1, LONG 5),(LONG 12, -LONG 1),
+(LONG 11, LONG 1),(LONG 7, -LONG 5),(LONG 2, LONG 5),(LONG 8, -LONG 5),
+(LONG 3, LONG 5),(LONG 11, -LONG 4),(LONG 7, LONG 4),(LONG 13, -LONG 2),
+(LONG 11, LONG 2),(LONG 13, LONG 0),(LONG 11, -LONG 5),(LONG 6, LONG 5),
+(LONG 13, -LONG 4),(LONG 9, LONG 4),(LONG 14, -LONG 3),(LONG 11, LONG 3),
+(LONG 13, -LONG 5),(LONG 8, LONG 5),(LONG 4, -LONG 7),(LONG 3, -LONG 7),
+(LONG 6, -LONG 7),(LONG 1, -LONG 7),(LONG 14, -LONG 5),(LONG 9, LONG 5),
+(LONG 9, -LONG 7),(LONG 2, LONG 7),(LONG 13, -LONG 6),(LONG 7, LONG 6),
+(LONG 17, -LONG 1),(LONG 16, LONG 1),(LONG 17, -LONG 3),(LONG 14, LONG 3),
+(LONG 18, -LONG 1),(LONG 17, LONG 1),(LONG 7, -LONG 8),(LONG 1, -LONG 8),
+(LONG 19, -LONG 1),(LONG 18, LONG 1),(LONG 19, -LONG 3),(LONG 16, LONG 3),
+(LONG 11, -LONG 8),(LONG 3, LONG 8),(LONG 18, -LONG 5),(LONG 13, LONG 5),
+(LONG 17, -LONG 6),(LONG 11, LONG 6),(LONG 16, -LONG 7),(LONG 9, LONG 7),
+(LONG 8, -LONG 9),(LONG 1, -LONG 9),(LONG 21, -LONG 2),(LONG 19, LONG 2),
+(LONG 18, -LONG 7),(LONG 11, LONG 7),(LONG 13, -LONG 9),(LONG 4, LONG 9),
+(LONG 21, -LONG 5),(LONG 16, LONG 5),(LONG 22, -LONG 3),(LONG 19, LONG 3),
+(LONG 22, -LONG 1),(LONG 21, LONG 1),(LONG 7, -LONG 10),(LONG 3, -LONG 10),
+(LONG 9, -LONG 10),(LONG 1, -LONG 10),(LONG 22, -LONG 5),(LONG 17, LONG 5));
+ 
+ 
+[]GI z43primes =
+((LONG 2, LONG 0),(LONG 3, LONG 0),(LONG 1, -LONG 1),(LONG 0, LONG 1),
+(LONG 2, -LONG 1),(LONG 1, LONG 1),(LONG 3, -LONG 1),(LONG 2, LONG 1),
+(LONG 4, -LONG 1),(LONG 3, LONG 1),(LONG 5, LONG 0),(LONG 5, -LONG 1),
+(LONG 4, LONG 1),(LONG 6, -LONG 1),(LONG 5, LONG 1),(LONG 1, -LONG 2),
+(LONG 3, -LONG 2),(LONG 1, LONG 2),(LONG 7, LONG 0),(LONG 7, -LONG 1),
+(LONG 6, LONG 1),(LONG 5, -LONG 2),(LONG 3, LONG 2),(LONG 8, -LONG 1),
+(LONG 7, LONG 1),(LONG 7, -LONG 2),(LONG 5, LONG 2),(LONG 9, -LONG 1),
+(LONG 8, LONG 1),(LONG 2, -LONG 3),(LONG 1, -LONG 3),(LONG 10, -LONG 1),
+(LONG 9, LONG 1),(LONG 4, -LONG 3),(LONG 1, LONG 3),(LONG 9, -LONG 2),
+(LONG 7, LONG 2),(LONG 5, -LONG 3),(LONG 2, LONG 3),(LONG 7, -LONG 3),
+(LONG 4, LONG 3),(LONG 8, -LONG 3),(LONG 5, LONG 3),(LONG 13, -LONG 1),
+(LONG 12, LONG 1),(LONG 3, -LONG 4),(LONG 1, -LONG 4),(LONG 5, -LONG 4),
+(LONG 1, LONG 4),(LONG 14, -LONG 1),(LONG 13, LONG 1),(LONG 7, -LONG 4),
+(LONG 3, LONG 4),(LONG 13, -LONG 3),(LONG 10, LONG 3),(LONG 15, -LONG 2),
+(LONG 13, LONG 2),(LONG 16, -LONG 1),(LONG 15, LONG 1),(LONG 3, -LONG 5),
+(LONG 2, -LONG 5),(LONG 4, -LONG 5),(LONG 1, -LONG 5),(LONG 6, -LONG 5),
+(LONG 1, LONG 5),(LONG 17, -LONG 1),(LONG 16, LONG 1),(LONG 13, -LONG 4),
+(LONG 9, LONG 4),(LONG 16, -LONG 3),(LONG 13, LONG 3),(LONG 9, -LONG 5),
+(LONG 4, LONG 5),(LONG 18, -LONG 1),(LONG 17, LONG 1),(LONG 17, -LONG 3),
+(LONG 14, LONG 3),(LONG 19, -LONG 1),(LONG 18, LONG 1),(LONG 12, -LONG 5),
+(LONG 7, LONG 5),(LONG 19, LONG 0),(LONG 19, -LONG 2),(LONG 17, LONG 2),
+(LONG 13, -LONG 5),(LONG 8, LONG 5),(LONG 17, -LONG 4),(LONG 13, LONG 4),
+(LONG 14, -LONG 5),(LONG 9, LONG 5),(LONG 21, -LONG 1),(LONG 20, LONG 1),
+(LONG 20, -LONG 3),(LONG 17, LONG 3),(LONG 21, -LONG 2),(LONG 19, LONG 2),
+(LONG 19, -LONG 4),(LONG 15, LONG 4),(LONG 17, -LONG 5),(LONG 12, LONG 5),
+(LONG 13, -LONG 6),(LONG 7, LONG 6),(LONG 18, -LONG 5),(LONG 13, LONG 5),
+(LONG 19, -LONG 5),(LONG 14, LONG 5),(LONG 8, -LONG 7),(LONG 1, LONG 7),
+(LONG 9, -LONG 7),(LONG 2, LONG 7),(LONG 24, -LONG 1),(LONG 23, LONG 1),
+(LONG 10, -LONG 7),(LONG 3, LONG 7),(LONG 12, -LONG 7),(LONG 5, LONG 7));
+ 
+[]GI z67primes =
+((LONG 2, LONG 0), (LONG 3, LONG 0), (LONG 1, -LONG 1), (LONG 0, LONG 1),
+(LONG 2, -LONG 1), (LONG 1, LONG 1), (LONG 3, -LONG 1), (LONG 2, LONG 1),
+(LONG 5, LONG 0), (LONG 4, -LONG 1), (LONG 3, LONG 1), (LONG 5, -LONG 1),
+(LONG 4, LONG 1), (LONG 6, -LONG 1), (LONG 5, LONG 1), (LONG 7, LONG 0),
+(LONG 7, -LONG 1), (LONG 6, LONG 1), (LONG 1, -LONG 2), (LONG 3, -LONG 2),
+(LONG 1, LONG 2), (LONG 8, -LONG 1), (LONG 7, LONG 1), (LONG 5, -LONG 2),
+(LONG 3, LONG 2), (LONG 9, -LONG 1), (LONG 8, LONG 1), (LONG 7, -LONG 2),
+(LONG 5, LONG 2), (LONG 10, -LONG 1), (LONG 9, LONG 1), (LONG 11, LONG 0),
+(LONG 11, -LONG 1), (LONG 10, LONG 1), (LONG 9, -LONG 2), (LONG 7, LONG 2),
+(LONG 12, -LONG 1), (LONG 11, LONG 1), (LONG 2, -LONG 3), (LONG 1, -LONG 3),
+(LONG 4, -LONG 3), (LONG 1, LONG 3), (LONG 5, -LONG 3), (LONG 2, LONG 3),
+(LONG 11, -LONG 2), (LONG 9, LONG 2), (LONG 13, LONG 0), (LONG 13, -LONG 1),
+(LONG 12, LONG 1), (LONG 7, -LONG 3), (LONG 4, LONG 3), (LONG 8, -LONG 3),
+(LONG 5, LONG 3), (LONG 14, -LONG 1), (LONG 13, LONG 1), (LONG 13, -LONG 2),
+ 
+(LONG 11, LONG 2), (LONG 10, -LONG 3), (LONG 7, LONG 3), (LONG 15, -LONG 1),
+(LONG 14, LONG 1), (LONG 11, -LONG 3), (LONG 8, LONG 3), (LONG 16, -LONG 1),
+(LONG 15, LONG 1), (LONG 15, -LONG 2), (LONG 13, LONG 2), (LONG 3, -LONG 4),
+(LONG 1, -LONG 4), (LONG 5, -LONG 4), (LONG 1, LONG 4), (LONG 13, -LONG 3),
+(LONG 10, LONG 3), (LONG 7, -LONG 4), (LONG 3, LONG 4), (LONG 14, -LONG 3),
+(LONG 11, LONG 3), (LONG 9, -LONG 4), (LONG 5, LONG 4), (LONG 11, -LONG 4),
+(LONG 7, LONG 4), (LONG 19, -LONG 1), (LONG 18, LONG 1), (LONG 13, -LONG 4),
+(LONG 9, LONG 4), (LONG 20, -LONG 1), (LONG 19, LONG 1), (LONG 3, -LONG 5),
+(LONG 2, -LONG 5), (LONG 4, -LONG 5), (LONG 1, -LONG 5), (LONG 6, -LONG 5),
+(LONG 1, LONG 5), (LONG 7, -LONG 5), (LONG 2, LONG 5), (LONG 8, -LONG 5),
+(LONG 3, LONG 5), (LONG 19, -LONG 3), (LONG 16, LONG 3), (LONG 9, -LONG 5),
+(LONG 4, LONG 5), (LONG 21, -LONG 2), (LONG 19, LONG 2), (LONG 22, -LONG 1),
+(LONG 21, LONG 1), (LONG 11, -LONG 5), (LONG 6, LONG 5),
+(LONG 12, -LONG 5), (LONG 7, LONG 5), (LONG 23, -LONG 1),
+(LONG 22, LONG 1), (LONG 19, -LONG 4), (LONG 15, LONG 4), (LONG 24, -LONG 1),
+(LONG 23, LONG 1), (LONG 22, -LONG 3), (LONG 19, LONG 3), (LONG 16, -LONG 5),
+(LONG 11, LONG 5), (LONG 5, -LONG 6), (LONG 1, -LONG 6), (LONG 23, -LONG 3),
+(LONG 20, LONG 3), (LONG 25, -LONG 1), (LONG 24, LONG 1), (LONG 7, -LONG 6),
+(LONG 1, LONG 6), (LONG 25, -LONG 2), (LONG 23, LONG 2), (LONG 18, -LONG 5),
+(LONG 13, LONG 5), (LONG 19, -LONG 5), (LONG 14, LONG 5), (LONG 23, -LONG 4),
+(LONG 19, LONG 4), (LONG 27, -LONG 1), (LONG 26, LONG 1), (LONG 27, -LONG 2),
+(LONG 25, LONG 2), (LONG 26, -LONG 3), (LONG 23, LONG 3), (LONG 21, -LONG 5),
+(LONG 16, LONG 5), (LONG 28, -LONG 1), (LONG 27, LONG 1), (LONG 25, -LONG 4),
+(LONG 21, LONG 4),
+(LONG 4, -LONG 7), (LONG 3, -LONG 7), (LONG 5, -LONG 7),
+(LONG 2, -LONG 7), (LONG 6, -LONG 7), (LONG 1, -LONG 7), (LONG 29, -LONG 1),
+(LONG 28, LONG 1), (LONG 23, -LONG 5), (LONG 18, LONG 5), (LONG 28, -LONG 3),
+(LONG 25, LONG 3), (LONG 19, -LONG 6), (LONG 13, LONG 6), (LONG 10, -LONG 7),
+(LONG 3, LONG 7), (LONG 11, -LONG 7), (LONG 4, LONG 7), (LONG 24, -LONG 5),
+(LONG 19, LONG 5), (LONG 30, -LONG 1), (LONG 29, LONG 1), (LONG 29, -LONG 3),
+(LONG 26, LONG 3), (LONG 13, -LONG 7), (LONG 6, LONG 7), (LONG 31, -LONG 1),
+(LONG 30, LONG 1), (LONG 15, -LONG 7), (LONG 8, LONG 7), (LONG 31, -LONG 2),
+(LONG 29, LONG 2), (LONG 26, -LONG 5), (LONG 21, LONG 5), (LONG 16, -LONG 7),
+(LONG 9, LONG 7), (LONG 29, -LONG 4), (LONG 25, LONG 4));
+ 
+ 
+[]GI z163primes = ((LONG 2, LONG 0),(LONG 3, LONG 0),(LONG 5, LONG 0),(LONG 1, -LONG 1),
+                    (LONG 0, LONG 1),(LONG 2, -LONG 1),(LONG 1, LONG 1),(LONG 3, -LONG 1),(LONG 2, LONG 1),
+                         (LONG 7, LONG 0),(LONG 4, -LONG 1),(LONG 3, LONG 1),(LONG 5, -LONG 1),
+                    (LONG 4, LONG 1),(LONG 6, -LONG 1),(LONG 5, LONG 1),(LONG 7, -LONG 1),
+                         (LONG 6, LONG 1),(LONG 8, -LONG 1),(LONG 7, LONG 1),(LONG 9, -LONG 1),
+                    (LONG 8, LONG 1),(LONG 11, LONG 0),(LONG 10, -LONG 1),(LONG 9, LONG 1),
+                         (LONG 11, -LONG 1),(LONG 10, LONG 1),(LONG 1, -LONG 2),(LONG 3, -LONG 2),
+                    (LONG 2, LONG 1),(LONG 13, LONG 0),(LONG 12, -LONG 1),
+                         (LONG 11, LONG 1),(LONG 5, -LONG 2),(LONG 3, LONG 2),(LONG 13, -LONG 1),
+                    (LONG 12, LONG 1),(LONG 7, -LONG 2),(LONG 5, LONG 2),
+                         (LONG 14, -LONG 1),(LONG 13, LONG 1),(LONG 9, -LONG 2),(LONG 7, LONG 2),
+                    (LONG 15, -LONG 1),(LONG 14, LONG 1),(LONG 11, -LONG 2),
+                         (LONG 9, LONG 2),(LONG 16, -LONG 1),(LONG 15, LONG 1),(LONG 17, LONG 0));
+ 
+OP R = (GI x)LONG INT: (r OF x);
+OP I = (GI x)LONG INT: (i OF x);
+OP G = (LONG INT n)GI: (n,LONG 0);
+OP G = (INT n)GI: (LENG n,LONG 0);
+OP W = (LONG INT a,b)GI: (a,b);
+OP W = (INT a,b)GI: (LENG a, LENG b);
+OP - = (GI x)GI: (-Rx,-Ix);
+LONG INT normw, tracew;
+ 
+OP * = (GI x,y)GI:
+BEGIN LONG INT ix=Ix,rx=Rx,iy=Iy,ry=Ry;
+      GI(rx*ry - normw*ix*iy, ix*ry + (rx + tracew*ix)*iy)
+END;
+OP - = (GI a,b)GI:(Ra - Rb, Ia - Ib);
+OP + = (GI a,b)GI:(Ra + Rb, Ia + Ib);
+INT nunits;
+GI fundunit;
+ 
+PROC conj1 = (GI x)GI: (Rx,-Ix);
+PROC conj2 = (GI x)GI: (Rx+Ix,-Ix);
+PROC(GI)GI conj;
+PROC norm = (GI a)LONG INT: R(a*conj(a));
+ 
+PROC (GI,LONG INT)GI  gidivint;   {Rounded division of GI by LONG INT}
+OP % = (GI a, LONG INT n)GI: gidivint(a,n);    {rounded division}
+ 
+PROC gidivint2 = (GI a, LONG INT n)GI:
+BEGIN GI ans;
+      LONG INT ra=r OF a, ia=i OF a;
+      r OF ans := (ra+ra + ia - n*(i OF ans := ia OVER n)) OVER (n+n);
+     ans
+END;
+ 
+PROC gidivint1 = (GI a, LONG INT n)GI:
+BEGIN
+   GI ((r OF a) OVER n, (i OF a) OVER n)
+END;
+ 
+ 
+OP % = (GI xb,xc)GI: (xb*conj(xc)) % norm(xc) ;
+ 
+OP / = (GI a, LONG INT n)GI : ((r OF a)%n, (i OF a)%n); {Not rounded - use only for exact division}
+ 
+OP / = (GI a,b)GI : (a*conj(b))/(norm(b));
+ 
+OP = = (GI a,b)BOOL:(Ra = Rb) AND (Ia = Ib);
+OP MODULO = (GI fa,mod)GI: (fa - mod*(fa%mod));
+ 
+PROC compare = (GI g, REF []GI table, INT ntable)INT:
+(INT ans := 0;
+FOR i TO ntable WHILE (ans=0) DO IF g=table[i] THEN ans:=i FI OD; ans);
+ 
+PROC infirstquad1 = (GI x)BOOL: ((Rx>LONG 0) OR ((Rx=LONG 0) AND (Ix>=LONG 0)));
+PROC infirstquad2 = (GI x)BOOL:((Ix>=LONG 0 AND Rx>LONG 0) OR x=zero);
+PROC(GI)BOOL infirstquad;
+PROC firstq = (GI a)GI:
+BEGIN GI ans := a;
+      WHILE NOT infirstquad(ans) DO ans :=fundunit*ans OD;
+      ans
+END;
+ 
+ 
+PROC fix = (REF LONG COMPL z)VOID:
+BEGIN REF LONG REAL x = re OF z, y = im OF z;
+      IF field > 2 THEN y/:=(LONG 2); x+:=y FI;
+      IF field > 1 THEN y*:=longsqrt(LENG field) FI
+END;
+ 
+PROC unfix = (REF LONG COMPL z)VOID:
+BEGIN REF LONG REAL x = re OF z, y = im OF z;
+      IF field > 1 THEN y/:=longsqrt(LENG field) FI;
+      IF field > 2 THEN x-:=y; y*:=(LONG 2) FI
+END;
+ 
+PROC round = (LONG COMPL z)REF GI:
+BEGIN
+    LONG COMPL zz := z;
+    unfix(zz);
+    HEAP GI ans;
+   r OF ans := ROUND (re OF zz);
+   i OF ans := ROUND (im OF zz);
+    ans
+END;
+ 
+PROC complexify = (GI a)REF LONG COMPL:
+BEGIN
+   HEAP LONG COMPL ans;
+   re OF ans := r OF a;
+   im OF ans := i OF a;
+   fix(ans);
+   ans
+END;
+ 
+OP DIV = (GI b,a)BOOL:
+BEGIN
+      IF b=zero THEN (a=zero) ELSE
+      LONG INT n = norm(b);  GI c = a*conj(b);
+      ((r OF c)%*n = LONG 0) AND ((i OF c)%*n = LONG 0)
+      FI
+END;
+OP NDIV = (GI a,b)BOOL: (NOT (a DIV b));
+ 
+PROC val = (GI factor,number)INT:
+BEGIN INT ans:=0; GI hold:=number; GI hold2;
+     IF NOT (hold=zero) THEN
+    WHILE hold2:=hold%factor;hold=hold2*factor DO hold:=hold2; ans+:=1 OD
+     ELSE ans := -1
+     FI;
+     ans
+END;
+ 
+PROC giprimefactors = (GI a)REF[]GI:
+BEGIN
+GI b:=a;INT n:=0;HEAP[20]GI answer;LONG INT nb,np;GI p;
+FOR i TO UPB giprimes WHILE (nb:=norm(b))>LONG 1 AND ((np:=(norm(p:=giprimes[i])));np*np<=nb+LONG 1)
+DO
+   INT v = val(p,b);
+   IF v>0 THEN answer[n+:=1] := p;
+               TO v DO b := b%p OD
+   FI
+OD;
+IF norm(b)>LONG 1 THEN answer[n+:=1] := b FI;
+{
+print(("PROC giprimefactors called with ",a));
+print(("returns:",newline));
+FOR i TO n DO print(answer[i]);print(newline) OD;
+}
+answer[1:n]
+END;
+ 
+ 
+PROC readgi = (REF GI a)VOID:read((r OF a,i OF a));
+STRING name;
+ 
+PROC printgi = (GI a)VOID:
+BEGIN
+LONG INT  i = i OF a, r=r OF a;
+IF (i =LONG 0) THEN print(r)
+ELIF (r =LONG 0) THEN
+   IF i = LONG 1 THEN print((space,name))
+   ELIF i = -LONG 1 THEN print((space,"-",name))
+   ELSE print((i,name))
+   FI
+ELSE print((r, (i >LONG 0| " +" | " -" )));
+IF ABS(i) = LONG 1 THEN print((space,name)) ELSE print((ABS(i),name)) FI
+FI;
+print(("  "))
+END;
+ 
+PROC printgifac = (GI a)VOID:
+BEGIN
+GI b:=a;
+IF norm(b)<=LONG 1 THEN printgi(b)
+ELSE
+FOR i TO UPB giprimes WHILE norm(b)>LONG 1 DO
+   GI p = giprimes[i];
+   INT v = val(p,b);
+   IF v>0 THEN print("(");printgi(p);print(")");
+               IF v>1 THEN print(("(^",v,")")) FI;
+               TO v DO b := b % p OD
+   FI;
+   SKIP
+OD;
+IF NOT(b=one) THEN print("(");printgi(b);print(")") FI
+FI
+END;
+ 
+PROC giresidues = (GI a)REF[]GI:
+{Gives a standard list of residues modulo a}
+BEGIN
+INT norma = SHORTEN norm(a);
+INT l := 0;
+HEAP[norma]GI list;
+INT r = SHORTEN(r OF a),i = SHORTEN(i OF a),m = gcd(r,i),rednorm = norma%(m*m);
+FOR j TO rednorm*m DO FOR k TO m DO
+   list[l+:=1] := GI(LENG j,LENG k) MODULO a
+OD OD;
+list
+END;
+ 
+OP * = (LONG INT m,GI a)GI: (m*Ra,m*Ia);
+OP * = (INT m, GI a)GI: (LENG(m)*(r OF a),LENG(m)*(i OF a));
+ 
+{End of easy stuff, not involving gcd}
+ 
+PROC vecbezout = ([]LONG INT a,REF LONG INT g)REF[]LONG INT:
+     {g = c.a = gcd(ai)}
+BEGIN
+      INT n = UPB a;
+      HEAP[n]LONG INT c;
+      g := LONG 0;
+      FOR i TO n DO
+         []LONG INT bez = longbezout(g,a[i]);
+         g := bez[1];
+         FOR j TO i-1 DO c[j] := bez[2] * c[j] OD;
+         c[i] := bez[3]
+      OD;
+      c
+END;
+ 
+PROC findzbasis = ([]LONG INT first,second)REF[,]LONG INT:
+BEGIN
+      [4]LONG INT x,y,basis; LONG INT e1,e2; e1 := LONG 0;
+      HEAP[3,4]LONG INT ans;
+      x := vecbezout(second,e2);
+      FOR i TO 4 DO e1 +:= x[i] * first[i] OD;
+      {now (e1,e2) is the x-combination of the data, with e2
+       the gcd of the second coefficients}
+      [4]LONG INT newfirst;
+      [4][4]LONG INT z;
+      FOR i TO 4 DO
+         LONG INT n = second[i] % e2;
+         newfirst[i] := first[i] - n * e1;
+         {second[i] - n * e2 = 0}
+         FOR j TO 4 DO z[i][j] := -n * x[j] OD;
+         z[i][i] +:= LONG 1
+         {now z[i]-comb of data is (newfirst[i],0)}
+      OD;
+      LONG INT f1,f2;
+      f2 := LONG 0;
+      [4]LONG INT u;
+      u := vecbezout(newfirst,f1);
+      basis[1] := e1;
+      basis[2] := e2;
+      basis[3] := f1;
+      basis[4] := f2;
+      ans[1,] := basis;
+      ans[2,] := x;
+      FOR j TO 4 DO
+         y[j] := LONG 0;
+         FOR i TO 4 DO y[j] +:= u[i] * z[i][j] OD
+      OD;
+      ans[3,] := y;
+{CHECK:}
+      ans
+END;
+ 
+PROC findminvec = ([]LONG INT basis)REF[]LONG INT:
+BEGIN
+      LONG INT e1,e2,f1,f2,n,norm1,norm2,temp1,temp2;
+      HEAP[2]LONG INT c,d,temp;
+      c[1]:=LONG 1; c[2]:=LONG 0; d[1]:=LONG 0; d[2]:=LONG 1;
+      e1 := basis[1]; e2 := basis[2]; f1 := basis[3]; f2 := basis[4];
+      WHILE
+            IF ((f1 = LONG 0) AND (f2 = LONG 0)) THEN n := LONG 0 ELSE
+            n := (((LONG 2)*e1 + e2)*f1 + (e1 + (LONG 2)*normw*e2)*f2) OVER
+                          ((LONG 2)*(f1*(f1+f2) + normw*f2*f2)) FI;
+            e1 -:=  n*f1; e2 -:=  n*f2;
+            FOR i TO 2 DO d[i] -:=  n*c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            norm1 := e1*(e1 + e2) + normw*e2*e2;
+            norm2 := f1*(f1 + f2) + normw*f2*f2;
+      (norm2 > norm1)
+   DO
+            temp1 := e1; temp2 := e2;
+            e1 := -f1; e2 := -f2;
+            f1 := temp1; f2 := temp2;
+            temp := d;
+            FOR i TO 2 DO d[i] := -c[i] ; SKIP {print(("d[",i,"] = ",d[i],newline))} OD;
+            c := temp; SKIP {FOR i TO 2 DO print(("c[",i,"] = ",c[i],newline)) OD}
+      OD;
+      c
+END;
+ 
+PROC(GI,GI)REF[]GI gibezout;
+ 
+PROC gibezout1 = (GI pb,pc)REF[]GI:
+BEGIN
+   GI coefa1:=one, coefb2:=one, coefa2:=zero, coefb1:=zero;
+   HEAP [1:3] GI result;
+   GI rem1 :=pb, rem2:=pc;
+   WHILE NOT (rem2 = zero) DO
+   GI quot = rem1%rem2;
+   GI temp:=rem2; rem2:=rem1 - rem2*quot; rem1:=temp;
+   temp:=coefa2; coefa2:=coefa1 - coefa2*quot; coefa1:=temp;
+   temp:=coefb2; coefb2:=coefb1 - coefb2*quot; coefb1:=temp
+   OD;
+   WHILE NOT infirstquad(rem1)
+   DO rem1:=fundunit*rem1; coefa1:=fundunit*coefa1; coefb1:=fundunit*coefb1
+   OD;
+   result := (rem1, coefa1, coefb1)
+END;
+ 
+PROC gibezout2 = (GI alpha,beta)REF[]GI:
+BEGIN
+      GI coeff1,coeff2,g;  HEAP[3]GI ans;
+      IF beta DIV alpha THEN g:=beta; coeff1:=zero; coeff2:=one
+      ELIF alpha DIV beta THEN g:=alpha; coeff1:=one; coeff2:=zero
+      ELSE
+      LONG INT n = normw, t=tracew;
+      [4]LONG INT z;
+      LONG INT a1 = Ralpha, a2 = Ialpha,   b1 = R(beta), b2 = I(beta);
+      LONG INT c1 = -n*a2, c2 = a1 + t*a2,   d1 = -n*b2, d2 = b1 + t*b2;
+      []LONG INT first = (a1,b1,c1,d1); []LONG INT second = (a2,b2,c2,d2);
+      [,]LONG INT zbasis = findzbasis(first,second);
+      []LONG INT x = zbasis[2,]; []LONG INT y = zbasis[3,];
+      []LONG INT coeff = findminvec(zbasis[1,]);
+      FOR i TO 4 DO z[i] := coeff[1]*y[i] + coeff[2]*x[i] OD;
+      coeff1 := GI(z[1],z[3]);    coeff2 := GI(z[2],z[4]);
+      g := coeff1 * alpha + coeff2 * beta
+      FI;
+      WHILE NOT infirstquad(g)
+      DO g:=fundunit*g; coeff1:=fundunit*coeff1; coeff2:=fundunit*coeff2
+      OD;
+      ans := (g,coeff1,coeff2);
+{CHECK:}
+   IF ((g DIV alpha) AND (g DIV beta)) THEN SKIP
+   ELSE print(("Error in PROC gibezout!",newline));
+        print(("alpha = "));printgi(alpha);print(newline);
+        print(("beta  = "));printgi(beta); print(newline);
+        print(("g   = "));printgi(g);  print(newline)
+   FI;
+      ans
+END;
+ 
+ 
+PROC gigcd = (GI a,b)GI: gibezout(a,b)[1];
+ 
+PROC coprime = (GI a,b)BOOL: gigcd(a,b)=one;
+ 
+OP UNIT = (GI a)BOOL: (norm(a)=LONG 1);
+ 
+OP INVMOD = (GI a,b)GI:
+BEGIN []GI gxy = gibezout(a,b);
+      IF NOT (gxy[1]=one)
+     THEN printgi(a);print(" is not invertible modulo ");printgi(b);
+           print(newline)
+      FI;
+      gxy[2] MODULO b
+END;
+ 
+PROC invertible = (GI a,b, REF GI inverse)BOOL:
+BEGIN []GI gxy = gibezout(a,b);
+      inverse:=gxy[2];
+      (one = gxy[1])
+END;
+ 
+MODE QI = STRUCT(GI n,d);
+OP N = (QI q)GI: n OF q;
+OP D = (QI q)GI: d OF q;
+OP - = (QI q)QI: (-Nq,Dq);
+ 
+OP = = (QI p,q)BOOL:(Np * Dq = Dp * Nq);
+QI qzero=(zero,one),qone=(one,one),qw=(w,one),infinity=(one,zero);
+PROC readqi = (REF QI a)VOID:(readgi(n OF a);readgi(d OF a));
+PROC printqi = (QI a)VOID:
+BEGIN
+GI n = Na, d = Da;
+IF d=one THEN printgi(n)
+ELSE print("(");printgi(n);print(")/(");printgi(d);print(")")
+FI
+END;
+ 
+PROC setuparithmetic = VOID:
+BEGIN
+      whichfield:=0;
+      FOR i TO 9 WHILE whichfield=0
+      DO IF field=fieldlist[i] THEN whichfield:=i FI
+      OD;
+     IF whichfield=0 THEN print(("Error: setuparithmetic called with invalid field ",field,newline)); stop FI;
+      normw := LENG((whichfield|1,2,1,2,3,5,11,17,41));
+     tracew := LENG((whichfield|0,0,1,1,1,1,1,1,1));
+      ngiprimes := nprimeslist[whichfield];
+      giprimes := HEAP[ngiprimes]GI := (whichfield|z1primes,z2primes,z3primes,z7primes,z11primes,z19primes,z43primes,z67primes,z163primes);
+   nunits := (whichfield|4,2,6,2,2,2,2,2,2);
+   fundunit := (whichfield|w,minusone,w,minusone,minusone,minusone,minusone,minusone,minusone);
+   conj   := (whichfield<3|conj1|conj2);
+   infirstquad := (whichfield=1 OR whichfield=3 | infirstquad2 | infirstquad1);
+   gidivint := (whichfield<3 | gidivint1 | gidivint2);
+   name := (whichfield|"i","t","w","a","a","a","a","a","a");
+   gibezout := (whichfield<6|gibezout1|gibezout2);
+   SKIP
+END;
+ 
+ 
+PROC qicancel = (QI q)QI:
+BEGIN GI nq=Nq,dq=Dq;
+GI h=gigcd(nq,dq); HEAP QI ans;
+      IF (h=zero) THEN print("qicancel tried with 0/0");SKIP
+                  ELSE ans:=(Nq/h,Dq/h);
+                        WHILE NOT infirstquad(Dans)
+                        DO ans:=(fundunit*Nans,fundunit*Dans)
+                        OD;
+                        ans
+      FI
+END;
+ 
+ 
+OP + = (QI p,q)QI:qicancel(((Np * Dq)+(Dp * Nq),Dp * Dq));
+OP - = (QI p)QI:(-Np,Dp);
+OP - = (QI p,q)QI:qicancel(((Np * Dq)-(Dp * Nq),Dp * Dq));
+OP * = (QI p,q)QI:qicancel((Np * Nq,Dp * Dq));
+OP * = (GI a, QI q)QI:qicancel((a*Nq, Dq));
+OP % = (QI p)QI:(Dp,Np);
+OP % = (QI p,q)QI:qicancel((Np * Dq,Dp * Nq));
+OP OVER = (GI a,b)QI: qicancel(QI(a,b));
+ 
+OP * = (LONG INT m, QI q)QI: (m*Nq) OVER (Dq);
+OP * = (INT m, QI q)QI: ((LENG m)*Nq) OVER (Dq);
+ 
+ 
+ 
+PROC printqifac = (QI a)VOID:
+BEGIN
+QI b = qicancel(a);
+GI n := Nb, d := Db;
+FOR i TO UPB giprimes WHILE norm(n*d)>LONG 1 DO
+    GI p = giprimes[i];
+    INT v = val(p,n) - val(p,d);
+    IF v/=0 THEN
+       print("(");printgi(p);print((")(^",v,")"));
+       IF v>0 THEN TO v DO n:=n%p OD ELSE TO -v DO d:=d%p OD FI
+    FI
+OD;
+IF norm(d) = LONG 1 THEN n:=n%d; d:=one FI;
+IF NOT (n=one) THEN print("(");printgi(n);print(")") FI;
+IF NOT (d=one) THEN print(" / (");printgi(d);print(")") FI
+END;
+ 
+PROC reducemodzi = (QI q)QI:
+(GI d=Dq; HEAP QI := (d=zero|QI(one,zero)|QI(Nq MODULO d,d)));
+ 
+PROC getprimedivisor = (GI a, REF INT n)GI:
+BEGIN
+      BOOL notfound := TRUE; GI p := one;
+      IF norm(a) <= LONG 1
+      THEN print(("PROC getprimedivisor called with a = "));
+           printgi(a); print(newline)
+      ELSE
+      FOR i FROM n TO ngiprimes WHILE norm(p*p) <= norm(a) AND notfound
+      DO p := giprimes[i]; n := i;
+         notfound := p NDIV a
+      OD;
+      n+:=1;
+      IF notfound THEN IF norm(p*p) <= norm(a)
+                       THEN print("No prime divisor found for");printgi(a);
+                            print((" so assuming it is prime",newline))
+                       FI;
+                       p:=a
+      FI
+      FI;
+      p
+END;
+ 
+ 
+ 
+PROC show = (REF[]GI x,INT n)VOID:
+(print(newline);FOR i TO n DO printgi(x[i]);print(newline) OD);
+ 
+PROC findgi = (GI a, REF []GI list)INT:
+BEGIN
+   INT ans := 0;
+   FOR i TO UPB list WHILE ans=0   DO IF a=list[i] THEN ans := i FI   OD;
+   ans
+END;
+ 
+PROC primepowerdivisor = (GI n, REF GI p,q,n1,REF INT start)VOID:
+BEGIN p:=getprimedivisor(n,start);
+      q:=one;n1:=n;
+      WHILE p DIV n1 DO q:=q*p; n1:=n1%p OD
+END;
+ 
+PROC maxsquarediv = (GI d)GI:
+BEGIN
+   GI dd := d, ans := one;
+   FOR i TO UPB giprimes WHILE norm(dd) > LONG 1
+   DO GI p = giprimes[i];
+      FOR j WHILE p DIV dd
+      DO dd:=dd%p;
+         IF NOT ODD(j) THEN ans:=ans*p FI
+      OD
+   OD;
+   IF norm(dd)>LONG 1
+   THEN print(("Warning from PROC maxsquarediv: unable to find a prime which divides "));
+        printgi(dd);print((" so assuming it is prime", newline))
+   FI;
+   ans
+END;
+ 
+PROC forallposdiv = (GI n, PROC(GI)VOID f,INT start,REF BOOL go on)VOID:
+BEGIN  INT start2:=start;
+      IF norm(n)<=LONG 1
+      THEN GI u := one;
+           FOR i TO (whichfield|2,1,3,1,1,1,1,1,1) DO f(u);u:=u*fundunit OD
+      ELSE GI n1,p,q; primepowerdivisor(n,p,q,n1,start2);
+           PROC try d = (GI d)VOID:
+           BEGIN GI q1:=one;
+                 WHILE (norm(q1)<=norm(q)) AND go on
+                 DO f(q1*d); q1:=q1*p OD
+           END;
+ 
+           forallposdiv(n1,try d,start2,go on)
+      FI
+END;
+ 
+PROC foralldiv = (GI n, PROC(GI)VOID f,INT start,REF BOOL go on)VOID:
+BEGIN INT start2 := start;
+      IF norm(n)=LONG 1
+      THEN GI u:=one;
+           FOR i TO (whichfield|4,2,6,2,2,2,2,2,2) DO f(u);u:=u*fundunit OD
+      ELSE GI n1,p,q; primepowerdivisor(n,p,q,n1,start2);
+           PROC try d = (GI d)VOID:
+           BEGIN GI q1 := one;
+                 WHILE (norm(q1)<=norm(q)) AND go on
+                 DO f(q1*d); q1:=q1*p OD
+           END;
+ 
+           foralldiv(n1,try d,start2,go on)
+      FI
+END;
+ 
+PROC gicubicroots = (GI a,b,c)REF[]GI:
+BEGIN []LONG COMPL croots =  solvecubic(complexify(a),complexify(b),complexify(c));
+      INT ncroots = UPB croots;
+      HEAP[ncroots]GI giroots;
+      INT ngiroots :=0;
+      FOR i TO ncroots DO
+       GI x = round(croots[i]);
+         IF
+            IF x=zero THEN c=zero
+            ELSE
+            GI cx = c%x;
+            IF x*cx=c
+            THEN (x+a)*x+b+cx = zero
+            ELSE FALSE
+            FI
+            FI
+         THEN giroots[ngiroots+:=1]:=x
+         FI
+      OD;
+   giroots[1:ngiroots]
+END;
+ 
+PROC giquarticroots = (GI a,b,c,d)REF[]GI:
+BEGIN []LONG COMPL croots =  solvequartic(complexify(a),complexify(b),complexify(c),complexify(d));
+      INT ncroots = UPB croots;
+      HEAP[ncroots]GI quartroots;
+      INT nquartroots :=0;
+      FOR i TO ncroots DO
+       GI x = round(croots[i]);
+         IF
+            IF x=zero THEN d=zero
+            ELSE
+            GI dx = d%x;
+            IF x*dx=d
+            THEN x*(x*(x+a)+b)+c+dx = zero
+            ELSE FALSE
+            FI
+            FI
+         THEN quartroots[nquartroots+:=1]:=x
+         FI
+      OD;
+   quartroots[1:nquartroots]
+END;
+ 
+ 
+PROC giquadroots = (GI b,c)REF[]GI:
+BEGIN GI d = b*b-LONG 4*c; HEAP[1:2]GI roots; INT nroots:=0;
+      IF d=zero THEN roots[nroots:=1]:= -b%two
+      ELIF c=zero THEN nroots:=2; roots[1]:=zero; roots[2]:=-b
+      ELSE
+          LONG COMPL zb = complexify(b), zc=complexify(c), zd=complexify(d);
+          LONG COMPL root1 = (csqrt(zd)-zb)/LONG 2.0;
+          GI r1 = round(root1);
+          IF r1*(r1+b)+c=zero
+          THEN nroots := 2;
+               roots[1] := r1;
+               roots[2] := -b-r1
+          FI
+      FI;
+      roots[1:nroots]
+END;
+ 
+PROC veluroots = (GI a,b,c,d)REF[]GI:
+{ Assuming x is integral }
+BEGIN []LONG COMPL croots = solvequartic(complexify(a)/LONG 3,complexify(b),complexify(c),complexify(d)/LONG 3);
+print(("In PROC veluroots with a = ",a," b = ",b," c = ",c," d = ",d,newline));
+      INT ncroots = UPB croots;
+      HEAP[ncroots]GI veluroots;
+      INT nveluroots :=0;
+      FOR i TO ncroots DO
+       GI x3 = round(LONG 3 * croots[i]);
+         IF
+            IF x3=zero THEN d=zero
+            ELSE
+            GI dx = (27 * d)%x3;
+            IF x3*dx=27 * d
+          THEN dx + 27*c+x3*(9*b+x3*(a+x3)) = zero
+            ELSE FALSE
+            FI
+            FI THEN
+           veluroots[nveluroots+:=1]:=x3
+         FI
+      OD;
+print(("In PROC veluroots. Roots are : ",newline));
+FOR i TO nveluroots DO printgi(veluroots[i]);print(newline) OD;
+   veluroots[1:nveluroots]
+END;
+ 
+SKIP
+ 
+KEEP GI,QI,gibezout,gigcd, fix,unfix,
+     round,complexify,printqifac,reducemodzi,getprimedivisor,
+     giresidues,*(LONG INT,GI),*(LONG INT,QI),
+     printgi,readgi,printgifac,field,whichfield,
+     norm,MODULO(GI,GI),compare,DIV(GI,GI),NDIV(GI,GI),val,conj,
+     findgi,R(GI),I(GI),N(QI),D(QI),
+     giprimefactors,zero,one,two,w,giprimes,twelve,three,infinity,minusone,
+     -(GI),-(GI,GI),+(GI,GI),*(GI,GI),%(GI,GI),=(GI,GI),
+     /(GI,LONG INT), /(GI,GI),G(INT), W(INT,INT), *(INT,GI), *(INT,QI),
+     ngiprimes,infirstquad,invertible,firstq,
+     name,setuparithmetic,
+     qicancel,+(QI,QI),-(QI),-(QI,QI),*(QI,QI),%(QI),%(QI,QI),=(QI,QI),
+     qzero,qone,qw,printqi,readqi,
+     show,*(GI,QI),
+     coprime, nunits, fundunit,
+     G(LONG INT),W(LONG INT,LONG INT),%(GI,LONG INT),OVER(GI,GI),
+     UNIT(GI),INVMOD(GI,GI),
+     normw,tracew,
+     primepowerdivisor,maxsquarediv,forallposdiv,foralldiv,
+     gicubicroots,giquarticroots,giquadroots,veluroots
+ 
+FINISH

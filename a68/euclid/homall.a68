@@ -1,0 +1,407 @@
+DECS homall USE decs,gibasics,linalg:
+ 
+ 
+PROC relate = VOID:
+BEGIN
+   PROC rof = (SYMB s)INT: index((Ds, Cs));
+   PROC rsof= (SYMB s)INT: index((- Cs,Ds));
+   PROC sof = (SYMB s)INT: index((-Ds, Cs));
+   PROC tof = (SYMB s)INT: index((Cs - Ds, Cs));
+   PROC uof = (SYMB s)INT: index((Ds + eye*Cs,  Cs));
+   PROC eps = (SYMB s)INT: index((fundunit*Cs,Ds));
+   PROC tsof = (SYMB s)INT: index((Cs+Ds, -Cs));
+   PROC usof = (SYMB s)INT: index((Ds+eye*Cs, -Cs));
+   PROC  yof = (SYMB s)INT: index((Cs+Ds-eye*Ds, -eye*Cs-Ds));
+   PROC  x1of = (SYMB s)INT: index((eye*Cs+Ds,Cs));
+   PROC  x3of = (SYMB s)INT: index((Cs+(eye-one)*Ds,eye*Cs));
+   PROC  xof = (SYMB s)INT: index((Cs+Ds-eye*Ds, -eye*Cs-two*Ds));
+ 
+{   print(("In PROC relate",newline,newline));}
+{   print(("Symbols",newline));showsymb(symbols,nsymb);}
+   coordindex := HEAP[nsymb]INT;
+   [nsymb]BOOL seen;  clear(seen);
+   INT ngens:=0;
+   [nsymb]INT gens;
+ 
+   CASE (whichd|1,2,3,2,2) IN
+ 
+   {Field = 1}
+ 
+   BEGIN
+      [4]INT rel; INT temp;  SYMB s;
+      FOR j FROM nsymb BY -1  TO 1
+      DO IF Csymbols[j]=zero OR Dsymbols[j]=zero
+         THEN seen[j]:=TRUE; coordindex[j]:=0
+         ELIF NOT seen[j]
+         THEN rel[3]:=rof(s:=symbols[rel[1]:=j]);
+              rel[4]:=rof(symbols[rel[2]:=rsof(s)]);
+              FOR x TO 4 DO seen[rel[x]] := TRUE OD;
+              IF j=rel[3] OR j=rel[4]
+              THEN FOR x TO 4 DO coordindex[rel[x]] := 0 OD
+              ELSE gens[ngens+:=1] := j;
+                   FOR x TO 2 DO coordindex[rel[x]] := ngens;
+                                 coordindex[rel[x+2]] := -ngens
+                   OD
+              FI
+         FI
+      OD
+   END,
+ 
+   {Field = 2, 7, 11 }
+ 
+BEGIN
+      [2]INT rel; INT temp;  SYMB s;
+      FOR j FROM nsymb BY -1  TO 1
+      DO IF Csymbols[j]=zero OR Dsymbols[j]=zero
+         THEN seen[j]:=TRUE; coordindex[j]:=0
+         ELIF NOT seen[j]
+         THEN s:=symbols[rel[1]:=j];
+              rel[2]:=sof(s);
+              FOR x TO 2 DO seen[rel[x]] := TRUE OD;
+              IF j=rel[2]
+              THEN FOR x TO 2 DO coordindex[rel[x]] := 0 OD
+              ELSE gens[ngens+:=1] := j;
+                   coordindex[rel[1]] := ngens;
+                   coordindex[rel[2]] := -ngens
+              FI
+         FI
+      OD
+END,
+ 
+   {Field = 3 }
+ 
+BEGIN
+      [3]INT a,b; INT temp;  SYMB s;
+      FOR j FROM nsymb BY -1  TO 1
+      DO IF Csymbols[j]=zero OR Dsymbols[j]=zero
+         THEN seen[j]:=TRUE; coordindex[j]:=0
+         ELIF NOT seen[j]
+         THEN s:=symbols[j];
+              a[1]:=j; b[1]:=sof(s);
+              FOR i FROM 2 TO 3
+              DO a[i]:=eps(symbols[eps(symbols[a[i-1]])]);
+                 b[i]:=eps(symbols[eps(symbols[b[i-1]])])
+              OD;
+              FOR x TO 3 DO seen[a[x]] := seen[b[x]] := TRUE OD;
+              BOOL trivial := FALSE;
+              FOR i TO 3 WHILE NOT trivial DO trivial:=(j=b[i]) OD;
+              IF trivial
+              THEN FOR x TO 3 DO coordindex[a[x]] := coordindex[b[x]] := 0 OD
+              ELSE gens[ngens+:=1] := j;
+                   FOR x TO 3 DO coordindex[a[x]] := ngens;
+                                 coordindex[b[x]] := -ngens
+                   OD
+              FI
+         FI
+      OD
+END
+ 
+OUT SKIP ESAC;
+ 
+[ngens]REF[]INT relmat;
+INT numrel := 0;
+INT ij, ik, fix;
+[ngens]INT order:= iota(ngens);
+[(whichd|3,4,3,4,6)]INT relation;
+[ngens]INT newrel;
+ 
+CASE (whichd|1,2,1,3,4) IN
+ 
+{Field = 1, 3}
+ 
+BEGIN
+ 
+FOR case TO 2
+DO
+ 
+   PROC(SYMB)INT f = (case|tof|(field=1|x1of|x3of));
+   PROC(SYMB)INT g = rof;
+   clear(seen);
+ 
+   FOR k TO nsymb WHILE numrel < ngens DO
+    IF NOT seen[k] THEN
+     setzero(newrel);
+     relation[3]:=f(symbols[relation[2]:=f(symbols[relation[1]:=k])]);
+{     print(("3-term relation ",relation,newline));}
+     FOR j TO 3 DO
+      ij := relation[j];
+      seen[ij] := TRUE;
+      fix:= coordindex[ij];
+      IF fix/=0 THEN
+         newrel[ABS(fix)] +:= SIGN(fix)
+      FI
+     OD;
+     INT h = hcf2(newrel);
+     IF NOT (h=0) THEN
+        IF h>1 THEN FOR i TO ngens DO newrel[i]:=newrel[i]%h OD FI;
+        reorder(newrel,order);
+        addrel(relmat,newrel,order,numrel)
+     FI
+    FI
+  OD
+OD
+ 
+ 
+END,
+ 
+{  Field = 2 }
+ 
+BEGIN
+ FOR which TO 2
+ DO
+   PROC(SYMB)INT f = (which | tof | uof);
+   PROC(SYMB)INT g = (which | rof | sof);
+   INT length=which+2;
+   clear(seen);
+ 
+   FOR k TO nsymb WHILE numrel < ngens DO
+    IF NOT seen[k] THEN
+     setzero(newrel);
+     relation[1] := k;
+     FOR i FROM 2 TO length
+     DO relation[i]:=f(symbols[relation[i-1]])
+     OD;
+     FOR j TO length DO
+      ij := relation[j];
+      seen[ij] := TRUE;
+      fix:= coordindex[ij];
+      IF fix/=0 THEN
+         newrel[ABS(fix)] +:= SIGN(fix) * (which=2 AND ODD j | 1 | 1)
+      FI
+     OD;
+     INT h = hcf2(newrel);
+     IF NOT (h=0) THEN
+        IF h>1 THEN FOR i TO ngens DO newrel[i]:=newrel[i]%h OD FI;
+        reorder(newrel,order);
+        addrel(relmat,newrel,order,numrel)
+     FI
+    FI
+  OD
+ OD
+END,
+ 
+{ Field = 7 }
+ 
+BEGIN
+ 
+ FOR which TO 2
+ DO
+   INT length=which+2;
+   clear(seen);
+ 
+   FOR k TO nsymb WHILE numrel < ngens DO
+    IF NOT seen[k] THEN
+     setzero(newrel);
+     relation[1] := k;
+     CASE which IN
+  {Case 1}
+     BEGIN
+     relation[2]:=tsof(symbols[k]);
+     relation[3]:=tsof(symbols[relation[2]])
+     END,
+  {Case 2}
+     BEGIN
+     relation[2]:=usof(symbols[k]);
+     relation[3]:= yof(symbols[k]);
+     relation[4]:=usof(symbols[relation[3]])
+     END
+     ESAC;
+     FOR j TO length DO
+      ij := relation[j];
+      CASE which IN
+      BEGIN seen[ij]:=TRUE END,
+      BEGIN seen[(ODD j | ij | rof(symbols[ij]))] := TRUE END
+      ESAC;
+      fix:= coordindex[ij];
+      IF fix/=0 THEN
+         newrel[ABS(fix)] +:= SIGN(fix)
+      FI
+     OD;
+     INT h = hcf2(newrel);
+     IF NOT (h=0) THEN
+        IF h>1 THEN FOR i TO ngens DO newrel[i]:=newrel[i]%h OD FI;
+        reorder(newrel,order);
+        addrel(relmat,newrel,order,numrel)
+     FI
+    FI
+  OD
+ OD
+END,
+ 
+{ Field = 11 }
+ 
+BEGIN
+ 
+ FOR which TO 2
+ DO
+   INT length=which*3;
+   clear(seen);
+ 
+   FOR k TO nsymb WHILE numrel < ngens DO
+    IF NOT seen[k] THEN
+     setzero(newrel);
+     relation[1] := k;
+     CASE which IN
+  {Case 1}
+     BEGIN
+     relation[2]:=tsof(symbols[k]);
+     relation[3]:=tsof(symbols[relation[2]])
+     END,
+  {Case 2}
+     BEGIN
+     relation[2]:=usof(symbols[k]);
+     relation[3]:= xof(symbols[k]);
+     relation[4]:=usof(symbols[relation[3]]);
+     relation[5]:= xof(symbols[relation[3]]);
+     relation[6]:=usof(symbols[relation[5]])
+     END
+     ESAC;
+     FOR j TO length DO
+      ij := relation[j];
+      CASE which IN
+      BEGIN seen[ij]:=TRUE END,
+      BEGIN seen[(ODD j | ij | rof(symbols[ij]))] := TRUE END
+      ESAC;
+      fix:= coordindex[ij];
+      IF fix/=0 THEN
+         newrel[ABS(fix)] +:= SIGN(fix)
+      FI
+     OD;
+     INT h = hcf2(newrel);
+     IF NOT (h=0) THEN
+        IF h>1 THEN FOR i TO ngens DO newrel[i]:=newrel[i]%h OD FI;
+        reorder(newrel,order);
+        addrel(relmat,newrel,order,numrel)
+     FI
+    FI
+  OD
+ OD
+ 
+END
+ 
+OUT SKIP ESAC;
+ 
+evenuprel(relmat[1:numrel],denom1);
+rank := ngens - numrel;
+[ngens]INT invorder;
+FOR i TO ngens DO invorder[order[i]] := i OD;
+coord := HEAP[ngens,rank]INT;
+FOR i TO numrel DO coord[i,] := relmat[i][2:1+rank] OD;
+FOR i TO rank DO
+      setzero(coord[numrel+i,]);
+      coord[numrel+i,i] := denom1
+OD;
+FOR i TO nsymb DO
+      REF INT ci = coordindex[i];
+      ci := ( ci=0 | 0 | SIGN(ci) * invorder[ABS(ci)] )
+OD;
+freegens := HEAP[rank]INT;
+FOR i TO rank DO freegens[i] := gens[order[numrel+i]] OD;
+{   print(("freegens:",freegens,newline));}
+coord := purge(coordindex,coord);
+ 
+SKIP
+ 
+END;   {of PROC relate}
+ 
+ 
+PROC cuspeq = (QI a,b)BOOL:
+BEGIN
+   GI p1 = Na, p2 = Nb, q1 = Da, q2 = Db;
+   []GI temp1 = bezout(p1,q1), temp2 = bezout(p2,q2);
+   GI x = gcd(q1*q2,mod);
+   GI y1 = q2*temp1[2], y2 = q1*temp2[2];
+   CASE (whichd|1,2,3,2,2) IN
+BEGIN (x DIV (y1-y2)) OR (x DIV (y1+y2)) END,
+BEGIN (x DIV (y1-y2)) END,
+BEGIN (x DIV (y1-y2)) OR (x DIV (y1+eye*y2)) OR (x DIV (y1-eye*eye*y2)) END
+   OUT SKIP ESAC
+END;
+ 
+PROC findcusp = (QI c,REF []QI list,INT n)INT:
+BEGIN
+   INT ans:=0;
+   FOR i TO n WHILE (ans=0)
+   DO IF cuspeq(c,list[i])        THEN ans:=i      FI
+   OD;
+   ans
+END;
+ 
+PROC kerneldelta = VOID:
+BEGIN
+ 
+ 
+   [1:2*rank]QI cusps; INT ncusps:=0;INT k;
+   [1:2*rank,1:rank]INT matrix;
+ 
+   FOR i TO rank DO
+      MODSYM m =convert(symbols[freegens[i]]);
+      FOR j TO 2 DO
+         QI cusp = ( j | Bm,Am);
+         k := findcusp(cusp,cusps,ncusps);
+         IF k=0 THEN cusps[ncusps+:=1]:=cusp;
+                     setzero(matrix[ncusps,]);
+                     k := ncusps
+         FI;
+         matrix[k,i] +:= ( j | 1,-1)
+   OD OD;
+ 
+   [1:rank]INT order;
+   image := uptri(matrix[1:ncusps,],order);
+ 
+   {rearrange freegens and coord into new order:}
+   HEAP[rank]INT temp;
+   FOR i TO rank DO temp[i] := freegens[order[i]] OD;
+   freegens:=temp;
+{print(("reordered freegens:",freegens,newline));}
+ 
+   HEAP[UPB coord,rank]INT newcoord;
+   FOR i TO UPB coord DO
+      FOR j TO rank DO newcoord[i,j] := coord[i,order[j]] OD
+   OD;
+   coord:=newcoord;
+ 
+   codimension:=1 UPB image; dimension:=rank-codimension;
+{  print(("Dimension = ",dimension,newline));  }
+   IF dimension>0
+   THEN evenup(image,denom2);
+        denom := denom1*denom2;
+        basis1:=perp(image);
+        tbasis1:=transpose(basis1);
+        freemods:=HEAP[rank]MODSYM;
+        needed:=HEAP[rank]BOOL;
+        FOR i TO rank
+        DO freemods[i] := convert(symbols[freegens[i]]) ;
+           needed[i] := NOT trivial(basis1[,i])
+        OD;
+{print(("freemods:",newline));}
+{  FOR i TO rank DO print((freemods[i],newline)) OD;}
+{print(("basis:",newline));showmatrix(basis1);}
+        zerovector:=HEAP[rank]INT;setzero(zerovector)
+   FI
+ 
+END;  {of PROC kerneldelta}
+ 
+ 
+PROC maninvector = (GI p)REF[]INT:
+BEGIN HEAP[dimension]INT ans;  clear(ans);
+      []GI res = residues(p);
+      FOR i TO UPB res DO ans:=ans+v(res[i],p) OD;
+      ans
+END;
+ 
+PROC mv2 = (GI p,q)REF[]INT:
+BEGIN HEAP[dimension]INT ans := v(p,q);
+      []GI resp = residues(p);
+      FOR ia TO UPB resp
+      DO GI a = resp[ia];
+         ans := ans + v(one+a*q,p*q) - v(a,p)
+      OD;
+      ans
+END;
+ 
+SKIP
+ 
+KEEP relate,findcusp,cuspeq,kerneldelta,maninvector,mv2
+ 
+FINISH

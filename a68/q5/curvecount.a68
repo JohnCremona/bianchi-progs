@@ -1,0 +1,76 @@
+PROGRAM curvecount USE basics,lbasics,zbasics
+ 
+BEGIN
+ 
+ 
+PROC eof = (REF FILE f)BOOL:(stop;FALSE);
+on logical file end(standin,eof);
+setlprimes;
+ 
+PROC cubic = (LGI x,a2,a4,a6)REF LGI:(((((x+a2)*x)+a4)*x)+a6);
+ 
+INT nprimes; print(("How many primes?",newline)); read(nprimes);
+[nprimes]REF[]LGI residlist,squares;
+FOR i TO nprimes
+DO []LGI res =  lidealresidues(ideal OF lprimes[i]) ;
+   HEAP[UPB res]LGI xres := res;
+   residlist[i] := xres;
+   LIDEAL p = ideal OF lprimes[i];
+   INT np  =UPB res;
+   HEAP[np]LGI sq;   INT nsq:=0;
+   FOR j TO np
+   DO LGI sqj=(res[j]*res[j]) MOD p;
+      IF (NOT (sqj=lzero))  AND lcompare(sqj,sq,nsq)=0
+      THEN sq[nsq+:=1]:=sqj
+      FI
+   OD;
+   squares[i]:=sq[1:nsq]
+OD;
+ 
+REF INT iss = i OF standard style , ils =  i OF long style ;
+ 
+LGI a1,a2,a3,a4,a6,a22,a44,a66;INT count;
+WHILE
+     read((a1,a2,a3,a4,a6));
+     NOT ((a2=lzero)AND(a4=lzero)AND(a6=lzero)AND(a3=lzero)AND(a1=lzero))
+DO
+ 
+ 
+iss := ils := 0;
+print("("); printlgi(a1);
+FOR i TO 4 DO print(",");printlgi(CASE i IN a2,a3,a4,a6 ESAC) OD;
+print(")");
+setcharnumber(standout,52);
+print("(");
+iss := ils := -3;
+FOR i TO nprimes DO
+   count := 0;
+   LIDEAL primesi = ideal OF lprimes[i];
+   []LGI res = residlist[i],sq = squares[i];
+   INT np = UPB res, nsq = UPB sq;
+ 
+   IF CH lprimes[i] = 2 THEN
+       FOR ix TO np DO LGI x = res[ix];
+                        LGI fx= cubic(x,a2,a4,a6);
+         FOR iy TO np DO LGI y = res[iy];
+            IF primesi DIV (y*y+a1*x*y+a3*y - fx) THEN count +:= 1 FI
+         OD
+       OD
+   ELSE
+      LGI half = ltwo INVMOD primesi;
+      a22 := a2 + half*half*a1*a1;
+      a44 := a4 +      half*a1*a3;
+      a66 := a6 + half*half*a3*a3;
+      FOR j TO np DO
+         LGI x = res[j];
+         LGI y2= cubic(x,a22,a44,a66) MOD primesi;
+         count +:= (y2=lzero|1|(lcompare(y2,sq,nsq)=0|0|2))
+      OD
+   FI;
+ 
+   print((np-count,","))
+OD;
+print(("...)",newline,newline))
+OD
+END
+FINISH

@@ -1,0 +1,123 @@
+PROGRAM integrate USE gibasics
+ 
+BEGIN
+i OF standard style := -5;
+PROC code = (INT x)STRING:(x<0|"m"|"")+whole(ABS x,0);
+REAL twopi = 2.0 * pi;
+REAL factor,frontfactor,result,sum,tzero;
+INT rnq,inq,rdq,idq,dot;
+COMPL ceye = 0 I 1,   cw = (1 I sqrt(3))/2;
+COMPL z1, z2;
+ 
+PROC(REF REAL, REF INT)REAL xk1 = ALIEN "S18ADF";
+PROC k1 = (REAL x)REAL: (INT i:=0; REAL xx := x; xk1(xx,i));
+ 
+PROC psitilde1 = (COMPL z)REAL:   2*cos(4*pi*(re OF z));
+ 
+WHILE
+print(("field?",newline)); read(field);
+field/=0
+DO
+ 
+setuparithmetic;
+INT disc = (field<3|4*field|field);
+REAL rootdisc = sqrt(disc);
+COMPL eta = 0 I rootdisc;
+ 
+PROC(COMPL)REAL psitilde;
+psitilde := CASE (field>3|2|field) IN
+      (COMPL z)REAL: psitilde1(z)+psitilde1(ceye*z),
+      (COMPL z)REAL: psitilde1(z),
+      (COMPL z)REAL: psitilde1(z)+psitilde1(cw*z)+psitilde1(cw*cw*z)
+  OUT SKIP
+  ESAC;
+ 
+PROC fix = (GI z)COMPL:
+BEGIN REAL x := Rz, y := Iz;
+      IF field > 2 THEN y:=y/2; x:=x+y FI;
+      IF field > 1 THEN y:=y*sqrt(field) FI;
+   HEAP COMPL ans := (x,y);
+   ans
+END;
+ 
+PROC realnorm = (GI z)REAL: sqrt(norm(z));
+ 
+WHILE
+print(("Level?",newline));GI mod;read(mod);
+NOT (mod=zero)
+DO
+ 
+print((newline,newline,">>>>>> Level "));printgi(mod);print((" <<<<<<",newline));
+ 
+FILE data;
+open(data,":ema999.euclid.data"+whole(field,0)+".e"+code(Rmod)+"i"+code(Imod),alieninchannel);
+ 
+INT nforms,formnumber;
+get(data,nforms);
+print(("Total number of forms is ",nforms,newline));
+print(("Form number to use?",newline)); read(formnumber);
+print(("Using form number ",formnumber,newline));
+TO nforms DO get(data,LOC[2]INT) OD;
+get(data,nprimes);
+print(("Using ",nprimes," primes",newline));
+[nprimes]INT ap;
+FOR i TO nprimes
+DO TO formnumber-1 DO get(data,LOC INT) OD;
+   get(data,ap[i]);
+   GI p = primes[i];
+   IF p DIV mod THEN ap[i]:= IF (p*p) DIV mod THEN 0 ELSE -ap[i] FI FI;
+   TO nforms-formnumber DO get(data,LOC INT) OD
+OD;
+ 
+print(("Enter alpha, beta, dot:",newline));
+read((rnq,inq,rdq,idq,dot));
+GI nq = (rnq,inq), dq = (rdq,idq);
+[]GI bez = bezout(dq,-mod*nq);
+GI a = bez[2], b = nq, c = bez[3], d = dq;
+ 
+INT limitnorm := norm(primes[nprimes]);
+ 
+ 
+ 
+PROC use = (GI alpha, INT coeff)VOID:
+BEGIN
+   REAL rnz = realnorm(alpha);
+   COMPL calpha = fix(alpha);
+   REAL const = coeff * k1(factor*rnz) / rnz;
+   sum +:= const * (psitilde(z1*calpha)-psitilde(z2*calpha))
+END;
+ 
+PROC add = (GI n, INT pindex, y, z)VOID:
+BEGIN
+   IF y/=0 THEN use(n,y) FI;
+   GI p;
+   FOR i FROM (y=0|pindex|1) TO pindex WHILE norm((p:=primes[i])*n) <= limitnorm
+   DO INT x := y*ap[i];
+      IF (i=pindex) AND (p NDIV mod) THEN x-:=z*norm(p) FI;
+      add(p*n, i, x, y)
+   OD
+END;
+ 
+   print(("a = ",a,newline,
+          "b = ",b,newline,
+          "mod*c = ",mod*c,newline,
+          "d = ",d,newline));
+   z1 := -fix(d)/(eta*fix(mod*c));   z2 := fix(a)/(eta*fix(mod*c));
+   tzero := 1.0 / realnorm(mod*c);
+   factor := 4*pi*tzero/rootdisc;
+   frontfactor := 2*pi*tzero;
+   sum := 0.0;
+   use(one,1);
+   GI p;
+   FOR i TO nprimes WHILE norm(p:=primes[i]) <= limitnorm
+   DO add(p,i,ap[i],1) ; print((sum*frontfactor,newline))OD;
+ 
+   sum *:= frontfactor;
+   result := ABS(sum/dot);
+   print((newline,"Integral = ",sum,newline));
+   print((newline,"Period   = ",result,newline,newline));
+SKIP
+OD
+OD
+END
+FINISH

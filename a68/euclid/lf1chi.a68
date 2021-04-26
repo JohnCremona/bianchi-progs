@@ -1,0 +1,91 @@
+PROGRAM lf1chi USE lf1procs,decs,gibasics
+ 
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+PROC code = (INT x)STRING:(x<0|"m"|"")+whole(ABS x,0);
+ 
+WHILE
+print(("Field?",newline)); read(field);
+field/=0
+DO
+ 
+setuparithmetic;
+INT nunits = (whichd | 4,2,6,2,2);
+INT discriminant = (whichd | 4,8,3,7,11);
+ 
+WHILE
+print(("Conductor?",newline));  readgi(mod);
+normod := norm(mod);
+normod/=0
+DO
+ 
+print((">>>>>>>Level   ")); printgi(mod); print(("<<<<<<<",newline,newline));
+print((" norm",normod,newline));
+ 
+FILE data;
+open(data,":ema999.euclid.data"+whole(field,0)+".e"+code(Rmod)+"i"+code(Imod),alieninchannel);
+ 
+INT n1ds;
+get(data,n1ds);
+[n1ds]INT nloverplist,dloverplist;
+get(data,(nloverplist,dloverplist));
+ 
+INT neigs;
+get(data,neigs);
+[n1ds][neigs]INT eiglists;
+INT eig;  GI p;
+ 
+FOR ip TO neigs
+DO FOR i TO n1ds
+   DO get(data,eig);
+      p:=primes[ip];
+      eiglists[i][ip] :=
+                          IF p DIV mod
+                          THEN IF p DIV mod%p THEN 0 ELSE -eig FI
+                          ELSE eig
+                          FI
+   OD
+OD;
+close(data);
+ 
+level := mod;
+factor := 4*pi/sqrt(discriminant*realnorm(mod));
+REAL fixfactor = sqrt(discriminant)*factor;
+limitnorm := 1000;
+ 
+print((newline,"Number of forms = ",n1ds,newline,newline));
+ 
+FOR iform TO n1ds
+DO
+ 
+   print(("Form number ",iform,newline));
+   INT nloverp = nloverplist[iform],
+       dloverp = dloverplist[iform];
+   print((newline,"L/P = ",whole(nloverp,0),(dloverp>1|"/"+whole(dloverp,0)|""),newline,newline));
+ 
+IF nloverp/=0 THEN
+   ap := eiglists[iform];
+   sum := k1(factor);
+ 
+   FOR ip TO neigs
+   DO add(primes[ip],ip,ap[ip],1);
+      SKIP
+      {
+      print(("Value of L(F,1) so far = ",fixfactor*sum,newline))
+      }
+   OD;
+ 
+   REAL lf1value = fixfactor*sum;
+   print(("L(F,1) = ",lf1value,newline));
+   REAL period = lf1value*dloverp/nloverp;
+   print(("Period = ",ABS period,newline,newline))
+ 
+ELSE print(("L(F,1) = 0",newline,newline))
+FI
+OD
+ 
+OD
+OD {closes "DO" at very beginning}
+END
+FINISH

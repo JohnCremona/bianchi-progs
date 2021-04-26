@@ -1,0 +1,203 @@
+PROGRAM plust USE split,hom,decs,gibasics,newlinalg
+ 
+{
+  Temporary version to answer Richard Taylor's question.
+}
+BEGIN
+CHAR newpage = REPR 12;
+i OF standard style := 0;
+print(("Field?",newline)); read(field); setuparithmetic;
+INT nunits = (whichd | 4,2,6,2,2);
+ 
+DO
+ 
+print(("Conductor?",newline));  readgi(mod);
+normod := norm(mod);
+IF mod=zero THEN stop FI;
+print((">>>>>>>Level   ")); printgi(mod); print(("<<<<<<<",newline,newline));
+print((" norm",normod,newline));
+ 
+setup;
+print(("Number of symbols",nsymb,newline));
+ 
+makesymbols;
+ 
+print(("prime factorization of conductor:",newline));
+printgifac(mod);print(newline);
+ 
+ 
+INT plusorminus := +1;
+ 
+print((newline,(plusorminus=1|"+1"|"-1")," eigenspace",newline));
+relate(plusorminus);
+ 
+kerneldelta(plusorminus);
+print(("Dimension = ",dimension,newline));
+ 
+IF dimension>0 THEN
+ 
+ 
+{Split into eigenspaces}
+ 
+INT maxdepth;
+print(("How many primes for splitting?",newline));
+read(maxdepth);
+ 
+geteigenpackets(maxdepth,TRUE);
+ 
+print((whole(n1ds,0)," one-dimensional eigenspace"+(n1ds>1|"s"|"")+" found",newline));
+ 
+IF n1ds>0 THEN   {rest of program}
+ 
+initstore;
+FOR i TO n1ds DO store(eplist[i]) OD;
+endstore;
+ 
+INT startp,stopp;
+print(("How many primes for a_p ?",newline));
+startp := 1; read((stopp));
+ 
+BOOL foundq:=FALSE, foundp0:=FALSE; GI nq,dq,p0;  [n1ds]INT qdotlist,dotlist, dp0;
+ 
+FOR i WHILE NOT foundp0
+DO p0 :=primes[i];
+   foundp0 := p0 NDIV mod
+OD;
+ 
+FOR i TO n1ds
+DO dp0[i] := 1+norm(p0)-(aplist OF eplist[i])[1]
+OD;
+ 
+[]INT mvp = maninvector(p0);
+BOOL easy := TRUE;
+FOR i TO n1ds
+DO REF[]INT b = basis OF eplist[i];
+   INT h = vecgcd(b);
+   IF h>1 THEN b:=b%h FI;
+   dotlist[i] := mvp DOT basis OF eplist[i]
+OD;
+FOR i TO n1ds WHILE easy DO easy := dotlist[i]  /= 0 OD;
+ 
+[n1ds]INT nloverplist,dloverplist;
+ 
+FOR i TO n1ds
+DO INT nloverp := ABS dotlist[i], dloverp := nunits*dp0[i];
+   INT h = hcf1(nloverp,dloverp);
+   IF h>1 THEN nloverp%:=h; dloverp%:=h FI;
+   IF dloverp<0 THEN nloverp:=-nloverp; dloverp:=-dloverp FI;
+   nloverplist[i] := nloverp;
+   dloverplist[i] := dloverp;
+   print(("Newform number ",whole(i,0),":  L/P = ",whole(nloverp,0),"/",
+          whole(dloverp,0),newline))
+OD;
+print(newline);
+ 
+ 
+FOR xplusy FROM 2 WHILE NOT foundq
+DO FOR x TO xplusy WHILE NOT foundq
+DO GI d = (x,xplusy-x);
+   IF gcd(d,mod)=one
+   THEN []GI resmodd = residues(d);
+        FOR in TO UPB resmodd WHILE NOT foundq
+        DO GI n = resmodd[in];
+           IF gcd(n,d)=one
+           THEN   {found a candidate n/d}
+                BOOL stillokay := TRUE;
+                FOR i TO n1ds WHILE stillokay
+                DO qdotlist[i]:= v(n,d) DOT (basis OF eplist[i]);
+                   stillokay := qdotlist[i]/=0
+                OD;
+                IF (foundq:=stillokay)
+                THEN nq:=n; dq:=d
+                FI
+           FI
+        OD
+   FI
+OD
+OD;
+print(("q = "));printqi(QI(nq,dq)); print((newline));
+print(("qdotlist = ",qdotlist,newline,newline));
+ 
+FOR i TO normod-1
+DO print(("(",i,":1) -->  ",getcoord(SYMB(GI(i,0),one))[codimension+1:rank] DOT basis OF eplist[1],newline))
+OD;
+ 
+IF easy THEN   {Symbol {0,infinity} non-trivial in all cases}
+ 
+print(("L(F,1) nonzero for each form",newline,newline));
+ 
+FOR ip FROM startp TO stopp
+DO GI p = primes[ip];  INT ap;
+   print(("(N=",whole(norm(p),-3),") p = ",wholegi(p)));setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(w op(ip,FALSE));
+        BOOL p2divn = ((p*p) DIV mod);
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W(",wholegi(p),") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5));
+SKIP
+        OD;
+        print(("   *** bad prime",newline));
+SKIP
+   ELSE
+        []INT vec = maninvector(p);
+        FOR i TO n1ds
+        DO ap := 1+norm(p)-(((vec DOT basis OF eplist[i])*dp0[i]) % dotlist[i]);
+           print(whole(ap,-5));
+SKIP
+        OD;
+        print(newline);
+SKIP
+   FI
+OD
+ 
+ELSE
+ 
+FOR ip FROM startp TO stopp
+DO GI p = primes[ip];  INT ap;
+   print(("(N=",whole(norm(p),-3),") p = ",wholegi(p)));setcharnumber(standout,20);print((":"));
+   IF p DIV mod
+   THEN [,]INT wmat = transpose(w op(ip,FALSE));
+        BOOL p2divn = ((p*p) DIV mod);
+        FOR i TO n1ds
+        DO []INT b = basis OF eplist[i];
+           []INT wb = wmat * b;
+           IF wb = denom*b THEN ap:=1
+         ELIF wb = -denom*b THEN ap:=-1
+         ELSE print((newline,"Warning: W("+wholegi(p)+") does not preserve eigenspace ",i,newline))
+           FI;
+           print(whole(ap,-5));
+SKIP
+        OD;
+        print(("  ***  bad prime",newline));
+SKIP
+   ELSE
+        []INT vec = minihecke(p,nq,dq);
+        FOR i TO n1ds
+        DO ap := (vec DOT basis OF eplist[i]) % qdotlist[i];
+           print(whole(ap,-5));
+SKIP
+        OD;
+        print(newline);
+SKIP
+   FI
+OD
+ 
+ 
+ 
+FI;
+ 
+ 
+SKIP
+ 
+FI {closes "IF n1ds > 0"}
+ 
+FI {closes "IF dimension > 0"}
+OD {closes "DO" at very beginning}
+END
+FINISH

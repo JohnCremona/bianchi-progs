@@ -1,0 +1,326 @@
+MODE GI = STRUCT(INT r,i);
+MODE QI = STRUCT(GI num,INT denom);
+MODE ZBASIS = STRUCT(INT a, GI z);
+ 
+GI zero=(0,0),one=(1,0),two=(2,0),w=(0,1);
+OP G = (INT n)REF GI: BEGIN HEAP GI ans:=GI(n,0);ans END;
+OP W = (INT a,b)REF GI: BEGIN HEAP GI ans:=GI(a,b);ans END;
+OP R = (GI x)INT: (r OF x);
+OP I = (GI x)INT: (i OF x);
+OP - = (GI x)REF GI: BEGIN HEAP GI ans:= (-Rx,-Ix);ans END;
+OP * = (GI x,y)REF GI: BEGIN HEAP GI ans:=(Rx*Ry -5*Ix*Iy, Ix*Ry + Rx*Iy);ans END;
+{Change OP * according to field!}
+OP - = (GI a,b)REF GI: BEGIN HEAP GI ans:=(Ra - Rb, Ia - Ib);ans END;
+OP + = (GI a,b)REF GI: BEGIN HEAP GI ans:=(Ra + Rb, Ia + Ib);ans END;
+GI wbar = (0,-1);
+{!!}
+PROC conj = (GI x)REF GI: BEGIN HEAP GI ans:=(Rx,-Ix);  ans END;
+{!!}
+PROC norm = (GI a)INT:(Ra*Ra+5*Ia*Ia);
+{!!}
+OP = = (GI a,b)BOOL:(Ra = Rb) AND (Ia = Ib);
+ 
+PROC inhalfplane = (GI a)BOOL:
+((Ra>0) OR ((Ra=0) AND (Ia>=0)));
+ 
+PROC readgi = (REF GI a)VOID:read((r OF a,i OF a));
+STRING name = "w";
+ 
+PROC printgi = (GI a)VOID:
+BEGIN
+   INT  i = Ia;
+   IF (i =0) THEN print(Ra)
+   ELIF (Ra =0) THEN
+      IF i = 1 THEN print((space,name))
+      ELIF i = -1 THEN print((space,"-",name))
+      ELSE print((i,name))
+      FI
+   ELSE print((Ra, (i >0| " +" | " -" )));
+   IF ABS(i) = 1 THEN print((space,name)) ELSE print((ABS(i),name)) FI
+   FI;
+   print(("  "))
+END;
+ 
+ 
+ 
+OP * = (INT m,GI a)REF GI: BEGIN HEAP GI ans:= (m*Ra,m*Ia);ans END;
+ 
+PROC show = (REF[]GI x,INT n)VOID:
+(print(newline);FOR i TO n DO printgi(x[i]);print(newline) OD);
+ 
+PROC findgi = (GI a, REF []GI list)INT:
+BEGIN
+   INT ans := 0;
+   FOR i TO UPB list WHILE ans=0   DO IF a=list[i] THEN ans := i FI   OD;
+   ans
+END;
+ 
+OP / = (GI a, INT d)REF GI: BEGIN HEAP GI ans:= (Ra%d,Ia%d);ans END;
+ 
+OP / = (GI a,b)REF GI:
+{Exact division if possible; use (a-(a MOD b))/b for standard rounding}
+BEGIN IF b=zero THEN print(("/ called with b = zero",newline));SKIP
+      ELSE
+         ( a * conj(b) ) / norm(b)
+      FI
+END;
+ 
+OP DIV = (GI a,b)BOOL:
+IF (a=zero) THEN (b=zero) ELSE (b=(b/a)*a) FI;
+ 
+OP NDIV = (GI a,b)BOOL: NOT (a DIV b);
+ 
+PROC val = (GI factor,number)INT:
+BEGIN INT ans:=0; GI hold:=number;
+     IF NOT (hold=zero)
+     THEN WHILE (factor DIV hold)
+          DO hold := hold/factor;
+             ans +:= 1
+          OD
+     ELSE ans := -1
+     FI;
+     ans
+END;
+ 
+ 
+ 
+ 
+ 
+ 
+OP N = (QI q)REF GI: BEGIN HEAP GI ans:= num OF q;ans END;
+OP D = (QI q)INT: denom OF q;
+ 
+OP CANCEL = (QI q)REF QI:
+BEGIN INT g = zgcd(zgcd(R Nq, I Nq), Dq);
+      HEAP QI ans;
+      num OF ans := (R Nq % g)W( I Nq % g);
+      IF (denom OF ans := Dq%g) < 0
+      THEN num OF ans := -N ans;
+           denom OF ans := -D ans
+      FI;
+      ans
+END;
+ 
+PROC printqi = (QI q)VOID:
+BEGIN INT d = Dq;
+      IF d=0 THEN print("infinity")
+    ELIF d=1 THEN printgi(Nq)
+    ELSE print("(");printgi(Nq);print((")/"));print(d)
+      FI
+END;
+ 
+QI infinity = (one,0),
+   qzero = (zero,1),
+   qone  = (one,1),
+   qw    =  (w,1);
+ 
+OP OVER = (GI a, INT d)REF QI:
+BEGIN  HEAP QI ans :=
+      IF d=0 THEN
+             IF a=zero THEN print(("OVER called with zero/0",newline));SKIP
+                       ELSE infinity
+             FI
+      ELSE CANCEL(QI(a,d))
+      FI;ans
+END;
+ 
+OP OVER = (GI a,b)REF QI:
+BEGIN HEAP QI ans :=
+      IF b=zero THEN
+         IF a=zero THEN print(("OVER called with zero/zero",newline));SKIP
+                   ELSE infinity
+         FI
+      ELSE (a*conj(b)) OVER norm(b)
+      FI;ans
+END;
+ 
+OP = = (QI q1,q2)BOOL:
+  Dq2*Nq1=Dq1*Nq2;
+ 
+OP + = (QI q1,q2)REF QI:
+     BEGIN INT d1 = Dq1, d2 = Dq2; INT g = zgcd(d1,d2);
+           ( (d2%g)*Nq1 + (d1%g)*Nq2 ) OVER (d1*(d2%g))
+     END;
+OP - = (QI q)REF QI:BEGIN HEAP QI ans := (-Nq,Dq);ans END;
+OP - = (QI q1,q2)REF QI:q1+(-q2);
+OP * = (QI q1,q2)REF QI:((Nq1*Nq2) OVER (Dq1*Dq2));
+OP / = (QI q)REF QI: ((Dq*conj(Nq)) OVER (norm(Nq)));
+OP / = (QI q1,q2)REF QI:(Dq2*Nq1) OVER (Dq1*Nq2);
+ 
+ 
+ 
+ 
+ 
+ 
+OP UNIT = (GI a)BOOL: ((a=one) OR (a = -one));
+ 
+PROC outzbasis = (ZBASIS b)VOID:
+BEGIN print(("[",a OF b,","));printgi(z OF b);
+      print("]")
+END;
+ 
+PROC stanzbasis = (GI z1,z2)REF ZBASIS:
+BEGIN INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = bezout(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = (a*g[2] + c*g[3]) MOD (a OF ans := ABS((b*c-a*d)%e));
+      z OF ans := fWe;
+      ans
+END;
+ 
+PROC inzbasis = REF ZBASIS:
+BEGIN print(("Enter Z-basis:",newline));
+      GI a,b;
+      readgi(a);  readgi(b);
+      stanzbasis(a,b)
+END;
+ 
+OP + = (ZBASIS b1,b2)REF ZBASIS:
+BEGIN INT a1 = a OF b1, a2 = a OF b2,
+          x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []INT g = bezout(y1,y2);
+      HEAP ZBASIS ans;
+      INT g1 = g[1];
+ 
+      i OF z OF ans := g1;
+      a OF ans := vecgcd((a1,a2,(y1*x2-y2*x1)%g1));
+      r OF z OF ans := (g[2]*x1 + g[3]*x2) MOD (a OF ans);
+ 
+      ans
+END;
+ 
+OP PZB = (GI z)REF ZBASIS:
+IF z=zero THEN print(("OP PZB called with z=zero",newline));SKIP
+          ELSE stanzbasis(z,z*w)
+FI;
+ 
+OP ZB = ([]GI zlist)REF ZBASIS:
+BEGIN HEAP ZBASIS ans := PZB zlist[1];
+      FOR i FROM 2 TO UPB zlist
+      DO ans := ans + PZB zlist[i]
+      OD;
+      ans
+END;
+ 
+OP * = (INT n, ZBASIS b)REF ZBASIS:
+BEGIN HEAP ZBASIS ans;
+      a OF ans := ABS(n) * a OF b;
+      z OF ans := ABS(n) * z OF b;
+      ans
+END;
+ 
+OP * = (GI z, ZBASIS b)REF ZBASIS: stanzbasis((a OF b)*z, (z OF b)*z);
+ 
+OP * = (ZBASIS b1,b2)REF ZBASIS: (a OF b1)*b2  +  (z OF b1)*b2;
+ 
+PROC longpzb = (GI z1, REF[]GI cc)REF ZBASIS:
+BEGIN GI z2 = z1*w;
+      INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = bezout(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = a*g[2] + c*g[3];
+      INT aa = (a*d-b*c)%e;
+      INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      cc[1] := (d%e)W(-b%e);
+      cc[2] :=  (g[2] W g[3]) - k*cc[1];
+BOOL check = (cc[1]*z1 = (a OF ans)*one) AND cc[2]*z1= (z OF ans);
+IF NOT check THEN
+   print(("Error in OP longpzb",newline));
+   print(("Called with z = "));printgi(z1);
+   print(("Returns a = ",aa, " and z = "));printgi(z OF ans);print(newline);
+   print("cc[1] = ");printgi(cc[1]);print(newline);
+   print("cc[2] = ");printgi(cc[2]);print(newline)
+FI;
+      {returns [a,z] with a=cc[1]*z1, z=cc[2]*z1}
+      ans
+END;
+ 
+PROC comax = (ZBASIS b1,b2, REF[]INT c)BOOL:
+BEGIN []INT g1 = bezout(a OF b1,a OF b2);
+      INT x1 = R(z OF b1), x2 = R(z OF b2),
+          y1 = I(z OF b1), y2 = I(z OF b2);
+      []INT gg = bezout(y1,y2);
+      INT gg1 = gg[1];
+      INT a3 = (y1*x2-y2*x1)%gg1;
+      []INT g2 = bezout(g1[1],a3);
+      BOOL ans := (g2[1]=1);
+      IF ans THEN c[1]:= g2[2]*g1[2];
+                  c[2]:=-g2[3]*y2%gg1;
+                  c[3]:=g2[2]*g1[3];
+                  c[4]:= g2[3]*y1%gg1
+      FI;
+      {If true then 1 = c[1]a1 + c[2]z1 + c[3]a2 + c[4]z2}
+      ans
+END;
+ 
+PROC longsum = (ZBASIS b1,b2, REF[]INT ac,zc)REF ZBASIS:
+BEGIN []INT g1 = bezout(a OF b1,a OF b2);
+      GI z1 = z OF b1, z2 = z OF b2;
+      INT x1 = R z1, x2 = R z2,
+          y1 = I z1, y2 = I z2;
+      []INT gg = bezout(y1,y2);
+      INT gg1 = gg[1];
+      INT a3 = (y1*x2-y2*x1)%gg1;
+      []INT g2 = bezout(g1[1],a3);
+      ac[1]:= g2[2]*g1[2];
+      ac[2]:=-g2[3]*y2%gg1;
+      ac[3]:= g2[2]*g1[3];
+      ac[4]:= g2[3]*y1%gg1;
+ 
+      zc[1] := gg[2];
+      zc[2] := gg[3];
+ 
+      HEAP ZBASIS ans := (g2[1] , zc[1]*z1 + zc[2]*z2); ans
+END;
+ 
+PROC longbasis = (GI z1,z2, REF[]INT c1,c2)REF ZBASIS:
+BEGIN
+      INT a = Rz1, b=Iz1, c=Rz2, d=Iz2;
+      []INT g = bezout(b,d);
+      HEAP ZBASIS ans;
+      INT e = g[1];
+      INT f = a*g[2] + c*g[3];
+      INT aa = (a*d-b*c)%e;
+      INT k = f OVER aa;
+      a OF ans := aa;
+      r OF z OF ans := f-k*aa;
+      i OF z OF ans := e;
+      c1[1] := d%e;  c1[2] := -b%e;
+      c2[1] :=  g[2]  - k*c1[1];
+      c2[2] :=  g[3]  - k*c1[2];
+      ans
+END;
+ 
+PROC longprod = (ZBASIS b1,b2, REF[]INT ac,zc)REF ZBASIS:
+{Returns [a,z] = b1.b2  where a = ac[1]a1a2 + ac[2]a1z2 + ac[3]a2z1 + ac[4]z1z2
+                          and z = zc[1]a1a2 + zc[2]a1z2 + zc[3]a2z1 + zc[4]z1z2.}
+BEGIN
+      INT a1 = a OF b1, a2 = a OF b2;
+      GI  z1 = z OF b1, z2 = z OF b2;
+      INT a3 = a1*a2;  GI z3 = a1*z2;
+ 
+      [2]INT c1,c2,c4; [4]INT c3;
+ 
+      ZBASIS b3 = (a3,z3);
+      ZBASIS b4 = longbasis(a2*z1,z2*z1,c1,c2);
+      REF ZBASIS b5 = longsum(b3,b4,c3,c4);
+ 
+      ac[1] := c3[1];   ac[2] := c3[2];
+      ac[3] := c3[3]*c1[1] + c3[4]*c2[1];
+      ac[4] := c3[3]*c1[2] + c3[4]*c2[2];
+ 
+      zc[1] := 0;  zc[2] := c4[1];
+      zc[3] := c4[2]*c2[1];
+      zc[4] := c4[2]*c2[2];
+ 
+      b5
+END;
+ 
+OP = = (ZBASIS b1,b2)BOOL:   (a OF b1 = a OF b2) AND (z OF b1 = z OF b2);
+ 

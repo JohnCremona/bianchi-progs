@@ -1,0 +1,120 @@
+PROGRAM primes USE gibasics,intbasics
+ 
+{Computes GI primes up to a given limit on the norm.}
+ 
+BEGIN
+ 
+i OF standard style := 0;
+ 
+print(("Field (19,43,67,163) ?",newline)); read(field); setuparithmetic;
+ 
+[0:field-1]INT chitable;
+chitable[0]:=0;
+FOR i TO field-1 DO chitable[i]:=-1 OD;
+FOR i  TO field-1
+DO INT i2 = (i*i MOD field);
+   chitable[i2]:=+1
+OD;
+ 
+PROC chi = (INT p)INT:  chitable[p MOD field];
+ 
+PROC fac = (INT p)GI:
+BEGIN
+   INT p4 = 4*p;
+   INT lim  = ENTIER (p4/field);
+   GI ans := zero;
+   BOOL found := FALSE;
+   FOR y FROM 0 TO lim WHILE NOT found
+   DO INT fyy = field*y*y;
+      INT x = ROUND (sqrt(p4-fyy));
+      IF x*x+fyy=p4
+      THEN ans:=GI((x-y)%2,y); found:=TRUE
+      FI
+   OD;
+   ans
+END;
+ 
+INT normlim;
+print(("Limit on norm?",newline)); read(normlim);
+INT rootnormlim = ROUND sqrt(normlim);
+ 
+[2000]GI p1list;
+[100]GI qlist;
+INT np1list:=0,nqlist:=0;
+INT p:=1;
+GI newp;
+FILE intprimes;
+open(intprimes,":ema999.bin.primes",alieninchannel);
+ 
+FOR i TO 5000 WHILE p<normlim
+DO
+ 
+   getbin(intprimes,p);
+INT eps = chi(p);
+IF eps=0
+THEN newp:=fac(p); p1list[np1list+:=1]:=newp
+ELIF eps=+1
+THEN newp := fac(p);
+     p1list[np1list+:=1]:=newp;
+     p1list[np1list+:=1]:=conj(newp)
+ELSE IF p<rootnormlim
+     THEN qlist[nqlist+:=1]:=GI(p,0)
+     FI
+FI
+ 
+OD;
+ 
+print(("Found ",np1list," primes of degree 1 and ",nqlist," primes of degree 2",newline));
+print(("Sorting...",newline));
+ 
+INT nplist:=np1list+nqlist;
+HEAP[nplist]GI plist;
+INT np1:=1, nq:=1, np:=0;
+GI p1:=p1list[1], q:=qlist[1];
+ 
+WHILE np<nplist
+DO IF norm(p1)<norm(q)
+   THEN plist[np+:=1]:=p1;
+        IF np1=np1list
+        THEN FOR i FROM nq TO nqlist
+             DO plist[np+:=1]:=qlist[i]
+             OD
+        ELSE np1+:=1;
+             p1:=p1list[np1]
+        FI
+   ELSE
+        plist[np+:=1]:=q;
+        IF nq=nqlist
+        THEN FOR i FROM np1 TO np1list
+             DO plist[np+:=1]:=p1list[i]
+             OD
+        ELSE nq+:=1;
+             q:=qlist[nq]
+        FI
+   FI
+OD;
+ 
+print(("...sorting finished.",newline));
+ 
+{
+FOR i TO nplist
+DO printgi(plist[i]);setcharnumber(standout,30);print((norm(plist[i]),newline))
+OD;
+}
+ 
+FILE out; STRING name;
+print(("Enter filename for binary output",newline));
+read((newline,name));
+establish(out,name,alienoutchannel,1,1,1);
+close(out);
+open(out,name,alienoutchannel);
+FOR i TO nplist
+DO putbin(out,(i>ngiprimes|plist[i]|giprimes[i]));
+   IF i MOD 10 = 0 THEN newline(out) FI
+OD;
+ 
+SKIP
+ 
+END
+ 
+FINISH
