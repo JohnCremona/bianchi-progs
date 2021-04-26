@@ -57,15 +57,17 @@ class symblist {
 };
 
 class symbdata :public moddata {
- private:
-    symblist specials;         // The list of "special" symbols
- public:
-    symbdata(const Quad&);             // The constructor
-    int index2(const Quad& c, const Quad& d) const;
-    int index(const symb& s) const {return index2(s.c,s.d);}
-    symb symbol(int i) const;
-    void display() const;
-    int check(int verbose=0) const;
+private:
+  symblist specials;         // The list of "special" symbols
+public:
+  symbdata(const Quad&);             // The constructor
+  static vector<RatQuad> alphalist; // list of a such that {a,oo} represent edge-orbits
+  static void init_geometry();       // sets alpha list etc, depending only on the field
+  int index2(const Quad& c, const Quad& d) const;
+  int index(const symb& s) const {return index2(s.c,s.d);}
+  symb symbol(int i) const;
+  void display() const;
+  int check(int verbose=0) const;
 };
 
 class mat22 {  //2x2 matrix for linear fractional transformations

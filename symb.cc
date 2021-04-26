@@ -45,9 +45,61 @@ symb symblist::item(int n) const
 }
 
 //Member functions for class symbdata:
+
+vector<RatQuad> symbdata::alphalist; // list of a such that {a,oo} represent edge-orbits
+void symbdata::init_geometry()
+{
+  alphalist.push_back(RatQuad(0));
+  int d = Quad::d;
+  Quad w = Quad(0,1);
+
+  if (d < 19) return;
+
+  // for d=19 and above, include w/2 and (w-1)/2
+
+  alphalist.push_back(RatQuad(w,2)); // w/2
+  alphalist.push_back(RatQuad(w-1,2)); // (w-1)/2
+  if (d==19) return;
+
+  // for d=43 and above, include (a+b*w)/3 for a in {-1,0,1}, b in {-1,1}
+  alphalist.push_back(RatQuad(w,3));
+  alphalist.push_back(RatQuad(w-1,3));
+  alphalist.push_back(RatQuad(w+1,3));
+  alphalist.push_back(RatQuad(-w,3));
+  alphalist.push_back(RatQuad(1-w,3));
+  alphalist.push_back(RatQuad(2-w,3));
+  if (d==43) return;
+
+  // for d=67, include 16 more
+  Quad den(3,-1);
+  alphalist.push_back(RatQuad(6+w,den));
+  alphalist.push_back(RatQuad(-6-w,den));
+  alphalist.push_back(RatQuad(2+w,den));
+  alphalist.push_back(RatQuad(-2-w,den));
+
+  den = quadconj(den);
+  alphalist.push_back(RatQuad(7-w,den));
+  alphalist.push_back(RatQuad(-7+w,den));
+  alphalist.push_back(RatQuad(3-w,den));
+  alphalist.push_back(RatQuad(-3+w,den));
+
+  alphalist.push_back(RatQuad(w,4));
+  alphalist.push_back(RatQuad(-w,4));
+  alphalist.push_back(RatQuad(w-1,4));
+  alphalist.push_back(RatQuad(1-w,4));
+  alphalist.push_back(RatQuad(w+1,4));
+  alphalist.push_back(RatQuad(-w-1,4));
+  alphalist.push_back(RatQuad(w-2,4));
+  alphalist.push_back(RatQuad(2-w,4));
+}
+
 symbdata::symbdata(const Quad &n) :moddata(n),specials()
 {
-// cout << "In constructor symbdata::symbdata.\n";
+  // initialise static data (depending only on the field)
+  if (alphalist.size()==0)
+    init_geometry();
+
+  // cout << "In constructor symbdata::symbdata.\n";
 // cout << "nsymb2 = " << nsymb2 << "\n";
   dstarts[0]=dstarts[ndivs-1]=0;
 //N.B. dlist includes d=1 at 0 and d=mod at end, which we don't want here
