@@ -10,7 +10,7 @@ vector<int> valid_fields = {1,2,3,7,11,19,43};
 int main ()
 {
  int d,max=1000;
- cout << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
  if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
    {
      cout<<"field must be one of: "<<valid_fields<<endl;
@@ -18,21 +18,21 @@ int main ()
    }
  Quad::field(d,max);
  long firstn, lastn; Quad n; int verbose, plusflag=1;
- cout << "Verbose? "; cin>>verbose;
- cout << "Plus space? "; cin>>plusflag;
+ cerr << "Verbose? "; cin>>verbose;
+ cerr << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
  int both_conj;
- cout<<"Both conjugates? (0/1) "; cin >> both_conj;
- cout<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- cout<<endl;
+ cerr<<endl;
  if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;
 #else
  Quad alpha;
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
+ while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
    {
 #endif
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units

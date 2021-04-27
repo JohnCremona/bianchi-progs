@@ -25,15 +25,15 @@ int sign(int a)
 // dimension ngens, and append that as a new row to the relation
 // matrix relmat.
 
-void homspace::add_rel(const vector<int>& rel)
+void homspace::add_rel(const vector<int>& rel, const vector<int>& types)
 {
-  vector<int>::const_iterator r;
+  vector<int>::const_iterator r, t;
   long c;
   if (verbose)
     {
       cout<<"Relation: ";
-      for (r = rel.begin(); r!=rel.end(); r++)
-        cout<<(*r)<<" "<<symbol(*r)<<" ";
+      for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+        cout<<(*r)<<"_"<<(*t)<<" "<<symbol(*r)<<" ";
       cout <<" --> ";
     }
 #ifdef USE_SMATS
@@ -41,9 +41,9 @@ void homspace::add_rel(const vector<int>& rel)
 #else
   vec relation(ngens);
 #endif
-  for (r = rel.begin(); r!=rel.end(); r++)
+  for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
     {
-      c = coordindex[*r];
+      c = coordindex[*r+nsymb*(*t)];
       if(c)
 #ifdef USE_SMATS
         relation.add(abs(c), sign(c));
@@ -202,7 +202,7 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  // (1) (g)_w/2 = -(gK)_(w-1)/2 with K = [w,2;u,1-w], det=1,  order 3
+  // (1) (g)_w/2 = -(gK)_(w-1)/2 with K = [w-1,u;2,-w], det=1,  order 3
   // (2) (g)_w/2 = (gL)_w/2      with L = [-1,w;0,1],  det=-1, order 2, if plus
   //             = -(gLK)_(w-1/2)
   symbop K(this, w-1,u,2,-w); assert (K.det()==1);
@@ -388,7 +388,7 @@ void homspace::triangle_relation_0()
     {
       cout << "Face relation type 1 (triangles):\n";
     }
-  vector<int> rel(3);
+  vector<int> rel(3), types(3,0);
   long j, k;
   symbop tof(this,1,1,-1,0);
   assert (tof.det()==1);
@@ -405,7 +405,7 @@ void homspace::triangle_relation_0()
             if (plusflag)
               check[rof(rel[j])] = 1;
           }
-        add_rel(rel);
+        add_rel(rel, types);
       }
   if(verbose)
     {
@@ -420,7 +420,7 @@ void homspace::triangle_relation_1_3()
     {
       cout << "Face relation type 2 (triangles):\n";
     }
-  vector<int> rel(3);
+  vector<int> rel(3), types(3,0);
   long j, k;
 
   Quad w(0,1);
@@ -437,7 +437,7 @@ void homspace::triangle_relation_1_3()
             rel[j] = (j? xof(rel[j-1]): k);
             check[rel[j]] = 1;
           }
-        add_rel(rel);
+        add_rel(rel, types);
       }
   if(verbose)
     {
@@ -452,7 +452,7 @@ void homspace::square_relation_2()
     {
       cout << "Face relation type 2 (squares):\n";
     }
-  vector<int> rel(4);
+  vector<int> rel(4), types(4,0);
   long j, k;
 
   Quad w(0,1);
@@ -486,7 +486,7 @@ void homspace::square_relation_2()
             rel[1] = J(rel[1]);
             rel[3] = J(rel[3]);
           }
-        add_rel(rel);
+        add_rel(rel, types);
       }
   if(verbose)
     {
@@ -501,7 +501,7 @@ void homspace::rectangle_relation_7()
     {
       cout << "Face relation type 2 (rectangles):\n";
     }
-  vector<int> rel(4);
+  vector<int> rel(4), types(4,0);
   long j, k;
 
   Quad w(0,1);
@@ -524,7 +524,7 @@ void homspace::rectangle_relation_7()
             if (plusflag)
               check[rof(rel[j+1])]=1;
           }
-        add_rel(rel);
+        add_rel(rel, types);
       }
 }
 
@@ -535,7 +535,7 @@ void homspace::hexagon_relation_11()
     {
       cout << "Face relation type 2 (hexagons):\n";
     }
-  vector<int> rel(6);
+  vector<int> rel(6), types(6,0);
   long j, k;
 
   Quad w(0,1);
@@ -560,7 +560,7 @@ void homspace::hexagon_relation_11()
             if(plusflag)
               check[rof(rel[j+1])]=1;
           }
-        add_rel(rel);
+        add_rel(rel, types);
       }
   if(verbose)
     {
@@ -678,15 +678,19 @@ void homspace::kernel_delta()
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(2*rk,this);
   mat deltamat(2*rk,rk);
-  int i, j, s, t;
+  int i, j, s, t=0;
   modsym m;
   for (i=0; i<rk; i++)
     {
-      j = freegens[i];
-      //      cout<<"j = "<<j<<": ";
-      s = j%nsymb; // remainder gives (c:d) symbol number
-      t = j/nsymb; // quotient gives symbol type
-      //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+      s = j = freegens[i];
+      if (n_alphas>1)
+        {
+          //      cout<<"j = "<<j<<": ";
+          std::div_t st = div(j, nsymb);
+          s = st.rem;  // remainder gives (c:d) symbol number
+          t = st.quot; // quotient gives symbol type
+          //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+        }
       m = modsym(symbol(s), t);
       deltamat(cusps.index(m.beta())+1, i+1) += 1;  // N.B. offset of 1
       deltamat(cusps.index(m.alpha())+1, i+1) -= 1;
@@ -714,15 +718,19 @@ void homspace::make_freemods()
 {
   const smat& basiskern = basis(kern);
   if (verbose)  cout << "Freemods:\n";
-  int i,j,s,t;
+  int i,j,s,t=0;
   modsym m;
   for (i=0; i<rk; i++)
     {
-      j = freegens[i];
-      //      cout<<"j = "<<j<<": ";
-      s = j%nsymb; // remainder gives (c:d) symbol number
-      t = j/nsymb; // quotient gives symbol type
-      //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+      s = j = freegens[i];
+      if (n_alphas>1)
+        {
+          //      cout<<"j = "<<j<<": ";
+          std::div_t st = div(j, nsymb);
+          s = st.rem;  // remainder gives (c:d) symbol number
+          t = st.quot; // quotient gives symbol type
+          //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+        }
       m = modsym(symbol(s), t);
       freemods.push_back(m);
       int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
