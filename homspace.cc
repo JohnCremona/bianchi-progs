@@ -376,6 +376,12 @@ void homspace::face_relations()
         hexagon_relation_11();
         break;
       }
+    case 19:
+      {
+        triangle_relation_2();
+        square_relation_19();
+        break;
+      }
     default:
       {
         cerr<<"homspace not implemented for field "<<field<<endl;
@@ -392,19 +398,17 @@ void homspace::triangle_relation_0()
     }
   vector<int> rel(3), types(3,0), check(nsymb, 0);
   long j, k;
-  symbop tof(this,1,1,-1,0);
-  assert (tof.det()==1);
-  symbop rof(this,0,1,1,0);
-  assert (rof.det()==-1);
+  symbop TS(this,1,1,-1,0); assert (TS.det()==1);
+  symbop R(this,0,1,1,0);   assert (R.det()==-1);
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
         for(j=0; j<3; j++)
           {
-            rel[j] = (j? tof(rel[j-1]): k);
+            rel[j] = (j? TS(rel[j-1]): k);
             check[rel[j]] = 1;
             if (plusflag)
-              check[rof(rel[j])] = 1;
+              check[R(rel[j])] = 1;
           }
         add_rel(rel, types);
       }
@@ -426,15 +430,15 @@ void homspace::triangle_relation_1_3()
 
   Quad w(0,1);
   long field = Quad::d;
-  symbop xof = (field==1? symbop(this,w,1,1,0): symbop(this,1,w,w-1,0));
-  assert (xof.det()==(field==1? -1: 1));
+  symbop X = (field==1? symbop(this,w,1,1,0): symbop(this,1,w,w-1,0));
+  assert (X.det()==(field==1? -1: 1));
 
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
         for(j=0; j<3; j++)
           {
-            rel[j] = (j? xof(rel[j-1]): k);
+            rel[j] = (j? X(rel[j-1]): k);
             check[rel[j]] = 1;
           }
         add_rel(rel, types);
@@ -456,23 +460,20 @@ void homspace::square_relation_2()
   long j, k;
 
   Quad w(0,1);
-  symbop uof(this,w,1,1,0);
-  assert (uof.det()==-1);
-  symbop sof(this,0,-1,1,0);
-  assert (sof.det()==1);
-  symbop J(this,fundunit,0,0,1);
-  assert (J.det()==fundunit);
+  symbop U(this,w,1,1,0);  assert (U.det()==-1);
+  symbop S(this,0,-1,1,0); assert (S.det()==1);
+  symbop J(this,fundunit,0,0,1);  assert (J.det()==fundunit);
 
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
         for(j=0; j<4; j++)
           {
-            rel[j] = (j? uof(rel[j-1]): k);
-            if(plusflag) // NB det(uof)=-1
+            rel[j] = (j? U(rel[j-1]): k);
+            if(plusflag) // NB det(U)=-1
               {
                 check[rel[j]] = 1;
-                check[sof(rel[j])] = 1;
+                check[S(rel[j])] = 1;
               }
             else
               {
@@ -480,7 +481,7 @@ void homspace::square_relation_2()
                   check[rel[j]] = 1;
               }
           }
-        if (!plusflag) // since uof() has det -1
+        if (!plusflag) // since det(U)=-1
           {
             rel[1] = J(rel[1]);
             rel[3] = J(rel[3]);
@@ -501,27 +502,23 @@ void homspace::rectangle_relation_7()
       cout << "Face relation type 2 (rectangles):\n";
     }
   vector<int> rel(4), types(4,0), check(nsymb, 0);
-
   long j, k;
-
   Quad w(0,1);
-  symbop yof(this,1,-w,1-w,-1);
-  assert (yof.det()==1);
-  symbop us7of(this,w,-1,1,0);
-  assert (us7of.det()==1);
-  symbop rof(this,0,1,1,0);
-  assert (rof.det()==-1);
+
+  symbop Y(this,1,-w,1-w,-1);  assert (Y.det()==1);
+  symbop USof(this,w,-1,1,0);  assert (USof.det()==1);
+  symbop R(this,0,1,1,0);      assert (R.det()==-1);
 
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
         for(j=0; j<4; j+=2) // j=0,2; j+1=1,3
           {
-            rel[j] = (j? yof(rel[j-2]): k);
+            rel[j] = (j? Y(rel[j-2]): k);
             check[rel[j]] = 1;
-            rel[j+1] = us7of(rel[j]);
+            rel[j+1] = USof(rel[j]);
             if (plusflag)
-              check[rof(rel[j+1])]=1;
+              check[R(rel[j+1])]=1;
           }
         add_rel(rel, types);
       }
@@ -536,27 +533,25 @@ void homspace::hexagon_relation_11()
     }
   vector<int> rel(6), types(6,0), check(nsymb, 0);
   long j, k;
-
   Quad w(0,1);
-  symbop xof(this,1,-w,1-w,-2);
-  assert (xof.det()==1);
-  symbop us11of(this,w,-1,1,0);
-  assert (us11of.det()==1);
-  symbop sof(this,0,-1,1,0);
-  assert (sof.det()==1);
-  symbop rof(this,0,1,1,0);
-  assert (rof.det()==-1);
+
+  symbop X(this,1,-w,1-w,-2);
+  assert (X.det()==1);
+  symbop USof(this,w,-1,1,0);
+  assert (USof.det()==1);
+  symbop R(this,0,1,1,0);
+  assert (R.det()==-1);
 
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
       {
         for(j=0; j<6; j+=2) // j=0,2,4; j+1=1,3,5
           {
-            rel[j] = (j? xof(rel[j-2]): k);
+            rel[j] = (j? X(rel[j-2]): k);
             check[rel[j]] = 1;
-            rel[j+1] = us11of(rel[j]);
+            rel[j+1] = USof(rel[j]);
             if(plusflag)
-              check[rof(rel[j+1])]=1;
+              check[R(rel[j+1])]=1;
           }
         add_rel(rel, types);
       }
@@ -575,7 +570,7 @@ void homspace::triangle_relation_2()
 
   symbop K(this, w-1,u,2,-w);   assert (K.det()==1);
   symbop L(this, -1,w,0,1);     assert (L.det()==-1);
-  symbop N(this, 1+w,u-w,2,-w); assert (L.det()==1);
+  symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1);
 
   vector<int> rel(3), types(3, 2), check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -613,6 +608,30 @@ void homspace::triangle_relation_2()
 // extra square relation for field 19
 void homspace::square_relation_19()
 {
+  int field = Quad::d;
+  Quad w = Quad::w;
+  int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
+
+  symbop K(this, w-1,u,2,-w);   assert (K.det()==1);
+  symbop S(this, 0,-1,1,0);     assert (S.det()==1);
+
+  vector<int> rel(4), types(4), check(nsymb, 0);
+  types[0] = types[1] = 0;
+  types[2] = types[3] = 2;
+  for (j=0; j<nsymb; j++)
+    if (check[j]==0)
+      {
+        rel[0] = j;
+        rel[2] = S(j);
+        rel[3] = k = K(j);
+        rel[1] = S(k); // = KS(j)
+        check[j] = check[k] = 1;
+        add_rel(rel, types);
+      }
+  if(verbose)
+    {
+      cout << "After type 0022 square relations, number of relations = " << numrel <<"\n";
+    }
 }
 
 void homspace::solve_relations()
