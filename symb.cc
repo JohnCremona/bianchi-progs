@@ -2,14 +2,25 @@
 
 #include "symb.h"
 
-modsym::modsym(const symb& s) //Constructor for modsym, converting from symb:
+modsym::modsym(const symb& s, int type) //Constructor for modsym, converting from symb:
 {
  Quad c,d,h,x,y;
  c = s.c % ((s.N)->modulus);
  d = s.d % ((s.N)->modulus);
  h = quadbezout(c , d, x, y);
- a=RatQuad(-x , d/h);
- b=RatQuad( y , c/h);
+ // matrix [y, -x; c/h, d/h] has det=1 and lifts (c:d)
+ c = c/h;
+ d = d/h;
+ b = RatQuad( y , c);
+ if(type==0) // always true for Euclidean fields: apply to {0,oo}
+   {
+     a = RatQuad(-x , d);
+   }
+ else // apply to {alpha,oo} where alpha = alphalist[type]
+   {
+     RatQuad alpha = alphalist[type];
+     a = (y*alpha-x) / (c*alpha+d);
+   }
 }
 
 //Members of class symblist:
@@ -103,12 +114,12 @@ void symbdata::init_geometry()
 
 symbdata::symbdata(const Quad &n) :moddata(n),specials()
 {
+  // cout << "In constructor symbdata::symbdata.\n";
   // initialise static data (depending only on the field)
   if (alphalist.size()==0)
     init_geometry();
-
-  // cout << "In constructor symbdata::symbdata.\n";
-// cout << "nsymb2 = " << nsymb2 << "\n";
+  nsymbx = nsymb*n_alphas;
+  // cout << "nsymb2 = " << nsymb2 << "\n";
   dstarts[0]=dstarts[ndivs-1]=0;
 //N.B. dlist includes d=1 at 0 and d=mod at end, which we don't want here
  if (nsymb2>0)

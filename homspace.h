@@ -42,6 +42,8 @@ public:
   // are separted out for clarity and for ease of separating thec ode
   // for different fields.
   void edge_relations();    // computes coordindex, gens
+  void edge_relations_2();    // extra edge relations for alphas with denom 2
+  void edge_relations_3();    // extra edge relations for alphas with denom 3
   void face_relations();    // computes face relations, fills relmat
 
   void triangle_relation_0();   // triangle relation for all fields

@@ -5,13 +5,15 @@
 #include "looper.h"
 #endif
 
+vector<int> valid_fields = {1,2,3,7,11,19,43};
+
 int main ()
 {
  int d,max=1000;
- cout << "Enter field (1,2,3,7,11): " << flush;  cin >> d;
- if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
+ cout << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
    {
-     cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cout<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

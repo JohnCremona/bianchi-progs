@@ -6,6 +6,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
+#include <assert.h>
 const string W_opname("W");
 const string T_opname("T");
 
@@ -76,8 +77,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   if (verbose) symbdata::display();
   plusflag=hp;                  // Sets static level::plusflag = hp
   ngens=0;
-  coordindex.resize(nsymb);
-  gens.resize(nsymb+1);
+  coordindex.resize(nsymbx);
+  gens.resize(nsymbx+1);
   //NB start of gens array is at 1 not 0
 
   edge_relations(); // sets coordindex
@@ -86,12 +87,17 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
     {
       cout << "After 2-term relations, ngens = "<<ngens<<endl;
       cout << "gens = ";
-      int i;
+      int i, j;
       for (i=1; i<=ngens; i++) cout << gens[i] << " ";
       cout << endl;
       cout << "coordindex = \n";
-      for (i=0; i<nsymb; i++)
-	cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i] << "\n";
+      for (j=0; j<n_alphas; j++)
+        {
+          if(n_alphas>1)
+            cout << "Type " << j+1 << ", alpha = "<<alphalist[j]<<":\n";
+          for (i=0; i<nsymb; i++)
+            cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i+j*n_alphas] << "\n";
+        }
       cout << endl;
     }
 
@@ -132,12 +138,14 @@ void homspace::edge_relations()    // computes coordindex
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  symbop eps(this,unit,0,0,1);
-  symbop sof(this,0,-1,1,0);
+  symbop eps(this,unit,0,0,1);  assert (eps.det()==unit);
+  symbop sof(this,0,-1,1,0);  assert (sof.det()==1);
   vector<int> a(lenrel), b(lenrel);
   vector<int> check(nsymb, 0);
   int j, k, triv;
-  if(verbose) cout << "About to start on 2-term relations.\n";
+  if(verbose) cout << "About to start on 2-term (edge) relations.\n";
+  if(verbose && n_alphas>1)
+    cout<<"Generic edge relations for type 0 symbols\n";
   for (j=nsymb-1; j>=0; j--)
     {
       if (check[j]==0)
@@ -173,6 +181,155 @@ void homspace::edge_relations()    // computes coordindex
             }
         }
     }
+  int field = Quad::d;
+  if (field<19) return;
+  if(verbose)
+    cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
+  edge_relations_2();
+  if (field<43) return;
+  if(verbose)
+    cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
+  edge_relations_3();
+  if (field<67) return;
+  cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
+}
+
+void homspace::edge_relations_2()    // extra edge relations for alphas with denominator 2
+{
+  int field = Quad::d;
+  Quad w = Quad::w;
+  int j, k, l, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
+
+  // relevant alphas are  {1:w/2, 2:(w-1)/2}
+
+  // (1) (g)_w/2 = -(gK)_(w-1)/2 with K = [w,2;u,1-w], det=1,  order 3
+  // (2) (g)_w/2 = (gL)_w/2      with L = [-1,w;0,1],  det=-1, order 2, if plus
+  //             = -(gLK)_(w-1/2)
+  symbop K(this, w-1,u,2,-w); assert (K.det()==1);
+  symbop L(this, -1,w,0,1);   assert (L.det()==-1);
+
+  vector<int> check(nsymb, 0);
+  for (j=0; j<nsymb; j++)
+    {
+      if (check[j]==0)
+        {
+          check[j] = 1;
+          gens[++ngens] = nsymb+j;
+          coordindex[nsymb+j] = ngens;
+          k = K(j);
+          coordindex[2*nsymb+k] = -ngens;
+          if (plusflag)
+            {
+              l = L(j);
+              check[l] = 1;
+              coordindex[nsymb+l] = ngens;
+              coordindex[2*nsymb+K(l)] = -ngens;
+            }
+        }
+    }
+}
+
+void homspace::edge_relations_3()    // extra edge relations for alphas with denominator 3
+{
+  int field = Quad::d;
+  Quad w = Quad::w;
+  int j, jj, k, l, u=-(field+5)/12; // u=-4, -6, -24 for 43,67,163
+
+  // relevant alphas are  {3:w/3, 4:(w-1)/3, 5:(1+w)/3, 6:-w/3, 7:(1-w)/3, 8:(2-w)/2}
+
+  // (1) (g)_w/2 = -(gK)_(w-1)/2 with K = [w,2;u,1-w], det=1,  order 3
+  // (2) (g)_w/2 = (gL)_w/2      with L = [-1,w;0,1],  det=-1, order 2, if plus
+  //             = -(gLK)_(w-1/2)
+
+  // det=-1
+  symbop J(this, -1,0,0,1);            assert (J.det()==-1); // used
+  symbop J1(this, -1,1,0,1);           assert (J1.det()==-1);
+  symbop L1(this, w,-u,3,1-w);         assert (L1.det()==-1); // used
+  symbop L2(this, -w,-u,3,w-1);        assert (L2.det()==-1);
+  symbop L3(this, 1+w, 1+u+w, 3, 1+w); assert (L3.det()==-1);
+  // det=+1
+  symbop K1(this, w,u,3,w-1);             assert (K1.det()==1); // used
+  symbop K2(this, -w,u,3,1-w);            assert (K2.det()==1);
+  symbop K3(this, 1+w,-(w+u+1),3,-(1+w)); assert (K3.det()==1); // used
+  symbop K4(this, -(1+w),-(w+u+1),3,1+w); assert (K4.det()==1); // used
+
+  // (1) type 5, alpha=(1+w)/3, antisymmetric via K3:
+  vector<int> check(nsymb, 0);
+  for (j=0; j<nsymb; j++)
+    {
+      if (check[j]==0)
+        {
+          check[j] = 1;
+          k = K3(j);
+          if (j==k) // symbol trivial
+            {
+              coordindex[5*nsymb+j] = 0;
+            }
+          else
+            {
+              check[k] = 1;
+              gens[++ngens] = 5*nsymb+j;
+              coordindex[5*nsymb+j] = ngens;
+              coordindex[5*nsymb+k] = -ngens;
+            }
+        }
+    }
+
+  // (2) type 8, alpha = -(1+w)/3, either impose antisymmetry by K4 or
+  // pair with type 5's via J
+  if(plusflag)
+    {
+      for (j=0; j<nsymb; j++)
+        {
+          coordindex[8*nsymb+J(j)] = coordindex[5*nsymb+j];
+        }
+    }
+  else
+    {
+      std::fill(check.begin(), check.end(), 0);
+      for (j=0; j<nsymb; j++)
+        {
+          if (check[j]==0)
+            {
+              check[j] = 1;
+              k = K4(j);
+              jj = J(j);
+              if (j==k) // symbol trivial
+                {
+                  coordindex[8*nsymb+j] = 0;
+                }
+              else
+                {
+                  check[k] = 1;
+                  gens[++ngens] = 8*nsymb+j;
+                  coordindex[8*nsymb+j] = ngens;
+                  coordindex[8*nsymb+k] = -ngens;
+                }
+            }
+        }
+    }
+  // types 3,4,6,7: identify in 4-tuples up to sign if plusflag, else
+  // in pairs
+  std::fill(check.begin(), check.end(), 0);
+      for (j=0; j<nsymb; j++)
+        {
+          if (check[j]==0)
+            {
+              jj = J(j);
+              k = K1(j);
+              l = L1(j);
+              check[j] = check[jj] = 1;
+              gens[++ngens] = 3*nsymb+j;
+              coordindex[3*nsymb+j] = ngens;
+              coordindex[7*nsymb+k] = -ngens;
+              if (!plusflag)
+                {
+                  gens[++ngens] = 6*nsymb+jj;
+                }
+              coordindex[6*nsymb+jj] = ngens;
+              coordindex[4*nsymb+l] = -ngens;
+            }
+        }
 }
 
 //
@@ -220,7 +377,6 @@ void homspace::face_relations()
     default:
       {
         cerr<<"homspace not implemented for field "<<field<<endl;
-        exit(1);
       }
     }
 }
@@ -235,7 +391,9 @@ void homspace::triangle_relation_0()
   vector<int> rel(3);
   long j, k;
   symbop tof(this,1,1,-1,0);
+  assert (tof.det()==1);
   symbop rof(this,0,1,1,0);
+  assert (rof.det()==-1);
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++)
     if (check[k]==0)
@@ -268,6 +426,7 @@ void homspace::triangle_relation_1_3()
   Quad w(0,1);
   long field = Quad::d;
   symbop xof = (field==1? symbop(this,w,1,1,0): symbop(this,1,w,w-1,0));
+  assert (xof.det()==(field==1? -1: 1));
 
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -298,8 +457,11 @@ void homspace::square_relation_2()
 
   Quad w(0,1);
   symbop uof(this,w,1,1,0);
+  assert (uof.det()==-1);
   symbop sof(this,0,-1,1,0);
+  assert (sof.det()==1);
   symbop J(this,fundunit,0,0,1);
+  assert (J.det()==fundunit);
 
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -344,8 +506,11 @@ void homspace::rectangle_relation_7()
 
   Quad w(0,1);
   symbop yof(this,1,-w,1-w,-1);
+  assert (yof.det()==1);
   symbop us7of(this,w,-1,1,0);
+  assert (us7of.det()==1);
   symbop rof(this,0,1,1,0);
+  assert (rof.det()==-1);
 
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -375,9 +540,13 @@ void homspace::hexagon_relation_11()
 
   Quad w(0,1);
   symbop xof(this,1,-w,1-w,-2);
+  assert (xof.det()==1);
   symbop us11of(this,w,-1,1,0);
+  assert (us11of.det()==1);
   symbop sof(this,0,-1,1,0);
+  assert (sof.det()==1);
   symbop rof(this,0,1,1,0);
+  assert (rof.det()==-1);
 
   vector<int> check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -505,12 +674,20 @@ void homspace::solve_relations()
 
 void homspace::kernel_delta()
 {
+  if (verbose)
+    cout<<"Computing boundary map"<<endl;
   cusplist cusps(2*rk,this);
   mat deltamat(2*rk,rk);
-  int i;
+  int i, j, s, t;
+  modsym m;
   for (i=0; i<rk; i++)
     {
-      modsym m(symbol(freegens[i]));
+      j = freegens[i];
+      //      cout<<"j = "<<j<<": ";
+      s = j%nsymb; // remainder gives (c:d) symbol number
+      t = j/nsymb; // quotient gives symbol type
+      //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+      m = modsym(symbol(s), t);
       deltamat(cusps.index(m.beta())+1, i+1) += 1;  // N.B. offset of 1
       deltamat(cusps.index(m.alpha())+1, i+1) -= 1;
     }
@@ -537,10 +714,16 @@ void homspace::make_freemods()
 {
   const smat& basiskern = basis(kern);
   if (verbose)  cout << "Freemods:\n";
-  int i;
+  int i,j,s,t;
+  modsym m;
   for (i=0; i<rk; i++)
     {
-      modsym m = modsym(symbol(freegens[i]));
+      j = freegens[i];
+      //      cout<<"j = "<<j<<": ";
+      s = j%nsymb; // remainder gives (c:d) symbol number
+      t = j/nsymb; // quotient gives symbol type
+      //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
+      m = modsym(symbol(s), t);
       freemods.push_back(m);
       int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
       needed.push_back(n);

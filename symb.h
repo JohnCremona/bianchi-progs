@@ -38,7 +38,7 @@ class modsym {
  public:
     modsym() :a(0), b(0) {}
     modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
-    modsym(const symb&);                        //conversion
+    modsym(const symb&, int type=0);                        //conversion
     RatQuad alpha() const {return a;}
     RatQuad  beta() const {return b;}
     friend ostream& operator<< (ostream& s, const modsym& m); //inline below
@@ -63,6 +63,8 @@ void make_alphalist();
 class symbdata :public moddata {
 private:
   symblist specials;         // The list of "special" symbols
+protected:
+  long nsymbx;               // number of (symb,type) pairs, = nsymb*n_alphas
 public:
   symbdata(const Quad&);             // The constructor
   static void init_geometry();       // sets alpha list etc, depending only on the field
@@ -74,19 +76,17 @@ public:
 };
 
 class mat22 {  //2x2 matrix for linear fractional transformations
-private: 
+private:
    Quad a,b,c,d;
-public: 
+public:
    mat22() :a(0),b(0),c(0),d(0) {}
    mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
     :a(ia),b(ib),c(ic),d(id) {}
    RatQuad operator()(const RatQuad& q)const
-    {Quad n=num(q),de=den(q); 
-     // Quad n1=a*n, n2=b*de;
-     // Quad d1=c*n, d2=d*de;
-     // Quad nn=n1+n2, dd=d1+d2;
+    {Quad n=num(q),de=den(q);
      return RatQuad(a*n+b*de, c*n+d*de);}
-   friend class symbop;
+  Quad det() const {return a*d-b*c;}
+  friend class symbop;
 };
 
 class matop {  // formal sum of 2x2 matrices
@@ -98,32 +98,30 @@ private:
   int length() const {return mats.size();}
 };
 
-class symbop 
+class symbop :public mat22
 {
 private:
   symbdata* sd;
-  mat22 m;
 public:
-  symbop(symbdata* sdi, const mat22& mm) :sd(sdi), m(mm) {}
-  symbop(symbdata* sdi, const Quad& a, const Quad& b, const Quad& c, const Quad& d) :sd(sdi), m(a,b,c,d) {}
-  int operator()(int i) const 
+  symbop(symbdata* sdi, const mat22& mm) : mat22(mm), sd(sdi) {}
+  symbop(symbdata* sdi, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), sd(sdi)  {}
+  int operator()(int i) const
     {
       symb s = sd->symbol(i);
-      return sd->index2(s.c*m.a+s.d*m.c, s.c*m.b+s.d*m.d);
+      return sd->index2(s.c*a+s.d*c, s.c*b+s.d*d);
     }
 };
-  
+
 inline ostream& operator<< (ostream& s, const symb& sy)
 {
    s << "(" << sy.c << ":" << sy.d << ")";
    return s;
-}  
+}
 
 inline ostream& operator<< (ostream& s, const modsym& m)
 {
    s << "{" << (m.a) << "," << (m.b) << "}";
    return s;
-}  
- 
+}
 
 #endif
