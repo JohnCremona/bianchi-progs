@@ -4,8 +4,8 @@
 # the following line might not be necessary.  If installed anywhere
 # else set the install directory here:
 
-ECLIB_BASE=/usr/local
-#ECLIB_BASE=$(HOME)/eclib
+#ECLIB_BASE=/usr/local
+ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -15,8 +15,8 @@ USE_SMATS=1
 #  and only lifted to Z when an eigenvector is found. Programs which
 #  compute Hecke matrices and their characteristic polynomials such
 #  as hecketest.cc try to lift the whole modular symbol space and
-#  this easily fails.  In that case so not USE_SMATS and the linear
-#  algebra will be done using multiprecisino integer arithmetic
+#  this easily fails.  In that case do not USE_SMATS and the linear
+#  algebra will be done using multiprecision integer arithmetic
 #  instead.  This is much slower: e.g. with level (128), field 1 it
 #  takes 20m instead of <1s.
 
@@ -59,10 +59,12 @@ TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tm
 tests: $(TESTS)
 
 FIELDS9=1 2 3 7 11 19 43 67 163
+FIELDS6=1 2 3 7 11 19
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS5 =  homtest hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis modularity modularity_modp
+TESTS6 =  homtest
+TESTS5 =  hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis modularity modularity_modp
 TESTS1 =
 export NF_DIR:=nftmp
 check: $(TESTS9) $(TESTS5) $(TESTS1)
@@ -80,6 +82,10 @@ check: $(TESTS9) $(TESTS5) $(TESTS1)
 	 echo "running looptest (both conjugates) for d=$$d";\
 	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout; diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
 	 done
+	 for p in $(TESTS6); do for d in $(FIELDS6); do \
+	 echo "running $$p for d=$$d";\
+	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
+	 done; done
 	 for p in $(TESTS5); do for d in $(FIELDS5); do \
 	 echo "running $$p for d=$$d";\
 	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \

@@ -51,17 +51,20 @@ void homspace::add_rel(const vector<int>& rel, const vector<int>& types)
         relation[abs(c)] += sign(c);
 #endif
     }
-  if (verbose) cout<<relation<<endl;
 #ifdef USE_SMATS
   if(relation.size()==0)
 #else
   if(trivial(relation))
 #endif
-  return;
+    {
+      if (verbose) cout<<relation<<endl;
+      return;
+    }
   numrel++;
   if(numrel<=maxnumrel)
     {
       make_primitive(relation);
+      if (verbose) cout<<relation<<endl;
       relmat.setrow(numrel,relation);
     }
   else
@@ -102,7 +105,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       cout << endl;
     }
 
-  face_relations(); //fills relmat with the relations
+  face_relations(); // fills relmat with the relations
 
   if(verbose)
     {
@@ -215,14 +218,16 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
     {
       if (check[j]==0)
         {
+          k = K(j);
           check[j] = 1;
           gens[++ngens] = nsymb+j;
           coordindex[offset1 + j] = ngens;
-          k = K(j);
           coordindex[offset2 + k] = -ngens;
           if (plusflag)
             {
               l = L(j);
+              // if (verbose)
+              //   cout<<symbol(j)<<" -L-> "<<symbol(l)<<endl;
               check[l] = 1;
               coordindex[offset1 + l] = ngens;
               coordindex[offset2 + K(l)] = -ngens;
@@ -569,7 +574,7 @@ void homspace::triangle_relation_2()
   int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
   symbop K(this, w-1,u,2,-w);   assert (K.det()==1);
-  symbop L(this, -1,w,0,1);     assert (L.det()==-1);
+  //  symbop L(this, -1,w,0,1);     assert (L.det()==-1);
   symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1);
 
   vector<int> rel(3), types(3, 2), check(nsymb, 0);
@@ -580,8 +585,6 @@ void homspace::triangle_relation_2()
           {
             rel[j] = (j? K(rel[j-1]): k);
             check[rel[j]] = 1;
-            if (plusflag)
-              check[L(rel[j])] = 1;
           }
         add_rel(rel, types);
       }
@@ -617,7 +620,7 @@ void homspace::square_relation_19()
 
   vector<int> rel(4), types(4), check(nsymb, 0);
   types[0] = types[1] = 0;
-  types[2] = types[3] = 2;
+  types[2] = types[3] = 1;
   for (j=0; j<nsymb; j++)
     if (check[j]==0)
       {

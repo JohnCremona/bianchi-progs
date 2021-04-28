@@ -63,42 +63,45 @@ int n_alphas;
 void make_alphalist()
 {
   int d = Quad::d;
+  Quad w = Quad::w;
+  Quad wbar = quadconj(w);
+
   alphalist = {RatQuad(0)};
   n_alphas = 1;
   if (d<19) return;
-  alphalist.push_back(RatQuad(0,1, 2));
-  alphalist.push_back(RatQuad(-1,1, 2));
+  alphalist.push_back(RatQuad(w, 2));
+  alphalist.push_back(RatQuad(-wbar, 2));
   n_alphas += 2;
   if (d<43) return;
-  alphalist.push_back(RatQuad(0,1, 3));
-  alphalist.push_back(RatQuad(-1,1, 3));
-  alphalist.push_back(RatQuad(1,1, 3));
-  alphalist.push_back(RatQuad(0,-1, 3));
-  alphalist.push_back(RatQuad(1,-1, 3));
-  alphalist.push_back(RatQuad(2,-1, 3));
+  alphalist.push_back(RatQuad(w, 3));
+  alphalist.push_back(RatQuad(-wbar, 3));
+  alphalist.push_back(RatQuad(1+w, 3));
+  alphalist.push_back(RatQuad(-w, 3));
+  alphalist.push_back(RatQuad(wbar, 3));
+  alphalist.push_back(RatQuad(1+wbar, 3));
   n_alphas += 6;
   if (d<67) return;
   if (d==67)
     {
-      Quad w = Quad::w, den(3,-1);
+      Quad den(3,-1);
       alphalist.push_back(RatQuad(6+w,den));
       alphalist.push_back(RatQuad(-6-w,den));
       alphalist.push_back(RatQuad(2+w,den));
       alphalist.push_back(RatQuad(-2-w,den));
       den = quadconj(den);
-      alphalist.push_back(RatQuad(7-w,den));
-      alphalist.push_back(RatQuad(-7+w,den));
-      alphalist.push_back(RatQuad(3-w,den));
-      alphalist.push_back(RatQuad(-3+w,den));
+      alphalist.push_back(RatQuad(6+wbar,den));
+      alphalist.push_back(RatQuad(-6-wbar,den));
+      alphalist.push_back(RatQuad(2+wbar,den));
+      alphalist.push_back(RatQuad(-2-wbar,den));
 
-      alphalist.push_back(RatQuad(0,1,4));
-      alphalist.push_back(RatQuad(0,-1,4));
-      alphalist.push_back(RatQuad(-1,1,4));
-      alphalist.push_back(RatQuad(1,-1,4));
-      alphalist.push_back(RatQuad(1,1,4));
-      alphalist.push_back(RatQuad(-1,-1,4));
-      alphalist.push_back(RatQuad(-2,1,4));
-      alphalist.push_back(RatQuad(2,-1,4));
+      alphalist.push_back(RatQuad(w,4));
+      alphalist.push_back(RatQuad(-w,4));
+      alphalist.push_back(RatQuad(-wbar,4));
+      alphalist.push_back(RatQuad(wbar,4));
+      alphalist.push_back(RatQuad(1+w,4));
+      alphalist.push_back(RatQuad(-1-w,4));
+      alphalist.push_back(RatQuad(-1-wbar,4));
+      alphalist.push_back(RatQuad(1+wbar,4));
       n_alphas += 16;
       return;
     }

@@ -105,6 +105,7 @@ private:
 public:
   symbop(symbdata* sdi, const mat22& mm) : mat22(mm), sd(sdi) {}
   symbop(symbdata* sdi, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), sd(sdi)  {}
+  // NB this is a right action on (c:d) symbols as row vectors
   int operator()(int i) const
     {
       symb s = sd->symbol(i);
