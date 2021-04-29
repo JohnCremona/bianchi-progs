@@ -13,7 +13,7 @@ int main ()
  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
  if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
    {
-     cout<<"field must be one of: "<<valid_fields<<endl;
+     cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

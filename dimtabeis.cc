@@ -2,13 +2,15 @@
 #include "homspace.h"   // which includes quads.h & moddata.h
 #include "looper.h"
 
+vector<int> valid_fields = {1,2,3,7,11,19,43};
+
 int main ()
 {
  int d,max=1000;
- cerr << "Enter field (1,2,3,7,11): " << flush;  cin >> d;
- if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
+ cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
    {
-     cerr<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  cout << "# Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
@@ -21,7 +23,7 @@ int main ()
  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- cout<<endl;
+ cerr<<endl;
  cout << "# Field\t Weight\t Level label\t ";
  cout << "dim(all)\t dim(cuspidal)\t dim(eisenstein)" << endl;
 

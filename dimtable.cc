@@ -2,13 +2,15 @@
 #include "homspace.h"   // which includes quads.h & moddata.h
 #include "looper.h"
 
+vector<int> valid_fields = {1,2,3,7,11,19,43};
+
 int main ()
 {
  int d,max=1000;
- cout << "Enter field (1,2,3,7,11): " << flush;  cin >> d;
- if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
+ cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
    {
-     cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  cout << "Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-"<<d<<"))" << endl;
@@ -16,11 +18,11 @@ int main ()
  long firstn, lastn; Quad n;
  int both_conj, plusflag;
  int dimplus, dimminus, dimall;
- cout<<"Both conjugates? (0/1) "; cin >> both_conj;
- cout<<"Plus space only? (0/1) "; cin >> plusflag;
- cout<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cerr<<"Plus space only? (0/1) "; cin >> plusflag;
+ cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- cout<<endl;
+ cerr<<endl;
  cout << "Field\t Weight\t Level\t Norm\t ";
  if (plusflag)
    cout << "dim(plus)" << endl;
