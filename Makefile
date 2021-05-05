@@ -63,39 +63,41 @@ FIELDS6=1 2 3 7 11 19
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS6 =  homtest
-TESTS5 =  hecketest tmanin nftest nflist moreap moreap1 dimtable dimtabeis modularity modularity_modp
+TESTS6 =  homtest dimtable dimtabeis
+TESTS5 =  hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 TESTS1 =
+ALL_TESTS = $(TESTS9) $(TESTS6) $(TESTS5) $(TESTS1)
+
+test_input_dir = testin
+test_output_dir = testout
+
+check_run = echo -n "Testing $${prog} for d=$${d}..."; ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.testout 2>/dev/null && echo "$${prog} for d=$${d} completed" && diff $${prog}.$${d}.testout $(test_output_dir)/$${prog}.$${d}.out || exit $$?
+
+
 export NF_DIR:=nftmp
-check: $(TESTS9) $(TESTS5) $(TESTS1)
+check: $(ALL_TESTS)
+	 @echo Test setup: create temporary directories
 	 rm -f t
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
-	 for d in 4 8 3 7 11; do \
-         mkdir $(NF_DIR)/2.0.$$d.1; \
-	 done
-	 for p in $(TESTS9); do for d in $(FIELDS9); do \
-	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
-	 done; done
-	 for d in $(FIELDS9); do \
-	 echo "running looptest (both conjugates) for d=$$d";\
-	 ./looptest < testin/looptest.$${d}a.in > looptest.$$d.testout; diff -a looptest.$$d.testout testout/looptest.$${d}a.out; \
-	 done
-	 for p in $(TESTS6); do for d in $(FIELDS6); do \
-	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
-	 done; done
-	 for p in $(TESTS5); do for d in $(FIELDS5); do \
-	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
-	 done; done
-	 for p in $(TESTS1); do for d in $(FIELDS1); do \
-	 echo "running $$p for d=$$d";\
-	 ./$$p < testin/$$p.$$d.in > $$p.$$d.testout 2>/dev/null; diff -a $$p.$$d.testout testout/$$p.$$d.out; \
-	 done; done
+	 for d in 4 8 3 7 11; do mkdir $(NF_DIR)/2.0.$$d.1; done
+	 @echo
+	 @echo running $(TESTS9) on fields $(FIELDS9)...
+	 @for prog in $(TESTS9); do for d in $(FIELDS9); do $(check_run); done; done
+	 @echo
+	 @echo running looptest \(both conjugates\) on fields $(FIELDS9)...
+	 @for d in $(FIELDS9); do for prog in looptest; do $(check_run); done; done
+	 @echo
+	 @echo running $(TESTS6) on fields $(FIELDS6)...
+	 @for prog in $(TESTS6); do for d in $(FIELDS6); do $(check_run); done; done
+	 @echo
+	 @echo running $(TESTS5) on fields $(FIELDS5)...
+	 @for prog in $(TESTS5); do for d in $(FIELDS5); do $(check_run); done; done
+	 @echo
+	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
 	 rm -f *.testout
+	 @echo Tests completed
 
 clean:
 	rm -f $(TESTS)
