@@ -53,6 +53,8 @@ public:
   void hexagon_relation_11();   // extra hexagon relation for field 11
   void triangle_relation_2();   // extra triangle relation(s) for fields 19+
   void square_relation_19();   // extra square relation for field 19
+  void triangle_relation_3();   // extra triangle relation(s) for fields 43+
+  void square_relation_43();   // extra square relations for field 43
 
   void solve_relations();       // computes kernel of relmat and sets rk, denom1, coord, freegens
   void kernel_delta();          // computes ker(delta) for cuspidal homology

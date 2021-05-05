@@ -242,23 +242,17 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
   Quad w = Quad::w;
   int j, jj, k, l, u=-(field+5)/12; // u=-4, -6, -24 for 43,67,163
 
-  // relevant alphas are  {3:w/3, 4:(w-1)/3, 5:(1+w)/3, 6:-w/3, 7:(1-w)/3, 8:(2-w)/2}
+  // relevant alphas are  {3:w/3, 4:-w/3, 5:(1-w)/3, 6:(w-1)/3, 7:(1+w)/3, 8:(-1-w)/3}
 
-  // det=-1
-  symbop J(this, -1,0,0,1);            assert (J.det()==-1); // used
-  symbop J1(this, -1,1,0,1);           assert (J1.det()==-1);
-  symbop L1(this, w,-u,3,1-w);         assert (L1.det()==-1); // used
-  symbop L2(this, -w,-u,3,w-1);        assert (L2.det()==-1);
-  symbop L3(this, 1+w, 1+u+w, 3, 1+w); assert (L3.det()==-1);
-  // det=+1
-  symbop K1(this, w,u,3,w-1);             assert (K1.det()==1); // used
-  symbop K2(this, -w,u,3,1-w);            assert (K2.det()==1);
-  symbop K3(this, 1+w,-(w+u+1),3,-(1+w)); assert (K3.det()==1); // used
-  symbop K4(this, -(1+w),-(w+u+1),3,1+w); assert (K4.det()==1); // used
+  symbop J(this, -1,0,0,1);            assert (J.det()==-1);
+  symbop L1(this, w,-u,3,1-w);         assert (L1.det()==-1);
+  symbop K1(this, w,u,3,w-1);             assert (K1.det()==1);
+  symbop K3(this, 1+w,-(w+u+1),3,-(1+w)); assert (K3.det()==1);
+  symbop K4(this, -(1+w),-(w+u+1),3,1+w); assert (K4.det()==1);
 
-  int offset5 = 5*nsymb, offset8 = 8*nsymb;
+  // (1) type 7, alpha=(1+w)/3, antisymmetric via K3:
 
-  // (1) type 5, alpha=(1+w)/3, antisymmetric via K3:
+  int offset7 = 7*nsymb;
   vector<int> check(nsymb, 0);
   for (j=0; j<nsymb; j++)
     {
@@ -268,25 +262,28 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
           k = K3(j);
           if (j==k) // symbol trivial
             {
-              coordindex[offset5+j] = 0;
+              coordindex[offset7+j] = 0;
             }
           else
             {
               check[k] = 1;
-              gens[++ngens] = offset5+j;
-              coordindex[offset5+j] = ngens;
-              coordindex[offset5+k] = -ngens;
+              gens[++ngens] = offset7+j;
+              coordindex[offset7+j] = ngens;
+              coordindex[offset7+k] = -ngens;
             }
         }
     }
 
-  // (2) type 8, alpha = -(1+w)/3, either impose antisymmetry by K4 or
-  // pair with type 5's via J
+  // (2) type 8, alpha = -(1+w)/3:
+  // either (+) pair with type 7's via J
+  // or     (0) impose antisymmetry by K4
+
+  int offset8 = 8*nsymb;
   if(plusflag)
     {
       for (j=0; j<nsymb; j++)
         {
-          coordindex[offset8+J(j)] = coordindex[offset5+j];
+          coordindex[offset8+J(j)] = coordindex[offset7+j];
         }
     }
   else
@@ -298,7 +295,6 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
             {
               check[j] = 1;
               k = K4(j);
-              jj = J(j);
               if (j==k) // symbol trivial
                 {
                   coordindex[offset8+j] = 0;
@@ -314,29 +310,29 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
         }
     }
 
-  // types 3,4,6,7: identify in 4-tuples up to sign if plusflag, else
-  // in pairs
-  int offset3 = 3*nsymb, offset4 = 4*nsymb, offset6 = 6*nsymb, offset7 = 7*nsymb;
+  // (3) types 3,4,5,6: identify in 4-tuples up to sign if (+), else in pairs if (0)
+
+  int offset3 = 3*nsymb, offset4 = 4*nsymb, offset5 = 5*nsymb, offset6 = 6*nsymb;
   std::fill(check.begin(), check.end(), 0);
-      for (j=0; j<nsymb; j++)
+  for (j=0; j<nsymb; j++) // index of type 3 symbol
+    {
+      if (check[j]==0)
         {
-          if (check[j]==0)
+          jj = J(j); // index of type 4 symbol
+          k = K1(j); // index of type 5 symbol
+          l = L1(j); // index of type 6 symbol
+          check[j] = check[jj] = 1;
+          gens[++ngens] = offset3+j;
+          coordindex[offset3+j] = ngens;
+          coordindex[offset5+k] = -ngens;
+          if (!plusflag)
             {
-              jj = J(j);
-              k = K1(j);
-              l = L1(j);
-              check[j] = check[jj] = 1;
-              gens[++ngens] = offset3+j;
-              coordindex[offset3+j] = ngens;
-              coordindex[offset7+k] = -ngens;
-              if (!plusflag)
-                {
-                  gens[++ngens] = offset6+jj;
-                }
-              coordindex[offset6+jj] = ngens;
-              coordindex[offset4+l] = -ngens;
+              gens[++ngens] = offset4+jj;
             }
+          coordindex[offset4+jj] = ngens;
+          coordindex[offset6+l] = -ngens;
         }
+    }
 }
 
 //
@@ -385,6 +381,13 @@ void homspace::face_relations()
       {
         triangle_relation_2();
         square_relation_19();
+        break;
+      }
+    case 43:
+      {
+        triangle_relation_2();
+        triangle_relation_3();
+        square_relation_43();
         break;
       }
     default:
@@ -567,15 +570,20 @@ void homspace::hexagon_relation_11()
 }
 
 // extra triangle relation(s) for fields 19+
+// Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}
+
 void homspace::triangle_relation_2()
 {
   int field = Quad::d;
   Quad w = Quad::w;
   int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
-  symbop K(this, w-1,u,2,-w);   assert (K.det()==1);
-  //  symbop L(this, -1,w,0,1);     assert (L.det()==-1);
-  symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1);
+  symbop K(this, w-1,u,2,-w);   assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
+  symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
+
+  // N is the conjugate of K by [-1,w;0,1] which maps the first
+  // triangle to the second with determinant -1.  Both have order 3 so
+  // cycle the edges of each triangle around.
 
   vector<int> rel(3), types(3, 2), check(nsymb, 0);
   for (k=0; k<nsymb; k++)
@@ -634,6 +642,122 @@ void homspace::square_relation_19()
   if(verbose)
     {
       cout << "After type 0022 square relations, number of relations = " << numrel <<"\n";
+    }
+}
+
+// extra triangle relation(s) for fields 43+
+
+// triangles {oo, w/3, (w+1)/3} and (its image under J) {oo, -w/3, -(w+1)/3}
+
+void homspace::triangle_relation_3()
+{
+  int field = Quad::d;
+  Quad w = Quad::w;
+  int k, u=(field+5)/12; // u= 4, 6, 14 for 43, 67, 163
+
+  vector<int> rel(3), types(3);
+
+  // Triangle {oo, w/3, (w+1)/3}
+
+  symbop M1(this, -w,u,-3,1-w); // maps {(1-w)/3,oo} to {oo, w/3}
+  symbop M2(this, w+1,u,3,2-w); // maps {(w-1)/3,oo} to {w/3, (w+1)/3}
+  types = {5,6,7};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
+
+  for (k=0; k<nsymb; k++)
+    {
+      rel[0] = M1(k);
+      rel[1] = M2(k);
+      rel[2] = k;
+      add_rel(rel, types);
+    }
+
+  if (!plusflag) // there's a second triangle (image of previous under J)
+    {
+      // Triangle {oo, -w/3, -(w+1)/3}
+
+      symbop M3(this, w,u,-3,w-1);    // = J*M1*J, maps {(w-1)/3,oo} to {oo, -w/3}
+      symbop M4(this, w+1,-u,-3,2-w); // = J*M2*J, maps {(1-w)/3,oo} to {-w/3, -(w+1)/3}
+      types = {6,5,8};  // {(w-1)/3, oo}, {(1-w)/3, oo}, {-(1+w)/3, oo}
+
+      for (k=0; k<nsymb; k++)
+        {
+          rel[0] = M3(k);
+          rel[1] = M4(k);
+          rel[2] = k;
+          add_rel(rel, types);
+        }
+    }
+  if(verbose)
+    {
+      cout << "After type 3 triangle relations, number of relations = " << numrel <<"\n";
+    }
+}
+
+// extra square relations for field 43
+void homspace::square_relation_43()
+{
+  //  int field = Quad::d;
+  Quad w = Quad::w;
+  int j, k;
+  vector<int> rel(4), types(4);
+
+  // (1)
+  // vertices {0, oo, w/3, 3w/11}
+  // edge types 0 {0,oo}, 5 {(1-w)/3,oo}, 1 {w/2,oo}, 5 under I, V, N4, N4*V
+
+  symbop N4(this, -3,w,w-1,4);   assert (N4.det()==-1);
+  symbop V(this, w,-4,3,w-1);     assert (V.det()==1);
+  types = {0,5,1,5};
+
+  types[0] = 0; types[2] = 1;
+  types[1] = types[3] = 5;
+  for (j=0; j<nsymb; j++)
+    {
+      rel[0] = j;
+      rel[1] = V(j);
+      rel[2] = k = N4(j);
+      rel[3] = V(k);
+      add_rel(rel, types);
+    }
+
+  // (2)
+  // vertices {w/2,oo,(w+1)/3,(5*w+3)/13}
+  // edge types 1 {w/2,oo}, 7 {(w+1)/3,oo}, 1, 7 under I, U, N5, N5*U
+
+  symbop N5(this, w-4,w+5,w+1,4-w);   assert (N5.det()==1);
+  symbop U(this, w+1,3-w,3,-1-w);     assert (U.det()==1);
+  types = {1,7,1,7};
+
+  for (j=0; j<nsymb; j++)
+    {
+      rel[0] = j;
+      rel[1] = U(j);
+      rel[2] = k = N5(j);
+      rel[3] = U(k);
+      add_rel(rel, types);
+    }
+
+  // (3) image of (2) under L=[-1,0;0,1] with det(L)=-1, only if !posflag
+
+  // vertices {w/2, oo, (2*w-1)/3, (8*w-3)/13}
+  // edge types 1 {w/2,oo}, 8 {-(w+1)/3,oo}, 1, 7 under I, W1, W2, W2*W1
+
+  symbop W1(this, 2*w-1,w-8,3,w+1);   assert (W1.det()==1);
+  symbop W2(this, w-7,4*w+5,w+1,7-w); assert (W2.det()==1);
+  types = {1,8,1,8};
+
+  for (j=0; j<nsymb; j++)
+    {
+      rel[0] = j;
+      rel[1] = W1(j);
+      rel[2] = k = W2(j);
+      rel[3] = W1(k);
+      add_rel(rel, types);
+    }
+
+  if(verbose)
+    {
+      cout << "After type extra square relations, number of relations = " << numrel <<"\n";
     }
 }
 

@@ -63,22 +63,22 @@ int n_alphas;
 void make_alphalist()
 {
   int d = Quad::d;
-  Quad w = Quad::w;
-  Quad wbar = quadconj(w);
 
   alphalist = {RatQuad(0)};
   n_alphas = 1;
   if (d<19) return;
-  alphalist.push_back(RatQuad(w, 2));
-  alphalist.push_back(RatQuad(-wbar, 2));
+  Quad w = Quad::w;
+  Quad wbar = 1-w;
+  alphalist.push_back(RatQuad(w, 2));     // w/2
+  alphalist.push_back(RatQuad(-wbar, 2)); // (1-w)/2
   n_alphas += 2;
   if (d<43) return;
-  alphalist.push_back(RatQuad(w, 3));
-  alphalist.push_back(RatQuad(-wbar, 3));
-  alphalist.push_back(RatQuad(1+w, 3));
-  alphalist.push_back(RatQuad(-w, 3));
-  alphalist.push_back(RatQuad(wbar, 3));
-  alphalist.push_back(RatQuad(1+wbar, 3));
+  alphalist.push_back(RatQuad(w, 3));      // w/3
+  alphalist.push_back(RatQuad(-w, 3));     // -w/3
+  alphalist.push_back(RatQuad(wbar, 3));   // (1-w)/3
+  alphalist.push_back(RatQuad(-wbar, 3));  // (w-1)/3
+  alphalist.push_back(RatQuad(1+w, 3));    // (1+w)/3
+  alphalist.push_back(RatQuad(-1-w, 3));   // -(1+w)/3
   n_alphas += 6;
   if (d<67) return;
   if (d==67)
