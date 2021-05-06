@@ -352,6 +352,8 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
  return ans;
 }
 
+#if (0) // methods not used
+
 vec homspace::projmaninvector(const Quad& p) const    // Will only work after "proj"
 {
   vector<Quad> resmodp=residues(p);
@@ -386,3 +388,5 @@ vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d) const
   if(hmod) ans=reduce_modp(ans,hmod);
   return ans;
 }
+
+#endif

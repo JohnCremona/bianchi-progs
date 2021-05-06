@@ -8,15 +8,6 @@
 #include "homspace.h"
 #include <assert.h>
 
-int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
-                     smat& m, scalar& dd);
-
-int sign(int a)
-{
-  if (a) return (a>0? 1: -1);
-  return 0;
-}
-
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
   verbose=verb;
@@ -79,6 +70,11 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 
   if (verbose) cout << "Finished constructing homspace.\n";
 }
+
+#ifdef USE_CRT
+int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
+#endif
+
 void homspace::solve_relations()
 {
    vec pivs, npivs;
@@ -295,6 +291,8 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 // reduce_modp (for vec and mat) and liftmats_chinese.
 
 
+#ifdef USE_CRT
+
 //#define DEBUG_CHINESE
 
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
@@ -344,6 +342,8 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
       }
   return 1;
 }
+
+#endif
 
 vec reduce_modp(const vec& v, const scalar& p)
 {
