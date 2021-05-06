@@ -46,7 +46,7 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs1 ccs2 ccs3
-ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
+ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc edge_relations.cc face_relations.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
 ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 
@@ -113,7 +113,7 @@ tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
 OBJS = symb.o moddata.o quads.o looper.o cusp.o homspace.o \
-       newforms.o oldforms.o
+       newforms.o oldforms.o edge_relations.o face_relations.o
 
 
 tmanin: tmanin.o $(OBJS)
@@ -173,21 +173,21 @@ modtest: modtest.o  moddata.o quads.o looper.o
 symbtest: symbtest.o symb.o moddata.o quads.o looper.o
 	$(CC) -o symbtest symbtest.o symb.o moddata.o quads.o looper.o $(LFLAGS)
 
-homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
 	$(CC) -o homtest homtest.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
 
-dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
 	$(CC) -o dimtable dimtable.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
 
-dimtabeis: dimtabeis.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+dimtabeis: dimtabeis.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
 	$(CC) -o dimtabeis dimtabeis.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
 
-hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o
+hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
 	$(CC) -o hecketest hecketest.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
 
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
@@ -206,6 +206,10 @@ fieldinfo.o: fieldinfo.cc quads.h
 hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
  symb.h
 homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
+ symb.h
+edge_relations.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
+ symb.h
+face_relations.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
  symb.h
 homtest.o: homtest.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
  symb.h looper.h
