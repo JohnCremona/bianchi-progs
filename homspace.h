@@ -78,23 +78,26 @@ public:
    long h1cdenom() const {return denom3;}
    long h1ncusps() const {return ncusps;}
    long h1hmod() const {return hmod;}
-   vec chain(const symb& s) const;
-   vec chaincd(const Quad& c, const Quad& d) const;
-   vec projchaincd(const Quad& c, const Quad& d) const;
-   vec chain(const Quad& nn, const Quad& dd) const;
-   vec chain(const RatQuad& r) const 
+   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0) const;
+   vec chain(const symb& s, int type=0, int proj=0) const
+       {return chaincd(s.cee(), s.dee(), type, proj);}
+   vec projchaincd(const Quad& c, const Quad& d, int type=0) const
+        {return chaincd(c, d, type, 1);}
+   vec chain(const Quad& nn, const Quad& dd, int proj=0) const;
+   vec projchain(const Quad& n, const Quad& d) const
+       {return chain(n, d, 1);}
+   vec chain(const RatQuad& r) const
         {return chain(num(r),den(r));}
-   vec kernelpart(const vec& v) const 
+   vec kernelpart(const vec& v) const
         {return v[pivots(kern)];}
-   vec cycle(const symb& s) const 
-        {return kernelpart(chain(s));}
-   vec cycle(const Quad& n, const Quad& d) const 
+  vec cycle(const symb& s, int type=0) const
+        {return kernelpart(chain(s, type));}
+   vec cycle(const Quad& n, const Quad& d) const
         {return kernelpart(chain(n,d));}
-   vec cycle(const RatQuad& r) const 
+   vec cycle(const RatQuad& r) const
         {return kernelpart(chain(num(r),den(r)));}
    vec cycle(const modsym& m) const
      {return cycle(m.beta())-cycle(m.alpha());}
-   vec projcycle(const Quad& n, const Quad& d) const;
    vec applyop(const matop& mlist, const RatQuad& q) const;
    vec applyop(const matop& mlist, const modsym& m) const 
                    {return applyop(mlist,m.beta())-applyop(mlist,m.alpha());} 

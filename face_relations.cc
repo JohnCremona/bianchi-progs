@@ -6,6 +6,59 @@
 #include <assert.h>
 
 
+// In add_rel(rel), rel is a list of (positive) (c:d)-symbol numbers i
+// such that the corresponding symbols add to 0 in homology.  We use
+// the map i -> j=coordindex[i] to convert this to a vector of
+// dimension ngens, and append that as a new row to the relation
+// matrix relmat.
+
+void homspace::add_rel(const vector<int>& rel, const vector<int>& types)
+{
+  vector<int>::const_iterator r, t;
+  long c;
+  if (verbose)
+    {
+      cout<<"Relation: ";
+      for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+        cout<<(*r)<<"_"<<(*t)<<" "<<symbol(*r)<<" ";
+      cout <<" --> ";
+    }
+#ifdef USE_SMATS
+  svec relation(ngens);
+#else
+  vec relation(ngens);
+#endif
+  for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+    {
+      c = coordindex[*r+nsymb*(*t)];
+      if(c)
+#ifdef USE_SMATS
+        relation.add(abs(c), sign(c));
+#else
+        relation[abs(c)] += sign(c);
+#endif
+    }
+#ifdef USE_SMATS
+  if(relation.size()==0)
+#else
+  if(trivial(relation))
+#endif
+    {
+      if (verbose) cout<<relation<<endl;
+      return;
+    }
+  numrel++;
+  if(numrel<=maxnumrel)
+    {
+      make_primitive(relation);
+      if (verbose) cout<<relation<<endl;
+      relmat.setrow(numrel,relation);
+    }
+  else
+    cerr<<"Too many face relations (numrel="<<numrel
+        <<", maxnumrel="<<maxnumrel<<")"<<endl;
+}
+
 //
 // face relations
 //

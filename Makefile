@@ -46,7 +46,7 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs1 ccs2 ccs3
-ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc edge_relations.cc face_relations.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
+ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
 ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 
@@ -113,7 +113,7 @@ tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
 OBJS = symb.o moddata.o quads.o looper.o cusp.o homspace.o \
-       newforms.o oldforms.o edge_relations.o face_relations.o
+       newforms.o oldforms.o edge_relations.o face_relations.o hecke.o
 
 
 tmanin: tmanin.o $(OBJS)
@@ -173,21 +173,21 @@ modtest: modtest.o  moddata.o quads.o looper.o
 symbtest: symbtest.o symb.o moddata.o quads.o looper.o
 	$(CC) -o symbtest symbtest.o symb.o moddata.o quads.o looper.o $(LFLAGS)
 
-homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
+homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o hecke.o
 	$(CC) -o homtest homtest.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o hecke.o $(LFLAGS)
 
-dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
+dimtable: dimtable.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o hecke.o
 	$(CC) -o dimtable dimtable.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o hecke.o $(LFLAGS)
 
-dimtabeis: dimtabeis.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
+dimtabeis: dimtabeis.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o hecke.o
 	$(CC) -o dimtabeis dimtabeis.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o hecke.o $(LFLAGS)
 
-hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o
+hecketest: hecketest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o hecke.o
 	$(CC) -o hecketest hecketest.o symb.o moddata.o quads.o looper.o \
-                       cusp.o homspace.o edge_relations.o face_relations.o $(LFLAGS)
+                       cusp.o homspace.o edge_relations.o face_relations.o hecke.o $(LFLAGS)
 
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
@@ -198,60 +198,40 @@ roundtest: roundtest.o quads.o
 # for f in *.cc; do g++ -MM -std=c++11 ${f}; done
 #
 cusp.o: cusp.cc cusp.h moddata.h quads.h ratquads.h
-dimtabeis.o: dimtabeis.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h looper.h
-dimtable.o: dimtable.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h looper.h
+dimtabeis.o: dimtabeis.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
+dimtable.o: dimtable.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 fieldinfo.o: fieldinfo.cc quads.h
-hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h
-homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h
-edge_relations.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h
-face_relations.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h
-homtest.o: homtest.cc homspace.h moddata.h quads.h ratquads.h cusp.h \
- symb.h looper.h
-lf1.o: lf1.cc lf1.h newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
+hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
+homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
+edge_relations.o: edge_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
+face_relations.o: face_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
+hecke.o: hecke.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
+homtest.o: homtest.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
+lf1.o: lf1.cc lf1.h newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 looper.o: looper.cc looper.h quads.h
 looptest.o: looptest.cc looper.h quads.h
 moddata.o: moddata.cc moddata.h quads.h ratquads.h
 modtest.o: modtest.cc moddata.h quads.h ratquads.h looper.h
-modularity.o: modularity.cc newforms.h oldforms.h moddata.h quads.h \
- ratquads.h homspace.h cusp.h symb.h
-modularity_modp.o: modularity_modp.cc newforms.h oldforms.h moddata.h \
- quads.h ratquads.h homspace.h cusp.h symb.h
-moreap1.o: moreap1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
-moreap.o: moreap.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
-moreap_loop.o: moreap_loop.cc newforms.h oldforms.h moddata.h quads.h \
- ratquads.h homspace.h cusp.h symb.h looper.h
+modularity.o: modularity.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+modularity_modp.o: modularity_modp.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+moreap1.o: moreap1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+moreap.o: moreap.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+moreap_loop.o: moreap_loop.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h looper.h
 mquads.o: mquads.cc mquads.h
-newforms.o: newforms.cc looper.h quads.h oldforms.h moddata.h ratquads.h \
- newforms.h homspace.h cusp.h symb.h
-nflist.o: nflist.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
-nftest.o: nftest.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
-oldforms.o: oldforms.cc oldforms.h moddata.h quads.h ratquads.h \
- newforms.h homspace.h cusp.h symb.h
-pmanin.o: pmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h looper.h
+newforms.o: newforms.cc looper.h quads.h oldforms.h moddata.h ratquads.h newforms.h homspace.h cusp.h symb.h
+nflist.o: nflist.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+nftest.o: nftest.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+oldforms.o: oldforms.cc oldforms.h moddata.h quads.h ratquads.h newforms.h homspace.h cusp.h symb.h
+pmanin.o: pmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h looper.h
 quads.o: quads.cc quads.h
 symb.o: symb.cc symb.h moddata.h quads.h ratquads.h
 symbtest.o: symbtest.cc symb.h moddata.h quads.h ratquads.h looper.h
-testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h lf1.h
-tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
+testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h lf1.h
+tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 tmquads.o: tmquads.cc mquads.h
 tquads.o: tquads.cc quads.h
 tratquad.o: tratquad.cc ratquads.h quads.h
-xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h \
- homspace.h cusp.h symb.h
+xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 
 # Some tables
 
