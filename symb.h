@@ -155,10 +155,16 @@ inline ostream& operator<< (ostream& s, const mat22& m)
 }
 
 extern vector<RatQuad> alphas;  // List of a such that {a,oo} represent edge-orbits.
+extern vector<Quad> alpha_denoms; // List of denominators of alphas.
 extern int n_alphas;            // Its length.
 extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.
 void define_alphas();           // Populate alphas and M_alphas.
 
-int nearest_alpha(const Quad& a, const Quad& b); // index of alpha nearest to a/b, given that a is reduced mod b
+// index of alpha nearest to a/b, given that a is reduced mod b
+int nearest_alpha(const Quad& a, const Quad& b);
+
+// Find a shift q such that (a/b)-q is close enough to an alpha, and
+// set type to the index of that alpha.
+Quad translation(const Quad& a, const Quad& b, int& type);
 
 #endif

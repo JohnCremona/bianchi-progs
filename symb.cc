@@ -58,6 +58,7 @@ symb symblist::item(int n) const
 //Member functions for class symbdata:
 
 vector<RatQuad> alphas; // List of a such that {a,oo} represent edge-orbits
+vector<Quad> alpha_denoms; // List of denominators of alphas.
 int n_alphas;
 vector<mat22> M_alphas;  // List of matrices M_a with det(M_a)=1 such that M_a(a)=oo.
 
@@ -79,6 +80,9 @@ void define_alphas()
 {
   int d = Quad::d;
 
+  // alphas =0 with denominator 1:
+
+  alpha_denoms.push_back(1);
   add_alpha(0,-1,1,0);  // alpha[0] = 0
 
   if (d<19) return;
@@ -87,12 +91,14 @@ void define_alphas()
 
   // alphas with denominator 2:
 
+  alpha_denoms.push_back(2);
   Quad u = (d-3)/8;  // = 2, 5, 8, 20
   add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
   add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
 
   if (d<43) return;
 
+  alpha_denoms.push_back(3);
   u = -(d+5)/12;  // = -4, -6, -14 so w^2 = w+3*u+1
   add_alpha(1-w,u,3,-w);           // alpha[3] = w/3
   add_alpha(w-1,u,3,w);            // alpha[4] = -w/3
@@ -106,16 +112,19 @@ void define_alphas()
   if (d==67)
     {
       Quad den(3,-1);
+      alpha_denoms.push_back(den);
       alphas.push_back(RatQuad(6+w,den));
       alphas.push_back(RatQuad(-6-w,den));
       alphas.push_back(RatQuad(2+w,den));
       alphas.push_back(RatQuad(-2-w,den));
       den = quadconj(den);
+      alpha_denoms.push_back(den);
       alphas.push_back(RatQuad(7-w,den));
       alphas.push_back(RatQuad(w-7,den));
       alphas.push_back(RatQuad(3-w,den));
       alphas.push_back(RatQuad(w-3,den));
 
+      alpha_denoms.push_back(4);
       alphas.push_back(RatQuad(w,4));
       alphas.push_back(RatQuad(-w,4));
       alphas.push_back(RatQuad(w-1,4));
@@ -128,6 +137,81 @@ void define_alphas()
       return;
     }
   //  cout << "define_alphas() not yet implemented for field "<<d<<endl;
+}
+
+
+Quad over(const Quad&a, long n)
+{
+  long x = real(a), y = imag(a);
+  long u, v = roundover(y,n);
+  if (Quad::t == 0)
+    {
+      u = roundover(x,n);
+    }
+  else
+    {
+      u = roundover(2*x+y-n*v, 2*n);
+    }
+  return Quad(u, v);
+}
+
+Quad over(const Quad&a, const Quad& b)
+{
+  return over(a*quadconj(b), quadnorm(b));
+}
+
+// Find a shift q such that (a/b)-q is close enough to an alpha, and
+// set type to the index of that alpha.
+Quad translation(const Quad& a, const Quad& b, int& type)
+{
+  Quad shift(0);
+  RatQuad alpha(a,b);
+  vector<RatQuad>::iterator t = std::find(alphas.begin(), alphas.end(), alpha);
+  if (t!=alphas.end())
+    {
+      type = std::distance(alphas.begin(), t);
+      cout<<"translation("<<a<<","<<b<<") trivially found shift="<<shift<<" and alpha="<<alpha<<" with index "<<type<<endl;
+      return shift;
+    }
+  float maxdist = 0, dist;
+  Quad d, u, q, r, best_d=0, best_q;
+  long normb = quadnorm(b);
+  cout<<"In translaton("<<a<<","<<b<<")"<<endl;
+  for (vector<Quad>::iterator di=alpha_denoms.begin(); di!=alpha_denoms.end(); di++)
+    {
+      d = *di;
+      cout<<"Trying d="<<d<<endl;
+      u = a*d;
+      q = over(u,b);
+      r = u-q*b;
+      dist = float(1-quadnorm(r)/normb)/quadnorm(d);
+      cout<<"dist = "<<dist<<endl;
+      if (dist>maxdist)
+        {
+          maxdist=dist;
+          best_d=d;
+          best_q=q;
+        }
+    }
+  if (best_d==0)
+    {
+      cerr<<"translation("<<a<<","<<b<<") found no possible denominators!"<<endl;
+    }
+  shift = over(best_q,best_d);
+  alpha = RatQuad(best_q-best_d*shift, best_d);
+  t = std::find(alphas.begin(), alphas.end(), alpha);
+  if (t==alphas.end())
+    {
+      type=-1;
+      cerr<<"translation("<<a<<","<<b<<") computed shift="<<shift<<" and alpha="<<alpha<<" which is invalid"<<endl;
+      exit(1);
+    }
+  else
+    {
+      type = std::distance(alphas.begin(), t);
+      cout<<"translation("<<a<<","<<b<<") computed shift="<<shift<<" and alpha="<<alpha<<" with index "<<type<<endl;
+    }
+  return shift;
 }
 
 // index of alpha nearest to a/b, given that a is reduced mod b

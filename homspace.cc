@@ -272,27 +272,39 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
  return ans;
 }
 
+#define DEBUG_NONEUCLID
 vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 {
    vec ans = chaincd(0,1), part;
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
+   int t;
    while (b!=0)
      {
-       q=a/b; // closest integer to a/b
+#ifdef DEBUG_NON_EUCLID
+       if (!Quad::is_Euclidean)
+         cout<<"a="<<a<<", b="<<b<<": ";
+#endif
+       if (Quad::is_Euclidean)
+         {
+           q=a/b; // closest integer to a/b
+           t=0;
+         }
+       else
+         {
+           q = translation(a, b, t);
+         }
 
        // shift by q:
        a -= q*b;
        d += q*c;
-
-       // determine which inversion to use (with a short cut for Euclidean fields):
-       // the inversion matrix is M_alpha for the alpha "closest" to a/b
-       int t=0;
-       mat22 M = mat22(0,-1,1,0);
+#ifdef DEBUG_NON_EUCLID
        if (!Quad::is_Euclidean)
-         {
-           t = nearest_alpha(a,b);
-           M = M_alphas[t];
-         }
+         cout<<"q="<<q<<", new a="<<a<<endl;
+#endif
+
+       // determine which inversion to use; the inversion matrix is
+       // M_alpha for the alpha "closest" to a/b
+       mat22 M = M_alphas[t];
 
        // Apply the inversion to a/b and update (c:d):
        M.apply_left(a,b);
