@@ -1,4 +1,4 @@
-Enter field: Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
+Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
 Euclidean
 17990 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 

@@ -4,11 +4,18 @@
 #define _QUADS_H      1       //flags that this file has been included
 
 #include <eclib/interface.h>
+#include <assert.h>
+
 #define PI M_PI
 
+// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
 long roundover(long aa, long bb);
 
 class Quad;
+
+// Valid fields
+extern vector<int> valid_fields;
+int check_field(int d, vector<int> fields=valid_fields);
 
 //functions assigned by Quad::field initializer
 extern Quad (*quadconj)(const Quad& a);  //Can't have same names as Complex functions
@@ -16,6 +23,7 @@ extern long (*quadnorm)(const Quad& a);  //
 extern Quad (*mult)(const Quad& a, const Quad& b);
 extern Quad (*qdivi)(const Quad& a, long c);
 extern int (*pos)(const Quad& a);
+
 //GCD-related functions.
 extern Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 Quad quadgcd1(const Quad& aa, const Quad& bb); //Euclidean only
@@ -26,7 +34,6 @@ Quad quadbezout2(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //General
 Quad invmod(const Quad& a, const Quad& p);
 int coprime(const Quad& a, const Quad& b);
 int invertible(const Quad& a, const Quad& b, Quad& inverse);
- 
 
 //functions defined in quads.cc
 int div(const Quad& a, const Quad& b);
@@ -35,7 +42,7 @@ int val(const Quad& factor, const Quad& number);
 vector<Quad> residues(const Quad& a);
 
 //Primes
-extern vector<Quad> quadprimes;  
+extern vector<Quad> quadprimes;
 extern long nquadprimes;     //The number of them.
 extern vector<Quad> quadunits, squareunits;
 extern Quad fundunit;
@@ -54,9 +61,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int     n;          // norm of w
   static char    name;       // name of w for printing
   static int  maxnorm;       // largest norm of primes
- public:
   static int     disc;       // discriminant
   static int   nunits;       // number of units
+  static int is_Euclidean;   // 1 for Euclidean fields, else 0
   static Quad w;
 
   static void field(int dd, int max=1000);
@@ -147,9 +154,9 @@ inline Quad mult0(const Quad& a, const Quad& b)
    {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r);}
 inline Quad mult1(const Quad& a, const Quad& b)
    {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i);}
-inline Quad qdivi0(const Quad& a, long c)
+inline Quad qdivi0(const Quad& a, long c) // c>0
    {return Quad(roundover(a.r,c),roundover(a.i,c));}     // used when t=0
-inline Quad qdivi1(const Quad& a, long c)
+inline Quad qdivi1(const Quad& a, long c) // c>0
    {Quad b; b.i=roundover(a.i,c); 
             b.r=roundover(2*a.r+a.i-c*b.i,2*c); 
     return b;}                                          // used when t=1

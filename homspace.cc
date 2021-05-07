@@ -34,7 +34,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
         {
           int offset = j*nsymb;
           if(n_alphas>1)
-            cout << "Type " << j+1 << ", alpha = "<<alphalist[j]<<":\n";
+            cout << "Type " << j << ", alpha = "<<alphas[j]<<", M_alpha = "<<M_alphas[j]<<":\n";
           for (i=0; i<nsymb; i++)
             cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i+offset] << "\n";
         }
@@ -79,6 +79,12 @@ void homspace::solve_relations()
 {
    vec pivs, npivs;
    int i;
+   if(verbose)
+     {
+       mat M = relmat.as_mat().slice(numrel,ngens);
+       cout<<"relmat = "<<M<<endl;
+       cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
+     }
 #if(USE_SMATS)
    smat_elim sme(relmat);
    int d1;
@@ -271,15 +277,34 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
    vec ans = chaincd(0,1), part;
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
    while (b!=0)
-   { q=a/b;
-     f=a; a=-b; b= f-q*b;
-     e=d; d= c; c= e+q*c; c=-c;
-     part = (proj? projchaincd(c,d): chaincd(c,d));
-     if(hmod)
-       ans.addmodp(part,hmod);
-     else
-       ans += part;
-   }
+     {
+       q=a/b; // closest integer to a/b
+
+       // shift by q:
+       a -= q*b;
+       d += q*c;
+
+       // determine which inversion to use (with a short cut for Euclidean fields):
+       // the inversion matrix is M_alpha for the alpha "closest" to a/b
+       int t=0;
+       mat22 M = mat22(0,-1,1,0);
+       if (!Quad::is_Euclidean)
+         {
+           t = nearest_alpha(a,b);
+           M = M_alphas[t];
+         }
+
+       // Apply the inversion to a/b and update (c:d):
+       M.apply_left(a,b);
+       M.apply_right(c,d);
+
+       // Look up this symbol
+       part = chaincd(c, d, t, proj);
+       if(hmod)
+         ans.addmodp(part,hmod);
+       else
+         ans += part;
+     }
    if(hmod) ans=reduce_modp(ans,hmod);
    return ans;
 }

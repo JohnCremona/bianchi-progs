@@ -16,9 +16,9 @@ modsym::modsym(const symb& s, int type) //Constructor for modsym, converting fro
    {
      a = RatQuad(-x , d);
    }
- else // apply to {alpha,oo} where alpha = alphalist[type]
+ else // apply to {alpha,oo} where alpha = alphas[type]
    {
-     RatQuad alpha = alphalist[type];
+     RatQuad alpha = alphas[type];
      a = (y*alpha-x) / (c*alpha+d);
    }
 }
@@ -57,70 +57,111 @@ symb symblist::item(int n) const
 
 //Member functions for class symbdata:
 
-vector<RatQuad> alphalist; // list of a such that {a,oo} represent edge-orbits
+vector<RatQuad> alphas; // List of a such that {a,oo} represent edge-orbits
 int n_alphas;
+vector<mat22> M_alphas;  // List of matrices M_a with det(M_a)=1 such that M_a(a)=oo.
 
-void make_alphalist()
+// Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
+
+void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+{
+  static const RatQuad inf(1,0);
+  RatQuad alpha(-d,c);
+  mat22 M_alpha(a,b,c,d);
+  assert (M_alpha.det()==1);
+  assert (M_alpha(alpha) == inf);
+  alphas.push_back(alpha);
+  M_alphas.push_back(M_alpha);
+  n_alphas += 1;
+}
+
+void define_alphas()
 {
   int d = Quad::d;
 
-  alphalist = {RatQuad(0)};
-  n_alphas = 1;
+  add_alpha(0,-1,1,0);  // alpha[0] = 0
+
   if (d<19) return;
 
   Quad w = Quad::w;
 
-  alphalist.push_back(RatQuad(w, 2));
-  alphalist.push_back(RatQuad(w-1, 2));
-  n_alphas += 2;
+  // alphas with denominator 2:
+
+  Quad u = (d-3)/8;  // = 2, 5, 8, 20
+  add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
+  add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
+
   if (d<43) return;
-  alphalist.push_back(RatQuad(w, 3));
-  alphalist.push_back(RatQuad(-w, 3));
-  alphalist.push_back(RatQuad(1-w, 3));
-  alphalist.push_back(RatQuad(w-1, 3));
-  alphalist.push_back(RatQuad(1+w, 3));
-  alphalist.push_back(RatQuad(-1-w, 3));
-  n_alphas += 6;
+
+  u = -(d+5)/12;  // = -4, -6, -14 so w^2 = w+3*u+1
+  add_alpha(1-w,u,3,-w);           // alpha[3] = w/3
+  add_alpha(w-1,u,3,w);            // alpha[4] = -w/3
+  add_alpha(w,u,3,w-1);            // alpha[5] = (1-w)/3
+  add_alpha(-w,u,3,1-w);           // alpha[6] = (w-1)/3
+  add_alpha(w+1,-(w+u+1),3,-1-w);  // alpha[7] = (w+1)/3
+  add_alpha(-w-1,-(w+u+1),3,1+w);  // alpha[8] = -(w+1)/3
+
   if (d<67) return;
+
   if (d==67)
     {
       Quad den(3,-1);
-      alphalist.push_back(RatQuad(6+w,den));
-      alphalist.push_back(RatQuad(-6-w,den));
-      alphalist.push_back(RatQuad(2+w,den));
-      alphalist.push_back(RatQuad(-2-w,den));
+      alphas.push_back(RatQuad(6+w,den));
+      alphas.push_back(RatQuad(-6-w,den));
+      alphas.push_back(RatQuad(2+w,den));
+      alphas.push_back(RatQuad(-2-w,den));
       den = quadconj(den);
-      alphalist.push_back(RatQuad(7-w,den));
-      alphalist.push_back(RatQuad(w-7,den));
-      alphalist.push_back(RatQuad(3-w,den));
-      alphalist.push_back(RatQuad(w-3,den));
+      alphas.push_back(RatQuad(7-w,den));
+      alphas.push_back(RatQuad(w-7,den));
+      alphas.push_back(RatQuad(3-w,den));
+      alphas.push_back(RatQuad(w-3,den));
 
-      alphalist.push_back(RatQuad(w,4));
-      alphalist.push_back(RatQuad(-w,4));
-      alphalist.push_back(RatQuad(w-1,4));
-      alphalist.push_back(RatQuad(1-w,4));
-      alphalist.push_back(RatQuad(1+w,4));
-      alphalist.push_back(RatQuad(-1-w,4));
-      alphalist.push_back(RatQuad(w-2,4));
-      alphalist.push_back(RatQuad(2-w,4));
+      alphas.push_back(RatQuad(w,4));
+      alphas.push_back(RatQuad(-w,4));
+      alphas.push_back(RatQuad(w-1,4));
+      alphas.push_back(RatQuad(1-w,4));
+      alphas.push_back(RatQuad(1+w,4));
+      alphas.push_back(RatQuad(-1-w,4));
+      alphas.push_back(RatQuad(w-2,4));
+      alphas.push_back(RatQuad(2-w,4));
       n_alphas += 16;
       return;
     }
-  //  cout << "make_alphalist() not yet implemented for field "<<d<<endl;
+  //  cout << "define_alphas() not yet implemented for field "<<d<<endl;
+}
+
+// index of alpha nearest to a/b, given that a is reduced mod b
+// (or -1 if none is near enough: should not happen)
+//
+// Here alpha = r/s is near enough if M_alpha(a/b) has denominator
+// smaller than b, which is iff N(s*a-r*b)<N(b).
+
+
+int nearest_alpha(const Quad& a, const Quad& b)
+{
+  long normb = quadnorm(b);
+  for (vector<RatQuad>::iterator alpha = alphas.begin(); alpha!=alphas.end(); alpha++)
+    {
+      Quad r = num(*alpha), s = den(*alpha);
+      if (quadnorm(s*a-r*b) < normb)
+        return std::distance(alphas.begin(), alpha);
+    }
+  cerr << "Error in nearest_alpha("<<a<<", "<<b<<"): none of the alphas is near enough"<<endl;
+  return -1;
 }
 
 void symbdata::init_geometry()
 {
   //  cout<<"In init_geometry() with d="<<Quad::d<<endl;
-  make_alphalist();
-  //  cout<<n_alphas<<" alphas in alphalist: "<<alphalist<<endl;
+  define_alphas();
+  //  cout<<n_alphas<<" alphas: "<<alphas<<endl;
 }
 
 symbdata::symbdata(const Quad &n) :moddata(n),specials()
 {
   // cout << "In constructor symbdata::symbdata.\n";
   // initialise static data (depending only on the field)
-  if (alphalist.size()==0)
+  if (alphas.size()==0)
     init_geometry();
   nsymbx = nsymb*n_alphas;
   // cout << "nsymb2 = " << nsymb2 << "\n";

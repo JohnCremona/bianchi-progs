@@ -5,15 +5,16 @@
 #include "looper.h"
 #endif
 
-vector<int> valid_fields = {1,2,3,7,11,19,43};
+// List of fields for which this has been implemented so far:
+vector<int> fields = {1,2,3,7,11,19,43};
 
 int main ()
 {
  int d,max=1000;
- cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
- if (std::find(valid_fields.begin(), valid_fields.end(), d) == valid_fields.end())
+ cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+ if (!check_field(d, fields))
    {
-     cerr<<"field must be one of: "<<valid_fields<<endl;
+     cerr<<"field must be one of: "<<fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

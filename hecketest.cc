@@ -11,6 +11,9 @@
 #include "looper.h"
 #endif
 
+// List of fields for which this has been implemented so far:
+vector<int> fields = {1,2,3,7,11,19,43};
+
 #define MAXPRIME 10000
 
 vector<bigint> char_poly(mat_m A, long denom=1, int show_factors=0); // using NTL
@@ -40,10 +43,10 @@ int main(void)
  int d,max=10000;
  int np,ip,jp,nq; 
  Quad n; int mats, pols, facs, plusflag, cuspidal=1;
- cerr << "Enter field: " << flush;  cin >> d;
- if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
+ cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+ if (!check_field(d, fields))
    {
-     cerr<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: "<<fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

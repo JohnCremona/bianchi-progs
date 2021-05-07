@@ -5,13 +5,16 @@
 #include "looper.h"
 #endif
 
+// List of fields for which this has been implemented so far:
+vector<int> fields = {1,2,3,7,11,19,43};
+
 int main ()
 {
  int d,max=200000;
- cout << "Enter field: " << flush;  cin >> d;
- if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
+ cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+ if (!check_field(d, fields))
    {
-     cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
+     cerr<<"field must be one of: "<<fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

@@ -3,8 +3,6 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
-#include <assert.h>
-
 
 // In add_rel(rel), rel is a list of (positive) (c:d)-symbol numbers i
 // such that the corresponding symbols add to 0 in homology.  We use
@@ -404,9 +402,9 @@ void homspace::triangle_relation_3()
       // Triangle {oo, -w/3, -(w+1)/3}
 
       symbop M3(this, w,u,-3,w-1);    // = J*M1*J, maps {(w-1)/3,oo} to {oo, -w/3}
-      assert (M3.det()==-1);
+      assert (M3.det()==1);
       symbop M4(this, w+1,-u,-3,2-w); // = J*M2*J, maps {(1-w)/3,oo} to {-w/3, -(w+1)/3}
-      assert (M4.det()==-1);
+      assert (M4.det()==1);
       types = {6,5,8};  // {(w-1)/3, oo}, {(1-w)/3, oo}, {-(1+w)/3, oo}
 
       for (k=0; k<nsymb; k++)

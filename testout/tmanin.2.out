@@ -1,4 +1,4 @@
-Enter field: Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
+Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
 Euclidean
 17968 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 

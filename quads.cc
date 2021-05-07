@@ -17,6 +17,7 @@ int Quad::n;
 char Quad::name;
 int Quad::maxnorm;
 int Quad::nunits;
+int Quad::is_Euclidean;
 Quad Quad::w;
 
 //Primes
@@ -25,6 +26,12 @@ long nquadprimes;         //The number of them.
 vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
+vector<int> valid_fields = {1,2,3,7,11,19,43,67,163};
+
+int check_field(int d, vector<int> fields)
+{
+  return (std::find(fields.begin(), fields.end(), d) != fields.end());
+}
 
 // declaration of "extern" functions declared in quads.h:
 long (*quadnorm)(const Quad& a);
@@ -36,14 +43,21 @@ Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
 Quad (*quadconj)(const Quad& a);
 
 void Quad::field(int dd, int max)
-{d=dd; 
+{
+  if (!check_field(dd))
+    {
+      cerr<<"field "<<dd<<" is not implemented: it must be one of: "<<valid_fields<<endl;
+      exit(1);
+    }
+  d = dd;
+  is_Euclidean = (d<=11);
   w = Quad(0,1);
-  if ((d+1)%4) {t=0; disc=4*d; n=d;       
-               quadconj=&quadconj0; quadnorm=&quadnorm0; 
+  if ((d+1)%4) {t=0; disc=4*d; n=d;
+               quadconj=&quadconj0; quadnorm=&quadnorm0;
                mult=&mult0; qdivi=&qdivi0;
               }
- else         {t=1; disc=d;   n=(d+1)/4; 
-               quadconj=&quadconj1; quadnorm=&quadnorm1; 
+ else         {t=1; disc=d;   n=(d+1)/4;
+               quadconj=&quadconj1; quadnorm=&quadnorm1;
                mult=&mult1; qdivi=&qdivi1;
               }
  switch (d) {
@@ -52,17 +66,14 @@ void Quad::field(int dd, int max)
  case 3:  pos=&pos13; name='w'; nunits=6; fundunit=Quad(0,1); break;
  default: pos=&pos2;  name='a'; nunits=2; fundunit=Quad(-1); 
  }
- switch (d) {
- case 1: case 2: case 3: case 7: case 11:       // Euclidean
-   quadgcd=&quadgcd1; quadbezout=&quadbezout1;  
-   break;
- case 19: case 43: case 67: case 163:           // Non-Euclidean
-   quadgcd=&quadgcd2; quadbezout=&quadbezout2;
-   break;
- default: 
-   cerr << "Field does not have class number one!" << endl;
-   exit(1);    //abort program instantly!
- }
+ if (is_Euclidean)
+   {
+     quadgcd=&quadgcd1; quadbezout=&quadbezout1;
+   }
+ else
+   {
+     quadgcd=&quadgcd2; quadbezout=&quadbezout2;
+   }
  int i;
  quadunits.push_back(1);
  quadunits.push_back(fundunit);
@@ -686,24 +697,22 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
  
 
 //-------------------------------------------------------------------------
-// N.B.  The point of the following ghastly function is that the
-// built-in gcc division truncates towards 0, while we need
-// rounding, with a consistent behaviour for halves (they go up here). 
-//-------------------------------------------------------------------------
+// N.B.  The point of the following function is that the built-in gcc
+// division truncates towards 0, while we need rounding, with a
+// consistent behaviour for halves (they go up here).
+//
+// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
+
 long roundover(long aa, long bb)
-{ //cout<<"roundover("<<aa<<","<<bb<<") = ";
-  long ans;
-  if(aa%bb==0) ans = aa/bb;   //exact case always OK
-  else 
-    {
-      long a=aa,b=bb;
-      if(b<0){a=-a; b=-b;}
-      long c = a+a+b, b2=b+b; 
-      ans = c/b2;
-      if((c<0)&&(c%b2))ans--;
-    }
-  //cout<<ans<<endl;
-  return ans;
+{
+  long a=aa, b=bb, q, r;
+  assert (b>0); // the following code requires b>0
+  r = (a<0? b-(-a)%b : a%b);
+  if (2*r>=b) r-=b;
+  // Now    -b   <= 2*r    < b
+  assert ((-b<=2*r) && (2*r<b));
+  q = (a-r)/b;
+  return q;
 }
 
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
