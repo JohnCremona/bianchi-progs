@@ -918,19 +918,25 @@ void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t)
 
   // Now look or a suitable alpha, trying all in turn (skipping alpha=0)
 
+  Quad r,s, a1,b1;
   for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++)
     {
       t++;
 #ifdef DEBUG_PSEA
       cout<<" - testting type "<<t<<", M="<<(*Mi)<<endl;
 #endif
+      mat22 M = *Mi;
+      r=-M.d, s=M.c; // alpha = r/s
+      // Find the shift taking a/b closest to alpha
+      q = (a*s-b*r)/(b*s); // closest integer to (a/b)-(r/s)
       // We need to use temporary copies of a,b in case this alpha fails
-      Quad a1 = a, b1 = b;
+      a1 = a-q*b, b1 = b;
       Mi->apply_left(a1,b1);
       if (quadnorm(b1) < normb) // success!
         {
           a = a1;
           b = b1;
+          d += q*c;
           Mi->apply_right(c,d);
 #ifdef DEBUG_PSEA
       cout<<" - success, returning (a,b) = ("<<a<<","<<b<<")"<<endl;
