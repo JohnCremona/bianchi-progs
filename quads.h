@@ -12,6 +12,7 @@
 long roundover(long aa, long bb);
 
 class Quad;
+class RatQuad;
 
 // Valid fields
 extern vector<int> valid_fields;
@@ -195,6 +196,71 @@ int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist);
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist);
 double gauss(const Quad& m, const vector<Quad>& reslist);
 
+class mat22 {  //2x2 matrix for linear fractional transformations
+private:
+   Quad a,b,c,d;
+public:
+  mat22() :a(0),b(0),c(0),d(0) {}
+  mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
+    :a(ia),b(ib),c(ic),d(id) {}
+
+  // access to entries
+  Quad entry(int i, int j) const
+  {
+    return (i==0? (j==0?a:b): (j==0?c:d));
+  }
+  // left action on r/s as column vector, changing in place:
+  void apply_left(Quad& r, Quad& s) const
+  {
+    Quad t = a*r+b*s;
+    s = c*r+d*s;
+    r = t;
+  }
+  RatQuad operator()(const RatQuad& q)const; // implemented in cusp.cc
+
+  // right action on (c:d) symbols as row vectors, changing in place
+  void apply_right(Quad& sc, Quad& sd) const
+  {
+    Quad t = a*sc + c*sd;
+    sd = b*sc + d*sd;
+    sc = t;
+  }
+  Quad det() const {return a*d-b*c;}
+  friend ostream& operator<< (ostream&, const mat22&); // inline below
+  friend void pseudo_euclidean_step(Quad&, Quad&, Quad&, Quad&, int&);
+  friend class modsym;
+};
+
+inline ostream& operator<< (ostream& s, const mat22& m)
+{
+   s << "[" << (m.a) << "," << (m.b) << "; " << (m.c) << "," << (m.d) << "]";
+   return s;
+}
+
+class matop {  // formal sum of 2x2 matrices
+private:
+  vector<mat22> mats;
+ public:
+  matop(const Quad& p, const Quad& n);  // constructor for hecke ops
+  mat22 operator[](int i) const {return mats[i];}
+  int length() const {return mats.size();}
+};
+
+extern int n_alphas;            // Number of alphas.
+extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.
+void define_alphas();           // Populate M_alphas.
+
+// pseudo-Euclidean step: applies a translation and M_alpha inversion
+// to a/b (or column vector [a;b]) reducing b, also multiplying row
+// vector [c.d] my M_alpha on the right.  In the Euclidean case, the
+// shift is -q where q=a/b (rounded) and the inversion is via
+// S=[0,-1;1,0].
+
+// a,b,c,d are changed in place, and on return, t holds the "type"
+// (index of alpha which worked)
+
+void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t);
+
 #endif
 
-// END OF FILE QUADS.H                              
+// END OF FILE QUADS.H

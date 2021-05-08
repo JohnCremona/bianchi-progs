@@ -170,8 +170,8 @@ tratquad: tratquad.o quads.o
 modtest: modtest.o  moddata.o quads.o looper.o
 	$(CC) -o modtest modtest.o moddata.o quads.o looper.o $(LFLAGS)
 
-symbtest: symbtest.o symb.o moddata.o quads.o looper.o
-	$(CC) -o symbtest symbtest.o symb.o moddata.o quads.o looper.o $(LFLAGS)
+symbtest: symbtest.o symb.o moddata.o cusp.o quads.o looper.o
+	$(CC) -o symbtest symbtest.o symb.o moddata.o cusp.o quads.o looper.o $(LFLAGS)
 
 homtest: homtest.o symb.o moddata.o quads.o looper.o cusp.o homspace.o edge_relations.o face_relations.o hecke.o
 	$(CC) -o homtest homtest.o symb.o moddata.o quads.o looper.o \

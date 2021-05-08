@@ -34,7 +34,10 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
         {
           int offset = j*nsymb;
           if(n_alphas>1)
-            cout << "Type " << j << ", alpha = "<<alphas[j]<<", M_alpha = "<<M_alphas[j]<<":\n";
+            {
+              mat22 M = M_alphas[j];
+              cout << "Type " << j << ", alpha = ("<< -M.entry(1,1)<<")/("<<M.entry(1,0)<<"), M_alpha = "<<M<<":\n";
+            }
           for (i=0; i<nsymb; i++)
             cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i+offset] << "\n";
         }
@@ -282,34 +285,14 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
      {
 #ifdef DEBUG_NON_EUCLID
        if (!Quad::is_Euclidean)
-         cout<<"a="<<a<<", b="<<b<<": ";
+         cout<<"a="<<a<<", b="<<b<<endl;
 #endif
-       if (Quad::is_Euclidean)
-         {
-           q=a/b; // closest integer to a/b
-           t=0;
-         }
-       else
-         {
-           q = translation(a, b, t);
-         }
-
-       // shift by q:
-       a -= q*b;
-       d += q*c;
+       pseudo_euclidean_step(a,b, c,d, t);
+       assert (t!=-1);
 #ifdef DEBUG_NON_EUCLID
        if (!Quad::is_Euclidean)
-         cout<<"q="<<q<<", new a="<<a<<endl;
+         cout<<"After a step with t="<<t<<", a="<<a<<", b="<<b<<endl;
 #endif
-
-       // determine which inversion to use; the inversion matrix is
-       // M_alpha for the alpha "closest" to a/b
-       mat22 M = M_alphas[t];
-
-       // Apply the inversion to a/b and update (c:d):
-       M.apply_left(a,b);
-       M.apply_right(c,d);
-
        // Look up this symbol
        part = chaincd(c, d, t, proj);
        if(hmod)
