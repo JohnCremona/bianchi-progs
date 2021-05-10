@@ -60,6 +60,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       cout << "dimension (relative to cusps) = " << rk << endl;
     }
 
+  make_freemods();
+
   kernel_delta();
 
   if(verbose)
@@ -68,8 +70,6 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       if (cuspidal)
         cout << "dimension = " << dimension << endl;
     }
-
-  make_freemods();
 
   if (verbose) cout << "Finished constructing homspace.\n";
 }
@@ -194,20 +194,10 @@ void homspace::kernel_delta()
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(2*rk,this);
   mat deltamat(2*rk,rk);
-  int i, j, s, t=0;
-  modsym m;
+  int i;
   for (i=0; i<rk; i++)
     {
-      s = j = freegens[i];
-      if (n_alphas>1)
-        {
-          //      cout<<"j = "<<j<<": ";
-          std::div_t st = div(j, nsymb);
-          s = st.rem;  // remainder gives (c:d) symbol number
-          t = st.quot; // quotient gives symbol type
-          //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
-        }
-      m = modsym(symbol(s), t);
+      modsym m = freemods[i];
       deltamat(cusps.index(m.beta())+1, i+1) += 1;  // N.B. offset of 1
       deltamat(cusps.index(m.alpha())+1, i+1) -= 1;
     }
@@ -228,11 +218,29 @@ void homspace::kernel_delta()
   dimension = (cuspidal? dim(kern): rk);
   denom2 = d2;
   denom3 = denom1 * denom2;
+
+  const smat& basiskern = basis(kern);
+  if (verbose)
+    {
+      cout << "Basis of ker(delta):\n";
+      cout << basiskern;
+      cout << "pivots: " << pivots(kern) << endl;
+    }
+  for (i=0; i<rk; i++)
+    {
+      int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
+      needed.push_back(n);
+      if (verbose)
+        {
+          cout << "generator "<< i << ": " << freemods[i];
+          if (!n) cout << " (not needed)";
+          cout << endl;
+        }
+    }
 }
 
 void homspace::make_freemods()
 {
-  const smat& basiskern = basis(kern);
   if (verbose)  cout << "Freemods:\n";
   int i,j,s,t=0;
   modsym m;
@@ -249,20 +257,6 @@ void homspace::make_freemods()
         }
       m = modsym(symbol(s), t);
       freemods.push_back(m);
-      int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
-      needed.push_back(n);
-      if (verbose)
-        {
-          cout << i << ": " << m;
-          if (!n) cout << " (not needed)";
-          cout << endl;
-        }
-    }
-  if (verbose)
-    {
-      cout << "Basis of ker(delta):\n";
-      cout << basiskern;
-      cout << "pivots: " << pivots(kern) << endl;
     }
 }
 
@@ -275,11 +269,11 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
  return ans;
 }
 
-#define DEBUG_NONEUCLID
+#define DEBUG_NON_EUCLID
 vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 {
-   vec ans = chaincd(0,1), part;
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
+   vec ans = chaincd(c,d,0,proj), part;
    int t;
    while (b!=0)
      {
@@ -293,7 +287,7 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
        if (!Quad::is_Euclidean)
          cout<<"After a step with t="<<t<<", a="<<a<<", b="<<b<<endl;
 #endif
-       // Look up this symbol
+       // Look up this symbol, convert to a vector w.r.t. homology basis
        part = chaincd(c, d, t, proj);
        if(hmod)
          ans.addmodp(part,hmod);

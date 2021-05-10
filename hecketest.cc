@@ -123,7 +123,7 @@ int main(void)
             {
               if(d<20) cout << "wq^2 = " << wq2 << endl;
               cout << "NOT an involution...." << "\n";
-              exit(1);
+              //exit(1);
             }
 	  wqlist.push_back(wq);
 	}

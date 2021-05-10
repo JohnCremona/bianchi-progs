@@ -29,6 +29,6 @@ RatQuad mat22::operator()(const RatQuad& q)const
 {
   Quad r = num(q), s = den(q);
   apply_left(r, s);
-  return RatQuad(r,s);
+  return RatQuad(r,s, 1);
 }
 

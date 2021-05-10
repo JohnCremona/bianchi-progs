@@ -9,8 +9,8 @@ class RatQuad {
 
 public:
   // constructors
-  RatQuad(Quad nn=0, Quad d=1);
-  RatQuad(long a, long b, long dd); // (a+b*w)/dd
+  RatQuad(Quad nn=0, Quad d=1, int reduce=0);
+  RatQuad(long a, long b, long dd, int reduce=0); // (a+b*w)/dd
 
   // RatQuad manipulations
   void cancel();                           // cancel *this in situ
@@ -62,17 +62,19 @@ inline void RatQuad::cancel()                     // cancel *this in situ
  while (!pos(d)) {n*=fundunit; d*=fundunit;}
 }
 
-inline RatQuad::RatQuad(Quad nn, Quad dd)
+inline RatQuad::RatQuad(Quad nn, Quad dd, int reduce)
 {
   n=nn; d=dd;
-  (*this).cancel();
+  if (reduce)
+    (*this).cancel();
 }
 
-inline RatQuad::RatQuad(long a, long b, long dd) // (a+b*w)/dd
+inline RatQuad::RatQuad(long a, long b, long dd, int reduce) // (a+b*w)/dd
 {
   n=Quad(a,b);
   d=Quad(dd);
-  (*this).cancel();
+  if (reduce)
+    (*this).cancel();
 }
 
 inline RatQuad RatQuad::operator+()
@@ -99,6 +101,7 @@ inline RatQuad& RatQuad::operator+=(const RatQuad& r)
 inline RatQuad& RatQuad::operator+=(Quad q)
 {
   n += d*q;
+  (*this).cancel();
   return *this;
 }
 
@@ -113,6 +116,7 @@ inline RatQuad& RatQuad::operator-=(const RatQuad& r)
 inline RatQuad& RatQuad::operator-=(Quad q)
 {
   n -= d*q;
+  (*this).cancel();
   return *this;
 }
 
@@ -144,7 +148,7 @@ inline Quad den(const RatQuad& r)
 
 inline RatQuad recip(const RatQuad& r)
 {
-  return RatQuad(r.d, r.n);
+  return RatQuad(r.d, r.n); // no cancelling needed
 }
 
 inline Quad round(const RatQuad& r)
@@ -163,59 +167,59 @@ inline RatQuad reduce(const RatQuad& r)
 
 inline RatQuad operator+(const RatQuad& r1, const RatQuad& r2)
 {
-  return RatQuad(r1.n*r2.d + r2.n*r1.d, r1.d*r2.d);
+  return RatQuad(r1.n*r2.d + r2.n*r1.d, r1.d*r2.d, 1);
 }
 
 inline RatQuad operator+(Quad q, const RatQuad& r)
 {
   Quad n3 = q*r.d;
   n3 += r.n;
-  return RatQuad(r.n + q*r.d, r.d);
+  return RatQuad(r.n + q*r.d, r.d, 1);
 }
 
 inline RatQuad operator+(const RatQuad& r, Quad q)
 {
-  return RatQuad(r.n + q*r.d, r.d);
+  return RatQuad(r.n + q*r.d, r.d, 1);
 }
 
 inline RatQuad operator-(const RatQuad& r1, const RatQuad& r2)
 {
-  return RatQuad(r1.n*r2.d - r2.n*r1.d, r1.d*r2.d);
+  return RatQuad(r1.n*r2.d - r2.n*r1.d, r1.d*r2.d, 1);
 }
 
 inline RatQuad operator-(Quad q, const RatQuad& r)
 {
-  return RatQuad(q*r.d - r.n, r.d);
+  return RatQuad(q*r.d - r.n, r.d, 1);
 }
 
 inline RatQuad operator-(const RatQuad& r, Quad q)
 {
-  return RatQuad(r.n - q*r.d, r.d);
+  return RatQuad(r.n - q*r.d, r.d, 1);
 }
 
 inline RatQuad operator*(const RatQuad& r, Quad q)
 {
-  return RatQuad(q*r.n, r.d);
+  return RatQuad(q*r.n, r.d, 1);
 }
 
 inline RatQuad operator*(Quad q, const RatQuad& r)
 {
-  return RatQuad(q*r.n, r.d);
+  return RatQuad(q*r.n, r.d, 1);
 }
 
 inline RatQuad operator/(const RatQuad& r, Quad q)
 {
-  return RatQuad(r.n, q*r.d);
+  return RatQuad(r.n, q*r.d, 1);
 }
 
 inline RatQuad operator/(Quad q, const RatQuad& r)
 {
-  return RatQuad(q*r.d, r.n);
+  return RatQuad(q*r.d, r.n, 1);
 }
 
 inline RatQuad operator/(const RatQuad& r1, const RatQuad& r2)
 {
-  return RatQuad(r1.n*r2.d, r2.n*r1.d);
+  return RatQuad(r1.n*r2.d, r2.n*r1.d, 1);
 }
 
 inline int operator==(const RatQuad& r1, const RatQuad& r2)

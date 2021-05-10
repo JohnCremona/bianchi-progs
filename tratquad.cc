@@ -16,7 +16,7 @@ int main ()
  cin >> a >> b;
  cout << "a = " << a << endl;
  cout << "b = " << b << endl;
- RatQuad q(a,b);
+ RatQuad q(a,b, 1);
  cout << "q = a/b = " << q << endl;
  cout << "b*q==a? " << (b*q==a) << endl;
  cout << "round(q) = " << round(q) << endl;

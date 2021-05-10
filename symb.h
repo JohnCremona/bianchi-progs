@@ -20,10 +20,8 @@ class symb {
    symb(const Quad& cc, const Quad& dd, const moddata * iN) :c(cc), d(dd), N(iN)  {;}
    Quad cee() const        {return c;}
    Quad dee() const        {return d;}
-   int operator==(const symb& s) const 
-       {Quad sc=d*s.c, sd=c*s.d, m=N->modulus; 
-	Quad a = sd-sc; 
-	return div(m,a);}
+   int operator==(const symb& s) const
+       {return div(N->modulus, d*s.c - c*s.d);}
    mat22 lift_to_SL2() const;
    friend inline ostream& operator<< (ostream&s, const symb&);
    friend class symblist;
