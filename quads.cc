@@ -919,9 +919,9 @@ void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t)
   // Now look or a suitable alpha, trying all in turn (skipping alpha=0)
 
   Quad r,s, a1,b1;
-  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++)
+  t = 1;
+  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++, t++)
     {
-      t++;
 #ifdef DEBUG_PSEA
       cout<<" - testting type "<<t<<", M="<<(*Mi)<<endl;
 #endif
@@ -937,7 +937,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t)
           a = a1;
           b = b1;
           d += q*c;
-          Mi->apply_right(c,d);
+          Mi->apply_right_inverse(c,d);
 #ifdef DEBUG_PSEA
       cout<<" - success, returning (a,b) = ("<<a<<","<<b<<")"<<endl;
 #endif

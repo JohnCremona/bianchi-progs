@@ -2,27 +2,56 @@
 
 #include "symb.h"
 
+// compute a matrix M = [y, -x; c, d] with det=1 lifting (c:d)
+mat22 symb::lift_to_SL2() const
+{
+  Quad x, y, sc = c % (N->modulus), sd = d % (N->modulus);
+  Quad h = quadbezout(sc , sd, x, y);
+  sc /= h;
+  sd /= h;
+  assert (y*sd+x*sc==1);
+  return mat22(y,-x,sc,sd);
+}
+
 modsym::modsym(const symb& s, int type) //Constructor for modsym, converting from symb:
 {
- Quad c,d,h,x,y;
- c = s.c % ((s.N)->modulus);
- d = s.d % ((s.N)->modulus);
- h = quadbezout(c , d, x, y);
- c = c/h;
- d = d/h;
- assert (y*d+x*c==1);
- // matrix M = [y, -x; c, d] has det=1 and lifts (c:d)
- b = RatQuad( y , c); // =M(oo)
- if(type==0) // always true for Euclidean fields: apply to {0,oo}
+  mat22 U = s.lift_to_SL2();
+  Quad n=1, d=0; // n/d=oo
+  U.apply_left(n,d);
+  b = RatQuad(n,d);
+  if(type==0) // always true for Euclidean fields: apply to {0,oo}
    {
-     a = RatQuad(-x , d); // =M(0)
+     n=0; d=1; // 0
+     U.apply_left(n,d);
+     a = RatQuad(n , d); // =M(0)
    }
  else // apply to {alpha,oo} where alpha = alphas[type]
    {
      mat22 M = M_alphas[type];
-     Quad r = -M.d, s = M.c; // alpha = r/s
-     a = RatQuad(y*r-x*s, c*r+d*s); // =M(r/s)
+     n = -M.d; d = M.c; // alpha = r/s
+     U.apply_left(n,d);
+     a = RatQuad(n , d); //  =M(alpha)
    }
+
+ //  Quad c,d,h,x,y;
+ // c = s.c % ((s.N)->modulus);
+ // d = s.d % ((s.N)->modulus);
+ // h = quadbezout(c , d, x, y);
+ // c = c/h;
+ // d = d/h;
+ // assert (y*d+x*c==1);
+ // // matrix M = [y, -x; c, d] has det=1 and lifts (c:d)
+ // b = RatQuad( y , c); // =M(oo)
+ // if(type==0) // always true for Euclidean fields: apply to {0,oo}
+ //   {
+ //     a = RatQuad(-x , d); // =M(0)
+ //   }
+ // else // apply to {alpha,oo} where alpha = alphas[type]
+ //   {
+ //     mat22 M = M_alphas[type];
+ //     Quad r = -M.d, s = M.c; // alpha = r/s
+ //     a = RatQuad(y*r-x*s, c*r+d*s); // =M(r/s)
+ //   }
 }
 
 //Members of class symblist:

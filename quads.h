@@ -225,6 +225,13 @@ public:
     sd = b*sc + d*sd;
     sc = t;
   }
+  // right action on (c:d) symbols as row vectors, changing in place
+  void apply_right_inverse(Quad& sc, Quad& sd) const
+  {
+    Quad t = d*sc - c*sd;
+    sd = -b*sc + a*sd;
+    sc = t;
+  }
   Quad det() const {return a*d-b*c;}
   friend ostream& operator<< (ostream&, const mat22&); // inline below
   friend void pseudo_euclidean_step(Quad&, Quad&, Quad&, Quad&, int&);

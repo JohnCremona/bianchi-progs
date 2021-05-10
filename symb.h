@@ -24,6 +24,7 @@ class symb {
        {Quad sc=d*s.c, sd=c*s.d, m=N->modulus; 
 	Quad a = sd-sc; 
 	return div(m,a);}
+   mat22 lift_to_SL2() const;
    friend inline ostream& operator<< (ostream&s, const symb&);
    friend class symblist;
    friend class symbdata;

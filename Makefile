@@ -58,6 +58,7 @@ headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.
 TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp # tmquads xtmanin testlf1
 tests: $(TESTS)
 
+DISCS9=4 8  3 7 11 19 43 67 163
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS6=1 2 3 7 11 19
 FIELDS5=1 2 3 7 11
@@ -80,7 +81,7 @@ check: $(ALL_TESTS)
 	 rm -f t
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
-	 for d in 4 8 3 7 11; do mkdir $(NF_DIR)/2.0.$$d.1; done
+	 for d in $(DISCS9); do mkdir $(NF_DIR)/2.0.$$d.1; done
 	 @echo
 	 @echo running $(TESTS9) on fields $(FIELDS9)...
 	 @for prog in $(TESTS9); do for d in $(FIELDS9); do $(check_run); done; done
