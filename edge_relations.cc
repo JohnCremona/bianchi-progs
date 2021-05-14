@@ -70,38 +70,40 @@ void homspace::edge_relations()    // computes coordindex
 
 void homspace::edge_relations_2()    // extra edge relations for alphas with denominator 2
 {
-  int field = Quad::d;
   Quad w = Quad::w;
-  int j, k, l, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
+  int j, k, l, m;
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  // (1) (g)_w/2 = -(gK)_(w-1)/2 with K = [w-1,u;2,-w], det=1,  order 3
-  // (2) (g)_w/2 = (gL)_w/2      with L = [-1,w;0,1],  det=-1, order 2, if plus
-  //             = -(gLK)_(w-1/2)
-  symbop K(this, w-1,u,2,-w); assert (K.det()==1);
-  symbop L(this, -1,w,0,1);   assert (L.det()==-1);
+  symbop K(this, M_alphas[1]);
+  symbop L(this, -1,w-1,0,1); assert (L.det()==-1);
+
+  // K maps w/2 --> oo --> (w-1)/2, where K = [w-1,u;2,-w], det=1,  order 3
+  // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gK(oo),gK(w/2)} = -(gK)_w/2.
+  //
+  // Also (g)_(w-1)/2 = (gL)_(w-1)/2      with L = [-1,w-1;0,1],  det=-1, order 2, if plus
+  //                  = -(gLK)_w/2
 
   vector<int> check(nsymb, 0);
   int offset1 = nsymb, offset2 = 2*nsymb;
-  for (j=0; j<nsymb; j++)
+  for (j=0; j<nsymb; j++) // index of a type 2 symbol
     {
       if (check[j]==0)
         {
-          k = K(j);
-          check[j] = 1;
-          gens[++ngens] = nsymb+j;
-          coordindex[offset1 + j] = ngens;
-          coordindex[offset2 + k] = -ngens;
-          if (plusflag)
+          k = K(j);      // index of type 1 symbol
+          l = L(j);      // index of type 2 symbol
+          m = K(l);      // index of type 1 symbol
+          check[j] = check[l] = 1;
+          gens[++ngens] = offset1+k;
+          coordindex[offset1 + k] = ngens;
+          coordindex[offset2 + j] = -ngens;
+          // if plusflag=0 we have a new gen, unless k=m
+          if (!plusflag && k!=m)
             {
-              l = L(j);
-              // if (verbose)
-              //   cout<<symbol(j)<<" -L-> "<<symbol(l)<<endl;
-              check[l] = 1;
-              coordindex[offset1 + l] = ngens;
-              coordindex[offset2 + K(l)] = -ngens;
+              gens[++ngens] = offset1+m;
             }
+          coordindex[offset1 + m] = ngens;
+          coordindex[offset2 + l] = -ngens;
         }
     }
 }

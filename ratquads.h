@@ -234,7 +234,8 @@ inline int operator!=(const RatQuad& r1, const RatQuad& r2)
 
 inline ostream& operator<<(ostream& s, const RatQuad& r)
 {
-   if (r.d==Quad(1)) s<<r.n;
+   if (r.d==Quad(0)) s<<"oo";
+   else if (r.d==Quad(1)) s<<r.n;
    else s << "(" << r.n << ")/(" << r.d << ")";
    return s;
 }

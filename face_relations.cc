@@ -300,7 +300,7 @@ void homspace::triangle_relation_2()
   Quad w = Quad::w;
   int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
-  symbop K(this, w-1,u,2,-w);   assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
+  symbop K(this, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
   symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
@@ -343,14 +343,11 @@ void homspace::triangle_relation_2()
 // extra square relation for field 19
 void homspace::square_relation_19()
 {
-  int field = Quad::d;
-  Quad w = Quad::w;
-  int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
-
+  int j, k;
   vector<int> rel(4), types(4), check(nsymb, 0);
 
-  symbop K(this, w-1,u,2,-w);   assert (K.det()==1);
-  symbop S(this, 0,-1,1,0);     assert (S.det()==1);
+  symbop K(this, M_alphas[1]);
+  symbop S(this, M_alphas[0]);
   types = {0,0,1,1};
 
   for (j=0; j<nsymb; j++)
@@ -365,7 +362,7 @@ void homspace::square_relation_19()
       }
   if(verbose)
     {
-      cout << "After type 0022 square relations, number of relations = " << numrel <<"\n";
+      cout << "After type 0011 square relations, number of relations = " << numrel <<"\n";
     }
 }
 

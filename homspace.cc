@@ -36,7 +36,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
           if(n_alphas>1)
             {
               mat22 M = M_alphas[j];
-              cout << "Type " << j << ", alpha = ("<< -M.entry(1,1)<<")/("<<M.entry(1,0)<<"), M_alpha = "<<M<<":\n";
+              RatQuad alpha(-M.entry(1,1), M.entry(1,0));
+              cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
             }
           for (i=0; i<nsymb; i++)
             cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i+offset] << "\n";
@@ -223,7 +224,7 @@ void homspace::kernel_delta()
   if (verbose)
     {
       cout << "Basis of ker(delta):\n";
-      cout << basiskern;
+      cout << basiskern.as_mat();
       cout << "pivots: " << pivots(kern) << endl;
     }
   for (i=0; i<rk; i++)
@@ -257,6 +258,20 @@ void homspace::make_freemods()
         }
       m = modsym(symbol(s), t);
       freemods.push_back(m);
+      if (verbose) cout<<m<<endl;
+    }
+  if (!verbose) return;
+  vec ei(rk);
+  for (i=0; i<rk; i++)
+    {
+      m = freemods[i];
+      vec v = chain(m.beta()) - chain(m.alpha());
+      cout<< m << " --> " << v;
+      ei[i+1] = denom1;
+      if (v!=ei)
+        cout<<" *** WRONG, should be "<<ei;
+      cout<<endl;
+      ei[i+1] = 0;
     }
 }
 
@@ -274,26 +289,31 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 {
    Quad c=0, d=1, e, a=nn, b=dd, q, f;
    vec ans = chaincd(c,d,0,proj), part;
-   int t;
+   int t, u;
+#ifdef DEBUG_NON_EUCLID
+   if (!Quad::is_Euclidean)
+     cout<<"a/b = "<<RatQuad(a,b,1);
+#endif
    while (b!=0)
      {
-#ifdef DEBUG_NON_EUCLID
-       if (!Quad::is_Euclidean)
-         cout<<"a="<<a<<", b="<<b<<endl;
-#endif
        pseudo_euclidean_step(a,b, c,d, t);
        assert (t!=-1);
+       u = alpha_pairs[t];
 #ifdef DEBUG_NON_EUCLID
        if (!Quad::is_Euclidean)
-         cout<<"After a step with t="<<t<<", a="<<a<<", b="<<b<<endl;
+         cout<<" --(t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<")--> "<<RatQuad(a,b,1);
 #endif
        // Look up this symbol, convert to a vector w.r.t. homology basis
-       part = chaincd(c, d, t, proj);
+       part = chaincd(c, d, u, proj);
        if(hmod)
          ans.addmodp(part,hmod);
        else
          ans += part;
      }
+#ifdef DEBUG_NON_EUCLID
+   if (!Quad::is_Euclidean)
+     cout<<endl;
+#endif
    if(hmod) ans=reduce_modp(ans,hmod);
    return ans;
 }

@@ -255,6 +255,7 @@ private:
 
 extern int n_alphas;            // Number of alphas.
 extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.
+extern vector<int> alpha_pairs; // permutation of order 2 swapping a to a' where M_a(oo)=a'
 void define_alphas();           // Populate M_alphas.
 
 // pseudo-Euclidean step: applies a translation and M_alpha inversion

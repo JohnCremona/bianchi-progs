@@ -806,6 +806,7 @@ else                 // Hecke operator, p+1 terms
 
 int n_alphas;
 vector<mat22> M_alphas;  // List of matrices M_a with det(M_a)=1 such that M_a(a)=oo.
+vector<int> alpha_pairs;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -824,6 +825,7 @@ void define_alphas()
   // alphas =0 with denominator 1:
 
   add_alpha(0,-1,1,0);  // alpha[0] = 0
+  alpha_pairs.push_back(0); // 0-0
 
   if (d<19) return;
 
@@ -834,6 +836,8 @@ void define_alphas()
   Quad u = (d-3)/8;  // = 2, 5, 8, 20
   add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
   add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
+  alpha_pairs.push_back(2); // 1-2
+  alpha_pairs.push_back(1); // 2-1
 
   if (d<43) return;
 
@@ -844,6 +848,12 @@ void define_alphas()
   add_alpha(-w,u,3,1-w);           // alpha[6] = (w-1)/3
   add_alpha(w+1,-(w+u+1),3,-1-w);  // alpha[7] = (w+1)/3
   add_alpha(-w-1,-(w+u+1),3,1+w);  // alpha[8] = -(w+1)/3
+  alpha_pairs.push_back(5); // 3-5
+  alpha_pairs.push_back(6); // 4-6
+  alpha_pairs.push_back(3); // 5-3
+  alpha_pairs.push_back(4); // 6-4
+  alpha_pairs.push_back(7); // 7-7
+  alpha_pairs.push_back(8); // 8-8
 
   if (d<67) return;
 
