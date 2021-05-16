@@ -804,7 +804,7 @@ void newforms::getap(int first, int last, int verbose)
     }
   if(last<=nap)
     {
-      cout<<"Already have "<<nquadprimes <<" ap so no need to compute more"<<endl;
+      cout<<"Already have "<<nap <<" ap so no need to compute more"<<endl;
     }
   // now nap < last <= nquadprimes
   vector<Quad>::const_iterator pr = quadprimes.begin()+first-1;
@@ -977,6 +977,12 @@ void newforms::find_jlist()
 
 //#define DEBUG_APVEC
 
+// The following utility does the following.  Given an integer ind:
+// - if ind>0 it adds the ind'th row of pcd to imagej;
+// - if ind<0 it subtracts the |ind|'th row of pcd from imagej;
+// - if ind=0 it leaves imagej unchaged.
+// if hmod is nonzero the vector addition is done modulo hmod.
+
 void update(const mat& pcd, vec& imagej, long ind, long hmod)
 {
   vec part;
@@ -1057,11 +1063,28 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
     {
       vec imagej=vec(n1ds); // initialised to 0
       j=*jj;
-      symb s = h1->symbol(h1->freegens[j-1]);
+      std::div_t st = div(h1->freegens[j-1], h1->nsymb);
+      long s_number = st.rem;  // remainder gives (c:d) symbol number
+      int s_type = st.quot; // quotient gives symbol type
+      symb s = h1->symbol(s_number);
+
 #ifdef DEBUG_APVEC
       cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
           <<" = "<<s<<"..."<<flush;
 #endif
+
+      // Now we compute the projected image of symbol s=(u:v) under
+      // T_p.
+
+      if (Quad::is_Euclidean)
+        {
+
+      // This code is for Euclidean fields only, using
+      // Manin-Heilbronn matrices: Loop over residues res mod p and
+      // for each res compute several M-symbol image parts (u1:v1).
+      // Accumulate the associated vectors in vec imagej (using the
+      // utility update(projcoord, imagej, ind, nfhmod).
+
       Quad u=s.cee(),v=s.dee();
       mat& pcd = h1->projcoord;
       //cout<<"projcoord = "<<pcd;
@@ -1106,10 +1129,20 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
           cout<<" image after term is "<<imagej<<endl;
 #endif
         }
+
+        }
+
+  else // code for non-Euclidean fields
+
+    {
+      imagej = h1->applyop(matop(p,h1->modulus), modsym(s, s_type), 1);
+    }
+
       images[j]=imagej/(h1->h1denom());
 #ifdef DEBUG_APVEC
       cout<<" image after scaling is "<<images[j]<<endl;
 #endif
+
     }
 
   for (i=0; i<n1ds; i++)

@@ -284,7 +284,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
  return ans;
 }
 
-#define DEBUG_NON_EUCLID
+//#define DEBUG_NON_EUCLID
 vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 {
    Quad c=0, d=1, e, a=nn, b=dd, q, f;

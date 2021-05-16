@@ -43,12 +43,13 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
     }
 }
 
-vec homspace::applyop(const matop& mlist, const RatQuad& q) const
+vec homspace::applyop(const matop& mlist, const RatQuad& q, int proj) const
 { vec ans(rk), part;
+  if (proj) ans.init(projcoord.ncols());
   long i=mlist.length();
   while (i--)
     {
-      part = chain(mlist[i](q));
+      part = chain(mlist[i](q), proj);
       if(hmod)
         ans.addmodp(part,hmod);
       else

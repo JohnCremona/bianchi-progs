@@ -82,12 +82,12 @@ public:
    vec chain(const symb& s, int type=0, int proj=0) const
        {return chaincd(s.cee(), s.dee(), type, proj);}
    vec projchaincd(const Quad& c, const Quad& d, int type=0) const
-        {return chaincd(c, d, type, 1);}
+  {return chaincd(c, d, type, 1);}
    vec chain(const Quad& nn, const Quad& dd, int proj=0) const;
    vec projchain(const Quad& n, const Quad& d) const
-       {return chain(n, d, 1);}
-   vec chain(const RatQuad& r) const
-        {return chain(num(r),den(r));}
+  {return chain(n, d, 1);}
+   vec chain(const RatQuad& r, int proj=0) const
+  {return chain(num(r),den(r), proj);}
    vec kernelpart(const vec& v) const
         {return v[pivots(kern)];}
   vec cycle(const symb& s, int type=0) const
@@ -98,9 +98,9 @@ public:
         {return kernelpart(chain(num(r),den(r)));}
    vec cycle(const modsym& m) const
      {return cycle(m.beta())-cycle(m.alpha());}
-   vec applyop(const matop& mlist, const RatQuad& q) const;
-   vec applyop(const matop& mlist, const modsym& m) const 
-                   {return applyop(mlist,m.beta())-applyop(mlist,m.alpha());} 
+  vec applyop(const matop& mlist, const RatQuad& q, int proj=0) const;
+   vec applyop(const matop& mlist, const modsym& m, int proj=0) const
+  {return applyop(mlist,m.beta(), proj)-applyop(mlist,m.alpha(), proj);}
    mat calcop(const string opname, const Quad& p, const matop& mlist, int dual=1, int display=0) const;
    vec calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display=0) const;
    mat calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display=0) const;
