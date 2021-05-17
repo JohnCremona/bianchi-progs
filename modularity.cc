@@ -23,7 +23,7 @@ int main(void)
   // max is the maximum norm of precomputed primes.  It should be
   // large enough to include all prime factors of levels computed,
   int d,max=250000;
-  cerr<<"Enter field (1, 2, 3, 7 or 11): \n";
+  cerr<<"Enter field: \n";
   cin >> d;
   Quad::field(d,max);
   Quad n;

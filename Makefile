@@ -64,8 +64,8 @@ FIELDS6=1 2 3 7 11 19
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS6 =  homtest dimtable dimtabeis hecketest 
-TESTS5 =  tmanin nftest nflist moreap moreap1 modularity modularity_modp
+TESTS6 =  homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+TESTS5 = 
 TESTS1 =
 ALL_TESTS = $(TESTS9) $(TESTS6) $(TESTS5) $(TESTS1)
 
@@ -91,9 +91,6 @@ check: $(ALL_TESTS)
 	 @echo
 	 @echo running $(TESTS6) on fields $(FIELDS6)...
 	 @for prog in $(TESTS6); do for d in $(FIELDS6); do $(check_run); done; done
-	 @echo
-	 @echo running $(TESTS5) on fields $(FIELDS5)...
-	 @for prog in $(TESTS5); do for d in $(FIELDS5); do $(check_run); done; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
