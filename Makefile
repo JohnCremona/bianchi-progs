@@ -64,8 +64,8 @@ FIELDS6=1 2 3 7 11 19
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS6 =  homtest dimtable dimtabeis
-TESTS5 =  hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+TESTS6 =  homtest dimtable dimtabeis hecketest 
+TESTS5 =  tmanin nftest nflist moreap moreap1 modularity modularity_modp
 TESTS1 =
 ALL_TESTS = $(TESTS9) $(TESTS6) $(TESTS5) $(TESTS1)
 

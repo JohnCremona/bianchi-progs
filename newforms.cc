@@ -779,6 +779,8 @@ void newforms::getoneap(const Quad& p, int verbose, int store)
     {
       if(vp>0) cout<<"q"; else cout<<"p";
       cout<<" = "<<p<<"\t";
+      if(vp>0) cout<<"N(q)"; else cout<<"N(p)";
+      cout<<" = "<<quadnorm(p)<<"\t";
     }
   for (i=0; i<n1ds; i++)
     {

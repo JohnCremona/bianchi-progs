@@ -23,31 +23,31 @@ Finished recovering newform bases, resorting back into lmfdb order...
 j0=1
 Finished makebases()
 About to start computing ap...
-p = 2+9w	   -4 
-p = 9+2w	   14 
-p = 7+5w	    2 
-p = 5+7w	    2 
-p = 11	    2 
-p = 6+7w	   20 
-p = 7+6w	  -16 
-p = 3+10w	   20 
-p = 10+3w	  -10 
-p = 9+5w	  -22 
-p = 5+9w	   -4 
-p = 12+w	    2 
-p = 1+12w	  -22 
-p = 11+3w	    2 
-p = 3+11w	  -16 
-p = 11+4w	    2 
-p = 4+11w	    2 
-p = 9+7w	    2 
-p = 7+9w	   14 
-p = 2+13w	    2 
-p = 13+2w	   20 
-p = 14+w	    8 
-p = 1+14w	  -16 
-p = 11+6w	  -16 
-p = 6+11w	    8 
+p = 2+9w	N(p) = 103	   -4 
+p = 9+2w	N(p) = 103	   14 
+p = 7+5w	N(p) = 109	    2 
+p = 5+7w	N(p) = 109	    2 
+p = 11	N(p) = 121	    2 
+p = 6+7w	N(p) = 127	   20 
+p = 7+6w	N(p) = 127	  -16 
+p = 3+10w	N(p) = 139	   20 
+p = 10+3w	N(p) = 139	  -10 
+p = 9+5w	N(p) = 151	  -22 
+p = 5+9w	N(p) = 151	   -4 
+p = 12+w	N(p) = 157	    2 
+p = 1+12w	N(p) = 157	  -22 
+p = 11+3w	N(p) = 163	    2 
+p = 3+11w	N(p) = 163	  -16 
+p = 11+4w	N(p) = 181	    2 
+p = 4+11w	N(p) = 181	    2 
+p = 9+7w	N(p) = 193	    2 
+p = 7+9w	N(p) = 193	   14 
+p = 2+13w	N(p) = 199	    2 
+p = 13+2w	N(p) = 199	   20 
+p = 14+w	N(p) = 211	    8 
+p = 1+14w	N(p) = 211	  -16 
+p = 11+6w	N(p) = 223	  -16 
+p = 6+11w	N(p) = 223	    8 
 ...done.
 Writing data to file nftmp/2.0.3.1/73.8.1......done.
 Enter level: 

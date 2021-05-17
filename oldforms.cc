@@ -176,11 +176,12 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 // Implementation of oldform member functions
 
 //This must include newforms in the minus space for tests to pass!
-static long min_newform_level_norm[12] = {0,65,
-                                          32,
-                                          49,
-                                          0,0,25,
-                                          0,0,0,0,9};
+static long min_newform_level_norm[20] = {0,65, // d=1
+                                          32,   // d=2
+                                          49,   // d=3
+                                          0,0,25,           // d=7
+                                          0,0,0,0,9,        // d=11
+                                          0,0,0,0,0,0,0,4}; // d=19
 
 oldforms::oldforms(const level* iN, int verbose)
 {
@@ -189,7 +190,7 @@ oldforms::oldforms(const level* iN, int verbose)
    ntp = nap-N->npdivs;
    noldclasses=olddim1=olddim2=0;
    vector<Quad>::const_iterator d=(N->dlist).begin();
-   long min_norm = min_newform_level_norm[Quad::d];
+   long min_norm = (Quad::d <=19? min_newform_level_norm[Quad::d]: 1);
    while(d!=(N->dlist).end())
      {
        if (quadnorm(*d)<min_norm)

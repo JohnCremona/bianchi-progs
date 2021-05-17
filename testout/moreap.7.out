@@ -25,31 +25,31 @@ Finished recovering newform bases, resorting back into lmfdb order...
 j0=1
 Finished makebases()
 About to start computing ap...
-p = 7+4a	    2 
-p = -11+4a	    2 
-p = -3+8a	    6 
-p = -5+8a	    6 
-p = 5+6a	  -16 
-p = -11+6a	  -16 
-p = -9+8a	   18 
-p = 1+8a	   18 
-p = -13+4a	  -18 
-p = 9+4a	  -18 
-p = -13+2a	    8 
-p = 11+2a	    8 
-p = -13+6a	  -16 
-p = 7+6a	  -16 
-p = 13	  -10 
-p = -7+10a	  -12 
-p = -3+10a	  -12 
-p = -1+10a	   24 
-p = -9+10a	   24 
-p = 5+8a	   14 
-p = -13+8a	   14 
-p = 11+4a	  -18 
-p = -15+4a	  -18 
-p = -11+10a	   -4 
-p = 1+10a	   -4 
+p = 7+4a	N(p) = 109	    2 
+p = -11+4a	N(p) = 109	    2 
+p = -3+8a	N(p) = 113	    6 
+p = -5+8a	N(p) = 113	    6 
+p = 5+6a	N(p) = 127	  -16 
+p = -11+6a	N(p) = 127	  -16 
+p = -9+8a	N(p) = 137	   18 
+p = 1+8a	N(p) = 137	   18 
+p = -13+4a	N(p) = 149	  -18 
+p = 9+4a	N(p) = 149	  -18 
+p = -13+2a	N(p) = 151	    8 
+p = 11+2a	N(p) = 151	    8 
+p = -13+6a	N(p) = 163	  -16 
+p = 7+6a	N(p) = 163	  -16 
+p = 13	N(p) = 169	  -10 
+p = -7+10a	N(p) = 179	  -12 
+p = -3+10a	N(p) = 179	  -12 
+p = -1+10a	N(p) = 191	   24 
+p = -9+10a	N(p) = 191	   24 
+p = 5+8a	N(p) = 193	   14 
+p = -13+8a	N(p) = 193	   14 
+p = 11+4a	N(p) = 197	  -18 
+p = -15+4a	N(p) = 197	  -18 
+p = -11+10a	N(p) = 211	   -4 
+p = 1+10a	N(p) = 211	   -4 
 ...done.
 Writing data to file nftmp/2.0.7.1/28.6.2......done.
 Enter level: 
