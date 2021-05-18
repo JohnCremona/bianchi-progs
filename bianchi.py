@@ -1,12 +1,15 @@
 from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
 
+fields = [1,2,3,7,11,19]
+
 def field(d):
-    if not d in [1,2,3,7,11]:
-        raise ValueError("only 1,2,3,7,11 are valid")
+    if not d in fields:
+        raise ValueError("only d in {} are valid".format(fields))
     t = 0 if d<3 else 1
     n = d if d<3 else (d+1)//4
     x = polygen(QQ)
-    K = NumberField(x**2-t*x+n,'-ita---a---a'[d])
+    gen_name = 'i' if d==1 else 't' if d==2 else 'a'
+    K = NumberField(x**2-t*x+n, gen_name)
     K.n = n
     K.t = t
     return K, K.gen()
