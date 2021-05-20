@@ -1,4 +1,12 @@
+import os
+HOME = os.getenv("HOME")
+UPLOAD_DIR = os.path.join(HOME, "bmf-upload")
+DATA_DIR = os.path.join(HOME, "bianchi-data")
+DIM_DIR = os.path.join(DATA_DIR, "dims")
+FORM_DIR = os.path.join(DATA_DIR, "newforms")
+
 from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
+from psort import ideal_label
 
 fields = [1,2,3,7,11,19]
 
@@ -63,8 +71,8 @@ def read_dimtabeis(d, fname):
             I = ideal_from_label(K,label)
             print("%s dimensions: %s %s %s"%(I,dimall,dimcusp,dimeis))
 
-# NB The following function takes as input a dimeistab as produced by
-# the C++ program dimeistab.cc, but will only work if this input file
+# NB The following function takes as input a dimtabeis as produced by
+# the C++ program dimtabeis.cc, but will only work if this input file
 # starts at level norm 1.
 
 def make_dimtabnew(d, fname, min_norm=1, max_norm=None, verbose=False):
@@ -118,3 +126,118 @@ def edit_haluk_output(f, fname):
             print(label)
             outfile.write("%s\t2\t%s\t %s\t %s\t %s\n"%(f,label,dimall,dimcusp,dimeis))
 
+def read_dimtabeis_new(d, fname):
+    """Read a file dimtabeis*newdims as output by make_dimtabnew().
+    Ignoring lines starting with #, lines have 7 columns:
+
+    d  field  (1, 2 or abs(disc))
+    w  weight (2)
+    level_label (HNF-style, e.g. 1.0.1)
+    dimall      (dimension of full gl2-space, =dimcusp+dimeis)
+    dimcusp     (dimension of cuspidal gl2-space)
+    dimcuspnew  (dimension of new cuspidal gl2-space)
+    dimeis      (dimension of eisenstein gl2-space)
+
+    NB 1. This script is intended for use with gl2, weight 2, data, so
+    the records will not have the keys 'sl2_dims', 'sl2_new_totaldim'
+    or 'sl2_cusp_totaldim'.  When uploading we'll need to make sure
+    not to overwrite the sl2 data which exists in the database.
+
+    NB 2. The LMFDB only stores cupidal dimensions, so the dimall and
+    dimeis columns are ignored.
+
+    """
+    K, a = field(d)
+    D = K.discriminant().abs()
+    field_label = "2.0.{}.1".format(D)
+    data = {}
+    filename = os.join(DIM_DIR, fname)
+    with open(filename) as infile:
+        for L in infile:
+            if L[0] == '#':
+                continue
+            dd, w, label, dimall, dimcusp, dimcuspnew, dimeis = L.split()
+            assert int(dd) == d
+            assert int(w) == 2
+            N = ideal_from_label(K,label)
+            level_label = ideal_label(N)
+            label = "-".join(field_label, level_label)
+            level_norm = N.norm()
+            gl2_dims = {'2': {'new_dim': dimcuspnew, 'cuspidal_dim': dimcusp}}
+            gl2_new_totaldim = dimcuspnew
+            gl2_cusp_totaldim = dimcusp
+            data['label'] = {
+                'field_label': field_label,
+                'field_absdisc': D,
+                'level_norm': level_norm,
+                'level_label': level_label,
+                'label': label,
+                'gl2_dims': gl2_dims,
+                'gl2_new_totaldim': gl2_new_totaldim,
+                'gl2_cusp_totaldim': gl2_cusp_totaldim,
+            }
+    return data
+
+bmf_dims_schema = {
+    'gl2_dims': 'jsonb',
+    'sl2_dims': 'jsonb',
+    'field_absdisc': 'integer',
+    'label': 'text',
+    'field_label': 'text',
+    'level_norm': 'bigint',
+    'level_label': 'text',
+    'gl2_new_totaldim': 'integer',
+    'gl2_cusp_totaldim': 'integer',
+    'sl2_new_totaldim': 'integer',
+    'sl2_cusp_totaldim': 'integer'
+}
+
+int_cols = ['field_absdisc', 'level_norm', 'gl2_cusp_totaldim', 'gl2_new_totaldim', 'sl2_cusp_totaldim', 'sl2_new_totaldim']
+str_cols = ['label', 'field_label', 'level_label']
+dict_cols = ['gl2_dims', 'sl2_dims']
+
+def encode_col(colname, col=None):
+    if 'sl2' in colname:
+        return "\N"
+    if colname in int_cols:
+        return str(col)
+    if colname in dict_cols:
+        return str(col).replace("'", '"')
+    return col
+
+def one_bmf_dims_line(record):
+    return "|".join([encode_col(col, record.get(col, None)) for col in bmf_dims_schema])
+
+def write_bmf_dims_upload_file(data, fname):
+    """data is a dict as returned by read_dimtabeis_new(), with keys level labels, each value a dict with keys
+
+    'label', 'field_label', 'field_absdisc', 'level_norm',
+    'level_label', 'gl2_dims'_dims, 'gl2_new_totaldim'_new_totaldim,
+    'gl2_cusp_totaldim'_cusp_totaldim.
+
+    Output columns for the LMFDB bmf_dims table
+    """
+    filename = os.join(UPLOAD_DIR, fname)
+    with open(filename) as infile:
+
+        # Write header lines
+
+        keys = list(bmf_dims_schema.keys())
+        keys.remove('label')
+        keys = ['label'] + keys
+        vals = [bmf_dims_schema[k] for k in keys]
+        outfile.write("|".join(keys))
+        outfile.write("\n")
+        outfile.write("|".join(vals))
+        outfile.write("\n\n")
+
+        # Write data lines
+
+        nlines = 0
+        for label, record in data.items():
+            infile.write(one_bmf_dims_line(record) + "\n")
+            nlines +=1
+            if nlines%1000 == 0:
+                print("{} lines written so far to {}",format(nlines, filename))
+
+    print("{} lines written to {}",format(nlines, filename))
