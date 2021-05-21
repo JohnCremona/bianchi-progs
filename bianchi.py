@@ -1,14 +1,22 @@
 import os
+import re
+from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
+from psort import ideal_label
+
+whitespace = re.compile(r'\s+')
+
 HOME = os.getenv("HOME")
 UPLOAD_DIR = os.path.join(HOME, "bmf-upload")
 DATA_DIR = os.path.join(HOME, "bianchi-data")
 DIM_DIR = os.path.join(DATA_DIR, "dims")
 FORM_DIR = os.path.join(DATA_DIR, "newforms")
 
-from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
-from psort import ideal_label
 
+Qx = PolynomialRing(QQ,'x')
 fields = [1,2,3,7,11,19]
+
+def split(line):
+    return whitespace.split(line.strip())
 
 def field(d):
     if not d in fields:
@@ -126,9 +134,9 @@ def edit_haluk_output(f, fname):
             print(label)
             outfile.write("%s\t2\t%s\t %s\t %s\t %s\n"%(f,label,dimall,dimcusp,dimeis))
 
-def read_dimtabeis_new(d, fname):
-    """Read a file dimtabeis*newdims as output by make_dimtabnew().
-    Ignoring lines starting with #, lines have 7 columns:
+def parse_dims_line(L, K, d):
+    """parse one line from a dimtabeis*newdims as output by
+    make_dimtabnew().  Lines have 7 columns:
 
     d  field  (1, 2 or abs(disc))
     w  weight (2)
@@ -138,44 +146,162 @@ def read_dimtabeis_new(d, fname):
     dimcuspnew  (dimension of new cuspidal gl2-space)
     dimeis      (dimension of eisenstein gl2-space)
 
-    NB 1. This script is intended for use with gl2, weight 2, data, so
+    NB The LMFDB only stores cupidal dimensions, so the dimall and
+    dimeis columns are ignored.
+
+    Returns the label and a dict containing all the data.
+    """
+    dd, w, label, dimall, dimcusp, dimcuspnew, dimeis = L.split()
+    assert int(dd) == d
+    assert int(w) == 2
+    N = ideal_from_label(K,label)
+    level_label = ideal_label(N)
+    D = K.discriminant().abs()
+    field_label = "2.0.{}.1".format(D)
+    label = "-".join([field_label, level_label])
+    level_norm = N.norm()
+    dimcuspnew = int(dimcuspnew)
+    dimcusp = int(dimcusp)
+    gl2_dims = {'2': {'new_dim': dimcuspnew, 'cuspidal_dim': dimcusp}}
+    gl2_new_totaldim = dimcuspnew
+    gl2_cusp_totaldim = dimcusp
+    return label, {
+        'field_label': field_label,
+        'field_absdisc': D,
+        'level_norm': level_norm,
+        'level_label': level_label,
+        'label': label,
+        'gl2_dims': gl2_dims,
+        'gl2_new_totaldim': gl2_new_totaldim,
+        'gl2_cusp_totaldim': gl2_cusp_totaldim,
+    }
+
+def read_dimtabeis_new(d, fname):
+    """Read a file dimtabeis*newdims as output by make_dimtabnew().
+    Ignore lines starting with #.
+
+    NB This script is intended for use with gl2, weight 2, data, so
     the records will not have the keys 'sl2_dims', 'sl2_new_totaldim'
     or 'sl2_cusp_totaldim'.  When uploading we'll need to make sure
     not to overwrite the sl2 data which exists in the database.
 
-    NB 2. The LMFDB only stores cupidal dimensions, so the dimall and
-    dimeis columns are ignored.
+    Returns a dict containing all the data, keys all space labels with
+    values the data for that space.
 
     """
     K, a = field(d)
     D = K.discriminant().abs()
     field_label = "2.0.{}.1".format(D)
     data = {}
-    filename = os.join(DIM_DIR, fname)
+    filename = os.path.join(DIM_DIR, fname)
     with open(filename) as infile:
         for L in infile:
-            if L[0] == '#':
-                continue
-            dd, w, label, dimall, dimcusp, dimcuspnew, dimeis = L.split()
-            assert int(dd) == d
-            assert int(w) == 2
-            N = ideal_from_label(K,label)
-            level_label = ideal_label(N)
-            label = "-".join(field_label, level_label)
-            level_norm = N.norm()
-            gl2_dims = {'2': {'new_dim': dimcuspnew, 'cuspidal_dim': dimcusp}}
-            gl2_new_totaldim = dimcuspnew
-            gl2_cusp_totaldim = dimcusp
-            data['label'] = {
-                'field_label': field_label,
-                'field_absdisc': D,
-                'level_norm': level_norm,
-                'level_label': level_label,
-                'label': label,
-                'gl2_dims': gl2_dims,
-                'gl2_new_totaldim': gl2_new_totaldim,
-                'gl2_cusp_totaldim': gl2_cusp_totaldim,
-            }
+            if L[0] != '#':
+                label, record = parse_dims_line(L, K, d)
+                data[label] = record
+    return data
+
+def numerify_iso_label(lab):
+    from sage.databases.cremona import class_to_int
+    return class_to_int(lab.lower())
+
+def parse_newforms_line(line, K):
+    r""" Parses one line from a newforms file.  Returns a complete entry
+    for the forms collection. This is only for newforms of weight 2.
+
+    Input line fields:
+
+    field_label level_label level_suffix level_ideal wt bc cm sign Lratio AL_eigs pol hecke_eigs
+
+    Sample input line:
+
+    2.0.4.1 65.18.1 a (7+4i) 2 0 ? 1 1 [1,-1] x [0,0,-1,-2,1,-4,0,6,6,-6,2,2,6,0,-4,6,-6,-10,-10,2,2,6,6,-10,8]
+
+    NB We expect 3-component HNF-style labels for ideals (N.c.d) but will convert to LMFDB labels N.i on input.
+    """
+    data = split(line)
+    # base field
+    field_label = data[0]
+    field_disc = - int(field_label.split(".")[2])
+    field_deg = 2
+    field_bad_primes = ZZ(field_disc).support()
+    # Hecke field degree (=dimension)
+    hecke_poly = data[10]
+    dimension = 1 if hecke_poly == 'x' else int(Qx(hecke_poly).degree())
+    # level
+    N = ideal_from_label(K, data[1])
+    level_label = ideal_label(N)
+    level_norm = int(level_label.split(".")[0])
+    level_ideal = data[3]
+    level_gen =  level_ideal[1:-1] # strip (,)
+    level_bad_primes = ZZ(level_norm).support()
+    label_suffix = data[2]
+    label_nsuffix = numerify_iso_label(label_suffix)
+    if dimension>1:
+        label_suffix = label_suffix+str(dimension)
+    short_label = '-'.join([level_label, label_suffix])
+    label = '-'.join([field_label, short_label])
+
+    weight = int(data[4])
+    assert weight == 2
+    bc = data[5]
+    if bc!='?': bc=int(bc)
+    cm = data[6]
+    if cm!='?': cm=int(cm)
+    sfe = data[7] # sign
+    if sfe!='?': sfe = int(sfe) # sign
+    Lratio = data[8]   # string representing rational number
+    try:
+        AL_eigs = [int(x) for x in data[9][1:-1].split(",")]
+    except ValueError:
+        AL_eigs = [x for x in data[9][1:-1].split(",")]
+    try:
+        hecke_eigs = [int(x) for x in data[11][1:-1].split(",")]
+    except ValueError:
+        hecke_eigs = [x for x in data[11][1:-1].split(",")]
+
+    return label, {
+        'label': label,
+        'field_label': field_label,
+        'field_disc': field_disc,
+        'field_deg': field_deg,
+        'level_label': level_label,
+        'level_norm': level_norm,
+        'level_ideal': level_ideal,
+        'level_gen': level_gen,
+        'label_suffix': label_suffix,
+        'label_nsuffix': label_nsuffix,
+        'short_label': short_label,
+        'dimension': dimension,
+        'hecke_poly': hecke_poly,
+        'weight': weight,
+        'sfe': sfe,
+        'Lratio': Lratio,
+        'bc': bc,
+        'CM': cm,
+        'AL_eigs': AL_eigs,
+        'hecke_eigs': hecke_eigs,
+        'field_bad_primes': field_bad_primes,
+        'level_bad_primes': level_bad_primes,
+    }
+
+def read_newforms(d, fname):
+    """Read a newforms file as output by nflist.cc.
+    Ignore lines starting with # or containing "Primes" or "...".
+
+    Returns a dict containing all the data, keys all newform labels with
+    values the data for that newform.
+    """
+    K, a = field(d)
+    D = K.discriminant().abs()
+    field_label = "2.0.{}.1".format(D)
+    data = {}
+    filename = os.path.join(FORM_DIR, fname)
+    with open(filename) as infile:
+        for L in infile:
+            if L[0] != '#' and "Primes" not in L and "..." not in L:
+                label, record = parse_newforms_line(L, K)
+                data[label] = record
     return data
 
 bmf_dims_schema = {
@@ -192,40 +318,77 @@ bmf_dims_schema = {
     'sl2_cusp_totaldim': 'integer'
 }
 
-int_cols = ['field_absdisc', 'level_norm', 'gl2_cusp_totaldim', 'gl2_new_totaldim', 'sl2_cusp_totaldim', 'sl2_new_totaldim']
-str_cols = ['label', 'field_label', 'level_label']
-dict_cols = ['gl2_dims', 'sl2_dims']
+bmf_forms_schema = {
+    'field_disc': 'smallint',
+    'sfe': 'smallint',
+    'level_gen': 'text',
+    'weight': 'smallint',
+    'CM': 'smallint',
+    'bc': 'smallint',
+    'field_deg': 'smallint',
+    'label': 'text',
+    'label_suffix': 'text',
+    'hecke_poly': 'text',
+    'field_label': 'text',
+    'AL_eigs': 'jsonb', # usually a list of ints, +1 and -1, could be "?"
+    'Lratio': 'text',   # string representing a rational number
+    'level_norm': 'bigint',
+    'hecke_eigs': 'jsonb', # usually a list of ints but could be a list of strings for dim>1
+    'short_label': 'text',
+    'level_label': 'text',
+    'label_nsuffix': 'smallint',
+    'dimension': 'smallint',
+    'level_ideal': 'text',
+    'field_bad_primes': 'integer[]',
+    'level_bad_primes': 'integer[]'
+}
+
+
+int_cols = ['field_absdisc', 'level_norm', 'gl2_cusp_totaldim', 'gl2_new_totaldim', 'sl2_cusp_totaldim', 'sl2_new_totaldim',
+            'field_disc', 'sfe', 'weight', 'CM', 'bc', 'field_deg', 'label_nsuffix', 'dimension']
+str_cols = ['label', 'field_label', 'level_label',
+            'level_gen', 'label_suffix', 'hecke_poly', 'Lratio', 'short_label', 'level_ideal']
+dict_cols = ['gl2_dims', 'sl2_dims',
+             'AL_eigs', 'hecke_eigs']
+int_list_cols = ['field_bad_primes', 'level_bad_primes']
 
 def encode_col(colname, col=None):
     if 'sl2' in colname:
-        return "\N"
+        return r"\N"
     if colname in int_cols:
         return str(col)
     if colname in dict_cols:
         return str(col).replace("'", '"')
+    if colname in int_list_cols:
+        return str(col).replace("[", '{').replace("]", '}').replace(" ", '')
     return col
 
-def one_bmf_dims_line(record):
-    return "|".join([encode_col(col, record.get(col, None)) for col in bmf_dims_schema])
+def one_bmf_line(record, table):
+    schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
+    return "|".join([encode_col(col, record.get(col, None)) for col in schema])
 
-def write_bmf_dims_upload_file(data, fname):
-    """data is a dict as returned by read_dimtabeis_new(), with keys level labels, each value a dict with keys
+def write_bmf_upload_file(data, fname, table):
+    """data is a dict as returned by read_dimtabeis_new() or
+    read_newforms(), with keys level labels, each value a dict with
+    data for the table.
 
-    'label', 'field_label', 'field_absdisc', 'level_norm',
-    'level_label', 'gl2_dims'_dims, 'gl2_new_totaldim'_new_totaldim,
-    'gl2_cusp_totaldim'_cusp_totaldim.
+    fname is the output file name, created in UPLOAD_DIR
 
-    Output columns for the LMFDB bmf_dims table
+    table is 'dims' or 'forms'
+
     """
-    filename = os.join(UPLOAD_DIR, fname)
-    with open(filename) as infile:
+    assert table in ['dims', 'forms']
+    schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
+
+    filename = os.path.join(UPLOAD_DIR, fname)
+    with open(filename, 'w') as outfile:
 
         # Write header lines
 
-        keys = list(bmf_dims_schema.keys())
+        keys = list(schema.keys())
         keys.remove('label')
         keys = ['label'] + keys
-        vals = [bmf_dims_schema[k] for k in keys]
+        vals = [schema[k] for k in keys]
         outfile.write("|".join(keys))
         outfile.write("\n")
         outfile.write("|".join(vals))
@@ -235,9 +398,9 @@ def write_bmf_dims_upload_file(data, fname):
 
         nlines = 0
         for label, record in data.items():
-            infile.write(one_bmf_dims_line(record) + "\n")
+            outfile.write(one_bmf_line(record, table) + "\n")
             nlines +=1
             if nlines%1000 == 0:
-                print("{} lines written so far to {}",format(nlines, filename))
+                print("{} lines written so far to {}".format(nlines, filename))
 
-    print("{} lines written to {}",format(nlines, filename))
+    print("{} lines written to {}".format(nlines, filename))
