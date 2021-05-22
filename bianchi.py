@@ -318,6 +318,17 @@ bmf_dims_schema = {
     'sl2_cusp_totaldim': 'integer'
 }
 
+bmf_dims_schema_no_sl2 = {
+    'gl2_dims': 'jsonb',
+    'field_absdisc': 'integer',
+    'label': 'text',
+    'field_label': 'text',
+    'level_norm': 'bigint',
+    'level_label': 'text',
+    'gl2_new_totaldim': 'integer',
+    'gl2_cusp_totaldim': 'integer',
+}
+
 bmf_forms_schema = {
     'field_disc': 'smallint',
     'sfe': 'smallint',
@@ -358,14 +369,17 @@ def encode_col(colname, col=None):
     if colname in int_cols:
         return str(col)
     if colname in dict_cols:
-        return str(col).replace("'", '"')
+        return str(col).replace("'", '"').replace(" ", "")
     if colname in int_list_cols:
-        return str(col).replace("[", '{').replace("]", '}').replace(" ", '')
+        return str(col).replace("[", '{').replace("]", '}').replace(" ", "")
     return col
 
 def one_bmf_line(record, table):
     schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
-    return "|".join([encode_col(col, record.get(col, None)) for col in schema])
+    cols = list(schema.keys())
+    cols.remove('label')
+    cols = ['label'] + cols
+    return "|".join([encode_col(col, record.get(col, None)) for col in cols])
 
 def write_bmf_upload_file(data, fname, table):
     """data is a dict as returned by read_dimtabeis_new() or
@@ -379,17 +393,17 @@ def write_bmf_upload_file(data, fname, table):
     """
     assert table in ['dims', 'forms']
     schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
+    cols = list(schema.keys())
+    cols.remove('label')
+    cols = ['label'] + cols
+    vals = [schema[k] for k in cols]
 
     filename = os.path.join(UPLOAD_DIR, fname)
     with open(filename, 'w') as outfile:
 
         # Write header lines
 
-        keys = list(schema.keys())
-        keys.remove('label')
-        keys = ['label'] + keys
-        vals = [schema[k] for k in keys]
-        outfile.write("|".join(keys))
+        outfile.write("|".join(cols))
         outfile.write("\n")
         outfile.write("|".join(vals))
         outfile.write("\n\n")
@@ -398,9 +412,10 @@ def write_bmf_upload_file(data, fname, table):
 
         nlines = 0
         for label, record in data.items():
-            outfile.write(one_bmf_line(record, table) + "\n")
-            nlines +=1
-            if nlines%1000 == 0:
-                print("{} lines written so far to {}".format(nlines, filename))
+            if record['level_label'] not in sl2_levels:
+                outfile.write(one_bmf_line(record, table) + "\n")
+                nlines +=1
+                if nlines%1000 == 0:
+                    print("{} lines written so far to {}".format(nlines, filename))
 
     print("{} lines written to {}".format(nlines, filename))
