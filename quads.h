@@ -20,16 +20,15 @@ int check_field(int d, vector<int> fields=valid_fields);
 
 //functions assigned by Quad::field initializer
 extern Quad (*quadconj)(const Quad& a);  //Can't have same names as Complex functions
-extern long (*quadnorm)(const Quad& a);  //
 extern Quad (*mult)(const Quad& a, const Quad& b);
 extern Quad (*qdivi)(const Quad& a, long c);
 extern int (*pos)(const Quad& a);
 
 //GCD-related functions.
 extern Quad (*quadgcd)(const Quad& aa, const Quad& bb);
-Quad quadgcd1(const Quad& aa, const Quad& bb); //Euclidean only
-Quad quadgcd2(const Quad& aa, const Quad& bb); //General
 extern Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
+Quad quadgcd1(const Quad& aa, const Quad& bb);   //Euclidean only
+Quad quadgcd2(const Quad& aa, const Quad& bb);   //General
 Quad quadbezout1(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //Euclidean
 Quad quadbezout2(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //General
 Quad invmod(const Quad& a, const Quad& p);
@@ -37,9 +36,7 @@ int coprime(const Quad& a, const Quad& b);
 int invertible(const Quad& a, const Quad& b, Quad& inverse);
 
 //functions defined in quads.cc
-int div(const Quad& a, const Quad& b);
 int ndiv(const Quad& a, const Quad& b);
-int val(const Quad& factor, const Quad& number);
 vector<Quad> residues(const Quad& a);
 
 //Primes
@@ -74,30 +71,39 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 
 // Now the actual data elements:
  private:
-  long r,i;
+  long r,i, nm; // nm is the cached norm
  public:
 //constructors:
-  Quad(long x=0, long y=0) :r(x),i(y) {;}
+  void setnorm()
+  {
+    nm = r*r + n*i*i;
+    if (t) {nm += r*i;};
+  }
+  Quad(long x=0, long y=0, long nrm=-1) :r(x),i(y), nm(nrm)
+  {
+    if (nm<0) setnorm();
+  }
   Quad(const bigcomplex& z);   //rounds to nearest
-  Quad(const Quad& a) :r(a.r), i(a.i) {;}
-//  Quad(const Quadvar& qv) {*this=*(qv.values);}
+  Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {;}
 
 //operators and related functions (friends are inlined below):
 
-  void operator=(const Quad& a) {r=a.r; i=a.i;}
-//  void operator=(const Quadvar& qv) {*this=*(qv.values);}
-  friend long real(const Quad& a);
-  friend long imag(const Quad& a);
-  friend long quadnorm0(const Quad& a);      // used when t=0
-  friend long quadnorm1(const Quad& a);      // used when t=1
+  void operator=(const Quad& a) {r=a.r; i=a.i; nm=a.nm;}
+  friend long real(const Quad& a) {return a.r;}
+  friend long imag(const Quad& a) {return a.i;}
+  friend long quadnorm(const Quad& a) {return a.nm;} // used when t=0
   friend Quad quadconj0(const Quad& a);
   friend Quad quadconj1(const Quad& a);
   friend Quad mult0(const Quad& a, const Quad& b);
   friend Quad mult1(const Quad& a, const Quad& b);
-  friend Quad qdivi0(const Quad& a, long c);
+  friend Quad qdivi0(const Quad& a, long c);      // used when t=0
   friend Quad qdivi1(const Quad& a, long c);      // used when t=1
   friend int pos13(const Quad& a);
   friend int pos2(const Quad& a);
+  friend int div(const Quad& a, const Quad& b);           // implemented in quads.cc
+  friend int val(const Quad& factor, const Quad& number); // implemented in quads.cc
+  friend Quad quadgcd1(const Quad& aa, const Quad& bb);   //Euclidean only
+  friend Quad quadgcd2(const Quad& aa, const Quad& bb);   //General
 
   int operator== (const Quad& b) const {return (r==b.r) && (i==b.i);}
   int operator== (long b) const {return (r==b) && (i==0);}
@@ -105,30 +111,32 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   int operator!= (long b) const {return (r!=b) || (i!=0);}
   Quad operator* (const Quad& b) const {return mult(*this,b);}
   void operator*=(const Quad& b) {*this=mult(*this,b);}
-  Quad operator* (long m) const {return Quad(m*r,m*i);}
-  void operator*=(long m) {r*=m;i*=m;}
+  Quad operator* (long m) const {return Quad(m*r,m*i, m*m*nm);}
+  void operator*=(long m) {r*=m;i*=m; nm*=(m*m);}
   friend Quad operator*(long m, const Quad& a);
   Quad operator+ (const Quad& b) const {return Quad(r+b.r,i+b.i);}
   Quad operator+ (long b) const {return Quad(r+b,i);}
   friend Quad operator+(long m, const Quad& a);
-  void operator+=(const Quad& b) {r+=b.r; i+=b.i;}
+  void operator+=(const Quad& b) {r+=b.r; i+=b.i; setnorm();}
   void operator+=(long b) {r+=b;}
   Quad operator- (const Quad& b) const {return Quad(r-b.r,i-b.i);}
   Quad operator- (long b) const {return Quad(r-b,i);}
   friend Quad operator-(long m, const Quad& a);
-  void operator-=(const Quad& b) {r-=b.r; i-=b.i;}
-  void operator-=(long b) {r-=b;}
+  void operator-=(const Quad& b) {r-=b.r; i-=b.i; setnorm();}
+  void operator-=(long b) {r-=b; setnorm();}
   Quad operator- () const {return Quad(-r,-i);}
-  Quad operator/ (const Quad& b) const {return qdivi(mult(*this,quadconj(b)),quadnorm(b));}
+  Quad operator/ (const Quad& b) const {return qdivi(mult(*this,quadconj(b)), b.nm);}
   Quad operator/ (long b) const {return qdivi(*this,b);}
-  void operator/=(const Quad& b) {*this=qdivi(mult(*this,quadconj(b)),quadnorm(b));}
+  void operator/=(const Quad& b) {*this=qdivi(mult(*this,quadconj(b)), b.nm);}
   void operator/=(long b) {*this=qdivi(*this,b);}
-  operator bigcomplex() const;   
+  operator bigcomplex() const;
 
 // iostream functions
 
   friend ostream& operator<<(ostream& s, const Quad& x);
   friend istream& operator>>(istream& s, Quad& x);
+
+  friend class level;
 };
 
 char* to_string(const Quad& a);  // outputs to a (new) string
@@ -136,39 +144,39 @@ char* to_string(const Quad& a);  // outputs to a (new) string
 // Inline definitions of friend functions of class Quad (those not here are 
 // not inline, and are in quads.cc):
 
-inline Quad operator% (const Quad& a, const Quad& b) 
+inline Quad operator% (const Quad& a, const Quad& b)
 { return a-(b*(a/b));}
-inline Quad makepos(const Quad& a) 
-{Quad ans=a; 
- while(!pos(ans)) ans=ans*fundunit; 
+inline Quad makepos(const Quad& a)
+{Quad ans=a;
+ while(!pos(ans)) ans*=fundunit;
  return ans;
 }
-inline long real(const Quad& a) {return a.r;}
-inline long imag(const Quad& a) {return a.i;}
-inline long quadnorm0(const Quad& a)      // used when t=0
-   {return a.r*a.r + Quad::n*a.i*a.i;}  
-inline long quadnorm1(const Quad& a)      // used when t=1
-   {return a.r*a.r + Quad::n*a.i*a.i + a.r*a.i;}
-inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i);}
-inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i);}
+inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
+inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
 inline Quad mult0(const Quad& a, const Quad& b)
-   {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r);}
+{return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r, a.nm*b.nm);}
 inline Quad mult1(const Quad& a, const Quad& b)
-   {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i);}
-inline Quad qdivi0(const Quad& a, long c) // c>0
-   {return Quad(roundover(a.r,c),roundover(a.i,c));}     // used when t=0
-inline Quad qdivi1(const Quad& a, long c) // c>0
-   {Quad b; b.i=roundover(a.i,c); 
-            b.r=roundover(2*a.r+a.i-c*b.i,2*c); 
-    return b;}                                          // used when t=1
+   {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);}
+inline Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
+   {return Quad(roundover(a.r,c),roundover(a.i,c));}
+inline Quad qdivi1(const Quad& a, long c) // c>0,    // used when t=1
+   { long i = roundover(a.i,c);
+     long r = roundover(2*a.r+a.i-c*i,2*c);
+     return Quad(r,i);
+   }
 inline int pos13(const Quad& a)
    {return (((a.i>=0)&&(a.r>0))||((a.r==0)&&(a.i==0)));}
 inline int pos2(const Quad& a)
    {return ((a.i>0)||((a.i==0)&&(a.r>=0)));}
-inline Quad operator*(long m, const Quad& a) {return Quad(m*a.r,m*a.i);}
+inline Quad operator*(long m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
 inline Quad operator+(long m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(long m, const Quad& a) {return Quad(m-a.r,-a.i);}
-inline istream& operator>>(istream& s, Quad& x) {return s >> x.r >> x.i;}
+inline istream& operator>>(istream& s, Quad& x)
+{
+  s >> x.r >> x.i;
+  x.setnorm();
+  return s;
+}
 
 vector<long> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
 string ideal_label(const Quad& alpha);  // returns label of ideal (alpha)
@@ -179,7 +187,7 @@ vector<Quad> pdivs(const Quad&);         // list of prime divisors
 vector<Quad> posdivs(const Quad&);       // all "positive" divisors (up to units)
 vector<Quad> alldivs(const Quad&);       // absolutely all divisors
 vector<Quad> sqdivs(const Quad&);        // returns divisors whose square divides
-                              // (up to +/- sign)
+                                 // (up to +/- sign)
 vector<Quad> sqfreedivs(const Quad&);    // returns square-free divisors
 
 int are_associate(const Quad&, const Quad&);

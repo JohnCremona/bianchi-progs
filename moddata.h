@@ -11,17 +11,18 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag);
 
 class level {
 public:
- Quad modulus;
- int plusflag;
- vector<Quad> plist,dlist,primelist;
- long npdivs,ndivs,normod,nap;
- int is_square;
+  Quad modulus, conj_modulus;
+  int plusflag;
+  vector<Quad> plist,dlist,primelist;
+  long npdivs,ndivs,normod,nap;
+  int is_square;
   int is_Galois_stable;
 
 protected:
 //If modulus=(a,b) with norm normod, n0=gcd(a,b), n0m0=normod/n0=n0*m0
- long n0m0, n0,m0, wmodz;
- long numres(const Quad& a) const;  // what number is this residue a mod modulus?
+  long n0m0, n0,m0, wmodz;
+  Quad reduce(const Quad& a) const;  // return a reduced mod modulus
+  long numres(const Quad& a) const;  // what number is this residue a mod modulus?
  Quad resnum(long i) const;  // which is the i'th residue mod modulus?
 // The constructor:
   level(const Quad& n, long neigs=20); // neigs controls the maximum depth for recursion in newform finding

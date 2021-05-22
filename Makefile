@@ -36,7 +36,11 @@ ifeq ($(USE_BOOST), 1)
  BOOST_LDFLAGS = -L/usr/lib $(BOOST_SYSTEM_LIB) $(BOOST_THREAD_LIB)
 endif
 
+# for profiling:
+#CFLAGS = -c -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR) -DUSE_SMATS=$(USE_SMATS)
+#LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
+#for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR) -DUSE_SMATS=$(USE_SMATS)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 

@@ -31,6 +31,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag)
 level::level(const Quad& n, long neigs)
 {
   modulus=makepos(n); normod=quadnorm(n);
+  conj_modulus=quadconj(modulus);
   plist=pdivs(n); npdivs=plist.size();
   dlist=posdivs(n); ndivs=dlist.size();
   is_square=1;
@@ -48,7 +49,7 @@ level::level(const Quad& n, long neigs)
 	primelist.push_back(p);
     }
 
-  long a = real(n), b = imag(n), x, y;
+  long a = n.r, b = n.i, x, y;
   n0 =  bezout(a,b,x,y);
   n0m0 = normod / n0;
   long a0 = a/n0, b0 = b/n0;
@@ -56,9 +57,14 @@ level::level(const Quad& n, long neigs)
 //cout<<"n0, n0m0, wmodz = "<<n0<<", "<<n0m0<<", "<<wmodz<<endl;
 }
 
+Quad level::reduce(const Quad& a) const  // return a reduced mod modulus
+{
+  return a - modulus*qdivi(a*conj_modulus, normod);
+}
+
 long level::numres(const Quad& a) const // what number is this residue a mod modulus?
 {
-  long y = imag(a), x = real(a);
+  long y = a.i, x = a.r;
   long r = posmod(y,n0);
   long rdash = posmod((x+wmodz*(y-r)) , n0m0);
   return  rdash + r*n0m0;
@@ -66,10 +72,8 @@ long level::numres(const Quad& a) const // what number is this residue a mod mod
 
 Quad level::resnum(long i) const // which is the i'th residue mod modulus?
 {
-  long rdash = i % n0m0;
-  long r = (i-rdash)/n0m0;
-  Quad ans(rdash,r); 
-  return ans%modulus;
+  std::div_t qr = div(i, n0m0);
+  return reduce(Quad(qr.rem, qr.quot));
 }
 
 moddata::moddata(const Quad& n) :level(n)

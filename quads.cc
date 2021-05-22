@@ -34,7 +34,6 @@ int check_field(int d, vector<int> fields)
 }
 
 // declaration of "extern" functions declared in quads.h:
-long (*quadnorm)(const Quad& a);
 Quad (*mult)(const Quad& a, const Quad& b);
 Quad (*qdivi)(const Quad& a, long c);
 int (*pos)(const Quad& a);
@@ -51,20 +50,20 @@ void Quad::field(int dd, int max)
     }
   d = dd;
   is_Euclidean = (d<=11);
-  w = Quad(0,1);
   if ((d+1)%4) {t=0; disc=4*d; n=d;
-               quadconj=&quadconj0; quadnorm=&quadnorm0;
+               quadconj=&quadconj0;
                mult=&mult0; qdivi=&qdivi0;
               }
  else         {t=1; disc=d;   n=(d+1)/4;
-               quadconj=&quadconj1; quadnorm=&quadnorm1;
+               quadconj=&quadconj1;
                mult=&mult1; qdivi=&qdivi1;
               }
+  w = Quad(0,1, n);
  switch (d) {
- case 1:  pos=&pos13; name='i'; nunits=4; fundunit=Quad(0,1); break;
- case 2:  pos=&pos2;  name='t'; nunits=2; fundunit=Quad(-1);  break;
- case 3:  pos=&pos13; name='w'; nunits=6; fundunit=Quad(0,1); break;
- default: pos=&pos2;  name='a'; nunits=2; fundunit=Quad(-1); 
+ case 1:  pos=&pos13; name='i'; nunits=4; fundunit=Quad(0, 1, 1); break;
+ case 2:  pos=&pos2;  name='t'; nunits=2; fundunit=Quad(-1,0, 1); break;
+ case 3:  pos=&pos13; name='w'; nunits=6; fundunit=Quad(0, 1, 1); break;
+ default: pos=&pos2;  name='a'; nunits=2; fundunit=Quad(-1,0, 1);
  }
  if (is_Euclidean)
    {
@@ -95,7 +94,7 @@ void Quad::displayfield(ostream& s)
  case 19: case 43: case 67: case 163:           // Non-Euclidean
    cout << "Non-Euclidean" << endl;
    break;
- default: 
+ default:
    cout << "Class number > 1" << endl;
  }
  s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
@@ -106,6 +105,7 @@ Quad::Quad(const bigcomplex& z)
  if(d>1) y/=sqrt(to_bigfloat(d));
  if(d>2) {x-=y; y*=2.0;}
  longify(x, r); longify(y, i);    //Rounded
+ setnorm();
 }
 
 Quad::operator bigcomplex() const
@@ -117,11 +117,11 @@ Quad::operator bigcomplex() const
 
 int div(const Quad& a, const Quad& b)
 {
- if (a==0) return (b==0);
- if (b==0) return 1;
- long nb = quadnorm(a);
+ if (a.nm==0) return (b.nm==0);
+ if (b.nm==0) return 1;
+ long na = a.nm;
  Quad c = b*quadconj(a);
- return ((real(c)%nb)==0) && ((imag(c)%nb)==0);
+ return (((c.r)%na)==0) && (((c.i)%na)==0);
 }
 
 int ndiv(const Quad& a, const Quad& b)
@@ -130,10 +130,10 @@ int ndiv(const Quad& a, const Quad& b)
 }
 
 int val(const Quad& factor, const Quad& number)
-{ 
-  if ((number==0) || (quadnorm(factor)<=1)) 
+{
+  if ((number.nm==0) || (factor.nm<=1))
     {
-      cout << "Error in val(): factor = "<<factor<< " should have norm>1"<<endl;
+      cout << "Error in val(): factor = "<<factor<< " should not be a unit"<<endl;
       exit(1);
     }
   int e = 0; Quad n=number, f=factor, nf;
@@ -207,19 +207,19 @@ vector<Quad> Quad::primes_above(long p, int& sig)
   sig = kronecker(disc,p);
   switch (sig) {
   case  0: // ramified
-    pi =  (d==1 ? Quad(1,1) :
-           d==2 ? Quad(0,1) :
-           d==3 ? Quad(1,1) :
-           Quad(-1,2));
+    pi =  (d==1 ? Quad(1,1, 2) :
+           d==2 ? Quad(0,1, 2) :
+           d==3 ? Quad(1,1, 3) :
+           Quad(-1,2, d));
     list.push_back(pi);
     break;
   case -1: // inert
-    pi = Quad(p,0);
+    pi = Quad(p,0, p*p);
     list.push_back(pi);
     break;
   case 1: // split
     if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
-    pi = makepos(Quad(a,b));
+    pi = makepos(Quad(a,b, p));
     piconj = makepos(quadconj(pi));
     // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
     int c = posmod(a*invmod(b,p),p);
@@ -242,7 +242,7 @@ void Quad::initquadprimes()
 {
   long p; int sig;
   vector<Quad> list, list1, list2;
-  vector<Quad>::const_iterator pi, alpha, beta;
+  vector<Quad>::iterator pi, alpha, beta;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
     { p=pr;
       list = Quad::primes_above(p, sig);
@@ -280,8 +280,6 @@ void Quad::initquadprimes()
 
   nquadprimes = quadprimes.size();
 }
-
-
 
 Quad primdiv(const Quad& a)
 {
@@ -332,7 +330,7 @@ vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
   vector<Quad> plist=pdivs(a); Quad p; 
   int e, nu = 1; int nd=nu;
   vector<int> elist;
-  vector<Quad>::const_iterator pr;
+  vector<Quad>::iterator pr;
   for (pr=plist.begin(); pr!=plist.end(); pr++)
     {
       e=val(*pr,a); 
@@ -360,7 +358,7 @@ vector<Quad> alldivs(const Quad& a)       // all divisors
   vector<Quad> plist=pdivs(a); Quad p; 
   int e, nu = Quad::nunits; int nd=nu;
   vector<int> elist;
-  vector<Quad>::const_iterator pr;
+  vector<Quad>::iterator pr;
   for (pr=plist.begin(); pr!=plist.end(); pr++)
    {
      e=val(*pr,a); 
@@ -388,7 +386,7 @@ vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to
   vector<Quad> plist=pdivs(a); Quad p;
   int e, nu = Quad::nunits/2; int nd=nu;
   vector<int> elist;
-  vector<Quad>::const_iterator pr;
+  vector<Quad>::iterator pr;
   for (pr=plist.begin(); pr!=plist.end(); pr++)
    {
      e=val(*pr,a)/2; 
@@ -416,7 +414,7 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
   vector<Quad> plist=pdivs(a); Quad p;
   int e, nu = 2; int nd=nu;
   vector<int> elist;
-  vector<Quad>::const_iterator pr;
+  vector<Quad>::iterator pr;
   for (pr=plist.begin(); pr!=plist.end(); pr++)
    {
      e=1; 
@@ -441,10 +439,13 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
 
 Quad quadgcd1(const Quad& aa, const Quad& bb)  //Only works for Euclidean fields!
 {Quad a=aa,b=bb,c,q;
- while (b!=0)
+ while (b.nm != 0)
    {
+     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
      q = a/b; c = a-q*b; a = b; b = c;
-     if(quadnorm(b)>=quadnorm(a)){cout<<"error--norm not reduced!\n";break;}
+     //     cout<<"quotient "<<q<<", remainder "<<c<<" (norm "<<c.nm<<")"<<endl;
+     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
+     if(b.nm >= a.nm){cout<<"error--norm not reduced!\n";exit(1);}
    }
  while (!pos(a)) a*=fundunit;
  return a;
@@ -482,7 +483,7 @@ Quad quadbezout1(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2
 #endif
  return g;
 }
- 
+
 Quad invmod(const Quad& a, const Quad& p)
 {Quad x,y;
  Quad g=quadbezout(a,p,x,y);
@@ -494,7 +495,7 @@ Quad invmod(const Quad& a, const Quad& p)
 
 int coprime(const Quad& a, const Quad& b) 
 {
-  Quad g=quadgcd(a,b); 
+  Quad g = quadgcd(a,b); 
   return g==1;
 }
 
@@ -672,8 +673,8 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
   long* rv = new long[4];
   long* iv = new long[4];
   long* basis = new long[3];
-  rv[0] = real(alpha); iv[0] = imag(alpha);   
-  rv[1] = real(beta);  iv[1] = imag(beta);
+  rv[0] = alpha.r; iv[0] = alpha.i;
+  rv[1] = beta.r;  iv[1] = beta.i;
   rv[2] = -n*iv[0];    iv[2] = rv[0] + t*iv[0];
   rv[3] = -n*iv[1];    iv[3] = rv[1] + t*iv[1];
 //cout<<"About to call findzbasis with rv="<<rv<<", iv="<<iv<<", basis="<<basis<<endl;
@@ -684,7 +685,7 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
 #ifdef testbezout
 //CHECK:
   if (div(g,alpha) && div(g,beta)) {;}  //OK
-  else 
+  else
     {cerr<<"Error in quadgcd2!"<<endl;
      cerr<<"alpha = "<<alpha<<endl;
      cerr<<"beta  = "<<beta<<endl;
@@ -703,7 +704,7 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
 //
 // For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
 
-long roundover(long aa, long bb)
+long roundover_old(long aa, long bb)
 {
   long a=aa, b=bb, q, r;
   assert (b>0); // the following code requires b>0
@@ -713,6 +714,14 @@ long roundover(long aa, long bb)
   assert ((-b<=2*r) && (2*r<b));
   q = (a-r)/b;
   return q;
+}
+
+long roundover(long a, long b)
+{
+  std::div_t qr = div(a, b);
+  long r = qr.rem, q = qr.quot;
+  long r2 = r<<1;
+  return (r2<-b? q-1: (r2>=b? q+1: q));
 }
 
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
@@ -777,7 +786,8 @@ int are_associate(const Quad& a, const Quad& b)
 
 int is_ideal_Galois_stable(const Quad& a)
 {
-  return are_associate(a, quadconj(a));
+  Quad b(quadconj(a));
+  return are_associate(a, b);
 }
 
 matop::matop(const Quad& p, const Quad& n)
@@ -928,7 +938,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t)
 
   // Now look or a suitable alpha, trying all in turn (skipping alpha=0)
 
-  Quad r,s, a1,b1;
+  Quad r,s, a1,b1, bs;
   t = 1;
   for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++, t++)
     {
@@ -938,7 +948,8 @@ void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t)
       mat22 M = *Mi;
       r=-M.d, s=M.c; // alpha = r/s
       // Find the shift taking a/b closest to alpha
-      q = (a*s-b*r)/(b*s); // closest integer to (a/b)-(r/s)
+      bs = b*s;
+      q = (a*s-b*r)/bs; // closest integer to (a/b)-(r/s)
       // We need to use temporary copies of a,b in case this alpha fails
       a1 = a-q*b, b1 = b;
       Mi->apply_left(a1,b1);
