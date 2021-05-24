@@ -3,14 +3,46 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
+#include <assert.h>
 
-// In add_rel(rel), rel is a list of (positive) (c:d)-symbol numbers i
-// such that the corresponding symbols add to 0 in homology.  We use
-// the map i -> j=coordindex[i] to convert this to a vector of
-// dimension ngens, and append that as a new row to the relation
-// matrix relmat.
+// In add_rel(rel, types, check):
+//
+//   rel is a list of (positive) (c:d)-symbol numbers i
+//   types is a list of symbol types
+//
+//   such that the corresponding (symbol,type) pairs add to 0 in homology.  We use
+//   the map i -> j=coordindex[i] to convert this to a vector of
+//   dimension ngens, and append that as a new row to the relation
+//   matrix relmat.
+//
+// If check==1, we check that the relation satisfies the condition
+// that after converting to a sum of modular symbols {alpha_i, beta_i}
+// we have beta_i = alpha_{i+1} for all i.
 
-void homspace::add_rel(const vector<int>& rel, const vector<int>& types)
+int homspace::check_rel(const vector<int>& rel, const vector<int>& types)
+{
+  vector<int>::const_iterator r, t;
+  vector<modsym> mods;
+  for (r=rel.begin(), t=types.begin(); r!=rel.end(); r++, t++)
+    {
+      int ri = *r, ti=*t;
+      modsym m(symbol(ri), ti);
+      mods.push_back(m);
+      if (verbose) cout<<" "<<m;
+    }
+  cout <<flush;
+  vector<modsym>::const_iterator m;
+  int ok=1;
+  for (m=mods.begin(); m!=mods.end(); m++)
+    {
+      RatQuad beta = m->beta();
+      RatQuad next_alpha = (m+1==mods.end()? mods.begin(): (m+1))->alpha();
+      ok = ok && cuspeq(beta, next_alpha, modulus, plusflag);
+    }
+  return ok;
+}
+
+void homspace::add_rel(const vector<int>& rel, const vector<int>& types, int check)
 {
   vector<int>::const_iterator r, t;
   long c;
@@ -20,6 +52,10 @@ void homspace::add_rel(const vector<int>& rel, const vector<int>& types)
       for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
         cout<<(*r)<<"_"<<(*t)<<" "<<symbol(*r)<<" ";
       cout <<" --> ";
+    }
+  if (check)
+    {
+      assert (check_rel(rel, types));
     }
 #ifdef USE_SMATS
   svec relation(ngens);
@@ -265,7 +301,8 @@ void homspace::hexagon_relation_11()
   long j, k;
   Quad w(0,1);
 
-  symbop X(this,1,-w,1-w,-2);
+  //  symbop X(this,1,-w,1-w,-2); // as in JC thesis (order 3)
+  symbop X(this,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
   assert (X.det()==1);
   symbop USof(this,w,-1,1,0);
   assert (USof.det()==1);
@@ -348,15 +385,15 @@ void homspace::square_relation_19()
 
   symbop K(this, M_alphas[1]);
   symbop S(this, M_alphas[0]);
-  types = {0,0,1,1};
+  types = {0,1,0,1};
 
   for (j=0; j<nsymb; j++)
     if (check[j]==0)
       {
         rel[0] = j;
-        rel[2] = S(j);
-        rel[3] = k = K(j);
-        rel[1] = S(k); // = KS(j)
+        rel[3] = S(j);
+        rel[1] = k = K(j);
+        rel[2] = S(k); // = KS(j)
         check[j] = check[k] = 1;
         add_rel(rel, types);
       }

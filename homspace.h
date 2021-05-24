@@ -34,7 +34,8 @@ public:
   mat relmat;
 #endif
   long ngens, numrel, maxnumrel;
-  void add_rel(const vector<int>& rel, const vector<int>& types);
+  void add_rel(const vector<int>& rel, const vector<int>& types, int check=1);
+  int check_rel(const vector<int>& rel, const vector<int>& types);
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
 

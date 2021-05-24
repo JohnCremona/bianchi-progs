@@ -3,7 +3,6 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
-#include <assert.h>
 
 const string W_opname("W");
 const string T_opname("T");
