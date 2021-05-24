@@ -5,7 +5,7 @@
 #include "homspace.h"
 #include <assert.h>
 
-// In add_rel(rel, types, check):
+// In add_face_rel(rel, types, check):
 //
 //   rel is a list of (positive) (c:d)-symbol numbers i
 //   types is a list of symbol types
@@ -19,7 +19,7 @@
 // that after converting to a sum of modular symbols {alpha_i, beta_i}
 // we have beta_i = alpha_{i+1} for all i.
 
-int homspace::check_rel(const vector<int>& rel, const vector<int>& types)
+int homspace::check_face_rel(const vector<int>& rel, const vector<int>& types)
 {
   vector<int>::const_iterator r, t;
   vector<modsym> mods;
@@ -30,7 +30,7 @@ int homspace::check_rel(const vector<int>& rel, const vector<int>& types)
       mods.push_back(m);
       if (verbose) cout<<" "<<m;
     }
-  cout <<flush;
+  if (verbose) cout <<" --> " << flush;
   vector<modsym>::const_iterator m;
   int ok=1;
   for (m=mods.begin(); m!=mods.end(); m++)
@@ -42,7 +42,7 @@ int homspace::check_rel(const vector<int>& rel, const vector<int>& types)
   return ok;
 }
 
-void homspace::add_rel(const vector<int>& rel, const vector<int>& types, int check)
+void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types, int check)
 {
   vector<int>::const_iterator r, t;
   long c;
@@ -55,7 +55,7 @@ void homspace::add_rel(const vector<int>& rel, const vector<int>& types, int che
     }
   if (check)
     {
-      assert (check_rel(rel, types));
+      assert (check_face_rel(rel, types));
     }
 #ifdef USE_SMATS
   svec relation(ngens);
@@ -176,7 +176,7 @@ void homspace::triangle_relation_0()
             if (plusflag)
               check[R(rel[j])] = 1;
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if(verbose)
     {
@@ -207,7 +207,7 @@ void homspace::triangle_relation_1_3()
             rel[j] = (j? X(rel[j-1]): k);
             check[rel[j]] = 1;
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if(verbose)
     {
@@ -252,7 +252,7 @@ void homspace::square_relation_2()
             rel[1] = J(rel[1]);
             rel[3] = J(rel[3]);
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if(verbose)
     {
@@ -286,7 +286,7 @@ void homspace::rectangle_relation_7()
             if (plusflag)
               check[R(rel[j+1])]=1;
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
 }
 
@@ -320,7 +320,7 @@ void homspace::hexagon_relation_11()
             if(plusflag)
               check[R(rel[j+1])]=1;
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if(verbose)
     {
@@ -355,7 +355,7 @@ void homspace::triangle_relation_2()
             rel[j] = (j? K(rel[j-1]): k);
             check[rel[j]] = 1;
           }
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if (!plusflag) // there's a second triangle (image of previous under L)
     {
@@ -368,7 +368,7 @@ void homspace::triangle_relation_2()
                 rel[j] = (j? N(rel[j-1]): k);
                 check[rel[j]] = 1;
               }
-            add_rel(rel, types);
+            add_face_rel(rel, types);
           }
     }
   if(verbose)
@@ -395,7 +395,7 @@ void homspace::square_relation_19()
         rel[1] = k = K(j);
         rel[2] = S(k); // = KS(j)
         check[j] = check[k] = 1;
-        add_rel(rel, types);
+        add_face_rel(rel, types);
       }
   if(verbose)
     {
@@ -428,7 +428,7 @@ void homspace::triangle_relation_3()
       rel[0] = M1(k);
       rel[1] = M2(k);
       rel[2] = k;
-      add_rel(rel, types);
+      add_face_rel(rel, types);
     }
 
   if (!plusflag) // there's a second triangle (image of previous under J)
@@ -446,7 +446,7 @@ void homspace::triangle_relation_3()
           rel[0] = M3(k);
           rel[1] = M4(k);
           rel[2] = k;
-          add_rel(rel, types);
+          add_face_rel(rel, types);
         }
     }
   if(verbose)
@@ -479,7 +479,7 @@ void homspace::square_relation_43()
       rel[1] = V(j);
       rel[2] = N4L(j);
       rel[3] = S(j);
-      add_rel(rel, types);
+      add_face_rel(rel, types);
     }
 
   // (2)
@@ -496,7 +496,7 @@ void homspace::square_relation_43()
       rel[1] = U(j);
       rel[2] = k = N5(j);
       rel[3] = U(k);
-      add_rel(rel, types);
+      add_face_rel(rel, types);
     }
 
   // (3) image of (2) under L=[-1,0;0,1] with det(L)=-1, only needed if !plusflag
@@ -516,7 +516,7 @@ void homspace::square_relation_43()
           rel[1] = W1(j);
           rel[2] = k = W2(j);
           rel[3] = W1(k);
-          add_rel(rel, types);
+          add_face_rel(rel, types);
         }
     }
 

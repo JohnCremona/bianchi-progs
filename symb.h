@@ -40,6 +40,7 @@ class modsym {
     modsym(const symb&, int type=0);                        //conversion
     RatQuad alpha() const {return a;}
     RatQuad  beta() const {return b;}
+    modsym reverse() const {return modsym(b,a);}
     friend ostream& operator<< (ostream& s, const modsym& m); //inline below
 };
 

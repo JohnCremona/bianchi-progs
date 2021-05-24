@@ -5,9 +5,20 @@
 #include "homspace.h"
 #include <assert.h>
 
+// Check that (symbol #, type)s (s1,t1) and (s2,t2) really are equal / opposite (orientation = +1/-1)
+
+int homspace::check_edge_rel(int s1, int t1, int s2, int t2, int orientation)
+{
+  modsym m1(symbol(s1), t1), m2(symbol(s2), t2);
+  if (orientation<0) m2 = m2.reverse();
+  RatQuad alpha1 = m1.alpha(), beta1=m1.beta(), alpha2 = m2.alpha(), beta2=m2.beta();
+  return cuspeq(alpha1, alpha2, modulus, plusflag) && cuspeq(beta1, beta2, modulus, plusflag);
+}
+
+
 // 2-term (edge) relations
 
-void homspace::edge_relations()    // computes coordindex
+void homspace::edge_relations(int check)    // computes coordindex
 {
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
@@ -15,15 +26,15 @@ void homspace::edge_relations()    // computes coordindex
   symbop eps(this,unit,0,0,1);  assert (eps.det()==unit);
   symbop sof(this,0,-1,1,0);  assert (sof.det()==1);
   vector<int> a(lenrel), b(lenrel);
-  vector<int> check(nsymb, 0);
+  vector<int> done(nsymb, 0);
   int j, k, triv;
   if(verbose) cout << "About to start on 2-term (edge) relations.\n";
   if(verbose && n_alphas>1)
     cout<<"Generic edge relations for type 0 symbols\n";
   for (j=nsymb-1; j>=0; j--)
     {
-      if (check[j]==0)
-        { 
+      if (!done[j])
+        {
 	  if(verbose>1) cout << "j = " << j << ":\t";
           a[0]=j; b[0]=sof(j); triv=(j==b[0]);
           for(k=1; k<lenrel; k++)
@@ -32,7 +43,7 @@ void homspace::edge_relations()    // computes coordindex
               b[k]= eps(b[k-1]);
               triv= triv | (j==b[k]);
             }
-          for (k=0; k<lenrel; k++) check[a[k]]=check[b[k]]=1;
+          for (k=0; k<lenrel; k++) done[a[k]]=done[b[k]]=1;
 	  if(verbose>1)
 	    {
 	      cout<<"+:\t";
@@ -59,16 +70,16 @@ void homspace::edge_relations()    // computes coordindex
   if (field<19) return;
   if(verbose)
     cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
-  edge_relations_2();
+  edge_relations_2(check);
   if (field<43) return;
   if(verbose)
     cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
-  edge_relations_3();
+  edge_relations_3(check);
   if (field<67) return;
   cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
 }
 
-void homspace::edge_relations_2()    // extra edge relations for alphas with denominator 2
+void homspace::edge_relations_2(int check)    // extra edge relations for alphas with denominator 2
 {
   Quad w = Quad::w;
   int j, k, l, m;
@@ -84,19 +95,26 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
   // Also (g)_(w-1)/2 = (gL)_(w-1)/2      with L = [-1,w-1;0,1],  det=-1, order 2, if plus
   //                  = -(gLK)_w/2
 
-  vector<int> check(nsymb, 0);
+  vector<int> done(nsymb, 0);
   int offset1 = nsymb, offset2 = 2*nsymb;
   for (j=0; j<nsymb; j++) // index of a type 2 symbol
     {
-      if (check[j]==0)
+      if (!done[j])
         {
           k = K(j);      // index of type 1 symbol
           l = L(j);      // index of type 2 symbol
           m = K(l);      // index of type 1 symbol
-          check[j] = check[l] = 1;
+
+          done[j] = done[l] = 1;
+          if (check)
+            {
+              assert (check_edge_rel(j,2,k,1, -1));
+              assert (check_edge_rel(l,2,m,1, -1));
+            }
           gens[++ngens] = offset1+k;
           coordindex[offset1 + k] = ngens;
           coordindex[offset2 + j] = -ngens;
+
           // if plusflag=0 we have a new gen, unless k=m
           if (!plusflag && k!=m)
             {
@@ -108,7 +126,7 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
     }
 }
 
-void homspace::edge_relations_3()    // extra edge relations for alphas with denominator 3
+void homspace::edge_relations_3(int check)    // extra edge relations for alphas with denominator 3
 {
   int field = Quad::d;
   Quad w = Quad::w;
@@ -126,20 +144,24 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
   symbop K3(this, 1+w,-(w+u+1),3,-(1+w));
   assert (K3.det()==1);
   int offset7 = 7*nsymb;
-  vector<int> check(nsymb, 0);
+  vector<int> done(nsymb, 0);
   for (j=0; j<nsymb; j++)
     {
-      if (check[j]==0)
+      if (!done[j])
         {
-          check[j] = 1;
+          done[j] = 1;
           k = K3(j);
+          if (check)
+            {
+              assert (check_edge_rel(j,7,k,7, -1));
+            }
           if (j==k) // symbol trivial
             {
               coordindex[offset7+j] = 0;
             }
           else
             {
-              check[k] = 1;
+              done[k] = 1;
               gens[++ngens] = offset7+j;
               coordindex[offset7+j] = ngens;
               coordindex[offset7+k] = -ngens;
@@ -156,7 +178,12 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
     {
       for (j=0; j<nsymb; j++)
         {
-          coordindex[offset8+J(j)] = coordindex[offset7+j];
+          k = J(j);
+          if (check)
+            {
+              assert (check_edge_rel(j,7,k,8, +1));
+            }
+          coordindex[offset8+k] = coordindex[offset7+j];
         }
     }
   else
@@ -164,20 +191,24 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
       // K4 = J*K3*K has order 2, det +1, swaps {-(1+w)/3,oo} and its reverse
       symbop K4(this, -(1+w),-(w+u+1),3,1+w);
       assert (K4.det()==1);
-      std::fill(check.begin(), check.end(), 0);
+      std::fill(done.begin(), done.end(), 0);
       for (j=0; j<nsymb; j++)
         {
-          if (check[j]==0)
+          if (!done[j])
             {
-              check[j] = 1;
+              done[j] = 1;
               k = K4(j);
+              if (check)
+                {
+                  assert (check_edge_rel(j,8,k,8, -1));
+                }
               if (j==k) // symbol trivial
                 {
                   coordindex[offset8+j] = 0;
                 }
               else
                 {
-                  check[k] = 1;
+                  done[k] = 1;
                   gens[++ngens] = offset8+j;
                   coordindex[offset8+j] = ngens;
                   coordindex[offset8+k] = -ngens;
@@ -196,15 +227,20 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
   symbop M3(this, w,-u,-3,w-1);
   assert (M3.det()==1);
 
-  std::fill(check.begin(), check.end(), 0);
+  std::fill(done.begin(), done.end(), 0);
   for (j=0; j<nsymb; j++) // index of type 3 symbol
     {
-      if (check[j]==0)
+      if (!done[j])
         {
           jj = J(j); // index of type 4 symbol
           k = M1(j); // index of type 5 symbol
-          l = M3(j); // index of type 6 symbol
-          check[j] = check[jj] = 1;
+          l = M3(jj); // index of type 6 symbol
+          done[j] = done[jj] = 1;
+          if (check)
+            {
+              assert (check_edge_rel(j,3,k,5, -1));
+              assert (check_edge_rel(jj,4,l,6, -1));
+            }
           gens[++ngens] = offset3+j;
           coordindex[offset3+j] = ngens;
           coordindex[offset5+k] = -ngens;

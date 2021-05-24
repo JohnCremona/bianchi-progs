@@ -34,19 +34,20 @@ public:
   mat relmat;
 #endif
   long ngens, numrel, maxnumrel;
-  void add_rel(const vector<int>& rel, const vector<int>& types, int check=1);
-  int check_rel(const vector<int>& rel, const vector<int>& types);
+  void add_face_rel(const vector<int>& rel, const vector<int>& types, int check=1);
+  int check_face_rel(const vector<int>& rel, const vector<int>& types);
+  int check_edge_rel(int s1, int t1, int s2, int t2, int orientation);
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
   // The next several methods are called only in the constructor, but
   // are separted out for clarity and for ease of separating thec ode
   // for different fields.
-  void edge_relations();    // computes coordindex, gens
-  void edge_relations_2();    // extra edge relations for alphas with denom 2
-  void edge_relations_3();    // extra edge relations for alphas with denom 3
-  void face_relations();    // computes face relations, fills relmat
+  void edge_relations(int check=1);      // computes coordindex, gens
+  void edge_relations_2(int check);    // extra edge relations for alphas with denom 2
+  void edge_relations_3(int check);    // extra edge relations for alphas with denom 3
 
+  void face_relations();    // computes face relations, fills relmat
   void triangle_relation_0();   // triangle relation for all fields
   void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
   void square_relation_2();   // extra square relation for field 2

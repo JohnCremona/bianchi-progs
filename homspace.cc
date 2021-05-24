@@ -169,15 +169,18 @@ void homspace::solve_relations()
   if (verbose)
     {
       cout << "rk = " << rk << endl;
-      cout << "coord:" << coord;
-      if (hmod)
-	cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
-      else
-        cout << "lifted ok, denominator = " << denom1 << endl;
-      cout << "pivots = " << pivs <<endl;
     }
   if (rk>0)
     {
+      if (verbose)
+        {
+          cout << "coord:" << coord;
+          if (hmod)
+            cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
+          else
+            cout << "lifted ok, denominator = " << denom1 << endl;
+          cout << "pivots = " << pivs <<endl;
+        }
       freegens.resize(rk);
       for (i=0; i<rk; i++) freegens[i] = gens[pivs[i+1]];
       if (verbose)
