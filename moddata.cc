@@ -130,7 +130,7 @@ void moddata::display() const
  cout << "Level = " << ideal_label(modulus) <<" = (" << modulus << ")" << endl;
  //if(is_square) cout << "** square level **" << endl;
  cout << "Number of symbols = " << nsymb << endl;
- cout << ndivs << " non-trivial divisors: " << dlist << endl;
+ cout << ndivs << " divisors: " << dlist << endl;
  cout << npdivs << " prime divisors: " << plist << endl;
  cout << "residues: "; 
  for(int i=0; i<normod; i++) {if(i) cout<<","; cout<<resnum(i);}

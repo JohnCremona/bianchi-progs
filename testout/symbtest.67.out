@@ -1,7 +1,7 @@
 >>>> Level 4.0.2 = (2), norm = 4 <<<<	
 Level = 4.0.2 = (2)
 Number of symbols = 5
-2 non-trivial divisors: [ 1 2 ]
+2 divisors: [ 1 2 ]
 1 prime divisors: [ 2 ]
 residues: 0,-1,-a,1-a
 invlist: [ 0 1 3 2 ]
@@ -13,7 +13,7 @@ Number of special symbols = 0
 >>>> Level 9.0.3 = (3), norm = 9 <<<<	
 Level = 9.0.3 = (3)
 Number of symbols = 10
-2 non-trivial divisors: [ 1 3 ]
+2 divisors: [ 1 3 ]
 1 prime divisors: [ 3 ]
 residues: 0,1,-1,a,-2+a,-1+a,-a,1-a,-1-a
 invlist: [ 0 1 2 5 8 3 7 6 4 ]
@@ -25,7 +25,7 @@ Number of special symbols = 0
 >>>> Level 16.0.4 = (4), norm = 16 <<<<	
 Level = 16.0.4 = (4)
 Number of symbols = 20
-3 non-trivial divisors: [ 1 2 4 ]
+3 divisors: [ 1 2 4 ]
 1 prime divisors: [ 2 ]
 residues: 0,1,-2,-1,a,1+a,-2+a,-1+a,-2a,1-2a,2-2a,-1-2a,-a,1-a,2-a,-1-a
 invlist: [ 0 1 -1 3 13 6 5 12 -2 9 -3 11 7 4 15 14 ]
@@ -37,7 +37,7 @@ Number of special symbols = 0
 >>>> Level 17.0.1 = (a), norm = 17 <<<<	
 Level = 17.0.1 = (a)
 Number of symbols = 18
-2 non-trivial divisors: [ 1 a ]
+2 divisors: [ 1 a ]
 1 prime divisors: [ a ]
 residues: 0,1,2,3,4,5,6,7,8,-8,-7,-6,-5,-4,-3,-2,-1
 invlist: [ 0 1 9 6 13 7 3 5 15 2 12 14 10 4 11 8 16 ]
@@ -49,7 +49,7 @@ Number of special symbols = 0
 >>>> Level 19.1.1 = (1+a), norm = 19 <<<<	
 Level = 19.1.1 = (1+a)
 Number of symbols = 20
-2 non-trivial divisors: [ 1 1+a ]
+2 divisors: [ 1 1+a ]
 1 prime divisors: [ 1+a ]
 residues: 0,1,2,3,4,5,6,6-a,7-a,8-a,-8+a,-7+a,-6+a,-6,-5,-4,-3,-2,-1
 invlist: [ 0 1 10 13 5 4 16 11 12 17 2 7 8 3 15 14 6 9 18 ]
