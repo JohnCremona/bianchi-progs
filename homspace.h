@@ -34,18 +34,16 @@ public:
   mat relmat;
 #endif
   long ngens, numrel, maxnumrel;
-  void add_face_rel(const vector<int>& rel, const vector<int>& types, int check=1);
-  int check_face_rel(const vector<int>& rel, const vector<int>& types);
-  int check_edge_rel(int s1, int t1, int s2, int t2, int orientation);
+  void add_face_rel(const vector<int>& rel, const vector<int>& types);
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
   // The next several methods are called only in the constructor, but
   // are separted out for clarity and for ease of separating thec ode
   // for different fields.
-  void edge_relations(int check=1);      // computes coordindex, gens
-  void edge_relations_2(int check);    // extra edge relations for alphas with denom 2
-  void edge_relations_3(int check);    // extra edge relations for alphas with denom 3
+  void edge_relations();      // computes coordindex, gens
+  void edge_relations_2();    // extra edge relations for alphas with denom 2
+  void edge_relations_3();    // extra edge relations for alphas with denom 3
 
   void face_relations();    // computes face relations, fills relmat
   void triangle_relation_0();   // triangle relation for all fields
@@ -134,5 +132,8 @@ public:
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
+
+int check_face_rel(const vector<mat22>& mats, const vector<int>& types);
+
 
 #endif

@@ -5,6 +5,39 @@
 #include "homspace.h"
 #include <assert.h>
 
+// Each face relation is a sum of edges (M)_alpha = {M(alpha}, M(oo)}
+// for M in the list mats and alpha=alphas[i] for i in the list types.
+// Here we check that such a relation holds identically in H_3 (not
+// just modulo the congruence subgroup!)
+
+int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
+{
+  vector<mat22>::const_iterator mi;
+  vector<int>::const_iterator ti;
+  vector<RatQuad> alphas, betas;
+  for (mi=mats.begin(), ti=types.begin(); ti!=types.end(); mi++, ti++)
+    {
+      mat22 M = *mi;
+      mat22 M_alpha = M_alphas[*ti];
+      alphas.push_back(M(RatQuad(-M_alpha.entry(1,1), M_alpha.entry(1,0))));
+      betas.push_back(M(RatQuad(1,0)));
+    }
+  vector<RatQuad>::const_iterator alpha, beta;
+  int ok=1;
+  for (alpha=alphas.begin()+1, beta=betas.begin(); alpha!=alphas.end(); alpha++, beta++)
+    {
+      RatQuad next_alpha = (alpha==alphas.end()? alphas[0]: *alpha);
+      ok = ok && (*beta==next_alpha);
+    }
+  if (!ok)
+    {
+      cout<<"Bad face relation!\n";
+      cout<<"alphas: "<<alphas<<endl;
+      cout<<"betas:  "<<betas<<endl;
+    }
+  return ok;
+}
+
 // In add_face_rel(rel, types, check):
 //
 //   rel is a list of (positive) (c:d)-symbol numbers i
@@ -15,34 +48,8 @@
 //   dimension ngens, and append that as a new row to the relation
 //   matrix relmat.
 //
-// If check==1, we check that the relation satisfies the condition
-// that after converting to a sum of modular symbols {alpha_i, beta_i}
-// we have beta_i = alpha_{i+1} for all i.
 
-int homspace::check_face_rel(const vector<int>& rel, const vector<int>& types)
-{
-  vector<int>::const_iterator r, t;
-  vector<modsym> mods;
-  for (r=rel.begin(), t=types.begin(); r!=rel.end(); r++, t++)
-    {
-      int ri = *r, ti=*t;
-      modsym m(symbol(ri), ti);
-      mods.push_back(m);
-      if (verbose) cout<<" "<<m;
-    }
-  if (verbose) cout <<" --> " << flush;
-  vector<modsym>::const_iterator m;
-  int ok=1;
-  for (m=mods.begin(); m!=mods.end(); m++)
-    {
-      RatQuad beta = m->beta();
-      RatQuad next_alpha = (m+1==mods.end()? mods.begin(): (m+1))->alpha();
-      ok = ok && cuspeq(beta, next_alpha, modulus, plusflag);
-    }
-  return ok;
-}
-
-void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types, int check)
+void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types)
 {
   vector<int>::const_iterator r, t;
   long c;
@@ -52,10 +59,6 @@ void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types, in
       for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
         cout<<(*r)<<"_"<<(*t)<<" "<<symbol(*r)<<" ";
       cout <<" --> ";
-    }
-  if (check)
-    {
-      assert (check_face_rel(rel, types));
     }
 #ifdef USE_SMATS
   svec relation(ngens);
@@ -162,19 +165,19 @@ void homspace::triangle_relation_0()
     {
       cout << "Face relation type 1 (triangles):\n";
     }
-  vector<int> rel(3), types(3,0), check(nsymb, 0);
+  vector<int> rel(3), types(3,0), done(nsymb, 0);
   long j, k;
   symbop TS(this,1,1,-1,0); assert (TS.det()==1);
   symbop R(this,0,1,1,0);   assert (R.det()==-1);
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<3; j++)
           {
             rel[j] = (j? TS(rel[j-1]): k);
-            check[rel[j]] = 1;
+            done[rel[j]] = 1;
             if (plusflag)
-              check[R(rel[j])] = 1;
+              done[R(rel[j])] = 1;
           }
         add_face_rel(rel, types);
       }
@@ -191,7 +194,7 @@ void homspace::triangle_relation_1_3()
     {
       cout << "Face relation type 2 (triangles):\n";
     }
-  vector<int> rel(3), types(3,0), check(nsymb, 0);
+  vector<int> rel(3), types(3,0), done(nsymb, 0);
   long j, k;
 
   Quad w(0,1);
@@ -200,12 +203,12 @@ void homspace::triangle_relation_1_3()
   assert (X.det()==(field==1? -1: 1));
 
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<3; j++)
           {
             rel[j] = (j? X(rel[j-1]): k);
-            check[rel[j]] = 1;
+            done[rel[j]] = 1;
           }
         add_face_rel(rel, types);
       }
@@ -222,7 +225,7 @@ void homspace::square_relation_2()
     {
       cout << "Face relation type 2 (squares):\n";
     }
-  vector<int> rel(4), types(4,0), check(nsymb, 0);
+  vector<int> rel(4), types(4,0), done(nsymb, 0);
   long j, k;
 
   Quad w(0,1);
@@ -231,20 +234,20 @@ void homspace::square_relation_2()
   symbop J(this,fundunit,0,0,1);  assert (J.det()==fundunit);
 
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<4; j++)
           {
             rel[j] = (j? U(rel[j-1]): k);
             if(plusflag) // NB det(U)=-1
               {
-                check[rel[j]] = 1;
-                check[S(rel[j])] = 1;
+                done[rel[j]] = 1;
+                done[S(rel[j])] = 1;
               }
             else
               {
                 if(j%2==0)
-                  check[rel[j]] = 1;
+                  done[rel[j]] = 1;
               }
           }
         if (!plusflag) // since det(U)=-1
@@ -267,7 +270,7 @@ void homspace::rectangle_relation_7()
     {
       cout << "Face relation type 2 (rectangles):\n";
     }
-  vector<int> rel(4), types(4,0), check(nsymb, 0);
+  vector<int> rel(4), types(4,0), done(nsymb, 0);
   long j, k;
   Quad w(0,1);
 
@@ -276,15 +279,15 @@ void homspace::rectangle_relation_7()
   symbop R(this,0,1,1,0);      assert (R.det()==-1);
 
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<4; j+=2) // j=0,2; j+1=1,3
           {
             rel[j] = (j? Y(rel[j-2]): k);
-            check[rel[j]] = 1;
+            done[rel[j]] = 1;
             rel[j+1] = USof(rel[j]);
             if (plusflag)
-              check[R(rel[j+1])]=1;
+              done[R(rel[j+1])]=1;
           }
         add_face_rel(rel, types);
       }
@@ -297,7 +300,7 @@ void homspace::hexagon_relation_11()
     {
       cout << "Face relation type 2 (hexagons):\n";
     }
-  vector<int> rel(6), types(6,0), check(nsymb, 0);
+  vector<int> rel(6), types(6,0), done(nsymb, 0);
   long j, k;
   Quad w(0,1);
 
@@ -310,15 +313,15 @@ void homspace::hexagon_relation_11()
   assert (R.det()==-1);
 
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<6; j+=2) // j=0,2,4; j+1=1,3,5
           {
             rel[j] = (j? X(rel[j-2]): k);
-            check[rel[j]] = 1;
+            done[rel[j]] = 1;
             rel[j+1] = USof(rel[j]);
             if(plusflag)
-              check[R(rel[j+1])]=1;
+              done[R(rel[j+1])]=1;
           }
         add_face_rel(rel, types);
       }
@@ -346,27 +349,30 @@ void homspace::triangle_relation_2()
 
   // All symbols are type 1, i.e. images of {w/2,oo}.
 
-  vector<int> rel(3), types(3, 1), check(nsymb, 0);
+  vector<int> rel(3), types(3, 1), done(nsymb, 0);
+  vector<mat22> mats = {mat22(1,0,0,1), K, K*K};
+  check_face_rel(mats, types);
+
   for (k=0; k<nsymb; k++)
-    if (check[k]==0)
+    if (!done[k])
       {
         for(j=0; j<3; j++)
           {
             rel[j] = (j? K(rel[j-1]): k);
-            check[rel[j]] = 1;
+            done[rel[j]] = 1;
           }
         add_face_rel(rel, types);
       }
   if (!plusflag) // there's a second triangle (image of previous under L)
     {
-      std::fill(check.begin(), check.end(), 0);
+      std::fill(done.begin(), done.end(), 0);
       for (k=0; k<nsymb; k++)
-        if (check[k]==0)
+        if (!done[k])
           {
             for(j=0; j<3; j++)
               {
                 rel[j] = (j? N(rel[j-1]): k);
-                check[rel[j]] = 1;
+                done[rel[j]] = 1;
               }
             add_face_rel(rel, types);
           }
@@ -381,20 +387,22 @@ void homspace::triangle_relation_2()
 void homspace::square_relation_19()
 {
   int j, k;
-  vector<int> rel(4), types(4), check(nsymb, 0);
+  vector<int> rel(4), types(4), done(nsymb, 0);
 
   symbop K(this, M_alphas[1]);
   symbop S(this, M_alphas[0]);
   types = {0,1,0,1};
+  vector<mat22> mats = {mat22(1,0,0,1), K, K*S, S};
+  check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
-    if (check[j]==0)
+    if (!done[j])
       {
         rel[0] = j;
         rel[3] = S(j);
         rel[1] = k = K(j);
         rel[2] = S(k); // = KS(j)
-        check[j] = check[k] = 1;
+        done[j] = done[k] = 1;
         add_face_rel(rel, types);
       }
   if(verbose)
@@ -422,6 +430,9 @@ void homspace::triangle_relation_3()
   symbop M2(this, w+1,u,3,2-w); // maps {(w-1)/3,oo} to {w/3, (w+1)/3}
   assert (M2.det()==1);
   types = {5,6,7};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
+
+  vector<mat22> mats = {M1, M2, mat22(1,0,0,1)};
+  check_face_rel(mats, types);
 
   for (k=0; k<nsymb; k++)
     {
@@ -461,7 +472,7 @@ void homspace::square_relation_43()
   //  int field = Quad::d;
   Quad w = Quad::w;
   int j, k;
-  vector<int> rel(4), types(4), check(nsymb, 0);
+  vector<int> rel(4), types(4), done(nsymb, 0);
 
   // (1)
   // vertices {0, oo, w/3, 3w/11}
@@ -472,6 +483,9 @@ void homspace::square_relation_43()
   symbop V(this, w,-4,3,w-1);     assert (V.det()==1);
   symbop S(this, 0,-1,1,0);       assert (S.det()==1);
   types = {0,5,1,6};
+
+  vector<mat22> mats = {mat22(1,0,0,1), V, N4L, S};
+  check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
     {
@@ -489,6 +503,8 @@ void homspace::square_relation_43()
   symbop N5(this, w-4,w+5,w+1,4-w);   assert (N5.det()==1);
   symbop U(this, w+1,3-w,3,-1-w);     assert (U.det()==1);
   types = {1,7,1,7};
+  mats = {mat22(1,0,0,1), U, N5, N5*U}; /////////////// !!!
+  check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
     {
@@ -509,6 +525,8 @@ void homspace::square_relation_43()
       symbop W1(this, 2*w-1,w-8,3,w+1);   assert (W1.det()==1);
       symbop W2(this, w-7,4*w+5,w+1,7-w); assert (W2.det()==1);
       types = {1,8,1,8};
+      mats = {mat22(1,0,0,1), W1, W2, W1*W2};
+      check_face_rel(mats, types);
 
       for (j=0; j<nsymb; j++)
         {

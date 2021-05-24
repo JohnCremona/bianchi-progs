@@ -5,6 +5,9 @@
 // compute a matrix M = [y, -x; c, d] with det=1 lifting (c:d)
 mat22 symb::lift_to_SL2() const
 {
+  // Two special cases: (c:1), (1:d) need no work:
+  if (d==1) return mat22(1,0,c,1);
+  if (c==1) return mat22(0,-1,1,d);
   Quad x, y, sc = c % (N->modulus), sd = d % (N->modulus);
   Quad h = quadbezout(sc , sd, x, y);
   sc /= h;
@@ -30,7 +33,7 @@ modsym::modsym(const symb& s, int type) //Constructor for modsym, converting fro
      mat22 M = M_alphas[type];
      n = -M.d; d = M.c; // alpha = r/s
      U.apply_left(n,d);
-     a = RatQuad(n,d, 1); //  =M(alpha)
+     a = RatQuad(n,d, 1); //  =M(alpha), cancelled
    }
 }
 
@@ -143,6 +146,9 @@ void symbdata::display() const
   cout << "dstarts = " << dstarts << endl;
   cout << "Number of special symbols = " << nsymb2 << endl;
   specials.display();
+  // int i;
+  // for(i=0; i<nsymb; i++)
+  //   cout<<i<<":\t"<< symbol(i) <<"\n";
 }
 
 int symbdata::check(int verbose) const

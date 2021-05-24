@@ -5,20 +5,9 @@
 #include "homspace.h"
 #include <assert.h>
 
-// Check that (symbol #, type)s (s1,t1) and (s2,t2) really are equal / opposite (orientation = +1/-1)
-
-int homspace::check_edge_rel(int s1, int t1, int s2, int t2, int orientation)
-{
-  modsym m1(symbol(s1), t1), m2(symbol(s2), t2);
-  if (orientation<0) m2 = m2.reverse();
-  RatQuad alpha1 = m1.alpha(), beta1=m1.beta(), alpha2 = m2.alpha(), beta2=m2.beta();
-  return cuspeq(alpha1, alpha2, modulus, plusflag) && cuspeq(beta1, beta2, modulus, plusflag);
-}
-
-
 // 2-term (edge) relations
 
-void homspace::edge_relations(int check)    // computes coordindex
+void homspace::edge_relations()    // computes coordindex
 {
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
@@ -70,16 +59,16 @@ void homspace::edge_relations(int check)    // computes coordindex
   if (field<19) return;
   if(verbose)
     cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
-  edge_relations_2(check);
+  edge_relations_2();
   if (field<43) return;
   if(verbose)
     cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
-  edge_relations_3(check);
+  edge_relations_3();
   if (field<67) return;
   cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
 }
 
-void homspace::edge_relations_2(int check)    // extra edge relations for alphas with denominator 2
+void homspace::edge_relations_2()    // extra edge relations for alphas with denominator 2
 {
   Quad w = Quad::w;
   int j, k, l, m;
@@ -106,11 +95,6 @@ void homspace::edge_relations_2(int check)    // extra edge relations for alphas
           m = K(l);      // index of type 1 symbol
 
           done[j] = done[l] = 1;
-          if (check)
-            {
-              assert (check_edge_rel(j,2,k,1, -1));
-              assert (check_edge_rel(l,2,m,1, -1));
-            }
           gens[++ngens] = offset1+k;
           coordindex[offset1 + k] = ngens;
           coordindex[offset2 + j] = -ngens;
@@ -126,7 +110,7 @@ void homspace::edge_relations_2(int check)    // extra edge relations for alphas
     }
 }
 
-void homspace::edge_relations_3(int check)    // extra edge relations for alphas with denominator 3
+void homspace::edge_relations_3()    // extra edge relations for alphas with denominator 3
 {
   int field = Quad::d;
   Quad w = Quad::w;
@@ -151,10 +135,6 @@ void homspace::edge_relations_3(int check)    // extra edge relations for alphas
         {
           done[j] = 1;
           k = K3(j);
-          if (check)
-            {
-              assert (check_edge_rel(j,7,k,7, -1));
-            }
           if (j==k) // symbol trivial
             {
               coordindex[offset7+j] = 0;
@@ -179,10 +159,6 @@ void homspace::edge_relations_3(int check)    // extra edge relations for alphas
       for (j=0; j<nsymb; j++)
         {
           k = J(j);
-          if (check)
-            {
-              assert (check_edge_rel(j,7,k,8, +1));
-            }
           coordindex[offset8+k] = coordindex[offset7+j];
         }
     }
@@ -198,10 +174,6 @@ void homspace::edge_relations_3(int check)    // extra edge relations for alphas
             {
               done[j] = 1;
               k = K4(j);
-              if (check)
-                {
-                  assert (check_edge_rel(j,8,k,8, -1));
-                }
               if (j==k) // symbol trivial
                 {
                   coordindex[offset8+j] = 0;
@@ -236,11 +208,6 @@ void homspace::edge_relations_3(int check)    // extra edge relations for alphas
           k = M1(j); // index of type 5 symbol
           l = M3(jj); // index of type 6 symbol
           done[j] = done[jj] = 1;
-          if (check)
-            {
-              assert (check_edge_rel(j,3,k,5, -1));
-              assert (check_edge_rel(jj,4,l,6, -1));
-            }
           gens[++ngens] = offset3+j;
           coordindex[offset3+j] = ngens;
           coordindex[offset5+k] = -ngens;

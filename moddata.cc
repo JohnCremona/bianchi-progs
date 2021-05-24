@@ -146,7 +146,7 @@ int moddata::check(int verbose) const //checks whether resnum & numres work OK
   for(long i=0; i<normod; i++)
     {
       Quad resi = resnum(i);
-//cout << "Residue number " << i << " = " << resi << endl;
+      if (verbose) cout << "Residue number " << i << " = " << resi << endl;
       ok&=(i==numres(resi));
     }
   if(verbose)

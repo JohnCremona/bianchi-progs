@@ -217,6 +217,13 @@ public:
   {
     return (i==0? (j==0?a:b): (j==0?c:d));
   }
+
+  // matrix multiplcation
+  mat22 operator*(const mat22 M) const
+  {
+    return mat22(a*M.a+b*M.c, a*M.b+b*M.d, c*M.a+d*M.c, c*M.b+d*M.d);
+  }
+
   // left action on r/s as column vector, changing in place:
   void apply_left(Quad& r, Quad& s) const
   {
