@@ -423,40 +423,38 @@ void homspace::triangle_relation_3()
 
   vector<int> rel(3), types(3);
 
-  // Triangle {oo, w/3, (w+1)/3}
+  // Triangle {(w+1)/3, oo, w/3}
 
-  symbop M1(this, -w,u,-3,1-w); // maps {(1-w)/3,oo} to {oo, w/3}
-  assert (M1.det()==1);
+  symbop M1(this, M_alphas[5]); // maps {(1-w)/3,oo} to {oo, w/3}
   symbop M2(this, w+1,u,3,2-w); // maps {(w-1)/3,oo} to {w/3, (w+1)/3}
   assert (M2.det()==1);
-  types = {5,6,7};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
+  types = {7,5,6};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
 
-  vector<mat22> mats = {M1, M2, mat22::identity};
+  vector<mat22> mats = {mat22::identity, M1, M2};
   check_face_rel(mats, types);
 
   for (k=0; k<nsymb; k++)
     {
-      rel[0] = M1(k);
-      rel[1] = M2(k);
-      rel[2] = k;
+      rel[0] = k;
+      rel[1] = M1(k);
+      rel[2] = M2(k);
       add_face_rel(rel, types);
     }
 
   if (!plusflag) // there's a second triangle (image of previous under J)
     {
-      // Triangle {oo, -w/3, -(w+1)/3}
+      // Triangle {-(w+1)/3, oo, -w/3}
 
-      symbop M3(this, w,u,-3,w-1);    // = J*M1*J, maps {(w-1)/3,oo} to {oo, -w/3}
-      assert (M3.det()==1);
+      symbop M3(this, M_alphas[6]);    // = J*M1*J, maps {(w-1)/3,oo} to {oo, -w/3}
       symbop M4(this, w+1,-u,-3,2-w); // = J*M2*J, maps {(1-w)/3,oo} to {-w/3, -(w+1)/3}
       assert (M4.det()==1);
-      types = {6,5,8};  // {(w-1)/3, oo}, {(1-w)/3, oo}, {-(1+w)/3, oo}
+      types = {8,6,5};  // {-(1+w)/3, oo}, {(w-1)/3, oo}, {(1-w)/3, oo}
 
       for (k=0; k<nsymb; k++)
         {
-          rel[0] = M3(k);
-          rel[1] = M4(k);
-          rel[2] = k;
+          rel[0] = k;
+          rel[1] = M3(k);
+          rel[2] = M4(k);
           add_face_rel(rel, types);
         }
     }
