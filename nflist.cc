@@ -30,7 +30,6 @@ int main ()
  cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- if(firstn<2) firstn=2;
  int both_conj=1;
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else

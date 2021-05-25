@@ -30,7 +30,6 @@ int main ()
  else
    cout << "dim(all)\t dim(plus)\t dim(minus)" << endl;
 
- if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;

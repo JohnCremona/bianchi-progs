@@ -7,19 +7,18 @@
 int main ()
 {
  int d,max=1000;
- cout << "Enter field: " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
  long firstn, lastn; Quad n; int verbose;
- cout << "Verbose? "; cin >> verbose;
+ cerr << "Verbose? "; cin >> verbose;
 #ifdef LOOPER
- cout<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- if(firstn<2) firstn=2;
  int both_conj=0;
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
+ while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
 #endif
    {
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units

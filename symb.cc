@@ -55,7 +55,8 @@ void symblist::add(symb& s, int start)
 
 int symblist::index(symb& s, int start) const
 {
- vector<symb>::const_iterator si = std::find(symbols.begin()+start, symbols.end(), s);
+  if ((s.N->normod)==1) return 0;
+  vector<symb>::const_iterator si = std::find(symbols.begin()+start, symbols.end(), s);
  return (si==symbols.end()? -1: si-symbols.begin());
 }
 
@@ -113,7 +114,9 @@ symbdata::symbdata(const Quad &n) :moddata(n),specials()
 }
  
 int symbdata::index2(const Quad& c, const Quad& d) const
-{ int kd = code(d);
+{
+  if (normod==1) return 0;
+  int kd = code(d);
   if (kd>0)                // d invertible, with inverse res[kd]
     return numres(c*resnum(kd));   // (c:d) = (c*res[kd]:1)
   else

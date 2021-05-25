@@ -300,6 +300,7 @@ Quad primdiv(const Quad& a)
 vector<Quad> pdivs(const Quad& aa)
 { Quad a=aa; long norma=quadnorm(a);
   vector<Quad> plist; // will hold prime factors
+  if (norma<2) return plist;
   vector<Quad>::const_iterator pr;
   for (pr=quadprimes.begin(); pr!=quadprimes.end(); pr++)
      { Quad p = *pr;
@@ -321,7 +322,8 @@ vector<Quad> pdivs(const Quad& aa)
 	 }
      }
   //In case of p-factors outside range, assume the cofactor is prime:
-  plist.push_back(makepos(a));  
+  if (quadnorm(a)>1)
+    plist.push_back(makepos(a));  
   return plist;
 }
 

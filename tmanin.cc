@@ -38,7 +38,6 @@ int main ()
  cout<<"Both conjugates? (0/1) "; cin >> both_conj;
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
- if(firstn<2) firstn=2;
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;

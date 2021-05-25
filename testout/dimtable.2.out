@@ -1,5 +1,6 @@
 Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-2))
 Field	 Weight	 Level	 Norm	 dim(all)	 dim(plus)	 dim(minus)
+2	2	(1)	 1		0		0		0
 2	2	(t)	 2		0		0		0
 2	2	(-1+t)	 3		0		0		0
 2	2	(1+t)	 3		0		0		0

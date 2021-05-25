@@ -28,7 +28,6 @@ int main ()
  cout << "# Field\t Weight\t Level label\t ";
  cout << "dim(all)\t dim(cuspidal)\t dim(eisenstein)" << endl;
 
- if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;

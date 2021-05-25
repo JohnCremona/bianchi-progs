@@ -503,7 +503,7 @@ void homspace::square_relation_43()
   symbop N5(this, w-4,w+5,w+1,4-w);   assert (N5.det()==1);
   symbop U(this, w+1,3-w,3,-1-w);     assert (U.det()==1);
   types = {1,7,1,7};
-  mats = {mat22(1,0,0,1), U, N5, N5*U}; /////////////// !!!
+  mats = {mat22(1,0,0,1), U, N5, N5*U};
   check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
@@ -525,7 +525,7 @@ void homspace::square_relation_43()
       symbop W1(this, 2*w-1,w-8,3,w+1);   assert (W1.det()==1);
       symbop W2(this, w-7,4*w+5,w+1,7-w); assert (W2.det()==1);
       types = {1,8,1,8};
-      mats = {mat22(1,0,0,1), W1, W2, W1*W2};
+      mats = {mat22(1,0,0,1), W1, W2, W2*W1};
       check_face_rel(mats, types);
 
       for (j=0; j<nsymb; j++)

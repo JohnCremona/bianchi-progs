@@ -14,7 +14,6 @@ int main ()
 #ifdef LOOPER
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- if(firstn<2) firstn=2;
  int both_conj=0;
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else

@@ -27,7 +27,6 @@ int main ()
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- if(firstn<2) firstn=2;
  for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;

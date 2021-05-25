@@ -1,4 +1,14 @@
-Enter field: Verbose? Enter first and last norm for Quad loop: >>>> Level 2.0.1 = (a), norm = 2 <<<<	
+>>>> Level 1.0.1 = (1), norm = 1 <<<<	
+Level = 1.0.1 = (1)
+Number of symbols = 1
+1 divisors: [ 1 ]
+0 prime divisors: [ ]
+residues: 0
+invlist: [ 0 ]
+noninvlist: [ ]
+noninvdlist: [ ]
+ OK
+>>>> Level 2.0.1 = (a), norm = 2 <<<<	
 Level = 2.0.1 = (a)
 Number of symbols = 3
 2 divisors: [ 1 a ]
