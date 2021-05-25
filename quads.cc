@@ -817,6 +817,7 @@ else                 // Hecke operator, p+1 terms
 }
 
 int n_alphas;
+mat22 mat22::identity(1,0,0,1);
 vector<mat22> M_alphas;  // List of matrices M_a with det(M_a)=1 such that M_a(a)=oo.
 vector<int> alpha_pairs;
 

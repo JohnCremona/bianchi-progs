@@ -141,8 +141,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 
 char* to_string(const Quad& a);  // outputs to a (new) string
 
-// Inline definitions of friend functions of class Quad (those not here are 
-// not inline, and are in quads.cc):
+// Inline definitions of friend functions of class Quad (those not
+// here are not inline, and are in quads.cc):
 
 inline Quad operator% (const Quad& a, const Quad& b)
 { return a-(b*(a/b));}
@@ -211,6 +211,7 @@ public:
   mat22() :a(0),b(0),c(0),d(0) {}
   mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
     :a(ia),b(ib),c(ic),d(id) {}
+  static mat22 identity;
 
   // access to entries
   Quad entry(int i, int j) const

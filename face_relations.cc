@@ -350,7 +350,7 @@ void homspace::triangle_relation_2()
   // All symbols are type 1, i.e. images of {w/2,oo}.
 
   vector<int> rel(3), types(3, 1), done(nsymb, 0);
-  vector<mat22> mats = {mat22(1,0,0,1), K, K*K};
+  vector<mat22> mats = {mat22::identity, K, K*K};
   check_face_rel(mats, types);
 
   for (k=0; k<nsymb; k++)
@@ -392,7 +392,7 @@ void homspace::square_relation_19()
   symbop K(this, M_alphas[1]);
   symbop S(this, M_alphas[0]);
   types = {0,1,0,1};
-  vector<mat22> mats = {mat22(1,0,0,1), K, K*S, S};
+  vector<mat22> mats = {mat22::identity, K, K*S, S};
   check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
@@ -431,7 +431,7 @@ void homspace::triangle_relation_3()
   assert (M2.det()==1);
   types = {5,6,7};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
 
-  vector<mat22> mats = {M1, M2, mat22(1,0,0,1)};
+  vector<mat22> mats = {M1, M2, mat22::identity};
   check_face_rel(mats, types);
 
   for (k=0; k<nsymb; k++)
@@ -469,6 +469,8 @@ void homspace::triangle_relation_3()
 // extra square relations for field 43
 void homspace::square_relation_43()
 {
+  int verb=verbose; //verbose=1;
+  if(verbose) cout<<"Square relation 1"<<endl;
   //  int field = Quad::d;
   Quad w = Quad::w;
   int j, k;
@@ -476,71 +478,76 @@ void homspace::square_relation_43()
 
   // (1)
   // vertices {0, oo, w/3, 3w/11}
-  // edge types 0 {0,oo}, 5 {(1-w)/3,oo}, 1 {w/2,oo}, 5 under I, V, N4, N4*V
+  // edge types 0 {0,oo}, 5 {(1-w)/3,oo}, 1 {w/2,oo}, 6 {(w-1)/3,oo} under I, M5, M, S
+  // -->  {0,oo}, {oo,w/3}, {w/3,3w/11}, {3w/11, 0}
   // no symmetries
 
-  symbop N4L(this, -3,2*w,w-1,7); assert (N4L.det()==1);
-  symbop V(this, w,-4,3,w-1);     assert (V.det()==1);
-  symbop S(this, 0,-1,1,0);       assert (S.det()==1);
+  symbop M(this, -3,2*w,w-1,7); assert (M.det()==1);
+  symbop M5(this, M_alphas[5]);
+  symbop S(this, M_alphas[0]);
   types = {0,5,1,6};
 
-  vector<mat22> mats = {mat22(1,0,0,1), V, N4L, S};
+  vector<mat22> mats = {mat22::identity, M5, M, S};
   check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
     {
       rel[0] = j;
-      rel[1] = V(j);
-      rel[2] = N4L(j);
+      rel[1] = M5(j);
+      rel[2] = M(j);
       rel[3] = S(j);
       add_face_rel(rel, types);
     }
 
   // (2)
   // vertices {w/2,oo,(w+1)/3,(5*w+3)/13}
-  // edge types 1 {w/2,oo}, 7 {(w+1)/3,oo}, 1, 7 under I, U, N5, N5*U
+  // edge types 1 {w/2,oo}, 7 {(w+1)/3,oo}, 1, 7 under I, M7, N, N*M7
 
-  symbop N5(this, w-4,w+5,w+1,4-w);   assert (N5.det()==1);
-  symbop U(this, w+1,3-w,3,-1-w);     assert (U.det()==1);
+  if(verbose) cout<<"Square relation 2"<<endl;
+  symbop M7(this, M_alphas[7]);
+  symbop N(this, w-4,w+5,w+1,4-w);   assert (N.det()==1);
   types = {1,7,1,7};
-  mats = {mat22(1,0,0,1), U, N5, N5*U};
+  mats = {mat22::identity, M7, N, N*M7};
   check_face_rel(mats, types);
 
   for (j=0; j<nsymb; j++)
     {
       rel[0] = j;
-      rel[1] = U(j);
-      rel[2] = k = N5(j);
-      rel[3] = U(k);
+      rel[1] = M7(j);
+      rel[2] = k = N(j);
+      rel[3] = M7(k);
       add_face_rel(rel, types);
     }
 
-  // (3) image of (2) under L=[-1,0;0,1] with det(L)=-1, only needed if !plusflag
+  // (3) image of (2) under L=[-1,1;0,1] with det(J)=-1, only needed if !plusflag
 
   // vertices {w/2, oo, (2*w-1)/3, (8*w-3)/13}
-  // edge types 1 {w/2,oo}, 8 {-(w+1)/3,oo}, 1, 7 under I, W1, W2, W2*W1
+  // edge types 1 {w/2,oo}, 8 {-(w+1)/3,oo}, 1, 8 under I, M8, W2, W2*W1
 
   if (!plusflag)
     {
-      symbop W1(this, 2*w-1,w-8,3,w+1);   assert (W1.det()==1);
-      symbop W2(this, w-7,4*w+5,w+1,7-w); assert (W2.det()==1);
+      if(verbose) cout<<"Square relation 3"<<endl;
+      mat22 J(-1,0,0,1), L(-1,w,0,1);
+      symbop M1(this, L*M7*J);
+      symbop M2(this, L*N*L);
       types = {1,8,1,8};
-      mats = {mat22(1,0,0,1), W1, W2, W2*W1};
+      mats = {mat22::identity, M1, M2, M2*M1};
       check_face_rel(mats, types);
 
       for (j=0; j<nsymb; j++)
         {
           rel[0] = j;
-          rel[1] = W1(j);
-          rel[2] = k = W2(j);
-          rel[3] = W1(k);
+          rel[1] = M1(j);
+          rel[2] = k = M2(j);
+          rel[3] = M1(k);
           add_face_rel(rel, types);
         }
     }
 
   if(verbose)
     {
-      cout << "After type extra square relations, number of relations = " << numrel <<"\n";
+      cout << "After extra square relations, number of relations = " << numrel <<"\n";
     }
+  verbose=verb;
 }
 

@@ -76,7 +76,7 @@ ALL_TESTS = $(TESTS9) $(TESTS6) $(TESTS5) $(TESTS1)
 test_input_dir = testin
 test_output_dir = testout
 
-check_run = echo -n "Testing $${prog} for d=$${d}..."; ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.testout 2>/dev/null && echo "$${prog} for d=$${d} completed" && diff $${prog}.$${d}.testout $(test_output_dir)/$${prog}.$${d}.out || exit $$?
+check_run = echo -n "Testing $${prog} for d=$${d}..."; ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.testout 2>/dev/null && if diff -q $${prog}.$${d}.testout $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully"; else echo "$${prog} for d=$${d} failed"; diff $${prog}.$${d}.testout $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
 
 
 export NF_DIR:=nftmp
