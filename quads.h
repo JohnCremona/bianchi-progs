@@ -212,6 +212,13 @@ public:
   mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
     :a(ia),b(ib),c(ic),d(id) {}
   static mat22 identity;
+  static mat22 J;
+  static mat22 S;
+  static mat22 T;
+  static mat22 U;
+  static mat22 TS;
+  static mat22 TiS;
+  static mat22 R;
 
   // access to entries
   Quad entry(int i, int j) const

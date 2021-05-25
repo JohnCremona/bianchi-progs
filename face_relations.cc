@@ -167,14 +167,14 @@ void homspace::triangle_relation_0()
     }
   vector<int> rel(3), types(3,0), done(nsymb, 0);
   long j, k;
-  symbop TS(this,1,1,-1,0); assert (TS.det()==1);
-  symbop R(this,0,1,1,0);   assert (R.det()==-1);
+  symbop TiS(this, mat22::TiS);
+  symbop R(this, mat22::R);
   for (k=0; k<nsymb; k++)
     if (!done[k])
       {
         for(j=0; j<3; j++)
           {
-            rel[j] = (j? TS(rel[j-1]): k);
+            rel[j] = (j? TiS(rel[j-1]): k);
             done[rel[j]] = 1;
             if (plusflag)
               done[R(rel[j])] = 1;
@@ -230,8 +230,8 @@ void homspace::square_relation_2()
 
   Quad w(0,1);
   symbop U(this,w,1,1,0);  assert (U.det()==-1);
-  symbop S(this,0,-1,1,0); assert (S.det()==1);
-  symbop J(this,fundunit,0,0,1);  assert (J.det()==fundunit);
+  symbop S(this, mat22::S);
+  symbop J(this, mat22::J);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -276,7 +276,7 @@ void homspace::rectangle_relation_7()
 
   symbop Y(this,1,-w,1-w,-1);  assert (Y.det()==1);
   symbop USof(this,w,-1,1,0);  assert (USof.det()==1);
-  symbop R(this,0,1,1,0);      assert (R.det()==-1);
+  symbop R(this, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -309,8 +309,7 @@ void homspace::hexagon_relation_11()
   assert (X.det()==1);
   symbop USof(this,w,-1,1,0);
   assert (USof.det()==1);
-  symbop R(this,0,1,1,0);
-  assert (R.det()==-1);
+  symbop R(this, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -482,7 +481,7 @@ void homspace::square_relation_43()
 
   symbop M(this, -3,2*w,w-1,7); assert (M.det()==1);
   symbop M5(this, M_alphas[5]);
-  symbop S(this, M_alphas[0]);
+  symbop S(this, mat22::S);
   types = {0,5,1,6};
 
   vector<mat22> mats = {mat22::identity, M5, M, S};
@@ -525,8 +524,8 @@ void homspace::square_relation_43()
   if (!plusflag)
     {
       if(verbose) cout<<"Square relation 3"<<endl;
-      mat22 J(-1,0,0,1), L(-1,w,0,1);
-      symbop M1(this, L*M7*J);
+      mat22 L(-1,w,0,1);
+      symbop M1(this, L*M7*mat22::J);
       symbop M2(this, L*N*L);
       types = {1,8,1,8};
       mats = {mat22::identity, M1, M2, M2*M1};

@@ -13,7 +13,7 @@ void homspace::edge_relations()    // computes coordindex
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
   symbop eps(this,unit,0,0,1);  assert (eps.det()==unit);
-  symbop sof(this,0,-1,1,0);  assert (sof.det()==1);
+  symbop sof(this, mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
   int j, k, triv;
@@ -117,13 +117,12 @@ void homspace::edge_relations_3()    // extra edge relations for alphas with den
   // relevant alphas are  {3:w/3, 4:-w/3, 5:(1-w)/3, 6:(w-1)/3, 7:(1+w)/3, 8:(-1-w)/3}
 
   // J has det -1, order 2, swaps {a,oo} and {-a,oo}
-  symbop J(this, -1,0,0,1);
+  symbop J(this, mat22::J);
 
   // (1) type 7, alpha=(1+w)/3, antisymmetric via M77:
 
   // M77 has order 2, swaps {(1+w)/3,oo} and its reverse
   symbop M77(this, M_alphas[7]);
-  assert (M77.det()==1);
   int offset7 = 7*nsymb;
   vector<int> done(nsymb, 0);
   for (j=0; j<nsymb; j++)
