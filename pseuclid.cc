@@ -6,7 +6,8 @@
 #include "quads.h"
 #include "pseuclid.h"
 
-int n_alphas;
+// Definitions of commonly used matrices
+
 mat22 mat22::identity(1,0,0,1);
 mat22 mat22::J(-1,0,0,1);
 mat22 mat22::S(0,-1,1,0);
@@ -15,7 +16,17 @@ mat22 mat22::U(1,Quad::w,0,1);
 mat22 mat22::TS(1,-1,1,0);   // = T*S
 mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
 mat22 mat22::R(0,1,1,0);
-vector<mat22> M_alphas;  // List of matrices M_a with det(M_a)=1 such that M_a(a)=oo.
+
+// Definitions of alphas and associated matrices M_alpha such that
+// det(M_alpha)=1 and M_alpha(alpha)=oo.
+//
+// alpha_pairs is a permutation of range(N_alphas) such that
+// alpha_pairs[i]=j where M_alpha[i](oo) = alpha[j].
+//
+// We do not store the alphas explicitly, they are -d/c where M_alpha=[a,b;c,d].
+
+int n_alphas;
+vector<mat22> M_alphas;
 vector<int> alpha_pairs;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
@@ -28,11 +39,13 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   n_alphas += 1;
 }
 
+// Global function to be used once after setting the field:
+
 void define_alphas()
 {
   int d = Quad::d;
 
-  // alphas =0 with denominator 1:
+  // alphas (only 0) with denominator 1:
 
   add_alpha(0,-1,1,0);  // alpha[0] = 0
   alpha_pairs.push_back(0); // 0-0
@@ -41,7 +54,7 @@ void define_alphas()
 
   Quad w = Quad::w;
 
-  // alphas with denominator 2:
+  // alphas (w/2, (w-1)/2) with denominator 2:
 
   Quad u = (d-3)/8;  // = 2, 5, 8, 20
   add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
@@ -50,6 +63,8 @@ void define_alphas()
   alpha_pairs.push_back(1); // 2-1
 
   if (d<43) return;
+
+  // alphas (w/3, -w/3, (1-w)/3, (w-1)/3, (w+1)/3, -(w+1)/3) with denominator 3:
 
   u = -(d+5)/12;  // = -4, -6, -14 so w^2 = w+3*u+1
   add_alpha(1-w,u,3,-w);           // alpha[3] = w/3

@@ -42,6 +42,7 @@ public:
   // are separted out for clarity and for ease of separating thec ode
   // for different fields.
   void edge_relations();      // computes coordindex, gens
+  void edge_relations_1();    // basic edge relations for alpha = 0
   void edge_relations_2();    // extra edge relations for alphas with denom 2
   void edge_relations_3();    // extra edge relations for alphas with denom 3
 

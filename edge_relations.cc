@@ -10,6 +10,28 @@
 
 void homspace::edge_relations()    // computes coordindex
 {
+  int field = Quad::d;
+
+  if(verbose)
+    cout<<"Edge relations for type 0 symbols (denominator 1)\n";
+  edge_relations_1();
+  if (field<19) return;
+
+  if(verbose)
+    cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
+  edge_relations_2();
+  if (field<43) return;
+
+  if(verbose)
+    cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
+  edge_relations_3();
+  if (field<67) return;
+
+  cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
+}
+
+void homspace::edge_relations_1()    // basic edge relations for alpha = 0
+{
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
@@ -56,17 +78,7 @@ void homspace::edge_relations()    // computes coordindex
             }
         }
     }
-  int field = Quad::d;
-  if (field<19) return;
-  if(verbose)
-    cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
-  edge_relations_2();
-  if (field<43) return;
-  if(verbose)
-    cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
-  edge_relations_3();
-  if (field<67) return;
-  cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
+
 }
 
 void homspace::edge_relations_2()    // extra edge relations for alphas with denominator 2
