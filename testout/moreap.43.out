@@ -1,0 +1,55 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+Enter field: Verbose? Output new eigs to file (1/0)? Output new eigs to screen (1/0)? Display newforms (1/0)? Enter level: How many primes for Hecke eigenvalues? 
+>>>> Level 43.21.1 = (-1+2a), norm = 43 <<<<
+Retrieving newform data for N = -1+2a
+
+1 newform(s) at level 43.21.1 = (-1+2a):
+1:	basis = [];	aqlist = [ 1 ];	aplist = [ 0 -2 3 3 -5 -5 -3 -3 -1 -1 6 -1 -1 5 5 -1 4 4 -14 -5 -5 -12 -12 -3 -3 ]
+Sign of F.E. = -1
+Twisting prime lambda = 5, factor = 96
+L/P ratio    = 0, cuspidal factor = 1
+Integration matrix = [7+a,1;20+3a,3], factor   = 12
+Making homspace and bases...
+About to recover 1 newform bases (nap=25)
+Recovering newform #1, eigs [ 1 0 -2 3 3 -5 -5 -3 -3 -1 -1 6 -1 -1 5 5 4 4 -14 -5 ]...
+Entering form_finder, depth = 0, dimension 6
+restarting at depth = 0, dimension 6
+Computing W(-1+2a)...done.
+ eig 1 gives new subspace at depth 1 of dimension 3
+ eig 0 gives new subspace at depth 2 of dimension 3
+ eig -2 gives new subspace at depth 3 of dimension 3
+ eig 3 gives new subspace at depth 4 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+j0=1
+Finished makebases()
+About to start computing ap...
+p = -7+2a	N(p) = 79	   -8 
+p = 5+2a	N(p) = 79	   -8 
+p = 8+a	N(p) = 83	   15 
+p = -9+a	N(p) = 83	   15 
+p = -1+3a	N(p) = 97	    7 
+p = -2+3a	N(p) = 97	    7 
+p = 9+a	N(p) = 101	   -9 
+p = -10+a	N(p) = 101	   -9 
+p = -4+3a	N(p) = 103	    1 
+p = 1+3a	N(p) = 103	    1 
+p = -9+2a	N(p) = 107	  -12 
+p = 7+2a	N(p) = 107	  -12 
+p = 2+3a	N(p) = 109	    7 
+p = -5+3a	N(p) = 109	    7 
+p = -7+3a	N(p) = 127	    1 
+p = 4+3a	N(p) = 127	    1 
+p = 5+3a	N(p) = 139	   19 
+p = -8+3a	N(p) = 139	   19 
+p = 12+a	N(p) = 167	   -9 
+p = -13+a	N(p) = 167	   -9 
+p = -1+4a	N(p) = 173	    6 
+p = -3+4a	N(p) = 173	    6 
+p = -5+4a	N(p) = 181	   10 
+p = 1+4a	N(p) = 181	   10 
+p = 13+a	N(p) = 193	    3 
+...done.
+Writing data to file nftmp/2.0.43.1/43.21.1......done.
+Enter level: 
