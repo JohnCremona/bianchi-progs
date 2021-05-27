@@ -80,7 +80,7 @@ public:
   symbop(symbdata* sdi, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), sd(sdi)  {}
   symb operator()(const symb& s) const
   {
-    Quad sc = s.c, sd=s.d;
+    Quad sc = s.c, sd = s.d;
     apply_right(sc, sd);
     return symb(sc, sd, s.N);
   }
