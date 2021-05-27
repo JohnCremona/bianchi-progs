@@ -6,6 +6,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
+#include "pseuclid.h"
 #include <assert.h>
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)

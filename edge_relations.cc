@@ -3,6 +3,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
+#include "pseuclid.h"
 #include <assert.h>
 
 // 2-term (edge) relations

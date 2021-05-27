@@ -1,6 +1,7 @@
 // FILE SYMB.CC: Implementations for symbols
 
 #include "symb.h"
+#include "pseuclid.h"
 
 // compute a matrix M = [y, -x; c, d] with det=1 lifting (c:d)
 mat22 symb::lift_to_SL2() const

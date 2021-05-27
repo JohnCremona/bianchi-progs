@@ -276,22 +276,6 @@ private:
   int length() const {return mats.size();}
 };
 
-extern int n_alphas;            // Number of alphas.
-extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.
-extern vector<int> alpha_pairs; // permutation of order 2 swapping a to a' where M_a(oo)=a'
-void define_alphas();           // Populate M_alphas.
-
-// pseudo-Euclidean step: applies a translation and M_alpha inversion
-// to a/b (or column vector [a;b]) reducing b, also multiplying row
-// vector [c.d] my M_alpha on the right.  In the Euclidean case, the
-// shift is -q where q=a/b (rounded) and the inversion is via
-// S=[0,-1;1,0].
-
-// a,b,c,d are changed in place, and on return, t holds the "type"
-// (index of alpha which worked)
-
-void pseudo_euclidean_step(Quad& a, Quad& b, Quad& c, Quad& d, int& t);
-
 #endif
 
 // END OF FILE QUADS.H
