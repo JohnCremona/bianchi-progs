@@ -118,7 +118,7 @@ DIMTAB 19	2	121.0.11		6		3		3
 Sign of F.E. = -1
 Twisting prime lambda = 3+a, factor = 40
 L/P ratio    = 20, cuspidal factor = 5
-Integration matrix = [-3-3a,1;-22,2-a], factor   = 10
+Integration matrix = [-3+8a,1;33+11a,2-a], factor   = 10
 Writing data to file nftmp/2.0.19.1/121.0.11...done.
 ===========================================
 Enter level: 

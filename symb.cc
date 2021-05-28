@@ -73,19 +73,9 @@ symb symblist::item(int n) const
 
 //Member functions for class symbdata:
 
-void symbdata::init_geometry()
-{
-  //  cout<<"In init_geometry() with d="<<Quad::d<<endl;
-  define_alphas();
-  //  cout<<n_alphas<<" alphas: "<<alphas<<endl;
-}
-
 symbdata::symbdata(const Quad &n) :moddata(n),specials()
 {
   // cout << "In constructor symbdata::symbdata.\n";
-  // initialise static data (depending only on the field)
-  if (M_alphas.size()==0)
-    init_geometry();
   nsymbx = nsymb*n_alphas;
   // cout << "nsymb2 = " << nsymb2 << "\n";
   dstarts[0]=dstarts[ndivs-1]=0;

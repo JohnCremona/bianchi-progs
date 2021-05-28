@@ -291,16 +291,16 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
 //#define DEBUG_NON_EUCLID
 vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
 {
-   Quad c=0, d=1, e, a=nn, b=dd, q, f;
+  Quad c(Quad::zero), d(Quad::one), e, a=nn, b=dd, q, f;
    vec ans = chaincd(c,d,0,proj), part;
    int t, u;
 #ifdef DEBUG_NON_EUCLID
    if (!Quad::is_Euclidean)
      cout<<"a/b = "<<RatQuad(a,b,1);
 #endif
-   while (b!=0)
+   while (quadnorm(b))
      {
-       pseudo_euclidean_step(a,b, c,d, t);
+       pseudo_euclidean_step(a,b, t, c,d);
        assert (t!=-1);
        u = alpha_pairs[t];
 #ifdef DEBUG_NON_EUCLID

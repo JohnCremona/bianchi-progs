@@ -105,11 +105,11 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-tquads: tquads.o quads.o
-	$(CC) -o tquads tquads.o quads.o $(LFLAGS)
+tquads: tquads.o quads.o euclid.o
+	$(CC) -o tquads tquads.o quads.o euclid.o $(LFLAGS)
 
-fieldinfo: fieldinfo.o quads.o
-	$(CC) -o fieldinfo fieldinfo.o quads.o $(LFLAGS)
+fieldinfo: fieldinfo.o quads.o euclid.o
+	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
@@ -162,11 +162,11 @@ modularity: modularity.o $(OBJS)
 modularity_modp: modularity_modp.o $(OBJS)
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
-looptest: looptest.o looper.o quads.o
-	$(CC) -o looptest looptest.o looper.o quads.o $(LFLAGS)
+looptest: looptest.o looper.o quads.o euclid.o
+	$(CC) -o looptest looptest.o looper.o quads.o euclid.o $(LFLAGS)
 
-tratquad: tratquad.o quads.o
-	$(CC) -o tratquad tratquad.o quads.o $(LFLAGS)
+tratquad: tratquad.o quads.o euclid.o
+	$(CC) -o tratquad tratquad.o quads.o euclid.o $(LFLAGS)
 
 modtest: modtest.o $(OBJS)
 	$(CC) -o modtest modtest.o $(OBJS) $(LFLAGS)

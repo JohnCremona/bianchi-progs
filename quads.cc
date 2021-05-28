@@ -7,6 +7,7 @@
 //#include "vector.h"  // needed for zbasis functions for non-Euclidean fields.
 #include <eclib/arith.h>
 #include "quads.h"
+#include "euclid.h"
 
 //Declare static data members of class Quad:
 
@@ -19,6 +20,8 @@ int Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
 Quad Quad::w;
+Quad Quad::zero;
+Quad Quad::one;
 
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below
@@ -59,19 +62,24 @@ void Quad::field(int dd, int max)
                mult=&mult1; qdivi=&qdivi1;
               }
   w = Quad(0,1, n);
- switch (d) {
- case 1:  pos=&pos13; name='i'; nunits=4; fundunit=Quad(0, 1, 1); break;
- case 2:  pos=&pos2;  name='t'; nunits=2; fundunit=Quad(-1,0, 1); break;
- case 3:  pos=&pos13; name='w'; nunits=6; fundunit=Quad(0, 1, 1); break;
- default: pos=&pos2;  name='a'; nunits=2; fundunit=Quad(-1,0, 1);
- }
- if (is_Euclidean)
+  zero = Quad(0,0, 0);
+  one = Quad(1,0, 1);
+
+  switch (d) {
+  case 1:  pos=&pos13; name='i'; nunits=4; fundunit=w; break;
+  case 2:  pos=&pos2;  name='t'; nunits=2; fundunit=-one; break;
+  case 3:  pos=&pos13; name='w'; nunits=6; fundunit=w; break;
+  default: pos=&pos2;  name='a'; nunits=2; fundunit=-one;
+  }
+ if (d<67)
    {
-     quadgcd=&quadgcd1; quadbezout=&quadbezout1;
+     quadgcd=&quadgcd_psea;
+     quadbezout=&quadbezout_psea;
    }
- else
+ else // d=67, 163: we have not yet defined the alphas
    {
-     quadgcd=&quadgcd2; quadbezout=&quadbezout2;
+     quadgcd=&quadgcd2;
+     quadbezout=&quadbezout2;
    }
  int i;
  quadunits.push_back(1);
@@ -81,6 +89,7 @@ void Quad::field(int dd, int max)
  for(i=0; 2*i<nunits; i++)
    squareunits.push_back(quadunits[2*i]);
  maxnorm=max; initquadprimes();
+ define_alphas();
 }
 
 void Quad::displayfield(ostream& s)

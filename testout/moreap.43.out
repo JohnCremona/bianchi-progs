@@ -10,7 +10,7 @@ Retrieving newform data for N = -1+2a
 Sign of F.E. = -1
 Twisting prime lambda = 5, factor = 96
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [7+a,1;20+3a,3], factor   = 12
+Integration matrix = [8-a,1;23-3a,3], factor   = 12
 Making homspace and bases...
 About to recover 1 newform bases (nap=25)
 Recovering newform #1, eigs [ 1 0 -2 3 3 -5 -5 -3 -3 -1 -1 6 -1 -1 5 5 4 4 -14 -5 ]...

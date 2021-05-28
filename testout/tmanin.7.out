@@ -23,7 +23,7 @@ DIMTAB 7	2	44.12.2		8		1		7
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 12
 L/P ratio    = 1/2, cuspidal factor = 3
-Integration matrix = [3-4a,1;12+2a,-1+2a], factor   = 3
+Integration matrix = [-5+2a,1;-4-8a,-1+2a], factor   = 3
 Writing data to file nftmp/2.0.7.1/44.12.2...done.
 ===========================================
 Enter level: 
@@ -53,7 +53,7 @@ DIMTAB 7	2	63.9.3		4		1		3
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1, cuspidal factor = 8
-Integration matrix = [-6+2a,-1;3-6a,1-a], factor   = 8
+Integration matrix = [6-a,-1;-3+6a,1-a], factor   = 8
 Writing data to file nftmp/2.0.7.1/63.9.3...done.
 ===========================================
 Enter level: 
@@ -65,7 +65,7 @@ DIMTAB 7	2	86.18.1		4		1		3
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 18
 L/P ratio    = 3, cuspidal factor = 9
-Integration matrix = [-5+5a,-1;-4-5a,1-a], factor   = 18
+Integration matrix = [5-4a,-1;4+5a,1-a], factor   = 18
 Writing data to file nftmp/2.0.7.1/86.18.1...done.
 ===========================================
 Enter level: 
@@ -119,7 +119,7 @@ DIMTAB 7	2	88.50.1		8		1		7
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4
 L/P ratio    = 1/2, cuspidal factor = 4
-Integration matrix = [-7+3a,-1;2-7a,1-a], factor   = 4
+Integration matrix = [7-2a,-1;-2+7a,1-a], factor   = 4
 Writing data to file nftmp/2.0.7.1/88.50.1...done.
 ===========================================
 Enter level: 

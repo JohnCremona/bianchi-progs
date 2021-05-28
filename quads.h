@@ -27,10 +27,12 @@ extern int (*pos)(const Quad& a);
 //GCD-related functions.
 extern Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 extern Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
-Quad quadgcd1(const Quad& aa, const Quad& bb);   //Euclidean only
-Quad quadgcd2(const Quad& aa, const Quad& bb);   //General
+Quad quadgcd1(const Quad& aa, const Quad& bb);   // Euclidean only
+Quad quadgcd2(const Quad& aa, const Quad& bb);   // General
+Quad quadgcd_psea(const Quad& aa, const Quad& bb);   // Using (pseudo-)EA
 Quad quadbezout1(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //Euclidean
 Quad quadbezout2(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //General
+Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); // Using (pseudo-)EA
 Quad invmod(const Quad& a, const Quad& p);
 int coprime(const Quad& a, const Quad& b);
 int invertible(const Quad& a, const Quad& b, Quad& inverse);
@@ -62,6 +64,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int     disc;       // discriminant
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
+  static Quad zero;
+  static Quad one;
   static Quad w;
 
   static void field(int dd, int max=1000);
@@ -102,8 +106,10 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend int pos2(const Quad& a);
   friend int div(const Quad& a, const Quad& b);           // implemented in quads.cc
   friend int val(const Quad& factor, const Quad& number); // implemented in quads.cc
-  friend Quad quadgcd1(const Quad& aa, const Quad& bb);   //Euclidean only
-  friend Quad quadgcd2(const Quad& aa, const Quad& bb);   //General
+  friend Quad quadgcd1(const Quad&, const Quad&);   //Euclidean only
+  friend Quad quadgcd2(const Quad&, const Quad&);   //General
+  friend Quad quadgcd_psea(const Quad&, const Quad&);   // Using (pseudo-)EA
+  friend Quad quadbezout_psea(const Quad&, const Quad&, Quad&, Quad&);   // Using (pseudo-)EA
 
   int operator== (const Quad& b) const {return (r==b.r) && (i==b.i);}
   int operator== (long b) const {return (r==b) && (i==0);}
@@ -137,6 +143,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend istream& operator>>(istream& s, Quad& x);
 
   friend class level;
+  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
 };
 
 char* to_string(const Quad& a);  // outputs to a (new) string
@@ -257,7 +264,7 @@ public:
   }
   Quad det() const {return a*d-b*c;}
   friend ostream& operator<< (ostream&, const mat22&); // inline below
-  friend void pseudo_euclidean_step(Quad&, Quad&, Quad&, Quad&, int&);
+  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
   friend class modsym;
 };
 

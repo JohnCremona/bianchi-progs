@@ -63,7 +63,6 @@ protected:
   long nsymbx;               // number of (symb,type) pairs, = nsymb*n_alphas
 public:
   symbdata(const Quad&);             // The constructor
-  static void init_geometry();       // sets alpha list etc, depending only on the field
   int index2(const Quad& c, const Quad& d) const;
   int index(const symb& s) const {return index2(s.c,s.d);}
   symb symbol(int i) const;
