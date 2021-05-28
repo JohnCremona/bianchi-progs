@@ -50,11 +50,11 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs1 ccs2 ccs3
-ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc pseuclid.cc
+ccs1: quads.cc fieldinfo.cc cusp.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc
 ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 
-headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h pseuclid.h
+headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -64,14 +64,14 @@ tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
 FIELDS9=1 2 3 7 11 19 43 67 163
-FIELDS6=1 2 3 7 11 19
+FIELDS7=1 2 3 7 11 19 43
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS6 =  homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+TESTS7 =  homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 TESTS5 = 
 TESTS1 =
-ALL_TESTS = $(TESTS9) $(TESTS6) $(TESTS5) $(TESTS1)
+ALL_TESTS = $(TESTS9) $(TESTS7) $(TESTS5) $(TESTS1)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -93,8 +93,8 @@ check: $(ALL_TESTS)
 	 @echo running looptest \(both conjugates\) on fields $(FIELDS9)...
 	 @for d in $(FIELDS9); do for prog in looptest; do $(check_run); done; done
 	 @echo
-	 @echo running $(TESTS6) on fields $(FIELDS6)...
-	 @for prog in $(TESTS6); do for d in $(FIELDS6); do $(check_run); done; done
+	 @echo running $(TESTS7) on fields $(FIELDS7)...
+	 @for prog in $(TESTS7); do for d in $(FIELDS7); do $(check_run); done; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
@@ -114,7 +114,7 @@ fieldinfo: fieldinfo.o quads.o
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
-OBJS = symb.o moddata.o quads.o pseuclid.o looper.o cusp.o homspace.o \
+OBJS = symb.o moddata.o quads.o euclid.o looper.o cusp.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o
 
 tmanin: tmanin.o $(OBJS)
@@ -199,9 +199,9 @@ dimtabeis.o: dimtabeis.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h 
 dimtable.o: dimtable.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 fieldinfo.o: fieldinfo.cc quads.h
 hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
-homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h pseuclid.h
-edge_relations.o: edge_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h pseuclid.h
-face_relations.o: face_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h pseuclid.h
+homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h euclid.h
+edge_relations.o: edge_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h euclid.h
+face_relations.o: face_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h euclid.h
 hecke.o: hecke.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
 homtest.o: homtest.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 lf1.o: lf1.cc lf1.h newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
@@ -221,8 +221,8 @@ nftest.o: nftest.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.
 oldforms.o: oldforms.cc oldforms.h moddata.h quads.h ratquads.h newforms.h homspace.h cusp.h symb.h
 pmanin.o: pmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h looper.h
 quads.o: quads.cc quads.h
-pseuclid.o: pseuclid.cc pseuclid.h quads.h
-symb.o: symb.cc symb.h moddata.h quads.h ratquads.h pseuclid.h
+euclid.o: euclid.cc euclid.h quads.h
+symb.o: symb.cc symb.h moddata.h quads.h ratquads.h euclid.h
 symbtest.o: symbtest.cc symb.h moddata.h quads.h ratquads.h looper.h
 testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h lf1.h
 tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h

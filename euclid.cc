@@ -4,7 +4,7 @@
 
 #include <eclib/arith.h>
 #include "quads.h"
-#include "pseuclid.h"
+#include "euclid.h"
 
 // Definitions of commonly used matrices
 
