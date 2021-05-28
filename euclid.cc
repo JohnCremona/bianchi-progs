@@ -84,40 +84,59 @@ void define_alphas()
 
   if (d<67) return;
 
-  // if (d==67)
-  //   {
-  //     Quad den(3,-1);
-  //     alphas.push_back(RatQuad(6+w,den));
-  //     alphas.push_back(RatQuad(-6-w,den));
-  //     alphas.push_back(RatQuad(2+w,den));
-  //     alphas.push_back(RatQuad(-2-w,den));
-  //     den = quadconj(den);
-  //     alpha_denoms.push_back(den);
-  //     alphas.push_back(RatQuad(7-w,den));
-  //     alphas.push_back(RatQuad(w-7,den));
-  //     alphas.push_back(RatQuad(3-w,den));
-  //     alphas.push_back(RatQuad(w-3,den));
+  // alphas with denominator 4 for both d=67 and d=163:
 
-  //     alphas.push_back(RatQuad(w,4));
-  //     alphas.push_back(RatQuad(-w,4));
-  //     alphas.push_back(RatQuad(w-1,4));
-  //     alphas.push_back(RatQuad(1-w,4));
-  //     alphas.push_back(RatQuad(1+w,4));
-  //     alphas.push_back(RatQuad(-1-w,4));
-  //     alphas.push_back(RatQuad(w-2,4));
-  //     alphas.push_back(RatQuad(2-w,4));
-  //     n_alphas += 16;
-  //     return;
-  //   }
+  u = (d-3)/16; // = 4, 10 so w^2 = w - (4*u+1)
+  add_alpha(w-1, u, 4, -w); // alpha[9] = w/4
+  add_alpha(1-w, u, 4, w);  // alpha[10] = -w/4
+  add_alpha(w, u, 4, 1-w);  // alpha[11] = (w-1)/4
+  add_alpha(-w, u, 4, w-1); // alpha[12] = (1-w)/4
+  alpha_pairs.push_back(11); // 9-11
+  alpha_pairs.push_back(12); // 10-12
+  alpha_pairs.push_back(9);  // 11-9
+  alpha_pairs.push_back(10); // 12-10
+
+  add_alpha(2-w, -u-1, 4, -w-1); // alpha[13] = (1+w)/4
+  add_alpha(w-2, -u-1, 4, w+1);  // alpha[14] = -(1+w)/4
+  add_alpha(w+1, -u-1, 4, w-2);  // alpha[15] = (2-w)/4
+  add_alpha(-1-w,-u-1, 4, 2-w);  // alpha[16] = (w-2)/4
+  alpha_pairs.push_back(15);     // 13-15
+  alpha_pairs.push_back(16);     // 14-16
+  alpha_pairs.push_back(13);     // 15-13
+  alpha_pairs.push_back(14);     // 16-14
+
+  if (d==67)   // alphas with denominator norm 23 for d=67 only:
+    {
+      Quad s = 3-w; // norm 23
+      add_alpha(2+w, 7-w, s, -w-6); // alpha[17] = (6+w)/(3-w)
+      add_alpha(-2-w, 7-w, s, w+6); // alpha[18] = (-6-w)/(3-w)
+      add_alpha(6+w, 7-w, s, -w-2); // alpha[19] = (2+w)/(3-w)
+      add_alpha(-6-w, 7-w, s, w+2); // alpha[20] = (-2-w)/(3-w)
+      alpha_pairs.push_back(19);     // 17-19
+      alpha_pairs.push_back(20);     // 18-20
+      alpha_pairs.push_back(17);     // 19-17
+      alpha_pairs.push_back(18);     // 20-18
+
+      s = 2+w; // norm 23, conjugate to previous
+      add_alpha(3-w, 6+w, s, w-7); // alpha[21] = (7-w)/(2+w)
+      add_alpha(w-3, 6+w, s, 7-w); // alpha[22] = (w-7)/(2+w)
+      add_alpha(7-w, 6+w, s, w-3); // alpha[23] = (3-w)/(2+w)
+      add_alpha(w-7, 6+w, s, 3-w); // alpha[24] = (w-3)/(2+w)
+      alpha_pairs.push_back(23);     // 21-23
+      alpha_pairs.push_back(24);     // 22-24
+      alpha_pairs.push_back(21);     // 23-21
+      alpha_pairs.push_back(22);     // 24-22
+
+      return;
+    }
   cerr << "define_alphas() not yet implemented for field "<<d<<endl;
 }
 
 
-// pseudo-Euclidean step: applies a translation and M_alpha inversion
+// pseudo-Euclidean step: applies a translation and M_alpha
 // to a/b (or column vector [a;b]) reducing b, also multiplying row
-// vector [c.d] my M_alpha on the right.  In the Euclidean case, the
-// shift is -q where q=a/b (rounded) and the inversion is via
-// S=[0,-1;1,0].
+// vectors [c1,d1] and [c2,d2] by M_alpha^{-1} on the right.  In the Euclidean case, the
+// shift is -q where q=a/b (rounded) and the inversion is via S=[0,-1;1,0] (alpha=0).
 
 // a,b,c,d are changed in place, and on return, t holds the "type"
 // (index of alpha which worked)

@@ -71,17 +71,17 @@ void Quad::field(int dd, int max)
   case 3:  pos=&pos13; name='w'; nunits=6; fundunit=w; break;
   default: pos=&pos2;  name='a'; nunits=2; fundunit=-one;
   }
- if (d<67)
-   {
-     quadgcd=&quadgcd_psea;
-     quadbezout=&quadbezout_psea;
-   }
- else // d=67, 163: we have not yet defined the alphas
-   {
-     quadgcd=&quadgcd2;
-     quadbezout=&quadbezout2;
-   }
- int i;
+  if (d!=163) // alphas coded for all except 163
+    {
+      quadgcd=&quadgcd_psea;
+      quadbezout=&quadbezout_psea;
+    }
+  else // d= 163: we have not yet defined the alphas
+    {
+      quadgcd=&quadgcd2;
+      quadbezout=&quadbezout2;
+    }
+  int i;
  quadunits.push_back(1);
  quadunits.push_back(fundunit);
  for(i=2; i<nunits; i++)

@@ -57,7 +57,7 @@ The list of 8 square-free divisors of a:
 [ 1 -1 2 -2 6+17a -6-17a 12+34a -12-34a ]
 Testing gcd and bezout.
 Enter Quads a and b (a=0 to stop): gcd(12+34a,56+78a) = 2
-bezout returns x=-282+29a, y=123-10a, g=2.  OK!
+bezout returns x=381-38a, y=-166+13a, g=2.  OK!
 Enter Quads a and b (a=0 to stop): Systematic testing of bezout...quadbezout(2,2) = 2
 quadbezout(2,3) = 1
 quadbezout(2,a) = 1
