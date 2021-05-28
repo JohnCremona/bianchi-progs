@@ -1,4 +1,4 @@
-// FILE PSEUCLID.CC: implementation of pseudo-euclidean algorithm and associated data
+// FILE EUCLID.CC: implementation of pseudo-euclidean algorithm and associated data
 
 #include <iostream>
 

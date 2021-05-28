@@ -1,7 +1,7 @@
-// FILE PSEUCLID.H: pseudo-euclidean algorithm and associated data
+// FILE EUCLID.H: pseudo-euclidean algorithm and associated data
 
-#if     !defined(_PSEUCLID_H)
-#define _PSEUCLID_H      1       //flags that this file has been included
+#if     !defined(_EUCLID_H)
+#define _EUCLID_H      1       //flags that this file has been included
 
 #include <iostream>
 
