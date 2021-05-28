@@ -41,6 +41,34 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   n_alphas += 1;
 }
 
+// If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s, -r2/s
+// with matrices [r2,t;s,-r1] and similar
+
+void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
+{
+  alpha_pairs.push_back(n_alphas+2);
+  alpha_pairs.push_back(n_alphas+3);
+  alpha_pairs.push_back(n_alphas);
+  alpha_pairs.push_back(n_alphas+1);
+  Quad t = -(r1*r2+1)/s;
+  add_alpha( r2, t, s, -r1); // alpha =  r1/s
+  add_alpha(-r2, t, s,  r1); // alpha = -r1/s
+  add_alpha( r1, t, s, -r2); // alpha =  r2/s
+  add_alpha(-r1, t, s,  r2); // alpha = -r2/s
+}
+
+// If r*r = -1 mod s we have r/s, -r/s
+// with matrices [r,t;s,-r] and [-r,t;s,r]
+
+void add_alpha_pair(const Quad& s, const Quad& r)
+{
+  Quad t = -(r*r+1)/s;
+  alpha_pairs.push_back(n_alphas);
+  add_alpha( r, t, s, -r); // alpha =  r/s
+  alpha_pairs.push_back(n_alphas);
+  add_alpha(-r, t, s,  r); // alpha = -r/s
+}
+
 // Global function to be used once after setting the field:
 
 void define_alphas()
@@ -51,6 +79,7 @@ void define_alphas()
 
   add_alpha(0,-1,1,0);  // alpha[0] = 0
   alpha_pairs.push_back(0); // 0-0
+  assert (n_alphas==1);
 
   if (d<19) return;
 
@@ -63,73 +92,92 @@ void define_alphas()
   add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
   alpha_pairs.push_back(2); // 1-2
   alpha_pairs.push_back(1); // 2-1
+  assert (n_alphas==3);
+  assert (M_alphas.size()==3);
+  assert (alpha_pairs.size()==3);
 
   if (d<43) return;
 
   // alphas (w/3, -w/3, (1-w)/3, (w-1)/3, (w+1)/3, -(w+1)/3) with denominator 3:
 
-  u = -(d+5)/12;  // = -4, -6, -14 so w^2 = w+3*u+1
-  add_alpha(1-w,u,3,-w);           // alpha[3] = w/3
-  add_alpha(w-1,u,3,w);            // alpha[4] = -w/3
-  add_alpha(w,u,3,w-1);            // alpha[5] = (1-w)/3
-  add_alpha(-w,u,3,1-w);           // alpha[6] = (w-1)/3
-  add_alpha(w+1,-(w+u+1),3,-1-w);  // alpha[7] = (w+1)/3
-  add_alpha(-w-1,-(w+u+1),3,1+w);  // alpha[8] = -(w+1)/3
-  alpha_pairs.push_back(5); // 3-5
-  alpha_pairs.push_back(6); // 4-6
-  alpha_pairs.push_back(3); // 5-3
-  alpha_pairs.push_back(4); // 6-4
-  alpha_pairs.push_back(7); // 7-7
-  alpha_pairs.push_back(8); // 8-8
+  add_alpha_foursome(3, w, 1-w);
+  add_alpha_pair(3, 1+w);
+  assert (n_alphas==9);
+  assert (M_alphas.size()==9);
+  assert (alpha_pairs.size()==9);
 
   if (d<67) return;
 
   // alphas with denominator 4 for both d=67 and d=163:
 
-  u = (d-3)/16; // = 4, 10 so w^2 = w - (4*u+1)
-  add_alpha(w-1, u, 4, -w); // alpha[9] = w/4
-  add_alpha(1-w, u, 4, w);  // alpha[10] = -w/4
-  add_alpha(w, u, 4, 1-w);  // alpha[11] = (w-1)/4
-  add_alpha(-w, u, 4, w-1); // alpha[12] = (1-w)/4
-  alpha_pairs.push_back(11); // 9-11
-  alpha_pairs.push_back(12); // 10-12
-  alpha_pairs.push_back(9);  // 11-9
-  alpha_pairs.push_back(10); // 12-10
-
-  add_alpha(2-w, -u-1, 4, -w-1); // alpha[13] = (1+w)/4
-  add_alpha(w-2, -u-1, 4, w+1);  // alpha[14] = -(1+w)/4
-  add_alpha(w+1, -u-1, 4, w-2);  // alpha[15] = (2-w)/4
-  add_alpha(-1-w,-u-1, 4, 2-w);  // alpha[16] = (w-2)/4
-  alpha_pairs.push_back(15);     // 13-15
-  alpha_pairs.push_back(16);     // 14-16
-  alpha_pairs.push_back(13);     // 15-13
-  alpha_pairs.push_back(14);     // 16-14
+  add_alpha_foursome(4, w, w-1);
+  add_alpha_foursome(4, w+1, 2-w);
+  assert (n_alphas==17);
 
   if (d==67)   // alphas with denominator norm 23 for d=67 only:
     {
-      Quad s = 3-w; // norm 23
-      add_alpha(2+w, 7-w, s, -w-6); // alpha[17] = (6+w)/(3-w)
-      add_alpha(-2-w, 7-w, s, w+6); // alpha[18] = (-6-w)/(3-w)
-      add_alpha(6+w, 7-w, s, -w-2); // alpha[19] = (2+w)/(3-w)
-      add_alpha(-6-w, 7-w, s, w+2); // alpha[20] = (-2-w)/(3-w)
-      alpha_pairs.push_back(19);     // 17-19
-      alpha_pairs.push_back(20);     // 18-20
-      alpha_pairs.push_back(17);     // 19-17
-      alpha_pairs.push_back(18);     // 20-18
-
-      s = 2+w; // norm 23, conjugate to previous
-      add_alpha(3-w, 6+w, s, w-7); // alpha[21] = (7-w)/(2+w)
-      add_alpha(w-3, 6+w, s, 7-w); // alpha[22] = (w-7)/(2+w)
-      add_alpha(7-w, 6+w, s, w-3); // alpha[23] = (3-w)/(2+w)
-      add_alpha(w-7, 6+w, s, 3-w); // alpha[24] = (w-3)/(2+w)
-      alpha_pairs.push_back(23);     // 21-23
-      alpha_pairs.push_back(24);     // 22-24
-      alpha_pairs.push_back(21);     // 23-21
-      alpha_pairs.push_back(22);     // 24-22
-
+      add_alpha_foursome(3-w, w+6, 2+w);
+      add_alpha_foursome(2+w, 7-w, 3-w);
+      assert (n_alphas==25);
+      assert (M_alphas.size()==25);
+      assert (alpha_pairs.size()==25);
       return;
     }
-  cerr << "define_alphas() not yet implemented for field "<<d<<endl;
+
+  // Now d=163 and we have 82 more alphas!
+
+  // 20 alphas with s=5 (norm 25)
+
+  add_alpha_foursome(5, w, w-1);
+  add_alpha_foursome(5, 2*w, 2-2*w);
+  add_alpha_foursome(5, w+2, 1-2*w);
+  add_alpha_foursome(5, w-2, 2+2*w);
+  add_alpha_foursome(5, w+1, 1+2*w);
+  assert (n_alphas==37);
+
+  // 12 alphas with s=6 (norm 36)
+
+  add_alpha_foursome(6, w, 1-w);
+  add_alpha_foursome(6, 1+w, w-2);
+  add_alpha_foursome(6, 2+w, 3-w);
+  assert (n_alphas==49);
+
+  // 4 alphas with s=w (norm 41), and 4 conjugates of these
+
+  add_alpha_foursome(w, 12, 17);
+  add_alpha_foursome(1-w, 12, 17);
+  assert (n_alphas==57);
+
+  // 4 alphas with s=1+w (norm 43), and 4 conjugates of these
+
+  add_alpha_foursome(1+w, 12, w-17);
+  add_alpha_foursome(2-w, 12, -w-16);
+  assert (n_alphas==65);
+
+  // 8 alphas with s=2+w (norm 47), and 8 conjugates of these
+
+  add_alpha_foursome(2+w, 7, 18-w);
+  add_alpha_foursome(2+w, w-11, w-16);
+
+  add_alpha_foursome(3-w, 7, 17+w);
+  add_alpha_foursome(3-w, -w-10, -w-15);
+  assert (n_alphas==81);
+
+  // 10 alphas with s=7 (norm 49)
+
+  add_alpha_foursome(7, w+3, 2*w-1);
+  add_alpha_foursome(7, 2*w+1, 3-2*w);
+  add_alpha_pair(7, 2+3*w);
+  assert (n_alphas==91);
+
+  // 4 alphas with s=3+w (norm 53), and 4 conjugates of these
+
+  add_alpha_foursome(3+w, 5-w, w-17);
+  add_alpha_foursome(4-w, w+4, -w-16);
+  assert (n_alphas==99);
+  assert (M_alphas.size()==99);
+  assert (alpha_pairs.size()==99);
+
 }
 
 
