@@ -7,7 +7,7 @@ Enter field: Verbose? Enter level: Retrieving newform data for N = 7+4i
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 12
 L/P ratio    = 1, cuspidal factor = 6
-Integration matrix = [-5+i,-i;4-7i,1+i], factor   = 12
+Integration matrix = [6-2i,-i;-4+7i,1+i], factor   = 12
 Enter level: Retrieving newform data for N = 6+6i
 
 >>>> Level 72.6.6 = (6+6i), norm = 72 <<<<

@@ -15,5 +15,5 @@ Enter level:
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -8
 L/P ratio    = 1, cuspidal factor = 4
-Integration matrix = [-4-3a,-a;9-3a,2], factor   = -8
+Integration matrix = [5+3a,-a;-9+3a,2], factor   = -8
 Enter level: 

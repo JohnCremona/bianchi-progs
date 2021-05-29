@@ -304,7 +304,15 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   long x,y;
   if (bezout(aa.nm,bb.nm,x,y)==1)
     {
-      xx=x*quadconj(aa); yy=y*quadconj(bb);
+      xx=x*quadconj(aa);
+      yy=y*quadconj(bb);
+      if (bb.nm)
+        {
+          Quad t = xx/bb; // rounded
+          xx -= bb*t;
+          yy += aa*t;
+        }
+      assert (aa*xx+bb*yy==Quad::one);
       return Quad::one;
     }
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
@@ -331,6 +339,14 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
       xx *= fundunit;
       yy *= fundunit;
     }
+  if (bb.nm)
+    {
+      Quad a0 = aa/a, b0 = bb/a;
+      Quad t = xx/b0; // rounded
+      xx -= b0*t;
+      yy += a0*t;
+    }
+  assert (aa*xx+bb*yy==a);
 #ifdef testbezout_psea
 //CHECK:
   if (div(a,aa) && div(a,bb) && (a==xx*aa+yy*bb)) {;}  //OK

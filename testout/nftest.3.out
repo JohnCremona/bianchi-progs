@@ -6,5 +6,5 @@ Enter field: Verbose? Enter level:
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = -6
 L/P ratio    = 1/6, cuspidal factor = 1
-Integration matrix = [-5+2w,-w;9-8w,1+w], factor   = -3
+Integration matrix = [4-6w,-w;-1+9w,1+w], factor   = -3
 Enter level: 
