@@ -131,9 +131,21 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void operator-=(const Quad& b) {r-=b.r; i-=b.i; setnorm();}
   void operator-=(long b) {r-=b; setnorm();}
   Quad operator- () const {return Quad(-r,-i);}
-  Quad operator/ (const Quad& b) const {return qdivi(mult(*this,quadconj(b)), b.nm);}
+  Quad operator/ (const Quad& b) const
+  {
+    if (b.i)
+      return qdivi(mult(*this,quadconj(b)), b.nm);
+    else
+      return qdivi(*this,b.r);
+  }
   Quad operator/ (long b) const {return qdivi(*this,b);}
-  void operator/=(const Quad& b) {*this=qdivi(mult(*this,quadconj(b)), b.nm);}
+  void operator/=(const Quad& b)
+  {
+    if (b.i)
+      *this=qdivi(mult(*this,quadconj(b)), b.nm);
+    else
+      *this=qdivi(*this,b.r);
+  }
   void operator/=(long b) {*this=qdivi(*this,b);}
   operator bigcomplex() const;
 
@@ -164,13 +176,6 @@ inline Quad mult0(const Quad& a, const Quad& b)
 {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r, a.nm*b.nm);}
 inline Quad mult1(const Quad& a, const Quad& b)
    {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);}
-inline Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
-   {return Quad(roundover(a.r,c),roundover(a.i,c));}
-inline Quad qdivi1(const Quad& a, long c) // c>0,    // used when t=1
-   { long i = roundover(a.i,c);
-     long r = roundover(2*a.r+a.i-c*i,2*c);
-     return Quad(r,i);
-   }
 inline int pos13(const Quad& a)
    {return (((a.i>=0)&&(a.r>0))||((a.r==0)&&(a.i==0)));}
 inline int pos2(const Quad& a)

@@ -44,6 +44,31 @@ Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
 Quad (*quadconj)(const Quad& a);
 
+Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
+{
+  if (c>0)
+    return Quad(roundover(a.r,c),roundover(a.i,c));
+  else
+    return Quad(roundover(-a.r,-c),roundover(-a.i,-c));
+}
+
+Quad qdivi1(const Quad& a, long c) // c>0,    // used when t=1
+{
+  long ar=a.r, ai=a.i, i, r;
+  if (c>0)
+    {
+      i = roundover(ai,c);
+      r = roundover(2*ar+ai-c*i,2*c);
+    }
+  else
+    {
+      i = roundover(-ai,-c);
+      r = roundover(-2*ar-ai+c*i,-2*c);
+    }
+  //  cout<<"qdivi1("<<a<<","<<c<<") = "<<Quad(r,i)<<endl;
+  return Quad(r,i);
+}
+
 void Quad::field(int dd, int max)
 {
   if (!check_field(dd))
@@ -723,7 +748,7 @@ long roundover_old(long aa, long bb)
 
 long roundover(long a, long b)
 {
-  std::div_t qr = div(a, b);
+  std::ldiv_t qr = ldiv(a, b);
   long r = qr.rem, q = qr.quot;
   long r2 = r<<1;
   return (r2<-b? q-1: (r2>=b? q+1: q));

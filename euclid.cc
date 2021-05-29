@@ -247,7 +247,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++, local_t++)
     {
 #ifdef DEBUG_PSEA
-      cout<<" - testting type "<<t<<", M="<<(*Mi)<<endl;
+      cout<<" - testing type "<<local_t<<", M="<<(*Mi)<<endl;
 #endif
       mat22 M = *Mi;
       r=-M.d, s=M.c; // alpha = r/s
@@ -280,7 +280,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 #ifdef DEBUG_PSEA
       else
         {
-          cout<<" - failure, new b would have had norm "<<quadnorm(b1)<<endl;
+          cout<<" - failure (q="<<q<<"), new b would have had norm "<<quadnorm(b1)<<endl;
         }
 #endif
     }
@@ -292,6 +292,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
+  if (gcd(aa.nm,bb.nm)==1) return Quad::one;
   Quad a(aa), b(bb);
   while (b.nm) pseudo_euclidean_step(a, b);
    while (!pos(a)) a*=fundunit;
@@ -300,6 +301,12 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Using (pseudo-)EA
 {
+  long x,y;
+  if (bezout(aa.nm,bb.nm,x,y)==1)
+    {
+      xx=x*quadconj(aa); yy=y*quadconj(bb);
+      return Quad::one;
+    }
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
   int t;
   while (b.nm)
