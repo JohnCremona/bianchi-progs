@@ -289,15 +289,15 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
  return ans;
 }
 
-//#define DEBUG_NON_EUCLID
-vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
+#define DEBUG_NON_EUCLID
+vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd) const
 {
-  Quad c(Quad::zero), d(Quad::one), e, a=nn, b=dd, q, f;
-   vec ans = chaincd(c,d,0,proj), part;
-   int t, u;
+  Quad e, a(aa), b(bb), c(cc), d(dd), q, f;
+  vec ans = chaincd(c,d,0,proj); // this is the path {0,oo} when (c:d)=(0:1) (the default)
+  int t, u;
 #ifdef DEBUG_NON_EUCLID
-   if (!Quad::is_Euclidean)
-     cout<<"a/b = "<<RatQuad(a,b,1);
+  //   if (!Quad::is_Euclidean)
+     cout<<" -- (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(symb(c,d,this),0)<<")--> "<<RatQuad(a,b,1);
 #endif
    while (quadnorm(b))
      {
@@ -305,18 +305,18 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
        assert (t!=-1);
        u = alpha_inv[t];
 #ifdef DEBUG_NON_EUCLID
-       if (!Quad::is_Euclidean)
+       //       if (!Quad::is_Euclidean)
          cout<<" --(t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<")--> "<<RatQuad(a,b,1);
 #endif
        // Look up this symbol, convert to a vector w.r.t. homology basis
-       part = chaincd(c, d, u, proj);
+       vec part = chaincd(c, d, u, proj);
        if(hmod)
          ans.addmodp(part,hmod);
        else
          ans += part;
      }
 #ifdef DEBUG_NON_EUCLID
-   if (!Quad::is_Euclidean)
+   //   if (!Quad::is_Euclidean)
      cout<<endl;
 #endif
    if(hmod) ans=reduce_modp(ans,hmod);

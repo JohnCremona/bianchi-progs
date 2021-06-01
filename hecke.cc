@@ -42,13 +42,31 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
     }
 }
 
-vec homspace::applyop(const matop& mlist, const RatQuad& q, int proj) const
+
+// TODO: this is all wrong.  We need chain(RatQuad alpha, RatQuad
+// beta) which calls chain(RatQuad beta', c, d) for suitable c,d
+
+vec homspace::applyop(const matop& mlist, const modsym& m, int proj) const
+// Instead of just
+//  {return applyop(mlist,m.beta(), proj)-applyop(mlist,m.alpha(), proj);}
+// we apply "Karim's trick"
+{
+  RatQuad ma = m.alpha(), mb=m.beta();
+  Quad a(num(ma)), b(den(ma)), x, y;
+  quadbezout(a,b, x,y); // discard its value which is 1
+  mat22 M(b,-a, x,y);    // det(M)=1 and M(ma) = 0
+  assert (M.det()==Quad::one);
+  return applyop(mlist, M(mb), proj, x,-b); // wrong!
+  //return applyop(mlist, mb, proj) - applyop(mlist, ma, proj);
+}
+
+vec homspace::applyop(const matop& mlist, const RatQuad& q, int proj, const Quad& c, const Quad& d) const
 { vec ans(rk), part;
   if (proj) ans.init(projcoord.ncols());
   long i=mlist.length();
   while (i--)
     {
-      part = chain(mlist[i](q), proj);
+      part = chain(mlist[i](q), proj, c, d);
       if(hmod)
         ans.addmodp(part,hmod);
       else
