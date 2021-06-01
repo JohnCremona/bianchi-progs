@@ -303,37 +303,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj) const
 #ifdef DEBUG_NON_EUCLID
   cout<<"Computing alpha->beta chain {"<<alpha<<","<<beta<<"}\n";
 #endif
-  vec vec_alpha_beta = chain(M(beta), proj, x,-b);
-#ifdef DEBUG_NON_EUCLID
-  cout<<"Computing beta chain {0, "<<beta<<"}\n";
-#endif
-  vec vec_beta = chain(beta, proj);
-#ifdef DEBUG_NON_EUCLID
-  cout<<"Computing alpha chain {0, "<<alpha<<"}\n";
-#endif
-  vec vec_alpha = chain(alpha, proj);
-  vec v=vec_alpha;
-  if(hmod)
-    {
-      v.addmodp(vec_alpha_beta, hmod);
-      v.addmodp(-vec_beta, hmod);
-    }
-  else
-    {
-      v += vec_alpha_beta;
-      v -= vec_beta;
-    }
-  if (!trivial(v))
-    {
-      cout<<"***inconsistent*** {0,alpha}+{alpha,beta}-{0,beta}="<<v<<endl;
-    }
-#ifdef DEBUG_NON_EUCLID
-  else
-    {
-      cout<<"OK"<<endl;
-    }
-#endif
-  return vec_alpha_beta;
+  return chain(M(beta), proj, x,-b);
 }
 
 vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd) const
