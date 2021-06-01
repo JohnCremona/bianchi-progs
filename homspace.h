@@ -44,7 +44,8 @@ public:
   void edge_relations();      // computes coordindex, gens
   void edge_relations_1();    // basic edge relations for alpha = 0
   void edge_relations_2();    // extra edge relations for alphas with denom 2
-  void edge_relations_3();    // extra edge relations for alphas with denom 3
+  void edge_relation_pair(int i); // edge relation pair, alpha=r/s with r^2=-1 (s)
+  void edge_relation_four(int i); // edge relation quadruple
 
   void face_relations();    // computes face relations, fills relmat
   void triangle_relation_0();   // triangle relation for all fields

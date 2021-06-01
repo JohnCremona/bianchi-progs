@@ -3,7 +3,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
-#include "euclid.h"
+#include "geometry.h"
 #include <assert.h>
 
 // 2-term (edge) relations
@@ -23,11 +23,14 @@ void homspace::edge_relations()    // computes coordindex
   if (field<43) return;
 
   if(verbose)
-    cout<<"Edge relations for type 3,4,5,6,7,8 symbols (denominator 3)\n";
-  edge_relations_3();
-  if (field<67) return;
+    cout<<"General edge pair relations\n";
+  for (vector<int>::const_iterator i=alpha_pairs.begin(); i!=alpha_pairs.end(); i++)
+    edge_relation_pair(*i);
+  if(verbose)
+    cout<<"General edge quadruple relations\n";
+  for (vector<int>::const_iterator i=alpha_fours.begin(); i!=alpha_fours.end(); i++)
+    edge_relation_four(*i);
 
-  cout<<"edge relations not yet fully implemented for fields 67, 163" << endl;
 }
 
 void homspace::edge_relations_1()    // basic edge relations for alpha = 0
@@ -121,98 +124,69 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
     }
 }
 
-void homspace::edge_relations_3()    // extra edge relations for alphas with denominator 3
+// For use when alpha[i]=r/s with r^2=-1 (mod s)
+
+void homspace::edge_relation_pair(int i)
 {
-  int j, k, l, m;
-
-  // relevant alphas are  {3:w/3, 4:-w/3, 5:(1-w)/3, 6:(w-1)/3, 7:(1+w)/3, 8:(-1-w)/3}
-  int offset7 = 7*nsymb, offset8 = 8*nsymb, offset3 = 3*nsymb, offset4 = 4*nsymb, offset5 = 5*nsymb, offset6 = 6*nsymb;
-
-  // J has det -1, order 2, swaps {a,oo} and {-a,oo}
+  int j, k, j2, k2;
+  int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
   symbop J(this, mat22::J);
-
-  // (1) type 7, alpha=(1+w)/3, antisymmetric via M77:
-
-  // M77 has order 2, swaps {(1+w)/3,oo} and its reverse
-  symbop M77(this, M_alphas[7]);
-
+  symbop M(this, M_alphas[i]);
   vector<int> done(nsymb, 0);
+
   for (j=0; j<nsymb; j++)
     {
       if (!done[j])
         {
-          k = M77(j);
+          k = M(j);
+          j2 = J(j);
+          k2 = J(k);
           done[j] = done[k] = 1;
           if (j==k) // symbol trivial
             {
-              coordindex[offset7+j] = 0;
+              coordindex[offset_a+j] = 0;
+              coordindex[offset_b+j2] = 0;
             }
           else
             {
-              gens[++ngens] = offset7+j;
-              coordindex[offset7+j] = ngens;
-              coordindex[offset7+k] = -ngens;
+              gens[++ngens] = offset_a+j;
+              coordindex[offset_a+j] = ngens;
+              coordindex[offset_a+k] = -ngens;
+              if (!plusflag)
+                {
+                  gens[++ngens] = offset_b+j2;
+                }
+              coordindex[offset_b+j2] = ngens;
+              coordindex[offset_b+k2] = -ngens;
             }
         }
-    }
-
-  // (2) type 8, alpha = -(1+w)/3:
-  // either (+) pair with type 7's via J
-  // or     (0) impose antisymmetry by M88
-
-  if(plusflag)
-    {
-      for (j=0; j<nsymb; j++)
-        {
-          k = J(j);
-          coordindex[offset8+k] = coordindex[offset7+j];
-        }
-    }
-  else
-    {
-      // M88 has order 2, det +1, swaps {-(1+w)/3,oo} and its reverse, i.e. alpha_8 -> oo -> alpha_8
-      symbop M88(this, M_alphas[8]);
-      std::fill(done.begin(), done.end(), 0);
-      for (j=0; j<nsymb; j++)
-        {
-          if (!done[j])
-            {
-              k = M88(j);
-              done[j] = done[k] = 1;
-              if (j==k) // symbol trivial
-                {
-                  coordindex[offset8+j] = 0;
-                }
-              else
-                {
-                  gens[++ngens] = offset8+j;
-                  coordindex[offset8+j] = ngens;
-                  coordindex[offset8+k] = -ngens;
-                }
-            }
-        }
-    }
-
-  // (3) types 3,4,5,6: identify in 4-tuples up to sign if (+), else in pairs if (0)
-
-  // M53 has det 1, maps {(1-w)/3,oo} to {oo,  w/3}, i.e. alpha_5 -> oo -> alpha_3
-  symbop M53(this, M_alphas[5]);
-  // J swaps {alpha_3, alpha_4} and {alpha_5, alpha_6}
-
-  for (j=0; j<nsymb; j++) // index of type 3 symbol
-    {
-      k = M53(j); // index of type 5 symbol: (M53)_5 = - (I)_3
-      m = J(j);   // index of type 4 symbol: (I)_3 = (J)_4 if plsuflag
-      l = J(k);   // index of type 6 symbol
-      gens[++ngens] = offset3+j;
-      coordindex[offset3+j] = ngens;
-      coordindex[offset5+k] = -ngens;
-      if (!plusflag)
-        {
-          gens[++ngens] = offset4+m;
-        }
-      coordindex[offset4+m] = ngens;
-      coordindex[offset6+l] = -ngens;
     }
 }
 
+// For use wieth alpha[i]=r1/s, alpha[i+1]=-r1/s, alpha[i+2]=r2/s, alpha[i+3]=-r2/s, where r1*r2=-1 (mod s)
+
+void homspace::edge_relation_four(int i)
+{
+  int j, k, j2, k2;
+  int offset_a = i*nsymb, offset_b = (i+1)*nsymb, offset_c = (i+2)*nsymb, offset_d = (i+3)*nsymb;
+
+  // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
+  symbop M(this, M_alphas[i+2]);
+  symbop J(this, mat22::J);
+
+  for (j=0; j<nsymb; j++) // index of type i symbol
+    {
+      k = M(j); // index of type i+2 symbol: (M)_{i+2} = - (I)_i
+      j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
+      k2 = J(k); // index of type i+3 symbol
+      gens[++ngens] = offset_a+j;
+      coordindex[offset_a+j] = ngens;
+      coordindex[offset_c+k] = -ngens;
+      if (!plusflag)
+        {
+          gens[++ngens] = offset_b+j2;
+        }
+      coordindex[offset_b+j2] = ngens;
+      coordindex[offset_d+k2] = -ngens;
+    }
+}

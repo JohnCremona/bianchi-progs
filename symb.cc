@@ -2,6 +2,7 @@
 
 #include "symb.h"
 #include "euclid.h"
+#include "geometry.h"
 
 // compute a matrix M = [y, -x; c, d] with det=1 lifting (c:d)
 mat22 symb::lift_to_SL2() const

@@ -3,7 +3,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
-#include "euclid.h"
+#include "geometry.h"
 #include <assert.h>
 
 // Each face relation is a sum of edges (M)_alpha = {M(alpha}, M(oo)}

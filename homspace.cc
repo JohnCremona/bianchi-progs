@@ -6,6 +6,7 @@
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
 #include "homspace.h"
+#include "geometry.h"
 #include "euclid.h"
 #include <assert.h>
 
@@ -302,7 +303,7 @@ vec homspace::chain(const Quad& nn, const Quad& dd, int proj) const
      {
        pseudo_euclidean_step(a,b, t, c,d);
        assert (t!=-1);
-       u = alpha_pairs[t];
+       u = alpha_inv[t];
 #ifdef DEBUG_NON_EUCLID
        if (!Quad::is_Euclidean)
          cout<<" --(t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<")--> "<<RatQuad(a,b,1);
