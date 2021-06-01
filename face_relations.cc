@@ -148,7 +148,7 @@ void homspace::face_relations()
     case 43:
       {
         triangle_relation_2();
-        triangle_relation_3();
+        general_triangle_relation(7,3,6);
         square_relation_43();
         break;
       }
@@ -412,52 +412,46 @@ void homspace::square_relation_19()
 }
 
 // extra triangle relation(s) for fields 43+
+//
+// assume  -alpha[i] = alpha[i+1] if i is odd else alpha[i-1] (and similar)
 
-// triangles {oo, w/3, (w+1)/3} and (its image under J) {oo, -w/3, -(w+1)/3}
+int flip(int i) {return (i&1? i+1: i-1);}
 
-void homspace::triangle_relation_3()
+void homspace::general_triangle_relation(int i, int j, int k)
 {
-  int field = Quad::d;
-  Quad w = Quad::w;
-  int k, u=(field+5)/12; // u= 4, 6, 14 for 43, 67, 163
 
-  vector<int> rel(3), types(3);
+  // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
 
-  // Triangle {(w+1)/3, oo, w/3}
-
-  symbop M1(this, M_alphas[5]); // maps {(1-w)/3,oo} to {oo, w/3}
-  symbop M2(this, w+1,u,3,2-w); // maps {(w-1)/3,oo} to {w/3, (w+1)/3}
-  assert (M2.det()==1);
-  types = {7,5,6};  // {(1-w)/3, oo}, {(w-1)/3, oo}, {(1+w)/3, oo}
+  //  RatQuad alpha = RatQuad(-M_alphas[i].entry(1,1), M_alphas[i].entry(1,0));
+  RatQuad beta = M_alphas[j].inverse()(RatQuad(1,0));
+  RatQuad gamma = M_alphas[k].inverse()(RatQuad(1,0));
+  RatQuad x = M_alphas[i](beta)-gamma;
+  //  cout<<"alpha="<<alpha<<", beta="<<beta<<", gamma="<<gamma<<", x="<<x<<endl;
+  assert (x.is_integral());
+  symbop M1(this, M_alphas[alpha_inv[j]]);
+  symbop M2(this, M_alphas[alpha_inv[i]]*mat22(1,num(x),0,1));
+  symbop J(this, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M1, M2};
+  int jd = alpha_inv[j];
+  vector<int> types = {i,jd,k};
+  vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
   check_face_rel(mats, types);
 
-  for (k=0; k<nsymb; k++)
+  vector<int> rel(3);
+  for (int s=0; s<nsymb; s++)
     {
-      rel[0] = k;
-      rel[1] = M1(k);
-      rel[2] = M2(k);
+      rel[0] = s;
+      rel[1] = M1(s);
+      rel[2] = M2(s);
       add_face_rel(rel, types);
-    }
-
-  if (!plusflag) // there's a second triangle (image of previous under J)
-    {
-      // Triangle {-(w+1)/3, oo, -w/3}
-
-      symbop M3(this, M_alphas[6]);    // = J*M1*J, maps {(w-1)/3,oo} to {oo, -w/3}
-      symbop M4(this, w+1,-u,-3,2-w); // = J*M2*J, maps {(1-w)/3,oo} to {-w/3, -(w+1)/3}
-      assert (M4.det()==1);
-      types = {8,6,5};  // {-(1+w)/3, oo}, {(w-1)/3, oo}, {(1-w)/3, oo}
-
-      for (k=0; k<nsymb; k++)
+      if (!plusflag)
         {
-          rel[0] = k;
-          rel[1] = M3(k);
-          rel[2] = M4(k);
-          add_face_rel(rel, types);
+          for (int t=0; t<3; t++) rel[t] = J(rel[t]);
+          add_face_rel(rel, Jtypes);
         }
     }
+
   if(verbose)
     {
       cout << "After type 3 triangle relations, number of relations = " << numrel <<"\n";

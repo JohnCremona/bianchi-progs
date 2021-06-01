@@ -155,6 +155,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend istream& operator>>(istream& s, Quad& x);
 
   friend class level;
+  friend class RatQuad;
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
 };
 
@@ -244,6 +245,12 @@ public:
     return mat22(a*M.a+b*M.c, a*M.b+b*M.d, c*M.a+d*M.c, c*M.b+d*M.d);
   }
 
+  // matrix inverse (mod scalars)
+  mat22 inverse() const
+  {
+    return mat22(d,-b,-c,a);
+  }
+
   // left action on r/s as column vector, changing in place:
   void apply_left(Quad& r, Quad& s) const
   {
@@ -251,7 +258,7 @@ public:
     s = c*r+d*s;
     r = t;
   }
-  RatQuad operator()(const RatQuad& q)const; // implemented in cusp.cc
+  RatQuad operator()(const RatQuad& q) const; // implemented in cusp.cc
 
   // right action on (c:d) symbols as row vectors, changing in place
   void apply_right(Quad& sc, Quad& sd) const
@@ -268,6 +275,7 @@ public:
     sc = t;
   }
   Quad det() const {return a*d-b*c;}
+
   friend ostream& operator<< (ostream&, const mat22&); // inline below
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
   friend class modsym;

@@ -14,6 +14,7 @@ public:
 
   // RatQuad manipulations
   void cancel();                           // cancel *this in situ
+  int is_integral() const {return d.nm==1;} // assumes simplified
   friend Quad num(const RatQuad&);         // the numerator
   friend Quad den(const RatQuad&);         // the denominator
   friend RatQuad recip(const RatQuad&);    // reciprocal
