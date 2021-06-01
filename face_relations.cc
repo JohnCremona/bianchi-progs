@@ -115,48 +115,47 @@ void homspace::face_relations()
 #endif
   triangle_relation_0();
 
-  switch (field)
+  if ((field==1)||(field==3))
     {
-    case 1:
-    case 3:
-      {
-        if(!plusflag)
-          triangle_relation_1_3();
-        break;
-      }
-    case 2:
-      {
-        square_relation_2();
-        break;
-      }
-    case 7:
-      {
-        rectangle_relation_7();
-        break;
-      }
-    case 11:
-      {
-        hexagon_relation_11();
-        break;
-      }
-    case 19:
-      {
-        triangle_relation_2();
-        square_relation_19();
-        break;
-      }
-    case 43:
-      {
-        triangle_relation_2();
-        general_triangle_relation(7,3,6);
-        square_relation_43();
-        break;
-      }
-    default:
-      {
-        cerr<<"homspace not implemented for field "<<field<<endl;
-      }
+      if(!plusflag)
+        triangle_relation_1_3();
+      return;
     }
+
+  if (field==2)
+    {
+      square_relation_2();
+      return;
+    }
+  if (field==7)
+    {
+      rectangle_relation_7();
+      return;
+    }
+  if (field==11)
+    {
+      hexagon_relation_11();
+      return;
+    }
+
+  // Now field = 19, 43, 67 or 163
+
+  // additional triangle relations
+  triangle_relation_2();
+  for (vector<vector<int>>::const_iterator tri = triangles.begin(); tri!=triangles.end(); tri++)
+    general_triangle_relation(*tri);
+
+  if (field==19)
+    {
+      square_relation_19();
+      return;
+    }
+  if (field==43)
+    {
+      square_relation_43();
+      return;
+    }
+  cerr<<"homspace not fully implemented for field "<<field<<endl;
 }
 
 // triangle relation for all fields
@@ -417,11 +416,10 @@ void homspace::square_relation_19()
 
 int flip(int i) {return (i&1? i+1: i-1);}
 
-void homspace::general_triangle_relation(int i, int j, int k)
+// Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
+void homspace::general_triangle_relation(const vector<int>& tri)
 {
-
-  // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
-
+  int i=tri[0], j=tri[1], k=tri[2];
   //  RatQuad alpha = RatQuad(-M_alphas[i].entry(1,1), M_alphas[i].entry(1,0));
   RatQuad beta = M_alphas[j].inverse()(RatQuad(1,0));
   RatQuad gamma = M_alphas[k].inverse()(RatQuad(1,0));

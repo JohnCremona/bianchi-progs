@@ -108,7 +108,7 @@ void Quad::field(int dd, int max)
   for(i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
   maxnorm=max; initquadprimes();
-  define_alphas();
+  setup_geometry();
 }
 
 void Quad::displayfield(ostream& s)

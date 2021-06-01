@@ -44,14 +44,14 @@ public:
   void edge_relations();      // computes coordindex, gens
   void edge_relations_1();    // basic edge relations for alpha = 0
   void edge_relations_2();    // extra edge relations for alphas with denom 2
-  void edge_relation_pair(int i); // edge relation pair, alpha=r/s with r^2=-1 (s)
-  void edge_relation_four(int i); // edge relation quadruple
+  void edge_pairing(int i);   // edge relation pair, alpha=r/s with r^2=-1 (s)
+  void edge_pairing_double(int i); // edge relation double pairing
 
   void face_relations();    // computes face relations, fills relmat
   void triangle_relation_0();   // triangle relation for all fields
   void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
   void triangle_relation_2();   // extra triangle relation(s) for fields 19+
-  void general_triangle_relation(int i, int j, int k);
+  void general_triangle_relation(const vector<int>& tri);
   void square_relation_2();   // extra square relation for field 2
   void rectangle_relation_7();   // extra rectangle relation for field 7
   void hexagon_relation_11();   // extra hexagon relation for field 11

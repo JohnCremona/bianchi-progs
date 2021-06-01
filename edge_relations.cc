@@ -24,12 +24,12 @@ void homspace::edge_relations()    // computes coordindex
 
   if(verbose)
     cout<<"General edge pair relations\n";
-  for (vector<int>::const_iterator i=alpha_pairs.begin(); i!=alpha_pairs.end(); i++)
-    edge_relation_pair(*i);
+  for (vector<int>::const_iterator i=edge_pairs.begin(); i!=edge_pairs.end(); i++)
+    edge_pairing(*i);
   if(verbose)
     cout<<"General edge quadruple relations\n";
-  for (vector<int>::const_iterator i=alpha_fours.begin(); i!=alpha_fours.end(); i++)
-    edge_relation_four(*i);
+  for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
+    edge_pairing_double(*i);
 
 }
 
@@ -126,7 +126,7 @@ void homspace::edge_relations_2()    // extra edge relations for alphas with den
 
 // For use when alpha[i]=r/s with r^2=-1 (mod s)
 
-void homspace::edge_relation_pair(int i)
+void homspace::edge_pairing(int i)
 {
   int j, k, j2, k2;
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
@@ -165,7 +165,7 @@ void homspace::edge_relation_pair(int i)
 
 // For use wieth alpha[i]=r1/s, alpha[i+1]=-r1/s, alpha[i+2]=r2/s, alpha[i+3]=-r2/s, where r1*r2=-1 (mod s)
 
-void homspace::edge_relation_four(int i)
+void homspace::edge_pairing_double(int i)
 {
   int j, k, j2, k2;
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb, offset_c = (i+2)*nsymb, offset_d = (i+3)*nsymb;
