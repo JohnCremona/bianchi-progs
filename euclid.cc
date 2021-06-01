@@ -62,6 +62,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
       if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
       if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      if (compute_t) cout <<" type=0";
       cout << endl;
 #endif
       if (compute_t) t=0;
@@ -100,7 +101,9 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
               Mi->apply_right_inverse(c2,d2);
             }
 #ifdef DEBUG_PSEA
-          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<")"<<endl;
+          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<")";
+          if (compute_t) cout <<", type "<<local_t;
+          cout<<endl;
 #endif
           if (compute_t) t=local_t;
           return;

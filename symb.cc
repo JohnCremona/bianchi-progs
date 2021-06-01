@@ -9,7 +9,9 @@ mat22 symb::lift_to_SL2() const
 {
   // Two special cases: (c:1), (1:d) need no work:
   if (d==1) return mat22(1,0,c,1);
+  if (d==-1) return mat22(1,0,-c,1);
   if (c==1) return mat22(0,-1,1,d);
+  if (c==-1) return mat22(0,-1,1,-d);
   Quad x, y, sc = c % (N->modulus), sd = d % (N->modulus);
   Quad h = quadbezout(sc , sd, x, y);
   sc /= h;

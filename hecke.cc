@@ -36,37 +36,33 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
       ans[0]=0;
       for(ap=-aplim; ap<=aplim; ap++)
 	ans[ap+aplim] = ap;
-      if (verbose) 
+      if (verbose)
 	cout << ans << endl;
       return ans;
     }
 }
 
-
-// TODO: this is all wrong.  We need chain(RatQuad alpha, RatQuad
-// beta) which calls chain(RatQuad beta', c, d) for suitable c,d
-
-vec homspace::applyop(const matop& mlist, const modsym& m, int proj) const
-// Instead of just
-//  {return applyop(mlist,m.beta(), proj)-applyop(mlist,m.alpha(), proj);}
-// we apply "Karim's trick"
-{
-  RatQuad ma = m.alpha(), mb=m.beta();
-  Quad a(num(ma)), b(den(ma)), x, y;
-  quadbezout(a,b, x,y); // discard its value which is 1
-  mat22 M(b,-a, x,y);    // det(M)=1 and M(ma) = 0
-  assert (M.det()==Quad::one);
-  return applyop(mlist, M(mb), proj, x,-b); // wrong!
-  //return applyop(mlist, mb, proj) - applyop(mlist, ma, proj);
+vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj) const
+{ vec ans(rk);
+  if (proj) ans.init(projcoord.ncols());
+  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
+    {
+      vec part = chain((*mi)(alpha), proj);
+      if(hmod)
+        ans.addmodp(part,hmod);
+      else
+        ans += part;
+    }
+  if(hmod) ans=reduce_modp(ans,hmod);
+  return ans;
 }
 
-vec homspace::applyop(const matop& mlist, const RatQuad& q, int proj, const Quad& c, const Quad& d) const
-{ vec ans(rk), part;
+vec homspace::applyop(const matop& mlist, const modsym& m, int proj) const
+{ vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
-  long i=mlist.length();
-  while (i--)
+  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
     {
-      part = chain(mlist[i](q), proj, c, d);
+      vec part = chain((*mi)(m.alpha()), (*mi)(m.beta()), proj);
       if(hmod)
         ans.addmodp(part,hmod);
       else

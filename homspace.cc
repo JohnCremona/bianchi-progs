@@ -289,15 +289,61 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
  return ans;
 }
 
-#define DEBUG_NON_EUCLID
+//#define DEBUG_NON_EUCLID
+
+vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj) const
+// Instead of just
+//  {return chain(beta, proj) - chain(alpha, proj);}
+// we apply "Karim's trick"
+{
+  Quad a(num(alpha)), b(den(alpha)), x, y;
+  quadbezout(a,b, x,y); // discard its value which is 1
+  mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
+  assert (M.det()==Quad::one);
+#ifdef DEBUG_NON_EUCLID
+  cout<<"Computing alpha->beta chain {"<<alpha<<","<<beta<<"}\n";
+#endif
+  vec vec_alpha_beta = chain(M(beta), proj, x,-b);
+#ifdef DEBUG_NON_EUCLID
+  cout<<"Computing beta chain {0, "<<beta<<"}\n";
+#endif
+  vec vec_beta = chain(beta, proj);
+#ifdef DEBUG_NON_EUCLID
+  cout<<"Computing alpha chain {0, "<<alpha<<"}\n";
+#endif
+  vec vec_alpha = chain(alpha, proj);
+  vec v=vec_alpha;
+  if(hmod)
+    {
+      v.addmodp(vec_alpha_beta, hmod);
+      v.addmodp(-vec_beta, hmod);
+    }
+  else
+    {
+      v += vec_alpha_beta;
+      v -= vec_beta;
+    }
+  if (!trivial(v))
+    {
+      cout<<"***inconsistent*** {0,alpha}+{alpha,beta}-{0,beta}="<<v<<endl;
+    }
+#ifdef DEBUG_NON_EUCLID
+  else
+    {
+      cout<<"OK"<<endl;
+    }
+#endif
+  return vec_alpha_beta;
+}
+
 vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd) const
 {
   Quad e, a(aa), b(bb), c(cc), d(dd), q, f;
   vec ans = chaincd(c,d,0,proj); // this is the path {0,oo} when (c:d)=(0:1) (the default)
-  int t, u;
+  int t=0, u;
 #ifdef DEBUG_NON_EUCLID
   //   if (!Quad::is_Euclidean)
-     cout<<" -- (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(symb(c,d,this),0)<<")--> "<<RatQuad(a,b,1);
+  cout<<" INIT (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(symb(c,d,this),0)<<") AT "<< RatQuad(a,b,1) << endl;
 #endif
    while (quadnorm(b))
      {
@@ -306,7 +352,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
        u = alpha_inv[t];
 #ifdef DEBUG_NON_EUCLID
        //       if (!Quad::is_Euclidean)
-         cout<<" --(t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<")--> "<<RatQuad(a,b,1);
+         cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif
        // Look up this symbol, convert to a vector w.r.t. homology basis
        vec part = chaincd(c, d, u, proj);
@@ -315,13 +361,15 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
        else
          ans += part;
      }
-#ifdef DEBUG_NON_EUCLID
-   //   if (!Quad::is_Euclidean)
-     cout<<endl;
-#endif
    if(hmod) ans=reduce_modp(ans,hmod);
+#ifdef DEBUG_NON_EUCLID
+       //       if (!Quad::is_Euclidean)
+   cout<<" coordinate vector = "<<ans<<endl;
+#endif
    return ans;
 }
+
+
 
 // The remaining methods for class homspace are implelemted in
 // edge_relations.cc, face_relations.cc and hecke.cc.
