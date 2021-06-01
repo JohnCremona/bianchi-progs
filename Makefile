@@ -220,7 +220,7 @@ nflist.o: nflist.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.
 nftest.o: nftest.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 oldforms.o: oldforms.cc oldforms.h moddata.h quads.h ratquads.h newforms.h homspace.h cusp.h symb.h
 pmanin.o: pmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h looper.h
-quads.o: quads.cc quads.h
+quads.o: quads.cc quads.h geometry.h
 euclid.o: euclid.cc euclid.h quads.h geometry.h
 geometry.o: geometry.cc geometry.h quads.h
 symb.o: symb.cc symb.h moddata.h quads.h ratquads.h euclid.h geometry.h
