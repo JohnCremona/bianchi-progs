@@ -13,7 +13,7 @@ FORM_DIR = os.path.join(DATA_DIR, "newforms")
 
 
 Qx = PolynomialRing(QQ,'x')
-fields = [1,2,3,7,11,19]
+fields = [1,2,3,7,11,19,43,67,163]
 
 def split(line):
     return whitespace.split(line.strip())
@@ -374,14 +374,14 @@ def encode_col(colname, col=None):
         return str(col).replace("[", '{').replace("]", '}').replace(" ", "")
     return col
 
-def one_bmf_line(record, table):
-    schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
+def one_bmf_line(record, table, sl2):
+    schema = (bmf_dims_schema_no_sl2 if sl2 else bmf_dims_schema) if table == 'dims' else bmf_forms_schema
     cols = list(schema.keys())
     cols.remove('label')
     cols = ['label'] + cols
     return "|".join([encode_col(col, record.get(col, None)) for col in cols])
 
-def write_bmf_upload_file(data, fname, table):
+def write_bmf_upload_file(data, fname, table, sl2):
     """data is a dict as returned by read_dimtabeis_new() or
     read_newforms(), with keys level labels, each value a dict with
     data for the table.
@@ -390,13 +390,24 @@ def write_bmf_upload_file(data, fname, table):
 
     table is 'dims' or 'forms'
 
+    NB For the 'dims' table, assume that sl2_levels holds a (possibly
+    empty) list of levels for which the LMFDB table already has sl2
+    dimension data which we do not want to over-write.  In this case
+    we output two files, one for the sl2_levels and one for the rest.
+
+    e.g. if the file sl2_levels_43 contains a list of the level labels
+    for which we have sl2 dimension data, first do
+
+    sage: sl2_levels = read_data("sl2_levels_43", str)
+
     """
     assert table in ['dims', 'forms']
-    schema = bmf_dims_schema if table == 'dims' else bmf_forms_schema
+    schema = (bmf_dims_schema_no_sl2 if sl2 else bmf_dims_schema) if table == 'dims' else bmf_forms_schema
     cols = list(schema.keys())
     cols.remove('label')
     cols = ['label'] + cols
     vals = [schema[k] for k in cols]
+    print("cols: {}".format(cols))
 
     filename = os.path.join(UPLOAD_DIR, fname)
     with open(filename, 'w') as outfile:
@@ -412,10 +423,19 @@ def write_bmf_upload_file(data, fname, table):
 
         nlines = 0
         for label, record in data.items():
-            if record['level_label'] not in sl2_levels:
-                outfile.write(one_bmf_line(record, table) + "\n")
+            if ((table=='forms')
+                or (sl2 and record['level_label'] in sl2_levels)
+                or (not sl2  and record['level_label'] not in sl2_levels)):
+                outfile.write(one_bmf_line(record, table, sl2) + "\n")
                 nlines +=1
                 if nlines%1000 == 0:
                     print("{} lines written so far to {}".format(nlines, filename))
 
     print("{} lines written to {}".format(nlines, filename))
+
+# e.g. (assumes directory ~/bmf-upload exists)
+# sage: %runfile bianchi.py
+# sage: dat = read_dimtabeis_new(43, "dimtabeis.43.all.newdims")
+# sage: write_bmf_upload_file(dat, "bmf_dims.43.1-10000", 'dims')
+# sage: formdat = read_newforms(43, "newforms.43.1-10000")
+# sage: write_bmf_upload_file(formdat, "bmf_forms.43.1-10000", 'forms')
