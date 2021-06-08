@@ -4,6 +4,7 @@
 
 #include <eclib/arith.h>
 #include "quads.h"
+#include "ratquads.h"
 #include "geometry.h"
 
 // Definitions of commonly used matrices
@@ -75,6 +76,12 @@ void add_alpha_pair(const Quad& s, const Quad& r)
 void add_triangle(int i, int j, int k)
 {
   triangles.push_back({i,j,k});
+  // Check
+  mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k];
+  RatQuad beta(-Mj.entry(1,1),Mj.entry(1,0));
+  RatQuad gamma(-Mk.entry(1,1),Mk.entry(1,0));
+  RatQuad x = (Mi.entry(0,0)*beta+Mi.entry(0,1))/(Mi.entry(1,0)*beta+Mi.entry(1,1)) - gamma;
+  assert (x.is_integral());
 }
 
 // Global function to be used once after setting the field:
@@ -114,7 +121,7 @@ void setup_geometry()
   assert (M_alphas.size()==9);
   assert (alpha_inv.size()==9);
 
-  add_triangle(7,3,6);
+  add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
 
   if (d<67) return;
 
@@ -131,6 +138,14 @@ void setup_geometry()
       assert (n_alphas==25);
       assert (M_alphas.size()==25);
       assert (alpha_inv.size()==25);
+
+      add_triangle(0,19,24);
+      add_triangle(1,22,17);
+      add_triangle(3,13,18);
+      add_triangle(3,22,15);
+      add_triangle(9,11,9);
+      add_triangle(9,13,16);
+
       return;
     }
 

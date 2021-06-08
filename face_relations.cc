@@ -412,9 +412,9 @@ void homspace::square_relation_19()
 
 // extra triangle relation(s) for fields 43+
 //
-// assume  -alpha[i] = alpha[i+1] if i is odd else alpha[i-1] (and similar)
+// assume  -alpha[i] = alpha[i+1] if i is odd else alpha[i-1] for i>=3
 
-int flip(int i) {return (i&1? i+1: i-1);}
+int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
 void homspace::general_triangle_relation(const vector<int>& tri)
@@ -452,7 +452,7 @@ void homspace::general_triangle_relation(const vector<int>& tri)
 
   if(verbose)
     {
-      cout << "After type 3 triangle relations, number of relations = " << numrel <<"\n";
+      cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n";
     }
 }
 
