@@ -203,4 +203,49 @@ void setup_geometry()
   assert (M_alphas.size()==99);
   assert (alpha_inv.size()==99);
 
+  // Add 42 extra triangles
+
+  add_triangle(3, 21, 49);
+  add_triangle(3, 53, 23);
+  add_triangle(3, 71, 87);
+  add_triangle(3, 83, 94);
+  add_triangle(3, 85, 79);
+  add_triangle(3, 98, 84);
+  add_triangle(7, 98, 93);
+  add_triangle(9, 11, 9);
+  add_triangle(9, 13, 16);
+  add_triangle(9, 69, 78);
+  add_triangle(13, 25, 77);
+  add_triangle(13, 33, 57);
+  add_triangle(13, 61, 30);
+  add_triangle(13, 69, 26);
+  add_triangle(17, 19, 17);
+  add_triangle(17, 33, 29);
+  add_triangle(21, 28, 32);
+  add_triangle(21, 35, 27);
+  add_triangle(21, 59, 79);
+  add_triangle(21, 71, 63);
+  add_triangle(21, 75, 94);
+  add_triangle(21, 98, 67);
+  add_triangle(23, 51, 3);
+  add_triangle(25, 33, 23);
+  add_triangle(25, 45, 67);
+  add_triangle(27, 76, 48);
+  add_triangle(27, 79, 13);
+  add_triangle(29, 48, 93);
+  add_triangle(31, 35, 19);
+  add_triangle(33, 45, 98);
+  add_triangle(37, 40, 44);
+  add_triangle(41, 45, 48);
+  add_triangle(41, 73, 66);
+  add_triangle(47, 96, 33);
+  add_triangle(49, 84, 67);
+  add_triangle(49, 87, 63);
+  add_triangle(53, 83, 75);
+  add_triangle(53, 85, 59);
+  add_triangle(59, 89, 62);
+  add_triangle(61, 69, 23);
+  add_triangle(73, 92, 21);
+  add_triangle(77, 87, 5);
+
 }
