@@ -73,3 +73,32 @@ EWT.append([cusp((2*w-1)/5), cusp((w-1)/2), cusp(w/2)])
 EWT.append([cusp((2*w-1)/5), cusp(w/2), cusp((w-7)/(w+2))])
 EWT.append([cusp((2*w-1)/5), cusp((w-7)/(w+2)), cusp((w+6)/(3-w))])
 EWT.append([cusp((2*w-1)/5), cusp((w+6)/(3-w)), cusp((w-1)/2)])
+
+#EW's squares:
+EWS = []
+# from P_v_2 (fig 3.4.3):
+EWS.append([cusp(oo), cusp(w/2), cusp(7*w/17), cusp(w/3)])
+EWS.append([cusp((2*w+1)/5), cusp((11*w+4)/29), cusp(7*w/17), cusp((8*w+3)/19)])
+EWS.append([cusp(w/3), cusp((11*w+4)/29), cusp((7*w+5)/19), cusp((w+1)/3)])
+# from P_v_9 (fig 3.4.6):
+EWS.append([cusp(infinity), cusp(0), cusp(4*w/17), cusp(w/4)])
+EWS.append([cusp(infinity), cusp(0), cusp(4*(w+1)/19), cusp((w+1)/4)])
+EWS.append([cusp(w/4), cusp((w+1)/4), cusp(4*(w+1)/19), cusp(4*w/17)])
+# from P_v_8 (fig 3.4.7):
+EWS.append([cusp(infinity), cusp(0), cusp(4*(w-1)/17), cusp((w-1)/4)])
+EWS.append([cusp((w-1)/4), cusp(w/4), cusp(4*w/17), cusp(4*(w-1)/17)])
+
+squares = []
+for S in EWS:
+    if not any(poly_equiv(S,s) for s in squares):
+        squares.append(S)
+
+# After the above we only have 1 square [oo,w/2,7w/17,w/3]
+
+assert [all_alphas[3], cusp(oo)] == squares[0][3:] + squares[0][:1]
+assert apply(M_alphas[2], [all_alphas[2], cusp(oo)]) == squares[0][0:2]
+U1 = Matrix(2,2,[7,2*w,1-w,5])
+assert U1.det()==1
+assert apply(U1,[all_alphas[4], cusp(oo)]) == squares[0][1:3]
+assert apply(M_alphas[5],[all_alphas[12], cusp(oo)]) == squares[0][2:4]
+
