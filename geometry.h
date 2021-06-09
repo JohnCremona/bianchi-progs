@@ -15,6 +15,4 @@ extern vector<int> edge_pairs; // indices of first of a pair (r/s, -r/s) with r^
 extern vector<int> edge_fours; // indices of first of a 4-tuple (r1,-r1,r2,-r2) of alphas with r1*r2=-1 (mod s)
 extern vector<vector<int> > triangles; // indices i,j,k such that M_i(alpha_j)=alpha_k +translation, giving a triangle relation
 
-void setup_geometry();           // Populate M_alphas.
-
 #endif

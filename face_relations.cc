@@ -23,9 +23,13 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
       alphas.push_back(M(RatQuad(-M_alpha.entry(1,1), M_alpha.entry(1,0))));
       betas.push_back(M(RatQuad(1,0)));
     }
+  // cout<<"Checking face relation "<<mats<<", "<<types<<endl;
+  // cout<<"alphas: "<<alphas<<endl;
+  // cout<<"betas:  "<<betas<<endl;
+
   vector<RatQuad>::const_iterator alpha, beta;
   int ok=1;
-  for (alpha=alphas.begin()+1, beta=betas.begin(); alpha!=alphas.end(); alpha++, beta++)
+  for (alpha=alphas.begin()+1, beta=betas.begin(); beta!=betas.end() &&ok; alpha++, beta++)
     {
       RatQuad next_alpha = (alpha==alphas.end()? alphas[0]: *alpha);
       ok = ok && (*beta==next_alpha);
@@ -36,6 +40,10 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
       cout<<"alphas: "<<alphas<<endl;
       cout<<"betas:  "<<betas<<endl;
     }
+  // else
+  //   {
+  //     cout<<"Good face relation "<<endl;
+  //   }
   return ok;
 }
 
@@ -417,9 +425,38 @@ void homspace::square_relation_19()
 int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
+
+// The triangle has edges
+// (I)_i = {alpha_i, oo},
+// (M1)_j' = M_j' * {alpha_j',oo} = {oo, alpha_j},
+// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j, alpha_i}
+
+// The general relation for a (c:d)-symbol s has symbols s, M1(s), M2(s).
+
+// To see its image under J, recall that if s represents the matrix
+// A=[a,b;c,d] (its coset modulo Gamma_0(N)), then J(s) represents
+// JAJ.  So the image of (s)_alpha = (A)_alpha = {A(alpha), A(oo)}
+// under J is {JA(alpha), JA(oo)} = {JAJ(-alpha)m JAJ(oo)} =
+// (JAJ)_{-alpha} = (J(s))_{-alpha}.  Hence to apply J to a relation
+// we need to both apply J to the M-symbols, and also 'flip' each
+// alpha to -alpha.  This works for i>=3 since then -alpha[i] =
+// alpha[flip(i)].  Hence this code needs adjusting for a general
+// triangle whose types are not all at least 3.
+
+// For field 43 the only general triangle relation is {3, 7, 4} which is OK.
+
+// For field 67, four of the six general triangles are OK but we also
+// have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.  The
+// first is OK since we define flip(0)=0, but not the second.
+
 void homspace::general_triangle_relation(const vector<int>& tri)
 {
   int i=tri[0], j=tri[1], k=tri[2];
+  if(verbose)
+    {
+      cout << "Applying triangle relation "<<tri<<"\n";
+    }
+  int t;
   //  RatQuad alpha = RatQuad(-M_alphas[i].entry(1,1), M_alphas[i].entry(1,0));
   RatQuad beta = M_alphas[j].inverse()(RatQuad(1,0));
   RatQuad gamma = M_alphas[k].inverse()(RatQuad(1,0));
@@ -428,13 +465,26 @@ void homspace::general_triangle_relation(const vector<int>& tri)
   assert (x.is_integral());
   symbop M1(this, M_alphas[alpha_inv[j]]);
   symbop M2(this, M_alphas[alpha_inv[i]]*mat22(1,num(x),0,1));
+
   symbop J(this, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M1, M2};
   int jd = alpha_inv[j];
   vector<int> types = {i,jd,k};
-  vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
+  // if(verbose) cout<<"Checking triangle relation"<<endl;
   check_face_rel(mats, types);
+
+  vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J};
+  vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
+  symbop T1(this, (mat22::U).inverse());            // needed for type 1 since -alpha[1] = alpha[1]-w
+  symbop T2(this, (mat22::U * mat22::T).inverse()); // needed for type 2 since -alpha[2] = alpha[2]-1-w
+  for (t=0; t<3; t++)
+    {
+      if (types[t]==1) Jmats[t] = Jmats[t]*T1;
+      if (types[t]==2) Jmats[t] = Jmats[t]*T2;
+    }
+  // if(verbose) cout<<"Checking triangle relation after applying J and adjustment"<<endl;
+  check_face_rel(Jmats, Jtypes);
 
   vector<int> rel(3);
   for (int s=0; s<nsymb; s++)
@@ -445,7 +495,12 @@ void homspace::general_triangle_relation(const vector<int>& tri)
       add_face_rel(rel, types);
       if (!plusflag)
         {
-          for (int t=0; t<3; t++) rel[t] = J(rel[t]);
+          for (t=0; t<3; t++)
+            {
+              rel[t] = J(rel[t]);
+              if (types[t]==1) rel[t] = T1(rel[t]);
+              if (types[t]==2) rel[t] = T2(rel[t]);
+            }
           add_face_rel(rel, Jtypes);
         }
     }
@@ -463,7 +518,7 @@ void homspace::square_relation_43()
   if(verbose) cout<<"Square relation 1"<<endl;
   //  int field = Quad::d;
   Quad w = Quad::w;
-  int j, k;
+  int j, k, t;
   vector<int> rel(4), types(4), done(nsymb, 0);
 
   // (1)
@@ -475,10 +530,16 @@ void homspace::square_relation_43()
   symbop M(this, -3,2*w,w-1,7); assert (M.det()==1);
   symbop M5(this, M_alphas[5]);
   symbop S(this, mat22::S);
+  symbop J(this, mat22::J);
   types = {0,5,1,6};
 
   vector<mat22> mats = {mat22::identity, M5, M, S};
   check_face_rel(mats, types);
+
+  symbop T1(this, (mat22::U).inverse());            // needed for type 1 since -alpha[1] = alpha[1]-w
+  vector<mat22> Jmats = {mat22::identity, J*M5*J, J*M*J*T1, J*S*J};
+  vector<int> Jtypes = {0, 6, 1, 5};
+  check_face_rel(Jmats, Jtypes);
 
   for (j=0; j<nsymb; j++)
     {
@@ -487,6 +548,12 @@ void homspace::square_relation_43()
       rel[2] = M(j);
       rel[3] = S(j);
       add_face_rel(rel, types);
+      if (!plusflag)
+        {
+          for (t=0; t<4; t++) rel[t] = J(rel[t]);
+          rel[2] = T1(rel[2]);
+          add_face_rel(rel, Jtypes);
+        }
     }
 
   // (2)
@@ -499,7 +566,8 @@ void homspace::square_relation_43()
   types = {1,7,1,7};
   mats = {mat22::identity, M7, N, N*M7};
   check_face_rel(mats, types);
-
+  Jmats = {T1, J*M7*J, J*N*J*T1, J*N*M7*J};
+  Jtypes = {1, 8, 1, 8};
   for (j=0; j<nsymb; j++)
     {
       rel[0] = j;
@@ -507,30 +575,12 @@ void homspace::square_relation_43()
       rel[2] = k = N(j);
       rel[3] = M7(k);
       add_face_rel(rel, types);
-    }
-
-  // (3) image of (2) under L=[-1,1;0,1] with det(J)=-1, only needed if !plusflag
-
-  // vertices {w/2, oo, (2*w-1)/3, (8*w-3)/13}
-  // edge types 1 {w/2,oo}, 8 {-(w+1)/3,oo}, 1, 8 under I, M8, W2, W2*W1
-
-  if (!plusflag)
-    {
-      if(verbose) cout<<"Square relation 3"<<endl;
-      mat22 L(-1,w,0,1);
-      symbop M1(this, L*M7*mat22::J);
-      symbop M2(this, L*N*L);
-      types = {1,8,1,8};
-      mats = {mat22::identity, M1, M2, M2*M1};
-      check_face_rel(mats, types);
-
-      for (j=0; j<nsymb; j++)
+      if (!plusflag)
         {
-          rel[0] = j;
-          rel[1] = M1(j);
-          rel[2] = k = M2(j);
-          rel[3] = M1(k);
-          add_face_rel(rel, types);
+          for (int t=0; t<4; t++) rel[t] = J(rel[t]);
+          rel[0] = T1(rel[0]);
+          rel[2] = T1(rel[2]);
+          add_face_rel(rel, Jtypes);
         }
     }
 

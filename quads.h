@@ -72,6 +72,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static void displayfield(ostream& s = cout);
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
+  static void setup_geometry();
 
 // Now the actual data elements:
  private:

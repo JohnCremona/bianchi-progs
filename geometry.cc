@@ -13,7 +13,7 @@ mat22 mat22::identity(1,0,0,1);
 mat22 mat22::J(-1,0,0,1);
 mat22 mat22::S(0,-1,1,0);
 mat22 mat22::T(1,1,0,1);
-mat22 mat22::U(1,Quad::w,0,1);
+mat22 mat22::U; // (1,Quad::w,0,1); // this fails to initialise properly here, it is set in Quad::field()
 mat22 mat22::TS(1,-1,1,0);   // = T*S
 mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
 mat22 mat22::R(0,1,1,0);
@@ -84,9 +84,9 @@ void add_triangle(int i, int j, int k)
   assert (x.is_integral());
 }
 
-// Global function to be used once after setting the field:
+// Global function to be used once during setting the field:
 
-void setup_geometry()
+void Quad::setup_geometry()
 {
   int d = Quad::d;
 
@@ -127,14 +127,14 @@ void setup_geometry()
 
   // alphas with denominator 4 for both d=67 and d=163:
 
-  add_edge_foursome(4, w, w-1);
-  add_edge_foursome(4, w+1, 2-w);
+  add_edge_foursome(4, w, w-1);   // alphas  9,10,11,12
+  add_edge_foursome(4, w+1, 2-w); // alphas 13,14,15,16
   assert (n_alphas==17);
 
   if (d==67)   // alphas with denominator norm 23 for d=67 only:
     {
-      add_edge_foursome(3-w, w+6, 2+w);
-      add_edge_foursome(2+w, 7-w, 3-w);
+      add_edge_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
+      add_edge_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
       assert (n_alphas==25);
       assert (M_alphas.size()==25);
       assert (alpha_inv.size()==25);
