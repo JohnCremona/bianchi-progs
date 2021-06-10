@@ -12,8 +12,6 @@
 mat22 mat22::identity(1,0,0,1);
 mat22 mat22::J(-1,0,0,1);
 mat22 mat22::S(0,-1,1,0);
-mat22 mat22::T(1,1,0,1);
-mat22 mat22::U; // (1,Quad::w,0,1); // this fails to initialise properly here, it is set in Quad::field()
 mat22 mat22::TS(1,-1,1,0);   // = T*S
 mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
 mat22 mat22::R(0,1,1,0);
@@ -31,8 +29,9 @@ vector<mat22> M_alphas;
 vector<int> alpha_inv;
 vector<int> edge_pairs;
 vector<int> edge_fours;
-vector<int> cyclic_triangles; // indices i such that M_i has order 3, giving a cyclic triangle relation
-vector<vector<int> > triangles; // index triples i,j,k such that M_i(alpha_j)=alpha_k +translation, giving a non-cyclic triangle relation
+vector<int> cyclic_triangles;
+vector<vector<int> > triangles;
+vector<pair<vector<int>, vector<Quad>> > squares;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -93,6 +92,19 @@ void add_cyclic_triangle(int i)
   assert (t*t==1);
 }
 
+void add_square(int i, int j, int k, int l, const Quad& x, const Quad& y)
+{
+  vector<int> squ = {i,j,k,l};
+  vector<Quad> xy = {x,y};
+  squares.push_back({squ,xy});
+  // Check
+  mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k], Ml=M_alphas[l];
+  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));
+  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0));
+  mat22 M = Mi*Mj;
+  assert ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+}
+
 // Global function to be used once during setting the field:
 
 void Quad::setup_geometry()
@@ -120,7 +132,11 @@ void Quad::setup_geometry()
   assert (M_alphas.size()==3);
   assert (alpha_inv.size()==3);
 
-  if (d<43) return;
+  if (d==19)
+    {
+      add_square(0,1,0,1, 0, 0);
+      return;
+    }
 
   // alphas (w/3, -w/3, (1-w)/3, (w-1)/3, (w+1)/3, -(w+1)/3) with denominator 3:
 
@@ -132,7 +148,12 @@ void Quad::setup_geometry()
 
   add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
 
-  if (d<67) return;
+  if (d==43)
+    {
+      add_square(0,5,1,6, 1-w,  0);
+      add_square(1,7,1,7,   1, -1);
+      return;
+    }
 
   // alphas with denominator 4 for both d=67 and d=163:
 
@@ -154,6 +175,10 @@ void Quad::setup_geometry()
       add_triangle(3,13,18);
       add_triangle(3,22,15);
       add_triangle(9,13,16);
+
+      add_square( 3, 2, 4,12, 0, 0);
+      add_square( 9, 0, 9, 0, 0, 0);
+      add_square(13, 0,14, 8, 0, 1);
 
       return;
     }

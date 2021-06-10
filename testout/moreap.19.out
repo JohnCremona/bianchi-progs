@@ -8,9 +8,9 @@ Retrieving newform data for N = -1+2a
 1 newform(s) at level 19.9.1 = (-1+2a):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -4 3 3 -1 -1 -2 3 3 -3 -3 1 0 0 -1 -1 -3 -3 -1 -1 -7 -7 12 12 6 6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = -72
-L/P ratio    = 4, cuspidal factor = 6
-Integration matrix = [-2+5a,-a;-9-a,2], factor   = -30
+Twisting prime lambda = 1, factor = -180
+L/P ratio    = 10, cuspidal factor = 15
+Integration matrix = [-2+5a,-a;-9-a,2], factor   = -75
 Making homspace and bases...
 About to recover 1 newform bases (nap=25)
 Recovering newform #1, eigs [ -1 -4 3 3 -1 -1 -2 3 3 -3 -3 0 0 -1 -1 -3 -3 -1 -1 -7 ]...

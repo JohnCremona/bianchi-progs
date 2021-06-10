@@ -228,8 +228,7 @@ public:
   static mat22 identity;
   static mat22 J;
   static mat22 S;
-  static mat22 T;
-  static mat22 U;
+  static mat22 Tmat(const Quad& x) {return mat22(1,x,0,1);}
   static mat22 TS;
   static mat22 TiS;
   static mat22 R;

@@ -12,6 +12,11 @@ Ok = k.ring_of_integers()
 emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
 rootd=RR(-dk).sqrt()
 
+J = Matrix(2,2,[-k(1), k(0), k(0), k(1)])
+Smat = Matrix(2,2,[k(0), k(-1), k(1), k(0)])
+inf = NFCusp(k,infinity)
+tri0 = [NFCusp(k,0), inf, NFCusp(k,1)]
+
 n_alphas = 0
 M_alphas = []
 all_alphas = []
@@ -31,13 +36,16 @@ alphas = dict([(d,[alpha for M,alpha in zip(M_alphas, all_alphas) if M[1,0]==d])
 
 alpha_inv = [all_alphas.index(apply(M,cusp(oo))) for M in M_alphas]
 assert all([alpha_inv[alpha_inv[i]]==i for i in range(25)])
+for i in range(n_alphas):
+     r1,s = frac(all_alphas[i])
+     r2,s2 = frac(all_alphas[alpha_inv[i]])
+     assert s==s2
+     assert (r1*r2+1)/s in Ok
 
 def make_edge_matrix(a,b):
     return Matrix(2,2,[a.numerator(),b.numerator(),a.denominator(),b.denominator()])
 
 pairs = [(i,j) for i,a in enumerate(all_alphas) for j,b in enumerate(all_alphas) if j>i and posdet(make_edge_matrix(a,b)) in alpha_denoms]
-
-tri0 = [cusp(0),cusp(infinity),cusp(1)]
 
 # EW's triangles:
 EWT = []
@@ -74,6 +82,21 @@ EWT.append([cusp((2*w-1)/5), cusp(w/2), cusp((w-7)/(w+2))])
 EWT.append([cusp((2*w-1)/5), cusp((w-7)/(w+2)), cusp((w+6)/(3-w))])
 EWT.append([cusp((2*w-1)/5), cusp((w+6)/(3-w)), cusp((w-1)/2)])
 
+Tlist, triangles = make_triangles()
+print("{} triangles (before eliminating congruences)".format(len(triangles)))
+assert len(triangles)==31
+T0,t0=reduce_triangles(Tlist, triangles)
+print("{} triangles (after eliminating congruences)".format(len(t0)))
+assert len(t0)==8
+assert [t for t in EWT if not check_poly_in_list(t,[tri0]+t0)] == []
+
+# cyclic triangles for alpha with M_alpha of order 3, i.e. alpha=r/s with r^3=+-1 (mod s) so alpha' = (r+1)/s or (r-1)/s.
+# Equivalently, trace(M_alpha) = +/-1
+cyclic_triangles = [i for i,M in enumerate(M_alphas) if i>2 and M.trace() in [1,-1]]
+print("cyclic triangle indices: {}".format(cyclic_triangles))
+# [9,10,11,12]
+# Hence triangle (9,11,9) is cyclic via M_alphas[9]
+
 #EW's squares:
 EWS = []
 # from P_v_2 (fig 3.4.3):
@@ -89,11 +112,16 @@ EWS.append([cusp(infinity), cusp(0), cusp(4*(w-1)/17), cusp((w-1)/4)])
 EWS.append([cusp((w-1)/4), cusp(w/4), cusp(4*w/17), cusp(4*(w-1)/17)])
 
 squares = []
-for S in EWS:
+for i,S in enumerate(EWS):
     if not any(poly_equiv(S,s) for s in squares):
+        print("Square {} is new".format(i))
         squares.append(S)
 
-# After the above we only have 1 square [oo,w/2,7w/17,w/3]
+# After the above we have 3 squares:
+
+S0 = squares[0] # [oo,w/2,7/(1-w),w/3]
+S1 = squares[1] # [oo,0,4/(1-w),w/4]
+S2 = squares[2] # [oo,0,4/(2-w),(w+1)/4]
 
 assert [all_alphas[3], cusp(oo)] == squares[0][3:] + squares[0][:1]
 assert apply(M_alphas[2], [all_alphas[2], cusp(oo)]) == squares[0][0:2]

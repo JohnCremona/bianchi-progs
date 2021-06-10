@@ -7,6 +7,14 @@ w = k.gen()
 zero = k(0)
 one = k(1)
 Ok = k.ring_of_integers()
+emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
+rootd=RR(-dk).sqrt()
+
+J = Matrix(2,2,[-k(1), k(0), k(0), k(1)])
+Smat = Matrix(2,2,[k(0), k(-1), k(1), k(0)])
+inf = NFCusp(k,infinity)
+tri0 = [NFCusp(k,0), inf, NFCusp(k,1)]
+
 
 n_alphas = 0
 M_alphas = []

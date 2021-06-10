@@ -13,8 +13,14 @@ extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such th
 extern vector<int> alpha_inv; // permutation of order 2 swapping a to a' where M_a(oo)=a'
 extern vector<int> edge_pairs; // indices of first of a pair (r/s, -r/s) with r^2=-1 (mod s)
 extern vector<int> edge_fours; // indices of first of a 4-tuple (r1,-r1,r2,-r2) of alphas with r1*r2=-1 (mod s)
-extern vector<int> cyclic_triangles; // indices of alpha such that M_alpha has order 3
-extern vector<vector<int> > triangles; // indices i,j,k such that M_i(alpha_j)=alpha_k +translation.
-                                       // these give a triangle relation
+
+// indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
+extern vector<int> cyclic_triangles;
+
+// indices i,j,k such that M_i(alpha_j)=alpha_k +translation, giving triangle relations
+extern vector<vector<int> > triangles;
+
+// indices i,j,k,l and x,y such that M_j(x+alpha_k') =  M_i'(y+alpha_l), defining a square relation
+extern vector<pair<vector<int>, vector<Quad>> > squares;
 
 #endif

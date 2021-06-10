@@ -89,7 +89,6 @@ void Quad::field(int dd, int max)
   w = Quad(0,1, n);
   zero = Quad(0,0, 0);
   one = Quad(1,0, 1);
-  mat22::U = mat22(1,w,0,1);
 
   switch (d) {
   case 1:  pos=&pos13; name='i'; nunits=4; fundunit=w; break;

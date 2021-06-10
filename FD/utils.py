@@ -2,11 +2,9 @@ from sage.all import infinity, oo, NFCusp, Matrix
 try:
     assert k
 except NameError:
-    from Q43 import k, Ok, w, zero, one, emb, rootd, alphas, M_alphas, all_alphas, n_alphas
+    k = Ok = w = zero = one = emb = rootd = alphas = M_alphas = all_alphas = n_alphas = None
+    #from Q43 import k, Ok, w, zero, one, emb, rootd, alphas, M_alphas, all_alphas, n_alphas
 
-J = Matrix(2,2,[-one, zero, zero, one])
-Smat = Matrix(2,2,[zero, -one, one, zero])
-inf = cusp(oo)
 def Tmat(x):
     return Matrix(2,2, [one,x,zero,one])
 
@@ -264,8 +262,6 @@ def add_four_alphas(s, r1, r2): # r1*r2=-1 (mod s)
     add_alpha(-r2, t, s,  r1) # alpha = -r1/s
     add_alpha( r1, t, s, -r2) # alpha =  r2/s
     add_alpha(-r1, t, s,  r2) # alpha = -r2/s
-
-tri0 = [cusp(0), inf, cusp(1)]
 
 def make_triangles():
     """Return two lists, Tlist and triangles where each entry in Tlist is

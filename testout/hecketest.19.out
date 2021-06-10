@@ -3,7 +3,7 @@ Non-Euclidean
 1223 primes initialised, max norm = 10000
 >>>> Level 76.18.2 = (-2+4a), norm = 76 <<<<
 Cuspidal dimension = 4
- denominator = 4
+ denominator = 6
 Computing W(2)...  done. Factors are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 3
