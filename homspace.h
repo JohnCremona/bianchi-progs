@@ -51,12 +51,14 @@ public:
   void triangle_relation_0();   // triangle relation for all fields
   void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
   void triangle_relation_2();   // extra triangle relation(s) for fields 19+
-  void general_triangle_relation(const vector<int>& tri);
+  void cyclic_triangle_relation(int i); // generic cyclic triangle relation
+  void general_triangle_relation(const vector<int>& tri);  // generic triangle relation
   void square_relation_2();   // extra square relation for field 2
   void rectangle_relation_7();   // extra rectangle relation for field 7
   void hexagon_relation_11();   // extra hexagon relation for field 11
   void square_relation_19();   // extra square relation for field 19
   void square_relation_43();   // extra square relations for field 43
+  void square_relation_67();   // extra square relations for field 67
 
   void solve_relations();       // computes kernel of relmat and sets rk, denom1, coord, freegens
   void kernel_delta();          // computes ker(delta) for cuspidal homology

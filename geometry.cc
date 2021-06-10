@@ -31,7 +31,8 @@ vector<mat22> M_alphas;
 vector<int> alpha_inv;
 vector<int> edge_pairs;
 vector<int> edge_fours;
-vector<vector<int> > triangles; // indices i,j,k such that M_i(alpha_j)=alpha_k +translation, giving a triangle relation
+vector<int> cyclic_triangles; // indices i such that M_i has order 3, giving a cyclic triangle relation
+vector<vector<int> > triangles; // index triples i,j,k such that M_i(alpha_j)=alpha_k +translation, giving a non-cyclic triangle relation
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -82,6 +83,14 @@ void add_triangle(int i, int j, int k)
   RatQuad gamma(-Mk.entry(1,1),Mk.entry(1,0));
   RatQuad x = (Mi.entry(0,0)*beta+Mi.entry(0,1))/(Mi.entry(1,0)*beta+Mi.entry(1,1)) - gamma;
   assert (x.is_integral());
+}
+
+void add_cyclic_triangle(int i)
+{
+  cyclic_triangles.push_back(i);
+  // Check
+  Quad t=M_alphas[i].trace();
+  assert (t*t==1);
 }
 
 // Global function to be used once during setting the field:
@@ -139,11 +148,11 @@ void Quad::setup_geometry()
       assert (M_alphas.size()==25);
       assert (alpha_inv.size()==25);
 
+      add_cyclic_triangle(9);
       add_triangle(0,19,24);
       add_triangle(1,22,17);
       add_triangle(3,13,18);
       add_triangle(3,22,15);
-      add_triangle(9,11,9);
       add_triangle(9,13,16);
 
       return;

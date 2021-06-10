@@ -424,9 +424,68 @@ void homspace::square_relation_19()
 
 int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 
+// Template for all other cyclic triangle relations, given M=M_alphas[i] of order 3
+//
+// The triangle has vertices [alpha_i, oo, alpha_i'] with M mapping alpha_i --> oo --> alpha_i' --> alpha_i,
+// and edges
+// (I)_i   = {alpha_i, oo},
+// (M)_i   = {M(alpha_i), M(oo)} = {oo, alpha_i'}
+// (M^2)_i = {M(oo), M(alpha_i')} = {alpha_i', alpha_i}
+//
+
+void homspace::cyclic_triangle_relation(int i)
+{
+  if(verbose)
+    {
+      cout << "Applying cyclic triangle relation "<<i<<"\n";
+    }
+  int j,s;
+  symbop M(this, M_alphas[i]);
+  symbop J(this, mat22::J);
+
+  vector<mat22> mats = {mat22::identity, M, M*M};
+  vector<int> types = {i,i,i};
+  // if(verbose) cout<<"Checking cyclic triangle relation"<<endl;
+  check_face_rel(mats, types);
+
+  vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
+  int Ji = flip(i);
+  vector<int> Jtypes = {Ji, Ji, Ji};
+  // if(verbose) cout<<"Checking cyclic triangle relation after applying J"<<endl;
+  check_face_rel(Jmats, Jtypes);
+
+  vector<int> rel(3), done(3, 0);
+  for (s=0; s<nsymb; s++)
+    {
+      if (!done[s])
+        {
+          for(j=0; j<3; j++)
+            {
+              rel[j] = (j? M(rel[j-1]): s);
+              done[rel[j]] = 1;
+            }
+          add_face_rel(rel, types);
+          if (!plusflag)
+            {
+              for (j=0; j<3; j++)
+                {
+                  rel[j] = J(rel[j]);
+                }
+              add_face_rel(rel, Jtypes);
+            }
+        }
+    }
+
+  if(verbose)
+    {
+      cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
+    }
+}
+
+
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
 
-// The triangle has edges
+// The triangle has vertices [alpha_i, oo, alpha_j] and edges
 // (I)_i = {alpha_i, oo},
 // (M1)_j' = M_j' * {alpha_j',oo} = {oo, alpha_j},
 // (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j, alpha_i}
@@ -445,7 +504,7 @@ int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 
 // For field 43 the only general triangle relation is {3, 7, 4} which is OK.
 
-// For field 67, four of the six general triangles are OK but we also
+// For field 67, three of the five general triangles are OK but we also
 // have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.  The
 // first is OK since we define flip(0)=0, but not the second.
 
@@ -570,10 +629,12 @@ void homspace::square_relation_43()
   Jtypes = {1, 8, 1, 8};
   for (j=0; j<nsymb; j++)
     {
+      if (done[j]) continue;
       rel[0] = j;
       rel[1] = M7(j);
       rel[2] = k = N(j);
       rel[3] = M7(k);
+      done[j] = done[k] = 1;
       add_face_rel(rel, types);
       if (!plusflag)
         {

@@ -276,6 +276,7 @@ public:
     sc = t;
   }
   Quad det() const {return a*d-b*c;}
+  Quad trace() const {return a+d;}
 
   friend ostream& operator<< (ostream&, const mat22&); // inline below
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
