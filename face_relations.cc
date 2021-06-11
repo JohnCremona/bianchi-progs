@@ -530,7 +530,7 @@ void homspace::general_triangle_relation(const vector<int>& tri)
   vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
   Quad w = Quad::w;
   symbop T1(this, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  symbop T2(this, (mat22::Tmat(-1-w)));   // needed for type 2 since -alpha[2] = alpha[2]-1-w
+  symbop T2(this, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<3; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;
@@ -667,7 +667,7 @@ void homspace::general_square_relation(const vector<int>& squ, const vector<Quad
     {
       cout << "Applying ";
       if (symmetric) cout<<"symmetric ";
-      cout<<"square relation "<<squ<<"\n";
+      cout<<"square relation "<<squ<<" (x,y) = "<<xy<<"\n";
     }
 
   symbop M1(this, M_alphas[j]);
@@ -684,7 +684,7 @@ void homspace::general_square_relation(const vector<int>& squ, const vector<Quad
   vector<int> Jtypes = {flip(i), flip(j), flip(k), flip(l)};
   Quad w = Quad::w;
   symbop T1(this, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  symbop T2(this, (mat22::Tmat(-1-w)));   // needed for type 2 since -alpha[2] = alpha[2]-1-w
+  symbop T2(this, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<4; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;
