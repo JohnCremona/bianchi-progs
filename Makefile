@@ -64,14 +64,15 @@ tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
 FIELDS9=1 2 3 7 11 19 43 67 163
+FIELDS8=1 2 3 7 11 19 43 67
 FIELDS7=1 2 3 7 11 19 43
 FIELDS5=1 2 3 7 11
 FIELDS1=1
 TESTS9 =  tquads tratquad looptest modtest fieldinfo symbtest
-TESTS7 =  homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
-TESTS5 = 
+TESTS8 =  homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+TESTS5 =
 TESTS1 =
-ALL_TESTS = $(TESTS9) $(TESTS7) $(TESTS5) $(TESTS1)
+ALL_TESTS = $(TESTS9) $(TESTS8) $(TESTS5) $(TESTS1)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -93,8 +94,8 @@ check: $(ALL_TESTS)
 	 @echo running looptest \(both conjugates\) on fields $(FIELDS9)...
 	 @for d in $(FIELDS9); do for prog in looptest; do $(check_run); done; done
 	 @echo
-	 @echo running $(TESTS7) on fields $(FIELDS7)...
-	 @for prog in $(TESTS7); do for d in $(FIELDS7); do $(check_run); done; done
+	 @echo running $(TESTS8) on fields $(FIELDS8)...
+	 @for prog in $(TESTS8); do for d in $(FIELDS8); do $(check_run); done; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
