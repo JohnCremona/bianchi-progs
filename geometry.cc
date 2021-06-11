@@ -239,6 +239,8 @@ void Quad::setup_geometry()
 
   // Add 42 extra triangles
 
+  add_cyclic_triangle(9);
+  add_cyclic_triangle(17);
   add_triangle(3, 21, 49);
   add_triangle(3, 53, 23);
   add_triangle(3, 71, 87);
@@ -246,14 +248,12 @@ void Quad::setup_geometry()
   add_triangle(3, 85, 79);
   add_triangle(3, 98, 84);
   add_triangle(7, 98, 93);
-  add_triangle(9, 11, 9);
   add_triangle(9, 13, 16);
   add_triangle(9, 69, 78);
   add_triangle(13, 25, 77);
   add_triangle(13, 33, 57);
   add_triangle(13, 61, 30);
   add_triangle(13, 69, 26);
-  add_triangle(17, 19, 17);
   add_triangle(17, 33, 29);
   add_triangle(21, 28, 32);
   add_triangle(21, 35, 27);

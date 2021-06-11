@@ -150,10 +150,17 @@ void homspace::face_relations()
 
   // additional triangle relations
   triangle_relation_2();
-  for (vector<vector<int>>::const_iterator tri = triangles.begin(); tri!=triangles.end(); tri++)
+  if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
+  for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); T++)
     {
-      general_triangle_relation(*tri);
+      cyclic_triangle_relation(*T);
     }
+  if(verbose) cout<<"\nApplying "<<triangles.size()<<" general triangle relations"<<endl;
+  for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); T++)
+    {
+      general_triangle_relation(*T);
+    }
+  if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); S++)
     {
       general_square_relation(S->first, S->second);
@@ -431,51 +438,42 @@ int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 
 void homspace::cyclic_triangle_relation(int i)
 {
-  if(verbose)
-    {
-      cout << "Applying cyclic triangle relation "<<i<<"\n";
-    }
-  int j,s;
+  if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
+
+  int j, s, Ji = flip(i);
   symbop M(this, M_alphas[i]);
   symbop J(this, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M, M*M};
-  vector<int> types = {i,i,i};
+  vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
+  vector<int> types(3, i), Jtypes(3, Ji), rel(3), done(nsymb, 0);
+
   // if(verbose) cout<<"Checking cyclic triangle relation"<<endl;
   check_face_rel(mats, types);
 
-  vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
-  int Ji = flip(i);
-  vector<int> Jtypes = {Ji, Ji, Ji};
   // if(verbose) cout<<"Checking cyclic triangle relation after applying J"<<endl;
   check_face_rel(Jmats, Jtypes);
 
-  vector<int> rel(3), done(3, 0);
   for (s=0; s<nsymb; s++)
     {
-      if (!done[s])
+      if (done[s]) continue;
+      for(j=0; j<3; j++)
         {
-          for(j=0; j<3; j++)
+          rel[j] = (j? M(rel[j-1]): s);
+          done[rel[j]] = 1;
+        }
+      add_face_rel(rel, types);
+      if (!plusflag)
+        {
+          for (j=0; j<3; j++)
             {
-              rel[j] = (j? M(rel[j-1]): s);
-              done[rel[j]] = 1;
+              rel[j] = J(rel[j]);
             }
-          add_face_rel(rel, types);
-          if (!plusflag)
-            {
-              for (j=0; j<3; j++)
-                {
-                  rel[j] = J(rel[j]);
-                }
-              add_face_rel(rel, Jtypes);
-            }
+          add_face_rel(rel, Jtypes);
         }
     }
 
-  if(verbose)
-    {
-      cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
-    }
+  if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
 }
 
 
