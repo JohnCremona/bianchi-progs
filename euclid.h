@@ -17,7 +17,6 @@
 // a,b,c,d are changed in place, and on return, t holds the "type"
 // (index of alpha which worked)
 
-static int default_t=-1;
-void pseudo_euclidean_step(Quad& a, Quad& b, int& t=default_t, Quad& c1=Quad::zero, Quad& d1=Quad::zero, Quad& c2=Quad::zero, Quad& d2=Quad::zero);
+void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1=Quad::zero, Quad& d1=Quad::zero, Quad& c2=Quad::zero, Quad& d2=Quad::zero);
 
 #endif

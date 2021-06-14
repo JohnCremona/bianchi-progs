@@ -175,9 +175,21 @@ inline Quad makepos(const Quad& a)
 inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
 inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
 inline Quad mult0(const Quad& a, const Quad& b)
-{return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r, a.nm*b.nm);}
+{
+  if (b.i==0)
+    return b.r * a;
+  if (a.i==0)
+    return a.r * b;
+  return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r, a.nm*b.nm);
+}
 inline Quad mult1(const Quad& a, const Quad& b)
-   {return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);}
+{
+  if (b.i==0)
+    return b.r * a;
+  if (a.i==0)
+    return a.r * b;
+  return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);
+}
 inline int pos13(const Quad& a)
    {return (((a.i>=0)&&(a.r>0))||((a.r==0)&&(a.i==0)));}
 inline int pos2(const Quad& a)

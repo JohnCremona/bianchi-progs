@@ -46,27 +46,36 @@ Quad (*quadconj)(const Quad& a);
 
 Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
 {
+  Quad ans;
   if (c>0)
-    return Quad(roundover(a.r,c),roundover(a.i,c));
+    {
+      ans.r = roundover(a.r,c);
+      ans.i = roundover(a.i,c);
+    }
   else
-    return Quad(roundover(-a.r,-c),roundover(-a.i,-c));
+    {
+      ans.r = roundover(-a.r,-c);
+      ans.i = roundover(-a.i,-c);
+    }
+  ans.setnorm();
+  return ans;
 }
 
-Quad qdivi1(const Quad& a, long c) // c>0,    // used when t=1
+Quad qdivi1(const Quad& a, long c) // used when t=1
 {
-  long ar=a.r, ai=a.i, i, r;
+  Quad ans;
   if (c>0)
     {
-      i = roundover(ai,c);
-      r = roundover(2*ar+ai-c*i,2*c);
+      ans.i = roundover(a.i,c);
+      ans.r = roundover(2*a.r+a.i-c*ans.i,2*c);
     }
   else
     {
-      i = roundover(-ai,-c);
-      r = roundover(-2*ar-ai+c*i,-2*c);
+      ans.i = roundover(-a.i,-c);
+      ans.r = roundover(-2*a.r-a.i+c*ans.i,-2*c);
     }
-  //  cout<<"qdivi1("<<a<<","<<c<<") = "<<Quad(r,i)<<endl;
-  return Quad(r,i);
+  ans.setnorm();
+  return ans;
 }
 
 void Quad::field(int dd, int max)
@@ -147,9 +156,9 @@ int div(const Quad& a, const Quad& b)
 {
  if (a.nm==0) return (b.nm==0);
  if (b.nm==0) return 1;
- long na = a.nm;
+ if (b.nm%a.nm!=0) return 0;
  Quad c = b*quadconj(a);
- return (((c.r)%na)==0) && (((c.i)%na)==0);
+ return (((c.r)%a.nm)==0) && (((c.i)%a.nm)==0);
 }
 
 int ndiv(const Quad& a, const Quad& b)

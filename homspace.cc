@@ -85,7 +85,7 @@ void homspace::solve_relations()
 {
    vec pivs, npivs;
    int i;
-   if(verbose)
+   if(verbose>1)
      {
        mat M = relmat.as_mat().slice(numrel,ngens);
        cout<<"relmat = "<<M<<endl;
@@ -176,7 +176,7 @@ void homspace::solve_relations()
     {
       if (verbose)
         {
-          cout << "coord:" << coord;
+          if (verbose>1) cout << "coord:" << coord;
           if (hmod)
             cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
           else
