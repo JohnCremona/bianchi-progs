@@ -31,21 +31,40 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
     compute_c1d1 = 0;
   if (c2==Quad::zero && d2==Quad::zero)
     compute_c2d2 = 0;
-
+#ifdef DEBUG_PSEA
+  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.nm<<", b="<<b<<", N(b)="<<b.nm<<endl;
+#endif
+  if (b.nm<0) // impossible unless there has been overflow
+    {
+      cerr<<"Something is wrong: b cannot have negative norm"<<endl;
+      exit(1);
+    }
   if (b.nm==0)
     {
       t=0;
       return;
     }
-#ifdef DEBUG_PSEA
-  cout<<"Entering pseudo_euclidean_step("<<a<<","<<b<<"), N(b)="<<b.nm<<endl;
-#endif
 
   Quad u, q = 0;  // common simple special case where N(a)<N(b), q = 0 with no work
-  if (a.nm >= b.nm)
+
+  if (a.nm<b.nm) // just swap over
     {
-      q = a/b;  // rounded, so N(a/b -q) is minimal
+      u = a; a=-b; b=u;
+      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
+      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+#ifdef DEBUG_PSEA
+      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
+      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
+      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      cout <<" type=0";
+      cout << endl;
+#endif
+      t = 0;
+      return;
+
     }
+
+  q = a/b;  // rounded, so N(a/b -q) is minimal
 
 #ifdef DEBUG_PSEA
   cout<<" - translation = "<<q<<endl;
@@ -82,7 +101,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       M = *Mi;
       r=-M.d, s=M.c; // alpha = r/s
 #ifdef DEBUG_PSEA
-      cout<<" - testing type "<<local_t<<", M="<<M<<endl;
+      cout<<" - testing type "<<local_t<<", M="<<M<<": ";
 #endif
 
       // We need to use temporary copies of a,b in case this alpha fails
@@ -118,9 +137,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
               M.apply_right_inverse(c2,d2);
             }
 #ifdef DEBUG_PSEA
-          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<")";
-          cout <<", type "<<local_t;
-          cout<<endl;
+          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<"), type "<<local_t<<endl;
 #endif
           t = local_t;
           return;
@@ -149,20 +166,6 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Using (pseudo-)EA
 {
-  long x,y;
-  if (bezout(aa.nm,bb.nm,x,y)==1)
-    {
-      xx=x*quadconj(aa);
-      yy=y*quadconj(bb);
-      if (bb.nm)
-        {
-          Quad t = xx/bb; // rounded
-          xx -= bb*t;
-          yy += aa*t;
-        }
-      assert (aa*xx+bb*yy==Quad::one);
-      return Quad::one;
-    }
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
   int t;
   while (b.nm)
