@@ -6,7 +6,7 @@
 #endif
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67};
+vector<int> fields = {1,2,3,7,11,19,43,67,163};
 
 int main ()
 {
