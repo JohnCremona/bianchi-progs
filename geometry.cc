@@ -92,16 +92,27 @@ void add_cyclic_triangle(int i)
   assert (t*t==1);
 }
 
-void add_square(int i, int j, int k, int l, const Quad& x, const Quad& y)
+void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad& y=Quad::zero, const Quad& z=Quad::zero)
 {
   vector<int> squ = {i,j,k,l};
-  vector<Quad> xy = {x,y};
-  squares.push_back({squ,xy});
-  // Check
+  vector<Quad> xyz = {x,y,z};
+  squares.push_back({squ,xyz});
+
+  // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
+  // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
+  // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
+
+  // Edges:
+
+  // {alpha_i, oo} = (I)_i
+  // {oo, alpha_j'+z} = (T^z*M_j)_j
+  // {alpha_j'+z, beta} = (T^z*M_j*T^k*M_k)_k
+  // {beta, alpha_i} = (M_i'*T^y)_l
+
   mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k], Ml=M_alphas[l];
-  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));
-  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0));
-  mat22 M = Mi*Mj;
+  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
+  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
+  mat22 M = Mi*mat22::Tmat(z)*Mj;
   assert ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
 }
 
@@ -134,7 +145,7 @@ void Quad::setup_geometry()
 
   if (d==19)
     {
-      add_square(0,1,0,1, 0, 0);
+      add_square(0,1,0,1);  // symmetric
       return;
     }
 
@@ -151,7 +162,7 @@ void Quad::setup_geometry()
   if (d==43)
     {
       add_square(0,5,1,6, 1-w,  0);
-      add_square(1,7,1,7,   1, -1);
+      add_square(1,7,1,7,   1, -1); // symmetric
       return;
     }
 
@@ -176,8 +187,8 @@ void Quad::setup_geometry()
       add_triangle(3,22,15);
       add_triangle(9,13,16);
 
-      add_square( 3, 2, 4,12, 0, 0);
-      add_square( 9, 0, 9, 0, 0, 0);
+      add_square( 3, 2, 4,12, 0);
+      add_square( 9, 0, 9, 0, 0); // symmetric
       add_square(13, 0,14, 8, 0, 1);
 
       return;
@@ -239,8 +250,11 @@ void Quad::setup_geometry()
 
   // Add 42 extra triangles
 
+  // cyclic triangles [9, 10, 11, 12, 17, 18, 19, 20]
   add_cyclic_triangle(9);
   add_cyclic_triangle(17);
+
+  // add_triangle(3,7,4); // <w/3, oo, (w+1)/3> already added above
   add_triangle(3, 21, 49);
   add_triangle(3, 53, 23);
   add_triangle(3, 71, 87);
@@ -282,4 +296,17 @@ void Quad::setup_geometry()
   add_triangle(73, 92, 21);
   add_triangle(77, 87, 5);
 
+  add_square(42,36,8,30);
+  add_square(17,43,17,43);     // symmetric
+  add_square(38,0,37,19);
+  add_square(41,35,7,29);
+  add_square(11,31,89,33);
+  add_square(1,90,1,90, -w,w,w);
+  add_square(88,9,87,8);
+  add_square(1,89,1,89, 1,-1); // symmetric
+  add_square(62,8,59,2, -1,0);
+  add_square(11,17,11,17);     // symmetric
+  add_square(2,66,0,75);
+  add_square(50,9,55,2);
+  add_square(83,11,81,0);
 }
