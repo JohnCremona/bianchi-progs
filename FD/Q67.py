@@ -130,3 +130,60 @@ assert U1.det()==1
 assert apply(U1,[all_alphas[4], cusp(oo)]) == squares[0][1:3]
 assert apply(M_alphas[5],[all_alphas[12], cusp(oo)]) == squares[0][2:4]
 
+# Yasaki data
+
+# vertices
+DYV = [ None,
+        cusp((-w + 2)/(-4)),
+        cusp((-w + 3)/(-4)),
+        cusp((w + 3)/(-w + 2)),
+        cusp((-2*w + 5)/(-8)),
+        cusp((5)/(-w - 1)),
+        cusp((w + 8)/(-2*w + 1)),
+        cusp(oo),
+        cusp((-w + 2)/(-3)),
+        cusp((w + 2)/(-w + 3)),
+        cusp((5)/(-w - 2)),
+        cusp((2*w + 5)/(-2*w + 5)),
+        cusp((-w + 8)/(-w - 6)),
+        cusp((10)/(-2*w - 3)),
+        cusp((2*w)/(-w + 7)),
+        cusp((-4*w + 2)/(2*w - 15)),
+        cusp((-w + 3)/(-5)),
+        cusp((-5*w + 5)/(2*w - 20)),
+        cusp((2*w + 13)/(-4*w + 2)),
+        cusp((-2*w + 15)/(-2*w - 13)),
+        cusp((3*w + 15)/(-5*w + 5)),
+        cusp((-3*w + 18)/(-2*w - 18)),
+        cusp((2*w + 18)/(-5*w)),
+        cusp((-2*w + 20)/(-3*w - 15)),
+        cusp((5*w)/(-3*w + 18)),
+        cusp((1)/(-1)),
+        cusp((w + 2)/(-w + 2)),
+        cusp((0)/(1))
+]
+
+# triangles
+tv = [ [1,2,4], [3,5,6], [1,2,7], [3,5,8], [2,10,12], [4,11,13],
+       [1,9,14], [9,10,16], [17,18,21], [15,22,23], [19,20,24],
+       [10,25,26], [7,10,25], [2,10,26], [2,7,10], [1,2,7], [1,7,9],
+       [7,9,10], [2,7,10], [7,9,10], [7,10,25], [9,10,16],
+       [10,16,25], [7,9,27], [16,25,27], [9,16,27], [7,25,27] ]
+
+DYT = [[DYV[i] for i in t] for t in tv]
+
+# Check that all DY's triangles are congruent to one of ours:
+assert [t for t in DYT if not check_poly_in_list(t,[tri0]+t0)] == []
+print("All DY's triangles are in our list")
+
+# squares
+sv = [ [2,3,6,4], [1,2,3,5], [1,4,6,5], [2,3,8,7], [1,5,8,7],
+       [1,2,3,5], [1,2,10,9], [2,4,11,12], [1,4,13,14], [2,7,25,26],
+       [1,2,10,9] ]
+
+DYS = [[DYV[i] for i in s] for s in sv]
+
+# Check that all DY's squares are congruent to one of ours:
+assert [s for s in DYS if not check_poly_in_list(s,squares)] == []
+print("All DY's squares are in our list")
+

@@ -298,3 +298,29 @@ def reduce_triangles(Tlist, triangles):
             Tlist0.append(trip)
             triangles0.append(tri)
     return Tlist0, triangles0
+
+def square_parameters(S):
+    """
+    For S a square, returns [[i,j,k,l],[x,y,z]] where
+
+    """
+    S = std_poly(S)[1]
+    assert S[1]==cusp(oo)
+    i = alpha_index(S[0])
+    assert i!=-1
+    jd, z = alpha_index_with_translation(S[2])
+    assert jd!=-1
+    j = alpha_inv[jd]
+    beta = S[3]
+    Mi=M_alphas[i];
+    l, y = alpha_index_with_translation(apply(Mi, beta))
+    assert l!=-1
+    Tz = Matrix(2,2,[1,z,0,1])
+    kd, x = alpha_index_with_translation(apply(M_alphas[jd]*Tz.inverse(), beta))
+    assert kd!=-1
+    kk = alpha_inv[kd]
+    Mj=M_alphas[j]; Mk=M_alphas[kk]; Ml=M_alphas[l]
+    alpha1 = x + to_k(apply(Mk,cusp(oo)))
+    alpha2 = y + to_k(apply(Ml.inverse(), cusp(oo)))
+    assert apply(Mi*Tz*Mj,cusp(alpha1)) == cusp(alpha2)
+    return [[i,j,kk,l],[x,y,z]]

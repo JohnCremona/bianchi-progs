@@ -164,3 +164,51 @@ assert S1mats[1] == -Tmat(w) * M_alphas[8]
 assert S1mats[2] == -U.inverse()*Smat*U
 assert S1mats[3] == M_alphas[2]*Tmat(w)
 assert [apply(M,[all_alphas[i],cusp(oo)]) for M,i in zip(S1mats, S1types)] == poly_edges(S1)
+
+# Yasaki data
+
+# vertices
+
+DYV = [ None,
+    cusp((-3*w + 3)/(2*w - 12)),
+    cusp((-w + 3)/(-5)),
+    cusp((3)/(-w - 2)),
+    cusp((2*w + 7)/(-4*w + 2)),
+    cusp((-w + 10)/(-2*w - 10)),
+    cusp((w)/(-w + 3)),
+    cusp((w + 1)/(-w + 3)),
+    cusp((-2*w + 2)/(w - 8)),
+    cusp((3)/(-w - 1)),
+    cusp((6)/(-2*w - 3)),
+    cusp((1)/(-1)),
+    cusp((w + 1)/(-w + 2)),
+    cusp((4)/(-w - 2)),
+    cusp((0)/(1)),
+    cusp(oo),
+    cusp((-w + 2)/(-4)),
+    cusp((-w + 2)/(-3)),
+    cusp((w + 2)/(-w + 2)),
+    cusp((-w + 3)/(-4)),
+    cusp((4)/(-w - 1))
+]
+
+# triangles
+tv = [ [1,4,5], [2,3,6], [7,9,16], [2,7,8], [3,9,10], [2,7,13],
+       [3,9,14], [6,11,12], [12,13,19], [17,18,20], [11,14,15] ]
+
+DYT = [[DYV[i] for i in t] for t in tv]
+
+# Check that all DY's triangles are congruent to one of ours:
+assert [t for t in DYT if not check_poly_in_list(t,[tri0]+t0)] == []
+print("All DY's triangles are in our list")
+
+# squares
+sv = [ [1,5,6,3], [1,3,2,4], [2,4,5,6], [2,3,10,8], [2,3,9,7],
+       [7,8,10,9], [2,6,12,13], [3,6,11,14] ]
+
+DYS = [[DYV[i] for i in s] for s in sv]
+
+# Check that all DY's squares are congruent to one of ours:
+assert [s for s in DYS if not check_poly_in_list(s,squares)] == []
+print("All DY's squares are in our list")
+
