@@ -435,7 +435,16 @@ def write_bmf_upload_file(data, fname, table, sl2):
 
 # e.g. (assumes directory ~/bmf-upload exists)
 # sage: %runfile bianchi.py
-# sage: dat = read_dimtabeis_new(43, "dimtabeis.43.all.newdims")
-# sage: write_bmf_upload_file(dat, "bmf_dims.43.1-10000", 'dims')
+# sage: dimdat = read_dimtabeis_new(43, "dimtabeis.43.all.newdims")
+# sage: sl2_levels = read_data("sl2_levels_43", str)
+# sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.sl2", 'dims', sl2=True)
+# sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.no_sl2", 'dims', sl2=False)
 # sage: formdat = read_newforms(43, "newforms.43.1-10000")
 # sage: write_bmf_upload_file(formdat, "bmf_forms.43.1-10000", 'forms')
+
+# Copy the three files to legendre in bmf-upload/.
+# Do the upload as follows:
+# sage: from lmfdb import db
+# sage: db.bmf_forms.copy_from("/scratch/home/jcremona/bmf-upload/bmf_forms.43.1-10000")
+# sage: db.bmf_dims.update_from_file("/scratch/home/jcremona/bmf-upload/bmf_dims.43.1-10000.sl2")
+# sage: db.bmf_dims.copy_from("/scratch/home/jcremona/bmf-upload/bmf_dims.43.1-10000.no_sl2")
