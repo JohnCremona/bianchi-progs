@@ -31,13 +31,17 @@ int main ()
     }
   int output=1;
   cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
- int dimcusp, dimeis, dimall;
 #ifdef LOOPER
+ int dimcusp, dimeis, dimall;
  long firstn, lastn;
  int both_conj;
  cout<<"Both conjugates? (0/1) "; cin >> both_conj;
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
+ stringstream dimtabfilename;
+ dimtabfilename << "dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
+ ofstream dimtab(dimtabfilename.str().c_str());
+
  for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
@@ -51,14 +55,15 @@ int main ()
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
      nf.createfromscratch();
+#ifdef LOOPER
      // output lines as in dimtabeis:
-     cout << "DIMTAB " << d << "\t2\t";           // field and weight
-     cout << ideal_label(n)<<"\t\t"; // level and norm
+     dimtab << d << "\t2\t";           // field and weight
+     dimtab << ideal_label(n)<<"\t\t"; // level and norm
      dimcusp = nf.h1->h1cuspdim();
      dimall = nf.h1->h1dim();
      dimeis = dimall-dimcusp;
-     cout << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
-
+     dimtab << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
+#endif
      //nf.display();
      nf.getap(startp,stopp,verbose);
      //cout << "After sort_lmfdb():\n";
@@ -73,4 +78,7 @@ int main ()
      cout<<"==========================================="<<endl;
    }
  cout<<endl;
+#ifdef LOOPER
+ dimtab.close();
+#endif
 }

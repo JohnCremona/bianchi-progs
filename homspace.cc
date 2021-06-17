@@ -5,6 +5,7 @@
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
+#include <eclib/timer.h>
 #include "homspace.h"
 #include "geometry.h"
 #include "euclid.h"
@@ -92,9 +93,26 @@ void homspace::solve_relations()
        cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
      }
 #if(USE_SMATS)
+#ifdef TIME_RELATION_SOLVING
+   if (verbose)
+     {
+       cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
+     }
+   timer t;
+   t.start("relation solver");
+#endif
    smat_elim sme(relmat);
    int d1;
    smat ker = sme.kernel(npivs,pivs), sp;
+#ifdef TIME_RELATION_SOLVING
+   t.stopAll();
+   if (verbose)
+     {
+       cout<<"Finished solving relation matrix in ";
+       t.showAll();
+       cout<<"\n";
+     }
+#endif
    int ok = liftmat(ker,MODULUS,sp,d1);
    if (!ok)
      {
