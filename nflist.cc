@@ -41,7 +41,7 @@ int main ()
      ifstream data(eigfile(n).c_str());
      if(!data)
        {
-         cout<<"No data for level "<<n<<endl;
+         cout<<"No data for level " << ideal_label(n) << " = ("<<n<<"), norm = "<< quadnorm(n)<<endl;
        }
      else
        {
