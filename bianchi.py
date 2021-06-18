@@ -440,7 +440,7 @@ def write_bmf_upload_file(data, fname, table, sl2):
 # sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.sl2", 'dims', sl2=True)
 # sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.no_sl2", 'dims', sl2=False)
 # sage: formdat = read_newforms(43, "newforms.43.1-10000")
-# sage: write_bmf_upload_file(formdat, "bmf_forms.43.1-10000", 'forms')
+# sage: write_bmf_upload_file(formdat, "bmf_forms.43.1-10000", 'forms', True)
 
 # Copy the three files to legendre in bmf-upload/.
 # Do the upload as follows:
