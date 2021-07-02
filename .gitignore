@@ -41,6 +41,7 @@ modularity_modp
 nflist
 nflist_loop
 fieldinfo
+qidltest
 
 # temporary test output files
 *.testout

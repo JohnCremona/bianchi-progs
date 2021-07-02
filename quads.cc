@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-//#include "vector.h"  // needed for zbasis functions for non-Euclidean fields.
 #include <eclib/arith.h>
+#include "intprocs.h"
 #include "quads.h"
 #include "geometry.h"
 
@@ -19,6 +19,7 @@ char Quad::name;
 int Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
+int Quad::is_class_number_one;
 Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
@@ -29,7 +30,9 @@ long nquadprimes;         //The number of them.
 vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
-vector<int> valid_fields = {1,2,3,7,11,19,43,67,163};
+vector<int> euclidean_fields = {1,2,3,7,11};
+vector<int> class_number_one_fields = {1,2,3,7,11,19,43,67,163};
+vector<int> valid_fields = {1,2,3,7,11,19,43,67,163, 5};
 
 int check_field(int d, vector<int> fields)
 {
@@ -86,7 +89,9 @@ void Quad::field(int dd, int max)
       exit(1);
     }
   d = dd;
-  is_Euclidean = (d<=11);
+  is_Euclidean = check_field(d, euclidean_fields);
+  is_class_number_one = check_field(d, class_number_one_fields);
+
   if ((d+1)%4) {t=0; disc=4*d; n=d;
                quadconj=&quadconj0;
                mult=&mult0; qdivi=&qdivi0;
@@ -116,8 +121,12 @@ void Quad::field(int dd, int max)
     quadunits.push_back(fundunit*quadunits[i-1]);
   for(i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
-  maxnorm=max; initquadprimes();
-  setup_geometry();
+  maxnorm=max;
+  if(is_class_number_one)
+    {
+      initquadprimes();
+      setup_geometry();
+    }
 }
 
 void Quad::displayfield(ostream& s)
@@ -135,6 +144,11 @@ void Quad::displayfield(ostream& s)
    cout << "Class number > 1" << endl;
  }
  s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
+}
+
+int Quad::chi(long p)
+{
+  return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(-d,p));
 }
 
 Quad::Quad(const bigcomplex& z)
@@ -180,7 +194,7 @@ int val(const Quad& factor, const Quad& number)
 
 vector<Quad> residues(const Quad& a)
 {
-  long norma = quadnorm(a), m = gcd(real(a),imag(a));
+  long norma = a.norm(), m = gcd(a.re(), a.im());
   long rednorma = (norma/m)/m;
   vector<Quad> ans;
   for(int j=0; j<m*rednorma; j++)
@@ -543,139 +557,96 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
   return g==1;
 }
 
-//functions needed for non-euclidean fields to compute bezout/quadgcd
+long nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
+// returns round(true_real_part_of(alpha/beta))
+{
+  return roundover((alpha*quadconj(beta)).re(), beta.norm());
+}
 
-long vecbezout(int n, long* a, long* c) 
-//returns g = content(a) = a.c
-{
-  long x=0,ci=0,g=0;       //This does not initialise them properly
-                           //for the call to bezout.  Don't know why.
-  x++; ci++;               //This does the trick!
-//cout<<"In vecbezout with a="<<a<<", c="<<c<<endl;
-  for(int i=0; i<n; i++)
-    { 
-//cout<<"...calling bezout with g="<<g<<", a[i]="<<a[i]<<", x="<<x<<", ci="<<ci<<endl;
-      g=bezout(g,a[i],x,ci);
-//cout<<"...returns x="<<x<<", ci="<<ci<<endl;
-      c[i]=ci;
-      for(int j=0; j<i; j++) c[j]*=x;
-    }
-  return g;
-}
- 
-long vecgcd(int n, long* a)
-//returns g = content(a)
-{
-  long g=0;
-  for(int i=0; (i<n)&(g!=1); i++) g=gcd(g,a[i]);
-  return g;
-}
- 
-long dot(int n, long* a, long* c) 
-//returns g = a.c
-{
-  long g=0;
-  for(int i=0; i<n; i++) g+=a[i]*c[i];
-  return g;
-}
- 
-void findzbasiscoeffs(int n, long* first, long* second, 
-                      long* basis, long* x, long* y)
-//Given: a (2xn) matrix a with rows "first", "second"
-//Returns: "x","y": cols of coeffs (nx2), and
-//         "basis" [e1,e2,f1] such that the cols of
-//         (e1 f1)  are a Z-basis for the cols of a.
-//         (e2  0)  
-{
-  long* u=new long[n];
-  long* newfirst=new long[n];                    //temps
-  long e2=vecbezout(n,second,x);
-  long e1=dot(n,first,x);  //dot product
-//Now [e1,e2] is the x-combination of the data, with e2=gcd(second)
-//newfirst = first-e1*(second/e2);
-  int i;
-  for(i=0; i<n; i++) newfirst[i]=first[i]-e1*second[i]/e2;
-  long f1 = vecbezout(n,newfirst,u);
-  basis[0] = e1;   basis[1] = e2;   basis[2] = f1;
-//  y = u - ((u*second)/e2)*x;
-  long t = dot(n,u,second);
-  for(i=0; i<n; i++) y[i]=u[i]-(t*x[i])/e2;
-#ifdef testbezout
-//Check:
-  if( ! (  (e1==dot(n,first,x))   &&  
-           (f1==dot(n,first,y))   &&
-           (e2==dot(n,second,x))  &&
-           (0==dot(n,second,y)) ))
-  {cerr<<"Error in findzbasis!"  <<endl; }
-#endif                            
- delete[] u; delete[] newfirst;
-}
- 
-void findzbasis(int n, long* first, long* second, long* basis)
-//Same as findzbasiscoeffs except don't need x,y
-{
-  long* x=new long[n];   
-  long* newfirst=new long[n];     //temps
-//cout<<"In findzbasis with first="<<first<<", second="<<second<<", basis="<<basis<<endl;
-//cout<<"About to call vecbezout with second and x="<<x<<endl;
-  long e2=vecbezout(n,second,x);
-  long e1=dot(n,first,x);  //dot product
-//Now [e1,e2] is the x-combination of the data, with e2=gcd(second)
-//newfirst = first-e1*(second/e2);
-  for(int i=0; i<n; i++) newfirst[i]=first[i]-e1*second[i]/e2;
-  long f1 = vecgcd(n,newfirst);
-  basis[0] = e1;   basis[1] = e2;   basis[2] = f1;
-  delete[] x; delete[] newfirst;
-}
- 
-long* findminquad(Quad alpha, Quad beta, Quad& gen)
-{
-  long n,normalpha,normbeta=quadnorm(beta); Quad temp;
-  long* c = new long[2];
-  long* d = new long[2];  
-  long v;
-  c[0] = 1; c[1] = 0; d[0] = 0; d[1] = 1;
+// there follow 4 "flavours" of findminQuad returning different amounts of data
+
+vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& beta, Quad& alpha)
+{ alpha=al;
+  beta=be;
+  long n, v;
+  Quad temp;
+  vector<long> c = {1, 0};
+  vector<long> d = {0, 1};
+
   while (
-	 longify(real(bigcomplex(alpha)/bigcomplex(beta)), n),
+	 n = nearest_long_to_Quad_quotient(alpha,beta),
+         //= round(true_real_part_of(alpha/beta))
          alpha -= n*beta,
 //       d     -= n*c,
          d[0]     -= n*c[0],
          d[1]     -= n*c[1],
-         normalpha = quadnorm(alpha),
-         (normbeta > normalpha)
+         quadnorm(beta) > quadnorm(alpha)
          )
     {
       temp = alpha; alpha = -beta; beta = temp;
-      normbeta = normalpha;
       v    = d[0];     d[0]     = -c[0];    c[0]    = v;
       v    = d[1];     d[1]     = -c[1];    c[1]    = v;
     }
-  gen = beta; 
-  delete[] d;
+// beta is now the non-zero Quad of least norm in the lattice [al,be]
+// alpha is another Quad such that [al,be]=[alpha,beta]
+#ifdef testbezout
+  if (beta != c[1]*al + c[0]*be)
+    {
+      cerr << "Error in findminquadscoeffs!" << endl;
+      cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
+      cerr << "c1,c0 = "<<c[1]<<","<<c[0]<<endl;
+      cerr << "beta = "<<beta<< " not equal to "<<c[1]*al + c[0]*be<<endl;
+    }
+#endif
   return c;
 }
+
+vector<long> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
+{ Quad gen1;
+  return findminquadcoeffs(alpha,beta,gen0,gen1);
+}
+
+void findminquad(const Quad&al, const Quad&be, Quad& beta, Quad& alpha)
+// same as findminquadscoeffs but don't need coeffs
+{ alpha=al;
+  beta=be;
+  long n;
+  Quad temp;
+  while (
+	 n = nearest_long_to_Quad_quotient(alpha,beta),
+         //= round(true_real_part_of(alpha/beta))
+         alpha -= n*beta,
+	 quadnorm(beta) > quadnorm(alpha)
+	 )
+    {
+      temp = alpha; alpha = -beta; beta = temp;
+    }
+// beta is now the non-zero Quad of least norm in the lattice [al,be]
+// alpha is another Quad such that [al,be]=[alpha,beta]
+}
  
+void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
+// same as findminquadcoeffs but don't need coeffs
+{ Quad gen1;
+  findminquad(alpha,beta,gen0,gen1);
+}
+
 Quad quadbezout2(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
 {
-  Quad g;  
+  Quad g;
   if (div(beta, alpha)) { g=beta; coeff1=0; coeff2=1;}
   else if (div(alpha, beta)) { g=alpha; coeff1=1; coeff2=0;}
   else
     {
       long n = Quad::n; long t = Quad::t;
-      long* rv = new long[4];
-      long* iv = new long[4];
-      long* basis = new long[3];
-      long* x = new long[4];
-      long* y = new long[4];   
-      long* z = new long[4];
-      rv[0] = real(alpha); iv[0] = imag(alpha);
-      rv[1] = real(beta);  iv[1] = imag(beta);
+      vector<long> rv(4), iv(4), basis(3), x(4), y(4), z(4);
+      rv[0] = alpha.re(); iv[0] = alpha.im();
+      rv[1] = beta.re();  iv[1] = beta.im();
       rv[2] = -n*iv[0];    iv[2] = rv[0] + t*iv[0];
       rv[3] = -n*iv[1];    iv[3] = rv[1] + t*iv[1];
-      findzbasiscoeffs(4,rv,iv,basis,x,y);
+      findzbasiscoeffs(rv,iv,basis,x,y);
       Quad al=Quad(basis[0],basis[1]), be=basis[2];
-      long* coeff = findminquad(al,be,g);
+      vector<long> coeff = findminquadcoeffs(al,be,g);
       for(int i=0; i<4; i++) z[i] = coeff[0]*y[i] + coeff[1]*x[i];
       coeff1 = Quad(z[0],z[2]);    coeff2 = Quad(z[1],z[3]);
 //Next two lines try to get coeff1,2 as small as possible
@@ -684,8 +655,6 @@ Quad quadbezout2(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2
        coeff1 = coeff1%beta;            //reduced
        coeff2 = (g-coeff1*alpha)/beta;  //should be exact
       }
-      delete[] rv; delete[] iv; delete[] basis; 
-      delete[] x; delete[] y; delete[] z; delete[] coeff;
     }
   while (!pos(g)) { g*=fundunit; coeff1*=fundunit; coeff2*=fundunit;} 
 #ifdef testbezout
@@ -709,17 +678,15 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
   if (div(beta, alpha)) return beta;
   if (div(alpha, beta)) return alpha;
   long n = Quad::n, t=Quad::t;
-  long* rv = new long[4];
-  long* iv = new long[4];
-  long* basis = new long[3];
+  vector<long> rv(4), iv(4), basis(3);
   rv[0] = alpha.r; iv[0] = alpha.i;
   rv[1] = beta.r;  iv[1] = beta.i;
   rv[2] = -n*iv[0];    iv[2] = rv[0] + t*iv[0];
   rv[3] = -n*iv[1];    iv[3] = rv[1] + t*iv[1];
 //cout<<"About to call findzbasis with rv="<<rv<<", iv="<<iv<<", basis="<<basis<<endl;
-  findzbasis(4,rv,iv,basis);
+  findzbasis(rv,iv,basis);
   Quad g, al=Quad(basis[0],basis[1]), be=basis[2];
-  long* v = findminquad(al,be,g);
+  vector<long> v = findminquadcoeffs(al,be,g);
   while (!pos(g)) g*=fundunit;
 #ifdef testbezout
 //CHECK:
@@ -731,37 +698,9 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
      cerr<<"g   = "<<g<<endl;
    }
 #endif
-  delete[] rv; delete[] iv; delete[] basis; delete[] v;
   return g;
 }
  
-
-//-------------------------------------------------------------------------
-// N.B.  The point of the following function is that the built-in gcc
-// division truncates towards 0, while we need rounding, with a
-// consistent behaviour for halves (they go up here).
-//
-// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
-
-long roundover_old(long aa, long bb)
-{
-  long a=aa, b=bb, q, r;
-  assert (b>0); // the following code requires b>0
-  r = (a<0? b-(-a)%b : a%b);
-  if (2*r>=b) r-=b;
-  // Now    -b   <= 2*r    < b
-  assert ((-b<=2*r) && (2*r<b));
-  q = (a-r)/b;
-  return q;
-}
-
-long roundover(long a, long b)
-{
-  std::ldiv_t qr = ldiv(a, b);
-  long r = qr.rem, q = qr.quot;
-  long r2 = r<<1;
-  return (r2<-b? q-1: (r2>=b? q+1: q));
-}
 
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
 //
@@ -772,8 +711,7 @@ long roundover(long a, long b)
 
 vector<long> HNF(const Quad& alpha)
 {
-  long N = quadnorm(alpha);
-  long xa = real(alpha), ya = imag(alpha), u, v;
+  long N = alpha.norm(), xa = alpha.re(), ya = alpha.im(), u, v;
   long g = bezout(xa,ya,u,v);  // g=u*xa+v*ya=gcd(xa,ya)
   long x = xa/g, y = ya/g;
   // Now the HNF is g*[a, b+w] for some b mod a=N/g
@@ -794,7 +732,7 @@ string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
   vector<long>H = HNF(alpha);
   stringstream s;
-  s << "[" << quadnorm(alpha) << "," << H[1] << "," << H[2] << "]";
+  s << "[" << alpha.norm() << "," << H[1] << "," << H[2] << "]";
   return s.str();
 }
 
@@ -802,7 +740,7 @@ string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
   vector<long>H = HNF(alpha);
   stringstream s;
-  s << quadnorm(alpha) << "." << H[1] << "." << H[2];
+  s << alpha.norm() << "." << H[1] << "." << H[2];
   return s.str();
 }
 
@@ -816,7 +754,7 @@ string field_label() // returns field label, e.g. '2.0.4.1'
 int are_associate(const Quad& a, const Quad& b)
 {
   if(a==0) return (b==0);
-  if(quadnorm(a)!=quadnorm(b)) return 0;
+  if(a.norm() != b.norm()) return 0;
   vector<Quad>::const_iterator eps;
   for(eps=quadunits.begin(); eps!=quadunits.end(); eps++)
     if(a*(*eps)==b) return 1;

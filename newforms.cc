@@ -223,7 +223,7 @@ int newform::base_change_discriminant(void) const
         continue;
       if(div(p,nf->modulus)) // this prime is bad
         continue;
-      dp = ap+2*real(p);
+      dp = ap+2*p.re();
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -268,8 +268,8 @@ int newform::base_change_twist_discriminant(void) const
         continue;
       if(div(p,nf->modulus)) // this prime is bad
         continue;
-      dp1 =  ap+2*real(p);
-      dp2 = -ap+2*real(p);
+      dp1 =  ap+2*p.re();
+      dp2 = -ap+2*p.re();
       //cout<<"p="<<p<<" has ap="<<ap<<", discs "<<dp1<<", "<<dp2;
       dp1 = squarefree_part(dp1);
       dp2 = squarefree_part(dp2);
@@ -866,8 +866,8 @@ void newforms::output_to_file(string eigfile) const
   for(f=nflist.begin(); f!=nflist.end(); f++)
     {
       Quad lambda = f->lambda;
-      out<<setw(5)<<real(lambda)<<" "<<imag(lambda)<<" ";
-      if(echo) cout<<setw(5)<<real(lambda)<<" "<<imag(lambda)<<" ";
+      out<<setw(5)<< lambda.re()<<" "<< lambda.im()<<" ";
+      if(echo) cout<<setw(5)<< lambda.re()<<" "<< lambda.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 8: lambdadots
@@ -882,29 +882,29 @@ void newforms::output_to_file(string eigfile) const
   for(f=nflist.begin(); f!=nflist.end(); f++)
     {
       a = f->a;
-      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
-      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
+      if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   for(f=nflist.begin(); f!=nflist.end(); f++)
     {
       a = f->b;
-      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
-      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
+      if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   for(f=nflist.begin(); f!=nflist.end(); f++)
     {
       a = f->c;
-      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
-      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
+      if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   for(f=nflist.begin(); f!=nflist.end(); f++)
     {
       a = f->d;
-      out<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
-      if(echo) cout<<setw(5)<<real(a)<<" "<<imag(a)<<" ";
+      out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
+      if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 13: matdots

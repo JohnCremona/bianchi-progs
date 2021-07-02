@@ -225,7 +225,7 @@ string eigfile(const Quad& N)    //returns filename for eigs at level N
 string old_ideal_code(const Quad& N) // string code for a (principal) ideal N
 {
   stringstream s;
-  long r=real(N), i=imag(N);
+  long r=N.re(), i=N.im();
   if(r<0)    s << "m";
   s << abs(r);
   s << "i";

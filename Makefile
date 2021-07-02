@@ -49,12 +49,13 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: ccs1 ccs2 ccs3
-ccs1: quads.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
+ccs: ccs1 ccs2 ccs3 ccs4
+ccs1: intprocs.cc quads.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: moddata.cc modtest.cc mquads.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: symb.cc symbtest.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
+ccs4: qideal.cc qidloop.cc primes.cc primes1.cc primes2.cc qidltest.cc
 
-headers:cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h
+headers: intprocs.h cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -99,16 +100,16 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-tquads: tquads.o quads.o euclid.o geometry.o
-	$(CC) -o tquads tquads.o quads.o euclid.o geometry.o $(LFLAGS)
+tquads: tquads.o quads.o intprocs.o euclid.o geometry.o
+	$(CC) -o tquads tquads.o quads.o intprocs.o euclid.o geometry.o $(LFLAGS)
 
-fieldinfo: fieldinfo.o quads.o euclid.o geometry.o
-	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o $(LFLAGS)
+fieldinfo: fieldinfo.o quads.o euclid.o geometry.o intprocs.o
+	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o intprocs.o $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
-OBJS = symb.o moddata.o quads.o euclid.o geometry.o looper.o cusp.o homspace.o \
+OBJS = symb.o moddata.o quads.o intprocs.o euclid.o geometry.o looper.o cusp.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o
 
 tmanin: tmanin.o $(OBJS)
@@ -156,11 +157,11 @@ modularity: modularity.o $(OBJS)
 modularity_modp: modularity_modp.o $(OBJS)
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
-looptest: looptest.o looper.o quads.o euclid.o geometry.o
-	$(CC) -o looptest looptest.o looper.o quads.o euclid.o geometry.o $(LFLAGS)
+looptest: looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o
+	$(CC) -o looptest looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o $(LFLAGS)
 
-tratquad: tratquad.o quads.o euclid.o geometry.o
-	$(CC) -o tratquad tratquad.o quads.o euclid.o geometry.o $(LFLAGS)
+tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o
+	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o $(LFLAGS)
 
 modtest: modtest.o $(OBJS)
 	$(CC) -o modtest modtest.o $(OBJS) $(LFLAGS)
@@ -183,15 +184,19 @@ hecketest: hecketest.o $(OBJS)
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
 
+qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o
+	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o $(LFLAGS)
+
 # DEPENDENCIES
 #
 # recreate with
 # for f in *.cc; do g++ -MM -std=c++11 ${f}; done
 #
+intprocs.o: intprocs.h intprocs.cc
 cusp.o: cusp.cc cusp.h moddata.h quads.h ratquads.h
 dimtabeis.o: dimtabeis.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 dimtable.o: dimtable.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
-fieldinfo.o: fieldinfo.cc quads.h
+fieldinfo.o: fieldinfo.cc quads.h intprocs.h
 hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h
 homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h euclid.h geometry.h
 edge_relations.o: edge_relations.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h geometry.h
@@ -214,7 +219,7 @@ nflist.o: nflist.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.
 nftest.o: nftest.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 oldforms.o: oldforms.cc oldforms.h moddata.h quads.h ratquads.h newforms.h homspace.h cusp.h symb.h
 pmanin.o: pmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h looper.h
-quads.o: quads.cc quads.h geometry.h
+quads.o: quads.cc quads.h intprocs.h geometry.h
 euclid.o: euclid.cc euclid.h quads.h geometry.h
 geometry.o: geometry.cc geometry.h quads.h
 symb.o: symb.cc symb.h moddata.h quads.h ratquads.h euclid.h geometry.h
@@ -222,9 +227,14 @@ symbtest.o: symbtest.cc symb.h moddata.h quads.h ratquads.h looper.h
 testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h lf1.h
 tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 tmquads.o: tmquads.cc mquads.h
-tquads.o: tquads.cc quads.h
+tquads.o: tquads.cc quads.h intprocs.h
 tratquad.o: tratquad.cc ratquads.h quads.h
 xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
+
+qideal.o: qideal.cc qideal.h quads.h intprocs.h
+primes.o: primes.cc primes.h qideal.h quads.h intprocs.h
+qidloop.o: qidloop.cc qidloop.h qideal.h quads.h
+qidltest.o: qidltest.cc qidloop.h primes.h qideal.h quads.h
 
 # Some tables
 

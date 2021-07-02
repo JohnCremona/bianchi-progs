@@ -3,13 +3,10 @@
 #if     !defined(_QUADS_H)
 #define _QUADS_H      1       //flags that this file has been included
 
-#include <eclib/interface.h>
+#include <eclib/arith.h>
 #include <assert.h>
 
 #define PI M_PI
-
-// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
-long roundover(long aa, long bb);
 
 class Quad;
 class RatQuad;
@@ -64,12 +61,14 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int     disc;       // discriminant
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
+  static int is_class_number_one;   // 1 for fields of class number 1, else 0
   static Quad zero;
   static Quad one;
   static Quad w;
 
   static void field(int dd, int max=1000);
   static void displayfield(ostream& s = cout);
+  static int chi(long p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
   static void setup_geometry();
@@ -90,12 +89,18 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   }
   Quad(const bigcomplex& z);   //rounds to nearest
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {;}
+  Quad conj() const {return quadconj(*this);}
+  long re() const {return r;}
+  long im() const {return i;}
+  long norm() const {return nm;}
+  Quad pos_assoc() const {return makepos(*this);}
 
 //operators and related functions (friends are inlined below):
 
   void operator=(const Quad& a) {r=a.r; i=a.i; nm=a.nm;}
   friend long real(const Quad& a) {return a.r;}
   friend long imag(const Quad& a) {return a.i;}
+  friend Quad makepos(const Quad& a);
   friend long quadnorm(const Quad& a) {return a.nm;} // used when t=0
   friend Quad quadconj0(const Quad& a);
   friend Quad quadconj1(const Quad& a);
@@ -169,7 +174,7 @@ inline Quad operator% (const Quad& a, const Quad& b)
 { return a-(b*(a/b));}
 inline Quad makepos(const Quad& a)
 {Quad ans=a;
- while(!pos(ans)) ans*=fundunit;
+  while(!pos(ans)) {ans*=fundunit; }
  return ans;
 }
 inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
@@ -203,6 +208,12 @@ inline istream& operator>>(istream& s, Quad& x)
   x.setnorm();
   return s;
 }
+
+vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
+vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&);
+void findminquad(const Quad&, const Quad&, Quad&, Quad&);
+void findminquad(const Quad&, const Quad&, Quad&);
+
 
 vector<long> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
 string ideal_label(const Quad& alpha);  // returns label of ideal (alpha)
