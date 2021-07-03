@@ -7,32 +7,13 @@
 void test1(Qideal&a)
 {
   long norma = a.norm();
-  cout << "Qideal = " << a << "\twith norm " << norma;
+  cout << "Ideal " << a << " (norm " << norma << ")";
   if (a.isprincipal())
-    cout << "\t principal, generator " << a.gen();
+    cout << " is principal with generator " << a.gen();
   else
-    cout << "\t non-principal, generators " <<a.gens();
-  cout << endl;
-}
-
-void test2(Qideal&a)
-{
-  long norma = a.norm();
-  Qideal b = a.conj();
-  if (a.isprincipal()&& !b.isprincipal())
-    {
-      cout << "Qideal = " << a << "\twith norm " << norma;
-      cout << "\t principal generator " << a.gen() << endl;
-      cout << "Qideal = " << b << "\twith norm " << norma << endl;
-      cout << endl;
-    }
-}
-
-void test3(Qideal&a)
-{
-  long norma = a.norm();
-  cout << "Qideal = " << a << "\twith norm " << norma <<endl;
+    cout << " is not principal, generators " <<a.gens();
   prime_factn pf(a);
+  cout << " with factorization: ";
   pf.display();
   Qideal test;
   for (long i=0; i<pf.num_primes(); i++)
@@ -43,6 +24,19 @@ void test3(Qideal&a)
       exit(1);
     }
   cout << endl;
+}
+
+void test2(Qideal&a)
+{
+  long norma = a.norm();
+  Qideal b = a.conj();
+  if (a.isprincipal()&& !b.isprincipal())
+    {
+      cout << "Qideal = " << a << " (norm " << norma <<")";
+      cout << ", principal generator " << a.gen() << endl;
+      cout << "Qideal = " << b << " (norm " << norma << ")"<<endl;
+      cout << endl;
+    }
 }
 
 void init()
@@ -71,30 +65,11 @@ int main(void)
   cin >> firstn >> lastn;
   cout<<"Use both conjugates? (0=No, 1=Yes): ";
   cin >> both;
-
-  for (int ch=1; ch<4; ch++)
+  Qidealooper loop(firstn,lastn,both);
+  while( loop.not_finished() )
     {
-      switch(ch)
-        {
-        case 1:
-          cout << "1) List ideals of norm in given range, identifying any principal generators" << endl;
-          break;
-        case 2:
-          cout << "2) Debug tool: Search for principal ideals with non-princ conjugates (!)" << endl;
-          break;
-        case 3:
-          cout << "3) Print prime factorization, and test by multiplying up" << endl;
-        }
-      Qidealooper Iloop(firstn,lastn,both);
-      while( Iloop.not_finished() )
-        {
-          Qideal I = Iloop.next();
-          switch (ch) {
-          case 1: test1(I); break;
-          case 2: test2(I); break;
-          case 3: test3(I); break;
-          }
-        }
+      Qideal I = loop.next();
+      test1(I);
     }
 }
 

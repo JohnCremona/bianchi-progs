@@ -46,7 +46,7 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
     {
       //      cout << "odd ramified case" << endl;
       if (t)
-        Plist.push_back(Quadprime(p,(p+1)/2,1, p,0));
+        Plist.push_back(Quadprime(p,-(p+1)/2,1, p,0));
       else
         Plist.push_back(Quadprime(p,0,1, p,0));
       return Plist;
@@ -65,7 +65,7 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
       long r, b1, b2;
       if (t)
         {
-          r = sqrt_mod_p(-disc, p);
+          r = sqrt_mod_p(disc, p);
           b1 = posmod((r%2? (r-1)/2: (p+r-1)/2), p);
           b2 = posmod(-1-b1, p);
         }
@@ -131,17 +131,25 @@ prime_factn::prime_factn(const Qideal& n)
 
 void prime_factn::display(ostream& s) const
 {
-  if (plist.size()==0)
+  vector<Quadprime>::const_iterator Pi;
+  vector<long>::const_iterator ei;
+  for(Pi=plist.begin(), ei=elist.begin(); Pi!=plist.end(); Pi++, ei++)
     {
-      s << "No prime factors." << endl;
+      if (Pi!=plist.begin()) s << " * ";
+      s << *Pi;
+      if (*ei>1) s<<"^"<<(*ei);
     }
-  else
-    {
-      s << "Number of distinct prime factors: "<< plist.size()<<endl;
-      s << "Exponents   Primes:" << endl;
-      for (long i=0; i<(long)plist.size(); i++)
-	s << elist[i] << "\t" << plist[i] << endl;
-    }
+  // if (plist.size()==0)
+  //   {
+  //     s << "No prime factors." << endl;
+  //   }
+  // else
+  //   {
+  //     s << "Number of distinct prime factors: "<< plist.size()<<endl;
+  //     s << "Exponents   Primes:" << endl;
+  //     for (long i=0; i<(long)plist.size(); i++)
+  //       s << elist[i] << "\t" << plist[i] << endl;
+  //   }
 }
 
 vector<Quadprime> pdivs(const Qideal& n)  // list of prime divisors

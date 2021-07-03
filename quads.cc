@@ -83,11 +83,11 @@ Quad qdivi1(const Quad& a, long c) // used when t=1
 
 void Quad::field(int dd, int max)
 {
-  if (!check_field(dd))
-    {
-      cerr<<"field "<<dd<<" is not implemented: it must be one of: "<<valid_fields<<endl;
-      exit(1);
-    }
+  // if (!check_field(dd))
+  //   {
+  //     cerr<<"field "<<dd<<" is not implemented: it must be one of: "<<valid_fields<<endl;
+  //     exit(1);
+  //   }
   d = dd;
   is_Euclidean = check_field(d, euclidean_fields);
   is_class_number_one = check_field(d, class_number_one_fields);

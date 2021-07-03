@@ -26,14 +26,21 @@
 class Quadprime : public Qideal {
   long p;      // underlying prime of Z
   long flag;   // = 1 or 2 for a pair of split primes
+  int character; // 0 (ramified), +1 (split), -1 (inert).
 public:
   // constructor
   Quadprime(long a, long b, long c, long pp, long fflag)
-    : Qideal(a,b,c) { p=pp; flag=fflag; }
+    : Qideal(a,b,c) { p=pp; flag=fflag; character=Quad::chi(p);}
 
-  Quadprime(const Qideal&x) : Qideal(x) { p=0; flag=-1; }
+  Quadprime(const Qideal&x) : Qideal(x) { p=0; flag=-1; character=0;}
   Quadprime() {;}
-  Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; flag=x.flag; }
+  Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; flag=x.flag; character=x.character;}
+  int is_ramified() const {return character==0;}
+  int is_split() const {return character==1;}
+  int is_inert() const {return character==-1;}
+  long prime() const {return p;}
+  int residue_degree() const {return (character==-1? 2: 1);}
+  int ramification_degree() const {return (character==0? 2: 1);}
   friend inline ostream& operator<<(ostream& s, const Quadprime& x);
 };
 

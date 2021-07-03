@@ -443,7 +443,10 @@ void Qideal::operator/=(const Qideal&f)
 ////////////////////////////////////////////////////////
 
 int Qideal::ok() const
-{ return ( (a!=0) && ((( xmodmul(b,b,a) + b*Quad::t + Quad::n)%a)==0) ) ;}
+{
+ return quadnorm(Quad(b,1))%a==0;
+ //return ( (a!=0) && ((( xmodmul(b,b,a) + b*Quad::t + Quad::n)%a)==0) ) ;
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Naive version which first overflows for [47743,47434+a], d=(?)5  ////
