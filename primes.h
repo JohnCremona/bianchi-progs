@@ -25,16 +25,13 @@
 
 class Quadprime : public Qideal {
   long p;      // underlying prime of Z
-  long flag;   // = 1 or 2 for a pair of split primes
   int character; // 0 (ramified), +1 (split), -1 (inert).
 public:
   // constructor
-  Quadprime(long a, long b, long c, long pp, long fflag)
-    : Qideal(a,b,c) { p=pp; flag=fflag; character=Quad::chi(p);}
+  Quadprime(long a, long b, long c, long pp, long ind=1)
+    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p);}
 
-  Quadprime(const Qideal&x) : Qideal(x) { p=0; flag=-1; character=0;}
-  Quadprime() {;}
-  Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; flag=x.flag; character=x.character;}
+  Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; character=x.character;}
   int is_ramified() const {return character==0;}
   int is_split() const {return character==1;}
   int is_inert() const {return character==-1;}
@@ -46,14 +43,8 @@ public:
 
 inline ostream& operator<<(ostream& s, const Quadprime& x)
 {
-  if (x.flag==-1)
-    s << (Qideal)x;
-  else
-    {
-      s << "P" << x.p;
-      if (x.flag==1) s << "a";
-      if (x.flag==2) s << "b";
-    }
+  s << "P" << x.p;
+  if (x.is_split()) s << (x.index==1? "a": "b") ;
   return s;
 }
 
@@ -81,7 +72,6 @@ public:
   friend vector<Qideal> alldivs(const Qideal& a);
   };
 
-Quadprime primdiv(const Qideal&);         // "First" prime divisor
 vector<Quadprime> pdivs(const Qideal&);   // list of all prime divisors
 vector<Qideal> alldivs(const Qideal&);    // list of all ideal divisors
 vector<Qideal> sqdivs(const Qideal&);     // list of ideal divisors whose square divides

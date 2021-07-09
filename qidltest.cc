@@ -7,8 +7,8 @@
 void test1(Qideal&a)
 {
   long norma = a.norm();
-  cout << "Ideal " << a << " (norm " << norma << ")";
-  if (a.isprincipal())
+  cout << "Ideal " << ideal_label(a) << " = " << a << " (norm " << norma << ")";
+  if (a.is_principal())
     cout << " is principal with generator " << a.gen();
   else
     cout << " is not principal, generators " <<a.gens();
@@ -30,13 +30,47 @@ void test2(Qideal&a)
 {
   long norma = a.norm();
   Qideal b = a.conj();
-  if (a.isprincipal()&& !b.isprincipal())
+  if (a.is_principal()&& !b.is_principal())
     {
       cout << "Qideal = " << a << " (norm " << norma <<")";
       cout << ", principal generator " << a.gen() << endl;
       cout << "Qideal = " << b << " (norm " << norma << ")"<<endl;
       cout << endl;
     }
+}
+
+void show_primes()
+{
+  Quadprimes::display();
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+    {
+      if ((*Pi).norm()>200) break;
+      cout << (*Pi) << " = " << ideal_label(*Pi) << " = " << (Qideal)(*Pi) <<endl;
+    }
+}
+
+void class_number()
+{
+  long MB = floor(2*sqrt(Quad::disc)/PI);
+  cout << "Minkowski bound = " << MB << endl;
+  vector<Qideal> class_reps; // prime ideals representing nontrivial ideal classes
+  int nclasses = 1;
+  Qidealooper loop(1, MB, 1, 1);
+  while( loop.not_finished() )
+    {
+      Qideal I = loop.next();
+      if (I.is_principal()) continue;
+      int new_class=1;
+      for (vector<Qideal>::iterator Ji = class_reps.begin(); (Ji != class_reps.end()) && new_class; Ji++)
+        if (I.is_equivalent(*Ji)) new_class = 0;
+      if (new_class)
+        {
+          nclasses++;
+          cout << I << " is in a new ideal class (#" << nclasses << ")" << endl;
+          class_reps.push_back(I);
+        }
+    }
+  cout << "Class number = " << nclasses << " with representatives " << class_reps << endl;
 }
 
 void init()
@@ -51,25 +85,26 @@ void init()
   cout<<"+"<<Quad::n<<".\n";
   cout<<"\nInitializing Quadprimes"<<endl;
   Quadprimes::init(1000);
-  Quadprimes::display();
-  // for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
-  //   cout << (*Pi) << " = " << (Qideal)(*Pi) <<endl;
 }
 
 int main(void)
 {
   cout << endl << "QIDEAL LOOP TEST PROGRAM" << endl;
   init();
-  long firstn, lastn; int both;
+  show_primes();
+  class_number();
+  long firstn, lastn;
   cout<<"Enter first and last norm for Qideal loop: ";
   cin >> firstn >> lastn;
-  cout<<"Use both conjugates? (0=No, 1=Yes): ";
-  cin >> both;
-  Qidealooper loop(firstn,lastn,both);
+  if (lastn==0) exit(0);
+  int both=1, sorted=1;
+  Qidealooper loop(firstn, lastn, both, sorted);
   while( loop.not_finished() )
     {
       Qideal I = loop.next();
+      cout<<flush;
       test1(I);
+      cout<<flush;
     }
 }
 

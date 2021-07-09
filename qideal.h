@@ -6,12 +6,16 @@
 #include "quads.h"
 
 class Qideal  {
+protected:
   long a,b,c;   // the Z-basis in standard form  I=c[a,b+w]
   long iclass;  // 0 if principal, 1 if not (since h<=2), -1 if undetermined
   Quad g0,g1;   // if iclass!=-1 then I=<g0,g1>, g0 non-zero of minl norm,
                 // thus  iclass=0 iff I=<g0>, when g1 is undefined
                 // currently g1=0 if I princ a priori, o/w as found by fill()
-  public:
+  long index;   // Index (from 1) of this ideal in the standard
+                // sorting of ideals of the same norm, or -1 if not known
+
+public:
 //constructors
   Qideal();                          // base initialization for class `Qideal'
   Qideal(const Qideal& );            // the copy constructor
@@ -30,6 +34,13 @@ class Qideal  {
   vector<Quad> gens() const {return {g0, g1};}
   vector<long> get_rv() const {return {a*c, b*c};} // real parts of Z-module gens
   vector<long> get_iv() const {return {  0, c};}   // imag parts of Z-module gens
+
+  void set_index(int ind=0); // if 0 (default) computes the correct index
+  long get_index()
+  {
+    if (index<1) set_index();
+    return index;
+  }
 //
 //operators
 //
@@ -68,7 +79,9 @@ class Qideal  {
   void operator/=(const Qideal&);
 //
 //functions defined in qideal.cc unless inline
-  int isprincipal();         // fills iclass if necessary
+  int is_principal();         // fills iclass if necessary
+  int is_equivalent(Qideal& I) {return (I.conj()*(*this)).is_principal();}
+  int is_anti_equivalent(Qideal& I) {return (I*(*this)).is_principal();}
   int contains(const long& n) const {return n%(a*c)==0;}
   int contains(const Quad& alpha) const;
   int contains(const Qideal& I) const  {return ((I.c)%c==0) && contains(I.zgen(0)) && contains(I.zgen(1));};
@@ -91,6 +104,9 @@ class Qideal  {
 // i/o
   friend ostream& operator<<(ostream& s, const Qideal& x);
   friend istream& operator>>(istream& s, Qideal& x);
+
+  friend class Quadprime;
+
 private:
   int ok() const;                 // checks that [a,b+w] *is* an ideal
   void fill();                    // determines iclass, g0, g1
@@ -104,9 +120,20 @@ char* to_string(const Qideal& a);  // outputs to a (new) string
 
 long val(const Qideal& factor, const Qideal& dividend);
 
+// These three functions return lists which are not sorted in the standard way
 vector<Qideal> primitive_ideals_with_norm(long N, int both_conj=1);
 vector<Qideal> ideals_with_norm(long N, int both_conj=1);
 vector<Qideal> ideals_with_bounded_norm(long maxnorm, int both_conj=1);
+
+string ideal_label(Qideal& I);  // returns label of ideal I
+
+// Class to hold sorted lists of ideals of given norm
+class Qideal_lists {
+  static map<long, vector<Qideal>> N_to_Ilist;
+public:
+  static vector<Qideal> ideals_with_norm(long N);
+  static vector<Qideal> sorted_ideals_with_bounded_norm(long maxnorm);
+};
 
 #endif
 

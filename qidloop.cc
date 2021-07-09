@@ -2,10 +2,10 @@
 
 #include "qidloop.h"
 
-Qidealooper::Qidealooper(long nmin, long nmax, int both_conjugates)
-                         : n(nmin), maxn(nmax), both(both_conjugates)
+Qidealooper::Qidealooper(long nmin, long nmax, int both_conjugates, int sorted)
+  : n(nmin), maxn(nmax), both(both_conjugates), sort(sorted)
 {
-  vector<Qideal> Ilist = ideals_with_norm(n);
+  vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n): ideals_with_norm(n));
   I_norm_n.insert(I_norm_n.end(), Ilist.begin(), Ilist.end());
   advance();
 }
@@ -24,7 +24,7 @@ void Qidealooper::advance()
   while (I_norm_n.empty() && n<maxn)
     {
       n++;
-      vector<Qideal> Ilist = ideals_with_norm(n);
+      vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n): ideals_with_norm(n));
       I_norm_n.insert(I_norm_n.end(), Ilist.begin(), Ilist.end());
     }
   // now either n>maxn and I_norm_n is empty, or n<=maxn and it is

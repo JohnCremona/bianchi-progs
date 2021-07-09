@@ -22,29 +22,29 @@ void Qideal::abc_from_HNF(vector<long>& basis)
 // private -- fills other data fields given a,b,c
 void Qideal::fill()
 {
-  if (iclass==-1)
+  if (iclass!=-1) return;
+  // cout<<"Filling in data for ideal"<<(*this)<<endl;
+  Quad alpha=Quad(a), beta=Quad(b,1);
+  findminquad(alpha, beta, g0, g1);
+  // cout<<"findminquad for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
+  if (div(g0,alpha) && div(g0,beta)) // principal!
     {
-      Quad alpha=Quad(a), beta=Quad(b,1);
-      findminquad(alpha, beta, g0, g1);
-      if (div(g0,alpha) && div(g0,beta)) // principal!
-	{
-          iclass=0;
-          g1 = 0;
-	}
-      else
-	{
-          iclass=1;
-          g1 = makepos(c*g1);
-        }
-      g0 = makepos(c*g0);
+      iclass=0;
+      g1 = 0;
     }
+  else
+    {
+      iclass=1;
+      g1 = makepos(c*g1);
+    }
+  g0 = makepos(c*g0);
 }
 
 Qideal::Qideal()
-{ a=1; b=0; c=1; iclass=0; g0=1; g1=0;}   //default ideal is whole ring
+{ a=1; b=0; c=1; iclass=0; g0=1; g1=0; index=1;}   //default ideal is whole ring
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-{ a=i.a; b=i.b; c=i.c; iclass=i.iclass;
+{ a=i.a; b=i.b; c=i.c; iclass=i.iclass; index=i.index;
   if(iclass!=-1)
     {
       g0=i.g0; g1=i.g1;
@@ -55,7 +55,7 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
 {
   if (cc==0)
     {
-      a=1; b=0; c=0; iclass=0; g0=0; g1=0;
+      a=1; b=0; c=0; iclass=0; g0=0; g1=0; index=1;
     }
   else
   {
@@ -67,6 +67,7 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
         cerr <<"***Warning: Invalid ideal parameters ("<< aa << "," << bb << "," << cc << ") ***"<<endl;
       }
     iclass=-1;
+    index=-1;
   }
 }
 
@@ -80,7 +81,7 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
 // functions can rely on it.
 
 Qideal::Qideal(const long& n)       // princ ideal gen by long
-  : a(1), b(0), c(abs(n)), iclass(0), g0(0), g1(0)
+  : a(1), b(0), c(abs(n)), iclass(0), g0(abs(n)), g1(0), index(-1)
 { ; }
 
 // Utility used to construct Qideals given two lists of integers rv,
@@ -93,6 +94,7 @@ Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-
   findzbasis(rv,iv,basis);
   abc_from_HNF(basis);
   iclass=-1;
+  index=-1;
 }
 
 Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads */
@@ -114,7 +116,9 @@ Qideal::Qideal(const Quad& alpha) // principal ideal
 {
   vector<Quad> gens = {alpha};
   *this = Qideal(gens);
-  iclass=0; g0=makepos(alpha); g1=0;
+  iclass=0;
+  g0=makepos(alpha); g1=0;
+  index=-1;
 }
 
 
@@ -167,20 +171,19 @@ void Qideal::operator+=(const long& aa)
 void Qideal::operator+=(const Quad& alpha)
 {
   if (divides(alpha))
-    return;  //ideal remains unchanged
-  if (c==0)
     {
-      *this = Qideal(alpha);
+      return;  //ideal remains unchanged
+    }
+  Qideal A(alpha);
+  if (A.divides(*this))
+    {
+      *this = A;
       return;
     }
 
-  vector<long> rv = get_rv(), iv = get_iv();
-  Quad aa = alpha;
-  rv.push_back(aa.re());
-  rv.push_back(aa.im());
-  aa *= Quad::w;
-  rv.push_back(aa.re());
-  rv.push_back(aa.im());
+  vector<long> rv = get_rv(), iv = get_iv(), rva = A.get_rv(), iva = A.get_iv();
+  rv.insert(rv.end(), rva.begin(), rva.end());
+  iv.insert(iv.end(), iva.begin(), iva.end());
   *this = Qideal(rv, iv);
 }
 
@@ -453,8 +456,17 @@ int Qideal::ok() const
 //{ return ( (a!=0) && ((( b*b + b*Quad::t + Quad::n)%a)==0) ) ;} ////
 ////////////////////////////////////////////////////////////////////////
 
-int Qideal::isprincipal()
-{ if (iclass==-1) fill();  return (iclass==0); }
+int Qideal::is_principal()
+{
+  //  cout<<"Testing "<<(*this)<< " for being principal"<<endl;
+  if (iclass==-1)
+    {
+      //      cout<<" ... not yet known, calling fill()"<<endl;
+      fill();
+    }
+  //  cout<<" ...iclass = "<<iclass<<", returning "<<(iclass==0)<<endl;
+  return (iclass==0);
+}
 
 Qideal Qideal::conj() const
 { Qideal ans=*this;
@@ -586,7 +598,36 @@ vector<Qideal> ideals_with_bounded_norm(long maxnorm, int both_conj)
   return ans;
 }
 
+void Qideal::set_index(int ind)
+{
+  if (index>0) // index already set, nothing to do
+    return;
+  if (ind!=0)  // we are given the index so use it
+    {
+      index=ind;
+      return;
+    }
+  // compute the index by finding the sorted list of all ideals of this norm
+  long n = norm();
+  vector<Qideal> II = Qideal_lists::ideals_with_norm(n);
+  vector<Qideal>::iterator i = find(II.begin(), II.end(), *this);
+  if (i==II.end())
+    {
+      cerr<<"Error in finding index of "<<(*this)<<" (norm "<<n<<") in list of all ideals of norm "<<n<<": "
+          <<II<<endl;
+      exit(1);
+    }
+  index = std::distance(II.begin(), i);
+  // cout<<"In set_index(), have just set index of ideal "<<(*this)<<" to "<<index<<endl;
+}
 
+
+string ideal_label(Qideal& I)  // returns label of ideal I
+{
+  stringstream s;
+  s << I.norm() << "." << I.get_index();
+  return s.str();
+}
 
 // END OF FILE qideal.cc
 

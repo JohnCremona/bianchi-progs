@@ -31,8 +31,11 @@ vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
 vector<int> euclidean_fields = {1,2,3,7,11};
-vector<int> class_number_one_fields = {1,2,3,7,11,19,43,67,163};
 vector<int> valid_fields = {1,2,3,7,11,19,43,67,163, 5};
+
+vector<int> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
+vector<int> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
+vector<int> class_number_three_fields = {23,31,59,83,107,139,211,283,307,331,379,499,547,643,883,907};
 
 int check_field(int d, vector<int> fields)
 {
@@ -81,6 +84,12 @@ Quad qdivi1(const Quad& a, long c) // used when t=1
   return ans;
 }
 
+int squarefree_part(int dd)
+{
+  int d = sqdivs(dd).back();
+  return abs(dd)/(d*d);
+}
+
 void Quad::field(int dd, int max)
 {
   // if (!check_field(dd))
@@ -88,7 +97,9 @@ void Quad::field(int dd, int max)
   //     cerr<<"field "<<dd<<" is not implemented: it must be one of: "<<valid_fields<<endl;
   //     exit(1);
   //   }
-  d = dd;
+  d = squarefree_part(dd);
+  if (d!=dd)
+    cout << "Replacing d = " << dd << " with " << d << endl;
   is_Euclidean = check_field(d, euclidean_fields);
   is_class_number_one = check_field(d, class_number_one_fields);
 
@@ -565,40 +576,37 @@ long nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
 
 // there follow 4 "flavours" of findminQuad returning different amounts of data
 
-vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& beta, Quad& alpha)
+vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 { alpha=al;
   beta=be;
-  long n, v;
-  Quad temp;
-  vector<long> c = {1, 0};
-  vector<long> d = {0, 1};
+  vector<long> c = {1, 0}; // alpha = c[0]*al + c[1]*be  always
+  vector<long> d = {0, 1}; // beta  = d[0]*al + d[1]*be  always
 
-  while (
-	 n = nearest_long_to_Quad_quotient(alpha,beta),
-         //= round(true_real_part_of(alpha/beta))
-         alpha -= n*beta,
-//       d     -= n*c,
-         d[0]     -= n*c[0],
-         d[1]     -= n*c[1],
-         quadnorm(beta) > quadnorm(alpha)
-         )
+  while (1)
     {
-      temp = alpha; alpha = -beta; beta = temp;
-      v    = d[0];     d[0]     = -c[0];    c[0]    = v;
-      v    = d[1];     d[1]     = -c[1];    c[1]    = v;
-    }
-// beta is now the non-zero Quad of least norm in the lattice [al,be]
-// alpha is another Quad such that [al,be]=[alpha,beta]
+      long n = nearest_long_to_Quad_quotient(alpha,beta);
+      alpha -= n*beta;
+      c[0]  -= n*d[0];
+      c[1]  -= n*d[1];
+      Quad temp = alpha; alpha = -beta; beta = temp;
+      long t = c[0]; c[0] = -d[0]; d[0] = t;
+           t = c[1]; c[1] = -d[1]; d[1] = t;
+      if (quadnorm(beta) >= quadnorm(alpha))
+        {
+          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
+          // beta is another Quad such that [al,be]=[alpha,beta]
 #ifdef testbezout
-  if (beta != c[1]*al + c[0]*be)
-    {
-      cerr << "Error in findminquadscoeffs!" << endl;
-      cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
-      cerr << "c1,c0 = "<<c[1]<<","<<c[0]<<endl;
-      cerr << "beta = "<<beta<< " not equal to "<<c[1]*al + c[0]*be<<endl;
-    }
+          if (alpha != c[0]*al + c[1]*be)
+            {
+              cerr << "Error in findminquadscoeffs!" << endl;
+              cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
+              cerr << "c0,c1 = "<<c[0]<<","<<c[1]<<endl;
+              cerr << "alpha = "<<alpha<< " not equal to "<<c[0]*al + c[1]*be<<endl;
+            }
 #endif
-  return c;
+          return c;
+        }
+    }
 }
 
 vector<long> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
@@ -606,23 +614,34 @@ vector<long> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
   return findminquadcoeffs(alpha,beta,gen0,gen1);
 }
 
-void findminquad(const Quad&al, const Quad&be, Quad& beta, Quad& alpha)
+//#define DEBUG_FINDMINQUAD
+
+void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 // same as findminquadscoeffs but don't need coeffs
 { alpha=al;
   beta=be;
-  long n;
-  Quad temp;
-  while (
-	 n = nearest_long_to_Quad_quotient(alpha,beta),
-         //= round(true_real_part_of(alpha/beta))
-         alpha -= n*beta,
-	 quadnorm(beta) > quadnorm(alpha)
-	 )
+#ifdef  DEBUG_FINDMINQUAD
+  cout<<"In findminquad with alpha="<<alpha<<" (norm "<<quadnorm(alpha) <<"), beta="
+     <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
+#endif
+  while (1)
     {
-      temp = alpha; alpha = -beta; beta = temp;
+      alpha -= nearest_long_to_Quad_quotient(alpha,beta)*beta;
+      Quad temp = alpha; alpha = -beta; beta = temp;
+#ifdef  DEBUG_FINDMINQUAD
+      cout<<" ... alpha="<<alpha<<" (norm "<<quadnorm(alpha)<<"), beta="
+          <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
+#endif
+      if (quadnorm(beta) >= quadnorm(alpha))
+        {
+          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
+          // beta is another Quad such that [al,be]=[alpha,beta]
+#ifdef  DEBUG_FINDMINQUAD
+          cout<<" ... on return, alpha = "<<alpha<<" has minimal norm "<<quadnorm(alpha)<<endl;
+#endif
+          return;
+        }
     }
-// beta is now the non-zero Quad of least norm in the lattice [al,be]
-// alpha is another Quad such that [al,be]=[alpha,beta]
 }
  
 void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
