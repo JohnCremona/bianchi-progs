@@ -39,6 +39,55 @@ void test2(Qideal&a)
     }
 }
 
+void looptest()
+{
+  long firstn, lastn;
+  cout<<"Enter first and last norm for Qideal loop: ";
+  cin >> firstn >> lastn;
+  if (lastn==0) exit(0);
+  int both=1, sorted=1;
+  Qidealooper loop(firstn, lastn, both, sorted);
+  while( loop.not_finished() )
+    {
+      Qideal I = loop.next();
+      cout<<flush;
+      test1(I);
+      cout<<flush;
+    }
+}
+
+void labeltest()
+{
+  long firstn=1, lastn=100;
+  cout<<"testing labels and label parsing for all ideal of norm from "<<firstn<<" to "<<lastn<<endl;
+  int both=1, sorted=1;
+  Qidealooper loop(firstn, lastn, both, sorted);
+  while( loop.not_finished() )
+    {
+      Qideal I = loop.next();
+      string s = ideal_label(I);
+      Qideal J(s);
+      assert (I==J);
+      assert (ideal_label(J)==s);
+    }
+  cout<<"label test ok"<<endl;
+}
+
+void stringtest()
+{
+  string s;
+  long N;
+  while (1)
+    {
+      cout << "Enter an ideal label N.i : ";
+      cin >> s;
+      if (s[0]=='0') return;
+      Qideal I(s);
+      N = I.norm();
+      cout << "ideal is "<<I<<" with norm " << N <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
+    }
+}
+
 void show_primes()
 {
   Quadprimes::display();
@@ -93,19 +142,9 @@ int main(void)
   init();
   show_primes();
   class_number();
-  long firstn, lastn;
-  cout<<"Enter first and last norm for Qideal loop: ";
-  cin >> firstn >> lastn;
-  if (lastn==0) exit(0);
-  int both=1, sorted=1;
-  Qidealooper loop(firstn, lastn, both, sorted);
-  while( loop.not_finished() )
-    {
-      Qideal I = loop.next();
-      cout<<flush;
-      test1(I);
-      cout<<flush;
-    }
+  looptest();
+  stringtest();
+  labeltest();
 }
 
 // END OF FILE qidltest.cc

@@ -621,12 +621,42 @@ void Qideal::set_index(int ind)
   // cout<<"In set_index(), have just set index of ideal "<<(*this)<<" to "<<index<<endl;
 }
 
-
 string ideal_label(Qideal& I)  // returns label of ideal I
 {
   stringstream s;
   s << I.norm() << "." << I.get_index();
   return s.str();
+}
+
+Qideal Qideal_from_norm_index(long N, int i) // i'th ideal of norm N
+{
+  if (i<1)
+    {
+      cerr<<"Qideal_from_norm_index(): i must be a positive integer"<<endl;
+      exit(1);
+    }
+  vector<Qideal> II = Qideal_lists::ideals_with_norm(N);
+  if (i>(int)II.size())
+    {
+      cerr<<"Qideal_from_norm_index(): i="<<i<<" is greater than "<<II.size()
+          <<", the number of ideals of norm N="<<N<<endl;
+      exit(1);
+    }
+  return II[i-1];
+}
+
+Qideal::Qideal(const string& s)           // ideal from label N.i
+// need to parse s to obtain N and i as postive integers
+{
+  string Nstr, istr;
+  stringstream ss(s);
+  std::getline(ss, Nstr, '.');
+  std::getline(ss, istr);
+  long N;
+  int i;
+  stringstream(Nstr)>>N;
+  stringstream(istr)>>i;
+  *this = Qideal_from_norm_index(N,i);
 }
 
 // END OF FILE qideal.cc
