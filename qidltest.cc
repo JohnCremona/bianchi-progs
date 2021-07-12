@@ -98,57 +98,19 @@ void show_primes()
     }
 }
 
-void class_number()
-{
-  long MB = floor(2*sqrt(Quad::disc)/PI);
-  cout << "Minkowski bound = " << MB << endl;
-  vector<Qideal> class_reps; // prime ideals representing nontrivial ideal classes
-  int nclasses = 1;
-  Qidealooper loop(1, MB, 1, 1);
-  while( loop.not_finished() )
-    {
-      Qideal I = loop.next();
-      if (I.is_principal()) continue;
-      int new_class=1;
-      for (vector<Qideal>::iterator Ji = class_reps.begin(); (Ji != class_reps.end()) && new_class; Ji++)
-        if (I.is_equivalent(*Ji)) new_class = 0;
-      if (new_class)
-        {
-          nclasses++;
-          cout << I << " is in a new ideal class (#" << nclasses << ")" << endl;
-          class_reps.push_back(I);
-          Qideal I2 = I.conj();
-          if (!I.is_equivalent(I2))
-            {
-              nclasses++;
-              cout << I2 << " is in a new ideal class (#" << nclasses << ")" << endl;
-              class_reps.push_back(I2);
-            }
-        }
-    }
-  cout << "Class number = " << nclasses << " with representatives " << class_reps << endl;
-}
-
 void init()
 {
   long d;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
-  cout << "Initialised field" <<endl;
-  cout<<"K = Q(sqrt("<<-d<<")) = Q("<<Quad::name<<"), disc(K) = -"<<Quad::disc;
-  cout<<", min poly("<<Quad::name<<") = x^2";
-  if(Quad::t) cout<<"-x";
-  cout<<"+"<<Quad::n<<".\n";
-  cout<<"\nInitializing Quadprimes"<<endl;
-  Quadprimes::init(1000);
+  Quad::displayfield(cout);
 }
 
 int main(void)
 {
-  cout << endl << "QIDEAL LOOP TEST PROGRAM" << endl;
+  cout << endl << "QIDEAL TEST PROGRAM" << endl;
   init();
   show_primes();
-  class_number();
   looptest();
   stringtest();
   labeltest();

@@ -8,6 +8,7 @@
 #include <eclib/unimod.h>
 #include "intprocs.h"
 #include "quads.h"
+#include "primes.h"
 #include "geometry.h"
 
 //Declare static data members of class Quad:
@@ -20,7 +21,7 @@ char Quad::name;
 int Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
-int Quad::is_class_number_one;
+int Quad::class_number;
 Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
@@ -102,7 +103,7 @@ void Quad::field(int dd, int max)
   if (d!=dd)
     cout << "Replacing d = " << dd << " with " << d << endl;
   is_Euclidean = check_field(d, euclidean_fields);
-  is_class_number_one = check_field(d, class_number_one_fields);
+  class_number = (check_field(d, class_number_one_fields)? 1: 0);
 
   if ((d+1)%4) {t=0; disc=4*d; n=d;
                quadconj=&quadconj0;
@@ -134,11 +135,16 @@ void Quad::field(int dd, int max)
   for(i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
   maxnorm=max;
-  if(is_class_number_one)
+  if(class_number==1)
     {
       initquadprimes();
       setup_geometry();
     }
+  else
+    {
+      Quadprimes::init(max);
+    }
+  fill_class_group();
 }
 
 void Quad::displayfield(ostream& s)
@@ -150,12 +156,14 @@ void Quad::displayfield(ostream& s)
    cout << "Euclidean" << endl;
    break;
  case 19: case 43: case 67: case 163:           // Non-Euclidean
-   cout << "Non-Euclidean" << endl;
+   cout << "Non-Euclidean, class number 1" << endl;
    break;
  default:
-   cout << "Class number > 1" << endl;
+   cout << "Class number " << class_number << endl;
+   cout << "Ideal class group representatives: " << class_group << endl;
  }
- s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
+ if (class_number==1)
+   s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
 int Quad::chi(long p)
@@ -343,6 +351,8 @@ void Quad::initquadprimes()
 
   nquadprimes = quadprimes.size();
 }
+
+// Quad::fill_class_group() is implemented in qidloop.cc
 
 Quad primdiv(const Quad& a)
 {

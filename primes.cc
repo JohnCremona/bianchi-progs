@@ -10,7 +10,7 @@ vector<Quadprime> Quadprimes::list;
 
 void Quadprimes::display(ostream& s)
 {
-  s << list.size() << " primes initialised, ";
+  s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
 }
 

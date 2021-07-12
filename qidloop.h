@@ -1,15 +1,21 @@
 // FILE QIDLOOP.H
 
-//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+//
 // Usage:
-//     Qideal a;
-//     for (Qidealooper avar(firstn,lastn,both); avar.ok(); avar++)
-//         { a=(Qideal)avar;
+//
+//     Qidealooper looper(firstn,lastn,both,sorted);
+//     while looper.not_finished())
+//         { Qideal A = looper.next();
 //           ...
 //         }
 // for looping through Qideals of norm from firstn to lastn.
-// If both=1 (default=0) both conjugates are returned (if different)
-//////////////////////////////////////////////////////////////////////
+// If both=1 (default=0) both conjugates are returned (if different).
+// If sorted=1 (default 0) the ideals are returned in standard sorted order.
+/////////////////////////////////////////////////////////////////////////////
+
+#if     !defined(_QIDLOOP_H)
+#define _QIDLOOP_H      1       //flags that this file has been included
 
 #include <eclib/arith.h>
 #include "qideal.h"
@@ -32,4 +38,5 @@ private:
   void advance(); // advance if necessary, return true if not finished
 };
 
+#endif
 // END OF FILE QIDLOOP.H

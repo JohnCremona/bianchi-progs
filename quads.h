@@ -11,6 +11,7 @@
 
 class Quad;
 class RatQuad;
+class Qideal;
 
 // Valid fields
 extern vector<int> valid_fields;
@@ -62,7 +63,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int     disc;       // discriminant
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
-  static int is_class_number_one;   // 1 for fields of class number 1, else 0
+  static int class_number;   // 0 if not set
+  static vector<Qideal> class_group; // ideals class representatives (no structure)
   static Quad zero;
   static Quad one;
   static Quad w;
@@ -72,6 +74,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int chi(long p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
+  static void fill_class_group();
   static void setup_geometry();
 
 // Now the actual data elements:
@@ -163,6 +166,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 
   friend class level;
   friend class RatQuad;
+  friend class Qideal;
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
 };
 

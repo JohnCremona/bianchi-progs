@@ -1,5 +1,5 @@
 Enter field: Enter max. norm for primes: The field is Q(sqrt(-43))	discriminant = 43	min poly(a) = a^2-a+11.
-Non-Euclidean
+Non-Euclidean, class number 1
 175 primes initialised, max norm = 1000
 
 w   = a

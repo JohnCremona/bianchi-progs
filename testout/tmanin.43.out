@@ -1,5 +1,5 @@
 Q(sqrt(-43))	discriminant = 43	min poly(a) = a^2-a+11.
-Non-Euclidean
+Non-Euclidean, class number 1
 18049 primes initialised, max norm = 200000
 Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
 Output Hecke eigenvalues? (0/1) Enter level: 
