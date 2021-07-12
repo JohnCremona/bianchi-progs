@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <eclib/arith.h>
+#include <eclib/unimod.h>
 #include "intprocs.h"
 #include "quads.h"
 #include "geometry.h"
@@ -574,6 +575,66 @@ long nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
   return roundover((alpha*quadconj(beta)).re(), beta.norm());
 }
 
+//#define test_reduce
+
+// Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
+// The new alpha has the smallest norm.
+// U holds the unirmodular transform
+void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
+{
+#ifdef test_reduce
+  Quad alpha0=alpha, beta0=beta;
+  cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
+  long U11, U12, U21, U22;
+#endif
+  U.reset(); // to the identity
+  int s=1;
+  long n; Quad t;
+  while (s)
+    {
+      s = 0; // will be set to 1 if anything changes
+      n = nearest_long_to_Quad_quotient(beta,alpha);
+      if(n!=0)
+        {
+          s=1;
+          beta -= n*alpha;
+          U.y_shift(BIGINT(n));
+#ifdef test_reduce
+          cout<<" -- shift by " << n <<": alpha="<<alpha<<", beta="<<beta<< endl;
+          U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+          U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+          assert (U11*alpha+U12*beta == alpha0);
+          assert (U21*alpha+U22*beta == beta0);
+#endif
+        }
+      if (quadnorm(beta) < quadnorm(alpha))
+        {
+          s=1;
+          t = -alpha; alpha = beta; beta = t;
+          U.invert();
+#ifdef test_reduce
+          cout<<" -- invert: alpha="<<alpha<<", beta="<<beta<< endl;
+          U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+          U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+          assert (U11*alpha+U12*beta == alpha0);
+          assert (U21*alpha+U22*beta == beta0);
+#endif
+        }
+    }
+  // alpha is now the non-zero Quad of least norm in the lattice [alpha,beta]
+#ifdef test_reduce
+  cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
+      <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
+  U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+  U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+  assert (U11*alpha+U12*beta == alpha0);
+  assert (U21*alpha+U22*beta == beta0);
+  assert (quadnorm(alpha)<=quadnorm(beta));
+  assert (nearest_long_to_Quad_quotient(alpha,beta)==0);
+#endif
+}
+
+
 // there follow 4 "flavours" of findminQuad returning different amounts of data
 
 vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
@@ -621,6 +682,8 @@ void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 { alpha=al;
   beta=be;
 #ifdef  DEBUG_FINDMINQUAD
+  unimod U; Quad alpha1=alpha, beta1=beta;
+  sl2z_reduce(alpha1, beta1, U);
   cout<<"In findminquad with alpha="<<alpha<<" (norm "<<quadnorm(alpha) <<"), beta="
      <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
 #endif

@@ -4,6 +4,7 @@
 #define _QUADS_H      1       //flags that this file has been included
 
 #include <eclib/arith.h>
+#include <eclib/unimod.h>
 #include <assert.h>
 
 #define PI M_PI
@@ -208,6 +209,11 @@ inline istream& operator>>(istream& s, Quad& x)
   x.setnorm();
   return s;
 }
+
+// Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
+// The new alpha has the smallest norm.
+// U holds the unirmodular transform
+void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U);
 
 vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
 vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&);

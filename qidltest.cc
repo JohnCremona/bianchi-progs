@@ -117,6 +117,13 @@ void class_number()
           nclasses++;
           cout << I << " is in a new ideal class (#" << nclasses << ")" << endl;
           class_reps.push_back(I);
+          Qideal I2 = I.conj();
+          if (!I.is_equivalent(I2))
+            {
+              nclasses++;
+              cout << I2 << " is in a new ideal class (#" << nclasses << ")" << endl;
+              class_reps.push_back(I2);
+            }
         }
     }
   cout << "Class number = " << nclasses << " with representatives " << class_reps << endl;

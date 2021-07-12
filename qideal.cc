@@ -16,28 +16,23 @@ void Qideal::abc_from_HNF(vector<long>& basis)
   if (b<0) {b+=a;}     // not sure what % does with negative numbers
   if (c<0) {c=-c;}
   if (!ok())
-    { cerr <<"***Warning: "<< *this <<" not ok in abc_from_HNF***"<<endl;} 
+    { cerr <<"***Warning: "<< *this <<" not ok in abc_from_HNF***"<<endl;}
 }
 
 // private -- fills other data fields given a,b,c
 void Qideal::fill()
 {
   if (iclass!=-1) return;
-  // cout<<"Filling in data for ideal"<<(*this)<<endl;
-  Quad alpha=Quad(a), beta=Quad(b,1);
-  findminquad(alpha, beta, g0, g1);
-  // cout<<"findminquad for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
-  if (div(g0,alpha) && div(g0,beta)) // principal!
-    {
-      iclass=0;
-      g1 = 0;
-    }
-  else
-    {
-      iclass=1;
-      g1 = makepos(c*g1);
-    }
+  //  cout<<"Filling in data for ideal"<<(*this)<<endl;
+  g0=Quad(a); g1=Quad(b,1);
+  unimod U;
+  sl2z_reduce(g0,g1, U);
+  //  cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
+  iclass = (div(g0,g1)? 0: 1); // 0 means principal
+  // scale by content:
+  g1 = makepos(c*g1);
   g0 = makepos(c*g0);
+  //  cout<<" -- now gens are "<<gens()<<endl;
 }
 
 Qideal::Qideal()
@@ -648,12 +643,11 @@ Qideal Qideal_from_norm_index(long N, int i) // i'th ideal of norm N
 Qideal::Qideal(const string& s)           // ideal from label N.i
 // need to parse s to obtain N and i as postive integers
 {
-  string Nstr, istr;
   stringstream ss(s);
+  string Nstr, istr;
   std::getline(ss, Nstr, '.');
   std::getline(ss, istr);
-  long N;
-  int i;
+  long N, i;
   stringstream(Nstr)>>N;
   stringstream(istr)>>i;
   *this = Qideal_from_norm_index(N,i);

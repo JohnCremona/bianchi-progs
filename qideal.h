@@ -7,11 +7,11 @@
 
 class Qideal  {
 protected:
-  long a,b,c;   // the Z-basis in standard form  I=c[a,b+w]
-  long iclass;  // 0 if principal, 1 if not (since h<=2), -1 if undetermined
-  Quad g0,g1;   // if iclass!=-1 then I=<g0,g1>, g0 non-zero of minl norm,
-                // thus  iclass=0 iff I=<g0>, when g1 is undefined
-                // currently g1=0 if I princ a priori, o/w as found by fill()
+  long a,b,c;   // HNF Z-basis: I=c[a,b+w]
+  long iclass;  // 0 if principal, 1 if not, -1 if undetermined
+  Quad g0,g1;   // Reduced Z-basis (if iclass!=-1):
+                // I=<g0,g1>, g0 non-zero of minimal norm,
+                // and iclass=0 iff I=<g0> is principal
   long index;   // Index (from 1) of this ideal in the standard
                 // sorting of ideals of the same norm, or -1 if not known
 
@@ -31,9 +31,9 @@ public:
   long get_b() const {return b;}
   long content() const {return c;}
   long smallest_integer() const {return a*c;}
-  Quad gen() const {return g0;}
-  Quad zgen(int i) const {return (i? Quad(b*c,c): Quad(a*c));} // Z-module gens
-  vector<Quad> gens() const {return {g0, g1};}
+  Quad zgen(int i) const {return (i? Quad(b*c,c): Quad(a*c));} // HNF Z-module gens
+  Quad gen() const {return g0;} // smallest element, so a generator iff principal
+  vector<Quad> gens() const {return {g0, g1};} // reduced Z-module ggens
   vector<long> get_rv() const {return {a*c, b*c};} // real parts of Z-module gens
   vector<long> get_iv() const {return {  0, c};}   // imag parts of Z-module gens
 
