@@ -159,18 +159,19 @@ def initial_list(k):
     floor of the hyperbolic 3-space.
     """
     dk = k.discriminant()
+
+    #we initialize the list of hemispheres with the only principal
+    #hemispheres of radius 1
+
     if dk.mod(4) == 1:
         D = dk.abs()
         b = 4 #fund region is [0, 1/2] x[0, sqrt(D)/b]
+        L = [(k(0), 1), (k(1), 1), (k((1/2,1/2)),1)]
     else:
         D = (dk/4).abs()
         b = 2
-    #we initialize the list of hemispheres with the only principal
-    #hemispheres of radius 1
-    if b==2:
         L = [(k(0), 1), (k(1), 1), (k((0,1)),1)]
-    else:
-        L = [(k(0), 1), (k(1), 1), (k((1/2,1/2)),1)]
+
     num = list_of_bounded_elems(k, 0, 1 + D)
     if k.class_number()==1: #for h=1 I use a different recursion
         L = check_rectangle(k, (0, 0), 1/2, 1/b, num, L)
@@ -262,7 +263,7 @@ def singular_points(k):
         s = 2
         step = 1
     while (3/4)*s^2<=D:
-        for r in range(-s/2 + 1, s/2 + 1):
+        for r in range(-s//2 + 1, s//2 + 1):
             if s^2<=(r^2 + D):
                 if (step*s).divides(r^2 + D):
                     s0 = ZZ(s/step)
@@ -288,11 +289,11 @@ def singular_points_in_F(k):
         d = 1
     for P in L: #we test if P or a translated P is inside Fk
         sign = 1
-        t_rang = xrange(P[0] - 1/2, P[0] + 1)
+        t_rang = range(int(P[0] - 1/2), int(P[0] + 1))
         if P[0]<0:
             sign = -1
-            t_rang = xrange(sign*(P[0]), sign*(P[0] - 1/2) + 1)
-        for k in range(-d*(h - P[1]), d*P[1] + 1):
+            t_rang = range(int(sign*(P[0])), int(sign*(P[0] - 1/2) + 1))
+        for k in range(int(-d*(h - P[1])), int(d*P[1] + 1)):
             if 0< (P[1] - k/d) <= h:
                 for t in t_rang:
                     if k/d <= (P[0] - sign*t) <= (1/2 + k/d):
@@ -818,7 +819,7 @@ def find_principal_hemisphere(k, P, maxNorm=None):
     Finds principal hemisphere that covers P, and that does it with maximum
     height over P.
     """
-    den = list_of_bounded_elems(k, 0, 1/P[2])
+    den = list_of_bounded_elems(k, 0, int(1/P[2]))
     den = [l for l in den if l[1]>0 or (l[1]==0 and l[0]>=0)]
     maxnormmu = k(den[-1]).norm()
     if maxNorm:
