@@ -2,6 +2,7 @@
 
 #include <eclib/arith.h>
 #include "quads.h"
+#include "primes.h"
 
 int main ()
 {
@@ -25,27 +26,37 @@ int main ()
  cout << "HNF(a) = " << HNF(a) << endl;
  cout << "ideal_label(a) = " << ideal_label(a) << endl;
 
- cout << "Here are the first 20 primes out of "<<quadprimes.size()
-      << " (one per line):\n";
- vector<Quad>::iterator pr = quadprimes.begin();
- while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
+ vector<Quad>::iterator pr;
+  if (Quad::class_number==1)
    {
-     p = *pr++;
-     cout << "("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+     cout << "Here are the first 20 primes out of "<<quadprimes.size()
+          << " (one per line):\n";
+     pr = quadprimes.begin();
+     while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
+       {
+         p = *pr++;
+         cout << "("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+       }
    }
-
-
- /*
- cout << "Here are all the primes:\n";
- pr = quadprimes.begin();
- int np=0;
- while(pr!=quadprimes.end())
+ else
    {
-     p = *pr++;
-     np++;
-     cout << "#"<<np<<":\t("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+     cout << "---------------------------------------------------------------" << endl;
+     Quadprimes::display();
+     cout << "Here are the first 20 prime ideals:"<<endl;
+     for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin();
+          (Pi-Quadprimes::list.begin())<20 && (Pi != Quadprimes::list.end()); Pi++)
+       {
+         Quadprime P = *Pi;
+         vector<Quad> gg = P.gens();
+         cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
+         if (P.is_principal())
+           cout << " = ("<<gg[0]<<") (principal)";
+         else
+           cout << "(not principal)";
+         cout<<endl;
+       }
+     cout << "---------------------------------------------------------------" << endl;
    }
- */
 
  b=a*a;
  cout << "b=a*a=" << b << endl;
@@ -74,47 +85,70 @@ int main ()
 
 //Test of primes and divisor functions
  cout<<"Testing primes divisor functions.\nEnter a: "; cin>>a;
- Quad pda = primdiv(a);
- cout << "A prime divisor of a: " << pda << endl;
- vector<Quad> plist = pdivs(a);
- cout << "The list of all prime divisors of a: " << plist << endl;
- vector<Quad> elist;
- pr=plist.begin();
- while(pr!=plist.end()) elist.push_back(val(*pr++,a));
- cout << "Exponents: " << elist << endl;
- vector<Quad> dlist = posdivs(a);
- cout << "The list of "<<dlist.size()<<" divisors of a (up to units): \n";
- cout << dlist << endl;
- dlist = alldivs(a);
- cout << "The list of all "<<dlist.size()<<" divisors of a: \n";
- cout << dlist << endl;
- dlist = sqdivs(a);
- cout << "The list of "<<dlist.size()<<" divisors of a whose square divides: \n";
- cout << dlist << endl;
- dlist = sqfreedivs(a);
- cout << "The list of "<<dlist.size()<<" square-free divisors of a: \n";
- cout << dlist << endl;
 
-
-//Test of gcd and bezout
- Quad g,x,y;
- cout << "Testing gcd and bezout."<<endl;
- while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
+ if (Quad::class_number==1)
    {
-     cout << "gcd("<<a<<","<<b<<") = "<<quadgcd(a,b)<<endl;
-     g=quadbezout(a,b,x,y);
-     cout << "bezout returns x="<<x<<", y="<<y<<", g="<<g<<".  ";
-     if(g==a*x+b*y)cout<<"OK!"; else cout<<"WRONG!";
-     cout<<endl;
+     Quad pda = primdiv(a);
+     cout << "A prime divisor of a: " << pda << endl;
+     vector<Quad> plist = pdivs(a);
+     cout << "The list of all prime divisors of a: " << plist << endl;
+     vector<Quad> elist;
+     pr=plist.begin();
+     while(pr!=plist.end()) elist.push_back(val(*pr++,a));
+     cout << "Exponents: " << elist << endl;
+     vector<Quad> dlist = posdivs(a);
+     cout << "The list of "<<dlist.size()<<" divisors of a (up to units): \n";
+     cout << dlist << endl;
+     dlist = alldivs(a);
+     cout << "The list of all "<<dlist.size()<<" divisors of a: \n";
+     cout << dlist << endl;
+     dlist = sqdivs(a);
+     cout << "The list of "<<dlist.size()<<" divisors of a whose square divides: \n";
+     cout << dlist << endl;
+     dlist = sqfreedivs(a);
+     cout << "The list of "<<dlist.size()<<" square-free divisors of a: \n";
+     cout << dlist << endl;
    }
- cout << "Systematic testing of bezout..."<<flush;
- vector<Quad>::const_iterator ap,bp;
- for (ap=quadprimes.begin(); ap-quadprimes.begin()<10; ap++)
-   for (bp=quadprimes.begin(); bp-quadprimes.begin()<10; bp++)
-     {
-       cout<<"quadbezout("<<*ap<<","<<*bp<<") = " <<quadbezout(*ap,*bp,x,y);
-       cout<<endl;
-     }
- cout<<"done.\n";
+ else
+   {
+     Qideal A(a);
+     prime_factn pf(A);
+     cout << "Prime ideal factorization of A = (a):\t";
+     pf.display();
+     cout<<endl;
+     cout << "Ideals with the same norm as A:    \t"
+          << Qideal_lists::ideals_with_norm(a.norm()) <<endl;
+     cout << "Prime ideal divisors of A:         \t"
+          << pdivs(A) <<endl;
+     cout << "All ideal divisors of A:           \t"
+          << alldivs(A) <<endl;
+     cout << "All ideals whose square divides A: \t"
+          << sqdivs(A) <<endl;
+     cout << "All squarefree ideal divisors of A:\t"
+          << sqfreedivs(A) <<endl;
+   }
 
+ if (Quad::class_number==1)
+   {
+     //Test of gcd and bezout
+     Quad g,x,y;
+     cout << "Testing gcd and bezout."<<endl;
+     while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
+       {
+         cout << "gcd("<<a<<","<<b<<") = "<<quadgcd(a,b)<<endl;
+         g=quadbezout(a,b,x,y);
+         cout << "bezout returns x="<<x<<", y="<<y<<", g="<<g<<".  ";
+         if(g==a*x+b*y)cout<<"OK!"; else cout<<"WRONG!";
+         cout<<endl;
+       }
+     cout << "Systematic testing of bezout..."<<flush;
+     vector<Quad>::const_iterator ap,bp;
+     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10; ap++)
+       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10; bp++)
+         {
+           cout<<"quadbezout("<<*ap<<","<<*bp<<") = " <<quadbezout(*ap,*bp,x,y);
+           cout<<endl;
+         }
+     cout<<"done.\n";
+   }
 }

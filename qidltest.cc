@@ -49,7 +49,30 @@ void residuetest(Qideal& I)
       if (i!=j) cout<<i<<" --> "<<r<<" --> "<<j<<" ************"<<endl;
     }
   vector<Quad> res = I.residues();
-  cout << "Residues mod "<<I<<": "<<res<<endl;
+  assert ((long)res.size()==I.norm());
+  cout << I.norm() << " residues mod "<<I<<": "<<res<<endl;
+  if (I.norm()==1) return;
+
+  prime_factn pf(I);
+  long phi=1;
+  for (long i=0; i<pf.num_primes(); i++)
+    {
+      long np = pf.prime(i).norm();
+      phi *= (np-1);
+      for (long e=1; e<pf.expo(i); e++)
+        phi *= np;
+    }
+
+  vector<Quad> invres; // invertible residues
+  Quad x,y;
+  for (vector<Quad>::const_iterator r=res.begin()+1; r!=res.end(); r++)
+    {
+      if (comax(I, Qideal(*r), x, y))
+        invres.push_back(*r);
+    }
+  assert ((long)invres.size()==phi);
+  cout << invres.size() << " invertible residues mod "<<I<<": "<<invres<<endl;
+
 }
 
 void looptest()
@@ -64,8 +87,8 @@ void looptest()
     {
       Qideal I = loop.next();
       test1(I);
-      // if (I.norm()<=100)
-      //   residuetest(I);
+      if (I.norm()<=100)
+        residuetest(I);
     }
 }
 
