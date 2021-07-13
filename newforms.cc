@@ -1065,7 +1065,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
     {
       vec imagej=vec(n1ds); // initialised to 0
       j=*jj;
-      std::div_t st = div(h1->freegens[j-1], h1->nsymb);
+      std::ldiv_t st = ldiv(h1->freegens[j-1], h1->nsymb);
       long s_number = st.rem;  // remainder gives (c:d) symbol number
       int s_type = st.quot; // quotient gives symbol type
       symb s = h1->symbol(s_number);

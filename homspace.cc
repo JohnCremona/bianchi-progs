@@ -274,7 +274,7 @@ void homspace::make_freemods()
       if (n_alphas>1)
         {
           //      cout<<"j = "<<j<<": ";
-          std::div_t st = div(j, nsymb);
+          std::ldiv_t st = ldiv(j, nsymb);
           s = st.rem;  // remainder gives (c:d) symbol number
           t = st.quot; // quotient gives symbol type
           //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";

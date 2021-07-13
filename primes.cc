@@ -87,26 +87,26 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
 
 prime_factn::prime_factn(const Qideal& n)
 {
-  Qideal a=n;
+  Qideal A(n);
   long np = 0;
-  vector<long> pdivs_norm = pdivs(a.norm());
-  //  cout<<"Finding prime factors of "<<a<<" with norm "<<a.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
+  vector<long> pdivs_norm = pdivs(A.norm());
+  //  cout<<"Finding prime factors of "<<A<<" with norm "<<A.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
   for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
       //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
-      // at least one, but possibly not both when p splits, divides a
+      // at least one, but possibly not both when p splits, divides A
       for(vector<Quadprime>::const_iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
         {
           Quadprime P = *Pi;
-          if (P.divides(a))
+          if (P.divides(A))
             {
               plist.push_back(P);
               elist.push_back(1);
-              a /= P;
-              while (P.divides(a))
+              A /= P;
+              while (P.divides(A))
                 {
-                  a/=P;
+                  A /= P;
                   elist[np]+=1;
                 }
               np +=1;
@@ -405,7 +405,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
   return (N_to_Ilist[N] = ans);
 }
 
-vector<Qideal> Qideal_lists::sorted_ideals_with_bounded_norm(long maxnorm)
+vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm)
 {
   vector<Qideal> ans;
   for (long N=1; N<=maxnorm; N++)

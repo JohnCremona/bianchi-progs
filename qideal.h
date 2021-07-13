@@ -8,6 +8,8 @@
 class Qideal  {
 protected:
   long a,b,c;   // HNF Z-basis: I=c[a,b+w]
+  long ac;      // ac = a*c = smallest integer
+  long nm;      // nm = a*c*c = norm
   long iclass;  // 0 if principal, 1 if not, -1 if undetermined
   Quad g0,g1;   // Reduced Z-basis (if iclass!=-1):
                 // I=<g0,g1>, g0 non-zero of minimal norm,
@@ -30,12 +32,13 @@ public:
   long get_a() const {return a;}
   long get_b() const {return b;}
   long content() const {return c;}
-  long smallest_integer() const {return a*c;}
-  Quad zgen(int i) const {return (i? Quad(b*c,c): Quad(a*c));} // HNF Z-module gens
+  long smallest_integer() const {return ac;}
+  long norm() const {return nm;}
+  Quad zgen(int i) const {return (i? Quad(b*c,c): Quad(ac));} // HNF Z-module gens
   Quad gen() const {return g0;} // smallest element, so a generator iff principal
   vector<Quad> gens() const {return {g0, g1};} // reduced Z-module ggens
-  vector<long> get_rv() const {return {a*c, b*c};} // real parts of Z-module gens
-  vector<long> get_iv() const {return {  0, c};}   // imag parts of Z-module gens
+  vector<long> get_rv() const {return {ac, b*c};} // real parts of Z-module gens
+  vector<long> get_iv() const {return { 0, c};}   // imag parts of Z-module gens
 
   void set_index(int ind=0); // if 0 (default) computes the correct index
   long get_index()
@@ -82,26 +85,44 @@ public:
 //
 //functions defined in qideal.cc unless inline
   int is_principal();         // fills iclass if necessary
-  int is_equivalent(Qideal& I) {return (I.conj()*(*this)).is_principal();}
-  int is_anti_equivalent(Qideal& I) {return (I*(*this)).is_principal();}
-  int contains(const long& n) const {return n%(a*c)==0;}
+  int is_equivalent(Qideal& I)
+  {
+    return (I.conj()*(*this)).is_principal();
+  }
+  int is_anti_equivalent(Qideal& I)
+  {
+    return (I*(*this)).is_principal();
+  }
+  int contains(const long& n) const
+  {
+    return n%(ac)==0;
+  }
   int contains(const Quad& alpha) const;
-  int contains(const Qideal& I) const  {return ((I.c)%c==0) && contains(I.zgen(0)) && contains(I.zgen(1));};
+  int contains(const Qideal& I) const
+  {
+    return ((I.c)%c==0) && ((I.ac)%ac==0) && contains(I.zgen(1));
+  };
+  vector<long> zcoeffs(const Quad& alpha) const // for alpha in this, return Z-coeffs {x,y} w.r.t.Z-gens.
+  {
+    return {(alpha.r-b*alpha.i)/ac, alpha.i/c};
+  }
+  Quad zcombo(const long& x, const long& y) const
+  {
+    return Quad(x*ac+y*b*c, y*c);
+  }
   int divides(const long& n) const {return contains(n);}
   int divides(const Quad& alpha) const  {return contains(alpha);}
   int divides(const Qideal& I) const  {return contains(I);}
-
-  double dnorm() const { double ans=a; ans*=c; ans*=c; return ans; }
-  long norm() const
-    { double dn=dnorm();
-      if (dn>MAXLONG) cerr << "Error: Qideal::norm overflow!" << endl;
-      return (long)dn;
-    }
 
   Qideal conj() const;            // returns the conjugate ideal
 
   friend int comax(const Qideal&, const Qideal&, Quad&, Quad&);
   // returns 1 iff Qideals are comax, when returns one Quad from each, sum = 1
+
+  Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal
+  Quad resnum(int i); // the i'the residue mod this, in standard order (0'th is 0)
+  int numres(const Quad& alpha); // the index of a residue mod this, in standard order (0'th is 0)
+  vector<Quad> residues();
 
 // i/o
   friend ostream& operator<<(ostream& s, const Qideal& x);
@@ -115,7 +136,6 @@ private:
   void abc_from_HNF(vector<long>&);
   Quad princprod_coeff_alpha(vector<long>&z) const;   // for use only in...
   Quad princprod_coeff_beta(vector<long>&z) const;    // ... ideal_prod_coeffs
-  Quad elt_spanned_by(const long&, const long&) const;
 };
 
 Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N
@@ -136,7 +156,7 @@ class Qideal_lists {
   static map<long, vector<Qideal>> N_to_Ilist;
 public:
   static vector<Qideal> ideals_with_norm(long N);
-  static vector<Qideal> sorted_ideals_with_bounded_norm(long maxnorm);
+  static vector<Qideal> ideals_with_bounded_norm(long maxnorm);
 };
 
 #endif

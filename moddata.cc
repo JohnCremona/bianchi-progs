@@ -72,7 +72,7 @@ long level::numres(const Quad& a) const // what number is this residue a mod mod
 
 Quad level::resnum(long i) const // which is the i'th residue mod modulus?
 {
-  std::div_t qr = div(i, n0m0);
+  std::ldiv_t qr = ldiv(i, n0m0);
   return reduce(Quad(qr.rem, qr.quot));
 }
 

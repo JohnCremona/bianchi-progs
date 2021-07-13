@@ -29,7 +29,7 @@ class Quadprime : public Qideal {
 public:
   // constructor
   Quadprime(long a, long b, long c, long pp, long ind=1)
-    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p);}
+    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p); fill();}
 
   Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; character=x.character;}
   int is_ramified() const {return character==0;}

@@ -4,39 +4,52 @@
 #include "qidloop.h"
 #include "primes.h"
 
-void test1(Qideal&a)
+void test1(Qideal& I)
 {
-  long norma = a.norm();
-  cout << "Ideal " << ideal_label(a) << " = " << a << " (norm " << norma << ")";
-  if (a.is_principal())
-    cout << " is principal with generator " << a.gen();
+  long NI = I.norm();
+  cout << "Ideal " << ideal_label(I) << " = " << I << " (norm " << NI << ")";
+  if (I.is_principal())
+    cout << " is principal, with generator " << I.gen();
   else
-    cout << " is not principal, generators " <<a.gens();
-  prime_factn pf(a);
+    cout << " is not principal, generators " <<I.gens();
+  prime_factn pf(I);
   cout << " with factorization: ";
   pf.display();
-  Qideal test;
+  Qideal J;
   for (long i=0; i<pf.num_primes(); i++)
     for (long e=0; e<pf.expo(i); e++)
-      test*=pf.prime(i);
-  if (test!=a)
+      J*=pf.prime(i);
+  if (J!=I)
     { cerr << "Error: multiplying up gave different answer!"<<endl;
       exit(1);
     }
   cout << endl;
 }
 
-void test2(Qideal&a)
+void test2(Qideal& I)
 {
-  long norma = a.norm();
-  Qideal b = a.conj();
-  if (a.is_principal()&& !b.is_principal())
+  long NI = I.norm();
+  Qideal J = I.conj();
+  if (I.is_principal()&& !J.is_principal())
     {
-      cout << "Qideal = " << a << " (norm " << norma <<")";
-      cout << ", principal generator " << a.gen() << endl;
-      cout << "Qideal = " << b << " (norm " << norma << ")"<<endl;
+      cout << "Qideal = " << I << " (norm " << NI <<")";
+      cout << ", principal generator " << I.gen() << endl;
+      cout << "Qideal = " << J << " (norm " << J.norm() << ")"<<endl;
       cout << endl;
     }
+}
+
+void residuetest(Qideal& I)
+{
+  for (long i = 0; i<I.norm(); i++)
+    {
+      // assert (i==a.numres(a.resnum(i)));
+      Quad r = I.resnum(i);
+      long j = I.numres(r);
+      if (i!=j) cout<<i<<" --> "<<r<<" --> "<<j<<" ************"<<endl;
+    }
+  vector<Quad> res = I.residues();
+  cout << "Residues mod "<<I<<": "<<res<<endl;
 }
 
 void looptest()
@@ -50,9 +63,9 @@ void looptest()
   while( loop.not_finished() )
     {
       Qideal I = loop.next();
-      cout<<flush;
       test1(I);
-      cout<<flush;
+      // if (I.norm()<=100)
+      //   residuetest(I);
     }
 }
 
@@ -93,8 +106,15 @@ void show_primes()
   Quadprimes::display();
   for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
     {
-      if ((*Pi).norm()>200) break;
-      cout << (*Pi) << " = " << ideal_label(*Pi) << " = " << (Qideal)(*Pi) <<endl;
+      Quadprime P = *Pi;
+      if (P.norm()>200) break;
+      vector<Quad> gg = P.gens();
+      cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
+      if (P.is_principal())
+        cout << " = ("<<gg[0]<<") (principal)";
+      else
+        cout << "(not principal)";
+      cout<<endl;
     }
 }
 
@@ -104,6 +124,8 @@ void init()
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
   Quad::displayfield(cout);
+  if (Quad::class_number==1)
+    Quadprimes::init();
 }
 
 int main(void)

@@ -10,11 +10,11 @@
 
 // private -- converts output from findzbasis to standard Qideal basis
 void Qideal::abc_from_HNF(vector<long>& basis)
-{ c=basis[1];
-  b=basis[0]/c;  a=basis[2]/c;  if (a<0) {a=-a;}
-  b=b%a;
-  if (b<0) {b+=a;}     // not sure what % does with negative numbers
-  if (c<0) {c=-c;}
+{ c = abs(basis[1]);
+  a = abs(basis[2]/c);
+  b = posmod(basis[0]/c,a);
+  ac = a*c;
+  nm = ac*c;
   if (!ok())
     { cerr <<"***Warning: "<< *this <<" not ok in abc_from_HNF***"<<endl;}
 }
@@ -27,19 +27,23 @@ void Qideal::fill()
   g0=Quad(a); g1=Quad(b,1);
   unimod U;
   sl2z_reduce(g0,g1, U);
+  if ((quadconj(g0)*g1).im()<0)
+    cout<<"Badly oriented Z-basis in fill() 1"<<endl;
   //  cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
   iclass = (div(g0,g1)? 0: 1); // 0 means principal
   // scale by content:
-  g1 = makepos(c*g1);
-  g0 = makepos(c*g0);
+  g1 *= c;
+  g0 *= c;
   //  cout<<" -- now gens are "<<gens()<<endl;
+  if ((quadconj(g0)*g1).im()<0)
+    cout<<"Badly oriented Z-basis in fill() 2"<<endl;
 }
 
 Qideal::Qideal()
-{ a=1; b=0; c=1; iclass=0; g0=1; g1=0; index=1;}   //default ideal is whole ring
+{ a=c=ac=nm=1; b=0; iclass=0; g0=1; g1=Quad::w; index=1;}   //default ideal is whole ring
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-{ a=i.a; b=i.b; c=i.c; iclass=i.iclass; index=i.index;
+{ a=i.a; b=i.b; c=i.c; ac=i.ac; nm=i.nm; iclass=i.iclass; index=i.index;
   if(iclass!=-1)
     {
       g0=i.g0; g1=i.g1;
@@ -50,13 +54,15 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
 {
   if (cc==0)
     {
-      a=1; b=0; c=0; iclass=0; g0=0; g1=0; index=1;
+      a=1; b=0; c=ac=nm=0; iclass=0; g0=0; g1=0; index=1;
     }
   else
   {
     c = abs(cc);
     a = abs(aa);
     b = posmod(bb,a);
+    ac = a*c;
+    nm = ac*c;
     if (!ok())
       {
         cerr <<"***Warning: Invalid ideal parameters ("<< aa << "," << bb << "," << cc << ") ***"<<endl;
@@ -66,24 +72,19 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
   }
 }
 
-// If this constructor gets called a lot in situations in which cc[aa,bb + w]
-// is guaranteed to be an ideal and in standard form, then it would be worth
-// dispensing with standardisation in favour of { a=aa; b=bb; c=cc; iclass=-1;}
-// There could be an optional 4th parameter with default 'standardise'
-// and other option 'accept as is' - it would then be up to the programmer to
-// ensure that the latter is only called when it should be.
-// For the moment, it seems better to enforce standard form so that other
-// functions can rely on it.
-
 Qideal::Qideal(const long& n)       // princ ideal gen by long
-  : a(1), b(0), c(abs(n)), iclass(0), g0(abs(n)), g1(0), index(-1)
-{ ; }
+  : a(1), b(0), c(abs(n)), iclass(0), index(-1)
+{
+  ac=a*c; nm=ac*c;
+  g0 = Quad(abs(n));
+  g1 = Quad(0, abs(n));
+}
 
 // Utility used to construct Qideals given two lists of integers rv,
 // iv, or arbitrary but equal length, defining the Z-module spaned by
 // all [rv[i], iv[i]]
 
-Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-gens */
+Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-gens
 {
   vector<long> basis;
   findzbasis(rv,iv,basis);
@@ -92,7 +93,7 @@ Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-
   index=-1;
 }
 
-Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads */
+Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 {
   vector<long> rv, iv;
   for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); g++)
@@ -112,7 +113,7 @@ Qideal::Qideal(const Quad& alpha) // principal ideal
   vector<Quad> gens = {alpha};
   *this = Qideal(gens);
   iclass=0;
-  g0=makepos(alpha); g1=0;
+  g0=makepos(alpha); g1=Quad::w*g0;
   index=-1;
 }
 
@@ -237,7 +238,9 @@ void Qideal::operator*=(const long& d)
       *this=Qideal(0);
       return;
     }
-  c*=abs(d);
+  c *= abs(d);
+  ac *= abs(d);
+  nm *= (d*d);
   if (iclass!=-1)
     { g0*=d; g1*=d; }
 }
@@ -250,9 +253,11 @@ void Qideal::operator*=(const Quad& alpha)
   if (iclass==0) { *this=Qideal(g0*alpha); return;} // this is principal
 
   vector<Quad> gens = {alpha*Quad(a), alpha*Quad(b,1)}; // without the factor c
-  long savec=c;
+  long fac = c;
   *this = Qideal(gens);
-  c*=savec;
+  c *= fac;
+  ac *= fac;
+  nm *= (fac*fac);
   if (iclass!=-1) {g0*=alpha; g1*=alpha;}
 }
 
@@ -264,32 +269,65 @@ void Qideal::operator*=(const Qideal& f)
 
   Quad g1(a), g2(b,1), h1(f.a), h2(f.b,1);
   vector<Quad> gens = {g1*h1, g1*h2, g2*h1, g2*h2};
-  long savec=c;
+  long fac = c*(f.c);
   *this = Qideal(gens);
-  c*=savec*(f.c);
-  iclass=-1;
+  c *= fac;
+  ac *= fac;
+  nm *= (fac*fac);
+  iclass=index=-1;
 }
 
 int Qideal::contains(const Quad& alpha) const
 {
-  std::ldiv_t qr1 = ldiv(alpha.re(), c);
-  if (qr1.rem !=0) { return 0;}
-  std::ldiv_t qr2 = ldiv(alpha.im(), c);
-  return (qr2.rem==0) && ((qr1.quot - qr2.quot * b) % a == 0);
+  return (alpha.i%c==0) && ((alpha.r-b*alpha.i)%ac==0);
+}
+
+// reduction of alpha modulo this ideal
+Quad Qideal::reduce(const Quad& alpha)
+{
+  if (iclass==-1)
+    fill();
+  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<endl;
+  if ((quadconj(g0)*g1).im()<0)
+    cout<<"Badly oriented Z-basis "<<endl;
+  return reduce_mod_zbasis(alpha, g0, g1);
+}
+
+// The i'th residue is Quad(x,y) for x mod a*c, y mod c; i = a*c*y+x
+
+// Map from i to res (only depends on i mod norm)
+Quad Qideal::resnum(int i) // the i'the residue mod this, in standard order (0'th is 0)
+{
+  std::ldiv_t qr = ldiv(posmod(i, nm), ac);
+  return reduce(Quad(qr.rem, qr.quot));
+}
+
+int Qideal::numres(const Quad& alpha) // the index of a residue mod this, in standard order (0'th is 0)
+{
+  long y = posmod(alpha.im(), c);
+  long x = posmod(alpha.re()-b*(alpha.im()-y), ac);
+  return x + ac*y;
+}
+
+vector<Quad> Qideal::residues() // list of residues, sorted
+{
+  vector<Quad> res; res.reserve(nm);
+  for (long i=0; i<nm; i++) res.push_back(resnum(i));
+  return res;
 }
 
 // next two functions needed by ideal_prod_coeffs
 Quad Qideal::princprod_coeff_alpha(vector<long>&z) const
 {
   Quad ans = Quad( z[3]*a + z[0]*b, z[0] + z[4]*a ) * c;
-  if (ans != elt_spanned_by( z[3] - z[4]*b, z[0] + z[4]*a))
+  if (ans != zcombo( z[3] - z[4]*b, z[0] + z[4]*a))
     cerr << "Warning: possible overflow in princprod_coeff_alpha!"<<endl;
   return ans;
 }
 
 Quad Qideal::princprod_coeff_beta(vector<long>&z) const
 {
-  return elt_spanned_by( z[1], z[2]);
+  return zcombo( z[1], z[2]);
 }
 
 Qideal Qideal::ideal_prod_coeffs(const Qideal&q,
@@ -408,9 +446,14 @@ Qideal operator/(const Quad&alpha, const Qideal&f)
 
 void Qideal::operator/=(const long&n)
 { long na=abs(n);
-  if (c%na)
-    { cerr<<"***inexact division of "<<*this<<" by "<<n<<" ***"<<endl;}
-  c/=na;
+  std::ldiv_t qr = ldiv(c, na);
+  if (qr.rem!=0)
+    {
+      cerr<<"***inexact division of "<<*this<<" by integer "<<n<<" ***"<<endl;
+    }
+  c = qr.quot;
+  ac = a*c;
+  nm = ac*c;
   if (iclass!=-1) { g0/=na; g1/=na; }
 }
 
@@ -418,10 +461,14 @@ void Qideal::operator/=(const Quad&alpha)
 {
   (*this) *= alpha.conj();
   long na = alpha.norm();
-  std::ldiv_t qr = ldiv(a, na);
-  if (qr.rem!=0)                // shouldn't happen
-    { cerr << "***inexact ideal division of "<<*this<<" by "<<alpha<<" ***"<<endl;}
+  std::ldiv_t qr = ldiv(c, na);
+  if (qr.rem!=0)
+    {
+      cerr << "***inexact ideal division of "<<*this<<" by Quad "<<alpha<<" ***"<<endl;
+    }
   c = qr.quot;
+  ac = a*c;
+  nm = ac*c;
   if (iclass!=-1) { g0/=na; g1/=na; }
 }
 
@@ -431,8 +478,12 @@ void Qideal::operator/=(const Qideal&f)
   long nf = f.norm();
   std::ldiv_t qr = ldiv(c, nf);
   if (qr.rem!=0)                // shouldn't happen
-    { cerr << "***inexact ideal division of "<<keep<<" by "<<f<<" ***"<<endl;}
+    {
+      cerr << "***inexact division of "<<keep<<" by ideal "<<f<<" of norm "<<nf<<" ***"<<endl;
+    }
   c = qr.quot;
+  ac = a*c;
+  nm = ac*c;
   if (iclass!=-1) { g0/=nf; g1/=nf; }
 }
 
@@ -446,45 +497,39 @@ int Qideal::ok() const
  //return ( (a!=0) && ((( xmodmul(b,b,a) + b*Quad::t + Quad::n)%a)==0) ) ;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Naive version which first overflows for [47743,47434+a], d=(?)5  ////
-//{ return ( (a!=0) && ((( b*b + b*Quad::t + Quad::n)%a)==0) ) ;} ////
-////////////////////////////////////////////////////////////////////////
-
 int Qideal::is_principal()
 {
-  //  cout<<"Testing "<<(*this)<< " for being principal"<<endl;
-  if (iclass==-1)
-    {
-      //      cout<<" ... not yet known, calling fill()"<<endl;
-      fill();
-    }
-  //  cout<<" ...iclass = "<<iclass<<", returning "<<(iclass==0)<<endl;
+  if (iclass==-1) fill();
   return (iclass==0);
 }
 
 Qideal Qideal::conj() const
 { Qideal ans=*this;
-  ans.b= -ans.b - Quad::t;
-  if (ans.b<0) {ans.b += ans.a;}
-  if (ans.iclass!=-1)
-    { ans.g0 = ans.g0.conj();
-      ans.g1 = ans.g1.conj(); }
+  ans.b= posmod(-b - Quad::t, a);
+  if (iclass!=-1)
+    {
+      ans.g0 =  g0.conj();
+      ans.g1 = -g1.conj(); // preserve orientation
+    }
   return ans;
-}
-
-Quad Qideal::elt_spanned_by(const long& x, const long& y) const
-{
-  return c*( x*a + y * Quad(b,1));
 }
 
 istream& operator>>(istream& s, Qideal& y)
 {
-  Qideal x;
-  do { s >> x.a >> x.b >> x.c;  
-       if (x.ok()) { y=Qideal(x.a,x.b,x.c); return s; }  // assign via c'tor
-       else {cerr << "retry: ";}
-     } while (1);
+  long a, b, c;
+  do {
+    s >> a >> b >> c;
+    if ((a!=0) && (c!=0) && ((b*(b+Quad::t)+1)%a==0)) // i.e. N(b+w)=0 (mod a)
+      {
+        y = Qideal(a,b,c);
+        return s;
+      }  // assign via c'tor
+    else
+      {
+        cerr << "retry: ";
+      }
+  }
+  while (1);
 }
 
 ostream& operator<<(ostream& s, const Qideal& x)
@@ -532,7 +577,7 @@ int comax(const Qideal&ip, const Qideal&iq, Quad&p, Quad&q)
       long gg2 = gcd(pac,qac);
       long n1 = xmodmul(g22,g12, qac/gg2);
       long n2 = -(iq.c/gg1)*g23;
-      p = ip.elt_spanned_by(n1,n2);
+      p = ip.zcombo(n1,n2);
       q = 1 - p;
 
       if (!iq.divides(q))
@@ -544,7 +589,7 @@ int comax(const Qideal&ip, const Qideal&iq, Quad&p, Quad&q)
 
 vector<Qideal> primitive_ideals_with_norm(long N, int both_conj)
 // N is the norm of a primitive ideal iff it has no inert prime
-// factors and ramified primes divid it at most once
+// factors and ramified primes divide it at most once
 {
   vector<Qideal> ans;
   vector<long> pdivs_norm = pdivs(N);
@@ -555,7 +600,7 @@ vector<Qideal> primitive_ideals_with_norm(long N, int both_conj)
       if ((s==-1) || ((s==0) && val(p,N)>1)) return ans;
     }
   // now the local tests pass so there are primitive ideals of norm N.
-  // The have HNF [N,b+w] where b (mod N) satisfies
+  // They have HNF [N,b+w] where b (mod N) satisfies
   //     b^2+t*b+n = 0 (mod N)
   //
   // Stupid implementation here: try all b mod N

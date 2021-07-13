@@ -219,6 +219,9 @@ inline istream& operator>>(istream& s, Quad& x)
 // U holds the unirmodular transform
 void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U);
 
+// reduction of gamma modulo Z<alpha,beta>
+Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta);
+
 vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
 vector<long> findminquadcoeffs(const Quad&, const Quad&, Quad&);
 void findminquad(const Quad&, const Quad&, Quad&, Quad&);

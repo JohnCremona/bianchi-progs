@@ -529,7 +529,7 @@ Quad quadgcd1(const Quad& aa, const Quad& bb)  //Only works for Euclidean fields
 Quad quadbezout1(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
 {Quad a=alpha,b=beta,c,x=0,oldx=1,newx,y=1,oldy=0,newy,q,g;
  while (b!=0)
- { q = a/b; 
+ { q = a/b;
    c    = a    - q*b; a    = b; b = c;
    newx = oldx - q*x; oldx = x; x = newx;
    newy = oldy - q*y; oldy = y; y = newy;
@@ -579,13 +579,47 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
   return g==1;
 }
 
+//#define test_reduce
+
+// returns n = round(true_real_part_of(alpha/beta)), so alpha-n*beta
+// is reduced mod Z<beta>
 long nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
-// returns round(true_real_part_of(alpha/beta))
 {
   return roundover((alpha*quadconj(beta)).re(), beta.norm());
 }
 
-//#define test_reduce
+// reduction of gamma modulo Z<alpha,beta>
+Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
+{
+#ifdef test_reduce
+  cout << "reduction of "<<gamma<<" mod <"<<alpha<<","<<beta<<">"<< flush;
+#endif
+  long d = (quadconj(alpha)*beta).im();
+  assert (d>0);
+  long x = roundover((-gamma*quadconj(beta)).im(), d);
+  long y = roundover(( gamma*quadconj(alpha)).im(), d);
+  Quad ans = gamma - (x*alpha + y*beta);
+#ifdef test_reduce
+  cout << " is "<< ans << " (x="<<x<<", y="<<y<<")"<<endl;
+#endif
+  long gn = quadnorm(ans);
+  vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,
+                        ans-alpha-beta, ans-alpha+beta, ans+alpha-beta, ans+alpha+beta};
+  for (vector<Quad>::const_iterator t=tests.begin(); t!=tests.end(); t++)
+    {
+      if (gn>quadnorm(*t))
+        {
+#ifdef test_reduce
+          cout<<"reduction "<<ans<<" has larger norm than shift "<<*t<<", switching"<<endl;
+#endif
+          ans = *t;
+          gn = quadnorm(*t);
+        }
+    }
+  return ans;
+}
+
+#undef test_reduce
 
 // Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
 // The new alpha has the smallest norm.
@@ -632,6 +666,14 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
         }
     }
   // alpha is now the non-zero Quad of least norm in the lattice [alpha,beta]
+
+  // We want to orient so that beta/alpha has positive imaginary part
+  // e.g. so that the basis [1,w] is reduced
+  // NB im(x+y*w)>0 iff y>0 for both t=0 and t=1 cases
+
+  if ((quadconj(alpha)*beta).im() < 0)
+    beta=-beta;
+
 #ifdef test_reduce
   cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
       <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
@@ -641,6 +683,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
   assert (U21*alpha+U22*beta == beta0);
   assert (quadnorm(alpha)<=quadnorm(beta));
   assert (nearest_long_to_Quad_quotient(alpha,beta)==0);
+  assert ((quadconj(alpha)*beta).im() > 0)
 #endif
 }
 
