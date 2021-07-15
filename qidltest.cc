@@ -63,16 +63,12 @@ void residuetest(Qideal& I)
         phi *= np;
     }
 
-  vector<Quad> invres; // invertible residues
-  Quad x,y;
-  for (vector<Quad>::const_iterator r=res.begin()+1; r!=res.end(); r++)
-    {
-      if (comax(I, Qideal(*r), x, y))
-        invres.push_back(*r);
-    }
-  assert ((long)invres.size()==phi);
-  cout << invres.size() << " invertible residues mod "<<I<<": "<<invres<<endl;
-
+  pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues();
+  cout << phi << " invertible residues mod "<<I<<":\n";
+  cout<<invres.first<<endl;
+  cout << " with inverses:\n";
+  cout<<invres.second<<endl;
+  assert ((long)invres.first.size()==phi);
 }
 
 void looptest()

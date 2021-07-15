@@ -282,6 +282,34 @@ int Qideal::contains(const Quad& alpha) const
   return (alpha.i%c==0) && ((alpha.r-b*alpha.i)%ac==0);
 }
 
+// return 1 iff this is coprime to I; if so, set r in this and s in I with r+s=1
+int Qideal::is_coprime_to(const Qideal&J, Quad&r, Quad&s) const
+{
+  vector<long> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
+  int t = vecbezout(v, w);
+  if (t==1)
+    {
+      r =   zcombo(w[0],  J.c * w[2]);
+      s = J.zcombo(w[1],   -c * w[2]);
+      assert (r+s==1);
+    }
+  return (t==1);
+}
+
+// return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
+int Qideal::is_coprime_to(const Quad& alpha, Quad& inverse)
+{
+  if (alpha==0) return 0;
+  Quad r, s;
+  int t = is_coprime_to(Qideal(alpha), r, s);
+  if(t==1) // then r is in this and s in (alpha) with r+s=1
+    {
+      inverse = reduce(s/alpha);
+      assert (divides(alpha*inverse-1));
+    }
+  return t;
+}
+
 // reduction of alpha modulo this ideal
 Quad Qideal::reduce(const Quad& alpha)
 {
@@ -314,6 +342,24 @@ vector<Quad> Qideal::residues() // list of residues, sorted
   vector<Quad> res; res.reserve(nm);
   for (long i=0; i<nm; i++) res.push_back(resnum(i));
   return res;
+}
+
+pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues() // lists of invertible residues, and their inverses
+{
+  vector<Quad> res, inv;
+  res.reserve(nm);
+  inv.reserve(nm);
+  for (long i=0; i<nm; i++)
+    {
+      Quad r = resnum(i), s;
+      if (is_coprime_to(r, s))
+        {
+          assert (divides(r*s-1));
+          res.push_back(r);
+          inv.push_back(s);
+        }
+    }
+  return {res, inv};
 }
 
 // next two functions needed by ideal_prod_coeffs
@@ -560,31 +606,6 @@ long val(const Qideal& factor, const Qideal& dividend)
   Qideal n=dividend;
   while (factor.divides(n)) {n/=factor; e++; }
   return e;
-}
-
-int comax(const Qideal&ip, const Qideal&iq, Quad&p, Quad&q)
-// returns 1 iff ip,iq are comax, when returns p,q elts of ip,iq s.t. p+q=1
-{
-  long g11,g12,g13,gg1,a3,g21,g22,g23;
-  long pac = ip.a*ip.c;
-  long qac = iq.a*iq.c;
-  g11 = bezout ( pac, qac, g12, g13);
-  gg1 = gcd ( ip.c, iq.c );
-  a3 = ( (ip.c / gg1 ) * iq.c ) * ( iq.b - ip.b);
-  g21 = bezout ( g11, a3, g22, g23);
-  if (g21==1)
-    {
-      long gg2 = gcd(pac,qac);
-      long n1 = xmodmul(g22,g12, qac/gg2);
-      long n2 = -(iq.c/gg1)*g23;
-      p = ip.zcombo(n1,n2);
-      q = 1 - p;
-
-      if (!iq.divides(q))
-	cerr << "Error: comax returning q="<<q<<", not in "<<iq<<endl;
-      return 1;
-    }
-  else {return 0;}
 }
 
 vector<Qideal> primitive_ideals_with_norm(long N, int both_conj)

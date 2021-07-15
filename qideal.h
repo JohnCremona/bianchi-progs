@@ -73,6 +73,25 @@ public:
   Qideal ideal_prod_coeffs(const Qideal&, Quad&, Quad&, Quad&, Quad&) const;
   Qideal princprod(const Qideal&q, Quad&alpha, Quad&beta) const;
 
+  // test if this ideal is coprime to another ideal or a Quad:
+  int is_coprime_to(const Qideal& I) const
+  {
+    long g = gcd(ac, I.ac);
+    return (g==1? 1: gcd(g, c*I.c*(b-I.b))==1);
+  }
+  int is_coprime_to(const Quad& alpha) const
+  {
+    return is_coprime_to(Qideal(alpha));
+  }
+
+  // versions returning more data
+
+  // return 1 iff this is coprime to I; if so, set r in this and s in I with r+s=1
+  int is_coprime_to(const Qideal& J, Quad& r, Quad& s) const;
+
+  // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
+  int is_coprime_to(const Quad& alpha, Quad& inverse);
+
 //
   Qideal operator/(const long&) const;
   Qideal operator/(const Quad&) const;
@@ -116,13 +135,13 @@ public:
 
   Qideal conj() const;            // returns the conjugate ideal
 
-  friend int comax(const Qideal&, const Qideal&, Quad&, Quad&);
-  // returns 1 iff Qideals are comax, when returns one Quad from each, sum = 1
-
   Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal
   Quad resnum(int i); // the i'the residue mod this, in standard order (0'th is 0)
   int numres(const Quad& alpha); // the index of a residue mod this, in standard order (0'th is 0)
+  // return a list of (reduced) residues modulo this ideal:
   vector<Quad> residues();
+  // return a list of (reduced) invertible residues modulo this ideal, and a list of their inverses
+  pair<vector<Quad>, vector<Quad>> invertible_residues();
 
 // i/o
   friend ostream& operator<<(ostream& s, const Qideal& x);
