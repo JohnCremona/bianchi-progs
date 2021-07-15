@@ -362,103 +362,42 @@ pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues() // lists of inver
   return {res, inv};
 }
 
-// next two functions needed by ideal_prod_coeffs
-Quad Qideal::princprod_coeff_alpha(vector<long>&z) const
+// Assuming this*J is principal, sets g t a generator and returns a
+// 2x2 matrix of determinant g whose columns generate this and J,
+// the first column being (g0,g1)
+mat22 Qideal::AB_matrix(const Qideal&J, Quad&g)
 {
-  Quad ans = Quad( z[3]*a + z[0]*b, z[0] + z[4]*a ) * c;
-  if (ans != zcombo( z[3] - z[4]*b, z[0] + z[4]*a))
-    cerr << "Warning: possible overflow in princprod_coeff_alpha!"<<endl;
-  return ans;
+  fill();
+  Qideal IJ = (*this)*J, C = (*this).conj();
+  if (!IJ.is_principal())
+    cerr<<"ideals "<<(*this)<<" and "<<J<<" do not have principal product in AB_matrix()"<<endl;
+  Qideal I0 = g0*C/nm, I1 = g1*C/nm; // = (g0)/this, (g1)/this
+  Quad r0, r1;
+  I0.is_coprime_to(I1, r0, r1);
+  g = IJ.gen();
+  Quad h0 = -(r1*g)/g1;
+  Quad h1 =  (r0*g)/g0;
+  mat22 M(g0, h0, g1, h1);
+  assert (M.det()==g);
+  assert (Qideal({h0,h1}) == J);
+  return M;
 }
 
-Quad Qideal::princprod_coeff_beta(vector<long>&z) const
+mat22 Qideal::AB_matrix()
 {
-  return zcombo( z[1], z[2]);
+  fill();
+  Qideal C = (*this).conj();
+  Qideal I0 = g0*C/nm, I1 = g1*C/nm; // = (g0)/this, (g1)/this
+  Quad r0, r1;
+  I0.is_coprime_to(I1, r0, r1);
+  Quad h0 = -(r1*nm)/g1;
+  Quad h1 =  (r0*nm)/g0;
+  mat22 M(g0, h0, g1, h1);
+  assert (M.det()==nm);
+  assert (Qideal({h0,h1}) == C);
+  return M;
 }
 
-Qideal Qideal::ideal_prod_coeffs(const Qideal&q,
-                                 Quad&alphax, Quad&betax,
-				 Quad&alphay, Quad&betay) const
-{
-// INPUT: ideals *this = p = c*p0 = c[a,b+w],  q = c'*q0 = c'[a',b'+w]
-// OUTPUT: the product ideal pq=cc'C[A,B+w]
-//         together with alphax,betax,alphay,betay \in q such that
-//         cc'AC = (alphay)ac + (betay)(b+w)c
-//     cc'(B+w)C = (alphax)ac + (betax)(b+w)c
-
-// STEP ONE: find the Z-basis of the product of the primitive ideals
-// Spanning set: [a,b+w][a',b'+w]=[a(b'+w),a'(b+w),(b+w)(b'+w),aa',aa'w]
-// (last term thrown in to help specialfindzbasiscoeffsmod)
-
-  long n = Quad::n, t=Quad::t;
-  vector<long> rv = {a*q.b, b*q.a, b*q.b-n, a*q.a, 0};
-  vector<long> iv = {    a,   q.a, b+q.b+t,     0, a*q.a};
-  vector<long> x, y, basis;
-  specialfindzbasiscoeffsmod(rv,iv,basis,x,y);
-
-  // STEP TWO: standardise basis, taking care to adjust x,y accordingly
-  // (this would not be needed if the HNF procedure already standardised)
-
-  if (basis[1]<0)
-    {
-      basis[0]*=-1; basis[1]*=-1;
-      for (long i=0; i<5; i++) x[i]*=-1;
-    }
-  if (basis[2]<0)
-    {
-      basis[2]*=-1;
-      for(long i=0; i<5; i++) y[i]*=-1;
-    }
-  long newbasis0 = posmod(basis[0], basis[2]);
-  long tmpquot = (newbasis0 - basis[0])/basis[2];
-  basis[0] = newbasis0;
-  for (long i=0; i<5; i++) x[i] += tmpquot*y[i];
-
-  alphax= q.princprod_coeff_alpha(x);
-  betax = q.princprod_coeff_beta(x);
-  alphay= q.princprod_coeff_alpha(y);
-  betay = q.princprod_coeff_beta(y);
-
-  Qideal p0q0;                         // ugly bugfix:
-  p0q0.iclass=-1;                      // ... there should be a suitable ...
-  p0q0.abc_from_HNF(basis);            // ... constructor call
-
-  if ((p0q0.c != basis[1])||
-      (p0q0.a * p0q0.c != basis[2])||
-      (p0q0.b * p0q0.c != basis[0]))
-    { cerr << "Error: inconsistent standardisation in princprod"<<endl;
-      long e,f=0; e/=f;
-    }
-
-  // should now have:
-  // pq=c[a,b+w]c'[a',b'+w]=cc'C[A,B+w]
-  // (BC+Cw)cc' = (alphax)ac + betax(b+w)c
-  //    (AC)cc' = (alphay)ac + betay(b+w)c
-
-  return p0q0*(c*q.c);
-}
-
-Qideal Qideal::princprod(const Qideal&q, Quad&alpha, Quad&beta) const
-//INPUT: ideals *this = p, q whose product is principal, equal to <gen>, say
-//OUTPUT: the product ideal, together with alpha, beta \in q s.t.
-//        gen = ac * alpha + (b+w)c * beta
-{
-  Quad alphax,betax,alphay,betay,g0;
-  Qideal ans = ideal_prod_coeffs(q, alphax,betax,alphay,betay);
-  vector<long> coeff = findminquadcoeffs( ans.a, Quad(ans.b,1), g0);
-  // now g0 = coeff[1] * ans.a + coeff[0] * (ans.b+w)
-  // gen= (ans.c)*g0;
-
-  if ((ndiv(g0, Quad(ans.a,0)))||(ndiv(g0, Quad(ans.b,1))))
-    {
-      cerr << "Error: princprod did not find principal generator!"<<endl;
-      exit(1);
-    }
-
-  alpha= coeff[0]*alphax + coeff[1]*alphay;
-  beta = coeff[0]*betax  + coeff[1]*betay;
-  return ans;
-}
 
 Qideal Qideal::operator/(const long&n) const
 { Qideal ans=*this;

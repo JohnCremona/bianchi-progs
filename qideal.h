@@ -70,8 +70,12 @@ public:
   void operator*=(const Quad&);
   void operator*=(const Qideal&);
 
-  Qideal ideal_prod_coeffs(const Qideal&, Quad&, Quad&, Quad&, Quad&) const;
-  Qideal princprod(const Qideal&q, Quad&alpha, Quad&beta) const;
+  // Assuming this*J is principal, sets g t a generator and returns a
+  // 2x2 matrix of determinant g whose columns generate this and J,
+  // the first column being (g0,g1)
+  mat22 AB_matrix(const Qideal&J, Quad&g);
+  // as above with J = conj(this), g=norm(this)
+  mat22 AB_matrix();
 
   // test if this ideal is coprime to another ideal or a Quad:
   int is_coprime_to(const Qideal& I) const
@@ -153,8 +157,6 @@ private:
   int ok() const;                 // checks that [a,b+w] *is* an ideal
   void fill();                    // determines iclass, g0, g1
   void abc_from_HNF(vector<long>&);
-  Quad princprod_coeff_alpha(vector<long>&z) const;   // for use only in...
-  Quad princprod_coeff_beta(vector<long>&z) const;    // ... ideal_prod_coeffs
 };
 
 Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N

@@ -50,7 +50,7 @@ void residuetest(Qideal& I)
     }
   vector<Quad> res = I.residues();
   assert ((long)res.size()==I.norm());
-  cout << I.norm() << " residues mod "<<I<<": "<<res<<endl;
+  cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
   if (I.norm()==1) return;
 
   prime_factn pf(I);
@@ -64,11 +64,17 @@ void residuetest(Qideal& I)
     }
 
   pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues();
-  cout << phi << " invertible residues mod "<<I<<":\n";
+  cout << phi << " invertible residues mod "<<ideal_label(I)<<":\n";
   cout<<invres.first<<endl;
   cout << " with inverses:\n";
   cout<<invres.second<<endl;
   assert ((long)invres.first.size()==phi);
+}
+
+void ABmatrixtest(Qideal& I)
+{
+  mat22 M = I.AB_matrix();
+  cout<<"AB-matrix of "<<ideal_label(I)<<" is "<<M<<endl;
 }
 
 void looptest()
@@ -84,7 +90,10 @@ void looptest()
       Qideal I = loop.next();
       test1(I);
       if (I.norm()<=100)
-        residuetest(I);
+        {
+          residuetest(I);
+          ABmatrixtest(I);
+        }
     }
 }
 
