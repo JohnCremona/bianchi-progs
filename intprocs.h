@@ -38,13 +38,4 @@ void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
 
 void findzbasis(const vector<long>& first, const vector<long>& second, vector<long>& basis);
 
-// Same as findzbasiscoeffs except that "first" is (... s 0) and "second" is (... 0 s)
-// where s is a non-zero "help" integer.
-//
-// The values of x[n-2], x[n-1], y[n-2], y[n-1] may need to be treated
-// with caution, since they were not calculated modulo s.
-
-void specialfindzbasiscoeffsmod(const vector<long>& first, const vector<long>& second,
-                                vector<long>& basis, vector<long>& x, vector<long>& y);
-
 #endif

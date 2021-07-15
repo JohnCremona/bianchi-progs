@@ -128,19 +128,30 @@ int main ()
           << sqfreedivs(A) <<endl;
    }
 
- if (Quad::class_number==1)
+ if (!check_field(d))
    {
-     //Test of gcd and bezout
-     Quad g,x,y;
-     cout << "Testing gcd and bezout."<<endl;
-     while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
+     cout << "Skipping gcd and bezout tests as this field not yet fully implemented"<<endl;
+     exit(0);
+   }
+
+ //Test of gcd and bezout
+ Quad g,x,y;
+ cout << "Testing gcd and bezout."<<endl;
+ while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
+   {
+     g = quadgcd(a,b);
+     if (g!=0)
+       cout << "gcd("<<a<<","<<b<<") = "<< g <<endl;
+     if (Quad::class_number==1)
        {
-         cout << "gcd("<<a<<","<<b<<") = "<<quadgcd(a,b)<<endl;
          g=quadbezout(a,b,x,y);
          cout << "bezout returns x="<<x<<", y="<<y<<", g="<<g<<".  ";
          if(g==a*x+b*y)cout<<"OK!"; else cout<<"WRONG!";
          cout<<endl;
        }
+   }
+ if (Quad::class_number==1)
+   {
      cout << "Systematic testing of bezout..."<<flush;
      vector<Quad>::const_iterator ap,bp;
      for (ap=quadprimes.begin(); ap-quadprimes.begin()<10; ap++)

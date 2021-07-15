@@ -33,7 +33,7 @@ vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
 vector<int> euclidean_fields = {1,2,3,7,11};
-vector<int> valid_fields = {1,2,3,7,11,19,43,67,163, 5};
+vector<int> valid_fields = {1,2,3,7,11,19,43,67,163, 23}; // fields for which geometry is defined
 
 vector<int> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<int> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
@@ -138,12 +138,15 @@ void Quad::field(int dd, int max)
   if(class_number==1)
     {
       initquadprimes();
-      setup_geometry();
     }
   else
     {
       Quadprimes::init(max);
     }
+  if (check_field(d)) // test whether d is in the list of valid_fields
+                      // for which we have geometry set up
+    setup_geometry();
+
   fill_class_group();
 }
 

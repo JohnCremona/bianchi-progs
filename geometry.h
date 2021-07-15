@@ -24,7 +24,7 @@ extern vector<vector<int> > triangles;
 // indices i,j,k,l and x,y such that M_j(x+alpha_k') =  M_i'(y+alpha_l), defining a square relation
 extern vector<pair<vector<int>, vector<Quad>> > squares;
 
-// Singular points
+// Singular points: the 0'th is oo so the useful ones are indexed from 1.
 
 extern vector<RatQuad> singular_points;
 

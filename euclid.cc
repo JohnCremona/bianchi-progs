@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include <eclib/arith.h>
-#include "quads.h"
+#include "ratquads.h"
 #include "euclid.h"
 #include "geometry.h"
 
@@ -91,7 +91,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       return;
     }
 
-  // Now look or a suitable alpha, trying all in turn (skipping alpha=0)
+  // Now look for a suitable alpha, trying all in turn (skipping alpha=0)
 
   Quad r,s, a1,b1;
   mat22 M;
@@ -149,19 +149,76 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
         }
 #endif
     }
-  // We should never arrive here as it means that all alphas have failed
-  t = -1;
-  cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
-  exit(1);
+
+  // We should never arrive here when the class number is 1, as it
+  // means that all alphas have failed
+  if (Quad::class_number==1)
+    {
+      cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
+      exit(1);
+    }
+
+  // Otherwise a/b should be a translate of a singular point sigma, in
+  // which case we apply a final translation if necessary and set t=-i
+  // where (tranlated) a/b = sigma is the i'th singular point.
+
+  local_t=1;
+  RatQuad sigma;
+  for (vector<RatQuad>::iterator si=singular_points.begin()+1; si!=singular_points.end(); si++, local_t++)
+    {
+      sigma = *si;
+      r=num(sigma), s=den(sigma); // sigma = r/s
+#ifdef DEBUG_PSEA
+      cout<<" - testing singular point "<<local_t<<": "<<sigma<<flush;
+#endif
+      // a/b - r/s = (a*s-b*r)/(b*s) will be integral if we have the right sigma
+      q = a*s-b*r;
+      if (div(b*s,q))  // success!
+        {
+          q /= (b*s);
+          if (q.nm) // else nothing more needs doing since the translation is trivial
+            {
+              a -= q*b;
+              if (compute_c1d1)
+                {
+                  d1 += q*c1;
+                }
+              if (compute_c2d2)
+                {
+                  d2 += q*c2;
+                }
+            }
+#ifdef DEBUG_PSEA
+          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = "<<sigma<<" = singular point #"<<local_t<<endl;
+#endif
+          t = -local_t;
+          return;
+        }
+    } // end of loop over singular points sigma
+
+  // We should never arrive here, as it means that all sigmas have failed
+  {
+    cerr<<"Pseudo-Euclidean step fails for non-principal ("<<a<<", "<<b<<")"<<endl;
+    exit(1);
+  }
 }
 
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
   if (gcd(aa.nm,bb.nm)==1) return Quad::one;
-  Quad a(aa), b(bb); int t;
-  while (b.nm) pseudo_euclidean_step(a, b, t);
-  while (!pos(a)) a*=fundunit;
-  return a;
+  Quad a(aa), b(bb); int t=0;
+  while (b.nm && t>=0) pseudo_euclidean_step(a, b, t);
+  if (b.nm)
+    {
+      cout<<"quadgcd_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
+      cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<singular_points[-t]<<endl;
+      return Quad::zero;
+    }
+  else
+    {
+      while (!pos(a)) a*=fundunit;
+      return a;
+    }
 }
 
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Using (pseudo-)EA
@@ -174,11 +231,10 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
       assert (c2*d1-c1*d2 == Quad::one);
       assert (c1*a+d1*b==bb);
       assert (c2*a+d2*b==aa);
-      assert (c2*d1-c1*d2 == Quad::one);
     }
   // Now (1) c2*d1-c1*d2 = 1;
-  //     (2) c2/c1 = aa/bb (as a reduced fraction);
-  //     (3) a = gcd(aa,bb);
+  //     (2) c2/c1 = aa/bb (as a reduced fraction), since b = c2*bb-c1*aa = 0;
+  //     (3) a = gcd(aa,bb), since (aa,bb)=(a,b)=(a);
   //     (4) aa=a*c2, bb=a*c1;
   //     (5) aa*d1-bb*d2 = a.
   assert (aa*d1-bb*d2 == a);

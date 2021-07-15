@@ -40,9 +40,10 @@ vector<RatQuad> singular_points;
 
 void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
-  mat22 M_alpha(a,b,c,d);  // maps alpha = -d/c to oo
-  assert (M_alpha.det()==1);
-  M_alphas.push_back(M_alpha);
+  mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
+  //  cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
+  assert (M.det()==1);
+  M_alphas.push_back(M);
   n_alphas += 1;
 }
 
@@ -137,6 +138,9 @@ void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad
 void Quad::setup_geometry()
 {
   int d = Quad::d;
+  singular_points.push_back(RatQuad(1,0)); // fill in the 0'th place,
+                                           // so the others will be
+                                           // indexed from 1
 
   // alphas (only 0) with denominator 1:
 
@@ -167,14 +171,14 @@ void Quad::setup_geometry()
 
   if (d%8==7) // 2 splits, r=2*w+1 satisfies r^2=1 (mod 4), two alphas with denominator 4:
     {
-      add_alpha_pair(4, 1+2*w);
+      add_alpha_pair(4, 1+2*w, +1);
 
       if (d==23)
         {
           add_edge_foursome(w+1,  w-2, w-4);
           add_edge_foursome(2-w, -1-w, -3-w);
-          add_alpha_pair(2+w, w-3);
-          add_alpha_pair(3-w, -2-w);
+          add_alpha_pair(2+w, w-3, +1);
+          add_alpha_pair(3-w, -2-w, +1);
           singular_points.push_back(RatQuad(w,2));
           singular_points.push_back(RatQuad(w-1,2));
         }
