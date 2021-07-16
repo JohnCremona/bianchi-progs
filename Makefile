@@ -100,8 +100,8 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-tquads: tquads.o quads.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o
-	$(CC) -o tquads tquads.o quads.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o $(LFLAGS)
+tquads: tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o
+	$(CC) -o tquads tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o $(LFLAGS)
 
 fieldinfo: fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o
 	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o $(LFLAGS)
@@ -227,7 +227,7 @@ symbtest.o: symbtest.cc symb.h moddata.h quads.h ratquads.h looper.h
 testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h lf1.h
 tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 tmquads.o: tmquads.cc mquads.h
-tquads.o: tquads.cc quads.h intprocs.h qideal.h qidloop.h
+tquads.o: tquads.cc quads.h looper.h geometry.h intprocs.h qideal.h qidloop.h
 tratquad.o: tratquad.cc ratquads.h quads.h
 xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 

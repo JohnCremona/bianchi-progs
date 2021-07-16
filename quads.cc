@@ -515,53 +515,6 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
  return dlist;
 }
 
-Quad quadgcd1(const Quad& aa, const Quad& bb)  //Only works for Euclidean fields!
-{Quad a=aa,b=bb,c,q;
- while (b.nm != 0)
-   {
-     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
-     q = a/b; c = a-q*b; a = b; b = c;
-     //     cout<<"quotient "<<q<<", remainder "<<c<<" (norm "<<c.nm<<")"<<endl;
-     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
-     if(b.nm >= a.nm){cout<<"error--norm not reduced!\n";exit(1);}
-   }
- while (!pos(a)) a*=fundunit;
- return a;
-}
-
-Quad quadbezout1(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
-{Quad a=alpha,b=beta,c,x=0,oldx=1,newx,y=1,oldy=0,newy,q,g;
- while (b!=0)
- { q = a/b;
-   c    = a    - q*b; a    = b; b = c;
-   newx = oldx - q*x; oldx = x; x = newx;
-   newy = oldy - q*y; oldy = y; y = newy;
-  }
- coeff1=oldx; coeff2=oldy; g=a;
-//Next two lines try to get coeff1,coeff2 as small as possible
- if(beta!=0)
- {
-  coeff1 = coeff1%beta;            //reduced
-  coeff2 = (g-coeff1*alpha)/beta;     //should be exact
- }
- while (!pos(g))
-   { g*=fundunit; coeff1*=fundunit; coeff2*=fundunit;
-   }
-#ifdef testbezout
-//CHECK:
-  if (div(g,alpha) && div(g,beta) && (g==coeff1*alpha+coeff2*beta)) {;}  //OK
-  else 
-    {cerr<<"Error in quadbezout1!"<<endl;
-     cerr<<"alpha = "<<alpha<<endl;
-     cerr<<"beta  = "<<beta<<endl;
-     cerr<<"coeff1 = "<<coeff1<<endl;
-     cerr<<"coeff2 = "<<coeff2<<endl;
-     cerr<<"g   = "<<g<<endl;
-     }
-#endif
- return g;
-}
-
 Quad invmod(const Quad& a, const Quad& p)
 {Quad x,y;
  Quad g=quadbezout(a,p,x,y);
@@ -769,6 +722,42 @@ void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
   findminquad(alpha,beta,gen0,gen1);
 }
 
+// the next four functions (quadbezout1/2, quadgcd1/2) are redundant now
+
+/************************************************************************************
+Quad quadbezout1(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
+{Quad a=alpha,b=beta,c,x=0,oldx=1,newx,y=1,oldy=0,newy,q,g;
+ while (b!=0)
+ { q = a/b;
+   c    = a    - q*b; a    = b; b = c;
+   newx = oldx - q*x; oldx = x; x = newx;
+   newy = oldy - q*y; oldy = y; y = newy;
+  }
+ coeff1=oldx; coeff2=oldy; g=a;
+//Next two lines try to get coeff1,coeff2 as small as possible
+ if(beta!=0)
+ {
+  coeff1 = coeff1%beta;            //reduced
+  coeff2 = (g-coeff1*alpha)/beta;     //should be exact
+ }
+ while (!pos(g))
+   { g*=fundunit; coeff1*=fundunit; coeff2*=fundunit;
+   }
+#ifdef testbezout
+//CHECK:
+  if (div(g,alpha) && div(g,beta) && (g==coeff1*alpha+coeff2*beta)) {;}  //OK
+  else 
+    {cerr<<"Error in quadbezout1!"<<endl;
+     cerr<<"alpha = "<<alpha<<endl;
+     cerr<<"beta  = "<<beta<<endl;
+     cerr<<"coeff1 = "<<coeff1<<endl;
+     cerr<<"coeff2 = "<<coeff2<<endl;
+     cerr<<"g   = "<<g<<endl;
+     }
+#endif
+ return g;
+}
+
 Quad quadbezout2(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
 {
   Quad g;
@@ -810,6 +799,20 @@ Quad quadbezout2(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2
   return g;
 }
 
+Quad quadgcd1(const Quad& aa, const Quad& bb)  //Only works for Euclidean fields!
+{Quad a=aa,b=bb,c,q;
+ while (b.nm != 0)
+   {
+     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
+     q = a/b; c = a-q*b; a = b; b = c;
+     //     cout<<"quotient "<<q<<", remainder "<<c<<" (norm "<<c.nm<<")"<<endl;
+     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
+     if(b.nm >= a.nm){cout<<"error--norm not reduced!\n";exit(1);}
+   }
+ while (!pos(a)) a*=fundunit;
+ return a;
+}
+
 Quad quadgcd2(const Quad& alpha, const Quad& beta)
 //Same as quadbezout2 except don't need coeff1, coeff2
 {
@@ -838,7 +841,9 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
 #endif
   return g;
 }
- 
+
+*******************************************************************************************/
+
 
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
 //

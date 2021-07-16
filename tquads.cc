@@ -1,7 +1,9 @@
 #include <iostream>
 
 #include <eclib/arith.h>
-#include "quads.h"
+#include "looper.h"
+#include "geometry.h"
+#include "ratquads.h"
 #include "primes.h"
 
 int main ()
@@ -150,16 +152,40 @@ int main ()
          cout<<endl;
        }
    }
+ cout << "Systematic testing of bezout..."<<flush;
  if (Quad::class_number==1)
    {
-     cout << "Systematic testing of bezout..."<<flush;
      vector<Quad>::const_iterator ap,bp;
-     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10; ap++)
-       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10; bp++)
+     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10 && ap!=quadprimes.end(); ap++)
+       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10 && bp!=quadprimes.end(); bp++)
          {
-           cout<<"quadbezout("<<*ap<<","<<*bp<<") = " <<quadbezout(*ap,*bp,x,y);
-           cout<<endl;
+           a = *ap;
+           b = *bp;
+           cout<<"quadbezout("<<a<<","<<b<<") = " << quadbezout(a,b,x,y) << endl;
          }
-     cout<<"done.\n";
    }
+ else
+   {
+     int s;
+     mat22 M;
+     Quad g,h;
+     for(Quadlooper alpha(d,1,10,1); alpha.ok(); ++alpha)
+       for(Quadlooper beta(d,1,10,1); beta.ok(); ++beta)
+         {
+           a = alpha;
+           b = beta;
+           M = generalised_extended_euclid(a, b, s);
+           cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M <<"; ";
+           g = a; h = b;
+           M.apply_left(g,h);
+           cout<<"("<<a<<","<<b<<") is ";
+           if (s!=0) cout << "not ";
+           cout << "principal, maps to singular point "
+               << "(" << g << ")/(" << h << ")"
+               <<" = "<<singular_points[s];
+           assert (singular_points[s]==RatQuad(g,h));
+           cout << endl;
+         }
+   }
+ cout<<"done.\n";
 }

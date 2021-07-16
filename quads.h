@@ -10,6 +10,7 @@
 #define PI M_PI
 
 class Quad;
+class mat22;
 class RatQuad;
 class Qideal;
 
@@ -26,12 +27,15 @@ extern int (*pos)(const Quad& a);
 //GCD-related functions.
 extern Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 extern Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
-Quad quadgcd1(const Quad& aa, const Quad& bb);   // Euclidean only
-Quad quadgcd2(const Quad& aa, const Quad& bb);   // General
+// the next four functions are redundant now
+// Quad quadbezout1(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); // Euclidean
+// Quad quadbezout2(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); // General
+// Quad quadgcd1(const Quad& aa, const Quad& bb);   // Euclidean only
+// Quad quadgcd2(const Quad& aa, const Quad& bb);   // General
 Quad quadgcd_psea(const Quad& aa, const Quad& bb);   // Using (pseudo-)EA
-Quad quadbezout1(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //Euclidean
-Quad quadbezout2(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); //General
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); // Using (pseudo-)EA
+mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
+
 Quad invmod(const Quad& a, const Quad& p);
 int coprime(const Quad& a, const Quad& b);
 int invertible(const Quad& a, const Quad& b, Quad& inverse);
@@ -116,10 +120,12 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend int pos2(const Quad& a);
   friend int div(const Quad& a, const Quad& b);           // implemented in quads.cc
   friend int val(const Quad& factor, const Quad& number); // implemented in quads.cc
-  friend Quad quadgcd1(const Quad&, const Quad&);   //Euclidean only
-  friend Quad quadgcd2(const Quad&, const Quad&);   //General
+  // friend Quad quadgcd1(const Quad&, const Quad&);   //Euclidean only
+  // friend Quad quadgcd2(const Quad&, const Quad&);   //General
+  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
   friend Quad quadgcd_psea(const Quad&, const Quad&);   // Using (pseudo-)EA
   friend Quad quadbezout_psea(const Quad&, const Quad&, Quad&, Quad&);   // Using (pseudo-)EA
+  friend mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
 
   int operator== (const Quad& b) const {return (r==b.r) && (i==b.i);}
   int operator== (long b) const {return (r==b) && (i==0);}
@@ -167,7 +173,6 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend class level;
   friend class RatQuad;
   friend class Qideal;
-  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
 };
 
 char* to_string(const Quad& a);  // outputs to a (new) string
