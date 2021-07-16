@@ -114,9 +114,8 @@ int main ()
  else
    {
      Qideal A(a);
-     prime_factn pf(A);
-     cout << "Prime ideal factorization of A = (a):\t";
-     pf.display();
+     Factorization F(A);
+     cout << "Prime ideal factorization of A = (a):\t" << F << endl;
      cout<<endl;
      cout << "Ideals with the same norm as A:    \t"
           << Qideal_lists::ideals_with_norm(a.norm()) <<endl;

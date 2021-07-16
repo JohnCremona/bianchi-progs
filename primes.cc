@@ -85,89 +85,119 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
   return Plist;
 }
 
-prime_factn::prime_factn(const Qideal& n)
+Factorization::Factorization(const Qideal& II)
 {
-  Qideal A(n);
+  I = Qideal(II);
   long np = 0;
-  vector<long> pdivs_norm = pdivs(A.norm());
-  //  cout<<"Finding prime factors of "<<A<<" with norm "<<A.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
+  int e;
+  vector<long> pdivs_norm = pdivs(I.norm());
+  //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
   for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
       //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
-      // at least one, but possibly not both when p splits, divides A
+      // at least one, but possibly not both when p splits, divides I
       for(vector<Quadprime>::const_iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
         {
           Quadprime P = *Pi;
-          if (P.divides(A))
+          if (P.divides(I))
             {
-              plist.push_back(P);
-              elist.push_back(1);
-              A /= P;
-              while (P.divides(A))
+              e = 1;
+              I /= P;
+              while (P.divides(I))
                 {
-                  A /= P;
-                  elist[np]+=1;
+                  e++;
+                  I /= P;
                 }
+              Qlist.push_back({P,e});
               np +=1;
             }
         }
     }
 }
 
-void prime_factn::display(ostream& s) const
+vector<Quadprime> Factorization::primes() const
 {
-  vector<Quadprime>::const_iterator Pi;
-  vector<long>::const_iterator ei;
-  for(Pi=plist.begin(), ei=elist.begin(); Pi!=plist.end(); Pi++, ei++)
-    {
-      if (Pi!=plist.begin()) s << " * ";
-      s << *Pi;
-      if (*ei>1) s<<"^"<<(*ei);
-    }
-  // if (plist.size()==0)
-  //   {
-  //     s << "No prime factors." << endl;
-  //   }
-  // else
-  //   {
-  //     s << "Number of distinct prime factors: "<< plist.size()<<endl;
-  //     s << "Exponents   Primes:" << endl;
-  //     for (long i=0; i<(long)plist.size(); i++)
-  //       s << elist[i] << "\t" << plist[i] << endl;
-  //   }
+  vector<Quadprime> plist;
+  plist.reserve(size());
+  std::transform(Qlist.begin(), Qlist.end(), back_inserter(plist),
+                 [](const QuadprimePower& Q) -> Quadprime { return Q.first; });
+  return plist;
 }
 
-vector<Quadprime> pdivs(const Qideal& n)  // list of prime divisors
+vector<int> Factorization::exponents() const
 {
-  return prime_factn(n).plist;
+  vector<int> elist;
+  elist.reserve(size());
+  std::transform(Qlist.begin(), Qlist.end(), back_inserter(elist),
+                 [](const QuadprimePower& Q) -> int { return Q.second; });
+  return elist;
+}
+
+vector<Quadprime> pdivs(const Qideal& I)  // list of prime divisors
+{
+  Factorization F(I);
+  return F.primes();
 }
 
 vector<Qideal> alldivs(const Qideal& a)    // list of all ideal divisors
 {
-  prime_factn pp(a);
-  long np = pp.num_primes();
+  Factorization F(a);
+  int np = F.size();
   long nu = 1; long nd=nu;
-  for (long i=0; i<np; i++) {nd*=(1+pp.expo(i));}
+  for (long i=0; i<np; i++) {nd*=(1+F.exponent(i));}
   vector<Qideal> dlist(nd);
   dlist[0]=1;
   nd=nu;
-  Qideal p;
-  long e, j, k;
-  vector<Quadprime>::const_iterator pi;
-  vector<long>::const_iterator ei;
-  for(pi = pp.plist.begin(), ei = pp.elist.begin();
-      pi != pp.plist.end();
-      pi++, ei++)
+  Qideal P;
+  int e, j, k;
+  vector<QuadprimePower>::const_iterator Qi;
+  for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  Qi++)
     {
-      p = *pi;
-      e = *ei;
+      P = Qi->first;
+      e = Qi->second;
       for (j=0; j<e; j++)
 	for (k=0; k<nd; k++)
-	  dlist[nd*(j+1)+k] = (p*dlist[nd*j+k]);
+	  dlist[nd*(j+1)+k] = (P*dlist[nd*j+k]);
       nd*=(e+1);
     }
   return dlist;
+}
+
+Qideal Factorization::prime_power(int i) const
+{
+  Qideal P = Qlist[i].first, Q;
+  int j;
+  for (j=1, Q=P; j<Qlist[i].second; j++) Q *= P;
+  return Q;
+}
+
+void Factorization::init_CRT()              // compute the CRT vector
+{
+  if (CRT_vector.size()!=0) return; // already done
+  CRT_vector.reserve(size());
+  Qideal Q, J;
+  Quad r, s;
+  for (int i=0; i<size(); i++)
+    {
+      Q = prime_power(i);
+      J = I/Q;
+      J.is_coprime_to(Q, r, s); // r+s=1 with r in J, s in Q
+                                // so r=1 mod Q, r=0 mod Q' for other Q'
+      CRT_vector[i] = r;
+    }
+}
+
+Quad Factorization::solve_CRT(const vector<Quad>& v) // solution to x=v[i] mod Qlist[i]
+{
+  if (CRT_vector.size()==0) init_CRT();
+  Quad a = 0;
+  int i;
+  for (i=0; i<size(); i++)
+    a = I.reduce(a + v[i]*CRT_vector[i]);
+  for (i=0; i<size(); i++)
+    assert (prime_power(i).contains(a-v[i]));
+  return a;
 }
 
 void Quadprimes::init(long maxn)
@@ -227,12 +257,12 @@ void Quadprimes::init(long maxn)
 
 vector<Qideal> sqdivs(const Qideal& a) // all divisors whose square divides a, up to +/-
 {
-  prime_factn pp(a);
-  Qideal p;
-  long np = pp.num_primes();
+  Factorization F(a);
+  Qideal P;
+  int np = F.size();
 
   long nd=1;
-  for(long i=0; i<np; i++) { nd *= ( 1+ pp.expo(i)/2 ) ;}
+  for(long i=0; i<np; i++) { nd *= ( 1+ F.exponent(i)/2 ) ;}
 
   vector<Qideal> dlist(nd);
   dlist[0]=1;
@@ -240,11 +270,11 @@ vector<Qideal> sqdivs(const Qideal& a) // all divisors whose square divides a, u
   long e;
   for(long i=0; i<np; i++)
     {
-      p = pp.prime(i);
-      e = pp.expo(i)/2;
+      P = F.prime(i);
+      e = F.exponent(i)/2;
       for(long j=0; j<e; j++)
 	for(long k=0; k<nd; k++)
-	  dlist[nd*(j+1)+k] = p*dlist[nd*j+k];
+	  dlist[nd*(j+1)+k] = P*dlist[nd*j+k];
       nd*=(e+1);
     }
   return dlist;

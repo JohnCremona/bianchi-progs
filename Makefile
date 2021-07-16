@@ -60,7 +60,7 @@ headers: intprocs.h cusp.h homspace.h lf1.h looper.h moddata.h mquads.h newforms
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp # tmquads xtmanin testlf1
+TESTS = fieldinfo tquads qidltest tratquad looptest modtest symbtest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp # tmquads xtmanin testlf1
 tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
@@ -227,7 +227,7 @@ symbtest.o: symbtest.cc symb.h moddata.h quads.h ratquads.h looper.h
 testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h lf1.h
 tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 tmquads.o: tmquads.cc mquads.h
-tquads.o: tquads.cc quads.h looper.h geometry.h intprocs.h qideal.h qidloop.h
+tquads.o: tquads.cc quads.h looper.h geometry.h intprocs.h qideal.h qidloop.h primes.h
 tratquad.o: tratquad.cc ratquads.h quads.h
 xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 

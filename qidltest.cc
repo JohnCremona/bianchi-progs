@@ -12,15 +12,14 @@ void test1(Qideal& I)
     cout << " is principal, with generator " << I.gen();
   else
     cout << " is not principal, generators " <<I.gens();
-  prime_factn pf(I);
-  cout << " with factorization: ";
-  pf.display();
+  Factorization F(I);
+  cout << " with factorization " << F <<endl;
   Qideal J;
-  for (long i=0; i<pf.num_primes(); i++)
-    for (long e=0; e<pf.expo(i); e++)
-      J*=pf.prime(i);
+  for (int i=0; i<F.size(); i++)
+    J*=F.prime_power(i);
   if (J!=I)
     { cerr << "Error: multiplying up gave different answer!"<<endl;
+      cerr << "(" << J << " instead of "<<I<<")"<<endl;
       exit(1);
     }
   cout << endl;
@@ -53,13 +52,13 @@ void residuetest(Qideal& I)
   cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
   if (I.norm()==1) return;
 
-  prime_factn pf(I);
+  Factorization F(I);
   long phi=1;
-  for (long i=0; i<pf.num_primes(); i++)
+  for (int i=0; i<F.size(); i++)
     {
-      long np = pf.prime(i).norm();
+      long np = F.prime(i).norm();
       phi *= (np-1);
-      for (long e=1; e<pf.expo(i); e++)
+      for (long e=1; e<F.exponent(i); e++)
         phi *= np;
     }
 
@@ -141,7 +140,7 @@ void show_primes()
       if (P.is_principal())
         cout << " = ("<<gg[0]<<") (principal)";
       else
-        cout << "(not principal)";
+        cout << " (not principal)";
       cout<<endl;
     }
 }

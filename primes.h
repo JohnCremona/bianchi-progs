@@ -48,6 +48,16 @@ inline ostream& operator<<(ostream& s, const Quadprime& x)
   return s;
 }
 
+typedef pair<Quadprime, int> QuadprimePower;
+
+inline ostream& operator<<(ostream& s, const QuadprimePower& Q)
+{
+  s << Q.first;
+  if (Q.second>1) s << "^" << Q.second;
+  return s;
+}
+
+
 vector<Quadprime> Quadprimes_above(long p); // p should be an integer prime
 
 class Quadprimes {
@@ -58,19 +68,44 @@ public:
   static void display(ostream& s = cout);
 };
 
-class prime_factn {
-  vector<Quadprime> plist;
-  vector<long> elist;
+class Factorization {
+  Qideal I;                     // the ideal whose factorization this is
+  vector<QuadprimePower> Qlist; // prime powers Q
+  vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
+  void init_CRT();              // compute the CRT vector
 public:
-  prime_factn(const Qideal &);           // constructor
-  void display(ostream& s = cout) const;
+  Factorization(const Qideal &);           // constructors
 
-  long num_primes() const { return plist.size(); }
-  Quadprime prime(long i) const { return plist[i]; }
-  long expo(long i) const { return elist[i]; }
+  long size() const { return Qlist.size(); }
+  Quadprime prime(int i) const { return Qlist[i].first; }
+  vector<Quadprime> primes() const;
+  int exponent(int i) const { return Qlist[i].second; }
+  vector<int> exponents() const;
+  Qideal prime_power(int i) const; //  returns Qlist[i] multiplied out to an ideal; }
+  vector<QuadprimePower> prime_powers() const {return Qlist; }
+
+  Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]
   friend vector<Quadprime> pdivs(const Qideal& n);
   friend vector<Qideal> alldivs(const Qideal& a);
+  friend inline ostream& operator<<(ostream& s, const Factorization& F);
   };
+
+inline ostream& operator<<(ostream& s, const Factorization& F)
+{
+  if(F.size())
+    {
+      for (vector<QuadprimePower>::const_iterator Qi=F.Qlist.begin(); Qi!=F.Qlist.end(); Qi++)
+        {
+          if (Qi!=F.Qlist.begin()) s<<"*";
+          s << (*Qi);
+        }
+    }
+  else
+    {
+      s << "()";
+    }
+  return s;
+}
 
 vector<Quadprime> pdivs(const Qideal&);   // list of all prime divisors
 vector<Qideal> alldivs(const Qideal&);    // list of all ideal divisors
