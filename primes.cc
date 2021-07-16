@@ -92,6 +92,7 @@ Factorization::Factorization(const Qideal& II)
   int e;
   vector<long> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
+  Qideal J = I; // so we can divide out primes while leaving I unchanged
   for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
@@ -100,20 +101,22 @@ Factorization::Factorization(const Qideal& II)
       for(vector<Quadprime>::const_iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
         {
           Quadprime P = *Pi;
-          if (P.divides(I))
+          if (P.divides(J))
             {
               e = 1;
-              I /= P;
-              while (P.divides(I))
+              J /= P;
+              while (P.divides(J))
                 {
                   e++;
-                  I /= P;
+                  J /= P;
                 }
               Qlist.push_back({P,e});
               np +=1;
             }
         }
     }
+  // just for testing, do this on construction:
+  init_CRT();
 }
 
 vector<Quadprime> Factorization::primes() const
@@ -176,15 +179,30 @@ void Factorization::init_CRT()              // compute the CRT vector
 {
   if (CRT_vector.size()!=0) return; // already done
   CRT_vector.reserve(size());
+  if (size()==1)
+    {
+      CRT_vector[0] = 1;
+      return;
+    }
   Qideal Q, J;
   Quad r, s;
   for (int i=0; i<size(); i++)
     {
       Q = prime_power(i);
       J = I/Q;
-      J.is_coprime_to(Q, r, s); // r+s=1 with r in J, s in Q
-                                // so r=1 mod Q, r=0 mod Q' for other Q'
+      int t = J.is_coprime_to(Q, r, s); // r+s=1 with r in J, s in Q
+                                        // so r=1 mod Q, r=0 mod Q' for other Q'
+      assert (t==1);
       CRT_vector[i] = r;
+      assert (Q.contains(r-1));
+      assert (J.contains(r));
+    }
+  // check
+  for (int i=0; i<size(); i++)
+    {
+      Q = prime_power(i);
+      for (int j=0; j<size(); j++)
+        assert(Q.divides(CRT_vector[j]-int(i==j)));
     }
 }
 

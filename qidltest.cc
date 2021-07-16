@@ -13,7 +13,7 @@ void test1(Qideal& I)
   else
     cout << " is not principal, generators " <<I.gens();
   Factorization F(I);
-  cout << " with factorization " << F <<endl;
+  cout << " with factorization " << F;
   Qideal J;
   for (int i=0; i<F.size(); i++)
     J*=F.prime_power(i);
