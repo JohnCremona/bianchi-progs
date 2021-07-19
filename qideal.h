@@ -96,7 +96,11 @@ public:
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
   int is_coprime_to(const Quad& alpha, Quad& inverse);
 
-//
+  // return J = (c/d)*this coprime to N
+  // (implemented in primes.cc)
+  Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d);
+
+  //
   Qideal operator/(const long&) const;
   Qideal operator/(const Quad&) const;
   Qideal operator/(const Qideal&) const;

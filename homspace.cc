@@ -314,7 +314,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj) const
 //  {return chain(beta, proj) - chain(alpha, proj);}
 // we apply "Karim's trick"
 {
-  Quad a(num(alpha)), b(den(alpha)), x, y;
+  Quad a(alpha.num()), b(alpha.den()), x, y;
   quadbezout(a,b, x,y); // discard its value which is 1
   mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
   assert (M.det()==Quad::one);

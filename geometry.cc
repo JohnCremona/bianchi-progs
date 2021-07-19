@@ -91,24 +91,30 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
   add_alpha( sign*r, t, s,  r); // alpha = -r/s
 }
 
+//#define CHECK_TRIANGLES
+
 void add_triangle(int i, int j, int k)
 {
   triangles.push_back({i,j,k});
-  // Check
+#ifdef CHECK_TRIANGLES
   mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k];
   RatQuad beta(-Mj.entry(1,1),Mj.entry(1,0));
   RatQuad gamma(-Mk.entry(1,1),Mk.entry(1,0));
   RatQuad x = (Mi.entry(0,0)*beta+Mi.entry(0,1))/(Mi.entry(1,0)*beta+Mi.entry(1,1)) - gamma;
   assert (x.is_integral());
+#endif
 }
 
 void add_cyclic_triangle(int i)
 {
   cyclic_triangles.push_back(i);
-  // Check
+#ifdef CHECK_TRIANGLES
   Quad t=M_alphas[i].trace();
   assert (t*t==1);
+#endif
 }
+
+//#define CHECK_SQUARES
 
 void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad& y=Quad::zero, const Quad& z=Quad::zero)
 {
@@ -116,6 +122,7 @@ void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad
   vector<Quad> xyz = {x,y,z};
   squares.push_back({squ,xyz});
 
+#ifdef CHECK_SQUARES
   // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
   // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
   // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
@@ -132,6 +139,7 @@ void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad
   RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
   mat22 M = Mi*mat22::Tmat(z)*Mj;
   assert ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+#endif
 }
 
 // Global function to be used once during setting the field:

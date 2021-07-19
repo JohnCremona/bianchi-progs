@@ -456,6 +456,34 @@ vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm)
   return ans;
 }
 
+// return J = (c/d)*this coprime to N
+Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d)
+{
+  if (is_principal()) // this = (g0) so set d=g0, c=1 and return (1)
+    {
+      c = 1;
+      d = g0;
+      return Qideal(1);
+    }
+  long n = N.norm();
+  Qideal I;
+  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+    {
+      Quadprime P = *Pi;
+      if (P.residue_degree()==1) continue; // inert primes are principal!
+      if (gcd(P.norm(), n)>1) continue;    // skip P unless its norm is coprime to N
+      I = (*this)*P.conj();
+      if (!I.is_principal()) continue;     // skip P unless this/P is principal
+      d = I.g0;
+      c = P.norm(); // c*this = I*P = d*P
+      return P;
+    }
+  cerr << "Unable to find an ideal equivalent to "<<(*this)<<" coprime to "<<N<<endl;
+  return Qideal();
+}
+
+
+
 
 
 

@@ -242,8 +242,9 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   }
 }
 
-// Declared in quads.h.  Only useful when the ideal (a,b) is principal.
-// Otherwise a warning is output and 0 returned.
+// Declared in quads.h.  Only useful when the ideal (a,b) is
+// principal, otherwise 0 is returned.  Can be used to test whether
+// (a,b) is principal and return a generator when it is.
 
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
@@ -252,8 +253,8 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
   while (b.nm && t>=0) pseudo_euclidean_step(a, b, t);
   if (b.nm)
     {
-      cout<<"Warning: quadgcd_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
-      cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<singular_points[-t]<<endl;
+      // cout<<"Warning: quadgcd_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
+      // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<singular_points[-t]<<endl;
       return Quad::zero;
     }
   else

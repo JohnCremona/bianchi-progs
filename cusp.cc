@@ -14,20 +14,20 @@ using namespace std::placeholders;
 
 int cusplist::index(const RatQuad& c)
 {
-  // adds c to list if not there already, and return index
-  vector<RatQuad>::iterator ci = std::find_if(cusps.begin(), cusps.end(), std::bind(::cuspeq,_1, c, N->modulus, N->plusflag));
-  if (ci==cusps.end())
+  // add c to list if not there already, and return index
+  for(vector<RatQuad>::iterator ci = cusps.begin(); ci != cusps.end(); ci++)
     {
-      cusps.push_back(c);
-      return cusps.size()-1;
+      if (cuspeq(*ci, c, N->modulus, N->plusflag))
+        return ci-cusps.begin();
     }
-  else
-    return ci-cusps.begin();
+  // not found:
+  cusps.push_back(c);
+  return cusps.size()-1;
 }
 
 RatQuad mat22::operator()(const RatQuad& q)const
 {
-  Quad r = num(q), s = den(q);
+  Quad r = q.num(), s = q.den();
   apply_left(r, s);
   return RatQuad(r,s, 1);
 }

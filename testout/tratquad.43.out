@@ -7,6 +7,6 @@ b = 56+78a
 q = a/b = (6+17a)/(28+39a)
 b*q==a? 1
 round(q) = 0
-reduce(q) = (6+17a)/(28+39a)
-q==round(q)+reduce(q)? 1
+translation_reduce(q) = (6+17a)/(28+39a)
+q==round(q)+translation_reduce(q)? 1
 recip(q) = (28+39a)/(6+17a)

@@ -111,8 +111,11 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
-  vector<Quad> gens = {alpha};
+  Quad a = alpha;
+  long ca = a.content();
+  vector<Quad> gens = {a};
   *this = Qideal(gens);
+  c *= ca;
   iclass=0;
   g0=makepos(alpha); g1=Quad::w*g0;
   index=-1;

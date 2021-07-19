@@ -7,6 +7,6 @@ b = 56+78a
 q = a/b = (-20+3a)/(-53+14a)
 b*q==a? 1
 round(q) = 0
-reduce(q) = (-20+3a)/(-53+14a)
-q==round(q)+reduce(q)? 1
+translation_reduce(q) = (-20+3a)/(-53+14a)
+q==round(q)+translation_reduce(q)? 1
 recip(q) = (-53+14a)/(-20+3a)

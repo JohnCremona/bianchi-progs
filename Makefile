@@ -111,7 +111,7 @@ tmquads: tmquads.o mquads.o
 
 OBJS = symb.o moddata.o quads.o intprocs.o euclid.o geometry.o looper.o cusp.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o
+       primes.o mat22.o ratquads.o
 
 tmanin: tmanin.o $(OBJS)
 	$(CC) -g -o tmanin tmanin.o $(OBJS) $(LFLAGS)
@@ -161,8 +161,8 @@ modularity_modp: modularity_modp.o $(OBJS)
 looptest: looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o
 	$(CC) -o looptest looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o $(LFLAGS)
 
-tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o
-	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o $(LFLAGS)
+tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o
+	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o $(LFLAGS)
 
 modtest: modtest.o $(OBJS)
 	$(CC) -o modtest modtest.o $(OBJS) $(LFLAGS)
@@ -195,6 +195,7 @@ qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geo
 #
 intprocs.o: intprocs.h intprocs.cc
 cusp.o: cusp.cc cusp.h moddata.h quads.h ratquads.h
+ratquads.o: ratquads.cc quads.h ratquads.h qideal.h
 dimtabeis.o: dimtabeis.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 dimtable.o: dimtable.cc homspace.h moddata.h quads.h ratquads.h cusp.h symb.h looper.h
 fieldinfo.o: fieldinfo.cc quads.h intprocs.h qideal.h qidloop.h
@@ -229,7 +230,7 @@ testlf1.o: testlf1.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspac
 tmanin.o: tmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 tmquads.o: tmquads.cc mquads.h
 tquads.o: tquads.cc quads.h looper.h geometry.h intprocs.h qideal.h qidloop.h primes.h
-tratquad.o: tratquad.cc ratquads.h quads.h
+tratquad.o: tratquad.cc ratquads.cc ratquads.h quads.h
 xtmanin.o: xtmanin.cc newforms.h oldforms.h moddata.h quads.h ratquads.h homspace.h cusp.h symb.h
 
 mat22.o: mat22.cc mat22.h quads.h

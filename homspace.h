@@ -91,7 +91,7 @@ public:
   vec projchain(const Quad& a, const Quad& b, const Quad& c=Quad::zero, const Quad& d=Quad::one) const
   {return chain(a, b, 1, c, d);}
   vec chain(const RatQuad& r, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one) const
-  {return chain(num(r),den(r), proj, c, d);}
+  {return chain(r.num(), r.den(), proj, c, d);}
   vec chain(const RatQuad& alpha, const RatQuad& beta, int proj=0) const;
   vec chain(const modsym& m, int proj=0) const
   {return chain(m.alpha(), m.beta(), proj);}
@@ -103,7 +103,7 @@ public:
   vec cycle(const Quad& n, const Quad& d) const
   {return kernelpart(chain(n,d));}
   vec cycle(const RatQuad& r) const
-  {return kernelpart(chain(num(r),den(r)));}
+  {return kernelpart(chain(r.num(), r.den()));}
   vec cycle(const modsym& m) const
   {return cycle(m.beta())-cycle(m.alpha());}
 

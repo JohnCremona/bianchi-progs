@@ -13,13 +13,23 @@ public:
   RatQuad(long a, long b, long dd, int reduce=0); // (a+b*w)/dd
 
   // RatQuad manipulations
-  void cancel();                           // cancel *this in situ
-  int is_integral() const {return d.nm==1;} // assumes simplified
-  friend Quad num(const RatQuad&);         // the numerator
-  friend Quad den(const RatQuad&);         // the denominator
-  friend RatQuad recip(const RatQuad&);    // reciprocal
-  friend RatQuad reduce(const RatQuad& q); // reduce mod Quads
-  friend Quad round(const RatQuad&);       // nearest Quad
+
+  // reduce to lowest terms: when non-principal this method only divides
+  // n and d by the gcd of the content:
+  int reduce();
+  // reduce, ensuring that resulting ideal is coprime to N
+  void reduce(const Qideal& N);
+  int is_integral() const {return d.nm==1;} // assumes reduced
+  Quad num() const {return n;}
+  Quad den() const {return d;}
+  RatQuad recip() const {return RatQuad(d, n);}  // no reduction needed
+  RatQuad translation_reduce() const             // reduce mod Quads
+  {
+    return (d==0? RatQuad(1,0): RatQuad(n%d,d));
+  }
+  Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
+  Qideal ideal() const;                          // ideal (n,d)
+  Qideal denominator_ideal() const;              // (d)/(n,d)
 
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
@@ -48,6 +58,9 @@ public:
   RatQuad operator+();
   RatQuad operator-();
 
+  friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
+  friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
+
   // Implementation
 private:
   Quad d, n;
@@ -56,18 +69,11 @@ private:
 
 // Inline RatQuad functions
 
-inline void RatQuad::cancel()                     // cancel *this in situ
-{
- Quad g = quadgcd(n,d);
- if (quadnorm(g)>1) {n/=g; d/=g;}
- while (!pos(d)) {n*=fundunit; d*=fundunit;}
-}
-
 inline RatQuad::RatQuad(Quad nn, Quad dd, int reduce)
 {
   n=nn; d=dd;
   if (reduce)
-    (*this).cancel();
+    (*this).reduce();
 }
 
 inline RatQuad::RatQuad(long a, long b, long dd, int reduce) // (a+b*w)/dd
@@ -75,7 +81,7 @@ inline RatQuad::RatQuad(long a, long b, long dd, int reduce) // (a+b*w)/dd
   n=Quad(a,b);
   d=Quad(dd);
   if (reduce)
-    (*this).cancel();
+    (*this).reduce();
 }
 
 inline RatQuad RatQuad::operator+()
@@ -95,14 +101,14 @@ inline RatQuad& RatQuad::operator+=(const RatQuad& r)
 {
   n = n*r.d + d*r.n;
   d *= r.d;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
 
 inline RatQuad& RatQuad::operator+=(Quad q)
 {
   n += d*q;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
 
@@ -110,59 +116,30 @@ inline RatQuad& RatQuad::operator-=(const RatQuad& r)
 {
   n = n*r.d - d*r.n;
   d *= r.d;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
 
 inline RatQuad& RatQuad::operator-=(Quad q)
 {
   n -= d*q;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
 
 inline RatQuad& RatQuad::operator*=(Quad q)
 {
   n*=q;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
 
 inline RatQuad& RatQuad::operator/=(Quad q)
 {
   d*=q;
-  (*this).cancel();
+  (*this).reduce();
   return *this;
 }
-
-// Definitions of non-member RatQuad functions
-
-inline Quad num(const RatQuad& r)
-{
-  return r.n;
-}
-
-inline Quad den(const RatQuad& r)
-{
-  return r.d;
-}
-
-inline RatQuad recip(const RatQuad& r)
-{
-  return RatQuad(r.d, r.n); // no cancelling needed
-}
-
-inline Quad round(const RatQuad& r)
-{
-  return r.n / r.d;   // uses rounded division of Quads
-}
-
-inline RatQuad reduce(const RatQuad& r)
-{
-  if (r.d==Quad(0)) return RatQuad(1,0);
-  return RatQuad(r.n%r.d,r.d);
-}
-
 
 // Definitions of non-member binary operator functions
 
@@ -240,5 +217,15 @@ inline ostream& operator<<(ostream& s, const RatQuad& r)
    else s << "(" << r.n << ")/(" << r.d << ")";
    return s;
 }
+
+// Cusp equivalence mod Gamma_0(N)
+
+// Special case: N is a Quad and c1, c2 assumed principal and reduced:
+
+int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
+
+// General case: N is a Qideal
+
+int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
 
 #endif

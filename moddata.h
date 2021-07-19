@@ -8,8 +8,6 @@
 #include "ratquads.h"
 #include "mat22.h"
 
-int cuspeq(const RatQuad& c1, const RatQuad& c2, Quad modulus, int plusflag);
-
 class level {
 public:
   Quad modulus, conj_modulus;

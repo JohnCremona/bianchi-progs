@@ -101,6 +101,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   long re() const {return r;}
   long im() const {return i;}
   long norm() const {return nm;}
+  long content() const {return gcd(r,i);}
   Quad pos_assoc() const {return makepos(*this);}
 
 //operators and related functions (friends are inlined below):

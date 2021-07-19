@@ -19,8 +19,8 @@ int main ()
  RatQuad q(a,b, 1);
  cout << "q = a/b = " << q << endl;
  cout << "b*q==a? " << (b*q==a) << endl;
- cout << "round(q) = " << round(q) << endl;
- cout << "reduce(q) = " << reduce(q) << endl;
- cout << "q==round(q)+reduce(q)? " << (q==round(q)+reduce(q)) << endl;
- cout << "recip(q) = " << recip(q) << endl;
+ cout << "round(q) = " << q.round() << endl;
+ cout << "translation_reduce(q) = " << q.translation_reduce() << endl;
+ cout << "q==round(q)+translation_reduce(q)? " << (q==q.round() + q.translation_reduce()) << endl;
+ cout << "recip(q) = " << q.recip() << endl;
 }

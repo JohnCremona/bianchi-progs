@@ -7,6 +7,6 @@ b = 56+78t
 q = a/b = (-17+3t)/(-39+14t)
 b*q==a? 1
 round(q) = 0
-reduce(q) = (-17+3t)/(-39+14t)
-q==round(q)+reduce(q)? 1
+translation_reduce(q) = (-17+3t)/(-39+14t)
+q==round(q)+translation_reduce(q)? 1
 recip(q) = (-39+14t)/(-17+3t)

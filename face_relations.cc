@@ -486,7 +486,7 @@ void homspace::general_triangle_relation(const vector<int>& tri)
   assert (x.is_integral());
 
   symbop M1(this, M_alphas[alpha_inv[j]]);
-  symbop M2(this, M_alphas[alpha_inv[i]]*mat22::Tmat(num(x)));
+  symbop M2(this, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
   symbop J(this, mat22::J);
   vector<mat22> mats = {mat22::identity, M1, M2};
 
