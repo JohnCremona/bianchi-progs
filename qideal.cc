@@ -41,10 +41,11 @@ void Qideal::fill()
 }
 
 Qideal::Qideal()
-{ a=c=ac=nm=1; b=0; iclass=0; g0=1; g1=Quad::w; index=1;}   //default ideal is whole ring
+{ a=c=ac=nm=1; b=0; iclass=0; g0=1; g1=Quad::w; index=1; F=0;}   //default ideal is whole ring
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
 { a=i.a; b=i.b; c=i.c; ac=i.ac; nm=i.nm; iclass=i.iclass; index=i.index;
+  F=0; // don't copy the pointer (though we could copy the underlying Factorizarion)
   if(iclass!=-1)
     {
       g0=i.g0; g1=i.g1;
@@ -71,6 +72,7 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
     iclass=-1;
     index=-1;
   }
+  F=0;
 }
 
 Qideal::Qideal(const long& n)       // princ ideal gen by long
@@ -79,6 +81,7 @@ Qideal::Qideal(const long& n)       // princ ideal gen by long
   ac=a*c; nm=ac*c;
   g0 = Quad(abs(n));
   g1 = Quad(0, abs(n));
+  F=0;
 }
 
 // Utility used to construct Qideals given two lists of integers rv,
@@ -92,6 +95,7 @@ Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-
   abc_from_HNF(basis);
   iclass=-1;
   index=-1;
+  F=0;
 }
 
 Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
@@ -111,14 +115,12 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
-  Quad a = alpha;
-  long ca = a.content();
-  vector<Quad> gens = {a};
+  vector<Quad> gens(1,alpha);
   *this = Qideal(gens);
-  c *= ca;
   iclass=0;
   g0=makepos(alpha); g1=Quad::w*g0;
   index=-1;
+  F=0;
 }
 
 
@@ -254,7 +256,13 @@ void Qideal::operator*=(const Quad& alpha)
   if (c==0 || alpha.norm()==1) return;              // this is unchanged
   if (alpha==0) { *this=Qideal(0); return;}         // this becomes 0
   if (alpha.im()==0) {*this *= alpha.re(); return;} // alpha in Z
-  if (iclass==0) { *this=Qideal(g0*alpha); return;} // this is principal
+  if (iclass==0) {
+    // cout<<"operator *= with this="<<(*this)<<" (which is principal with generator "<<g0<<") and "<<alpha<<endl;
+    *this=Qideal(g0*alpha);
+    // cout<<" product is "<<(*this)<<" with generator "<<g0<<endl;
+    iclass=0;
+    return;
+  } // this is principal
 
   vector<Quad> gens = {alpha*Quad(a), alpha*Quad(b,1)}; // without the factor c
   long fac = c;
@@ -269,15 +277,16 @@ void Qideal::operator*=(const Qideal& f)
 {
   if (c==0 || ((f.c==1)&&(f.a==1))) return;    // unchanged
   if ((f.c==0) || ((c==1)&&(a==1))) { *this=f; return; }  // f unchanged
-  if ((iclass==0)&&(f.iclass==0)) { *this=Qideal(g0*(f.g0)); return; }
-
+  // cout<<"operator *= with this = "<<(*this)<<" and "<<f<<endl;
   Quad g1(a), g2(b,1), h1(f.a), h2(f.b,1);
   vector<Quad> gens = {g1*h1, g1*h2, g2*h1, g2*h2};
   long fac = c*(f.c);
   *this = Qideal(gens);
+  // cout<<" - primitive product is "<<(*this)<<endl;
   c *= fac;
   ac *= fac;
   nm *= (fac*fac);
+  // cout<<" - full product is "<<(*this)<<endl;
   iclass=index=-1;
 }
 
@@ -384,6 +393,7 @@ mat22 Qideal::AB_matrix(const Qideal&J, Quad&g)
   mat22 M(g0, h0, g1, h1);
   assert (M.det()==g);
   assert (Qideal({h0,h1}) == J);
+  // cout << "M = "<<M<<" with det "<<M.det()<<endl;
   return M;
 }
 
@@ -391,7 +401,7 @@ mat22 Qideal::AB_matrix()
 {
   fill();
   Qideal C = (*this).conj();
-  Qideal I0 = g0*C/nm, I1 = g1*C/nm; // = (g0)/this, (g1)/this
+  Qideal I0 = (g0*C)/nm, I1 = (g1*C)/nm; // = (g0)/this, (g1)/this
   Quad r0, r1;
   I0.is_coprime_to(I1, r0, r1);
   Quad h0 = -(r1*nm)/g1;
@@ -435,6 +445,8 @@ Qideal operator/(const Quad&alpha, const Qideal&f)
 
 void Qideal::operator/=(const long&n)
 { long na=abs(n);
+  if (na==1) return;
+  // cout<<"applying operator/= to ideal "<<(*this)<<" and "<<n<<endl;
   std::ldiv_t qr = ldiv(c, na);
   if (qr.rem!=0)
     {
@@ -443,11 +455,13 @@ void Qideal::operator/=(const long&n)
   c = qr.quot;
   ac = a*c;
   nm = ac*c;
-  if (iclass!=-1) { g0/=na; g1/=na; }
+  if (iclass!=-1) { g0/=n; g1/=n; }
+  // cout<<" -- after /= this = "<<(*this)<<endl;
 }
 
 void Qideal::operator/=(const Quad&alpha)
 {
+  if (alpha.nm==1) return;
   (*this) *= alpha.conj();
   long na = alpha.norm();
   std::ldiv_t qr = ldiv(c, na);
@@ -462,8 +476,12 @@ void Qideal::operator/=(const Quad&alpha)
 }
 
 void Qideal::operator/=(const Qideal&f)
-{ Qideal keep = *this;
+{
+  if (f.norm()==1) return;
+  Qideal keep = *this;
+  // cout<<"dividing "<<(*this)<<" by "<<f<<endl;
   (*this) *= f.conj();
+  // cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
   long nf = f.norm();
   std::ldiv_t qr = ldiv(c, nf);
   if (qr.rem!=0)                // shouldn't happen

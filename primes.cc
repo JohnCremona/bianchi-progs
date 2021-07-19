@@ -89,6 +89,8 @@ Factorization::Factorization(const Qideal& II)
 {
   I = Qideal(II); // to keep in the class
   Qideal J(I);    // copy for dividing out primes while leaving I unchanged
+  // cout<<" J = "<< J <<endl;
+  Qideal Q; int e;
   vector<long> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
   for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
@@ -101,13 +103,15 @@ Factorization::Factorization(const Qideal& II)
           Quadprime P = *Pi;
           if (P.divides(J))
             {
-              int e = 1;
+              e = 1;
               J /= P;
-              Qideal Q = P;
+              // cout<<" After dividing by "<<P<<", J = "<< J <<endl;
+              Q = P;
               while (P.divides(J))
                 {
                   e++;
                   J /= P;
+                  // cout<<" After dividing by "<<P<<", J = "<< J <<endl;
                   Q *= P;
                 }
               Qlist.push_back({P,e});
@@ -137,15 +141,14 @@ vector<int> Factorization::exponents() const
   return elist;
 }
 
-vector<Quadprime> pdivs(const Qideal& I)  // list of prime divisors
+vector<Quadprime> pdivs(Qideal& I)  // list of prime divisors
 {
-  Factorization F(I);
-  return F.primes();
+  return I.factorization().primes();
 }
 
-vector<Qideal> alldivs(const Qideal& a)    // list of all ideal divisors
+vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
 {
-  Factorization F(a);
+  Factorization F = a.factorization();
   int np = F.size();
   long nu = 1; long nd=nu;
   for (long i=0; i<np; i++) {nd*=(1+F.exponent(i));}
@@ -265,9 +268,9 @@ void Quadprimes::init(long maxn)
 
 // need divisors functions etc
 
-vector<Qideal> sqdivs(const Qideal& a) // all divisors whose square divides a, up to +/-
+vector<Qideal> sqdivs(Qideal& a) // all divisors whose square divides a, up to +/-
 {
-  Factorization F(a);
+  Factorization F = a.factorization();
   Qideal P;
   int np = F.size();
 
@@ -290,7 +293,7 @@ vector<Qideal> sqdivs(const Qideal& a) // all divisors whose square divides a, u
   return dlist;
 }
 
-vector<Qideal> sqfreedivs(const Qideal& a)       // all square-free divisors
+vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
 {
   vector<Quadprime> plist=pdivs(a);
   Qideal p;
@@ -482,6 +485,31 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d)
   return Qideal();
 }
 
+Factorization Qideal::factorization() // sets F if necessary then returns F
+{
+  if (F==0)
+    {
+      F = new Factorization(*this);
+    }
+  return *F;
+}
+
+Qideal::~Qideal()
+{
+  if (F!=0)
+    {
+      delete F;
+      F = 0;
+    }
+}
+
+int Qideal::is_square()
+{
+  vector<int>ee = factorization().exponents();
+  for (vector<int>::const_iterator ei = ee.begin(); ei!=ee.end(); ei++)
+    if ((*ei)%2==1) return 0;
+  return 1;
+}
 
 
 

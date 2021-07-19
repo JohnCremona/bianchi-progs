@@ -75,7 +75,7 @@ class Factorization {
   vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
   void init_CRT();              // compute the CRT vector
 public:
-  Factorization(const Qideal &);           // constructors
+  Factorization(const Qideal &);           // constructor
 
   long size() const { return Qlist.size(); }
   Quadprime prime(int i) const { return Qlist[i].first; }
@@ -86,8 +86,8 @@ public:
   vector<QuadprimePower> prime_powers() const {return Qlist; }
 
   Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]
-  friend vector<Quadprime> pdivs(const Qideal& n);
-  friend vector<Qideal> alldivs(const Qideal& a);
+  friend vector<Quadprime> pdivs(Qideal& n);
+  friend vector<Qideal> alldivs(Qideal& a);
   friend inline ostream& operator<<(ostream& s, const Factorization& F);
   };
 
@@ -108,10 +108,10 @@ inline ostream& operator<<(ostream& s, const Factorization& F)
   return s;
 }
 
-vector<Quadprime> pdivs(const Qideal&);   // list of all prime divisors
-vector<Qideal> alldivs(const Qideal&);    // list of all ideal divisors
-vector<Qideal> sqdivs(const Qideal&);     // list of ideal divisors whose square divides
-vector<Qideal> sqfreedivs(const Qideal&); // list of square-free ideal divisors
+vector<Quadprime> pdivs(Qideal&);   // list of all prime divisors
+vector<Qideal> alldivs(Qideal&);    // list of all ideal divisors
+vector<Qideal> sqdivs(Qideal&);     // list of ideal divisors whose square divides
+vector<Qideal> sqfreedivs(Qideal&); // list of square-free ideal divisors
 
 #endif
 

@@ -13,7 +13,7 @@ void test1(Qideal& I)
     cout << " is principal, with generator " << I.gen();
   else
     cout << " is not principal, generators " <<I.gens();
-  Factorization F(I);
+  Factorization F = I.factorization();
   cout << " with factorization " << F;
   Qideal J;
   for (int i=0; i<F.size(); i++)
@@ -53,7 +53,7 @@ void residuetest(Qideal& I)
   cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
   if (I.norm()==1) return;
 
-  Factorization F(I);
+  Factorization F = I.factorization();
   long phi=1;
   for (int i=0; i<F.size(); i++)
     {

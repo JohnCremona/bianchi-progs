@@ -115,7 +115,7 @@ int main ()
  else
    {
      Qideal A(a);
-     Factorization F(A);
+     Factorization F = A.factorization();
      cout << "Prime ideal factorization of A = (a):\t" << F << endl;
      cout<<endl;
      cout << "Ideals with the same norm as A:    \t"
