@@ -4,6 +4,7 @@
 
 #include <eclib/arith.h>
 #include "quads.h"
+#include "mat22.h"
 #include "ratquads.h"
 #include "geometry.h"
 

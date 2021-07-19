@@ -87,12 +87,10 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
 
 Factorization::Factorization(const Qideal& II)
 {
-  I = Qideal(II);
-  long np = 0;
-  int e;
+  I = Qideal(II); // to keep in the class
+  Qideal J(I);    // copy for dividing out primes while leaving I unchanged
   vector<long> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
-  Qideal J = I; // so we can divide out primes while leaving I unchanged
   for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
@@ -103,15 +101,17 @@ Factorization::Factorization(const Qideal& II)
           Quadprime P = *Pi;
           if (P.divides(J))
             {
-              e = 1;
+              int e = 1;
               J /= P;
+              Qideal Q = P;
               while (P.divides(J))
                 {
                   e++;
                   J /= P;
+                  Q *= P;
                 }
               Qlist.push_back({P,e});
-              np +=1;
+              QIlist.push_back(Q);
             }
         }
     }
@@ -165,14 +165,6 @@ vector<Qideal> alldivs(const Qideal& a)    // list of all ideal divisors
       nd*=(e+1);
     }
   return dlist;
-}
-
-Qideal Factorization::prime_power(int i) const
-{
-  Qideal P = Qlist[i].first, Q;
-  int j;
-  for (j=1, Q=P; j<Qlist[i].second; j++) Q *= P;
-  return Q;
 }
 
 void Factorization::init_CRT()              // compute the CRT vector

@@ -70,7 +70,8 @@ public:
 
 class Factorization {
   Qideal I;                     // the ideal whose factorization this is
-  vector<QuadprimePower> Qlist; // prime powers Q
+  vector<QuadprimePower> Qlist; // prime powers Q (as (P,e) pairs)
+  vector<Qideal> QIlist;         // prime powers Q (as ideals)
   vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
   void init_CRT();              // compute the CRT vector
 public:
@@ -81,7 +82,7 @@ public:
   vector<Quadprime> primes() const;
   int exponent(int i) const { return Qlist[i].second; }
   vector<int> exponents() const;
-  Qideal prime_power(int i) const; //  returns Qlist[i] multiplied out to an ideal; }
+  Qideal prime_power(int i) const {return QIlist[i];}
   vector<QuadprimePower> prime_powers() const {return Qlist; }
 
   Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]

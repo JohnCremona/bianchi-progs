@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "qidloop.h"
+#include "mat22.h"
 #include "primes.h"
 
 void test1(Qideal& I)

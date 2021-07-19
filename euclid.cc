@@ -6,6 +6,7 @@
 
 #include <eclib/arith.h>
 #include "ratquads.h"
+#include "mat22.h"
 #include "euclid.h"
 #include "geometry.h"
 
