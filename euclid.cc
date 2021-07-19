@@ -206,7 +206,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   for (vector<RatQuad>::iterator si=singular_points.begin()+1; si!=singular_points.end(); si++, local_t++)
     {
       sigma = *si;
-      r=num(sigma), s=den(sigma); // sigma = r/s
+      r=sigma.num(), s=sigma.den(); // sigma = r/s
 #ifdef DEBUG_PSEA
       cout<<" - testing singular point "<<local_t<<": "<<sigma<<flush;
 #endif
