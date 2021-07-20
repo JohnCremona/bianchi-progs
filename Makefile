@@ -89,11 +89,13 @@ check: $(ALL_TESTS)
 	 mkdir $(NF_DIR)
 	 for d in $(DISCS); do mkdir $(NF_DIR)/2.0.$$d.1; done
 	 @echo
-	 @echo running $(TESTSX) on fields $(FIELDS)...
-	 @for prog in $(TESTSX); do for d in $(FIELDS); do $(check_run); done; done
+	 @echo running tests on fields $(FIELDS)...
 	 @echo
-	 @echo running $(TESTS9) on fields $(FIELDS9)...
-	 @for prog in $(TESTS9); do for d in $(FIELDS9); do $(check_run); done; done
+	 @for d in $(FIELDS); do for prog in $(TESTSX); do $(check_run); done; echo; done
+	 @echo
+	 @echo running extra tests on fields $(FIELDS9)...
+	 @echo
+	 @for d in $(FIELDS9); do for prog in $(TESTS9); do $(check_run); done; echo; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
