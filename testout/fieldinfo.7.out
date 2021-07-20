@@ -1,4 +1,6 @@
-K = Q(sqrt(-7)) = Q(a), disc(K) = -7, min poly(a) = x^2-x+2.
+Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
+Euclidean
+23 primes initialised, max norm = 100
 2 2.0.1 (a) 2 1 1
 2 2.1.1 (-1+a) 2 1 1
 7 7.3.1 (-1+2a) 7 2 1

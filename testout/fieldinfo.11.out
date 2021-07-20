@@ -1,4 +1,6 @@
-K = Q(sqrt(-11)) = Q(a), disc(K) = -11, min poly(a) = x^2-x+3.
+Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
+Euclidean
+27 primes initialised, max norm = 100
 3 3.0.1 (a) 3 1 1
 3 3.2.1 (-1+a) 3 1 1
 4 4.0.2 (2) 2 1 2

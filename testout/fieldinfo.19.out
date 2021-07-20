@@ -1,4 +1,6 @@
-K = Q(sqrt(-19)) = Q(a), disc(K) = -19, min poly(a) = x^2-x+5.
+Q(sqrt(-19))	discriminant = 19	min poly(a) = a^2-a+5.
+Non-Euclidean, class number 1
+23 primes initialised, max norm = 100
 4 4.0.2 (2) 2 1 2
 5 5.0.1 (a) 5 1 1
 5 5.4.1 (-1+a) 5 1 1

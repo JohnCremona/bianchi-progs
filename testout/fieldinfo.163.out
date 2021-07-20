@@ -1,4 +1,6 @@
-K = Q(sqrt(-163)) = Q(a), disc(K) = -163, min poly(a) = x^2-x+41.
+Q(sqrt(-163))	discriminant = 163	min poly(a) = a^2-a+41.
+Non-Euclidean, class number 1
+20 primes initialised, max norm = 100
 4 4.0.2 (2) 2 1 2
 9 9.0.3 (3) 3 1 2
 25 25.0.5 (5) 5 1 2

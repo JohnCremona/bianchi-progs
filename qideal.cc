@@ -378,16 +378,20 @@ pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues() // lists of inver
 // Assuming this*J is principal, sets g t a generator and returns a
 // 2x2 matrix of determinant g whose columns generate this and J,
 // the first column being (g0,g1)
-mat22 Qideal::AB_matrix(const Qideal&J, Quad&g)
+mat22 Qideal::AB_matrix(Qideal&J, Quad&g)
 {
-  fill();
+  if (is_principal())
+    {
+      J.fill();
+      g = g0.nm;
+      return mat22(g0,0,0,J.g0);
+    }
   Qideal IJ = (*this)*J, C = (*this).conj();
-  if (!IJ.is_principal())
+  if (!IJ.is_principal(g))
     cerr<<"ideals "<<(*this)<<" and "<<J<<" do not have principal product in AB_matrix()"<<endl;
   Qideal I0 = g0*C/nm, I1 = g1*C/nm; // = (g0)/this, (g1)/this
   Quad r0, r1;
   I0.is_coprime_to(I1, r0, r1);
-  g = IJ.gen();
   Quad h0 = -(r1*g)/g1;
   Quad h1 =  (r0*g)/g0;
   mat22 M(g0, h0, g1, h1);
@@ -399,7 +403,10 @@ mat22 Qideal::AB_matrix(const Qideal&J, Quad&g)
 
 mat22 Qideal::AB_matrix()
 {
-  fill();
+  if (is_principal())
+    {
+      return mat22(g0,0,0,g0.conj());
+    }
   Qideal C = (*this).conj();
   Qideal I0 = (g0*C)/nm, I1 = (g1*C)/nm; // = (g0)/this, (g1)/this
   Quad r0, r1;
@@ -494,6 +501,51 @@ void Qideal::operator/=(const Qideal&f)
   if (iclass!=-1) { g0/=nf; g1/=nf; }
 }
 
+Qideal Qideal::intersection(const Qideal& I)
+{
+  if (contains(I)) return I;
+  if (I.contains(*this)) return *this;
+  return (*this)*(I/(*this+I));
+}
+
+// with nonzero a in this, return b such that this=(a,b)
+Quad Qideal::second_generator(const Quad& a)
+{
+  if (a==0 or not contains(a))
+    {
+      cerr << "method second_generator(a) called with a="<<a<<" not a nonzero element of "<<(*this)<<endl;
+      return 0;
+    }
+  Quad b, d;
+  // if this is principal ignore a and return a generator
+  if (is_principal(b)) return b;
+  // now a itself cannot be a generator, so (a)=I*J for some J
+  Qideal J = Qideal(a)/(*this);
+  // find an ideal in inverse class to this, coprime to J
+  equivalent_coprime_to(J, b, d, 1); // this*J=(b) (and d=1)
+  // now (a,b) = (a)+(b) = I*(J+P) = I with I=this, P=ideal in previous line (discarded)
+  return b;
+}
+
+mat22 Qideal::AB_matrix_of_level(const Qideal&N, Quad&g)
+{
+  if (is_principal())
+    {
+      g = g0.nm;
+      return mat22(g0,0,0,g0.conj());
+    }
+  // find a small element of this intersection N
+  Qideal lcm = intersection(N);
+  lcm.fill();
+  Quad a = lcm.g0, b, d, r, s;
+  Qideal J = Qideal(a)/(*this); // I*J=(a)
+  Qideal P = equivalent_coprime_to(J, b, d, 1); // I*P=(b) with J+P=(1)
+  J.is_coprime_to(P, r, s); // r+s=1, r in J, s in P
+                            // so r*b in I*J*P = (a)*P
+  g = b;
+  return mat22(b, -r*(b/a), a, s);
+}
+
 ////////////////////////////////////////////////////////
 // Qideal:: non-operator member functions and friends //
 ////////////////////////////////////////////////////////
@@ -508,6 +560,13 @@ int Qideal::is_principal()
 {
   if (iclass==-1) fill();
   return (iclass==0);
+}
+
+int Qideal::is_principal(Quad& g)
+{
+  if (iclass==-1) fill();
+  if (iclass==0) {g=g0; return 1;}
+  return 0;
 }
 
 Qideal Qideal::conj() const

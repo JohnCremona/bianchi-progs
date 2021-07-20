@@ -30,6 +30,7 @@ public:
   Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
   Qideal ideal() const;                          // ideal (n,d)
   Qideal denominator_ideal() const;              // (d)/(n,d)
+  int is_principal() const;
 
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);

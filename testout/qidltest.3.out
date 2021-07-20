@@ -1,0 +1,160 @@
+
+QIDEAL TEST PROGRAM
+Enter field: Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Euclidean
+167 primes initialised, max norm = 1000
+334 prime ideals initialised, max norm = 1000
+P3 = 3.1 = [3,1+w] = (1+w,-1+2w) = (1+w) (principal)
+P2 = 4.1 = 2[1,w] = (2,2w) = (2) (principal)
+P7a = 7.1 = [7,2+w] = (2+w,-1+3w) = (2+w) (principal)
+P7b = 7.2 = [7,4+w] = (-3+w,-1-2w) = (-3+w) (principal)
+P13a = 13.1 = [13,3+w] = (3+w,-1+4w) = (3+w) (principal)
+P13b = 13.2 = [13,9+w] = (-4+w,-1-3w) = (-4+w) (principal)
+P19a = 19.1 = [19,7+w] = (2+3w,-3+5w) = (2+3w) (principal)
+P19b = 19.2 = [19,11+w] = (-3-2w,2-5w) = (-3-2w) (principal)
+P5 = 25.1 = 5[1,w] = (5,5w) = (5) (principal)
+P31a = 31.1 = [31,5+w] = (5+w,-1+6w) = (5+w) (principal)
+P31b = 31.2 = [31,25+w] = (-6+w,-1-5w) = (-6+w) (principal)
+P37a = 37.1 = [37,10+w] = (3+4w,-4+7w) = (3+4w) (principal)
+P37b = 37.2 = [37,26+w] = (-4-3w,3-7w) = (-4-3w) (principal)
+P43a = 43.1 = [43,6+w] = (6+w,-1+7w) = (6+w) (principal)
+P43b = 43.2 = [43,36+w] = (-7+w,-1-6w) = (-7+w) (principal)
+P61a = 61.1 = [61,13+w] = (4+5w,-5+9w) = (4+5w) (principal)
+P61b = 61.2 = [61,47+w] = (-5-4w,4-9w) = (-5-4w) (principal)
+P67a = 67.1 = [67,29+w] = (-9+2w,-2-7w) = (-9+2w) (principal)
+P67b = 67.2 = [67,37+w] = (-7-2w,2-9w) = (-7-2w) (principal)
+P73a = 73.1 = [73,8+w] = (8+w,-1+9w) = (8+w) (principal)
+P73b = 73.2 = [73,64+w] = (-9+w,-1-8w) = (-9+w) (principal)
+P79a = 79.1 = [79,23+w] = (-10+3w,-3-7w) = (-10+3w) (principal)
+P79b = 79.2 = [79,55+w] = (-7-3w,3-10w) = (-7-3w) (principal)
+P97a = 97.1 = [97,35+w] = (8+3w,-3+11w) = (8+3w) (principal)
+P97b = 97.2 = [97,61+w] = (11-3w,3+8w) = (11-3w) (principal)
+P103a = 103.1 = [103,46+w] = (-11+2w,-2-9w) = (-11+2w) (principal)
+P103b = 103.2 = [103,56+w] = (-9-2w,2-11w) = (-9-2w) (principal)
+P109a = 109.1 = [109,45+w] = (-7-5w,5-12w) = (-7-5w) (principal)
+P109b = 109.2 = [109,63+w] = (-5-7w,7-12w) = (-5-7w) (principal)
+P11 = 121.1 = 11[1,w] = (11,11w) = (11) (principal)
+P127a = 127.1 = [127,19+w] = (6+7w,-7+13w) = (6+7w) (principal)
+P127b = 127.2 = [127,107+w] = (-7-6w,6-13w) = (-7-6w) (principal)
+P139a = 139.1 = [139,42+w] = (-13+3w,-3-10w) = (-13+3w) (principal)
+P139b = 139.2 = [139,96+w] = (-10-3w,3-13w) = (-10-3w) (principal)
+P151a = 151.1 = [151,32+w] = (9+5w,-5+14w) = (9+5w) (principal)
+P151b = 151.2 = [151,118+w] = (14-5w,5+9w) = (14-5w) (principal)
+P157a = 157.1 = [157,12+w] = (12+w,-1+13w) = (12+w) (principal)
+P157b = 157.2 = [157,144+w] = (-13+w,-1-12w) = (-13+w) (principal)
+P163a = 163.1 = [163,58+w] = (11+3w,-3+14w) = (11+3w) (principal)
+P163b = 163.2 = [163,104+w] = (14-3w,3+11w) = (14-3w) (principal)
+P181a = 181.1 = [181,48+w] = (11+4w,-4+15w) = (11+4w) (principal)
+P181b = 181.2 = [181,132+w] = (15-4w,4+11w) = (15-4w) (principal)
+P193a = 193.1 = [193,84+w] = (-9-7w,7-16w) = (-9-7w) (principal)
+P193b = 193.2 = [193,108+w] = (-7-9w,9-16w) = (-7-9w) (principal)
+P199a = 199.1 = [199,92+w] = (-15+2w,-2-13w) = (-15+2w) (principal)
+P199b = 199.2 = [199,106+w] = (-13-2w,2-15w) = (-13-2w) (principal)
+Enter first and last norm for Qideal loop: Ideal 1.1 = [1,w] (norm 1) is principal, with generator 1 with factorization ()
+1 residues mod 1.1: [ 0 ]
+AB-matrix of 1.1 is [1,0; 0,1]
+Ideal 3.1 = [3,1+w] (norm 3) is principal, with generator 1+w with factorization P3
+3 residues mod 3.1: [ 0 -w w ]
+2 invertible residues mod 3.1:
+[ -w w ]
+ with inverses:
+[ -w w ]
+AB-matrix of 3.1 is [1+w,0; 0,2-w]
+Ideal 4.1 = 2[1,w] (norm 4) is principal, with generator 2 with factorization P2
+4 residues mod 4.1: [ 0 -1 -w 1-w ]
+3 invertible residues mod 4.1:
+[ -1 -w 1-w ]
+ with inverses:
+[ -1 1-w -w ]
+AB-matrix of 4.1 is [2,0; 0,2]
+Ideal 7.1 = [7,2+w] (norm 7) is principal, with generator 2+w with factorization P7a
+7 residues mod 7.1: [ 0 1 -w 1-w -1+w w -1 ]
+6 invertible residues mod 7.1:
+[ 1 -w 1-w -1+w w -1 ]
+ with inverses:
+[ 1 -1+w w -w 1-w -1 ]
+AB-matrix of 7.1 is [2+w,0; 0,3-w]
+Ideal 7.2 = [7,4+w] (norm 7) is principal, with generator 3-w with factorization P7b
+7 residues mod 7.2: [ 0 1 -1+w w -w 1-w -1 ]
+6 invertible residues mod 7.2:
+[ 1 -1+w w -w 1-w -1 ]
+ with inverses:
+[ 1 -w 1-w -1+w w -1 ]
+AB-matrix of 7.2 is [3-w,0; 0,2+w]
+Ideal 9.1 = 3[1,w] (norm 9) is principal, with generator 3 with factorization P3^2
+9 residues mod 9.1: [ 0 1 -1 w 1+w -1+w -w 1-w -1-w ]
+6 invertible residues mod 9.1:
+[ 1 -1 w -1+w -w 1-w ]
+ with inverses:
+[ 1 -1 1-w -w -1+w w ]
+AB-matrix of 9.1 is [3,0; 0,3]
+Ideal 12.1 = 2[3,1+w] (norm 12) is principal, with generator 2+2w with factorization P2*P3
+12 residues mod 12.1: [ 0 1 -2w 1-2w 2w -1 w -1-w -w 1-w 2-w -1+w ]
+6 invertible residues mod 12.1:
+[ 1 -1 w -w 1-w -1+w ]
+ with inverses:
+[ 1 -1 1-w -1+w w -w ]
+AB-matrix of 12.1 is [2+2w,0; 0,4-2w]
+Ideal 13.1 = [13,3+w] (norm 13) is principal, with generator 3+w with factorization P13a
+13 residues mod 13.1: [ 0 1 -1-w -w 1-w 2-w -1+2w 1-2w -2+w -1+w w 1+w -1 ]
+12 invertible residues mod 13.1:
+[ 1 -1-w -w 1-w 2-w -1+2w 1-2w -2+w -1+w w 1+w -1 ]
+ with inverses:
+[ 1 1-2w -1+w w -2+w 1+w -1-w 2-w -w 1-w -1+2w -1 ]
+AB-matrix of 13.1 is [3+w,0; 0,4-w]
+Ideal 13.2 = [13,9+w] (norm 13) is principal, with generator 4-w with factorization P13b
+13 residues mod 13.2: [ 0 1 -2+w -1+w w 1+w 1-2w -1+2w -1-w -w 1-w 2-w -1 ]
+12 invertible residues mod 13.2:
+[ 1 -2+w -1+w w 1+w 1-2w -1+2w -1-w -w 1-w 2-w -1 ]
+ with inverses:
+[ 1 -1+2w -w 1-w -1-w 2-w -2+w 1+w -1+w w 1-2w -1 ]
+AB-matrix of 13.2 is [4-w,0; 0,3+w]
+Ideal 16.1 = 4[1,w] (norm 16) is principal, with generator 4 with factorization P2^2
+16 residues mod 16.1: [ 0 1 -2 -1 w 1+w -2+w -1+w -2w 1-2w 2-2w -1+2w -w 1-w 2-w -1-w ]
+12 invertible residues mod 16.1:
+[ 1 -1 w 1+w -2+w -1+w 1-2w -1+2w -w 1-w 2-w -1-w ]
+ with inverses:
+[ 1 -1 1-w -2+w 1+w -w 1-2w -1+2w -1+w w -1-w 2-w ]
+AB-matrix of 16.1 is [4,0; 0,4]
+Ideal 19.1 = [19,7+w] (norm 19) is principal, with generator 2+3w with factorization P19a
+19 residues mod 19.1: [ 0 1 2 -2+2w -1+2w 2w -1-w -w 1-w 2-w -2+w -1+w w 1+w -2w 1-2w 2-2w -2 -1 ]
+18 invertible residues mod 19.1:
+[ 1 2 -2+2w -1+2w 2w -1-w -w 1-w 2-w -2+w -1+w w 1+w -2w 1-2w 2-2w -2 -1 ]
+ with inverses:
+[ 1 -2+w 1+w 2w -1+2w 2-2w -1+w w -2 2 -w 1-w -2+2w 1-2w -2w -1-w 2-w -1 ]
+AB-matrix of 19.1 is [2+3w,0; 0,5-3w]
+Ideal 19.2 = [19,11+w] (norm 19) is principal, with generator 5-3w with factorization P19b
+19 residues mod 19.2: [ 0 1 2 -2w 1-2w 2-2w -2+w -1+w w 1+w -1-w -w 1-w 2-w -2+2w -1+2w 2w -2 -1 ]
+18 invertible residues mod 19.2:
+[ 1 2 -2w 1-2w 2-2w -2+w -1+w w 1+w -1-w -w 1-w 2-w -2+2w -1+2w 2w -2 -1 ]
+ with inverses:
+[ 1 -1-w 2-w 2-2w 1-2w 2w -w 1-w -2 2 -1+w w -2w -1+2w -2+2w -2+w 1+w -1 ]
+AB-matrix of 19.2 is [5-3w,0; 0,2+3w]
+Ideal 21.1 = [21,16+w] (norm 21) is principal, with generator -5+w with factorization P3*P7a
+21 residues mod 21.1: [ 0 1 2 -2+w -1+w w 1+w 2+w -2+2w -1+2w 2w -2w 1-2w 2-2w -2-w -1-w -w 1-w 2-w -2 -1 ]
+12 invertible residues mod 21.1:
+[ 1 2 -1+w w -2+2w 2w -2w 2-2w -w 1-w -2 -1 ]
+ with inverses:
+[ 1 -2w -w 1-w -2+2w -2 2 2-2w -1+w w 2w -1 ]
+AB-matrix of 21.1 is [-5+w,0; 0,-4-w]
+Ideal 21.2 = [21,4+w] (norm 21) is principal, with generator 4+w with factorization P3*P7b
+21 residues mod 21.2: [ 0 1 2 -1-w -w 1-w 2-w -1-2w -2w 1-2w 2-2w -2+2w -1+2w 2w 1+2w -2+w -1+w w 1+w -2 -1 ]
+12 invertible residues mod 21.2:
+[ 1 2 -w 1-w -2w 2-2w -2+2w 2w -1+w w -2 -1 ]
+ with inverses:
+[ 1 -2+2w -1+w w -2w -2 2 2w -w 1-w 2-2w -1 ]
+AB-matrix of 21.2 is [4+w,0; 0,5-w]
+Ideal 25.1 = 5[1,w] (norm 25) is principal, with generator 5 with factorization P5
+25 residues mod 25.1: [ 0 1 2 -2 -1 w 1+w 2+w -2+w -1+w 2w 1+2w -3+2w -2+2w -1+2w -2w 1-2w 2-2w 3-2w -1-2w -w 1-w 2-w -2-w -1-w ]
+24 invertible residues mod 25.1:
+[ 1 2 -2 -1 w 1+w 2+w -2+w -1+w 2w 1+2w -3+2w -2+2w -1+2w -2w 1-2w 2-2w 3-2w -1-2w -w 1-w 2-w -2-w -1-w ]
+ with inverses:
+[ 1 -2 2 -1 1-w -1-2w -1+2w 3-2w -w -2+2w -1-w 2-w 2w 2+w 2-2w -2-w -2w -2+w 1+w -1+w w -3+2w 1-2w 1+2w ]
+AB-matrix of 25.1 is [5,0; 0,5]
+Enter an ideal label N.i : ideal is [7,2+w] with norm 7, index 1, and label 7.1
+Enter an ideal label N.i : ideal is [7,4+w] with norm 7, index 2, and label 7.2
+Enter an ideal label N.i : ideal is 4[1,w] with norm 16, index 1, and label 16.1
+Enter an ideal label N.i : ideal is [19,7+w] with norm 19, index 1, and label 19.1
+Enter an ideal label N.i : ideal is [19,11+w] with norm 19, index 2, and label 19.2
+Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+label test ok

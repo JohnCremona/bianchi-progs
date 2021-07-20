@@ -1,4 +1,6 @@
-K = Q(sqrt(-3)) = Q(w), disc(K) = -3, min poly(w) = x^2-x+1.
+Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Euclidean
+25 primes initialised, max norm = 100
 3 3.1.1 (1+w) 3 2 1
 4 4.0.2 (2) 2 1 2
 7 7.2.1 (2+w) 7 1 1

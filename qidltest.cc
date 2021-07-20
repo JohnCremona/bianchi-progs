@@ -131,19 +131,7 @@ void stringtest()
 
 void show_primes()
 {
-  Quadprimes::display();
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
-    {
-      Quadprime P = *Pi;
-      if (P.norm()>200) break;
-      vector<Quad> gg = P.gens();
-      cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
-      if (P.is_principal())
-        cout << " = ("<<gg[0]<<") (principal)";
-      else
-        cout << " (not principal)";
-      cout<<endl;
-    }
+  Quadprimes::display(cout, 200);
 }
 
 void init()

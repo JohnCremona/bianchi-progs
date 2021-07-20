@@ -87,7 +87,7 @@ int main ()
  cout << norma << " residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions
- cout<<"Testing primes divisor functions.\nEnter a: "; cin>>a;
+ cout<<"Testing prime divisor functions.\nEnter a: "; cin>>a;
 
  if (Quad::class_number==1)
    {

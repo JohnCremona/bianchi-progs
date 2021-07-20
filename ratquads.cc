@@ -25,8 +25,9 @@ int RatQuad::reduce()
 void RatQuad::reduce(const Qideal& N)
 {
   if (reduce()) return; // if principal then after reduce() the ideal is (1), so nothing more to do
+  Qideal I = ideal();
   Quad a,b;
-  Qideal({n,d}).equivalent_coprime_to(N, a, b); // (a/b)*(n,d) is coprime to N
+  I.equivalent_coprime_to(N, a, b); // (a/b)*(n,d) is coprime to N
   n *= a; n /= b;
   d *= a; d /= b;
   while (!pos(d)) {n*=fundunit; d*=fundunit;}
@@ -39,9 +40,13 @@ Qideal RatQuad::ideal() const
 
 Qideal RatQuad::denominator_ideal() const
 {
-  return Qideal(d)/ideal();
+  return Qideal(d)/Qideal({n,d});
 }
 
+int RatQuad::is_principal() const
+{
+  return ideal().is_principal();
+}
 
 //#define DEBUG_CUSP_EQ
 

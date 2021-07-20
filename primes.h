@@ -65,7 +65,7 @@ public:
   static long maxnorm;           // largest norm of primes
   static vector<Quadprime> list;  // the list of primes
   static void init(long maxn=1000);     //  sets the list up
-  static void display(ostream& s = cout);
+  static void display(ostream& s = cout, long maxn=0); // by default don't list any primes
 };
 
 class Factorization {

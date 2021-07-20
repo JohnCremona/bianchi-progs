@@ -79,12 +79,17 @@ public:
   void operator*=(const Quad&);
   void operator*=(const Qideal&);
 
-  // Assuming this*J is principal, sets g t a generator and returns a
+  Qideal intersection(const Qideal& I);
+  Quad second_generator(const Quad& a); // with nonzero a in this, return b such that this=(a,b)
+
+  // Assuming this*J is principal, sets g to a generator and returns a
   // 2x2 matrix of determinant g whose columns generate this and J,
   // the first column being (g0,g1)
-  mat22 AB_matrix(const Qideal&J, Quad&g);
+  mat22 AB_matrix(Qideal&J, Quad&g);
   // as above with J = conj(this), g=norm(this)
   mat22 AB_matrix();
+  // As above with (2,1)-entry in N
+  mat22 AB_matrix_of_level(const Qideal&N, Quad&g);
 
   // test if this ideal is coprime to another ideal or a Quad:
   int is_coprime_to(const Qideal& I) const
@@ -105,9 +110,9 @@ public:
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
   int is_coprime_to(const Quad& alpha, Quad& inverse);
 
-  // return J = (c/d)*this coprime to N
+  // return J = (c/d)*this coprime to N, or (if anti=1) J such that J*this=(c) and d=1
   // (implemented in primes.cc)
-  Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d);
+  Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti=0);
 
   //
   Qideal operator/(const long&) const;
@@ -120,7 +125,8 @@ public:
   void operator/=(const Qideal&);
 //
 //functions defined in qideal.cc unless inline
-  int is_principal();         // fills iclass if necessary
+  int is_principal();          // fills iclass if necessary
+  int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
   int is_Galois_stable() {return ((*this)==this->conj());}
 

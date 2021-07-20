@@ -1,0 +1,16 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-23))	discriminant = 23	min poly(a) = a^2-a+6.
+Class number 3
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
+
+Enter Quads, a and b: a = 12+34a
+b = 56+78a
+q = a/b = (6+17a)/(28+39a)
+b*q==a? 1
+round(q) = 0
+translation_reduce(q) = (6+17a)/(28+39a)
+q==round(q)+translation_reduce(q)? 1
+recip(q) = (28+39a)/(6+17a)
+ideal(q) = [2,a] = P2a
+q = (6+17a)/(28+39a) is not principal
+denominator_ideal(q) = [5501,3527+a] = P5501b
+representation of q with ideal coprime to 2*3*5: (66+31a)/(187+64a), which has ideal [13,8+a] = P13b (and the same denominator ideal)

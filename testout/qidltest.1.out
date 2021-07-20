@@ -1,0 +1,195 @@
+
+QIDEAL TEST PROGRAM
+Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Euclidean
+167 primes initialised, max norm = 1000
+334 prime ideals initialised, max norm = 1000
+P2 = 2.1 = [2,1+i] = (-1+i,-1-i) = (-1+i) (principal)
+P5a = 5.1 = [5,2+i] = (2+i,-1+2i) = (2+i) (principal)
+P5b = 5.2 = [5,3+i] = (-2+i,-1-2i) = (-2+i) (principal)
+P3 = 9.1 = 3[1,i] = (3,3i) = (3) (principal)
+P13a = 13.1 = [13,5+i] = (-3+2i,-2-3i) = (-3+2i) (principal)
+P13b = 13.2 = [13,8+i] = (2-3i,3+2i) = (2-3i) (principal)
+P17a = 17.1 = [17,4+i] = (4+i,-1+4i) = (4+i) (principal)
+P17b = 17.2 = [17,13+i] = (-4+i,-1-4i) = (-4+i) (principal)
+P29a = 29.1 = [29,12+i] = (-5+2i,-2-5i) = (-5+2i) (principal)
+P29b = 29.2 = [29,17+i] = (-5-2i,2-5i) = (-5-2i) (principal)
+P37a = 37.1 = [37,6+i] = (6+i,-1+6i) = (6+i) (principal)
+P37b = 37.2 = [37,31+i] = (-6+i,-1-6i) = (-6+i) (principal)
+P41a = 41.1 = [41,9+i] = (-5+4i,-4-5i) = (-5+4i) (principal)
+P41b = 41.2 = [41,32+i] = (4-5i,5+4i) = (4-5i) (principal)
+P7 = 49.1 = 7[1,i] = (7,7i) = (7) (principal)
+P53a = 53.1 = [53,23+i] = (-7+2i,-2-7i) = (-7+2i) (principal)
+P53b = 53.2 = [53,30+i] = (-7-2i,2-7i) = (-7-2i) (principal)
+P61a = 61.1 = [61,11+i] = (-6+5i,-5-6i) = (-6+5i) (principal)
+P61b = 61.2 = [61,50+i] = (5-6i,6+5i) = (5-6i) (principal)
+P73a = 73.1 = [73,27+i] = (8+3i,-3+8i) = (8+3i) (principal)
+P73b = 73.2 = [73,46+i] = (8-3i,3+8i) = (8-3i) (principal)
+P89a = 89.1 = [89,34+i] = (-8+5i,-5-8i) = (-8+5i) (principal)
+P89b = 89.2 = [89,55+i] = (-5+8i,-8-5i) = (-5+8i) (principal)
+P97a = 97.1 = [97,22+i] = (-9+4i,-4-9i) = (-9+4i) (principal)
+P97b = 97.2 = [97,75+i] = (-9-4i,4-9i) = (-9-4i) (principal)
+P101a = 101.1 = [101,10+i] = (10+i,-1+10i) = (10+i) (principal)
+P101b = 101.2 = [101,91+i] = (-10+i,-1-10i) = (-10+i) (principal)
+P109a = 109.1 = [109,33+i] = (-10+3i,-3-10i) = (-10+3i) (principal)
+P109b = 109.2 = [109,76+i] = (-10-3i,3-10i) = (-10-3i) (principal)
+P113a = 113.1 = [113,15+i] = (-8+7i,-7-8i) = (-8+7i) (principal)
+P113b = 113.2 = [113,98+i] = (7-8i,8+7i) = (7-8i) (principal)
+P11 = 121.1 = 11[1,i] = (11,11i) = (11) (principal)
+P137a = 137.1 = [137,37+i] = (11+4i,-4+11i) = (11+4i) (principal)
+P137b = 137.2 = [137,100+i] = (11-4i,4+11i) = (11-4i) (principal)
+P149a = 149.1 = [149,44+i] = (7-10i,10+7i) = (7-10i) (principal)
+P149b = 149.2 = [149,105+i] = (10-7i,7+10i) = (10-7i) (principal)
+P157a = 157.1 = [157,28+i] = (11+6i,-6+11i) = (11+6i) (principal)
+P157b = 157.2 = [157,129+i] = (11-6i,6+11i) = (11-6i) (principal)
+P173a = 173.1 = [173,80+i] = (-13+2i,-2-13i) = (-13+2i) (principal)
+P173b = 173.2 = [173,93+i] = (-13-2i,2-13i) = (-13-2i) (principal)
+P181a = 181.1 = [181,19+i] = (-10+9i,-9-10i) = (-10+9i) (principal)
+P181b = 181.2 = [181,162+i] = (9-10i,10+9i) = (9-10i) (principal)
+P193a = 193.1 = [193,81+i] = (12-7i,7+12i) = (12-7i) (principal)
+P193b = 193.2 = [193,112+i] = (-12-7i,7-12i) = (-12-7i) (principal)
+P197a = 197.1 = [197,14+i] = (14+i,-1+14i) = (14+i) (principal)
+P197b = 197.2 = [197,183+i] = (-14+i,-1-14i) = (-14+i) (principal)
+Enter first and last norm for Qideal loop: Ideal 1.1 = [1,i] (norm 1) is principal, with generator 1 with factorization ()
+1 residues mod 1.1: [ 0 ]
+AB-matrix of 1.1 is [1,0; 0,1]
+Ideal 2.1 = [2,1+i] (norm 2) is principal, with generator -1+i with factorization P2
+2 residues mod 2.1: [ 0 1 ]
+1 invertible residues mod 2.1:
+[ 1 ]
+ with inverses:
+[ 1 ]
+AB-matrix of 2.1 is [-1+i,0; 0,-1-i]
+Ideal 4.1 = 2[1,i] (norm 4) is principal, with generator 2 with factorization P2^2
+4 residues mod 4.1: [ 0 -1 -i -1-i ]
+2 invertible residues mod 4.1:
+[ -1 -i ]
+ with inverses:
+[ -1 -i ]
+AB-matrix of 4.1 is [2,0; 0,2]
+Ideal 5.1 = [5,2+i] (norm 5) is principal, with generator 2+i with factorization P5a
+5 residues mod 5.1: [ 0 1 -i i -1 ]
+4 invertible residues mod 5.1:
+[ 1 -i i -1 ]
+ with inverses:
+[ 1 i -i -1 ]
+AB-matrix of 5.1 is [2+i,0; 0,2-i]
+Ideal 5.2 = [5,3+i] (norm 5) is principal, with generator 2-i with factorization P5b
+5 residues mod 5.2: [ 0 1 i -i -1 ]
+4 invertible residues mod 5.2:
+[ 1 i -i -1 ]
+ with inverses:
+[ 1 -i i -1 ]
+AB-matrix of 5.2 is [2-i,0; 0,2+i]
+Ideal 8.1 = 2[2,1+i] (norm 8) is principal, with generator -2+2i with factorization P2^3
+8 residues mod 8.1: [ 0 1 2 -1 i 1+i -i 1-i ]
+4 invertible residues mod 8.1:
+[ 1 -1 i -i ]
+ with inverses:
+[ 1 -1 -i i ]
+AB-matrix of 8.1 is [-2+2i,0; 0,-2-2i]
+Ideal 9.1 = 3[1,i] (norm 9) is principal, with generator 3 with factorization P3
+9 residues mod 9.1: [ 0 1 -1 i 1+i -1+i -i 1-i -1-i ]
+8 invertible residues mod 9.1:
+[ 1 -1 i 1+i -1+i -i 1-i -1-i ]
+ with inverses:
+[ 1 -1 -i -1+i 1+i i -1-i 1-i ]
+AB-matrix of 9.1 is [3,0; 0,3]
+Ideal 10.1 = [10,7+i] (norm 10) is principal, with generator -3+i with factorization P2*P5a
+10 residues mod 10.1: [ 0 1 -1+i i 1+i 2+i -1-i -i 1-i -1 ]
+4 invertible residues mod 10.1:
+[ 1 i -i -1 ]
+ with inverses:
+[ 1 -i i -1 ]
+AB-matrix of 10.1 is [-3+i,0; 0,-3-i]
+Ideal 10.2 = [10,3+i] (norm 10) is principal, with generator 3+i with factorization P2*P5b
+10 residues mod 10.2: [ 0 1 -1-i -i 1-i -1-2i -1+i i 1+i -1 ]
+4 invertible residues mod 10.2:
+[ 1 -i i -1 ]
+ with inverses:
+[ 1 i -i -1 ]
+AB-matrix of 10.2 is [3+i,0; 0,3-i]
+Ideal 13.1 = [13,5+i] (norm 13) is principal, with generator -3+2i with factorization P13a
+13 residues mod 13.1: [ 0 1 2 2i -1-i -i 1-i -1+i i 1+i -2i -2 -1 ]
+12 invertible residues mod 13.1:
+[ 1 2 2i -1-i -i 1-i -1+i i 1+i -2i -2 -1 ]
+ with inverses:
+[ 1 -1+i 1+i -2i i -2 2 -i 2i -1-i 1-i -1 ]
+AB-matrix of 13.1 is [-3+2i,0; 0,-3-2i]
+Ideal 13.2 = [13,8+i] (norm 13) is principal, with generator -3-2i with factorization P13b
+13 residues mod 13.2: [ 0 1 2 -2i -1+i i 1+i -1-i -i 1-i 2i -2 -1 ]
+12 invertible residues mod 13.2:
+[ 1 2 -2i -1+i i 1+i -1-i -i 1-i 2i -2 -1 ]
+ with inverses:
+[ 1 -1-i 1-i 2i -i -2 2 i -2i -1+i 1+i -1 ]
+AB-matrix of 13.2 is [-3-2i,0; 0,-3+2i]
+Ideal 16.1 = 4[1,i] (norm 16) is principal, with generator 4 with factorization P2^4
+16 residues mod 16.1: [ 0 1 -2 -1 i 1+i -2+i -1+i -2i 1-2i -2-2i -1-2i -i 1-i -2-i -1-i ]
+8 invertible residues mod 16.1:
+[ 1 -1 i -2+i 1-2i -1-2i -i -2-i ]
+ with inverses:
+[ 1 -1 -i -2-i 1-2i -1-2i i -2+i ]
+AB-matrix of 16.1 is [4,0; 0,4]
+Ideal 17.1 = [17,4+i] (norm 17) is principal, with generator 4+i with factorization P17a
+17 residues mod 17.1: [ 0 1 2 -1-i -i 1-i 2-i -1-2i -2i 2i 1+2i -2+i -1+i i 1+i -2 -1 ]
+16 invertible residues mod 17.1:
+[ 1 2 -1-i -i 1-i 2-i -1-2i -2i 2i 1+2i -2+i -1+i i 1+i -2 -1 ]
+ with inverses:
+[ 1 2i 2-i i -1-2i -1-i 1-i -2 2 -1+i 1+i 1+2i -i -2+i -2i -1 ]
+AB-matrix of 17.1 is [4+i,0; 0,4-i]
+Ideal 17.2 = [17,13+i] (norm 17) is principal, with generator 4-i with factorization P17b
+17 residues mod 17.2: [ 0 1 2 -1+i i 1+i 2+i -1+2i 2i -2i 1-2i -2-i -1-i -i 1-i -2 -1 ]
+16 invertible residues mod 17.2:
+[ 1 2 -1+i i 1+i 2+i -1+2i 2i -2i 1-2i -2-i -1-i -i 1-i -2 -1 ]
+ with inverses:
+[ 1 -2i 2+i -i -1+2i -1+i 1+i -2 2 -1-i 1-i 1-2i i -2-i 2i -1 ]
+AB-matrix of 17.2 is [4-i,0; 0,4+i]
+Ideal 18.1 = 3[2,1+i] (norm 18) is principal, with generator -3+3i with factorization P2*P3
+18 residues mod 18.1: [ 0 1 2 3 -2 -1 i 1+i 2+i -2i 1-2i -1+i 2i 1+2i -1-i -i 1-i 2-i ]
+8 invertible residues mod 18.1:
+[ 1 -1 i 2+i 1-2i 1+2i -i 2-i ]
+ with inverses:
+[ 1 -1 -i 1-2i 2+i 2-i i 1+2i ]
+AB-matrix of 18.1 is [-3+3i,0; 0,-3-3i]
+Ideal 20.1 = 2[5,2+i] (norm 20) is principal, with generator 4+2i with factorization P2^2*P5a
+20 residues mod 20.1: [ 0 1 2 -1-2i -2i 1-2i 2i 1+2i -2 -1 i 1+i -2-i -1-i -i 1-i 2-i -1-3i -2+i -1+i ]
+8 invertible residues mod 20.1:
+[ 1 -1-2i 1+2i -1 i -i 2-i -2+i ]
+ with inverses:
+[ 1 1+2i -1-2i -1 -i i 2-i -2+i ]
+AB-matrix of 20.1 is [4+2i,0; 0,4-2i]
+Ideal 20.2 = 2[5,3+i] (norm 20) is principal, with generator -4+2i with factorization P2^2*P5b
+20 residues mod 20.2: [ 0 1 2 -1+2i 2i 1+2i -2i 1-2i -2 -1 i 1+i 2+i 3+i -2-i -1-i -i 1-i 2-i -1+i ]
+8 invertible residues mod 20.2:
+[ 1 -1+2i 1-2i -1 i 2+i -2-i -i ]
+ with inverses:
+[ 1 1-2i -1+2i -1 -i 2+i -2-i i ]
+AB-matrix of 20.2 is [-4+2i,0; 0,-4-2i]
+Ideal 25.1 = [25,7+i] (norm 25) is principal, with generator -4+3i with factorization P5a^2
+25 residues mod 25.1: [ 0 1 2 3 3i -2-i -1-i -i 1-i 2-i -1+2i 2i 1+2i -1-2i -2i 1-2i -2+i -1+i i 1+i 2+i -3i -3 -2 -1 ]
+20 invertible residues mod 25.1:
+[ 1 2 3 3i -1-i -i 1-i 2-i 2i 1+2i -1-2i -2i -2+i -1+i i 1+i -3i -3 -2 -1 ]
+ with inverses:
+[ 1 -1-2i -1+i 1+i -3i i -3 -2i -2+i -2 2 2-i 2i 3 -i 3i -1-i 1-i 1+2i -1 ]
+AB-matrix of 25.1 is [-4+3i,0; 0,-4-3i]
+Ideal 25.2 = 5[1,i] (norm 25) is principal, with generator 5 with factorization P5a*P5b
+25 residues mod 25.2: [ 0 1 2 -2 -1 i 1+i 2+i -2+i -1+i 2i 1+2i 2+2i -2+2i -1+2i -2i 1-2i 2-2i -2-2i -1-2i -i 1-i 2-i -2-i -1-i ]
+16 invertible residues mod 25.2:
+[ 1 2 -2 -1 i 1+i -1+i 2i 2+2i -2+2i -2i 2-2i -2-2i -i 1-i -1-i ]
+ with inverses:
+[ 1 -2 2 -1 -i -2+2i 2+2i 2i -1+i 1+i -2i -1-i 1-i i -2-2i 2-2i ]
+AB-matrix of 25.2 is [5,0; 0,5]
+Ideal 25.3 = [25,18+i] (norm 25) is principal, with generator 3-4i with factorization P5b^2
+25 residues mod 25.3: [ 0 1 2 3 -3i -2+i -1+i i 1+i 2+i -1-2i -2i 1-2i -1+2i 2i 1+2i -2-i -1-i -i 1-i 2-i 3i -3 -2 -1 ]
+20 invertible residues mod 25.3:
+[ 1 2 3 -3i -1+i i 1+i 2+i -2i 1-2i -1+2i 2i -2-i -1-i -i 1-i 3i -3 -2 -1 ]
+ with inverses:
+[ 1 -1+2i -1-i 1-i 3i -i -3 2i -2-i -2 2 2+i -2i 3 i -3i -1+i 1+i 1-2i -1 ]
+AB-matrix of 25.3 is [3-4i,0; 0,3+4i]
+Enter an ideal label N.i : ideal is 2[5,2+i] with norm 20, index 1, and label 20.1
+Enter an ideal label N.i : ideal is 2[5,3+i] with norm 20, index 2, and label 20.2
+Enter an ideal label N.i : ideal is [25,7+i] with norm 25, index 1, and label 25.1
+Enter an ideal label N.i : ideal is 5[1,i] with norm 25, index 2, and label 25.2
+Enter an ideal label N.i : ideal is [25,18+i] with norm 25, index 3, and label 25.3
+Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+label test ok

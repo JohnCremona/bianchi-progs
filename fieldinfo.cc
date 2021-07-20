@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <eclib/arith.h>
-#include "quads.h"
+#include "primes.h"
 
 int main ()
 {
@@ -10,11 +10,13 @@ int main ()
   cerr << "Enter max. norm for primes: " << flush;  cin >> max;
   cerr << endl;
   Quad::field(d,max);
-  cout<<"K = Q(sqrt("<<-d<<")) = Q("<<Quad::name<<"), disc(K) = -"<<Quad::disc;
-  cout<<", min poly("<<Quad::name<<") = x^2";
-  if(Quad::t) cout<<"-x";
-  cout<<"+"<<Quad::n<<".\n";
-
+  Quad::displayfield(cout);
+  if (Quad::class_number>1)
+    {
+      Quadprimes::display(cout, max);
+      exit(0);
+    }
+  //  Quadprimes::display(cout, 0);
   Quad p; long np, ip, e, f;
   vector<Quad>::iterator pr = quadprimes.begin();
   while((pr!=quadprimes.end()))

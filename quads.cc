@@ -136,13 +136,8 @@ void Quad::field(int dd, int max)
     squareunits.push_back(quadunits[2*i]);
   maxnorm=max;
   if(class_number==1)
-    {
-      initquadprimes();
-    }
-  else
-    {
-      Quadprimes::init(max);
-    }
+    initquadprimes();
+  Quadprimes::init(max);
   if (check_field(d)) // test whether d is in the list of valid_fields
                       // for which we have geometry set up
     setup_geometry();

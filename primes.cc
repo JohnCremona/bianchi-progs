@@ -8,10 +8,24 @@
 long Quadprimes::maxnorm;
 vector<Quadprime> Quadprimes::list;
 
-void Quadprimes::display(ostream& s)
+void Quadprimes::display(ostream& s, long maxn) // by default don't list any primes
 {
   s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
+  if (maxn==0) return;
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+    {
+      Quadprime P = *Pi;
+      if (P.norm()>maxn) break;
+      vector<Quad> gg = P.gens();
+      Quad pi;
+      cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
+      if (P.is_principal(pi))
+        cout << " = ("<< pi <<") (principal)";
+      else
+        cout << " (not principal)";
+      cout<<endl;
+    }
 }
 
 vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
@@ -459,27 +473,46 @@ vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm)
   return ans;
 }
 
-// return J = (c/d)*this coprime to N
-Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d)
+// return J coprime to N such that d*J=c*this, or (if anti=1) J such that J*this=(c) and d=1
+Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti)
 {
-  if (is_principal()) // this = (g0) so set d=g0, c=1 and return (1)
+  if (is_principal()) // this = (g0) so return (1)
     {
-      c = 1;
-      d = g0;
+      if (anti)
+        {
+          c = g0;
+          d = 1;
+        }
+      else
+        {
+          c = 1;
+          d = g0;
+        }
       return Qideal(1);
     }
   long n = N.norm();
-  Qideal I;
+  Qideal I; Quad g;
+  // cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
   for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
     {
       Quadprime P = *Pi;
-      if (P.residue_degree()==1) continue; // inert primes are principal!
+      if (P.residue_degree()==2) continue; // inert primes are principal!
       if (gcd(P.norm(), n)>1) continue;    // skip P unless its norm is coprime to N
-      I = (*this)*P.conj();
-      if (!I.is_principal()) continue;     // skip P unless this/P is principal
-      d = I.g0;
-      c = P.norm(); // c*this = I*P = d*P
-      return P;
+      I = (anti==1? (*this)*P: (*this)*P.conj());
+      if (I.is_principal(g))
+        {
+          if (anti)
+            {
+              c = g; // P*this = I = (g)
+              d = 1;
+            }
+          else
+            {
+              d = g;
+              c = P.norm(); // c*this = d*P
+            }
+          return P;
+        }
     }
   cerr << "Unable to find an ideal equivalent to "<<(*this)<<" coprime to "<<N<<endl;
   return Qideal();
