@@ -163,13 +163,70 @@ void Quad::setup_geometry()
 
   // alphas (w/2, (w-1)/2) with denominator 2 when 2 is inert, d=3 (mod 8):
 
-  if (d%8==3)
+  switch (d%8) {
+  case 3:
     {
       Quad u = (d-3)/8;  // = 2, 5, 8, 20 for d=19,43,67,163 = 3 (mod 8) so 2 is inert
       add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
       add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
       alpha_inv.push_back(2); // 1-2
       alpha_inv.push_back(1); // 2-1
+      break;
+    }
+  case 5:
+    {
+      singular_points.push_back(RatQuad(w+1,2));
+      break;
+    }
+  case 7:
+    {
+      singular_points.push_back(RatQuad(w,2));
+      singular_points.push_back(RatQuad(w-1,2));
+      add_alpha_pair(4, 1+2*w, +1);
+      break;
+    }
+  } // d%8
+
+  switch (d%12) {
+  case 7:
+    {
+      add_edge_foursome(3, w, 1-w);
+      add_alpha_pair(3, 1+w);
+      add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
+      break;
+    }
+  case 1: case 10:
+    {
+      add_edge_foursome(3, 1+w, 1-w);
+      add_alpha_pair(3, w);
+      break;
+    }
+  case 11:
+    {
+      add_alpha_pair(3, 1+w, +1);
+      break;
+    }
+  case 2: case 5:
+    {
+      add_alpha_pair(3, w, +1);
+      break;
+    }
+  } // d%12
+
+  if (d==23)
+    {
+      add_edge_foursome(w+1,  w-2, w-4);
+      add_edge_foursome(2-w, -1-w, -3-w);
+      add_alpha_pair(2+w, w-3, +1);
+      add_alpha_pair(3-w, -2-w, +1);
+      return;
+    }
+
+  if (d==43)
+    {
+      add_square(0,5,1,6, 1-w,  0);
+      add_square(1,7,1,7,   1, -1); // symmetric
+      return;
     }
 
   if (d==19)
@@ -178,50 +235,16 @@ void Quad::setup_geometry()
       return;
     }
 
-  if (d%8==7) // 2 splits, r=2*w+1 satisfies r^2=1 (mod 4), two alphas with denominator 4:
+  if (d==31)
     {
-      add_alpha_pair(4, 1+2*w, +1);
-
-      if (d==23)
-        {
-          add_edge_foursome(w+1,  w-2, w-4);
-          add_edge_foursome(2-w, -1-w, -3-w);
-          add_alpha_pair(2+w, w-3, +1);
-          add_alpha_pair(3-w, -2-w, +1);
-          singular_points.push_back(RatQuad(w,2));
-          singular_points.push_back(RatQuad(w-1,2));
-        }
-    }
-
-  // alphas (w/3, -w/3, (1-w)/3, (w-1)/3, (w+1)/3, -(w+1)/3) with denominator 3 when 3 is inert, d=1 (mod 3):
-
-  if (d%3==1) // so 3 is inert
-    {
-      if (d%4==3)
-        {
-          add_edge_foursome(3, w, 1-w);
-          add_alpha_pair(3, 1+w);
-          add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
-        }
-      else
-        {
-          add_edge_foursome(3, 1+w, 1-w);
-          add_alpha_pair(3, w);
-        }
-    }
-
-  if (d%3==2) // so 3 splits
-    {
-      if (d%4==3)            // e.g. d=23
-        add_alpha_pair(3, 1+w, +1);
-      else                   // e.g. d=14
-        add_alpha_pair(3, w, +1);
-    }
-
-  if (d==43)
-    {
-      add_square(0,5,1,6, 1-w,  0);
-      add_square(1,7,1,7,   1, -1); // symmetric
+      add_alpha_pair(w, 3, +1);       // N(s)=8
+      add_alpha_pair(1-w, 3, +1);
+      add_edge_foursome(3,  w, 1-w);  // N(s)=9
+      add_alpha_pair(1+w, 3);         // N(s)=10
+      add_alpha_pair(2-w, 3);
+      add_alpha_pair(4, 2*w+1, +1);   // N(s)=16
+      add_alpha_pair(3+w, w-6, +1);   // N(s)=20
+      add_alpha_pair(4-w, 5+w, +1);
       return;
     }
 

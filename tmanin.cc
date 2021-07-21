@@ -42,7 +42,7 @@ int main ()
  dimtabfilename << "dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
  ofstream dimtab(dimtabfilename.str().c_str());
 
- for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
+ for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)

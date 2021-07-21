@@ -30,7 +30,7 @@ int main ()
  else
    cout << "dim(all)\t dim(plus)\t dim(minus)" << endl;
 
- for(Quadlooper alphaloop(d,firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
+ for(Quadlooper alphaloop(firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units

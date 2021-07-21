@@ -33,7 +33,11 @@ vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
 vector<int> euclidean_fields = {1,2,3,7,11};
-vector<int> valid_fields = {1,2,3,7,11,19,43,67,163, 23}; // fields for which geometry is defined
+
+// fields for which geometry is defined
+vector<int> valid_fields = {1, 2, 3, 7, 11,  // Euclidean
+                            19, 43, 67, 163, // other class number 1
+                            23, 31};         // class number 3 (incomplete)
 
 vector<int> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<int> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};

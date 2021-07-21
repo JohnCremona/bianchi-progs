@@ -31,7 +31,7 @@ int main ()
  cin >> firstn >> lastn;
  cerr<<endl;
  int both_conj=1;
- for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
+ for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cerr<<"Enter level: ", cin>>alpha, cerr<<endl, alpha!=0)

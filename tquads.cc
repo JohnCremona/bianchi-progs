@@ -166,22 +166,25 @@ int main ()
    }
  else
    {
+     long maxn = 10;
      int s;
      mat22 M;
      Quad g,h;
-     for(Quadlooper alpha(d,1,10,1); alpha.ok(); ++alpha)
-       for(Quadlooper beta(d,1,10,1); beta.ok(); ++beta)
+     for(Quadlooper alpha(1,maxn,1); alpha.ok(); ++alpha)
+       for(Quadlooper beta(1,maxn,1); beta.ok(); ++beta)
          {
            a = alpha;
            b = beta;
            M = generalised_extended_euclid(a, b, s);
-           cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M <<"; ";
+           cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M << "; ";
            g = a; h = b;
            M.apply_left(g,h);
            cout<<"("<<a<<","<<b<<") is ";
-           if (s!=0) cout << "not ";
-           cout << "principal, maps to singular point "
-               << "(" << g << ")/(" << h << ")"
+           if (s!=0)
+             cout << "not principal, maps to singular point ";
+           else
+             cout << "principal, maps to ";
+           cout << "(" << g << ")/(" << h << ")"
                <<" = "<<singular_points[s];
            assert (singular_points[s]==RatQuad(g,h));
            cout << endl;

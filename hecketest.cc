@@ -60,7 +60,7 @@ int main(void)
  long firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- for(Quadlooper alpha(d,firstn,lastn); alpha.ok(); alpha++)
+ for(Quadlooper alpha(firstn,lastn); alpha.ok(); alpha++)
 #else
  Quad alpha, p; 
  while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)

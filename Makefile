@@ -64,12 +64,12 @@ TESTS = fieldinfo tquads qidltest tratquad looptest modtest symbtest homtest hec
 tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
-DISCS=$(DISCS9) 23
+DISCS=$(DISCS9) 23 31
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDS7=1 2 3 7 11 19 43
 FIELDS5=1 2 3 7 11
 FIELDS1=1
-FIELDSX=23
+FIELDSX=23 31
 FIELDS=$(FIELDS9) $(FIELDSX)
 TESTS9 =  modtest symbtest homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 TESTSX =  tquads tratquad looptest fieldinfo qidltest
@@ -89,7 +89,7 @@ check: $(ALL_TESTS)
 	 mkdir $(NF_DIR)
 	 for d in $(DISCS); do mkdir $(NF_DIR)/2.0.$$d.1; done
 	 @echo
-	 @echo running tests on fields $(FIELDS)...
+	 @echo running basic tests on fields $(FIELDS)...
 	 @echo
 	 @for d in $(FIELDS); do for prog in $(TESTSX); do $(check_run); done; echo; done
 	 @echo

@@ -15,7 +15,7 @@ int main ()
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  int both_conj=0;
- for(Quadlooper alpha(d,firstn,lastn,both_conj); alpha.ok(); ++alpha)
+ for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)

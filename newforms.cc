@@ -99,7 +99,7 @@ void newform::find_matrix()
    //  Look for a QuadRational q=b/d for which {0,q}={0,g(0)} is
    //  nontrivial, and record the matrix g and matdot = the multiple
    //  of the fundamental period which the integral over {0,g(0)} is.
-  for (Quadlooper dl(Quad::d, 2, 1000, 1); dl.ok()&&!matdot; ++dl)
+  for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
     { d=(Quad)dl;
       if (coprime(d,N))
         {

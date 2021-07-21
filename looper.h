@@ -3,8 +3,8 @@
 class Quadlooper {
 
 public:
-  Quadlooper(int dd, int nn, int nmax, int conj=0)
-    :d(dd), n(nn), nlim(nmax), include_conjugates(conj)
+  Quadlooper(long nn, long nmax, int conj=0)
+    :d(Quad::d), n(nn), nlim(nmax), include_conjugates(conj)
     { setblims();
       b=bmin; while(!finda()) bstep();
     }
@@ -13,7 +13,7 @@ public:
   int ok() const {return n<=nlim;}
 
 private:
-  int d,n,a,b,bmin,bmax,nlim;
+  long d,n,a,b,bmin,bmax,nlim;
   int include_conjugates;
   int finda();
   void nstep();
@@ -21,4 +21,4 @@ private:
   void setblims();
 };
 
-int issquare(int asq, int& a);
+int issquare(long asq, long& a);
