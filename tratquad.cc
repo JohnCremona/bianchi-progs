@@ -17,7 +17,7 @@ int main ()
  cin >> a >> b;
  cout << "a = " << a << endl;
  cout << "b = " << b << endl;
- RatQuad q(a,b, 1);
+ RatQuad q(a,b, check_field(d));
  cout << "q = a/b = " << q << endl;
  cout << "b*q==a? " << (b*q==a) << endl;
  cout << "round(q) = " << q.round() << endl;
@@ -25,7 +25,15 @@ int main ()
  cout << "q==round(q)+translation_reduce(q)? " << (q==q.round() + q.translation_reduce()) << endl;
  cout << "recip(q) = " << q.recip() << endl;
 
- if (Quad::class_number==1) exit(0);
+ if (Quad::class_number==1)
+   exit(0);
+
+ if (!check_field(d))
+   {
+     cout << "Skipping gcd and bezout tests as this field not yet fully implemented"<<endl;
+     exit(0);
+   }
+
 
  Qideal I = q.ideal();
  cout << "ideal(q) = "<<I<<" = "<<I.factorization()<<endl;

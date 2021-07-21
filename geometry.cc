@@ -161,7 +161,22 @@ void Quad::setup_geometry()
 
   Quad w = Quad::w;
 
-  // alphas (w/2, (w-1)/2) with denominator 2 when 2 is inert, d=3 (mod 8):
+  // alphas (w/2, (w-1)/2) when 2 is inert, d%8=3
+  // alpha = w/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
+  // alpha = (w+1)/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
+
+  if (d%4==1)
+    {
+      Quad u = (d-1)/2;
+      add_alpha(w,u,2,-w);  // alpha[1] = w/2
+      alpha_inv.push_back(1); // 1-1
+    }
+  if (d%4==2)
+    {
+      Quad u = d/2;
+      add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
+      alpha_inv.push_back(1); // 1-1
+    }
 
   switch (d%8) {
   case 3:
@@ -213,11 +228,17 @@ void Quad::setup_geometry()
     }
   } // d%12
 
+  if (d==5)
+    {
+      add_alpha_pair(2*w, 4+w, +1);      // N(s)=20
+      return;
+    }
+
   if (d==23)
     {
-      add_edge_foursome(w+1,  w-2, w-4);
+      add_edge_foursome(w+1,  w-2, w-4); // N(s)=8
       add_edge_foursome(2-w, -1-w, -3-w);
-      add_alpha_pair(2+w, w-3, +1);
+      add_alpha_pair(2+w, w-3, +1);      // N(s)=12
       add_alpha_pair(3-w, -2-w, +1);
       return;
     }
@@ -239,10 +260,8 @@ void Quad::setup_geometry()
     {
       add_alpha_pair(w, 3, +1);       // N(s)=8
       add_alpha_pair(1-w, 3, +1);
-      add_edge_foursome(3,  w, 1-w);  // N(s)=9
       add_alpha_pair(1+w, 3);         // N(s)=10
       add_alpha_pair(2-w, 3);
-      add_alpha_pair(4, 2*w+1, +1);   // N(s)=16
       add_alpha_pair(3+w, w-6, +1);   // N(s)=20
       add_alpha_pair(4-w, 5+w, +1);
       return;

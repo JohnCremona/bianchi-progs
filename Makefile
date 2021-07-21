@@ -64,16 +64,14 @@ TESTS = fieldinfo tquads qidltest tratquad looptest modtest symbtest homtest hec
 tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
-DISCS=$(DISCS9) 23 31
+DISCSX=5 23 31
+DISCS=$(DISCS9) $(DISCSX)
 FIELDS9=1 2 3 7 11 19 43 67 163
-FIELDS7=1 2 3 7 11 19 43
-FIELDS5=1 2 3 7 11
-FIELDS1=1
-FIELDSX=23 31
+FIELDSX=5 23 31
 FIELDS=$(FIELDS9) $(FIELDSX)
-TESTS9 =  modtest symbtest homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
-TESTSX =  tquads tratquad looptest fieldinfo qidltest
-ALL_TESTS = $(TESTS9) $(TESTSX)
+FULL_TESTS =  modtest symbtest homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest
+ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -91,11 +89,11 @@ check: $(ALL_TESTS)
 	 @echo
 	 @echo running basic tests on fields $(FIELDS)...
 	 @echo
-	 @for d in $(FIELDS); do for prog in $(TESTSX); do $(check_run); done; echo; done
+	 @for d in $(FIELDS); do for prog in $(BASIC_TESTS); do $(check_run); done; echo; done
 	 @echo
 	 @echo running extra tests on fields $(FIELDS9)...
 	 @echo
-	 @for d in $(FIELDS9); do for prog in $(TESTS9); do $(check_run); done; echo; done
+	 @for d in $(FIELDS9); do for prog in $(FULL_TESTS); do $(check_run); done; echo; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
