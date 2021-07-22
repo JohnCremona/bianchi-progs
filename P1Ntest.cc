@@ -32,20 +32,21 @@ void symb_index_test(Qideal N, int verbose=0)
   long psi = P1.size();
   cout << "psi(N) = "<<psi<<endl;
   long i, j;
+  Quad c, d;
   for (i=0; i<psi; i++)
     {
-      pair<Quad, Quad> cd = P1.symb(i);
-      j = P1.index(cd);
+      P1.make_symb(i, c, d);
+      j = P1.index(c, d);
       if (verbose)
         {
-          cout << i << " --> ("<<cd.first<<":"<<cd.second << ") --> " << j << endl;
+          cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
           assert(i==j);
         }
       else
         {
           if (i!=j)
             {
-              cout << i << " --> ("<<cd.first<<":"<<cd.second << ") --> " << j << endl;
+              cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
             }
         }
     }

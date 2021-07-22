@@ -20,11 +20,15 @@ class P1N {
   vector<long> psilist; // phi of each prime power
 public:
   P1N(const Qideal& I);                                //constructor
-  pair<Quad, Quad> symb(long i); // the i'th (c:d) symbol
+  void make_symb(long i, Quad& c, Quad& d); // assign c, d to the i'th (c:d) symbol
   long index(const Quad& c, const Quad& d); // index i of (c:d)
-  long index(const pair<Quad, Quad>& cd) // index i of (c:d)
-  { return index(cd.first, cd.second);}
   long size() {return psi;}
+
+  // return a matrix M = [a, b; c, d] with det=1 lifting the i'th (c:d) symbol
+  mat22 lift_to_SL2(long i);
+
+  // each M in GL2 permutes the (c:d) symbols by right multiplcation:
+  long apply(const mat22& M, long i);
 protected:
   long nrm, phi, psi;
   Qideal N;  // the level

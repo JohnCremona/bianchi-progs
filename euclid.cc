@@ -266,8 +266,7 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 
 // Declared in quads.h.  Only useful when the ideal (a,b) is
 // principal, when it returns g such that (g)=(a,b) and x,y such that
-// g=x*aa+y*bb. Otherwise a warning is output and 0 returned, with x,
-// y undefined.
+// g=x*aa+y*bb. Otherwise 0 is returned, with x, y undefined.
 
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Using (pseudo-)EA
 {

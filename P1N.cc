@@ -102,17 +102,15 @@ P1N::P1N(const Qideal& I)
   }
 }
 
-pair<Quad, Quad> P1N::symb(long i) // the i'th (c:d) symbol
+void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
 {
-  Quad c, d;
-  switch (np) {
-  case 0:
+  if (np==0)
     {
       c = 1;
       d = 0;
-      break;
+      return;
     }
-  case 1:
+  if (np==1)
     {
       assert (i>=0);
       assert (i<psi);
@@ -126,25 +124,23 @@ pair<Quad, Quad> P1N::symb(long i) // the i'th (c:d) symbol
           c = 1;
           d = N.resnum(noninvertible_residue_indices[i-nrm]);
         }
-      break;
+      return;
     }
-  default: // use CRT
+  // not a prime power, use CRT
+  vector<long> ilist = split_indices(psilist, i);
+  vector<Quad> clist, dlist;
+  clist.reserve(np);
+  dlist.reserve(np);
+  Quad ck, dk;
+  for (int k=0; k<np; k++)
     {
-      vector<long> ilist = split_indices(psilist, i);
-      vector<Quad> clist, dlist;
-      clist.reserve(np);
-      dlist.reserve(np);
-      for (int i=0; i<np; i++)
-        {
-          pair<Quad, Quad> cd = P1PP[i].symb(ilist[i]);
-          clist.push_back(cd.first);
-          dlist.push_back(cd.second);
-        }
-      c = N.factorization().solve_CRT(clist);
-      d = N.factorization().solve_CRT(dlist);
+      P1PP[k].make_symb(ilist[k], ck, dk);
+      clist.push_back(ck);
+      dlist.push_back(dk);
     }
-  }
-  return {c, d};
+  c = N.factorization().solve_CRT(clist);
+  d = N.factorization().solve_CRT(dlist);
+  return;
 }
 
 long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
@@ -169,3 +165,46 @@ long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
     ilist.push_back(P1PP[i].index(c,d));
   return merge_indices(psilist, ilist);
 }
+
+// each M in GL2 permutes the (c:d) symbols by right multiplcation:
+long P1N::apply(const mat22& M, long i)
+{
+  if (np==0) return 0;
+  if (np==1)  // works in general but much simpler in this case (no CRT)
+    {
+      Quad c, d;
+      make_symb(i, c, d);
+      M.apply_right(c,d);
+      return index(c,d);
+    }
+  // general case, np>1 so not a prime power
+  vector<long> jlist, ilist = split_indices(psilist, i);
+  jlist.reserve(np);
+  for (int k=0; k<np; k++)
+    jlist.push_back(P1PP[k].apply(M,ilist[k]));
+  return merge_indices(psilist, ilist);
+}
+
+// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
+mat22 P1N::lift_to_SL2(long i)
+{
+  Quad c, d;
+  make_symb(i, c, d);
+  // Two special cases: (c:1), (1:d) need no work:
+  if (d==1) return mat22(1,0,c,1);
+  if (d==-1) return mat22(1,0,-c,1);
+  if (c==1) return mat22(0,-1,1,d);
+  if (c==-1) return mat22(0,-1,1,-d);
+  Quad x, y;
+  Quad h = quadbezout(c , d, x, y);
+  if (h==0) // then (c,d) was not principal!
+    {
+      cerr<<"Problem lifting M-symbol ("<<c<<":"<<d<<") as ideal is not principal"<<endl;
+      return mat22();
+    }
+  c /= h;
+  d /= h;
+  assert (y*d+x*c==1);
+  return mat22(y,-x,c,d);
+}
+
