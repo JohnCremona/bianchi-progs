@@ -1,0 +1,171 @@
+// FILE P1N.CC: implementation of class for P^1(O_K/N) for an arbitrary ideal N
+
+
+#include <iostream>
+
+#include <eclib/arith.h>
+#include "qideal.h"
+#include "mat22.h"
+#include "P1N.h"
+
+// utilities for a standard bijection between [0,1,...,n-1] and the
+// product of [0,1,...,n_i-1] where n is the product of the n_i
+
+long merge_indices(const vector<long>& nlist, const vector<long>& klist)
+// return ((k1*n2+k2)*n3+k3)*n4+k4 (etc.)
+// NB n1 is not used except implicitly
+{
+  long tot=0;
+  vector<long>::const_iterator n=nlist.begin()+1, k=klist.begin();
+  while (n!=nlist.end())
+    {
+      tot += *k++;
+      tot *= *n++;
+    }
+  tot += *k;
+  return tot;
+}
+
+vector<long> split_indices(const vector<long>& nlist, long k)
+{
+  long tot=k;
+  vector<long>::const_reverse_iterator n=nlist.rbegin();
+  vector<long> klist;
+  while (n!=nlist.rend())
+    {
+      std::ldiv_t qr = ldiv(tot, *n++);
+      tot = qr.quot;
+      klist.push_back(qr.rem);
+    }
+  std::reverse(klist.begin(), klist.end());
+  return klist;
+}
+
+P1N::P1N(const Qideal& I)
+{
+  N = I;
+  Factorization F = N.factorization(); //  factorization is cached in N
+  np = F.size();
+  nrm = N.norm();
+  phi = psi = 1;
+  for (int i=0; i<np; i++)
+    {
+      long normp = F.prime(i).norm(),  e = F.exponent(i);
+      phi *= (normp-1);
+      psi *= (normp+1);
+      e--;
+      while (e--)
+        {
+          phi *= normp;
+          psi *= normp;
+        }
+    }
+  switch (np) {
+  case 0:
+    {
+      break; // nothing left to do
+    }
+  case 1:
+    {
+      residue_codes.reserve(nrm);
+      noninvertible_residue_indices.reserve(nrm-phi);
+      for(long i=0; i<nrm; i++)
+        {
+          Quad r = N.resnum(i), s;
+          if (N.is_coprime_to(r, s)) // r invertible with r*s = 1 (N)
+            {
+              residue_codes.push_back(N.numres(s));
+            }
+          else // r not invertible
+            {
+              residue_codes.push_back(-noninvertible_residue_indices.size());
+              noninvertible_residue_indices.push_back(i);
+            }
+        }
+      // cout << "P1N constructor, prime power case" << endl;
+      // cout << "Residues: " << N.residues() << endl;
+      // cout << "residue_codes: " << residue_codes << endl;
+      // cout << "noninvertible_residue_indices: " << noninvertible_residue_indices << endl;
+      break;
+    }
+  default: // not a prime power
+    {
+      P1PP.reserve(np);
+      psilist.reserve(np);
+      for (int i=0; i<np; i++)
+        {
+          P1N P1PPi(F.prime_power(i));
+          P1PP.push_back(P1PPi);
+          psilist.push_back(P1PPi.psi);
+        }
+    }
+  }
+}
+
+pair<Quad, Quad> P1N::symb(long i) // the i'th (c:d) symbol
+{
+  Quad c, d;
+  switch (np) {
+  case 0:
+    {
+      c = 1;
+      d = 0;
+      break;
+    }
+  case 1:
+    {
+      assert (i>=0);
+      assert (i<psi);
+      if (i<nrm)
+        {
+          c = N.resnum(i);
+          d = 1;
+        }
+      else
+        {
+          c = 1;
+          d = N.resnum(noninvertible_residue_indices[i-nrm]);
+        }
+      break;
+    }
+  default: // use CRT
+    {
+      vector<long> ilist = split_indices(psilist, i);
+      vector<Quad> clist, dlist;
+      clist.reserve(np);
+      dlist.reserve(np);
+      for (int i=0; i<np; i++)
+        {
+          pair<Quad, Quad> cd = P1PP[i].symb(ilist[i]);
+          clist.push_back(cd.first);
+          dlist.push_back(cd.second);
+        }
+      c = N.factorization().solve_CRT(clist);
+      d = N.factorization().solve_CRT(dlist);
+    }
+  }
+  return {c, d};
+}
+
+long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
+{
+  if (np==0) return 0;
+  if (np==1)
+    {
+      long t = residue_codes[N.numres(d)];
+      if (t>0) // d is invertible
+        return N.numres(c*N.resnum(t));
+      // now d is not invertible so c must be
+      t = residue_codes[N.numres(c)];
+      assert (t>0);
+      t = residue_codes[N.numres(d*N.resnum(t))];
+      assert (t<=0);
+      return nrm - t;
+    }
+  // general case, np>1 so not a prime power
+  vector<long> ilist;
+  ilist.reserve(np);
+  for (int i=0; i<np; i++)
+    ilist.push_back(P1PP[i].index(c,d));
+  return merge_indices(psilist, ilist);
+}

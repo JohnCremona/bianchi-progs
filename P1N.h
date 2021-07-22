@@ -1,0 +1,41 @@
+// FILE P1N.H: declaration of class for P^1(O_K/N) for an arbitrary ideal N
+
+#if     !defined(_P1N_H)
+#define _P1N_H      1       //flags that this file has been included
+
+#include <iostream>
+
+#include <eclib/arith.h>
+#include "qideal.h"
+#include "primes.h"
+
+class P1N {
+  vector<long> residue_codes, noninvertible_residue_indices;
+  // for prime powers only (NB resnum[0]=0 always):
+  // : residue_codes[i] = j >0 if resnum[i] is invertible with inverse resnum[j]
+  // : residue_codes[i] =-j <=0 if resnum[i] is the j'th noninvertible residue
+  // : noninvertible_residue_indices[i] = j if the i'th noninvertible residue is resnum[j]
+
+  vector<P1N> P1PP; // one for each prime power dividing N when N is *not* a prime power
+  vector<long> psilist; // phi of each prime power
+public:
+  P1N(const Qideal& I);                                //constructor
+  pair<Quad, Quad> symb(long i); // the i'th (c:d) symbol
+  long index(const Quad& c, const Quad& d); // index i of (c:d)
+  long index(const pair<Quad, Quad>& cd) // index i of (c:d)
+  { return index(cd.first, cd.second);}
+  long size() {return psi;}
+protected:
+  long nrm, phi, psi;
+  Qideal N;  // the level
+  int np;    // number of bad primes
+};
+
+// utilities for a standard bijection between [0,1,...,n-1] and the
+// product of [0,1,...,n_i-1] where n is the product of the n_i
+
+long merge_indices(const vector<long>& nlist, const vector<long>& klist);
+vector<long> split_indices(const vector<long>& nlist, long k);
+
+
+#endif

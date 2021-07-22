@@ -71,7 +71,7 @@ public:
 class Factorization {
   Qideal I;                     // the ideal whose factorization this is
   vector<QuadprimePower> Qlist; // prime powers Q (as (P,e) pairs)
-  vector<Qideal> QIlist;         // prime powers Q (as ideals)
+  vector<Qideal> QIlist;        // prime powers Q (as ideals)
   vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
   void init_CRT();              // compute the CRT vector
 public:
