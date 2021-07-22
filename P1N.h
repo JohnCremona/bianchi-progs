@@ -9,6 +9,12 @@
 #include "qideal.h"
 #include "primes.h"
 
+// utilities for a standard bijection between [0,1,...,n-1] and the
+// product of [0,1,...,n_i-1] where n is the product of the n_i
+
+long merge_indices(const vector<long>& nlist, const vector<long>& klist);
+vector<long> split_indices(const vector<long>& nlist, long k);
+
 class P1N {
   vector<long> residue_codes, noninvertible_residue_indices;
   // for prime powers only (NB resnum[0]=0 always):
@@ -24,6 +30,9 @@ public:
   long index(const Quad& c, const Quad& d); // index i of (c:d)
   long size() {return psi;}
 
+  long merge_indices(const vector<long>& klist) {return ::merge_indices(psilist, klist);}
+  vector<long> split_indices(long k) {return ::split_indices(psilist, k);}
+
   // return a matrix M = [a, b; c, d] with det=1 lifting the i'th (c:d) symbol
   mat22 lift_to_SL2(long i);
 
@@ -34,12 +43,6 @@ protected:
   Qideal N;  // the level
   int np;    // number of bad primes
 };
-
-// utilities for a standard bijection between [0,1,...,n-1] and the
-// product of [0,1,...,n_i-1] where n is the product of the n_i
-
-long merge_indices(const vector<long>& nlist, const vector<long>& klist);
-vector<long> split_indices(const vector<long>& nlist, long k);
 
 
 #endif

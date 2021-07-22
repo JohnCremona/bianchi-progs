@@ -127,7 +127,7 @@ void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
       return;
     }
   // not a prime power, use CRT
-  vector<long> ilist = split_indices(psilist, i);
+  vector<long> ilist = split_indices(i);
   vector<Quad> clist, dlist;
   clist.reserve(np);
   dlist.reserve(np);
@@ -163,7 +163,7 @@ long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
   ilist.reserve(np);
   for (int i=0; i<np; i++)
     ilist.push_back(P1PP[i].index(c,d));
-  return merge_indices(psilist, ilist);
+  return merge_indices(ilist);
 }
 
 // each M in GL2 permutes the (c:d) symbols by right multiplcation:
@@ -178,11 +178,11 @@ long P1N::apply(const mat22& M, long i)
       return index(c,d);
     }
   // general case, np>1 so not a prime power
-  vector<long> jlist, ilist = split_indices(psilist, i);
+  vector<long> jlist, ilist = split_indices(i);
   jlist.reserve(np);
   for (int k=0; k<np; k++)
     jlist.push_back(P1PP[k].apply(M,ilist[k]));
-  return merge_indices(psilist, ilist);
+  return merge_indices(ilist);
 }
 
 // compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
