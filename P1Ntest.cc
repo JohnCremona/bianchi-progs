@@ -1,6 +1,7 @@
 // FILE P1Ntest.cc  -- for testing the P1N class
 
 #include <iostream>
+#include "looper.h"
 #include "qidloop.h"
 #include "mat22.h"
 #include "primes.h"
@@ -27,29 +28,8 @@ void multi_index_test(const vector<long>& nlist, int verbose=0)
 
 void symb_index_test(Qideal N, int verbose=0)
 {
-  cout << "Testing P1(N) for N = " << N << ":" <<flush;
   P1N P1(N);
-  long psi = P1.size();
-  cout << "psi(N) = "<<psi<<endl;
-  long i, j;
-  Quad c, d;
-  for (i=0; i<psi; i++)
-    {
-      P1.make_symb(i, c, d);
-      j = P1.index(c, d);
-      if (verbose)
-        {
-          cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
-          assert(i==j);
-        }
-      else
-        {
-          if (i!=j)
-            {
-              cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
-            }
-        }
-    }
+  P1.check(verbose);
 }
 
 void init()
@@ -68,12 +48,21 @@ int main(void)
   multi_index_test({2,4,2});
   multi_index_test({1,5,6});
   int both=1, sorted=1;
+  long maxn=100;
+  cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
   Qidealooper loop(1, 100, both, sorted);
   while( loop.not_finished() )
     {
-      Qideal N = loop.next();
-      symb_index_test(N);
+      symb_index_test(loop.next());
     }
+  cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
+  Quadlooper alpha(1, 100, 1);
+  while( alpha.ok() )
+    {
+      symb_index_test((Quad)alpha);
+      ++alpha;
+    }
+  cout<<"done"<<endl;
 }
 
 // END OF FILE P1Ntest.cc

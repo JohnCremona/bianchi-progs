@@ -170,7 +170,7 @@ long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
 long P1N::apply(const mat22& M, long i)
 {
   if (np==0) return 0;
-  if (np==1)  // works in general but much simpler in this case (no CRT)
+  if (np==1)  // works in general but much simpler in this case (no CRT in constructing c,d)
     {
       Quad c, d;
       make_symb(i, c, d);
@@ -206,5 +206,34 @@ mat22 P1N::lift_to_SL2(long i)
   d /= h;
   assert (y*d+x*c==1);
   return mat22(y,-x,c,d);
+}
+
+// test function
+void P1N::check(int verbose)
+{
+  if (verbose)
+    {
+      cout << "Testing P1(N) for N = " << N << ":" <<flush;
+      cout << "psi(N) = "<<psi<<endl;
+    }
+  long i, j;
+  Quad c, d;
+  for (i=0; i<psi; i++)
+    {
+      make_symb(i, c, d);
+      j = index(c, d);
+      if (verbose)
+        {
+          cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
+          assert(i==j);
+        }
+      else
+        {
+          if (i!=j)
+            {
+              cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;
+            }
+        }
+    }
 }
 
