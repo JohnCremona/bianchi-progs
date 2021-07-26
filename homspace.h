@@ -13,14 +13,16 @@
 #include "moddata.h"
 #include "cusp.h"
 #include "symb.h"
+#include "edge_relations.h"
 
 class homspace :public symbdata {
 friend class newforms;
 public:
   int verbose;
   int cuspidal;  // if 1 then compute cuspidal homology
-  vector<int> coordindex, gens, needed, freegens;
+  vector<int> needed, freegens;
   long rk, denom1, denom2, dimension, denom3, ncusps;
+  edge_relations ER;
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
   vector<modsym> freemods;
@@ -37,15 +39,6 @@ public:
   void add_face_rel(const vector<int>& rel, const vector<int>& types);
 
   homspace(const Quad& n, int hp, int cuspid, int verb);
-
-  // The next several methods are called only in the constructor, but
-  // are separted out for clarity and for ease of separating thec ode
-  // for different fields.
-  void edge_relations();      // computes coordindex, gens
-  void edge_relations_1();    // basic edge relations for alpha = 0
-  void edge_relations_2();    // extra edge relations for alphas with denom 2
-  void edge_pairing(int i);   // edge relation pair, alpha=r/s with r^2=-1 (s)
-  void edge_pairing_double(int i); // edge relation double pairing
 
   void face_relations();    // computes face relations, fills relmat
   void triangle_relation_0();   // triangle relation for all fields

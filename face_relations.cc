@@ -77,7 +77,7 @@ void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types)
 #endif
   for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
     {
-      c = coordindex[*r+nsymb*(*t)];
+      c = ER.coords(*r+nsymb*(*t));
       if(c)
 #ifdef USE_SMATS
         relation.add(abs(c), sign(c));

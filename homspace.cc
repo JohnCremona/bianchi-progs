@@ -18,35 +18,9 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   hmod = 0;
   if (verbose) symbdata::display();
   plusflag=hp;                  // Sets static level::plusflag = hp
-  ngens=0;
-  coordindex.resize(nsymbx);
-  gens.resize(nsymbx+1);
-  //NB start of gens array is at 1 not 0
 
-  edge_relations(); // sets coordindex
-
-  if (verbose)
-    {
-      cout << "After 2-term relations, ngens = "<<ngens<<endl;
-      cout << "gens = ";
-      int i, j;
-      for (i=1; i<=ngens; i++) cout << gens[i] << " ";
-      cout << endl;
-      cout << "coordindex = \n";
-      for (j=0; j<n_alphas; j++)
-        {
-          int offset = j*nsymb;
-          if(n_alphas>1)
-            {
-              mat22 M = M_alphas[j];
-              RatQuad alpha(-M.entry(1,1), M.entry(1,0));
-              cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
-            }
-          for (i=0; i<nsymb; i++)
-            cout << i<<":\t"<<symbol(i)<<"\t"<<coordindex[i+offset] << "\n";
-        }
-      cout << endl;
-    }
+  ER = edge_relations(this, verb);
+  ngens = ER.get_ngens();
 
   face_relations(); // fills relmat with the relations
 
@@ -174,7 +148,7 @@ void homspace::solve_relations()
    sp=smat(0,0); // clear space
 #else
   relmat = relmat.slice(numrel,ngens);
-  if(verbose) 
+  if(verbose)
     {
       cout << "relmat = "; relmat.output_pari(cout); cout << endl;
     }
@@ -202,7 +176,7 @@ void homspace::solve_relations()
           cout << "pivots = " << pivs <<endl;
         }
       freegens.resize(rk);
-      for (i=0; i<rk; i++) freegens[i] = gens[pivs[i+1]];
+      for (i=0; i<rk; i++) freegens[i] = ER.gen(pivs[i+1]);
       if (verbose)
         {
           cout << "freegens: ";
@@ -300,11 +274,11 @@ void homspace::make_freemods()
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
 {
- long i= coordindex[index2(c,d) + nsymb*type];
- const mat& co = (proj? projcoord: coord);
- vec ans(co.ncols());
- if (i) ans = sign(i)*(co.row(abs(i)));
- return ans;
+  long i= ER.coords(index2(c,d) + nsymb*type);
+  const mat& co = (proj? projcoord: coord);
+  vec ans(co.ncols());
+  if (i) ans = sign(i)*(co.row(abs(i)));
+  return ans;
 }
 
 //#define DEBUG_NON_EUCLID

@@ -1,5 +1,8 @@
 // FILE CUSP.H
 
+#if     !defined(_CUSP_H)
+#define _CUSP_H      1       //flags that this file has been included
+
 #include "moddata.h"
 #include "ratquads.h"
 
@@ -17,3 +20,5 @@ class cusplist {
   void display() const;
   int count() const {return cusps.size();}
 };
+
+#endif
