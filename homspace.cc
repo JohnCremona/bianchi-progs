@@ -3,12 +3,10 @@
 //#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
                 // NB this is experimental only
 
-#include <eclib/msubspace.h>
-#include <eclib/xmod.h>
-#include <eclib/timer.h>
+#include <eclib/method.h>
+#include <eclib/matrix.h>
+#include "cusp.h"
 #include "homspace.h"
-#include "geometry.h"
-#include "euclid.h"
 #include <assert.h>
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
@@ -22,21 +20,10 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   ER = edge_relations(this, hp, verb);
   ngens = ER.get_ngens();
 
-  face_relations(); // fills relmat with the relations
-
-  if(verbose)
-    {
-      cout << "Finished face relations: ";
-      cout << "number of relations = " << numrel;
-      cout << " (bound was "<<maxnumrel<<")"<<endl;
-    }
-
-  solve_relations();
-
-  if (verbose)
-    {
-      cout << "dimension (relative to cusps) = " << rk << endl;
-    }
+  FR = face_relations(&ER, hp, verb); // fills relmat with the relations and solves
+  denom1 = FR.get_denom1();
+  rk = FR.get_rank();
+  hmod = FR.get_hmod();
 
   make_freemods();
 
@@ -55,136 +42,6 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 #ifdef USE_CRT
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
 #endif
-
-void homspace::solve_relations()
-{
-   vec pivs, npivs;
-   int i;
-   if(verbose>1)
-     {
-       mat M = relmat.as_mat().slice(numrel,ngens);
-       cout<<"relmat = "<<M<<endl;
-       cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
-     }
-#if(USE_SMATS)
-#ifdef TIME_RELATION_SOLVING
-   if (verbose)
-     {
-       cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
-     }
-   timer t;
-   t.start("relation solver");
-#endif
-   smat_elim sme(relmat);
-   int d1;
-   smat ker = sme.kernel(npivs,pivs), sp;
-#ifdef TIME_RELATION_SOLVING
-   t.stopAll();
-   if (verbose)
-     {
-       cout<<"Finished solving relation matrix in ";
-       t.showAll();
-       cout<<"\n";
-     }
-#endif
-   int ok = liftmat(ker,MODULUS,sp,d1);
-   if (!ok)
-     {
-       if(verbose)
-         cout << "failed to lift modular kernel using modulus "
-              << MODULUS << endl;
-#ifdef USE_CRT
-       int mod2 = 1073741783; // 2^30-41
-       bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
-       if(verbose)
-         cout << "repeating kernel computation, modulo " << mod2 << endl;
-       smat_elim sme2(relmat,mod2);
-       vec pivs2, npivs2;
-       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
-       ok = (pivs==pivs2);
-       if (!ok)
-         {
-           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
-         }
-       else
-         {
-           if(verbose) cout << " pivs agree" << endl;
-           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
-         }
-       if (ok)
-         {
-           if(verbose)
-             cout << "success using CRT, combined modulus = "<<mmod
-                  <<", denominator= " << d1 << "\n";
-         }
-       else
-         {
-           if(verbose)
-             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
-         }
-#endif
-     }
-   if (ok)
-     {
-       denom1 = d1;
-     }
-   else
-     {
-       hmod = MODULUS;
-       denom1 = 1;
-     }
-   relmat=smat(0,0); // clear space
-   if(verbose>1)
-     {
-       cout << "kernel of relmat = " << sp.as_mat() << endl;
-       cout << "pivots = "<<pivs << endl;
-       cout << "denom = "<<d1 << endl;
-     }
-   rk = sp.ncols();
-   coord.init(ngens+1,rk); // 0'th is unused
-   for(i=1; i<=ngens; i++)
-     coord.setrow(i,sp.row(i).as_vec());
-   // if hmod>0, coord is only defined modulo hmod
-   sp=smat(0,0); // clear space
-#else
-  relmat = relmat.slice(numrel,ngens);
-  if(verbose)
-    {
-      cout << "relmat = "; relmat.output_pari(cout); cout << endl;
-    }
-  msubspace sp = kernel(mat_m(relmat),0);
-  rk = dim(sp);
-  if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
-  coord = basis(sp).shorten((int)1);
-  pivs = pivots(sp);
-  denom1 = I2int(denom(sp));
-  relmat.init(); sp.clear(); 
-#endif
-  if (verbose)
-    {
-      cout << "rk = " << rk << endl;
-    }
-  if (rk>0)
-    {
-      if (verbose)
-        {
-          if (verbose>1) cout << "coord:" << coord;
-          if (hmod)
-            cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
-          else
-            cout << "lifted ok, denominator = " << denom1 << endl;
-          cout << "pivots = " << pivs <<endl;
-        }
-      freegens.resize(rk);
-      for (i=0; i<rk; i++) freegens[i] = ER.gen(pivs[i+1]);
-      if (verbose)
-        {
-          cout << "freegens: ";
-          for (i=0; i<rk; i++) cout << freegens[i] << " ";
-          cout << endl;
-        }
-    }
-}
 
 void homspace::kernel_delta()
 {
@@ -239,45 +96,61 @@ void homspace::kernel_delta()
 
 void homspace::make_freemods()
 {
-  if (verbose)  cout << "Freemods:\n";
+  if (rk==0) return;
+
   int i,j,s,t=0;
   modsym m;
+
+  freegens.resize(rk);
+  for (i=0; i<rk; i++)
+    freegens[i] = ER.gen(FR.gen(i+1));
+  if (verbose)
+    {
+      cout << "freegens: ";
+      for (i=0; i<rk; i++) cout << freegens[i] << " ";
+      cout << endl;
+    }
+
+  if (verbose)
+    cout << "Freemods:\n";
+
   for (i=0; i<rk; i++)
     {
       s = j = freegens[i];
       if (n_alphas>1)
         {
-          //      cout<<"j = "<<j<<": ";
           std::ldiv_t st = ldiv(j, nsymb);
           s = st.rem;  // remainder gives (c:d) symbol number
           t = st.quot; // quotient gives symbol type
-          //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
         }
       m = modsym(symbol(s).lift_to_SL2(), t);
       freemods.push_back(m);
       if (verbose) cout<<m<<endl;
     }
-  if (!verbose) return;
-  vec ei(rk);
-  for (i=0; i<rk; i++)
+  if (verbose)
     {
-      m = freemods[i];
-      vec v = chain(m.beta()) - chain(m.alpha());
-      cout<< m << " --> " << v;
-      ei[i+1] = denom1;
-      if (v!=ei)
-        cout<<" *** WRONG, should be "<<ei;
-      cout<<endl;
-      ei[i+1] = 0;
+      vec ei(rk);
+      for (i=0; i<rk; i++)
+        {
+          m = freemods[i];
+          vec v = chain(m.beta()) - chain(m.alpha());
+          cout<< m << " --> " << v;
+          ei[i+1] = denom1;
+          if (v!=ei)
+            cout<<" *** WRONG, should be "<<ei;
+          cout<<endl;
+          ei[i+1] = 0;
+        }
     }
 }
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
 {
   long i= ER.coords(index2(c,d) + nsymb*type);
-  const mat& co = (proj? projcoord: coord);
-  vec ans(co.ncols());
-  if (i) ans = sign(i)*(co.row(abs(i)));
+  long n = (proj? projcoord.ncols(): rk);
+  vec ans(n); // initialises to 0
+  if (i)
+    ans = sign(i) * (proj? projcoord.row(abs(i)) : FR.coords(abs(i)));
   return ans;
 }
 

@@ -3,17 +3,9 @@
 #if     !defined(_HOMSPACE_H)
 #define _HOMSPACE_H      1       //flags that this file has been included
 
-#include <eclib/arith.h>
-#include <eclib/method.h>
-#include <eclib/subspace.h>
-#include <eclib/smatrix.h>
-#ifdef USE_SMATS
-#include <eclib/smatrix_elim.h>
-#endif
-#include "moddata.h"
-#include "cusp.h"
-#include "symb.h"
 #include "edge_relations.h"
+#include "face_relations.h"
+#include "euclid.h"
 
 class homspace :public symbdata {
 friend class newforms;
@@ -23,36 +15,18 @@ public:
   vector<int> needed, freegens;
   long rk, denom1, denom2, dimension, denom3, ncusps;
   edge_relations ER;
+  face_relations FR;
+  long ngens;
+
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
   vector<modsym> freemods;
-  mat coord, projcoord;
+  mat projcoord;
   long hmod; // if >0, failed to lift from modular linear algebra
              // so coord is modulo this
 
-#ifdef USE_SMATS
-  smat relmat;
-#else
-  mat relmat;
-#endif
-  long ngens, numrel, maxnumrel;
-  void add_face_rel(const vector<int>& rel, const vector<int>& types);
-
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
-  void face_relations();    // computes face relations, fills relmat
-  void triangle_relation_0();   // triangle relation for all fields
-  void triangle_relation_1_3();   // extra triangle relation for fields 1, 3
-  void triangle_relation_2();   // extra triangle relation(s) for fields 19+
-  void cyclic_triangle_relation(int i); // generic cyclic triangle relation
-  void general_triangle_relation(const vector<int>& tri);  // generic triangle relation
-  void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz);  // generic square relation
-  void square_relation_2();   // extra square relation for field 2
-  void rectangle_relation_7();   // extra rectangle relation for field 7
-  void hexagon_relation_11();   // extra hexagon relation for field 11
-  //  void square_relation_19();   // extra square relation for field 19
-
-  void solve_relations();       // computes kernel of relmat and sets rk, denom1, coord, freegens
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
 
@@ -131,7 +105,7 @@ public:
 //   mat conj(int display=0) const;
    vec maninvector(const Quad& p) const;
    vec projmaninvector(const Quad& p) const;
-  vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const;
+   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const;
    vec newhecke(const Quad& p, const Quad& n, const Quad& d) const;
 };
 

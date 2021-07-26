@@ -1,4 +1,3 @@
-#include <eclib/subspace.h>
 #include "homspace.h"   // which includes quads.h & moddata.h
 #define LOOPER
 #ifdef LOOPER

@@ -1,10 +1,12 @@
 // FILE FACE_RELATIONS.CC: Implemention of the face relations for class homspace
 
-#include <eclib/msubspace.h>
-#include <eclib/xmod.h>
-#include "homspace.h"
-#include "geometry.h"
+//#define TIME_RELATION_SOLVING
+
+#include "face_relations.h"
 #include <assert.h>
+#ifdef TIME_RELATION_SOLVING
+#include <eclib/timer.h>
+#endif
 
 // Each face relation is a sum of edges (M)_alpha = {M(alpha}, M(oo)}
 // for M in the list mats and alpha=alphas[i] for i in the list types.
@@ -48,73 +50,16 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
   return ok;
 }
 
-// In add_face_rel(rel, types, check):
-//
-//   rel is a list of (positive) (c:d)-symbol numbers i
-//   types is a list of symbol types
-//
-//   such that the corresponding (symbol,type) pairs add to 0 in homology.  We use
-//   the map i -> j=coordindex[i] to convert this to a vector of
-//   dimension ngens, and append that as a new row to the relation
-//   matrix relmat.
-//
-
-void homspace::add_face_rel(const vector<int>& rel, const vector<int>& types)
-{
-  vector<int>::const_iterator r, t;
-  long c;
-  if (verbose)
-    {
-      cout<<"Relation: ";
-      for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
-        cout<<(*r)<<"_"<<(*t)<<" "<<symbol(*r)<<" ";
-      cout <<" --> ";
-    }
-#ifdef USE_SMATS
-  svec relation(ngens);
-#else
-  vec relation(ngens);
-#endif
-  for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
-    {
-      c = ER.coords(*r+nsymb*(*t));
-      if(c)
-#ifdef USE_SMATS
-        relation.add(abs(c), sign(c));
-#else
-        relation[abs(c)] += sign(c);
-#endif
-    }
-#ifdef USE_SMATS
-  if(relation.size()==0)
-#else
-  if(trivial(relation))
-#endif
-    {
-      if (verbose) cout<<relation<<endl;
-      return;
-    }
-  numrel++;
-  if(numrel<=maxnumrel)
-    {
-      make_primitive(relation);
-      if (verbose) cout<<relation<<endl;
-      relmat.setrow(numrel,relation);
-    }
-  else
-    cerr<<"Too many face relations (numrel="<<numrel
-        <<", maxnumrel="<<maxnumrel<<")"<<endl;
-}
-
 //
 // face relations
 //
 
-void homspace::face_relations()
+face_relations::face_relations(edge_relations* er, int plus, int verb)
+  :ER(er), plusflag(plus), verbose(verb)
 {
-  long field = Quad::d;
-
-  maxnumrel=2*nsymbx;
+  nsymb = ER->sd->nsymb;
+  maxnumrel=2*n_alphas*nsymb;
+  ngens = ER->ngens;
   numrel = 0;
 
 #if(USE_SMATS)
@@ -122,6 +67,38 @@ void homspace::face_relations()
 #else
   relmat.init(maxnumrel,ngens);
 #endif
+
+  make_relations();
+
+  if(verbose)
+    {
+      cout << "Finished making face relation matrix: ";
+      cout << "number of relations = " << numrel;
+      cout << " (bound was "<<maxnumrel<<")"<<endl;
+    }
+
+  solve_relations();
+
+  if (verbose)
+    {
+      cout << "Finished solving face relation matrix: ";
+      cout << "dimension (relative to cusps) = " << rk << endl;
+      if (rk>0)
+        {
+          if (verbose>1) cout << "coord:" << coord;
+          if (hmod)
+            cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
+          else
+            cout << "lifted ok, denominator = " << denom1 << endl;
+          cout << "pivots = " << pivs <<endl;
+        }
+    }
+}
+
+void face_relations::make_relations()
+{
+  long field = Quad::d;
+
   triangle_relation_0();
 
   if ((field==1)||(field==3))
@@ -168,8 +145,69 @@ void homspace::face_relations()
     }
 }
 
+
+
+// In add_face_rel(rel, types, check):
+//
+//   rel is a list of (positive) (c:d)-symbol numbers i
+//   types is a list of symbol types
+//
+//   such that the corresponding (symbol,type) pairs add to 0 in homology.  We use
+//   the map i -> j = ER.coords(i) to convert this to a vector of
+//   dimension ngens, and append that as a new row to the relation
+//   matrix relmat.
+//
+
+void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types)
+{
+  vector<int>::const_iterator r, t;
+  long c;
+  if (verbose)
+    {
+      cout<<"Relation: ";
+      for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+        cout<<(*r)<<"_"<<(*t)<<" "<<ER->sd->symbol(*r)<<" ";
+      cout <<" --> ";
+    }
+#ifdef USE_SMATS
+  svec relation(ngens);
+#else
+  vec relation(ngens);
+#endif
+  for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+    {
+      c = ER->coords(*r+nsymb*(*t));
+      if(c)
+#ifdef USE_SMATS
+        relation.add(abs(c), sign(c));
+#else
+        relation[abs(c)] += sign(c);
+#endif
+    }
+#ifdef USE_SMATS
+  if(relation.size()==0)
+#else
+  if(trivial(relation))
+#endif
+    {
+      if (verbose) cout<<relation<<endl;
+      return;
+    }
+  numrel++;
+  if(numrel<=maxnumrel)
+    {
+      make_primitive(relation);
+      if (verbose) cout<<relation<<endl;
+      relmat.setrow(numrel,relation);
+    }
+  else
+    cerr<<"Too many face relations (numrel="<<numrel
+        <<", maxnumrel="<<maxnumrel<<")"<<endl;
+}
+
+
 // triangle relation for all fields
-void homspace::triangle_relation_0()
+void face_relations::triangle_relation_0()
 {
   if(verbose)
     {
@@ -177,8 +215,8 @@ void homspace::triangle_relation_0()
     }
   vector<int> rel(3), types(3,0), done(nsymb, 0);
   long j, k;
-  symbop TiS(this, mat22::TiS);
-  symbop R(this, mat22::R);
+  symbop TiS(ER->sd, mat22::TiS);
+  symbop R(ER->sd, mat22::R);
   for (k=0; k<nsymb; k++)
     if (!done[k])
       {
@@ -198,7 +236,7 @@ void homspace::triangle_relation_0()
 }
 
 // extra triangle relation for fields 1, 3
-void homspace::triangle_relation_1_3()
+void face_relations::triangle_relation_1_3()
 {
   if(verbose)
     {
@@ -209,7 +247,7 @@ void homspace::triangle_relation_1_3()
 
   Quad w(0,1);
   long field = Quad::d;
-  symbop X = (field==1? symbop(this,w,1,1,0): symbop(this,1,w,w-1,0));
+  symbop X = (field==1? symbop(ER->sd,w,1,1,0): symbop(ER->sd,1,w,w-1,0));
   assert (X.det()==(field==1? -1: 1));
 
   for (k=0; k<nsymb; k++)
@@ -229,7 +267,7 @@ void homspace::triangle_relation_1_3()
 }
 
 // extra square relation for field 2
-void homspace::square_relation_2()
+void face_relations::square_relation_2()
 {
   if(verbose)
     {
@@ -239,9 +277,9 @@ void homspace::square_relation_2()
   long j, k;
 
   Quad w(0,1);
-  symbop U(this,w,1,1,0);  assert (U.det()==-1);
-  symbop S(this, mat22::S);
-  symbop J(this, mat22::J);
+  symbop U(ER->sd,w,1,1,0);  assert (U.det()==-1);
+  symbop S(ER->sd, mat22::S);
+  symbop J(ER->sd, mat22::J);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -274,7 +312,7 @@ void homspace::square_relation_2()
 }
 
 // extra rectangle relation for field 7
-void homspace::rectangle_relation_7()
+void face_relations::rectangle_relation_7()
 {
   if(verbose)
     {
@@ -284,9 +322,9 @@ void homspace::rectangle_relation_7()
   long j, k;
   Quad w(0,1);
 
-  symbop Y(this,1,-w,1-w,-1);  assert (Y.det()==1);
-  symbop USof(this,w,-1,1,0);  assert (USof.det()==1);
-  symbop R(this, mat22::R);
+  symbop Y(ER->sd,1,-w,1-w,-1);  assert (Y.det()==1);
+  symbop USof(ER->sd,w,-1,1,0);  assert (USof.det()==1);
+  symbop R(ER->sd, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -304,7 +342,7 @@ void homspace::rectangle_relation_7()
 }
 
 // extra hexagon relation for field 11
-void homspace::hexagon_relation_11()
+void face_relations::hexagon_relation_11()
 {
   if(verbose)
     {
@@ -314,12 +352,12 @@ void homspace::hexagon_relation_11()
   long j, k;
   Quad w(0,1);
 
-  //  symbop X(this,1,-w,1-w,-2); // as in JC thesis (order 3)
-  symbop X(this,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
+  //  symbop X(ER->sd,1,-w,1-w,-2); // as in JC thesis (order 3)
+  symbop X(ER->sd,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
   assert (X.det()==1);
-  symbop USof(this,w,-1,1,0);
+  symbop USof(ER->sd,w,-1,1,0);
   assert (USof.det()==1);
-  symbop R(this, mat22::R);
+  symbop R(ER->sd, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -343,14 +381,14 @@ void homspace::hexagon_relation_11()
 // extra triangle relation(s) for fields 19+
 // Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}
 
-void homspace::triangle_relation_2()
+void face_relations::triangle_relation_2()
 {
   int field = Quad::d;
   Quad w = Quad::w;
   int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
-  symbop K(this, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
-  symbop N(this, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
+  symbop K(ER->sd, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
+  symbop N(ER->sd, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
   // triangle to the second with determinant -1.  Both have order 3 so
@@ -407,13 +445,13 @@ int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
 // (M^2)_i = {M(oo), M(alpha_i')} = {alpha_i', alpha_i}
 //
 
-void homspace::cyclic_triangle_relation(int i)
+void face_relations::cyclic_triangle_relation(int i)
 {
   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
   int j, s, Ji = flip(i);
-  symbop M(this, M_alphas[i]);
-  symbop J(this, mat22::J);
+  symbop M(ER->sd, M_alphas[i]);
+  symbop J(ER->sd, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M, M*M};
   vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
@@ -473,7 +511,7 @@ void homspace::cyclic_triangle_relation(int i)
 // have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.  The
 // first is OK since we define flip(0)=0, but not the second.
 
-void homspace::general_triangle_relation(const vector<int>& tri)
+void face_relations::general_triangle_relation(const vector<int>& tri)
 {
   int i=tri[0], j=tri[1], k=tri[2], t;
   if(verbose)
@@ -485,9 +523,9 @@ void homspace::general_triangle_relation(const vector<int>& tri)
   RatQuad x = M_alphas[i](beta)-gamma;
   assert (x.is_integral());
 
-  symbop M1(this, M_alphas[alpha_inv[j]]);
-  symbop M2(this, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
-  symbop J(this, mat22::J);
+  symbop M1(ER->sd, M_alphas[alpha_inv[j]]);
+  symbop M2(ER->sd, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
+  symbop J(ER->sd, mat22::J);
   vector<mat22> mats = {mat22::identity, M1, M2};
 
   int jd = alpha_inv[j];
@@ -498,8 +536,8 @@ void homspace::general_triangle_relation(const vector<int>& tri)
   vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J};
   vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
   Quad w = Quad::w;
-  symbop T1(this, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  symbop T2(this, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
+  symbop T1(ER->sd, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
+  symbop T2(ER->sd, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<3; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;
@@ -544,7 +582,7 @@ void homspace::general_triangle_relation(const vector<int>& tri)
 // {z+alpha_j', beta} = (T^z*M_j*T^x*M_k)_k
 // {beta, alpha_i} = (M_i'*T^y)_l
 
-void homspace::general_square_relation(const vector<int>& squ, const vector<Quad>& xyz)
+void face_relations::general_square_relation(const vector<int>& squ, const vector<Quad>& xyz)
 {
   int i=squ[0], j=squ[1], k=squ[2], l=squ[3], t;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
@@ -556,10 +594,10 @@ void homspace::general_square_relation(const vector<int>& squ, const vector<Quad
       cout<<"square relation "<<squ<<" (x,y,z) = "<<xyz<<"\n";
     }
 
-  symbop M1(this, mat22::Tmat(z) * M_alphas[j]);
-  symbop M2(this, M1 * mat22::Tmat(x) * M_alphas[k]);
-  symbop M3(this, M_alphas[alpha_inv[i]] * mat22::Tmat(y));
-  symbop J(this, mat22::J);
+  symbop M1(ER->sd, mat22::Tmat(z) * M_alphas[j]);
+  symbop M2(ER->sd, M1 * mat22::Tmat(x) * M_alphas[k]);
+  symbop M3(ER->sd, M_alphas[alpha_inv[i]] * mat22::Tmat(y));
+  symbop J(ER->sd, mat22::J);
   vector<mat22> mats = {mat22::identity, M1, M2, M3};
 
   vector<int> types = squ;
@@ -569,8 +607,8 @@ void homspace::general_square_relation(const vector<int>& squ, const vector<Quad
   vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J, J*M3*J};
   vector<int> Jtypes = {flip(i), flip(j), flip(k), flip(l)};
   Quad w = Quad::w;
-  symbop T1(this, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  symbop T2(this, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
+  symbop T1(ER->sd, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
+  symbop T2(ER->sd, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<4; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;
@@ -607,3 +645,110 @@ void homspace::general_square_relation(const vector<int>& squ, const vector<Quad
       cout << "After square relation "<< squ <<", number of relations = " << numrel <<"\n";
     }
 }
+
+void face_relations::solve_relations()
+{
+  vec npivs; // pivs is a class attribute
+   int i;
+   if(verbose>1)
+     {
+       mat M = relmat.as_mat().slice(numrel,ngens);
+       cout<<"relmat = "<<M<<endl;
+       cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
+     }
+#if(USE_SMATS)
+#ifdef TIME_RELATION_SOLVING
+   if (verbose)
+     {
+       cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
+     }
+   timer t;
+   t.start("relation solver");
+#endif
+   smat_elim sme(relmat);
+   int d1;
+   smat ker = sme.kernel(npivs, pivs), sp;
+#ifdef TIME_RELATION_SOLVING
+   t.stopAll();
+   if (verbose)
+     {
+       cout<<"Finished solving relation matrix in ";
+       t.showAll();
+       cout<<"\n";
+     }
+#endif
+   int ok = liftmat(ker,MODULUS,sp,d1);
+   if (!ok)
+     {
+       if(verbose)
+         cout << "failed to lift modular kernel using modulus "
+              << MODULUS << endl;
+#ifdef USE_CRT
+       int mod2 = 1073741783; // 2^30-41
+       bigint mmod = to_ZZ(MODULUS)*to_ZZ(mod2);
+       if(verbose)
+         cout << "repeating kernel computation, modulo " << mod2 << endl;
+       smat_elim sme2(relmat,mod2);
+       vec pivs2, npivs2;
+       smat ker2 = sme2.kernel(npivs2,pivs2), sp2;
+       ok = (pivs==pivs2);
+       if (!ok)
+         {
+           cout<<"pivs do not agree:\npivs  = "<<pivs<<"\npivs2 = "<<pivs2<<endl;
+         }
+       else
+         {
+           if(verbose) cout << " pivs agree" << endl;
+           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+         }
+       if (ok)
+         {
+           if(verbose)
+             cout << "success using CRT, combined modulus = "<<mmod
+                  <<", denominator= " << d1 << "\n";
+         }
+       else
+         {
+           if(verbose)
+             cout << "CRT combination with combined modulus "<<mmod<<" failed\n" << endl;
+         }
+#endif
+     }
+   if (ok)
+     {
+       denom1 = d1;
+     }
+   else
+     {
+       hmod = MODULUS;
+       denom1 = 1;
+     }
+   relmat=smat(0,0); // clear space
+   if(verbose>1)
+     {
+       cout << "kernel of relmat = " << sp.as_mat() << endl;
+       cout << "pivots = "<<pivs << endl;
+       cout << "denom = "<<d1 << endl;
+     }
+   rk = sp.ncols();
+   coord.init(ngens+1,rk); // 0'th is unused
+   for(i=1; i<=ngens; i++)
+     coord.setrow(i,sp.row(i).as_vec());
+   // if hmod>0, coord is only defined modulo hmod
+   sp=smat(0,0); // clear space
+#else
+  relmat = relmat.slice(numrel,ngens);
+  if(verbose)
+    {
+      cout << "relmat = "; relmat.output_pari(cout); cout << endl;
+    }
+  msubspace sp = kernel(mat_m(relmat),0);
+  rk = dim(sp);
+  if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
+  coord = basis(sp).shorten((int)1);
+  pivs = pivots(sp);
+  denom1 = I2int(denom(sp));
+  relmat.init(); sp.clear();
+#endif
+}
+

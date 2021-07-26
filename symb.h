@@ -11,6 +11,7 @@ class symblist;
 class symbdata;
 class symbop;
 class edge_relations;
+class face_relations;
 
 class symb {
  private:
@@ -57,6 +58,7 @@ public:
   void display() const;
   int check(int verbose=0) const;
   friend class edge_relations;
+  friend class face_relations;
 };
 
 class symbop :public mat22
