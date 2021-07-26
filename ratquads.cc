@@ -2,6 +2,8 @@
 
 #include "ratquads.h"
 #include "qideal.h"
+#include "mat22.h"
+#include "geometry.h"
 
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
@@ -112,3 +114,26 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   return 0;
 }
 
+// if type = t>=0 , return U{alpha[i],oo}
+// if type = -s<0 , return U{singular_points[s],oo}
+modsym::modsym(const mat22& U, int type) // U in SL2
+{
+  Quad n=1, d=0; // n/d=oo
+  U.apply_left(n,d);
+  b = RatQuad(n,d); // = U(oo); no need to reduce as n,d are coprime
+
+  RatQuad alpha;
+  if(type==0) // always true for Euclidean fields: apply to {0,oo}
+    alpha = RatQuad(0);
+  else
+   if (type>0) // apply to {alpha,oo} where alpha = alphas[type]
+     {
+       mat22 M = M_alphas[type];
+       alpha = RatQuad(-M.d, M.c);
+     }
+   else // type=t<0 means apply to {sigma,oo} where sigma = singular_points[-t]
+     {
+       alpha = singular_points[-type];
+     }
+  a = U(alpha);
+}

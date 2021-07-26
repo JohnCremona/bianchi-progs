@@ -1137,7 +1137,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
   else // code for non-Euclidean fields
 
     {
-      imagej = h1->applyop(matop(p,h1->modulus), modsym(s, s_type), 1);
+      imagej = h1->applyop(matop(p,h1->modulus), modsym(s.lift_to_SL2(), s_type), 1);
     }
 
       images[j]=imagej/(h1->h1denom());

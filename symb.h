@@ -31,19 +31,6 @@ class symb {
    friend class mat22;
 };
 
-class modsym {
- private:
-    RatQuad a,b;
- public:
-    modsym() :a(0), b(0) {}
-    modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
-    modsym(const symb&, int type=0);                        //conversion
-    RatQuad alpha() const {return a;}
-    RatQuad  beta() const {return b;}
-    modsym reverse() const {return modsym(b,a);}
-    friend ostream& operator<< (ostream& s, const modsym& m); //inline below
-};
-
 class symblist {
  private:
   vector<symb> symbols;
@@ -97,12 +84,6 @@ public:
 inline ostream& operator<< (ostream& s, const symb& sy)
 {
    s << "(" << sy.c << ":" << sy.d << ")";
-   return s;
-}
-
-inline ostream& operator<< (ostream& s, const modsym& m)
-{
-   s << "{" << (m.a) << "," << (m.b) << "}";
    return s;
 }
 

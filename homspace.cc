@@ -279,7 +279,7 @@ void homspace::make_freemods()
           t = st.quot; // quotient gives symbol type
           //      cout<<"(s,t) = ("<<s<<","<<t<<")\n";
         }
-      m = modsym(symbol(s), t);
+      m = modsym(symbol(s).lift_to_SL2(), t);
       freemods.push_back(m);
       if (verbose) cout<<m<<endl;
     }

@@ -67,6 +67,18 @@ private:
   Quad d, n;
 };
 
+class modsym {
+ private:
+    RatQuad a,b;
+ public:
+    modsym() :a(0), b(0) {}
+    modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
+    modsym(const mat22& M, int type=0);              //conversion from (c:d)
+    RatQuad alpha() const {return a;}
+    RatQuad  beta() const {return b;}
+    modsym reverse() const {return modsym(b,a);}
+    friend ostream& operator<< (ostream& s, const modsym& m); //inline below
+};
 
 // Inline RatQuad functions
 
@@ -228,5 +240,11 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
 // General case: N is a Qideal
 
 int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
+
+inline ostream& operator<< (ostream& s, const modsym& m)
+{
+   s << "{" << (m.a) << "," << (m.b) << "}";
+   return s;
+}
 
 #endif

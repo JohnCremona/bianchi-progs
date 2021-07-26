@@ -20,27 +20,6 @@ mat22 symb::lift_to_SL2() const
   return mat22(y,-x,sc,sd);
 }
 
-modsym::modsym(const symb& s, int type) //Constructor for modsym, converting from symb:
-{
-  mat22 U = s.lift_to_SL2();
-  Quad n=1, d=0; // n/d=oo
-  U.apply_left(n,d);
-  b = RatQuad(n,d); // no need to reduce as n,d are coprime
-  if(type==0) // always true for Euclidean fields: apply to {0,oo}
-   {
-     n=0; d=1; // 0
-     U.apply_left(n,d);
-     a = RatQuad(n,d); // =M(0) // no need to reduce as n,d are coprime
-   }
- else // apply to {alpha,oo} where alpha = alphas[type]
-   {
-     mat22 M = M_alphas[type];
-     n = -M.d; d = M.c; // alpha = r/s
-     U.apply_left(n,d);
-     a = RatQuad(n,d, 1); //  =M(alpha), reduced
-   }
-}
-
 //Members of class symblist:
 
 void symblist::display() const
