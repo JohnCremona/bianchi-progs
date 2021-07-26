@@ -52,6 +52,16 @@ Qideal::Qideal(const Qideal& i)   // the copy constructor
     }
 }
 
+Qideal::~Qideal()
+{
+  // if (F!=0)
+  //   {
+  //     delete F;
+  //     F = 0;
+  //   }
+}
+
+
 Qideal::Qideal(const long& aa, const long& bb, const long& cc)
 {
   if (cc==0)

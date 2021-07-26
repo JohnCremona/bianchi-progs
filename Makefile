@@ -118,7 +118,7 @@ tmquads: tmquads.o mquads.o
 
 OBJS = symb.o moddata.o quads.o intprocs.o euclid.o geometry.o looper.o cusp.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o ratquads.o
+       primes.o mat22.o ratquads.o P1N.o
 
 tmanin: tmanin.o $(OBJS)
 	$(CC) -g -o tmanin tmanin.o $(OBJS) $(LFLAGS)
@@ -219,7 +219,7 @@ hecketest.o: hecketest.cc homspace.h moddata.h quads.h ratquads.h mat22.h \
 homspace.o: homspace.cc homspace.h moddata.h quads.h ratquads.h mat22.h \
  cusp.h symb.h edge_relations.h geometry.h face_relations.h euclid.h
 homtest.o: homtest.cc homspace.h moddata.h quads.h ratquads.h mat22.h \
- cusp.h symb.h edge_relations.h geometry.h face_relations.h looper.h
+ cusp.h symb.h edge_relations.h geometry.h face_relations.h looper.h P1N.h
 intprocs.o: intprocs.cc intprocs.h
 lf1.o: lf1.cc lf1.h newforms.h oldforms.h moddata.h quads.h ratquads.h \
  mat22.h homspace.h cusp.h symb.h edge_relations.h geometry.h \

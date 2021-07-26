@@ -6,6 +6,7 @@
 #include "edge_relations.h"
 #include "face_relations.h"
 #include "euclid.h"
+#include "P1N.h"
 
 class homspace :public symbdata {
 friend class newforms;
@@ -16,6 +17,7 @@ public:
   long rk, denom1, denom2, dimension, denom3, ncusps;
   edge_relations ER;
   face_relations FR;
+  P1N Level;
   long ngens;
 
   ssubspace kern;
@@ -25,6 +27,11 @@ public:
   long hmod; // if >0, failed to lift from modular linear algebra
              // so coord is modulo this
 
+  // fields used from dependent classes:
+  // int plusflag;
+  // quad modulus;
+  // symbol(i)
+  
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology

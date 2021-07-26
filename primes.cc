@@ -527,15 +527,6 @@ Factorization Qideal::factorization() // sets F if necessary then returns F
   return *F;
 }
 
-Qideal::~Qideal()
-{
-  if (F!=0)
-    {
-      delete F;
-      F = 0;
-    }
-}
-
 int Qideal::is_square()
 {
   vector<int>ee = factorization().exponents();

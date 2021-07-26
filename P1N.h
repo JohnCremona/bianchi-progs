@@ -17,6 +17,7 @@ vector<long> split_indices(const vector<long>& nlist, long k);
 
 class P1N {
   vector<long> residue_codes, noninvertible_residue_indices;
+
   // for prime powers only (NB resnum[0]=0 always):
   // : residue_codes[i] = j >0 if resnum[i] is invertible with inverse resnum[j]
   // : residue_codes[i] =-j <=0 if resnum[i] is the j'th noninvertible residue
@@ -25,7 +26,21 @@ class P1N {
   vector<P1N> P1PP; // one for each prime power dividing N when N is *not* a prime power
   vector<long> psilist; // phi of each prime power
 public:
+  P1N() {;}                                            //constructor
   P1N(const Qideal& I);                                //constructor
+
+  void operator=(const P1N other)
+  {
+    residue_codes = other.residue_codes;
+    noninvertible_residue_indices = other.noninvertible_residue_indices;
+    P1PP = other.P1PP;
+    psilist = other.psilist;
+    nrm = other.nrm;
+    phi = other.phi;
+    psi = other.psi;
+    np = other.np;
+    N = other.N;
+  }
   void make_symb(long i, Quad& c, Quad& d); // assign c, d to the i'th (c:d) symbol
   long index(const Quad& c, const Quad& d); // index i of (c:d)
   long size() {return psi;}

@@ -11,6 +11,7 @@
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
+  Level=P1N(n);
   verbose=verb;
   cuspidal=cuspid;
   hmod = 0;
@@ -38,10 +39,6 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 
   if (verbose) cout << "Finished constructing homspace.\n";
 }
-
-#ifdef USE_CRT
-int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
-#endif
 
 void homspace::kernel_delta()
 {
@@ -207,69 +204,6 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
    return ans;
 }
 
-
-
-// The remaining methods for class homspace are implelemted in
-// edge_relations.cc, face_relations.cc and hecke.cc.
-
-// Below are implementations of linear algebra utility functions
-// reduce_modp (for vec and mat) and liftmats_chinese.
-
-
-#ifdef USE_CRT
-
-//#define DEBUG_CHINESE
-
-int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2,
-                     smat& m, scalar& dd)
-{
-  long modulus=(long)pr1*(long)pr2,n,d,mij;
-  long nr,nc,u,v;
-  float lim=floor(sqrt(modulus/2.0));
-
-  dd = bezout(pr1,pr2,u,v); //==1
-  if (dd!=1) return 0;
-
-  // First time through: compute CRTs, common denominator and success flag
-  m = m1; // NB We assume that m1 and m2 have nonzero entries in the same places
-  for(nr=0; nr<m1.nro; nr++)
-    for(nc=0; nc<m1.col[nr][0]; nc++)
-      {
-        mij = mod(v*m1.val[nr][nc],pr1)*pr2 + mod(u*m2.val[nr][nc],pr2)*pr1;
-        mij = mod(mij,modulus);
-#ifdef DEBUG_CHINESE
-        if (((mij-m1.val[nr][nc])%pr1)||((mij-m2.val[nr][nc])%pr2))
-          {
-            cout<< "bad CRT(["<<m1.val[nr][nc]<<","<<m2.val[nr][nc]<<"],["<<pr1<<","<<pr2<<"]) = "<<mij<<endl;
-          }
-#endif
-        m.val[nr][nc] = mij;
-	if (modrat(mij,modulus,lim,n,d))
-          dd=lcm(d,dd);
-        else
-          {
-#ifdef DEBUG_CHINESE
-            cout<<"CRT("<<m1.val[nr][nc]<<","<<m2.val[nr][nc]<<")="<<mij<<" (mod "<<modulus<<") fails to lift (lim="<<lim<<")\n";
-            cout << "Problems encountered in chinese lifting of smat modulo "<<pr1<<" and "<<pr2<< endl;
-#endif
-            return 0;
-          }
-      }
-  dd=abs(dd);
-#ifdef DEBUG_CHINESE
-  cout << "Common denominator = " << dd << "\n";
-#endif
-  // Second time through: rescale
-  for(nr=0; nr<m.nro; nr++)
-    for(nc=0; nc<m.col[nr][0]; nc++)
-      {
-        m.val[nr][nc] = mod(xmodmul((dd/d),(long)m.val[nr][nc],modulus),modulus);
-      }
-  return 1;
-}
-
-#endif
-
 vec reduce_modp(const vec& v, const scalar& p)
 {
   int i, d=dim(v);
@@ -300,3 +234,5 @@ mat reduce_modp(const mat& m, const scalar& p)
       }
   return ans;
 }
+
+// The remaining methods for class homspace are implemented in hecke.cc.
