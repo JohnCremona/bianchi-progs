@@ -216,7 +216,7 @@ void homspace::kernel_delta()
 {
   if (verbose)
     cout<<"Computing boundary map"<<endl;
-  cusplist cusps(2*rk,this);
+  cusplist cusps(modulus, plusflag);
   mat deltamat(2*rk,rk);
   int i;
   for (i=0; i<rk; i++)

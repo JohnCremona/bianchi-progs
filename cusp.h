@@ -5,11 +5,12 @@
 
 class cusplist {
  private:
-    const moddata* N;
-    vector<RatQuad> cusps;
+  Quad N;
+  int plusflag;
+  vector<RatQuad> cusps;
  public:
-  cusplist(int n=0, const moddata* iN=0)
-    :N(iN)
+  cusplist(const Quad& level, int plus)
+    :N(level), plusflag(plus)
   {;}
   int index(const RatQuad& a); // adds to list if new
   RatQuad item(int n) const {return cusps[n];}
