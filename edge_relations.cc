@@ -5,13 +5,12 @@
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(symbdata* s, int verb)
-  :sd(s), verbose(verb)
+edge_relations::edge_relations(symbdata* s, int plus, int verb)
+  :sd(s), plusflag(plus), verbose(verb)
 {
   int field = Quad::d;
-  plusflag = sd->plusflag;
   nsymb = sd->nsymb;
-  nsymbx = sd->nsymbx;
+  nsymbx = nsymb*n_alphas;
   ngens=0;
   coordindex.resize(nsymbx);
   gens.reserve(1+nsymbx);  //NB start of gens array is at 1 not 0

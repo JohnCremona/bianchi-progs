@@ -19,7 +19,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
   if (verbose) symbdata::display();
   plusflag=hp;                  // Sets static level::plusflag = hp
 
-  ER = edge_relations(this, verb);
+  ER = edge_relations(this, hp, verb);
   ngens = ER.get_ngens();
 
   face_relations(); // fills relmat with the relations

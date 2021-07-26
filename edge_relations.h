@@ -9,14 +9,14 @@
 class edge_relations {
 public:
   edge_relations() {;}
-  edge_relations(symbdata*, int verb=0);
+  edge_relations(symbdata*, int plus, int verb=0);
   int coords(int i) const {return coordindex[i];}
   int gen(int i) const {return gens[i];}  // indexed from 1 not 0
   int get_ngens() const {return ngens;}
 
 private:
-  symbdata* sd; // provides plusflag, nsymb, symbol(i), symbops
-  int verbose, plusflag, nsymb, nsymbx, ngens;
+  symbdata* sd; // provides nsymb, symbol(i), symbops
+  int plusflag, verbose, nsymb, nsymbx, ngens;
   vector<int> coordindex, gens;
 
   void edge_relations_1();    // basic edge relations for alpha = 0
