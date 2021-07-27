@@ -2,6 +2,8 @@
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
+#include "mat22.h"
+#include "ratquads.h"
 #include "homspace.h"
 
 const string W_opname("W");
@@ -42,7 +44,7 @@ vector<long> homspace::eigrange(long i)  // implementing virtal function in matm
     }
 }
 
-vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj) const
+vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
   for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
@@ -57,7 +59,7 @@ vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj) const
   return ans;
 }
 
-vec homspace::applyop(const matop& mlist, const modsym& m, int proj) const
+vec homspace::applyop(const matop& mlist, const modsym& m, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
   for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
@@ -72,7 +74,7 @@ vec homspace::applyop(const matop& mlist, const modsym& m, int proj) const
   return ans;
 }
 
-mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int dual, int display) const
+mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int dual, int display)
 {
   mat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
@@ -87,14 +89,14 @@ mat homspace::calcop(const string opname, const Quad& p, const matop& mlist, int
   return m;
 }
 
-vec homspace::calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display) const
+vec homspace::calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display)
 {
   vec colj = applyop(mlist,freemods[j-1]);
   if(hmod) colj=reduce_modp(colj,hmod);
   return colj;
 }
 
-mat homspace::calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display) const
+mat homspace::calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display)
 {
   int i, j, d = dim(jlist);
   mat m(d,rk);
@@ -108,7 +110,7 @@ mat homspace::calcop_cols(const string opname, const Quad& p, const matop& mlist
   return m;
 }
  
-smat homspace::s_calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display) const
+smat homspace::s_calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display)
 {
   int i, j, d = dim(jlist);
   smat m(d,rk);
@@ -122,8 +124,7 @@ smat homspace::s_calcop_cols(const string opname, const Quad& p, const matop& ml
   return m;
 }
  
-smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist, 
-			int dual, int display) const
+smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist, int dual, int display)
 {
   smat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
@@ -146,7 +147,7 @@ smat homspace::s_calcop(const string  opname, const Quad& p, const matop& mlist,
   return m;
 }
 
-mat homspace::calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s, int dual, int display) const
+mat homspace::calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s, int dual, int display)
 {
   long d=dim(s);
   mat m(d,rk);
@@ -167,7 +168,7 @@ mat homspace::calcop_restricted(const string opname, const Quad& p, const matop&
   return m;
 }
  
-smat homspace::s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s, int dual, int display) const
+smat homspace::s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s, int dual, int display)
 {
   long d=dim(s);
   smat m(d,rk);
@@ -188,63 +189,63 @@ smat homspace::s_calcop_restricted(const string opname, const Quad& p, const mat
     }
   return m;
 }
- 
-mat homspace::heckeop(const Quad& p, int dual, int display) const
+
+mat homspace::heckeop(const Quad& p, int dual, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return calcop(name,p,matlist,dual,display);
 }
  
-vec homspace::heckeop_col(const Quad& p, int j, int display) const
+vec homspace::heckeop_col(const Quad& p, int j, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return calcop_col(name,p,matlist,j,display);
 }
  
-mat homspace::heckeop_cols(const Quad& p, const vec& jlist, int display) const
+mat homspace::heckeop_cols(const Quad& p, const vec& jlist, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return calcop_cols(name,p,matlist,jlist,display);
 }
  
-smat homspace::s_heckeop_cols(const Quad& p, const vec& jlist, int display) const
+smat homspace::s_heckeop_cols(const Quad& p, const vec& jlist, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return s_calcop_cols(name,p,matlist,jlist,display);
 }
  
-smat homspace::s_heckeop(const Quad& p, int dual, int display) const
+smat homspace::s_heckeop(const Quad& p, int dual, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return s_calcop(name,p,matlist,dual,display);
 }
  
-mat homspace::heckeop_restricted(const Quad& p, const subspace& s, int dual, int display) const
+mat homspace::heckeop_restricted(const Quad& p, const subspace& s, int dual, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return calcop_restricted(name,p,matlist,s,dual,display);
 }
  
-smat homspace::s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display) const
+smat homspace::s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display)
 {
  matop matlist(p,modulus);
  string name = (div(p,modulus)) ? W_opname : T_opname;
  return s_calcop_restricted(name,p,matlist,s,dual,display);
 }
  
-mat homspace::wop(const Quad& q, int dual, int display) const
+mat homspace::wop(const Quad& q, int dual, int display)
 {
  matop matlist(q,modulus);
  return calcop(W_opname,q,matlist,dual,display);
 }
  
-mat homspace::fricke(int dual, int display) const
+mat homspace::fricke(int dual, int display)
 {
  matop frickelist(modulus,modulus);
  return calcop(W_opname,modulus,frickelist,dual,display);
@@ -332,7 +333,7 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
   else return s_heckeop_restricted(p,s,dual,0); // Automatically chooses W or T
 }
 
-vec homspace::maninvector(const Quad& p) const
+vec homspace::maninvector(const Quad& p)
 {
   vector<Quad> resmodp=residues(p);
   vec ans = chain(0,p), part;             // =0, but sets the right length.
@@ -349,7 +350,7 @@ vec homspace::maninvector(const Quad& p) const
   return ans;
 }
 
-vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const
+vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable)
 {
   vec ans = chain(0,lambda), part;          // =0, but sets the right length.
   vector<int>::const_iterator chi=chitable.begin();
@@ -368,7 +369,7 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
 
 #if (0) // methods not used
 
-vec homspace::projmaninvector(const Quad& p) const    // Will only work after "proj"
+vec homspace::projmaninvector(const Quad& p)    // Will only work after "proj"
 {
   vector<Quad> resmodp=residues(p);
   vec ans = projchain(0,p), part;         // =0, but sets the right length.
@@ -385,7 +386,7 @@ vec homspace::projmaninvector(const Quad& p) const    // Will only work after "p
   return ans;
 }
 
-vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d) const
+vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d)
                                      // Will only work after "proj"
 {
   vec ans = projchain(p*n,d), part;

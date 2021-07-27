@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <eclib/arith.h>
+#include "mat22.h"
 #include "qideal.h"
 #include "primes.h"
 
@@ -43,10 +44,10 @@ public:
   }
   void make_symb(long i, Quad& c, Quad& d); // assign c, d to the i'th (c:d) symbol
   long index(const Quad& c, const Quad& d); // index i of (c:d)
-  long size() {return psi;}
+  long size() const {return psi;}
 
-  long merge_indices(const vector<long>& klist) {return ::merge_indices(psilist, klist);}
-  vector<long> split_indices(long k) {return ::split_indices(psilist, k);}
+  long merge_indices(const vector<long>& klist) const {return ::merge_indices(psilist, klist);}
+  vector<long> split_indices(long k) const {return ::split_indices(psilist, k);}
 
   // return a matrix M = [a, b; c, d] with det=1 lifting the i'th (c:d) symbol
   mat22 lift_to_SL2(long i);
@@ -62,5 +63,23 @@ protected:
   int np;    // number of bad primes
 };
 
+// class for action of 2x2 matrices on a P1N
+class action  :public mat22 {
+private:
+  P1N* level;
+public:
+  action(P1N* N, const mat22& mm) : mat22(mm), level(N) {}
+  action(P1N* N, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), level(N)  {}
+
+  // Right action of a 2x2 matrix on P^1(N) mapping input symbol's
+  // index to output symbol's index:
+
+  int operator()(int i) const
+  {
+    int j = level->apply(*this, i);
+    //    cout<<" - applying "<<(*this)<<" to symbol #"<<i<<" gives symbol #"<<j<<endl;
+    return j;
+  }
+};
 
 #endif

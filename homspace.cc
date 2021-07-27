@@ -11,14 +11,15 @@
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
 {
-  Level=P1N(n);
+  cosets=P1N(n);
+  nsymb = cosets.size();
   verbose=verb;
   cuspidal=cuspid;
   hmod = 0;
   if (verbose) symbdata::display();
   plusflag=hp;                  // Sets static level::plusflag = hp
 
-  ER = edge_relations(this, hp, verb);
+  ER = edge_relations(&cosets, hp, verb);
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb); // fills relmat with the relations and solves
@@ -35,9 +36,65 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
       cout << "number of cusps = " << ncusps << endl;
       if (cuspidal)
         cout << "dimension = " << dimension << endl;
+      cout<<"denom1 = "<<denom1<<endl;
+      cout<<"denom2 = "<<denom2<<endl;
+      cout<<"denom3 = "<<denom3<<endl;
     }
 
   if (verbose) cout << "Finished constructing homspace.\n";
+}
+
+void homspace::make_freemods()
+{
+  if (rk==0) return;
+
+  int i,j,s,t=0;
+  modsym m;
+
+  freegens.resize(rk);
+  for (i=0; i<rk; i++)
+    freegens[i] = ER.gen(FR.gen(i+1));
+  if (verbose)
+    {
+      cout << "freegens: ";
+      for (i=0; i<rk; i++) cout << freegens[i] << " ";
+      cout << endl;
+    }
+
+  if (verbose)
+    cout << "Freemods:\n";
+
+  for (i=0; i<rk; i++)
+    {
+      s = j = freegens[i];
+      if (n_alphas>1)
+        {
+          std::ldiv_t st = ldiv(j, nsymb);
+          s = st.rem;  // remainder gives (c:d) symbol number
+          t = st.quot; // quotient gives symbol type
+        }
+      //mat22 U = cosets.lift_to_SL2(s);
+      //cout<<"lifting symbol #"<<s<<" to SL2: --> "<<U<<endl;
+      m = modsym(cosets.lift_to_SL2(s), t);
+      //cout<<" --> "<<m<<" (type "<<t<<")"<<endl;
+      freemods.push_back(m);
+      if (verbose) cout<<m<<endl;
+    }
+  if (verbose)
+    {
+      vec ei(rk);
+      for (i=0; i<rk; i++)
+        {
+          m = freemods[i];
+          vec v = chain(m.beta()) - chain(m.alpha());
+          cout<< m << " --> " << v;
+          ei[i+1] = denom1;
+          if (v!=ei)
+            cout<<" *** WRONG, should be "<<ei;
+          cout<<endl;
+          ei[i+1] = 0;
+        }
+    }
 }
 
 void homspace::kernel_delta()
@@ -91,59 +148,9 @@ void homspace::kernel_delta()
     }
 }
 
-void homspace::make_freemods()
+vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
-  if (rk==0) return;
-
-  int i,j,s,t=0;
-  modsym m;
-
-  freegens.resize(rk);
-  for (i=0; i<rk; i++)
-    freegens[i] = ER.gen(FR.gen(i+1));
-  if (verbose)
-    {
-      cout << "freegens: ";
-      for (i=0; i<rk; i++) cout << freegens[i] << " ";
-      cout << endl;
-    }
-
-  if (verbose)
-    cout << "Freemods:\n";
-
-  for (i=0; i<rk; i++)
-    {
-      s = j = freegens[i];
-      if (n_alphas>1)
-        {
-          std::ldiv_t st = ldiv(j, nsymb);
-          s = st.rem;  // remainder gives (c:d) symbol number
-          t = st.quot; // quotient gives symbol type
-        }
-      m = modsym(symbol(s).lift_to_SL2(), t);
-      freemods.push_back(m);
-      if (verbose) cout<<m<<endl;
-    }
-  if (verbose)
-    {
-      vec ei(rk);
-      for (i=0; i<rk; i++)
-        {
-          m = freemods[i];
-          vec v = chain(m.beta()) - chain(m.alpha());
-          cout<< m << " --> " << v;
-          ei[i+1] = denom1;
-          if (v!=ei)
-            cout<<" *** WRONG, should be "<<ei;
-          cout<<endl;
-          ei[i+1] = 0;
-        }
-    }
-}
-
-vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
-{
-  long i= ER.coords(index2(c,d) + nsymb*type);
+  long i= ER.coords(cosets.index(c,d) + nsymb*type);
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)
@@ -153,7 +160,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj) const
 
 //#define DEBUG_NON_EUCLID
 
-vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj) const
+vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // Instead of just
 //  {return chain(beta, proj) - chain(alpha, proj);}
 // we apply "Karim's trick"
@@ -170,7 +177,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj) const
   return chain(M(beta), proj, c, d);
 }
 
-vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd) const
+vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd)
 {
   Quad e, a(aa), b(bb), c(cc), d(dd), q, f;
   vec ans = chaincd(c,d,0,proj); // this is the path {0,oo} when (c:d)=(0:1) (the default)

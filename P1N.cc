@@ -182,7 +182,7 @@ long P1N::apply(const mat22& M, long i)
   jlist.reserve(np);
   for (int k=0; k<np; k++)
     jlist.push_back(P1PP[k].apply(M,ilist[k]));
-  return merge_indices(ilist);
+  return merge_indices(jlist);
 }
 
 // compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
@@ -205,6 +205,7 @@ mat22 P1N::lift_to_SL2(long i)
   c /= h;
   d /= h;
   assert (y*d+x*c==1);
+  assert (index(c,d)==i);
   return mat22(y,-x,c,d);
 }
 

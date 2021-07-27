@@ -173,9 +173,9 @@ public:
 
   Qideal conj() const;            // returns the conjugate ideal
 
-  Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal
+  Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal (not const; may fill())
   Quad resnum(int i); // the i'the residue mod this, in standard order (0'th is 0)
-  int numres(const Quad& alpha); // the index of a residue mod this, in standard order (0'th is 0)
+  int numres(const Quad& alpha) const; // the index of a residue mod this, in standard order (0'th is 0)
   // return a list of (reduced) residues modulo this ideal:
   vector<Quad> residues();
   // return a list of (reduced) invertible residues modulo this ideal, and a list of their inverses

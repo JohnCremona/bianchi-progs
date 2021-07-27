@@ -3,10 +3,11 @@
 #if     !defined(_HOMSPACE_H)
 #define _HOMSPACE_H      1       //flags that this file has been included
 
-#include "edge_relations.h"
-#include "face_relations.h"
 #include "euclid.h"
 #include "P1N.h"
+#include "symb.h"
+#include "edge_relations.h"
+#include "face_relations.h"
 
 class homspace :public symbdata {
 friend class newforms;
@@ -17,7 +18,7 @@ public:
   long rk, denom1, denom2, dimension, denom3, ncusps;
   edge_relations ER;
   face_relations FR;
-  P1N Level;
+  P1N cosets;
   long ngens;
 
   ssubspace kern;
@@ -56,64 +57,59 @@ public:
    long h1ncusps() const {return ncusps;}
    long h1hmod() const {return hmod;}
 
-  vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0) const;
-  vec chain(const symb& s, int type=0, int proj=0) const
+  vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
+  vec chain(const symb& s, int type=0, int proj=0)
   {return chaincd(s.cee(), s.dee(), type, proj);}
-  vec projchaincd(const Quad& c, const Quad& d, int type=0) const
+  vec projchaincd(const Quad& c, const Quad& d, int type=0)
   {return chaincd(c, d, type, 1);}
-  vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one) const;
-  vec projchain(const Quad& a, const Quad& b, const Quad& c=Quad::zero, const Quad& d=Quad::one) const
+  vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);
+  vec projchain(const Quad& a, const Quad& b, const Quad& c=Quad::zero, const Quad& d=Quad::one)
   {return chain(a, b, 1, c, d);}
-  vec chain(const RatQuad& r, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one) const
+  vec chain(const RatQuad& r, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one)
   {return chain(r.num(), r.den(), proj, c, d);}
-  vec chain(const RatQuad& alpha, const RatQuad& beta, int proj=0) const;
-  vec chain(const modsym& m, int proj=0) const
+  vec chain(const RatQuad& alpha, const RatQuad& beta, int proj=0);
+  vec chain(const modsym& m, int proj=0)
   {return chain(m.alpha(), m.beta(), proj);}
 
   vec kernelpart(const vec& v) const
   {return v[pivots(kern)];}
-  vec cycle(const symb& s, int type=0) const
+  vec cycle(const symb& s, int type=0)
   {return kernelpart(chain(s, type));}
-  vec cycle(const Quad& n, const Quad& d) const
+  vec cycle(const Quad& n, const Quad& d)
   {return kernelpart(chain(n,d));}
-  vec cycle(const RatQuad& r) const
+  vec cycle(const RatQuad& r)
   {return kernelpart(chain(r.num(), r.den()));}
-  vec cycle(const modsym& m) const
+  vec cycle(const modsym& m)
   {return cycle(m.beta())-cycle(m.alpha());}
 
-  vec applyop(const matop& mlist, const RatQuad& m, int proj=0) const;
-  vec applyop(const matop& mlist, const modsym& m, int proj=0) const;
+  vec applyop(const matop& mlist, const RatQuad& m, int proj=0);
+  vec applyop(const matop& mlist, const modsym& m, int proj=0);
 
-  mat calcop(const string opname, const Quad& p, const matop& mlist, int dual=1, int display=0) const;
-  vec calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display=0) const;
-  mat calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display=0) const;
-  smat s_calcop(const string  opname, const Quad& p, const matop& mlist,
-                int dual, int display) const;
-  svec s_calcop_col(const string  opname, const Quad& p, const matop& mlist,
-                    int j, int display) const;
-  smat s_calcop_cols(const string  opname, const Quad& p, const matop& mlist,
-                     const vec& jlist, int display) const;
-  mat calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s,
-                        int dual, int display) const;
-  smat s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s,
-                           int dual, int display) const;
+  mat calcop(const string opname, const Quad& p, const matop& mlist, int dual=1, int display=0);
+  vec calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display=0);
+  mat calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display=0);
+  smat s_calcop(const string  opname, const Quad& p, const matop& mlist, int dual, int display);
+  svec s_calcop_col(const string  opname, const Quad& p, const matop& mlist, int j, int display);
+  smat s_calcop_cols(const string  opname, const Quad& p, const matop& mlist, const vec& jlist, int display);
+  mat calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s, int dual, int display);
+  smat s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s, int dual, int display);
 
 public:
-   mat heckeop(const Quad& p, int dual=1, int display=0) const;
-   vec heckeop_col(const Quad& p, int j, int display=0) const;
-   mat heckeop_cols(const Quad& p, const vec& jlist, int display=0) const;
-   smat s_heckeop(const Quad& p, int dual, int display) const;
-   svec s_heckeop_col(const Quad& p, int j, int display) const;
-   smat s_heckeop_cols(const Quad& p, const vec& jlist, int display) const;
-   mat heckeop_restricted(const Quad& p, const subspace& s, int dual, int display) const;
-   smat s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display) const;
-   mat wop(const Quad& q, int dual=1, int display=0) const;
-   mat fricke(int dual=1, int display=0) const;
+   mat heckeop(const Quad& p, int dual=1, int display=0);
+   vec heckeop_col(const Quad& p, int j, int display=0);
+   mat heckeop_cols(const Quad& p, const vec& jlist, int display=0);
+   smat s_heckeop(const Quad& p, int dual, int display);
+   svec s_heckeop_col(const Quad& p, int j, int display);
+   smat s_heckeop_cols(const Quad& p, const vec& jlist, int display);
+   mat heckeop_restricted(const Quad& p, const subspace& s, int dual, int display);
+   smat s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display);
+   mat wop(const Quad& q, int dual=1, int display=0);
+   mat fricke(int dual=1, int display=0);
 //   mat conj(int display=0) const;
-   vec maninvector(const Quad& p) const;
-   vec projmaninvector(const Quad& p) const;
-   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable) const;
-   vec newhecke(const Quad& p, const Quad& n, const Quad& d) const;
+   vec maninvector(const Quad& p);
+   vec projmaninvector(const Quad& p);
+   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable);
+   vec newhecke(const Quad& p, const Quad& n, const Quad& d);
 };
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);

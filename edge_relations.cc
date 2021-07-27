@@ -1,15 +1,17 @@
 // FILE EDGE_RELATIONS.CC: Implemention of the edge relations for class homspace
 
+#include "mat22.h"
+#include "ratquads.h"
 #include "edge_relations.h"
 #include <assert.h>
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(symbdata* s, int plus, int verb)
-  :sd(s), plusflag(plus), verbose(verb)
+edge_relations::edge_relations(P1N* s, int plus, int verb)
+  :cosets(s), plusflag(plus), verbose(verb)
 {
   int field = Quad::d;
-  nsymb = sd->nsymb;
+  nsymb = cosets->size();
   nsymbx = nsymb*n_alphas;
   ngens=0;
   coordindex.resize(nsymbx);
@@ -17,7 +19,6 @@ edge_relations::edge_relations(symbdata* s, int plus, int verb)
   gens.push_back(0);
 
   if(verbose) cout << "About to start on 2-term (edge) relations.\n";
-
 
   if(verbose)
     cout<<"Edge relations for type 0 symbols (denominator 1)\n";
@@ -55,8 +56,12 @@ edge_relations::edge_relations(symbdata* s, int plus, int verb)
               RatQuad alpha(-M.entry(1,1), M.entry(1,0));
               cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
             }
+          Quad c, d;
           for (i=0; i<nsymb; i++)
-            cout << i<<":\t"<<sd->symbol(i)<<"\t"<<coordindex[i+offset] << "\n";
+            {
+              cosets->make_symb(i, c, d);
+              cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+offset] << "\n";
+            }
         }
       cout << endl;
     }
@@ -67,8 +72,8 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  symbop eps(sd,unit,0,0,1);  assert (eps.det()==unit);
-  symbop sof(sd, mat22::S);
+  action eps(cosets,unit,0,0,1);  assert (eps.det()==unit);
+  action sof(cosets, mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
   int j, k, triv;
@@ -119,8 +124,8 @@ void edge_relations::edge_relations_2()    // extra edge relations for alphas wi
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  symbop K(sd, M_alphas[1]);
-  symbop L(sd, -1,w-1,0,1); assert (L.det()==-1);
+  action K(cosets, M_alphas[1]);
+  action L(cosets, -1,w-1,0,1); assert (L.det()==-1);
 
   // K maps w/2 --> oo --> (w-1)/2, where K = [w-1,u;2,-w], det=1,  order 3
   // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gK(oo),gK(w/2)} = -(gK)_w/2.
@@ -161,8 +166,8 @@ void edge_relations::edge_pairing(int i)
 {
   int j, k, j2, k2;
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
-  symbop J(sd, mat22::J);
-  symbop M(sd, M_alphas[i]);
+  action J(cosets, mat22::J);
+  action M(cosets, M_alphas[i]);
   vector<int> done(nsymb, 0);
 
   for (j=0; j<nsymb; j++)
@@ -204,8 +209,8 @@ void edge_relations::edge_pairing_double(int i)
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb, offset_c = (i+2)*nsymb, offset_d = (i+3)*nsymb;
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
-  symbop M(sd, M_alphas[i+2]);
-  symbop J(sd, mat22::J);
+  action M(cosets, M_alphas[i+2]);
+  action J(cosets, mat22::J);
 
   for (j=0; j<nsymb; j++) // index of type i symbol
     {

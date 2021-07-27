@@ -1068,11 +1068,12 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
       std::ldiv_t st = ldiv(h1->freegens[j-1], h1->nsymb);
       long s_number = st.rem;  // remainder gives (c:d) symbol number
       int s_type = st.quot; // quotient gives symbol type
-      symb s = h1->symbol(s_number);
+      Quad u, v;
+      h1->cosets.make_symb(s_number, u, v);
 
 #ifdef DEBUG_APVEC
       cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
-          <<" = "<<s<<"..."<<flush;
+          <<" = ("<<u<<":"<<v<<")..."<<flush;
 #endif
 
       // Now we compute the projected image of symbol s=(u:v) under
@@ -1087,17 +1088,16 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
       // Accumulate the associated vectors in vec imagej (using the
       // utility update(projcoord, imagej, ind, nfhmod).
 
-      Quad u=s.cee(),v=s.dee();
       mat& pcd = h1->projcoord;
       //cout<<"projcoord = "<<pcd;
 // Matrix [1,0;0,p]
-      long ind = h1->ER.coords(h1->index2(u,p*v));
+      long ind = h1->ER.coords(h1->cosets.index(u,p*v));
 #ifdef DEBUG_APVEC
       cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
 #endif
       if(ind) update(pcd,imagej,ind,nfhmod);
 // Matrix [p,0;0,1]
-      ind = h1->ER.coords(h1->index2(p*u,v));
+      ind = h1->ER.coords(h1->cosets.index(p*u,v));
 #ifdef DEBUG_APVEC
       cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
 #endif
@@ -1111,7 +1111,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
           if(b==0) continue; // handled above as special case
           a = -p;
           u1=u*p; u2=v-u*b;
-          ind = h1->ER.coords(h1->index2(u1,u2));
+          ind = h1->ER.coords(h1->cosets.index(u1,u2));
 #ifdef DEBUG_APVEC
           cout<<"Residue class "<<b<<": ";
           cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
@@ -1121,7 +1121,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
             {
               q=a/b; c=a-b*q; u3=q*u2-u1;
               a=-b; b=c; u1=u2; u2=u3;
-              ind = h1->ER.coords(h1->index2(u1,u2));
+              ind = h1->ER.coords(h1->cosets.index(u1,u2));
 #ifdef DEBUG_APVEC
               cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif
@@ -1137,7 +1137,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
   else // code for non-Euclidean fields
 
     {
-      imagej = h1->applyop(matop(p,h1->modulus), modsym(s.lift_to_SL2(), s_type), 1);
+      imagej = h1->applyop(matop(p,h1->modulus), modsym(h1->cosets.lift_to_SL2(s_number), s_type), 1);
     }
 
       images[j]=imagej/(h1->h1denom());

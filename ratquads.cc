@@ -118,10 +118,6 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 // if type = -s<0 , return U{singular_points[s],oo}
 modsym::modsym(const mat22& U, int type) // U in SL2
 {
-  Quad n=1, d=0; // n/d=oo
-  U.apply_left(n,d);
-  b = RatQuad(n,d); // = U(oo); no need to reduce as n,d are coprime
-
   RatQuad alpha;
   if(type==0) // always true for Euclidean fields: apply to {0,oo}
     alpha = RatQuad(0);
@@ -136,4 +132,5 @@ modsym::modsym(const mat22& U, int type) // U in SL2
        alpha = singular_points[-type];
      }
   a = U(alpha);
+  b = U(RatQuad(1,0)); // = U(oo); no need to reduce as n,d are coprime
 }

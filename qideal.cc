@@ -353,7 +353,7 @@ Quad Qideal::resnum(int i) // the i'the residue mod this, in standard order (0't
   return reduce(Quad(qr.rem, qr.quot));
 }
 
-int Qideal::numres(const Quad& alpha) // the index of a residue mod this, in standard order (0'th is 0)
+int Qideal::numres(const Quad& alpha) const // the index of a residue mod this, in standard order (0'th is 0)
 {
   long y = posmod(alpha.im(), c);
   long x = posmod(alpha.re()-b*(alpha.im()-y), ac);
@@ -367,7 +367,8 @@ vector<Quad> Qideal::residues() // list of residues, sorted
   return res;
 }
 
-pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues() // lists of invertible residues, and their inverses
+// lists of invertible residues, and their inverses
+pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues()
 {
   vector<Quad> res, inv;
   res.reserve(nm);
