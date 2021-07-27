@@ -62,7 +62,7 @@ int main(void)
  cin >> firstn >> lastn;
  for(Quadlooper alpha(firstn,lastn); alpha.ok(); alpha++)
 #else
- Quad alpha, p; 
+ Quad alpha;
  while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
 #endif
 {
@@ -91,8 +91,8 @@ int main(void)
            <<" and their factorizations are not useful."<<endl;
     }
 
-  vector<Quad> badprimes = h.plist;
-  vector<Quad>::const_iterator pr;
+  vector<Quadprime> badprimes = h.N.factorization().primes();
+  vector<Quadprime>::const_iterator pr;
   nq = badprimes.size();
   vector<bigint> charpol;
   bigint MMODULUS = to_ZZ(MODULUS);
@@ -103,9 +103,10 @@ int main(void)
       vector<mat_m> wqlist;
       for (pr=badprimes.begin(); pr!=badprimes.end(); pr++)
 	{
-	  Quad q=*pr;
+          Quadprime Q = *pr;
+	  Quad q= Q.gen();
 	  cout << "Computing W("<<q<<")...  " << flush;
-	  wq =  h.heckeop(q,0,mats);
+	  wq =  h.heckeop(Q,0,mats);
 	  cout << "done. " << flush;
           // bigint lambda = to_ZZ(den);
           // int dimplus = addscalar(wq,-lambda).nullity();
@@ -126,19 +127,20 @@ int main(void)
             }
 	  wqlist.push_back(wq);
 	}
-      cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? "; 
+      cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? ";
       cin >> np;
       mat_m tp(d), tpwq(d), wqtp(d);
       vector<mat_m> tplist;
       ip=0;
-      for (pr=quadprimes.begin(); 
-	   pr!=quadprimes.end()&&((pr-quadprimes.begin())<np); 
+      for (pr=Quadprimes::list.begin();
+	   pr!=Quadprimes::list.end() && ((pr-Quadprimes::list.begin())<np);
 	   pr++)
 	{
-	  while (n%(*pr)==0) {pr++; np++;}
-	  p=*pr;
+          Quadprime P = *pr;
+	  while (P.divides(n)) {pr++; P=*pr; np++;}
+          Quad p = P.gen();
 	  cout << "Computing T_p for p = " << p << "\n";
-	  tp = h.heckeop(p,0,mats);
+	  tp = h.heckeop(P,0,mats);
 	  cout << "done. " << flush;
           charpol = char_poly(tp, den, facs&&!hmod);
           if (pols)

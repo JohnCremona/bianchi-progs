@@ -20,6 +20,18 @@ void Qideal::abc_from_HNF(vector<long>& basis)
     { cerr <<"***Warning: "<< *this <<" not ok in abc_from_HNF***"<<endl;}
 }
 
+Quad Qideal::gen()  // smallest element, so a generator iff principal
+{
+  fill();
+  return g0;
+}
+
+vector<Quad> Qideal::gens() // reduced Z-module gens
+{
+  fill();
+  return {g0, g1};
+}
+
 // private -- fills other data fields given a,b,c
 void Qideal::fill()
 {
@@ -35,6 +47,12 @@ void Qideal::fill()
   // scale by content:
   g1 *= c;
   g0 *= c;
+  // normalize g0 by simultaneous scaling by units:
+  while(!pos(g0))
+    {
+      g0*=fundunit;
+      g1*=fundunit;
+    }
   //  cout<<" -- now gens are "<<gens()<<endl;
   if ((quadconj(g0)*g1).im()<0)
     cout<<"Badly oriented Z-basis in fill() 2"<<endl;

@@ -55,7 +55,7 @@ int main ()
          if (P.is_principal())
            cout << " = ("<<gg[0]<<") (principal)";
          else
-           cout << "(not principal)";
+           cout << " (not principal)";
          cout<<endl;
        }
      cout << "---------------------------------------------------------------" << endl;

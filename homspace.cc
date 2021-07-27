@@ -9,15 +9,24 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Quad& n, int hp, int cuspid, int verb) :symbdata(n)
+homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
 {
-  cosets=P1N(n);
+  modulus=n;
+  N=Qideal(n);
+  cosets=P1N(N);
   nsymb = cosets.size();
   verbose=verb;
   cuspidal=cuspid;
   hmod = 0;
-  if (verbose) symbdata::display();
-  plusflag=hp;                  // Sets static level::plusflag = hp
+  plusflag=hp;
+  nap = 20;
+  primelist = N.factorization().primes();
+  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end() && primelist.size()<(unsigned)nap; Pi++)
+    {
+      Quadprime P = *Pi;
+      if (!P.divides(N))
+        primelist.push_back(P);
+    }
 
   ER = edge_relations(&cosets, hp, verb);
   ngens = ER.get_ngens();
@@ -166,10 +175,12 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // we apply "Karim's trick"
 {
   Quad a(alpha.num()), b(alpha.den()), x, y;
-  quadbezout(a,b, x,y); // discard its value which is 1
+  Quad g = quadbezout(a,b, x,y);
+  //  cout<<"gcd("<<a<<","<<b<<") = " << g <<endl;
+  assert (g==1);
   mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
   assert (M.det()==Quad::one);
-  Quad c = reduce(x), d = reduce(-b);
+  Quad c = N.reduce(x), d = N.reduce(-b);
 #ifdef DEBUG_NON_EUCLID
   cout<<"Computing alpha->beta chain {"<<alpha<<","<<beta<<"}\n";
   cout<<"   translated to {0, "<<M(beta)<<"} with c="<<c<<", d="<<d<<"\n";
@@ -190,7 +201,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
      {
        pseudo_euclidean_step(a,b, t, c,d);
        assert (t!=-1);
-       c = reduce(c); d = reduce(d); // reduce modulo the level
+       c = N.reduce(c); d = N.reduce(d); // reduce modulo the level
        u = alpha_inv[t];
 #ifdef DEBUG_NON_EUCLID
        //       if (!Quad::is_Euclidean)

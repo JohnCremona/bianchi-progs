@@ -684,11 +684,11 @@ void newforms::sort_lmfdb(void)
 void newforms::allproj() //Replaces "coord" member of homspace with projections
                       //onto eigenspaces, to save time
 {
-  int ncoord = h1->FR.ncoords(); long pcij;
+  int ncoord = h1->ncoords(); long pcij;
   h1->projcoord.init(ncoord,n1ds);
   for (int i=1; i<=ncoord; i++)
     {
-      vec coordi = h1->FR.coords(i);
+      vec coordi = h1->coords(i);
       for (int j=1; j<=n1ds; j++)
         {
 	  if (hmod) pcij = dotmodp(coordi,nflist[j-1].basis, hmod);
@@ -1091,13 +1091,13 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
       mat& pcd = h1->projcoord;
       //cout<<"projcoord = "<<pcd;
 // Matrix [1,0;0,p]
-      long ind = h1->ER.coords(h1->cosets.index(u,p*v));
+      long ind = h1->ER.coords(h1->index(u,p*v));
 #ifdef DEBUG_APVEC
       cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
 #endif
       if(ind) update(pcd,imagej,ind,nfhmod);
 // Matrix [p,0;0,1]
-      ind = h1->ER.coords(h1->cosets.index(p*u,v));
+      ind = h1->ER.coords(h1->index(p*u,v));
 #ifdef DEBUG_APVEC
       cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
 #endif
@@ -1111,7 +1111,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
           if(b==0) continue; // handled above as special case
           a = -p;
           u1=u*p; u2=v-u*b;
-          ind = h1->ER.coords(h1->cosets.index(u1,u2));
+          ind = h1->ER.coords(h1->index(u1,u2));
 #ifdef DEBUG_APVEC
           cout<<"Residue class "<<b<<": ";
           cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
@@ -1121,7 +1121,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
             {
               q=a/b; c=a-b*q; u3=q*u2-u1;
               a=-b; b=c; u1=u2; u2=u3;
-              ind = h1->ER.coords(h1->cosets.index(u1,u2));
+              ind = h1->ER.coords(h1->index(u1,u2));
 #ifdef DEBUG_APVEC
               cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif

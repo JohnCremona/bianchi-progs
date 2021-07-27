@@ -67,6 +67,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
   maxnumrel=2*n_alphas*nsymb;
   ngens = ER->ngens;
   numrel = 0;
+  hmod = 0;
 
 #if(USE_SMATS)
   relmat = smat(maxnumrel,ngens);
@@ -725,6 +726,7 @@ void face_relations::solve_relations()
      }
    if (ok)
      {
+       hmod = 0;
        denom1 = d1;
      }
    else

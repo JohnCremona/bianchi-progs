@@ -53,8 +53,8 @@ public:
   long smallest_integer() const {return ac;}
   long norm() const {return nm;}
   Quad zgen(int i) const {return (i? Quad(b*c,c): Quad(ac));} // HNF Z-module gens
-  Quad gen() const {return g0;} // smallest element, so a generator iff principal
-  vector<Quad> gens() const {return {g0, g1};} // reduced Z-module ggens
+  Quad gen();          // smallest element, so a generator iff principal
+  vector<Quad> gens(); // reduced Z-module ggens
   vector<long> get_rv() const {return {ac, b*c};} // real parts of Z-module gens
   vector<long> get_iv() const {return { 0, c};}   // imag parts of Z-module gens
 

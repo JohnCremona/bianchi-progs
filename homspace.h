@@ -9,7 +9,7 @@
 #include "edge_relations.h"
 #include "face_relations.h"
 
-class homspace :public symbdata {
+class homspace {
 friend class newforms;
 public:
   int verbose;
@@ -18,8 +18,11 @@ public:
   long rk, denom1, denom2, dimension, denom3, ncusps;
   edge_relations ER;
   face_relations FR;
+  int plusflag;
+  Quad modulus; Qideal N;
   P1N cosets;
-  long ngens;
+  long ngens, nsymb, nap;
+  vector<Quadprime> primelist; // list of primes in order, bad primes first
 
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
@@ -28,15 +31,15 @@ public:
   long hmod; // if >0, failed to lift from modular linear algebra
              // so coord is modulo this
 
-  // fields used from dependent classes:
-  // int plusflag;
-  // quad modulus;
-  // symbol(i)
-  
   homspace(const Quad& n, int hp, int cuspid, int verb);
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
+
+  int ncoords() {return FR.ncoords();}
+  vec coords(int i) {return FR.coords(i);}
+  int coords(const Quad& c, const Quad& d);
+  int index(const Quad& c, const Quad& d) {return cosets.index(c, d);}
 
    mat opmat(int, int dual=1, int verb=0);
    vec opmat_col(int, int j, int verb=0);
@@ -85,31 +88,32 @@ public:
   vec applyop(const matop& mlist, const RatQuad& m, int proj=0);
   vec applyop(const matop& mlist, const modsym& m, int proj=0);
 
-  mat calcop(const string opname, const Quad& p, const matop& mlist, int dual=1, int display=0);
-  vec calcop_col(const string opname, const Quad& p, const matop& mlist, int j, int display=0);
-  mat calcop_cols(const string opname, const Quad& p, const matop& mlist, const vec& jlist, int display=0);
-  smat s_calcop(const string  opname, const Quad& p, const matop& mlist, int dual, int display);
-  svec s_calcop_col(const string  opname, const Quad& p, const matop& mlist, int j, int display);
-  smat s_calcop_cols(const string  opname, const Quad& p, const matop& mlist, const vec& jlist, int display);
-  mat calcop_restricted(const string opname, const Quad& p, const matop& mlist, const subspace& s, int dual, int display);
-  smat s_calcop_restricted(const string opname, const Quad& p, const matop& mlist, const ssubspace& s, int dual, int display);
+  mat calcop(const string opname, const matop& mlist, int dual=1, int display=0);
+  vec calcop_col(const matop& mlist, int j);
+  mat calcop_cols(const matop& mlist, const vec& jlist);
+  smat s_calcop(const string opname, const matop& mlist, int dual, int display);
+  smat s_calcop_cols(const matop& mlist, const vec& jlist);
+  mat calcop_restricted(const string opname, const matop& mlist, const subspace& s, int dual, int display);
+  smat s_calcop_restricted(const string opname, const matop& mlist, const ssubspace& s, int dual, int display);
 
 public:
-   mat heckeop(const Quad& p, int dual=1, int display=0);
-   vec heckeop_col(const Quad& p, int j, int display=0);
-   mat heckeop_cols(const Quad& p, const vec& jlist, int display=0);
-   smat s_heckeop(const Quad& p, int dual, int display);
-   svec s_heckeop_col(const Quad& p, int j, int display);
-   smat s_heckeop_cols(const Quad& p, const vec& jlist, int display);
-   mat heckeop_restricted(const Quad& p, const subspace& s, int dual, int display);
-   smat s_heckeop_restricted(const Quad& p, const ssubspace& s, int dual, int display);
-   mat wop(const Quad& q, int dual=1, int display=0);
+  string opname(const Quadprime& P);
+  string opname(const Qideal& P);
+   mat heckeop(Quadprime& P, int dual=1, int display=0);
+   vec heckeop_col(Quadprime& P, int j, int display=0);
+   mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0);
+   smat s_heckeop(Quadprime& P, int dual, int display);
+   svec s_heckeop_col(Quadprime& P, int j, int display);
+   smat s_heckeop_cols(Quadprime& P, const vec& jlist, int display);
+   mat heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display);
+   smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display);
+   mat wop(Quadprime& Q, int dual=1, int display=0);
    mat fricke(int dual=1, int display=0);
 //   mat conj(int display=0) const;
    vec maninvector(const Quad& p);
    vec projmaninvector(const Quad& p);
    vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable);
-   vec newhecke(const Quad& p, const Quad& n, const Quad& d);
+   vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
 };
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
