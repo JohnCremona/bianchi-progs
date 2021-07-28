@@ -6,7 +6,7 @@
 #include <eclib/arith.h>
 #include <eclib/unimod.h>
 #include <assert.h>
-#include "quads.h"
+#include "ratquads.h"
 
 class mat22 {
 private:

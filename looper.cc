@@ -1,4 +1,3 @@
-#include <eclib/arith.h>
 #include "looper.h"
 
 long floorsqrt(long asq)

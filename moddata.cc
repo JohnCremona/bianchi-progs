@@ -134,57 +134,6 @@ int moddata::check(int verbose) const //checks whether resnum & numres work OK
   return ok;
 }
 
-// brute force test whether a is a square of some element of reslist, mod m
-
-int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
-{
-  if (div(m,a)) return 0;
-  vector<Quad>::const_iterator r=reslist.begin();
-  while(r!=reslist.end())
-    {
-      Quad res=*r++; 
-      if(div(m,res*res-a)) return +1;
-    }
-  return -1;
-}
-
-vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
-{
-  vector<int> chi;
-  if(reslist.size()==1) 
-    chi[0]=1;
-  else
-    {
-      vector<Quad>::const_iterator r=reslist.begin();
-      while(r!=reslist.end())
-	chi.push_back(squaremod(*r++,lambda,reslist));
-    }
-  return chi;
-}
-
-double gauss(const Quad& m, const vector<Quad>& reslist)
-{
-//cout<<"Computing g(chi) for lambda = " << m << endl;
-  double ans1=0; //double ans2=0;
-  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0),sqrt(to_bigfloat(Quad::disc)));
-  vector<Quad>::const_iterator r=reslist.begin();
-  while(r!=reslist.end())
-  {
-    Quad res = *r++;
-      double term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
-      ans1+=term1;      //    ans2+=term2;
-  }
-  return ans1;
-}
-
-string ideal_code(const Quad& N) // string code for a (principal) ideal N
-{
-  vector<long>H = HNF(N);
-  stringstream s;
-  s << quadnorm(N) << "." << H[1] << "." << H[2];
-  return s.str();
-}
-
 // old versions:
 
 string old_ideal_code(const Quad& N) // string code for a (principal) ideal N

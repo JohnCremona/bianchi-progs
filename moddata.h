@@ -3,10 +3,7 @@
 #if     !defined(_MODDATA_H)
 #define _MODDATA_H      1       //flags that this file has been included
 
-#include <eclib/arith.h>   // even better, get quads.h to include this
 #include "quads.h"
-#include "ratquads.h"
-#include "mat22.h"
 
 class level {
 public:
@@ -40,8 +37,5 @@ public:
  int check(int verbose=0) const;     //checks whether resnum & numres work OK
  void abort(char* mess) const {cerr<<"Out of memory ("<<mess<<")\n";  exit(1);}
 };
-
-string ideal_code(const Quad& N); // string code for a (principal)  ideal
-
 
 #endif

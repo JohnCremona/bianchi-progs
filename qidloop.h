@@ -17,7 +17,6 @@
 #if     !defined(_QIDLOOP_H)
 #define _QIDLOOP_H      1       //flags that this file has been included
 
-#include <eclib/arith.h>
 #include "qideal.h"
 #include <list>
 

@@ -3,7 +3,7 @@
 #if     !defined(_CUSP_H)
 #define _CUSP_H      1       //flags that this file has been included
 
-#include "moddata.h"
+#include "mat22.h"
 #include "ratquads.h"
 
 class cusplist {

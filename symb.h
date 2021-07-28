@@ -4,6 +4,7 @@
 #define _SYMB_H      1       //flags that this file has been included
 
 #include "moddata.h"
+#include "mat22.h"
 
 class symb;
 class modsym;

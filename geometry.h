@@ -5,8 +5,7 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
-#include "quads.h"
+#include "mat22.h"
 
 extern int n_alphas;            // Number of alphas.
 extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.

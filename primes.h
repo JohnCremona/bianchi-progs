@@ -16,10 +16,7 @@
 #ifndef __PRIMES_H__
 #define __PRIMES_H__
 
-#include "quads.h"
 #include "qideal.h"
-
-#include <iostream>
 
 // The Quadprime class is an enhanced version of the Qideal class
 

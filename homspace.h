@@ -3,10 +3,7 @@
 #if     !defined(_HOMSPACE_H)
 #define _HOMSPACE_H      1       //flags that this file has been included
 
-#include "euclid.h"
-#include "P1N.h"
-#include "symb.h"
-#include "edge_relations.h"
+#include "cusp.h"
 #include "face_relations.h"
 
 class homspace {
@@ -61,8 +58,8 @@ public:
    long h1hmod() const {return hmod;}
 
   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
-  vec chain(const symb& s, int type=0, int proj=0)
-  {return chaincd(s.cee(), s.dee(), type, proj);}
+  // vec chain(const symb& s, int type=0, int proj=0)
+  // {return chaincd(s.cee(), s.dee(), type, proj);}
   vec projchaincd(const Quad& c, const Quad& d, int type=0)
   {return chaincd(c, d, type, 1);}
   vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);
@@ -76,8 +73,8 @@ public:
 
   vec kernelpart(const vec& v) const
   {return v[pivots(kern)];}
-  vec cycle(const symb& s, int type=0)
-  {return kernelpart(chain(s, type));}
+  // vec cycle(const symb& s, int type=0)
+  // {return kernelpart(chain(s, type));}
   vec cycle(const Quad& n, const Quad& d)
   {return kernelpart(chain(n,d));}
   vec cycle(const RatQuad& r)

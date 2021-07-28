@@ -1,5 +1,3 @@
-#include <iostream>
-#include "eclib/arith.h"
 #include "ratquads.h"
 #include "primes.h"
 

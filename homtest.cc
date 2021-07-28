@@ -1,4 +1,5 @@
-#include "homspace.h"   // which includes quads.h & moddata.h
+#include "homspace.h"
+#include "ratquads.h"
 #define LOOPER
 #ifdef LOOPER
 #include "looper.h"

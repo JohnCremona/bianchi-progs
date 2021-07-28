@@ -1,5 +1,4 @@
 // FILE qideal.h
-// should only be included if ideal-methods is selected, i.e. MAX_CLASSNUM>1
 #ifndef __QIDEAL_H__
 #define __QIDEAL_H__
 

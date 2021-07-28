@@ -1,3 +1,8 @@
+// LOOPER.H
+
+#if     !defined(_LOOPER_H)
+#define _LOOPER_H      1       //flags that this file has been included
+
 #include "quads.h"
 
 class Quadlooper {
@@ -22,3 +27,5 @@ private:
 };
 
 int issquare(long asq, long& a);
+
+#endif

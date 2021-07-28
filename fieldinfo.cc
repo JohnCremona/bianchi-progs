@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include <eclib/arith.h>
 #include "primes.h"
 
 int main ()

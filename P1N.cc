@@ -3,9 +3,6 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
-#include "qideal.h"
-#include "mat22.h"
 #include "P1N.h"
 
 // utilities for a standard bijection between [0,1,...,n-1] and the

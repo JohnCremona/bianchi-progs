@@ -2,10 +2,6 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
-#include "quads.h"
-#include "mat22.h"
-#include "ratquads.h"
 #include "geometry.h"
 
 // Definitions of commonly used matrices

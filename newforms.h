@@ -5,6 +5,8 @@
 
 #include <eclib/xsplit.h>   // which includes method.h
 #include <eclib/rat.h>
+
+#include "ratquads.h"
 #include "oldforms.h"
 #include "homspace.h"
 

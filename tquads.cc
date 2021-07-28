@@ -1,10 +1,5 @@
-#include <iostream>
-
-#include <eclib/arith.h>
 #include "looper.h"
-#include "mat22.h"
 #include "geometry.h"
-#include "ratquads.h"
 #include "primes.h"
 
 int main ()

@@ -1,6 +1,5 @@
 // FILE qideal.cc
 
-#include <iostream>
 #include "intprocs.h"
 #include "mat22.h"
 #include "qideal.h"

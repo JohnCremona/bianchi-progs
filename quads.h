@@ -259,6 +259,7 @@ inline double psig(bigcomplex z) {  return to_double(sin(4*PI*real(z)));}
 int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist);
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist);
 double gauss(const Quad& m, const vector<Quad>& reslist);
+string ideal_code(const Quad& N); // string code for a (principal)  ideal
 
 #endif
 

@@ -5,6 +5,7 @@
 
 #include <eclib/method.h>
 #include <eclib/matrix.h>
+#include "euclid.h"
 #include "cusp.h"
 #include "homspace.h"
 #include <assert.h>

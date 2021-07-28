@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
 #include "mat22.h"
-#include "qideal.h"
 #include "primes.h"
 
 // utilities for a standard bijection between [0,1,...,n-1] and the

@@ -5,7 +5,6 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
 #include "quads.h"
 
 // pseudo-Euclidean step: applies a translation and *if possible* an
