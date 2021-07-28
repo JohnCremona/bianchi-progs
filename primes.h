@@ -27,8 +27,8 @@ public:
   // constructor
   Quadprime(long a, long b, long c, long pp, long ind=1)
     : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p); fill();}
-
-  Quadprime(const Quadprime&x) : Qideal(x) { p=x.p; character=x.character;}
+  Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
+  Quadprime() : Qideal() { p=0; character=0;}
   int is_ramified() const {return character==0;}
   int is_split() const {return character==1;}
   int is_inert() const {return character==-1;}

@@ -51,9 +51,9 @@ public:
   newforms *nf;  // pointer to the "parent"
   vec basis;
   vector<long> eigs;   // list of eigenvalues which split off this 1D subspace
-  vector<long> aplist; // list of Fourier coefficients, all primes in norm order
-  vector<long> aqlist; // list of W-eigenvalues, bad primes in norm order
-  int dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good prime
+  vector<long> aplist; // list of Fourier coefficients, all primes in standard order
+  vector<long> aqlist; // list of W-eigenvalues, bad primes in standard order
+  int dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good principal prime
   int pdot;              // Manin vector's projection factor
   rational loverp;       // = pdot/(dp0*nunuits)
   int sfe;               // sign of F.E.
@@ -114,11 +114,6 @@ private:
   int easy;
   vector<long> pdotlist, pdotlistinv;
 
-  // q stuff now redundant...
-  Quad nq, dq;
-  vector<long> qdotlist, qdotlistinv;
-  vec initvec;
-
   long j0;
   std::set<long> jlist;
   // Look for a j0 such that nflist[i].basis[j0]!=0 for all i,
@@ -127,7 +122,7 @@ private:
 
 protected:
   oldforms *of; // pointer to one, not an array
-  Quad p0; vec mvp;
+  Quadprime P0; vec mvp;
 public:
   Quad modulus; Qideal N;
   vector<Quadprime> plist; // bad primes
@@ -153,8 +148,8 @@ public:
   int use_nf_number;
   void use(const vec& b1, const vec& b2, const vector<long> eigs);
   void getap(int first, int last, int verbose=0);
-  void getoneap(const Quad& p, int verbose=0, int store=1);
-  vector<long> apvec(const Quad& p);  // computes a[p] for each newform
+  void getoneap(Quadprime& P, int verbose=0, int store=1);
+  vector<long> apvec(Quadprime& P);  // computes a[P] for each newform
   void output_to_file(string eigfile) const;
   // sorting functions
   void sort_eigs(void);

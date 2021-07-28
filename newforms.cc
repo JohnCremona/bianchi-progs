@@ -24,7 +24,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   //  cout<<"Constructing newform with eigs "<<eigs<<" and basis "<<v<<endl;
   nf=nfs;
   copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
-  dp0    =  1 + quadnorm(nf->p0) - eigs[nf->npdivs];
+  dp0    =  1 + (nf->P0).norm() - eigs[nf->npdivs];
   pdot = abs(vecdot(nf->mvp, basis, nf->hmod));
   if (pdot % nf->h1->h1denom() ==0)
     pdot /= nf->h1->h1denom();
@@ -373,11 +373,12 @@ void newforms::init()
   of=0;
   nfhmod=0;
 //
-// get smallest "good" prime:
+// get smallest good principal prime:
 //
-  vector<Quad>::const_iterator pr=quadprimes.begin();
-  p0 = *pr;
-  while (div(p0,modulus)) p0=*pr++;     // First "good" prime
+  vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
+  P0 = *Pi;
+  while (P0.divides(N) || !P0.is_principal())
+    P0=*Pi++;     // First "good" prime
 }
 
 //#define DEBUG_LAMBDA
@@ -474,7 +475,7 @@ void newforms::createfromscratch()
     cout<<"Constructing homspace at level "<<modulus<<" ...\n";
   makeh1plus();
   nfhmod=hmod = h1->h1hmod();
-  mvp=h1->maninvector(p0);
+  mvp=h1->maninvector(P0);
   // if (h1->h1cdenom()>1)
   //   {
   //     cout<<"Nontrivial denominators for homspace at level "<<modulus<<" ...\n";
@@ -791,17 +792,18 @@ void newforms::makebases()
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 
-void newforms::getoneap(const Quad& p, int verbose, int store)
+void newforms::getoneap(Quadprime& P, int verbose, int store)
 {
-  vector<long> apv=apvec(p);
-  int vp = val(p,modulus), ap, cp, i;
+  assert (P.is_principal());
+  vector<long> apv=apvec(P);
+  int vp = val(P, N), ap, cp, i;
 
   if(verbose)
     {
-      if(vp>0) cout<<"q"; else cout<<"p";
-      cout<<" = "<<p<<"\t";
-      if(vp>0) cout<<"N(q)"; else cout<<"N(p)";
-      cout<<" = "<<quadnorm(p)<<"\t";
+      if(vp>0) cout<<"Q"; else cout<<"P";
+      cout<<" = "<<P<<" = ("<<P.gen()<<")\t";
+      if(vp>0) cout<<"N(Q)"; else cout<<"N(P)";
+      cout<<" = "<<P.norm()<<"\t";
     }
   for (i=0; i<n1ds; i++)
     {
@@ -830,8 +832,8 @@ void newforms::getap(int first, int last, int verbose)
       cout<<"Already have "<<nap <<" ap so no need to compute more"<<endl;
     }
   // now nap < last <= nquadprimes
-  vector<Quad>::const_iterator pr = quadprimes.begin()+first-1;
-  while((pr!=quadprimes.end()) && (nap<last))
+  vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
+  while((pr!=Quadprimes::list.end()) && (nap<last))
     {
       getoneap(*pr++,verbose);
       nap++;
@@ -1028,42 +1030,39 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 #endif
 }
 
-vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
+vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, for principal P
 {
-  Quadprime P = Qideal(p).factorization().prime(0);
+  assert (P.is_principal());
+  Quad p = P.gen();
 #ifdef DEBUG_APVEC
-  cout<<"In apvec with p = "<<p<<endl;
+  cout<<"In apvec with P = "<<P<<endl;
 #endif
   vector<long> apv(n1ds);
   vec v;
-  long i,j,ap,aq,normp=quadnorm(p);
+  long i,j,ap,aq,normp=P.norm();
 
-  int vp = val(p,modulus);
+  int vp = val(P,N);
 
   if (vp>0) // bad prime, we already know the eigenvalues
     {
       for (i=0; i<n1ds; i++)
         {
-          int ip = find(plist.begin(),plist.end(),p)-plist.begin();
+          int ip = find(plist.begin(),plist.end(),P) - plist.begin();
           aq = nflist[i].aqlist[ip];
           if(!((aq==1)||(aq==-1)))
             {
-              cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for q="<<p
+              cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
                   <<" for form # "<<(i+1)<<" is neither +1 nor -1"<<endl;
               cout<<"------------------------"<<endl;
               nflist[i].display();
               cout<<"------------------------"<<endl;
             }
           apv[i] = aq;
-          // if(vp==1)
-          //   apv[i] = -aq;
-          // else
-          //   apv[i] = 0;
         }
       return apv;
     }
 
-  // now p is a good prime
+  // now P is a good prime
 
   long maxap=(long)(2*sqrt((double)normp)); // for validity check
 
@@ -1099,13 +1098,13 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 #endif
 
       // Now we compute the projected image of symbol s=(u:v) under
-      // T_p.
+      // T_P.
 
       if (Quad::is_Euclidean)
         {
 
       // This code is for Euclidean fields only, using
-      // Manin-Heilbronn matrices: Loop over residues res mod p and
+      // Manin-Heilbronn matrices: Loop over residues res mod P and
       // for each res compute several M-symbol image parts (u1:v1).
       // Accumulate the associated vectors in vec imagej (using the
       // utility update(projcoord, imagej, ind, nfhmod).
@@ -1125,7 +1124,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 #endif
       if(ind) update(pcd,imagej,ind,nfhmod);
 // Other matrices
-      vector<Quad> resmodp=residues(p);
+      vector<Quad> resmodp = P.residues();
       vector<Quad>::const_iterator res=resmodp.begin();
       while(res!=resmodp.end())
         {
@@ -1158,7 +1157,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
   else // code for non-Euclidean fields
 
     {
-      imagej = h1->applyop(matop(p,h1->modulus), modsym(h1->cosets.lift_to_SL2(s_number), s_type), 1);
+      imagej = h1->applyop(matop(P, N), modsym(h1->cosets.lift_to_SL2(s_number), s_type), 1);
     }
       images[j]=imagej/(h1->h1denom());
 
@@ -1187,7 +1186,7 @@ vector<long> newforms::apvec(const Quad& p)  // computes a[p] for each newform
 // check it is in range:
       if((ap>maxap)||(-ap>maxap))
 	{
-	  cout<<"Error:  eigenvalue "<<ap<<" for p="<<p
+	  cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
 	      <<" for form # "<<(i+1)<<" is outside valid range "
 	      <<-maxap<<"..."<<maxap<<endl;
           //          exit(1);

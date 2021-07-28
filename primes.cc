@@ -112,7 +112,7 @@ Factorization::Factorization(const Qideal& II)
       vector<Quadprime> PP = Quadprimes_above(*pi);
       //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
       // at least one, but possibly not both when p splits, divides I
-      for(vector<Quadprime>::const_iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
+      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
         {
           Quadprime P = *Pi;
           if (P.divides(J))
@@ -141,8 +141,8 @@ vector<Quadprime> Factorization::primes() const
 {
   vector<Quadprime> plist;
   plist.reserve(size());
-  std::transform(Qlist.begin(), Qlist.end(), back_inserter(plist),
-                 [](const QuadprimePower& Q) -> Quadprime { return Q.first; });
+  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); Qi++)
+    plist.push_back(Qi->first);
   return plist;
 }
 
@@ -150,8 +150,8 @@ vector<int> Factorization::exponents() const
 {
   vector<int> elist;
   elist.reserve(size());
-  std::transform(Qlist.begin(), Qlist.end(), back_inserter(elist),
-                 [](const QuadprimePower& Q) -> int { return Q.second; });
+  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); Qi++)
+    elist.push_back(Qi->second);
   return elist;
 }
 
@@ -240,7 +240,7 @@ void Quadprimes::init(long maxn)
       //      cout<<"p = "<<p<<endl;
       vector<Quadprime> PP = Quadprimes_above(p);
       //      cout<<" primes above: "<< PP<<endl;
-      for(vector<Quadprime>::const_iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
+      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
         {
           Quadprime P = *Pi;
           long q = P.norm();
@@ -258,7 +258,7 @@ void Quadprimes::init(long maxn)
   // Now merge these into a single list sorted by norm
 
   //  cout<<" - merging into a single list" <<endl;
-  vector<Quadprime>::const_iterator Pi = list1.begin(), Qi = list2.begin();
+  vector<Quadprime>::iterator Pi = list1.begin(), Qi = list2.begin();
   while(Pi!=list1.end() && Qi!=list2.end())
     {
       Quadprime P = *Pi, Q = *Qi;
@@ -493,7 +493,7 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
   long n = N.norm();
   Qideal I; Quad g;
   // cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
-  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
     {
       Quadprime P = *Pi;
       if (P.residue_degree()==2) continue; // inert primes are principal!

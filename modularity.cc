@@ -62,8 +62,7 @@ int main(void)
   Quad p;
   // primes_needed will be a list of the (quad) primes for which
   // values of a_p will be input, and prime_indexes will be a list of
-  // the index (starting at 0) of these in the standard list
-  // quadprimes of all primes
+  // the index (starting at 0) of these in the standard list of primes
 
   vector<Quad> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
@@ -136,7 +135,9 @@ int main(void)
       for(np=0; np<nprimes; np++)
         {
           p = primes_needed[np];
-          vector<long> apv = nf.apvec(p);
+          // convert to a prime ideal:
+          Quadprime P = Qideal(p).factorization().prime(0);
+          vector<long> apv = nf.apvec(P);
           if(verbose)
             cerr << "List of a_p for p="<<p<<": "<<apv<<endl;
           for (nform=0; nform<nnf; nform++)

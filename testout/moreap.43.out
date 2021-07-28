@@ -25,31 +25,31 @@ Finished recovering newform bases, resorting back into lmfdb order...
 j0=1
 Finished makebases()
 About to start computing ap...
-p = -7+2a	N(p) = 79	   -8 
-p = 5+2a	N(p) = 79	   -8 
-p = 8+a	N(p) = 83	   15 
-p = -9+a	N(p) = 83	   15 
-p = -1+3a	N(p) = 97	    7 
-p = -2+3a	N(p) = 97	    7 
-p = 9+a	N(p) = 101	   -9 
-p = -10+a	N(p) = 101	   -9 
-p = -4+3a	N(p) = 103	    1 
-p = 1+3a	N(p) = 103	    1 
-p = -9+2a	N(p) = 107	  -12 
-p = 7+2a	N(p) = 107	  -12 
-p = 2+3a	N(p) = 109	    7 
-p = -5+3a	N(p) = 109	    7 
-p = -7+3a	N(p) = 127	    1 
-p = 4+3a	N(p) = 127	    1 
-p = 5+3a	N(p) = 139	   19 
-p = -8+3a	N(p) = 139	   19 
-p = 12+a	N(p) = 167	   -9 
-p = -13+a	N(p) = 167	   -9 
-p = -1+4a	N(p) = 173	    6 
-p = -3+4a	N(p) = 173	    6 
-p = -5+4a	N(p) = 181	   10 
-p = 1+4a	N(p) = 181	   10 
-p = 13+a	N(p) = 193	    3 
+P = P79a = (-7+2a)	N(P) = 79	   -8 
+P = P79b = (5+2a)	N(P) = 79	   -8 
+P = P83a = (8+a)	N(P) = 83	   15 
+P = P83b = (-9+a)	N(P) = 83	   15 
+P = P97a = (-1+3a)	N(P) = 97	    7 
+P = P97b = (-2+3a)	N(P) = 97	    7 
+P = P101a = (9+a)	N(P) = 101	   -9 
+P = P101b = (-10+a)	N(P) = 101	   -9 
+P = P103a = (-4+3a)	N(P) = 103	    1 
+P = P103b = (1+3a)	N(P) = 103	    1 
+P = P107a = (-9+2a)	N(P) = 107	  -12 
+P = P107b = (7+2a)	N(P) = 107	  -12 
+P = P109a = (2+3a)	N(P) = 109	    7 
+P = P109b = (-5+3a)	N(P) = 109	    7 
+P = P127a = (-7+3a)	N(P) = 127	    1 
+P = P127b = (4+3a)	N(P) = 127	    1 
+P = P139a = (5+3a)	N(P) = 139	   19 
+P = P139b = (-8+3a)	N(P) = 139	   19 
+P = P167a = (12+a)	N(P) = 167	   -9 
+P = P167b = (-13+a)	N(P) = 167	   -9 
+P = P173a = (-1+4a)	N(P) = 173	    6 
+P = P173b = (-3+4a)	N(P) = 173	    6 
+P = P181a = (-5+4a)	N(P) = 181	   10 
+P = P181b = (1+4a)	N(P) = 181	   10 
+P = P193a = (13+a)	N(P) = 193	    3 
 ...done.
 Writing data to file nftmp/2.0.43.1/43.21.1......done.
 Enter level: 

@@ -142,7 +142,8 @@ int main(void)
       for(np=0; np<nprimes; np++)
         {
           P = primes_needed[np];
-          vector<long> apv = nf.apvec(P);
+          Quadprime PP = Qideal(P).factorization().prime(0);
+          vector<long> apv = nf.apvec(PP);
           if(verbose)
             cerr << "List of a_P for P="<<P<<": "<<apv<<endl;
           for (nform=0; nform<nnf; nform++)

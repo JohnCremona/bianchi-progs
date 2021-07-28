@@ -2,8 +2,6 @@
 
 #include <eclib/msubspace.h>
 #include <eclib/xmod.h>
-#include "mat22.h"
-#include "ratquads.h"
 #include "homspace.h"
 
 const string W_opname("W");
@@ -330,9 +328,11 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
   else return s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
 }
 
-vec homspace::maninvector(const Quad& p)
+vec homspace::maninvector(Quadprime& P)
 {
-  vector<Quad> resmodp=residues(p);
+  assert (P.is_principal());
+  vector<Quad> resmodp=P.residues();
+  Quad p = P.gen();
   vec ans = chain(0,p), part;             // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
@@ -367,9 +367,11 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
 
 #if (0) // methods not used
 
-vec homspace::projmaninvector(const Quad& p)    // Will only work after "proj"
+vec homspace::projmaninvector(const Quadprime& P)    // Will only work after "proj"
 {
-  vector<Quad> resmodp=residues(p);
+  assert (P.is_principal());
+  vector<Quad> resmodp=P.residues();
+  Quad p = P.gen();
   vec ans = projchain(0,p), part;         // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())

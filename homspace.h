@@ -58,8 +58,6 @@ public:
    long h1hmod() const {return hmod;}
 
   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
-  // vec chain(const symb& s, int type=0, int proj=0)
-  // {return chaincd(s.cee(), s.dee(), type, proj);}
   vec projchaincd(const Quad& c, const Quad& d, int type=0)
   {return chaincd(c, d, type, 1);}
   vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);
@@ -70,17 +68,6 @@ public:
   vec chain(const RatQuad& alpha, const RatQuad& beta, int proj=0);
   vec chain(const modsym& m, int proj=0)
   {return chain(m.alpha(), m.beta(), proj);}
-
-  vec kernelpart(const vec& v) const
-  {return v[pivots(kern)];}
-  // vec cycle(const symb& s, int type=0)
-  // {return kernelpart(chain(s, type));}
-  vec cycle(const Quad& n, const Quad& d)
-  {return kernelpart(chain(n,d));}
-  vec cycle(const RatQuad& r)
-  {return kernelpart(chain(r.num(), r.den()));}
-  vec cycle(const modsym& m)
-  {return cycle(m.beta())-cycle(m.alpha());}
 
   vec applyop(const matop& mlist, const RatQuad& m, int proj=0);
   vec applyop(const matop& mlist, const modsym& m, int proj=0);
@@ -107,10 +94,11 @@ public:
    mat wop(Quadprime& Q, int dual=1, int display=0);
    mat fricke(int dual=1, int display=0);
 //   mat conj(int display=0) const;
-   vec maninvector(const Quad& p);
-   vec projmaninvector(const Quad& p);
+   vec maninvector(Quadprime& P);
    vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable);
-   vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
+  // no longer used, implementations are commented out:
+  // vec projmaninvector(const Quadprime& P);
+  // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
 };
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);

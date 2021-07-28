@@ -32,19 +32,19 @@ int main(void)
      cout << "Making homspace and bases..."<<flush;
      nf.makebases();
      cout << "done."<<endl;
-     long p=1; int sig;
+     long p=1;
      while(p)
        {
          cout << "Enter a rational prime p (0 to finish): "<<endl;
          cin >> p;
          if(p<2) break;
-         vector<Quad> pilist = Quad::primes_above(p, sig);
-         vector<Quad>::const_iterator pij;
-         for(pij=pilist.begin(); pij!=pilist.end(); pij++)
+         vector<Quadprime> Plist = Quadprimes_above(p);
+         vector<Quadprime>::const_iterator Pi;
+         for(Pi=Plist.begin(); Pi!=Plist.end(); Pi++)
            {
-             Quad pi = *pij;
-             vector<long> apv = nf.apvec(pi);
-             cout << "ap for "<<pi<<": "<<apv<<endl;
+             Quadprime P = *Pi;
+             vector<long> apv = nf.apvec(P);
+             cout << "ap for "<<P.gen()<<": "<<apv<<endl;
            }
        }       // end of prime loop
  }          // end of level loop
