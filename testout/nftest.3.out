@@ -4,7 +4,7 @@ Enter field: Verbose? Enter level:
 1 newform(s) at level 73.8.1 = (8+w):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 1 2 14 -10 14 2 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = -6
+Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/6, cuspidal factor = 1
-Integration matrix = [4-6w,-w;-1+9w,1+w], factor   = -3
+Integration matrix = [4-6w,-w;-1+9w,1+w], factor   = 3
 Enter level: 

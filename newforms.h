@@ -83,7 +83,7 @@ public:
   int is_CM(void) const;
 };
 
-class newforms :public level, splitter_base {
+class newforms :public splitter_base {
 friend class newform;
 private:
   int dimsplit, maxdepth, upperbound;
@@ -127,14 +127,19 @@ protected:
   oldforms *of; // pointer to one, not an array
   Quad p0; vec mvp;
 public:
+  Quad modulus; Qideal N;
+  vector<Quadprime> plist; // bad primes
+  int is_square, npdivs;
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   vector<newform> nflist;
   newforms(const Quad& n, int disp=0);
+  newforms(Qideal& N, int disp=0);
   ~newforms(void) {
                    if(h1)delete h1;
                   }
+  void init();
   void display(void) const;
   void list(long nap=-1) const;
   vec proj(const vec&);   //returns vec of components in each eig-space

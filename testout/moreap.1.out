@@ -15,23 +15,23 @@ Integration matrix = [13-32i,i;-96-38i,3], factor   = 11
 Sign of F.E. = -1
 Twisting prime lambda = 3, factor = 24
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [13-32i,i;-96-38i,3], factor   = -3
+Integration matrix = [13-32i,i;-96-38i,3], factor   = 3
 3:	basis = [];	aqlist = [ -1 1 -1 1 ];	aplist = [ 1 -1 -3 2 -3 1 -5 -3 -10 5 -6 -6 -1 -2 -2 4 -1 7 -4 0 14 -10 -4 -8 -3 ]
 Sign of F.E. = -1
 Twisting prime lambda = 3, factor = 8
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [13-32i,i;-96-38i,3], factor   = -1
+Integration matrix = [13-32i,i;-96-38i,3], factor   = 1
 4:	basis = [];	aqlist = [ -1 -1 1 1 ];	aplist = [ 1 1 -1 -4 -7 -1 -3 -3 2 -5 -4 10 -1 0 8 -2 -9 -15 6 4 4 -8 6 14 7 ]
 Sign of F.E. = -1
 Twisting prime lambda = 3, factor = 8
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [13-32i,i;-96-38i,3], factor   = -1
+Integration matrix = [13-32i,i;-96-38i,3], factor   = 1
 Making homspace and bases...
 About to recover 4 newform bases (nap=25)
 Recovering newform #1, eigs [ -1 -1 1 1 -1 -4 -7 -3 -3 2 -5 -4 10 0 8 -2 -9 -15 6 4 ]...
 Entering form_finder, depth = 0, dimension 39
 restarting at depth = 0, dimension 39
-Computing W(1+i)...done.
+Computing W(P2)...done.
  eig -1 gives new subspace at depth 1 of dimension 16
  eig -1 gives new subspace at depth 2 of dimension 7
  eig 1 gives new subspace at depth 3 of dimension 5
@@ -62,7 +62,7 @@ restarting at depth = 1, dimension 23
  eig 1 gives new subspace at depth 4 of dimension 2
  eig 3 gives new subspace at depth 5 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
-j0=1
+j0=2
 Finished makebases()
 About to start computing ap...
 p = 10+i	N(p) = 101	   -3     3    -5    -3 

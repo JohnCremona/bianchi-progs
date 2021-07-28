@@ -1,31 +1,46 @@
 #include <iostream>
 #include <sstream>
-#include "oldforms.h"
 #include "newforms.h"
 
 inline int testbit(long a, long i) {return (a& (1<<i));}
 
-// Implementation of eigdata constructor -- reads data from file
-eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublevel(m)
+string eigfile(const Quad& N)    //returns filename for eigs at level N
 {
-  N = iN; //verbose=1;
-  if(verbose) cout << "Getting eigdata for " << m << endl;
-  string eigfilename = eigfile(m);
+  stringstream s;
+  s << getenv("NF_DIR");
+  if (s.str().empty()) {s.clear(); s<<"./newforms";}
+  s << "/2.0." << (Quad::disc) << ".1/";
+  s << ideal_code(N);
+  return s.str();
+}
+
+string eigfile(Qideal& N)    //returns filename for eigs at level N
+{
+  return eigfile(N.gen()); // temporary for principal ideals
+}
+
+// Implementation of eigdata constructor -- reads data from file
+eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
+{
+  N = iN;
+  M = iM;
+  if(verbose) cout << "Getting eigdata for " << M << endl;
+  string eigfilename = eigfile(M.gen());
   ifstream data(eigfilename.c_str());
   if (!data)
     {
       if(verbose)
         {
-          cout << "No data file for m = " << m;
+          cout << "No data file for M = " << M;
           cout << "  so creating newforms at that level..." << endl;
         }
-      newforms olddata(m,verbose);
+      newforms olddata(M,verbose);
       olddata.createfromscratch();
-      olddata.getap(1,iN->nap,0);
+      olddata.getap(1,20,0);
       olddata.output_to_file(eigfilename);
       if(verbose)
         {
-          cout << "  finished creating newforms at level " << m << endl;
+          cout << "  finished creating newforms at level " << M << endl;
           olddata.display();
         }
       data.open(eigfilename.c_str());
@@ -36,14 +51,14 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
   if(verbose)
     {
       cout<<"neigs="<<neigs<<", neigsonfile = "<<neigsonfile<<endl;
-      cout<<nforms<<" newforms found at level "<<m<<", total new dimension = "<<(nforms+nforms2)<<endl;
+      cout<<nforms<<" newforms found at level "<<M<<", total new dimension = "<<(nforms+nforms2)<<endl;
     }
   if(nforms>0){
     if(neigs<0)nap=neigs=neigsonfile;
     else nap= (neigsonfile<neigs?neigsonfile:neigs);
-    int nwq=N->npdivs;
+    int nwq=N.factorization().size();
     int ntp=nap-nwq;
-    vector<Quad> qlist = pdivs(m);
+    vector<Quadprime> qlist = pdivs(M);
     int nq = qlist.size();
     eigs.resize(nforms);
     aps.resize(nforms);
@@ -108,30 +123,31 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
     // bad primes then Tp-eigenvalues for good primes
 
     int countp=0, countq=0, pindex;
-    vector<Quad>::const_iterator pr;
-    for (pr=quadprimes.begin();
-	 /*(pr-quadprimes.begin())<=neigsonfile &&*/ ((countp<ntp) || (countq<nwq));
-	 pr++)
+    for (vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
+	 ((countp<ntp) || (countq<nwq));
+	 Pi++)
       {
-	pindex = pr-quadprimes.begin();
-	if (div(*pr,N->modulus))
+	pindex = Pi - Quadprimes::list.begin();
+        Quadprime P = *Pi;
+	if (P.divides(N))
           {
 	    if(verbose)
-	      cout<<"p="<<(*pr)<<" = bad prime # "<<countq<<" [";
-	    // if p also divides m we can pick up the W-eigenvalue,
+	      cout<<"P="<<P<<" = bad prime # "<<countq<<" [";
+	    // if P also divides M we can pick up the W-eigenvalue,
 	    // otherwise the value is not needed.  Note that N may
-	    // have more prime factors than m, so the index in the aqs
+	    // have more prime factors than M, so the index in the aqs
 	    // may be different from countq.
-	    if (div(*pr,m)) // pr divides m (and N)
+	    if (P.divides(M)) // P divides M (and N)
 	      {
-		j = find(qlist.begin(),qlist.end(),*pr)-qlist.begin();
+                // find the index j of P in the list of prime divisors of M:
+		j = find(qlist.begin(),qlist.end(),P)-qlist.begin();
 		for(i=0; i<nforms; i++)
 		  {
 		    eigs[i][countq] = aqs[i][j];
 		    if(verbose) cout<<" "<<eigs[i][countq];
 		  }
 	      }
-	    else // pr divides N but not m
+	    else // P divides N but not M
 	      {
 		for(i=0; i<nforms; i++)
 		  {
@@ -145,7 +161,7 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 	else if (countp<ntp)
 	  {
 	    if(verbose)
-	      cout<<"p="<<(*pr)<<" = good prime # "<<countp<<" [";
+	      cout<<"P="<<P<<" = good prime # "<<countp<<" [";
 	    for(i=0; i<nforms; i++)
 	      {
 		eigs[i][nwq+countp] = aps[i][pindex];
@@ -160,11 +176,6 @@ eigdata::eigdata(const level *iN, const Quad& m, int neigs, int verbose) :sublev
 	cout<<"Error: not enough T_p eigs in file "
 	    <<eigfilename<<endl;
       }
-    // if(countq<nwq)
-    //   {
-    //     cout<<"Error: not enough W_q eigs in file "
-    //         <<eigfilename<<endl;
-    //   }
     if(verbose)
       {
 	cout << "eigs = " << endl;
@@ -183,29 +194,20 @@ static long min_newform_level_norm[20] = {0,65, // d=1
                                           0,0,0,0,9,        // d=11
                                           0,0,0,0,0,0,0,4}; // d=19
 
-oldforms::oldforms(const level* iN, int verbose)
+oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose)
 {
    N = iN;
-   nap = N->nap;
-   ntp = nap-N->npdivs;
-   noldclasses=olddim1=olddim2=0;
-   vector<Quad>::const_iterator d=(N->dlist).begin();
-   long min_norm = (Quad::d <=19? min_newform_level_norm[Quad::d]: 1);
-   while(d!=(N->dlist).end())
+   plist = pr;
+   nap = plist.size();
+   noldclasses = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
+   vector<Qideal> DD = alldivs(N);
+   for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); Di++)
      {
-       if (quadnorm(*d)<min_norm)
-         {
-           if(verbose)
-             cout<<"Skipping oldforms from sublevel "<<(*d)<<" of norm "<<quadnorm(*d)<<" which is less than "<< min_norm <<endl;
-         }
-       else
-         {
-           getoldclasses(*d,verbose);
-         }
-       d++;
+       getoldclasses(*Di,verbose); // will skip D==N
      }
-   for (int i=0; i<noldclasses; i++) olddim1+=oldclassdims[i];
-   olddimall = olddim1+olddim2;
+   for (int i=0; i<noldclasses; i++)
+     olddim1 += oldclassdims[i];
+   olddimall = olddim1 + olddim2;
    if(verbose)
      {
        cout<<"Leaving oldform constructor with olddim1 = "<<olddim1;
@@ -214,61 +216,67 @@ oldforms::oldforms(const level* iN, int verbose)
 }
 
 //really a subroutine of the constructor
-void oldforms::getoldclasses(const Quad& d, int verbose)
+void oldforms::getoldclasses(Qideal& D, int verbose)
 {
-  long normd = quadnorm(d);
-  if ((normd>1) && (N->normod>normd))
+  if (D==N)
+    return;
+  long min_norm = (Quad::d <=19? min_newform_level_norm[Quad::d]: 1);
+  if (D.norm() < min_norm)
     {
-      if(verbose) cout << "Getting oldclasses for divisor " << d << endl;
-      eigdata olddata(N,d,nap,verbose);
-      int nforms=olddata.nforms;
-      Quad m = N->modulus/d;
-      int k=0, oldmult=1, xmult, mult, j, beta;
-      vector<long> betalist;
-      vector<Quad>::const_iterator p=(N->plist).begin();
-      while(p!=(N->plist).end())
+      if(verbose)
+        cout<<"Skipping oldforms from sublevel "<<D<<" of norm "<<D.norm()
+            <<" which is less than "<< min_norm <<endl;
+      return;
+    }
+  if(verbose)
+    cout << "Getting oldclasses for divisor " << D << endl;
+  eigdata olddata(N,D,nap,verbose);
+  int nforms=olddata.nforms;
+  Qideal M = N/D;
+  int k=0, oldmult=1, xmult, mult, j, beta;
+  vector<long> betalist;
+  for (vector<Quadprime>::const_iterator Pi = plist.begin(); Pi!=plist.end(); Pi++)
+    {
+      beta = val(*Pi, M);
+      oldmult *= 1+beta;
+      if(beta>0) k++;
+      betalist.push_back(beta);
+    }
+  if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmult<<endl;
+  olddim2+=oldmult*olddata.nforms2;
+  if(verbose) cout << "Computing W multiplicities." << endl;
+  vector<long> nextoldformap(nap);
+  for(int iform=0; iform<nforms; iform++)
+    { for (int c=0; c<(1<<k); c++)
         {
-	  beta=val(*p++,m);
-	  oldmult*=1+beta;
-	  if(beta>0) k++;
-	  betalist.push_back(beta);
-	}
-      if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmult<<endl;
-      olddim2+=oldmult*olddata.nforms2;
-      if(verbose) cout << "Computing W multiplicities." << endl;
-      vector<long> nextoldformap(nap);
-      for(int iform=0; iform<nforms; iform++)
-        { for (int c=0; c<(1<<k); c++)
+          if(verbose) cout << "c = " << c << endl;
+          mult=1; j=0;
+          ;
+          for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(mult>0); Qi++)
             {
-               if(verbose) cout << "c = " << c << endl;
-               mult=1; j=0;
-	       vector<Quad>::const_iterator q;
-               for (q=(N->plist).begin();
-		    q!=(N->plist).end()&&(mult>0); q++)
-                 {  int i = q-(N->plist).begin();
-		    beta=betalist[i];
-                    if (beta>0)
-                      { int bit = testbit(c,j); j++;
-			nextoldformap[i] = bit?1:-1;
-                        if (odd(beta)) xmult =  (beta+1)/2;
-                        else if(div(*q,d) && (olddata.eigs[iform][i]==-1)) xmult=beta/2;
-                        else xmult=(beta/2)+1;
-                        if (!bit) xmult=1+beta-xmult;
-                        mult*=xmult;
-                      }
-		    else nextoldformap[i] = olddata.eigs[iform][i];
-                  }
-               if(verbose) cout << "Multiplicity = " << mult << endl;
-               if (mult>0)
-                 {
-                   for(int i=N->npdivs; i<nap; i++)
-		     nextoldformap[i] = olddata.eigs[iform][i];
-		   oldformap.push_back(nextoldformap);
-		   oldclassdims.push_back(mult);
-		   oldlevels.push_back(d);
-                   noldclasses++;
-                 }
-             }
+              int i = Qi - plist.begin();
+              beta=betalist[i];
+              if (beta>0)
+                { int bit = testbit(c,j); j++;
+                  nextoldformap[i] = bit?1:-1;
+                  if (odd(beta)) xmult =  (beta+1)/2;
+                  else if((*Qi).divides(D) && (olddata.eigs[iform][i]==-1)) xmult=beta/2;
+                  else xmult=(beta/2)+1;
+                  if (!bit) xmult=1+beta-xmult;
+                  mult*=xmult;
+                }
+              else nextoldformap[i] = olddata.eigs[iform][i];
+            }
+          if(verbose) cout << "Multiplicity = " << mult << endl;
+          if (mult>0)
+            {
+              for(int i=plist.size(); i<nap; i++)
+                nextoldformap[i] = olddata.eigs[iform][i];
+              oldformap.push_back(nextoldformap);
+              oldclassdims.push_back(mult);
+              oldlevels.push_back(D);
+              noldclasses++;
+            }
         }
     }
 }
@@ -291,8 +299,8 @@ void oldforms::display(void) const
 {
   if (noldclasses>0)
   {
-    cout << "\nOld classes\n~~~~~~~~~~~\n";
-    cout << "Level   Dimension " << N->primelist << endl;
+    cout << "\nOld classes for level "<<N<<"\n~~~~~~~~~~~\n";
+    cout << "Level   Dimension " << plist << endl;
     for (int i=0; i<noldclasses; i++)
     { cout << oldlevels[i] << "       " << oldclassdims[i] << "       ";
       cout << oldformap[i] << endl;

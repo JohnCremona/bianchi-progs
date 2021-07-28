@@ -20,7 +20,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
   hmod = 0;
   plusflag=hp;
   nap = 20;
-  primelist = N.factorization().primes();
+  primelist = ::primelist(N, nap);
   for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end() && primelist.size()<(unsigned)nap; Pi++)
     {
       Quadprime P = *Pi;
@@ -32,7 +32,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb); // fills relmat with the relations and solves
-  denom1 = FR.get_denom1();
+  denom1 = FR.get_denom();
   rk = FR.get_rank();
   hmod = FR.get_hmod();
 
@@ -250,6 +250,20 @@ mat reduce_modp(const mat& m, const scalar& p)
         while(-aij>p2) aij+=p;
         ans(i,j) = aij;
       }
+  return ans;
+}
+
+// List of bad primes (dividing N) followed by good primes to length np:
+vector<Quadprime> primelist(Qideal& N, int np)
+{
+  vector<Quadprime> ans = N.factorization().primes();
+  vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
+  while (ans.size()<(unsigned)np)
+    {
+      Quadprime P = *Pi++;
+      if (!P.divides(N))
+        ans.push_back(P);
+    }
   return ans;
 }
 

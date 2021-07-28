@@ -20,7 +20,7 @@ Enter level:
 Sign of F.E. = -1
 Twisting prime lambda = 5, factor = 16
 L/P ratio    = 8, cuspidal factor = 1
-Integration matrix = [7+a,1;20+3a,3], factor   = -2
+Integration matrix = [7+a,1;20+3a,3], factor   = 2
 Writing data to file nftmp/2.0.43.1/43.21.1...done.
 ===========================================
 Enter level: 
@@ -42,11 +42,11 @@ Enter level:
 >>>> Level 121.0.11 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.0.11 = (11):
-1:	basis = [0,1,2,0];	aqlist = [ -1 -1 ];	aplist = [ 0 -5 1 1 4 4 -2 -2 -1 -1 -9 7 7 -8 -8 -6 8 8 -10 -6 -6 5 5 -7 -7 ]
+1:	basis = [1,-1,2,0];	aqlist = [ -1 -1 ];	aplist = [ 0 -5 1 1 4 4 -2 -2 -1 -1 -9 7 7 -8 -8 -6 8 8 -10 -6 -6 5 5 -7 -7 ]
 Sign of F.E. = -1
-Twisting prime lambda = 1+a, factor = 8
-L/P ratio    = 4, cuspidal factor = 2
-Integration matrix = [6-5a,1;-44-11a,2-a], factor   = -4
+Twisting prime lambda = 1+a, factor = 4
+L/P ratio    = 2, cuspidal factor = 2
+Integration matrix = [6-5a,1;-44-11a,2-a], factor   = 2
 Writing data to file nftmp/2.0.43.1/121.0.11...done.
 ===========================================
 Enter level: 
@@ -55,9 +55,9 @@ Enter level:
 1 newform(s) at level 121.10.1 = (10+a):
 1:	basis = [4,1,-1,-5,1,-6,0];	aqlist = [ -1 ];	aplist = [ 2 0 1 0 3 -3 -7 7 1 1 4 3 3 -5 5 0 10 10 -8 -1 -1 -10 -10 9 9 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 72
-L/P ratio    = 12, cuspidal factor = 6
-Integration matrix = [61,-a;-11+11a,2], factor   = 24
+Twisting prime lambda = 1, factor = 12
+L/P ratio    = 2, cuspidal factor = 6
+Integration matrix = [61,-a;-11+11a,2], factor   = 4
 Writing data to file nftmp/2.0.43.1/121.10.1...done.
 ===========================================
 Enter level: 

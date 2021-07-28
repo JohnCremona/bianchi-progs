@@ -9,7 +9,7 @@ Enter field: Verbose? Enter level:
 Sign of F.E. = -1
 Twisting prime lambda = 8+a, factor = 64
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [27+a,1;80+3a,3], factor   = -2
+Integration matrix = [27+a,1;80+3a,3], factor   = 2
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for 7+a: [ -11 ]

@@ -337,6 +337,7 @@ vec homspace::maninvector(const Quad& p)
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
     {
+      if (*res==0) res++;
       part = chain(*res++,p);
       if(hmod)
         ans.addmodp(part,hmod);

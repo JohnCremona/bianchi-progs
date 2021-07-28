@@ -42,7 +42,6 @@ public:
 };
 
 string ideal_code(const Quad& N); // string code for a (principal)  ideal
-string eigfile(const Quad& N);    //returns filename for eigs at level N
 
 
 #endif

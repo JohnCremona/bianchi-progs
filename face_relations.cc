@@ -96,7 +96,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
           if (hmod)
             cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
           else
-            cout << "lifted ok, denominator = " << denom1 << endl;
+            cout << "lifted ok, denominator = " << denom << endl;
           cout << "pivots = " << pivs <<endl;
         }
     }
@@ -727,12 +727,12 @@ void face_relations::solve_relations()
    if (ok)
      {
        hmod = 0;
-       denom1 = d1;
+       denom = d1;
      }
    else
      {
        hmod = MODULUS;
-       denom1 = 1;
+       denom = 1;
      }
    relmat=smat(0,0); // clear space
    if(verbose>1)
@@ -758,7 +758,7 @@ void face_relations::solve_relations()
   if(verbose>2) cout<<"coord = "<<basis(sp)<<endl;
   coord = basis(sp).shorten((int)1);
   pivs = pivots(sp);
-  denom1 = I2int(denom(sp));
+  denom = I2int(denom(sp));
   relmat.init(); sp.clear();
 #endif
 }

@@ -8,15 +8,15 @@ Retrieving newform data for N = 8+w
 1 newform(s) at level 73.8.1 = (8+w):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 1 2 14 -10 14 2 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = -6
+Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/6, cuspidal factor = 1
-Integration matrix = [4-6w,-w;-1+9w,1+w], factor   = -3
+Integration matrix = [4-6w,-w;-1+9w,1+w], factor   = 3
 Making homspace and bases...
 About to recover 1 newform bases (nap=25)
 Recovering newform #1, eigs [ -1 -2 -1 -4 2 2 2 2 2 2 -4 -10 2 2 -4 2 2 -10 8 -4 ]...
 Entering form_finder, depth = 0, dimension 2
 restarting at depth = 0, dimension 2
-Computing W(8+w)...done.
+Computing W(P73a)...done.
  eig -1 gives new subspace at depth 1 of dimension 2
  eig -2 gives new subspace at depth 2 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...

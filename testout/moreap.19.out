@@ -8,15 +8,15 @@ Retrieving newform data for N = -1+2a
 1 newform(s) at level 19.9.1 = (-1+2a):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -4 3 3 -1 -1 -2 3 3 -3 -3 1 0 0 -1 -1 -3 -3 -1 -1 -7 -7 12 12 6 6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = -180
-L/P ratio    = 10, cuspidal factor = 15
-Integration matrix = [-2+5a,-a;-9-a,2], factor   = -75
+Twisting prime lambda = 1, factor = 36
+L/P ratio    = 2, cuspidal factor = 15
+Integration matrix = [-2+5a,-a;-9-a,2], factor   = 15
 Making homspace and bases...
 About to recover 1 newform bases (nap=25)
 Recovering newform #1, eigs [ -1 -4 3 3 -1 -1 -2 3 3 -3 -3 0 0 -1 -1 -3 -3 -1 -1 -7 ]...
 Entering form_finder, depth = 0, dimension 2
 restarting at depth = 0, dimension 2
-Computing W(-1+2a)...done.
+Computing W(P19)...done.
  eig -1 gives new subspace at depth 1 of dimension 2
  eig -4 gives new subspace at depth 2 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...

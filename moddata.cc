@@ -185,16 +185,6 @@ string ideal_code(const Quad& N) // string code for a (principal) ideal N
   return s.str();
 }
 
-string eigfile(const Quad& N)    //returns filename for eigs at level N
-{
-  stringstream s;
-  s << getenv("NF_DIR");
-  if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/2.0." << (Quad::disc) << ".1/";
-  s << ideal_code(N);
-  return s.str();
-}
-
 // old versions:
 
 string old_ideal_code(const Quad& N) // string code for a (principal) ideal N

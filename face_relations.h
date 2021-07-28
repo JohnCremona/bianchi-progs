@@ -13,7 +13,7 @@ public:
   face_relations(edge_relations*, int plus, int verb=0);
   int ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
-  long get_denom1() const {return denom1;}
+  long get_denom() const {return denom;}
   long get_rank() const {return rk;}
   long get_hmod() const {return hmod;}
   long gen(int i) const {return pivs[i];}
@@ -22,11 +22,11 @@ private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
   int plusflag, verbose;
   long ngens, nsymb, numrel, maxnumrel;
-  long hmod, denom1, rk;
+  long hmod, denom, rk;
   vec pivs;
 
   void make_relations();        // creates relation matrix relmat
-  void solve_relations();       // computes kernel of relmat and sets rk, denom1, coord[, freegens]
+  void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]
 
 
   void add_face_rel(const vector<int>& rel, const vector<int>& types);

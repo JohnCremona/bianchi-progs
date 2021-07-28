@@ -5,9 +5,9 @@ Enter field: Verbose? Enter level: Retrieving newform data for N = 7+4i
 1 newform(s) at level 65.18.1 = (7+4i):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 -1 -2 1 -4 0 6 6 -6 2 2 6 0 -4 6 -6 -10 -10 2 2 6 6 -10 8 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 12
-L/P ratio    = 1, cuspidal factor = 6
-Integration matrix = [6-2i,-i;-4+7i,1+i], factor   = 12
+Twisting prime lambda = 1, factor = 6
+L/P ratio    = 1/2, cuspidal factor = 3
+Integration matrix = [6-2i,-i;-4+7i,1+i], factor   = 6
 Enter level: Retrieving newform data for N = 6+6i
 
 >>>> Level 72.6.6 = (6+6i), norm = 72 <<<<
