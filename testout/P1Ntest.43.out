@@ -1,0 +1,9 @@
+
+P1N TEST PROGRAM
+Enter field: Q(sqrt(-43))	discriminant = 43	min poly(a) = a^2-a+11.
+Non-Euclidean, class number 1
+175 primes initialised, max norm = 1000
+testing split/merge of multi-indices...
+testing P1(N) symbol-index bijections for ideals of norm up to 100...
+testing P1(N) symbol-index bijections for Quads of norm up to 100...
+done

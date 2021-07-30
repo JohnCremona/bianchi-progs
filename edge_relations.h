@@ -26,7 +26,7 @@ private:
   void edge_relations_2();    // extra edge relations for alphas with denom 2
   void edge_pairing(int i);   // edge relation pair, alpha=r/s with r^2=-1 (s)
   void edge_pairing_double(int i); // edge relation double pairing
-
+  void report();
   friend class face_relations;
 };
 

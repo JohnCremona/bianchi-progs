@@ -28,7 +28,6 @@ private:
   void make_relations();        // creates relation matrix relmat
   void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]
 
-
   void add_face_rel(const vector<int>& rel, const vector<int>& types);
   void triangle_relation_0();           // triangle relation for all fields
   void triangle_relation_1_3();         // extra triangle relation for fields 1, 3
@@ -46,7 +45,10 @@ private:
 #else
   mat relmat;
 #endif
+protected:
   mat coord;
+  friend class newform;
+  friend class newforms;
 };
 
 

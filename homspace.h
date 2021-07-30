@@ -33,7 +33,6 @@ public:
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
 
-  int ncoords() {return FR.ncoords();}
   vec coords(int i) {return FR.coords(i);}
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return cosets.index(c, d);}
@@ -58,11 +57,7 @@ public:
    long h1hmod() const {return hmod;}
 
   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
-  vec projchaincd(const Quad& c, const Quad& d, int type=0)
-  {return chaincd(c, d, type, 1);}
   vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);
-  vec projchain(const Quad& a, const Quad& b, const Quad& c=Quad::zero, const Quad& d=Quad::one)
-  {return chain(a, b, 1, c, d);}
   vec chain(const RatQuad& r, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one)
   {return chain(r.num(), r.den(), proj, c, d);}
   vec chain(const RatQuad& alpha, const RatQuad& beta, int proj=0);
@@ -94,10 +89,9 @@ public:
    mat wop(Quadprime& Q, int dual=1, int display=0);
    mat fricke(int dual=1, int display=0);
 //   mat conj(int display=0) const;
-   vec maninvector(Quadprime& P);
-   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable);
-  // no longer used, implementations are commented out:
-  // vec projmaninvector(const Quadprime& P);
+  vec maninvector(Quadprime& P, int proj=0);
+  vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);
+  // no longer used, implementation commented out:
   // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
 };
 

@@ -742,7 +742,7 @@ void face_relations::solve_relations()
        cout << "denom = "<<d1 << endl;
      }
    rk = sp.ncols();
-   coord.init(ngens+1,rk); // 0'th is unused
+   coord.init(ngens,rk); // 0'th is unused
    for(i=1; i<=ngens; i++)
      coord.setrow(i,sp.row(i).as_vec());
    // if hmod>0, coord is only defined modulo hmod

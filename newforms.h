@@ -27,7 +27,7 @@ newform for integers and 2 per newform for quads:
 4.  pdot: projection of Manin vector
 5.  dp0 : np0=1+Norm(p0)-a_p0, p0 = first good prime
 6.  cuspidalfactor : ratio of period / cuspidal period
-7.  lambda : twisting prime (or 1), a quad
+7.  lambda : twisting prime (or 1), a quad (generator of a principal prime)
 8.  lambdadot : scaling factor for lambda
 9-12. a, b, c, d : entries of a matrix M=[a,b;N*c,d] in Gamma_0(N) s.t.
 13. matdot       : the integral of f over {0,M(0)} is matdot*x
@@ -63,16 +63,31 @@ public:
   long cuspidalfactor;
 
   newform(void) :basis(0), aplist(0) {;}
+  // constructor to use just after finding the eigenspace: just sets
+  // eigs and basis:
   newform(newforms* nfs, const vec& v, const vector<long>& eigs);
+
+  // constructor to use when data read from file:
   newform(newforms* nfs,
           const vector<int>& intdata, const vector<Quad>& Quaddata,
           const vector<long>& aq, const vector<long>& ap);
+
+  // After finding all newforms using the basic constructor and
+  // setting h1's projcoord, fill in the rest of the data for this,
+  // given that it is the j'th newform:
+  // - ap and sfe
+  // - L/P
+  // - manin vector data
+  // - integration matrix using find_matrix()
+
+  void fill_in_data(int j);
+
   void display(void) const;
   void list(long nap=-1) const;
   // To find cuspidal factor:
-  void find_cuspidal_factor(void);
+  void find_cuspidal_factor(const vec& v);
   // To find matrix for integration:
-  void find_matrix(void);
+  void find_matrix(int j);
   // Test if form is base-change
   int is_base_change(void) const;
   // Test if form is base-change up to twist
@@ -116,15 +131,17 @@ private:
 
   long j0;
   std::set<long> jlist;
-  // Look for a j0 such that nflist[i].basis[j0]!=0 for all i,
-  //or a set of such j
+  // Look for a pivotal index j0 (from 1) such that
+  // nflist[i].basis[j0]!=0 for all i, or a set of such j (Each
+  // newform stores a j0-value and this nonzero coordinate as "fac".)
   void find_jlist();
 
 protected:
   oldforms *of; // pointer to one, not an array
-  Quadprime P0; vec mvp;
+  Quadprime P0; int iP0; long nP0; vec mvp;
+  vec zero_infinity;
 public:
-  Quad modulus; Qideal N;
+  Quad modulus; Qideal N;  // modulus generates N (still assumed principal)
   vector<Quadprime> plist; // bad primes
   int is_square, npdivs;
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
@@ -139,26 +156,37 @@ public:
   void init();
   void display(void) const;
   void list(long nap=-1) const;
-  vec proj(const vec&);   //returns vec of components in each eig-space
-  void allproj(void);  //Replaces "coord" member of homspace with projections
-                       //onto eigenspaces, to save time
+
+private:
+  // Compute the associated homspace
   void makeh1plus(void);
-// add newform with basis b1, eiglist eigs to current list (b2 not used)
-// if use_nf_number=-1;  if >=0 just store eigs and basis in that preexisting nf
+  // Set projcoord member of homspace
+  void make_projcoord(void);
+  // fill in extra data in each newforms:
+  void fill_in_newform_data(int everything=1);
+  void find_lambdas();
+
+  // add newform with basis b1, eiglist eigs to current list (b2 not used)
+  // if use_nf_number=-1;  if >=0 just store eigs and basis in that preexisting nf
   int use_nf_number;
   void use(const vec& b1, const vec& b2, const vector<long> eigs);
+
+ public:
+
+  // methods for computing Hecke eigenvalues
+
   void getap(int first, int last, int verbose=0);
   void getoneap(Quadprime& P, int verbose=0, int store=1);
   vector<long> apvec(Quadprime& P);  // computes a[P] for each newform
+
   void output_to_file(string eigfile) const;
+
   // sorting functions
   void sort_eigs(void);
   void sort_lmfdb(void);
+
   void createfromscratch();
   void createfromdata();
- private:
-  void get_lambda();
- public:
   void makebases(); // if created from stored data but need bases and homspace
 };
 

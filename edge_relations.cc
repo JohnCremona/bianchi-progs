@@ -23,12 +23,22 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
   if(verbose)
     cout<<"Edge relations for type 0 symbols (denominator 1)\n";
   edge_relations_1();
-  if (field<19) return;
+  if (field<19)
+    {
+      if (verbose)
+        report();
+      return;
+    }
 
   if(verbose)
     cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
   edge_relations_2();
-  if (field<43) return;
+  if (field<43)
+    {
+      if (verbose)
+        report();
+      return;
+    }
 
   if(verbose)
     cout<<"General edge pair relations\n";
@@ -40,31 +50,34 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     edge_pairing_double(*i);
 
   if (verbose)
+    report();
+}
+
+void edge_relations::report()
+{
+  cout << "After 2-term relations, ngens = "<<ngens<<endl;
+  cout << "gens = ";
+  int i, j;
+  for (i=1; i<=ngens; i++) cout << gens[i] << " ";
+  cout << endl;
+  cout << "coordindex = \n";
+  for (j=0; j<n_alphas; j++)
     {
-      cout << "After 2-term relations, ngens = "<<ngens<<endl;
-      cout << "gens = ";
-      int i, j;
-      for (i=1; i<=ngens; i++) cout << gens[i] << " ";
-      cout << endl;
-      cout << "coordindex = \n";
-      for (j=0; j<n_alphas; j++)
+      int offset = j*nsymb;
+      if(n_alphas>1)
         {
-          int offset = j*nsymb;
-          if(n_alphas>1)
-            {
-              mat22 M = M_alphas[j];
-              RatQuad alpha(-M.entry(1,1), M.entry(1,0));
-              cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
-            }
-          Quad c, d;
-          for (i=0; i<nsymb; i++)
-            {
-              cosets->make_symb(i, c, d);
-              cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+offset] << "\n";
-            }
+          mat22 M = M_alphas[j];
+          RatQuad alpha(-M.entry(1,1), M.entry(1,0));
+          cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
         }
-      cout << endl;
+      Quad c, d;
+      for (i=0; i<nsymb; i++)
+        {
+          cosets->make_symb(i, c, d);
+          cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+offset] << "\n";
+        }
     }
+  cout << endl;
 }
 
 void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0

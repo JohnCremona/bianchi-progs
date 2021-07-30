@@ -20,7 +20,6 @@ Computing W(P2)...done.
  eig -1 gives new subspace at depth 1 of dimension 5
  eig 0 gives new subspace at depth 2 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
-j0=3
 Finished makebases()
 About to start computing ap...
 P = P97a = (5+6t)	N(P) = 97	   18 

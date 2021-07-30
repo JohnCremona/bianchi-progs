@@ -50,16 +50,16 @@ int main(void)
   int both=1, sorted=1;
   long maxn=100;
   cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
-  Qidealooper loop(1, 100, both, sorted);
+  Qidealooper loop(1, maxn, both, sorted);
   while( loop.not_finished() )
     {
       symb_index_test(loop.next());
     }
   cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
-  Quadlooper alpha(1, 100, 1);
+  Quadlooper alpha(1, maxn, both);
   while( alpha.ok() )
     {
-      symb_index_test((Quad)alpha);
+      symb_index_test((Quad)alpha, 0);
       ++alpha;
     }
   cout<<"done"<<endl;

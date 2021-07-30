@@ -81,6 +81,7 @@ inline ostream& operator<< (ostream& s, const mat22& m)
 class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
+  matop() {;}
   matop(const Quad& p, const Quad& n);  // constructor for hecke ops (non-ideal version)
   matop(Qideal& P, Qideal& N);          // constructor for hecke ops (ideal version)
   mat22 operator[](int i) const {return mats[i];}

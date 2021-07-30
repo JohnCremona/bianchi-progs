@@ -10,36 +10,119 @@
 #include "newforms.h"
 #include "eclib/curvesort.h" // for letter codes
 
-// either (pr=0) form integer scalar product divide (exactly) by scale;
-// or (pr>0) form scalar product mod pr
-scalar vecdot(const vec& v1, const vec& v2, scalar pr)
-{
-  return (pr==0? v1*v2: dotmodp(v1,v2,pr));
-}
+// Notes on scaling:
+//
+// For a newform F (however normalised), the periods of F are the
+// integrals of (the differential associated to) F along paths between
+// Gamma_0(N)-equivalent cusps.  These are all integral multiples of a
+// minimal positive real period P.  The map from integral homology to
+// the associated period multiple takes gamma In H_1(-,Z) to
+// n_F(gamma) = (integral of F over gamma)/P, and the image of this
+// map is (by definiton) Z.
 
+// Similarly the "cuspidal periods" of F are its integrals along all
+// paths gamma between cusps, whether or not they are
+// Gamma_0(N)-equivalent, and these are the integral multiples of a
+// least positive real cuspidal period P'.  Now P*Z is a subgroup of
+// P'*Z, and its index c is called the "cuspidal factor", also equal
+// to c=P/P'.  Let n'_F(gamma) = (integral of F over gamma)/P' for gamma
+// in H_1(-,Z; cusps).
+
+// The map from gamma to n'_F(gamma) is modular and an eigenfunction
+// for Hecke, so is a primitive basis vector for the associated dual
+// eigenspace.  Since we do linear algebra on the dual (by transposing
+// Hecke matrices), we can compute this map, up to scaling, by simply
+// taking the dot product of our dual basis vector v with the coords
+// of gamma with respect to the homology basis.  Regardless of whether
+// our "freegens" generator the whole integral homology (w.r.t. cusps)
+// or only a sublattice of finite index, i.e. whether denom1=1 or >1,
+// this does not nmatter since the map n'_F is primitive, so to get
+// the correct values (up to sign) we just have to divide out these
+// dot products by their gcd.
+
+// The map n'_F(gamma) is almost encoded in the matrix projcoord
+// (created by calling make_projcoord()): its rows are indexed by edges
+// modulo edge relations, so to get the value for the j'the newform on
+// an edge (c:d)_t we find the edge number i = (t*nsymb+index(c,d)),
+// use that to look up k=ER.coords(i), and the value is
+// sign(k)*projcoord[abs(k),j].
+
+// For example n'_F({0,oo}) is obtained this way with (c,d,t)=(0,1,0).
+// Now L(F,1) is the integral of F over {0,oo} (?times a normalising
+// factor?), hence we obtain L(F,1)/P' = n'_F({0,oo}) (an integer).
+// For L(F,1)/P we divide by the cuspidal factor for F, obtaining a
+// rational.  [P=c*P' so L/P = L/(c*P') = (L/P')/c.]
+
+// A second way to compute L(F,1)/P' which only involves integra
+// periods is to use a "Manin vector" mvp for some good prime p, which
+// is the sum over x mod p of {0,x/p}, since (1+N(p)-a_p)*n'_F({0,oo})
+// = n'_F(mvp), hence L/P' = n'_F(mvp)/(1+N(p)-a_p).
+
+// NB in the newform constructor we cannot use projcoord since that is
+// only computed after all the newforms are found
 
 newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
-  :basis(v), eigs(eigs)
+  : eigs(eigs)
 {
   //  cout<<"Constructing newform with eigs "<<eigs<<" and basis "<<v<<endl;
   nf=nfs;
-  copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
-  dp0    =  1 + (nf->P0).norm() - eigs[nf->npdivs];
-  pdot = abs(vecdot(nf->mvp, basis, nf->hmod));
-  if (pdot % nf->h1->h1denom() ==0)
-    pdot /= nf->h1->h1denom();
+
+  // convert basis vector from coords w.r.t. face-gens to coords
+  // w.r.t.edge-gens:
+  if(nf->hmod)
+    { // we don't have a mod p mat*vec
+      mat vcol(dim(v),1);
+      vcol.setcol(1,v);
+      basis = reduce_modp(matmulmodp(nf->h1->FR.coord, vcol, nf->hmod).col(1));
+    }
   else
-    cout<<"pdot = "<<pdot<<" is not divisible by "<<nf->h1->h1denom()<<endl;
-
-  //  cout<<"dp0 = "<<dp0<<", pdot="<<pdot<<endl;
-
-  //No division by h1denom() here?  Should divide by h1cdenom() and by cuspidalfactor?
-  loverp = rational(abs(pdot),dp0*(Quad::nunits));
-  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+    basis = (nf->h1->FR.coord)*v;
+  makeprimitive(basis); // this is now independent of h1's denom1
+  if (nf->verbose >1)
+  {
+    cout << "short newform basis = "<<v<<endl;
+    cout << "long  newform basis = "<<basis<<endl;
+  }
   // Find the ratio of the least period w.r.t. integral homology
   // divided by the least period w.r.t. homology relative to cusps.
-  find_cuspidal_factor();
-  find_matrix();
+  // this uses the vector v so must be done now
+  find_cuspidal_factor(v);
+
+}
+
+// fill in data for the j'th newform (j based at 1)
+
+void newform::fill_in_data(int j)
+{
+  // extract Atkin-Lehner eigs from first entries of eigs list:
+  copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
+
+  // Sign of functional equation = minus product of all A-L eigenvalues
+  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+
+  // compute L/P as n_F({0,oo})
+  int pdot0 = abs(nf->zero_infinity[j]);
+  loverp =  rational(pdot0, (Quad::nunits) * cuspidalfactor);
+
+  // compute L/P again using Manin vector
+  dp0  =  1 + (nf->nP0) - eigs[nf->iP0];
+  pdot = abs(nf->mvp[j]);
+  rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
+
+  // Check they agree:
+  if (pdot != dp0*pdot0)
+    {
+      cout << "Inconsistent values for L/P computed two ways!"<<endl;
+      cout << "from {0,oo} directly: " << loverp <<endl;
+      cout << "from Manin vector:    " << loverp_mvp <<endl;
+    }
+
+  // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
+  // integral over {0,M(0)} = {0,b/d} with M = [a,b;N*c,d] is a
+  // nonzero multiple "matdot" of the period P.
+
+  // NB We do not currently use this, it should be further scaled
+  find_matrix(j);
 }
 
 newform::newform(newforms* nfs,
@@ -48,6 +131,7 @@ newform::newform(newforms* nfs,
 {
   nf=nfs;
   sfe = intdata[0];
+  //  cout<<"sfe from file = "<<sfe<<endl;
   pdot = intdata[1];
   dp0 = intdata[2];
   loverp = rational(abs(pdot),dp0*(Quad::nunits));
@@ -60,6 +144,10 @@ newform::newform(newforms* nfs,
   d = Quaddata[4];
   matdot = intdata[5];
   aqlist = aq;
+  // Recompute sign of functional equation = minus product of all A-L eigenvalues
+  int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+  if (newsfe!=sfe)
+    cout<<"Problem in data on file for level "<<nfs->N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
   aplist = ap;
   // recreate eigs list (in case we need to recover basis vector):
   // start with Atkin-Lehner eigs aq, then Tp eigs ap for good p
@@ -74,62 +162,52 @@ newform::newform(newforms* nfs,
     }
 }
 
-void newform::find_cuspidal_factor(void)
+void newform::find_cuspidal_factor(const vec& v)
 {
-  vec bc;
-  int verbose = nf->verbose;
-  cuspidalfactor=1;
-
-  if(!(nf->h1->cuspidal))
+  if(nf->h1->cuspidal)
     {
-      bc=(nf->h1->tkernbas)*basis;
-      cuspidalfactor = vecgcd(bc);
-      bc /= cuspidalfactor;
+      cuspidalfactor=1;
     }
-  if(verbose&&(cuspidalfactor>1))
+  else
     {
-      cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
-      if(verbose>2) cout<<"bc = "<<bc<<endl;
+      cuspidalfactor = vecgcd((nf->h1->tkernbas)*v);
+      if(nf->verbose)
+        cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 }
 
-void newform::find_matrix()
+// find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
+// integral over {0,M(0)} = {0,b/d} with M = [a,b;N*c,d] is a
+// nonzero multiple "matdot" of the period P.
+
+//  for the j'th newform (j based at 1)
+
+void newform::find_matrix(int j)
 {
-  int verbose=(nf->verbose);
-  if(verbose) cout<<"computing a,b,c,d..."<<flush;
-  Quad N = nf->modulus;
+  if(nf->verbose>1)
+    cout<<"computing integration matrix..."<<flush;
   matdot=0;
-   //  Look for a QuadRational q=b/d for which {0,q}={0,g(0)} is
-   //  nontrivial, and record the matrix g and matdot = the multiple
-   //  of the fundamental period which the integral over {0,g(0)} is.
   for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
     { d=(Quad)dl;
-      if (coprime(d,N))
+      if ((nf->N).is_coprime_to(d))
         {
-          //cout<<"d="<<d<<endl;
           vector<Quad> reslist = residues(d);
           vector<Quad>::const_iterator res;
           for(res=reslist.begin(); res!=reslist.end() && !matdot; res++)
             {
               b=*res;
-              Quad g = quadbezout(N*b,d,c,a);  // b*N*c+a*d=1
+              Quad g = quadbezout(nf->modulus*b,d,c,a);  // b*modulus*c+a*d=1
               if (quadnorm(g)==1)
                 {   // found a candidate q=b/d
-                  //cout<<"b="<<b<<endl;
-                  vec v=nf->h1->chain(b,d);  //starts at 1
-                  //cout<<"v="<<v<<endl;
-                  matdot = abs(vecdot(v, basis, nf->hmod)) / nf->h1->h1denom();
-                  //cout<<"matdot="<<matdot<<endl;
-                  if (matdot)
-                    {
-                      c = -N*c;
-                      if (!(a*d-b*c==1))
-                        cout<<"Error computing matrix"<<endl;
-                    }
-                } // b coprime to d
+                  c *= -nf->modulus;
+                  assert (a*d-b*c==1);
+                  matdot = abs((nf->h1->chain(b,d, 1))[j]);
+                } // b coprime to d test
             } // loop over b
-        } // d coprime to modulus
+        } // d coprime to N test
     } // loop over d
+  if(nf->verbose>1)
+    cout<<"M = ["<<a<<","<<b<<";"<<c<<","<<d<<"] with factor "<<matdot<<endl;
 }
 
 int newform::is_base_change(void) const
@@ -332,7 +410,6 @@ int newform::is_CM(void) const
   return cmd;
 }
 
-
 void newforms::makeh1plus(void)
 {
   if(!h1)
@@ -365,7 +442,7 @@ void newforms::init()
 {
   is_square = N.is_square();
   Factorization F = N.factorization();
-  plist = F.primes();
+  plist = primelist(N, 20);
   nwq = npdivs = F.size();
   nap=20;
   ntp=nap-nwq;
@@ -373,16 +450,30 @@ void newforms::init()
   of=0;
   nfhmod=0;
 //
-// get smallest good principal prime:
+// get smallest good principal prime: and its index (in the list of
+// primes which starts with the bad primes and then the good primes in
+// order):
 //
-  vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
+  vector<Quadprime>::const_iterator Pi=plist.begin();
   P0 = *Pi;
+  iP0 = 0;
   while (P0.divides(N) || !P0.is_principal())
-    P0=*Pi++;     // First "good" prime
+    {
+      Pi++;     // First "good" prime
+      iP0++;
+      P0 = *Pi;
+    }
+  assert (plist[iP0]==P0);
+  if (plist[iP0]!=P0)
+    {
+      cout<<"P0 = "<<P0<<", plist = "<<plist<<", iP0 = "<<iP0<<endl;
+    }
+  assert (plist[iP0]==P0);
+  nP0 = P0.norm();
 }
 
 //#define DEBUG_LAMBDA
-void newforms::get_lambda()
+void newforms::find_lambdas()
 {
   vector<int> gotlambda(n1ds);
   int i, nfound=0;
@@ -402,7 +493,7 @@ void newforms::get_lambda()
       }
     else
       {
-        nflist[i].lambda=Quad(0); // indicates no lambda exists
+        nflist[i].lambda=Quad(0); // indicates no lambda exists (yet)
         nflist[i].lambdadot=0;
 	gotlambda[i]=0;
       }
@@ -414,56 +505,51 @@ void newforms::get_lambda()
       return;
     }
 
-  vector<Quad>::const_iterator pr;
-  for(pr=quadprimes.begin(); pr!=quadprimes.end() && (nfound<n1ds); pr++)
-    { Quad lam = *pr;
+  vector<Quadprime>::const_iterator Li;
+  for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); Li++)
+    {
+      Quadprime L = *Li;
+      if (L.divides(2)) continue;
+      if (L.divides(N)) continue;
+      if (!L.is_principal()) continue;
+      Quad lam = L.gen();
 #ifdef DEBUG_LAMBDA
-      if(verbose)cout << "Testing lambda = " << lam << endl;
+      if(verbose)cout << "Testing lambda = " << L << " = ("<<lam<<"): principal, odd, good"<<endl;
 #endif
-      if(!div(lam,2*modulus))
+      vector<Quad> lamres = L.residues();
+      if(squaremod(fundunit,lam,lamres)==1)
         {
 #ifdef DEBUG_LAMBDA
-          if(verbose)cout<<"passed first general test"<<endl;
+          if(verbose)cout<<"passed second test: fundamental unit is a square"<<endl;
 #endif
-          vector<Quad> lamres = residues(lam);
-          if(squaremod(fundunit,lam,lamres)==1)
+          int chimod  = squaremod(modulus,lam,lamres);
+          vector<int> chitab = makechitable(lam,lamres);
+          vec mvtw = h1->manintwist(lam,lamres,chitab, 1);
+          for(int j=0; (j<n1ds)&&(nfound<n1ds); j++)
             {
-#ifdef DEBUG_LAMBDA
-              if(verbose)cout<<"passed second general test"<<endl;
-#endif
-              int chimod  = squaremod(modulus,lam,lamres);
-              vector<int> chitab = makechitable(lam,lamres);
-              vec mvtw = h1->manintwist(lam,lamres,chitab);
-              for(int j=0; (j<n1ds)&&(nfound<n1ds); j++)
+              if(gotlambda[j]==0)
                 {
-                  if(gotlambda[j]==0)
+#ifdef DEBUG_LAMBDA
+                  if(verbose)cout<<"Newform # "<<j<<": ";
+                  if(verbose)cout<<"trying: ";
+#endif
+                  newform& nfj = nflist[j];
+                  int dot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
+                  if(dot&&((chimod*nfj.sfe)==+1))
                     {
 #ifdef DEBUG_LAMBDA
-                      if(verbose)cout<<"Newform # "<<j<<": ";
-                      if(verbose)cout<<"trying: ";
+                      if(verbose)cout<<"Success! ";
 #endif
-                      newform& nfj = nflist[j];
-                      int dot = abs(vecdot(mvtw, nfj.basis, hmod));
-                      if (dot % h1->h1denom() ==0)
-                        dot /= h1->h1denom();
-                      else
-                        cout<<"dot = "<<dot<<" for lambda="<<lam<<" is not divisible by "<<h1->h1denom()<<endl;
-                      if(dot&&((chimod*nfj.sfe)==+1))
-                        {
-#ifdef DEBUG_LAMBDA
-                          if(verbose)cout<<"Success! ";
-#endif
-                          nfj.loverp = rational(dot,(Quad::nunits));
-                          nfj.lambda = lam;
-                          nfj.lambdadot = dot;
-                          gotlambda[j] = 1;
-                          nfound++;
-                        }
+                      nfj.loverp = rational(dot, Quad::nunits * nfj.cuspidalfactor);
+                      nfj.lambda = lam;
+                      nfj.lambdadot = dot;
+                      gotlambda[j] = 1;
+                      nfound++;
                     }
-#ifdef DEBUG_LAMBDA
-                  if(verbose)cout<<endl;
-#endif
                 }
+#ifdef DEBUG_LAMBDA
+              if(verbose)cout<<endl;
+#endif
             }
         }
     }
@@ -475,16 +561,6 @@ void newforms::createfromscratch()
     cout<<"Constructing homspace at level "<<modulus<<" ...\n";
   makeh1plus();
   nfhmod=hmod = h1->h1hmod();
-  mvp=h1->maninvector(P0);
-  // if (h1->h1cdenom()>1)
-  //   {
-  //     cout<<"Nontrivial denominators for homspace at level "<<modulus<<" ...\n";
-  //     cout<<"denom = "<<h1->h1denom()<<endl;
-  //     cout<<"cdenom = "<<h1->h1cdenom()<<endl;
-  //     cout<<"denom1 = "<<h1->denom1<<endl;
-  //     cout<<"denom2 = "<<h1->denom2<<endl;
-  //     cout<<"denom3 = "<<h1->denom3<<endl;
-  //   }
   int dimcusp = h1->h1cuspdim();
   int dimall = h1->h1dim();
   if(verbose)
@@ -535,17 +611,31 @@ void newforms::createfromscratch()
    }
   delete of;
 
-  if(n1ds==0) return; // else no work to do
+  fill_in_newform_data();
+  nap=0;
+}
+
+// fill in extra data in each newforms:
+void newforms::fill_in_newform_data(int everything)
+{
+  if(n1ds==0) return; // no work to do
+
+  make_projcoord();    // Compute homspace::projcoord before filling in newform data
+  zero_infinity = h1->chaincd(0, 1, 0, 1); // last 1 means use projcoord
+  mvp=h1->maninvector(P0, 1);              // last 1 means use projcoord
+
+  if (everything)
+    for (int j=0; j<n1ds; j++)
+      nflist[j].fill_in_data(j+1);
+
+  find_jlist();
 
 // Find the twisting primes for each newform (more efficient to do
 // this here instead of within the newform constructors, as one lambda
 // might work for more than one newform). NB If the level is square
 // SFE=-1 then no such lambda will exist.
 
-  get_lambda();
-  allproj();    // Compute homspace::projcoord, so projcycle can be used
-  find_jlist();
-  nap=0;
+  find_lambdas();
 }
 
 void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
@@ -568,7 +658,16 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
   else // store eigs and basis
     {
       nflist[use_nf_number].eigs = eigs;
-      nflist[use_nf_number].basis = b1;
+      // convert basis vector from coords w.r.t. face-gens to coords w.r.t.edge-gens:
+      if(hmod)
+        { // we don't have a mod p mat*vec
+          mat vcol(dim(b1),1);
+          vcol.setcol(1,b1);
+          nflist[use_nf_number].basis = reduce_modp(matmulmodp(h1->FR.coord, vcol, hmod).col(1));
+        }
+      else
+        nflist[use_nf_number].basis = (h1->FR.coord)*b1;
+      makeprimitive(nflist[use_nf_number].basis); // this is now independent of h1's denom1
     }
 }
 
@@ -584,8 +683,7 @@ void newforms::display(void) const
 
 void newform::display(void) const
 {
- cout << "basis = " << basis
-   //      << ";\teigs = " << eigs
+  cout << "basis = " << basis
       << ";\taqlist = " << aqlist
       << ";\taplist = " << aplist << endl;
  cout << "Sign of F.E. = " << sfe << endl;
@@ -704,49 +802,22 @@ void newforms::sort_lmfdb(void)
   ::sort(nflist.begin(),nflist.end(),less_newform_lmfdb);
 }
 
-void newforms::allproj() //Replaces "coord" member of homspace with projections
-                         //onto eigenspaces
-{
-  int ncoord = h1->ncoords(); long pcij;
-  h1->projcoord.init(ncoord,n1ds);
-  for (int i=1; i<=ncoord; i++)
-    {
-      vec coordi = h1->coords(i);
-      for (int j=1; j<=n1ds; j++)
-        {
-	  pcij = vecdot(coordi, nflist[j-1].basis, hmod);
-          h1->projcoord.set(i,j, pcij);
-        }
-    }
-  if(!hmod) return;
+// Replaces matrix "coord" in homspace with "projcoord"
+//
+// Each has ngens rows (ngens = number of edges modulo
+// edge-relations).  coord has rk columns, and the i'th row of coord
+// gives the coordinates of the i'th generating edge with respect to
+// the basis modulo face-realations, these begin implicitly scaled by
+// denom1.  projcoord has n1ds columns, and the i'th row gives the
+// coords with respect to the (partial) basis of eigenforms; its
+// columns are primitive and uniquely determined (up to sign),
+// independent of the homology basis, and in particular of denom1.
 
-  // Check lifts of projcoord columns
-  vec c1, c2(ncoord);
-  int test_prim = 0;
+void newforms::make_projcoord()
+{
+  h1->projcoord.init(h1->ngens,n1ds);
   for (int j=1; j<=n1ds; j++)
-    {
-      c1 = h1->projcoord.col(j);
-      if (lift(c1,hmod,c2))
-        {
-          if((c1==c2)||(c1==-c2))
-            {
-              if(test_prim) 
-		cout<<"projcoord column "<<j<<" is already Z-primitive"<<endl;
-            }
-          else
-            {
-              if(test_prim) 
-		cout<<"projcoord column "<<j<<"="<<c1<<" lifts ok to Z-primitive "<<c2<<endl;
-              h1->projcoord.setcol(j,c2);
-            }
-          nfhmod=0;
-        }
-      else
-        {
-	  if(test_prim) 
-	    cout<<"projcoord column "<<j<<" cannot be lifted to Z"<<endl;
-        }
-    }
+    h1->projcoord.setcol(j, nflist[j-1].basis);
 }
 
 // Second constructor, in which data is read from file in directory
@@ -767,8 +838,11 @@ void newforms::createfromdata()
 
  // construct the newforms from this data
   for(int i=0; i<n1ds; i++)
-    nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
-                                  filedata.aqs[i],filedata.aps[i]));
+    {
+      nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
+                               filedata.aqs[i],filedata.aps[i]));
+      //      cout<<"aq list from file = "<<filedata.aqs[i]<<endl;
+    }
   nap=filedata.nap;
 }
 
@@ -786,9 +860,8 @@ void newforms::makebases()
     }
   if(verbose) cout<<"Finished recovering newform bases, resorting back into lmfdb order..."<<endl;
   sort_lmfdb();
-  if(verbose>1) cout<<"Doing allproj() and find_jlist()..."<<endl;
-  allproj();
-  find_jlist();
+  if(verbose>1) cout<<"Filling in newform data..."<<endl;
+  fill_in_newform_data(0);
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 
@@ -961,10 +1034,21 @@ void newforms::output_to_file(string eigfile) const
   out.close();
 }
 
+// For each newform we want a pivotal index j in [1,ngens] such that
+// the j'th coordinate is nonzero, so that we can compute the Hecke
+// eigenvalue a_p by only computing the image of the j'th
+// edge-generator.
+
 void newforms::find_jlist()
 {
+  if(verbose>1)
+    cout<<"Finding pivotal indices..."<<flush;
+
   int i, j, ok=0; j0=0;
-  for(j=1; (!ok)&&(j<=h1->h1dim()); j++)
+
+  // First we see whether a single j works for all the newforms:
+
+  for(j=1; (!ok)&&(j<=h1->ngens); j++)
     {
       ok=1;
       for (i=0; (i<n1ds)&&ok; i++)
@@ -973,31 +1057,35 @@ void newforms::find_jlist()
     }
   if(ok)
     {
-      if(verbose)  cout<<"j0="<<j0<<endl;
       jlist.insert(j0);
       for (i=0; i<n1ds; i++)
 	{
-	  nflist[i].j0 = j0;
-          nflist[i].fac = nflist[i].basis[j0];
-          if(nfhmod) nflist[i].facinv=invmod(nflist[i].fac,nfhmod);
+          newform& nfi = nflist[i];
+	  nfi.j0 = j0;
+          nfi.fac = nfi.basis[j0];
+          if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
 	}
+      if(verbose>1)
+        cout<<"index j0="<<j0<<" works as a pivot for all newforms"<<endl;
+      return;
     }
-  else
+
+  if(verbose>1)
+    cout<<"...failed to find a pivotal index which works for all newforms..." <<flush;
+
+  // Instead, find a set of pivots to use:
+  for (i=0; i<n1ds; i++)
     {
-      if(verbose)
-	cout<<"Failed to find j0 such that nflist[i].basis[j0]!=0 for all i"
-	    <<endl;
-      // Find out which pivots we'll be using:
-      for (i=0; i<n1ds; i++)
-	{
-	  vec& bas = nflist[i].basis;
-	  j=1; while(bas[j]==0) j++;
-	  jlist.insert(j);
-	  nflist[i].j0 = j;
-	  nflist[i].fac = nflist[i].basis[j];
-	}
-      if(verbose)  cout<<"jlist="<<jlist<<endl;
+      newform& nfi = nflist[i];
+      vec& bas = nfi.basis;
+      j=1; while(bas[j]==0) j++;
+      jlist.insert(j); // jlist is a set so this will do nothing if it is already there
+      nfi.j0 = j;
+      nfi.fac = bas[j];
+      if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
     }
+  if(verbose>1)
+    cout<<"set of pivotal indices = "<<jlist<<endl;
 }
 
 //#define DEBUG_APVEC
@@ -1010,26 +1098,24 @@ void newforms::find_jlist()
 
 void update(const mat& pcd, vec& imagej, long ind, long hmod)
 {
-  vec part;
-  if(ind>0)
-    part = pcd.row(ind);
-  else
-    part = -pcd.row(-ind);
+  if (ind==0) return;
+  vec part = (ind>0? pcd.row(ind): -pcd.row(-ind));
 #ifdef DEBUG_APVEC
   cout<<"--adding "<<part<<" (ind="<<ind<<") to imagej, ";
 #endif
   if(hmod)
     {
-      imagej.addmodp(part,hmod);
-      imagej=reduce_modp(imagej);
+      imagej.addmodp(part, hmod);
+      imagej = reduce_modp(imagej);
     }
   else
-    imagej+=part;
+    imagej += part;
 #ifdef DEBUG_APVEC
   cout<<"updated imagej is "<<imagej<<endl;
 #endif
 }
 
+//#define DEBUG_APVEC
 vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, for principal P
 {
   assert (P.is_principal());
@@ -1059,6 +1145,9 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
             }
           apv[i] = aq;
         }
+#ifdef DEBUG_APVEC
+      cout<<"Bad prime: aq list = "<<apv<<endl;
+#endif
       return apv;
     }
 
@@ -1066,8 +1155,12 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
   long maxap=(long)(2*sqrt((double)normp)); // for validity check
 
+  matop Tp;
+  if (!Quad::is_Euclidean)  // not needed in Euclidean case where we
+    Tp = matop(P, N);       // use Manin-Heilbronn matrices instead
+
   map<int,vec> images; // [j,v] stores image of j'th M-symbol in v
-                        // (so we don't compute any more than once)
+                       // (so we don't compute any more than once)
   Quad a,b,c,q,u1,u2,u3;
 
   // Compute the image of the necessary M-symbols (hopefully only one)
@@ -1085,8 +1178,8 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); jj++)
     {
       vec imagej=vec(n1ds); // initialised to 0
-      j=*jj;
-      std::ldiv_t st = ldiv(h1->freegens[j-1], h1->nsymb);
+      j=*jj; // from 1
+      std::ldiv_t st = ldiv(h1->ER.gen(j), h1->nsymb);
       long s_number = st.rem;  // remainder gives (c:d) symbol number
       int s_type = st.quot; // quotient gives symbol type
       Quad u, v;
@@ -1094,95 +1187,120 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
 #ifdef DEBUG_APVEC
       cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
-          <<" = ("<<u<<":"<<v<<")..."<<flush;
+          <<" = ("<<u<<":"<<v<<")_"<<s_type<<" ..."<<flush;
 #endif
 
-      // Now we compute the projected image of symbol s=(u:v) under
+      // Now we compute the projected image of symbol s=(u:v)_t under
       // T_P.
 
       if (Quad::is_Euclidean)
         {
 
-      // This code is for Euclidean fields only, using
-      // Manin-Heilbronn matrices: Loop over residues res mod P and
-      // for each res compute several M-symbol image parts (u1:v1).
-      // Accumulate the associated vectors in vec imagej (using the
-      // utility update(projcoord, imagej, ind, nfhmod).
+          // This code is for Euclidean fields only, using Manin-Heilbronn
+          // matrices: Loop over residues res mod P and for each res
+          // compute several M-symbol image parts (u1:v1).  Accumulate the
+          // associated vectors in vec imagej using the utility
+          // update(projcoord, imagej, ind, nfhmod), where (u1:v1) is the
+          // ind'th symbol.
 
-      mat& pcd = h1->projcoord;
-      //cout<<"projcoord = "<<pcd;
-// Matrix [1,0;0,p]
-      long ind = h1->ER.coords(h1->index(u,p*v));
+          // Since this code is only used in the Euclidean case,
+          // s_type=0 and can be ignored.
+
+          mat& pcd = h1->projcoord;
+
+          // Matrix [1,0;0,p]
+          long ind = h1->ER.coords(h1->index(u,p*v));
 #ifdef DEBUG_APVEC
-      cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
+          cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
 #endif
-      if(ind) update(pcd,imagej,ind,nfhmod);
-// Matrix [p,0;0,1]
-      ind = h1->ER.coords(h1->index(p*u,v));
+          update(pcd,imagej,ind,nfhmod);
+
+          // Matrix [p,0;0,1]
+          ind = h1->ER.coords(h1->index(p*u,v));
 #ifdef DEBUG_APVEC
-      cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
+          cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
 #endif
-      if(ind) update(pcd,imagej,ind,nfhmod);
-// Other matrices
-      vector<Quad> resmodp = P.residues();
-      vector<Quad>::const_iterator res=resmodp.begin();
-      while(res!=resmodp.end())
-        {
-          b = *res++;
-          if(b==0) continue; // handled above as special case
-          a = -p;
-          u1=u*p; u2=v-u*b;
-          ind = h1->ER.coords(h1->index(u1,u2));
-#ifdef DEBUG_APVEC
-          cout<<"Residue class "<<b<<": ";
-          cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
-#endif
-          if(ind) update(pcd,imagej,ind,nfhmod);
-          while(b!=0)
+          update(pcd,imagej,ind,nfhmod);
+
+          // Other matrices, several for each nonzero residue b mod p
+          vector<Quad> resmodp = P.residues();
+          vector<Quad>::const_iterator res=resmodp.begin();
+          while(res!=resmodp.end())
             {
-              q=a/b; c=a-b*q; u3=q*u2-u1;
-              a=-b; b=c; u1=u2; u2=u3;
+              b = *res++;
+              if(b==0) continue; // handled above as special case
+              a = -p;
+              u1=u*p; u2=v-u*b;
               ind = h1->ER.coords(h1->index(u1,u2));
 #ifdef DEBUG_APVEC
+              cout<<"Residue class "<<b<<": ";
               cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif
-              if(ind) update(pcd,imagej,ind,nfhmod);
+              update(pcd,imagej,ind,nfhmod);
+              while(b!=0)
+                {
+                  q=a/b; c=a-b*q; u3=q*u2-u1;
+                  a=-b; b=c; u1=u2; u2=u3;
+                  ind = h1->ER.coords(h1->index(u1,u2));
+#ifdef DEBUG_APVEC
+                  cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
+#endif
+                  update(pcd,imagej,ind,nfhmod);
+                }
+#ifdef DEBUG_APVEC
+              cout<<" partial image after term is "<<imagej<<endl;
+#endif
             }
+          images[j]=imagej;
+
+        } // end of Euclidean case
+
+      else // non-Euclidean case, apply T_p directly to the modular symbol represented by j
+
+        {
+          mat22 M = h1->cosets.lift_to_SL2(s_number);
+          modsym m(M, s_type);
 #ifdef DEBUG_APVEC
-          cout<<" image after term is "<<imagej<<endl;
+          cout<<"\n coset rep = " << M << "\n modular symbol m = "<<m<<endl;
+          cout<<"chain(m, 0) = "<<h1->chain(m,0)<<endl;
+          cout<<"chain(m, 1) = "<<h1->chain(m,1)<<endl;
 #endif
+          images[j] = h1->applyop(Tp, m, 1);
         }
-        }
-
-  else // code for non-Euclidean fields
-
-    {
-      imagej = h1->applyop(matop(P, N), modsym(h1->cosets.lift_to_SL2(s_number), s_type), 1);
-    }
-      images[j]=imagej/(h1->h1denom());
 
 #ifdef DEBUG_APVEC
-      cout<<" image before scaling by "<<h1->h1denom()<<" is "<<imagej<<endl;
-      cout<<" image after scaling is "<<images[j]<<endl;
+      cout<<" image " << j << " is "<<images[j]<<endl;
 #endif
 
     }
+
+// recover eigenvalues:
 
   for (i=0; i<n1ds; i++)
     {
-// recover eigenvalue:
-#ifdef DEBUG_APVEC
-      cout << "numer = " << images[nflist[i].j0][i+1] << endl;
-      cout << "denom = " << nflist[i].fac << endl;
-#endif
+      int j0 = nflist[i].j0;
+      int fac = nflist[i].fac;
+      int top = images[j0][i+1];
+      // The eigenvalue is now top/fac (which should divide exactly)
       if(nfhmod)
-        ap=xmodmul(images[nflist[i].j0][i+1],nflist[i].facinv,nfhmod);
+        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
       else
-        ap=images[nflist[i].j0][i+1]/nflist[i].fac;
-      apv[i]=ap;
+        {
 #ifdef DEBUG_APVEC
-      cout << "ap = " << ap << endl;
+          cout << "ap   = " << top << "/" << fac << " = " <<top/fac<<endl;
 #endif
+          if (top%fac !=0)
+            {
+              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
+              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
+              cout<<flush;
+            }
+           ap = top/fac;
+        }
+      apv[i]=ap;
+// #ifdef DEBUG_APVEC
+//       cout << "ap = " << ap << endl;
+// #endif
 // check it is in range:
       if((ap>maxap)||(-ap>maxap))
 	{
@@ -1192,6 +1310,9 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
           //          exit(1);
 	}
     }
+#ifdef DEBUG_APVEC
+      cout << "Good prime: ap list = " << apv << endl;
+#endif
   return apv;
 }
 

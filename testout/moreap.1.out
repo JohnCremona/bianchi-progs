@@ -62,7 +62,6 @@ restarting at depth = 1, dimension 23
  eig 1 gives new subspace at depth 4 of dimension 2
  eig 3 gives new subspace at depth 5 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
-j0=2
 Finished makebases()
 About to start computing ap...
 P = P101a = (10+i)	N(P) = 101	   -3     3    -5    -3 

@@ -164,7 +164,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)
-    ans = sign(i) * (proj? projcoord.row(abs(i)) : FR.coords(abs(i)));
+    ans = sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i)));
   return ans;
 }
 

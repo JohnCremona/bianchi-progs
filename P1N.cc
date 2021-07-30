@@ -137,6 +137,12 @@ void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
     }
   c = N.factorization().solve_CRT(clist);
   d = N.factorization().solve_CRT(dlist);
+  Quad g = quadgcd(c,d);  // if (c,d) is principal this is a generator, else 0
+  if (g.norm()>1)
+    {
+      c /= g;
+      d /= g;
+    }
   return;
 }
 
@@ -211,7 +217,7 @@ void P1N::check(int verbose)
 {
   if (verbose)
     {
-      cout << "Testing P1(N) for N = " << N << ":" <<flush;
+      cout << "Testing P1(N) for N = " << N << ": ";
       cout << "psi(N) = "<<psi<<endl;
     }
   long i, j;

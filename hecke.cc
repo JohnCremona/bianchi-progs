@@ -69,19 +69,35 @@ vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj)
   return ans;
 }
 
+//#define DEBUG_APPLYOP
 vec homspace::applyop(const matop& mlist, const modsym& m, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
+#ifdef DEBUG_APPLYOP
+  cout<<"In applyop() with modular symbol "<<m<<" (proj = "<<proj<<")"<<endl;
+#endif
   for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
     {
       mat22 M = *mi;
+#ifdef DEBUG_APPLYOP
+      cout<<"Applying matrix "<<M<<"..."<<flush;
+#endif
       vec part = chain(M(m.alpha()), M(m.beta()), proj);
+#ifdef DEBUG_APPLYOP
+      cout<<" summand = "<<part<<"..."<<flush;
+#endif
       if(hmod)
         ans.addmodp(part,hmod);
       else
         ans += part;
+#ifdef DEBUG_APPLYOP
+      cout<<" partial sum = "<<ans<<"..."<<endl;
+#endif
     }
   if(hmod) ans=reduce_modp(ans,hmod);
+#ifdef DEBUG_APPLYOP
+  cout<<" final sum = "<<ans<<"..."<<endl;
+#endif
   return ans;
 }
 
@@ -328,17 +344,17 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
   else return s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
 }
 
-vec homspace::maninvector(Quadprime& P)
+vec homspace::maninvector(Quadprime& P, int proj)
 {
   assert (P.is_principal());
   vector<Quad> resmodp=P.residues();
   Quad p = P.gen();
-  vec ans = chain(0,p), part;             // =0, but sets the right length.
+  vec ans = chain(0,p, proj), part;             // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
     {
       if (*res==0) res++;
-      part = chain(*res++,p);
+      part = chain(*res++,p, proj);
       if(hmod)
         ans.addmodp(part,hmod);
       else
@@ -348,14 +364,14 @@ vec homspace::maninvector(Quadprime& P)
   return ans;
 }
 
-vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable)
+vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj)
 {
-  vec ans = chain(0,lambda), part;          // =0, but sets the right length.
+  vec ans = chain(0,lambda, proj), part;          // =0, but sets the right length.
   vector<int>::const_iterator chi=chitable.begin();
   vector<Quad>::const_iterator r=res.begin();
   while(r!=res.end())
    {
-     part = (*chi++)*chain(*r++,lambda);
+     part = (*chi++)*chain(*r++,lambda, proj);
       if(hmod)
         ans.addmodp(part,hmod);
       else
@@ -367,34 +383,15 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
 
 #if (0) // methods not used
 
-vec homspace::projmaninvector(const Quadprime& P)    // Will only work after "proj"
-{
-  assert (P.is_principal());
-  vector<Quad> resmodp=P.residues();
-  Quad p = P.gen();
-  vec ans = projchain(0,p), part;         // =0, but sets the right length.
-  vector<Quad>::const_iterator res=resmodp.begin();
-  while(res!=resmodp.end())
-    {
-      part = projchain(*res++,p);
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
-    }
-  if(hmod) ans=reduce_modp(ans,hmod);
-  return ans;
-}
-
 vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d)
                                      // Will only work after "proj"
 {
-  vec ans = projchain(p*n,d), part;
+  vec ans = chain(p*n,d, 1), part;
   vector<Quad> resmodp=residues(p);  Quad dp = d*p;
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
     {
-      part = projchain(n+d*(*res++),dp);
+      part = chain(n+d*(*res++),dp, 1);
       if(hmod)
         ans.addmodp(part,hmod);
       else

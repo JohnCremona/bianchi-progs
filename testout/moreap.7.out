@@ -22,7 +22,6 @@ Computing W(P2a)...done.
  eig -1 gives new subspace at depth 3 of dimension 2
  eig -2 gives new subspace at depth 4 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
-j0=1
 Finished makebases()
 About to start computing ap...
 P = P109a = (7+4a)	N(P) = 109	    2 
