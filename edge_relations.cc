@@ -44,8 +44,8 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 
   if(verbose)
     cout<<"General edge pair relations\n";
-  for (vector<int>::const_iterator i=edge_pairs.begin(); i!=edge_pairs.end(); i++)
-    edge_pairing(*i);
+  for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); i++)
+    edge_pairing_minus(*i);
   if(verbose)
     cout<<"General edge quadruple relations\n";
   for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
@@ -295,7 +295,7 @@ void edge_relations::edge_relations_2_d3mod8()
 
 // For use when alpha[i]=r/s with r^2=-1 (mod s)
 
-void edge_relations::edge_pairing(int i)
+void edge_relations::edge_pairing_minus(int i)
 {
   int j, k, j2, k2;
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
@@ -331,6 +331,38 @@ void edge_relations::edge_pairing(int i)
               coordindex[offset_b+k2] = -ngens;
             }
         }
+    }
+}
+
+// For use when alpha[i]=r/s with r^2=+1 (mod s)
+
+void edge_relations::edge_pairing_plus(int i)
+{
+  int i1, j1, j2, i2;
+  int offset1 = i*nsymb, offset2 = (i+1)*nsymb;
+  action J(P1, mat22::J);
+  action M(P1, M_alphas[i]);
+  vector<int> done(nsymb, 0);
+
+  for (j1=0; j1<nsymb; j1++)
+    {
+      if (done[j1])
+        continue;
+      i1 = M(j1);
+      j2 = J(j1);
+      i2 = J(i1);
+      done[j1] = done[i1] = 1;
+      ++ngens;
+      gens.push_back(offset1+j1);
+      coordindex[offset1+j1] = ngens;
+      coordindex[offset1+i1] = -ngens;
+      if (!plusflag)
+        {
+          ++ngens;
+          gens.push_back(offset2+j2);
+        }
+      coordindex[offset2+j2] = ngens;
+      coordindex[offset2+i2] = -ngens;
     }
 }
 

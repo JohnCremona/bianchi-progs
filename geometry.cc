@@ -24,7 +24,7 @@ mat22 mat22::R(0,1,1,0);
 int n_alphas;
 vector<mat22> M_alphas;
 vector<int> alpha_inv;
-vector<int> edge_pairs;
+vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
 vector<int> cyclic_triangles;
@@ -72,7 +72,7 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
 {
   if (sign==-1)
     {
-      edge_pairs.push_back(n_alphas);
+      edge_pairs_minus.push_back(n_alphas);
       alpha_inv.push_back(n_alphas);   // identity
       alpha_inv.push_back(n_alphas+1); // identity
     }
