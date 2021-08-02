@@ -15,10 +15,10 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, sma
 #endif
 
 // Each face relation is a signed sum of edges (M)_alpha = {M(alpha},
-// M(oo)} for M in the list mats and alpha=alphas[i] or
-// sigmas[i-n_alphas+1] for i in the list types.  Here we
-// check that such a relation holds identically in H_3 (not just
-// modulo the congruence subgroup!)
+// M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
+// sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
+// relation holds identically in H_3 (not just modulo the congruence
+// subgroup!)
 
 int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
 
@@ -88,7 +88,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
 {
   P1 = ER->P1;
   nsymb = P1->size();
-  maxnumrel=2*n_alphas*nsymb;
+  maxnumrel=2*(n_alphas+n_sigmas-1)*nsymb;
   ngens = ER->ngens;
   numrel = 0;
   hmod = 0;
@@ -185,11 +185,11 @@ void face_relations::make_relations()
 // In add_face_rel(rel, types, signs):
 //
 //   rel is a list of (positive) (c:d)-symbol numbers i
-//   types is a list of symbol types
+//   types is a list of symbol types (negative for types involving a singular base point)
 //   signs is a list of +1,-1
 //
 //   such that the signed sum of the corresponding (symbol,type) is 0 in homology.  We use
-//   the map i -> j = ER.coords(i) to convert this to a vector of
+//   the map (i,t) -> j = ER.coords(i,t) to convert this to a vector of
 //   dimension ngens, and append that as a new row to the relation
 //   matrix relmat.
 //
@@ -213,7 +213,7 @@ void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& typ
         {
           P1->make_symb(*r, c, d);
           cout<<(*r)<<"_"<<(*t);
-          cout<< (*s>0? " +": " -");
+          cout<< ((*s)>0? " +": " -");
           cout<<"("<<c<<":"<<d<<") ";
         }
       cout <<" --> ";
@@ -225,7 +225,9 @@ void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& typ
 #endif
   for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
     {
-      long c = (*s) * ER->coords(*r+nsymb*(*t));
+      //      cout<<"Looking up edge coord of symbol "<<(*r)<<", type "<<(*t)<<"...";
+      long c = (*s) * ER->coords(*r, *t);
+      //      cout<<"c = "<<c<<endl;
       if(c)
 #ifdef USE_SMATS
         relation.add(abs(c), sign(c));
@@ -540,7 +542,7 @@ void face_relations::square_relation_5()
   if(verbose)
     cout << "Square relation for d=5:\n";
 
-  vector<int> rel(4), done(nsymb, 0), types(4, n_alphas); // i.e. {sigma_1,oo}
+  vector<int> rel(4), done(nsymb, 0), types(-1, n_alphas); // i.e. {sigma_1,oo}
   vector<int> signs = {1,-1,1,-1};
 
   action M(P1, M_alphas[1]);

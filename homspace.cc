@@ -160,7 +160,7 @@ void homspace::kernel_delta()
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
-  long i= ER.coords(P1.index(c,d) + nsymb*type);
+  long i= ER.coords(P1.index(c,d), type);
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)

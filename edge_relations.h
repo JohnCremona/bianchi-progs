@@ -13,9 +13,10 @@ public:
   edge_relations() {;}
   edge_relations(P1N*, int plus, int verb=0);
   int coords(int i) const {return coordindex[i];}
+  int coords(int i, int t) const {return coordindex[i+offset(t)];}
   int gen(int i) const {return gens[i];}  // indexed from 1 not 0
   int get_ngens() const {return ngens;}
-  int offset(int t) // offset into coordindex for type t
+  int offset(int t) const // offset into coordindex for type t
   {
     return nsymb * (t>=0? t: n_alphas-t-1);
   }

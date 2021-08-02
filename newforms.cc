@@ -41,10 +41,11 @@
 // dot products by their gcd.
 
 // The map n'_F(gamma) is almost encoded in the matrix projcoord
-// (created by calling make_projcoord()): its rows are indexed by edges
-// modulo edge relations, so to get the value for the j'the newform on
-// an edge (c:d)_t we find the edge number i = (t*nsymb+index(c,d)),
-// use that to look up k=ER.coords(i), and the value is
+// (created by calling make_projcoord()): its rows are indexed by
+// edges modulo edge relations, so to get the value for the j'th
+// newform on an edge (c:d)_t we find the edge number i =
+// offset(t)+index(c,d)), use that to look up
+// k=ER.coords(i)=ER.coords(index(c,d), t), and the value is
 // sign(k)*projcoord[abs(k),j].
 
 // For example n'_F({0,oo}) is obtained this way with (c,d,t)=(0,1,0).
