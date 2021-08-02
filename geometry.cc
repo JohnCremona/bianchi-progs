@@ -21,7 +21,7 @@ mat22 mat22::R(0,1,1,0);
 //
 // We do not store the alphas explicitly, they are -d/c where M_alpha=[a,b;c,d].
 
-int n_alphas;
+int n_alphas, n_sigmas;
 vector<mat22> M_alphas;
 vector<int> alpha_inv;
 vector<int> edge_pairs_minus;
@@ -30,7 +30,7 @@ vector<int> edge_fours;
 vector<int> cyclic_triangles;
 vector<vector<int> > triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
-vector<RatQuad> singular_points;
+vector<RatQuad> sigmas;
 
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
@@ -41,7 +41,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   //  cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
   assert (M.det()==1);
   M_alphas.push_back(M);
-  n_alphas += 1;
+  n_alphas++;
 }
 
 // If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s, -r2/s
@@ -143,9 +143,12 @@ void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad
 void Quad::setup_geometry()
 {
   int d = Quad::d;
-  singular_points.push_back(RatQuad(1,0)); // fill in the 0'th place,
+  n_alphas = n_sigmas = 0;
+
+  sigmas.push_back(RatQuad(1,0)); // fill in the 0'th place,
                                            // so the others will be
                                            // indexed from 1
+  n_sigmas++;
 
   // alphas (only 0) with denominator 1:
 
@@ -176,7 +179,8 @@ void Quad::setup_geometry()
       Quad u = (d-1)/2;
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
-      singular_points.push_back(RatQuad(w+1,2));
+      sigmas.push_back(RatQuad(w+1,2));
+      n_sigmas++;
       break;
     }
   case 2: // (2) = (2,w)^2
@@ -185,7 +189,8 @@ void Quad::setup_geometry()
       Quad u = d/2;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1); // 1-1
-      singular_points.push_back(RatQuad(w,2));
+      sigmas.push_back(RatQuad(w,2));
+      n_sigmas++;
       break;
     }
   case 3:
@@ -199,8 +204,9 @@ void Quad::setup_geometry()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      singular_points.push_back(RatQuad(w,2));
-      singular_points.push_back(RatQuad(1-w,2));
+      sigmas.push_back(RatQuad(w,2));
+      sigmas.push_back(RatQuad(1-w,2));
+      n_sigmas+=2;
       add_alpha_pair(4, 1+2*w, +1);
       break;
     }

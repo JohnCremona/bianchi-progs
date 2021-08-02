@@ -180,8 +180,8 @@ int main ()
            else
              cout << "principal, maps to ";
            cout << "(" << g << ")/(" << h << ")"
-               <<" = "<<singular_points[s];
-           assert (singular_points[s]==RatQuad(g,h));
+               <<" = "<<sigmas[s];
+           assert (sigmas[s]==RatQuad(g,h));
            cout << endl;
          }
    }

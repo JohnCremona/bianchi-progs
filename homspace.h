@@ -98,8 +98,6 @@ public:
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 
-int check_face_rel(const vector<mat22>& mats, const vector<int>& types);
-
 // List of bad primes (dividing N) followed by good primes to length np:
 vector<Quadprime> primelist(Qideal& N, int np);
 

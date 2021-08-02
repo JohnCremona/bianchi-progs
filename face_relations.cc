@@ -14,23 +14,46 @@
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
 #endif
 
-// Each face relation is a sum of edges (M)_alpha = {M(alpha}, M(oo)}
-// for M in the list mats and alpha=alphas[i] for i in the list types.
-// Here we check that such a relation holds identically in H_3 (not
-// just modulo the congruence subgroup!)
+// Each face relation is a signed sum of edges (M)_alpha = {M(alpha},
+// M(oo)} for M in the list mats and alpha=alphas[i] or
+// sigmas[i-n_alphas+1] for i in the list types.  Here we
+// check that such a relation holds identically in H_3 (not just
+// modulo the congruence subgroup!)
 
+int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
+
+// Special case: all signs +1
 int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
 {
+  vector<int> signs(mats.size(), 1);
+  return check_face_rel(mats, types, signs);
+}
+
+// General case:
+int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
+{
   vector<mat22>::const_iterator mi;
-  vector<int>::const_iterator ti;
+  vector<int>::const_iterator ti, si;
   vector<RatQuad> alphas, betas;
-  for (mi=mats.begin(), ti=types.begin(); ti!=types.end(); mi++, ti++)
+  RatQuad a, b;
+  mat22 M, M_alpha;
+  for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); mi++, ti++, si++)
     {
-      mat22 M = *mi;
-      mat22 M_alpha = M_alphas[*ti];
-      alphas.push_back(M(RatQuad(-M_alpha.entry(1,1), M_alpha.entry(1,0))));
-      betas.push_back(M(RatQuad(1,0)));
+      M = *mi;
+      a = M(base_point(*ti));
+      b = M(RatQuad(1,0));
+      if (*si>0) // use {a,b} when sign is +1
+        {
+          alphas.push_back(a);
+          betas.push_back(b);
+        }
+      else // use {b,a} when sign is -1
+      {
+        alphas.push_back(b);
+        betas.push_back(a);
+      }
     }
+
   // cout<<"Checking face relation "<<mats<<", "<<types<<endl;
   // cout<<"alphas: "<<alphas<<endl;
   // cout<<"betas:  "<<betas<<endl;
@@ -132,6 +155,12 @@ void face_relations::make_relations()
       return;
     }
 
+  if (field==5)
+    {
+      square_relation_5();
+      return;
+    }
+
   // Now field = 19, 43, 67 or 163
 
   // additional triangle relations
@@ -153,30 +182,39 @@ void face_relations::make_relations()
     }
 }
 
-
-
-// In add_face_rel(rel, types, check):
+// In add_face_rel(rel, types, signs):
 //
 //   rel is a list of (positive) (c:d)-symbol numbers i
 //   types is a list of symbol types
+//   signs is a list of +1,-1
 //
-//   such that the corresponding (symbol,type) pairs add to 0 in homology.  We use
+//   such that the signed sum of the corresponding (symbol,type) is 0 in homology.  We use
 //   the map i -> j = ER.coords(i) to convert this to a vector of
 //   dimension ngens, and append that as a new row to the relation
 //   matrix relmat.
 //
 
+// Special case: all signs +1
 void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types)
 {
-  vector<int>::const_iterator r, t;
+  vector<int> signs(rel.size(), 1);
+  add_face_rel(rel, types, signs);
+}
+
+// General case:
+void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types, const vector<int>& signs)
+{
+  vector<int>::const_iterator r, t, s;
   if (verbose)
     {
       cout<<"Relation: ";
       Quad c, d;
-      for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+      for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
         {
           P1->make_symb(*r, c, d);
-          cout<<(*r)<<"_"<<(*t)<<" ("<<c<<":"<<d<<") ";
+          cout<<(*r)<<"_"<<(*t);
+          cout<< (*s>0? " +": " -");
+          cout<<"("<<c<<":"<<d<<") ";
         }
       cout <<" --> ";
     }
@@ -185,9 +223,9 @@ void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& typ
 #else
   vec relation(ngens);
 #endif
-  for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
+  for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
     {
-      long c = ER->coords(*r+nsymb*(*t));
+      long c = (*s) * ER->coords(*r+nsymb*(*t));
       if(c)
 #ifdef USE_SMATS
         relation.add(abs(c), sign(c));
@@ -495,6 +533,39 @@ void face_relations::cyclic_triangle_relation(int i)
 
   if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
 }
+
+// extra square relation for field 5
+void face_relations::square_relation_5()
+{
+  if(verbose)
+    cout << "Square relation for d=5:\n";
+
+  vector<int> rel(4), done(nsymb, 0), types(4, n_alphas); // i.e. {sigma_1,oo}
+  vector<int> signs = {1,-1,1,-1};
+
+  action M(P1, M_alphas[1]);
+  action Ti(P1, mat22::Tmat(-1));
+  vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
+  cout<<"Square relation matrices = "<<mats<<endl;
+  int i, j, m, k;
+  for (i=0; i<nsymb; i++)
+      {
+        if (done[i])
+          continue;
+        j = Ti(i);
+        m = M(i);
+        k = M(j);
+        done[i] = done[m] = 1; // M has order 2
+        rel = {i, j, m, k};
+        check_face_rel(mats, types, signs);
+        add_face_rel(rel, types, signs);
+      }
+  if(verbose)
+    {
+      cout << "After square relation, number of relations = " << numrel <<"\n";
+    }
+}
+
 
 
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral

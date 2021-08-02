@@ -15,10 +15,14 @@ public:
   int coords(int i) const {return coordindex[i];}
   int gen(int i) const {return gens[i];}  // indexed from 1 not 0
   int get_ngens() const {return ngens;}
+  int offset(int t) // offset into coordindex for type t
+  {
+    return nsymb * (t>=0? t: n_alphas-t-1);
+  }
 
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
-  int plusflag, verbose, nsymb, nsymbx, ngens;
+  int plusflag, verbose, nsymb, ngens;
   vector<int> coordindex, gens;
 
 private:
@@ -37,5 +41,6 @@ private:
   friend class face_relations;
 };
 
+RatQuad base_point(int type);
 
 #endif

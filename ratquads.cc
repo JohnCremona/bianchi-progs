@@ -115,7 +115,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 }
 
 // if type = t>=0 , return U{alpha[i],oo}
-// if type = -s<0 , return U{singular_points[s],oo}
+// if type = -s<0 , return U{sigmas[s],oo}
 modsym::modsym(const mat22& U, int type) // U in SL2
 {
   RatQuad alpha;
@@ -127,9 +127,9 @@ modsym::modsym(const mat22& U, int type) // U in SL2
        mat22 M = M_alphas[type];
        alpha = RatQuad(-M.d, M.c);
      }
-   else // type=t<0 means apply to {sigma,oo} where sigma = singular_points[-t]
+   else // type=t<0 means apply to {sigma,oo} where sigma = sigmas[-t]
      {
-       alpha = singular_points[-type];
+       alpha = sigmas[-type];
      }
   a = U(alpha);
   b = U(RatQuad(1,0)); // = U(oo); no need to reduce as n,d are coprime

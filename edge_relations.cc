@@ -5,6 +5,39 @@
 #include "edge_relations.h"
 #include <assert.h>
 
+// The base points are the initial points alpha or sigma of the base
+// edges {alpha,oo} or {sigma,0}.  Here the alpha are principal cusps
+// with alpha[0]=0 while the sigmas (if any) are singular points.
+
+// NB We always set sigma[0]=oo as a filler, so the base path for type
+// t is either {alpha[t],oo} if t>=0 or {sigma[-t],oo} if t<0.  For
+// this to work, we cannot have a sigma with index 0.
+
+// NB The indices for coordindex are
+//
+// i+nsymb*t (0<=i<nsymb) for 0 <= t < n_alphas, with "offset" nsymb*t,
+//
+// and
+//
+// i+nsymb*(n_alphas-t-1) (0<=i<nsymb) for 0 < -t < n_sigmas, with "offset" nsymb*(n_alphas-t-1).
+//
+// The method offset(t) gvies the correct offfset for type t.
+//
+// For example for d=5 with n_alphas=6 and only one singular point, we
+// have sigmas[0]=oo, sigmas[1]=(w+1)/2, so edges of type t=-1 map to
+// indices i+nsymb*n_alphas.
+
+RatQuad base_point(int t)
+{
+  if (t>=0) // alpha
+    {
+      mat22 M = M_alphas[t];
+      return RatQuad(-M.entry(1,1), M.entry(1,0));
+    }
+  else // sigma
+    return sigmas[-t];
+}
+
 // 2-term (edge) relations
 
 edge_relations::edge_relations(P1N* s, int plus, int verb)
@@ -12,7 +45,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 {
   int field = Quad::d;
   nsymb = P1->size();
-  nsymbx = nsymb*n_alphas;
+  int nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;
   coordindex.resize(nsymbx);
   gens.reserve(1+nsymbx);  //NB start of gens array is at 1 not 0
@@ -21,7 +54,27 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
   if(verbose)
     {
       cout << "About to start on 2-term (edge) relations.\n";
-      cout<<"Edge relations for type 0 symbols (denominator 1)\n";
+      if (n_alphas>1)
+        {
+          cout<<"alphas: ";
+          for (int i=0; i<n_alphas; i++)
+            {
+              mat22 M = M_alphas[i];
+              RatQuad alpha(-M.entry(1,1), M.entry(1,0));
+              cout<<alpha<<" ";
+            }
+          cout<<endl;
+        }
+      if (n_sigmas>1)
+        {
+          cout<<"sigmas: ";
+          for (vector<RatQuad>::const_iterator si = sigmas.begin()+1; si!=sigmas.end(); si++)
+            {
+              cout<<(*si)<<" ";
+            }
+          cout<<endl;
+        }
+      cout<<"Edge relations (denominator 1)\n";
     }
   edge_relations_1();
 
@@ -33,7 +86,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     }
 
   if(verbose)
-    cout<<"Edge relations for type 1,2 symbols (denominator 2)\n";
+    cout<<"Edge relations (denominator 2)\n";
   edge_relations_2();
   if (field<43)
     {
@@ -42,11 +95,17 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
       return;
     }
 
-  if(verbose)
-    cout<<"General edge pair relations\n";
+  if(verbose && edge_pairs_minus.size())
+    cout<<"General edge pair relations (-)\n";
   for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); i++)
     edge_pairing_minus(*i);
-  if(verbose)
+
+  if(verbose && edge_pairs_plus.size())
+    cout<<"General edge pair relations (+)\n";
+  for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); i++)
+    edge_pairing_plus(*i);
+
+  if(verbose && edge_fours.size())
     cout<<"General edge quadruple relations\n";
   for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
     edge_pairing_double(*i);
@@ -57,26 +116,42 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 
 void edge_relations::report()
 {
+  int i, j, t, off;
+  RatQuad alpha;
+  string name;
+  Quad c, d;
+
   cout << "After 2-term relations, ngens = "<<ngens<<endl;
-  cout << "gens = ";
-  int i, j;
-  for (i=1; i<=ngens; i++) cout << gens[i] << " ";
-  cout << endl;
+  cout << "gens = [";
+  for (i=1; i<=ngens; i++)
+    cout << gens[i] << " ";
+  cout << "]" << endl;
   cout << "coordindex = \n";
-  for (j=0; j<n_alphas; j++)
+  for (j=0; j<n_alphas+n_sigmas-1; j++)
     {
-      int offset = j*nsymb;
+      if (j>=0)
+        {
+          t = j;
+          name = "alpha";
+        }
+      else
+        {
+          t = n_alphas-j-1;
+          name = "sigma";
+        }
+      off = offset(t);
+      alpha = base_point(t);
       if(n_alphas>1)
         {
-          mat22 M = M_alphas[j];
-          RatQuad alpha(-M.entry(1,1), M.entry(1,0));
-          cout << "Type " << j << ", alpha = "<< alpha<<", M_alpha = "<<M<<":\n";
+          cout << "Type " << t << ", "<<name<<" = "<< alpha;
+          if (j>=0)
+            cout<<", M_alpha = "<<M_alphas[j];
+          cout << "\n";
         }
-      Quad c, d;
       for (i=0; i<nsymb; i++)
         {
           P1->make_symb(i, c, d);
-          cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+offset] << "\n";
+          cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+off] << "\n";
         }
     }
   cout << endl;
@@ -169,7 +244,7 @@ void edge_relations::edge_relations_2_d12mod4()
   // alpha#1 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
   vector<int> done(nsymb, 0);
-  int offset = nsymb;
+  int off = offset(1);
   int i, m, l, k;
   for (i=0; i<nsymb; i++)
     {
@@ -182,22 +257,22 @@ void edge_relations::edge_relations_2_d12mod4()
 
       if ((i==m) || (plusflag&&(i==k))) // i==m iff l==k
         {
-          coordindex[offset + i] = 0;
-          coordindex[offset + l] = 0;
+          coordindex[off + i] = 0;
+          coordindex[off + l] = 0;
         }
       else
         {
           ++ngens;
-          gens.push_back(offset+i);
-          coordindex[offset + i] = ngens;
-          coordindex[offset + m] = -ngens;
+          gens.push_back(off+i);
+          coordindex[off + i] = ngens;
+          coordindex[off + m] = -ngens;
           if (!plusflag)
             {
               ++ngens;
-              gens.push_back(offset+l);
+              gens.push_back(off+l);
             }
-          coordindex[offset + l] = ngens;
-          coordindex[offset + k] = -ngens;
+          coordindex[off + l] = ngens;
+          coordindex[off + k] = -ngens;
         }
     }
 
@@ -207,7 +282,7 @@ void edge_relations::edge_relations_2_d12mod4()
     return;
 
   std::fill(done.begin(), done.end(), 0);
-  offset = n_alphas*nsymb;
+  off = offset(-1);
   for (i=0; i<nsymb; i++)
     {
       if (done[i])
@@ -215,9 +290,9 @@ void edge_relations::edge_relations_2_d12mod4()
       k = K(i);
       done[i] = done[k] = 1;
       ++ngens;
-      gens.push_back(offset+i);
-      coordindex[offset + i] = ngens;
-      coordindex[offset + k] = ngens;
+      gens.push_back(off+i);
+      coordindex[off + i] = ngens;
+      coordindex[off + k] = ngens;
     }
 }
 
@@ -225,11 +300,11 @@ void edge_relations::edge_relations_2_d12mod4()
 void edge_relations::edge_relations_2_d7mod8()
 {
   // sigma#1 = w/2,  sigma#2 = (w+1)/2
-  for (int t=0; t<2; t++)
+  for (int t=0; t<2; t++) // types -1, -2, i.e. -1-t
     {
       action L(P1, -1, Quad::w + t, 0,1);
       vector<int> done(nsymb, 0);
-      int i, l, offset = nsymb*(n_alphas+t);
+      int i, l, off = offset(-1-t);
       for (i=0; i<nsymb; i++)
         {
           if (done[i])
@@ -237,14 +312,14 @@ void edge_relations::edge_relations_2_d7mod8()
           l = L(i);
           done[i] = done[l] = 1;
           ++ngens;
-          gens.push_back(offset+i);
-          coordindex[offset + i] = ngens;
+          gens.push_back(off+i);
+          coordindex[off + i] = ngens;
           if (!plusflag)
             {
               ++ngens;
-              gens.push_back(offset+l);
+              gens.push_back(off+l);
             }
-          coordindex[offset + l] = ngens;
+          coordindex[off + l] = ngens;
         }
     }
 }
@@ -267,7 +342,7 @@ void edge_relations::edge_relations_2_d3mod8()
   //                  = -(gLK)_w/2
 
   vector<int> done(nsymb, 0);
-  int offset1 = nsymb, offset2 = 2*nsymb;
+  int off1 = offset(1), off2 = offset(2);
   for (j=0; j<nsymb; j++) // index of a type 2 symbol
     {
       if (!done[j])
@@ -277,18 +352,18 @@ void edge_relations::edge_relations_2_d3mod8()
           m = K(l);      // index of type 1 symbol
           done[j] = done[l] = 1;
           ++ngens;
-          gens.push_back(offset1+k);
-          coordindex[offset1 + k] = ngens;
-          coordindex[offset2 + j] = -ngens;
+          gens.push_back(off1+k);
+          coordindex[off1 + k] = ngens;
+          coordindex[off2 + j] = -ngens;
 
           // if plusflag=0 we have a new gen, unless k=m
           if (!plusflag && k!=m)
             {
               ++ngens;
-              gens.push_back(offset1+m);
+              gens.push_back(off1+m);
             }
-          coordindex[offset1 + m] = ngens;
-          coordindex[offset2 + l] = -ngens;
+          coordindex[off1 + m] = ngens;
+          coordindex[off2 + l] = -ngens;
         }
     }
 }
@@ -298,7 +373,7 @@ void edge_relations::edge_relations_2_d3mod8()
 void edge_relations::edge_pairing_minus(int i)
 {
   int j, k, j2, k2;
-  int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
+  int off1 = offset(i), off2 = offset(i+1);
   action J(P1, mat22::J);
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
@@ -313,22 +388,22 @@ void edge_relations::edge_pairing_minus(int i)
           done[j] = done[k] = 1;
           if (j==k) // symbol trivial
             {
-              coordindex[offset_a+j] = 0;
-              coordindex[offset_b+j2] = 0;
+              coordindex[off1+j] = 0;
+              coordindex[off2+j2] = 0;
             }
           else
             {
               ++ngens;
-              gens.push_back(offset_a+j);
-              coordindex[offset_a+j] = ngens;
-              coordindex[offset_a+k] = -ngens;
+              gens.push_back(off1+j);
+              coordindex[off1+j] = ngens;
+              coordindex[off1+k] = -ngens;
               if (!plusflag)
                 {
                   ++ngens;
-                  gens.push_back(offset_b+j2);
+                  gens.push_back(off2+j2);
                 }
-              coordindex[offset_b+j2] = ngens;
-              coordindex[offset_b+k2] = -ngens;
+              coordindex[off2+j2] = ngens;
+              coordindex[off2+k2] = -ngens;
             }
         }
     }
@@ -339,7 +414,7 @@ void edge_relations::edge_pairing_minus(int i)
 void edge_relations::edge_pairing_plus(int i)
 {
   int i1, j1, j2, i2;
-  int offset1 = i*nsymb, offset2 = (i+1)*nsymb;
+  int off1 = offset(i), off2 = offset(i+1);
   action J(P1, mat22::J);
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
@@ -353,16 +428,16 @@ void edge_relations::edge_pairing_plus(int i)
       i2 = J(i1);
       done[j1] = done[i1] = 1;
       ++ngens;
-      gens.push_back(offset1+j1);
-      coordindex[offset1+j1] = ngens;
-      coordindex[offset1+i1] = -ngens;
+      gens.push_back(off1+j1);
+      coordindex[off1+j1] = ngens;
+      coordindex[off1+i1] = -ngens;
       if (!plusflag)
         {
           ++ngens;
-          gens.push_back(offset2+j2);
+          gens.push_back(off2+j2);
         }
-      coordindex[offset2+j2] = ngens;
-      coordindex[offset2+i2] = -ngens;
+      coordindex[off2+j2] = ngens;
+      coordindex[off2+i2] = -ngens;
     }
 }
 
@@ -371,7 +446,7 @@ void edge_relations::edge_pairing_plus(int i)
 void edge_relations::edge_pairing_double(int i)
 {
   int j, k, j2, k2;
-  int offset_a = i*nsymb, offset_b = (i+1)*nsymb, offset_c = (i+2)*nsymb, offset_d = (i+3)*nsymb;
+  int off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
   action M(P1, M_alphas[i+2]);
@@ -383,15 +458,15 @@ void edge_relations::edge_pairing_double(int i)
       j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
       k2 = J(k); // index of type i+3 symbol
       ++ngens;
-      gens.push_back(offset_a+j);
-      coordindex[offset_a+j] = ngens;
-      coordindex[offset_c+k] = -ngens;
+      gens.push_back(off1+j);
+      coordindex[off1+j] = ngens;
+      coordindex[off3+k] = -ngens;
       if (!plusflag)
         {
           ++ngens;
-          gens.push_back(offset_b+j2);
+          gens.push_back(off2+j2);
         }
-      coordindex[offset_b+j2] = ngens;
-      coordindex[offset_d+k2] = -ngens;
+      coordindex[off2+j2] = ngens;
+      coordindex[off4+k2] = -ngens;
     }
 }

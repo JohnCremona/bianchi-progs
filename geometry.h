@@ -7,7 +7,7 @@
 
 #include "mat22.h"
 
-extern int n_alphas;            // Number of alphas.
+extern int n_alphas, n_sigmas;  // Number of alphas and sigmas (singular points).
 extern vector<mat22> M_alphas;  // List of matrices M_a  with det(M_a)=1 such that M_a(a)=oo.
 extern vector<int> alpha_inv;   // permutation of order 2 swapping a to a' where M_a(oo)=a'
 extern vector<int> edge_pairs_minus; // indices of first of a pair (r/s, -r/s) with r^2=-1 (mod s)
@@ -25,6 +25,6 @@ extern vector<pair<vector<int>, vector<Quad>> > squares;
 
 // Singular points: the 0'th is oo so the useful ones are indexed from 1.
 
-extern vector<RatQuad> singular_points;
+extern vector<RatQuad> sigmas;
 
 #endif

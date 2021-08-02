@@ -3,7 +3,7 @@
 #include "looper.h"
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163};
+vector<int> fields = {1,2,3,7,11,19,43,67,163, 5};
 
 int main ()
 {
@@ -17,7 +17,7 @@ int main ()
  cout << "Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
  long firstn, lastn; Quad n;
- int both_conj, plusflag;
+ int both_conj, plusflag, verbose=0;
  int dimplus, dimminus, dimall;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Plus space only? (0/1) "; cin >> plusflag;
@@ -37,11 +37,11 @@ int main ()
      long normn = quadnorm(n);
      cout << d << "\t2\t";                  // field and weight
      cout << "("<<n<<")\t "<<normn<<"\t\t"; // level and norm
-     homspace hplus(n,1,0,0);  //level, plusflag, cuspidal, verbose
+     homspace hplus(n,1,0, verbose);  //level, plusflag, cuspidal, verbose
      dimplus = hplus.h1cuspdim();
      if (!plusflag)
        {
-         homspace hall(n,0,0,0);  //level, plusflag, cuspidal, verbose
+         homspace hall(n,0,0, verbose);  //level, plusflag, cuspidal, verbose
          dimall = hall.h1cuspdim();
          dimminus = dimall-dimplus;
          cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;

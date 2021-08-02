@@ -200,7 +200,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 
   local_t=1;
   RatQuad sigma;
-  for (vector<RatQuad>::iterator si=singular_points.begin()+1; si!=singular_points.end(); si++, local_t++)
+  for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); si++, local_t++)
     {
       sigma = *si;
       r=sigma.num(), s=sigma.den(); // sigma = r/s
@@ -251,7 +251,7 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
   if (b.nm)
     {
       // cout<<"Warning: quadgcd_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
-      // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<singular_points[-t]<<endl;
+      // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
       return Quad::zero;
     }
   else
@@ -279,7 +279,7 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   if (b.nm)
     {
       cout<<"Warning: quadbexout_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
-      cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<singular_points[-t]<<endl;
+      cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
       return Quad::zero;
     }
   // Now (1) c2*d1-c1*d2 = 1;
