@@ -8,22 +8,24 @@
 // 2-term (edge) relations
 
 edge_relations::edge_relations(P1N* s, int plus, int verb)
-  :cosets(s), plusflag(plus), verbose(verb)
+  :P1(s), plusflag(plus), verbose(verb)
 {
   int field = Quad::d;
-  nsymb = cosets->size();
+  nsymb = P1->size();
   nsymbx = nsymb*n_alphas;
   ngens=0;
   coordindex.resize(nsymbx);
   gens.reserve(1+nsymbx);  //NB start of gens array is at 1 not 0
   gens.push_back(0);
 
-  if(verbose) cout << "About to start on 2-term (edge) relations.\n";
-
   if(verbose)
-    cout<<"Edge relations for type 0 symbols (denominator 1)\n";
+    {
+      cout << "About to start on 2-term (edge) relations.\n";
+      cout<<"Edge relations for type 0 symbols (denominator 1)\n";
+    }
   edge_relations_1();
-  if (field<19)
+
+  if (Quad::is_Euclidean)
     {
       if (verbose)
         report();
@@ -73,7 +75,7 @@ void edge_relations::report()
       Quad c, d;
       for (i=0; i<nsymb; i++)
         {
-          cosets->make_symb(i, c, d);
+          P1->make_symb(i, c, d);
           cout << i<<":\t("<<c<<":"<<d<<")\t"<<coordindex[i+offset] << "\n";
         }
     }
@@ -85,8 +87,8 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   Quad unit = fundunit;
   long lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  action eps(cosets,unit,0,0,1);  assert (eps.det()==unit);
-  action sof(cosets, mat22::S);
+  action eps(P1,unit,0,0,1);  assert (eps.det()==unit);
+  action sof(P1, mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
   int j, k, triv;
@@ -131,14 +133,15 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
 }
 
 void edge_relations::edge_relations_2()    // extra edge relations for alphas with denominator 2
+                                           // whenever 2 is inert, i.e. d%8=3
 {
   Quad w = Quad::w;
   int j, k, l, m;
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  action K(cosets, M_alphas[1]);
-  action L(cosets, -1,w-1,0,1); assert (L.det()==-1);
+  action K(P1, M_alphas[1]);
+  action L(P1, -1,w-1,0,1); assert (L.det()==-1);
 
   // K maps w/2 --> oo --> (w-1)/2, where K = [w-1,u;2,-w], det=1,  order 3
   // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gK(oo),gK(w/2)} = -(gK)_w/2.
@@ -179,8 +182,8 @@ void edge_relations::edge_pairing(int i)
 {
   int j, k, j2, k2;
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb;
-  action J(cosets, mat22::J);
-  action M(cosets, M_alphas[i]);
+  action J(P1, mat22::J);
+  action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
 
   for (j=0; j<nsymb; j++)
@@ -222,8 +225,8 @@ void edge_relations::edge_pairing_double(int i)
   int offset_a = i*nsymb, offset_b = (i+1)*nsymb, offset_c = (i+2)*nsymb, offset_d = (i+3)*nsymb;
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
-  action M(cosets, M_alphas[i+2]);
-  action J(cosets, mat22::J);
+  action M(P1, M_alphas[i+2]);
+  action J(P1, mat22::J);
 
   for (j=0; j<nsymb; j++) // index of type i symbol
     {

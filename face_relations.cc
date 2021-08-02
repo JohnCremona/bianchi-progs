@@ -63,7 +63,8 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
 face_relations::face_relations(edge_relations* er, int plus, int verb)
   :ER(er), plusflag(plus), verbose(verb)
 {
-  nsymb = ER->cosets->size();
+  P1 = ER->P1;
+  nsymb = P1->size();
   maxnumrel=2*n_alphas*nsymb;
   ngens = ER->ngens;
   numrel = 0;
@@ -174,7 +175,7 @@ void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& typ
       Quad c, d;
       for (r = rel.begin(), t = types.begin(); r!=rel.end(); r++, t++)
         {
-          ER->cosets->make_symb(*r, c, d);
+          P1->make_symb(*r, c, d);
           cout<<(*r)<<"_"<<(*t)<<" ("<<c<<":"<<d<<") ";
         }
       cout <<" --> ";
@@ -225,8 +226,8 @@ void face_relations::triangle_relation_0()
     }
   vector<int> rel(3), types(3,0), done(nsymb, 0);
   long j, k;
-  action TiS(ER->cosets, mat22::TiS);
-  action R(ER->cosets, mat22::R);
+  action TiS(P1, mat22::TiS);
+  action R(P1, mat22::R);
   for (k=0; k<nsymb; k++)
     if (!done[k])
       {
@@ -257,7 +258,7 @@ void face_relations::triangle_relation_1_3()
 
   Quad w(0,1);
   long field = Quad::d;
-  action X = (field==1? action(ER->cosets,w,1,1,0): action(ER->cosets,1,w,w-1,0));
+  action X = (field==1? action(P1,w,1,1,0): action(P1,1,w,w-1,0));
   assert (X.det()==(field==1? -1: 1));
 
   for (k=0; k<nsymb; k++)
@@ -287,9 +288,9 @@ void face_relations::square_relation_2()
   long j, k;
 
   Quad w(0,1);
-  action U(ER->cosets,w,1,1,0);  assert (U.det()==-1);
-  action S(ER->cosets, mat22::S);
-  action J(ER->cosets, mat22::J);
+  action U(P1,w,1,1,0);  assert (U.det()==-1);
+  action S(P1, mat22::S);
+  action J(P1, mat22::J);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -332,9 +333,9 @@ void face_relations::rectangle_relation_7()
   long j, k;
   Quad w(0,1);
 
-  action Y(ER->cosets,1,-w,1-w,-1);  assert (Y.det()==1);
-  action USof(ER->cosets,w,-1,1,0);  assert (USof.det()==1);
-  action R(ER->cosets, mat22::R);
+  action Y(P1,1,-w,1-w,-1);  assert (Y.det()==1);
+  action USof(P1,w,-1,1,0);  assert (USof.det()==1);
+  action R(P1, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -362,12 +363,12 @@ void face_relations::hexagon_relation_11()
   long j, k;
   Quad w(0,1);
 
-  //  action X(ER->cosets,1,-w,1-w,-2); // as in JC thesis (order 3)
-  action X(ER->cosets,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
+  //  action X(P1,1,-w,1-w,-2); // as in JC thesis (order 3)
+  action X(P1,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
   assert (X.det()==1);
-  action USof(ER->cosets,w,-1,1,0);
+  action USof(P1,w,-1,1,0);
   assert (USof.det()==1);
-  action R(ER->cosets, mat22::R);
+  action R(P1, mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -397,8 +398,8 @@ void face_relations::triangle_relation_2()
   Quad w = Quad::w;
   int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
-  action K(ER->cosets, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
-  action N(ER->cosets, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
+  action K(P1, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
+  action N(P1, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
   // triangle to the second with determinant -1.  Both have order 3 so
@@ -460,8 +461,8 @@ void face_relations::cyclic_triangle_relation(int i)
   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
   int j, s, Ji = flip(i);
-  action M(ER->cosets, M_alphas[i]);
-  action J(ER->cosets, mat22::J);
+  action M(P1, M_alphas[i]);
+  action J(P1, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M, M*M};
   vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
@@ -533,9 +534,9 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
   RatQuad x = M_alphas[i](beta)-gamma;
   assert (x.is_integral());
 
-  action M1(ER->cosets, M_alphas[alpha_inv[j]]);
-  action M2(ER->cosets, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
-  action J(ER->cosets, mat22::J);
+  action M1(P1, M_alphas[alpha_inv[j]]);
+  action M2(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
+  action J(P1, mat22::J);
   vector<mat22> mats = {mat22::identity, M1, M2};
 
   int jd = alpha_inv[j];
@@ -546,8 +547,8 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
   vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J};
   vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
   Quad w = Quad::w;
-  action T1(ER->cosets, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  action T2(ER->cosets, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
+  action T1(P1, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
+  action T2(P1, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<3; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;
@@ -604,10 +605,10 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
       cout<<"square relation "<<squ<<" (x,y,z) = "<<xyz<<"\n";
     }
 
-  action M1(ER->cosets, mat22::Tmat(z) * M_alphas[j]);
-  action M2(ER->cosets, M1 * mat22::Tmat(x) * M_alphas[k]);
-  action M3(ER->cosets, M_alphas[alpha_inv[i]] * mat22::Tmat(y));
-  action J(ER->cosets, mat22::J);
+  action M1(P1, mat22::Tmat(z) * M_alphas[j]);
+  action M2(P1, M1 * mat22::Tmat(x) * M_alphas[k]);
+  action M3(P1, M_alphas[alpha_inv[i]] * mat22::Tmat(y));
+  action J(P1, mat22::J);
   vector<mat22> mats = {mat22::identity, M1, M2, M3};
 
   vector<int> types = squ;
@@ -617,8 +618,8 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
   vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J, J*M3*J};
   vector<int> Jtypes = {flip(i), flip(j), flip(k), flip(l)};
   Quad w = Quad::w;
-  action T1(ER->cosets, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  action T2(ER->cosets, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
+  action T1(P1, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
+  action T2(P1, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
   for (t=0; t<4; t++)
     {
       if (types[t]==1) Jmats[t] = Jmats[t]*T1;

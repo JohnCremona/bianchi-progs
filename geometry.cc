@@ -157,24 +157,30 @@ void Quad::setup_geometry()
 
   Quad w = Quad::w;
 
-  // alphas (w/2, (w-1)/2) when 2 is inert, d%8=3
-  // alpha = w/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
-  // alpha = (w+1)/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
+  // alpha = w/2, (w-1)/2 when 2 is inert, d%8=3
+  // alpha = w/2, sigma = (w-1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
+  // alpha = (w+1)/2, sigma = w/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
+  // sigma = w/2, (w-1)/2 when 2 splits, d%8=7
 
-  if (d%4==1)
+  switch (d%8) {
+  case 1: // (2) = (2,w+1)^2
+  case 5:
     {
       Quad u = (d-1)/2;
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
+      singular_points.push_back(RatQuad(w-1,2));
+      break;
     }
-  if (d%4==2)
+  case 2: // (2) = (2,w)^2
+  case 6:
     {
       Quad u = d/2;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1); // 1-1
+      singular_points.push_back(RatQuad(w,2));
+      break;
     }
-
-  switch (d%8) {
   case 3:
     {
       Quad u = (d-3)/8;  // = 2, 5, 8, 20 for d=19,43,67,163 = 3 (mod 8) so 2 is inert
@@ -184,12 +190,7 @@ void Quad::setup_geometry()
       alpha_inv.push_back(1); // 2-1
       break;
     }
-  case 5:
-    {
-      singular_points.push_back(RatQuad(w+1,2));
-      break;
-    }
-  case 7:
+  case 7: // (2) = (2,w)*(2,w+1)
     {
       singular_points.push_back(RatQuad(w,2));
       singular_points.push_back(RatQuad(w-1,2));

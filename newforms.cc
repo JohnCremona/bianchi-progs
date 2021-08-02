@@ -1183,7 +1183,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
       long s_number = st.rem;  // remainder gives (c:d) symbol number
       int s_type = st.quot; // quotient gives symbol type
       Quad u, v;
-      h1->cosets.make_symb(s_number, u, v);
+      h1->P1.make_symb(s_number, u, v);
 
 #ifdef DEBUG_APVEC
       cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
@@ -1258,7 +1258,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
       else // non-Euclidean case, apply T_p directly to the modular symbol represented by j
 
         {
-          mat22 M = h1->cosets.lift_to_SL2(s_number);
+          mat22 M = h1->P1.lift_to_SL2(s_number);
           modsym m(M, s_type);
 #ifdef DEBUG_APVEC
           cout<<"\n coset rep = " << M << "\n modular symbol m = "<<m<<endl;

@@ -14,8 +14,8 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
 {
   modulus=n;
   N=Qideal(n);
-  cosets=P1N(N);
-  nsymb = cosets.size();
+  P1=P1N(N);
+  nsymb = P1.size();
   verbose=verb;
   cuspidal=cuspid;
   hmod = 0;
@@ -29,7 +29,7 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
         primelist.push_back(P);
     }
 
-  ER = edge_relations(&cosets, hp, verb);
+  ER = edge_relations(&P1, hp, verb);
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb); // fills relmat with the relations and solves
@@ -83,9 +83,9 @@ void homspace::make_freemods()
           s = st.rem;  // remainder gives (c:d) symbol number
           t = st.quot; // quotient gives symbol type
         }
-      //mat22 U = cosets.lift_to_SL2(s);
+      //mat22 U = P1.lift_to_SL2(s);
       //cout<<"lifting symbol #"<<s<<" to SL2: --> "<<U<<endl;
-      m = modsym(cosets.lift_to_SL2(s), t);
+      m = modsym(P1.lift_to_SL2(s), t);
       //cout<<" --> "<<m<<" (type "<<t<<")"<<endl;
       freemods.push_back(m);
       if (verbose) cout<<m<<endl;
@@ -160,7 +160,7 @@ void homspace::kernel_delta()
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
-  long i= ER.coords(cosets.index(c,d) + nsymb*type);
+  long i= ER.coords(P1.index(c,d) + nsymb*type);
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)

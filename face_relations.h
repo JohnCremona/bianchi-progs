@@ -20,6 +20,7 @@ public:
 
 private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
+  P1N* P1;  // shortcut to ER->P1
   int plusflag, verbose;
   long ngens, nsymb, numrel, maxnumrel;
   long hmod, denom, rk;

@@ -17,7 +17,7 @@ public:
   int get_ngens() const {return ngens;}
 
 protected:
-  P1N* cosets; // provides nsymb, symbol(i), symbops
+  P1N* P1; // provides nsymb, symbol(i), symbops
   int plusflag, verbose, nsymb, nsymbx, ngens;
   vector<int> coordindex, gens;
 

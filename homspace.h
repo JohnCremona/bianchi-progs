@@ -17,7 +17,7 @@ public:
   face_relations FR;
   int plusflag;
   Quad modulus; Qideal N;
-  P1N cosets;
+  P1N P1;
   long ngens, nsymb, nap;
   vector<Quadprime> primelist; // list of primes in order, bad primes first
 
@@ -35,7 +35,7 @@ public:
 
   vec coords(int i) {return FR.coords(i);}
   int coords(const Quad& c, const Quad& d);
-  int index(const Quad& c, const Quad& d) {return cosets.index(c, d);}
+  int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
    mat opmat(int, int dual=1, int verb=0);
    vec opmat_col(int, int j, int verb=0);
