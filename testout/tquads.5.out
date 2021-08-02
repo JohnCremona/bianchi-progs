@@ -77,18 +77,18 @@ generalised_extended_euclid(2-a,1) = [0,-1; 1,-2+a]; (2-a,1) is principal, maps 
 generalised_extended_euclid(2-a,2) = [a,-3-a; 2,-2+a]; (2-a,2) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(2-a,a) = [-3,-3-a; a,-2+a]; (2-a,a) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(2-a,2-a) = [0,-1; 1,-1]; (2-a,2-a) is principal, maps to (-2+a)/(0) = oo
-generalised_extended_euclid(2-a,3) = [-1+a,-a; 1,-1]; (2-a,3) is not principal, maps to singular point (3)/(-1-a) = (-1+a)/(2)
+generalised_extended_euclid(2-a,3) = [a,-1-a; 1,-1]; (2-a,3) is not principal, maps to singular point (2-a)/(-1-a) = (1+a)/(2)
 generalised_extended_euclid(2-a,2+a) = [-2,-a; -2-a,2-a]; (2-a,2+a) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(3,1) = [0,-1; 1,-3]; (3,1) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(3,2) = [-1,2; -2,3]; (3,2) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(3,a) = [2,a; -a,3]; (3,a) is principal, maps to (1)/(0) = oo
-generalised_extended_euclid(3,2-a) = [-1,0; 1,-1]; (3,2-a) is not principal, maps to singular point (-3)/(1+a) = (-1+a)/(2)
+generalised_extended_euclid(3,2-a) = [0,-1; 1,-1]; (3,2-a) is not principal, maps to singular point (-2+a)/(1+a) = (1+a)/(2)
 generalised_extended_euclid(3,3) = [0,-1; 1,-1]; (3,3) is principal, maps to (-3)/(0) = oo
-generalised_extended_euclid(3,2+a) = [-1+a,-a; 1,-1]; (3,2+a) is not principal, maps to singular point (2+a)/(1-a) = (-1+a)/(2)
+generalised_extended_euclid(3,2+a) = [a,-1-a; 1,-1]; (3,2+a) is not principal, maps to singular point (3)/(1-a) = (1+a)/(2)
 generalised_extended_euclid(2+a,1) = [0,-1; 1,-2-a]; (2+a,1) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(2+a,2) = [a,2-a; 2,-2-a]; (2+a,2) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(2+a,a) = [-3,3-a; a,-2-a]; (2+a,a) is principal, maps to (-1)/(0) = oo
 generalised_extended_euclid(2+a,2-a) = [-2,a; -2+a,2+a]; (2+a,2-a) is principal, maps to (1)/(0) = oo
-generalised_extended_euclid(2+a,3) = [-1,0; 1,-1]; (2+a,3) is not principal, maps to singular point (-2-a)/(-1+a) = (-1+a)/(2)
+generalised_extended_euclid(2+a,3) = [0,-1; 1,-1]; (2+a,3) is not principal, maps to singular point (-3)/(-1+a) = (1+a)/(2)
 generalised_extended_euclid(2+a,2+a) = [0,-1; 1,-1]; (2+a,2+a) is principal, maps to (-2-a)/(0) = oo
 done.

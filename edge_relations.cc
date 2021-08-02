@@ -132,8 +132,125 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
     }
 }
 
-void edge_relations::edge_relations_2()    // extra edge relations for alphas with denominator 2
-                                           // whenever 2 is inert, i.e. d%8=3
+// edge relations for alphas & sigmas with denominator 2
+void edge_relations::edge_relations_2()
+{
+  int d = Quad::d;
+  switch (d%4) {
+  case 1:
+  case 2:
+    edge_relations_2_d12mod4();
+    return;
+  case 3:
+  default:
+    switch (d%8) {
+    case 3:
+      edge_relations_2_d3mod8();
+      return;
+    case 7:
+    default:
+      edge_relations_2_d7mod8();
+      return;
+    } // switch on d%8
+  } // switch on d%4
+}
+
+// edge relations for one alpha, one sigma with denominator 2 when 2 is ramified d%4=1,2 (d>2)
+void edge_relations::edge_relations_2_d12mod4()
+{
+  Quad w = Quad::w;
+  Quad a=w, b=w;
+  ((Quad::d)%4==1? b: a) += 1;
+
+  action M(P1, M_alphas[1]);
+  action L(P1, -1,a,0,1); assert (L.det()==-1);
+  action K(P1, -1,b,0,1); assert (K.det()==-1);
+
+  // alpha#1 = w/2 (d%4=1), (w+1)/2 (d%4=2)
+
+  vector<int> done(nsymb, 0);
+  int offset = nsymb;
+  int i, m, l, k;
+  for (i=0; i<nsymb; i++)
+    {
+      if (done[i])
+        continue;
+      m = M(i);
+      l = L(i);
+      k = M(l); // = L(m)
+      done[i] = done[k] = done[l] = done[m] = 1;
+
+      if ((i==m) || (plusflag&&(i==k))) // i==m iff l==k
+        {
+          coordindex[offset + i] = 0;
+          coordindex[offset + l] = 0;
+        }
+      else
+        {
+          ++ngens;
+          gens.push_back(offset+i);
+          coordindex[offset + i] = ngens;
+          coordindex[offset + m] = -ngens;
+          if (!plusflag)
+            {
+              ++ngens;
+              gens.push_back(offset+l);
+            }
+          coordindex[offset + l] = ngens;
+          coordindex[offset + k] = -ngens;
+        }
+    }
+
+  // sigma#1 = (1+w)/2  (d%4=1), w/2 (d%4=2)
+
+  if (!plusflag)
+    return;
+
+  std::fill(done.begin(), done.end(), 0);
+  offset = n_alphas*nsymb;
+  for (i=0; i<nsymb; i++)
+    {
+      if (done[i])
+        continue;
+      k = K(i);
+      done[i] = done[k] = 1;
+      ++ngens;
+      gens.push_back(offset+i);
+      coordindex[offset + i] = ngens;
+      coordindex[offset + k] = ngens;
+    }
+}
+
+// edge relations for two sigmas with denominator 2 whenever 2 is split, i.e. d%8=7 (d>7)
+void edge_relations::edge_relations_2_d7mod8()
+{
+  // sigma#1 = w/2,  sigma#2 = (w+1)/2
+  for (int t=0; t<2; t++)
+    {
+      action L(P1, -1, Quad::w + t, 0,1);
+      vector<int> done(nsymb, 0);
+      int i, l, offset = nsymb*(n_alphas+t);
+      for (i=0; i<nsymb; i++)
+        {
+          if (done[i])
+            continue;
+          l = L(i);
+          done[i] = done[l] = 1;
+          ++ngens;
+          gens.push_back(offset+i);
+          coordindex[offset + i] = ngens;
+          if (!plusflag)
+            {
+              ++ngens;
+              gens.push_back(offset+l);
+            }
+          coordindex[offset + l] = ngens;
+        }
+    }
+}
+
+// edge relations for two alphas with denominator 2 whenever 2 is inert, i.e. d%8=3 (d>3)
+void edge_relations::edge_relations_2_d3mod8()
 {
   Quad w = Quad::w;
   int j, k, l, m;
@@ -217,7 +334,7 @@ void edge_relations::edge_pairing(int i)
     }
 }
 
-// For use wieth alpha[i]=r1/s, alpha[i+1]=-r1/s, alpha[i+2]=r2/s, alpha[i+3]=-r2/s, where r1*r2=-1 (mod s)
+// For use with alpha[i]=r1/s, alpha[i+1]=-r1/s, alpha[i+2]=r2/s, alpha[i+3]=-r2/s, where r1*r2=-1 (mod s)
 
 void edge_relations::edge_pairing_double(int i)
 {
