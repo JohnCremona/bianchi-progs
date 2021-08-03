@@ -542,13 +542,15 @@ void face_relations::square_relation_5()
   if(verbose)
     cout << "Square relation for d=5:\n";
 
-  vector<int> rel(4), done(nsymb, 0), types(-1, n_alphas); // i.e. {sigma_1,oo}
-  vector<int> signs = {1,-1,1,-1};
+  vector<int> rel(4),
+    types(4, -1), // type -1 means {sigmas[1],oo}
+    signs = {1,-1,1,-1},
+    done(nsymb, 0);
 
   action M(P1, M_alphas[1]);
   action Ti(P1, mat22::Tmat(-1));
   vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
-  cout<<"Square relation matrices = "<<mats<<endl;
+
   int i, j, m, k;
   for (i=0; i<nsymb; i++)
       {

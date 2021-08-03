@@ -278,8 +278,8 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
     }
   if (b.nm)
     {
-      cout<<"Warning: quadbexout_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
-      cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
+      // cout<<"Warning: quadbezout_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
+      // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
       return Quad::zero;
     }
   // Now (1) c2*d1-c1*d2 = 1;
