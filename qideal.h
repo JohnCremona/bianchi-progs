@@ -121,6 +121,10 @@ public:
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
   int is_coprime_to(const Quad& alpha, Quad& inverse);
 
+  // Return 1 iff this is coprime to (c,d); if so, set x,y so c*x+d*y =1
+  // modulo this ideal.  If fix=1, ensure that y is coprime to this.
+  int is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fix=0);
+
   // return J = (c/d)*this coprime to N, or (if anti=1) J such that J*this=(c) and d=1
   // (implemented in primes.cc)
   Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti=0);
@@ -134,7 +138,7 @@ public:
   void operator/=(const long&);
   void operator/=(const Quad&);
   void operator/=(const Qideal&);
-//
+
 //functions defined in qideal.cc unless inline
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
@@ -170,6 +174,8 @@ public:
   int divides(const Quad& alpha) const  {return contains(alpha);}
   int divides(const Qideal& I) const  {return contains(I);}
 
+  Qideal divide_out(const Qideal& I); // largest factor of this coprime to I
+
   Qideal conj() const;            // returns the conjugate ideal
 
   Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal (not const; may fill())
@@ -197,6 +203,9 @@ Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N
 char* to_string(const Qideal& a);  // outputs to a (new) string
 
 long val(const Qideal& factor, const Qideal& dividend);
+
+// If a is in (c,d) return 1 and x,y such that a=c*x+d*y, else return 0
+int express2gens(const Quad& a, const Quad& c, const Quad& d, Quad& x, Quad& y);
 
 // These three functions return lists which are not sorted in the standard way
 vector<Qideal> primitive_ideals_with_norm(long N, int both_conj=1);

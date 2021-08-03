@@ -18,9 +18,10 @@ int main ()
  Quad::field(d,max);
  long firstn, lastn; Quad n;
  int both_conj;
+ int verbose=0;
  int dimcusp, dimeis, dimall;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
- // int plusflag;
+ int plusflag=1;
  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
@@ -34,7 +35,7 @@ int main ()
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(n)<<"\t\t"; // level and norm
-     homspace hplus(n,1,0,0);  //level, plusflag, cuspidal, verbose
+     homspace hplus(n, plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
      dimcusp = hplus.h1cuspdim();
      dimall = hplus.h1dim();
      dimeis = dimall-dimcusp;

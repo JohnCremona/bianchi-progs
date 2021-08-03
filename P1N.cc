@@ -188,28 +188,76 @@ long P1N::apply(const mat22& M, long i)
   return merge_indices(jlist);
 }
 
+//#define DEBUG_LIFT
+
 // compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
 mat22 P1N::lift_to_SL2(long i)
 {
-  Quad c, d;
+  Quad a, b, c, d, inv, x, y, z, h;
   make_symb(i, c, d);
-  // Two special cases: (c:1), (1:d) need no work:
+#ifdef DEBUG_LIFT
+  cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") to SL2"<<endl;
+#endif
+  // Special cases (1): (c:1), (1:d) need no work:
   if (d==1) return mat22(1,0,c,1);
   if (d==-1) return mat22(1,0,-c,1);
   if (c==1) return mat22(0,-1,1,d);
   if (c==-1) return mat22(0,-1,1,-d);
-  Quad x, y;
-  Quad h = quadbezout(c , d, x, y);
-  if (h==0) // then (c,d) was not principal!
+#ifdef DEBUG_LIFT
+  cout<<"Neither c nor d is 1 or -1"<<endl;
+#endif
+  // Special cases (2): when c or d is invertible:
+  if (N.is_coprime_to(d, inv))
     {
-      cerr<<"Problem lifting M-symbol ("<<c<<":"<<d<<") as ideal is not principal"<<endl;
-      return mat22();
+#ifdef DEBUG_LIFT
+      cout<<"d is invertible modulo "<<N<<" with inverse "<<inv<<endl;
+#endif
+      return mat22(1,0,N.reduce(c*inv),1);
     }
-  c /= h;
-  d /= h;
-  assert (y*d+x*c==1);
+  if (N.is_coprime_to(c, inv))
+    {
+#ifdef DEBUG_LIFT
+      cout<<"c is invertible modulo "<<N<<" with inverse "<<inv<<endl;
+#endif
+      return mat22(0,-1,1,N.reduce(d*inv));
+    }
+#ifdef DEBUG_LIFT
+  cout<<"Neither c nor d is invertible modulo "<<N<<": testing whether ideal (c,d) is principal"<<endl;
+#endif
+  // General case: neither c nor d is invertible.
+
+  // Test if (c,d)=(h), principal:
+  h = quadbezout(c,d, x, y);
+  if (h!=0) // then is principal with c*x+d*y=h
+    {
+#ifdef DEBUG_LIFT
+      cout<<"ideal (c,d)=("<<h<<"), success"<<endl;
+#endif
+      a = y;
+      b = -x;
+      c /= h;
+      d /= h;
+    }
+  else
+    {  // Now we must work harder.
+      N.is_coprime_to(c, d, x, y, 1);   // c*x+d*y = 1 mod N with y invertible
+      N.is_coprime_to(y, z);            // y*z = 1 mod N
+      z *= y;  // now z=0 (mod y), z=1 (mod N)
+      a = y;
+      b =  1 - (x+1)*z;  // = 1 (mod y), -x (mod N)
+      c = -1 + (c+1)*z;  // =-1 (mod y),  c (mod N)
+      d = (1+b*c)/a;     // 1+b*c = 0 (mod y), 1-c*x = d*y = a*d (mod N)
+    }
+#ifdef DEBUG_LIFT
+  cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
+#endif
+  assert (a*d-b*c==1);
   assert (index(c,d)==i);
-  return mat22(y,-x,c,d);
+  mat22 M(a,b,c,d);
+#ifdef DEBUG_LIFT
+  cout<<" returning  "<< M <<endl;
+#endif
+  return M;
 }
 
 // test function

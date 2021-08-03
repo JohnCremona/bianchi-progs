@@ -767,5 +767,61 @@ Qideal::Qideal(const string& s)           // ideal from label N.i
   *this = Qideal_from_norm_index(N,i);
 }
 
-// END OF FILE qideal.cc
+// If a is in (c,d) return 1 and x,y such that a=c*x+d*y, else return 0
+int express2gens(const Quad& a, const Quad& c, const Quad& d, Quad& x, Quad& y)
+{
+  Qideal I({c,d});
+  if (!I.contains(a)) return 0;
+  Qideal J = I.conj();
+  Qideal I0 = (c*J)/I.norm(),  I1 = (d*J)/I.norm();
+  I0.is_coprime_to(I1, x, y); // x+y=1
+  // Now x*I subset (c) and y*I subset (d), so if a in I then a*x/c, a*y/d are integral
+  x = (a*x)/c;
+  y = (a*y)/d;
+  assert (c*x+d*y==a);
+  return 1;
+}
 
+// largest factor of this coprime to I
+Qideal Qideal::divide_out(const Qideal& I)
+{
+  Qideal J = *this;
+  Qideal G = J+I;
+  while (G.nm!=1)
+    {
+      J /= G;
+      G = J+I;
+    }
+  return J;
+}
+
+// Return 1 iff this is coprime to (c,d); if so, set x,y so c*x+d*y =1
+// modulo this ideal.  If fix=1, ensure that y is coprime to this.
+int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fix)
+{
+  Qideal I({c,d});
+  Quad r,s,t,u;
+  if (!is_coprime_to(I, r, s))
+    return 0;
+
+  // else r+s=1 with r in this, s in (c,d)
+  express2gens(s, c, d, x, y);  // now c*x+d*y = s = 1-r
+
+  if (fix && !is_coprime_to(y))
+    {
+      // Fixing is needed: replace (x,y) by (x-t*d,y+t*c) with y+t*c
+      // coprime to this. Here, t must be divisible by all primes
+      // dividing this not dividing y, but none of those dividing y.
+
+      Qideal A(y);
+      divide_out(A).equivalent_coprime_to(A, t, u, 1);
+      y += t*c;
+      x -= t*d;
+      assert (is_coprime_to(y));
+    }
+  assert (contains(c*x+d*y-1));
+  return 1;
+}
+
+
+// END OF FILE qideal.cc
