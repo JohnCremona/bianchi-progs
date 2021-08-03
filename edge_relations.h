@@ -12,18 +12,32 @@ class edge_relations {
 public:
   edge_relations() {;}
   edge_relations(P1N*, int plus, int verb=0);
-  int coords(int i) const {return coordindex[i];}
-  int coords(int i, int t) const {return coordindex[i+offset(t)];}
-  int gen(int i) const {return gens[i];}  // indexed from 1 not 0
-  int get_ngens() const {return ngens;}
-  int offset(int t) const // offset into coordindex for type t
+  long coords(int i) const {return coordindex[i];}
+  long coords(int i, int t) const {return coordindex[i+offset(t)];}
+  long gen(int i) const {return gens[i];}  // indexed from 1 not 0
+  long get_ngens() const {return ngens;}
+  long offset(int t) const // offset into coordindex for type t
   {
     return nsymb * (t>=0? t: n_alphas-t-1);
+  }
+  pair<long, int> symbol_number_and_type(long i)
+  {
+    std::ldiv_t st = ldiv(i, nsymb);
+    long s = st.rem;  // remainder gives (c:d) symbol number
+    int t = st.quot;  // quotient gives symbol type
+    if (t>=n_alphas)  // convert singular type to negative
+      {
+        cout<<"converting edge number "<<i<<" (nsymb="<<nsymb<<", n_alphas="<<n_alphas<<")";
+        t = n_alphas-t-1;
+        cout<<" s="<<s<<", t="<<t<<endl;
+      }
+    return {s, t};
   }
 
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
-  int plusflag, verbose, nsymb, ngens;
+  int plusflag, verbose;
+  long nsymb, ngens;
   vector<int> coordindex, gens;
 
 private:

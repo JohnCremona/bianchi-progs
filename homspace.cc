@@ -58,7 +58,8 @@ void homspace::make_freemods()
 {
   if (rk==0) return;
 
-  int i,j,s,t=0;
+  long i,j,s;
+  int t=0;
   modsym m;
 
   freegens.resize(rk);
@@ -77,18 +78,25 @@ void homspace::make_freemods()
   for (i=0; i<rk; i++)
     {
       s = j = freegens[i];
+      t = 0;
       if (n_alphas>1)
         {
-          std::ldiv_t st = ldiv(j, nsymb);
-          s = st.rem;  // remainder gives (c:d) symbol number
-          t = st.quot; // quotient gives symbol type
+          pair<long, int> st = ER.symbol_number_and_type(j);
+          s = st.first;  // (c:d) symbol number
+          t = st.second; // symbol type (negative for singular edges)
         }
-      //mat22 U = P1.lift_to_SL2(s);
-      //cout<<"lifting symbol #"<<s<<" to SL2: --> "<<U<<endl;
-      m = modsym(P1.lift_to_SL2(s), t);
-      //cout<<" --> "<<m<<" (type "<<t<<")"<<endl;
+      mat22 U = P1.lift_to_SL2(s);
+      if (verbose)// && t<0)
+        {
+          cout<<"lifting symbol #"<<s<<", type "<<t<<" to SL2: --> "<<U<<endl;
+        }
+      m = modsym(U, t);
+      if (verbose)// && t<0)
+        {
+          cout<<" --> "<<m<<endl;
+        }
       freemods.push_back(m);
-      if (verbose) cout<<m<<endl;
+      if (verbose) cout<<i<<": "<<m<<endl;
     }
   if (verbose)
     {
@@ -201,23 +209,44 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
    while (quadnorm(b))
      {
        pseudo_euclidean_step(a,b, t, c,d);
-       assert (t!=-1);
        c = N.reduce(c); d = N.reduce(d); // reduce modulo the level
-       u = alpha_inv[t];
+
+       // either t>=0 and we have a standard edge:
+       if (t>=0)
+         {
+           u = alpha_inv[t];
 #ifdef DEBUG_NON_EUCLID
-       //       if (!Quad::is_Euclidean)
-         cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<") TO "<<RatQuad(a,b,1) << endl;
+           cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif
-       // Look up this symbol, convert to a vector w.r.t. homology basis
-       vec part = chaincd(c, d, u, proj);
-       if(hmod)
-         ans.addmodp(part,hmod);
-       else
-         ans += part;
+           // Look up this symbol, convert to a vector w.r.t. homology basis
+           vec part = chaincd(c, d, u, proj);
+           if(hmod)
+             ans.addmodp(part,hmod);
+           else
+             ans += part;
+         }
+       else // t<0 means that the last step took us to sigma[|t|] via
+            // a translation only.  We will not reach b=0; instead we
+            // finish off by subtracting M{sigma[|t|],oo} where M has
+            // second row (c,d). [See Lingham's thesis, p.77]
+         {
+           vec part = - chaincd(c, d, t, proj);
+           if(hmod)
+             {
+               ans.addmodp(part,hmod);
+               ans = reduce_modp(ans,hmod);
+             }
+           else
+             ans += part;
+#ifdef DEBUG_NON_EUCLID
+           cout<<" coordinate vector = "<<ans<<endl;
+#endif
+           return ans;
+         }
      }
+   // We get here when b=0, so no singular edge was used
    if(hmod) ans=reduce_modp(ans,hmod);
 #ifdef DEBUG_NON_EUCLID
-       //       if (!Quad::is_Euclidean)
    cout<<" coordinate vector = "<<ans<<endl;
 #endif
    return ans;
@@ -225,7 +254,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 
 vec reduce_modp(const vec& v, const scalar& p)
 {
-  int i, d=dim(v);
+  long i, d=dim(v);
   scalar ai, p2 = p>>1;
   vec ans(d);
   for(i=1; i<=dim(v); i++)
@@ -240,7 +269,7 @@ vec reduce_modp(const vec& v, const scalar& p)
 
 mat reduce_modp(const mat& m, const scalar& p)
 {
-  int i, j, nr=m.nrows(), nc=m.ncols();
+  long i, j, nr=m.nrows(), nc=m.ncols();
   scalar aij, p2 = p>>1;
   mat ans(nr,nc);
   for(i=1; i<=nr; i++)

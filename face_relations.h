@@ -11,7 +11,7 @@ class face_relations {
 public:
   face_relations() {;}
   face_relations(edge_relations*, int plus, int verb=0);
-  int ncoords() const {return coord.nrows();}
+  long ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
   long get_denom() const {return denom;}
   long get_rank() const {return rk;}
@@ -29,8 +29,8 @@ private:
   void make_relations();        // creates relation matrix relmat
   void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]
 
-  void add_face_rel(const vector<int>& rel, const vector<int>& types);
-  void add_face_rel(const vector<int>& rel, const vector<int>& types, const vector<int>& signs);
+  void add_face_rel(const vector<long>& rel, const vector<int>& types);
+  void add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs);
 
   void triangle_relation_0();           // triangle relation for all fields
   void triangle_relation_1_3();         // extra triangle relation for fields 1, 3

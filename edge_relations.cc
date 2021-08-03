@@ -45,7 +45,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 {
   int field = Quad::d;
   nsymb = P1->size();
-  int nsymbx = nsymb*(n_alphas+n_sigmas-1);
+  long nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;
   coordindex.resize(nsymbx);
   gens.reserve(1+nsymbx);  //NB start of gens array is at 1 not 0
@@ -116,7 +116,8 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 
 void edge_relations::report()
 {
-  int i, j, t, off;
+  long i;
+  int j, t, off;
   RatQuad alpha;
   string name;
   Quad c, d;
@@ -160,13 +161,14 @@ void edge_relations::report()
 void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
 {
   Quad unit = fundunit;
-  long lenrel = Quad::nunits;
+  int lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
   action eps(P1,unit,0,0,1);  assert (eps.det()==unit);
   action sof(P1, mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
-  int j, k, triv;
+  long j, k;
+  int triv;
   if(verbose && n_alphas>1)
     cout<<"Generic edge relations for type 0 symbols\n";
   for (j=nsymb-1; j>=0; j--)
@@ -244,8 +246,8 @@ void edge_relations::edge_relations_2_d12mod4()
   // alpha#1 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
   vector<int> done(nsymb, 0);
-  int off = offset(1);
-  int i, m, l, k;
+  long off = offset(1);
+  long i, m, l, k;
   for (i=0; i<nsymb; i++)
     {
       if (done[i])
@@ -304,7 +306,7 @@ void edge_relations::edge_relations_2_d7mod8()
     {
       action L(P1, -1, Quad::w + t, 0,1);
       vector<int> done(nsymb, 0);
-      int i, l, off = offset(-1-t);
+      long i, l, off = offset(-1-t);
       for (i=0; i<nsymb; i++)
         {
           if (done[i])
@@ -328,7 +330,7 @@ void edge_relations::edge_relations_2_d7mod8()
 void edge_relations::edge_relations_2_d3mod8()
 {
   Quad w = Quad::w;
-  int j, k, l, m;
+  long j, k, l, m;
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
@@ -342,7 +344,7 @@ void edge_relations::edge_relations_2_d3mod8()
   //                  = -(gLK)_w/2
 
   vector<int> done(nsymb, 0);
-  int off1 = offset(1), off2 = offset(2);
+  long off1 = offset(1), off2 = offset(2);
   for (j=0; j<nsymb; j++) // index of a type 2 symbol
     {
       if (!done[j])
@@ -372,8 +374,8 @@ void edge_relations::edge_relations_2_d3mod8()
 
 void edge_relations::edge_pairing_minus(int i)
 {
-  int j, k, j2, k2;
-  int off1 = offset(i), off2 = offset(i+1);
+  long j, k, j2, k2;
+  long off1 = offset(i), off2 = offset(i+1);
   action J(P1, mat22::J);
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
@@ -413,8 +415,8 @@ void edge_relations::edge_pairing_minus(int i)
 
 void edge_relations::edge_pairing_plus(int i)
 {
-  int i1, j1, j2, i2;
-  int off1 = offset(i), off2 = offset(i+1);
+  long i1, j1, j2, i2;
+  long off1 = offset(i), off2 = offset(i+1);
   action J(P1, mat22::J);
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
@@ -445,8 +447,8 @@ void edge_relations::edge_pairing_plus(int i)
 
 void edge_relations::edge_pairing_double(int i)
 {
-  int j, k, j2, k2;
-  int off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
+  long j, k, j2, k2;
+  long off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
   action M(P1, M_alphas[i+2]);

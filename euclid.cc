@@ -72,7 +72,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 #endif
   if (b.nm<0) // impossible unless there has been overflow
     {
-      cerr<<"Something is wrong: b cannot have negative norm"<<endl;
+      cerr<<"Something is wrong: b="<<b<<" should not have negative norm "<<b.nm<<endl;
       exit(1);
     }
   if (b.nm==0)

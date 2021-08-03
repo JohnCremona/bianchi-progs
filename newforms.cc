@@ -1180,9 +1180,10 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
     {
       vec imagej=vec(n1ds); // initialised to 0
       j=*jj; // from 1
-      std::ldiv_t st = ldiv(h1->ER.gen(j), h1->nsymb);
-      long s_number = st.rem;  // remainder gives (c:d) symbol number
-      int s_type = st.quot; // quotient gives symbol type
+      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
+      long s_number = st.first;  // (c:d) symbol number
+      int s_type    = st.second; // symbol type (negative for singular edges)
+
       Quad u, v;
       h1->P1.make_symb(s_number, u, v);
 

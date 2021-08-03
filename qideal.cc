@@ -796,7 +796,7 @@ Qideal Qideal::divide_out(const Qideal& I)
 }
 
 // Return 1 iff this is coprime to (c,d); if so, set x,y so c*x+d*y =1
-// modulo this ideal.  If fix=1, ensure that y is coprime to this.
+// modulo this ideal.  If fix=1, ensure that y is coprime to this ideal.
 int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fix)
 {
   Qideal I({c,d});
@@ -806,7 +806,9 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
 
   // else r+s=1 with r in this, s in (c,d)
   express2gens(s, c, d, x, y);  // now c*x+d*y = s = 1-r
-
+  x = reduce(x);
+  y = reduce(y); // does not change c*x+d*y modulo this
+  //  cout<<"Before adjustment, x="<<x<<" and y="<<y<<endl;
   if (fix && !is_coprime_to(y))
     {
       // Fixing is needed: replace (x,y) by (x-t*d,y+t*c) with y+t*c
@@ -818,6 +820,7 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
       y += t*c;
       x -= t*d;
       assert (is_coprime_to(y));
+      //      cout<<"After adjustment with t="<<t<<", x="<<x<<" and y="<<y<<endl;
     }
   assert (contains(c*x+d*y-1));
   return 1;

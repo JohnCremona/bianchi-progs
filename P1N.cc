@@ -240,8 +240,19 @@ mat22 P1N::lift_to_SL2(long i)
     }
   else
     {  // Now we must work harder.
-      N.is_coprime_to(c, d, x, y, 1);   // c*x+d*y = 1 mod N with y invertible
-      N.is_coprime_to(y, z);            // y*z = 1 mod N
+#ifdef DEBUG_LIFT
+      cout<<" (c,d) not principal, working harder..."<<endl;
+#endif
+      int t = N.is_coprime_to(c, d, x, y, 1);   // c*x+d*y = 1 mod N with y invertible
+      assert (t==1);
+#ifdef DEBUG_LIFT
+      cout<<" c*x+d*y=1 mod N with x = "<<x<<" and y = "<<y<<endl;
+#endif
+      t = N.is_coprime_to(y, z);            // y*z = 1 mod N
+      assert (t==1);
+#ifdef DEBUG_LIFT
+      cout<<" inverse of y mod N is z = "<<z<<" with y*z="<<y*z<<endl;
+#endif
       z *= y;  // now z=0 (mod y), z=1 (mod N)
       a = y;
       b =  1 - (x+1)*z;  // = 1 (mod y), -x (mod N)

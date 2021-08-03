@@ -195,16 +195,17 @@ void face_relations::make_relations()
 //
 
 // Special case: all signs +1
-void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types)
+void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& types)
 {
   vector<int> signs(rel.size(), 1);
   add_face_rel(rel, types, signs);
 }
 
 // General case:
-void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types, const vector<int>& signs)
+void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs)
 {
-  vector<int>::const_iterator r, t, s;
+  vector<long>::const_iterator r;
+  vector<int>::const_iterator t, s;
   if (verbose)
     {
       cout<<"Relation: ";
@@ -264,7 +265,8 @@ void face_relations::triangle_relation_0()
     {
       cout << "Face relation type 1 (triangles):\n";
     }
-  vector<int> rel(3), types(3,0), done(nsymb, 0);
+  vector<long> rel(3);
+  vector<int> types(3,0), done(nsymb, 0);
   long j, k;
   action TiS(P1, mat22::TiS);
   action R(P1, mat22::R);
@@ -293,7 +295,8 @@ void face_relations::triangle_relation_1_3()
     {
       cout << "Face relation type 2 (triangles):\n";
     }
-  vector<int> rel(3), types(3,0), done(nsymb, 0);
+  vector<long> rel(3);
+  vector<int> types(3,0), done(nsymb, 0);
   long j, k;
 
   Quad w(0,1);
@@ -324,7 +327,8 @@ void face_relations::square_relation_2()
     {
       cout << "Face relation type 2 (squares):\n";
     }
-  vector<int> rel(4), types(4,0), done(nsymb, 0);
+  vector<long> rel(4);
+  vector<int> types(4,0), done(nsymb, 0);
   long j, k;
 
   Quad w(0,1);
@@ -369,7 +373,8 @@ void face_relations::rectangle_relation_7()
     {
       cout << "Face relation type 2 (rectangles):\n";
     }
-  vector<int> rel(4), types(4,0), done(nsymb, 0);
+  vector<long> rel(4);
+  vector<int> types(4,0), done(nsymb, 0);
   long j, k;
   Quad w(0,1);
 
@@ -399,7 +404,8 @@ void face_relations::hexagon_relation_11()
     {
       cout << "Face relation type 2 (hexagons):\n";
     }
-  vector<int> rel(6), types(6,0), done(nsymb, 0);
+  vector<long> rel(6);
+  vector<int> types(6,0), done(nsymb, 0);
   long j, k;
   Quad w(0,1);
 
@@ -436,7 +442,7 @@ void face_relations::triangle_relation_2()
 {
   int field = Quad::d;
   Quad w = Quad::w;
-  int j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
+  long j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
 
   action K(P1, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
   action N(P1, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
@@ -447,7 +453,8 @@ void face_relations::triangle_relation_2()
 
   // All symbols are type 1, i.e. images of {w/2,oo}.
 
-  vector<int> rel(3), types(3, 1), done(nsymb, 0);
+  vector<long> rel(3);
+  vector<int> types(3, 1), done(nsymb, 0);
   vector<mat22> mats = {mat22::identity, K, K*K};
   check_face_rel(mats, types);
 
@@ -500,13 +507,15 @@ void face_relations::cyclic_triangle_relation(int i)
 {
   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
-  int j, s, Ji = flip(i);
+  long j, s;
+  int Ji = flip(i);
   action M(P1, M_alphas[i]);
   action J(P1, mat22::J);
 
   vector<mat22> mats = {mat22::identity, M, M*M};
   vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
-  vector<int> types(3, i), Jtypes(3, Ji), rel(3), done(nsymb, 0);
+  vector<long> rel(3);
+  vector<int> types(3, i), Jtypes(3, Ji), done(nsymb, 0);
 
   // if(verbose) cout<<"Checking cyclic triangle relation"<<endl;
   check_face_rel(mats, types);
@@ -542,8 +551,8 @@ void face_relations::square_relation_5()
   if(verbose)
     cout << "Square relation for d=5:\n";
 
-  vector<int> rel(4),
-    types(4, -1), // type -1 means {sigmas[1],oo}
+  vector<long> rel(4);
+  vector<int> types(4, -1), // type -1 means {sigmas[1],oo}
     signs = {1,-1,1,-1},
     done(nsymb, 0);
 
@@ -551,7 +560,7 @@ void face_relations::square_relation_5()
   action Ti(P1, mat22::Tmat(-1));
   vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
 
-  int i, j, m, k;
+  long i, j, m, k;
   for (i=0; i<nsymb; i++)
       {
         if (done[i])
@@ -632,8 +641,8 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
   // if(verbose) cout<<"Checking triangle relation after applying J and adjustment"<<endl;
   check_face_rel(Jmats, Jtypes);
 
-  vector<int> rel(3);
-  for (int s=0; s<nsymb; s++)
+  vector<long> rel(3);
+  for (long s=0; s<nsymb; s++)
     {
       rel[0] = s;
       rel[1] = M1(s);
@@ -703,8 +712,9 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
   // if(verbose) cout<<"Checking square relation after applying J and adjustment"<<endl;
   check_face_rel(Jmats, Jtypes);
 
-  vector<int> rel(4), done(nsymb, 0);
-  for (int s=0; s<nsymb; s++)
+  vector<long> rel(4);
+  vector<int> done(nsymb, 0);
+  for (long s=0; s<nsymb; s++)
     {
       if (done[s]) continue;
       rel[0] = s;
@@ -735,19 +745,19 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 void face_relations::solve_relations()
 {
   vec npivs; // pivs is a class attribute
-   int i;
-   if(verbose>1)
-     {
-       mat M = relmat.as_mat().slice(numrel,ngens);
-       cout<<"relmat = "<<M<<endl;
-       cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
-     }
+  long i;
+  if(verbose>1)
+    {
+      mat M = relmat.as_mat().slice(numrel,ngens);
+      cout<<"relmat = "<<M<<endl;
+      cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
+    }
 #if(USE_SMATS)
 #ifdef TIME_RELATION_SOLVING
-   if (verbose)
-     {
-       cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
-     }
+  if (verbose)
+    {
+      cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
+    }
    timer t;
    t.start("relation solver");
 #endif
