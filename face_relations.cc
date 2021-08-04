@@ -163,8 +163,10 @@ void face_relations::make_relations()
 
   // Now field = 19, 43, 67 or 163
 
-  // additional triangle relations
-  triangle_relation_2();
+  // additional triangle relations (only h=1 so far)
+  if (Quad::class_number==1)
+    triangle_relation_2();
+
   if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
   for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); T++)
     {

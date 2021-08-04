@@ -26,11 +26,7 @@ public:
     long s = st.rem;  // remainder gives (c:d) symbol number
     int t = st.quot;  // quotient gives symbol type
     if (t>=n_alphas)  // convert singular type to negative
-      {
-        cout<<"converting edge number "<<i<<" (nsymb="<<nsymb<<", n_alphas="<<n_alphas<<")";
-        t = n_alphas-t-1;
-        cout<<" s="<<s<<", t="<<t<<endl;
-      }
+      t = n_alphas-t-1;
     return {s, t};
   }
 

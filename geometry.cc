@@ -160,7 +160,8 @@ void Quad::setup_geometry()
 
   Quad w = Quad::w;
 
-  // alphas and sigmas with denominator 1:
+  // alphas and sigmas with denominator 2:
+
   // these are always w/2 and (1+w)/2 but we use (w-1)/2 instead of (w+1)/2 when d%4=3
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
@@ -212,34 +213,61 @@ void Quad::setup_geometry()
     }
   } // d%8
 
-  if (d==19) // no more alphas
-    {
-      add_square(0,1,0,1);  // symmetric
-      return;
-    }
+  // alphas and sigmas with denominator 3:
 
   switch (d%12) {
-  case 7:
-    {
-      add_edge_foursome(3, w, 1-w);
-      add_alpha_pair(3, 1+w);
-      add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
-      break;
-    }
   case 1: case 10:
     {
+      add_alpha_pair(3, w, -1);
       add_edge_foursome(3, 1+w, 1-w);
-      add_alpha_pair(3, w);
       break;
     }
-  case 11:
+  case 7:
     {
-      add_alpha_pair(3, 1+w, +1);
+      if (d>19)
+        {
+          add_edge_foursome(3, w, 1-w);
+          add_alpha_pair(3, 1+w, -1);
+          add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
+        }
       break;
     }
   case 2: case 5:
     {
       add_alpha_pair(3, w, +1);
+      sigmas.push_back(RatQuad(w,3));
+      sigmas.push_back(RatQuad(-w,3));
+      n_sigmas+=2;
+      break;
+    }
+  case 11:
+    {
+      add_alpha_pair(3, 1+w, +1);
+      if (d>23)
+        {
+          sigmas.push_back(RatQuad(w,3));
+          sigmas.push_back(RatQuad(-w,3));
+          sigmas.push_back(RatQuad(1-w,3));
+          sigmas.push_back(RatQuad(w-1,3));
+          n_sigmas+=4;
+        }
+      break;
+    }
+  case 3:
+    {
+      add_edge_foursome(3, w, w-1);
+      sigmas.push_back(RatQuad(1+w,3));
+      sigmas.push_back(RatQuad(-1-w,3));
+      n_sigmas+=2;
+      break;
+    }
+  case 6:
+  case 9:
+    {
+      add_edge_foursome(3, w+1, w-1);
+      sigmas.push_back(RatQuad(w,3));
+      sigmas.push_back(RatQuad(-w,3));
+      n_sigmas+=2;
       break;
     }
   } // d%12
@@ -250,10 +278,16 @@ void Quad::setup_geometry()
       return;
     }
 
+  if (d==19) // no more alphas
+    {
+      add_square(0,1,0,1);  // symmetric
+      return;
+    }
+
   if (d==23)
     {
-      add_edge_foursome(w+1,  w-2, w-4); // N(s)=8
-      add_edge_foursome(2-w, -1-w, -3-w);
+      add_alpha_pair(w+1, 2-w, +1); // N(s)=8
+      add_alpha_pair(2-w, 1+w, +1);
       add_alpha_pair(2+w, w-3, +1);      // N(s)=12
       add_alpha_pair(3-w, -2-w, +1);
       return;

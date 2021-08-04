@@ -127,7 +127,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
         cout<<"General edge quadruple relations\n";
       for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
         {
-          if(verbose) cout<<" quadrupple "<< (*i)<<endl;
+          if(verbose) cout<<" quadruple "<< (*i)<<endl;
           edge_pairing_double(*i);
         }
     }
