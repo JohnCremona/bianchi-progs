@@ -212,6 +212,12 @@ void Quad::setup_geometry()
     }
   } // d%8
 
+  if (d==19) // no more alphas
+    {
+      add_square(0,1,0,1);  // symmetric
+      return;
+    }
+
   switch (d%12) {
   case 7:
     {
@@ -257,12 +263,6 @@ void Quad::setup_geometry()
     {
       add_square(0,5,1,6, 1-w,  0);
       add_square(1,7,1,7,   1, -1); // symmetric
-      return;
-    }
-
-  if (d==19)
-    {
-      add_square(0,1,0,1);  // symmetric
       return;
     }
 

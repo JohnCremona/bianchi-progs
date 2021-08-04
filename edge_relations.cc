@@ -43,7 +43,6 @@ RatQuad base_point(int t)
 edge_relations::edge_relations(P1N* s, int plus, int verb)
   :P1(s), plusflag(plus), verbose(verb)
 {
-  int field = Quad::d;
   nsymb = P1->size();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;
@@ -86,30 +85,52 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     }
 
   if(verbose)
-    cout<<"Edge relations (denominator 2)\n";
-  edge_relations_2();
-  if (field<43)
     {
-      if (verbose)
-        report();
-      return;
+      cout << "After denominator 1 relations, ngens = "<<ngens<<endl;
+      cout<<"Edge relations (denominator 2)\n";
+    }
+  edge_relations_2();
+  if(verbose)
+    {
+      cout << "After denominator 2 relations, ngens = "<<ngens<<endl;
     }
 
-  if(verbose && edge_pairs_minus.size())
-    cout<<"General edge pair relations (-)\n";
-  for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); i++)
-    edge_pairing_minus(*i);
+  if(!edge_pairs_minus.empty())
+    {
+      if(verbose)
+        cout<<"General edge pair relations (-)\n";
+      for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); i++)
+        {
+          if(verbose) cout<<" pair "<< (*i)<<endl;
+          edge_pairing_minus(*i);
+        }
+      if(verbose)
+        cout << "After edge pair (-) relations, ngens = "<<ngens<<endl;
+    }
 
-  if(verbose && edge_pairs_plus.size())
-    cout<<"General edge pair relations (+)\n";
-  for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); i++)
-    edge_pairing_plus(*i);
+  if(!edge_pairs_plus.empty())
+    {
+      if(verbose)
+        cout<<"General edge pair relations (+)\n";
+      for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); i++)
+        {
+          if(verbose) cout<<" pair "<< (*i)<<endl;
+          edge_pairing_plus(*i);
+        }
+      if(verbose)
+        cout << "After edge pair (+) relations, ngens = "<<ngens<<endl;
+    }
 
-  if(verbose && edge_fours.size())
-    cout<<"General edge quadruple relations\n";
-  for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
-    edge_pairing_double(*i);
-
+  if(!edge_fours.empty())
+    {
+      if(verbose)
+        cout<<"General edge quadruple relations\n";
+      for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
+        {
+          if(verbose) cout<<" quadrupple "<< (*i)<<endl;
+          edge_pairing_double(*i);
+        }
+    }
   if (verbose)
     report();
 }
@@ -130,7 +151,7 @@ void edge_relations::report()
   cout << "coordindex = \n";
   for (j=0; j<n_alphas+n_sigmas-1; j++)
     {
-      if (j>=0)
+      if (j<n_alphas)
         {
           t = j;
           name = "alpha";
@@ -145,7 +166,7 @@ void edge_relations::report()
       if(n_alphas>1)
         {
           cout << "Type " << t << ", "<<name<<" = "<< alpha;
-          if (j>=0)
+          if (t>=0)
             cout<<", M_alpha = "<<M_alphas[j];
           cout << "\n";
         }

@@ -101,10 +101,10 @@ P1N::P1N(const Qideal& I)
 
 void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
 {
-  if (np==0)
+  if (np==0) // at level (1), the only symbol is (0:1), lifting to the identity matrix
     {
-      c = 1;
-      d = 0;
+      c = 0;
+      d = 1;
       return;
     }
   if (np==1)

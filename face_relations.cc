@@ -213,9 +213,9 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
         {
           P1->make_symb(*r, c, d);
-          cout<<(*r)<<"_"<<(*t);
           cout<< ((*s)>0? " +": " -");
-          cout<<"("<<c<<":"<<d<<") ";
+          cout<<"("<<c<<":"<<d<<")";
+          cout<<"["<<(*r)<<"]_"<<(*t);
         }
       cout <<" --> ";
     }
