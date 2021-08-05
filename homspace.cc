@@ -108,9 +108,10 @@ void homspace::make_freemods()
           cout<< m << " --> " << v;
           ei[i+1] = denom1;
           if (v!=ei)
-            cout<<" *** WRONG, should be "<<ei;
+            cerr<<" *** WRONG, should be "<<ei<<endl;
           cout<<endl;
           ei[i+1] = 0;
+          exit(1);
         }
     }
 }

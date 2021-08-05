@@ -403,7 +403,7 @@ pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues()
   return {res, inv};
 }
 
-// Assuming this*J is principal, sets g t a generator and returns a
+// Assuming this*J is principal, sets g to a generator and returns a
 // 2x2 matrix of determinant g whose columns generate this and J,
 // the first column being (g0,g1)
 mat22 Qideal::AB_matrix(Qideal&J, Quad&g)
@@ -817,8 +817,8 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
 
       Qideal A(y);
       divide_out(A).equivalent_coprime_to(A, t, u, 1);
-      y += t*c;
-      x -= t*d;
+      y = reduce(y+t*c);
+      x = reduce(x-t*d);
       assert (is_coprime_to(y));
       //      cout<<"After adjustment with t="<<t<<", x="<<x<<" and y="<<y<<endl;
     }

@@ -137,11 +137,46 @@ void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
     }
   c = N.factorization().solve_CRT(clist);
   d = N.factorization().solve_CRT(dlist);
-  Quad g = quadgcd(c,d);  // if (c,d) is principal this is a generator, else 0
-  if (g.norm()>1)
+  reduce(c, d);
+  return;
+}
+
+void P1N::reduce(Quad& c, Quad& d)   // simplify c,d without changing (c:d)
+{
+  // cout<<"Reducing (c:d)=("<<c<<":"<<d<<") mod "<<N<<"..."<<endl;
+  Quad u;
+  if (N.is_coprime_to(d,u)) // scale to (c:1)
     {
-      c /= g;
-      d /= g;
+      c = N.reduce(c*u);
+      d = 1;
+      // cout<<"  -- returning ("<<c<<":"<<d<<")"<<endl;
+      return;
+    }
+  if (N.is_coprime_to(c,u)) // scale to (1:d)
+    {
+      d = N.reduce(d*u);
+      c = 1;
+      // cout<<"  -- returning ("<<c<<":"<<d<<")"<<endl;
+      return;
+    }
+
+  // divide by gcd(c,d) if it is principal
+  u = quadgcd(c,d); // if (c,d) is principal this is a generator, else 0
+  if (u.norm()>1)
+    {
+      c /= u;
+      d /= u;
+      // cout<<"  -- after dividing by "<<u<<":  ("<<c<<":"<<d<<")"<<endl;
+    }
+  else // at least divide out by the gcd of the contents
+    {
+      long g = gcd(c.content(), d.content());
+      if (g>1)
+        {
+          c /= g;
+          d /= g;
+          // cout<<"  -- after dividing by "<<u<<":  ("<<c<<":"<<d<<")"<<endl;
+        }
     }
   return;
 }
@@ -151,6 +186,7 @@ long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
   if (np==0) return 0;
   if (np==1)
     {
+      // cout<<"Finding index of ("<<c<<":"<<d<<") mod "<<N<<"..."<<endl;
       long t = residue_codes[N.numres(d)];
       if (t>0) // d is invertible
         return N.numres(c*N.resnum(t));
@@ -194,49 +230,67 @@ long P1N::apply(const mat22& M, long i)
 mat22 P1N::lift_to_SL2(long i)
 {
   Quad a, b, c, d, inv, x, y, z, h;
-  make_symb(i, c, d);
+  make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
 #ifdef DEBUG_LIFT
   cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") to SL2"<<endl;
 #endif
   // Special cases (1): (c:1), (1:d) need no work:
   if (d==1) return mat22(1,0,c,1);
-  if (d==-1) return mat22(1,0,-c,1);
   if (c==1) return mat22(0,-1,1,d);
-  if (c==-1) return mat22(0,-1,1,-d);
-#ifdef DEBUG_LIFT
-  cout<<"Neither c nor d is 1 or -1"<<endl;
-#endif
-  // Special cases (2): when c or d is invertible:
-  if (N.is_coprime_to(d, inv))
-    {
-#ifdef DEBUG_LIFT
-      cout<<"d is invertible modulo "<<N<<" with inverse "<<inv<<endl;
-#endif
-      return mat22(1,0,N.reduce(c*inv),1);
-    }
-  if (N.is_coprime_to(c, inv))
-    {
-#ifdef DEBUG_LIFT
-      cout<<"c is invertible modulo "<<N<<" with inverse "<<inv<<endl;
-#endif
-      return mat22(0,-1,1,N.reduce(d*inv));
-    }
+
 #ifdef DEBUG_LIFT
   cout<<"Neither c nor d is invertible modulo "<<N<<": testing whether ideal (c,d) is principal"<<endl;
 #endif
   // General case: neither c nor d is invertible.
 
+  int ok=0;
+  for (int i=1; i<N.norm() && !ok; i++)
+    {
+      Quad t = N.resnum(i);
+      if (!N.is_coprime_to(t)) continue;
+      Quad ct=N.reduce(c*t), dt=N.reduce(d*t);
+      h = quadbezout(ct,dt, x, y);
+      ok = (h!=0);
+      if (ok) // then is principal with ct*x+dt*y=h
+        {
+#ifdef DEBUG_LIFT
+          cout<<"ideal (c,d)=("<<h<<"), success"<<endl;
+#endif
+          a = y;
+          b = -x;
+          c = ct / h;
+          d = dt / h;
+        }
+    }
+
+  if (ok)
+    {
+#ifdef DEBUG_LIFT
+      cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
+#endif
+      assert (a*d-b*c==1);
+      assert (index(c,d)==i);
+      mat22 M(a,b,c,d);
+#ifdef DEBUG_LIFT
+      cout<<" returning  "<< M <<endl;
+#endif
+      return M;
+    }
+
   // Test if (c,d)=(h), principal:
   h = quadbezout(c,d, x, y);
-  if (h!=0) // then is principal with c*x+d*y=h
+  if (h!=0) // then is principal with c*x+d*y=h, and h=1 since reduced
     {
 #ifdef DEBUG_LIFT
       cout<<"ideal (c,d)=("<<h<<"), success"<<endl;
 #endif
       a = y;
       b = -x;
-      c /= h;
-      d /= h;
+      if (h.norm()>1) // should not happen as (c:d) was reduced
+        {
+          c /= h;
+          d /= h;
+        }
     }
   else
     {  // Now we must work harder.

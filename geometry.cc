@@ -47,7 +47,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 // If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s, -r2/s
 // with matrices [r2,t;s,-r1] and similar
 
-void add_edge_foursome(const Quad& s, const Quad& r1, const Quad& r2)
+void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
 {
   edge_fours.push_back(n_alphas);
   alpha_inv.push_back(n_alphas+2);
@@ -85,6 +85,20 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
   Quad t = (r*r*sign-1)/s;
   add_alpha(-sign*r, t, s, -r); // alpha =  r/s
   add_alpha( sign*r, t, s,  r); // alpha = -r/s
+}
+
+// add r/s to the list of singular points, and optionally also -r/s
+
+void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
+{
+  RatQuad sigma(r,s);
+  sigmas.push_back(sigma);
+  n_sigmas++;
+  if (both_signs)
+    {
+      sigmas.push_back(-sigma);
+      n_sigmas++;
+    }
 }
 
 //#define CHECK_TRIANGLES
@@ -145,10 +159,8 @@ void Quad::setup_geometry()
   int d = Quad::d;
   n_alphas = n_sigmas = 0;
 
-  sigmas.push_back(RatQuad(1,0)); // fill in the 0'th place,
-                                           // so the others will be
-                                           // indexed from 1
-  n_sigmas++;
+  add_sigma(1,0, 0); // fill in the 0'th entry in sigmas,
+                  // so the others will be indexed from 1
 
   // alphas (only 0) with denominator 1:
 
@@ -180,8 +192,7 @@ void Quad::setup_geometry()
       Quad u = (d-1)/2;
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
-      sigmas.push_back(RatQuad(w+1,2));
-      n_sigmas++;
+      add_sigma(w+1,2, 0);
       break;
     }
   case 2: // (2) = (2,w)^2
@@ -190,8 +201,7 @@ void Quad::setup_geometry()
       Quad u = d/2;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1); // 1-1
-      sigmas.push_back(RatQuad(w,2));
-      n_sigmas++;
+      add_sigma(w,2, 0);
       break;
     }
   case 3:
@@ -205,10 +215,9 @@ void Quad::setup_geometry()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      sigmas.push_back(RatQuad(w,2));
-      sigmas.push_back(RatQuad(1-w,2));
-      n_sigmas+=2;
       add_alpha_pair(4, 1+2*w, +1);
+      add_sigma(w,2, 0);
+      add_sigma(1-w,2, 0);
       break;
     }
   } // d%8
@@ -219,14 +228,14 @@ void Quad::setup_geometry()
   case 1: case 10:
     {
       add_alpha_pair(3, w, -1);
-      add_edge_foursome(3, 1+w, 1-w);
+      add_alpha_foursome(3, 1+w, 1-w);
       break;
     }
   case 7:
     {
       if (d>19)
         {
-          add_edge_foursome(3, w, 1-w);
+          add_alpha_foursome(3, w, 1-w);
           add_alpha_pair(3, 1+w, -1);
           add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
         }
@@ -235,9 +244,7 @@ void Quad::setup_geometry()
   case 2: case 5:
     {
       add_alpha_pair(3, w, +1);
-      sigmas.push_back(RatQuad(w,3));
-      sigmas.push_back(RatQuad(-w,3));
-      n_sigmas+=2;
+      add_sigma(w,3);
       break;
     }
   case 11:
@@ -245,29 +252,22 @@ void Quad::setup_geometry()
       add_alpha_pair(3, 1+w, +1);
       if (d>23)
         {
-          sigmas.push_back(RatQuad(w,3));
-          sigmas.push_back(RatQuad(-w,3));
-          sigmas.push_back(RatQuad(1-w,3));
-          sigmas.push_back(RatQuad(w-1,3));
-          n_sigmas+=4;
+          add_sigma(w,3);
+          add_sigma(1-w,3);
         }
       break;
     }
   case 3:
     {
-      add_edge_foursome(3, w, w-1);
-      sigmas.push_back(RatQuad(1+w,3));
-      sigmas.push_back(RatQuad(-1-w,3));
-      n_sigmas+=2;
+      add_alpha_foursome(3, w, w-1);
+      add_sigma(1+w,3);
       break;
     }
   case 6:
   case 9:
     {
-      add_edge_foursome(3, w+1, w-1);
-      sigmas.push_back(RatQuad(w,3));
-      sigmas.push_back(RatQuad(-w,3));
-      n_sigmas+=2;
+      add_alpha_foursome(3, w+1, w-1);
+      add_sigma(w,3);
       break;
     }
   } // d%12
@@ -288,7 +288,7 @@ void Quad::setup_geometry()
     {
       add_alpha_pair(w+1, 2-w, +1); // N(s)=8
       add_alpha_pair(2-w, 1+w, +1);
-      add_alpha_pair(2+w, w-3, +1);      // N(s)=12
+      add_alpha_pair(2+w, w-3, +1); // N(s)=12
       add_alpha_pair(3-w, -2-w, +1);
       return;
     }
@@ -315,15 +315,15 @@ void Quad::setup_geometry()
 
   if ((d==67)||(d==163))
     {
-      add_edge_foursome(4, w, w-1);   // alphas  9,10,11,12
-      add_edge_foursome(4, w+1, 2-w); // alphas 13,14,15,16
+      add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
+      add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
       assert (n_alphas==17);
     }
 
   if (d==67)   // alphas with denominator norm 23 for d=67 only:
     {
-      add_edge_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
-      add_edge_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
+      add_alpha_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
+      add_alpha_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
       assert (n_alphas==25);
       assert (M_alphas.size()==25);
       assert (alpha_inv.size()==25);
@@ -347,52 +347,52 @@ void Quad::setup_geometry()
 
       // 20 alphas with s=5 (norm 25)
 
-      add_edge_foursome(5, w, w-1);
-      add_edge_foursome(5, 2*w, 2-2*w);
-      add_edge_foursome(5, w+2, 1-2*w);
-      add_edge_foursome(5, w-2, 2+2*w);
-      add_edge_foursome(5, w+1, 1+2*w);
+      add_alpha_foursome(5, w, w-1);
+      add_alpha_foursome(5, 2*w, 2-2*w);
+      add_alpha_foursome(5, w+2, 1-2*w);
+      add_alpha_foursome(5, w-2, 2+2*w);
+      add_alpha_foursome(5, w+1, 1+2*w);
       assert (n_alphas==37);
 
       // 12 alphas with s=6 (norm 36)
 
-      add_edge_foursome(6, w, 1-w);
-      add_edge_foursome(6, 1+w, w-2);
-      add_edge_foursome(6, 2+w, 3-w);
+      add_alpha_foursome(6, w, 1-w);
+      add_alpha_foursome(6, 1+w, w-2);
+      add_alpha_foursome(6, 2+w, 3-w);
       assert (n_alphas==49);
 
       // 4 alphas with s=w (norm 41), and 4 conjugates of these
 
-      add_edge_foursome(w, 12, 17);
-      add_edge_foursome(1-w, 12, 17);
+      add_alpha_foursome(w, 12, 17);
+      add_alpha_foursome(1-w, 12, 17);
       assert (n_alphas==57);
 
       // 4 alphas with s=1+w (norm 43), and 4 conjugates of these
 
-      add_edge_foursome(1+w, 12, w-17);
-      add_edge_foursome(2-w, 12, -w-16);
+      add_alpha_foursome(1+w, 12, w-17);
+      add_alpha_foursome(2-w, 12, -w-16);
       assert (n_alphas==65);
 
       // 8 alphas with s=2+w (norm 47), and 8 conjugates of these
 
-      add_edge_foursome(2+w, 7, 18-w);
-      add_edge_foursome(2+w, w-11, w-16);
+      add_alpha_foursome(2+w, 7, 18-w);
+      add_alpha_foursome(2+w, w-11, w-16);
 
-      add_edge_foursome(3-w, 7, 17+w);
-      add_edge_foursome(3-w, -w-10, -w-15);
+      add_alpha_foursome(3-w, 7, 17+w);
+      add_alpha_foursome(3-w, -w-10, -w-15);
       assert (n_alphas==81);
 
       // 10 alphas with s=7 (norm 49)
 
-      add_edge_foursome(7, w+3, 2*w-1);
-      add_edge_foursome(7, 2*w+1, 3-2*w);
+      add_alpha_foursome(7, w+3, 2*w-1);
+      add_alpha_foursome(7, 2*w+1, 3-2*w);
       add_alpha_pair(7, 2+3*w);
       assert (n_alphas==91);
 
       // 4 alphas with s=3+w (norm 53), and 4 conjugates of these
 
-      add_edge_foursome(3+w, 5-w, w-17);
-      add_edge_foursome(4-w, w+4, -w-16);
+      add_alpha_foursome(3+w, 5-w, w-17);
+      add_alpha_foursome(4-w, w+4, -w-16);
       assert (n_alphas==99);
       assert (M_alphas.size()==99);
       assert (alpha_inv.size()==99);

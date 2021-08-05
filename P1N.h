@@ -41,6 +41,7 @@ public:
     N = other.N;
   }
   void make_symb(long i, Quad& c, Quad& d); // assign c, d to the i'th (c:d) symbol
+  void reduce(Quad& c, Quad& d);            // simplify c,d without changing (c:d)
   long index(const Quad& c, const Quad& d); // index i of (c:d)
   long size() const {return psi;}
 

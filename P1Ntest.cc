@@ -53,7 +53,7 @@ int main(void)
   Qidealooper loop(1, maxn, both, sorted);
   while( loop.not_finished() )
     {
-      symb_index_test(loop.next());
+      symb_index_test(loop.next(), 0);
     }
   cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
   Quadlooper alpha(1, maxn, both);
