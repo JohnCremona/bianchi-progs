@@ -25,10 +25,3 @@ int cusplist::index(const RatQuad& c)
   return cusps.size()-1;
 }
 
-RatQuad mat22::operator()(const RatQuad& q)const
-{
-  Quad r = q.num(), s = q.den();
-  apply_left(r, s);
-  return RatQuad(r,s, 1);
-}
-

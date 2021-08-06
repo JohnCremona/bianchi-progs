@@ -30,8 +30,15 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
 }
 
 // General case:
+//#define DEBUG_FACE_RELATION
 int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
 {
+#ifdef DEBUG_FACE_RELATION
+  cout<<"Checking face relation...\n";
+  cout<<"mats: "<<mats<<endl;
+  cout<<"types: "<<types<<endl;
+  cout<<"signs: "<<signs<<endl;
+#endif
   vector<mat22>::const_iterator mi;
   vector<int>::const_iterator ti, si;
   vector<RatQuad> alphas, betas;
@@ -40,8 +47,14 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
   for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); mi++, ti++, si++)
     {
       M = *mi;
+#ifdef DEBUG_FACE_RELATION
+      cout<<"M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
+#endif
       a = M(base_point(*ti));
       b = M(RatQuad(1,0));
+#ifdef DEBUG_FACE_RELATION
+      cout<<"{"<<a<<","<<b<<"}"<<endl;
+#endif
       if (*si>0) // use {a,b} when sign is +1
         {
           alphas.push_back(a);
@@ -53,10 +66,6 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
         betas.push_back(a);
       }
     }
-
-  // cout<<"Checking face relation "<<mats<<", "<<types<<endl;
-  // cout<<"alphas: "<<alphas<<endl;
-  // cout<<"betas:  "<<betas<<endl;
 
   vector<RatQuad>::const_iterator alpha, beta;
   int ok=1;
@@ -72,10 +81,12 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
       cout<<"betas:  "<<betas<<endl;
       exit(1);
     }
-  // else
-  //   {
-  //     cout<<"Good face relation "<<endl;
-  //   }
+#ifdef DEBUG_FACE_RELATION
+  else
+    {
+      cout<<"Good face relation "<<endl;
+    }
+#endif
   return ok;
 }
 
@@ -167,20 +178,25 @@ void face_relations::make_relations()
   if (Quad::class_number==1)
     triangle_relation_2();
 
-  if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
-  for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); T++)
+  if (!cyclic_triangles.empty())
     {
-      cyclic_triangle_relation(*T);
+      if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
+      for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); T++)
+        cyclic_triangle_relation(*T);
     }
-  if(verbose) cout<<"\nApplying "<<triangles.size()<<" general triangle relations"<<endl;
-  for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); T++)
+
+  if (!triangles.empty())
     {
-      general_triangle_relation(*T);
+      if(verbose) cout<<"\nApplying "<<triangles.size()<<" general triangle relations"<<endl;
+      for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); T++)
+        general_triangle_relation(*T);
     }
-  if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
-  for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); S++)
+
+  if (!squares.empty())
     {
-      general_square_relation(S->first, S->second);
+      if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
+      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); S++)
+        general_square_relation(S->first, S->second);
     }
 }
 
@@ -490,11 +506,9 @@ void face_relations::triangle_relation_2()
     }
 }
 
-// extra triangle relation(s) for fields 43+
-//
-// assume  -alpha[i] = alpha[i+1] if i is odd else alpha[i-1] for i>=3
+// extra triangle relation(s) (not needed for fields 1,2,3,7,11,19)
 
-int flip(int i) {return (i<3? i: (i&1? i+1: i-1));}
+int flip(int i) {return alpha_flip[i];}
 
 // Template for all other cyclic triangle relations, given M=M_alphas[i] of order 3
 //
@@ -510,7 +524,7 @@ void face_relations::cyclic_triangle_relation(int i)
   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
   long j, s;
-  int Ji = flip(i);
+  int Ji = alpha_flip[i];
   action M(P1, M_alphas[i]);
   action J(P1, mat22::J);
 
@@ -581,8 +595,6 @@ void face_relations::square_relation_5()
     }
 }
 
-
-
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
 
 // The triangle has vertices [alpha_i, oo, alpha_j] and edges
@@ -598,23 +610,22 @@ void face_relations::square_relation_5()
 // under J is {JA(alpha), JA(oo)} = {JAJ(-alpha)m JAJ(oo)} =
 // (JAJ)_{-alpha} = (J(s))_{-alpha}.  Hence to apply J to a relation
 // we need to both apply J to the M-symbols, and also 'flip' each
-// alpha to -alpha.  This works for i>=3 since then -alpha[i] =
-// alpha[flip(i)].  Hence this code needs adjusting for a general
-// triangle whose types are not all at least 3.
+// alpha to -alpha.  This is easy when denom(alpha)!=2 since then
+// -alpha[i] = alpha[alpha_flip[i]], but needs adjusting for a general
+// triangle involving types with denominator 2.
 
 // For field 43 the only general triangle relation is {3, 7, 4} which is OK.
 
-// For field 67, three of the five general triangles are OK but we also
-// have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.  The
-// first is OK since we define flip(0)=0, but not the second.
+// For field 67, three of the five general triangles are OK but we
+// also have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.
+// The first is OK since alpha_flip[0]=0, but not the second.
 
 void face_relations::general_triangle_relation(const vector<int>& tri)
 {
   int i=tri[0], j=tri[1], k=tri[2], t;
   if(verbose)
-    {
-      cout << "Applying triangle relation "<<tri<<"\n";
-    }
+    cout << "Applying triangle relation "<<tri<<"\n";
+
   RatQuad beta = M_alphas[j].inverse()(RatQuad(1,0));
   RatQuad gamma = M_alphas[k].inverse()(RatQuad(1,0));
   RatQuad x = M_alphas[i](beta)-gamma;
@@ -623,25 +634,49 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
   action M1(P1, M_alphas[alpha_inv[j]]);
   action M2(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()));
   action J(P1, mat22::J);
-  vector<mat22> mats = {mat22::identity, M1, M2};
+  vector<mat22> mats = {mat22::identity, M1, M2}; // for checking only
 
   int jd = alpha_inv[j];
   vector<int> types = {i,jd,k};
-  // if(verbose) cout<<"Checking triangle relation"<<endl;
   check_face_rel(mats, types);
 
-  vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J};
-  vector<int> Jtypes = {flip(i), flip(jd), flip(k)};
-  Quad w = Quad::w;
-  action T1(P1, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  action T2(P1, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
-  for (t=0; t<3; t++)
+  vector<mat22> Jmats;  // Jmats only used in checking validity of relation
+  vector<int> Jtypes;   // Jtypes used in applying the relation
+  action T1, T2;
+  int adjust_t1 = 0, adjust_t2 = 0;
+
+  // Adjustments will be needed when one of the alphas[t] has denominator 2.
+  // if d%4=1 then alpha[1]=w/2 and we adjust type 1
+  // if d%4=2 then alpha[1]=(w+1)/2 and we adjust type 2
+  // if d%8=3 then alpha[1]=w/2, alpha[2]=(w-1)/2 and we adjust types 1 and 2
+  // if d%8=7 there are no such alohas at all
+  if (!plusflag)
     {
-      if (types[t]==1) Jmats[t] = Jmats[t]*T1;
-      if (types[t]==2) Jmats[t] = Jmats[t]*T2;
+      int d = Quad::d;
+      Jmats = {mat22::identity, J*M1*J, J*M2*J};
+      Jtypes = {alpha_flip[i], alpha_flip[jd], alpha_flip[k]};
+      if (d%8 != 7)  // no adjustments when d%8=7 since then there are no alphas with denominator 2
+        {
+          RatQuad a = 2*alphas[1];
+          assert (a.is_integral());
+          adjust_t1 = 1;
+          T1 = action(P1, (mat22::Tmat(-a.num())));
+          if (d%8==3)
+            {
+              a = 2*alphas[2];
+              assert (a.is_integral());
+              adjust_t2 = 1;
+              T2 = action(P1, (mat22::Tmat(-a.num())));
+            }
+        }
+      if (adjust_t1 || adjust_t2)
+        for (t=0; t<3; t++)
+          {
+            if (types[t]==1 && adjust_t1) Jmats[t] = Jmats[t]*T1;
+            if (types[t]==2 && adjust_t2) Jmats[t] = Jmats[t]*T2;
+          }
+      check_face_rel(Jmats, Jtypes);
     }
-  // if(verbose) cout<<"Checking triangle relation after applying J and adjustment"<<endl;
-  check_face_rel(Jmats, Jtypes);
 
   vector<long> rel(3);
   for (long s=0; s<nsymb; s++)
@@ -655,8 +690,8 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
           for (t=0; t<3; t++)
             {
               rel[t] = J(rel[t]);
-              if (types[t]==1) rel[t] = T1(rel[t]);
-              if (types[t]==2) rel[t] = T2(rel[t]);
+              if (types[t]==1 && adjust_t1) rel[t] = T1(rel[t]);
+              if (types[t]==2 && adjust_t2) rel[t] = T2(rel[t]);
             }
           add_face_rel(rel, Jtypes);
         }
@@ -667,7 +702,6 @@ void face_relations::general_triangle_relation(const vector<int>& tri)
       cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n";
     }
 }
-
 
 // generic square relation
 // indices i,j,k,l and x,y,z such that beta = z + M_j(x+alpha_k') =  M_i'(y+alpha_l):
@@ -695,24 +729,49 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
   action M2(P1, M1 * mat22::Tmat(x) * M_alphas[k]);
   action M3(P1, M_alphas[alpha_inv[i]] * mat22::Tmat(y));
   action J(P1, mat22::J);
-  vector<mat22> mats = {mat22::identity, M1, M2, M3};
+  vector<mat22> mats = {mat22::identity, M1, M2, M3}; // for checking only
 
   vector<int> types = squ;
   // if(verbose) cout<<"Checking square relation"<<endl;
   check_face_rel(mats, types);
 
-  vector<mat22> Jmats = {mat22::identity, J*M1*J, J*M2*J, J*M3*J};
-  vector<int> Jtypes = {flip(i), flip(j), flip(k), flip(l)};
-  Quad w = Quad::w;
-  action T1(P1, (mat22::Tmat(-w)));     // needed for type 1 since -alpha[1] = alpha[1]-w
-  action T2(P1, (mat22::Tmat(1-w)));   // needed for type 2 since -alpha[2] = alpha[2] + 1-w
-  for (t=0; t<4; t++)
+  vector<mat22> Jmats;  // Jmats only used in checking validity of relation
+  vector<int> Jtypes;   // Jtypes used in applying the relation
+  action T1, T2;
+  int adjust_t1 = 0, adjust_t2 = 0;
+  // Adjustments will be needed when one of the alphas[t] has denominator 2.
+  // if d%4=1 then alpha[1]=w/2 and we adjust type 1
+  // if d%4=2 then alpha[1]=(w+1)/2 and we adjust type 2
+  // if d%8=3 then alpha[1]=w/2, alpha[2]=(w-1)/2 and we adjust types 1 and 2
+  // if d%8=7 there are no such alohas at all
+  if (!plusflag)
     {
-      if (types[t]==1) Jmats[t] = Jmats[t]*T1;
-      if (types[t]==2) Jmats[t] = Jmats[t]*T2;
+      Jmats = {mat22::identity, J*M1*J, J*M2*J, J*M3*J};
+      Jtypes = {alpha_flip[i], alpha_flip[j], alpha_flip[k], alpha_flip[l]};
+      int d = Quad::d;
+      if (d%8 != 7)  // no adjustments when d%8=7 since then there are no alphas with denominator 2
+        {
+          RatQuad a = 2*alphas[1];
+          assert (a.is_integral());
+          adjust_t1 = 1;
+          T1 = action(P1, (mat22::Tmat(-a.num())));
+          if (d%8==3)
+            {
+              a = 2*alphas[2];
+              assert (a.is_integral());
+              adjust_t2 = 1;
+              T2 = action(P1, (mat22::Tmat(-a.num())));
+            }
+        }
+      if (adjust_t1 || adjust_t2)
+        for (t=0; t<4; t++)
+          {
+            if (types[t]==1 && adjust_t1) Jmats[t] = Jmats[t]*T1;
+            if (types[t]==2 && adjust_t2) Jmats[t] = Jmats[t]*T2;
+          }
+      // if(verbose) cout<<"Checking triangle relation after applying J and adjustment"<<endl;
+      check_face_rel(Jmats, Jtypes);
     }
-  // if(verbose) cout<<"Checking square relation after applying J and adjustment"<<endl;
-  check_face_rel(Jmats, Jtypes);
 
   vector<long> rel(4);
   vector<int> done(nsymb, 0);
@@ -731,8 +790,8 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
           for (t=0; t<4; t++)
             {
               rel[t] = J(rel[t]);
-              if (types[t]==1) rel[t] = T1(rel[t]);
-              if (types[t]==2) rel[t] = T2(rel[t]);
+              if (types[t]==1 && adjust_t1) rel[t] = T1(rel[t]);
+              if (types[t]==2 && adjust_t2) rel[t] = T2(rel[t]);
             }
           add_face_rel(rel, Jtypes);
         }

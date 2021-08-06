@@ -69,3 +69,10 @@ matop::matop(Qideal& P, Qideal& N)
   // cout<<mats<<endl;
 }
 
+
+RatQuad mat22::operator()(const RatQuad& q)const
+{
+  Quad r = q.num(), s = q.den();
+  apply_left(r, s);
+  return RatQuad(r,s, 1);
+}

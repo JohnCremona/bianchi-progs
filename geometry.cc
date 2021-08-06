@@ -19,27 +19,33 @@ mat22 mat22::R(0,1,1,0);
 // alpha_inv is a permutation of range(N_alphas) such that
 // alpha_inv[i]=j where M_alpha[i](oo) = alpha[j].
 //
-// We do not store the alphas explicitly, they are -d/c where M_alpha=[a,b;c,d].
+// alpha_flip is a permutation of range(N_alphas) such that
+// alpha_flip[i]=j where -alpha[i] = alpha[j] mod 1.
+
 
 int n_alphas, n_sigmas;
+vector<RatQuad> alphas;
+vector<RatQuad> sigmas;
 vector<mat22> M_alphas;
 vector<int> alpha_inv;
+vector<int> alpha_flip;
 vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
 vector<int> cyclic_triangles;
 vector<vector<int> > triangles;
+vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
-vector<RatQuad> sigmas;
-
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
 void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
+  RatQuad alpha(-d,c);
   mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
   //  cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
   assert (M.det()==1);
+  alphas.push_back(alpha);
   M_alphas.push_back(M);
   n_alphas++;
 }
@@ -54,6 +60,10 @@ void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
   alpha_inv.push_back(n_alphas+3);
   alpha_inv.push_back(n_alphas);
   alpha_inv.push_back(n_alphas+1);
+  alpha_flip.push_back(n_alphas+1);
+  alpha_flip.push_back(n_alphas);
+  alpha_flip.push_back(n_alphas+3);
+  alpha_flip.push_back(n_alphas+2);
   Quad t = -(r1*r2+1)/s;
   add_alpha( r2, t, s, -r1); // alpha =  r1/s
   add_alpha(-r2, t, s,  r1); // alpha = -r1/s
@@ -82,6 +92,8 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
       alpha_inv.push_back(n_alphas+1); // transposition with next
       alpha_inv.push_back(n_alphas);   // transposition with previous
     }
+  alpha_flip.push_back(n_alphas+1);   // transposition with next
+  alpha_flip.push_back(n_alphas);     // transposition with previous
   Quad t = (r*r*sign-1)/s;
   add_alpha(-sign*r, t, s, -r); // alpha =  r/s
   add_alpha( sign*r, t, s,  r); // alpha = -r/s
@@ -101,16 +113,16 @@ void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
     }
 }
 
-//#define CHECK_TRIANGLES
+#define CHECK_TRIANGLES
 
 void add_triangle(int i, int j, int k)
 {
   triangles.push_back({i,j,k});
 #ifdef CHECK_TRIANGLES
-  mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k];
-  RatQuad beta(-Mj.entry(1,1),Mj.entry(1,0));
-  RatQuad gamma(-Mk.entry(1,1),Mk.entry(1,0));
-  RatQuad x = (Mi.entry(0,0)*beta+Mi.entry(0,1))/(Mi.entry(1,0)*beta+Mi.entry(1,1)) - gamma;
+  mat22 Mi=M_alphas[i];
+  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0));
+  RatQuad ak = M_alphas[k].inverse()(RatQuad(1,0));
+  RatQuad x = Mi(aj) - ak;
   assert (x.is_integral());
 #endif
 }
@@ -121,6 +133,15 @@ void add_cyclic_triangle(int i)
 #ifdef CHECK_TRIANGLES
   Quad t=M_alphas[i].trace();
   assert (t*t==1);
+#endif
+}
+
+void add_aas_triangle(int i, int j, int k, const Quad& u=0)
+{
+  aas_triangles.push_back({{i,j,k},u});
+#ifdef CHECK_TRIANGLES
+  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
+  assert (x.is_integral());
 #endif
 }
 
@@ -166,6 +187,7 @@ void Quad::setup_geometry()
 
   add_alpha(0,-1,1,0);  // alpha[0] = 0
   alpha_inv.push_back(0); // 0-0
+  alpha_flip.push_back(0); // 0-0
   assert (n_alphas==1);
 
   if (Quad::is_Euclidean) return;
@@ -192,6 +214,7 @@ void Quad::setup_geometry()
       Quad u = (d-1)/2;
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
+      alpha_flip.push_back(1); // 1-1
       add_sigma(w+1,2, 0);
       break;
     }
@@ -200,7 +223,7 @@ void Quad::setup_geometry()
     {
       Quad u = d/2;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
-      alpha_inv.push_back(1); // 1-1
+      alpha_flip.push_back(1); // 1-1
       add_sigma(w,2, 0);
       break;
     }
@@ -211,6 +234,8 @@ void Quad::setup_geometry()
       add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
       alpha_inv.push_back(2); // 1-2
       alpha_inv.push_back(1); // 2-1
+      alpha_flip.push_back(1); // 1-1
+      alpha_flip.push_back(2); // 2-2
       break;
     }
   case 7: // (2) = (2,w)*(2,1-w)
@@ -233,7 +258,7 @@ void Quad::setup_geometry()
     }
   case 7:
     {
-      if (d>19)
+      if (d>19) // e.g. 43, 67, 163
         {
           add_alpha_foursome(3, w, 1-w);
           add_alpha_pair(3, 1+w, -1);
@@ -290,6 +315,33 @@ void Quad::setup_geometry()
       add_alpha_pair(2-w, 1+w, +1);
       add_alpha_pair(2+w, w-3, +1); // N(s)=12
       add_alpha_pair(3-w, -2-w, +1);
+
+      // AAA-triangles (all vertices principal "Alpha"s)
+      add_triangle(0,3,6);
+      add_triangle(0,5,8);
+      add_triangle(0,9,12);
+      add_triangle(1,6,12);
+      add_triangle(7,9,2);
+      // AAS-triangles (two vertices principal "Alpha"s, one non-principal "Sigma")
+      add_aas_triangle(1,1,1);
+      add_aas_triangle(6,1,1);
+      add_aas_triangle(12,1,1);
+      add_aas_triangle(1,2,2, w);
+      add_aas_triangle(8,2,2);
+      add_aas_triangle(10,2,2);
+
+      // cout<<n_alphas<<" alphas: "<<alphas<<endl;
+      // cout<<"alpha_inv: "<<alpha_inv<<endl;
+      // cout<<"alpha_flip: "<<alpha_flip<<endl;
+      // cout<<"aaa-triangles: ";
+      // for (vector<vector<int>>::const_iterator Ti=triangles.begin(); Ti!=triangles.end(); Ti++)
+      //   cout<<(*Ti)<<" ";
+      // cout<<endl;
+      // cout<<n_sigmas<<" sigmas: "<<sigmas<<endl;
+      // cout<<"aas-triangles: ";
+      // for (vector<pair<vector<int>, Quad>>::const_iterator Ti=aas_triangles.begin(); Ti!=aas_triangles.end(); Ti++)
+      //   cout<<"["<<Ti->first<<"; "<<Ti->second<<"] ";
+      // cout<<endl;
       return;
     }
 

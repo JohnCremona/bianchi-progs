@@ -67,6 +67,7 @@ class action  :public mat22 {
 private:
   P1N* level;
 public:
+  action() {;}
   action(P1N* N, const mat22& mm) : mat22(mm), level(N) {}
   action(P1N* N, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), level(N)  {}
 

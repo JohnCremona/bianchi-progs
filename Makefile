@@ -104,14 +104,14 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-tquads: tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o
-	$(CC) -o tquads tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o $(LFLAGS)
+tquads: tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
+	$(CC) -o tquads tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
 
-P1Ntest: P1Ntest.o P1N.o tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o
-	$(CC) -o P1Ntest P1Ntest.o P1N.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o $(LFLAGS)
+P1Ntest: P1Ntest.o P1N.o tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
+	$(CC) -o P1Ntest P1Ntest.o P1N.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
 
-fieldinfo: fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o
-	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o $(LFLAGS)
+fieldinfo: fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o ratquads.o
+	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
@@ -165,11 +165,11 @@ modularity: modularity.o $(OBJS)
 modularity_modp: modularity_modp.o $(OBJS)
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
-looptest: looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o
-	$(CC) -o looptest looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o $(LFLAGS)
+looptest: looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
+	$(CC) -o looptest looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
 
-tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o
-	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o $(LFLAGS)
+tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o
+	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o $(LFLAGS)
 
 modtest: modtest.o $(OBJS) moddata.o
 	$(CC) -o modtest modtest.o moddata.o $(OBJS) $(LFLAGS)
@@ -192,8 +192,8 @@ hecketest: hecketest.o $(OBJS)
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
 
-qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o
-	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o $(LFLAGS)
+qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
+	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
 
 # DEPENDENCIES
 #
