@@ -251,10 +251,10 @@ def add_alpha(a,b,c,d):
     all_alphas.append(cusp(-d/c))
     n_alphas += 1
 
-def add_two_alphas(s, r): # r^2=-1 (mod s)
-    t = -(r*r+1)/s
-    add_alpha( r, t, s, -r) # alpha =  r/s
-    add_alpha(-r, t, s,  r) # alpha = -r/s
+def add_two_alphas(s, r, eps=-1): # r^2=eps (mod s)
+    t = (r*r*eps-1)/s
+    add_alpha(-eps*r, t, s, -r) # alpha =  r/s
+    add_alpha( eps*r, t, s,  r) # alpha = -r/s
 
 def add_four_alphas(s, r1, r2): # r1*r2=-1 (mod s)
     t = -(r1*r2+1)/s
