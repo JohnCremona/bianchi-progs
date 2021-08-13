@@ -16,11 +16,11 @@ int main ()
       exit(0);
     }
   //  Quadprimes::display(cout, 0);
-  Quad p; long np, ip, e, f;
+  long np, ip, f;
   vector<Quad>::iterator pr = quadprimes.begin();
   while((pr!=quadprimes.end()))
     {
-      p = *pr++;
+      Quad p = *pr++;
       vector<long> hnf = HNF(p);
       if (hnf[2]==1)
         {
@@ -33,7 +33,8 @@ int main ()
           np = ip*ip;
           f = 2;
         }
-      e = 1;      if (((d==1)&&(ip==2)) || (ip==d)) e=2;
+      long e = 1;
+      if (((d==1)&&(ip==2)) || (ip==d)) e=2;
       cout << np << " "
            << ideal_label(p)
            << " (" << p << ") "

@@ -19,7 +19,7 @@ class symb {
    Quad c,d;
    const moddata *N;
  public:
-   symb() :c(0), d(0)   {;}
+  symb() :c(0), d(0), N(0)   {;}
    symb(const Quad& cc, const Quad& dd, const moddata * iN) :c(cc), d(dd), N(iN)  {;}
    Quad cee() const        {return c;}
    Quad dee() const        {return d;}
@@ -52,7 +52,7 @@ private:
 protected:
   long nsymbx;               // number of (symb,type) pairs, = nsymb*n_alphas
 public:
-  symbdata(const Quad&);             // The constructor
+  symbdata(const Quad& n);             // The constructor
   int index2(const Quad& c, const Quad& d) const;
   int index(const symb& s) const {return index2(s.c,s.d);}
   symb symbol(int i) const;
@@ -71,9 +71,9 @@ public:
   symbop(symbdata* sdi, const Quad& a, const Quad& b, const Quad& c, const Quad& d) : mat22(a,b,c,d), sd(sdi)  {}
   symb operator()(const symb& s) const
   {
-    Quad sc = s.c, sd = s.d;
-    apply_right(sc, sd);
-    return symb(sc, sd, s.N);
+    Quad c = s.c, d = s.d;
+    apply_right(c, d);
+    return symb(c, d, s.N);
   }
 
   // wrapper around the right action of a 2x2 matrix on a

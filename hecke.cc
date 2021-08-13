@@ -31,7 +31,7 @@ vector<long> homspace::eigrange(long i)
     cout << "eigrange for P = " << P << ":\t";
   if(P.divides(N))
     {
-      vector<long> ans = {-1, 1};
+      ans = {-1, 1};
       if (verbose)
 	cout << ans << endl;
       return ans;
@@ -44,7 +44,7 @@ vector<long> homspace::eigrange(long i)
       if(verbose)
 	cout << "|ap| up to "<<aplim<<":\t";
       long ap, l = 2*aplim+1;
-      vector<long> ans(l);
+      ans = vector<long>(l);
       ans[0]=0;
       for(ap=-aplim; ap<=aplim; ap++)
 	ans[ap+aplim] = ap;
@@ -125,11 +125,11 @@ vec homspace::calcop_col(const matop& mlist, int j)
 
 mat homspace::calcop_cols(const matop& mlist, const vec& jlist)
 {
-  int i, j, d = dim(jlist);
+  int i, d = dim(jlist);
   mat m(d,rk);
   for (i=1; i<=d; i++)
     {
-      j = jlist[i];
+      int j = jlist[i];
       vec colj = applyop(mlist,freemods[j-1]);
       if(hmod) colj=reduce_modp(colj,hmod);
       m.setcol(i,colj);
@@ -139,11 +139,11 @@ mat homspace::calcop_cols(const matop& mlist, const vec& jlist)
 
 smat homspace::s_calcop_cols(const matop& mlist, const vec& jlist)
 {
-  int i, j, d = dim(jlist);
+  int i, d = dim(jlist);
   smat m(d,rk);
   for (i=1; i<=d; i++)
     {
-      j = jlist[i];
+      int j = jlist[i];
       svec colj = applyop(mlist,freemods[j-1]);
       if(hmod) colj.reduce_mod_p(hmod);
       m.setrow(i,colj);

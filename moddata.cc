@@ -54,7 +54,7 @@ Quad level::resnum(long i) const // which is the i'th residue mod modulus?
 
 moddata::moddata(const Quad& n) :level(n)
 {
- int i,nnoninv; Quad resi,x,y,d; long normd;
+ int i,nnoninv; Quad resi,x,y,d;
  phi=psi=normod;
  vector<Quad>::const_iterator pr = plist.begin();
  while(pr!=plist.end())
@@ -77,7 +77,8 @@ moddata::moddata(const Quad& n) :level(n)
  { 
    resi=resnum(i);
 //cout << "testing residue " << resi;
-   d = quadbezout(resi,modulus,x,y); normd=quadnorm(d);
+   d = quadbezout(resi,modulus,x,y);
+   long normd=quadnorm(d);
    if (normd==1) // this is an invertible residue
      {
        invlist[i] = numres(x); 

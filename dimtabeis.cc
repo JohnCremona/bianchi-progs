@@ -19,7 +19,6 @@ int main ()
  long firstn, lastn; Quad n;
  int both_conj;
  int verbose=0;
- int dimcusp, dimeis, dimall;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  int plusflag=1;
  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
@@ -36,9 +35,9 @@ int main ()
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(n)<<"\t\t"; // level and norm
      homspace hplus(n, plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
-     dimcusp = hplus.h1cuspdim();
-     dimall = hplus.h1dim();
-     dimeis = dimall-dimcusp;
+     int dimcusp = hplus.h1cuspdim();
+     int dimall = hplus.h1dim();
+     int dimeis = dimall-dimcusp;
      cout << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
    }
 

@@ -41,7 +41,7 @@ struct factor_comparison {
 int main(void)
 {
  int d,max=10000;
- int np,ip,jp,nq; 
+ int np,ip,jp;
  Quad n; int mats, pols, facs, plusflag, cuspidal=1;
  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
  if (!check_field(d, fields))
@@ -70,17 +70,17 @@ int main(void)
   long normn = quadnorm(n);
   cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
   homspace h(n,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
-  int d = h.h1dim();
+  int dim = h.h1dim();
   int den = h.h1denom();
   int cden = h.h1cdenom();
   if (cuspidal)
     {
-      cout << "Cuspidal dimension = " << d << endl;
+      cout << "Cuspidal dimension = " << dim << endl;
       den=cden;
     }
   else
     {
-      cout << "Dimension = " << d << endl;
+      cout << "Dimension = " << dim << endl;
     }
   if(den!=1) cout << " denominator = " << den << endl;
   long hmod = h.h1hmod();
@@ -93,13 +93,13 @@ int main(void)
 
   vector<Quadprime> badprimes = h.N.factorization().primes();
   vector<Quadprime>::const_iterator pr;
-  nq = badprimes.size();
+  int nq = badprimes.size();
   vector<bigint> charpol;
   bigint MMODULUS = to_ZZ(MODULUS);
-  if (d>0)
+  if (dim>0)
     {
-      mat_m id = (den*den)*idmat(int(d));
-      mat_m wq(d), wq2;
+      mat_m id = (den*den)*idmat(int(dim));
+      mat_m wq(dim), wq2;
       vector<mat_m> wqlist;
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
 	{
@@ -121,7 +121,7 @@ int main(void)
 	  if (wq2==id) cout << "Involution!" << "\n";
 	  else
             {
-              if(d<20) cout << "wq^2 = " << wq2 << endl;
+              if(dim<20) cout << "wq^2 = " << wq2 << endl;
               cout << "NOT an involution...." << "\n";
               //exit(1);
             }
@@ -129,7 +129,7 @@ int main(void)
 	}
       cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? ";
       cin >> np;
-      mat_m tp(d), tpwq(d), wqtp(d);
+      mat_m tp(dim), tpwq(dim), wqtp(dim);
       vector<mat_m> tplist;
       ip=0;
       for (pr=Quadprimes::list.begin();
@@ -168,7 +168,7 @@ int main(void)
 	    }
 	  tplist.push_back(tp);
 	}
-    }      // end of if(d>0)
+    }      // end of if(dim>0)
 
 }       // end of while()
 exit(0);

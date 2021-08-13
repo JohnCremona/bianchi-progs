@@ -8,7 +8,6 @@ int main ()
  cout << "Enter max. norm for primes: " << flush;  cin >> max;
  Quad::field(d,max);
  cout << "The field is "; Quad::displayfield(cout); cout << endl;
- Quad w(0,1);
  Quad a,b,c;
 
  cout << "Enter Quads, a and b: ";

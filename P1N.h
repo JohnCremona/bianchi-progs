@@ -28,7 +28,7 @@ public:
   P1N() {;}                                            //constructor
   P1N(const Qideal& I);                                //constructor
 
-  void operator=(const P1N& other)
+  P1N& operator=(const P1N& other)
   {
     residue_codes = other.residue_codes;
     noninvertible_residue_indices = other.noninvertible_residue_indices;
@@ -39,6 +39,7 @@ public:
     psi = other.psi;
     np = other.np;
     N = other.N;
+    return *this;
   }
   void make_symb(long i, Quad& c, Quad& d); // assign c, d to the i'th (c:d) symbol
   void reduce(Quad& c, Quad& d);            // simplify c,d without changing (c:d)

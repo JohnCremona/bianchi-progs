@@ -187,16 +187,16 @@ void mQuad::initmquadprimes()
   int d=mQuad::d, disc=-mQuad::disc, t=I2long(mQuad::t);
   long imaxnorm = I2long(maxnorm);
   mQuadlist list1(imaxnorm),list2(imaxnorm);
-  int i, count1=0, count2=0;
-  long p ; long a,b;
+  int count1=0, count2=0;
+  long a,b;
 
   for (primevar pr; pr.ok()&&pr<imaxnorm; pr++)
-    { p=pr;
+    { long p=pr;
       int sig = kronecker(disc,p);
       switch (sig) {
       case  0: 
-               if((d==1)||(d==3)) list1[count1++]=mQuad(1,1); break;
-               if (d==2)          list1[count1++]=mQuad(0,1); break;
+               if((d==1)||(d==3)) list1[count1++]=mQuad(1,1);
+               if (d==2)          list1[count1++]=mQuad(0,1);
                if (d>3)           list1[count1++]=mQuad(-1,2);
                break;
       case -1: if(p*p<=maxnorm) list2[count2++]=mQuad(p,0);
@@ -268,11 +268,15 @@ mQuadlist posdivs(const mQuad& a)       // all "positive" divisors (up to units)
 {
  mQuadlist plist=pdivs(a); 
  int np = plist.length;
- int e, nu = 1; int nd=nu;
+ int nu = 1; int nd=nu;
  int* elist = new int[np];
  mQuadvar pr(plist); 
  for(; pr.ok(); ++pr) 
-   {elist[pr.index]=e=val(pr,a); nd*=(1+e);}
+   {
+     int e=val(pr,a);
+     elist[pr.index]=e;
+     nd*=(1+e);
+   }
  mQuadlist dlist(nd);
  dlist[0]=1;
  mQuad p; nd=nu;
@@ -291,11 +295,15 @@ mQuadlist alldivs(const mQuad& a)       // all divisors
 {
  mQuadlist plist=pdivs(a); 
  int np = plist.length;
- int e, nu = mQuad::nunits; int nd=nu;
+ int nu = mQuad::nunits; int nd=nu;
  int* elist = new int[np];
  mQuadvar pr(plist);
  for(; pr.ok(); ++pr) 
-   {elist[pr.index]=e=val(pr,a); nd*=(1+e);}
+   {
+     int e=val(pr,a);
+     elist[pr.index]=e;
+     nd*=(1+e);
+   }
  mQuadlist dlist(nd);
  for(int i=0; i<nu; i++) dlist[i]=mquadunits[i];
  mQuad p; nd=nu;
@@ -314,11 +322,15 @@ mQuadlist sqdivs(const mQuad& a)     // all divisors whose square divides a, up 
 {
  mQuadlist plist=pdivs(a); 
  int np = plist.length;
- int e, nu = mQuad::nunits/2; int nd=nu;
+ int nu = mQuad::nunits/2; int nd=nu;
  int* elist = new int[np];
  mQuadvar pr(plist); 
  for(; pr.ok(); ++pr) 
-   {elist[pr.index]=e=val(pr,a)/2; nd*=(1+e);}
+   {
+     int e=val(pr,a)/2;
+     elist[pr.index]=e;
+     nd*=(1+e);
+   }
  mQuadlist dlist(nd);
  for(int i=0; i<nu; i++) dlist[i]=mquadunits[i];
  mQuad p; nd=nu;
@@ -337,11 +349,14 @@ mQuadlist sqfreedivs(const mQuad& a)       // all square-free divisors
 {
  mQuadlist plist=pdivs(a); 
  int np = plist.length;
- int e, nu = 2; int nd=nu;
+ int nu = 2; int nd=nu;
  int* elist = new int[np];
  mQuadvar pr(plist);
  for(; pr.ok(); ++pr) 
-   {elist[pr.index]=e=1; nd*=(1+e);}
+   {
+     elist[pr.index]=1;
+     nd*=2;
+   }
  mQuadlist dlist(nd);
  for(int i=0; i<nu; i++) dlist[i]=mquadunits[i];
  mQuad p; nd=nu;
@@ -441,7 +456,7 @@ int invertible(const mQuad& a, const mQuad& b, mQuad& inverse)
 bigint vecbezout(int n, bigint* a, bigint* c) 
 //returns g = content(a) = a.c
 {
-  bigint x=0,ai=0,ci=0,g=0;  //This does not initialise them properly
+  bigint x=0, ci=0, g=0;  //This does not initialise them properly
                               //for the call to bezout.  Don't know why.
   x++; ci++;                  //This does the trick!
 //cout<<"In vecbezout with a="<<a<<", c="<<c<<endl;

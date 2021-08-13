@@ -138,7 +138,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
 void edge_relations::report()
 {
   long i;
-  int j, t, off;
+  int j, t;
   RatQuad alpha;
   string name;
   Quad c, d;
@@ -161,7 +161,7 @@ void edge_relations::report()
           t = n_alphas-j-1;
           name = "sigma";
         }
-      off = offset(t);
+      int off = offset(t);
       alpha = base_point(t);
       if(n_alphas>1)
         {
@@ -468,18 +468,17 @@ void edge_relations::edge_pairing_plus(int i)
 
 void edge_relations::edge_pairing_double(int i)
 {
-  long j, k, j2, k2;
   long off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
   action M(P1, M_alphas[i+2]);
   action J(P1, mat22::J);
 
-  for (j=0; j<nsymb; j++) // index of type i symbol
+  for (long j=0; j<nsymb; j++) // index of type i symbol
     {
-      k = M(j); // index of type i+2 symbol: (M)_{i+2} = - (I)_i
-      j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
-      k2 = J(k); // index of type i+3 symbol
+      long k = M(j); // index of type i+2 symbol: (M)_{i+2} = - (I)_i
+      long j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
+      long k2 = J(k); // index of type i+3 symbol
       ++ngens;
       gens.push_back(off1+j);
       coordindex[off1+j] = ngens;

@@ -106,7 +106,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 
 //operators and related functions (friends are inlined below):
 
-  void operator=(const Quad& a) {r=a.r; i=a.i; nm=a.nm;}
+  Quad& operator=(const Quad& a) {r=a.r; i=a.i; nm=a.nm; return *this;}
   friend long real(const Quad& a) {return a.r;}
   friend long imag(const Quad& a) {return a.i;}
   friend Quad makepos(const Quad& a);

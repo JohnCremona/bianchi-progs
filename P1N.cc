@@ -227,10 +227,10 @@ long P1N::apply(const mat22& M, long i)
 //#define DEBUG_LIFT
 
 // compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
-mat22 P1N::lift_to_SL2(long i)
+mat22 P1N::lift_to_SL2(long ind)
 {
   Quad a, b, c, d, inv, x, y, z, h;
-  make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
+  make_symb(ind, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
 #ifdef DEBUG_LIFT
   cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") to SL2"<<endl;
 #endif
@@ -269,7 +269,7 @@ mat22 P1N::lift_to_SL2(long i)
       cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
       assert (a*d-b*c==1);
-      assert (index(c,d)==i);
+      assert (index(c,d)==ind);
       mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
       cout<<" returning  "<< M <<endl;
@@ -317,7 +317,7 @@ mat22 P1N::lift_to_SL2(long i)
   cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
   assert (a*d-b*c==1);
-  assert (index(c,d)==i);
+  assert (index(c,d)==ind);
   mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
   cout<<" returning  "<< M <<endl;
@@ -333,12 +333,12 @@ void P1N::check(int verbose)
       cout << "Testing P1(N) for N = " << N << ": ";
       cout << "psi(N) = "<<psi<<endl;
     }
-  long i, j;
+  long i;
   Quad c, d;
   for (i=0; i<psi; i++)
     {
       make_symb(i, c, d);
-      j = index(c, d);
+      long j = index(c, d);
       if (verbose)
         {
           cout << i << " --> ("<<c<<":"<<d << ") --> " << j << endl;

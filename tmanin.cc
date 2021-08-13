@@ -32,7 +32,6 @@ int main ()
   int output=1;
   cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
- int dimcusp, dimeis, dimall;
  long firstn, lastn;
  int both_conj;
  cout<<"Both conjugates? (0/1) "; cin >> both_conj;
@@ -56,6 +55,7 @@ int main ()
      newforms nf(n,verbose);
      nf.createfromscratch();
 #ifdef LOOPER
+     int dimcusp, dimeis, dimall;
      // output lines as in dimtabeis:
      dimtab << d << "\t2\t";           // field and weight
      dimtab << ideal_label(n)<<"\t\t"; // level and norm

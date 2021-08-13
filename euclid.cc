@@ -305,9 +305,9 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   if (bb.nm) // reduce x mod bb/g and adjust y to match
     {
       Quad a0 = aa/a, b0 = bb/a;
-      Quad t = xx/b0; // rounded
-      xx -= b0*t;
-      yy += a0*t;
+      Quad tmp = xx/b0; // rounded
+      xx -= b0*tmp;
+      yy += a0*tmp;
       assert (aa*xx+bb*yy==a);
     }
   return a;

@@ -41,7 +41,7 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
 #endif
   vector<mat22>::const_iterator mi;
   vector<int>::const_iterator ti, si;
-  vector<RatQuad> alphas, betas;
+  vector<RatQuad> as, bs;
   RatQuad a, b;
   mat22 M, M_alpha;
   for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); ++mi, ++ti, ++si)
@@ -57,28 +57,28 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
 #endif
       if (*si>0) // use {a,b} when sign is +1
         {
-          alphas.push_back(a);
-          betas.push_back(b);
+          as.push_back(a);
+          bs.push_back(b);
         }
       else // use {b,a} when sign is -1
       {
-        alphas.push_back(b);
-        betas.push_back(a);
+        as.push_back(b);
+        bs.push_back(a);
       }
     }
 
-  vector<RatQuad>::const_iterator alpha, beta;
+  vector<RatQuad>::const_iterator ai, bi;
   int ok=1;
-  for (alpha=alphas.begin()+1, beta=betas.begin(); beta!=betas.end() &&ok; ++alpha, ++beta)
+  for (ai=as.begin()+1, bi=bs.begin(); bi!=bs.end() &&ok; ++ai, ++bi)
     {
-      RatQuad next_alpha = (alpha==alphas.end()? alphas[0]: *alpha);
-      ok = ok && (*beta==next_alpha);
+      RatQuad next_alpha = (ai==as.end()? as[0]: *ai);
+      ok = ok && (*bi==next_alpha);
     }
   if (!ok)
     {
       cout<<"Bad face relation!\n";
-      cout<<"alphas: "<<alphas<<endl;
-      cout<<"betas:  "<<betas<<endl;
+      cout<<"alphas: "<<as<<endl;
+      cout<<"betas:  "<<bs<<endl;
       exit(1);
     }
 #ifdef DEBUG_FACE_RELATION
@@ -806,7 +806,6 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 void face_relations::solve_relations()
 {
   vec npivs; // pivs is a class attribute
-  long i;
   if(verbose>1)
     {
       mat M = relmat.as_mat().slice(numrel,ngens);
@@ -890,7 +889,7 @@ void face_relations::solve_relations()
      }
    rk = sp.ncols();
    coord.init(ngens,rk); // 0'th is unused
-   for(i=1; i<=ngens; i++)
+   for(long i=1; i<=ngens; i++)
      coord.setrow(i,sp.row(i).as_vec());
    // if hmod>0, coord is only defined modulo hmod
    sp=smat(0,0); // clear space

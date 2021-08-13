@@ -12,11 +12,10 @@ int main ()
  int d,max=1000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
- long firstn, lastn; Quad n; int verbose=0, plusflag=1;
- int startp, stopp;
+ Quad n; int verbose=0;
  cout << "Verbose? "; cin>>verbose;
-// cout << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
+ long firstn, lastn;
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  int both_conj=0;

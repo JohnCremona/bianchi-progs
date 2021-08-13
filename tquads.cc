@@ -132,7 +132,7 @@ int main ()
    }
 
  //Test of gcd and bezout
- Quad g,x,y;
+ Quad g,h,x,y;
  cout << "Testing gcd and bezout."<<endl;
  while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
    {
@@ -164,7 +164,6 @@ int main ()
      long maxn = 10;
      int s;
      mat22 M;
-     Quad g,h;
      for(Quadlooper alpha(1,maxn,1); alpha.ok(); ++alpha)
        for(Quadlooper beta(1,maxn,1); beta.ok(); ++beta)
          {

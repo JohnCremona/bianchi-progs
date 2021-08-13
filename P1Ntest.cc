@@ -9,14 +9,14 @@
 
 void multi_index_test(const vector<long>& nlist, int verbose=0)
 {
-  long i, j, n=1;
+  long i, n=1;
   for (i=0; i<(long)nlist.size(); i++) n*=nlist[i];
   if (verbose)
     cout << "nlist = "<<nlist<<" with product "<<n<<endl;
   for (i=0; i<n; i++)
     {
       vector<long> isplit = split_indices(nlist, i);
-      j = merge_indices(nlist, isplit);
+      long j = merge_indices(nlist, isplit);
       if (verbose)
         {
           cout << i << " --> "<<isplit << " --> " << j << endl;

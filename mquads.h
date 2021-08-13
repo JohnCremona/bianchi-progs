@@ -75,9 +75,9 @@ public:
 
 //operators and related functions:
 
-  void operator=(const mQuad& a) {r=a.r; i=a.i;}
-  void operator=(const bigint& a) {r=a; i=0;}
-  void operator=(long a) {r=a; i=0;}
+  mQuad& operator=(const mQuad& a) {r=a.r; i=a.i; return *this;}
+  void operator=(const bigint& a) {r=a; i=0; return *this;}
+  void operator=(long a) {r=a; i=0; return *this;}
   friend inline bigint real(const mQuad& a) {return a.r;}
   friend inline bigint imag(const mQuad& a) {return a.i;}
   friend inline bigint mquadnorm0(const mQuad& a)      // used when t=0
@@ -143,7 +143,7 @@ public:
 // friend functions
 
   friend ostream& operator<<(ostream& s, const mQuad& x);
-  friend inline istream& operator>>(istream& s, mQuad& x)
+  friend inline istream& operator>>(istream& s, const mQuad& x)
     {s.flags(s.flags()|ios::dec);  // to avoid bug in library, force decimal
      return s >> x.r >> x.i;
     }

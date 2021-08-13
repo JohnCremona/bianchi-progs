@@ -50,17 +50,15 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
       cout<<"denom1 = "<<denom1<<endl;
       cout<<"denom2 = "<<denom2<<endl;
       cout<<"denom3 = "<<denom3<<endl;
+      cout << "Finished constructing homspace.\n";
     }
-
-  if (verbose) cout << "Finished constructing homspace.\n";
 }
 
 void homspace::make_freemods()
 {
   if (rk==0) return;
 
-  long i,j,s;
-  int t=0;
+  long i;
   modsym m;
 
   freegens.resize(rk);
@@ -71,15 +69,14 @@ void homspace::make_freemods()
       cout << "freegens: ";
       for (i=0; i<rk; i++) cout << freegens[i] << " ";
       cout << endl;
+      cout << "Freemods:\n";
     }
-
-  if (verbose)
-    cout << "Freemods:\n";
 
   for (i=0; i<rk; i++)
     {
-      s = j = freegens[i];
-      t = 0;
+      long j = freegens[i];
+      long s = j;
+      int t = 0;
       if (n_alphas>1)
         {
           pair<long, int> st = ER.symbol_number_and_type(j);

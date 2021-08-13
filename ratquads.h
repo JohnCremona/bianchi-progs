@@ -162,8 +162,6 @@ inline RatQuad operator+(const RatQuad& r1, const RatQuad& r2)
 
 inline RatQuad operator+(const Quad& q, const RatQuad& r)
 {
-  Quad n3 = q*r.d;
-  n3 += r.n;
   return RatQuad(r.n + q*r.d, r.d, 1);
 }
 

@@ -63,11 +63,12 @@ symbdata::symbdata(const Quad &n) :moddata(n),specials()
   dstarts[0]=dstarts[ndivs-1]=0;
 //N.B. dlist includes d=1 at 0 and d=mod at end, which we don't want here
  if (nsymb2>0)
- { int ic,id,start; symb s;  Quad c,d;
+ { int ic,id; symb s;  Quad c,d;
    for (ic=1; (ic<ndivs-1)&&(specials.count()<nsymb2); ic++)
    { c=dlist[ic];
 //cout<<"Looking for specials with c = " << c;
-     dstarts[ic]=start=specials.count();
+     int start = specials.count();
+     dstarts[ic]=start;
 //cout<<" starting with number "<<start<<endl;
      for (id=1; (id<normod-phi)&&(specials.count()<nsymb2); id++)  
      { d = resnum(noninvlist[id]);
@@ -129,13 +130,13 @@ void symbdata::display() const
 
 int symbdata::check(int verbose) const
 {int moddataok = moddata::check(verbose);
- int i,j,ok=1; symb s;
+ int i,ok=1; symb s;
  for (i=0; i<nsymb; i++)
  {
 //  cout<<i<<": "<<flush;
   s = symbol(i);  
 //  cout<<s<<": "<<flush;
-  j = index(s); 
+  int j = index(s); 
 //  cout<<j<<endl;
   ok&=(i==j);
   if (i!=j) cout << i << "-->" << s << "-->" << j << endl;

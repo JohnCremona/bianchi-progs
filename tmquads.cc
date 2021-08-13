@@ -51,7 +51,7 @@ int main ()
  cout << "pos(a) = " << pos(a) << endl;
 
 //Test of residues
- mQuadlist resmoda = residues(a);  long norma=I2long(mquadnorm(a));
+ mQuadlist resmoda = residues(a);
  cout << "Residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions

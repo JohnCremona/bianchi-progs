@@ -314,11 +314,11 @@ vector<Quad> Quad::primes_above(long p, int& sig)
 
 void Quad::initquadprimes()
 {
-  long p; int sig;
+  int sig;
   vector<Quad> list, list1, list2;
   vector<Quad>::iterator pi, alpha, beta;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
-    { p=pr;
+    { long p=pr;
       list = Quad::primes_above(p, sig);
       for (pi = list.begin(); pi!=list.end(); )
         switch (sig) {
@@ -589,11 +589,11 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 #endif
   U.reset(); // to the identity
   int s=1;
-  long n; Quad t;
+  Quad t;
   while (s)
     {
       s = 0; // will be set to 1 if anything changes
-      n = nearest_long_to_Quad_quotient(beta,alpha);
+      long n = nearest_long_to_Quad_quotient(beta,alpha);
       if(n!=0)
         {
           s=1;
