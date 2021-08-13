@@ -26,7 +26,7 @@ void symblist::display() const
 {
   int i;
   vector<symb>::const_iterator s;
-  for(i=0, s = symbols.begin(); s!=symbols.end(); i++, s++)
+  for(i=0, s = symbols.begin(); s!=symbols.end(); ++i, ++s)
     cout<<i<<":\t"<< *s <<"\n";
 }
 

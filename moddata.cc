@@ -4,14 +4,15 @@
 #include "moddata.h"
 
 level::level(const Quad& n, long neigs)
+  :modulus(makepos(n))
 {
-  modulus=makepos(n); normod=quadnorm(n);
+  normod=quadnorm(n);
   conj_modulus=quadconj(modulus);
   plist=pdivs(n); npdivs=plist.size();
   dlist=posdivs(n); ndivs=dlist.size();
   is_square=1;
   vector<Quad>::const_iterator pr;
-  for(pr=plist.begin(); pr!=plist.end() && is_square; pr++)
+  for(pr=plist.begin(); pr!=plist.end() && is_square; ++pr)
     if (val(*pr,n)%2) is_square=0;
   is_Galois_stable = are_associate(n, quadconj(n));
   nap=neigs;

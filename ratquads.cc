@@ -71,7 +71,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 #endif
   int equiv=0;
   vector<Quad> units = (plusflag? quadunits: squareunits);
-  for (vector<Quad>::const_iterator u = units.begin(); u!= units.end() && !equiv; u++)
+  for (vector<Quad>::const_iterator u = units.begin(); u!= units.end() && !equiv; ++u)
     equiv = div(q3,(s1-(*u)*s2));
 #ifdef DEBUG_CUSP_EQ
   cout<<"Returning "<<equiv<<endl;
@@ -105,7 +105,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   // (2) n1 = u*n2 (mod D)
 
   vector<Quad> units = (plusflag? quadunits: squareunits);
-  for (vector<Quad>::const_iterator ui = units.begin(); ui!= units.end(); ui++)
+  for (vector<Quad>::const_iterator ui = units.begin(); ui!= units.end(); ++ui)
     {
       Quad u = *ui;
       if (N.divides(cc2.d-u*cc1.d) && D.divides(cc1.n-u*cc2.n))

@@ -28,7 +28,7 @@ int main ()
      if(verbose) cout << "Checking that old levels have been processed..." << endl;
      vector<Quad> alphadivs = posdivs(alpha);
      vector<Quad>::const_iterator betaj;
-     for(betaj=alphadivs.begin(); betaj!=alphadivs.end(); betaj++)
+     for(betaj=alphadivs.begin(); betaj!=alphadivs.end(); ++betaj)
        {
 	 Quad beta = makepos(*betaj);
 	 long normbeta = quadnorm(beta);

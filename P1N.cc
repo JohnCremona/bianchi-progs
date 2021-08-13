@@ -39,8 +39,8 @@ vector<long> split_indices(const vector<long>& nlist, long k)
 }
 
 P1N::P1N(const Qideal& I)
+  : N(I)
 {
-  N = I;
   Factorization F = N.factorization(); //  factorization is cached in N
   np = F.size();
   nrm = N.norm();

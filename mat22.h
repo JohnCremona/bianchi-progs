@@ -13,7 +13,7 @@ private:
    Quad a,b,c,d;
 public:
   mat22() :a(0),b(0),c(0),d(0) {}
-  mat22(const Quad ia, const Quad ib, const Quad ic, const Quad id)
+  mat22(const Quad& ia, const Quad& ib, const Quad& ic, const Quad& id)
     :a(ia),b(ib),c(ic),d(id) {}
   static mat22 identity;
   static mat22 J;
@@ -30,7 +30,7 @@ public:
   }
 
   // matrix multiplcation
-  mat22 operator*(const mat22 M) const
+  mat22 operator*(const mat22& M) const
   {
     return mat22(a*M.a+b*M.c, a*M.b+b*M.d, c*M.a+d*M.c, c*M.b+d*M.d);
   }

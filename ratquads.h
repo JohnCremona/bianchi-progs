@@ -9,7 +9,7 @@ class RatQuad {
 
 public:
   // constructors
-  RatQuad(Quad nn=0, Quad d=1, int reduce=0);
+  RatQuad(const Quad& nn=0, const Quad& d=1, int reduce=0);
   RatQuad(long a, long b, long dd, int reduce=0); // (a+b*w)/dd
 
   // RatQuad manipulations
@@ -34,28 +34,28 @@ public:
 
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
-  friend RatQuad operator+(Quad, const RatQuad&);
-  friend RatQuad operator+(const RatQuad&, Quad);
+  friend RatQuad operator+(const Quad&, const RatQuad&);
+  friend RatQuad operator+(const RatQuad&, const Quad&);
   friend RatQuad operator-(const RatQuad&, const RatQuad&);
-  friend RatQuad operator-(Quad, const RatQuad&);
-  friend RatQuad operator-(const RatQuad&, Quad);
+  friend RatQuad operator-(const Quad&, const RatQuad&);
+  friend RatQuad operator-(const RatQuad&, const Quad&);
   friend RatQuad operator*(const RatQuad&, const RatQuad&);
-  friend RatQuad operator*(const RatQuad&, Quad);
-  friend RatQuad operator*(Quad, const RatQuad&);
+  friend RatQuad operator*(const RatQuad&, const Quad&);
+  friend RatQuad operator*(const Quad&, const RatQuad&);
   friend RatQuad operator/(const RatQuad&, const RatQuad&);
-  friend RatQuad operator/(const RatQuad&, Quad);
-  friend RatQuad operator/(Quad, const RatQuad&);
+  friend RatQuad operator/(const RatQuad&, const Quad&);
+  friend RatQuad operator/(const Quad&, const RatQuad&);
   friend int operator==(const RatQuad&, const RatQuad&);
   friend int operator!=(const RatQuad&, const RatQuad&);
   friend ostream& operator<< (ostream&s, const RatQuad&);
   RatQuad& operator+=(const RatQuad&);
-  RatQuad& operator+=(Quad);
+  RatQuad& operator+=(const Quad&);
   RatQuad& operator-=(const RatQuad&);
-  RatQuad& operator-=(Quad);
+  RatQuad& operator-=(const Quad&);
   RatQuad& operator*=(const RatQuad&);
-  RatQuad& operator*=(Quad);
+  RatQuad& operator*=(const Quad&);
   RatQuad& operator/=(const RatQuad&);
-  RatQuad& operator/=(Quad);
+  RatQuad& operator/=(const Quad&);
   RatQuad operator+();
   RatQuad operator-();
 
@@ -82,17 +82,16 @@ class modsym {
 
 // Inline RatQuad functions
 
-inline RatQuad::RatQuad(Quad nn, Quad dd, int reduce)
+inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int reduce)
+  :d(dd), n(nn)
 {
-  n=nn; d=dd;
   if (reduce)
     (*this).reduce();
 }
 
 inline RatQuad::RatQuad(long a, long b, long dd, int reduce) // (a+b*w)/dd
+  :d(a,b), n(a,b)
 {
-  n=Quad(a,b);
-  d=Quad(dd);
   if (reduce)
     (*this).reduce();
 }
@@ -118,7 +117,7 @@ inline RatQuad& RatQuad::operator+=(const RatQuad& r)
   return *this;
 }
 
-inline RatQuad& RatQuad::operator+=(Quad q)
+inline RatQuad& RatQuad::operator+=(const Quad& q)
 {
   n += d*q;
   (*this).reduce();
@@ -133,21 +132,21 @@ inline RatQuad& RatQuad::operator-=(const RatQuad& r)
   return *this;
 }
 
-inline RatQuad& RatQuad::operator-=(Quad q)
+inline RatQuad& RatQuad::operator-=(const Quad& q)
 {
   n -= d*q;
   (*this).reduce();
   return *this;
 }
 
-inline RatQuad& RatQuad::operator*=(Quad q)
+inline RatQuad& RatQuad::operator*=(const Quad& q)
 {
   n*=q;
   (*this).reduce();
   return *this;
 }
 
-inline RatQuad& RatQuad::operator/=(Quad q)
+inline RatQuad& RatQuad::operator/=(const Quad& q)
 {
   d*=q;
   (*this).reduce();
@@ -161,14 +160,14 @@ inline RatQuad operator+(const RatQuad& r1, const RatQuad& r2)
   return RatQuad(r1.n*r2.d + r2.n*r1.d, r1.d*r2.d, 1);
 }
 
-inline RatQuad operator+(Quad q, const RatQuad& r)
+inline RatQuad operator+(const Quad& q, const RatQuad& r)
 {
   Quad n3 = q*r.d;
   n3 += r.n;
   return RatQuad(r.n + q*r.d, r.d, 1);
 }
 
-inline RatQuad operator+(const RatQuad& r, Quad q)
+inline RatQuad operator+(const RatQuad& r, const Quad& q)
 {
   return RatQuad(r.n + q*r.d, r.d, 1);
 }
@@ -178,32 +177,32 @@ inline RatQuad operator-(const RatQuad& r1, const RatQuad& r2)
   return RatQuad(r1.n*r2.d - r2.n*r1.d, r1.d*r2.d, 1);
 }
 
-inline RatQuad operator-(Quad q, const RatQuad& r)
+inline RatQuad operator-(const Quad& q, const RatQuad& r)
 {
   return RatQuad(q*r.d - r.n, r.d, 1);
 }
 
-inline RatQuad operator-(const RatQuad& r, Quad q)
+inline RatQuad operator-(const RatQuad& r, const Quad& q)
 {
   return RatQuad(r.n - q*r.d, r.d, 1);
 }
 
-inline RatQuad operator*(const RatQuad& r, Quad q)
+inline RatQuad operator*(const RatQuad& r, const Quad& q)
 {
   return RatQuad(q*r.n, r.d, 1);
 }
 
-inline RatQuad operator*(Quad q, const RatQuad& r)
+inline RatQuad operator*(const Quad& q, const RatQuad& r)
 {
   return RatQuad(q*r.n, r.d, 1);
 }
 
-inline RatQuad operator/(const RatQuad& r, Quad q)
+inline RatQuad operator/(const RatQuad& r, const Quad& q)
 {
   return RatQuad(r.n, q*r.d, 1);
 }
 
-inline RatQuad operator/(Quad q, const RatQuad& r)
+inline RatQuad operator/(const Quad& q, const RatQuad& r)
 {
   return RatQuad(q*r.d, r.n, 1);
 }

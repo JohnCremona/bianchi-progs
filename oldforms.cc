@@ -23,9 +23,8 @@ string eigfile(Qideal& N)    //returns filename for eigs at level N
 
 // Implementation of eigdata constructor -- reads data from file
 eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
+  : N(iN), M(iM)
 {
-  N = iN;
-  M = iM;
   if(verbose) cout << "Getting eigdata for " << M << endl;
   string eigfilename = eigfile(M.gen());
   ifstream data(eigfilename.c_str());
@@ -92,7 +91,7 @@ eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
     //  Read the W-eigenvalues at level M into aqs:
     vector<vector<long> >::iterator f; long eig;
     for(i=0; i<nq; i++)
-      for(f=aqs.begin(); f!=aqs.end(); f++)
+      for(f=aqs.begin(); f!=aqs.end(); ++f)
 	{
 	  data>>eig;
 	  (*f)[i]=eig;
@@ -100,7 +99,7 @@ eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
 
     // Next read the coefficients at level M into aps:
     for(i=0; i<neigs; i++)
-      for(f=aps.begin(); f!=aps.end(); f++)
+      for(f=aps.begin(); f!=aps.end(); ++f)
 	{
 	  data>>eig;
 	  (*f)[i]=eig;
@@ -127,7 +126,7 @@ eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
     int countp=0, countq=0, pindex;
     for (vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
 	 ((countp<ntp) || (countq<nwq));
-	 Pi++)
+	 ++Pi)
       {
 	pindex = Pi - Quadprimes::list.begin();
         Quadprime P = *Pi;
@@ -197,13 +196,12 @@ static long min_newform_level_norm[20] = {0,65, // d=1
                                           0,0,0,0,0,0,0,4}; // d=19
 
 oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose)
+  : N(iN), plist(pr)
 {
-   N = iN;
-   plist = pr;
    nap = plist.size();
    noldclasses = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
    vector<Qideal> DD = alldivs(N);
-   for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); Di++)
+   for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
      {
        getoldclasses(*Di,verbose); // will skip D==N
      }
@@ -237,7 +235,7 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
   Qideal M = N/D;
   int k=0, oldmult=1, xmult, mult, j, beta;
   vector<long> betalist;
-  for (vector<Quadprime>::const_iterator Pi = plist.begin(); Pi!=plist.end(); Pi++)
+  for (vector<Quadprime>::const_iterator Pi = plist.begin(); Pi!=plist.end(); ++Pi)
     {
       beta = val(*Pi, M);
       oldmult *= 1+beta;
@@ -254,7 +252,7 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
           if(verbose) cout << "c = " << c << endl;
           mult=1; j=0;
           ;
-          for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(mult>0); Qi++)
+          for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(mult>0); ++Qi)
             {
               int i = Qi - plist.begin();
               beta=betalist[i];

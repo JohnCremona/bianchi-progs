@@ -157,9 +157,9 @@ newform::newform(newforms* nfs,
   vector<long>::const_iterator api=aplist.begin();
   while ((eigs.size()<20) && (api!=aplist.end()))
     {
-      while (div(*pr,nf->modulus))  { pr++; api++; }
+      while (div(*pr,nf->modulus))  { ++pr; ++api; }
       eigs.push_back(*api++);
-      pr++;
+      ++pr;
     }
 }
 
@@ -194,7 +194,7 @@ void newform::find_matrix(int j)
         {
           vector<Quad> reslist = residues(d);
           vector<Quad>::const_iterator res;
-          for(res=reslist.begin(); res!=reslist.end() && !matdot; res++)
+          for(res=reslist.begin(); res!=reslist.end() && !matdot; ++res)
             {
               b=*res;
               Quad g = quadbezout(nf->modulus*b,d,c,a);  // b*modulus*c+a*d=1
@@ -233,7 +233,7 @@ int newform::is_base_change(void) const
               //cout<<"Mismatch -- not base-change"<<endl;
               return 0;
             }
-          pr++;
+          ++pr;
         }
     }
   //cout<<"All OK -- base-change"<<endl;
@@ -424,17 +424,16 @@ long newforms::matdim(void) {return h1->dimension;}
 long newforms::matden(void) {return h1->denom3;}
 
 newforms::newforms(const Quad& n, int disp)
+  : modulus(n), N(n)
 {
   verbose = disp;
-  modulus = n;
-  N = Qideal(n);
   init();
 }
 
 newforms::newforms(Qideal& iN, int disp)
+  : N(iN)
 {
   verbose = disp;
-  N = iN;
   modulus = N.gen(); // OK for principal ideals
   init();
 }
@@ -460,8 +459,8 @@ void newforms::init()
   iP0 = 0;
   while (P0.divides(N) || !P0.is_principal())
     {
-      Pi++;     // First "good" prime
-      iP0++;
+      ++Pi;     // First "good" prime
+      ++iP0;
       P0 = *Pi;
     }
   assert (plist[iP0]==P0);
@@ -507,7 +506,7 @@ void newforms::find_lambdas()
     }
 
   vector<Quadprime>::const_iterator Li;
-  for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); Li++)
+  for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
     {
       Quadprime L = *Li;
       if (L.divides(2)) continue;
@@ -738,7 +737,7 @@ void newform::list(long nap) const
   cout << sfe << " " << loverp << " ";
   cout << "[";
   vector<long>::const_iterator ai;
-  for(ai=aqlist.begin(); ai!=aqlist.end(); ai++)
+  for(ai=aqlist.begin(); ai!=aqlist.end(); ++ai)
     {
       if(ai!=aqlist.begin()) cout<<",";
       cout<<(*ai);
@@ -749,7 +748,7 @@ void newform::list(long nap) const
   // consistent with newforms whose Hecke field has degree >1
   cout << "x ";
   cout << "[";
-  for(ai=aplist.begin(); ai!=aplist.begin()+nap && ai!=aplist.end(); ai++)
+  for(ai=aplist.begin(); ai!=aplist.begin()+nap && ai!=aplist.end(); ++ai)
     {
       if(ai!=aplist.begin()) cout<<",";
       cout<<(*ai);
@@ -932,35 +931,35 @@ void newforms::output_to_file(string eigfile) const
   vector<newform>::const_iterator f;
   vector<long>::const_iterator ap;
   // Line 3: SFEs
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->sfe)<<" ";
       if(echo) cout<<setw(5)<<(f->sfe)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 4: pdots
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->pdot)<<" ";
       if(echo) cout<<setw(5)<<(f->pdot)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 5: dp0s
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->dp0)<<" ";
       if(echo) cout<<setw(5)<<(f->dp0)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 6: cuspidal factors
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->cuspidalfactor)<<" ";
       if(echo) cout<<setw(5)<<(f->cuspidalfactor)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 7: lambdas
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       Quad lambda = f->lambda;
       out<<setw(5)<< lambda.re()<<" "<< lambda.im()<<" ";
@@ -968,7 +967,7 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 8: lambdadots
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->lambdadot)<<" ";
       if(echo) cout<<setw(5)<<(f->lambdadot)<<" ";
@@ -976,28 +975,28 @@ void newforms::output_to_file(string eigfile) const
   out<<endl;  if(echo) cout<<endl;
   // Lines 9,10,11,12: a,b,c,d:
   Quad a;
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       a = f->a;
       out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
       if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       a = f->b;
       out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
       if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       a = f->c;
       out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
       if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       a = f->d;
       out<<setw(5)<< a.re()<<" "<< a.im()<<" ";
@@ -1005,7 +1004,7 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
   // Line 13: matdots
-  for(f=nflist.begin(); f!=nflist.end(); f++)
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->matdot)<<" ";
       if(echo) cout<<setw(5)<<(f->matdot)<<" ";
@@ -1014,7 +1013,7 @@ void newforms::output_to_file(string eigfile) const
   out<<endl;  if(echo) cout<<endl;
   for(int i=0; i<nwq; i++)
     {
-      for(f=nflist.begin(); f!=nflist.end(); f++)
+      for(f=nflist.begin(); f!=nflist.end(); ++f)
 	{
 	  out<<setw(5)<<(f->aqlist)[i]<<" ";
 	  if(echo) cout<<setw(5)<<(f->aqlist)[i]<<" ";
@@ -1025,7 +1024,7 @@ void newforms::output_to_file(string eigfile) const
   out<<endl;  if(echo) cout<<endl;
   for(int i=0; i<nap; i++)
     {
-      for(f=nflist.begin(); f!=nflist.end(); f++)
+      for(f=nflist.begin(); f!=nflist.end(); ++f)
 	{
 	  out<<setw(5)<<(f->aplist)[i]<<" ";
 	  if(echo) cout<<setw(5)<<(f->aplist)[i]<<" ";
@@ -1176,7 +1175,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   cout<<endl;
 #endif
 
-  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); jj++)
+  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
     {
       vec imagej=vec(n1ds); // initialised to 0
       j=*jj; // from 1

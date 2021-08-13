@@ -44,7 +44,7 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
   vector<RatQuad> alphas, betas;
   RatQuad a, b;
   mat22 M, M_alpha;
-  for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); mi++, ti++, si++)
+  for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); ++mi, ++ti, ++si)
     {
       M = *mi;
 #ifdef DEBUG_FACE_RELATION
@@ -69,7 +69,7 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
 
   vector<RatQuad>::const_iterator alpha, beta;
   int ok=1;
-  for (alpha=alphas.begin()+1, beta=betas.begin(); beta!=betas.end() &&ok; alpha++, beta++)
+  for (alpha=alphas.begin()+1, beta=betas.begin(); beta!=betas.end() &&ok; ++alpha, ++beta)
     {
       RatQuad next_alpha = (alpha==alphas.end()? alphas[0]: *alpha);
       ok = ok && (*beta==next_alpha);
@@ -181,21 +181,21 @@ void face_relations::make_relations()
   if (!cyclic_triangles.empty())
     {
       if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
-      for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); T++)
+      for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); ++T)
         cyclic_triangle_relation(*T);
     }
 
   if (!triangles.empty())
     {
       if(verbose) cout<<"\nApplying "<<triangles.size()<<" general triangle relations"<<endl;
-      for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); T++)
+      for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); ++T)
         general_triangle_relation(*T);
     }
 
   if (!squares.empty())
     {
       if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
-      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); S++)
+      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); ++S)
         general_square_relation(S->first, S->second);
     }
 }
@@ -228,7 +228,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
     {
       cout<<"Relation: ";
       Quad c, d;
-      for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
+      for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); ++r, ++t, ++s)
         {
           P1->make_symb(*r, c, d);
           cout<< ((*s)>0? " +": " -");
@@ -242,7 +242,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
 #else
   vec relation(ngens);
 #endif
-  for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); r++, t++, s++)
+  for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); ++r, ++t, ++s)
     {
       //      cout<<"Looking up edge coord of symbol "<<(*r)<<", type "<<(*t)<<"...";
       long c = (*s) * ER->coords(*r, *t);

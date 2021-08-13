@@ -57,12 +57,13 @@ void Qideal::fill()
     cout<<"Badly oriented Z-basis in fill() 2"<<endl;
 }
 
-Qideal::Qideal()
-{ a=c=ac=nm=1; b=0; iclass=0; g0=1; g1=Quad::w; index=1; F=0;}   //default ideal is whole ring
+Qideal::Qideal()   //default ideal is whole ring
+  : a(1), b(0), c(1), ac(1), nm(1), iclass(0), g0(1), g1(Quad::w), index(1), F(0)
+{ ; }
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-{ a=i.a; b=i.b; c=i.c; ac=i.ac; nm=i.nm; iclass=i.iclass; index=i.index;
-  F=0; // don't copy the pointer (though we could copy the underlying Factorizarion)
+  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0)
+{ // don't copy the pointer F (though we could copy the underlying Factorizarion)
   if(iclass!=-1)
     {
       g0=i.g0; g1=i.g1;
@@ -103,12 +104,9 @@ Qideal::Qideal(const long& aa, const long& bb, const long& cc)
 }
 
 Qideal::Qideal(const long& n)       // princ ideal gen by long
-  : a(1), b(0), c(abs(n)), iclass(0), index(-1)
+  : a(1), b(0), c(abs(n)), iclass(0), g0(abs(n)), g1(0, abs(n)), index(-1), F(0)
 {
   ac=a*c; nm=ac*c;
-  g0 = Quad(abs(n));
-  g1 = Quad(0, abs(n));
-  F=0;
 }
 
 // Utility used to construct Qideals given two lists of integers rv,
@@ -128,7 +126,7 @@ Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-
 Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 {
   vector<long> rv, iv;
-  for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); g++)
+  for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); ++g)
     {
       Quad a = *g;
       rv.push_back(a.re());
@@ -662,7 +660,7 @@ vector<Qideal> primitive_ideals_with_norm(long N, int both_conj)
 {
   vector<Qideal> ans;
   vector<long> pdivs_norm = pdivs(N);
-  for(vector<long>::const_iterator pi=pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
+  for(vector<long>::const_iterator pi=pdivs_norm.begin(); pi!=pdivs_norm.end(); ++pi)
     {
       long p=*pi;
       int s = Quad::chi(p);
@@ -686,11 +684,11 @@ vector<Qideal> ideals_with_norm(long N, int both_conj)
 {
   vector<Qideal> ans;
   vector<long> clist = sqdivs(N); // list of c such that c^2|N
-  for (vector<long>::const_iterator ci=clist.begin(); ci!=clist.end(); ci++)
+  for (vector<long>::const_iterator ci=clist.begin(); ci!=clist.end(); ++ci)
     {
       long c = *ci;
       vector<Qideal> primitives = primitive_ideals_with_norm((N/c)/c, both_conj);
-      for (vector<Qideal>::const_iterator Ji = primitives.begin(); Ji!=primitives.end(); Ji++)
+      for (vector<Qideal>::const_iterator Ji = primitives.begin(); Ji!=primitives.end(); ++Ji)
         ans.push_back(c*(*Ji));
     }
   return ans;

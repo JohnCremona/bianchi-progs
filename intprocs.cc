@@ -90,7 +90,7 @@ double ddot(const vector<long>& a, const vector<long>& c)
 {
   double g;
   vector<long>::const_iterator ai,ci;
-  for(g=0, ai=a.begin(), ci=c.begin(); ai!=a.end(); ai++, ci++)
+  for(g=0, ai=a.begin(), ci=c.begin(); ai!=a.end(); ++ai, ++ci)
     g += (double(*ai) * (double)(*ci));
   return g;
 }
@@ -100,7 +100,7 @@ long xmoddot(long s, const vector<long>& a, const vector<long>& c)
 {
   long g;
   vector<long>::const_iterator ai,ci;
-  for(g=0, ai=a.begin(), ci=c.begin(); ai!=a.end(); ai++, ci++)
+  for(g=0, ai=a.begin(), ci=c.begin(); ai!=a.end(); ++ai, ++ci)
     g = xmod( g + xmodmul(*ai, *ci,s), s);
   return g;
 }

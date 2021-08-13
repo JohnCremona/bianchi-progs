@@ -67,7 +67,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
       if (n_sigmas>1)
         {
           cout<<"sigmas: ";
-          for (vector<RatQuad>::const_iterator si = sigmas.begin()+1; si!=sigmas.end(); si++)
+          for (vector<RatQuad>::const_iterator si = sigmas.begin()+1; si!=sigmas.end(); ++si)
             {
               cout<<(*si)<<" ";
             }
@@ -99,7 +99,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     {
       if(verbose)
         cout<<"General edge pair relations (-)\n";
-      for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); i++)
+      for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); ++i)
         {
           if(verbose) cout<<" pair "<< (*i)<<endl;
           edge_pairing_minus(*i);
@@ -112,7 +112,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     {
       if(verbose)
         cout<<"General edge pair relations (+)\n";
-      for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); i++)
+      for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); ++i)
         {
           if(verbose) cout<<" pair "<< (*i)<<endl;
           edge_pairing_plus(*i);
@@ -125,7 +125,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
     {
       if(verbose)
         cout<<"General edge quadruple relations\n";
-      for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); i++)
+      for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); ++i)
         {
           if(verbose) cout<<" quadruple "<< (*i)<<endl;
           edge_pairing_double(*i);

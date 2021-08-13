@@ -132,7 +132,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   Quad r,s, a1,b1;
   mat22 M;
   int local_t = 1;
-  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); Mi++, local_t++)
+  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); ++Mi, ++local_t)
     {
       M = *Mi;
       r=-M.d, s=M.c; // alpha = r/s
@@ -200,7 +200,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 
   local_t=1;
   RatQuad sigma;
-  for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); si++, local_t++)
+  for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); ++si, ++local_t)
     {
       sigma = *si;
       r=sigma.num(), s=sigma.den(); // sigma = r/s

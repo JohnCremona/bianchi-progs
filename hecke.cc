@@ -57,7 +57,7 @@ vector<long> homspace::eigrange(long i)
 vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
-  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
+  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); ++mi)
     {
       vec part = chain((*mi)(alpha), proj);
       if(hmod)
@@ -76,7 +76,7 @@ vec homspace::applyop(const matop& mlist, const modsym& m, int proj)
 #ifdef DEBUG_APPLYOP
   cout<<"In applyop() with modular symbol "<<m<<" (proj = "<<proj<<")"<<endl;
 #endif
-  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); mi++)
+  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); ++mi)
     {
       mat22 M = *mi;
 #ifdef DEBUG_APPLYOP
@@ -353,7 +353,7 @@ vec homspace::maninvector(Quadprime& P, int proj)
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
     {
-      if (*res==0) res++;
+      if (*res==0) ++res;
       part = chain(*res++,p, proj);
       if(hmod)
         ans.addmodp(part,hmod);

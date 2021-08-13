@@ -28,7 +28,7 @@ public:
   P1N() {;}                                            //constructor
   P1N(const Qideal& I);                                //constructor
 
-  void operator=(const P1N other)
+  void operator=(const P1N& other)
   {
     residue_codes = other.residue_codes;
     noninvertible_residue_indices = other.noninvertible_residue_indices;

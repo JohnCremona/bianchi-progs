@@ -11,10 +11,9 @@
 #include <assert.h>
 
 homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
+  :modulus(n), N(n)
 {
-  modulus=n;
-  N=Qideal(n);
-  P1=P1N(N);
+  P1 = P1N(N);
   nsymb = P1.size();
   verbose=verb;
   cuspidal=cuspid;
@@ -22,7 +21,9 @@ homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
   plusflag=hp;
   nap = 20;
   primelist = ::primelist(N, nap);
-  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end() && primelist.size()<(unsigned)nap; Pi++)
+  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
+       Pi != Quadprimes::list.end() && primelist.size()<(unsigned)nap;
+       ++Pi)
     {
       Quadprime P = *Pi;
       if (!P.divides(N))

@@ -44,7 +44,7 @@ void Quad::fill_class_group()
       Qideal I = loop.next();
       if (I.is_principal()) continue;
       int new_class=1;
-      for (vector<Qideal>::iterator Ji = class_group.begin(); (Ji != class_group.end()) && new_class; Ji++)
+      for (vector<Qideal>::iterator Ji = class_group.begin(); (Ji != class_group.end()) && new_class; ++Ji)
         if (I.is_equivalent(*Ji)) new_class = 0;
       if (new_class)
         {

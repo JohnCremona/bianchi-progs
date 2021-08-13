@@ -42,7 +42,7 @@ int main ()
      Quadprimes::display();
      cout << "Here are the first 20 prime ideals:"<<endl;
      for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin();
-          (Pi-Quadprimes::list.begin())<20 && (Pi != Quadprimes::list.end()); Pi++)
+          (Pi-Quadprimes::list.begin())<20 && (Pi != Quadprimes::list.end()); ++Pi)
        {
          Quadprime P = *Pi;
          vector<Quad> gg = P.gens();
@@ -151,8 +151,8 @@ int main ()
  if (Quad::class_number==1)
    {
      vector<Quad>::const_iterator ap,bp;
-     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10 && ap!=quadprimes.end(); ap++)
-       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10 && bp!=quadprimes.end(); bp++)
+     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10 && ap!=quadprimes.end(); ++ap)
+       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10 && bp!=quadprimes.end(); ++bp)
          {
            a = *ap;
            b = *bp;

@@ -328,7 +328,7 @@ void Quad::initquadprimes()
         case -1:
           if(p*p<=maxnorm)
             list2.push_back(*pi);
-          pi++;
+          ++pi;
           break;
         case 1:
           {
@@ -362,7 +362,7 @@ Quad primdiv(const Quad& a)
   long na=quadnorm(a);
   if (na<2) return 0;   // must return something!
   vector<Quad>::const_iterator pr;
-  for (pr=quadprimes.begin(); pr!=quadprimes.end(); pr++)
+  for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
     {
       Quad p=*pr;
       if (div(p,a)) return p;
@@ -378,7 +378,7 @@ vector<Quad> pdivs(const Quad& aa)
   vector<Quad> plist; // will hold prime factors
   if (norma<2) return plist;
   vector<Quad>::const_iterator pr;
-  for (pr=quadprimes.begin(); pr!=quadprimes.end(); pr++)
+  for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
      { Quad p = *pr;
        if (div(p,a)) 
 	 {
@@ -409,7 +409,7 @@ vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
   int e, nu = 1; int nd=nu;
   vector<int> elist;
   vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); pr++)
+  for (pr=plist.begin(); pr!=plist.end(); ++pr)
     {
       e=val(*pr,a); 
       elist.push_back(e);
@@ -419,7 +419,7 @@ vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
   dlist[0]=1;
   nd=nu;
   vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); pr++, ei++)
+  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
    {
      p = *pr; 
      e = *ei;
@@ -437,7 +437,7 @@ vector<Quad> alldivs(const Quad& a)       // all divisors
   int e, nu = Quad::nunits; int nd=nu;
   vector<int> elist;
   vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); pr++)
+  for (pr=plist.begin(); pr!=plist.end(); ++pr)
    {
      e=val(*pr,a); 
      elist.push_back(e);
@@ -447,7 +447,7 @@ vector<Quad> alldivs(const Quad& a)       // all divisors
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
   vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); pr++, ei++)
+  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
    {
      p = *pr; 
      e = *ei;
@@ -465,7 +465,7 @@ vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to
   int e, nu = Quad::nunits/2; int nd=nu;
   vector<int> elist;
   vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); pr++)
+  for (pr=plist.begin(); pr!=plist.end(); ++pr)
    {
      e=val(*pr,a)/2; 
      elist.push_back(e);
@@ -475,7 +475,7 @@ vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
   vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); pr++, ei++)
+  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
    {
      p = *pr; 
      e = *ei;
@@ -493,7 +493,7 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
   int e, nu = 2; int nd=nu;
   vector<int> elist;
   vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); pr++)
+  for (pr=plist.begin(); pr!=plist.end(); ++pr)
    {
      e=1; 
      elist.push_back(e);
@@ -503,7 +503,7 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
   vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); pr++, ei++)
+  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
    {
      p = *pr; 
      e = *ei;
@@ -561,7 +561,7 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
   long gn = quadnorm(ans);
   vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,
                         ans-alpha-beta, ans-alpha+beta, ans+alpha-beta, ans+alpha+beta};
-  for (vector<Quad>::const_iterator t=tests.begin(); t!=tests.end(); t++)
+  for (vector<Quad>::const_iterator t=tests.begin(); t!=tests.end(); ++t)
     {
       if (gn>quadnorm(*t))
         {
@@ -899,7 +899,7 @@ int are_associate(const Quad& a, const Quad& b)
   if(a==0) return (b==0);
   if(a.norm() != b.norm()) return 0;
   vector<Quad>::const_iterator eps;
-  for(eps=quadunits.begin(); eps!=quadunits.end(); eps++)
+  for(eps=quadunits.begin(); eps!=quadunits.end(); ++eps)
     if(a*(*eps)==b) return 1;
   return 0;
 }

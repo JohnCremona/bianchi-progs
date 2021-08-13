@@ -13,7 +13,7 @@ void Quadprimes::display(ostream& s, long maxn) // by default don't list any pri
   s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
   if (maxn==0) return;
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
     {
       Quadprime P = *Pi;
       if (P.norm()>maxn) break;
@@ -100,19 +100,19 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
 }
 
 Factorization::Factorization(const Qideal& II)
+  : I(II)
 {
-  I = Qideal(II); // to keep in the class
   Qideal J(I);    // copy for dividing out primes while leaving I unchanged
   // cout<<" J = "<< J <<endl;
   Qideal Q; int e;
   vector<long> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
-  for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); pi++)
+  for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); ++pi)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
       //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
       // at least one, but possibly not both when p splits, divides I
-      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
+      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); ++Pi)
         {
           Quadprime P = *Pi;
           if (P.divides(J))
@@ -141,7 +141,7 @@ vector<Quadprime> Factorization::primes() const
 {
   vector<Quadprime> plist;
   plist.reserve(size());
-  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); Qi++)
+  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); ++Qi)
     plist.push_back(Qi->first);
   return plist;
 }
@@ -150,7 +150,7 @@ vector<int> Factorization::exponents() const
 {
   vector<int> elist;
   elist.reserve(size());
-  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); Qi++)
+  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); ++Qi)
     elist.push_back(Qi->second);
   return elist;
 }
@@ -172,7 +172,7 @@ vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
   Qideal P;
   int e, j, k;
   vector<QuadprimePower>::const_iterator Qi;
-  for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  Qi++)
+  for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  ++Qi)
     {
       P = Qi->first;
       e = Qi->second;
@@ -235,12 +235,12 @@ void Quadprimes::init(long maxn)
   // First fill up lists of degree 1 and degree 2 primes
   //  cout<<"Computing list of prime ideals of norm up to "<<maxnorm<<endl;
 
-  for (primevar pr; pr.ok()&&pr<=maxnorm; pr++)
+  for (primevar pr; pr.ok()&&pr<=maxnorm; ++pr)
     { long p=pr;
       //      cout<<"p = "<<p<<endl;
       vector<Quadprime> PP = Quadprimes_above(p);
       //      cout<<" primes above: "<< PP<<endl;
-      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); Pi++)
+      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); ++Pi)
         {
           Quadprime P = *Pi;
           long q = P.norm();
@@ -265,12 +265,12 @@ void Quadprimes::init(long maxn)
       if(P.norm()<Q.norm())
         {
           list.push_back(P);
-          Pi++;
+          ++Pi;
         }
       else
         {
           list.push_back(Q);
-          Qi++;
+          ++Qi;
         }
     }
   // only one of the following will do anything, probably the first:
@@ -317,7 +317,7 @@ vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
   vector<Qideal> dlist(nd);
   dlist[0]=1;
   nd=1;
-  for(vector<Quadprime>::const_iterator pr = plist.begin(); pr != plist.end(); pr++)
+  for(vector<Quadprime>::const_iterator pr = plist.begin(); pr != plist.end(); ++pr)
     {
       p = *pr;
       for (long k=0; k<nd; k++)
@@ -426,7 +426,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
   // General case, use recursion
 
   vector<long> pplist; // list of prime power factors of N, will be sorted by size
-  for (vector<long>::const_iterator pi=pp.begin(); pi!=pp.end(); pi++)
+  for (vector<long>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
     {
       long p = *pi;
       long e = val(p,N);
@@ -435,7 +435,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
   std::sort(pplist.begin(), pplist.end());
 
   vector<vector<Qideal>> II;
-  for (vector<long>::const_iterator pi=pplist.begin(); pi!=pplist.end(); pi++)
+  for (vector<long>::const_iterator pi=pplist.begin(); pi!=pplist.end(); ++pi)
     II.push_back(ideals_with_norm(pow(*pi, val(*pi, N))));
 
   ans = {Qideal()}; // unit ideal
@@ -447,13 +447,13 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
       vector<Qideal> ans1 = II.back();
       II.pop_back();
       vector<Qideal> ans2;
-      for (vector<Qideal>::const_iterator I0 = ans0.begin(); I0!=ans0.end(); I0++)
-        for (vector<Qideal>::const_iterator I1 = ans1.begin(); I1!=ans1.end(); I1++)
+      for (vector<Qideal>::const_iterator I0 = ans0.begin(); I0!=ans0.end(); ++I0)
+        for (vector<Qideal>::const_iterator I1 = ans1.begin(); I1!=ans1.end(); ++I1)
           ans2.push_back((*I0)*(*I1));
       ans = ans2;
     }
   long i=1;
-  for (vector<Qideal>::iterator Ii=ans.begin(); Ii!=ans.end(); Ii++, i++)
+  for (vector<Qideal>::iterator Ii=ans.begin(); Ii!=ans.end(); ++Ii, ++i)
     Ii->set_index(i);
 
 #ifdef DEBUG_SORT
@@ -493,7 +493,7 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
   long n = N.norm();
   Qideal I; Quad g;
   // cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); Pi++)
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
     {
       Quadprime P = *Pi;
       if (P.residue_degree()==2) continue; // inert primes are principal!
@@ -530,7 +530,7 @@ Factorization Qideal::factorization() // sets F if necessary then returns F
 int Qideal::is_square()
 {
   vector<int>ee = factorization().exponents();
-  for (vector<int>::const_iterator ei = ee.begin(); ei!=ee.end(); ei++)
+  for (vector<int>::const_iterator ei = ee.begin(); ei!=ee.end(); ++ei)
     if ((*ei)%2==1) return 0;
   return 1;
 }

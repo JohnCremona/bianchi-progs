@@ -60,7 +60,7 @@ int main(void)
  long firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- for(Quadlooper alpha(firstn,lastn); alpha.ok(); alpha++)
+ for(Quadlooper alpha(firstn,lastn); alpha.ok(); ++alpha)
 #else
  Quad alpha;
  while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
@@ -101,7 +101,7 @@ int main(void)
       mat_m id = (den*den)*idmat(int(d));
       mat_m wq(d), wq2;
       vector<mat_m> wqlist;
-      for (pr=badprimes.begin(); pr!=badprimes.end(); pr++)
+      for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
 	{
           Quadprime Q = *pr;
 	  Quad q= Q.gen();
@@ -134,10 +134,10 @@ int main(void)
       ip=0;
       for (pr=Quadprimes::list.begin();
 	   pr!=Quadprimes::list.end() && ((pr-Quadprimes::list.begin())<np);
-	   pr++)
+	   ++pr)
 	{
           Quadprime P = *pr;
-	  while (P.divides(n)) {pr++; P=*pr; np++;}
+	  while (P.divides(n)) {++pr; P=*pr; np++;}
           Quad p = P.gen();
 	  cout << "Computing T_p for p = " << p << "\n";
 	  tp = h.heckeop(P,0,mats);
