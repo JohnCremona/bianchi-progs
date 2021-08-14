@@ -85,9 +85,9 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
   for (pvar.init(quadprimes); 
        (pvar.index<nap)&&(pvar.ok())&&(quadnorm(pvar)<=limitnorm); 
         ++pvar)
-    { int ip=pvar.index; 
-      if(debug) cout << "p= " << pvar << ",\ta_p = " << aplist[ip];
-      add(pvar,ip,aplist[ip],1);
+    { int ind=pvar.index; 
+      if(debug) cout << "p= " << pvar << ",\ta_p = " << aplist[ind];
+      add(pvar,ind,aplist[ind],1);
       if(debug) cout << "\t\tSum = " << sum << endl;  
     }
 

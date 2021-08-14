@@ -430,7 +430,7 @@ newforms::newforms(const Quad& n, int disp)
   init();
 }
 
-newforms::newforms(Qideal& iN, int disp)
+newforms::newforms(const Qideal& iN, int disp)
   : N(iN)
 {
   verbose = disp;
@@ -531,7 +531,6 @@ void newforms::find_lambdas()
                 {
 #ifdef DEBUG_LAMBDA
                   if(verbose)cout<<"Newform # "<<j<<": ";
-                  if(verbose)cout<<"trying: ";
 #endif
                   newform& nfj = nflist[j];
                   int dot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
@@ -563,17 +562,20 @@ void newforms::createfromscratch()
   nfhmod=hmod = h1->h1hmod();
   int dimcusp = h1->h1cuspdim();
   int dimall = h1->h1dim();
-  if(verbose)
-      cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
 
   if(verbose)
-    cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<h1->primelist<<")...\n";
+    {
+      cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
+      cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<h1->primelist<<")...\n";
+    }
+
   of = new oldforms(N, h1->primelist, verbose);
   if(verbose)
-    of->display();
+    {
+      of->display();
+      cout<<"Finding rational newforms...\n";
+    }
 
-  if(verbose)
-    cout<<"Finding rational newforms...\n";
   maxdepth = nap;
   long mindepth = npdivs;
   dimsplit = n1ds = 0;
@@ -706,12 +708,10 @@ void newforms::list(long nap) const
       if (bc)
         {
           bcd = nflist[i].base_change_discriminant();
-          bct = 0;
           cout << bcd;
         }
       else
         {
-          bcd = 0;
           bct = nflist[i].is_base_change_twist();
           if (bct)
             {
@@ -1124,7 +1124,6 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   cout<<"In apvec with P = "<<P<<endl;
 #endif
   vector<long> apv(n1ds);
-  vec v;
   long i,j,ap,aq,normp=P.norm();
 
   int vp = val(P,N);

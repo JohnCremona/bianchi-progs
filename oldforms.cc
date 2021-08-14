@@ -22,7 +22,7 @@ string eigfile(Qideal& N)    //returns filename for eigs at level N
 }
 
 // Implementation of eigdata constructor -- reads data from file
-eigdata::eigdata(Qideal& iN, Qideal& iM, int neigs, int verbose)
+eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
   : N(iN), M(iM)
 {
   if(verbose) cout << "Getting eigdata for " << M << endl;
@@ -233,47 +233,47 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
   eigdata olddata(N,D,nap,verbose);
   int nforms=olddata.nforms;
   Qideal M = N/D;
-  int k=0, oldmult=1, xmult, mult, j, beta;
+  int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;
   vector<long> betalist;
   for (vector<Quadprime>::const_iterator Pi = plist.begin(); Pi!=plist.end(); ++Pi)
     {
       beta = val(*Pi, M);
-      oldmult *= 1+beta;
+      oldmultiplicity *= 1+beta;
       if(beta>0) k++;
       betalist.push_back(beta);
     }
-  if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmult<<endl;
-  olddim2+=oldmult*olddata.nforms2;
+  if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmultiplicity<<endl;
+  olddim2+=oldmultiplicity*olddata.nforms2;
   if(verbose) cout << "Computing W multiplicities." << endl;
   vector<long> nextoldformap(nap);
   for(int iform=0; iform<nforms; iform++)
     { for (int c=0; c<(1<<k); c++)
         {
           if(verbose) cout << "c = " << c << endl;
-          mult=1; j=0;
+          multiplicity=1; j=0;
           ;
-          for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(mult>0); ++Qi)
+          for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(multiplicity>0); ++Qi)
             {
               int i = Qi - plist.begin();
               beta=betalist[i];
               if (beta>0)
                 { int bit = testbit(c,j); j++;
                   nextoldformap[i] = bit?1:-1;
-                  if (odd(beta)) xmult =  (beta+1)/2;
-                  else if((*Qi).divides(D) && (olddata.eigs[iform][i]==-1)) xmult=beta/2;
-                  else xmult=(beta/2)+1;
-                  if (!bit) xmult=1+beta-xmult;
-                  mult*=xmult;
+                  if (odd(beta)) xmultiplicity =  (beta+1)/2;
+                  else if((*Qi).divides(D) && (olddata.eigs[iform][i]==-1)) xmultiplicity=beta/2;
+                  else xmultiplicity=(beta/2)+1;
+                  if (!bit) xmultiplicity=1+beta-xmultiplicity;
+                  multiplicity*=xmultiplicity;
                 }
               else nextoldformap[i] = olddata.eigs[iform][i];
             }
-          if(verbose) cout << "Multiplicity = " << mult << endl;
-          if (mult>0)
+          if(verbose) cout << "Multiplicity = " << multiplicity << endl;
+          if (multiplicity>0)
             {
               for(int i=plist.size(); i<nap; i++)
                 nextoldformap[i] = olddata.eigs[iform][i];
               oldformap.push_back(nextoldformap);
-              oldclassdims.push_back(mult);
+              oldclassdims.push_back(multiplicity);
               oldlevels.push_back(D);
               noldclasses++;
             }

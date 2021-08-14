@@ -196,7 +196,7 @@ public:
 private:
   int ok() const;                 // checks that [a,b+w] *is* an ideal
   void fill();                    // determines iclass, g0, g1
-  void abc_from_HNF(vector<long>&);
+  void abc_from_HNF(const vector<long>&);
 };
 
 Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N

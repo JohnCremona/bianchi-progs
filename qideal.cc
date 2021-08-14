@@ -9,7 +9,7 @@
 ////////////////////////////////////
 
 // private -- converts output from findzbasis to standard Qideal basis
-void Qideal::abc_from_HNF(vector<long>& basis)
+void Qideal::abc_from_HNF(const vector<long>& basis)
 { c = abs(basis[1]);
   a = abs(basis[2]/c);
   b = posmod(basis[0]/c,a);

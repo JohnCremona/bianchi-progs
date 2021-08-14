@@ -23,7 +23,7 @@ public:
   vector<vector<int> > intdata;  // sfe, pdot, dp0, cuspidalfactor,
                                  // lambdadot, matdot
   vector<vector<Quad> > Quaddata; // lambda, a, b, c, d
-  eigdata(Qideal& iN, Qideal& iM, int neigs=-1, int verbose=0);
+  eigdata(Qideal& iN, const Qideal& iM, int neigs=-1, int verbose=0);
 };
 
 

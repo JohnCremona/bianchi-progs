@@ -83,7 +83,7 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
       if (t)
         {
           r = sqrt_mod_p(disc, p);
-          b1 = posmod((r%2? (r-1)/2: (p+r-1)/2), p);
+          b1 = posmod(((r%2)? (r-1)/2: (p+r-1)/2), p);
           b2 = posmod(-1-b1, p);
         }
       else

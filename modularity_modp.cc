@@ -35,7 +35,6 @@ int main(void)
   cin>>n;
   n = makepos(n);
   long normn = quadnorm(n);
-  string efilename = eigfile(n);
   if (verbose)
     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
 

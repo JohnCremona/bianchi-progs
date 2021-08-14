@@ -149,7 +149,7 @@ public:
   long hmod, nfhmod;
   vector<newform> nflist;
   newforms(const Quad& n, int disp=0);
-  newforms(Qideal& N, int disp=0);
+  newforms(const Qideal& N, int disp=0);
   ~newforms(void) {
                    if(h1)delete h1;
                   }
