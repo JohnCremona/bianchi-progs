@@ -52,7 +52,7 @@ private:
 protected:
   long nsymbx;               // number of (symb,type) pairs, = nsymb*n_alphas
 public:
-  symbdata(const Quad& n);             // The constructor
+  explicit symbdata(const Quad& n);             // The constructor
   int index2(const Quad& c, const Quad& d) const;
   int index(const symb& s) const {return index2(s.c,s.d);}
   symb symbol(int i) const;

@@ -22,6 +22,10 @@ USE_SMATS=1
 
 GCC=g++ -std=c++11
 CC = $(GCC)
+
+# to disable checking of assert() use the following:
+#OPTFLAG = -DNDEBUG -O3 -Wall -fPIC
+# to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
 
 # NB If used with a multithreaded build of eclib then you MUST define

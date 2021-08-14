@@ -95,7 +95,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   {
     if (nm<0) setnorm();
   }
-  Quad(const bigcomplex& z);   //rounds to nearest
+  explicit Quad(const bigcomplex& z);   //rounds to nearest
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {;}
   Quad conj() const {return quadconj(*this);}
   long re() const {return r;}

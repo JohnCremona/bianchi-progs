@@ -643,7 +643,7 @@ char* to_string(const Qideal& a)
 
 long val(const Qideal& factor, const Qideal& dividend)
 {
-  if ((dividend==0) || (factor.norm()<=1))
+  if ((dividend.norm()==0) || (factor.norm()<=1))
     {
       cerr<<"Warning: 9999 returned in Qideal version of val"<<endl;
       return 9999;

@@ -73,7 +73,7 @@ class modsym {
  public:
     modsym() :a(0), b(0) {}
     modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
-    modsym(const mat22& M, int type=0);              //conversion from (c:d)
+    explicit modsym(const mat22& M, int type=0);              //conversion from (c:d)
     RatQuad alpha() const {return a;}
     RatQuad  beta() const {return b;}
     modsym reverse() const {return modsym(b,a);}

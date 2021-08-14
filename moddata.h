@@ -21,7 +21,7 @@ protected:
   long numres(const Quad& a) const;  // what number is this residue a mod modulus?
  Quad resnum(long i) const;  // which is the i'th residue mod modulus?
 // The constructor:
-  level(const Quad& n, long neigs=20); // neigs controls the maximum depth for recursion in newform finding
+  explicit level(const Quad& n, long neigs=20); // neigs controls the maximum depth for recursion in newform finding
 };
 
 class moddata :public level {
@@ -31,7 +31,7 @@ protected:
  vector<long> noninvlist,noninvdlist;
  long code(const Quad& res) const {return invlist[numres(res)];}
 public:
- moddata(const Quad& n);                                //constructor
+ explicit moddata(const Quad& n);                                //constructor
  ~moddata();                                    //destructor
  void display() const;
  int check(int verbose=0) const;     //checks whether resnum & numres work OK

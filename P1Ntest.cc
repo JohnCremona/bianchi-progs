@@ -59,7 +59,7 @@ int main(void)
   Quadlooper alpha(1, maxn, both);
   while( alpha.ok() )
     {
-      symb_index_test((Quad)alpha, 0);
+      symb_index_test(Qideal(alpha), 0);
       ++alpha;
     }
   cout<<"done"<<endl;

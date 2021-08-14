@@ -72,7 +72,7 @@ class Factorization {
   vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
   void init_CRT();              // compute the CRT vector
 public:
-  Factorization(const Qideal &);           // constructor
+  explicit Factorization(const Qideal &);           // constructor
 
   long size() const { return Qlist.size(); }
   Quadprime prime(int i) const { return Qlist[i].first; }

@@ -115,45 +115,55 @@ void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
 
 #define CHECK_TRIANGLES
 
+int check_triangle(int i, int j, int k)
+{
+  mat22 Mi=M_alphas[i];
+  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0)),
+    ak = M_alphas[k].inverse()(RatQuad(1,0));
+  RatQuad x = (Mi(aj) - ak);
+  return (x.is_integral());
+}
+
 void add_triangle(int i, int j, int k)
 {
   triangles.push_back({i,j,k});
 #ifdef CHECK_TRIANGLES
-  mat22 Mi=M_alphas[i];
-  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0));
-  RatQuad ak = M_alphas[k].inverse()(RatQuad(1,0));
-  RatQuad x = Mi(aj) - ak;
-  assert (x.is_integral());
+  assert (check_triangle(i,j,k));
 #endif
+}
+
+int check_cyclic_triangle(int i)
+{
+  Quad t=M_alphas[i].trace();
+  return (t*t==1);
 }
 
 void add_cyclic_triangle(int i)
 {
   cyclic_triangles.push_back(i);
 #ifdef CHECK_TRIANGLES
-  Quad t=M_alphas[i].trace();
-  assert (t*t==1);
+  assert (check_cyclic_triangle(i));
 #endif
+}
+
+int check_aas_triangle(int i, int j, int k, const Quad& u)
+{
+  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
+  return (x.is_integral());
 }
 
 void add_aas_triangle(int i, int j, int k, const Quad& u=0)
 {
   aas_triangles.push_back({{i,j,k},u});
 #ifdef CHECK_TRIANGLES
-  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
-  assert (x.is_integral());
+  assert (check_aas_triangle(i, j, k, u));
 #endif
 }
 
-//#define CHECK_SQUARES
+#define CHECK_SQUARES
 
-void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad& y=Quad::zero, const Quad& z=Quad::zero)
+int check_square(int i, int j, int k, int l, const Quad& x, const Quad& y, const Quad& z)
 {
-  vector<int> squ = {i,j,k,l};
-  vector<Quad> xyz = {x,y,z};
-  squares.push_back({squ,xyz});
-
-#ifdef CHECK_SQUARES
   // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
   // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
   // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
@@ -169,7 +179,16 @@ void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
   RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
   mat22 M = Mi*mat22::Tmat(z)*Mj;
-  assert ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+  return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+}
+
+void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad& y=Quad::zero, const Quad& z=Quad::zero)
+{
+  vector<int> squ = {i,j,k,l};
+  vector<Quad> xyz = {x,y,z};
+  squares.push_back({squ,xyz});
+#ifdef CHECK_SQUARES
+  assert (check_square(i,j,k,l, x,y,z));
 #endif
 }
 

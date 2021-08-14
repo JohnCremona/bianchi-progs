@@ -69,8 +69,8 @@ public:
  public:
 //constructors:
   mQuad(const bigint& x=BIGINT(0), const bigint& y=BIGINT(0)) :r(x),i(y) {;}
-  mQuad(long x) :r((bigint)(x)),i(BIGINT(0)) {;}
-  mQuad(const complex& z);   //rounds to nearest
+  explicit mQuad(long x) :r((bigint)(x)),i(BIGINT(0)) {;}
+  explicit mQuad(const complex& z);   //rounds to nearest
   mQuad(const mQuad& a) :r(a.r), i(a.i) {;}
 
 //operators and related functions:
@@ -220,7 +220,7 @@ private:
         mQuad* values;
         long maxindex;     /* max index */
 public:
-        mQuadvar(const mQuadlist& l) 
+        explicit mQuadvar(const mQuadlist& l) 
           {maxindex=l.length-1; index=0; values=l.items;}
         void init(const mQuadlist& l) 
           {maxindex=l.length-1; index=0; values=l.items;}

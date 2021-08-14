@@ -21,7 +21,7 @@ private:
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  period_via_lf1chi (newform* f, int db=0); 
+  explicit period_via_lf1chi (newform* f, int db=0); 
   double getlf1chivalue() {return lf1chivalue;}
   double getperiod() {return period;}
   rational getratio(){/* cout<<"<getratio: "<<ratio<<">";*/ return ratio;}

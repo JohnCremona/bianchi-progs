@@ -167,7 +167,7 @@ vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
   long nu = 1; long nd=nu;
   for (long i=0; i<np; i++) {nd*=(1+F.exponent(i));}
   vector<Qideal> dlist(nd);
-  dlist[0]=1;
+  dlist[0]=Qideal(1);
   nd=nu;
   vector<QuadprimePower>::const_iterator Qi;
   for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  ++Qi)
@@ -288,7 +288,7 @@ vector<Qideal> sqdivs(Qideal& a) // all divisors whose square divides a, up to +
   for(long i=0; i<np; i++) { nd *= ( 1+ F.exponent(i)/2 ) ;}
 
   vector<Qideal> dlist(nd);
-  dlist[0]=1;
+  dlist[0]=Qideal(1);
   nd=1;
   for(long i=0; i<np; i++)
     {
@@ -310,7 +310,7 @@ vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
   long nd = 1;
   while (np-->0) nd*=2;
   vector<Qideal> dlist(nd);
-  dlist[0]=1;
+  dlist[0]=Qideal(1);
   nd=1;
   for(vector<Quadprime>::const_iterator pr = plist.begin(); pr != plist.end(); ++pr)
     {

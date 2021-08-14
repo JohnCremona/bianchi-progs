@@ -26,7 +26,7 @@ class P1N {
   vector<long> psilist; // phi of each prime power
 public:
   P1N() {;}                                            //constructor
-  P1N(const Qideal& I);                                //constructor
+  explicit P1N(const Qideal& I);                                //constructor
 
   P1N& operator=(const P1N& other)
   {
