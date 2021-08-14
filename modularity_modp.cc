@@ -72,7 +72,7 @@ int main(void)
   Quad P;
   vector<Quad> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
-  long normp, maxnormp=0, maxip=0;
+  long maxnormp=0, maxip=0;
   long ip, np, ap, nform, kform;
   int computation_needed = 0;
   vector< vector<long> > apvecs_in(nforms);
@@ -102,7 +102,7 @@ int main(void)
       prime_indexes[np] = ip = prime_index(P);
       if (ip>maxip)
         maxip = ip;
-      normp = quadnorm(P);
+      long normp = quadnorm(P);
       if (normp>maxnormp)
         maxnormp = normp;
       // if(verbose)

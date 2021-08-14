@@ -169,15 +169,13 @@ vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
   vector<Qideal> dlist(nd);
   dlist[0]=1;
   nd=nu;
-  Qideal P;
-  int e, j, k;
   vector<QuadprimePower>::const_iterator Qi;
   for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  ++Qi)
     {
-      P = Qi->first;
-      e = Qi->second;
-      for (j=0; j<e; j++)
-	for (k=0; k<nd; k++)
+      Qideal P = Qi->first;
+      int e = Qi->second;
+      for (int j=0; j<e; j++)
+	for (int k=0; k<nd; k++)
 	  dlist[nd*(j+1)+k] = (P*dlist[nd*j+k]);
       nd*=(e+1);
     }
@@ -285,20 +283,17 @@ void Quadprimes::init(long maxn)
 vector<Qideal> sqdivs(Qideal& a) // all divisors whose square divides a, up to +/-
 {
   Factorization F = a.factorization();
-  Qideal P;
   int np = F.size();
-
   long nd=1;
   for(long i=0; i<np; i++) { nd *= ( 1+ F.exponent(i)/2 ) ;}
 
   vector<Qideal> dlist(nd);
   dlist[0]=1;
   nd=1;
-  long e;
   for(long i=0; i<np; i++)
     {
-      P = F.prime(i);
-      e = F.exponent(i)/2;
+      Qideal P = F.prime(i);
+      long e = F.exponent(i)/2;
       for(long j=0; j<e; j++)
 	for(long k=0; k<nd; k++)
 	  dlist[nd*(j+1)+k] = P*dlist[nd*j+k];

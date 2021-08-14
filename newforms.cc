@@ -290,19 +290,17 @@ int newform::base_change_discriminant(void) const
 {
   if (is_base_change()==0) return 0;
   int bcd = 1;
-  long ap, dp;
-  Quad p;
   vector<long>::const_iterator api = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
   while(api!=aplist.end())
     {
-      ap = *api++;
-      p = *pr++;
+      long ap = *api++;
+      Quad p = *pr++;
       if(imag(p)!=0) // this prime is not inert
         continue;
       if(div(p,nf->modulus)) // this prime is bad
         continue;
-      dp = ap+2*p.re();
+      long dp = ap+2*p.re();
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -335,20 +333,18 @@ int newform::base_change_twist_discriminant(void) const
       return bcd1;
     }
   bcd1 = bcd2 = 1;
-  long ap, dp1, dp2;
-  Quad p;
   vector<long>::const_iterator api = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
   while(api!=aplist.end())
     {
-      ap = *api++;
-      p = *pr++;
+      long ap = *api++;
+      Quad p = *pr++;
       if(imag(p)!=0) // this prime is not inert
         continue;
       if(div(p,nf->modulus)) // this prime is bad
         continue;
-      dp1 =  ap+2*p.re();
-      dp2 = -ap+2*p.re();
+      long dp1 =  ap+2*p.re();
+      long dp2 = -ap+2*p.re();
       //cout<<"p="<<p<<" has ap="<<ap<<", discs "<<dp1<<", "<<dp2;
       dp1 = squarefree_part(dp1);
       dp2 = squarefree_part(dp2);
@@ -381,16 +377,14 @@ int newform::base_change_twist_discriminant(void) const
 int newform::is_CM(void) const
 {
   int cmd = 0;
-  long ap, dp;
-  Quad p;
   vector<long>::const_iterator api = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
   while(api!=aplist.end())
     {
-      ap = *api++;
-      p = *pr++;
+      long ap = *api++;
+      Quad p = *pr++;
       if (ap==0) continue;
-      dp = ap*ap-4*quadnorm(p);
+      long dp = ap*ap-4*quadnorm(p);
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -698,27 +692,26 @@ void newforms::list(long nap) const
 {
   string id = ideal_label(modulus);
   string flabel = field_label();
-  int bc, bcd, bct;
   for(int i=0; i<n1ds; i++)
     {
       cout << flabel << " " << id << " " << codeletter(i) << " (" << modulus <<") ";
       // weight
       cout << "2 ";
-      bc = nflist[i].is_base_change();
+      int bc = nflist[i].is_base_change();
       if (bc)
         {
-          bcd = nflist[i].base_change_discriminant();
+          int bcd = nflist[i].base_change_discriminant();
           cout << bcd;
         }
       else
         {
-          bct = nflist[i].is_base_change_twist();
+          int bct = nflist[i].is_base_change_twist();
           if (bct)
             {
               // NB if we have not enough inert a_P we might not be
               // able to determine the discriminant; the following
               // will return 1 in this case.
-              bcd = nflist[i].base_change_twist_discriminant();
+              int bcd = nflist[i].base_change_twist_discriminant();
               cout << (-bcd);
             }
           else
@@ -869,7 +862,7 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
 {
   assert (P.is_principal());
   vector<long> apv=apvec(P);
-  int vp = val(P, N), ap, cp, i;
+  int vp = val(P, N);
 
   if(verbose)
     {
@@ -878,10 +871,10 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
       if(vp>0) cout<<"N(Q)"; else cout<<"N(P)";
       cout<<" = "<<P.norm()<<"\t";
     }
-  for (i=0; i<n1ds; i++)
+  for (int i=0; i<n1ds; i++)
     {
-      ap = apv[i];
-      cp = (vp==0?ap:(vp==1?-ap:0));
+      int ap = apv[i];
+      int cp = (vp==0?ap:(vp==1?-ap:0));
       if(verbose)
         cout<<setw(5)<<ap<<" ";
       if(store)
@@ -1124,16 +1117,16 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   cout<<"In apvec with P = "<<P<<endl;
 #endif
   vector<long> apv(n1ds);
-  long i,j,ap,aq,normp=P.norm();
+  long ap,normp=P.norm();
 
   int vp = val(P,N);
 
   if (vp>0) // bad prime, we already know the eigenvalues
     {
-      for (i=0; i<n1ds; i++)
+      for (int i=0; i<n1ds; i++)
         {
           int ip = find(plist.begin(),plist.end(),P) - plist.begin();
-          aq = nflist[i].aqlist[ip];
+          long aq = nflist[i].aqlist[ip];
           if(!((aq==1)||(aq==-1)))
             {
               cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
@@ -1177,7 +1170,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
     {
       vec imagej=vec(n1ds); // initialised to 0
-      j=*jj; // from 1
+      long j=*jj; // from 1
       pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
       long s_number = st.first;  // (c:d) symbol number
       int s_type    = st.second; // symbol type (negative for singular edges)
@@ -1276,7 +1269,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
 // recover eigenvalues:
 
-  for (i=0; i<n1ds; i++)
+  for (int i=0; i<n1ds; i++)
     {
       int j0 = nflist[i].j0;
       int fac = nflist[i].fac;

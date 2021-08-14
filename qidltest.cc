@@ -117,14 +117,13 @@ void labeltest()
 void stringtest()
 {
   string s;
-  long N;
   while (1)
     {
       cout << "Enter an ideal label N.i : ";
       cin >> s;
       if (s[0]=='0') return;
       Qideal I(s);
-      N = I.norm();
+      long N = I.norm();
       cout << "ideal is "<<I<<" with norm " << N <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
     }
 }

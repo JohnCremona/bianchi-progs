@@ -46,7 +46,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
         }
       data.open(eigfilename.c_str());
     }
-  int i,j,neigsonfile;
+  int neigsonfile;
   nforms = nforms2 = neigsonfile = 0;
   data >> nforms >> nforms2 >> neigsonfile;
   if(verbose)
@@ -66,6 +66,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
     aqs.resize(nforms);
     intdata.resize(nforms);
     Quaddata.resize(nforms);
+    int i;
     for(i=0; i<nforms; i++)
       {
 	eigs[i].resize(nap);
@@ -123,12 +124,12 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
     // Now construct the eigenvalue sequence, first Wq eigenvalues for
     // bad primes then Tp-eigenvalues for good primes
 
-    int countp=0, countq=0, pindex;
+    int countp=0, countq=0;
     for (vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
 	 ((countp<ntp) || (countq<nwq));
 	 ++Pi)
       {
-	pindex = Pi - Quadprimes::list.begin();
+	int pindex = Pi - Quadprimes::list.begin();
         Quadprime P = *Pi;
 	if (P.divides(N))
           {
@@ -141,7 +142,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
 	    if (P.divides(M)) // P divides M (and N)
 	      {
                 // find the index j of P in the list of prime divisors of M:
-		j = find(qlist.begin(),qlist.end(),P)-qlist.begin();
+		int j = find(qlist.begin(),qlist.end(),P)-qlist.begin();
 		for(i=0; i<nforms; i++)
 		  {
 		    eigs[i][countq] = aqs[i][j];

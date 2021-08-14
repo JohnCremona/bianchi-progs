@@ -20,7 +20,7 @@ void period_via_lf1chi::use(const Quad& n, int an)
   
 void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
 { 
-  int x,ip,istart=pindex; 
+  int ip,istart=pindex; 
   Quad p, pn; 
   long maxnorm=limitnorm/quadnorm(n);
   if ( y!=0 ) {use (n,y); istart=0;}
@@ -28,7 +28,7 @@ void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
       (ip<=pindex) && (quadnorm(p)<=maxnorm); 
       p=quadprimes[++ip])
   {
-   x = y * aplist[ip];
+   int x = y * aplist[ip];
    if ( (ip==pindex)  && ndiv(p,N)) { x -=  quadnorm(p)*z; }
    add(p*n,ip,x,y);
   }
