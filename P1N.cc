@@ -208,6 +208,7 @@ long P1N::index(const Quad& c, const Quad& d) // index i of (c:d)
 // each M in GL2 permutes the (c:d) symbols by right multiplcation:
 long P1N::apply(const mat22& M, long i)
 {
+  if (M.is_scalar()) return i;
   if (np==0) return 0;
   if (np==1)  // works in general but much simpler in this case (no CRT in constructing c,d)
     {

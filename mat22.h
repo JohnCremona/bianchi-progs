@@ -32,7 +32,17 @@ public:
   // matrix multiplcation
   mat22 operator*(const mat22& M) const
   {
-    return mat22(a*M.a+b*M.c, a*M.b+b*M.d, c*M.a+d*M.c, c*M.b+d*M.d);
+    Quad a1 = a*M.a+b*M.c, b1 = a*M.b+b*M.d, c1 = c*M.a+d*M.c, d1 = c*M.b+d*M.d;
+    return mat22(a1, b1, c1, d1);
+  }
+
+  void operator*=(const mat22& M)
+  {
+    Quad a1 = a*M.a+b*M.c, b1 = a*M.b+b*M.d, c1 = c*M.a+d*M.c, d1 = c*M.b+d*M.d;
+    a = a1;
+    b = b1;
+    c = c1;
+    d = d1;
   }
 
   // matrix inverse (mod scalars)
@@ -66,6 +76,8 @@ public:
   }
   Quad det() const {return a*d-b*c;}
   Quad trace() const {return a+d;}
+
+  int is_scalar() const {return ((b==0) && (c==0) && (a==d));}
 
   friend ostream& operator<< (ostream&, const mat22&); // inline below
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);

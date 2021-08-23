@@ -41,8 +41,9 @@ private:
   void hexagon_relation_11();           // extra hexagon relation for field 11
   void square_relation_5();             // extra square relation for field 5
 
-  void general_triangle_relation(const vector<int>& tri);                         // generic triangle relation
-  void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz);  // generic square relation
+  void general_triangle_relation(const vector<int>& tri, int check=1);                         // generic triangle relation
+  void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz, int check=1);  // generic square relation
+  void general_relation(const vector<action>& Mops, const vector<int>& types, int symmetry=0, int check=1);  // generic relation
 
 #ifdef USE_SMATS
   smat relmat;
