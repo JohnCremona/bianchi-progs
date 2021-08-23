@@ -113,83 +113,13 @@ void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
     }
 }
 
-#define CHECK_TRIANGLES
+void make_triangles();
+void make_squares();
 
-int check_triangle(int i, int j, int k)
+void make_faces()
 {
-  mat22 Mi=M_alphas[i];
-  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0)),
-    ak = M_alphas[k].inverse()(RatQuad(1,0));
-  RatQuad x = (Mi(aj) - ak);
-  return (x.is_integral());
-}
-
-void add_triangle(int i, int j, int k)
-{
-  triangles.push_back({i,j,k});
-#ifdef CHECK_TRIANGLES
-  assert (check_triangle(i,j,k));
-#endif
-}
-
-int check_cyclic_triangle(int i)
-{
-  Quad t=M_alphas[i].trace();
-  return (t*t==1);
-}
-
-void add_cyclic_triangle(int i)
-{
-  cyclic_triangles.push_back(i);
-#ifdef CHECK_TRIANGLES
-  assert (check_cyclic_triangle(i));
-#endif
-}
-
-int check_aas_triangle(int i, int j, int k, const Quad& u)
-{
-  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
-  return (x.is_integral());
-}
-
-void add_aas_triangle(int i, int j, int k, const Quad& u=0)
-{
-  aas_triangles.push_back({{i,j,k},u});
-#ifdef CHECK_TRIANGLES
-  assert (check_aas_triangle(i, j, k, u));
-#endif
-}
-
-#define CHECK_SQUARES
-
-int check_square(int i, int j, int k, int l, const Quad& x, const Quad& y, const Quad& z)
-{
-  // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
-  // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
-  // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
-
-  // Edges:
-
-  // {alpha_i, oo} = (I)_i
-  // {oo, alpha_j'+z} = (T^z*M_j)_j
-  // {alpha_j'+z, beta} = (T^z*M_j*T^k*M_k)_k
-  // {beta, alpha_i} = (M_i'*T^y)_l
-
-  mat22 Mi=M_alphas[i], Mj=M_alphas[j], Mk=M_alphas[k], Ml=M_alphas[l];
-  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
-  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
-  mat22 M = Mi*mat22::Tmat(z)*Mj;
-  return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
-}
-
-void add_square(int i, int j, int k, int l, const Quad& x=Quad::zero, const Quad& y=Quad::zero, const Quad& z=Quad::zero)
-{
-  vector<int> squ = {i,j,k,l};
-  vector<Quad> xyz = {x,y,z};
-  squares.push_back({squ,xyz});
-#ifdef CHECK_SQUARES
-  assert (check_square(i,j,k,l, x,y,z));
-#endif
+  make_triangles();
+  make_squares();
 }
 
 // Global function to be used once during setting the field:
@@ -281,7 +211,6 @@ void Quad::setup_geometry()
         {
           add_alpha_foursome(3, w, 1-w);
           add_alpha_pair(3, 1+w, -1);
-          add_triangle(3,7,4); // <w/3, oo, (w+1)/3>
         }
       break;
     }
@@ -316,62 +245,23 @@ void Quad::setup_geometry()
     }
   } // d%12
 
-  if (d==5)
-    {
+  switch (d) {
+  case 19:
+  case 43:
+  default:
+    return;
+  case 5:
       add_alpha_pair(2*w, 4+w, +1);      // N(s)=20
       return;
-    }
-
-  if (d==19) // no more alphas
-    {
-      add_square(0,1,0,1);  // symmetric
-      return;
-    }
-
-  if (d==23)
+  case 23:
     {
       add_alpha_pair(w+1, 2-w, +1); // N(s)=8
       add_alpha_pair(2-w, 1+w, +1);
       add_alpha_pair(2+w, w-3, +1); // N(s)=12
       add_alpha_pair(3-w, -2-w, +1);
-
-      // AAA-triangles (all vertices principal "Alpha"s)
-      add_triangle(0,3,6);
-      add_triangle(0,5,8);
-      add_triangle(0,9,12);
-      add_triangle(1,6,12);
-      add_triangle(7,9,2);
-      // AAS-triangles (two vertices principal "Alpha"s, one non-principal "Sigma")
-      add_aas_triangle(1,1,1);
-      add_aas_triangle(6,1,1);
-      add_aas_triangle(12,1,1);
-      add_aas_triangle(1,2,2, w);
-      add_aas_triangle(8,2,2);
-      add_aas_triangle(10,2,2);
-
-      // cout<<n_alphas<<" alphas: "<<alphas<<endl;
-      // cout<<"alpha_inv: "<<alpha_inv<<endl;
-      // cout<<"alpha_flip: "<<alpha_flip<<endl;
-      // cout<<"aaa-triangles: ";
-      // for (vector<vector<int>>::const_iterator Ti=triangles.begin(); Ti!=triangles.end(); Ti++)
-      //   cout<<(*Ti)<<" ";
-      // cout<<endl;
-      // cout<<n_sigmas<<" sigmas: "<<sigmas<<endl;
-      // cout<<"aas-triangles: ";
-      // for (vector<pair<vector<int>, Quad>>::const_iterator Ti=aas_triangles.begin(); Ti!=aas_triangles.end(); Ti++)
-      //   cout<<"["<<Ti->first<<"; "<<Ti->second<<"] ";
-      // cout<<endl;
       return;
     }
-
-  if (d==43)
-    {
-      add_square(0,5,1,6, 1-w,  0);
-      add_square(1,7,1,7,   1, -1); // symmetric
-      return;
-    }
-
-  if (d==31)
+  case 31:
     {
       add_alpha_pair(w, 3, +1);       // N(s)=8
       add_alpha_pair(1-w, 3, +1);
@@ -381,40 +271,25 @@ void Quad::setup_geometry()
       add_alpha_pair(4-w, 5+w, +1);
       return;
     }
-
-  // alphas with denominator 4 for both d=67 and d=163:
-
-  if ((d==67)||(d==163))
+  case 67:
     {
       add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
       add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
       assert (n_alphas==17);
-    }
-
-  if (d==67)   // alphas with denominator norm 23 for d=67 only:
-    {
       add_alpha_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
       add_alpha_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
       assert (n_alphas==25);
       assert (M_alphas.size()==25);
       assert (alpha_inv.size()==25);
-
-      add_cyclic_triangle(9);
-      add_triangle(0,19,24);
-      add_triangle(1,22,17);
-      add_triangle(3,13,18);
-      add_triangle(3,22,15);
-      add_triangle(9,13,16);
-
-      add_square( 3, 2, 4,12, 0);
-      add_square( 9, 0, 9, 0, 0); // symmetric
-      add_square(13, 0,14, 8, 0, 1);
-
       return;
     }
+  case 163:
+    {
+      add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
+      add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
+      assert (n_alphas==17);
 
-  if (d==163)
-    {  // For d=163 we have 82 more alphas!
+      // For d=163 we have 82 more alphas!
 
       // 20 alphas with s=5 (norm 25)
 
@@ -468,67 +343,168 @@ void Quad::setup_geometry()
       assert (M_alphas.size()==99);
       assert (alpha_inv.size()==99);
 
-      // Add 42 extra triangles
-
-      // cyclic triangles [9, 10, 11, 12, 17, 18, 19, 20]
-      add_cyclic_triangle(9);
-      add_cyclic_triangle(17);
-
-      // add_triangle(3,7,4); // <w/3, oo, (w+1)/3> already added above
-      add_triangle(3, 21, 49);
-      add_triangle(3, 53, 23);
-      add_triangle(3, 71, 87);
-      add_triangle(3, 83, 94);
-      add_triangle(3, 85, 79);
-      add_triangle(3, 98, 84);
-      add_triangle(7, 98, 93);
-      add_triangle(9, 13, 16);
-      add_triangle(9, 69, 78);
-      add_triangle(13, 25, 77);
-      add_triangle(13, 33, 57);
-      add_triangle(13, 61, 30);
-      add_triangle(13, 69, 26);
-      add_triangle(17, 33, 29);
-      add_triangle(21, 28, 32);
-      add_triangle(21, 35, 27);
-      add_triangle(21, 59, 79);
-      add_triangle(21, 71, 63);
-      add_triangle(21, 75, 94);
-      add_triangle(21, 98, 67);
-      add_triangle(23, 51, 3);
-      add_triangle(25, 33, 23);
-      add_triangle(25, 45, 67);
-      add_triangle(27, 76, 48);
-      add_triangle(27, 79, 13);
-      add_triangle(29, 48, 93);
-      add_triangle(31, 35, 19);
-      add_triangle(33, 45, 98);
-      add_triangle(37, 40, 44);
-      add_triangle(41, 45, 48);
-      add_triangle(41, 73, 66);
-      add_triangle(47, 96, 33);
-      add_triangle(49, 84, 67);
-      add_triangle(49, 87, 63);
-      add_triangle(53, 83, 75);
-      add_triangle(53, 85, 59);
-      add_triangle(59, 89, 62);
-      add_triangle(61, 69, 23);
-      add_triangle(73, 92, 21);
-      add_triangle(77, 87, 5);
-
-      add_square(42,36,8,30);
-      add_square(17,43,17,43);     // symmetric
-      add_square(38,0,37,19);
-      add_square(41,35,7,29);
-      add_square(11,31,89,33);
-      add_square(1,90,1,90, -w,w,w);
-      add_square(88,9,87,8);
-      add_square(1,89,1,89, 1,-1); // symmetric
-      add_square(62,8,59,2, -1,0);
-      add_square(11,17,11,17);     // symmetric
-      add_square(2,66,0,75);
-      add_square(50,9,55,2);
-      add_square(83,11,81,0);
-
     } // end of d=163 block
+  }
 }
+
+/****************************************************************
+
+ Code defining triangle relations
+
+***************************************************************/
+
+#define CHECK_TRIANGLES
+
+int check_triangle(const vector<int>& T)
+{
+  int i=T[0], j=T[1], k=T[2];
+  mat22 Mi=M_alphas[i];
+  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0)),
+    ak = M_alphas[k].inverse()(RatQuad(1,0));
+  RatQuad x = (Mi(aj) - ak);
+  return (x.is_integral());
+}
+
+int check_cyclic_triangle(int i)
+{
+  Quad t=M_alphas[i].trace();
+  return (t*t==1);
+}
+
+int check_aas_triangle(const vector<int>& T, const Quad& u)
+{
+  int i=T[0], j=T[1], k=T[2];
+  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
+  return (x.is_integral());
+}
+
+void make_triangles()
+{
+  // Lists of general triangles and cyclic triangles (aaa, i.e. all vertices principal cusps)
+  switch(Quad::d) {
+  case 43:
+    triangles = {{3,7,4}};
+    cyclic_triangles = {};
+    break;
+  case 67:
+    triangles = {{3,7,4}, {0,19,24}, {1,22,17}, {3,13,18}, {3,22,15}, {9,13,16}};
+    cyclic_triangles = {9};
+    break;
+  case 163:
+    triangles = {{3,7,4}, {3, 21, 49}, {3, 53, 23}, {3, 71, 87}, {3, 83, 94}, {3, 85, 79}, {3, 98, 84},
+                 {7, 98, 93}, {9, 13, 16}, {9, 69, 78}, {13, 25, 77}, {13, 33, 57}, {13, 61, 30}, {13, 69, 26},
+                 {17, 33, 29}, {21, 28, 32}, {21, 35, 27}, {21, 59, 79}, {21, 71, 63}, {21, 75, 94}, {21, 98, 67},
+                 {23, 51, 3}, {25, 33, 23}, {25, 45, 67}, {27, 76, 48}, {27, 79, 13}, {29, 48, 93}, {31, 35, 19},
+                 {33, 45, 98}, {37, 40, 44}, {41, 45, 48}, {41, 73, 66}, {47, 96, 33}, {49, 84, 67}, {49, 87, 63},
+                 {53, 83, 75}, {53, 85, 59}, {59, 89, 62}, {61, 69, 23}, {73, 92, 21}, {77, 87, 5} };
+    cyclic_triangles = {9, 17};
+    break;
+  case 23:
+    triangles = {{0,3,6}, {0,5,8}, {0,9,12}, {1,6,12}, {7,9,2}};
+    cyclic_triangles = {};
+    break;
+  default:
+    triangles = {};
+    cyclic_triangles = {};
+  }
+
+#ifdef CHECK_TRIANGLES
+  for (vector<vector<int> >::const_iterator Ti = triangles.begin(); Ti!=triangles.end(); ++Ti)
+    assert(check_triangle(*Ti));
+  for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
+    assert(check_cyclic_triangle(*Ti));
+#endif
+
+  if (Quad::class_number==1)
+    {
+      aas_triangles = {};
+      return;
+    }
+
+  // Lists of aas triangles (i.e. two principal and one non-principal vertex)
+  switch(Quad::d) {
+  case 23:
+    aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},Quad::w}, {{8,2,2},0}, {{10,2,2},0}};
+    break;
+  default:
+    aas_triangles = {};
+  }
+#ifdef CHECK_TRIANGLES
+  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
+    assert(check_aas_triangle(Ti->first, Ti->second));
+#endif
+}
+
+
+/****************************************************************
+
+ Code defining square relations
+
+***************************************************************/
+
+#define CHECK_SQUARES
+
+int check_square(const vector<int>& S, const vector<Quad>& xyz)
+{
+  // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
+  // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
+  // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
+
+  // Edges:
+
+  // {alpha_i, oo} = (I)_i
+  // {oo, alpha_j'+z} = (T^z*M_j)_j
+  // {alpha_j'+z, beta} = (T^z*M_j*T^k*M_k)_k
+  // {beta, alpha_i} = (M_i'*T^y)_l
+
+  // int i=S[0], j=S[1], k=S[2], l=S[3];
+  Quad x = xyz[0], y=xyz[1], z=xyz[2];
+  mat22 Mi=M_alphas[S[0]], Mj=M_alphas[S[1]], Mk=M_alphas[S[2]], Ml=M_alphas[S[3]];
+  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
+  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
+  mat22 M = Mi*mat22::Tmat(z)*Mj;
+  return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+}
+
+void make_squares()
+{
+  Quad w = Quad::w;
+  // Lists of general squares
+  switch(Quad::d) {
+  case 19:
+    squares = {{{0,1,0,1}, {0,0,0}}};
+    break;
+  case 43:
+    squares = {{{0,5,1,6}, {1-w, 0,0}},
+               {{1,7,1,7}, {1, -1,0}}};
+    break;
+  case 67:
+    squares = {{{3, 2, 4,12}, {0,0,0}},
+               {{9, 0, 9, 0}, {0,0,0}},
+               {{13, 0,14, 8}, {0,1,0}}};
+    break;
+  case 163:
+    squares = {{{42,36,8,30}, {0,0,0}},
+               {{17,43,17,43}, {0,0,0}},
+               {{38,0,37,19}, {0,0,0}},
+               {{41,35,7,29}, {0,0,0}},
+               {{11,31,89,33}, {0,0,0}},
+               {{1,90,1,90}, {-w,w,w}},
+               {{88,9,87,8}, {0,0,0}},
+               {{1,89,1,89}, {1,-1,0}},
+               {{62,8,59,2}, {-1,0,0}},
+               {{11,17,11,17}, {0,0,0}},
+               {{2,66,0,75}, {0,0,0}},
+               {{50,9,55,2}, {0,0,0}},
+               {{83,11,81,0}, {0,0,0}}};
+    break;
+  default:
+    squares = {};
+  }
+
+#ifdef CHECK_SQUARES
+  for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
+    assert(check_square(Si->first, Si->second));
+#endif
+}
+

@@ -21,6 +21,8 @@ extern vector<int> edge_pairs_minus; // indices of first of a pair (r/s, -r/s) w
 extern vector<int> edge_pairs_plus;  // indices of first of a pair (r/s, -r/s) with r^2=+1 (mod s)
 extern vector<int> edge_fours;  // indices of first of a 4-tuple (r1,-r1,r2,-r2) of alphas with r1*r2=-1 (mod s)
 
+// data for face relations in homology, not initialized by defult
+
 // indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
 extern vector<int> cyclic_triangles;
 
@@ -33,5 +35,7 @@ extern vector<pair<vector<int>, Quad>> aas_triangles;
 // indices i,j,k,l and x,y such that M_j(x+alpha_k') =  M_i'(y+alpha_l), defining a square relation
 extern vector<pair<vector<int>, vector<Quad>> > squares;
 
+// initialization function, to be called before constructing face_relations class (for non-Euclidean fields)
+void make_faces();
 
 #endif

@@ -35,13 +35,13 @@ private:
   void triangle_relation_0();           // triangle relation for all fields
   void triangle_relation_1_3();         // extra triangle relation for fields 1, 3
   void triangle_relation_2();           // extra triangle relation(s) for fields 19+
-  void cyclic_triangle_relation(int i); // generic cyclic triangle relation
   void square_relation_2();             // extra square relation for field 2
   void rectangle_relation_7();          // extra rectangle relation for field 7
   void hexagon_relation_11();           // extra hexagon relation for field 11
   void square_relation_5();             // extra square relation for field 5
 
-  void general_triangle_relation(const vector<int>& tri, int check=1);                         // generic triangle relation
+  void cyclic_triangle_relation(int i, int check=1);                             // generic cyclic triangle relation
+  void general_triangle_relation(const vector<int>& tri, int check=1);           // generic triangle relation
   void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz, int check=1);  // generic square relation
   void general_relation(const vector<action>& Mops, const vector<int>& types, int symmetry=0, int check=1);  // generic relation
 

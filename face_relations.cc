@@ -172,9 +172,10 @@ void face_relations::make_relations()
       return;
     }
 
-  // Now field = 19, 43, 67 or 163
+  // additional triangle and square relations
 
-  // additional triangle relations (only h=1 so far)
+  make_faces();  // implemented in geometry.cc
+
   if (Quad::class_number==1)
     triangle_relation_2();
 
@@ -510,97 +511,16 @@ void face_relations::triangle_relation_2()
 
 int flip(int i) {return alpha_flip[i];}
 
-// Template for all other cyclic triangle relations, given M=M_alphas[i] of order 3
-//
-// The triangle has vertices [alpha_i, oo, alpha_i'] with M mapping alpha_i --> oo --> alpha_i' --> alpha_i,
-// and edges
-// (I)_i   = {alpha_i, oo},
-// (M)_i   = {M(alpha_i), M(oo)} = {oo, alpha_i'}
-// (M^2)_i = {M(oo), M(alpha_i')} = {alpha_i', alpha_i}
-//
-
-void face_relations::cyclic_triangle_relation(int i)
-{
-  if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
-
-  long j, s;
-  int Ji = alpha_flip[i];
-  action M(P1, M_alphas[i]);
-  action J(P1, mat22::J);
-
-  vector<mat22> mats = {mat22::identity, M, M*M};
-  vector<mat22> Jmats = {mat22::identity, J*M*J, J*M*M*J};
-  vector<long> rel(3);
-  vector<int> types(3, i), Jtypes(3, Ji), done(nsymb, 0);
-
-  // if(verbose) cout<<"Checking cyclic triangle relation"<<endl;
-  check_face_rel(mats, types);
-
-  // if(verbose) cout<<"Checking cyclic triangle relation after applying J"<<endl;
-  check_face_rel(Jmats, Jtypes);
-
-  for (s=0; s<nsymb; s++)
-    {
-      if (done[s]) continue;
-      for(j=0; j<3; j++)
-        {
-          rel[j] = (j? M(rel[j-1]): s);
-          done[rel[j]] = 1;
-        }
-      add_face_rel(rel, types);
-      if (!plusflag)
-        {
-          for (j=0; j<3; j++)
-            {
-              rel[j] = J(rel[j]);
-            }
-          add_face_rel(rel, Jtypes);
-        }
-    }
-
-  if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
-}
-
-// extra square relation for field 5
-void face_relations::square_relation_5()
-{
-  if(verbose)
-    cout << "Square relation for d=5:\n";
-
-  vector<long> rel(4);
-  vector<int> types(4, -1), // type -1 means {sigmas[1],oo}
-    signs = {1,-1,1,-1},
-    done(nsymb, 0);
-
-  action M(P1, M_alphas[1]);
-  action Ti(P1, mat22::Tmat(-1));
-  vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
-
-  long i, j, m, k;
-  for (i=0; i<nsymb; i++)
-      {
-        if (done[i])
-          continue;
-        j = Ti(i);
-        m = M(i);
-        k = M(j);
-        done[i] = done[m] = 1; // M has order 2
-        rel = {i, j, m, k};
-        check_face_rel(mats, types, signs);
-        add_face_rel(rel, types, signs);
-      }
-  if(verbose)
-    {
-      cout << "After square relation, number of relations = " << numrel <<"\n";
-    }
-}
-
 void face_relations::general_relation(const vector<action>& Mops, const vector<int>& types, int symmetry, int check)
 {
   int len = types.size();
   vector<mat22> Mats(len);
+  vector<int> sym(len, 0);
   for (int s=0; s<len; s++)
-    Mats[s] = Mops[s];
+    {
+      if (symmetry) sym[s] = (s%symmetry==0);
+      Mats[s] = Mops[s];
+    }
   mat22 J = mat22::J;
   vector<action> Jops(len, action(P1, J));
   vector<int> Jtypes(len);   // Jops, Jtypes used in applying J to a relation
@@ -637,10 +557,12 @@ void face_relations::general_relation(const vector<action>& Mops, const vector<i
       if (done[j]) continue;
       vector<long> rel(len);
       for (int s=0; s<len; s++)
-        rel[s] = (s==0? j: Mops[s](j));
+        {
+          long k = (s==0? j: Mops[s](j));
+          rel[s] = k;
+          if (sym[s]) done[k]=1;
+        }
       add_face_rel(rel, types);
-      done[j] = 1;
-      if (symmetry) done[rel[symmetry]] = 1;
       if (!plusflag)
         {
           for (int s=0; s<len; s++)
@@ -650,6 +572,30 @@ void face_relations::general_relation(const vector<action>& Mops, const vector<i
           add_face_rel(rel, Jtypes);
         }
     }
+}
+
+// Template for all other cyclic triangle relations, given M=M_alphas[i] of order 3
+//
+// The triangle has vertices [alpha_i, oo, alpha_i'] with M mapping alpha_i --> oo --> alpha_i' --> alpha_i,
+// and edges
+// (I)_i   = {alpha_i, oo},
+// (M)_i   = {M(alpha_i), M(oo)} = {oo, alpha_i'}
+// (M^2)_i = {M(oo), M(alpha_i')} = {alpha_i', alpha_i}
+//
+
+void face_relations::cyclic_triangle_relation(int i, int check)
+{
+  if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
+
+  mat22 M = M_alphas[i];
+  vector<int> types(3, i);
+  vector<action> Mops = {action(P1, mat22::identity),
+                         action(P1, M),
+                         action(P1, M*M)};
+
+  general_relation(Mops, types, 1, check);
+
+  if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
 }
 
 // Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
@@ -734,6 +680,40 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 
   if(verbose)
     cout << "After square relation "<< squ <<", number of relations = " << numrel <<"\n";
+}
+
+// extra square relation for field 5
+void face_relations::square_relation_5()
+{
+  if(verbose)
+    cout << "Square relation for d=5:\n";
+
+  vector<long> rel(4);
+  vector<int> types(4, -1), // type -1 means {sigmas[1],oo}
+    signs = {1,-1,1,-1},
+    done(nsymb, 0);
+
+  action M(P1, M_alphas[1]);
+  action Ti(P1, mat22::Tmat(-1));
+  vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
+
+  long i, j, m, k;
+  for (i=0; i<nsymb; i++)
+      {
+        if (done[i])
+          continue;
+        j = Ti(i);
+        m = M(i);
+        k = M(j);
+        done[i] = done[m] = 1; // M has order 2
+        rel = {i, j, m, k};
+        check_face_rel(mats, types, signs);
+        add_face_rel(rel, types, signs);
+      }
+  if(verbose)
+    {
+      cout << "After square relation, number of relations = " << numrel <<"\n";
+    }
 }
 
 void face_relations::solve_relations()
