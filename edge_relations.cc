@@ -320,12 +320,14 @@ void edge_relations::edge_relations_2_d12mod4()
 }
 
 // edge relations for two sigmas with denominator 2 whenever 2 is split, i.e. d%8=7 (d>7)
+
 void edge_relations::edge_relations_2_d7mod8()
 {
-  // sigma#1 = w/2,  sigma#2 = (w+1)/2
+  // sigma#1 = w/2,  sigma#2 = (1-w)/2
   for (int t=0; t<2; t++) // types -1, -2, i.e. -1-t
     {
-      action L(P1, -1, Quad::w + t, 0,1);
+      Quad x = (2*sigmas[t+1]).num();
+      action L(P1, -1, x, 0,1); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-1-t);
       for (i=0; i<nsymb; i++)
@@ -337,12 +339,15 @@ void edge_relations::edge_relations_2_d7mod8()
           ++ngens;
           gens.push_back(off+i);
           coordindex[off + i] = ngens;
-          if (!plusflag)
+          if (l!=i)
             {
-              ++ngens;
-              gens.push_back(off+l);
+              if (!plusflag)
+                {
+                  ++ngens;
+                  gens.push_back(off+l);
+                }
+              coordindex[off + l] = ngens;
             }
-          coordindex[off + l] = ngens;
         }
     }
 }
@@ -449,18 +454,27 @@ void edge_relations::edge_pairing_plus(int i)
       i1 = M(j1);
       j2 = J(j1);
       i2 = J(i1);
-      done[j1] = done[i1] = 1;
-      ++ngens;
-      gens.push_back(off1+j1);
-      coordindex[off1+j1] = ngens;
-      coordindex[off1+i1] = -ngens;
-      if (!plusflag)
+      done[j1] = done[i1];
+
+      if ( (i1==j1) || (plusflag&&(i2==j1)))
+        {
+          coordindex[off1+j1] = 0;
+          coordindex[off1+j2] = 0;
+        }
+      else
         {
           ++ngens;
-          gens.push_back(off2+j2);
+          gens.push_back(off1+j1);
+          coordindex[off1+j1] = ngens;
+          coordindex[off1+i1] = -ngens;
+          if (!plusflag)
+            {
+              ++ngens;
+              gens.push_back(off2+j2);
+            }
+          coordindex[off2+j2] = ngens;
+          coordindex[off2+i2] = -ngens;
         }
-      coordindex[off2+j2] = ngens;
-      coordindex[off2+i2] = -ngens;
     }
 }
 

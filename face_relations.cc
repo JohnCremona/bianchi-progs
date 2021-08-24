@@ -549,8 +549,17 @@ void face_relations::general_relation(const vector<action>& Mops,
           if (check) // first matrix is always I
             Jmats.push_back(J*Mats[s]*J);
           int t = types[s];
-          Jtypes[s] = alpha_flip[t];
-          RatQuad a = (t>=0? 2*alphas[t]: 2*sigmas[-t]);
+          RatQuad a;
+          if (t>=0)
+            {
+              Jtypes[s] = alpha_flip[t];
+              a = 2*alphas[t];
+            }
+          else
+            {
+              Jtypes[s] = -sigma_flip[-t];
+              a = 2*sigmas[-t];
+            }
           if (a.is_integral())
             {
               mat22 T = mat22::Tmat(-a.num());

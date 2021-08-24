@@ -84,33 +84,40 @@ void homspace::make_freemods()
           t = st.second; // symbol type (negative for singular edges)
         }
       mat22 U = P1.lift_to_SL2(s);
-      if (verbose)// && t<0)
-        {
-          cout<<"lifting symbol #"<<s<<", type "<<t<<" to SL2: --> "<<U<<endl;
-        }
       m = modsym(U, t);
-      if (verbose)// && t<0)
-        {
-          cout<<" --> "<<m<<endl;
-        }
       freemods.push_back(m);
-      if (verbose) cout<<i<<": "<<m<<endl;
+      if (verbose)
+        cout<<"--lifting symbol #"<<s<<" to SL2: "<<U
+            <<", type "<<t<<" --> "<<m<<"\n"
+            <<i<<": "<<m<<endl;
     }
+
   if (verbose)
     {
-      vec ei(rk);
-      for (i=0; i<rk; i++)
+      cout<<"Checking that freemods convert back to unit vectors:"<<endl;
+    }
+  vec ei(rk); // initially 0
+  for (i=0; i<rk; i++)
+    {
+      m = freemods[i];
+      if (verbose)
+        cout<< m << " --> " << flush;
+      vec v = chain(m.beta()) - chain(m.alpha());
+      ei[i+1] = denom1;
+      if (verbose)
+        cout << v << flush;
+      if (v!=ei)
         {
-          m = freemods[i];
-          vec v = chain(m.beta()) - chain(m.alpha());
-          cout<< m << " --> " << v;
-          ei[i+1] = denom1;
-          if (v!=ei)
-            cerr<<" *** WRONG, should be "<<ei<<endl;
-          cout<<endl;
-          ei[i+1] = 0;
+          cerr<<endl;
+          if (!verbose) cerr<< m << " --> " << v<<endl;
+          cerr<<" *** WRONG, should be "<<ei<<endl;
           exit(1);
         }
+      else
+        {
+          if (verbose) cout << " OK"<<endl;
+        }
+      ei[i+1] = 0;
     }
 }
 
@@ -167,20 +174,25 @@ void homspace::kernel_delta()
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
-  long i= ER.coords(P1.index(c,d), type);
+  long ind = P1.index(c,d);
+  long i= ER.coords(ind, type);
+  // cout<<"Symbol ("<<c<<":"<<d<<") has index "<<ind<<" plus offset "<< ER.offset(type) <<" = "<<ind+ER.offset(type)
+  //     <<", giving coordindex "<<i;
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)
-    ans = sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i)));
+    {
+      ans = sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i)));
+      // cout << ": coordinate vector "<<ans<<endl;
+    }
   return ans;
 }
 
 //#define DEBUG_NON_EUCLID
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
-// Instead of just
-//  {return chain(beta, proj) - chain(alpha, proj);}
-// we apply "Karim's trick"
+// Instead of just  {return chain(beta, proj) - chain(alpha, proj);}
+// we apply a version of "Karim's trick"
 {
   Quad a(alpha.num()), b(alpha.den()), x, y;
   Quad g = quadbezout(a,b, x,y);
@@ -220,7 +232,10 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
            // Look up this symbol, convert to a vector w.r.t. homology basis
            vec part = chaincd(c, d, u, proj);
            if(hmod)
-             ans.addmodp(part,hmod);
+             {
+               ans.addmodp(part,hmod);
+               ans = reduce_modp(ans,hmod);
+             }
            else
              ans += part;
          }
@@ -243,8 +258,8 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
            return ans;
          }
      }
+
    // We get here when b=0, so no singular edge was used
-   if(hmod) ans=reduce_modp(ans,hmod);
 #ifdef DEBUG_NON_EUCLID
    cout<<" coordinate vector = "<<ans<<endl;
 #endif

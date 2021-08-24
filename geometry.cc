@@ -16,11 +16,14 @@ mat22 mat22::R(0,1,1,0);
 // Definitions of alphas and associated matrices M_alpha such that
 // det(M_alpha)=1 and M_alpha(alpha)=oo.
 //
-// alpha_inv is a permutation of range(N_alphas) such that
+// alpha_inv is a permutation of range(n_alphas) such that
 // alpha_inv[i]=j where M_alpha[i](oo) = alpha[j].
 //
-// alpha_flip is a permutation of range(N_alphas) such that
+// alpha_flip is a permutation of range(n_alphas) such that
 // alpha_flip[i]=j where -alpha[i] = alpha[j] mod 1.
+//
+// sigma_flip is a permutation of range(n_sigmas) such that
+// sigma_flip[i]=j where -sigma[i] = sigma[j] mod 1.
 
 
 int n_alphas, n_sigmas;
@@ -29,6 +32,7 @@ vector<RatQuad> sigmas;
 vector<mat22> M_alphas;
 vector<int> alpha_inv;
 vector<int> alpha_flip;
+vector<int> sigma_flip;
 vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
@@ -99,17 +103,23 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
   add_alpha( sign*r, t, s,  r); // alpha = -r/s
 }
 
-// add r/s to the list of singular points, and optionally also -r/s
+// add r/s to the list of singular points, and optionally also -r/s (unless -r/s=r/s mod 1)
 
 void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
-  n_sigmas++;
   if (both_signs)
     {
       sigmas.push_back(-sigma);
-      n_sigmas++;
+      sigma_flip.push_back(n_sigmas+1);   // transposition with next
+      sigma_flip.push_back(n_sigmas);     // transposition with previous
+      n_sigmas+=2;
+    }
+  else
+    {
+      sigma_flip.push_back(n_sigmas);     // identity
+      n_sigmas+=1;
     }
 }
 
@@ -266,7 +276,6 @@ void Quad::setup_geometry()
     {
       add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
       add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
-      assert (n_alphas==17);
       add_alpha_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
       add_alpha_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
       assert (n_alphas==25);
