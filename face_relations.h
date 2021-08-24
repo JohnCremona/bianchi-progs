@@ -38,12 +38,14 @@ private:
   void square_relation_2();             // extra square relation for field 2
   void rectangle_relation_7();          // extra rectangle relation for field 7
   void hexagon_relation_11();           // extra hexagon relation for field 11
-  void square_relation_5();             // extra square relation for field 5
+  void square_relation_5(int check=1);  // extra square relation for field 5
 
   void cyclic_triangle_relation(int i, int check=1);                             // generic cyclic triangle relation
   void general_triangle_relation(const vector<int>& tri, int check=1);           // generic triangle relation
+  void aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check=1);
   void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz, int check=1);  // generic square relation
-  void general_relation(const vector<action>& Mops, const vector<int>& types, int symmetry=0, int check=1);  // generic relation
+  void general_relation(const vector<action>& Mops, const vector<int>& types, const vector<int>& signs,
+                        int symmetry=0, int check=1);  // generic relation
 
 #ifdef USE_SMATS
   smat relmat;

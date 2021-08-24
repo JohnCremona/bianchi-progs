@@ -62,6 +62,11 @@ public:
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
 
+  // Constants
+  static RatQuad oo;
+  static RatQuad one;
+  static RatQuad zero;
+
   // Implementation
 private:
   Quad d, n;

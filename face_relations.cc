@@ -51,7 +51,7 @@ int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const ve
       cout<<"M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
 #endif
       a = M(base_point(*ti));
-      b = M(RatQuad(1,0));
+      b = M.image_oo();
 #ifdef DEBUG_FACE_RELATION
       cout<<"{"<<a<<","<<b<<"}"<<endl;
 #endif
@@ -198,6 +198,16 @@ void face_relations::make_relations()
       if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
       for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); ++S)
         general_square_relation(S->first, S->second);
+    }
+
+  if (Quad::class_number==1)
+    return;
+
+  if (!aas_triangles.empty())
+    {
+      if(verbose) cout<<"\nApplying "<<triangles.size()<<" aas-triangle relations"<<endl;
+      for (vector<pair<vector<int>, Quad>>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
+        aas_triangle_relation(*T);
     }
 }
 
@@ -454,7 +464,8 @@ void face_relations::hexagon_relation_11()
     }
 }
 
-// extra triangle relation(s) for fields 19+
+// extra triangle relation(s) for non-Euclidean fields
+
 // Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}
 
 void face_relations::triangle_relation_2()
@@ -507,11 +518,12 @@ void face_relations::triangle_relation_2()
     }
 }
 
-// extra triangle relation(s) (not needed for fields 1,2,3,7,11,19)
+// extra relation(s) (not needed for Euclidean fields)
 
-int flip(int i) {return alpha_flip[i];}
-
-void face_relations::general_relation(const vector<action>& Mops, const vector<int>& types, int symmetry, int check)
+void face_relations::general_relation(const vector<action>& Mops,
+                                      const vector<int>& types,
+                                      const vector<int>& signs,
+                                      int symmetry, int check)
 {
   int len = types.size();
   vector<mat22> Mats(len);
@@ -526,7 +538,7 @@ void face_relations::general_relation(const vector<action>& Mops, const vector<i
   vector<int> Jtypes(len);   // Jops, Jtypes used in applying J to a relation
 
   if (check)
-    check_face_rel(Mats, types);
+    check_face_rel(Mats, types, signs);
 
   // Adjustments will be needed on applyinh J when one of the alphas[t] has denominator 2.
   if (!plusflag)
@@ -548,7 +560,7 @@ void face_relations::general_relation(const vector<action>& Mops, const vector<i
             }
         }
       if (check)
-        check_face_rel(Jmats, Jtypes);
+        check_face_rel(Jmats, Jtypes, signs);
     }
 
   vector<int> done(nsymb, 0);
@@ -588,12 +600,12 @@ void face_relations::cyclic_triangle_relation(int i, int check)
   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
   mat22 M = M_alphas[i];
-  vector<int> types(3, i);
+  vector<int> types(3, i), signs(3, 1);
   vector<action> Mops = {action(P1, mat22::identity),
                          action(P1, M),
                          action(P1, M*M)};
 
-  general_relation(Mops, types, 1, check);
+  general_relation(Mops, types, signs, 1, check);
 
   if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
 }
@@ -629,20 +641,42 @@ void face_relations::general_triangle_relation(const vector<int>& tri, int check
   if(verbose)
     cout << "Applying triangle relation "<<tri<<"\n";
 
-  RatQuad beta = M_alphas[j].inverse()(RatQuad(1,0));
-  RatQuad gamma = M_alphas[k].inverse()(RatQuad(1,0));
+  RatQuad beta = M_alphas[j].preimage_oo();
+  RatQuad gamma = M_alphas[k].preimage_oo();
   RatQuad x = M_alphas[i](beta)-gamma;
   assert (x.is_integral());
 
-  vector<int> types = {i,alpha_inv[j],k};
+  vector<int> types = {i,alpha_inv[j],k}, signs(3, 1);
   vector<action> Mops = {action(P1, mat22::identity),
                          action(P1, M_alphas[alpha_inv[j]]),
                          action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()))};
 
-  general_relation(Mops, types, 0, check);
+  general_relation(Mops, types, signs, 0, check);
 
   if(verbose)
     cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n";
+}
+
+void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check)
+{
+  vector<int> T = tri.first;
+  Quad u = tri.second;
+  int i=T[0], j=T[1], k=T[2];
+  if(verbose)
+    cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
+
+  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
+  assert (x.is_integral());
+
+  vector<int> types = {i,-j,-k}, signs = {+1,-1,+1};
+  vector<action> Mops = {action(P1, mat22::identity),
+                         action(P1, mat22::Tmat(u)),
+                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()))};
+
+  general_relation(Mops, types, signs, 0, check);
+
+  if(verbose)
+    cout << "After aas-triangle relation, number of relations = " << numrel <<"\n";
 }
 
 // generic square relation
@@ -667,7 +701,7 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
       cout<<"square relation "<<squ<<" (x,y,z) = "<<xyz<<"\n";
     }
 
-  vector<int> types = squ;
+  vector<int> types = squ, signs(4, 1);
   mat22 M1 = mat22::Tmat(z) * M_alphas[j];
   mat22 M2 = M1 * mat22::Tmat(x) * M_alphas[k];
   mat22 M3 = M_alphas[alpha_inv[i]] * mat22::Tmat(y);
@@ -676,40 +710,46 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
                          action(P1, M2),
                          action(P1, M3)};
 
-  general_relation(Mops, types, symmetry, check);
+  general_relation(Mops, types, signs, symmetry, check);
 
   if(verbose)
     cout << "After square relation "<< squ <<", number of relations = " << numrel <<"\n";
 }
 
 // extra square relation for field 5
-void face_relations::square_relation_5()
+void face_relations::square_relation_5(int check)
 {
   if(verbose)
     cout << "Square relation for d=5:\n";
 
-  vector<long> rel(4);
   vector<int> types(4, -1), // type -1 means {sigmas[1],oo}
-    signs = {1,-1,1,-1},
-    done(nsymb, 0);
+    signs = {1,-1,1,-1};
 
-  action M(P1, M_alphas[1]);
-  action Ti(P1, mat22::Tmat(-1));
-  vector<mat22> mats = {mat22::identity, Ti, M, M*Ti};
+  mat22 M1 = M_alphas[1];
+  mat22 M2 = mat22::Tmat(-1);
+  vector<action> Mops = {action(P1, mat22::identity),
+                         action(P1, M2),
+                         action(P1, M1),
+                         action(P1, M1*M2)};
 
-  long i, j, m, k;
-  for (i=0; i<nsymb; i++)
-      {
-        if (done[i])
-          continue;
-        j = Ti(i);
-        m = M(i);
-        k = M(j);
-        done[i] = done[m] = 1; // M has order 2
-        rel = {i, j, m, k};
-        check_face_rel(mats, types, signs);
-        add_face_rel(rel, types, signs);
-      }
+  general_relation(Mops, types, signs, 2, check);
+
+  // action M(P1, M1);
+  // action Ti(P1, M2);
+  // check_face_rel(mats, types, signs);
+
+  // long i, j, m, k;
+  // for (i=0; i<nsymb; i++)
+  //     {
+  //       if (done[i])
+  //         continue;
+  //       j = Ti(i);
+  //       m = M(i);
+  //       k = M(j);
+  //       done[i] = done[m] = 1; // M has order 2
+  //       rel = {i, j, m, k};
+  //       add_face_rel(rel, types, signs);
+  //     }
   if(verbose)
     {
       cout << "After square relation, number of relations = " << numrel <<"\n";

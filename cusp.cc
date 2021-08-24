@@ -10,8 +10,6 @@ void cusplist::display() const
     cout<<i<<"\t"<< *ci <<endl;
 }
 
-using namespace std::placeholders;
-
 int cusplist::index(const RatQuad& c)
 {
   // add c to list if not there already, and return index

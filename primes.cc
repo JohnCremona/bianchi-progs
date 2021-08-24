@@ -197,10 +197,11 @@ void Factorization::init_CRT()              // compute the CRT vector
     {
       Q = prime_power(i);
       J = I/Q;
-      int t = J.is_coprime_to(Q, r, s); // r+s=1 with r in J, s in Q
-                                        // so r=1 mod Q, r=0 mod Q' for other Q'
-      assert (t==1);
+      int t = J.is_coprime_to(Q, r, s);
       CRT_vector[i] = r;
+      // r+s=1 with r in J, s in Q
+      // so r=1 mod Q, r=0 mod Q' for other Q'
+      assert (t);
       assert (Q.contains(r-1));
       assert (J.contains(r));
     }

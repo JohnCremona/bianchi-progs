@@ -58,7 +58,11 @@ public:
     s = c*r+d*s;
     r = t;
   }
-  RatQuad operator()(const RatQuad& q) const; // implemented in cusp.cc
+  RatQuad operator()(const RatQuad& q) const;
+  RatQuad image_oo() const;
+  RatQuad preimage_oo() const;
+  RatQuad image_0() const;
+  RatQuad preimage_0() const;
 
   // right action on (c:d) symbols as row vectors, changing in place
   void apply_right(Quad& sc, Quad& sd) const

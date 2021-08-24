@@ -113,15 +113,6 @@ void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
     }
 }
 
-void make_triangles();
-void make_squares();
-
-void make_faces()
-{
-  make_triangles();
-  make_squares();
-}
-
 // Global function to be used once during setting the field:
 
 void Quad::setup_geometry()
@@ -357,11 +348,8 @@ void Quad::setup_geometry()
 
 int check_triangle(const vector<int>& T)
 {
-  int i=T[0], j=T[1], k=T[2];
-  mat22 Mi=M_alphas[i];
-  RatQuad aj = M_alphas[j].inverse()(RatQuad(1,0)),
-    ak = M_alphas[k].inverse()(RatQuad(1,0));
-  RatQuad x = (Mi(aj) - ak);
+  mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
+  RatQuad x = (Mi(Mj.preimage_oo()) - Mk.preimage_oo());
   return (x.is_integral());
 }
 
@@ -506,5 +494,11 @@ void make_squares()
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
     assert(check_square(Si->first, Si->second));
 #endif
+}
+
+void make_faces()
+{
+  make_triangles();
+  make_squares();
 }
 

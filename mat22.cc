@@ -76,3 +76,8 @@ RatQuad mat22::operator()(const RatQuad& q)const
   apply_left(r, s);
   return RatQuad(r,s, 1);
 }
+
+RatQuad mat22::image_oo() const {return RatQuad(a,c);}
+RatQuad mat22::preimage_oo() const {return RatQuad(-d,c);}
+RatQuad mat22::image_0() const {return RatQuad(b,d);}
+RatQuad mat22::preimage_0() const {return RatQuad(b,-a);}

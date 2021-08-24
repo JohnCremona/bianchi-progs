@@ -5,6 +5,11 @@
 #include "mat22.h"
 #include "geometry.h"
 
+// Constants
+RatQuad RatQuad::oo(1,0,1, 0);
+RatQuad RatQuad::one(1,1,1, 0);
+RatQuad RatQuad::zero(0,1,1, 0);
+
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
 
@@ -114,23 +119,12 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   return 0;
 }
 
-// if type = t>=0 , return U{alpha[i],oo}
+// if type = t>=0 , return U{alpha[t],oo}
 // if type = -s<0 , return U{sigmas[s],oo}
+
 modsym::modsym(const mat22& U, int type) // U in SL2
 {
-  RatQuad alpha;
-  if(type==0) // always true for Euclidean fields: apply to {0,oo}
-    alpha = RatQuad(0);
-  else
-   if (type>0) // apply to {alpha,oo} where alpha = alphas[type]
-     {
-       mat22 M = M_alphas[type];
-       alpha = RatQuad(-M.d, M.c);
-     }
-   else // type=t<0 means apply to {sigma,oo} where sigma = sigmas[-t]
-     {
-       alpha = sigmas[-type];
-     }
+  RatQuad alpha = (type>=0? alphas[type]: sigmas[-type]);
   a = U(alpha);
-  b = U(RatQuad(1,0)); // = U(oo); no need to reduce as n,d are coprime
+  b = U.image_oo();
 }
