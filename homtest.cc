@@ -25,7 +25,7 @@ int main ()
  cerr<<"Enter first and last norm for level: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- Qidealooper loop(firstn, lastn, both_conj); // not sorted within norm
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
   while( loop.not_finished() )
    {
      Qideal N = loop.next();
