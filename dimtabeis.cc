@@ -25,16 +25,17 @@ int main ()
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- cout << "# Field\t Weight\t Level label\t ";
- cout << "dim(all)\t dim(cuspidal)\t dim(eisenstein)" << endl;
+ cout << "# Field\tWeight\tLevel\t";
+ cout << "dim(all)\tdim(cuspidal)\tdim(eisenstein)" << endl;
 
  for(Quadlooper alphaloop(firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-     cout << d << "\t2\t";                  // field and weight
-     cout << ideal_label(n)<<"\t\t"; // level and norm
-     homspace hplus(Qideal(n), plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
+     Qideal N(n);
+     cout << "\t"<< d << "\t2\t";                  // field and weight
+     cout << ideal_label(N)<<"\t"; // level
+     homspace hplus(N, plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
      int dimcusp = hplus.h1cuspdim();
      int dimall = hplus.h1dim();
      int dimeis = dimall-dimcusp;

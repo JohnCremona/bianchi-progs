@@ -23,20 +23,20 @@ int main ()
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- cout << "Field\t Weight\t Level\t Norm\t ";
+ cout << "Field\tWeight\tLevel\tNorm\t";
  if (plusflag)
    cout << "dim(plus)" << endl;
  else
-   cout << "dim(all)\t dim(plus)\t dim(minus)" << endl;
+   cout << "dim(all)\tdim(plus)\tdim(minus)" << endl;
 
  for(Quadlooper alphaloop(firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
    {
      Quad alpha = (Quad)alphaloop;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
+     Qideal N(n);
      long normn = quadnorm(n);
      cout << d << "\t2\t";                  // field and weight
-     cout << "("<<n<<")\t "<<normn<<"\t\t"; // level and norm
-     Qideal N(n);
+     cout << ideal_label(N)<<"\t "<<normn<<"\t\t"; // level and norm
      homspace hplus(N,1,0, verbose);  //level, plusflag, cuspidal, verbose
      int dimplus = hplus.h1cuspdim();
      if (!plusflag)
