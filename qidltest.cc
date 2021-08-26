@@ -82,8 +82,24 @@ void ABmatrixtest(Qideal& I)
 
 void looptest()
 {
+  int bound = 50;
+  cout << "\nIdeals of norm up to "<<bound<<" (sorted, both conjugates):" << endl;
+  Qidealooper loop_both(1, bound, 1, 1);
+  while( loop_both.not_finished() )
+    {
+      Qideal I = loop_both.next();
+      cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
+    }
+  cout << "\nIdeals of norm up to "<<bound<<" (sorted, only one of each conjugate pair):" << endl;
+  Qidealooper loop_one(1, bound, 0, 1);
+  while( loop_one.not_finished() )
+    {
+      Qideal I = loop_one.next();
+      cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
+    }
+
   long firstn, lastn;
-  cout<<"Enter first and last norm for Qideal loop: ";
+  cout<<"\nEnter first and last norm for Qideal loop: ";
   cin >> firstn >> lastn;
   if (lastn==0) exit(0);
   int both=1, sorted=1;

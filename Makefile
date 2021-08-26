@@ -73,6 +73,7 @@ DISCS=$(DISCS9) $(DISCSX)
 FIELDS9=1 2 3 7 11 19 43 67 163
 FIELDSX=5 23 31
 FIELDS=$(FIELDS9) $(FIELDSX)
+
 FULL_TESTS =  modtest symbtest homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)

@@ -145,7 +145,7 @@ public:
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
-  int is_Galois_stable() {return ((*this)==this->conj());}
+  int is_Galois_stable() {return (2*b+Quad::t) % a == 0;}
 
   int is_equivalent(const Qideal& I)
   {
@@ -223,8 +223,8 @@ string gens_string(Qideal& I);  // returns string of gens, of the form (x) if pr
 class Qideal_lists {
   static map<long, vector<Qideal>> N_to_Ilist;
 public:
-  static vector<Qideal> ideals_with_norm(long N);
-  static vector<Qideal> ideals_with_bounded_norm(long maxnorm);
+  static vector<Qideal> ideals_with_norm(long N, int both_conj=1);
+  static vector<Qideal> ideals_with_bounded_norm(long maxnorm, int both_conj=1);
 };
 
 // return 1 iff a is the square mod M of some r in reslist

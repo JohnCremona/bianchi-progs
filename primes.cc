@@ -331,12 +331,39 @@ vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
 
 map<long, vector<Qideal>> Qideal_lists::N_to_Ilist;
 
-
-vector<Qideal> Qideal_lists::ideals_with_norm(long N)
+// return a sublist including exactly one of each conjugate pair (the
+// one with smaller index).  This is a local function and we assume
+// that the list is sorted so the i'th ideal (i>=0) has index i+1.
+vector<Qideal> remove_conjugates(const vector<Qideal>& Ilist)
 {
-  if (N<1) return vector<Qideal>();
+  if (!Ilist.size())
+    return Ilist;
+  vector<Qideal> Ilist_no_conj;
+  vector<int> seen(Ilist.size(), 0);
+  for (int i=0; i<(int)Ilist.size(); i++)
+    {
+      if (seen[i])
+        continue; // the conjugate is already in the list
+      Qideal I = Ilist[i];
+      Ilist_no_conj.push_back(I);
+      seen[I.conj().get_index()-1] = 1;
+    }
+  return Ilist_no_conj;
+}
+
+vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
+{
+  if (N<1) return {};
+  if (N==1) return {Qideal(1)};
   map<long, vector<Qideal>>::iterator I_N = N_to_Ilist.find(N);
-  if (I_N!=N_to_Ilist.end()) return I_N->second;
+  if (I_N!=N_to_Ilist.end())
+    {
+      vector<Qideal> Ilist = I_N->second;
+      if (both_conj)
+        return Ilist;
+      else
+        return remove_conjugates(Ilist);
+    }
 
   // now we compute and cache the ideals of norm N
 
@@ -415,7 +442,10 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
 #ifdef DEBUG_SORT
           cout<<"(split case) sorted list of ideals with norm "<<N<<": "<<ans<<endl;
 #endif
-          return (N_to_Ilist[N] = ans);
+          N_to_Ilist[N] = ans;
+          if (!both_conj)
+            ans = remove_conjugates(ans);;
+          return ans;
         }
     } // end of prime power case
 
@@ -458,10 +488,13 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
 #ifdef DEBUG_SORT
   cout<<"Sorted list of ideals with norm "<<N<<": "<<ans<<endl;
 #endif
-  return (N_to_Ilist[N] = ans);
+  N_to_Ilist[N] = ans;
+  if (!both_conj)
+    ans = remove_conjugates(ans);;
+  return ans;
 }
 
-vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm)
+vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm, int both_conj)
 {
   vector<Qideal> ans;
   for (long N=1; N<=maxnorm; N++)

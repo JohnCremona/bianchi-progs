@@ -709,6 +709,7 @@ int Qideal::is_principal(Quad& g)
 Qideal Qideal::conj() const
 { Qideal ans=*this;
   ans.b= posmod(-b - Quad::t, a);
+  ans.index = (b==ans.b? index: -1);
   if (iclass!=-1)
     {
       ans.g0 =  g0.conj();

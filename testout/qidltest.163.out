@@ -43,6 +43,34 @@ P197a = 197.1 = [197,12+a] = (12+a,-41+13a) = (12+a) (principal)
 P197b = 197.2 = [197,184+a] = (-13+a,-41-12a) = (-13+a) (principal)
 P199a = 199.1 = [199,96+a] = (-7+2a,-82-5a) = (-7+2a) (principal)
 P199b = 199.2 = [199,102+a] = (5+2a,-82+7a) = (5+2a) (principal)
+
+Ideals of norm up to 50 (sorted, both conjugates):
+1.1 = [1,a] = (1)
+4.1 = 2[1,a] = (2)
+9.1 = 3[1,a] = (3)
+16.1 = 4[1,a] = (4)
+25.1 = 5[1,a] = (5)
+36.1 = 6[1,a] = (6)
+41.1 = [41,a] = (a)
+41.2 = [41,40+a] = (-1+a)
+43.1 = [43,1+a] = (1+a)
+43.2 = [43,41+a] = (-2+a)
+47.1 = [47,2+a] = (2+a)
+47.2 = [47,44+a] = (-3+a)
+49.1 = 7[1,a] = (7)
+
+Ideals of norm up to 50 (sorted, only one of each conjugate pair):
+1.1 = [1,a] = (1)
+4.1 = 2[1,a] = (2)
+9.1 = 3[1,a] = (3)
+16.1 = 4[1,a] = (4)
+25.1 = 5[1,a] = (5)
+36.1 = 6[1,a] = (6)
+41.1 = [41,a] = (a)
+43.1 = [43,1+a] = (1+a)
+47.1 = [47,2+a] = (2+a)
+49.1 = 7[1,a] = (7)
+
 Enter first and last norm for Qideal loop: Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
