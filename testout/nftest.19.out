@@ -1,16 +1,16 @@
 Enter field: Verbose? Enter level: 
->>>> Level 19.0 = (-1+2a), norm = 19 <<<<
+>>>> Level 19.1 = (-1+2a), norm = 19 <<<<
 
-1 newform(s) at level 19.0 = (-1+2a):
+1 newform(s) at level 19.1 = (-1+2a):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -4 3 3 -1 -1 -2 3 3 -3 -3 1 0 0 -1 -1 -3 -3 -1 -1 -7 -7 12 12 6 6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 36
 L/P ratio    = 2, cuspidal factor = 15
 Integration matrix = [3-5a,-a;9+a,2], factor   = 15
 Enter level: 
->>>> Level 20.0 = (2a), norm = 20 <<<<
+>>>> Level 20.1 = (2a), norm = 20 <<<<
 
-1 newform(s) at level 20.0 = (2a):
+1 newform(s) at level 20.1 = (2a):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 -1 0 -1 -1 1 0 6 3 -3 2 -3 -3 -10 8 0 -12 8 -10 -7 11 12 12 -6 12 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 24

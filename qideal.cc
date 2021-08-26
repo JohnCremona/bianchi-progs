@@ -821,6 +821,9 @@ vector<Qideal> ideals_with_bounded_norm(long maxnorm, int both_conj)
   return ans;
 }
 
+// NB The label of an ideal is a string of the form N.i where N is the
+// norm and i its index *based at 1*.
+
 void Qideal::set_index(int ind)
 {
   if (index>0) // index already set, nothing to do
@@ -840,7 +843,7 @@ void Qideal::set_index(int ind)
           <<II<<endl;
       exit(1);
     }
-  index = std::distance(II.begin(), i);
+  index = std::distance(II.begin(), i) + 1;
   // cout<<"In set_index(), have just set index of ideal "<<(*this)<<" to "<<index<<endl;
 }
 
@@ -877,7 +880,7 @@ Qideal Qideal_from_norm_index(long N, int i) // i'th ideal of norm N
           <<", the number of ideals of norm N="<<N<<endl;
       exit(1);
     }
-  return II[i-1];
+  return II[i-1];  // offset since labels are indexed from 1
 }
 
 Qideal::Qideal(const string& s)           // ideal from label N.i

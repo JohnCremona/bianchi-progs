@@ -2,10 +2,10 @@ Program moreap: for each level, assumes that the newforms file exists, and compu
 ---------------
 
 Enter field: Verbose? Output new eigs to file (1/0)? Output new eigs to screen (1/0)? Display newforms (1/0)? Enter level: How many primes for Hecke eigenvalues? 
->>>> Level 43.0 = (-1+2a), norm = 43 <<<<
-Retrieving newform data for N = 43.0
+>>>> Level 43.1 = (-1+2a), norm = 43 <<<<
+Retrieving newform data for N = 43.1
 
-1 newform(s) at level 43.0 = (-1+2a):
+1 newform(s) at level 43.1 = (-1+2a):
 1:	basis = [];	aqlist = [ 1 ];	aplist = [ 0 -2 3 3 -5 -5 -3 -3 -1 -1 6 -1 -1 5 5 -1 4 4 -14 -5 -5 -12 -12 -3 -3 ]
 Sign of F.E. = -1
 Twisting prime lambda = 5, factor = 16

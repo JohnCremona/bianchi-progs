@@ -49,16 +49,17 @@ int main ()
    {
      cout<<endl;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
+     Qideal N(n);
      long normn = quadnorm(n);
      string efilename = eigfile(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(Qideal(n),verbose);
+     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+     newforms nf(N,verbose);
      nf.createfromscratch();
 #ifdef LOOPER
      int dimcusp, dimeis, dimall;
      // output lines as in dimtabeis:
      dimtab << d << "\t2\t";           // field and weight
-     dimtab << ideal_label(n)<<"\t\t"; // level and norm
+     dimtab << ideal_label(N)<<"\t\t"; // level and norm
      dimcusp = nf.h1->h1cuspdim();
      dimall = nf.h1->h1dim();
      dimeis = dimall-dimcusp;

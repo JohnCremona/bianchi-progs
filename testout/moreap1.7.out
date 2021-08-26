@@ -4,7 +4,7 @@ Program moreap1: for given field and level, assumes that the newforms file exist
 Enter field: Verbose? Enter level: 
 >>>> Level 88.50.1 = (-2+7a), norm = 88 <<<<
 
-1 newform(s) at level 88.4 = (-2+7a):
+1 newform(s) at level 88.5 = (-2+7a):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -1 0 2 4 -1 0 8 -6 -2 -10 -2 6 4 -4 -2 -10 -4 -4 0 0 8 8 -12 -12 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 4

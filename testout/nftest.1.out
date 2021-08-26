@@ -1,18 +1,18 @@
-Enter field: Verbose? Enter level: Retrieving newform data for N = 65.1
+Enter field: Verbose? Enter level: Retrieving newform data for N = 65.2
 
->>>> Level 65.1 = (7+4i), norm = 65 <<<<
+>>>> Level 65.2 = (7+4i), norm = 65 <<<<
 
-1 newform(s) at level 65.1 = (7+4i):
+1 newform(s) at level 65.2 = (7+4i):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 -1 -2 1 -4 0 6 6 -6 2 2 6 0 -4 6 -6 -10 -10 2 2 6 6 -10 8 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/2, cuspidal factor = 3
 Integration matrix = [-5+i,-i;4-7i,1+i], factor   = 6
-Enter level: Retrieving newform data for N = 72.0
+Enter level: Retrieving newform data for N = 72.1
 
->>>> Level 72.0 = (6+6i), norm = 72 <<<<
+>>>> Level 72.1 = (6+6i), norm = 72 <<<<
 
-1 newform(s) at level 72.0 = (6+6i):
+1 newform(s) at level 72.1 = (6+6i):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 -2 -2 1 -2 -2 2 2 6 6 6 6 -6 -6 -14 -2 -2 -2 -2 10 10 -6 -6 2 2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
