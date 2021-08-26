@@ -65,13 +65,13 @@ Ideal 5.1 = [5,a] (norm 5) is principal, with generator a with factorization P5a
  with inverses:
 [ 1 -2 2 -1 ]
 AB-matrix of 5.1 is [a,0; 0,1-a]
-Ideal 5.2 = [5,4+a] (norm 5) is principal, with generator 1-a with factorization P5b
+Ideal 5.2 = [5,4+a] (norm 5) is principal, with generator -1+a with factorization P5b
 5 residues mod 5.2: [ 0 1 2 -2 -1 ]
 4 invertible residues mod 5.2:
 [ 1 2 -2 -1 ]
  with inverses:
 [ 1 -2 2 -1 ]
-AB-matrix of 5.2 is [1-a,0; 0,a]
+AB-matrix of 5.2 is [-1+a,0; 0,-a]
 Ideal 7.1 = [7,1+a] (norm 7) is principal, with generator 1+a with factorization P7a
 7 residues mod 7.1: [ 0 1 2 2-a -2+a -2 -1 ]
 6 invertible residues mod 7.1:
@@ -79,13 +79,13 @@ Ideal 7.1 = [7,1+a] (norm 7) is principal, with generator 1+a with factorization
  with inverses:
 [ 1 -2+a -2 2 2-a -1 ]
 AB-matrix of 7.1 is [1+a,0; 0,2-a]
-Ideal 7.2 = [7,5+a] (norm 7) is principal, with generator 2-a with factorization P7b
+Ideal 7.2 = [7,5+a] (norm 7) is principal, with generator -2+a with factorization P7b
 7 residues mod 7.2: [ 0 1 2 1+a -1-a -2 -1 ]
 6 invertible residues mod 7.2:
 [ 1 2 1+a -1-a -2 -1 ]
  with inverses:
 [ 1 -1-a -2 2 1+a -1 ]
-AB-matrix of 7.2 is [2-a,0; 0,1+a]
+AB-matrix of 7.2 is [-2+a,0; 0,-1-a]
 Ideal 9.1 = 3[1,a] (norm 9) is principal, with generator 3 with factorization P3
 9 residues mod 9.1: [ 0 1 -1 a 1+a -1+a -a 1-a -1-a ]
 8 invertible residues mod 9.1:
@@ -100,13 +100,13 @@ Ideal 11.1 = [11,2+a] (norm 11) is principal, with generator 2+a with factorizat
  with inverses:
 [ 1 -3+a 2-a 1-a -2 2 -1+a -2+a 3-a -1 ]
 AB-matrix of 11.1 is [2+a,0; 0,3-a]
-Ideal 11.2 = [11,8+a] (norm 11) is principal, with generator 3-a with factorization P11b
+Ideal 11.2 = [11,8+a] (norm 11) is principal, with generator -3+a with factorization P11b
 11 residues mod 11.2: [ 0 1 2 a 1+a 2+a -2-a -1-a -a -2 -1 ]
 10 invertible residues mod 11.2:
 [ 1 2 a 1+a 2+a -2-a -1-a -a -2 -1 ]
  with inverses:
 [ 1 -2-a 1+a a -2 2 -a -1-a 2+a -1 ]
-AB-matrix of 11.2 is [3-a,0; 0,2+a]
+AB-matrix of 11.2 is [-3+a,0; 0,-2-a]
 Ideal 16.1 = 4[1,a] (norm 16) is principal, with generator 4 with factorization P2^2
 16 residues mod 16.1: [ 0 1 -2 -1 a 1+a -2+a -1+a -2a 1-2a 2-2a -1+2a -a 1-a 2-a -1-a ]
 12 invertible residues mod 16.1:
@@ -121,13 +121,13 @@ Ideal 17.1 = [17,3+a] (norm 17) is principal, with generator 3+a with factorizat
  with inverses:
 [ 1 -2+2a 3-a -1+a 4-a -a 2-a -2 2 -2+a a -4+a 1-a -3+a 2-2a -1 ]
 AB-matrix of 17.1 is [3+a,0; 0,4-a]
-Ideal 17.2 = [17,13+a] (norm 17) is principal, with generator 4-a with factorization P17b
+Ideal 17.2 = [17,13+a] (norm 17) is principal, with generator -4+a with factorization P17b
 17 residues mod 17.2: [ 0 1 2 -1+a a 1+a 2+a 3+a 2a -2a -3-a -2-a -1-a -a 1-a -2 -1 ]
 16 invertible residues mod 17.2:
 [ 1 2 -1+a a 1+a 2+a 3+a 2a -2a -3-a -2-a -1-a -a 1-a -2 -1 ]
  with inverses:
 [ 1 -2a 2+a -a 3+a -1+a 1+a -2 2 -1-a 1-a -3-a a -2-a 2a -1 ]
-AB-matrix of 17.2 is [4-a,0; 0,3+a]
+AB-matrix of 17.2 is [-4+a,0; 0,-3-a]
 Ideal 19.1 = [19,9+a] (norm 19) is principal, with generator -1+2a with factorization P19
 19 residues mod 19.1: [ 0 1 2 3 4 -5+a -4+a -3+a -2+a -1+a 1-a 2-a 3-a 4-a 5-a -4 -3 -2 -1 ]
 18 invertible residues mod 19.1:
@@ -156,13 +156,13 @@ Ideal 23.1 = [23,10+a] (norm 23) is principal, with generator -3+2a with factori
  with inverses:
 [ 1 -1+a -2-a -4-a 1+a 4 -a 3 -5 -3-a -2 2 3+a 5 -3 a -4 -1-a 4+a 2+a 1-a -1 ]
 AB-matrix of 23.1 is [-3+2a,0; 0,-1-2a]
-Ideal 23.2 = [23,12+a] (norm 23) is principal, with generator -1-2a with factorization P23b
+Ideal 23.2 = [23,12+a] (norm 23) is principal, with generator 1+2a with factorization P23b
 23 residues mod 23.2: [ 0 1 2 3 4 5 -5+a -4+a -3+a -2+a -1+a a -a 1-a 2-a 3-a 4-a 5-a -5 -4 -3 -2 -1 ]
 22 invertible residues mod 23.2:
 [ 1 2 3 4 5 -5+a -4+a -3+a -2+a -1+a a -a 1-a 2-a 3-a 4-a 5-a -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -a -3+a -5+a 2-a 4 -1+a 3 -5 -4+a -2 2 4-a 5 -3 1-a -4 -2+a 5-a 3-a a -1 ]
-AB-matrix of 23.2 is [-1-2a,0; 0,-3+2a]
+AB-matrix of 23.2 is [1+2a,0; 0,3-2a]
 Ideal 25.1 = [25,20+a] (norm 25) is principal, with generator -5+a with factorization P5a^2
 25 residues mod 25.1: [ 0 1 2 -2+a -1+a a 1+a 2+a 3+a -1+2a 2a 1+2a 2+2a -2-2a -1-2a -2a 1-2a -3-a -2-a -1-a -a 1-a 2-a -2 -1 ]
 20 invertible residues mod 25.1:

@@ -52,7 +52,7 @@ int main ()
      long normn = quadnorm(n);
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,verbose);
+     newforms nf(Qideal(n),verbose);
      nf.createfromscratch();
 #ifdef LOOPER
      int dimcusp, dimeis, dimall;

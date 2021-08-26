@@ -81,13 +81,13 @@ Ideal 11.1 = [11,a] (norm 11) is principal, with generator a with factorization 
  with inverses:
 [ 1 -5 4 3 -2 2 -3 -4 5 -1 ]
 AB-matrix of 11.1 is [a,0; 0,1-a]
-Ideal 11.2 = [11,10+a] (norm 11) is principal, with generator 1-a with factorization P11b
+Ideal 11.2 = [11,10+a] (norm 11) is principal, with generator -1+a with factorization P11b
 11 residues mod 11.2: [ 0 1 2 3 4 5 -5 -4 -3 -2 -1 ]
 10 invertible residues mod 11.2:
 [ 1 2 3 4 5 -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -5 4 3 -2 2 -3 -4 5 -1 ]
-AB-matrix of 11.2 is [1-a,0; 0,a]
+AB-matrix of 11.2 is [-1+a,0; 0,-a]
 Ideal 13.1 = [13,1+a] (norm 13) is principal, with generator 1+a with factorization P13a
 13 residues mod 13.1: [ 0 1 2 3 4 4-a 5-a -5+a -4+a -4 -3 -2 -1 ]
 12 invertible residues mod 13.1:
@@ -95,13 +95,13 @@ Ideal 13.1 = [13,1+a] (norm 13) is principal, with generator 1+a with factorizat
  with inverses:
 [ 1 -5+a -4 -3 -4+a -2 2 4-a 3 4 5-a -1 ]
 AB-matrix of 13.1 is [1+a,0; 0,2-a]
-Ideal 13.2 = [13,11+a] (norm 13) is principal, with generator 2-a with factorization P13b
+Ideal 13.2 = [13,11+a] (norm 13) is principal, with generator -2+a with factorization P13b
 13 residues mod 13.2: [ 0 1 2 3 4 3+a 4+a -4-a -3-a -4 -3 -2 -1 ]
 12 invertible residues mod 13.2:
 [ 1 2 3 4 3+a 4+a -4-a -3-a -4 -3 -2 -1 ]
  with inverses:
 [ 1 -4-a -4 -3 -3-a -2 2 3+a 3 4 4+a -1 ]
-AB-matrix of 13.2 is [2-a,0; 0,1+a]
+AB-matrix of 13.2 is [-2+a,0; 0,-1-a]
 Ideal 16.1 = 4[1,a] (norm 16) is principal, with generator 4 with factorization P2^2
 16 residues mod 16.1: [ 0 1 -2 -1 a 1+a -2+a -1+a -2a 1-2a 2-2a -1+2a -a 1-a 2-a -1-a ]
 12 invertible residues mod 16.1:
@@ -116,13 +116,13 @@ Ideal 17.1 = [17,2+a] (norm 17) is principal, with generator 2+a with factorizat
  with inverses:
 [ 1 -6+a 4-a -2+a 5-a 3 3-a -2 2 -3+a -3 -5+a 2-a -4+a 6-a -1 ]
 AB-matrix of 17.1 is [2+a,0; 0,3-a]
-Ideal 17.2 = [17,14+a] (norm 17) is principal, with generator 3-a with factorization P17b
+Ideal 17.2 = [17,14+a] (norm 17) is principal, with generator -3+a with factorization P17b
 17 residues mod 17.2: [ 0 1 2 3 1+a 2+a 3+a 4+a 5+a -5-a -4-a -3-a -2-a -1-a -3 -2 -1 ]
 16 invertible residues mod 17.2:
 [ 1 2 3 1+a 2+a 3+a 4+a 5+a -5-a -4-a -3-a -2-a -1-a -3 -2 -1 ]
  with inverses:
 [ 1 -5-a 3+a -1-a 4+a 3 2+a -2 2 -2-a -3 -4-a 1+a -3-a 5+a -1 ]
-AB-matrix of 17.2 is [3-a,0; 0,2+a]
+AB-matrix of 17.2 is [-3+a,0; 0,-2-a]
 Ideal 23.1 = [23,3+a] (norm 23) is principal, with generator 3+a with factorization P23a
 23 residues mod 23.1: [ 0 1 2 3 1-a 2-a 3-a 4-a 5-a 6-a 4-2a 5-2a -5+2a -4+2a -6+a -5+a -4+a -3+a -2+a -1+a -3 -2 -1 ]
 22 invertible residues mod 23.1:
@@ -130,13 +130,13 @@ Ideal 23.1 = [23,3+a] (norm 23) is principal, with generator 3+a with factorizat
  with inverses:
 [ 1 -5+2a 5-a 3-a -6+a 1-a 4-2a 3 -2+a 4-a -2 2 -4+a 2-a -3 -4+2a -1+a 6-a -3+a -5+a 5-2a -1 ]
 AB-matrix of 23.1 is [3+a,0; 0,4-a]
-Ideal 23.2 = [23,19+a] (norm 23) is principal, with generator 4-a with factorization P23b
+Ideal 23.2 = [23,19+a] (norm 23) is principal, with generator -4+a with factorization P23b
 23 residues mod 23.2: [ 0 1 2 3 a 1+a 2+a 3+a 4+a 5+a 2+2a 3+2a -3-2a -2-2a -5-a -4-a -3-a -2-a -1-a -a -3 -2 -1 ]
 22 invertible residues mod 23.2:
 [ 1 2 3 a 1+a 2+a 3+a 4+a 5+a 2+2a 3+2a -3-2a -2-2a -5-a -4-a -3-a -2-a -1-a -a -3 -2 -1 ]
  with inverses:
 [ 1 -3-2a 4+a 2+a -5-a a 2+2a 3 -1-a 3+a -2 2 -3-a 1+a -3 -2-2a -a 5+a -2-a -4-a 3+2a -1 ]
-AB-matrix of 23.2 is [4-a,0; 0,3+a]
+AB-matrix of 23.2 is [-4+a,0; 0,-3-a]
 Ideal 25.1 = 5[1,a] (norm 25) is principal, with generator 5 with factorization P5
 25 residues mod 25.1: [ 0 1 2 -2 -1 a 1+a 2+a -2+a -1+a 2a 1+2a -3+2a -2+2a -1+2a -2a 1-2a 2-2a 3-2a -1-2a -a 1-a 2-a -2-a -1-a ]
 24 invertible residues mod 25.1:

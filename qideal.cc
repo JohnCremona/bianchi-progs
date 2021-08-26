@@ -22,6 +22,8 @@ void Qideal::abc_from_HNF(const vector<long>& basis)
 Quad Qideal::gen()  // smallest element, so a generator iff principal
 {
   fill();
+  if (!pos(g0))
+    cout<<"After fill(), generator g0 = "<<g0<<" not normalised"<<endl;
   return g0;
 }
 
@@ -55,6 +57,8 @@ void Qideal::fill()
   //  cout<<" -- now gens are "<<gens()<<endl;
   if ((quadconj(g0)*g1).im()<0)
     cout<<"Badly oriented Z-basis in fill() 2"<<endl;
+  if (!pos(g0))
+    cout<<"After fill(), generator g0 = "<<g0<<" not normalised"<<endl;
 }
 
 Qideal::Qideal()   //default ideal is whole ring
@@ -117,6 +121,7 @@ Qideal::Qideal(const vector<long>& rv, const vector<long>& iv)  // ideal from Z-
 {
   vector<long> basis;
   findzbasis(rv,iv,basis);
+  // cout<<"basis = "<<basis<<endl;
   abc_from_HNF(basis);
   iclass=-1;
   index=-1;
@@ -135,13 +140,19 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
       rv.push_back(a.re());
       iv.push_back(a.im());
     }
+  // cout<<"rv = "<<rv<<", iv = "<<iv<<endl;
   *this = Qideal(rv, iv);
 }
 
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
-  vector<Quad> gens(1,alpha);
-  *this = Qideal(gens);
+  if (alpha.nm==0)
+    *this = Qideal(0);
+  else
+    {
+      vector<Quad> gens(1,alpha);
+      *this = Qideal(gens);
+    }
   iclass=0;
   g0=makepos(alpha); g1=Quad::w*g0;
   index=-1;
@@ -155,19 +166,33 @@ Qideal::Qideal(const Quad& alpha) // principal ideal
 
 Qideal Qideal::operator+(const long& d) const
 {
+  if (is_zero())
+    return Qideal(d);
+  if (d==0)
+    return *this;
   Qideal ans=*this;
   ans += d;
   return ans;
 }
 
 Qideal Qideal::operator+(const Quad& alpha) const
-{ Qideal ans=*this;
+{
+  if (is_zero())
+    return Qideal(alpha);
+  if (alpha.is_zero())
+    return *this;
+  Qideal ans=*this;
   ans+=alpha;
   return ans;
 }
 
 Qideal Qideal::operator+(const Qideal& f) const
-{ Qideal ans=*this;
+{
+  if (is_zero())
+    return f;
+  if (f.is_zero())
+    return *this;
+  Qideal ans=*this;
   ans+=f;
   return ans;
 }
@@ -180,13 +205,13 @@ Qideal operator+(const Quad&a, const Qideal& f)
 
 void Qideal::operator+=(const long& aa)
 {
-  if (divides(aa))
-    return;  //ideal remains unchanged
-  if (c==0)
+  if (is_zero())
     {
       *this = Qideal(aa);
       return;
     }
+  if (divides(aa))
+    return;  //ideal remains unchanged
   vector<long> rv = get_rv(), iv = get_iv();
   rv.push_back(aa);
   rv.push_back(0);
@@ -197,6 +222,11 @@ void Qideal::operator+=(const long& aa)
 
 void Qideal::operator+=(const Quad& alpha)
 {
+  if (is_zero())
+    {
+      *this = Qideal(alpha);
+      return;
+    }
   if (divides(alpha))
     {
       return;  //ideal remains unchanged
@@ -216,6 +246,11 @@ void Qideal::operator+=(const Quad& alpha)
 
 void Qideal::operator+=(const Qideal& f)
 {
+  if (is_zero())
+    {
+      *this = f;
+      return;
+    }
   if (divides(f))
     return;  //ideal remains unchanged
   if (f.divides(*this))
@@ -250,7 +285,7 @@ Qideal Qideal::operator*(const Quad& alpha) const
   return ans;
 }
 
-Qideal Qideal::operator*(const Qideal& f) const
+Qideal Qideal::operator*(Qideal& f) const
 { Qideal ans=*this;
   ans*=f;
   return ans;
@@ -269,11 +304,15 @@ void Qideal::operator*=(const long& d)
       *this=Qideal(0);
       return;
     }
-  c *= abs(d);
-  ac *= abs(d);
+  long dd = abs(d);
+  c *= dd;
+  ac *= dd;
   nm *= (d*d);
   if (iclass!=-1)
-    { g0*=d; g1*=d; }
+    {
+      g0*=dd;
+      g1*=dd;
+    }
 }
 
 void Qideal::operator*=(const Quad& alpha)
@@ -295,16 +334,50 @@ void Qideal::operator*=(const Quad& alpha)
   c *= fac;
   ac *= fac;
   nm *= (fac*fac);
-  if (iclass!=-1) {g0*=alpha; g1*=alpha;}
+  if (iclass!=-1)
+    {
+      g0*=alpha;
+      g1*=alpha;
+      while(!pos(g0))
+        {
+          g0*=fundunit;
+          g1*=fundunit;
+        }
+    }
 }
 
-void Qideal::operator*=(const Qideal& f)
+void Qideal::operator*=(Qideal& f)
 {
-  if (c==0 || ((f.c==1)&&(f.a==1))) return;    // unchanged
-  if ((f.c==0) || ((c==1)&&(a==1))) { *this=f; return; }  // f unchanged
+  if (c==0 || f.nm==1) return;    // unchanged
+  if (f.c==0 || nm==1) { *this=f; return; }  // f unchanged
+
+  if (is_principal())
+    {
+      if (f.is_principal())
+        {
+          *this = Qideal(g0*f.g0);
+          return;
+        }
+      else
+        {
+          *this = Qideal({g0*f.g0, g0*f.g1});
+          return;
+        }
+    }
+  else
+    {
+      if (f.is_principal())
+        {
+          *this = Qideal({g0*f.g0, g1*f.g0});
+          return;
+        }
+    }
+  Quad x1(a), x2(b,1), y1(f.a), y2(f.b,1);
+  vector<Quad> gens = {x1*y1, x1*y2, x2*y1, x2*y2};
   // cout<<"operator *= with this = "<<(*this)<<" and "<<f<<endl;
-  Quad g1(a), g2(b,1), h1(f.a), h2(f.b,1);
-  vector<Quad> gens = {g1*h1, g1*h2, g2*h1, g2*h2};
+  // cout<<"primitive gens of this: "<<x1<<", "<<x2<<endl;
+  // cout<<"primitive gens of that: "<<y1<<", "<<y2<<endl;
+  // cout<<"primitive gens of product: "<<gens<<endl;
   long fac = c*(f.c);
   *this = Qideal(gens);
   // cout<<" - primitive product is "<<(*this)<<endl;
@@ -317,19 +390,32 @@ void Qideal::operator*=(const Qideal& f)
 
 int Qideal::contains(const Quad& alpha) const
 {
+  if (is_zero())
+    return alpha.nm==0;
   return (alpha.i%c==0) && ((alpha.r-b*alpha.i)%ac==0);
 }
 
-// return 1 iff this is coprime to I; if so, set r in this and s in I with r+s=1
-int Qideal::is_coprime_to(const Qideal&J, Quad&r, Quad&s) const
+// return 1 iff this is coprime to J; if so, set r in this and s in J with r+s=1
+int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
 {
   vector<long> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
   int t = vecbezout(v, w);
   if (t==1)
     {
+      Qideal IJ = (*this)*J;
       r =   zcombo(w[0],  J.c * w[2]);
-      s = J.zcombo(w[1],   -c * w[2]);
-      assert (r+s==1);
+      assert (contains(r));
+      assert (J.contains(1-r));
+      if (r.nm>IJ.nm)
+        {
+          Quad r1 =   IJ.reduce(r);
+          // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<": r="<<r;
+          // cout << " reduces mod IJ to "<<r1<<endl;
+          assert (contains(r1));
+          assert (J.contains(1-r1));
+          r = r1;
+        }
+      s = 1-r;
     }
   return (t==1);
 }
@@ -339,7 +425,8 @@ int Qideal::is_coprime_to(const Quad& alpha, Quad& inverse)
 {
   if (alpha==0) return 0;
   Quad r, s;
-  int t = is_coprime_to(Qideal(alpha), r, s);
+  Qideal A(alpha);
+  int t = is_coprime_to(A, r, s);
   if(t==1) // then r is in this and s in (alpha) with r+s=1
     {
       inverse = reduce(s/alpha);
@@ -399,6 +486,28 @@ pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues()
         }
     }
   return {res, inv};
+}
+
+// An AB-matrix with given first column
+mat22 AB_matrix(const Quad& a, const Quad& c)
+{
+  Quad b, d;
+  if (!quadbezout(a,c,d,b).is_zero()) // then (a,c)=(g) and a*d+b*c=g
+    {
+      return mat22(a,-b,c,d);
+    }
+  // otherwise (a,c) is not principal (and a,c are nonzero)
+  Qideal I({a,c});
+  Qideal I0 = Qideal(a)/I, I1 = Qideal(c)/I;
+  Quad r0, r1;
+  I0.is_coprime_to(I1, r0, r1);
+  long g = I.norm();
+  b = -(r1*g)/c;
+  d =  (r0*g)/a;
+  mat22 M(a, b, c, d);
+  assert (M.det()==g);
+  assert (Qideal({b,d}) == I.conj());
+  return M;
 }
 
 // Assuming this*J is principal, sets g to a generator and returns a
@@ -488,7 +597,7 @@ void Qideal::operator/=(const long&n)
   c = qr.quot;
   ac = a*c;
   nm = ac*c;
-  if (iclass!=-1) { g0/=n; g1/=n; }
+  if (iclass!=-1) { g0/=na; g1/=na; }
   // cout<<" -- after /= this = "<<(*this)<<endl;
 }
 
@@ -510,16 +619,17 @@ void Qideal::operator/=(const Quad&alpha)
 
 void Qideal::operator/=(const Qideal&f)
 {
-  if (f.norm()==1) return;
-  Qideal keep = *this;
-  // cout<<"dividing "<<(*this)<<" by "<<f<<endl;
-  (*this) *= f.conj();
-  // cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
   long nf = f.norm();
+  if (nf==1) return;
+  Qideal keep = *this, fc = f.conj();
+  // cout<<"dividing "<<(*this)<<" by "<<f<<endl;
+  (*this) *= fc;
+  //cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
   std::ldiv_t qr = ldiv(c, nf);
   if (qr.rem!=0)                // shouldn't happen
     {
       cerr << "***inexact division of "<<keep<<" by ideal "<<f<<" of norm "<<nf<<" ***"<<endl;
+      exit(1);
     }
   c = qr.quot;
   ac = a*c;
@@ -531,7 +641,8 @@ Qideal Qideal::intersection(const Qideal& I)
 {
   if (contains(I)) return I;
   if (I.contains(*this)) return *this;
-  return (*this)*(I/(*this+I));
+  Qideal G = I/((*this)+I);
+  return (*this)*G;
 }
 
 // with nonzero a in this, return b such that this=(a,b)
@@ -602,6 +713,11 @@ Qideal Qideal::conj() const
     {
       ans.g0 =  g0.conj();
       ans.g1 = -g1.conj(); // preserve orientation
+      while(!pos(ans.g0))
+        {
+          ans.g0*=fundunit;
+          ans.g1*=fundunit;
+        }
     }
   return ans;
 }
@@ -735,6 +851,18 @@ string ideal_label(Qideal& I)  // returns label of ideal I
   return s.str();
 }
 
+string gens_string(Qideal& I)  // returns string of gens, of the form (x) if principal or (x,y) ideal I
+{
+  stringstream s;
+  s << "(";
+  if (I.is_principal())
+    s << I.g0;
+  else
+    s << I.g0 <<","<< I.g1;
+  s << ")";
+  return s.str();
+}
+
 Qideal Qideal_from_norm_index(long N, int i) // i'th ideal of norm N
 {
   if (i<1)
@@ -822,6 +950,34 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
     }
   assert (contains(c*x+d*y-1));
   return 1;
+}
+
+// brute force test whether a is a square of some element of reslist, mod M
+
+int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist)
+{
+  if (M.contains(a)) return 0;
+  vector<Quad>::const_iterator r=reslist.begin();
+  while(r!=reslist.end())
+    {
+      Quad res=*r++;
+      if(M.contains(res*res-a)) return +1;
+    }
+  return -1;
+}
+
+vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist)
+{
+  vector<int> chi;
+  if(reslist.size()==1)
+    chi.push_back(1);
+  else
+    {
+      vector<Quad>::const_iterator r=reslist.begin();
+      while(r!=reslist.end())
+	chi.push_back(squaremod(*r++,L,reslist));
+    }
+  return chi;
 }
 
 

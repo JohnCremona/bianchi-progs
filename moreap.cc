@@ -18,12 +18,13 @@ int main(void)
 
  while (cout<<"Enter level: ", cin>>n, n!=0) {
      n = makepos(n);
+     Qideal N(n);
      long normn = quadnorm(n);
      string efilename = eigfile(n);
      cout << "How many primes for Hecke eigenvalues? ";
      cin  >> lastp; cout << endl;
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,verbose);
+     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+     newforms nf(N,verbose);
      nf.createfromdata();
      if (showforms) nf.display();
 

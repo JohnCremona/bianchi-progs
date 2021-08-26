@@ -103,6 +103,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   long norm() const {return nm;}
   long content() const {return gcd(r,i);}
   Quad pos_assoc() const {return makepos(*this);}
+  int is_zero() const {return nm==0;}
 
 //operators and related functions (friends are inlined below):
 
@@ -168,6 +169,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 
 // iostream functions
 
+  operator string() const;
   friend ostream& operator<<(ostream& s, const Quad& x);
   friend istream& operator>>(istream& s, Quad& x);
 
@@ -175,8 +177,6 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend class RatQuad;
   friend class Qideal;
 };
-
-char* to_string(const Quad& a);  // outputs to a (new) string
 
 // Inline definitions of friend functions of class Quad (those not
 // here are not inline, and are in quads.cc):
@@ -235,7 +235,8 @@ void findminquad(const Quad&, const Quad&, Quad&);
 
 
 vector<long> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
-string ideal_label(const Quad& alpha);  // returns label of ideal (alpha)
+string old_ideal_label(const Quad& alpha);  // returns old HNF label of ideal (alpha)
+string ideal_label(const Quad& alpha);  // returns new N.i label of ideal (alpha)
 string field_label(); // returns field label, e.g. '2.0.4.1'
 
 Quad primdiv(const Quad&);           // "First" prime divisor

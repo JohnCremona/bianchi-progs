@@ -74,13 +74,13 @@ Ideal 7.1 = [7,2+w] (norm 7) is principal, with generator 2+w with factorization
  with inverses:
 [ 1 -1+w w -w 1-w -1 ]
 AB-matrix of 7.1 is [2+w,0; 0,3-w]
-Ideal 7.2 = [7,4+w] (norm 7) is principal, with generator 3-w with factorization P7b
+Ideal 7.2 = [7,4+w] (norm 7) is principal, with generator 1+2w with factorization P7b
 7 residues mod 7.2: [ 0 1 -1+w w -w 1-w -1 ]
 6 invertible residues mod 7.2:
 [ 1 -1+w w -w 1-w -1 ]
  with inverses:
 [ 1 -w 1-w -1+w w -1 ]
-AB-matrix of 7.2 is [3-w,0; 0,2+w]
+AB-matrix of 7.2 is [1+2w,0; 0,3-2w]
 Ideal 9.1 = 3[1,w] (norm 9) is principal, with generator 3 with factorization P3^2
 9 residues mod 9.1: [ 0 1 -1 w 1+w -1+w -w 1-w -1-w ]
 6 invertible residues mod 9.1:
@@ -102,13 +102,13 @@ Ideal 13.1 = [13,3+w] (norm 13) is principal, with generator 3+w with factorizat
  with inverses:
 [ 1 1-2w -1+w w -2+w 1+w -1-w 2-w -w 1-w -1+2w -1 ]
 AB-matrix of 13.1 is [3+w,0; 0,4-w]
-Ideal 13.2 = [13,9+w] (norm 13) is principal, with generator 4-w with factorization P13b
+Ideal 13.2 = [13,9+w] (norm 13) is principal, with generator 1+3w with factorization P13b
 13 residues mod 13.2: [ 0 1 -2+w -1+w w 1+w 1-2w -1+2w -1-w -w 1-w 2-w -1 ]
 12 invertible residues mod 13.2:
 [ 1 -2+w -1+w w 1+w 1-2w -1+2w -1-w -w 1-w 2-w -1 ]
  with inverses:
 [ 1 -1+2w -w 1-w -1-w 2-w -2+w 1+w -1+w w 1-2w -1 ]
-AB-matrix of 13.2 is [4-w,0; 0,3+w]
+AB-matrix of 13.2 is [1+3w,0; 0,4-3w]
 Ideal 16.1 = 4[1,w] (norm 16) is principal, with generator 4 with factorization P2^2
 16 residues mod 16.1: [ 0 1 -2 -1 w 1+w -2+w -1+w -2w 1-2w 2-2w -1+2w -w 1-w 2-w -1-w ]
 12 invertible residues mod 16.1:
@@ -123,13 +123,13 @@ Ideal 19.1 = [19,7+w] (norm 19) is principal, with generator 2+3w with factoriza
  with inverses:
 [ 1 -2+w 1+w 2w -1+2w 2-2w -1+w w -2 2 -w 1-w -2+2w 1-2w -2w -1-w 2-w -1 ]
 AB-matrix of 19.1 is [2+3w,0; 0,5-3w]
-Ideal 19.2 = [19,11+w] (norm 19) is principal, with generator 5-3w with factorization P19b
+Ideal 19.2 = [19,11+w] (norm 19) is principal, with generator 3+2w with factorization P19b
 19 residues mod 19.2: [ 0 1 2 -2w 1-2w 2-2w -2+w -1+w w 1+w -1-w -w 1-w 2-w -2+2w -1+2w 2w -2 -1 ]
 18 invertible residues mod 19.2:
 [ 1 2 -2w 1-2w 2-2w -2+w -1+w w 1+w -1-w -w 1-w 2-w -2+2w -1+2w 2w -2 -1 ]
  with inverses:
 [ 1 -1-w 2-w 2-2w 1-2w 2w -w 1-w -2 2 -1+w w -2w -1+2w -2+2w -2+w 1+w -1 ]
-AB-matrix of 19.2 is [5-3w,0; 0,2+3w]
+AB-matrix of 19.2 is [3+2w,0; 0,5-2w]
 Ideal 21.1 = [21,16+w] (norm 21) is principal, with generator 1+4w with factorization P3*P7a
 21 residues mod 21.1: [ 0 1 2 -2+w -1+w w 1+w 1-3w -2+2w -1+2w 2w -2w 1-2w 2-2w -1+3w -1-w -w 1-w 2-w -2 -1 ]
 12 invertible residues mod 21.1:

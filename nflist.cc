@@ -38,14 +38,15 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);
+     Qideal N(n);
      ifstream data(eigfile(n).c_str());
      if(!data)
        {
-         cout<<"No data for level " << ideal_label(n) << " = ("<<n<<"), norm = "<< quadnorm(n)<<endl;
+         cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< quadnorm(n)<<endl;
        }
      else
        {
-         newforms nf(n,0);
+         newforms nf(N,0);
          nf.createfromdata();
          nf.list(nap);
        }

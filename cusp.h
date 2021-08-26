@@ -5,14 +5,15 @@
 
 #include "mat22.h"
 #include "ratquads.h"
+#include "qideal.h"
 
 class cusplist {
  private:
-  Quad N;
+  Qideal N;
   int plusflag;
   vector<RatQuad> cusps;
  public:
-  cusplist(const Quad& level, int plus)
+  cusplist(const Qideal& level, int plus)
     :N(level), plusflag(plus)
   {;}
   int index(const RatQuad& a); // adds to list if new

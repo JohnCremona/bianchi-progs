@@ -65,13 +65,13 @@ Ideal 3.1 = [3,1+t] (norm 3) is principal, with generator 1+t with factorization
  with inverses:
 [ 1 -1 ]
 AB-matrix of 3.1 is [1+t,0; 0,1-t]
-Ideal 3.2 = [3,2+t] (norm 3) is principal, with generator 1-t with factorization P3b
+Ideal 3.2 = [3,2+t] (norm 3) is principal, with generator -1+t with factorization P3b
 3 residues mod 3.2: [ 0 1 -1 ]
 2 invertible residues mod 3.2:
 [ 1 -1 ]
  with inverses:
 [ 1 -1 ]
-AB-matrix of 3.2 is [1-t,0; 0,1+t]
+AB-matrix of 3.2 is [-1+t,0; 0,-1-t]
 Ideal 4.1 = 2[1,t] (norm 4) is principal, with generator 2 with factorization P2^2
 4 residues mod 4.1: [ 0 -1 -t -1-t ]
 2 invertible residues mod 4.1:
@@ -128,13 +128,13 @@ Ideal 11.1 = [11,3+t] (norm 11) is principal, with generator 3+t with factorizat
  with inverses:
 [ 1 -2+t 1-t -t 1+t -1-t t -1+t 2-t -1 ]
 AB-matrix of 11.1 is [3+t,0; 0,3-t]
-Ideal 11.2 = [11,8+t] (norm 11) is principal, with generator 3-t with factorization P11b
+Ideal 11.2 = [11,8+t] (norm 11) is principal, with generator -3+t with factorization P11b
 11 residues mod 11.2: [ 0 1 -1+t t 1+t 2+t -2-t -1-t -t 1-t -1 ]
 10 invertible residues mod 11.2:
 [ 1 -1+t t 1+t 2+t -2-t -1-t -t 1-t -1 ]
  with inverses:
 [ 1 -2-t 1+t t 1-t -1+t -t -1-t 2+t -1 ]
-AB-matrix of 11.2 is [3-t,0; 0,3+t]
+AB-matrix of 11.2 is [-3+t,0; 0,-3-t]
 Ideal 12.1 = 2[3,1+t] (norm 12) is principal, with generator 2+2t with factorization P2^2*P3a
 12 residues mod 12.1: [ 0 1 2 1-2t -2 -1 t -1-t -t 1-t 2-t -1+t ]
 4 invertible residues mod 12.1:
@@ -163,13 +163,13 @@ Ideal 17.1 = [17,7+t] (norm 17) is principal, with generator -3+2t with factoriz
  with inverses:
 [ 1 -1+t -1-t -1-2t -t 2t -2-t -2 2 2+t -2t t 1+2t 1+t 1-t -1 ]
 AB-matrix of 17.1 is [-3+2t,0; 0,-3-2t]
-Ideal 17.2 = [17,10+t] (norm 17) is principal, with generator -3-2t with factorization P17b
+Ideal 17.2 = [17,10+t] (norm 17) is principal, with generator 3+2t with factorization P17b
 17 residues mod 17.2: [ 0 1 2 -2t 1-2t -2+t -1+t t 1+t -1-t -t 1-t 2-t -1+2t 2t -2 -1 ]
 16 invertible residues mod 17.2:
 [ 1 2 -2t 1-2t -2+t -1+t t 1+t -1-t -t 1-t 2-t -1+2t 2t -2 -1 ]
  with inverses:
 [ 1 -1-t -1+t -1+2t t -2t -2+t -2 2 2-t 2t -t 1-2t 1-t 1+t -1 ]
-AB-matrix of 17.2 is [-3-2t,0; 0,-3+2t]
+AB-matrix of 17.2 is [3+2t,0; 0,3-2t]
 Ideal 18.1 = [18,4+t] (norm 18) is principal, with generator 4+t with factorization P2*P3a^2
 18 residues mod 18.1: [ 0 1 2 -1-t -t 1-t 2-t -1-2t -2t 1-2t 2t 1+2t -2+t -1+t t 1+t -2 -1 ]
 6 invertible residues mod 18.1:
@@ -198,13 +198,13 @@ Ideal 19.1 = [19,6+t] (norm 19) is principal, with generator -1+3t with factoriz
  with inverses:
 [ 1 -3+t t -1-t -2-t -3 -2+t -1+t -2 2 1-t 2-t 3 2+t 1+t -t 3-t -1 ]
 AB-matrix of 19.1 is [-1+3t,0; 0,-1-3t]
-Ideal 19.2 = [19,13+t] (norm 19) is principal, with generator -1-3t with factorization P19b
+Ideal 19.2 = [19,13+t] (norm 19) is principal, with generator 1+3t with factorization P19b
 19 residues mod 19.2: [ 0 1 2 3 -2+t -1+t t 1+t 2+t 3+t -3-t -2-t -1-t -t 1-t 2-t -3 -2 -1 ]
 18 invertible residues mod 19.2:
 [ 1 2 3 -2+t -1+t t 1+t 2+t 3+t -3-t -2-t -1-t -t 1-t 2-t -3 -2 -1 ]
  with inverses:
 [ 1 -3-t -t -1+t -2+t -3 -2-t -1-t -2 2 1+t 2+t 3 2-t 1-t t 3+t -1 ]
-AB-matrix of 19.2 is [-1-3t,0; 0,-1+3t]
+AB-matrix of 19.2 is [1+3t,0; 0,1-3t]
 Ideal 22.1 = [22,14+t] (norm 22) is principal, with generator -2+3t with factorization P2*P11a
 22 residues mod 22.1: [ 0 1 2 3 -2-2t -1-2t -2+t -1+t t 1+t 2+t 3+t -2-t -1-t -t 1-t 2-t 1+2t 2+2t -3 -2 -1 ]
 10 invertible residues mod 22.1:

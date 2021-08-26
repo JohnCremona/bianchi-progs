@@ -444,8 +444,11 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N)
       II.pop_back();
       vector<Qideal> ans2;
       for (vector<Qideal>::const_iterator I0 = ans0.begin(); I0!=ans0.end(); ++I0)
-        for (vector<Qideal>::const_iterator I1 = ans1.begin(); I1!=ans1.end(); ++I1)
-          ans2.push_back((*I0)*(*I1));
+        for (vector<Qideal>::iterator I1 = ans1.begin(); I1!=ans1.end(); ++I1)
+          {
+            Qideal I = (*I0) * (*I1);
+            ans2.push_back(I);
+          }
       ans = ans2;
     }
   long i=1;
@@ -494,7 +497,8 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
       Quadprime P = *Pi;
       if (P.residue_degree()==2) continue; // inert primes are principal!
       if (gcd(P.norm(), n)>1) continue;    // skip P unless its norm is coprime to N
-      I = (anti==1? (*this)*P: (*this)*P.conj());
+      I = (anti==1? P: P.conj());
+      I *= (*this);
       if (I.is_principal(g))
         {
           if (anti)

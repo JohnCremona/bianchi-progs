@@ -226,23 +226,48 @@ vector<Quad> residues(const Quad& a)
   return ans;
 }
 
+Quad::operator string() const
+{
+  ostringstream s;
+  if (i==0)
+    s<<r;
+  else
+    {
+      if (r==0)
+        {
+          if (i==1) ;
+          else if (i==-1) s << "-";
+          else s << i;
+        }
+      else
+        {
+          s<<r;
+          if(i>0) s<<"+"; else s<<"-";
+          if (abs(i)>1) s<<abs(i);
+        }
+      s<<Quad::name;
+    }
+  return s.str();
+}
+
 ostream& operator<<(ostream& s, const Quad& a)
 {
-long  i = a.i, r = a.r;
-if (i==0) s<<r;
-else {if (r==0) 
-       {
-        if (i==1) ;
-        else if (i==-1) s << "-";
-             else s << i;
-       }
-       else 
-       {s<<r; 
-        if(i>0) s<<"+"; else s<<"-";
-        if (abs(i)>1) s<<abs(i);
-       }
-      s<<Quad::name;
-     }
+  s << (string)a;
+  // long  i = a.i, r = a.r;
+// if (i==0) s<<r;
+// else {if (r==0) 
+//        {
+//         if (i==1) ;
+//         else if (i==-1) s << "-";
+//              else s << i;
+//        }
+//        else 
+//        {s<<r; 
+//         if(i>0) s<<"+"; else s<<"-";
+//         if (abs(i)>1) s<<abs(i);
+//        }
+//       s<<Quad::name;
+//      }
 return s;
 }
 

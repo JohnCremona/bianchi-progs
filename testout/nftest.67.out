@@ -1,10 +1,10 @@
 Enter field: Verbose? Enter level: 
->>>> Level 67.33.1 = (-1+2a), norm = 67 <<<<
+>>>> Level 67.0 = (-1+2a), norm = 67 <<<<
 
-1 newform(s) at level 67.33.1 = (-1+2a):
+1 newform(s) at level 67.0 = (-1+2a):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 -2 3 3 7 7 9 9 -6 -5 -5 -1 -1 -1 -1 -10 9 9 1 0 0 -7 -7 4 4 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 20
 L/P ratio    = 2, cuspidal factor = 1
-Integration matrix = [-8+17a,-a;-33-a,2], factor   = 7
+Integration matrix = [9-17a,-a;33+a,2], factor   = 7
 Enter level: Enter level: 

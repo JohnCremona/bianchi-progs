@@ -1,9 +1,7 @@
+#include "qidloop.h"
 #include "homspace.h"
-#include "ratquads.h"
+//#include "ratquads.h"
 #define LOOPER
-#ifdef LOOPER
-#include "looper.h"
-#endif
 
 // List of fields for which this has been implemented so far:
 vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 23, 31};
@@ -24,24 +22,26 @@ int main ()
 #ifdef LOOPER
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
- cerr<<"Enter first and last norm for Quad loop: ";
+ cerr<<"Enter first and last norm for level: ";
  cin >> firstn >> lastn;
  cerr<<endl;
- for(Quadlooper alphaloop(firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
+ Qidealooper loop(firstn, lastn, both_conj); // not sorted within norm
+  while( loop.not_finished() )
    {
-     Quad alpha = (Quad)alphaloop;
+     Qideal N = loop.next();
 #else
- Quad alpha;
- while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
-   {
+     string Nlabel;
+     while(cerr<<"Enter level ideal label: ", cin>>Nlabel, Nlabel[0]!='0')
+       {
+         Qideal N(Nlabel);
 #endif
-     n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-     long normn = quadnorm(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<";
-     if(verbose) cout<<endl;
-     else cout << "\t";
-     homspace h(n,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
-     cout << "Dimension = " << h.h1cuspdim() << endl;
-   }
-
+         long normn = N.norm();
+         cout << ">>>> Level " << ideal_label(N)
+              << " = " << gens_string(N)
+              <<", norm = "<<normn<<" <<<<";
+         if(verbose) cout<<endl;
+         else cout << "\t";
+         homspace h(N,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
+         cout << "Dimension = " << h.h1cuspdim() << endl;
+       }
 }

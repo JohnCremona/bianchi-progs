@@ -48,7 +48,7 @@ int main(void)
   cerr<<"Enter number of newforms and number of primes to check: \n";
   cin >> nforms >> nprimes;
 
-  newforms nf(n,verbose>1);
+  newforms nf(Qideal(n),verbose>1);
   nf.createfromdata();
   if (verbose && showforms)
     nf.display();

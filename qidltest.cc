@@ -15,9 +15,12 @@ void test1(Qideal& I)
     cout << " is not principal, generators " <<I.gens();
   Factorization F = I.factorization();
   cout << " with factorization " << F;
-  Qideal J;
+  Qideal J(1);
   for (int i=0; i<F.size(); i++)
-    J*=F.prime_power(i);
+    {
+      Qideal Q = F.prime_power(i);
+      J*=Q;
+    }
   if (J!=I)
     { cerr << "Error: multiplying up gave different answer!"<<endl;
       cerr << "(" << J << " instead of "<<I<<")"<<endl;

@@ -16,7 +16,7 @@ public:
   edge_relations ER;
   face_relations FR;
   int plusflag;
-  Quad modulus; Qideal N;
+  Qideal N; // the level
   P1N P1;
   long ngens, nsymb, nap;
   vector<Quadprime> primelist; // list of primes in order, bad primes first
@@ -28,7 +28,7 @@ public:
   long hmod; // if >0, failed to lift from modular linear algebra
              // so coord is modulo this
 
-  homspace(const Quad& n, int hp, int cuspid, int verb);
+  homspace(const Qideal& I, int hp, int cuspid, int verb);
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed

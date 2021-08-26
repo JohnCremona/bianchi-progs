@@ -155,11 +155,12 @@ newform::newform(newforms* nfs,
   eigs = aq;
   vector<Quad>::const_iterator pr=quadprimes.begin();
   vector<long>::const_iterator api=aplist.begin();
+  Qideal N(nf->N);
   while ((eigs.size()<20) && (api!=aplist.end()))
     {
-      while (div(*pr,nf->modulus))  { ++pr; ++api; }
-      eigs.push_back(*api++);
-      ++pr;
+      while (Qideal(*pr).divides(N))  { ++pr; ++api; }
+      eigs.push_back(*api);
+      ++pr; ++api;
     }
 }
 
@@ -188,19 +189,23 @@ void newform::find_matrix(int j)
   if(nf->verbose>1)
     cout<<"computing integration matrix..."<<flush;
   matdot=0;
+  Qideal N(nf->N);
   for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
     { d=(Quad)dl;
-      if ((nf->N).is_coprime_to(d))
+      Qideal D(d);
+      if (N.is_coprime_to(D))
         {
           vector<Quad> reslist = residues(d);
           vector<Quad>::const_iterator res;
           for(res=reslist.begin(); res!=reslist.end() && !matdot; ++res)
             {
               b=*res;
-              Quad g = quadbezout(nf->modulus*b,d,c,a);  // b*modulus*c+a*d=1
-              if (quadnorm(g)==1)
-                {   // found a candidate q=b/d
-                  c *= -nf->modulus;
+              Qideal bN = b*N;
+              if (D.is_coprime_to(bN, a, c))
+                // found a candidate q=b/d: a+c=1 with d|a and b|c and c/b in N
+                {
+                  c /= -b;
+                  a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==1);
                   matdot = abs((nf->h1->chain(b,d, 1))[j]);
                 } // b coprime to d test
@@ -244,10 +249,12 @@ int newform::is_base_change_twist(void) const
 {
   vector<long>::const_iterator ap = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
+  Qideal N(nf->N);
   while(ap!=aplist.end())
     {
       long api = *ap++;
       Quad p0 = *pr++;
+      Qideal P0(p0);
       //cout<<"p="<<p0<<" has ap="<<api<<endl;
       if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
         {
@@ -259,9 +266,11 @@ int newform::is_base_change_twist(void) const
             // read next (conjugate) prime and eigenvalue:
           long apj = *ap++;
           Quad p1 =  *pr++;
-          //cout<<"p'="<<p1<<" has ap="<<apj<<endl;
           // skip if either divides level:
-          if(div(p0,nf->modulus) || div(p1,nf->modulus))
+          if(P0.divides(N))
+            continue;
+          Qideal P1(p1);
+          if(P1.divides(N))
             continue;
           // Check the ap agree up to sign:
           if(abs(api)!=abs(apj)) // ap mismatch
@@ -290,6 +299,7 @@ int newform::base_change_discriminant(void) const
 {
   if (is_base_change()==0) return 0;
   int bcd = 1;
+  Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
   while(api!=aplist.end())
@@ -298,7 +308,8 @@ int newform::base_change_discriminant(void) const
       Quad p = *pr++;
       if(imag(p)!=0) // this prime is not inert
         continue;
-      if(div(p,nf->modulus)) // this prime is bad
+      Qideal P(p);
+      if(P.divides(N)) // this prime is bad
         continue;
       long dp = ap+2*p.re();
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
@@ -333,6 +344,7 @@ int newform::base_change_twist_discriminant(void) const
       return bcd1;
     }
   bcd1 = bcd2 = 1;
+  Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
   vector<Quad>::const_iterator pr=quadprimes.begin();
   while(api!=aplist.end())
@@ -341,7 +353,8 @@ int newform::base_change_twist_discriminant(void) const
       Quad p = *pr++;
       if(imag(p)!=0) // this prime is not inert
         continue;
-      if(div(p,nf->modulus)) // this prime is bad
+      Qideal P(p);
+      if(P.divides(N)) // this prime is bad
         continue;
       long dp1 =  ap+2*p.re();
       long dp2 = -ap+2*p.re();
@@ -409,7 +422,7 @@ void newforms::makeh1plus(void)
 {
   if(!h1)
     {
-      h1 = new homspace(modulus,1,0,0);
+      h1 = new homspace(N,1,0,0);
       nfhmod=hmod = h1->h1hmod();
     }
 }
@@ -417,18 +430,10 @@ void newforms::makeh1plus(void)
 long newforms::matdim(void) {return h1->dimension;}
 long newforms::matden(void) {return h1->denom3;}
 
-newforms::newforms(const Quad& n, int disp)
-  : modulus(n), N(n)
-{
-  verbose = disp;
-  init();
-}
-
 newforms::newforms(const Qideal& iN, int disp)
   : N(iN)
 {
   verbose = disp;
-  modulus = N.gen(); // OK for principal ideals
   init();
 }
 
@@ -516,7 +521,8 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
           if(verbose)cout<<"passed second test: fundamental unit is a square"<<endl;
 #endif
-          int chimod  = squaremod(modulus,lam,lamres);
+          // TODO:  work out what to do here if N is not principal!
+          int chimod  = squaremod(N.gen(),lam,lamres);
           vector<int> chitab = makechitable(lam,lamres);
           vec mvtw = h1->manintwist(lam,lamres,chitab, 1);
           for(int j=0; (j<n1ds)&&(nfound<n1ds); j++)
@@ -551,7 +557,7 @@ void newforms::find_lambdas()
 void newforms::createfromscratch()
 {
   if(verbose)
-    cout<<"Constructing homspace at level "<<modulus<<" ...\n";
+    cout<<"Constructing homspace at level "<<ideal_label(N)<<" ...\n";
   makeh1plus();
   nfhmod=hmod = h1->h1hmod();
   int dimcusp = h1->h1cuspdim();
@@ -645,7 +651,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
         }
       else
         {
-          cout << "Error in splitting eigenspaces (level "<<modulus<<"): apparently found more ";
+          cout << "Error in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
           cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
                <<upperbound<<").\n";
           exit(1);
@@ -667,10 +673,10 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
     }
 }
 
-void newforms::display(void) const
+void newforms::display(void)
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
- cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(modulus) << " = (" << modulus << "):" << endl;
+ cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N) << ":" << endl;
  for(int i=0; i<n1ds; i++)
    {cout<<i+1<<":\t";
     nflist[i].display();
@@ -688,15 +694,12 @@ void newform::display(void) const
  cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 }
 
-void newforms::list(long nap) const
+void newforms::list(long nap)
 {
-  string id = ideal_label(modulus);
-  string flabel = field_label();
+  string idlabel = ideal_label(N), idgens = gens_string(N), flabel = field_label();
   for(int i=0; i<n1ds; i++)
     {
-      cout << flabel << " " << id << " " << codeletter(i) << " (" << modulus <<") ";
-      // weight
-      cout << "2 ";
+      cout << flabel << " " << idlabel << " " << codeletter(i) << " " << idgens << " 2 ";  // last is weight
       int bc = nflist[i].is_base_change();
       if (bc)
         {
@@ -818,7 +821,7 @@ void newforms::make_projcoord()
 
 void newforms::createfromdata()
 {
-  if(verbose) cout << "Retrieving newform data for N = " << modulus << endl;
+  if(verbose) cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
 
 // Read newform data from file into eigdata structure.
 

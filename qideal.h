@@ -84,12 +84,12 @@ public:
 //
   Qideal operator*(const long&) const;
   Qideal operator*(const Quad&) const;
-  Qideal operator*(const Qideal&) const;
+  Qideal operator*(Qideal&) const;
   friend Qideal operator*(const long&, const Qideal&);
   friend Qideal operator*(const Quad&, const Qideal&);
   void operator*=(const long&);
   void operator*=(const Quad&);
-  void operator*=(const Qideal&);
+  void operator*=(Qideal&);
 
   Qideal intersection(const Qideal& I);
   Quad second_generator(const Quad& a); // with nonzero a in this, return b such that this=(a,b)
@@ -117,7 +117,7 @@ public:
   // versions returning more data
 
   // return 1 iff this is coprime to I; if so, set r in this and s in I with r+s=1
-  int is_coprime_to(const Qideal& J, Quad& r, Quad& s) const;
+  int is_coprime_to(Qideal& J, Quad& r, Quad& s);
 
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
   int is_coprime_to(const Quad& alpha, Quad& inverse);
@@ -141,6 +141,7 @@ public:
   void operator/=(const Qideal&);
 
 //functions defined in qideal.cc unless inline
+  int is_zero() const {return c==0;}
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
@@ -188,6 +189,7 @@ public:
   pair<vector<Quad>, vector<Quad>> invertible_residues();
 
 // i/o
+  friend string gens_string(Qideal& I); // not const as it calls I.fill()
   friend ostream& operator<<(ostream& s, const Qideal& x);
   friend istream& operator>>(istream& s, Qideal& x);
 
@@ -199,9 +201,10 @@ private:
   void abc_from_HNF(const vector<long>&);
 };
 
-Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N
+// An AB-matrix with given first column
+mat22 AB_matrix(const Quad& a, const Quad& c);
 
-char* to_string(const Qideal& a);  // outputs to a (new) string
+Qideal Qideal_from_norm_index(long N, int i); // i'th ideal of norm N
 
 long val(const Qideal& factor, const Qideal& dividend);
 
@@ -213,7 +216,8 @@ vector<Qideal> primitive_ideals_with_norm(long N, int both_conj=1);
 vector<Qideal> ideals_with_norm(long N, int both_conj=1);
 vector<Qideal> ideals_with_bounded_norm(long maxnorm, int both_conj=1);
 
-string ideal_label(Qideal& I);  // returns label of ideal I
+string ideal_label(Qideal& I); // returns label of ideal I
+string gens_string(Qideal& I);  // returns string of gens, of the form (x) if principal or (x,y) ideal I
 
 // Class to hold sorted lists of ideals of given norm
 class Qideal_lists {
@@ -222,6 +226,11 @@ public:
   static vector<Qideal> ideals_with_norm(long N);
   static vector<Qideal> ideals_with_bounded_norm(long maxnorm);
 };
+
+// return 1 iff a is the square mod M of some r in reslist
+int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist);
+vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist);
+
 
 #endif
 

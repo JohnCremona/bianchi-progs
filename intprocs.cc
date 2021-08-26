@@ -39,17 +39,29 @@ long sqrt_mod_p(long a, long p) // p odd prime, a quadratic residue
   return I2long(rr);
 }
 
-//functions needed for non-euclidean fields to compute bezout/quadgcd
+long vecgcd(const vector<long>& a)
+{
+  long g=0;
+  for(vector<long>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ai++)
+    g = gcd(g, *ai);
+  return g;
+}
 
 // returns content and sets c such that content(a) = a.c
 long vecbezout(const vector<long>& a, vector<long>& c)
 {
-  long x=1,g=0;
+  long x = 1, g = vecgcd(a);
+  vector<long> a0=a;
+  if (g>1)
+    for(vector<long>::iterator ai=a0.begin(); ai!=a0.end(); ai++)
+      (*ai) /= g;
+  // Now a0 is primitive: we do this to make numbers smaller in what follows
   int n=(int)a.size();
-  c.resize(n);
-  for(int i=0; i<n; i++)
+  c = vector<long>(n, 0);
+  long g1=0;
+  for(int i=0; i<n &&g1!=1; i++)
     {
-      g=bezout(g,a[i],x,c[i]);
+      g1=bezout(g1,a0[i],x,c[i]);
       for(int j=0; j<i; j++) c[j]*=x;
     }
   return g;
@@ -67,15 +79,6 @@ long xmodvecbezout(long s, const vector<long>& a, vector<long>& c)
       for(j=0; j<i; j++)
         c[j] = xmodmul(c[j],x,s);
     }
-  return g;
-}
-
-// content
-long vecgcd(const vector<long>& a)
-{
-  long g=0;
-  int n=(int)a.size();
-  for(int i=0; (i<n)&(g!=1); i++) g=gcd(g,a[i]);
   return g;
 }
 
@@ -105,13 +108,13 @@ long xmoddot(long s, const vector<long>& a, const vector<long>& c)
   return g;
 }
 
-// sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis
+// sets basis={e1,e2,f1} such that [[e1,e2], [f1,0]] is a Z-basis
 // for the Z-module spanned by [first[i], second[i]], and also sets x, y to be vectors such that
 //
-// first.x = e1
-// first.y = e2
-// second.x = f1
-// second.y = 0
+// [e1, e2] = [first.x, second.x]
+// [f1,  0] = [first.y, second.y]
+
+//#define testbezout
 
 void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
                       vector<long>& basis, vector<long>& x, vector<long>& y)
@@ -123,18 +126,38 @@ void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
   basis[0] = dot(first,x);  //dot product
 //Now [basis[0], basis[1]] is the x-combination of the data, with basis[1]=gcd(second)
 //newfirst = first-e1*(second/e2);
-  for(i=0; i<n; i++) newfirst[i] = first[i] - basis[0]*second[i]/basis[1];
+  for(i=0; i<n; i++)
+    newfirst[i] = first[i] - basis[0]*(second[i]/basis[1]);
   basis[2] = vecbezout(newfirst,u);
-//  y = u - ((u*second)/basis[1])*x;
+  //  y = u - ((u*second)/basis[1])*x;
   long t = dot(u,second);
-  for(i=0; i<n; i++) y[i]=u[i]-(t*x[i])/basis[1];
+  for(i=0; i<n; i++)
+    y[i]=u[i]-(t*x[i])/basis[1];
+  // reduce e1 mod f1
+  std::ldiv_t qr = ldiv(basis[0], basis[2]);
+  long q = qr.quot;
+  if (q!=0)
+    {
 #ifdef testbezout
+      cout<<"findzbasis("<<first<<","<<second<<") --> basis "<<basis<<endl;
+      cout<<" reducing e1 from "<<basis[0]<< " to "<<qr.rem<<endl;
+#endif
+      basis[0] = qr.rem;
+      for(i=0; i<n; i++)
+        x[i] -= q*y[i];
+    }
+#ifdef testbezout
+  cout<<"findzbasis("<<first<<","<<second<<") --> basis "<<basis<<endl;
+  cout<<"coefficient vectors x="<<x<<", y="<<y<<endl;
 //Check:
   if( ! (  (basis[0]==dot(first,x))   &&
-           (basis[2]==dot(first,y))   &&
            (basis[1]==dot(second,x))  &&
-           (0==dot(second,y)) ))
-  {cerr<<"Error in findzbasis!"  <<endl; }
+           (basis[2]==dot(first,y))   &&
+           (       0==dot(second,y)) ))
+  {
+    cerr<<"Error in findzbasis!"  <<endl;
+    exit(1);
+  }
 #endif
 }
 

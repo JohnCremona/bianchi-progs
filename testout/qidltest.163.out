@@ -88,13 +88,13 @@ Ideal 41.1 = [41,a] (norm 41) is principal, with generator a with factorization 
  with inverses:
 [ 1 -20 14 -10 -8 7 6 -5 -9 -4 15 -17 19 3 11 18 -12 16 13 -2 2 -13 -16 12 -18 -11 -3 -19 17 -15 4 9 5 -6 -7 8 10 -14 20 -1 ]
 AB-matrix of 41.1 is [a,0; 0,1-a]
-Ideal 41.2 = [41,40+a] (norm 41) is principal, with generator 1-a with factorization P41b
+Ideal 41.2 = [41,40+a] (norm 41) is principal, with generator -1+a with factorization P41b
 41 residues mod 41.2: [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 -20 -19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
 40 invertible residues mod 41.2:
 [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 -20 -19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -20 14 -10 -8 7 6 -5 -9 -4 15 -17 19 3 11 18 -12 16 13 -2 2 -13 -16 12 -18 -11 -3 -19 17 -15 4 9 5 -6 -7 8 10 -14 20 -1 ]
-AB-matrix of 41.2 is [1-a,0; 0,a]
+AB-matrix of 41.2 is [-1+a,0; 0,-a]
 Ideal 43.1 = [43,1+a] (norm 43) is principal, with generator 1+a with factorization P43a
 43 residues mod 43.1: [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 14-a 15-a 16-a 17-a 18-a 19-a 20-a -20+a -19+a -18+a -17+a -16+a -15+a -14+a -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
 42 invertible residues mod 43.1:
@@ -102,13 +102,13 @@ Ideal 43.1 = [43,1+a] (norm 43) is principal, with generator 1+a with factorizat
  with inverses:
 [ 1 -20+a -14 11 -16+a -7 -6 -15+a -18+a 13 4 17-a 10 -3 -19+a -8 -5 12 -9 -14+a -2 2 14-a 9 -12 5 8 19-a 3 -10 -17+a -4 -13 18-a 15-a 6 7 16-a -11 14 20-a -1 ]
 AB-matrix of 43.1 is [1+a,0; 0,2-a]
-Ideal 43.2 = [43,41+a] (norm 43) is principal, with generator 2-a with factorization P43b
+Ideal 43.2 = [43,41+a] (norm 43) is principal, with generator -2+a with factorization P43b
 43 residues mod 43.2: [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 13+a 14+a 15+a 16+a 17+a 18+a 19+a -19-a -18-a -17-a -16-a -15-a -14-a -13-a -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
 42 invertible residues mod 43.2:
 [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 13+a 14+a 15+a 16+a 17+a 18+a 19+a -19-a -18-a -17-a -16-a -15-a -14-a -13-a -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -19-a -14 11 -15-a -7 -6 -14-a -17-a 13 4 16+a 10 -3 -18-a -8 -5 12 -9 -13-a -2 2 13+a 9 -12 5 8 18+a 3 -10 -16-a -4 -13 17+a 14+a 6 7 15+a -11 14 19+a -1 ]
-AB-matrix of 43.2 is [2-a,0; 0,1+a]
+AB-matrix of 43.2 is [-2+a,0; 0,-1-a]
 Ideal 47.1 = [47,2+a] (norm 47) is principal, with generator 2+a with factorization P47a
 47 residues mod 47.1: [ 0 1 2 3 4 5 6 7 8 9 8-a 9-a 10-a 11-a 12-a 13-a 14-a 15-a 16-a 17-a 18-a 19-a 20-a 21-a -21+a -20+a -19+a -18+a -17+a -16+a -15+a -14+a -13+a -12+a -11+a -10+a -9+a -8+a -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
 46 invertible residues mod 47.1:
@@ -116,13 +116,13 @@ Ideal 47.1 = [47,2+a] (norm 47) is principal, with generator 2+a with factorizat
  with inverses:
 [ 1 -21+a 14-a 10-a 17-a 8 -18+a 6 19-a -12+a -15+a 4 -16+a -8+a 20-a 3 -9+a -11+a 5 -7 9 13-a -2 2 -13+a -9 7 -5 11-a 9-a -3 -20+a 8-a 16-a -4 15-a 12-a -19+a -6 18-a -8 -17+a -10+a -14+a 21-a -1 ]
 AB-matrix of 47.1 is [2+a,0; 0,3-a]
-Ideal 47.2 = [47,44+a] (norm 47) is principal, with generator 3-a with factorization P47b
+Ideal 47.2 = [47,44+a] (norm 47) is principal, with generator -3+a with factorization P47b
 47 residues mod 47.2: [ 0 1 2 3 4 5 6 7 8 9 7+a 8+a 9+a 10+a 11+a 12+a 13+a 14+a 15+a 16+a 17+a 18+a 19+a 20+a -20-a -19-a -18-a -17-a -16-a -15-a -14-a -13-a -12-a -11-a -10-a -9-a -8-a -7-a -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
 46 invertible residues mod 47.2:
 [ 1 2 3 4 5 6 7 8 9 7+a 8+a 9+a 10+a 11+a 12+a 13+a 14+a 15+a 16+a 17+a 18+a 19+a 20+a -20-a -19-a -18-a -17-a -16-a -15-a -14-a -13-a -12-a -11-a -10-a -9-a -8-a -7-a -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -20-a 13+a 9+a 16+a 8 -17-a 6 18+a -11-a -14-a 4 -15-a -7-a 19+a 3 -8-a -10-a 5 -7 9 12+a -2 2 -12-a -9 7 -5 10+a 8+a -3 -19-a 7+a 15+a -4 14+a 11+a -18-a -6 17+a -8 -16-a -9-a -13-a 20+a -1 ]
-AB-matrix of 47.2 is [3-a,0; 0,2+a]
+AB-matrix of 47.2 is [-3+a,0; 0,-2-a]
 Ideal 49.1 = 7[1,a] (norm 49) is principal, with generator 7 with factorization P7
 49 residues mod 49.1: [ 0 1 2 3 -3 -2 -1 a 1+a 2+a 3+a -3+a -2+a -1+a 2a 1+2a 2+2a -4+2a -3+2a -2+2a -1+2a 3a 1+3a 2+3a -4+3a -3+3a -2+3a -1+3a -3a 1-3a 2-3a 3-3a 4-3a -2-3a -1-3a -2a 1-2a 2-2a 3-2a 4-2a -2-2a -1-2a -a 1-a 2-a 3-a -3-a -2-a -1-a ]
 48 invertible residues mod 49.1:

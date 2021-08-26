@@ -141,21 +141,20 @@ protected:
   Quadprime P0; int iP0; long nP0; vec mvp;
   vec zero_infinity;
 public:
-  Quad modulus; Qideal N;  // modulus generates N (still assumed principal)
+  Qideal N;  // the level
   vector<Quadprime> plist; // bad primes
   int is_square, npdivs;
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   vector<newform> nflist;
-  explicit newforms(const Quad& n, int disp=0);
   explicit newforms(const Qideal& N, int disp=0);
   ~newforms(void) {
                    if(h1)delete h1;
                   }
   void init();
-  void display(void) const;
-  void list(long nap=-1) const;
+  void display(void);
+  void list(long nap=-1);
 
 private:
   // Compute the associated homspace

@@ -4,12 +4,12 @@ Program moreap1: for given field and level, assumes that the newforms file exist
 Enter field: Verbose? Enter level: 
 >>>> Level 196.0.14 = (14), norm = 196 <<<<
 
-1 newform(s) at level 196.0.14 = (14):
+1 newform(s) at level 196.1 = (14):
 1:	basis = [];	aqlist = [ -1 -1 -1 ];	aplist = [ -2 1 1 1 -4 -4 2 2 -10 -4 -4 2 2 8 8 8 8 -4 -4 2 2 8 8 -10 -10 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/6, cuspidal factor = 3
-Integration matrix = [-4-5w,-w;14,1+w], factor   = 3
+Integration matrix = [10-5w,-w;-14+14w,1+w], factor   = 3
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for 101: [ -202 ]

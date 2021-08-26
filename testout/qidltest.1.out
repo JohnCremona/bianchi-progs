@@ -74,13 +74,13 @@ Ideal 5.1 = [5,2+i] (norm 5) is principal, with generator 2+i with factorization
  with inverses:
 [ 1 i -i -1 ]
 AB-matrix of 5.1 is [2+i,0; 0,2-i]
-Ideal 5.2 = [5,3+i] (norm 5) is principal, with generator 2-i with factorization P5b
+Ideal 5.2 = [5,3+i] (norm 5) is principal, with generator 1+2i with factorization P5b
 5 residues mod 5.2: [ 0 1 i -i -1 ]
 4 invertible residues mod 5.2:
 [ 1 i -i -1 ]
  with inverses:
 [ 1 -i i -1 ]
-AB-matrix of 5.2 is [2-i,0; 0,2+i]
+AB-matrix of 5.2 is [1+2i,0; 0,1-2i]
 Ideal 8.1 = 2[2,1+i] (norm 8) is principal, with generator 2+2i with factorization P2^3
 8 residues mod 8.1: [ 0 1 -2i -1 i -1-i -i 1-i ]
 4 invertible residues mod 8.1:
@@ -116,13 +116,13 @@ Ideal 13.1 = [13,5+i] (norm 13) is principal, with generator 2+3i with factoriza
  with inverses:
 [ 1 -1+i 1+i -2i i -2 2 -i 2i -1-i 1-i -1 ]
 AB-matrix of 13.1 is [2+3i,0; 0,2-3i]
-Ideal 13.2 = [13,8+i] (norm 13) is principal, with generator 2-3i with factorization P13b
+Ideal 13.2 = [13,8+i] (norm 13) is principal, with generator 3+2i with factorization P13b
 13 residues mod 13.2: [ 0 1 2 -2i -1+i i 1+i -1-i -i 1-i 2i -2 -1 ]
 12 invertible residues mod 13.2:
 [ 1 2 -2i -1+i i 1+i -1-i -i 1-i 2i -2 -1 ]
  with inverses:
 [ 1 -1-i 1-i 2i -i -2 2 i -2i -1+i 1+i -1 ]
-AB-matrix of 13.2 is [2-3i,0; 0,2+3i]
+AB-matrix of 13.2 is [3+2i,0; 0,3-2i]
 Ideal 16.1 = 4[1,i] (norm 16) is principal, with generator 4 with factorization P2^4
 16 residues mod 16.1: [ 0 1 -2 -1 i 1+i -2+i -1+i -2i 1-2i -2-2i -1-2i -i 1-i -2-i -1-i ]
 8 invertible residues mod 16.1:
@@ -137,13 +137,13 @@ Ideal 17.1 = [17,4+i] (norm 17) is principal, with generator 4+i with factorizat
  with inverses:
 [ 1 2i 2-i i -1-2i -1-i 1-i -2 2 -1+i 1+i 1+2i -i -2+i -2i -1 ]
 AB-matrix of 17.1 is [4+i,0; 0,4-i]
-Ideal 17.2 = [17,13+i] (norm 17) is principal, with generator 4-i with factorization P17b
+Ideal 17.2 = [17,13+i] (norm 17) is principal, with generator 1+4i with factorization P17b
 17 residues mod 17.2: [ 0 1 2 -1+i i 1+i 2+i -1+2i 2i -2i 1-2i -2-i -1-i -i 1-i -2 -1 ]
 16 invertible residues mod 17.2:
 [ 1 2 -1+i i 1+i 2+i -1+2i 2i -2i 1-2i -2-i -1-i -i 1-i -2 -1 ]
  with inverses:
 [ 1 -2i 2+i -i -1+2i -1+i 1+i -2 2 -1-i 1-i 1-2i i -2-i 2i -1 ]
-AB-matrix of 17.2 is [4-i,0; 0,4+i]
+AB-matrix of 17.2 is [1+4i,0; 0,1-4i]
 Ideal 18.1 = 3[2,1+i] (norm 18) is principal, with generator 3+3i with factorization P2*P3
 18 residues mod 18.1: [ 0 1 2 -3i -2 -1 i 1+i -1-2i -2i 1-2i -1+i 2i -2-i -1-i -i 1-i 2-i ]
 8 invertible residues mod 18.1:

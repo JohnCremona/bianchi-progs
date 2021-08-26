@@ -10,8 +10,8 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Quad& n, int hp, int cuspid, int verb)
-  :modulus(n), N(n)
+homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
+  :N(I)
 {
   P1 = P1N(N);
   nsymb = P1.size();
@@ -125,7 +125,7 @@ void homspace::kernel_delta()
 {
   if (verbose)
     cout<<"Computing boundary map"<<endl;
-  cusplist cusps(modulus, plusflag);
+  cusplist cusps(N, plusflag);
   mat deltamat(2*rk,rk);
   int i;
   for (i=0; i<rk; i++)

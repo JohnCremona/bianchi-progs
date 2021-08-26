@@ -24,12 +24,13 @@ int main ()
 #endif
    {
      n = makepos((Quad)alpha);  long normn = quadnorm(n);
-     newforms nf(n,verbose);
+     Qideal N(n);
+     newforms nf(N,verbose);
      nf.createfromdata();
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {
-         cout << "\n>>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+         cout << "\n>>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
          nf.display();
        }
    }

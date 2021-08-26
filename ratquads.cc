@@ -47,7 +47,9 @@ Qideal RatQuad::ideal() const
 
 Qideal RatQuad::denominator_ideal() const
 {
-  return Qideal(d)/Qideal({n,d});
+  if (d==0)
+    return Qideal(0);
+  return Qideal(d) / Qideal({n,d});
 }
 
 int RatQuad::is_principal() const
@@ -63,6 +65,7 @@ int RatQuad::is_principal() const
 
 int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 {
+  if (c1==c2) return 1;
 #ifdef DEBUG_CUSP_EQ
   cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
   cout<<" (N="<<N<<")"<<endl;
@@ -72,12 +75,17 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
   quadbezout(c2.n,q2,s2,r2);  s2*=q1;
   q3 = quadgcd(q1*q2,N);
 #ifdef DEBUG_CUSP_EQ
-  cout<<"s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
+  cout<<" - s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
 #endif
   int equiv=0;
-  vector<Quad> units = (plusflag? quadunits: squareunits);
+  vector<Quad>& units = (plusflag? quadunits: squareunits);
   for (vector<Quad>::const_iterator u = units.begin(); u!= units.end() && !equiv; ++u)
-    equiv = div(q3,(s1-(*u)*s2));
+    {
+#ifdef DEBUG_CUSP_EQ
+      cout<<" - testing unit "<<(*u)<<endl;
+#endif
+      equiv = div(q3,(s1-(*u)*s2));
+    }
 #ifdef DEBUG_CUSP_EQ
   cout<<"Returning "<<equiv<<endl;
 #endif
@@ -88,34 +96,96 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 
 int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 {
+  if (c1==c2) return 1;
 #ifdef DEBUG_CUSP_EQ
   cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
   cout<<" (N="<<N<<")"<<endl;
 #endif
   // test ideals are in the same class:
   Qideal I1 = c1.ideal(), I2 = c2.ideal();
-  if (!I1.is_equivalent(I2)) return 0;
-
+  if (!I1.is_equivalent(I2))
+    {
+#ifdef DEBUG_CUSP_EQ
+      cout << " - ideals "<<I1<<", "<<I2<<" are not equivalent"<<endl;
+      cout<<" - Returning 0"<<endl;
+#endif
+      return 0;
+    }
   // denominator test:
-  Qideal D = c1.denominator_ideal()+N;
-  if (D != c2.denominator_ideal()+N) return 0;
+  Qideal D1 = c1.denominator_ideal()+N,
+    D2 = c2.denominator_ideal()+N;
+  if (D1 != D2)
+    {
+#ifdef DEBUG_CUSP_EQ
+      cout << " - denominator ideals "<<D1<<", "<<D2<<" are not equal"<<endl;
+      cout<<" - Returning 0"<<endl;
+#endif
+      return 0;
+    }
 
-  // adjust representations so that ideals are coprime to N:
-  RatQuad cc1(c1), cc2(c2);
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - denominator test passes, denominator ideal = "<<D1<<endl;
+#endif
+  // adjust representations so that ideals are coprime to N and equal:
+  RatQuad cc1 = c1, cc2 = c2;
   cc1.reduce(N);
   cc2.reduce(N);
+  I1 = cc1.ideal();
+  I2 = cc2.ideal();
+  assert (I1==I2);
+  assert (N.is_coprime_to(I1));
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - adjusted representations: "<<cc1<<", "<<cc2<<" with equal ideals "<<I1<<" coprime to N"<<endl;
+#endif
+
+  // Use the criterion of Cor.2 in "Manin symbols over number fields"
+
+  // Form ab-matrices with first columns equal to the two cusp representations
+
+  mat22 M1 = AB_matrix(cc1.n, cc1.d), // [a1,b1;a2,b2]
+    M2 = AB_matrix(cc2.n, cc2.d);     // [a1',b1';a2',b2']
+  assert (M1.det()==M2.det());
+  Quad a2db2 = M2.entry(1,0)*M1.entry(1,1), a2b2d = M1.entry(1,0)*M2.entry(1,1);
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - A = "<<M1<<", det = "<<M1.det()<<endl;
+  cout<<" - B = "<<M2<<", det = "<<M2.det()<<endl;
+  cout<<" - a2'*b2 = "<<a2db2<<", a2*b2' = "<<a2b2d<<endl;
+#endif
+
+  Qideal M = D1*D1+N; // D1==D2
+  M = I1*I2*M;
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - M = I1*I2*(D^2+N) = "<<M<<endl;
+#endif
 
   // test whether there is a unit u such that
-  // (1) d2 = u*d1 (mod N)
-  // (2) n1 = u*n2 (mod D)
+  // (1) a2'*b2 = u*a2*b2' (mod M)
 
-  vector<Quad> units = (plusflag? quadunits: squareunits);
-  for (vector<Quad>::const_iterator ui = units.begin(); ui!= units.end(); ++ui)
+  if (M.divides(a2db2-a2b2d))
+    {
+#ifdef DEBUG_CUSP_EQ
+      cout<<" - Returning 1"<<endl;
+#endif
+      return 1;
+    }
+  vector<Quad>& units = (plusflag? quadunits: squareunits);
+  for (vector<Quad>::const_iterator ui = units.begin()+1; ui!= units.end(); ++ui)
     {
       Quad u = *ui;
-      if (N.divides(cc2.d-u*cc1.d) && D.divides(cc1.n-u*cc2.n))
-        return 1;
+#ifdef DEBUG_CUSP_EQ
+      cout<<" - testing unit "<<u<<endl;
+#endif
+      if (M.divides(a2db2-u*a2b2d))
+        {
+#ifdef DEBUG_CUSP_EQ
+          cout<<" - Returning 1"<<endl;
+#endif
+          return 1;
+        }
     }
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - Returning 0"<<endl;
+#endif
   return 0;
 }
 

@@ -18,7 +18,15 @@ string eigfile(const Quad& N)    //returns filename for eigs at level N
 
 string eigfile(Qideal& N)    //returns filename for eigs at level N
 {
-  return eigfile(N.gen()); // temporary for principal ideals
+  stringstream s;
+  s << getenv("NF_DIR");
+  if (s.str().empty()) {s.clear(); s<<"./newforms";}
+  s << "/2.0." << (Quad::disc) << ".1/";
+  if (Quad::class_number==1) // for backwards compatibility of data file names
+    s << ideal_code(N.gen());
+  else
+    s << ideal_label(N);
+  return s.str();
 }
 
 // Implementation of eigdata constructor -- reads data from file

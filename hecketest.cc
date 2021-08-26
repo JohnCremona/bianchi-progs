@@ -69,7 +69,7 @@ int main(void)
   n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
   long normn = quadnorm(n);
   cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-  homspace h(n,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
+  homspace h(Qideal(n),plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
   int dim = h.h1dim();
   int den = h.h1denom();
   int cden = h.h1cdenom();
