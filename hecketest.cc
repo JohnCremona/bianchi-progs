@@ -1,15 +1,11 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
-#include <eclib/subspace.h>
 #include <eclib/mmatrix.h>
 #include <NTL/mat_ZZ.h>
 #include <NTL/mat_poly_ZZ.h>
-#include <NTL/ZZXFactoring.h>
+#include "qidloop.h"
 #include "homspace.h"
 //#define LOOPER
-#ifdef LOOPER
-#include "looper.h"
-#endif
 
 // List of fields for which this has been implemented so far:
 vector<int> fields = {1,2,3,7,11,19,43,67,163};
@@ -56,20 +52,22 @@ int main(void)
  cerr << "See the hecke matrices (0/1)? "; cin >> mats;
  cerr << "See the char polys (0/1)? "; cin >> pols;
  cerr << "Factor the char polys (0/1)? "; cin >> facs;
+ Qideal N;
 #ifdef LOOPER
  long firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- for(Quadlooper alpha(firstn,lastn); alpha.ok(); ++alpha)
+ Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
+ while( loop.not_finished() )
+   {
+     N = loop.next();
 #else
- Quad alpha;
- while(cerr<<"Enter level: ", cin>>alpha, alpha!=0)
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+   {
 #endif
-{
-  n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-  long normn = quadnorm(n);
-  cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-  homspace h(Qideal(n),plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
+  long normn = N.norm();
+  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+  homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
   int dim = h.h1dim();
   int den = h.h1denom();
   int cden = h.h1cdenom();
@@ -104,8 +102,7 @@ int main(void)
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
 	{
           Quadprime Q = *pr;
-	  Quad q= Q.gen();
-	  cout << "Computing W("<<q<<")...  " << flush;
+	  cout << "Computing W_"<<Q<<"..." << flush;
 	  wq =  h.heckeop(Q,0,mats);
 	  cout << "done. " << flush;
           // bigint lambda = to_ZZ(den);
@@ -129,6 +126,7 @@ int main(void)
 	}
       cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? ";
       cin >> np;
+      cout<<endl;
       mat_m tp(dim), tpwq(dim), wqtp(dim);
       vector<mat_m> tplist;
       ip=0;
@@ -137,9 +135,8 @@ int main(void)
 	   ++pr)
 	{
           Quadprime P = *pr;
-	  while (P.divides(n)) {++pr; P=*pr; np++;}
-          Quad p = P.gen();
-	  cout << "Computing T_p for p = " << p << "\n";
+	  while (P.divides(N)) {++pr; P=*pr; np++;}
+	  cout << "Computing T_" << P << "..."<<flush;
 	  tp = h.heckeop(P,0,mats);
 	  cout << "done. " << flush;
           charpol = char_poly(tp, den, facs&&!hmod);
@@ -152,8 +149,8 @@ int main(void)
               wqtp = matmulmodp(wqlist[kp], tp, MMODULUS);
 	      if (tpwq!=wqtp)
 	      {
-		cout << "Problem: T_p matrix for p = "<<p
-		     <<" and W_q matrix "<<kp<<" do not commute!" << "\n";
+		cout << "Problem: T_"<<P
+		     <<" and W_Q matrix #"<<kp<<" do not commute!" << "\n";
 	      }
 	    }
 	  for (jp=0; jp<ip; jp++)
@@ -162,8 +159,8 @@ int main(void)
               wqtp = matmulmodp(tplist[jp], tp, MMODULUS);
 	      if (tpwq!=wqtp)
 		{
-		  cout << "Problem: T_p matrix for p= "<<p
-		       <<" does not commute!" << "\n";
+		  cout << "Problem: T_"<<P
+		       <<" does not commute with T_P #" <<jp << "!\n";
 		}
 	    }
 	  tplist.push_back(tp);

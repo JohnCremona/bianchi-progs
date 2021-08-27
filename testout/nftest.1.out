@@ -1,4 +1,4 @@
-Enter field: Verbose? Enter level: Retrieving newform data for N = 65.2
+Retrieving newform data for N = 65.2
 
 >>>> Level 65.2 = (7+4i), norm = 65 <<<<
 
@@ -8,7 +8,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/2, cuspidal factor = 3
 Integration matrix = [-5+i,-i;4-7i,1+i], factor   = 6
-Enter level: Retrieving newform data for N = 72.1
+Retrieving newform data for N = 72.1
 
 >>>> Level 72.1 = (6+6i), norm = 72 <<<<
 
@@ -18,4 +18,3 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1/4, cuspidal factor = 2
 Integration matrix = [4+i,1;6+6i,2+i], factor   = 2
-Enter level: 

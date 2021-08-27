@@ -1,45 +1,41 @@
 Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
 Euclidean
 1236 primes initialised, max norm = 10000
->>>> Level 441.0.21 = (21), norm = 441 <<<<
+>>>> Level 441.2 = (21), norm = 441 <<<<
 Cuspidal dimension = 3
-Computing W(1+w)...  done. Factors are:
+Computing W_P3...done. Factors are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W(2+w)...  done. Factors are:
+Computing W_P7a...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W(1+2w)...  done. Factors are:
+Computing W_P7b...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing T_p for p = 2
-done. Factors are:
+
+Computing T_P2...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[3 1]	(degree 1)	 to power 2
 
-Computing T_p for p = 3+w
-done. Factors are:
+Computing T_P13a...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 
-Computing T_p for p = 1+3w
-done. Factors are:
+Computing T_P13b...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 
-Computing T_p for p = 2+3w
-done. Factors are:
+Computing T_P19a...done. Factors are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 
-Computing T_p for p = 3+2w
-done. Factors are:
+Computing T_P19b...done. Factors are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 

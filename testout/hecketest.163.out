@@ -1,50 +1,41 @@
 Q(sqrt(-163))	discriminant = 163	min poly(a) = a^2-a+41.
 Non-Euclidean, class number 1
 1212 primes initialised, max norm = 10000
->>>> Level 121.0.11 = (11), norm = 121 <<<<
+>>>> Level 121.1 = (11), norm = 121 <<<<
 Cuspidal dimension = 1
  denominator = 3
-Computing W(11)...  done. Factors are:
+Computing W_P11...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing T_p for p = 2
-done. Factors are:
+
+Computing T_P2...done. Factors are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T_p for p = 3
-done. Factors are:
+Computing T_P3...done. Factors are:
 1:	[5 1]	(degree 1)	 to power 1
 
-Computing T_p for p = 5
-done. Factors are:
+Computing T_P5...done. Factors are:
 1:	[9 1]	(degree 1)	 to power 1
 
-Computing T_p for p = a
-done. Factors are:
+Computing T_P41a...done. Factors are:
 1:	[8 1]	(degree 1)	 to power 1
 
-Computing T_p for p = -1+a
-done. Factors are:
+Computing T_P41b...done. Factors are:
 1:	[8 1]	(degree 1)	 to power 1
 
-Computing T_p for p = 1+a
-done. Factors are:
+Computing T_P43a...done. Factors are:
 1:	[6 1]	(degree 1)	 to power 1
 
-Computing T_p for p = -2+a
-done. Factors are:
+Computing T_P43b...done. Factors are:
 1:	[6 1]	(degree 1)	 to power 1
 
-Computing T_p for p = 2+a
-done. Factors are:
+Computing T_P47a...done. Factors are:
 1:	[-8 1]	(degree 1)	 to power 1
 
-Computing T_p for p = -3+a
-done. Factors are:
+Computing T_P47b...done. Factors are:
 1:	[-8 1]	(degree 1)	 to power 1
 
-Computing T_p for p = 7
-done. Factors are:
+Computing T_P7...done. Factors are:
 1:	[10 1]	(degree 1)	 to power 1
 

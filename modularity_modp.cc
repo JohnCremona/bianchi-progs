@@ -26,17 +26,16 @@ int main(void)
   cerr<<"Enter field: \n";
   cin >> d;
   Quad::field(d,max);
-  Quad n;
+  Qideal N;
   int verbose=0, showforms=0;
   //cerr << "Verbose? "; cin>>verbose;
   //cerr << "Display newforms (1/0)? "; cin>>showforms;
 
-  cerr<<"Enter level: \n";
-  cin>>n;
-  n = makepos(n);
-  long normn = quadnorm(n);
+  cerr<<"Enter level (ideal label or generator): \n";
+  cin>>N;
+  long normn = N.norm();
   if (verbose)
-    cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+    cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
 
   cerr<<"Enter prime p: \n";
   int p;
@@ -48,7 +47,7 @@ int main(void)
   cerr<<"Enter number of newforms and number of primes to check: \n";
   cin >> nforms >> nprimes;
 
-  newforms nf(Qideal(n),verbose>1);
+  newforms nf(N,verbose>1);
   nf.createfromdata();
   if (verbose && showforms)
     nf.display();

@@ -1,8 +1,7 @@
 Program moreap1: for given field and level, assumes that the newforms file exists, and computes more individual Hecke eigenvalues.
 ---------------
 
-Enter field: Verbose? Enter level: 
->>>> Level 196.0.14 = (14), norm = 196 <<<<
+>>>> Level 196.2 = (14), norm = 196 <<<<
 
 1 newform(s) at level 196.2 = (14):
 1:	basis = [];	aqlist = [ -1 -1 -1 ];	aplist = [ -2 1 1 1 -4 -4 2 2 -10 -4 -4 2 2 8 8 8 8 -4 -4 2 2 8 8 -10 -10 ]
@@ -17,4 +16,3 @@ Enter a rational prime p (0 to finish):
 ap for 2+9w: [ -4 ]
 ap for 9+2w: [ -4 ]
 Enter a rational prime p (0 to finish): 
-Enter level: 

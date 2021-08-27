@@ -1,36 +1,35 @@
-#include <fstream>
+#include "qidloop.h"
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
-#ifdef LOOPER
-#include "looper.h"
-#endif
 
 int main ()
 {
  int d,max=1000000;
- cout << "Enter field: " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
  Quad n; int verbose=0;
- cout << "Verbose? "; cin>>verbose;
+ cerr << "Verbose? "; cin>>verbose;
 #ifdef LOOPER
  long firstn, lastn;
- cout<<"Enter first and last norm for Quads: ";
+ cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  int both_conj=1;
- for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
-#else
- Quad alpha;
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
-#endif
+
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
    {
-     n = makepos((Quad)alpha);  long normn = quadnorm(n);
-     Qideal N(n);
+     Qideal N = loop.next();
+#else
+ Qideal N;
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+   {
+#endif
      newforms nf(N,verbose);
      nf.createfromdata();
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {
-         cout << "\n>>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+         cout << "\n>>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
          nf.display();
        }
    }

@@ -8,22 +8,21 @@ int main(void)
  cout << "Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.\n";
  cout << "---------------\n\n";
  int d,max=150000;
- cout << "Enter field: " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
- Quad n; int verbose=0, output, showeigs, showforms, lastp;
- cout << "Verbose? "; cin>>verbose;
- cout << "Output new eigs to file (1/0)? ";  cin>>output;
- cout << "Output new eigs to screen (1/0)? "; cin>>showeigs;
- cout << "Display newforms (1/0)? "; cin>>showforms;
+ Qideal N;
+ int verbose=0, output, showeigs, showforms, lastp;
+ cerr << "Verbose? "; cin>>verbose;
+ cerr << "Output new eigs to file (1/0)? ";  cin>>output;
+ cerr << "Output new eigs to screen (1/0)? "; cin>>showeigs;
+ cerr << "Display newforms (1/0)? "; cin>>showforms;
 
- while (cout<<"Enter level: ", cin>>n, n!=0) {
-     n = makepos(n);
-     Qideal N(n);
-     long normn = quadnorm(n);
-     string efilename = eigfile(n);
-     cout << "How many primes for Hecke eigenvalues? ";
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+   {
+     string efilename = eigfile(N);
+     cerr << "How many primes for Hecke eigenvalues? ";
      cin  >> lastp; cout << endl;
-     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N,verbose);
      nf.createfromdata();
      if (showforms) nf.display();

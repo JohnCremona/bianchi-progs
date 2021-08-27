@@ -1,8 +1,6 @@
 Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
 Euclidean
 18021 primes initialised, max norm = 200000
-Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
-Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 73.1 = (8+w), norm = 73 <<<<
 
 1 newform(s) at level 73.1 = (8+w):
@@ -13,7 +11,6 @@ L/P ratio    = 1/6, cuspidal factor = 1
 Integration matrix = [-5+2w,-w;9-8w,1+w], factor   = 3
 Writing data to file nftmp/2.0.3.1/73.8.1...done.
 ===========================================
-Enter level: 
 >>>> Level 75.1 = (5+5w), norm = 75 <<<<
 
 1 newform(s) at level 75.1 = (5+5w):
@@ -24,12 +21,10 @@ L/P ratio    = 1/16, cuspidal factor = 8
 Integration matrix = [-7,-w;15-15w,2], factor   = 8
 Writing data to file nftmp/2.0.3.1/75.5.5...done.
 ===========================================
-Enter level: 
 >>>> Level 100.1 = (10), norm = 100 <<<<
 No newforms.
 Writing data to file nftmp/2.0.3.1/100.0.10...done.
 ===========================================
-Enter level: 
 >>>> Level 121.1 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.1 = (11):
@@ -40,7 +35,6 @@ L/P ratio    = 1/5, cuspidal factor = 5
 Integration matrix = [8-4w,-w;-11+11w,1+w], factor   = 15
 Writing data to file nftmp/2.0.3.1/121.0.11...done.
 ===========================================
-Enter level: 
 >>>> Level 124.1 = (10+2w), norm = 124 <<<<
 
 1 newform(s) at level 124.1 = (10+2w):
@@ -51,7 +45,6 @@ L/P ratio    = 1/5, cuspidal factor = 5
 Integration matrix = [-4+7w,-w;2-12w,1+w], factor   = 15
 Writing data to file nftmp/2.0.3.1/124.10.2...done.
 ===========================================
-Enter level: 
 >>>> Level 147.2 = (7+7w), norm = 147 <<<<
 
 1 newform(s) at level 147.2 = (7+7w):
@@ -62,7 +55,6 @@ L/P ratio    = 1/16, cuspidal factor = 8
 Integration matrix = [-10,-w;21-21w,2], factor   = 8
 Writing data to file nftmp/2.0.3.1/147.7.7...done.
 ===========================================
-Enter level: 
 >>>> Level 171.2 = (9+6w), norm = 171 <<<<
 
 1 newform(s) at level 171.2 = (9+6w):
@@ -73,7 +65,6 @@ L/P ratio    = 1/6, cuspidal factor = 2
 Integration matrix = [-4-3w,-w;15-9w,2], factor   = 4
 Writing data to file nftmp/2.0.3.1/171.33.3...done.
 ===========================================
-Enter level: 
 >>>> Level 192.1 = (8+8w), norm = 192 <<<<
 
 1 newform(s) at level 192.1 = (8+8w):
@@ -84,7 +75,6 @@ L/P ratio    = 1/16, cuspidal factor = 8
 Integration matrix = [5+w,1;8+8w,2+w], factor   = 4
 Writing data to file nftmp/2.0.3.1/192.8.8...done.
 ===========================================
-Enter level: 
 >>>> Level 196.2 = (14), norm = 196 <<<<
 
 1 newform(s) at level 196.2 = (14):
@@ -95,4 +85,4 @@ L/P ratio    = 1/18, cuspidal factor = 3
 Integration matrix = [10-5w,-w;-14+14w,1+w], factor   = 3
 Writing data to file nftmp/2.0.3.1/196.0.14...done.
 ===========================================
-Enter level: 
+

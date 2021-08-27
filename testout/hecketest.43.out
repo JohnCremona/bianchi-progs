@@ -1,64 +1,56 @@
 Q(sqrt(-43))	discriminant = 43	min poly(a) = a^2-a+11.
 Non-Euclidean, class number 1
 1204 primes initialised, max norm = 10000
->>>> Level 16.0.4 = (4), norm = 16 <<<<
+>>>> Level 16.1 = (4), norm = 16 <<<<
 Cuspidal dimension = 2
  denominator = 2
-Computing W(2)...  done. Factors are:
+Computing W_P2...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing T_p for p = 3
-done. Factors are:
+
+Computing T_P3...done. Factors are:
 1:	[0 1]	(degree 1)	 to power 2
 
-Computing T_p for p = a
-done. Factors are:
+Computing T_P11a...done. Factors are:
 1:	[-1 -4 1]	(degree 2)	 to power 1
 
-Computing T_p for p = -1+a
-done. Factors are:
+Computing T_P11b...done. Factors are:
 1:	[-1 -4 1]	(degree 2)	 to power 1
 
-Computing T_p for p = 1+a
-done. Factors are:
+Computing T_P13a...done. Factors are:
 1:	[-19 2 1]	(degree 2)	 to power 1
 
-Computing T_p for p = -2+a
-done. Factors are:
+Computing T_P13b...done. Factors are:
 1:	[-19 2 1]	(degree 2)	 to power 1
 
->>>> Level 43.21.1 = (-1+2a), norm = 43 <<<<
+>>>> Level 43.1 = (-1+2a), norm = 43 <<<<
 Cuspidal dimension = 5
-Computing W(-1+2a)...  done. Factors are:
+Computing W_P43...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 2
 2:	[-1 1]	(degree 1)	 to power 3
 
 Involution!
-Computing T_p for p = 2
-done. Factors are:
+
+Computing T_P2...done. Factors are:
 1:	[2 1]	(degree 1)	 to power 2
 2:	[0 1]	(degree 1)	 to power 3
 
-Computing T_p for p = 3
-done. Factors are:
+Computing T_P3...done. Factors are:
 1:	[4 1]	(degree 1)	 to power 2
 2:	[2 1]	(degree 1)	 to power 3
 
-Computing T_p for p = a
-done. Factors are:
+Computing T_P11a...done. Factors are:
 1:	[-3 1]	(degree 1)	 to power 1
 2:	[-7 2 1]	(degree 2)	 to power 1
 3:	[-1 4 1]	(degree 2)	 to power 1
 
-Computing T_p for p = -1+a
-done. Factors are:
+Computing T_P11b...done. Factors are:
 1:	[-3 1]	(degree 1)	 to power 1
 2:	[-7 2 1]	(degree 2)	 to power 1
 3:	[-1 4 1]	(degree 2)	 to power 1
 
-Computing T_p for p = 1+a
-done. Factors are:
+Computing T_P13a...done. Factors are:
 1:	[5 1]	(degree 1)	 to power 1
 2:	[-45 0 1]	(degree 2)	 to power 1
 3:	[-7 -2 1]	(degree 2)	 to power 1

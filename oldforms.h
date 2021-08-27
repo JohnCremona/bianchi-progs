@@ -6,7 +6,7 @@
 #include "primes.h"
 
 string eigfile(const Quad& N);    //returns filename for eigs at level N
-string eigfile(Qideal& N);    //returns filename for eigs at level N
+string eigfile(Qideal& N);        //returns filename for eigs at level N
 
 class eigdata {
 

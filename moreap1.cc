@@ -8,18 +8,18 @@ int main(void)
  cout << "Program moreap1: for given field and level, assumes that the newforms file exists, and computes more individual Hecke eigenvalues.\n";
  cout << "---------------\n\n";
  int d,max=150000;
- cout << "Enter field: " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  Quad::field(d,max);
- Quad n; int verbose=0, showforms=1;
- cout << "Verbose? "; cin>>verbose;
- //cout << "Display newforms (1/0)? "; cin>>showforms;
+ Qideal N;
+ int verbose=0, showforms=1;
+ cerr << "Verbose? "; cin>>verbose;
+ //cerr << "Display newforms (1/0)? "; cin>>showforms;
 
- while (cout<<"Enter level: \n", cin>>n, n!=0) {
-     n = makepos(n);
-     long normn = quadnorm(n);
-     string efilename = eigfile(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(Qideal(n),verbose);
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+   {
+     string efilename = eigfile(N);
+     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     newforms nf(N,verbose);
      nf.createfromdata();
      if (showforms) nf.display();
 

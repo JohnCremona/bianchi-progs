@@ -1,8 +1,6 @@
 Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
 Euclidean
 17989 primes initialised, max norm = 200000
-Verbose? Which primes for Hecke eigenvalues (first#, last#)? 
-Output Hecke eigenvalues? (0/1) Enter level: 
 >>>> Level 11.1 = (-1+2a), norm = 11 <<<<
 
 1 newform(s) at level 11.1 = (-1+2a):
@@ -13,7 +11,6 @@ L/P ratio    = 2/5, cuspidal factor = 5
 Integration matrix = [2,1;1-2a,1-a], factor   = 10
 Writing data to file nftmp/2.0.11.1/11.5.1...done.
 ===========================================
-Enter level: 
 >>>> Level 27.2 = (3a), norm = 27 <<<<
 
 1 newform(s) at level 27.2 = (3a):
@@ -24,17 +21,14 @@ L/P ratio    = 1/4, cuspidal factor = 4
 Integration matrix = [-4-3a,-a;9-3a,2], factor   = 8
 Writing data to file nftmp/2.0.11.1/27.0.3...done.
 ===========================================
-Enter level: 
 >>>> Level 33.2 = (5+a), norm = 33 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/33.5.1...done.
 ===========================================
-Enter level: 
 >>>> Level 44.1 = (-2+4a), norm = 44 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/44.10.2...done.
 ===========================================
-Enter level: 
 >>>> Level 47.2 = (5+2a), norm = 47 <<<<
 
 1 newform(s) at level 47.2 = (5+2a):
@@ -45,22 +39,18 @@ L/P ratio    = 2, cuspidal factor = 1
 Integration matrix = [-7-3a,-a;11-5a,2], factor   = 1
 Writing data to file nftmp/2.0.11.1/47.26.1...done.
 ===========================================
-Enter level: 
 >>>> Level 55.2 = (4+3a), norm = 55 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/55.38.1...done.
 ===========================================
-Enter level: 
 >>>> Level 81.3 = (9), norm = 81 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/81.0.9...done.
 ===========================================
-Enter level: 
 >>>> Level 81.4 = (6+3a), norm = 81 <<<<
 No newforms.
 Writing data to file nftmp/2.0.11.1/81.6.3...done.
 ===========================================
-Enter level: 
 >>>> Level 89.1 = (2+5a), norm = 89 <<<<
 
 1 newform(s) at level 89.1 = (2+5a):
@@ -71,7 +61,6 @@ L/P ratio    = 1/4, cuspidal factor = 2
 Integration matrix = [5-2a,1;-2-5a,1-a], factor   = 1
 Writing data to file nftmp/2.0.11.1/89.36.1...done.
 ===========================================
-Enter level: 
 >>>> Level 92.1 = (8+2a), norm = 92 <<<<
 
 1 newform(s) at level 92.1 = (8+2a):
@@ -82,7 +71,6 @@ L/P ratio    = 2/3, cuspidal factor = 3
 Integration matrix = [2-3a,1;-8-2a,1-a], factor   = 6
 Writing data to file nftmp/2.0.11.1/92.8.2...done.
 ===========================================
-Enter level: 
 >>>> Level 99.1 = (3+5a), norm = 99 <<<<
 
 1 newform(s) at level 99.1 = (3+5a):
@@ -93,7 +81,6 @@ L/P ratio    = 1/2, cuspidal factor = 2
 Integration matrix = [-5+3a,1;3+5a,1-a], factor   = 2
 Writing data to file nftmp/2.0.11.1/99.60.1...done.
 ===========================================
-Enter level: 
 >>>> Level 99.2 = (-3+6a), norm = 99 <<<<
 
 1 newform(s) at level 99.2 = (-3+6a):
@@ -104,4 +91,4 @@ L/P ratio    = 1/8, cuspidal factor = 4
 Integration matrix = [5-9a,-a;15+3a,2], factor   = 8
 Writing data to file nftmp/2.0.11.1/99.15.3...done.
 ===========================================
-Enter level: 
+

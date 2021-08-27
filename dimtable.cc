@@ -1,6 +1,5 @@
-#include <eclib/subspace.h>
-#include "homspace.h"   // which includes quads.h & moddata.h
-#include "looper.h"
+#include "qidloop.h"
+#include "homspace.h"
 
 // List of fields for which this has been implemented so far:
 vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 23, 31};
@@ -29,12 +28,11 @@ int main ()
  else
    cout << "dim(all)\tdim(plus)\tdim(minus)" << endl;
 
- for(Quadlooper alphaloop(firstn,lastn,both_conj); alphaloop.ok(); ++alphaloop)
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
    {
-     Quad alpha = (Quad)alphaloop;
-     n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-     Qideal N(n);
-     long normn = quadnorm(n);
+     Qideal N = loop.next();
+     long normn = N.norm();
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t "<<normn<<"\t\t"; // level and norm
      homspace hplus(N,1,0, verbose);  //level, plusflag, cuspidal, verbose

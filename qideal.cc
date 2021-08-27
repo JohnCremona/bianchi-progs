@@ -723,22 +723,24 @@ Qideal Qideal::conj() const
   return ans;
 }
 
+// Ideal input: either a label string N.i, or as an alternative for a
+// principal ideal, two integers a b for (a+b*w)
+
 istream& operator>>(istream& s, Qideal& y)
 {
-  long a, b, c;
-  do {
-    s >> a >> b >> c;
-    if ((a!=0) && (c!=0) && ((b*(b+Quad::t)+1)%a==0)) // i.e. N(b+w)=0 (mod a)
-      {
-        y = Qideal(a,b,c);
-        return s;
-      }  // assign via c'tor
-    else
-      {
-        cerr << "retry: ";
-      }
-  }
-  while (1);
+  string st;
+  s >> st;
+  if (st.find(".")==string::npos) // string contains no "."
+    {
+      long r = stoi(st);
+      s >> st;
+      long i = stoi(st);
+      Quad alpha(r,i);
+      y = Qideal(alpha);
+    }
+  else
+    y = Qideal(st);
+  return s;
 }
 
 ostream& operator<<(ostream& s, const Qideal& x)

@@ -1,4 +1,4 @@
-Enter field: Verbose? Enter level: 
+
 >>>> Level 19.1 = (-1+2a), norm = 19 <<<<
 
 1 newform(s) at level 19.1 = (-1+2a):
@@ -7,7 +7,7 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 36
 L/P ratio    = 2, cuspidal factor = 15
 Integration matrix = [3-5a,-a;9+a,2], factor   = 15
-Enter level: 
+
 >>>> Level 20.1 = (2a), norm = 20 <<<<
 
 1 newform(s) at level 20.1 = (2a):
@@ -16,4 +16,3 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 24
 L/P ratio    = 2, cuspidal factor = 3
 Integration matrix = [-4+a,1;4a,1-a], factor   = 6
-Enter level: 

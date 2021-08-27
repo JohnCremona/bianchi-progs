@@ -1,9 +1,6 @@
-#include <fstream>
+#include "qidloop.h"
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
-#ifdef LOOPER
-#include "looper.h"
-#endif
 
 // List of fields for which this has been implemented so far:
 vector<int> fields = {1,2,3,7,11,19,43,67,163};
@@ -21,49 +18,53 @@ int main ()
  Quad::displayfield(cout);
  Quad n; int verbose=0;
  int startp, stopp;
- cout << "Verbose? "; cin>>verbose;
-  cout << "Which primes for Hecke eigenvalues (first#, last#)? ";
-  cin >> startp >> stopp; cout << endl;
+ cerr << "Verbose? "; cin>>verbose;
+  cerr << "Which primes for Hecke eigenvalues (first#, last#)? ";
+  cin >> startp >> stopp; cerr << endl;
   if (stopp>nquadprimes)
     {
-      cout<<"Reducing last# to "<<nquadprimes<<endl;
+      cerr<<"Reducing last# to "<<nquadprimes<<endl;
       stopp=nquadprimes;
     }
   int output=1;
-  cout << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
+  cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
  long firstn, lastn;
  int both_conj;
- cout<<"Both conjugates? (0/1) "; cin >> both_conj;
- cout<<"Enter first and last norm for Quads: ";
+ cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
+ cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  stringstream dimtabfilename;
  dimtabfilename << "dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
  ofstream dimtab(dimtabfilename.str().c_str());
 
- for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
-#else
- Quad alpha;
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
-#endif
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
    {
-     cout<<endl;
-     n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
-     Qideal N(n);
-     long normn = quadnorm(n);
-     string efilename = eigfile(n);
-     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+     Qideal N = loop.next();
+#else
+     Qideal N;
+     while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+       {
+#endif
+     cerr<<endl;
+     long normN = N.norm();
+     string efilename = eigfile(N);
+     string label = ideal_label(N);
+     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
      newforms nf(N,verbose);
      nf.createfromscratch();
 #ifdef LOOPER
      int dimcusp, dimeis, dimall;
      // output lines as in dimtabeis:
      dimtab << d << "\t2\t";           // field and weight
-     dimtab << ideal_label(N)<<"\t\t"; // level and norm
+     dimtab << label<<"\t\t"; // level and norm
      dimcusp = nf.h1->h1cuspdim();
      dimall = nf.h1->h1dim();
      dimeis = dimall-dimcusp;
-     dimtab << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
+     dimtab << dimall << "\t\t"
+            << dimcusp << "\t\t"
+            << dimeis << endl;
 #endif
      //nf.display();
      nf.getap(startp,stopp,verbose);

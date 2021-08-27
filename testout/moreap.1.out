@@ -1,7 +1,7 @@
 Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
 ---------------
 
-Enter field: Verbose? Output new eigs to file (1/0)? Output new eigs to screen (1/0)? Display newforms (1/0)? Enter level: How many primes for Hecke eigenvalues? 
+
 >>>> Level 5330.3 = (29+67i), norm = 5330 <<<<
 Retrieving newform data for N = 5330.3
 
@@ -91,4 +91,3 @@ P = P233a = (13+8i)	N(P) = 233	   21   -27    11     3
 P = P233b = (8+13i)	N(P) = 233	  -11    27     3    17 
 ...done.
 Writing data to file nftmp/2.0.4.1/5330.2387.1......done.
-Enter level: 

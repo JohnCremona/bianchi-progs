@@ -1,43 +1,39 @@
 Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
 Euclidean
 1225 primes initialised, max norm = 10000
->>>> Level 144.0.12 = (12), norm = 144 <<<<
+>>>> Level 144.2 = (12), norm = 144 <<<<
 Cuspidal dimension = 3
-Computing W(t)...  done. Factors are:
+Computing W_P2...done. Factors are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W(1+t)...  done. Factors are:
+Computing W_P3a...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W(-1+t)...  done. Factors are:
+Computing W_P3b...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing T_p for p = 3+t
-done. Factors are:
+
+Computing T_P11a...done. Factors are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 
-Computing T_p for p = -3+t
-done. Factors are:
+Computing T_P11b...done. Factors are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 
-Computing T_p for p = -3+2t
-done. Factors are:
+Computing T_P17a...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 3
 
-Computing T_p for p = 3+2t
-done. Factors are:
+Computing T_P17b...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 3
 
-Computing T_p for p = -1+3t
-done. Factors are:
+Computing T_P19a...done. Factors are:
 1:	[-4 1]	(degree 1)	 to power 1
 2:	[4 1]	(degree 1)	 to power 2
 

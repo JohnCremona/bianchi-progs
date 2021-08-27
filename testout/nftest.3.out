@@ -1,4 +1,4 @@
-Enter field: Verbose? Enter level: 
+
 >>>> Level 73.1 = (8+w), norm = 73 <<<<
 
 1 newform(s) at level 73.1 = (8+w):
@@ -7,4 +7,3 @@ Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6
 L/P ratio    = 1/6, cuspidal factor = 1
 Integration matrix = [-5+2w,-w;9-8w,1+w], factor   = 3
-Enter level: 

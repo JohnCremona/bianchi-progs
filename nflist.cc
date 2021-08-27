@@ -1,9 +1,6 @@
-#include <fstream>
+#include "qidloop.h"
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
-#ifdef LOOPER
-#include "looper.h"
-#endif
 
 int main ()
 {
@@ -31,18 +28,20 @@ int main ()
  cin >> firstn >> lastn;
  cerr<<endl;
  int both_conj=1;
- for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
-#else
- Quad alpha;
- while(cerr<<"Enter level: ", cin>>alpha, cerr<<endl, alpha!=0)
-#endif
+
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
    {
-     n = makepos((Quad)alpha);
-     Qideal N(n);
-     ifstream data(eigfile(n).c_str());
+     Qideal N = loop.next();
+#else
+ Qideal N;
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+   {
+#endif
+     ifstream data(eigfile(N).c_str());
      if(!data)
        {
-         cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< quadnorm(n)<<endl;
+         cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< N.norm()<<endl;
        }
      else
        {

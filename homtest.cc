@@ -1,6 +1,5 @@
 #include "qidloop.h"
 #include "homspace.h"
-//#include "ratquads.h"
 #define LOOPER
 
 // List of fields for which this has been implemented so far:
@@ -16,10 +15,11 @@ int main ()
      exit(1);
    }
  Quad::field(d,max);
- long firstn, lastn; Quad n; int verbose, plusflag=1;
+ int verbose, plusflag=1;
  cerr << "Verbose? "; cin>>verbose;
  cerr << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
+ long firstn, lastn;
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for level: ";
@@ -30,10 +30,9 @@ int main ()
    {
      Qideal N = loop.next();
 #else
-     string Nlabel;
-     while(cerr<<"Enter level ideal label: ", cin>>Nlabel, Nlabel[0]!='0')
+     Qideal N;
+     while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
-         Qideal N(Nlabel);
 #endif
          long normn = N.norm();
          cout << ">>>> Level " << ideal_label(N)

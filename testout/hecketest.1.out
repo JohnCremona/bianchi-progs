@@ -1,44 +1,40 @@
 Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
->>>> Level 144.0.12 = (12), norm = 144 <<<<
+>>>> Level 144.1 = (12), norm = 144 <<<<
 Dimension = 14
-Computing W(1+i)...  done. Factors are:
+Computing W_P2...done. Factors are:
 1:	[1 1]	(degree 1)	 to power 6
 2:	[-1 1]	(degree 1)	 to power 8
 
 Involution!
-Computing W(3)...  done. Factors are:
+Computing W_P3...done. Factors are:
 1:	[-1 1]	(degree 1)	 to power 5
 2:	[1 1]	(degree 1)	 to power 9
 
 Involution!
-Computing T_p for p = 2+i
-done. Factors are:
+
+Computing T_P5a...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 3:	[6 1]	(degree 1)	 to power 2
 4:	[-6 1]	(degree 1)	 to power 9
 
-Computing T_p for p = 1+2i
-done. Factors are:
+Computing T_P5b...done. Factors are:
 1:	[2 1]	(degree 1)	 to power 3
 2:	[-6 1]	(degree 1)	 to power 11
 
-Computing T_p for p = 2+3i
-done. Factors are:
+Computing T_P13a...done. Factors are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 3:	[14 1]	(degree 1)	 to power 2
 4:	[-14 1]	(degree 1)	 to power 9
 
-Computing T_p for p = 3+2i
-done. Factors are:
+Computing T_P13b...done. Factors are:
 1:	[2 1]	(degree 1)	 to power 3
 2:	[-14 1]	(degree 1)	 to power 11
 
-Computing T_p for p = 4+i
-done. Factors are:
+Computing T_P17a...done. Factors are:
 1:	[2 1]	(degree 1)	 to power 1
 2:	[-2 1]	(degree 1)	 to power 2
 3:	[18 1]	(degree 1)	 to power 2
