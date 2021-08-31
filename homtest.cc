@@ -26,7 +26,7 @@ int main ()
  cin >> firstn >> lastn;
  cerr<<endl;
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
-  while( loop.not_finished() )
+ while( loop.not_finished() )
    {
      Qideal N = loop.next();
 #else

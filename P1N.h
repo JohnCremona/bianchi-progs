@@ -63,6 +63,9 @@ protected:
   int np;    // number of bad primes
 };
 
+// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d) in P^1(N)
+mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd);
+
 // class for action of 2x2 matrices on a P1N
 class action  :public mat22 {
 private:

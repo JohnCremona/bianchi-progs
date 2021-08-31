@@ -227,13 +227,12 @@ long P1N::apply(const mat22& M, long i)
 
 //#define DEBUG_LIFT
 
-// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
-mat22 P1N::lift_to_SL2(long ind)
+// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d) in P^1(N)
+mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 {
-  Quad a, b, c, d, inv, x, y, z, h;
-  make_symb(ind, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
+  Quad a, b, c(cc), d(dd), inv, x, y, z, h;
 #ifdef DEBUG_LIFT
-  cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") to SL2"<<endl;
+  cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") mod "<<N<<" to SL2"<<endl;
 #endif
   // Special cases (1): (c:1), (1:d) need no work:
   if (d==1) return mat22(1,0,c,1);
@@ -270,7 +269,6 @@ mat22 P1N::lift_to_SL2(long ind)
       cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
       assert (a*d-b*c==1);
-      assert (index(c,d)==ind);
       mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
       cout<<" returning  "<< M <<endl;
@@ -318,11 +316,21 @@ mat22 P1N::lift_to_SL2(long ind)
   cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
   assert (a*d-b*c==1);
-  assert (index(c,d)==ind);
   mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
   cout<<" returning  "<< M <<endl;
 #endif
+  return M;
+}
+
+// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
+mat22 P1N::lift_to_SL2(long ind)
+{
+  Quad c, d;
+  make_symb(ind, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
+  mat22 M = ::lift_to_SL2(N, c, d);
+  assert (M.det()==1);
+  assert (index(M.entry(1,0), M.entry(1,1))==ind);
   return M;
 }
 

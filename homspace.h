@@ -95,6 +95,18 @@ public:
   // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
 };
 
+// Each relation is a signed sum of edges (M)_alpha = {M(alpha},
+// M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
+// sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
+// relation holds identically in H_3 (not just modulo the congruence
+// subgroup!)
+
+// General case:
+int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
+// Special case: all signs +1
+int check_rel(const vector<mat22>& mats, const vector<int>& types);
+
+
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 

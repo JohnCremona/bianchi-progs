@@ -4,6 +4,7 @@
 
 #include "mat22.h"
 #include "ratquads.h"
+#include "homspace.h"
 #include "face_relations.h"
 #include <assert.h>
 #ifdef TIME_RELATION_SOLVING
@@ -14,24 +15,22 @@
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
 #endif
 
-// Each face relation is a signed sum of edges (M)_alpha = {M(alpha},
+// Each relation is a signed sum of edges (M)_alpha = {M(alpha},
 // M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
 // sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
 // relation holds identically in H_3 (not just modulo the congruence
 // subgroup!)
 
-int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
-
 // Special case: all signs +1
-int check_face_rel(const vector<mat22>& mats, const vector<int>& types)
+int check_rel(const vector<mat22>& mats, const vector<int>& types)
 {
   vector<int> signs(mats.size(), 1);
-  return check_face_rel(mats, types, signs);
+  return check_rel(mats, types, signs);
 }
 
 // General case:
 //#define DEBUG_FACE_RELATION
-int check_face_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
+int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
 {
 #ifdef DEBUG_FACE_RELATION
   cout<<"Checking face relation...\n";
@@ -486,7 +485,7 @@ void face_relations::triangle_relation_2()
   vector<long> rel(3);
   vector<int> types(3, 1), done(nsymb, 0);
   vector<mat22> mats = {mat22::identity, K, K*K};
-  check_face_rel(mats, types);
+  assert (check_rel(mats, types));
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -538,7 +537,7 @@ void face_relations::general_relation(const vector<action>& Mops,
   vector<int> Jtypes(len);   // Jops, Jtypes used in applying J to a relation
 
   if (check)
-    check_face_rel(Mats, types, signs);
+    assert(check_rel(Mats, types, signs));
 
   // Adjustments will be needed on applyinh J when one of the alphas[t] has denominator 2.
   if (!plusflag)
@@ -569,7 +568,7 @@ void face_relations::general_relation(const vector<action>& Mops,
             }
         }
       if (check)
-        check_face_rel(Jmats, Jtypes, signs);
+        assert(check_rel(Jmats, Jtypes, signs));
     }
 
   vector<int> done(nsymb, 0);
@@ -743,22 +742,6 @@ void face_relations::square_relation_5(int check)
 
   general_relation(Mops, types, signs, 2, check);
 
-  // action M(P1, M1);
-  // action Ti(P1, M2);
-  // check_face_rel(mats, types, signs);
-
-  // long i, j, m, k;
-  // for (i=0; i<nsymb; i++)
-  //     {
-  //       if (done[i])
-  //         continue;
-  //       j = Ti(i);
-  //       m = M(i);
-  //       k = M(j);
-  //       done[i] = done[m] = 1; // M has order 2
-  //       rel = {i, j, m, k};
-  //       add_face_rel(rel, types, signs);
-  //     }
   if(verbose)
     {
       cout << "After square relation, number of relations = " << numrel <<"\n";

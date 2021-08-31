@@ -102,6 +102,7 @@ void homspace::make_freemods()
       m = freemods[i];
       if (verbose)
         cout<< m << " --> " << flush;
+      //      vec v = chain(m);
       vec v = chain(m.beta()) - chain(m.alpha());
       ei[i+1] = denom1;
       if (verbose)
@@ -172,23 +173,27 @@ void homspace::kernel_delta()
     }
 }
 
+//#define DEBUG_CHAIN
+
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
   long ind = P1.index(c,d);
   long i= ER.coords(ind, type);
-  // cout<<"Symbol ("<<c<<":"<<d<<") has index "<<ind<<" plus offset "<< ER.offset(type) <<" = "<<ind+ER.offset(type)
-  //     <<", giving coordindex "<<i;
+#ifdef DEBUG_CHAIN
+  cout<<"Symbol ("<<c<<":"<<d<<") has index "<<ind<<" plus offset "<< ER.offset(type) <<" = "<<ind+ER.offset(type)
+       <<", giving coordindex "<<i;
+#endif
   long n = (proj? projcoord.ncols(): rk);
   vec ans(n); // initialises to 0
   if (i)
     {
       ans = sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i)));
-      // cout << ": coordinate vector "<<ans<<endl;
+#ifdef DEBUG_CHAIN
+      cout << ": coordinate vector "<<ans<<endl;
+#endif
     }
   return ans;
 }
-
-//#define DEBUG_NON_EUCLID
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // Instead of just  {return chain(beta, proj) - chain(alpha, proj);}
@@ -201,7 +206,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
   mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
   assert (M.det()==Quad::one);
   Quad c = N.reduce(x), d = N.reduce(-b);
-#ifdef DEBUG_NON_EUCLID
+#ifdef DEBUG_CHAIN
   cout<<"Computing alpha->beta chain {"<<alpha<<","<<beta<<"}\n";
   cout<<"   translated to {0, "<<M(beta)<<"} with c="<<c<<", d="<<d<<"\n";
 #endif
@@ -213,21 +218,21 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
   Quad e, a(aa), b(bb), c(cc), d(dd), q, f;
   vec ans = chaincd(c,d,0,proj); // this is the path {0,oo} when (c:d)=(0:1) (the default)
   int t=0, u;
-#ifdef DEBUG_NON_EUCLID
+#ifdef DEBUG_CHAIN
   //   if (!Quad::is_Euclidean)
-  cout<<" INIT (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(symb(c,d,this),0)<<") AT "<< RatQuad(a,b,1) << endl;
+  cout<<" INIT (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(lift_to_SL2(N,c,d),0)<<") AT "<< RatQuad(a,b,1) << endl;
 #endif
    while (quadnorm(b))
      {
        pseudo_euclidean_step(a,b, t, c,d);
-       c = N.reduce(c); d = N.reduce(d); // reduce modulo the level
+       //c = N.reduce(c); d = N.reduce(d); // reduce modulo the level
 
        // either t>=0 and we have a standard edge:
        if (t>=0)
          {
            u = alpha_inv[t];
-#ifdef DEBUG_NON_EUCLID
-           cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_u=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(symb(c,d,this),u)<<") TO "<<RatQuad(a,b,1) << endl;
+#ifdef DEBUG_CHAIN
+           cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_t'=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(lift_to_SL2(N,c,d),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif
            // Look up this symbol, convert to a vector w.r.t. homology basis
            vec part = chaincd(c, d, u, proj);
@@ -252,7 +257,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
              }
            else
              ans += part;
-#ifdef DEBUG_NON_EUCLID
+#ifdef DEBUG_CHAIN
            cout<<" coordinate vector = "<<ans<<endl;
 #endif
            return ans;
@@ -260,7 +265,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
      }
 
    // We get here when b=0, so no singular edge was used
-#ifdef DEBUG_NON_EUCLID
+#ifdef DEBUG_CHAIN
    cout<<" coordinate vector = "<<ans<<endl;
 #endif
    return ans;

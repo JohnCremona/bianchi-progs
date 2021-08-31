@@ -173,7 +173,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
               M.apply_right_inverse(c2,d2);
             }
 #ifdef DEBUG_PSEA
-          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<"), type "<<local_t<<endl;
+          cout<<" - success (q="<<q<<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<local_t<<endl;
 #endif
           t = local_t;
           return;

@@ -2,6 +2,7 @@
 
 #include "mat22.h"
 #include "ratquads.h"
+#include "homspace.h"
 #include "edge_relations.h"
 #include <assert.h>
 
@@ -101,8 +102,9 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
         cout<<"General edge pair relations (-)\n";
       for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); ++i)
         {
-          if(verbose) cout<<" pair "<< (*i)<<endl;
+          if(verbose) cout<<" pair "<< (*i)<<flush;
           edge_pairing_minus(*i);
+          if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
       if(verbose)
         cout << "After edge pair (-) relations, ngens = "<<ngens<<endl;
@@ -114,8 +116,9 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
         cout<<"General edge pair relations (+)\n";
       for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); ++i)
         {
-          if(verbose) cout<<" pair "<< (*i)<<endl;
+          if(verbose) cout<<" pair "<< (*i)<<flush;
           edge_pairing_plus(*i);
+          if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
       if(verbose)
         cout << "After edge pair (+) relations, ngens = "<<ngens<<endl;
@@ -127,8 +130,9 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
         cout<<"General edge quadruple relations\n";
       for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); ++i)
         {
-          if(verbose) cout<<" quadruple "<< (*i)<<endl;
+          if(verbose) cout<<" quadruple "<< (*i)<<flush;
           edge_pairing_double(*i);
+          if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
     }
   if (verbose)
@@ -260,11 +264,17 @@ void edge_relations::edge_relations_2_d12mod4()
   Quad a=w, b=w;
   ((Quad::d)%4==1? b: a) += 1;
 
+  // for d=1(4), a=w, b=w+1
+  // for d=2(4), a=w+1, b=w
+  // so alphas[1] = a/2, sigmas[1] = b/2
+
   action M(P1, M_alphas[1]);
   action L(P1, -1,a,0,1); assert (L.det()==-1);
-  action K(P1, -1,b,0,1); assert (K.det()==-1);
 
   // alpha#1 = w/2 (d%4=1), (w+1)/2 (d%4=2)
+
+  assert(check_rel({mat22::identity, M_alphas[1]}, {1,1}));
+  assert(check_rel({mat22::identity, mat22(-1,a,0,1)}, {1,1}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off = offset(1);
@@ -278,7 +288,7 @@ void edge_relations::edge_relations_2_d12mod4()
       k = M(l); // = L(m)
       done[i] = done[k] = done[l] = done[m] = 1;
 
-      if ((i==m) || (plusflag&&(i==k))) // i==m iff l==k
+      if (i==m) // i==m iff l==k since M,L commute, both order 2
         {
           coordindex[off + i] = 0;
           coordindex[off + l] = 0;
@@ -304,6 +314,9 @@ void edge_relations::edge_relations_2_d12mod4()
   if (!plusflag)
     return;
 
+  action K(P1, -1,b,0,1); assert (K.det()==-1);
+  assert (check_rel({mat22::identity, mat22(-1,b,0,1)}, {-1,-1}, {1,-1}));
+
   std::fill(done.begin(), done.end(), 0);
   off = offset(-1);
   for (i=0; i<nsymb; i++)
@@ -324,12 +337,15 @@ void edge_relations::edge_relations_2_d12mod4()
 void edge_relations::edge_relations_2_d7mod8()
 {
   // sigma#1 = w/2,  sigma#2 = (1-w)/2
-  for (int t=0; t<2; t++) // types -1, -2, i.e. -1-t
+  for (int t=1; t<3; t++) // types -t = -1, -2
     {
-      Quad x = (2*sigmas[t+1]).num();
+      Quad x = (2*sigmas[t]).num();
       action L(P1, -1, x, 0,1); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
-      long i, l, off = offset(-1-t);
+      long i, l, off = offset(-t);
+
+      assert (check_rel({mat22::identity, mat22(-1,x,0,1)}, {-t,-t}, {1,-1}));
+
       for (i=0; i<nsymb; i++)
         {
           if (done[i])
@@ -360,24 +376,29 @@ void edge_relations::edge_relations_2_d3mod8()
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  action K(P1, M_alphas[1]);
+  action M(P1, M_alphas[1]);
   action L(P1, -1,w-1,0,1); assert (L.det()==-1);
 
-  // K maps w/2 --> oo --> (w-1)/2, where K = [w-1,u;2,-w], det=1,  order 3
-  // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gK(oo),gK(w/2)} = -(gK)_w/2.
+  // M maps w/2 --> oo --> (w-1)/2, where M = [w-1,u;2,-w], det=1,  order 3
+  // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gM(oo),gM(w/2)} = -(gM)_w/2.
   //
   // Also (g)_(w-1)/2 = (gL)_(w-1)/2      with L = [-1,w-1;0,1],  det=-1, order 2, if plus
-  //                  = -(gLK)_w/2
+  //                  = -(gLM)_w/2
+
+  assert(check_rel({mat22::identity, M_alphas[1]}, {2,1}, {1,1}));
+  assert(check_rel({mat22::identity, M_alphas[2]}, {1,2}, {1,1}));
+  assert(check_rel({mat22::identity, mat22(-1,w,0,1)}, {1,1}, {1,-1}));
+  assert(check_rel({mat22::identity, mat22(-1,w-1,0,1)}, {2,2}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off1 = offset(1), off2 = offset(2);
-  for (j=0; j<nsymb; j++) // index of a type 2 symbol
+  for (j=0; j<nsymb; j++)
     {
       if (!done[j])
         {
-          k = K(j);      // index of type 1 symbol
-          l = L(j);      // index of type 2 symbol
-          m = K(l);      // index of type 1 symbol
+          k = M(j);
+          l = L(j);
+          m = M(l);
           done[j] = done[l] = 1;
           ++ngens;
           gens.push_back(off1+k);
@@ -441,39 +462,45 @@ void edge_relations::edge_pairing_minus(int i)
 
 void edge_relations::edge_pairing_plus(int i)
 {
-  long i1, j1, j2, i2;
+  long j, k, l, m;
   long off1 = offset(i), off2 = offset(i+1);
   action J(P1, mat22::J);
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
 
-  for (j1=0; j1<nsymb; j1++)
+  // cout << endl;
+  for (j=0; j<nsymb; j++)
     {
-      if (done[j1])
+      if (done[j])
         continue;
-      i1 = M(j1);
-      j2 = J(j1);
-      i2 = J(i1);
-      done[j1] = done[i1];
+      k = M(j);
+      l = J(j);
+      m = J(k);
+      done[j] = done[m] = 1;
+      // cout<<"(j,k,l,m) = "<< vector<long>({j,k,l,m}) << flush;
 
-      if ( (i1==j1) || (plusflag&&(i2==j1)))
+      if ( plusflag&&(j==m))
         {
-          coordindex[off1+j1] = 0;
-          coordindex[off1+j2] = 0;
+          // cout << " - trivial"<<endl;
+          coordindex[off1+j] = 0;
+          coordindex[off2+m] = 0;
         }
       else
         {
           ++ngens;
-          gens.push_back(off1+j1);
-          coordindex[off1+j1] = ngens;
-          coordindex[off1+i1] = -ngens;
+          // cout << " - new "<<ngens<<flush;
+          gens.push_back(off1+j);
+          coordindex[off1+j] = ngens;
+          coordindex[off2+k] = -ngens;
           if (!plusflag)
             {
               ++ngens;
-              gens.push_back(off2+j2);
+              // cout << " - new "<<ngens<<flush;
+              gens.push_back(off1+m);
             }
-          coordindex[off2+j2] = ngens;
-          coordindex[off2+i2] = -ngens;
+          coordindex[off2+l] = ngens;
+          coordindex[off1+m] = -ngens;
+          // cout << endl;
         }
     }
 }
