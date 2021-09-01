@@ -895,8 +895,13 @@ Qideal::Qideal(const string& s)           // ideal from label N.i
   std::getline(ss, istr);
   long N, i;
   stringstream(Nstr)>>N;
-  stringstream(istr)>>i;
-  *this = Qideal_from_norm_index(N,i);
+  if (N==0)
+    *this = Qideal(0);
+  else
+    {
+      stringstream(istr)>>i;
+      *this = Qideal_from_norm_index(N,i);
+    }
 }
 
 // If a is in (c,d) return 1 and x,y such that a=c*x+d*y, else return 0

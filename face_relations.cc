@@ -29,14 +29,17 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types)
 }
 
 // General case:
+
 //#define DEBUG_FACE_RELATION
+
 int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
 {
 #ifdef DEBUG_FACE_RELATION
-  cout<<"Checking face relation...\n";
-  cout<<"mats: "<<mats<<endl;
-  cout<<"types: "<<types<<endl;
-  cout<<"signs: "<<signs<<endl;
+  int n = mats.size();
+  cout<<"  - Checking "<<(n==2? "edge": "face")<<" relation...\n";
+  cout<<"    mats: "<<mats<<endl;
+  cout<<"    types: "<<types<<endl;
+  cout<<"    signs: "<<signs<<endl;
 #endif
   vector<mat22>::const_iterator mi;
   vector<int>::const_iterator ti, si;
@@ -47,7 +50,7 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
     {
       M = *mi;
 #ifdef DEBUG_FACE_RELATION
-      cout<<"M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
+      cout<<"    M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
 #endif
       a = M(base_point(*ti));
       b = M.image_oo();
@@ -75,7 +78,8 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
     }
   if (!ok)
     {
-      cout<<"Bad face relation!\n";
+      int n = mats.size();
+      cout<<"\n*************Bad "<< (n==2? "edge": "face") << " relation!\n";
       cout<<"alphas: "<<as<<endl;
       cout<<"betas:  "<<bs<<endl;
       exit(1);
@@ -83,7 +87,7 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
 #ifdef DEBUG_FACE_RELATION
   else
     {
-      cout<<"Good face relation "<<endl;
+      cout<<"  - Good "<< (n==2? "edge": "face") << " relation!\n";
     }
 #endif
   return ok;
@@ -204,7 +208,7 @@ void face_relations::make_relations()
 
   if (!aas_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<triangles.size()<<" aas-triangle relations"<<endl;
+      if(verbose) cout<<"\nApplying "<<aas_triangles.size()<<" aas-triangle relations"<<endl;
       for (vector<pair<vector<int>, Quad>>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
         aas_triangle_relation(*T);
     }
@@ -242,8 +246,8 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
         {
           P1->make_symb(*r, c, d);
           cout<< ((*s)>0? " +": " -");
-          cout<<"("<<c<<":"<<d<<")";
-          cout<<"["<<(*r)<<"]_"<<(*t);
+          //cout<<"("<<c<<":"<<d<<")";
+          cout<<"["<<(*r)<<";"<<(*t)<<"]";
         }
       cout <<" --> ";
     }
@@ -463,9 +467,9 @@ void face_relations::hexagon_relation_11()
     }
 }
 
-// extra triangle relation(s) for non-Euclidean fields
+// extra triangle relation(s)
 
-// Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}
+// Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}  for non-Euclidean fields of class number 1
 
 void face_relations::triangle_relation_2()
 {
@@ -582,14 +586,14 @@ void face_relations::general_relation(const vector<action>& Mops,
           rel[s] = k;
           if (sym[s]) done[k]=1;
         }
-      add_face_rel(rel, types);
+      add_face_rel(rel, types, signs);
       if (!plusflag)
         {
           for (int s=0; s<len; s++)
             {
               rel[s] = Jops[s](rel[s]);
             }
-          add_face_rel(rel, Jtypes);
+          add_face_rel(rel, Jtypes, signs);
         }
     }
 }
@@ -662,7 +666,7 @@ void face_relations::general_triangle_relation(const vector<int>& tri, int check
   general_relation(Mops, types, signs, 0, check);
 
   if(verbose)
-    cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n";
+    cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n\n";
 }
 
 void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check)
@@ -684,7 +688,7 @@ void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, i
   general_relation(Mops, types, signs, 0, check);
 
   if(verbose)
-    cout << "After aas-triangle relation, number of relations = " << numrel <<"\n";
+    cout << "After aas-triangle relation ["<<T<<"; "<<u<<"], number of relations = " << numrel <<"\n\n";
 }
 
 // generic square relation

@@ -427,6 +427,11 @@ void edge_relations::edge_pairing_minus(int i)
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
 
+  assert (check_rel({mat22::identity, M_alphas[i]}, {i, i}));
+  assert (check_rel({mat22::identity, M_alphas[i+1]}, {i+1, i+1}));
+  assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
+  assert (check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
+
   for (j=0; j<nsymb; j++)
     {
       if (!done[j])
@@ -468,6 +473,10 @@ void edge_relations::edge_pairing_plus(int i)
   action M(P1, M_alphas[i]);
   vector<int> done(nsymb, 0);
 
+  assert (check_rel({mat22::identity, M_alphas[i]}, {i+1, i}));
+  assert (check_rel({mat22::identity, M_alphas[i+1]}, {i, i+1}));
+  assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
+
   // cout << endl;
   for (j=0; j<nsymb; j++)
     {
@@ -479,29 +488,20 @@ void edge_relations::edge_pairing_plus(int i)
       done[j] = done[m] = 1;
       // cout<<"(j,k,l,m) = "<< vector<long>({j,k,l,m}) << flush;
 
-      if ( plusflag&&(j==m))
-        {
-          // cout << " - trivial"<<endl;
-          coordindex[off1+j] = 0;
-          coordindex[off2+m] = 0;
-        }
-      else
+      ++ngens;
+      // cout << " - new "<<ngens<<flush;
+      gens.push_back(off1+j);
+      coordindex[off1+j] = ngens;
+      coordindex[off2+k] = -ngens;
+      if (!plusflag)
         {
           ++ngens;
           // cout << " - new "<<ngens<<flush;
-          gens.push_back(off1+j);
-          coordindex[off1+j] = ngens;
-          coordindex[off2+k] = -ngens;
-          if (!plusflag)
-            {
-              ++ngens;
-              // cout << " - new "<<ngens<<flush;
-              gens.push_back(off1+m);
-            }
-          coordindex[off2+l] = ngens;
-          coordindex[off1+m] = -ngens;
-          // cout << endl;
+          gens.push_back(off1+m);
         }
+      coordindex[off1+m] = ngens;
+      coordindex[off2+l] = -ngens;
+      // cout << endl;
     }
 }
 

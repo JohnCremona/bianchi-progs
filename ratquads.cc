@@ -111,9 +111,16 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 #endif
       return 0;
     }
+#ifdef DEBUG_CUSP_EQ
+  cout << " - cusps are in the same ideal class"<<endl;
+  cout << " - absolute denominator ideals: " << c1.denominator_ideal() << " and " << c2.denominator_ideal() << endl;
+#endif
   // denominator test:
   Qideal D1 = c1.denominator_ideal()+N,
     D2 = c2.denominator_ideal()+N;
+#ifdef DEBUG_CUSP_EQ
+  cout << " - relative denominator ideals: " << D1 << " and " << D2 << endl;
+#endif
   if (D1 != D2)
     {
 #ifdef DEBUG_CUSP_EQ
