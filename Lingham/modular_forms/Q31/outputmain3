@@ -1,0 +1,3166 @@
+Norm:2
+Factorization:
+p2a
+Time: 2.380
+Dim=0
+
+Norm:2
+Factorization:
+p2b
+Time: 2.230
+Dim=0
+
+Norm:4
+Factorization:
+p2a^2
+Time: 5.220
+Dim=0
+
+Norm:4
+Factorization:
+p2b^2
+Time: 4.300
+Dim=0
+
+Norm:4
+Factorization:
+p2a
+p2b
+Time: 7.310
+Dim=0
+
+Norm:5
+Factorization:
+p5b
+Time: 2.450
+Dim=0
+
+Norm:5
+Factorization:
+p5a
+Time: 2.490
+Dim=0
+
+Norm:7
+Factorization:
+p7a
+Time: 2.510
+Dim=0
+
+Norm:7
+Factorization:
+p7b
+Time: 2.630
+Dim=0
+
+Norm:8
+Factorization:
+p2b^3
+Time: 8.100
+Dim=0
+
+Norm:8
+Factorization:
+p2a^3
+Time: 8.290
+Dim=0
+
+Norm:8
+Factorization:
+p2a^2
+p2b
+Time: 14.120
+Dim=0
+
+Norm:8
+Factorization:
+p2a
+p2b^2
+Time: 13.680
+Dim=0
+
+Norm:9
+Factorization:
+p3
+Time: 3.140
+Dim=0
+
+Norm:10
+Factorization:
+p2b
+p5b
+Time: 8.310
+Dim=1
+NewDim=1
+Time: 20.870
+Fricke:-1
+[* 1, 1, 0, -1, 4, 2, -4, 0, -6, 4, 2, -2, -8, 6 *]
+
+Norm:10
+Factorization:
+p2a
+p5a
+Time: 8.580
+Dim=1
+NewDim=1
+Time: 23.510
+Fricke:-1
+[* 1, 1, -1, 0, 2, 4, -4, -6, 0, 4, -2, 2, 6, -8 *]
+
+Norm:10
+Factorization:
+p2b
+p5a
+Time: 7.820
+Dim=0
+
+Norm:10
+Factorization:
+p2a
+p5b
+Time: 7.800
+Dim=0
+
+Norm:14
+Factorization:
+p2b
+p7b
+Time: 9.150
+Dim=1
+NewDim=1
+Time: 24.120
+Fricke:-1
+[* 0, -1, 3, 0, -1, 1, 1, 2, 2, 5, -6, 9, 12, -6 *]
+
+Norm:14
+Factorization:
+p2a
+p7b
+Time: 7.510
+Dim=0
+
+Norm:14
+Factorization:
+p2a
+p7a
+Time: 8.990
+Dim=1
+NewDim=1
+Time: 23.090
+Fricke:-1
+[* -1, 0, 0, 3, 1, -1, 1, 2, 2, 5, 9, -6, -6, 12 *]
+
+Norm:14
+Factorization:
+p2b
+p7a
+Time: 7.470
+Dim=0
+
+Norm:16
+Factorization:
+p2a
+p2b^3
+Time: 21.610
+Dim=0
+
+Norm:16
+Factorization:
+p2a^4
+Time: 11.890
+Dim=0
+
+Norm:16
+Factorization:
+p2a^2
+p2b^2
+Time: 26.900
+Dim=0
+
+Norm:16
+Factorization:
+p2b^4
+Time: 12.540
+Dim=0
+
+Norm:16
+Factorization:
+p2a^3
+p2b
+Time: 24.210
+Dim=0
+
+Norm:18
+Factorization:
+p2a
+p3
+Time: 9.970
+Dim=0
+
+Norm:18
+Factorization:
+p2b
+p3
+Time: 9.860
+Dim=0
+
+Norm:19
+Factorization:
+p19a
+Time: 2.980
+Dim=0
+
+Norm:19
+Factorization:
+p19b
+Time: 2.960
+Dim=0
+
+Norm:20
+Factorization:
+p2b^2
+p5b
+Time: 19.120
+Dim=2
+Time: 12.670
+NewDim=0
+
+Norm:20
+Factorization:
+p2a^2
+p5a
+Time: 19.710
+Dim=2
+Time: 13.490
+NewDim=0
+
+Norm:20
+Factorization:
+p2a
+p2b
+p5b
+Time: 28.710
+Dim=4
+Time: 23.810
+NewDim=2
+Time: 64.060
+Fricke:1
+[* -1, -1, 0, -1, 2, -4, -2, -4, 2, -4, -12, 0, 6, 0 *]
+
+Time: 93.300
+Fricke:-1
+[* -1, 1, 0, -1, -4, 2, 4, 8, 2, -4, -6, 6, 0, 6 *]
+
+
+Norm:20
+Factorization:
+p2b^2
+p5a
+Time: 18.070
+Dim=0
+
+Norm:20
+Factorization:
+p2a^2
+p5b
+Time: 18.200
+Dim=0
+
+Norm:20
+Factorization:
+p2a
+p2b
+p5a
+Time: 32.930
+Dim=4
+Time: 23.260
+NewDim=2
+Time: 71.930
+Fricke:1
+[* -1, -1, -1, 0, -4, 2, -2, 2, -4, -4, 0, -12, 0, 6 *]
+
+Time: 149.100
+Fricke:-1
+[* 1, -1, -1, 0, 2, -4, 4, 2, 8, -4, 6, -6, 6, 0 *]
+
+
+Norm:25
+Factorization:
+p5b^2
+Time: 8.670
+Dim=0
+
+Norm:25
+Factorization:
+p5a^2
+Time: 8.270
+Dim=0
+
+Norm:25
+Factorization:
+p5a
+p5b
+Time: 9.690
+Dim=0
+
+Norm:28
+Factorization:
+p2a^2
+p7a
+Time: 18.490
+Dim=2
+Time: 14.020
+NewDim=0
+
+Norm:28
+Factorization:
+p2b^2
+p7a
+Time: 15.190
+Dim=0
+
+Norm:28
+Factorization:
+p2a^2
+p7b
+Time: 16.860
+Dim=0
+
+Norm:28
+Factorization:
+p2b^2
+p7b
+Time: 17.760
+Dim=2
+Time: 13.390
+NewDim=0
+
+Norm:28
+Factorization:
+p2a
+p2b
+p7a
+Time: 30.470
+Dim=2
+Time: 23.330
+NewDim=0
+
+Norm:28
+Factorization:
+p2a
+p2b
+p7b
+Time: 29.470
+Dim=2
+Time: 23.890
+NewDim=0
+
+Norm:31
+Factorization:
+p31
+Time: 5.290
+Dim=2
+NewDim=2
+
+Norm:32
+Factorization:
+p2a^5
+Time: 18.970
+Dim=0
+
+Norm:32
+Factorization:
+p2a^3
+p2b^2
+Time: 54.780
+Dim=1
+NewDim=1
+Time: 31.000
+Fricke:1
+[* -0, -0, -1, 3, -3, -5, -2, -7, 3, 0, -9, -1, 0, 0 *]
+
+Norm:32
+Factorization:
+p2a^4
+p2b
+Time: 41.780
+Dim=1
+NewDim=1
+Time: 71.210
+Fricke:-1
+[* -0, -1, 2, 2, -2, 2, 4, -4, 4, 0, -8, -8, -2, 2 *]
+
+Norm:32
+Factorization:
+p2b^5
+Time: 17.720
+Dim=0
+
+Norm:32
+Factorization:
+p2a^2
+p2b^3
+Time: 52.940
+Dim=1
+NewDim=1
+Time: 32.170
+Fricke:1
+[* -0, -0, 3, -1, -5, -3, -2, 3, -7, 0, -1, -9, 0, 0 *]
+
+Norm:32
+Factorization:
+p2a
+p2b^4
+Time: 45.070
+Dim=1
+NewDim=1
+Time: 84.300
+Fricke:-1
+[* -1, -0, 2, 2, 2, -2, 4, 4, -4, 0, -8, -8, 2, -2 *]
+
+Norm:35
+Factorization:
+p5b
+p7a
+Time: 10.020
+Dim=0
+
+Norm:35
+Factorization:
+p5b
+p7b
+Time: 10.460
+Dim=0
+
+Norm:35
+Factorization:
+p5a
+p7a
+Time: 10.540
+Dim=0
+
+Norm:35
+Factorization:
+p5a
+p7b
+Time: 9.890
+Dim=0
+
+Norm:36
+Factorization:
+p2a^2
+p3
+Time: 21.640
+Dim=0
+
+Norm:36
+Factorization:
+p2a
+p2b
+p3
+Time: 38.650
+Dim=0
+
+Norm:36
+Factorization:
+p2b^2
+p3
+Time: 20.180
+Dim=0
+
+Norm:38
+Factorization:
+p2b
+p19b
+Time: 12.140
+Dim=0
+
+Norm:38
+Factorization:
+p2a
+p19a
+Time: 12.280
+Dim=0
+
+Norm:38
+Factorization:
+p2b
+p19a
+Time: 12.290
+Dim=0
+
+Norm:38
+Factorization:
+p2a
+p19b
+Time: 12.220
+Dim=0
+
+Norm:40
+Factorization:
+p2a^2
+p2b
+p5b
+Time: 70.760
+Dim=7
+Time: 61.870
+NewDim=0
+
+Norm:40
+Factorization:
+p2a^3
+p5b
+Time: 27.430
+Dim=0
+
+Norm:40
+Factorization:
+p2b^3
+p5a
+Time: 27.780
+Dim=0
+
+Norm:40
+Factorization:
+p2a
+p2b^2
+p5a
+Time: 74.230
+Dim=7
+Time: 64.830
+NewDim=0
+
+Norm:40
+Factorization:
+p2a^2
+p2b
+p5a
+Time: 81.710
+Dim=8
+Time: 67.850
+NewDim=0
+
+Norm:40
+Factorization:
+p2a
+p2b^2
+p5b
+Time: 77.240
+Dim=8
+Time: 62.100
+NewDim=0
+
+Norm:40
+Factorization:
+p2b^3
+p5b
+Time: 30.700
+Dim=3
+Time: 27.350
+NewDim=0
+
+Norm:40
+Factorization:
+p2a^3
+p5a
+Time: 31.040
+Dim=3
+Time: 28.050
+NewDim=0
+
+Norm:41
+Factorization:
+p41a
+Time: 5.330
+Dim=0
+
+Norm:41
+Factorization:
+p41b
+Time: 5.300
+Dim=0
+
+Norm:45
+Factorization:
+p5a
+p3
+Time: 12.740
+Dim=0
+
+Norm:45
+Factorization:
+p5b
+p3
+Time: 13.200
+Dim=0
+
+Norm:47
+Factorization:
+p47b
+Time: 5.890
+Dim=0
+
+Norm:47
+Factorization:
+p47a
+Time: 5.870
+Dim=0
+
+Norm:49
+Factorization:
+p7a^2
+Time: 13.900
+Dim=1
+NewDim=1
+Time: 145.520
+Fricke:-1
+[* -1, 2, 2, 1, -0, 1, 3, 0, 6, -3, -5, -4, 10, 2 *]
+
+Norm:49
+Factorization:
+p7a
+p7b
+Time: 14.920
+Dim=0
+
+Norm:49
+Factorization:
+p7b^2
+Time: 13.640
+Dim=1
+NewDim=1
+Time: 99.210
+Fricke:-1
+[* 2, -1, 1, 2, 1, -0, 3, 6, 0, -3, -4, -5, 2, 10 *]
+
+Norm:50
+Factorization:
+p2a
+p5b^2
+Time: 32.640
+Dim=0
+
+Norm:50
+Factorization:
+p2b
+p5b^2
+Time: 34.120
+Dim=3
+Time: 17.100
+NewDim=1
+Time: 273.350
+Fricke:-1
+[* -1, 1, 0, +0, 4, -2, 4, 0, 6, -4, 2, -2, -8, -6 *]
+
+Norm:50
+Factorization:
+p2a
+p5a
+p5b
+Time: 41.110
+Dim=2
+Time: 25.830
+NewDim=0
+
+Norm:50
+Factorization:
+p2b
+p5a^2
+Time: 31.230
+Dim=0
+
+Norm:50
+Factorization:
+p2a
+p5a^2
+Time: 30.570
+Dim=3
+Time: 17.230
+NewDim=1
+Time: 141.250
+Fricke:-1
+[* 1, -1, +0, 0, -2, 4, 4, 6, 0, -4, -2, 2, -6, -8 *]
+
+Norm:50
+Factorization:
+p2b
+p5a
+p5b
+Time: 41.050
+Dim=2
+Time: 25.590
+NewDim=0
+
+Norm:56
+Factorization:
+p2a^2
+p2b
+p7b
+Time: 78.430
+Dim=3
+Time: 60.700
+NewDim=0
+
+Norm:56
+Factorization:
+p2a^3
+p7a
+Time: 35.250
+Dim=3
+Time: 26.840
+NewDim=0
+
+Norm:56
+Factorization:
+p2a
+p2b^2
+p7a
+Time: 77.860
+Dim=3
+Time: 58.950
+NewDim=0
+
+Norm:56
+Factorization:
+p2a^2
+p2b
+p7a
+Time: 85.660
+Dim=4
+Time: 63.730
+NewDim=0
+
+Norm:56
+Factorization:
+p2b^3
+p7b
+Time: 33.470
+Dim=3
+Time: 26.020
+NewDim=0
+
+Norm:56
+Factorization:
+p2b^3
+p7a
+Time: 30.880
+Dim=0
+
+Norm:56
+Factorization:
+p2a
+p2b^2
+p7b
+Time: 74.730
+Dim=4
+Time: 59.850
+NewDim=0
+
+Norm:56
+Factorization:
+p2a^3
+p7b
+Time: 32.940
+Dim=0
+
+Norm:59
+Factorization:
+p59b
+Time: 7.910
+Dim=0
+
+Norm:59
+Factorization:
+p59a
+Time: 7.950
+Dim=0
+
+Norm:62
+Factorization:
+p2a
+p31
+Time: 23.520
+Dim=5
+Time: 7.780
+NewDim=1
+Time: 436.800
+Fricke:-1
+[* 1, 1, 2, 4, 0, -2, -2, -4, 8, -1, 2, 2, -2, 4 *]
+
+Norm:62
+Factorization:
+p2b
+p31
+Time: 23.930
+Dim=5
+Time: 7.630
+NewDim=1
+Time: 387.780
+Fricke:-1
+[* 1, 1, 4, 2, -2, 0, -2, 8, -4, -1, 2, 2, 4, -2 *]
+
+Norm:63
+Factorization:
+p7b
+p3
+Time: 17.880
+Dim=0
+
+Norm:63
+Factorization:
+p7a
+p3
+Time: 17.180
+Dim=0
+
+Norm:64
+Factorization:
+p2a^3
+p2b^3
+Time: 110.880
+Dim=4
+Time: 109.580
+NewDim=0
+
+Norm:64
+Factorization:
+p2a^2
+p2b^4
+Time: 108.310
+Dim=5
+Time: 99.460
+NewDim=1
+Time: 609.500
+Fricke:1
+[* -0, -0, -1, -1, -1, 1, -2, -5, 5, 0, -5, -5, 8, -8 *]
+
+Norm:64
+Factorization:
+p2a
+p2b^5
+Time: 86.880
+Dim=2
+Time: 62.590
+NewDim=0
+
+Norm:64
+Factorization:
+p2a^5
+p2b
+Time: 82.530
+Dim=2
+Time: 60.770
+NewDim=0
+
+Norm:64
+Factorization:
+p2a^4
+p2b^2
+Time: 110.070
+Dim=5
+Time: 96.030
+NewDim=1
+Time: 450.230
+Fricke:1
+[* -0, -0, -1, -1, 1, -1, -2, 5, -5, 0, -5, -5, -8, 8 *]
+
+Norm:64
+Factorization:
+p2b^6
+Time: 33.100
+Dim=0
+
+Norm:64
+Factorization:
+p2a^6
+Time: 33.620
+Dim=0
+
+Norm:67
+Factorization:
+p67b
+Time: 9.360
+Dim=0
+
+Norm:67
+Factorization:
+p67a
+Time: 9.360
+Dim=0
+
+Norm:70
+Factorization:
+p2a
+p5b
+p7b
+Time: 49.330
+Dim=1
+NewDim=1
+Time: 301.430
+Fricke:-1
+[* -1, 0, 0, -1, -1, 1, 1, -7, 2, 5, 9, 12, -6, 3 *]
+
+Norm:70
+Factorization:
+p2b
+p5a
+p7a
+Time: 49.080
+Dim=1
+NewDim=1
+Time: 66.990
+Fricke:-1
+[* 0, -1, -1, 0, 1, -1, 1, 2, -7, 5, 12, 9, 3, -6 *]
+
+Norm:70
+Factorization:
+p2a
+p5a
+p7a
+Time: 52.410
+Dim=5
+Time: 28.650
+NewDim=1
+Time: 1094.360
+Fricke:1
+[* 1, -2, -1, -3, 1, 1, -1, 0, -6, 1, -5, -4, -6, 10 *]
+
+Norm:70
+Factorization:
+p2b
+p5b
+p7b
+Time: 53.570
+Dim=5
+Time: 28.790
+NewDim=1
+Time: 1330.190
+Fricke:1
+[* -2, 1, -3, -1, 1, 1, -1, -6, 0, 1, -4, -5, 10, -6 *]
+
+Norm:70
+Factorization:
+p2a
+p5a
+p7b
+Time: 49.100
+Dim=2
+Time: 25.550
+NewDim=0
+
+Norm:70
+Factorization:
+p2a
+p5b
+p7a
+Time: 49.240
+Dim=2
+Time: 26.830
+NewDim=0
+
+Norm:70
+Factorization:
+p2b
+p5a
+p7b
+Time: 49.070
+Dim=2
+Time: 26.660
+NewDim=0
+
+Norm:70
+Factorization:
+p2b
+p5b
+p7a
+Time: 49.150
+Dim=2
+Time: 26.140
+NewDim=0
+
+Norm:71
+Factorization:
+p71b
+Time: 10.230
+Dim=0
+
+Norm:71
+Factorization:
+p71a
+Time: 10.160
+Dim=0
+
+Norm:72
+Factorization:
+p2b^3
+p3
+Time: 44.490
+Dim=0
+
+Norm:72
+Factorization:
+p2a^2
+p2b
+p3
+Time: 95.510
+Dim=0
+
+Norm:72
+Factorization:
+p2a^3
+p3
+Time: 47.410
+Dim=0
+
+Norm:72
+Factorization:
+p2a
+p2b^2
+p3
+Time: 96.320
+Dim=0
+
+Norm:76
+Factorization:
+p2a
+p2b
+p19a
+Time: 70.670
+Dim=1
+NewDim=1
+Time: 139.070
+Fricke:1
+[* -1, 1, 0, -2, -2, 0, 0, 1, -8, 8, 4, -2, -4, -6 *]
+
+Norm:76
+Factorization:
+p2b^2
+p19a
+Time: 32.990
+Dim=0
+
+Norm:76
+Factorization:
+p2a^2
+p19b
+Time: 32.770
+Dim=0
+
+Norm:76
+Factorization:
+p2a
+p2b
+p19b
+Time: 71.390
+Dim=1
+NewDim=1
+Time: 157.550
+Fricke:1
+[* 1, -1, -2, 0, 0, -2, 0, -8, 1, 8, -2, 4, -6, -4 *]
+
+Norm:76
+Factorization:
+p2a^2
+p19a
+Time: 32.990
+Dim=0
+
+Norm:76
+Factorization:
+p2b^2
+p19b
+Time: 32.790
+Dim=0
+
+Norm:80
+Factorization:
+p2a
+p2b^3
+p5a
+Time: 142.850
+Dim=12
+Time: 126.380
+NewDim=2
+Time: 787.960
+Fricke:1
+[* 1, -0, -1, -4, -2, 0, 4, -6, -4, 0, 2, 6, -6, -12 *]
+
+Time: 1174.150
+Fricke:-1
+[* 1, -0, 1, 2, 4, 0, -2, 0, -4, 0, 2, -6, -12, 0 *]
+
+
+Norm:80
+Factorization:
+p2a^2
+p2b^2
+p5a
+Time: 216.200
+Dim=14
+Time: 189.490
+NewDim=0
+
+Norm:80
+Factorization:
+p2a
+p2b^3
+p5b
+Time: 155.670
+Dim=13
+Time: 135.700
+NewDim=1
+Time: 354.210
+Fricke:-1
+[* -1, -0, 4, -1, 0, 2, 4, -8, -2, 4, 6, -6, 12, -2 *]
+
+Norm:80
+Factorization:
+p2b^4
+p5a
+Time: 54.630
+Dim=1
+NewDim=1
+Time: 129.260
+Fricke:-1
+[* -1, +0, 1, -2, -4, 0, 2, 8, 0, -4, -6, -6, 4, -8 *]
+
+Norm:80
+Factorization:
+p2b^4
+p5b
+Time: 57.820
+Dim=5
+Time: 43.330
+NewDim=1
+Time: 350.220
+Fricke:1
+[* -1, -0, -2, 1, 0, 0, 2, -4, -4, -8, -6, 10, -8, 8 *]
+
+Norm:80
+Factorization:
+p2a^4
+p5b
+Time: 54.460
+Dim=1
+NewDim=1
+Time: 143.760
+Fricke:-1
+[* +0, -1, -2, 1, 0, -4, 2, 0, 8, -4, -6, -6, -8, 4 *]
+
+Norm:80
+Factorization:
+p2a^4
+p5a
+Time: 57.470
+Dim=5
+Time: 43.870
+NewDim=1
+Time: 497.280
+Fricke:1
+[* -0, -1, 1, -2, 0, 0, 2, -4, -4, -8, 10, -6, 8, -8 *]
+
+Norm:80
+Factorization:
+p2a^3
+p2b
+p5a
+Time: 159.860
+Dim=13
+Time: 139.720
+NewDim=1
+Time: 162.160
+Fricke:-1
+[* -0, -1, -1, 4, 2, 0, 4, -2, -8, 4, -6, 6, -2, 12 *]
+
+Norm:80
+Factorization:
+p2a^3
+p2b
+p5b
+Time: 166.990
+Dim=12
+Time: 124.930
+NewDim=2
+Time: 241.750
+Fricke:1
+[* -0, 1, -4, -1, 0, -2, 4, -4, -6, 0, 6, 2, -12, -6 *]
+
+Time: 427.790
+Fricke:-1
+[* -0, 1, 2, 1, 0, 4, -2, -4, 0, 0, -6, 2, 0, -12 *]
+
+
+Norm:80
+Factorization:
+p2a^2
+p2b^2
+p5b
+Time: 202.460
+Dim=14
+Time: 179.240
+NewDim=0
+
+Norm:81
+Factorization:
+p3^2
+Time: 30.510
+Dim=4
+Time: 3.330
+NewDim=4
+
+Norm:82
+Factorization:
+p2a
+p41a
+Time: 31.050
+Dim=0
+
+Norm:82
+Factorization:
+p2a
+p41b
+Time: 30.810
+Dim=1
+NewDim=1
+Time: 159.360
+Fricke:1
+[* -1, 0, -3, 0, -1, 2, -2, 5, -1, 5, 6, -1, 6, 3 *]
+
+Norm:82
+Factorization:
+p2b
+p41b
+Time: 30.840
+Dim=0
+
+Norm:82
+Factorization:
+p2b
+p41a
+Time: 30.760
+Dim=1
+NewDim=1
+Time: 142.800
+Fricke:1
+[* 0, -1, 0, -3, 2, -1, -2, -1, 5, 5, -1, 6, 3, 6 *]
+
+Norm:90
+Factorization:
+p2b
+p5b
+p3
+Time: 72.710
+Dim=2
+Time: 31.050
+NewDim=0
+
+Norm:90
+Factorization:
+p2a
+p5a
+p3
+Time: 72.430
+Dim=2
+Time: 32.780
+NewDim=0
+
+Norm:90
+Factorization:
+p2b
+p5a
+p3
+Time: 70.900
+Dim=0
+
+Norm:90
+Factorization:
+p2a
+p5b
+p3
+Time: 70.710
+Dim=0
+
+Norm:94
+Factorization:
+p2a
+p47a
+Time: 37.180
+Dim=0
+
+Norm:94
+Factorization:
+p2b
+p47b
+Time: 36.970
+Dim=0
+
+Norm:94
+Factorization:
+p2a
+p47b
+Time: 37.080
+Dim=0
+
+Norm:94
+Factorization:
+p2b
+p47a
+Time: 37.040
+Dim=0
+
+Norm:95
+Factorization:
+p5b
+p19b
+Time: 29.170
+Dim=2
+Time: 5.700
+NewDim=2
+
+Norm:95
+Factorization:
+p5b
+p19a
+Time: 28.280
+Dim=0
+
+Norm:95
+Factorization:
+p5a
+p19a
+Time: 28.880
+Dim=2
+Time: 5.730
+NewDim=2
+
+Norm:95
+Factorization:
+p5a
+p19b
+Time: 27.920
+Dim=0
+
+Norm:97
+Factorization:
+p97a
+Time: 16.780
+Dim=0
+
+Norm:97
+Factorization:
+p97b
+Time: 16.790
+Dim=0
+
+Norm:98
+Factorization:
+p2b
+p7b^2
+Time: 69.550
+Dim=6
+Time: 23.820
+NewDim=2
+Time: 1047.160
+Fricke:1
+[* 1, 1, 0, 1, -3, -0, -4, 0, 1, -10, 2, -2, -8, -1 *]
+
+Time: 1383.130
+Fricke:1
+[* -2, 1, -3, -2, -3, -0, -1, 6, 4, 5, 8, 7, -2, 2 *]
+
+
+Norm:98
+Factorization:
+p2a
+p7b^2
+Time: 64.820
+Dim=2
+Time: 21.200
+NewDim=0
+
+Norm:98
+Factorization:
+p2b
+p7a^2
+Time: 65.190
+Dim=2
+Time: 21.250
+NewDim=0
+
+Norm:98
+Factorization:
+p2a
+p7a^2
+Time: 67.360
+Dim=6
+Time: 23.500
+NewDim=2
+Time: 1675.440
+Fricke:1
+[* 1, 1, 1, 0, -0, -3, -4, 1, 0, -10, -2, 2, -1, -8 *]
+
+Time: 1950.490
+Fricke:1
+[* 1, -2, -2, -3, -0, -3, -1, 4, 6, 5, 7, 8, 2, -2 *]
+
+
+Norm:98
+Factorization:
+p2b
+p7a
+p7b
+Time: 82.040
+Dim=2
+Time: 31.960
+NewDim=0
+
+Norm:98
+Factorization:
+p2a
+p7a
+p7b
+Time: 80.870
+Dim=2
+Time: 31.030
+NewDim=0
+
+Norm:100
+Factorization:
+p2b^2
+p5a
+p5b
+Time: 125.120
+Dim=9
+Time: 84.710
+NewDim=5
+Time: 923.410
+Fricke:-1
+[* 1, -0, -1, -1, -2, -4, 2, 6, -6, -2, -10, 10, -2, 12 *]
+
+Time: 505.600
+Fricke:1
+[* -2, -0, 1, -1, -2, -4, 5, -3, 3, -8, 5, 1, -8, -12 *]
+
+Time: 106.880
+Fricke:1
+[* 0, -0, -1, 1, -4, 2, 1, -7, -1, 8, 9, -3, -12, 0 *]
+
+
+Norm:100
+Factorization:
+p2a
+p2b
+p5a
+p5b
+Time: 263.380
+Dim=16
+Time: 145.360
+NewDim=0
+
+Norm:100
+Factorization:
+p2a^2
+p5a
+p5b
+Time: 123.570
+Dim=9
+Time: 82.730
+NewDim=5
+Time: 672.960
+Fricke:-1
+[* -0, 1, -1, -1, -4, -2, 2, -6, 6, -2, 10, -10, 12, -2 *]
+
+Time: 520.440
+Fricke:1
+[* -0, -2, -1, 1, -4, -2, 5, 3, -3, -8, 1, 5, -12, -8 *]
+
+Time: 93.600
+Fricke:1
+[* -0, 0, 1, -1, 2, -4, 1, -1, -7, 8, -3, 9, 0, -12 *]
+
+
+Norm:100
+Factorization:
+p2a^2
+p5a^2
+Time: 332.550
+Dim=6
+Time: 167.017
+NewDim=0
+
+Norm:100
+Factorization:
+p2a
+p2b
+p5b^2
+Time: 761.667
+Dim=12
+Time: 327.717
+NewDim=2
+Time: 4198.833
+Fricke:-1
+[* 1, -1, 0, +0, 2, 4, 2, 4, -2, 4, -12, 0, 6, 0 *]
+
+Time: 3109.233
+Fricke:1
+[* 1, 1, 0, +0, -4, -2, -4, -8, -2, 4, -6, 6, 0, -6 *]
+
+
+Norm:100
+Factorization:
+p2a^2
+p5b^2
+Time: 330.800
+Dim=0
+
+Norm:100
+Factorization:
+p2a
+p2b
+p5a^2
+Time: 762.283
+Dim=12
+Time: 329.333
+NewDim=2
+Time: 3255.117
+Fricke:-1
+[* -1, 1, +0, 0, 4, 2, 2, -2, 4, 4, 0, -12, 0, 6 *]
+
+Time: 1342.817
+Fricke:1
+[* 1, 1, +0, 0, -2, -4, -4, -2, -8, 4, 6, -6, -6, 0 *]
+
+
+Norm:100
+Factorization:
+p2b^2
+p5a^2
+Time: 93.680
+Dim=0
+
+Norm:101
+Factorization:
+p101a
+Time: 21.620
+Dim=0
+
+Norm:101
+Factorization:
+p101b
+Time: 21.420
+Dim=0
+
+Norm:103
+Factorization:
+p103b
+Time: 18.590
+Dim=0
+
+Norm:103
+Factorization:
+p103a
+Time: 18.600
+Dim=0
+
+Norm:107
+Factorization:
+p107b
+Time: 20.090
+Dim=0
+
+Norm:107
+Factorization:
+p107a
+Time: 19.940
+Dim=0
+
+Norm:109
+Factorization:
+p109b
+Time: 20.470
+Dim=0
+
+Norm:109
+Factorization:
+p109a
+Time: 20.380
+Dim=0
+
+Norm:112
+Factorization:
+p7b
+p2b
+p2a^3
+Time: 193.190
+Dim=5
+Time: 133.680
+NewDim=1
+Time: 745.560
+Fricke:1
+[* -0, 1, -1, 0, -3, -1, 1, 2, -6, -9, -6, -7, 12, 6 *]
+
+Norm:112
+Factorization:
+p7b
+p2b^4
+Time: 80.670
+Dim=9
+Time: 45.180
+NewDim=5
+Time: 1519.000
+Fricke:1
+[* -2, -0, 1, -2, 1, 1, 3, -6, 0, -3, 4, -5, -2, -10 *]
+
+Time: 1504.090
+Fricke:1
+[* 2, -0, -3, 2, -3, 1, -1, -6, -4, 5, -8, 7, 2, -2 *]
+
+
+Norm:112
+Factorization:
+p7a
+p2a^4
+Time: 83.440
+Dim=9
+Time: 48.800
+NewDim=5
+Time: 20901.950
+Fricke:1
+[* -0, -2, -2, 1, 1, 1, 3, 0, -6, -3, -5, 4, -10, -2 *]
+
+Time: 20873.790
+Fricke:1
+[* -0, 2, 2, -3, 1, -3, -1, -4, -6, 5, 7, -8, -2, 2 *]
+
+
+Norm:112
+Factorization:
+p7b
+p2a^4
+Time: 78.830
+Dim=3
+Time: 43.970
+NewDim=3
+Time: 1801.010
+Fricke:-1
+[* -0, 1, 1, -2, -1, -1, 3, 6, 0, 3, 4, -5, 2, 10 *]
+
+
+Norm:112
+Factorization:
+p7a
+p2b^4
+Time: 76.550
+Dim=3
+Time: 42.660
+NewDim=3
+Time: 163.360
+Fricke:-1
+[* 1, -0, -2, 1, -1, -1, 3, 0, 6, 3, -5, 4, 10, 2 *]
+
+
+Norm:112
+Factorization:
+p7a
+p2a
+p2b^3
+Time: 189.400
+Dim=5
+Time: 126.420
+NewDim=1
+Time: 336.340
+Fricke:1
+[* 1, -0, 0, -1, -1, -3, 1, -6, 2, -9, -7, -6, 6, 12 *]
+
+Norm:112
+Factorization:
+p2b
+p2a^3
+p7a
+Time: 204.960
+Dim=6
+Time: 143.660
+NewDim=0
+
+Norm:112
+Factorization:
+p7b
+p2a^2
+p2b^2
+Time: 217.350
+Dim=6
+Time: 180.980
+NewDim=0
+
+Norm:112
+Factorization:
+p2a^2
+p2b^2
+p7a
+Time: 230.700
+Dim=6
+Time: 197.000
+NewDim=0
+
+Norm:112
+Factorization:
+p2a
+p2b^3
+p7b
+Time: 191.080
+Dim=6
+Time: 130.280
+NewDim=0
+
+Norm:113
+Factorization:
+p113b
+Time: 21.830
+Dim=0
+
+Norm:113
+Factorization:
+p113a
+Time: 21.900
+Dim=0
+
+Norm:118
+Factorization:
+p2a
+p59b
+Time: 54.820
+Dim=0
+
+Norm:118
+Factorization:
+p2a
+p59a
+Time: 54.650
+Dim=0
+
+Norm:118
+Factorization:
+p2b
+p59a
+Time: 54.320
+Dim=0
+
+Norm:118
+Factorization:
+p2b
+p59b
+Time: 55.000
+Dim=0
+
+Norm:121
+Factorization:
+p11
+Time: 27.030
+Dim=3
+NewDim=3
+Time: 89.880
+Fricke:-1
+[* -2, -2, 1, 1, -2, -2, -5, 0, 0, 7, -8, -8, 8, 8 *]
+
+
+Norm:124
+Factorization:
+p31
+p2b^2
+Time: 70.100
+Dim=8
+Time: 28.710
+NewDim=0
+
+Norm:124
+Factorization:
+p31
+p2a^2
+Time: 71.550
+Dim=8
+Time: 30.460
+NewDim=0
+
+Norm:124
+Factorization:
+p2a
+p2b
+p31
+Time: 171.560
+Dim=15
+Time: 84.900
+NewDim=3
+Time: 8418.450
+Fricke:1
+[* 1, 1, -2, -2, 0, 0, -6, 4, 4, -1, -6, -6, -8, -8 *]
+
+
+Norm:125
+Factorization:
+p5a^3
+Time: 45.390
+Dim=0
+
+Norm:125
+Factorization:
+p5a
+p5b^2
+Time: 66.730
+Dim=0
+
+Norm:125
+Factorization:
+p5b
+p5a^2
+Time: 67.340
+Dim=0
+
+Norm:125
+Factorization:
+p5b^3
+Time: 45.990
+Dim=0
+
+Norm:126
+Factorization:
+p2b
+p7b
+p3
+Time: 108.470
+Dim=2
+Time: 36.910
+NewDim=0
+
+Norm:126
+Factorization:
+p2a
+p7a
+p3
+Time: 111.340
+Dim=2
+Time: 36.560
+NewDim=0
+
+Norm:126
+Factorization:
+p2a
+p7b
+p3
+Time: 109.180
+Dim=0
+
+Norm:126
+Factorization:
+p2b
+p7a
+p3
+Time: 109.180
+Dim=0
+
+Norm:128
+Factorization:
+p2b^7
+Time: 80.270
+Dim=0
+
+Norm:128
+Factorization:
+p2a^5
+p2b^2
+Time: 240.560
+Dim=9
+Time: 194.270
+NewDim=0
+
+Norm:128
+Factorization:
+p2a^2
+p2b^5
+Time: 234.250
+Dim=9
+Time: 195.900
+NewDim=0
+
+Norm:128
+Factorization:
+p2a^7
+Time: 80.880
+Dim=0
+
+Norm:128
+Factorization:
+p2b
+p2a^6
+Time: 196.180
+Dim=4
+Time: 117.060
+NewDim=1
+Time: 483.480
+Fricke:-1
+[* -0, -1, 2, -2, 2, -2, -4, 4, 4, 0, 8, 8, 2, -2 *]
+
+Norm:128
+Factorization:
+p2a
+p2b^6
+Time: 203.990
+Dim=4
+Time: 120.160
+NewDim=1
+Time: 585.200
+Fricke:-1
+[* -1, -0, -2, 2, -2, 2, -4, 4, 4, 0, 8, 8, -2, 2 *]
+
+Norm:128
+Factorization:
+p2a^3
+p2b^4
+Time: 290.430
+Dim=16
+Time: 220.450
+NewDim=4
+Time: 3944.340
+Fricke:-1
+[* -0, +0, -2, -2, -4, 4, -2, -4, 4, 0, 6, 6, -12, 12 *]
+
+
+Norm:128
+Factorization:
+p2a^4
+p2b^3
+Time: 271.530
+Dim=16
+Time: 222.510
+NewDim=4
+Time: 3268.520
+Fricke:-1
+[* +0, -0, -2, -2, 4, -4, -2, 4, -4, 0, 6, 6, 12, -12 *]
+
+
+Norm:131
+Factorization:
+p131a
+Time: 28.310
+Dim=0
+
+Norm:131
+Factorization:
+p131b
+Time: 28.440
+Dim=0
+
+Norm:133
+Factorization:
+p7b
+p19a
+Time: 45.030
+Dim=1
+NewDim=1
+Time: 1405.010
+Fricke:1
+[* 0, -1, 3, -2, 3, -1, -1, -1, -2, -1, -10, -7, -2, 6 *]
+
+Norm:133
+Factorization:
+p7a
+p19b
+Time: 45.710
+Dim=1
+NewDim=1
+Time: 426.930
+Fricke:1
+[* -1, 0, -2, 3, -1, 3, -1, -2, -1, -1, -7, -10, 6, -2 *]
+
+Norm:133
+Factorization:
+p7a
+p19a
+Time: 45.210
+Dim=0
+
+Norm:133
+Factorization:
+p7b
+p19b
+Time: 44.920
+Dim=0
+
+Norm:134
+Factorization:
+p2b
+p67a
+Time: 68.820
+Dim=0
+
+Norm:134
+Factorization:
+p2a
+p67a
+Time: 68.950
+Dim=0
+
+Norm:134
+Factorization:
+p2a
+p67b
+Time: 68.870
+Dim=0
+
+Norm:134
+Factorization:
+p2b
+p67b
+Time: 68.550
+Dim=0
+
+Norm:140
+Factorization:
+p7a
+p5b
+p2a^2
+Time: 158.650
+Dim=4
+Time: 86.490
+NewDim=0
+
+Norm:140
+Factorization:
+p2a
+p2b
+p5a
+p7a
+Time: 366.200
+Dim=18
+Time: 171.080
+NewDim=2
+Time: 6336.550
+Fricke:1
+[* -1, 1, 1, -4, -1, -2, -2, 6, 4, 0, 4, -12, -12, -2 *]
+
+
+Norm:140
+Factorization:
+p2a
+p2b
+p5b
+p7b
+Time: 367.680
+Dim=18
+Time: 167.340
+NewDim=2
+Time: 10255.810
+Fricke:1
+[* 1, -1, -4, 1, -2, -1, -2, 4, 6, 0, -12, 4, -2, -12 *]
+
+
+Norm:140
+Factorization:
+p7b
+p5a
+p2b^2
+Time: 153.400
+Dim=4
+Time: 84.290
+NewDim=0
+
+Norm:140
+Factorization:
+p2a
+p2b
+p5b
+p7a
+Time: 363.040
+Dim=13
+Time: 161.800
+NewDim=1
+Time: 2158.560
+Fricke:-1
+[* 1, 1, 0, -1, 1, 2, 4, -4, 2, -4, 6, -6, 12, -6 *]
+
+Norm:140
+Factorization:
+p2a
+p2b
+p5a
+p7b
+Time: 368.670
+Dim=13
+Time: 164.520
+NewDim=1
+Time: 4991.950
+Fricke:-1
+[* 1, 1, -1, 0, 2, 1, 4, 2, -4, -4, -6, 6, -6, 12 *]
+
+Norm:140
+Factorization:
+p7b
+p5a
+p2a^2
+Time: 153.900
+Dim=4
+Time: 86.280
+NewDim=0
+
+Norm:140
+Factorization:
+p5b
+p2a^2
+p7b
+Time: 149.900
+Dim=2
+Time: 81.910
+NewDim=0
+
+Norm:140
+Factorization:
+p5a
+p2a^2
+p7a
+Time: 156.520
+Dim=11
+Time: 93.250
+NewDim=1
+Time: 2394.070
+Fricke:1
+[* -0, 0, 1, -1, -1, 1, 1, -6, -2, 3, 7, -6, 0, -2 *]
+
+Norm:140
+Factorization:
+p5a
+p2b^2
+p7a
+Time: 152.190
+Dim=2
+Time: 82.140
+NewDim=0
+
+Norm:140
+Factorization:
+p7b
+p5b
+p2b^2
+Time: 159.440
+Dim=11
+Time: 91.670
+NewDim=1
+Time: 1315.210
+Fricke:1
+[* 0, -0, -1, 1, 1, -1, 1, -2, -6, 3, -6, 7, -2, 0 *]
+
+Norm:140
+Factorization:
+p5b
+p2b^2
+p7a
+Time: 156.280
+Dim=4
+Time: 83.810
+NewDim=0
+
+Norm:142
+Factorization:
+p2a
+p71b
+Time: 77.090
+Dim=1
+NewDim=1
+Time: 321.670
+Fricke:-1
+[* 1, -1, -2, 2, -4, -4, -2, 0, -4, 8, 6, 2, 0, 0 *]
+
+Norm:142
+Factorization:
+p2a
+p71a
+Time: 77.220
+Dim=0
+
+Norm:142
+Factorization:
+p2b
+p71b
+Time: 76.510
+Dim=0
+
+Norm:142
+Factorization:
+p2b
+p71a
+Time: 76.490
+Dim=1
+NewDim=1
+Time: 846.290
+Fricke:-1
+[* -1, 1, 2, -2, -4, -4, -2, -4, 0, 8, 2, 6, 0, 0 *]
+
+Norm:144
+Factorization:
+p3
+p2a^2
+p2b^2
+Time: 285.970
+Dim=0
+
+Norm:144
+Factorization:
+p3
+p2b
+p2a^3
+Time: 267.940
+Dim=1
+NewDim=1
+Time: 280.380
+Fricke:-1
+[* -0, -1, 3, -3, 4, 0, -1, 7, -1, 4, -8, -12, 7, 9 *]
+
+Norm:144
+Factorization:
+p3
+p2a
+p2b^3
+Time: 271.700
+Dim=1
+NewDim=1
+Time: 423.560
+Fricke:-1
+[* -1, -0, -3, 3, 0, 4, -1, -1, 7, 4, -12, -8, 9, 7 *]
+
+Norm:144
+Factorization:
+p3
+p2b^4
+Time: 113.580
+Dim=2
+Time: 54.880
+NewDim=2
+Time: 2.360
+
+
+Norm:144
+Factorization:
+p3
+p2a^4
+Time: 113.580
+Dim=2
+Time: 54.880
+NewDim=2
+Time: 2.360
+
+
+Norm:149
+Factorization:
+p149a
+Time: 36.300
+Dim=0
+
+Norm:149
+Factorization:
+p149b
+Time: 36.290
+Dim=0
+
+Norm:152
+Factorization:
+p19a
+p2b
+p2a^2
+Time: 241.130
+Dim=2
+Time: 116.110
+NewDim=0
+
+Norm:152
+Factorization:
+p19a
+p2a^3
+Time: 101.820
+Dim=0
+
+Norm:152
+Factorization:
+p19b
+p2a^3
+Time: 103.710
+Dim=0
+
+Norm:152
+Factorization:
+p19a
+p2b^3
+Time: 101.700
+Dim=0
+
+Norm:152
+Factorization:
+p19b
+p2b^3
+Time: 103.570
+Dim=0
+
+Norm:152
+Factorization:
+p19a
+p2a
+p2b^2
+Time: 239.650
+Dim=2
+Time: 113.880
+NewDim=0
+
+Norm:152
+Factorization:
+p2a
+p2b^2
+p19b
+Time: 232.570
+Dim=2
+Time: 116.390
+NewDim=0
+
+Norm:152
+Factorization:
+p2b
+p2a^2
+p19b
+Time: 231.910
+Dim=2
+Time: 117.450
+NewDim=0
+
+Norm:155
+Factorization:
+p5b
+p31
+Time: 63.880
+Dim=4
+Time: 7.790
+NewDim=0
+
+Norm:155
+Factorization:
+p5a
+p31
+Time: 62.780
+Dim=4
+Time: 7.890
+NewDim=0
+
+Norm:157
+Factorization:
+p157b
+Time: 39.700
+Dim=0
+
+Norm:157
+Factorization:
+p157a
+Time: 39.640
+Dim=0
+
+Norm:160
+Factorization:
+p5b
+p2a^3
+p2b^2
+Time: 447.910
+Dim=26
+Time: 411.530
+NewDim=0
+
+Norm:160
+Factorization:
+p5a
+p2a^5
+Time: 156.440
+Dim=7
+Time: 74.090
+NewDim=0
+
+Norm:160
+Factorization:
+p5b
+p2b^5
+Time: 158.880
+Dim=7
+Time: 76.300
+NewDim=0
+
+Norm:160
+Factorization:
+p5a
+p2b
+p2a^4
+Time: 372.350
+Dim=22
+Time: 255.650
+NewDim=0
+
+Norm:160
+Factorization:
+p5a
+p2a^2
+p2b^3
+Time: 467.950
+Dim=26
+Time: 391.810
+NewDim=0
+
+Norm:160
+Factorization:
+p5a
+p2b^5
+Time: 150.640
+Dim=2
+Time: 71.820
+NewDim=0
+
+Norm:160
+Factorization:
+p5a
+p2b^4
+p2a
+Time: 397.640
+Dim=24
+Time: 252.660
+NewDim=3
+Time: 5798.840
+Fricke:1
+[* -1, +0, -1, -2, -2, -2, 0, 0, 4, 8, 0, 8, 6, 6 *]
+
+Fricke:-1
+[* 1, -0, 1, -2, 0, 0, 2, 4, 4, 8, 10, -6, -8, 8 *]
+
+Fricke:-1
+[* 1, +0, -1, 4, -2, 4, 0, 6, -8, -4, 6, 2, -6, 0 *]
+
+
+Norm:160
+Factorization:
+p5b
+p2b
+p2a^4
+Time: 397.390
+Dim=24
+Time: 264.950
+NewDim=3
+Fricke:1
+[* +0, -1, -2, -1, -2, -2, 0, 4, 0, 8, 8, 0, 6, 6 *]
+
+Fricke:-1
+[* -0, 1, -2, 1, 0, 0, 2, 4, 4, 8, -6, 10, 8, -8 *]
+
+Fricke:-1
+[* +0, 1, 4, -1, 4, -2, 0, -8, 6, -4, 2, 6, 0, -6 *]
+
+
+Norm:160
+Factorization:
+p5b
+p2a
+p2b^4
+Time: 392.090
+Dim=22
+Time: 263.640
+NewDim=0
+
+Norm:160
+Factorization:
+p5b
+p2a^5
+Time: 158.410
+Dim=2
+Time: 72.380
+NewDim=0
+
+Norm:160
+Factorization:
+p5b
+p2a^2
+p2b^3
+Time: 472.620
+Dim=26
+Time: 414.080
+NewDim=1
+Time: 2258.780
+Fricke:1
+[* -0, -0, -2, -1, 0, 2, -2, -2, -2, 10, -6, 6, 0, 10 *]
+
+Norm:160
+Factorization:
+p5a
+p2a^3
+p2b^2
+Time: 446.410
+Dim=26
+Time: 404.020
+NewDim=1
+Time: 3324.270
+Fricke:1
+[* -0, -0, -1, -2, 2, 0, -2, -2, -2, 10, 6, -6, 10, 0 *]
+
+Norm:162
+Factorization:
+p2b
+p3^2
+Time: 148.250
+Dim=8
+Time: 23.770
+NewDim=0
+
+Norm:162
+Factorization:
+p2a
+p3^2
+Time: 145.900
+Dim=8
+Time: 23.880
+NewDim=0
+
+Norm:163
+Factorization:
+p163b
+Time: 42.600
+Dim=0
+
+Norm:163
+Factorization:
+p163a
+Time: 42.570
+Dim=0
+
+Norm:164
+Factorization:
+p2a
+p2b
+p41b
+Time: 249.830
+Dim=2
+Time: 57.450
+NewDim=0
+
+Norm:164
+Factorization:
+p41a
+p2b^2
+Time: 103.800
+Dim=2
+Time: 29.420
+NewDim=0
+
+Norm:164
+Factorization:
+p2a
+p2b
+p41a
+Time: 253.450
+Dim=2
+Time: 59.050
+NewDim=0
+
+Norm:164
+Factorization:
+p41b
+p2b^2
+Time: 106.340
+Dim=0
+
+Norm:164
+Factorization:
+p41a
+p2a^2
+Time: 108.400
+Dim=0
+
+Norm:164
+Factorization:
+p41b
+p2a^2
+Time: 105.720
+Dim=2
+Time: 29.780
+NewDim=0
+
+Norm:169
+Factorization:
+p13
+Time: 48.780
+Dim=0
+
+Norm:171
+Factorization:
+p3
+p19a
+Time: 69.260
+Dim=0
+
+Norm:171
+Factorization:
+p3
+p19b
+Time: 69.140
+Dim=0
+
+Norm:173
+Factorization:
+p173a
+Time: 49.390
+Dim=0
+
+Norm:173
+Factorization:
+p173b
+Time: 49.410
+Dim=0
+
+Norm:175
+Factorization:
+p7b
+p5b^2
+Time: 99.470
+Dim=0
+
+Norm:175
+Factorization:
+p7a
+p5b^2
+Time: 98.700
+Dim=2
+Time: 10.150
+NewDim=2
+Time: 1476.160
+Fricke:1
+[* 1, -1, -2, -0, 1, 0, 0, -2, 2, 4, -2, -2, 8, 2*]
+
+Fricke:1
+[* -1, -1, 2, -0, 1, 0, 0, 2, -2, -4, -2, -2, 8, -2*]
+
+
+Norm:175
+Factorization:
+p5a
+p5b
+p7b
+Time: 154.790
+Dim=0
+
+Norm:175
+Factorization:
+p7a
+p5a^2
+Time: 99.690
+Dim=0
+
+Norm:175
+Factorization:
+p7b
+p5a^2
+Time: 98.580
+Dim=2
+Time: 10.080
+NewDim=2
+Time: 1752.760
+Fricke:1
+[* -1, 1, -0, -2, 0, 1, 0, 2, -2, 4, -2, -2, 2, 8*]
+
+Fricke:1
+[* -1, -1, -0, 2, 0, 1, 0, -2, 2, -4, -2, -2, -2, 8*]
+
+
+Norm:175
+Factorization:
+p5a
+p5b
+p7a
+Time: 159.190
+Dim=0
+
+Norm:180
+Factorization:
+p2a
+p2b
+p5b
+p3
+Time: 566.500
+Dim=8
+Time: 192.050
+NewDim=0
+
+Norm:180
+Factorization:
+p3
+p5a
+p2b^2
+Time: 234.670
+Dim=0
+
+Norm:180
+Factorization:
+p3
+p5b
+p2b^2
+Time: 232.550
+Dim=4
+Time: 87.370
+NewDim=0
+
+Norm:180
+Factorization:
+p3
+p5a
+p2a^2
+Time: 236.350
+Dim=4
+Time: 86.670
+NewDim=0
+
+Norm:180
+Factorization:
+p3
+p5b
+p2a^2
+Time: 235.610
+Dim=0
+
+Norm:180
+Factorization:
+p2a
+p2b
+p5a
+p3
+Time: 564.840
+Dim=8
+Time: 176.790
+NewDim=0
+
+Norm:188
+Factorization:
+p47a
+p2a^2
+Time: 137.870
+Dim=0
+
+Norm:188
+Factorization:
+p47b
+p2b^2
+Time: 139.170
+Dim=0
+
+Norm:188
+Factorization:
+p2a
+p2b
+p47a
+Time: 333.180
+Dim=1
+NewDim=1
+Time: 765.130
+Fricke:1
+[* -1, -1, 3, -3, -4, -4, -5, 8, 5, -4, 6, 3, 9, -1*]
+
+Norm:188
+Factorization:
+p47a
+p2b^2
+Time: 139.910
+Dim=2
+Time: 38.320
+NewDim=2
+Time: 4.190
+
+Norm:188
+Factorization:
+p2a
+p2b
+p47b
+Time: 333.510
+Dim=1
+NewDim=1
+Time: 504.850
+Fricke:1
+[* -1, -1, -3, 3, -4, -4, -5, 5, 8, -4, 3, 6, -1, 9*]
+
+Norm:188
+Factorization:
+p47b
+p2a^2
+Time: 140.690
+Dim=2
+Time: 38.490
+NewDim=2
+Time: 4.260
+
+Norm:190
+Factorization:
+p2b
+p5b
+p19b
+Time: 217.230
+Dim=6
+Time: 39.010
+NewDim=0
+
+Norm:190
+Factorization:
+p2a
+p5b
+p19b
+Time: 218.140
+Dim=4
+Time: 38.350
+NewDim=0
+
+Norm:190
+Factorization:
+p2a
+p5a
+p19a
+Time: 216.080
+Dim=6
+Time: 38.640
+NewDim=0
+
+Norm:190
+Factorization:
+p2a
+p5b
+p19a
+Time: 218.600
+Dim=1
+NewDim=1
+Time: 1972.410
+Fricke:-1
+[* -1, -1, 2, -1, 4, 0, -2, 1, -4, 0, 2, 6, 8, 0*]
+
+Norm:190
+Factorization:
+p2b
+p5b
+p19a
+Time: 218.160
+Dim=2
+Time: 38.200
+NewDim=0
+
+Norm:190
+Factorization:
+p2b
+p5a
+p19a
+Time: 216.200
+Dim=4
+Time: 38.400
+NewDim=0
+
+Norm:190
+Factorization:
+p2a
+p5a
+p19b
+Time: 216.160
+Dim=2
+Time: 38.230
+NewDim=0
+
+Norm:190
+Factorization:
+p2b
+p5a
+p19b
+Time: 217.160
+Dim=1
+NewDim=1
+Time: 814.370
+Fricke:-1
+[* -1, -1, -1, 2, 0, 4, -2, -4, 1, 0, 6, 2, 0, 8*]
+
+Norm:191
+Factorization:
+p191b
+Time: 60.320
+Dim=0
+
+Norm:191
+Factorization:
+p191a
+Time: 59.430
+Dim=0
+
+Norm:193
+Factorization:
+p193a
+Time: 60.860
+Dim=0
+
+Norm:193
+Factorization:
+p193b
+Time: 61.920
+Dim=0
+
+Norm:194
+Factorization:
+p2b
+p97b
+Time: 142.270
+Dim=1
+NewDim=1
+Time: 425.020
+Fricke:-1
+[* 0, -1, 0, -3, -4, -1, 1, -4, -4, -4, -6, -3, -9, 12*]
+
+Norm:194
+Factorization:
+p2b
+p97a
+Time: 142.640
+Dim=0
+
+Norm:194
+Factorization:
+p2a
+p97a
+Time: 142.440
+Dim=1
+NewDim=1
+Time: 1715.330
+Fricke:-1
+[* -1, 0, -3, 0, -1, -4, 1, -4, -4, -4, -3, -6, 12, -9*]
+
+Norm:194
+Factorization:
+p2a
+p97b
+Time: 141.860
+Dim=0
+
+Norm:196
+Factorization:
+p7b
+p7a
+p2a^2
+Time: 283.300
+Dim=4
+Time: 94.380
+NewDim=0
+
+Norm:196
+Factorization:
+p2a
+p2b
+p7b^2
+Time: 485.930
+Dim=14
+Time: 139.770
+NewDim=2
+Time: 7443.300
+Fricke:-1
+[* 1, 1, 2, -2, 2, -0, 4, -4, 4, 0, 8, -8, -2, 2*]
+
+Fricke:-1
+[* 1, -1, 0, 3, -1, +0, 4, 8, -7, 2, 6, 6, 0, 3*]
+
+
+Norm:196
+Factorization:
+p2b^2
+p7a^2
+Time: 198.660
+Dim=3
+Time: 65.390
+NewDim=0
+
+Norm:196
+Factorization:
+p2b^2
+p7b^2
+Time: 206.770
+Dim=11
+Time: 69.100
+NewDim=0
+
+Norm:196
+Factorization:
+p7b
+p7a
+p2b^2
+Time: 280.870
+Dim=4
+Time: 92.440
+NewDim=0
+
+Norm:196
+Factorization:
+p2a^2
+p7a^2
+Time: 207.110
+Dim=11
+Time: 69.080
+NewDim=0
+
+Norm:196
+Factorization:
+p2a
+p2b
+p7a
+p7b
+Time: 658.060
+Dim=9
+Time: 193.930
+NewDim=1
+Time: 1872.560
+Fricke:1
+[* -1, -1, 0, 0, 1, 1, -2, 2, 2, -4, 6, 6, -12, -12*]
+
+Norm:196
+Factorization:
+p2a
+p2b
+p7a^2
+Time: 481.280
+Dim=14
+Time: 139.000
+NewDim=2
+Time: 44194.720
+Fricke:-1
+[* 1, 1, -2, 2, -0, 2, 4, 4, -4, 0, -8, 8, 2, -2*]
+
+Fricke:-1
+[* -1, 1, 3, 0, +0, -1, 4, -7, 8, 2, 6, 6, 3, 0*]
+
+
+Norm:196
+Factorization:
+p2a^2
+p7b^2
+Time: 206.030
+Dim=3
+Time: 66.420
+NewDim=0
+
+Norm:200
+Factorization:
+p5b
+p5a
+p2b^3
+Time: 375.940
+Dim=17
+Time: 145.500
+NewDim=1
+Time: 5696.470
+Fricke:1
+[* -2, -0, -1, 1, -2, 0, -1, -1, 1, 0, -3, 1, 4, 8*]
+
+Norm:200
+Factorization:
+p2b
+p2a^2
+p5b^2
+Time: 566.100
+Dim=21
+Time: 354.610
+NewDim=0
+
+Norm:200
+Factorization:
+p2b
+p2a^2
+p5a
+p5b
+Time: 882.670
+Dim=41
+Time: 448.050
+NewDim=1
+Time: 28741.270
+Fricke:1
+[* -0, -1, 1, -1, -4, 2, -2, 2, 2, -10, -6, 6, 12, -6*]
+
+Norm:200
+Factorization:
+p2a^3
+p5b^2
+Time: 237.140
+Dim=0
+
+Norm:200
+Factorization:
+p2a
+p2b^2
+p5a^2
+Time: 572.440
+Dim=21
+Time: 289.440
+NewDim=0
+
+Norm:200
+Factorization:
+p2a^3
+p5a^2
+Time: 235.210
+Dim=9
+Time: 89.360
+NewDim=0
+
+Norm:200
+Factorization:
+p2b^3
+p5a^2
+Time: 228.860
+Dim=0
+
+Norm:200
+Factorization:
+p2b^3
+p5b^2
+Time: 234.640
+Dim=9
+Time: 87.440
+NewDim=0
+
+Norm:200
+Factorization:
+p2b
+p2a^2
+p5a^2
+Time: 563.540
+Dim=24
+Time: 287.770
+NewDim=0
+
+Norm:200
+Factorization:
+p2a
+p2b^2
+p5b^2
+Time: 569.110
+Dim=24
+Time: 393.050
+NewDim=0
+
+Norm:200
+Factorization:
+p2a
+p2b^2
+p5a
+p5b
+Time: 904.600
+Dim=41
+Time: 463.730
+NewDim=1
+Time: 11972.720
+Fricke:1
+[* -1, -0, -1, 1, 2, -4, -2, 2, 2, -10, 6, -6, -6, 12*]
+
+Norm:200
+Factorization:
+p5b
+p5a
+p2a^3
+Time: 372.530
+Dim=17
+Time: 141.970
+NewDim=1
+Time: 1776.930
+Fricke:1
+[* -0, -2, 1, -1, 0, -2, -1, 1, -1, 0, 1, -3, 8, 4*]
+

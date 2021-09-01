@@ -1,0 +1,885 @@
+Norm:10
+Factorization:
+p2a
+p5a
+Time: 2.720
+Dim=1
+NewDim=1
+P= Principal Prime Ideal
+Generator:
+    [3, 0]
+ of norm  9 : 
+Time: 0.010
+Time: 1.060
+Fricke:-1
+-4
+
+Main_L(
+    primes: [ P, Prime Ideal Two element generators: [5, 0] [1, 1], Prim...,
+    L: L
+)
+In file "dim.m", line 91, column 39:
+>>            if x[1] eq TraceOfFrobenius(E,P) then
+                                         ^
+Runtime error in 'TraceOfFrobenius': Bad argument types
+Argument types given: CrvEll[FldNum[FldRat]], RngOrdIdl
+
+> E;
+Elliptic Curve defined by y^2 + x*y + y = x^3 + (-w - 1)*x^2 + (w - 3)*x + 1 
+over K
+> P;
+
+>> P;
+   ^
+User error: Identifier 'P' has not been declared or assigned
+> p2a;
+
+>> p2a;
+   ^
+User error: Identifier 'p2a' has not been declared or assigned
+> Factorization(5*OK)[1][1];
+Prime Ideal of OK
+Two element generators:
+    [5, 0]
+    [1, 1]
+> P:=Factorization(5*OK)[1][1];
+> TraceOfFrobenius;
+Intrinsic 'TraceOfFrobenius'
+
+Signatures:
+
+    (<CrvEll> E) -> RngIntElt
+
+        The trace of the Frobenius endomorphism of E.
+
+    (<CrvEll> E, <FldFin> K) -> RngIntElt
+
+        The trace of Frobenius of the base extension of E to K.
+
+    (<CrvEll> E, <RngIntElt> r) -> RngIntElt
+
+        The trace of the r-th power Frobenius endomorphism, where E is defined 
+        over a finite field.
+
+
+> TraceOfFrobenius(Reduction(E,P));
+
+>> TraceOfFrobenius(Reduction(E,P));
+                             ^
+Runtime error in 'Reduction': model should be integral and of good reduction at 
+the prime
+
+> Conductor(E);
+Ideal of OK
+Basis:
+[2 2]
+[0 5]
+> Norm(Conductor(E));
+10
+> P:=Factorization(7*OK)[1][1];
+> TraceOfFrobenius(Reduction(E,P));
+4
+> load "dim.m";
+Loading "dim.m"
+Loading "core3.m"
+Loading "hecke3.m"
+Loading "homology.m"
+Loading "input3.m"
+<(3/8*w : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*(w + 1) : 1), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/20*(9*w + 4) : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+
+<(0 : 1), (1/3*w : 1)>
+<(1/3*w : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(1/3*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(1 : 0), (3/8*w : 1)>
+<(3/8*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+
+<(1 : 0), (3/8*w : 1)>
+<(3/8*w : 1), (1/3*w : 1)>
+<(1/3*w : 1), (1 : 0)>
+
+<(1/3*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(3/8*w : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(3/8*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1/20*(9*w + 7) : 1)>
+<(1/20*(9*w + 7) : 1), (1 : 0)>
+
+<(1 : 0), (1/20*(9*w + 7) : 1)>
+<(1/20*(9*w + 7) : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+
+<(1/3*(w + 1) : 1), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(0 : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(1/10*(3*w + 3) : 1), (1/10*(3*w + 4) : 1)>
+<(1/10*(3*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 3) : 1)>
+
+<(1/10*(3*w + 4) : 1), (1 : 1)>
+<(1 : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 4) : 1)>
+
+<(1 : 1), (0 : 1)>
+<(0 : 1), (1 : 0)>
+<(1 : 0), (1 : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 4) : 1)>
+<(1/10*(3*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/2*w : 1), (1/4*(2*w - 1) : 1)>
+<(1/2*w : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/4*(2*w - 1) : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/2*w : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1/2*w : 1), (1 : 0)>
+
+<(1/2*(w - 1) : 1), (1/4*(2*w - 1) : 1)>
+<(1/4*(2*w - 1) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/2*(w - 1) : 1), (1/8*(3*w - 3) : 1)>
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/4*(2*w - 1) : 1), (1/8*(3*w - 3) : 1)>
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/4*(2*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 3) : 1)>
+
+<(1/4*(2*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 3) : 1)>
+
+<(1/4*(2*w - 1) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/20*(9*w - 13) : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w - 13) : 1)>
+
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+
+<(1/3*(w - 2) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w - 2) : 1)>
+
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/8*(3*w - 3) : 1)>
+
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*w : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(0 : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1 : 0)>
+<(0 : 1), (1 : 0)>
+
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 3) : 1)>
+
+<(1/10*(3*w - 6) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w - 6) : 1)>
+
+<(1/2*(w - 1) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/2*w : 1), (1 : 0)>
+<(1/2*w : 1), (1 : 0)>
+
+Loading "region3.m"
+Loading "levels.m"
+Loading "bianchi3.m"
+Norm:10
+Factorization:
+p2a
+p5a
+Time: 2.700
+Dim=1
+NewDim=1
+P= Principal Prime Ideal
+Generator:
+    [3, 0]
+ of norm  9 : 
+Time: 0.000
+Time: 1.060
+Fricke:-1
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [5, 0]
+    [1, 1]
+ of norm  5 : 
+Time: 0.000
+Time: 1.010
+-1
+
+Main_L(
+    primes: [ Principal Prime Ideal Generator: [3, 0], p, Prime Ideal Tw...,
+    L: Ideal Two element generators: [4886, -2349] [-6912, -352]
+)
+In file "dim.m", line 91, column 49:
+>>            if x[1] eq TraceOfFrobenius(Reduction(E,P)) then
+                                                   ^
+Runtime error in 'Reduction': model should be integral and of good reduction at 
+the prime
+
+> load "dim.m";
+Loading "dim.m"
+Loading "core3.m"
+Loading "hecke3.m"
+Loading "homology.m"
+Loading "input3.m"
+<(3/8*w : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*(w + 1) : 1), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/20*(9*w + 4) : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+
+<(0 : 1), (1/3*w : 1)>
+<(1/3*w : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(1/3*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(1 : 0), (3/8*w : 1)>
+<(3/8*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+
+<(1 : 0), (3/8*w : 1)>
+<(3/8*w : 1), (1/3*w : 1)>
+<(1/3*w : 1), (1 : 0)>
+
+<(1/3*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(3/8*w : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(3/8*w : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1/20*(9*w + 7) : 1)>
+<(1/20*(9*w + 7) : 1), (1 : 0)>
+
+<(1 : 0), (1/20*(9*w + 7) : 1)>
+<(1/20*(9*w + 7) : 1), (1/3*(w + 1) : 1)>
+<(1/3*(w + 1) : 1), (1 : 0)>
+
+<(1/3*(w + 1) : 1), (1/20*(9*w + 4) : 1)>
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(0 : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(1/10*(3*w + 3) : 1), (1/10*(3*w + 4) : 1)>
+<(1/10*(3*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 3) : 1)>
+
+<(1/10*(3*w + 4) : 1), (1 : 1)>
+<(1 : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 4) : 1)>
+
+<(1 : 1), (0 : 1)>
+<(0 : 1), (1 : 0)>
+<(1 : 0), (1 : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 4) : 1)>
+<(1/10*(3*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/3*(w + 1) : 1), (1/10*(3*w + 3) : 1)>
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w + 1) : 1)>
+
+<(1/2*w : 1), (1/4*(2*w - 1) : 1)>
+<(1/2*w : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/4*(2*w - 1) : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/2*w : 1), (3/8*w : 1)>
+<(3/8*w : 1), (1 : 0)>
+<(1/2*w : 1), (1 : 0)>
+
+<(1/2*(w - 1) : 1), (1/4*(2*w - 1) : 1)>
+<(1/4*(2*w - 1) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/2*(w - 1) : 1), (1/8*(3*w - 3) : 1)>
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/4*(2*w - 1) : 1), (1/8*(3*w - 3) : 1)>
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/4*(2*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 3) : 1)>
+
+<(1/4*(2*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 3) : 1)>
+
+<(1/4*(2*w - 1) : 1), (1 : 0)>
+<(1 : 0), (1/4*(2*w - 1) : 1)>
+
+<(1/20*(9*w - 13) : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w - 13) : 1)>
+
+<(1/20*(9*w + 4) : 1), (1 : 0)>
+<(1 : 0), (1/20*(9*w + 4) : 1)>
+
+<(1/3*(w - 2) : 1), (1 : 0)>
+<(1 : 0), (1/3*(w - 2) : 1)>
+
+<(1/8*(3*w - 3) : 1), (1 : 0)>
+<(1 : 0), (1/8*(3*w - 3) : 1)>
+
+<(3/8*w : 1), (1 : 0)>
+<(1 : 0), (3/8*w : 1)>
+
+<(1/3*w : 1), (1 : 0)>
+<(1 : 0), (1/3*w : 1)>
+
+<(0 : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1 : 0)>
+<(1 : 0), (0 : 1)>
+
+<(0 : 1), (1 : 0)>
+<(0 : 1), (1 : 0)>
+
+<(1/10*(3*w + 3) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w + 3) : 1)>
+
+<(1/10*(3*w - 6) : 1), (1 : 0)>
+<(1 : 0), (1/10*(3*w - 6) : 1)>
+
+<(1/2*(w - 1) : 1), (1 : 0)>
+<(1/2*(w - 1) : 1), (1 : 0)>
+
+<(1/2*w : 1), (1 : 0)>
+<(1/2*w : 1), (1 : 0)>
+
+Loading "region3.m"
+Loading "levels.m"
+Loading "bianchi3.m"
+Norm:10
+Factorization:
+p2a
+p5a
+Time: 2.710
+Dim=1
+NewDim=1
+P= Principal Prime Ideal
+Generator:
+    [3, 0]
+ of norm  9 : 
+Time: 0.000
+Time: 1.070
+Fricke:-1
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [7, 0]
+    [2, 1]
+ of norm  7 : 
+Time: 0.020
+Time: 1.300
+4
+OK
+P= Prime Ideal
+Two element generators:
+    [7, 0]
+    [4, 1]
+ of norm  7 : 
+Time: 0.020
+Time: 1.280
+2
+OK
+P= Principal Prime Ideal
+Generator:
+    [11, 0]
+ of norm  121 : 
+Time: 0.050
+Time: 3.900
+10
+OK
+P= Principal Prime Ideal
+Generator:
+    [13, 0]
+ of norm  169 : 
+Time: 0.090
+Time: 5.260
+16
+OK
+P= Principal Prime Ideal
+Generator:
+    [17, 0]
+ of norm  289 : 
+Time: 0.060
+Time: 9.130
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [19, 0]
+    [5, 1]
+ of norm  19 : 
+Time: 0.030
+Time: 3.370
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [19, 0]
+    [13, 1]
+ of norm  19 : 
+Time: 0.030
+Time: 4.430
+0
+OK
+P= Principal Prime Ideal
+Generator:
+    [23, 0]
+ of norm  529 : 
+Time: 0.130
+Time: 16.900
+-30
+OK
+P= Principal Prime Ideal
+Generator:
+    [29, 0]
+ of norm  841 : 
+Time: 0.210
+Time: 27.680
+30
+OK
+P= Prime Ideal
+Two element generators:
+    [47, 0]
+    [21, 1]
+ of norm  47 : 
+Time: 0.010
+Time: 1.990
+6
+OK
+P= Prime Ideal
+Two element generators:
+    [47, 0]
+    [25, 1]
+ of norm  47 : 
+Time: 0.010
+Time: 1.980
+-8
+OK
+P= Prime Ideal
+Two element generators:
+    [59, 0]
+    [10, 1]
+ of norm  59 : 
+Time: 0.080
+Time: 27.390
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [59, 0]
+    [48, 1]
+ of norm  59 : 
+Time: 0.070
+Time: 12.520
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [67, 0]
+    [30, 1]
+ of norm  67 : 
+Time: 0.020
+Time: 2.450
+12
+OK
+P= Prime Ideal
+Two element generators:
+    [67, 0]
+    [36, 1]
+ of norm  67 : 
+Time: 0.010
+Time: 2.430
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [71, 0]
+    [26, 1]
+ of norm  71 : 
+Time: 0.090
+Time: 22.410
+-8
+OK
+P= Prime Ideal
+Two element generators:
+    [71, 0]
+    [44, 1]
+ of norm  71 : 
+Time: 0.090
+Time: 53.580
+-8
+OK
+P= Principal Prime Ideal
+Generator:
+    [89, 0]
+ of norm  7921 : 
+Time: 3.010
+Time: 322.240
+110
+OK
+P= Prime Ideal
+Two element generators:
+    [97, 0]
+    [19, 1]
+ of norm  97 : 
+Time: 0.140
+Time: 77.660
+16
+OK
+P= Prime Ideal
+Two element generators:
+    [97, 0]
+    [77, 1]
+ of norm  97 : 
+Time: 0.110
+Time: 115.610
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [101, 0]
+    [37, 1]
+ of norm  101 : 
+Time: 0.140
+Time: 113.270
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [101, 0]
+    [63, 1]
+ of norm  101 : 
+Time: 0.120
+Time: 116.690
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [103, 0]
+    [40, 1]
+ of norm  103 : 
+Time: 0.140
+Time: 31.740
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [103, 0]
+    [62, 1]
+ of norm  103 : 
+Time: 0.120
+Time: 50.880
+8
+OK
+P= Prime Ideal
+Two element generators:
+    [107, 0]
+    [20, 1]
+ of norm  107 : 
+Time: 0.150
+Time: 128.070
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [107, 0]
+    [86, 1]
+ of norm  107 : 
+Time: 0.130
+Time: 69.260
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [109, 0]
+    [14, 1]
+ of norm  109 : 
+Time: 0.150
+Time: 128.320
+12
+OK
+P= Prime Ideal
+Two element generators:
+    [109, 0]
+    [94, 1]
+ of norm  109 : 
+Time: 0.120
+Time: 286.280
+-10
+OK
+P= Prime Ideal
+Two element generators:
+    [149, 0]
+    [38, 1]
+ of norm  149 : 
+Time: 0.100
+Time: 4.650
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [149, 0]
+    [110, 1]
+ of norm  149 : 
+Time: 0.030
+Time: 4.610
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [157, 0]
+    [17, 1]
+ of norm  157 : 
+Time: 0.260
+Time: 52.040
+-14
+OK
+P= Prime Ideal
+Two element generators:
+    [157, 0]
+    [139, 1]
+ of norm  157 : 
+Time: 0.180
+Time: 328.600
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [163, 0]
+    [67, 1]
+ of norm  163 : 
+Time: 0.270
+Time: 231.530
+24
+OK
+P= Prime Ideal
+Two element generators:
+    [163, 0]
+    [95, 1]
+ of norm  163 : 
+Time: 0.180
+Time: 442.720
+-20
+OK
+P= Prime Ideal
+Two element generators:
+    [191, 0]
+    [27, 1]
+ of norm  191 : 
+Time: 0.350
+Time: 247.350
+8
+OK
+P= Prime Ideal
+Two element generators:
+    [191, 0]
+    [163, 1]
+ of norm  191 : 
+Time: 0.220
+Time: 329.550
+24
+OK
+P= Prime Ideal
+Two element generators:
+    [193, 0]
+    [55, 1]
+ of norm  193 : 
+Time: 0.360
+Time: 547.240
+-10
+OK
+P= Prime Ideal
+Two element generators:
+    [193, 0]
+    [137, 1]
+ of norm  193 : 
+Time: 0.220
+Time: 167.170
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [211, 0]
+    [89, 1]
+ of norm  211 : 
+Time: 0.420
+Time: 756.980
+20
+OK
+P= Prime Ideal
+Two element generators:
+    [211, 0]
+    [121, 1]
+ of norm  211 : 
+Time: 0.240
+Time: 226.930
+6
+OK
+P= Prime Ideal
+Two element generators:
+    [293, 0]
+    [76, 1]
+ of norm  293 : 
+Time: 0.070
+Time: 9.290
+28
+OK
+P= Prime Ideal
+Two element generators:
+    [293, 0]
+    [216, 1]
+ of norm  293 : 
+Time: 0.070
+Time: 9.230
+-14
+OK
+P= Prime Ideal
+Two element generators:
+    [311, 0]
+    [111, 1]
+ of norm  311 : 
+Time: 0.350
+Time: 1571.920
+-32
+OK
+P= Prime Ideal
+Two element generators:
+    [311, 0]
+    [199, 1]
+ of norm  311 : 
+Time: 0.350
+Time: 1719.750
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [317, 0]
+    [35, 1]
+ of norm  317 : 
+Time: 0.370
+Time: 2558.000
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [317, 0]
+    [281, 1]
+ of norm  317 : 
+Time: 0.360
+Time: 371.230
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [359, 0]
+    [158, 1]
+ of norm  359 : 
+Time: 0.410
+Time: 2307.960
+22
+OK
+P= Prime Ideal
+Two element generators:
+    [359, 0]
+    [200, 1]
+ of norm  359 : 
+Time: 0.400

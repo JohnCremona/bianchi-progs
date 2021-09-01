@@ -1,0 +1,97 @@
+Fractional ideal (3) 9 :  -2
+Fractional ideal (5, w + 1) 5 :  -1
+Fractional ideal (5, w - 2) 5 :  3
+Fractional ideal (7, w + 2) 7 :  -5
+Fractional ideal (7, w - 3) 7 :  -3
+Fractional ideal (11) 121 :  10
+Fractional ideal (13) 169 :  -10
+Fractional ideal (17) 289 :  -2
+Fractional ideal (19, w - 6) 19 :  3
+Fractional ideal (19, w + 5) 19 :  -7
+Fractional ideal (23) 529 :  -10
+Fractional ideal (29) 841 :  -10
+Fractional ideal (37) 1369 :  -38
+Fractional ideal (41, w + 12) 41 :  -9
+Fractional ideal (41, w - 13) 41 :  -1
+Fractional ideal (43) 1849 :  -18
+Fractional ideal (-2*w + 5) 47 :  0
+Fractional ideal (2*w + 3) 47 :  0
+Fractional ideal (53) 2809 :  42
+Fractional ideal (59, w + 10) 59 :  7
+Fractional ideal (59, w - 11) 59 :  -3
+Fractional ideal (-2*w + 7) 67 :  -8
+Fractional ideal (2*w + 5) 67 :  0
+Fractional ideal (71, w + 26) 71 :  1
+Fractional ideal (71, w - 27) 71 :  -9
+Fractional ideal (73) 5329 :  2
+Fractional ideal (79) 6241 :  70
+Fractional ideal (89) 7921 :  -50
+Fractional ideal (109, w + 14) 109 :  -13
+Fractional ideal (109, w - 15) 109 :  7
+Fractional ideal (127) 16129 :  -254
+Fractional ideal (-2*w + 11) 131 :  4
+Fractional ideal (2*w + 9) 131 :  4
+Fractional ideal (4*w - 7) 149 :  2
+Fractional ideal (-4*w - 3) 149 :  18
+Fractional ideal (4*w + 5) 173 :  -6
+Fractional ideal (-4*w + 9) 173 :  10
+Fractional ideal (193, w - 56) 193 :  -21
+Fractional ideal (193, w + 55) 193 :  11
+Fractional ideal (-2*w + 15) 227 :  -12
+Fractional ideal (2*w + 13) 227 :  20
+Fractional ideal (6*w - 5) 283 :  -20
+Fractional ideal (-6*w + 1) 283 :  -20
+Fractional ideal (4*w - 15) 293 :  -30
+Fractional ideal (-4*w - 11) 293 :  -14
+Fractional ideal (4*w + 13) 349 :  18
+Fractional ideal (-4*w + 17) 349 :  2
+Fractional ideal (6*w + 7) 379 :  -12
+Fractional ideal (-6*w + 13) 379 :  -28
+Fractional ideal (-2*w + 21) 431 :  -36
+Fractional ideal (2*w + 19) 431 :  4
+Fractional ideal (8*w + 1) 521 :  6
+Fractional ideal (-8*w + 9) 521 :  6
+Fractional ideal (-8*w - 5) 577 :  -10
+Fractional ideal (-8*w + 13) 577 :  -42
+Fractional ideal (-2*w + 25) 607 :  -8
+Fractional ideal (2*w + 23) 607 :  40
+Fractional ideal (-4*w + 25) 653 :  -30
+Fractional ideal (4*w + 21) 653 :  50
+Fractional ideal (10*w + 3) 839 :  32
+Fractional ideal (10*w - 13) 839 :  48
+Fractional ideal (-8*w - 15) 857 :  -10
+Fractional ideal (8*w - 23) 857 :  22
+Fractional ideal (-10*w + 21) 1031 :  -24
+Fractional ideal (10*w + 11) 1031 :  -24
+Fractional ideal (-6*w + 31) 1063 :  -36
+Fractional ideal (6*w + 25) 1063 :  20
+Fractional ideal (12*w - 5) 1117 :  -50
+Fractional ideal (-12*w + 7) 1117 :  -18
+Fractional ideal (6*w - 35) 1303 :  -56
+Fractional ideal (-6*w - 29) 1303 :  40
+Fractional ideal (10*w + 21) 1451 :  -20
+Fractional ideal (-10*w + 31) 1451 :  -52
+Fractional ideal (4*w - 39) 1493 :  -30
+Fractional ideal (-4*w - 35) 1493 :  -14
+Fractional ideal (-14*w - 3) 1619 :  -52
+Fractional ideal (-14*w + 17) 1619 :  28
+Fractional ideal (-12*w + 31) 1741 :  26
+Fractional ideal (12*w + 19) 1741 :  74
+Fractional ideal (-14*w + 29) 2003 :  -36
+Fractional ideal (14*w + 15) 2003 :  -20
+Fractional ideal (16*w - 21) 2153 :  30
+Fractional ideal (16*w + 5) 2153 :  30
+Fractional ideal (4*w + 45) 2333 :  -34
+Fractional ideal (-4*w + 49) 2333 :  94
+Fractional ideal (-18*w - 5) 2707 :  68
+Fractional ideal (18*w - 23) 2707 :  -60
+Fractional ideal (18*w - 25) 2767 :  8
+Fractional ideal (-18*w - 7) 2767 :  -40
+Fractional ideal (-14*w + 45) 2963 :  0
+Fractional ideal (-14*w - 31) 2963 :  24
+Fractional ideal (-14*w - 33) 3119 :  -8
+Fractional ideal (-14*w + 47) 3119 :  72
+Fractional ideal (4*w - 59) 3373 :  90
+Fractional ideal (-4*w - 55) 3373 :  10
+Fractional ideal (22*w - 7) 3767 :  -80
+Fractional ideal (22*w - 15) 3767 :  32

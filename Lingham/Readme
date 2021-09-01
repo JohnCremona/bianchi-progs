@@ -1,0 +1,89 @@
+I've divided the files into various subfolders.  
+
+The elliptic curves folder is very straightforward, it just contains
+the programs for calculating the Trace of Frobenius and the output
+files.
+
+In the modular forms folder there are two files which in principal
+calculate the fundamental region for any quadratic field, but their
+output needs to be checked carefully.
+
+Then there are the programs for computing modular forms for the two
+levels. The folder for -31 contains the best version of the hecke
+operators code, so if you want to work with -23 you should use
+hecke3.m (just change the choice of the two prime ideals) and dim.m
+from the -31 folder. The dim.m file will not work with hecke.m anyway.
+To run the program just load dim.m and it should load in all the other
+files. You can work with one level at a time or work with all levels
+in a certain range.
+
+The hdav.m file in -23 is for calculating non-rational modular forms.
+It's not very well implemented as you have to run it once, enter the
+field in the homology2.m file and then run it again. I'm sure you
+could come up with a better method.
+
+Then there are the output files for the two fields.
+
+I think it shouldn't be too hard to follow.  I've got copies of all
+the files so send me an email if you have any major problems and I'll
+try to explain what the code is supposed to be doing.
+
+Mark  
+
+Files in modular_forms/Q23:
+
+core.m:     field definition, OK, class groups, cusps, ideal classes,
+	    Bezout for ideals, utilities.  Load first.
+
+input.m:	Definitions of alphabet, standard cusps, useful
+		matrices, face and edge relations. Requires core.m
+
+levels.m:  Functions to create lists of (i) prime ideals, (ii) all
+	   ideals, of norm up to a given bound.  Requires core.m for
+	   definition of OK, but could be made to take OK as a
+	   parameter instead.  Only called by hdav.m
+
+homology.m: (loads input.m) Functions:
+	    List(): lists (c:d) symbols
+	    ToMatrix(): converts a (c:d) symbol to a matrix
+	    AreEquivalent(): cusp equivalence (Gamma_0(N))
+	    DimH(): computes dimension of H_1(H^3/Gamma_0(N))
+
+homology2.m: same as homology.m but linear algebra is done over the
+	     field LL instead of Q.    
+
+region.m:	Functions related to moving cusps to the fundamental
+		region, pseudo-Euclidean algorithm etc.  Defines:
+		MSet: the set of inversion matrices
+		CSet: the set of cusps, centres of the inversion matrices
+		gm(z): one step of pseudo-euclidean alg. for z in K
+		EuAl(a,b): Euclidean Alg. for a,b in OK. Returns pair
+		 	X,c where c is one of the three standard cusps and
+			X(a,b)=c. 
+
+bianchi.m:  degeneracy maps, and function NewS(N,data) to return the new
+	    subspace from a full space; here data is DimH(N,true).
+	    Returns: Another subspace of V2 (=V/relations), contained
+	    	    in V3 (=ker(delta)).
+	    
+
+hecke.m:    (loads homology.m, region.m) 
+	    Hecke operators:
+	    Fricke(N): Matrix of Fricke involution
+	    PrincipalHecke(p): list of matrices for T_p, p principal
+	    NewBasis(b,N): a basis for ideal b whose first element is in N
+	    M_ab(A,B,N): an a.b matrix (assuming A*B is principal)
+                	    with 2,1 entry in N
+	    HeckeNP: list of matrices for T_p, p non-principal
+	    ModToCD: Converts modular symbol of the form {oo,c} to an M-symbol 
+	    AtkinLehner(N,q): Matrix of A-L involution W_q, level N
+	    Hecke(p): T_p for any p (A-L op. for P|N)
+	    Eigen(): calculates the eigenvalue of a modular form for
+	    	    each operator
+
+hdav.m:	    Only relevant for non-rational eigenforms
+
+outputhdav } output from runs.
+outputmain }
+
+ 

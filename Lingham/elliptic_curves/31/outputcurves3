@@ -1,0 +1,204 @@
+Magma V2.11-12    Fri Jul 15 2005 14:50:03 on dante    [Seed = 1489872243]
+Type ? for help.  Type <Ctrl>-D to quit.
+
+Loading startup file "/maths/pg/pmxmpl/startup.m"
+
+Loading "levels.m"
+Elliptic Curve defined by y^2 + x*y + y = x^3 + (-w - 1)*x^2 + (w - 3)*x + 1 
+over K
+Conductor: <10, w + 6>
+Rank: 0
+[ 1, 1, -1, 0, 2, 4, -4, -6, 0, 4, -2, 2, 6, -8 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y + y = x^3 + (-w - 1)*x over K
+Conductor: <14, w + 4>
+Rank: 0
+[ -1, 0, 0, 3, 1, -1, 1, 2, 2, 5, 9, -6, -6, 12 ]
+
+Elliptic Curve defined by y^2 + w*x*y + w*y = x^3 + (-w + 1)*x^2 - w*x over K
+Conductor: <10, 2*w + 2>
+Rank: 1
+[ -1, -1, -1, 0, -4, 2, -2, 2, -4, -4, 0, -12, 0, 6 ]
+
+Elliptic Curve defined by y^2 = x^3 - x^2 + (-w + 3)*x - 3 over K
+Conductor: <8, 4*w>
+Rank: 1
+[ 0, 0, -1, 3, -3, -5, -2, -7, 3, 0, -9, -1, 0, 0 ]
+
+Elliptic Curve defined by y^2 = x^3 + 621*x + (-2916*w - 10638) over K
+Conductor: <2*w>
+Rank: 0
+[ 0, -1, 2, 2, -2, 2, 4, -4, 4, 0, -8, -8, -2, 2 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y + y = x^3 + x^2 + (-2*w - 4)*x + (-w
+    + 2) over K
+Conductor: <49, w + 39>
+Rank: 0
+[ -1, 2, 2, 1, 0, 1, 3, 0, 6, -3, -5, -4, 10, 2 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-25920*w - 10395)*x + (-3981312*w + 
+    3297078) over K
+Conductor: <-w - 6>
+Rank: 0
+[ 1, -1, 0, 0, -2, 4, 4, 6, 0, -4, -2, 2, -6, -8 ]
+
+Elliptic Curve defined by y^2 = x^3 + (w + 1)*x^2 + (w - 2)*x - 1 over K
+Conductor: <16, 4*w>
+Rank: 1
+[ 0, 0, -1, -1, 1, -1, -2, 5, -5, 0, -5, -5, -8, 8 ]
+
+Elliptic Curve defined by y^2 + (-w + 1)*x*y + y = x^3 + (-w + 1)*x^2 + w*x + 
+    (-w + 1) over K
+Conductor: <3*w - 2>
+Rank: 1
+[ 1, -2, -1, -3, 1, 1, -1, 0, -6, 1, -5, -4, -6, 10 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y + y = x^3 over K
+Conductor: <70, w + 58>
+Rank: 0
+[ -1, 0, 0, -1, -1, 1, 1, -7, 2, 5, 9, 12, -6, 3 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-324*w + 3429)*x + (-25812*w - 17226) 
+over K
+Conductor: <40, 2*w + 22>
+Rank: 2
+[ 1, 0, 1, 2, 4, 0, -2, 0, -4, 0, 2, -6, -12, 0 ]
+
+Elliptic Curve defined by y^2 = x^3 + 1917*x + (-11664*w + 5886) over K
+Conductor: <-2*w - 6>
+Rank: 0
+[ -1, 0, 4, -1, 0, 2, 4, -8, -2, 4, 6, -6, 12, -2 ]
+
+Elliptic Curve defined by y^2 + w*x*y + w*y = x^3 + w*x^2 + (-w - 3)*x + (-2*w +
+    2) over K
+Conductor: <80, w + 56>
+Rank: 1
+[ 0, -1, 1, -2, 0, 0, 2, -4, -4, -8, 10, -6, 8, -8 ]
+
+Elliptic Curve defined by y^2 = x^3 + (1728*w - 18603)*x + (-95364*w + 495882) 
+over K
+Conductor: <w + 8>
+Rank: 0
+[ 0, -1, -2, 1, 0, -4, 2, 0, 8, -4, -6, -6, -8, 4 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y = x^3 + (w - 1)*x^2 + (-2*w - 3)*x +
+3 over K
+Conductor: <3*w + 2>
+Rank: 1
+[ -1, 0, -3, 0, -1, 2, -2, 5, -1, 5, 6, -1, 6, 3 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 + (w + 1)*x^2 + (w - 2)*x - 1 over
+K
+Conductor: <-w + 10>
+Rank: 1
+[ 1, 1, 1, 0, 0, -3, -4, 1, 0, -10, -2, 2, -1, -8 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-675*w - 4968)*x + (28782*w + 123984) 
+over K
+Conductor: <20, 5*w>
+Rank: 0
+[ 0, 1, -1, -1, -4, -2, 2, -6, 6, -2, 10, -10, 12, -2 ]
+
+Elliptic Curve defined by y^2 + w*y = x^3 + (w - 1)*x^2 - 5*x + (-w + 1) over K
+Conductor: <20, 5*w>
+Rank: 1
+[ 0, -2, -1, 1, -4, -2, 5, 3, -3, -8, 1, 5, -12, -8 ]
+
+Elliptic Curve defined by y^2 = x^3 + (648*w + 216)*x + (972*w - 24732) over K
+Conductor: <20, 5*w>
+Rank: 1
+[ 0, 0, 1, -1, 2, -4, 1, -1, -7, 8, -3, 9, 0, -12 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-1485*w - 29835)*x + (-77166*w - 1798146)
+over K
+Conductor: <50, 2*w + 12>
+Rank: 0
+[ -1, 1, 0, 0, 4, 2, 2, -2, 4, 4, 0, -12, 0, 6 ]
+
+Elliptic Curve defined by y^2 + (-w + 2)*y = x^3 + (3*w - 8)*x + (-w - 1) over K
+Conductor: <112, w + 88>
+Rank: 1
+[ 0, -2, -2, 1, 1, 1, 3, 0, -6, -3, -5, 4, -10, -2 ]
+
+Elliptic Curve defined by y^2 + (-w + 2)*x*y = x^3 + x^2 - 4*x + w over K
+Conductor: <3*w - 8>
+Rank: 0
+[ 0, 1, 1, -2, -1, -1, 3, 6, 0, 3, 4, -5, 2, 10 ]
+
+Elliptic Curve defined by y^2 + y = x^3 - x^2 over K
+Conductor: <11>
+Rank: 0
+[ -2, -2, 1, 1, -2, -2, -5, 0, 0, 7, -8, -8, 8, 8 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 - x^2 - x + 1 over K
+Conductor: <-4*w + 2>
+Rank: 1
+[ 1, 1, -2, -2, 0, 0, -6, 4, 4, -1, -6, -6, -8, -8 ]
+
+Elliptic Curve defined by y^2 + (-w + 1)*x*y = x^3 - x^2 - x + (-2*w + 3) over K
+Conductor: <64, 2*w + 14>
+Rank: 0
+[ -1, 0, -2, 2, -2, 2, -4, 4, 4, 0, 8, 8, -2, 2 ]
+
+Elliptic Curve defined by y^2 = x^3 + (w + 1)*x^2 + w*x over K
+Conductor: <16, 8*w + 8>
+Rank: 0
+[ 0, 0, -2, -2, -4, 4, -2, -4, 4, 0, 6, 6, -12, 12 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 + x^2 + (w - 5)*x + (2*w - 5) over
+K
+Conductor: <4*w - 6>
+Rank: 0
+[ 1, 1, -1, 0, 2, 1, 4, 2, -4, -4, -6, 6, -6, 12 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 + x^2 - w*x + (-w + 1) over K
+Conductor: <-3*w + 10>
+Rank: 0
+[ 1, -1, -2, 2, -4, -4, -2, 0, -4, 8, 6, 2, 0, 0 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-1971*w - 3672)*x + (-78354*w - 22896) 
+over K
+Conductor: <24, 6*w>
+Rank: 0
+[ 0, -1, 3, -3, 4, 0, -1, 7, -1, 4, -8, -12, 7, 9 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y = x^3 + x^2 + w*x over K
+Conductor: <80, 2*w + 62>
+Rank: 1
+[ -1, 0, -1, -2, -2, -2, 0, 0, 4, 8, 0, 8, 6, 6 ]
+
+Elliptic Curve defined by y^2 + (w + 1)*x*y + (w + 1)*y = x^3 + x^2 + (-2*w + 
+    2)*x + (-w + 3) over K
+Conductor: <80, 2*w + 62>
+Rank: 0
+[ 1, 0, -1, 4, -2, 4, 0, 6, -8, -4, 6, 2, -6, 0 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-1323*w + 5400)*x + (-347382*w - 148176) 
+over K
+Conductor: <80, 2*w + 62>
+Rank: 0
+[ 1, 0, 1, -2, 0, 0, 2, 4, 4, 8, 10, -6, -8, 8 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 + w*x^2 + x + (2*w + 2) over K
+Conductor: <190, w + 138>
+Rank: 0
+[ -1, -1, 2, -1, 4, 0, -2, 1, -4, 0, 2, 6, 8, 0 ]
+
+Elliptic Curve defined by y^2 + x*y + y = x^3 - x over K
+Conductor: <14>
+Rank: 1
+[ -1, -1, 0, 0, 1, 1, -2, 2, 2, -4, 6, 6, -12, -12 ]
+
+Elliptic Curve defined by y^2 = x^3 + (-5427*w - 19224)*x + (-2419794*w + 
+    3211920) over K
+Conductor: <20, 10*w>
+Rank: 1
+[ 0, -1, 1, -1, -4, 2, -2, 2, 2, -10, -6, 6, 12, -6 ]
+
+Elliptic Curve defined by y^2 = x^3 + (108*w + 756)*x + (29052*w + 44388) over K
+Conductor: <5*w>
+Rank: 1
+[ 0, -2, 1, -1, 0, -2, -1, 1, -1, 0, 1, -3, 8, 4 ]
+
+
+Total time: 286.040 seconds, Total memory usage: 23.23MB

@@ -1,0 +1,569 @@
+Norm:10
+Factorization:
+p2a
+p5a
+Time: 2.700
+Dim=1
+NewDim=1
+P= Principal Prime Ideal
+Generator:
+    [3, 0]
+ of norm  9 : 
+Time: 0.000
+Time: 1.070
+Fricke:-1
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [7, 0]
+    [2, 1]
+ of norm  7 : 
+Time: 0.020
+Time: 1.290
+4
+OK
+P= Prime Ideal
+Two element generators:
+    [7, 0]
+    [4, 1]
+ of norm  7 : 
+Time: 0.020
+Time: 1.260
+2
+OK
+P= Principal Prime Ideal
+Generator:
+    [11, 0]
+ of norm  121 : 
+Time: 0.050
+Time: 3.850
+10
+OK
+P= Principal Prime Ideal
+Generator:
+    [13, 0]
+ of norm  169 : 
+Time: 0.090
+Time: 5.250
+16
+OK
+P= Principal Prime Ideal
+Generator:
+    [17, 0]
+ of norm  289 : 
+Time: 0.070
+Time: 8.890
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [19, 0]
+    [5, 1]
+ of norm  19 : 
+Time: 0.030
+Time: 3.290
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [19, 0]
+    [13, 1]
+ of norm  19 : 
+Time: 0.030
+Time: 4.420
+0
+OK
+P= Principal Prime Ideal
+Generator:
+    [23, 0]
+ of norm  529 : 
+Time: 0.120
+Time: 16.910
+-30
+OK
+P= Principal Prime Ideal
+Generator:
+    [29, 0]
+ of norm  841 : 
+Time: 0.210
+Time: 27.490
+30
+OK
+P= Prime Ideal
+Two element generators:
+    [47, 0]
+    [21, 1]
+ of norm  47 : 
+Time: 0.020
+Time: 1.900
+6
+OK
+P= Prime Ideal
+Two element generators:
+    [47, 0]
+    [25, 1]
+ of norm  47 : 
+Time: 0.010
+Time: 1.910
+-8
+OK
+P= Prime Ideal
+Two element generators:
+    [59, 0]
+    [10, 1]
+ of norm  59 : 
+Time: 0.080
+Time: 27.110
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [59, 0]
+    [48, 1]
+ of norm  59 : 
+Time: 0.070
+Time: 12.350
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [67, 0]
+    [30, 1]
+ of norm  67 : 
+Time: 0.020
+Time: 2.400
+12
+OK
+P= Prime Ideal
+Two element generators:
+    [67, 0]
+    [36, 1]
+ of norm  67 : 
+Time: 0.020
+Time: 2.400
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [71, 0]
+    [26, 1]
+ of norm  71 : 
+Time: 0.090
+Time: 22.560
+-8
+OK
+P= Prime Ideal
+Two element generators:
+    [71, 0]
+    [44, 1]
+ of norm  71 : 
+Time: 0.090
+Time: 53.380
+-8
+OK
+P= Principal Prime Ideal
+Generator:
+    [89, 0]
+ of norm  7921 : 
+Time: 2.990
+Time: 322.660
+110
+OK
+P= Prime Ideal
+Two element generators:
+    [97, 0]
+    [19, 1]
+ of norm  97 : 
+Time: 0.130
+Time: 77.190
+16
+OK
+P= Prime Ideal
+Two element generators:
+    [97, 0]
+    [77, 1]
+ of norm  97 : 
+Time: 0.110
+Time: 115.040
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [101, 0]
+    [37, 1]
+ of norm  101 : 
+Time: 0.140
+Time: 113.250
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [101, 0]
+    [63, 1]
+ of norm  101 : 
+Time: 0.130
+Time: 116.790
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [103, 0]
+    [40, 1]
+ of norm  103 : 
+Time: 0.130
+Time: 32.080
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [103, 0]
+    [62, 1]
+ of norm  103 : 
+Time: 0.120
+Time: 50.830
+8
+OK
+P= Prime Ideal
+Two element generators:
+    [107, 0]
+    [20, 1]
+ of norm  107 : 
+Time: 0.150
+Time: 126.980
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [107, 0]
+    [86, 1]
+ of norm  107 : 
+Time: 0.120
+Time: 68.860
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [109, 0]
+    [14, 1]
+ of norm  109 : 
+Time: 0.150
+Time: 127.960
+12
+OK
+P= Prime Ideal
+Two element generators:
+    [109, 0]
+    [94, 1]
+ of norm  109 : 
+Time: 0.120
+Time: 283.090
+-10
+OK
+P= Prime Ideal
+Two element generators:
+    [149, 0]
+    [38, 1]
+ of norm  149 : 
+Time: 0.100
+Time: 4.610
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [149, 0]
+    [110, 1]
+ of norm  149 : 
+Time: 0.030
+Time: 4.630
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [157, 0]
+    [17, 1]
+ of norm  157 : 
+Time: 0.250
+Time: 52.180
+-14
+OK
+P= Prime Ideal
+Two element generators:
+    [157, 0]
+    [139, 1]
+ of norm  157 : 
+Time: 0.180
+Time: 328.640
+10
+OK
+P= Prime Ideal
+Two element generators:
+    [163, 0]
+    [67, 1]
+ of norm  163 : 
+Time: 0.270
+Time: 230.600
+24
+OK
+P= Prime Ideal
+Two element generators:
+    [163, 0]
+    [95, 1]
+ of norm  163 : 
+Time: 0.190
+Time: 440.550
+-20
+OK
+P= Prime Ideal
+Two element generators:
+    [191, 0]
+    [27, 1]
+ of norm  191 : 
+Time: 0.360
+Time: 247.160
+8
+OK
+P= Prime Ideal
+Two element generators:
+    [191, 0]
+    [163, 1]
+ of norm  191 : 
+Time: 0.210
+Time: 327.330
+24
+OK
+P= Prime Ideal
+Two element generators:
+    [193, 0]
+    [55, 1]
+ of norm  193 : 
+Time: 0.360
+Time: 545.020
+-10
+OK
+P= Prime Ideal
+Two element generators:
+    [193, 0]
+    [137, 1]
+ of norm  193 : 
+Time: 0.210
+Time: 166.770
+-2
+OK
+P= Prime Ideal
+Two element generators:
+    [211, 0]
+    [89, 1]
+ of norm  211 : 
+Time: 0.410
+Time: 757.860
+20
+OK
+P= Prime Ideal
+Two element generators:
+    [211, 0]
+    [121, 1]
+ of norm  211 : 
+Time: 0.230
+Time: 225.140
+6
+OK
+P= Prime Ideal
+Two element generators:
+    [293, 0]
+    [76, 1]
+ of norm  293 : 
+Time: 0.070
+Time: 9.110
+28
+OK
+P= Prime Ideal
+Two element generators:
+    [293, 0]
+    [216, 1]
+ of norm  293 : 
+Time: 0.070
+Time: 9.050
+-14
+OK
+P= Prime Ideal
+Two element generators:
+    [311, 0]
+    [111, 1]
+ of norm  311 : 
+Time: 0.340
+Time: 1569.050
+-32
+OK
+P= Prime Ideal
+Two element generators:
+    [311, 0]
+    [199, 1]
+ of norm  311 : 
+Time: 0.340
+Time: 1717.370
+0
+OK
+P= Prime Ideal
+Two element generators:
+    [317, 0]
+    [35, 1]
+ of norm  317 : 
+Time: 0.360
+Time: 2553.220
+-6
+OK
+P= Prime Ideal
+Two element generators:
+    [317, 0]
+    [281, 1]
+ of norm  317 : 
+Time: 0.360
+Time: 370.640
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [359, 0]
+    [158, 1]
+ of norm  359 : 
+Time: 0.410
+Time: 2309.060
+22
+OK
+P= Prime Ideal
+Two element generators:
+    [359, 0]
+    [200, 1]
+ of norm  359 : 
+Time: 0.390
+Time: 884.490
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [443, 0]
+    [66, 1]
+ of norm  443 : 
+Time: 0.500
+Time: 5769.270
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [443, 0]
+    [376, 1]
+ of norm  443 : 
+Time: 0.500
+Time: 1314.930
+-20
+OK
+P= Prime Ideal
+Two element generators:
+    [577, 0]
+    [217, 1]
+ of norm  577 : 
+Time: 0.130
+Time: 18.660
+32
+OK
+P= Prime Ideal
+Two element generators:
+    [577, 0]
+    [359, 1]
+ of norm  577 : 
+Time: 0.130
+Time: 18.340
+-10
+OK
+P= Prime Ideal
+Two element generators:
+    [607, 0]
+    [291, 1]
+ of norm  607 : 
+Time: 0.140
+Time: 19.740
+-8
+OK
+P= Prime Ideal
+Two element generators:
+    [607, 0]
+    [315, 1]
+ of norm  607 : 
+Time: 0.140
+Time: 19.420
+48
+OK
+P= Prime Ideal
+Two element generators:
+    [617, 0]
+    [78, 1]
+ of norm  617 : 
+Time: 0.130
+Time: 19.960
+2
+OK
+P= Prime Ideal
+Two element generators:
+    [617, 0]
+    [538, 1]
+ of norm  617 : 
+Time: 0.140
+Time: 19.690
+30
+OK
+P= Prime Ideal
+Two element generators:
+    [653, 0]
+    [157, 1]
+ of norm  653 : 
+Time: 0.140
+Time: 21.410
+-18
+OK
+P= Prime Ideal
+Two element generators:
+    [653, 0]
+    [495, 1]
+ of norm  653 : 
+Time: 0.150
+Time: 21.240
+-4
+OK
+P= Prime Ideal
+Two element generators:
+    [691, 0]
+    [52, 1]
+ of norm  691 : 
+Time: 0.820
+Time: 4347.910
+-20
+OK
+P= Prime Ideal
+Two element generators:
+    [691, 0]
+    [638, 1]
+ of norm  691 : 
+Time: 0.750
+Time: 16052.640
+28
+OK
+P= Prime Ideal
+Two element generators:
+    [701, 0]
+    [221, 1]
+ of norm  701 : 
+Time: 0.750
+Time: 15544.250
+-22
+OK
+P= Prime Ideal
+Two element generators:
+    [701, 0]
+    [479, 1]
+ of norm  701 : 
+Time: 0.750
+Time: 9457.510
+34
+OK
+

@@ -1,0 +1,42 @@
+> for P in Plist2 do;
+for> print P, Norm(P), Eigen(N,data,new,[P]);
+for> end for;
+Prime Ideal of OK
+Two element generators:
+    [311, 0]
+    [70, 1]
+311 [* 24 *] -1
+Prime Ideal of OK
+Two element generators:
+    [311, 0]
+    [240, 1]
+311 [* 0 *] -1
+Prime Ideal of OK
+Two element generators:
+    [349, 0]
+    [158, 1]
+349 [* 26 *] -1
+Prime Ideal of OK
+Two element generators:
+    [349, 0]
+    [190, 1]
+349 [* -26 *] -1
+Prime Ideal of OK
+Two element generators:
+    [353, 0]
+    [37, 1]
+353 [* 10 *] -1
+Prime Ideal of OK
+Two element generators:
+    [353, 0]
+    [315, 1]
+353 [* -14 *] -1
+Prime Ideal of OK
+Two element generators:
+    [397, 0]
+    [84, 1]
+397 [* 22 *] -1
+
+[Interrupt twice in half a second; exiting]
+
+Total time: 21124.049 seconds, Total memory usage: -1624.95MB
