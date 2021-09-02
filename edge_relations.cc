@@ -493,7 +493,7 @@ void edge_relations::edge_pairing_plus(int i)
       gens.push_back(off1+j);
       coordindex[off1+j] = ngens;
       coordindex[off2+k] = -ngens;
-      if (!plusflag)
+      if (!plusflag && (j!=m))
         {
           ++ngens;
           // cout << " - new "<<ngens<<flush;
