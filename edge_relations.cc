@@ -477,7 +477,6 @@ void edge_relations::edge_pairing_plus(int i)
   assert (check_rel({mat22::identity, M_alphas[i+1]}, {i, i+1}));
   assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
 
-  // cout << endl;
   for (j=0; j<nsymb; j++)
     {
       if (done[j])
@@ -486,22 +485,27 @@ void edge_relations::edge_pairing_plus(int i)
       l = J(j);
       m = J(k);
       done[j] = done[m] = 1;
-      // cout<<"(j,k,l,m) = "<< vector<long>({j,k,l,m}) << flush;
 
-      ++ngens;
-      // cout << " - new "<<ngens<<flush;
-      gens.push_back(off1+j);
-      coordindex[off1+j] = ngens;
-      coordindex[off2+k] = -ngens;
-      if (!plusflag && (j!=m))
+      if (plusflag && (j==m))  // then also k==l
+        {
+          assert (k==l);
+          coordindex[off2+j] = 0;
+          coordindex[off1+l] = 0;
+        }
+      else
         {
           ++ngens;
-          // cout << " - new "<<ngens<<flush;
-          gens.push_back(off1+m);
+          gens.push_back(off2+j);
+          coordindex[off2+j] = ngens;
+          coordindex[off1+k] = -ngens;
+          if (!plusflag)
+            {
+              ++ngens;
+              gens.push_back(off1+l);
+            }
+          coordindex[off2+m] = -ngens;
+          coordindex[off1+l] = ngens;
         }
-      coordindex[off1+m] = ngens;
-      coordindex[off2+l] = -ngens;
-      // cout << endl;
     }
 }
 
