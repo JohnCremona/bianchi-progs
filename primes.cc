@@ -451,34 +451,28 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
 
   // General case, use recursion
 
-  vector<long> pplist; // list of prime power factors of N, will be sorted by size
-  for (vector<long>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
-    {
-      long p = *pi;
-      long e = val(p,N);
-      pplist.push_back(pow(p,e));
-    }
-  std::sort(pplist.begin(), pplist.end());
-
+  // II is a list of sorted lists of ideals of prime power norm, the
+  // outer list sorted by size of the underlying prime (not the prime
+  // power):
   vector<vector<Qideal>> II;
-  for (vector<long>::const_iterator pi=pplist.begin(); pi!=pplist.end(); ++pi)
+  for (vector<long>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
     II.push_back(ideals_with_norm(pow(*pi, val(*pi, N))));
 
   ans = {Qideal()}; // unit ideal
 
   // "merge" lexicographically
-  while (!II.empty())
+  for (vector<vector<Qideal> >::const_reverse_iterator QQ = II.crbegin(); QQ!=II.crend(); ++QQ)
     {
-      vector<Qideal> ans0 = ans;
-      vector<Qideal> ans1 = II.back();
-      II.pop_back();
       vector<Qideal> ans2;
-      for (vector<Qideal>::const_iterator I0 = ans0.begin(); I0!=ans0.end(); ++I0)
-        for (vector<Qideal>::iterator I1 = ans1.begin(); I1!=ans1.end(); ++I1)
-          {
-            Qideal I = (*I0) * (*I1);
-            ans2.push_back(I);
-          }
+      for (vector<Qideal>::const_iterator Qi = QQ->begin(); Qi!=QQ->end(); ++Qi)
+        {
+          Qideal Q = *Qi;
+          for (vector<Qideal>::const_iterator I0 = ans.begin(); I0!=ans.end(); ++I0)
+            {
+              I = *I0;
+              ans2.push_back(I*Q);
+            }
+        }
       ans = ans2;
     }
   long i=1;
@@ -567,9 +561,5 @@ int Qideal::is_square()
     if ((*ei)%2==1) return 0;
   return 1;
 }
-
-
-
-
 
 // END OF FILE primes.cc
