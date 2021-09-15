@@ -1,8 +1,8 @@
-Retrieving newform data for N = 65.2
+Retrieving newform data for N = 65.3
 
->>>> Level 65.2 = (7+4i), norm = 65 <<<<
+>>>> Level 65.3 = (7+4i), norm = 65 <<<<
 
-1 newform(s) at level 65.2 = (7+4i):
+1 newform(s) at level 65.3 = (7+4i):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 -1 -2 1 -4 0 6 6 -6 2 2 6 0 -4 6 -6 -10 -10 2 2 6 6 -10 8 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 6

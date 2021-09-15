@@ -7,7 +7,7 @@
 >>>> Level 11.1 = (-1+2a), norm = 11 <<<<	Dimension = 1
 >>>> Level 12.1 = (2a), norm = 12 <<<<	Dimension = 0
 >>>> Level 15.1 = (-3+2a), norm = 15 <<<<	Dimension = 0
->>>> Level 15.2 = (-4+a), norm = 15 <<<<	Dimension = 0
+>>>> Level 15.2 = (3+a), norm = 15 <<<<	Dimension = 0
 >>>> Level 16.1 = (4), norm = 16 <<<<	Dimension = 0
 >>>> Level 20.1 = (2+2a), norm = 20 <<<<	Dimension = 0
 >>>> Level 23.1 = (4+a), norm = 23 <<<<	Dimension = 0
@@ -31,15 +31,15 @@
 >>>> Level 55.1 = (-7+3a), norm = 55 <<<<	Dimension = 2
 >>>> Level 59.1 = (7+a), norm = 59 <<<<	Dimension = 0
 >>>> Level 60.1 = (-6+4a), norm = 60 <<<<	Dimension = 0
->>>> Level 60.2 = (-8+2a), norm = 60 <<<<	Dimension = 0
+>>>> Level 60.2 = (6+2a), norm = 60 <<<<	Dimension = 0
 >>>> Level 64.1 = (8), norm = 64 <<<<	Dimension = 0
 >>>> Level 67.1 = (5+3a), norm = 67 <<<<	Dimension = 0
 >>>> Level 69.1 = (-3+5a), norm = 69 <<<<	Dimension = 0
->>>> Level 69.2 = (-7+4a), norm = 69 <<<<	Dimension = 0
+>>>> Level 69.2 = (3+4a), norm = 69 <<<<	Dimension = 0
 >>>> Level 71.1 = (-1+5a), norm = 71 <<<<	Dimension = 0
 >>>> Level 75.1 = (-9+a), norm = 75 <<<<	Dimension = 0
->>>> Level 75.2 = (7+2a), norm = 75 <<<<	Dimension = 0
->>>> Level 75.3 = (5a), norm = 75 <<<<	Dimension = 0
+>>>> Level 75.2 = (5a), norm = 75 <<<<	Dimension = 0
+>>>> Level 75.3 = (-9+2a), norm = 75 <<<<	Dimension = 0
 >>>> Level 80.1 = (4+4a), norm = 80 <<<<	Dimension = 0
 >>>> Level 81.1 = (-6+5a), norm = 81 <<<<	Dimension = 0
 >>>> Level 81.2 = (-9+3a), norm = 81 <<<<	Dimension = 2
@@ -47,7 +47,7 @@
 >>>> Level 89.1 = (2+5a), norm = 89 <<<<	Dimension = 1
 >>>> Level 92.1 = (8+2a), norm = 92 <<<<	Dimension = 1
 >>>> Level 93.1 = (9+a), norm = 93 <<<<	Dimension = 0
->>>> Level 93.2 = (5+4a), norm = 93 <<<<	Dimension = 0
+>>>> Level 93.2 = (-9+4a), norm = 93 <<<<	Dimension = 0
 >>>> Level 97.1 = (-10+3a), norm = 97 <<<<	Dimension = 0
 >>>> Level 99.1 = (3+5a), norm = 99 <<<<	Dimension = 4
 >>>> Level 99.2 = (-3+6a), norm = 99 <<<<	Dimension = 5

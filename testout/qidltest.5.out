@@ -77,8 +77,8 @@ Ideals of norm up to 50 (sorted, both conjugates):
 18.3 = [18,11+a] = (4+2a,-7+a)
 20.1 = 2[5,a] = (2a)
 21.1 = [21,10+a] = (-1+2a)
-21.2 = [21,17+a] = (-4+a)
-21.3 = [21,4+a] = (4+a)
+21.2 = [21,4+a] = (4+a)
+21.3 = [21,17+a] = (-4+a)
 21.4 = [21,11+a] = (1+2a)
 23.1 = [23,8+a] = (1+3a,-8-a)
 23.2 = [23,15+a] = (-1+3a,-8+a)
@@ -105,8 +105,8 @@ Ideals of norm up to 50 (sorted, both conjugates):
 41.1 = [41,6+a] = (6+a)
 41.2 = [41,35+a] = (-6+a)
 42.1 = [42,31+a] = (-2+4a,-9-3a)
-42.2 = [42,17+a] = (-8+2a,-1-5a)
-42.3 = [42,25+a] = (8+2a,-9+3a)
+42.2 = [42,25+a] = (8+2a,-9+3a)
+42.3 = [42,17+a] = (-8+2a,-1-5a)
 42.4 = [42,11+a] = (2+4a,-11-a)
 43.1 = [43,9+a] = (9+a,-7+4a)
 43.2 = [43,34+a] = (-9+a,-7-4a)
@@ -144,7 +144,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 18.2 = 3[2,1+a] = (6,-3+3a)
 20.1 = 2[5,a] = (2a)
 21.1 = [21,10+a] = (-1+2a)
-21.2 = [21,17+a] = (-4+a)
+21.2 = [21,4+a] = (4+a)
 23.1 = [23,8+a] = (1+3a,-8-a)
 24.1 = 2[6,1+a] = (2+2a)
 25.1 = 5[1,a] = (5)
@@ -160,7 +160,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 40.1 = 2[10,5+a] = (4a,-10-2a)
 41.1 = [41,6+a] = (6+a)
 42.1 = [42,31+a] = (-2+4a,-9-3a)
-42.2 = [42,17+a] = (-8+2a,-1-5a)
+42.2 = [42,25+a] = (8+2a,-9+3a)
 43.1 = [43,9+a] = (9+a,-7+4a)
 45.1 = [45,25+a] = (5+2a)
 45.2 = 3[5,a] = (3a)
@@ -356,20 +356,20 @@ Ideal 21.1 = [21,10+a] (norm 21) is principal, with generator -1+2a with factori
  with inverses:
 [ 1 a -5 -4 -2-a -2 2 2+a 4 5 -a -1 ]
 AB-matrix of 21.1 is [-1+2a,0; 0,-1-2a]
-Ideal 21.2 = [21,17+a] (norm 21) is principal, with generator -4+a with factorization P3b*P7a
-21 residues mod 21.2: [ 0 1 2 -1+a a 1+a 2+a 3+a 2a 1+2a 2+2a -2-2a -1-2a -2a -3-a -2-a -1-a -a 1-a -2 -1 ]
+Ideal 21.2 = [21,4+a] (norm 21) is principal, with generator 4+a with factorization P3a*P7b
+21 residues mod 21.2: [ 0 1 2 -1-a -a 1-a 2-a 3-a -2a 1-2a 2-2a -2+2a -1+2a 2a -3+a -2+a -1+a a 1+a -2 -1 ]
 12 invertible residues mod 21.2:
-[ 1 2 a 1+a 2a 2+2a -2-2a -2a -1-a -a -2 -1 ]
- with inverses:
-[ 1 -2-2a -1-a -a 2a -2 2 -2a a 1+a 2+2a -1 ]
-AB-matrix of 21.2 is [-4+a,0; 0,-4-a]
-Ideal 21.3 = [21,4+a] (norm 21) is principal, with generator 4+a with factorization P3a*P7b
-21 residues mod 21.3: [ 0 1 2 -1-a -a 1-a 2-a 3-a -2a 1-2a 2-2a -2+2a -1+2a 2a -3+a -2+a -1+a a 1+a -2 -1 ]
-12 invertible residues mod 21.3:
 [ 1 2 -a 1-a -2a 2-2a -2+2a 2a -1+a a -2 -1 ]
  with inverses:
 [ 1 -2+2a -1+a a -2a -2 2 2a -a 1-a 2-2a -1 ]
-AB-matrix of 21.3 is [4+a,0; 0,4-a]
+AB-matrix of 21.2 is [4+a,0; 0,4-a]
+Ideal 21.3 = [21,17+a] (norm 21) is principal, with generator -4+a with factorization P3b*P7a
+21 residues mod 21.3: [ 0 1 2 -1+a a 1+a 2+a 3+a 2a 1+2a 2+2a -2-2a -1-2a -2a -3-a -2-a -1-a -a 1-a -2 -1 ]
+12 invertible residues mod 21.3:
+[ 1 2 a 1+a 2a 2+2a -2-2a -2a -1-a -a -2 -1 ]
+ with inverses:
+[ 1 -2-2a -1-a -a 2a -2 2 -2a a 1+a 2+2a -1 ]
+AB-matrix of 21.3 is [-4+a,0; 0,-4-a]
 Ideal 21.4 = [21,11+a] (norm 21) is principal, with generator 1+2a with factorization P3b*P7b
 21 residues mod 21.4: [ 0 1 2 3 4 5 -4+a -3+a -2+a -1+a a -a 1-a 2-a 3-a 4-a -5 -4 -3 -2 -1 ]
 12 invertible residues mod 21.4:
@@ -418,8 +418,8 @@ Enter an ideal label N.i : ideal is [1,a] with norm 1, index 1, and label 1.1
 Enter an ideal label N.i : ideal is 3[2,1+a] with norm 18, index 2, and label 18.2
 Enter an ideal label N.i : ideal is [18,11+a] with norm 18, index 3, and label 18.3
 Enter an ideal label N.i : ideal is [21,10+a] with norm 21, index 1, and label 21.1
-Enter an ideal label N.i : ideal is [21,17+a] with norm 21, index 2, and label 21.2
-Enter an ideal label N.i : ideal is [21,4+a] with norm 21, index 3, and label 21.3
+Enter an ideal label N.i : ideal is [21,4+a] with norm 21, index 2, and label 21.2
+Enter an ideal label N.i : ideal is [21,17+a] with norm 21, index 3, and label 21.3
 Enter an ideal label N.i : ideal is [21,11+a] with norm 21, index 4, and label 21.4
 Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

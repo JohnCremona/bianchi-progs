@@ -65,8 +65,8 @@ Ideals of norm up to 50 (sorted, both conjugates):
 12.1 = 2[3,a] = (2a)
 12.2 = 2[3,2+a] = (-2+2a)
 15.1 = [15,6+a] = (-3+2a)
-15.2 = [15,11+a] = (-4+a)
-15.3 = [15,3+a] = (3+a)
+15.2 = [15,3+a] = (3+a)
+15.3 = [15,11+a] = (-4+a)
 15.4 = [15,8+a] = (1+2a)
 16.1 = 4[1,a] = (4)
 20.1 = 2[5,1+a] = (2+2a)
@@ -112,7 +112,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 11.1 = [11,5+a] = (-1+2a)
 12.1 = 2[3,a] = (2a)
 15.1 = [15,6+a] = (-3+2a)
-15.2 = [15,11+a] = (-4+a)
+15.2 = [15,3+a] = (3+a)
 16.1 = 4[1,a] = (4)
 20.1 = 2[5,1+a] = (2+2a)
 23.1 = [23,4+a] = (4+a)
@@ -220,20 +220,20 @@ Ideal 15.1 = [15,6+a] (norm 15) is principal, with generator -3+2a with factoriz
  with inverses:
 [ 1 -1+a -2-a -2 2 2+a 1-a -1 ]
 AB-matrix of 15.1 is [-3+2a,0; 0,-1-2a]
-Ideal 15.2 = [15,11+a] (norm 15) is principal, with generator -4+a with factorization P3b*P5a
-15 residues mod 15.2: [ 0 1 2 -1+a a 1+a 2+a -1+2a 1-2a -2-a -1-a -a 1-a -2 -1 ]
+Ideal 15.2 = [15,3+a] (norm 15) is principal, with generator 3+a with factorization P3a*P5b
+15 residues mod 15.2: [ 0 1 2 -a 1-a 2-a 3-a 1-2a -1+2a -3+a -2+a -1+a a -2 -1 ]
 8 invertible residues mod 15.2:
-[ 1 2 a -1+2a 1-2a -a -2 -1 ]
- with inverses:
-[ 1 1-2a a -2 2 -a -1+2a -1 ]
-AB-matrix of 15.2 is [-4+a,0; 0,-3-a]
-Ideal 15.3 = [15,3+a] (norm 15) is principal, with generator 3+a with factorization P3a*P5b
-15 residues mod 15.3: [ 0 1 2 -a 1-a 2-a 3-a 1-2a -1+2a -3+a -2+a -1+a a -2 -1 ]
-8 invertible residues mod 15.3:
 [ 1 2 1-a 1-2a -1+2a -1+a -2 -1 ]
  with inverses:
 [ 1 -1+2a 1-a -2 2 -1+a 1-2a -1 ]
-AB-matrix of 15.3 is [3+a,0; 0,4-a]
+AB-matrix of 15.2 is [3+a,0; 0,4-a]
+Ideal 15.3 = [15,11+a] (norm 15) is principal, with generator -4+a with factorization P3b*P5a
+15 residues mod 15.3: [ 0 1 2 -1+a a 1+a 2+a -1+2a 1-2a -2-a -1-a -a 1-a -2 -1 ]
+8 invertible residues mod 15.3:
+[ 1 2 a -1+2a 1-2a -a -2 -1 ]
+ with inverses:
+[ 1 1-2a a -2 2 -a -1+2a -1 ]
+AB-matrix of 15.3 is [-4+a,0; 0,-3-a]
 Ideal 15.4 = [15,8+a] (norm 15) is principal, with generator 1+2a with factorization P3b*P5b
 15 residues mod 15.4: [ 0 1 2 3 -3+a -2+a -1+a a -a 1-a 2-a 3-a -3 -2 -1 ]
 8 invertible residues mod 15.4:
