@@ -23,6 +23,7 @@ public:
   Quad num() const {return n;}
   Quad den() const {return d;}
   RatQuad recip() const {return RatQuad(d, n);}  // no reduction needed
+  RatQuad conj() const {return RatQuad(n.conj(), d.conj());}  // no reduction needed
   RatQuad translation_reduce() const             // reduce mod Quads
   {
     return (d==0? RatQuad(1,0): RatQuad(n%d,d));

@@ -38,8 +38,10 @@ int main ()
          cout << ">>>> Level " << ideal_label(N)
               << " = " << gens_string(N)
               <<", norm = "<<normn<<" <<<<";
-         if(verbose) cout<<endl;
-         else cout << "\t";
+         if(verbose)
+           cout<<endl;
+         else
+           cout << "\t";
          homspace h(N,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
          cout << "Dimension = " << h.h1cuspdim() << endl;
        }

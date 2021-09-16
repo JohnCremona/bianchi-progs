@@ -118,12 +118,11 @@ void homspace::make_freemods()
         cout<< m << " --> " << flush;
       vec v = chain(m);
       ei[i+1] = denom1;
-      if (verbose)
-        cout << v << flush;
       if (v!=ei)
         {
           cerr<<endl;
-          if (!verbose) cerr<< m << " --> " << v<<endl;
+          if (!verbose) cerr<< m << " --> ";
+          cerr<< v<<endl;
           cerr<<" *** WRONG, should be "<<ei<<endl;
           exit(1);
         }
@@ -132,6 +131,31 @@ void homspace::make_freemods()
           if (verbose) cout << " OK"<<endl;
         }
       ei[i+1] = 0;
+    }
+
+  Qideal Nconj = N.conj();
+  if(0)//N.get_index()>Nconj.get_index())
+    {
+      if (verbose) cout<<"Constructing conjugate homspace..."<<endl;
+      homspace H1conj(Nconj, plusflag, 0, 0);
+      assert (H1conj.rk==rk);
+      if (verbose) cout<<" - dimension equal, constructing matrix of conjugation map from this to that..."<<endl;
+      mat conjmat(rk,rk);
+      for (i=0; i<rk; i++)
+        {
+          m = freemods[i];
+          modsym mc(m.alpha().conj(), m.beta().conj());
+          vec v = H1conj.chain(mc);
+          conjmat.setcol(i+1,v);
+        }
+      int conjmatrank = conjmat.rank();
+      if (verbose || conjmatrank!=rk)
+        {
+          if (conjmatrank==rk)
+            cout<<" - spaces are isomorphic, as they should be!"<<endl;
+          else
+            cout<<" - H1 and H1conj both have dimension "<<rk<<" but the conjugation map has rank "<<conjmatrank<<endl;
+        }
     }
 }
 
@@ -145,15 +169,18 @@ void homspace::kernel_delta()
   for (i=0; i<rk; i++)
     {
       modsym m = freemods[i];
-      deltamat(cusps.index(m.beta())+1, i+1) += 1;  // N.B. offset of 1
-      deltamat(cusps.index(m.alpha())+1, i+1) -= 1;
+      RatQuad a = m.alpha(), b = m.beta();
+      deltamat(cusps.index(b)+1, i+1) += 1;  // N.B. offset of 1
+      deltamat(cusps.index(a)+1, i+1) -= 1;
+      if (verbose>1)
+        cout << "#"<<i<<" -->  C"<<(cusps.index(b)+1)<<" - C"<<(cusps.index(a)+1)<<endl;
     }
   ncusps=cusps.count();
-
-  if(verbose>1)
+  if(verbose)
     {
-      cout<<ncusps<<" inequivalent cusps found "<<endl;
-      cout<<"Matrix of boundary map = "<<deltamat<<endl;
+      cout<<ncusps<<" inequivalent cusps encountered "<<endl;
+      if(verbose>1)
+        cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
   kern = kernel(smat(deltamat));
   vec pivs, npivs;

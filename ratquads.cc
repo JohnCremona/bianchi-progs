@@ -137,12 +137,11 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   RatQuad cc1 = c1, cc2 = c2;
   cc1.reduce(N);
   cc2.reduce(N);
-  I1 = cc1.ideal();
-  I2 = cc2.ideal();
-  assert (I1==I2);
-  assert (N.is_coprime_to(I1));
+  Qideal I = cc1.ideal();
+  assert (I==cc2.ideal());
+  assert (N.is_coprime_to(I));
 #ifdef DEBUG_CUSP_EQ
-  cout<<" - adjusted representations: "<<cc1<<", "<<cc2<<" with equal ideals "<<I1<<" coprime to N"<<endl;
+  cout<<" - adjusted representations: "<<cc1<<", "<<cc2<<" with equal ideals "<<I<<" coprime to N"<<endl;
 #endif
 
   // Use the criterion of Cor.2 in "Manin symbols over number fields"
@@ -159,10 +158,9 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   cout<<" - a2'*b2 = "<<a2db2<<", a2*b2' = "<<a2b2d<<endl;
 #endif
 
-  Qideal M = D1*D1+N; // D1==D2
-  M = I1*I2*M;
+  Qideal M = (D1*D1+N)*I.norm(); // recall D1==D2
 #ifdef DEBUG_CUSP_EQ
-  cout<<" - M = I1*I2*(D^2+N) = "<<M<<endl;
+  cout<<" - M = N(I)*(D^2+N) = "<<M<<endl;
 #endif
 
   // test whether there is a unit u such that
@@ -171,7 +169,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
   if (M.divides(a2db2-a2b2d))
     {
 #ifdef DEBUG_CUSP_EQ
-      cout<<" - Returning 1"<<endl;
+      cout<<" - testing unit 1 - equivalent"<<endl;
 #endif
       return 1;
     }
@@ -180,20 +178,34 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
     {
       Quad u = *ui;
 #ifdef DEBUG_CUSP_EQ
-      cout<<" - testing unit "<<u<<endl;
+      cout<<" - testing unit "<<u<<flush;
 #endif
       if (M.divides(a2db2-u*a2b2d))
         {
 #ifdef DEBUG_CUSP_EQ
-          cout<<" - Returning 1"<<endl;
+          cout<<" - equivalent"<<endl;
 #endif
           return 1;
         }
     }
 #ifdef DEBUG_CUSP_EQ
-  cout<<" - Returning 0"<<endl;
+  cout<<" - not equivalent"<<endl;
 #endif
   return 0;
+}
+
+// test function
+int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
+{
+  int t1 = cuspeq(c1, c2, N, plusflag);
+  int t2 = cuspeq(c1.conj(), c2.conj(), N.conj(), plusflag);
+  if (t1!=t2)
+    {
+      cout<<"Problem testing equivalence of cusps "<<c1<<" and "<<c2<<" modulo "<<N<<endl;
+      cout<<" - direct test yields "<<t1<<" while conjugate test yields "<<t2<<endl;
+      exit(1);
+    }
+  return t1;
 }
 
 // if type = t>=0 , return U{alpha[t],oo}
