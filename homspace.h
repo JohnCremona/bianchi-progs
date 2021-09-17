@@ -33,6 +33,8 @@ public:
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
 
+  int check_conjugate(int verb=0);     // function to check consistency between this and conjugate level
+
   vec coords(int i) {return FR.coords(i);}
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}

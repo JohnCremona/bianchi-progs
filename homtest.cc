@@ -44,5 +44,17 @@ int main ()
            cout << "\t";
          homspace h(N,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
          cout << "Dimension = " << h.h1cuspdim() << endl;
+#ifdef CHECK_CONJUGATE
+         if (!h.check_conjugate())
+           {
+             Qideal Nconj = N.conj();
+             cout<<"**************************************************"<<endl;
+             if (N.is_Galois_stable())
+               cout<<"Conjugation map not an isomorphism at level "<<ideal_label(N)<<"="<<N<<endl;
+             else
+               cout<<"Inconsistency between level "<<ideal_label(N)<<"="<<N<<" and its conjugate "<<ideal_label(Nconj)<<"="<<Nconj<<endl;
+             cout<<"**************************************************"<<endl;
+           }
+#endif
        }
 }

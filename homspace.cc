@@ -132,31 +132,6 @@ void homspace::make_freemods()
         }
       ei[i+1] = 0;
     }
-
-  Qideal Nconj = N.conj();
-  if(0)//N.get_index()>Nconj.get_index())
-    {
-      if (verbose) cout<<"Constructing conjugate homspace..."<<endl;
-      homspace H1conj(Nconj, plusflag, 0, 0);
-      assert (H1conj.rk==rk);
-      if (verbose) cout<<" - dimension equal, constructing matrix of conjugation map from this to that..."<<endl;
-      mat conjmat(rk,rk);
-      for (i=0; i<rk; i++)
-        {
-          m = freemods[i];
-          modsym mc(m.alpha().conj(), m.beta().conj());
-          vec v = H1conj.chain(mc);
-          conjmat.setcol(i+1,v);
-        }
-      int conjmatrank = conjmat.rank();
-      if (verbose || conjmatrank!=rk)
-        {
-          if (conjmatrank==rk)
-            cout<<" - spaces are isomorphic, as they should be!"<<endl;
-          else
-            cout<<" - H1 and H1conj both have dimension "<<rk<<" but the conjugation map has rank "<<conjmatrank<<endl;
-        }
-    }
 }
 
 void homspace::kernel_delta()
@@ -217,6 +192,59 @@ void homspace::kernel_delta()
         }
     }
 }
+
+// This method constructs the conjugate homspace (which might be the
+// same again, if N is Galois-stable), and the maps between them
+// induced by the obvious conjugation map on modular symbols.
+// Theoretically, both spaces should have the same dimension, and the
+// maps between them should be isomorphisms.
+
+int homspace::check_conjugate(int verb)
+{
+  Qideal Nconj = N.conj();
+  if (verb) cout<<"Constructing conjugate homspace for level "<<ideal_label(Nconj)<<"..."<<endl;
+  homspace H1conj(Nconj, plusflag, cuspidal, 0);
+  if (H1conj.rk!=rk)
+    {
+      if (verb) cout<<"Error: this space and the conjugate space have differeent dimensions"<<endl;
+      return 0;
+    }
+  if (verb)
+    cout<<" - dimensions equal ("<<rk<<"), constructing matrix of conjugation map..."<<endl;
+  mat conjmat1(rk,rk);
+  for (int i=0; i<rk; i++)
+    {
+      conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
+    }
+  long conjmatrank1 = smat(conjmat1).rank();
+  if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
+
+  // Now the reverse map
+  mat conjmat2(rk,rk);
+  for (int i=0; i<rk; i++)
+    {
+      conjmat2.setcol(i+1,chain(H1conj.freemods[i].conj()));
+    }
+  long conjmatrank2 = smat(conjmat2).rank();
+  if (verb) cout<<" - reverse conjugation map has rank "<<conjmatrank2<<endl;
+  if (conjmatrank1==rk && conjmatrank2==rk)
+    {
+      if (verb)
+        cout<<" - spaces are isomorphic, as expected."<<endl;
+      return 1;
+    }
+  else
+    {
+      if (verb)
+        {
+          cout << " - the forwards  conjugation map has rank "<<conjmatrank1<<endl;
+          cout << " - the backwards conjugation map has rank "<<conjmatrank2<<endl;
+          cout << " products are\n"<<conjmat1*conjmat2<<"\nand"<<conjmat2*conjmat1<<endl;
+        }
+      return 0;
+    }
+}
+
 
 //#define DEBUG_CHAIN
 
