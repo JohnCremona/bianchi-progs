@@ -108,13 +108,83 @@ long xmoddot(long s, const vector<long>& a, const vector<long>& c)
   return g;
 }
 
+//#define testbezout
+
+// If (b,d)!=(0,0), return an HNF basis [(aa,bb), (cc,0)] for the
+// Z-module [[a,b],[c,d]]:
+vector<long> hnf22(long a, long b, long c, long d)
+{
+#ifdef testbezout
+  cout<<"  - hnf22("<<a<<", "<<b<<", "<<c<<", "<<d<<") = "<<flush;
+#endif
+  long x,y;
+  long bb = bezout(b,d, x,y);
+  long cc = abs(a*d-b*c)/bb;
+  long aa = a*x+c*y;
+  if (cc) aa%=cc;
+  vector<long> v = {aa, bb, cc};
+#ifdef testbezout
+  cout<<v<<endl;
+#endif
+  return v;
+}
+
+//Sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for
+//the Z-module spanned by [first[i], second[i]]
+
+void findzbasis(const vector<long>& first, const vector<long>& second, vector<long>& basis)
+{
+#ifdef testbezout
+  cout<<"findzbasis("<<first<<", "<<second<<"): "<<endl;
+#endif
+  long a, b, c, d;
+  vector<long>::const_iterator ai, bi, aj, bj;
+  // Find a nonsingular 2x2 block:
+  int t=1;
+  for (ai=first.begin(), bi=second.begin(); t && ai!=first.end(); ai++, bi++)
+    {
+      a = *ai;
+      b = *bi;
+      for (aj=ai+1, bj=bi+1; t && aj!=first.end(); aj++, bj++)
+        {
+          c = *aj;
+          d = *bj;
+          if (a*d-b*c)
+            {
+              basis = hnf22(a,b, c,d);
+              t = 0;
+            }
+        }
+    }
+  a = basis[0];
+  b = basis[1];
+  c = basis[2];
+  assert (!t);
+  assert (basis[1]*basis[2]!=0);
+#ifdef testbezout
+  cout<<" - after step 0, {a,b,c} = "<<basis<<endl;
+#endif
+  // process all the rest
+  for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ai++, bi++)
+    {
+      basis = hnf22(a,b, *ai, *bi);
+      c = gcd(c, basis[2]);
+      a = basis[0]%c;
+      b = basis[1];
+      basis = {a, b, c};
+#ifdef testbezout
+      cout<<" - after one step using ("<<(*ai)<<","<<(*bi)<<"), {a,b,c} = "<<basis<<endl;
+#endif
+    }
+}
+
+// No longer used:
+
 // sets basis={e1,e2,f1} such that [[e1,e2], [f1,0]] is a Z-basis
 // for the Z-module spanned by [first[i], second[i]], and also sets x, y to be vectors such that
 //
 // [e1, e2] = [first.x, second.x]
 // [f1,  0] = [first.y, second.y]
-
-//#define testbezout
 
 void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
                       vector<long>& basis, vector<long>& x, vector<long>& y)
@@ -139,15 +209,15 @@ void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
   if (q!=0)
     {
 #ifdef testbezout
-      cout<<"findzbasis("<<first<<","<<second<<") --> basis "<<basis<<endl;
-      cout<<" reducing e1 from "<<basis[0]<< " to "<<qr.rem<<endl;
+      cout<<"findzbasis("<<first<<","<<second<<") --> basis="<<basis<<"i.e. [e1,e2]=["<<basis[0]<<","<<basis[1]<<"], [f1,0]=["<<basis[2]<<",0]"<<endl;
+      cout<<" reducing e1="<<basis[0]<< " mod f1="<<basis[2]<<": new e1="<<qr.rem<<endl;
 #endif
       basis[0] = qr.rem;
       for(i=0; i<n; i++)
         x[i] -= q*y[i];
     }
 #ifdef testbezout
-  cout<<"findzbasis("<<first<<","<<second<<") --> basis "<<basis<<endl;
+  cout<<"findzbasis("<<first<<","<<second<<") --> basis="<<basis<<"i.e. [e1,e2]=["<<basis[0]<<","<<basis[1]<<"], [f1,0]=["<<basis[2]<<",0]"<<endl;
   cout<<"coefficient vectors x="<<x<<", y="<<y<<endl;
 //Check:
   if( ! (  (basis[0]==dot(first,x))   &&
@@ -161,12 +231,3 @@ void findzbasiscoeffs(const vector<long>& first, const vector<long>& second,
 #endif
 }
 
-//Same as findzbasiscoeffs except don't need x,y: sets
-//basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for the
-//Z-module spanned by [first[i], second[i]]
-
-void findzbasis(const vector<long>& first, const vector<long>& second, vector<long>& basis)
-{
-  vector<long> x(first.size()), y(first.size());
-  findzbasiscoeffs(first, second, basis, x, y);
-}

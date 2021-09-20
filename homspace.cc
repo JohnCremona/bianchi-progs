@@ -118,7 +118,7 @@ void homspace::make_freemods()
         cout<< m << " --> " << flush;
       vec v = chain(m);
       ei[i+1] = denom1;
-      if (v!=ei)
+      if (v!=ei && v!=-ei)
         {
           cerr<<endl;
           if (!verbose) cerr<< m << " --> ";

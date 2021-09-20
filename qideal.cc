@@ -399,7 +399,7 @@ int Qideal::contains(const Quad& alpha) const
 int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
 {
   vector<long> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
-  int t = vecbezout(v, w);
+  long t = vecbezout(v, w);
   if (t==1)
     {
       Qideal IJ = (*this)*J;
