@@ -1,6 +1,7 @@
 // FILE primes.cc
 
 #include "primes.h"
+#include "qidloop.h"
 #include "intprocs.h"
 #include <list>
 
@@ -542,6 +543,30 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
         }
     }
   cerr << "Unable to find an ideal equivalent to "<<(*this)<<" coprime to "<<N<<endl;
+  return Qideal();
+}
+
+// return J coprime to N such that J^2*this is principal; if no such
+// J exists (i.e., if the ideal class is not a square, return the
+// zero ideal.  (implemented in primes.cc)
+Qideal Qideal::sqrt_coprime_to(const Qideal& N)
+{
+  if (is_principal()) // this = (g0) so return (1)
+    {
+      return Qideal(1);
+    }
+  Qideal A = sqrt_class(1); // so A^2*this is principal
+  if (A.nm==0) return A;
+  Qidealooper looper(2, 100);
+  while (looper.not_finished())
+    {
+      Qideal B = looper.next();
+      while (!A.is_equivalent(B))
+        B = looper.next();
+      if (A.is_coprime_to(N))
+        return B;
+    }
+  cerr << "Unable to find an ideal I such that I^2 * "<<(*this)<<" is principal and coprime to "<<N<<endl;
   return Qideal();
 }
 

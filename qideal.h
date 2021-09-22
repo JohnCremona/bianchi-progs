@@ -102,6 +102,7 @@ public:
   mat22 AB_matrix();
   // As above with (2,1)-entry in N
   mat22 AB_matrix_of_level(const Qideal&N, Quad&g);
+  mat22 AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g);
 
   // test if this ideal is coprime to another ideal or a Quad:
   int is_coprime_to(const Qideal& I) const
@@ -129,6 +130,17 @@ public:
   // return J = (c/d)*this coprime to N, or (if anti=1) J such that J*this=(c) and d=1
   // (implemented in primes.cc)
   Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti=0);
+
+  // return J such that J^2 is equivalent to this (or J^2*this is
+  // principal if anti==1), or if no such J exists (i.e., if the ideal
+  // class is not a square), return the zero ideal.  (implemented in
+  // primes.cc)
+  Qideal sqrt_class(int anti=0);
+
+  // return J coprime to N such that J^2*this is principal; if no such
+  // J exists (i.e., if the ideal class is not a square, return the
+  // zero ideal.  (implemented in primes.cc)
+  Qideal sqrt_coprime_to(const Qideal& N);
 
   //
   Qideal operator/(const long&) const;

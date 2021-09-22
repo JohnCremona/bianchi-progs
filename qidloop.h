@@ -5,7 +5,7 @@
 // Usage:
 //
 //     Qidealooper looper(firstn,lastn,both,sorted);
-//     while looper.not_finished())
+//     while (looper.not_finished())
 //         { Qideal A = looper.next();
 //           ...
 //         }

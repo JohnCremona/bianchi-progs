@@ -664,6 +664,24 @@ Quad Qideal::second_generator(const Quad& a)
   return b;
 }
 
+// return J such that J^2 is equivalent to this (or J^2*this is
+// principal if anti==1), or if no such J exists (i.e., if the ideal
+// class is not a square), return the zero ideal.  (implemented in
+// primes.cc)
+Qideal Qideal::sqrt_class(int anti)
+{
+  for (vector<Qideal>::const_iterator A = Quad::class_group.begin(); A!=Quad::class_group.end(); A++)
+    {
+      Qideal Asq = *A;
+      Asq *= Asq;
+      if (anti)
+        Asq = Asq.conj();
+      if (is_equivalent(Asq))
+        return *A;
+    }
+  return Qideal(0);
+}
+
 mat22 Qideal::AB_matrix_of_level(const Qideal&N, Quad&g)
 {
   if (is_principal())
@@ -681,6 +699,35 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&N, Quad&g)
                             // so r*b in I*J*P = (a)*P
   g = b;
   return mat22(b, -r*(b/a), a, s);
+}
+
+mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)
+{
+  // find a small element of this intersection N:
+  Qideal L = intersection(N);
+  L.fill();
+  Quad cc = L.g0; // smallest nonzero element of I also in N
+  Quad aa = second_generator(c);
+  assert (Qideal({aa,cc}) == *this);
+
+  // find the determinant of the matrix to be constructed:
+  Qideal IJ = J*(*this);
+  IJ.fill();
+  g = IJ.g0;
+
+  // Construct the second column:
+  Qideal Iconj = conj();
+  Qideal I0 = aa*Iconj/nm;
+  Qideal I1 = cc*Iconj/nm;
+  Quad r0, r1;
+  I0.is_coprime_to(I1, r0, r1);
+  Quad bb = -(r1*g)/cc;
+  Quad dd =  (r0*g)/aa;
+  mat22 M(aa, bb, cc, dd);
+  assert (M.det()==g);
+  assert (Qideal({bb,dd}) == J);
+  assert (N.divides(M.entry(1,0)));
+  return M;
 }
 
 ////////////////////////////////////////////////////////
