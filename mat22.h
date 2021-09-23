@@ -7,6 +7,7 @@
 #include <eclib/unimod.h>
 #include <assert.h>
 #include "ratquads.h"
+#include "primes.h"
 
 class mat22 {
 private:
@@ -94,12 +95,41 @@ inline ostream& operator<< (ostream& s, const mat22& m)
    return s;
 }
 
+mat22 AtkinLehner(const Quad& p, Qideal& N); // P=(p) principal prime
+mat22 AtkinLehner(Qideal& M1, Qideal& M2); // assume [M1] square and M1,M2 coprime
+mat22 AtkinLehner(Quadprime& P, Qideal& N); // =AL(P^e,N/P^e) where P^e||N
+
+vector<mat22> Hecke(const Quad& p, Qideal& N); //  P=(p) principal prime not dividing N
+vector<mat22> Hecke(Quadprime& P, Qideal& N); // assume [P] square
+
+inline mat22 Fricke(const Quad& n)
+{
+  return mat22(0,-1,n,0);
+}
+
+inline mat22 Fricke(Qideal& N) // assumes [N] square
+{
+  Qideal one(1);
+  return AtkinLehner(N, one);
+}
+
 class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
   matop() {;}
-  matop(const Quad& p, const Quad& n);  // constructor for hecke ops (non-ideal version)
-  matop(Qideal& P, Qideal& N);          // constructor for hecke ops (ideal version)
+  matop(const vector<mat22>& mlist) :mats(mlist) {;}
+  matop(const Quad& p, const Quad& n);  // constructor for AL & Hecke ops (non-ideal version)
+  matop(Quadprime& P, Qideal& N)        // constructor for AL & hecke ops (ideal version)
+  {
+    if (P.divides(N))   // W involution, 1 term
+      mats = {AtkinLehner(P, N)};
+    else                 // Hecke operator, p+1 terms
+      mats = Hecke(P, N);
+  }
+  matop(Qideal& N)                      // constructor for Fricke op (principal ideal version)
+  {
+    mats = {Fricke(N)};
+  }
   mat22 operator[](int i) const {return mats[i];}
   int length() const {return mats.size();}
 };

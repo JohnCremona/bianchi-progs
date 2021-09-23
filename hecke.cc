@@ -259,7 +259,7 @@ mat homspace::wop(Quadprime& Q, int dual, int display)
 
 mat homspace::fricke(int dual, int display)
 {
-  return calcop(opname(N), matop(N,N), dual,display);
+  return calcop(opname(N), matop(N), dual,display);
 }
 
 mat homspace::opmat(int i, int dual, int verb)

@@ -8,7 +8,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163};
+vector<int> fields = {1,2,3,7,11,19,43,67,163, 23};
 
 #define MAXPRIME 10000
 
@@ -57,6 +57,8 @@ int main(void)
  long firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
+ cerr << "How many Hecke matrices T_p? ";
+ cin >> np;
  Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
  while( loop.not_finished() )
    {
@@ -120,13 +122,15 @@ int main(void)
             {
               if(dim<20) cout << "wq^2 = " << wq2 << endl;
               cout << "NOT an involution...." << "\n";
-              //exit(1);
+              exit(1);
             }
 	  wqlist.push_back(wq);
 	}
-      cerr << "How many Hecke matrices T_p (max "<<nquadprimes<<")? ";
+#ifndef LOOPER
+      cerr << "How many Hecke matrices T_p? ";
       cin >> np;
       cout<<endl;
+#endif
       mat_m tp(dim), tpwq(dim), wqtp(dim);
       vector<mat_m> tplist;
       ip=0;
@@ -151,6 +155,7 @@ int main(void)
 	      {
 		cout << "Problem: T_"<<P
 		     <<" and W_Q matrix #"<<kp<<" do not commute!" << "\n";
+                exit(1);
 	      }
 	    }
 	  for (jp=0; jp<ip; jp++)
@@ -161,6 +166,7 @@ int main(void)
 		{
 		  cout << "Problem: T_"<<P
 		       <<" does not commute with T_P #" <<jp << "!\n";
+                  exit(1);
 		}
 	    }
 	  tplist.push_back(tp);

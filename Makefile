@@ -77,8 +77,8 @@ FIELDS=$(FIELDS9) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
-HOM_TESTS = homtest dimtable dimtabeis
-FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+HOM_TESTS = homtest dimtable dimtabeis hecketest
+FULL_TESTS = $(HOM_TESTS) tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin

@@ -517,15 +517,14 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
         }
       return Qideal(1);
     }
-  long n = N.norm();
-  Qideal I; Quad g;
+  Quad g;
   // cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
   for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
     {
       Quadprime P = *Pi;
-      if (P.residue_degree()==2) continue; // inert primes are principal!
-      if (gcd(P.norm(), n)>1) continue;    // skip P unless its norm is coprime to N
-      I = (anti==1? P: P.conj());
+      if (P.residue_degree()==2) continue;  // inert primes are principal so no use
+      if (!P.is_coprime_to(N)) continue;    // skip P unless it is coprime to N
+      Qideal I = (anti? P: P.conj());
       I *= (*this);
       if (I.is_principal(g))
         {
@@ -533,6 +532,7 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
             {
               c = g; // P*this = I = (g)
               d = 1;
+              assert ((*this)*P==Qideal(c));
             }
           else
             {
@@ -560,11 +560,15 @@ Qideal Qideal::sqrt_coprime_to(const Qideal& N)
   Qidealooper looper(2, 100);
   while (looper.not_finished())
     {
-      Qideal B = looper.next();
-      while (!A.is_equivalent(B))
-        B = looper.next();
-      if (A.is_coprime_to(N))
-        return B;
+      Qideal J = looper.next();
+      while (!A.is_equivalent(J))
+        J = looper.next();
+      if (J.is_coprime_to(N))
+        {
+          assert ((J*J*(*this)).is_principal());
+          assert (J.is_coprime_to(N));
+          return J;
+        }
     }
   cerr << "Unable to find an ideal I such that I^2 * "<<(*this)<<" is principal and coprime to "<<N<<endl;
   return Qideal();

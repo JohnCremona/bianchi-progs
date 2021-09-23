@@ -690,9 +690,9 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&N, Quad&g)
       return mat22(g0,0,0,g0.conj());
     }
   // find a small element of this intersection N
-  Qideal lcm = intersection(N);
-  lcm.fill();
-  Quad a = lcm.g0, b, d, r, s;
+  Qideal L = intersection(N);
+  L.fill();
+  Quad a = L.g0, b, d, r, s;
   Qideal J = Qideal(a)/(*this); // I*J=(a)
   Qideal P = equivalent_coprime_to(J, b, d, 1); // I*P=(b) with J+P=(1)
   J.is_coprime_to(P, r, s); // r+s=1, r in J, s in P
@@ -707,7 +707,7 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)
   Qideal L = intersection(N);
   L.fill();
   Quad cc = L.g0; // smallest nonzero element of I also in N
-  Quad aa = second_generator(c);
+  Quad aa = second_generator(cc);
   assert (Qideal({aa,cc}) == *this);
 
   // find the determinant of the matrix to be constructed:
