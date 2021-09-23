@@ -34,7 +34,11 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
   : N(iN), M(iM)
 {
   if(verbose) cout << "Getting eigdata for " << M << endl;
-  string eigfilename = eigfile(M.gen());
+  string eigfilename;
+  if (Quad::class_number==1) // for backwards compatibility of data file names
+    eigfilename = eigfile(M.gen());
+  else
+    eigfilename = eigfile(M);
   ifstream data(eigfilename.c_str());
   if (!data)
     {

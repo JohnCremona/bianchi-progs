@@ -3,7 +3,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163};
+vector<int> fields = {1,2,3,7,11,19,43,67,163,23};
 
 int main ()
 {
@@ -21,10 +21,11 @@ int main ()
  cerr << "Verbose? "; cin>>verbose;
   cerr << "Which primes for Hecke eigenvalues (first#, last#)? ";
   cin >> startp >> stopp; cerr << endl;
-  if (stopp>nquadprimes)
+  int nQP = Quadprimes::list.size();
+  if (stopp>nQP)
     {
-      cerr<<"Reducing last# to "<<nquadprimes<<endl;
-      stopp=nquadprimes;
+      cerr<<"Reducing last# to "<<nQP<<", the number of Quadprimes initialized"<<endl;
+      stopp=nQP;
     }
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;

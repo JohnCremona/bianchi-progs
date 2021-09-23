@@ -139,6 +139,7 @@ private:
 protected:
   oldforms *of; // pointer to one, not an array
   Quadprime P0; int iP0; long nP0; vec mvp;
+  vector<long> aP0;
   vec zero_infinity;
 public:
   Qideal N;  // the level

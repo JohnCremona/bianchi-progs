@@ -70,15 +70,15 @@ tests: $(TESTS)
 DISCS9=4 8  3 7 11 19 43 67 163
 DISCSX=5 23 31
 DISCS=$(DISCS9) $(DISCSX)
-FIELDS9=1 2 3 7 11 19 43 67 163
-FIELDSX=5 23 31
-FIELDSH=23
-FIELDS=$(FIELDS9) $(FIELDSX)
+FIELDS_full=1 2 3 7 11 19 43 67 163 23
+FIELDSX=5 31
+FIELDS_hom=
+FIELDS=$(FIELDS_full) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
-HOM_TESTS = homtest dimtable dimtabeis hecketest
-FULL_TESTS = $(HOM_TESTS) tmanin nftest nflist moreap moreap1 modularity modularity_modp
+HOM_TESTS = homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+FULL_TESTS = homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin
@@ -99,13 +99,13 @@ check: $(ALL_TESTS)
 	 @echo
 	 @for d in $(FIELDS); do for prog in $(BASIC_TESTS); do $(check_run); done; echo; done
 	 @echo
-	 @echo running full tests on fields $(FIELDS9)...
+	 @echo running basic homspace tests on fields $(FIELDS_hom)...
 	 @echo
-	 @for d in $(FIELDS9); do for prog in $(FULL_TESTS); do $(check_run); done; echo; done
+	 @for d in $(FIELDS_hom); do for prog in $(HOM_TESTS); do $(check_run); done; echo; done
 	 @echo
-	 @echo running basic homspace tests on fields $(FIELDSH)...
+	 @echo running full tests on fields $(FIELDS_full)...
 	 @echo
-	 @for d in $(FIELDSH); do for prog in $(HOM_TESTS); do $(check_run); done; echo; done
+	 @for d in $(FIELDS_full); do for prog in $(FULL_TESTS); do $(check_run); done; echo; done
 	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)

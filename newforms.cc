@@ -54,7 +54,7 @@
 // For L(F,1)/P we divide by the cuspidal factor for F, obtaining a
 // rational.  [P=c*P' so L/P = L/(c*P') = (L/P')/c.]
 
-// A second way to compute L(F,1)/P' which only involves integra
+// A second way to compute L(F,1)/P' which only involves integral
 // periods is to use a "Manin vector" mvp for some good prime p, which
 // is the sum over x mod p of {0,x/p}, since (1+N(p)-a_p)*n'_F({0,oo})
 // = n'_F(mvp), hence L/P' = n'_F(mvp)/(1+N(p)-a_p).
@@ -65,7 +65,7 @@
 newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   : eigs(eigs)
 {
-  //  cout<<"Constructing newform with eigs "<<eigs<<" and basis "<<v<<endl;
+  //cout<<"Constructing newform with eigs "<<eigs<<" and basis "<<v<<endl;
   nf=nfs;
 
   // convert basis vector from coords w.r.t. face-gens to coords
@@ -106,7 +106,7 @@ void newform::fill_in_data(int j)
   loverp =  rational(pdot0, (Quad::nunits) * cuspidalfactor);
 
   // compute L/P again using Manin vector
-  dp0  =  1 + (nf->nP0) - eigs[nf->iP0];
+  dp0  =  1 + (nf->nP0) - nf->aP0[j-1];  // aP0 is based at 0
   pdot = abs(nf->mvp[j]);
   rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
 
@@ -115,7 +115,16 @@ void newform::fill_in_data(int j)
     {
       cout << "Inconsistent values for L/P computed two ways!"<<endl;
       cout << "from {0,oo} directly: " << loverp <<endl;
+      cout << "pdot0 = "<<pdot0<<endl;
+      cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
       cout << "from Manin vector:    " << loverp_mvp <<endl;
+      cout << "pdot = "<<pdot<<endl;
+      cout << "nP0 = "<<nf->nP0<<endl;
+      cout << "iP0 = "<<nf->iP0<<endl;
+      cout << "eigs (size "<<eigs.size()<<") = "<<eigs<<endl;
+      cout << "ap0 = "<<nf->aP0[j]<<endl;
+      cout << "dp0 = "<<dp0<<endl;
+      cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 
   // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
@@ -153,12 +162,12 @@ newform::newform(newforms* nfs,
   // recreate eigs list (in case we need to recover basis vector):
   // start with Atkin-Lehner eigs aq, then Tp eigs ap for good p
   eigs = aq;
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
   Qideal N(nf->N);
   while ((eigs.size()<20) && (api!=aplist.end()))
     {
-      while (Qideal(*pr).divides(N))  { ++pr; ++api; }
+      while (pr->divides(N))  { ++pr; ++api; }
       eigs.push_back(*api);
       ++pr; ++api;
     }
@@ -221,13 +230,13 @@ int newform::is_base_change(void) const
   if(!(nf->N.is_Galois_stable()))
     return 0;
   vector<long>::const_iterator ap = aplist.begin();
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   while(ap!=aplist.end())
     {
       long api = *ap++;
-      Quad p0 = *pr++;
+      Quadprime p0 = *pr++;
       //cout<<"p="<<p0<<" has ap="<<api<<endl;
-      if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
+      if(!p0.is_Galois_stable()) // this prime not inert or ramified
         {
           if (ap==aplist.end()) // the conjugate ap is not known
             return 1;
@@ -248,15 +257,14 @@ int newform::is_base_change(void) const
 int newform::is_base_change_twist(void) const
 {
   vector<long>::const_iterator ap = aplist.begin();
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   Qideal N(nf->N);
   while(ap!=aplist.end())
     {
       long api = *ap++;
-      Quad p0 = *pr++;
-      Qideal P0(p0);
+      Quadprime p0 = *pr++;
       //cout<<"p="<<p0<<" has ap="<<api<<endl;
-      if(!is_ideal_Galois_stable(p0)) // this prime not inert or ramified
+      if(!p0.is_Galois_stable()) // this prime not inert or ramified
         {
           if (ap==aplist.end()) // the conjugate ap is not known
             {
@@ -265,11 +273,10 @@ int newform::is_base_change_twist(void) const
             }
             // read next (conjugate) prime and eigenvalue:
           long apj = *ap++;
-          Quad p1 =  *pr++;
+          Quadprime P1 =  *pr++;
           // skip if either divides level:
-          if(P0.divides(N))
+          if((nf->P0).divides(N))
             continue;
-          Qideal P1(p1);
           if(P1.divides(N))
             continue;
           // Check the ap agree up to sign:
@@ -301,17 +308,16 @@ int newform::base_change_discriminant(void) const
   int bcd = 1;
   Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   while(api!=aplist.end())
     {
       long ap = *api++;
-      Quad p = *pr++;
-      if(imag(p)!=0) // this prime is not inert
+      Quadprime P = *pr++;
+      if(!P.is_inert())
         continue;
-      Qideal P(p);
       if(P.divides(N)) // this prime is bad
         continue;
-      long dp = ap+2*p.re();
+      long dp = ap+2*P.prime();
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -346,18 +352,17 @@ int newform::base_change_twist_discriminant(void) const
   bcd1 = bcd2 = 1;
   Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   while(api!=aplist.end())
     {
       long ap = *api++;
-      Quad p = *pr++;
-      if(imag(p)!=0) // this prime is not inert
+      Quadprime P = *pr++;
+      if(!P.is_inert())
         continue;
-      Qideal P(p);
       if(P.divides(N)) // this prime is bad
         continue;
-      long dp1 =  ap+2*p.re();
-      long dp2 = -ap+2*p.re();
+      long dp1 = ap  + 2*P.prime();
+      long dp2 = dp1 - 2*ap;
       //cout<<"p="<<p<<" has ap="<<ap<<", discs "<<dp1<<", "<<dp2;
       dp1 = squarefree_part(dp1);
       dp2 = squarefree_part(dp2);
@@ -391,13 +396,13 @@ int newform::is_CM(void) const
 {
   int cmd = 0;
   vector<long>::const_iterator api = aplist.begin();
-  vector<Quad>::const_iterator pr=quadprimes.begin();
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   while(api!=aplist.end())
     {
       long ap = *api++;
-      Quad p = *pr++;
+      Quadprime P = *pr++;
       if (ap==0) continue;
-      long dp = ap*ap-4*quadnorm(p);
+      long dp = ap*ap-4*P.norm();
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -451,7 +456,8 @@ void newforms::init()
 //
 // get smallest good principal prime: and its index (in the list of
 // primes which starts with the bad primes and then the good primes in
-// order):
+// order).  P0 must be principal since we have only implemented
+// maninvector() for principal primes.
 //
   vector<Quadprime>::const_iterator Pi=plist.begin();
   P0 = *Pi;
@@ -623,14 +629,14 @@ void newforms::fill_in_newform_data(int everything)
   if(n1ds==0) return; // no work to do
 
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
+  find_jlist();
   zero_infinity = h1->chaincd(0, 1, 0, 1); // last 1 means use projcoord
   mvp=h1->maninvector(P0, 1);              // last 1 means use projcoord
-
+  aP0 = apvec(P0);                         // vector of ap for first good principal prime
+  if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
     for (int j=0; j<n1ds; j++)
       nflist[j].fill_in_data(j+1);
-
-  find_jlist();
 
 // Find the twisting primes for each newform (more efficient to do
 // this here instead of within the newform constructors, as one lambda
@@ -831,13 +837,21 @@ void newforms::createfromdata()
 
   nnflist=n1ds=filedata.nforms;
   n2ds=filedata.nforms2;
+  if(verbose>1) cout << " found "<<n1ds << " newforms for N = " << ideal_label(N) << endl;
 
  // construct the newforms from this data
   for(int i=0; i<n1ds; i++)
     {
+      if(verbose>1)
+        {
+          cout << " constructing newform # " << i << endl;
+          cout << " intdata  = "<< filedata.intdata[i] <<endl;
+          cout << " Quaddata = "<< filedata.Quaddata[i] <<endl;
+          cout << " aqs = "<< filedata.aqs[i] <<endl;
+          cout << " aps = "<< filedata.aps[i] <<endl;
+        }
       nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
                                filedata.aqs[i],filedata.aps[i]));
-      //      cout<<"aq list from file = "<<filedata.aqs[i]<<endl;
     }
   nap=filedata.nap;
 }
@@ -863,7 +877,6 @@ void newforms::makebases()
 
 void newforms::getoneap(Quadprime& P, int verbose, int store)
 {
-  assert (P.is_principal());
   vector<long> apv=apvec(P);
   int vp = val(P, N);
 
@@ -890,17 +903,18 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
 void newforms::getap(int first, int last, int verbose)
 {
   if (n1ds==0) return;
-  if(last>nquadprimes)
+  int nQP = Quadprimes::list.size();
+  if(last>nQP)
     {
-      last=nquadprimes;
-      cout<<"Cannot compute more than "<<nquadprimes
+      last=nQP;
+      cout<<"Cannot compute more than "<<nQP
           <<" ap since we only have that many primes precomputed"<<endl;
     }
   if(last<=nap)
     {
       cout<<"Already have "<<nap <<" ap so no need to compute more"<<endl;
     }
-  // now nap < last <= nquadprimes
+  // now nap < last <= nQP
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
@@ -1114,7 +1128,6 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 //#define DEBUG_APVEC
 vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, for principal P
 {
-  assert (P.is_principal());
   Quad p = P.gen();
 #ifdef DEBUG_APVEC
   cout<<"In apvec with P = "<<P<<endl;

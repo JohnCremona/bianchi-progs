@@ -4,9 +4,9 @@
 #include "newforms.h"
 #include "eclib/curvesort.h" // for letter codes
 
-long prime_index(const Quad& p)
+long prime_index(const Quadprime& P)
 {
-  return find(quadprimes.begin(), quadprimes.end(), makepos(p)) - quadprimes.begin();
+  return find(Quadprimes::list.begin(), Quadprimes::list.end(), P) - Quadprimes::list.begin();
 }
 
 int main(void)
@@ -17,7 +17,7 @@ int main(void)
   cerr << "----------------------------------------------------------------\n\n";
   cerr << "Input format:\n";
   cerr << "<field> <level> <nforms> <nprimes>\n";
-  cerr << "followed by nprimes lines each containing a prime's coefficients (2 integers) and nforms integers:\n";
+  cerr << "followed by nprimes lines each containing a prime (2 integers if principal, or a label) and nforms integers:\n";
   cerr << "<prime> <ap_1> <ap_2> ... <ap_nforms>\n";
   cerr << "----------------------------------------------------------------\n\n";
   // max is the maximum norm of precomputed primes.  It should be
@@ -57,12 +57,12 @@ int main(void)
     }
   if (verbose)
     cerr << "There are " << nnf << " newforms on file, with ap for the first " << nap << " primes (with index 0.." << (nap-1) << ")" << endl;
-  Quad p;
-  // primes_needed will be a list of the (quad) primes for which
-  // values of a_p will be input, and prime_indexes will be a list of
+  Quadprime P;
+  // primes_needed will be a list of the prime ideals P for which
+  // values of a_P will be input, and prime_indexes will be a list of
   // the index (starting at 0) of these in the standard list of primes
 
-  vector<Quad> primes_needed(nprimes);
+  vector<Quadprime> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
   long maxnormp=0, maxip=0;
   long ip, np, ap, nform, kform;
@@ -84,21 +84,21 @@ int main(void)
     {
       // if(verbose)
       //   cerr << "Enter a prime p followed by "<<nforms<<" ap: "<<endl;
-      cin >> p;
+      cin >> P;
       for (nform=0; nform<nforms; nform++)
         {
           cin >> ap;
           apvecs_in[nform][np] = ap;
         }
-      primes_needed[np] = p;
-      prime_indexes[np] = ip = prime_index(p);
+      primes_needed[np] = P;
+      prime_indexes[np] = ip = prime_index(P);
       if (ip>maxip)
         maxip = ip;
-      long normp = quadnorm(p);
+      long normp = P.norm();
       if (normp>maxnormp)
         maxnormp = normp;
       // if(verbose)
-      //   cerr << "p=" << p <<" (index "<<ip<<", norm "<<normp<<"): ap = "<<ap<<endl;
+      //   cerr << "P = " << P <<" (index "<<ip<<", norm "<<normp<<"): ap = "<<ap<<endl;
         }       // end of prime loop
 
   // See whether we need to compute more ap:
@@ -110,7 +110,7 @@ int main(void)
       computation_needed = 1;
       if(verbose)
         {
-          cout << "No stored ap for p = " << p << " which is has index " << ip << "(starting from 0): only " << nap << " ap are on file." << endl;
+          cout << "No stored ap for P = " << P << " which is has index " << ip << "(starting from 0): only " << nap << " ap are on file." << endl;
           cout << "We'll have to compute the modular symbol space and eigenspaces in order to compute ap" << endl;
         }
     }
@@ -132,12 +132,11 @@ int main(void)
 
       for(np=0; np<nprimes; np++)
         {
-          p = primes_needed[np];
+          P = primes_needed[np];
           // convert to a prime ideal:
-          Quadprime P = Qideal(p).factorization().prime(0);
           vector<long> apv = nf.apvec(P);
           if(verbose)
-            cerr << "List of a_p for p="<<p<<": "<<apv<<endl;
+            cerr << "List of a_P for P = "<<P<<": "<<apv<<endl;
           for (nform=0; nform<nnf; nform++)
             apvecs_comp[nform][np] = apv[nform];
         }       // end of prime loop

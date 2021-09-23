@@ -11,16 +11,19 @@ int main ()
  long nap;
  cerr << "How many coefficients ap? "<<flush; cin>>nap;
 #ifndef LOOPER
- vector<Quad>::const_iterator pr=quadprimes.begin();
- long np=0;
- cout << "Primes: "<<endl;
- while(np<nap)
+ if (Quad::class_number==1)
    {
-     Quad p = *pr++;
-     np ++;
-     cout << p << ", ";
+     vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+     long np=0;
+     cout << "Primes: "<<endl;
+     while(np<nap)
+       {
+         Quadprime p = *pr++;
+         np ++;
+         cout << p.gen() << ", ";
+       }
+     cout << "..." << endl;
    }
- cout << "..." << endl;
 #endif
 #ifdef LOOPER
  long firstn, lastn;
@@ -38,13 +41,16 @@ int main ()
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-     ifstream data(eigfile(N).c_str());
+     string datafilename = eigfile(N);
+     ifstream data(datafilename.c_str());
+     //cout<<"Opening data file "<<datafilename<<endl;
      if(!data)
        {
          cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< N.norm()<<endl;
        }
      else
        {
+         //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
          newforms nf(N,0);
          nf.createfromdata();
          nf.list(nap);

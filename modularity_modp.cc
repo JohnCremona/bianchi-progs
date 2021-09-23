@@ -4,9 +4,9 @@
 #include "newforms.h"
 #include "eclib/curvesort.h" // for letter codes
 
-long prime_index(const Quad& p)
+long prime_index(const Quadprime& P)
 {
-  return find(quadprimes.begin(), quadprimes.end(), makepos(p)) - quadprimes.begin();
+  return find(Quadprimes::list.begin(), Quadprimes::list.end(), P) - Quadprimes::list.begin();
 }
 
 int main(void)
@@ -68,8 +68,8 @@ int main(void)
   // the index (starting at 0) of these in the standard list
   // quadprimes of all primes
 
-  Quad P;
-  vector<Quad> primes_needed(nprimes);
+  Quadprime P;
+  vector<Quadprime> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
   long maxnormp=0, maxip=0;
   long ip, np, ap, nform, kform;
@@ -90,22 +90,22 @@ int main(void)
   for(np=0; np<nprimes; np++)
     {
       // if(verbose)
-      //   cerr << "Enter a prime p followed by "<<nforms<<" ap: "<<endl;
+      //   cerr << "Enter a prime P (label, or 2 integers if principal) followed by "<<nforms<<" ap: "<<endl;
       cin >> P;
       for (nform=0; nform<nforms; nform++)
         {
           cin >> ap;
-          apvecs_in[nform][np] = ap%p;
+          apvecs_in[nform][np] = posmod(ap,p);
         }
       primes_needed[np] = P;
       prime_indexes[np] = ip = prime_index(P);
       if (ip>maxip)
         maxip = ip;
-      long normp = quadnorm(P);
+      long normp = P.norm();
       if (normp>maxnormp)
         maxnormp = normp;
       // if(verbose)
-      //   cerr << "p=" << P <<" (index "<<ip<<", norm "<<normp<<"): a_P = "<<ap<<endl;
+      //   cerr << "P = " << P <<" (index "<<ip<<", norm "<<normp<<"): a_P = "<<ap<<endl;
         }       // end of prime loop
 
   // See whether we need to compute more ap:
@@ -117,8 +117,8 @@ int main(void)
       computation_needed = 1;
       if(verbose)
         {
-          cout << "No stored ap for p = " << p << " which is has index " << ip << "(starting from 0): only " << nap << " a_P are on file." << endl;
-          cout << "We'll have to compute the modular symbol space and eigenspaces in order to compute a-P" << endl;
+          cout << "No stored ap for P = " << P << " which has index " << ip << "(starting from 0): only " << nap << " a_P are on file." << endl;
+          cout << "We'll have to compute the modular symbol space and eigenspaces in order to compute a_P" << endl;
         }
     }
   else
@@ -140,19 +140,18 @@ int main(void)
       for(np=0; np<nprimes; np++)
         {
           P = primes_needed[np];
-          Quadprime PP = Qideal(P).factorization().prime(0);
-          vector<long> apv = nf.apvec(PP);
+          vector<long> apv = nf.apvec(P);
           if(verbose)
             cerr << "List of a_P for P="<<P<<": "<<apv<<endl;
           for (nform=0; nform<nnf; nform++)
-            apvecs_comp[nform][np] = apv[nform]%p;
+            apvecs_comp[nform][np] = posmod(apv[nform], p);
         }       // end of prime loop
     }
   else   // Extract the ap for these primes from the newform data
     {
       for(np=0; np<nprimes; np++)
         for (nform=0; nform<nnf; nform++)
-          apvecs_comp[nform][np] = nf.nflist[nform].aplist[prime_indexes[np]]%p;
+          apvecs_comp[nform][np] = posmod(nf.nflist[nform].aplist[prime_indexes[np]], p);
     }
 
   // Find each input ap list in the newforms aplists:
