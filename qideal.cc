@@ -9,6 +9,8 @@
 ////////////////////////////////////
 
 // private -- converts output from findzbasis to standard Qideal basis
+// Here basis = {a,b,c} where the Z-basis is [a,b], [c,0]
+
 void Qideal::abc_from_HNF(const vector<long>& basis)
 { c = abs(basis[1]);
   a = abs(basis[2]/c);

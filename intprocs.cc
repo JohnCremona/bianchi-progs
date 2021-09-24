@@ -119,15 +119,17 @@ vector<long> hnf22(long a, long b, long c, long d)
 #endif
   long x,y;
   long bb = bezout(b,d, x,y);
-  long cc = abs(a*d-b*c)/bb;
+  long cc = abs(a*(d/bb)-(b/bb)*c);
   long aa = a*x+c*y;
-  if (cc) aa%=cc;
+  if (cc) aa = posmod(aa,cc);
   vector<long> v = {aa, bb, cc};
 #ifdef testbezout
   cout<<v<<endl;
 #endif
   return v;
 }
+
+//#define testbezout
 
 //Sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for
 //the Z-module spanned by [first[i], second[i]]
@@ -160,14 +162,18 @@ void findzbasis(const vector<long>& first, const vector<long>& second, vector<lo
   b = basis[1];
   c = basis[2];
   assert (!t);
-  assert (basis[1]*basis[2]!=0);
+  assert (b*c!=0);
 #ifdef testbezout
   cout<<" - after step 0, {a,b,c} = "<<basis<<endl;
 #endif
   // process all the rest
   for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ai++, bi++)
     {
-      basis = hnf22(a,b, *ai, *bi);
+      long e = *ai %c, f = *bi;
+      basis = hnf22(a,b, e, f);
+#ifdef testbezout
+      cout<<" - sub-basis using ("<<(*ai)<<","<<(*bi)<<"), {a,b,c} = "<<basis<<endl;
+#endif
       c = gcd(c, basis[2]);
       a = basis[0]%c;
       b = basis[1];
