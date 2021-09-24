@@ -401,25 +401,25 @@ int Qideal::contains(const Quad& alpha) const
 int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
 {
   vector<long> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
-  long t = vecbezout(v, w);
-  if (t==1)
+  if (vecbezout(v, w)!=1)
+    return 0;
+  r =   zcombo(w[0],  J.c * w[2]);
+  s =   J.zcombo(w[1], -c * w[2]);
+  assert (r+s==1);
+  assert (contains(r));
+  assert (J.contains(s));
+  if (r.nm > nm*J.nm)
     {
       Qideal IJ = (*this)*J;
-      r =   zcombo(w[0],  J.c * w[2]);
-      assert (contains(r));
-      assert (J.contains(1-r));
-      if (r.nm>IJ.nm)
-        {
-          Quad r1 =   IJ.reduce(r);
-          // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<": r="<<r;
-          // cout << " reduces mod IJ to "<<r1<<endl;
-          assert (contains(r1));
-          assert (J.contains(1-r1));
-          r = r1;
-        }
+      Quad r1 =   IJ.reduce(r);
+      // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<" (norm "<<IJ.nm<<"): r="<<r<<" (norm "<<r.nm<<")";
+      // cout << " reduces mod IJ to "<<r1<<endl;
+      assert (contains(r1));
+      assert (J.contains(1-r1));
+      r = r1;
       s = 1-r;
     }
-  return (t==1);
+  return 1;
 }
 
 // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
@@ -505,10 +505,25 @@ mat22 AB_matrix(const Quad& a, const Quad& c)
   I0.is_coprime_to(I1, r0, r1);
   long g = I.norm();
   b = -(r1*g)/c;
+  assert (b*c == -r1*g);
   d =  (r0*g)/a;
+  assert (a*d == r0*g);
+  if (Qideal({b,d}) != I.conj())
+    {
+      cerr<<"a = "<<a<<", Norm(a) = "<<quadnorm(a)<<endl;
+      cerr<<"c = "<<c<<", Norm(c) = "<<quadnorm(c)<<endl;
+      cerr<<"I = (a,c) = "<<I<<", g = Norm(I) = "<<g<<endl;
+      cerr<<"a/I = "<<I0<<endl;
+      cerr<<"c/I = "<<I1<<endl;
+      cerr<<"r0 = "<<r0<<" (norm "<<quadnorm(r0)<<"), r1 = 1-r0 = "<<r1<<" (norm "<<quadnorm(r1)<<")"<<endl;
+      cerr<<"b = -r1*g/c = "<<b<<endl;
+      cerr<<"d =  r0*g/a = "<<d<<endl;
+      cerr<<"conj(I) = "<<I.conj()<<endl;
+      cerr<<"(b,d) = "<<Qideal({b,d})<<endl;
+    }
+  assert (Qideal({b,d}) == I.conj());
   mat22 M(a, b, c, d);
   assert (M.det()==g);
-  assert (Qideal({b,d}) == I.conj());
   return M;
 }
 

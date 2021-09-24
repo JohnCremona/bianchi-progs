@@ -48,8 +48,27 @@ long vecgcd(const vector<long>& a)
 }
 
 // returns content and sets c such that content(a) = a.c
+// long vecbezout0(const vector<long>& a, vector<long>& c)
+// {
+//   //  cout<<"Computing vecbezout("<<a<<")"<<endl;
+//   int n=(int)a.size();
+//   vec_m* B = new vec_m[n+1];
+//   for (int i=0; i<=n; i++) B[i] = vec_m(n);
+//   for (int i=0; i<n; i++)
+//     {
+      
+//     }
+  
+// }
+
+//#define testbezout
+
+// returns content and sets c such that content(a) = a.c
 long vecbezout(const vector<long>& a, vector<long>& c)
 {
+#ifdef testbezout
+  cout<<"Computing vecbezout("<<a<<")"<<endl;
+#endif
   long x = 1, g = vecgcd(a);
   vector<long> a0=a;
   if (g>1)
@@ -64,6 +83,9 @@ long vecbezout(const vector<long>& a, vector<long>& c)
       g1=bezout(g1,a0[i],x,c[i]);
       for(int j=0; j<i; j++) c[j]*=x;
     }
+#ifdef testbezout
+  cout<<"vecbezout("<<a<<") returns "<<g<<", with coefficients "<<c<<endl;
+#endif
   return g;
 }
 
