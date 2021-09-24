@@ -71,7 +71,7 @@ int main ()
      nf.getap(startp,stopp,verbose);
      //cout << "After sort_lmfdb():\n";
      nf.sort_lmfdb();
-     nf.display();
+     nf.display(verbose);
      if(output)
        {
 	 cout << "Writing data to file "<<efilename<<"..."<<flush;

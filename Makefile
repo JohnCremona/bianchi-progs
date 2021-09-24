@@ -212,39 +212,42 @@ qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geo
 # recreate with
 # for f in *.cc; do g++ -MM -std=c++11 ${f}; done
 #
-cusp.o: cusp.cc cusp.h mat22.h ratquads.h quads.h qideal.h
+cusp.o: cusp.cc cusp.h mat22.h ratquads.h quads.h primes.h qideal.h
 dimtabeis.o: dimtabeis.cc qidloop.h qideal.h quads.h homspace.h cusp.h \
- mat22.h ratquads.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
+ mat22.h ratquads.h primes.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
 dimtable.o: dimtable.cc qidloop.h qideal.h quads.h homspace.h cusp.h \
- mat22.h ratquads.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
-edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h \
- edge_relations.h geometry.h P1N.h primes.h qideal.h
-euclid.o: euclid.cc euclid.h quads.h geometry.h mat22.h ratquads.h
-face_relations.o: face_relations.cc mat22.h ratquads.h quads.h homspace.h \
- cusp.h qideal.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
+ mat22.h ratquads.h primes.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
+edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h primes.h \
+ qideal.h homspace.h cusp.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
+euclid.o: euclid.cc euclid.h quads.h geometry.h mat22.h ratquads.h \
+ primes.h qideal.h
+face_relations.o: face_relations.cc mat22.h ratquads.h quads.h primes.h \
+ qideal.h homspace.h cusp.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
 fieldinfo.o: fieldinfo.cc primes.h qideal.h quads.h
-geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h
-hecke.o: hecke.cc homspace.h cusp.h mat22.h ratquads.h quads.h qideal.h \
- face_relations.h edge_relations.h geometry.h P1N.h primes.h
+geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h primes.h \
+ qideal.h
+hecke.o: hecke.cc homspace.h cusp.h mat22.h ratquads.h quads.h primes.h \
+ qideal.h face_relations.h edge_relations.h geometry.h P1N.h
 hecketest.o: hecketest.cc qidloop.h qideal.h quads.h homspace.h cusp.h \
- mat22.h ratquads.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
+ mat22.h ratquads.h primes.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
 homspace.o: homspace.cc euclid.h quads.h cusp.h mat22.h ratquads.h \
- qideal.h homspace.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
+ primes.h qideal.h homspace.h face_relations.h edge_relations.h \
+ geometry.h P1N.h
 homtest.o: homtest.cc qidloop.h qideal.h quads.h homspace.h cusp.h \
- mat22.h ratquads.h face_relations.h edge_relations.h geometry.h P1N.h \
- primes.h
+ mat22.h ratquads.h primes.h face_relations.h edge_relations.h geometry.h \
+ P1N.h
 intprocs.o: intprocs.cc intprocs.h
 lf1.o: lf1.cc lf1.h newforms.h ratquads.h quads.h oldforms.h primes.h \
  qideal.h homspace.h cusp.h mat22.h face_relations.h edge_relations.h \
  geometry.h P1N.h
 looper.o: looper.cc looper.h quads.h
 looptest.o: looptest.cc looper.h quads.h
-mat22.o: mat22.cc mat22.h ratquads.h quads.h qideal.h
+mat22.o: mat22.cc primes.h qideal.h quads.h mat22.h ratquads.h
 moddata.o: moddata.cc moddata.h quads.h
 modtest.o: modtest.cc moddata.h quads.h looper.h
 modularity.o: modularity.cc newforms.h ratquads.h quads.h oldforms.h \
@@ -281,19 +284,21 @@ P1Ntest.o: P1Ntest.cc looper.h quads.h qidloop.h qideal.h mat22.h \
 pmanin.o: pmanin.cc newforms.h ratquads.h quads.h oldforms.h primes.h \
  qideal.h homspace.h cusp.h mat22.h face_relations.h edge_relations.h \
  geometry.h P1N.h looper.h
-primes.o: primes.cc primes.h qideal.h quads.h intprocs.h
-qideal.o: qideal.cc intprocs.h mat22.h ratquads.h quads.h qideal.h
+primes.o: primes.cc primes.h qideal.h quads.h qidloop.h intprocs.h
+qideal.o: qideal.cc intprocs.h mat22.h ratquads.h quads.h primes.h \
+ qideal.h
 qidloop.o: qidloop.cc qidloop.h qideal.h quads.h
 qidltest.o: qidltest.cc qidloop.h qideal.h quads.h mat22.h ratquads.h \
  primes.h
 quads.o: quads.cc intprocs.h quads.h primes.h qideal.h geometry.h mat22.h \
  ratquads.h
-ratquads.o: ratquads.cc ratquads.h quads.h qideal.h mat22.h geometry.h
-roundtest.o: roundtest.cc quads.h
-symb.o: symb.cc symb.h moddata.h quads.h mat22.h ratquads.h euclid.h \
+ratquads.o: ratquads.cc ratquads.h quads.h qideal.h mat22.h primes.h \
  geometry.h
+roundtest.o: roundtest.cc quads.h
+symb.o: symb.cc symb.h moddata.h quads.h mat22.h ratquads.h primes.h \
+ qideal.h euclid.h geometry.h
 symbtest.o: symbtest.cc symb.h moddata.h quads.h mat22.h ratquads.h \
- looper.h
+ primes.h qideal.h looper.h
 testlf1.o: testlf1.cc newforms.h ratquads.h quads.h oldforms.h primes.h \
  qideal.h homspace.h cusp.h mat22.h face_relations.h edge_relations.h \
  geometry.h P1N.h lf1.h

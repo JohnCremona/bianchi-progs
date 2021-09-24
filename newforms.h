@@ -154,7 +154,7 @@ public:
                    if(h1)delete h1;
                   }
   void init();
-  void display(void);
+  void display(int detail=1);
   void list(long nap=-1);
 
 private:

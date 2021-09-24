@@ -679,14 +679,16 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
     }
 }
 
-void newforms::display(void)
+void newforms::display(int detail)
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
  cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N) << ":" << endl;
- for(int i=0; i<n1ds; i++)
-   {cout<<i+1<<":\t";
-    nflist[i].display();
-  }
+ if (detail)
+   for(int i=0; i<n1ds; i++)
+     {
+       cout<<i+1<<":\t";
+       nflist[i].display();
+     }
 }
 
 void newform::display(void) const
