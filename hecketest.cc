@@ -8,7 +8,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 23};
+vector<int> fields = {1,2,3,7,11,19,43,67,163, 23, 31};
 
 #define MAXPRIME 10000
 
