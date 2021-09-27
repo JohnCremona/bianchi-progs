@@ -184,6 +184,18 @@ def reverse_poly(P):
     """
     return P[::-1]
 
+def conj_cusp(c):
+    """
+    Return the conjugate cusp
+    """
+    return NFCusp(k, [x.conjugate() for x in frac(c)])
+
+def conj_poly(P):
+    """
+    Return a new polygon with the vertices the conjugates of those of P (in the same order)
+    """
+    return [conj_cusp(c) for c in P]
+
 def poly_equiv_exact(P1,P2, sign=1):
     """Test whether the polygons P1, P2 are GL(2,O)-equivalent (or
     SL(2,O)-equivalent if sign) in the exact sense that there exists a

@@ -42,6 +42,7 @@ nflist
 nflist_loop
 fieldinfo
 qidltest
+P1Ntest
 
 # temporary test output files
 *.testout
