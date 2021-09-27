@@ -1,0 +1,42 @@
+Q(sqrt(-31))	discriminant = 31	min poly(a) = a^2-a+8.
+Class number 3
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
+>>>> Level 10.1 = (-4+a,-2-2a), norm = 10 <<<<
+
+1 newform(s) at level 10.1 = (-4+a,-2-2a):
+Writing data to file nftmp/2.0.31.1/10.1...done.
+===========================================
+>>>> Level 10.4 = (3+a,-4+2a), norm = 10 <<<<
+
+1 newform(s) at level 10.4 = (3+a,-4+2a):
+Writing data to file nftmp/2.0.31.1/10.4...done.
+===========================================
+>>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
+
+1 newform(s) at level 14.2 = (4+a,-6+2a):
+Writing data to file nftmp/2.0.31.1/14.2...done.
+===========================================
+>>>> Level 14.3 = (-5+a,-4-2a), norm = 14 <<<<
+
+1 newform(s) at level 14.3 = (-5+a,-4-2a):
+Writing data to file nftmp/2.0.31.1/14.3...done.
+===========================================
+>>>> Level 20.1 = (-4+a), norm = 20 <<<<
+No newforms.
+Writing data to file nftmp/2.0.31.1/20.1...done.
+===========================================
+>>>> Level 20.3 = (2+2a,-8+2a), norm = 20 <<<<
+
+2 newform(s) at level 20.3 = (2+2a,-8+2a):
+Writing data to file nftmp/2.0.31.1/20.3...done.
+===========================================
+>>>> Level 20.4 = (-4+2a,-6-2a), norm = 20 <<<<
+
+2 newform(s) at level 20.4 = (-4+2a,-6-2a):
+Writing data to file nftmp/2.0.31.1/20.4...done.
+===========================================
+>>>> Level 20.6 = (3+a), norm = 20 <<<<
+No newforms.
+Writing data to file nftmp/2.0.31.1/20.6...done.
+===========================================
+

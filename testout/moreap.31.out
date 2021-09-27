@@ -1,0 +1,52 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+
+>>>> Level 10.1 = (-4+a,-2-2a), norm = 10 <<<<
+Retrieving newform data for N = 10.1
+
+1 newform(s) at level 10.1 = (-4+a,-2-2a):
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 1 -1 0 4 2 -4 -6 0 4 -2 2 6 -8 -4 0 12 -2 -8 -8 16 -2 10 0 0 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 42
+L/P ratio    = 3/2, cuspidal factor = 7
+Integration matrix = [-3-a,3;-4+a,1-a], factor   = 7
+Making homspace and bases...
+About to recover 1 newform bases (nap=25)
+Recovering newform #1, eigs [ -1 1 1 0 4 2 -4 -6 0 4 -2 2 6 -8 -4 0 12 -2 -8 -8 ]...
+Entering form_finder, depth = 0, dimension 12
+restarting at depth = 0, dimension 12
+Computing W(P2a)...done.
+ eig -1 gives new subspace at depth 1 of dimension 7
+ eig 1 gives new subspace at depth 2 of dimension 4
+ eig 1 gives new subspace at depth 3 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+Finished makebases()
+About to start computing ap...
+P = P103b = (1+5a)	N(P) = 103	    8 
+P = P107a = (-7+5a)	N(P) = 107	   -4 
+P = P107b = (2+5a)	N(P) = 107	   -6 
+P = P109a = (14+a)	N(P) = 109	   12 
+P = P109b = (-15+a)	N(P) = 109	  -10 
+P = P113a = (-14+3a)	N(P) = 113	   -8 
+P = P113b = (11+3a)	N(P) = 113	    6 
+P = P11 = (11)	N(P) = 121	   10 
+P = P131a = (-11+2a)	N(P) = 131	    6 
+P = P131b = (9+2a)	N(P) = 131	   -8 
+P = P149a = (3+4a)	N(P) = 149	   10 
+P = P149b = (-7+4a)	N(P) = 149	   10 
+P = P157a = (17+a)	N(P) = 157	  -14 
+P = P157b = (-18+a)	N(P) = 157	   10 
+P = P163a = (9+5a)	N(P) = 163	   24 
+P = P163b = (-14+5a)	N(P) = 163	  -20 
+P = P13 = (13)	N(P) = 169	   16 
+P = P173a = (-9+4a)	N(P) = 173	    6 
+P = P173b = (5+4a)	N(P) = 173	    6 
+P = P191a = (-2+7a)	N(P) = 191	    8 
+P = P191b = (-5+7a)	N(P) = 191	   24 
+P = P193a = (-1+7a)	N(P) = 193	  -10 
+P = P193b = (-6+7a)	N(P) = 193	   -2 
+P = P211a = (-10+7a)	N(P) = 211	   20 
+P = P211b = (3+7a)	N(P) = 211	    6 
+...done.
+Writing data to file nftmp/2.0.31.1/10.1......done.
