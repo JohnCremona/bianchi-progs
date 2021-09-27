@@ -47,19 +47,71 @@ long vecgcd(const vector<long>& a)
   return g;
 }
 
+//#define testbezout
+
 // returns content and sets c such that content(a) = a.c
-// long vecbezout0(const vector<long>& a, vector<long>& c)
-// {
-//   //  cout<<"Computing vecbezout("<<a<<")"<<endl;
-//   int n=(int)a.size();
-//   vec_m* B = new vec_m[n+1];
-//   for (int i=0; i<=n; i++) B[i] = vec_m(n);
-//   for (int i=0; i<n; i++)
-//     {
-      
-//     }
-  
-// }
+long vecbezout2(const vector<long>& a, vector<long>& c)
+{
+  int n=(int)a.size();
+  if (n!=2) return vecbezout(a, c);
+  long x, y;
+  long g = bezout(a[0], a[1], x, y);
+  c = {-y, x};
+  assert (a[0]*c[0]+a[1]*c[1]==g);
+  return g;
+}
+
+// returns content and sets c such that content(a) = a.c
+long vecbezout3(const vector<long>& a, vector<long>& c)
+{
+  int n=(int)a.size();
+  if (n!=3) return vecbezout(a, c);
+
+  long aa=a[0], bb=a[1], cc=a[2];
+#ifdef testbezout
+  cout<<"Computing vecbezout3("<<a<<")"<<endl;
+#endif
+  if ((aa==0)&&(bb==0))
+    {
+      if (cc<0)
+        {
+          c = {0,0,-1};
+          return -cc;
+        }
+      else
+        {
+          c = {0,0,1};
+          return cc;
+        }
+    }
+  long x, y, z, w;
+  long h = bezout(aa,bb, x, y);
+  long a1 = aa/h, b1 = bb/h;
+  long g = bezout(h,cc, z, w);
+  long h1=h/g, c1=cc/g;
+  c = {x*z, y*z, w};
+  assert (a[0]*c[0]+a[1]*c[1]+a[2]*c[2]==g);
+#ifdef testbezout
+  cout<<"   g="<<g<<", first solution is "<<c<<"; "<<flush;
+  vector<long> perp1 = {-c1*x, -c1*y, h1};
+  vector<long> perp2 = {-b1, a1, 0};
+  cout<<"   primitive basis of perp: "<<perp1<<", "<<perp2<<endl;
+  assert (a[0]*perp1[0]+a[1]*perp1[1]+a[2]*perp1[2]==0);
+  assert (a[0]*perp2[0]+a[1]*perp2[1]+a[2]*perp2[2]==0);
+#endif
+  // now minimize
+  long x2y2 = x*x+y*y;
+  long lambda = roundover(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
+  long mu = roundover((b1*x-a1*y)*z, a1*a1+b1*b1);
+  c[0] -= lambda*c1*x+mu*b1;
+  c[1] -= lambda*c1*y-mu*a1;
+  c[2] += lambda*h1;
+  assert (a[0]*c[0]+a[1]*c[1]+a[2]*c[2]==g);
+#ifdef testbezout
+  cout<<" vecbezout3("<<a<<") = "<<c<<endl;
+#endif
+  return g;
+}
 
 //#define testbezout
 
@@ -69,13 +121,15 @@ long vecbezout(const vector<long>& a, vector<long>& c)
 #ifdef testbezout
   cout<<"Computing vecbezout("<<a<<")"<<endl;
 #endif
+  int n=(int)a.size();
+  if (n==2) return vecbezout2(a, c);
+  if (n==3) return vecbezout3(a, c);
   long x = 1, g = vecgcd(a);
   vector<long> a0=a;
   if (g>1)
     for(vector<long>::iterator ai=a0.begin(); ai!=a0.end(); ai++)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
-  int n=(int)a.size();
   c = vector<long>(n, 0);
   long g1=0;
   for(int i=0; i<n &&g1!=1; i++)
