@@ -357,6 +357,7 @@ void Quad::setup_geometry()
 
 int check_triangle(const vector<int>& T)
 {
+  // cout<<"Checking aaa-triangle "<<T<<endl;
   mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
   RatQuad x = (Mi(Mj.preimage_oo()) - Mk.preimage_oo());
   return (x.is_integral());
@@ -364,16 +365,36 @@ int check_triangle(const vector<int>& T)
 
 int check_cyclic_triangle(int i)
 {
+  // cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
   Quad t=M_alphas[i].trace();
   return (t*t==1);
 }
 
 int check_aas_triangle(const vector<int>& T, const Quad& u)
 {
+  // cout<<"Checking aas-triangle ("<<T<<","<<u<<")"<<endl;
   int i=T[0], j=T[1], k=T[2];
   RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
   return (x.is_integral());
 }
+
+// aaa triangle relations:
+
+// {i,j,k} where M_alphas[i](alphas[j]) = x + alphas[k] with x integral.
+
+// The triangle has vertices [alpha_i, oo, alpha_j] and edges
+// (I)_i = {alpha_i, oo},
+// (M1)_j' = M_j' * {alpha_j',oo} = {oo, alpha_j},
+// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j, alpha_i}
+
+// aas triangle relations:
+
+// ({i,j,k},u) where M_alphas[i](sigmas[j]+u) = x + sigmas[k] with x integral.
+
+// The triangle has vertices [alpha_i, oo, sigma_j+u] and edges
+// (I)_i = {alpha_i, oo},
+// - (T^u)_{-j} = - T^u * {sigma_j,oo} = {oo, sigma_j+u},
+// (M_i'*T^x)_{-k} = M_i' * T^x * {sigma_k, oo} = M_i' * {x+sigma_k, oo} = {sigma_j+u, alpha_i}
 
 void make_triangles()
 {
@@ -400,6 +421,11 @@ void make_triangles()
     triangles = {{0,3,6}, {0,5,8}, {0,9,12}, {1,6,12}, {7,9,2}};
     cyclic_triangles = {};
     break;
+  case 31:
+    triangles = {{0,3,10}, {0,5,12}, {0,7,14}, {0,15,7}, {1,19,10}, {3,6,8}, {3,10,13}, {3,15,12},
+                 {7,11,10}, {7,19,17}};
+    cyclic_triangles = {};
+    break;
   default:
     triangles = {};
     cyclic_triangles = {};
@@ -407,7 +433,9 @@ void make_triangles()
 
 #ifdef CHECK_TRIANGLES
   for (vector<vector<int> >::const_iterator Ti = triangles.begin(); Ti!=triangles.end(); ++Ti)
-    assert(check_triangle(*Ti));
+    {
+      assert(check_triangle(*Ti));
+    }
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
     assert(check_cyclic_triangle(*Ti));
 #endif
@@ -419,16 +447,22 @@ void make_triangles()
     }
 
   // Lists of aas triangles (i.e. two principal and one non-principal vertex)
+  Quad w = Quad::w;
   switch(Quad::d) {
   case 23:
-    aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},Quad::w}, {{8,2,2},0}, {{10,2,2},0}};
+    aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
+    break;
+  case 31:
+    aas_triangles = {{{11,1,1},0}, {{2,1,1},-w}, {{2,2,2},-1}, {{10,2,2},w-1} };
     break;
   default:
     aas_triangles = {};
   }
 #ifdef CHECK_TRIANGLES
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
-    assert(check_aas_triangle(Ti->first, Ti->second));
+    {
+      assert(check_aas_triangle(Ti->first, Ti->second));
+    }
 #endif
 }
 
