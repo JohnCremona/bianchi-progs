@@ -21,7 +21,8 @@ function List(S,level_g,KI_g,PKI_g)  // Generates a list of cd-symbols
       PKI_l:=PKI_g;
    else
       KI_l:=quo<OK|level_l>;
-      PKI_l:=ProjectiveSpace(KI_l,1);
+//      PKI_l:=ProjectiveSpace(KI_l,1);
+      PKI_l:=ProjectiveLine(KI_l);
    end if;
 
    cdlist:=[* *];
@@ -34,26 +35,32 @@ function List(S,level_g,KI_g,PKI_g)  // Generates a list of cd-symbols
 
       crep1:=[Matrix([[1,0],[x,1]]):x in cr1] cat
              [Matrix([[0,-1],[1,x]]):x in cr2];
-      PKI_l2:=ProjectiveSpace(KI_l2,1);
-      cdlist cat:=[*[PKI_l2![KI_l2!m[2][1],KI_l2!m[2][2]]:m in crep1]*];
+      PKI_l2, std :=ProjectiveLine(KI_l2);
+      tmp := [];
+      for m in crep1 do
+        _, cd := std([OK!m[2][1], OK!m[2][2]], false, false);
+        tmp cat:= [cd];
+      end for;
+      cdlist cat:= [* tmp *];
    end for;
-     
    while #cdlist gt 1 do
       cdn:=#cdlist;
-      B:=Bezout(S[cdn-1],S[cdn]);
+//      B:=Bezout(S[cdn-1],S[cdn]);
       new:=[];
       level_l:=S[cdn-1]*S[cdn];
       KI_l:=quo<OK|level_l>;
-      PKI_l:=ProjectiveSpace(KI_l,1);
+//      PKI_l:=ProjectiveSpace(KI_l,1);
+      PKI_l, std:=ProjectiveLine(KI_l);
       for X in cdlist[cdn-1] do
-         for Y in cdlist[cdn] do      
-            c:=OK!X[1]*B[2]+OK!Y[1]*B[1];
-            d:=OK!X[2]*B[2]+OK!Y[2]*B[1];
-//      c:=CRT(S[cdn-1],S[cdn],OK!X[1],OK!Y[1]);
-//      d:=CRT(S[cdn-1],S[cdn],OK!X[2],OK!Y[2]);
-// there doesn't seem to be any real difference between the CRT function 
-// and my code
-            new cat:=[PKI_l![KI_l!c,KI_l!d]];      
+         for Y in cdlist[cdn] do
+//           c:=OK!X[1]*B[2]+OK!Y[1]*B[1];
+//           d:=OK!X[2]*B[2]+OK!Y[2]*B[1];
+             c:=CRT(S[cdn-1],S[cdn],OK!X[1],OK!Y[1]);
+             d:=CRT(S[cdn-1],S[cdn],OK!X[2],OK!Y[2]);
+       // there doesn't seem to be any real difference between the CRT function 
+       // and my code
+         _, cd := std([OK!c, OK!d], false, false);
+         new cat:=[cd];
          end for;
       end for;
       Prune(~cdlist);
@@ -64,7 +71,7 @@ function List(S,level_g,KI_g,PKI_g)  // Generates a list of cd-symbols
 
    assert #cdlist eq 1;
    cdlist:=cdlist[1]; 
-   return cdlist,KI_l,PKI_l;  
+return cdlist,KI_l,PKI_l;  
 
 end function;
 
@@ -147,7 +154,7 @@ function ToMatrix(cd,level_l,KI_l,PKI_l)
          N:=MK!Matrix([[a,b],[c,d]]);
 
          assert Determinant(N) eq 1;
-         assert PKI_l![KI_l!cd[1],KI_l!cd[2]] eq PKI_l![KI_l!c,KI_l!d];
+//assert PKI_l![KI_l!cd[1],KI_l!cd[2]] eq PKI_l![KI_l!c,KI_l!d];
          return N;
 
       else 
@@ -205,7 +212,7 @@ function ToMatrix(cd,level_l,KI_l,PKI_l)
          assert d in OK;
          N:=MK!Matrix([[a,b],[c,d]]);
          assert Determinant(N) eq 1;
-         assert PKI_l![KI_l!cd[1],KI_l!cd[2]] eq PKI_l![KI_l!c,KI_l!d];
+//assert PKI_l![KI_l!cd[1],KI_l!cd[2]] eq PKI_l![KI_l!c,KI_l!d];
          return N;
 
       end if;
@@ -317,13 +324,12 @@ function DimH(level_g,verbose_flag)  // when verbose_flag is false,
     end if;  
 
    KI_g:=quo<OK|level_g>;
-   PKI_g:=ProjectiveSpace(KI_g,1);
+   PKI_g, std:=ProjectiveLine(KI_g);
    MKI_g:=RMatrixSpace(KI_g,2,2);
 
    assert Norm(level_g) ne 1;  // check the level isn't trivial  
  
-   CDlist:=List([s[1]^s[2]:s in Factorization(level_g)],level_g,KI_g,PKI_g);
-
+CDlist:=List([s[1]^s[2]:s in Factorization(level_g)],level_g,KI_g,PKI_g);
    cdn:=#CDlist;
    if verbose_flag then
        print "Number of (c:d) symbols = ",cdn;
@@ -331,78 +337,107 @@ function DimH(level_g,verbose_flag)  // when verbose_flag is false,
    
    crep:=[ToMatrix(cd,level_g,KI_g,PKI_g): cd in CDlist];
 
-   CDlist:=[PKI_g![KI_g!m[2][1],KI_g!m[2][2]]:m in crep];
-
+   CDlist := [];
+   for m in crep do
+        _, cd := std([OK!m[2][1],OK!m[2][2]], false, false);
+        CDlist cat:= [cd];
+   end for;
+//print "cd-symbol list:";
+//for i in [1..#CDlist] do
+//        print i, ": ", CDlist[i];
+//end for;
    function CDClass(tcd)     // given a cd-symbol returns its position
       for cdl in CDlist do   // in the above list
          if tcd eq cdl then
             return Position(CDlist,cdl);
          end if;
-      end for;      
+      end for;
       error "help",<K!(OK!tcd[1]),K!(OK!tcd[2])>;
    end function;
 
    function ToSymbol(M)  // Convert the bottom row of a matrix to a cd symbol
-      return PKI_g![KI_g!M[2][1],KI_g!M[2][2]];
+     _, cd := std([OK!M[2][1],OK!M[2][2]], false, false);
+     return cd;
    end function;
 
    Rels1:=[];                  // Create 1 relation for each coset rep
    for x in rels do            // using code
       for M in crep do
          dummy1:=[];
-         for r in x do          
-            tc:=ToSymbol(M*r[2]);       
+         for r in x do
+            tc:=ToSymbol(M*r[2]);
             p:=CDClass(tc);
-            dummy1 cat:=[<r[1],r[3],p>];  // sign,path,coset   
+            dummy1 cat:=[<r[1],r[3],p>];  // sign,path,coset
          end for;
          Rels1 cat:=[dummy1];
       end for;
    end for;
-
-   Rels2:=[];                // Write relations in terms of simple 
+//   print "Rels1: ",Rels1;
+   Rels2:=[];                // Write relations in terms of simple
    for x in Rels1 do         // numbered variables
       dummy2:=[];
       for r in x do
-         dummy2 cat:=[<r[1],r[2]+(r[3]-1)*np>];   // sign,number         
+         dummy2 cat:=[<r[1],r[2]+(r[3]-1)*np>];   // sign,number
       end for;
       Rels2 cat:=[dummy2];
    end for;
+//   print "Rels2: ";
+//   for i in [1..#Rels2] do
+//           print i, ": ", [r[1]*r[2]: r in Rels2[i]];
+//   end for;
 
    V:=VectorSpace(Q,np*cdn);   // original vector space
 
    Rels3:=[&+[t[1]*V.t[2]:t in r]:r in Rels2];   // Encode the relations
+//   print "Rels3: ",Rels3;
    Rels4:=[r:r in Rels3 | r ne V!0];             // in the vector space
-   M:=RMatrixSpace(Q,#Rels4,np*cdn)!0;           
+//   print "Rels4: ",Rels4;
+   M:=RMatrixSpace(Q,#Rels4,np*cdn)!0;
    for i in [1..#Rels4] do
       M[i]:=Rels4[i];
    end for;
+   nrM := NumberOfRows(M);
+   ncM := NumberOfColumns(M);
+   rkM := Rank(M);
+   nuM := ncM-rkM;
+if verbose_flag then
+print "relation matrix has ", nrM, " rows and ", ncM, " columns", " with rank", rkM, " and nullity ", nuM;
+print "Hence the dimension of 1-homology (relative to cusps) is ",nuM;
+end if;
    EF:=EchelonForm(M);
 
    S:=sub<V| [EF[i]:i in [1..#Rels4] | EF[i] ne V!0]>;
 
    V2,qmap:=quo<V|S>;     // V modulo the relations and a map going from
                           // V to V2
-
    B:=Basis(S);
+
    pivots:=Set(Pivots(B));
    gens:=[i : i in [1..np*cdn] | i notin pivots];    // a basis for V2
-
+//print "gens (indices 1...",ncM,")", gens;
    Gens:=[ToCode(i): i in gens];    // this basis converted into my code
+//   print "gens (symbol numbers and types)", Gens;
 
    MS:=[];                              // Convert remaining symbols into
    for g in Gens do                     // standard (gamma)_alpha form
-      pa:=Position(alphabet,g[2]);
-      alpha:=EndPoints[pa];    
+//      print "converting gen #",Position(Gens, g);
+      alpha:=EndPoints[Position(alphabet,g[2])];
+//      print "alpha = ",alpha;
       gamma:=ToMatrix(CDlist[g[1]],level_g,KI_g,PKI_g);
+//      print "symbol #",g[1]," is ",CDlist[g[1]], " which lifts to matrix gamma = ", gamma;
       MS cat:=[<alpha,gamma>];
    end for;
 
    MSC:=[[ActC(m[2],m[1]),ActC(m[2],Cusps![1,0])]:m in MS]; 
    // convert symbols into modular symbols of the form {a,b}
+//   print "gens (as modular symbols):";
+//   for i in [1..#MSC] do
+//           print i, ": ", MSC[i];
+//   end for;
 
-   cc:=C;  // which is defined in core.m                             
+   cc:=C;  // which is defined in core.m
 
-   for c in MSC do                     // generates a list of inequivalent                                        
+   for c in MSC do                     // generates a list of inequivalent
       for cp in c do                   // cusps mod Gamma_0(level_g)
          mcp:=Cusps![-cp[1],cp[2]];
          for class in cc do
@@ -417,10 +452,16 @@ function DimH(level_g,verbose_flag)  // when verbose_flag is false,
             end if;
          end for;
          if v eq 1 then
-     	    cc cat:=[Cusps![cp[1],cp[2]]];
+           newc := Cusps![cp[1],cp[2]];
+           cc cat:=[newc];
          end if;
       end for;
    end for;
+
+//   print #cc, " inequivalent cusps found:";
+//   for i in [1..#cc] do
+//      print i, ": ", cc[i];
+//   end for;
 
    function CuspClass(Cusp,level_g)   // given a cusp returns which cusp
                                       // in the list above it is
@@ -438,13 +479,17 @@ function DimH(level_g,verbose_flag)  // when verbose_flag is false,
    vec_ms:=V2;
    vec_c:=VectorSpace(Q,#cc);
    vb:=Basis(vec_c);
-  
+
+//   for i in [1..#MSC] do
+//      m := MSC[i];
+//      print "delta(ms#",i,") = [",CuspClass(m[2],level_g),"] - [",CuspClass(m[1],level_g),"]";
+//   end for;
+
    image:=[vb[CuspClass(m[2],level_g)]-vb[CuspClass(m[1],level_g)]:m in MSC];
-   
+
    bmap:=hom<vec_ms -> vec_c | image>;     // defines the boundary map
-
    V3:=Kernel(bmap);      //  the kernel of the boundary map on V2
-
+//   print "kernel of boundary map", V3;
    if verbose_flag then
       return <KI_g,PKI_g,V,V2,V3,MSC,CDlist,qmap>;
    else

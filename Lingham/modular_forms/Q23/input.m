@@ -55,12 +55,13 @@ M21:=MK!Matrix([[-1,w],[0,1]]);
 M22:=MK!Matrix([[-w+3,-2*w-1],[-w-2,w-5]]);
 M23:=MK!Matrix([[-w-1,w-4],[w-2,w+3]]);
 
-// The face relations.  Each is a list of triples <coef,M,k> where:
+// The edge and face relations.  Each is a list of triples <coef,M,k> where:
 //
-// coef is an integer coefficient;
+// coef is an integer coefficient (+1 or -1);
 // M is a matrix in M(2,OK); and
-// k is an index in [1..9] denoting the edge type.
-//    (? Where are the edge types defined?  Which one is {0,infty}? )
+// k is an index in [1..9] denoting the edge type, as an index into the list EndPoints
+//    defined in input.m as [C1,C2,C4,C6,C9,C11,C13,C15,C16,C17].
+//    Here C17=oo so does not appear as a type of edge.
 
 rels:=[[<1,M11,4>,<-1,MI,6>,<1,MI,7>],
        [<1,M12,5>,<-1,MI,6>,<1,M10,7>],

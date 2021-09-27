@@ -1,4 +1,6 @@
-D:=31;
+// Define D to be a positive squarefree integer before loading this
+
+//D:=31;
 IR:=IntegerRing();
 Q:=Rationals();
 Zx<x>:=PolynomialRing(IR);
@@ -27,3 +29,5 @@ KQ:=CartesianProduct(K,Q);
 KK:=CartesianProduct(K,K);
 MI:=Matrix([[1,0],[0,1]]);
 MJ:=Matrix([[1,0],[0,-1]]);
+
+conj:=hom<K -> K | 1-w>; 

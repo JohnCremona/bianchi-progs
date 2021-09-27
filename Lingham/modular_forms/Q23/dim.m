@@ -45,7 +45,7 @@ function Main_L(primes,L)
       end if;
    end for;
 
-   time info:=DimH(L,1);     
+   time info:=DimH(L,true);     
 
    fd:=Dimension(info[5]);  
 
@@ -115,5 +115,10 @@ function Main(pbound,lbound_lb,lbound_ub)
 end function;
 
 //Main(50,6,6);
-L := ideal<OK|[6,w]>;
-Main_L(PrimeIdeals(50),L);
+N := ideal<OK|[6,w]>;
+PPN := [Q[1]^Q[2]: Q in Factorization(N)];
+OKmodN := quo<OK|N>;
+P1N:=ProjectiveLine(OKmodN);
+//List(PPN, N, OKmodN, P1N);
+res := DimH(N, true);
+//Main_L(PrimeIdeals(50),N);

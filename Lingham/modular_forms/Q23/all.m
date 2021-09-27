@@ -5,6 +5,8 @@ load "homology.m"; // loads "input.m"
 load "hecke.m";    // loads "homology.m", "region.m"
 load "bianchi.m";
 
+procedure test();
+
 P2a,P2b,P3a,P3b:=Explode(PrimeIdeals(3));
 
 N:=P2a*P3b;
@@ -38,6 +40,8 @@ D:= Diagonalization(Ts);
 eigs:=[[A[i,i] : A in D] : i in [1..2]];
 L<a>:=Parent(eigs[1][1]);
 assert eigs eq [[a,2,-1,-a],[1-a,2,-1,a-1]];
+
+end procedure;
 
 /*
 for N in Levels(10) do
