@@ -91,7 +91,7 @@ int main(void)
            <<" and their factorizations are not useful."<<endl;
     }
 
-  vector<Quadprime> badprimes = h.N.factorization().primes();
+  vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
   vector<Quadprime>::const_iterator pr;
   int nq = badprimes.size();
   vector<bigint> charpol;

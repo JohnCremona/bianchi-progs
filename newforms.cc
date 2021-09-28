@@ -88,7 +88,6 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   // divided by the least period w.r.t. homology relative to cusps.
   // this uses the vector v so must be done now
   find_cuspidal_factor(v);
-
 }
 
 // fill in data for the j'th newform (j based at 1)
@@ -447,6 +446,7 @@ void newforms::init()
   is_square = N.is_square();
   Factorization F = N.factorization();
   plist = primelist(N, 20); // shadows h1->primelist in case we do not construct h1
+  if (verbose>1) cout << "Ordered list of primes (bad primes first): "<<plist<<endl;
   nwq = npdivs = F.size();
   nap=20;
   ntp=nap-nwq;
@@ -652,6 +652,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
     {
       if (n1ds<upperbound)
         {
+          //cout<<"Constructing newform with eigs "<<eigs<<endl;
           nflist.push_back(newform(this,b1,eigs));
           n1ds++;
         }
@@ -660,6 +661,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
           cout << "Error in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
           cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
                <<upperbound<<").\n";
+          //cout<<"Extra newform has eigs "<<eigs<<endl;
           exit(1);
         }
     }

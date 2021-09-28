@@ -72,6 +72,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
     int nwq=N.factorization().size();
     int ntp=nap-nwq;
     vector<Quadprime> qlist = pdivs(M);
+    if(verbose) cout<<"Prime divisors of lower level "<<M<<" are "<<qlist<<endl;
     int nq = qlist.size();
     eigs.resize(nforms);
     aps.resize(nforms);
@@ -253,9 +254,10 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
       return;
     }
   if(verbose)
-    cout << "Getting oldclasses for divisor " << ideal_label(D) << endl;
+    cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
   eigdata olddata(N,D,nap,verbose);
   int nforms=olddata.nforms;
+  if (nforms==0) return;
   Qideal M = N/D;
   int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;
   vector<long> betalist;

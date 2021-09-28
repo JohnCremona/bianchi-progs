@@ -24,6 +24,7 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
 
   if (verbose)
     {
+      cout << "Ordered list of primes (bad primes first): "<<primelist<<endl;
       cout << nsymb << " symbols";
       if (!Quad::is_Euclidean)
         {

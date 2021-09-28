@@ -167,7 +167,7 @@ vector<int> Factorization::exponents() const
 
 vector<Quadprime> pdivs(Qideal& I)  // list of prime divisors
 {
-  return I.factorization().primes();
+  return I.factorization().sorted_primes();
 }
 
 vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
