@@ -206,6 +206,7 @@ public:
   friend istream& operator>>(istream& s, Qideal& x);
 
   friend class Quadprime;
+  friend struct Qideal_comparison;
 
 private:
   int ok() const;                 // checks that [a,b+w] *is* an ideal
@@ -242,6 +243,17 @@ public:
 // return 1 iff a is the square mod M of some r in reslist
 int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist);
 vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist);
+
+// function to sort ideals, first by norm then by index within norm
+
+struct Qideal_comparison {
+  bool operator()(const Qideal& I, const Qideal& J)
+  {
+    return (I.nm<J.nm) || ((I.nm==J.nm) && (I.index<J.index));
+  }
+};
+
+extern Qideal_comparison Qideal_cmp;
 
 
 #endif

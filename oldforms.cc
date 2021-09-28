@@ -214,6 +214,17 @@ oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose)
    nap = plist.size();
    noldclasses = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
    vector<Qideal> DD = alldivs(N);
+   if (verbose>1)
+     {
+       cout<<"List of all divisors of N: ";
+       for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
+         {
+           if (Di!=DD.begin())
+             cout << ", ";
+           cout << ideal_label(*Di) << " = " << (*Di);
+         }
+       cout << endl;
+     }
    for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
      {
        getoldclasses(*Di,verbose); // will skip D==N
@@ -237,12 +248,12 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
   if (D.norm() < min_norm)
     {
       if(verbose)
-        cout<<"Skipping oldforms from sublevel "<<D<<" of norm "<<D.norm()
-            <<" which is less than "<< min_norm <<endl;
+        cout<<"Skipping oldforms from sublevel "<<ideal_label(D)<<" whose norm "<<D.norm()
+            <<" is less than "<< min_norm <<endl;
       return;
     }
   if(verbose)
-    cout << "Getting oldclasses for divisor " << D << endl;
+    cout << "Getting oldclasses for divisor " << ideal_label(D) << endl;
   eigdata olddata(N,D,nap,verbose);
   int nforms=olddata.nforms;
   Qideal M = N/D;

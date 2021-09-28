@@ -100,6 +100,8 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
   return Plist;
 }
 
+// The order of the prime powers in the Factorization is given by the order of the underlying rational primes
+
 Factorization::Factorization(const Qideal& II)
   : I(II)
 {
@@ -144,6 +146,13 @@ vector<Quadprime> Factorization::primes() const
   plist.reserve(size());
   for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); ++Qi)
     plist.push_back(Qi->first);
+  return plist;
+}
+
+vector<Quadprime> Factorization::sorted_primes() const
+{
+  vector<Quadprime> plist = primes();
+  std::sort(plist.begin(), plist.end(), Qideal_cmp);
   return plist;
 }
 

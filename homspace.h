@@ -19,7 +19,7 @@ public:
   Qideal N; // the level
   P1N P1;
   long ngens, nsymb, nap;
-  vector<Quadprime> primelist; // list of primes in order, bad primes first
+  vector<Quadprime> primelist; // list of primes in standard order, bad primes first
 
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis

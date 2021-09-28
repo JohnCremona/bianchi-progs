@@ -20,15 +20,7 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
   hmod = 0;
   plusflag=hp;
   nap = 20;
-  primelist = ::primelist(N, nap);
-  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
-       Pi != Quadprimes::list.end() && primelist.size()<(unsigned)nap;
-       ++Pi)
-    {
-      Quadprime P = *Pi;
-      if (!P.divides(N))
-        primelist.push_back(P);
-    }
+  primelist = ::primelist(N, nap); // first nap primes, bad primes first, otherwise in standard order
 
   if (verbose)
     {
@@ -385,7 +377,7 @@ mat reduce_modp(const mat& m, const scalar& p)
 // List of bad primes (dividing N) followed by good primes to length np:
 vector<Quadprime> primelist(Qideal& N, int np)
 {
-  vector<Quadprime> ans = N.factorization().primes();
+  vector<Quadprime> ans = N.factorization().sorted_primes();
   vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
   while (ans.size()<(unsigned)np)
     {

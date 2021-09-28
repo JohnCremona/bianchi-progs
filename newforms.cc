@@ -446,7 +446,7 @@ void newforms::init()
 {
   is_square = N.is_square();
   Factorization F = N.factorization();
-  plist = primelist(N, 20);
+  plist = primelist(N, 20); // shadows h1->primelist in case we do not construct h1
   nwq = npdivs = F.size();
   nap=20;
   ntp=nap-nwq;
@@ -572,10 +572,10 @@ void newforms::createfromscratch()
   if(verbose)
     {
       cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
-      cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<h1->primelist<<")...\n";
+      cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<plist<<")...\n";
     }
 
-  of = new oldforms(N, h1->primelist, verbose);
+  of = new oldforms(N, plist, verbose);
   if(verbose)
     {
       of->display();

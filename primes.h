@@ -67,6 +67,7 @@ public:
 
 class Factorization {
   Qideal I;                     // the ideal whose factorization this is
+// The order of the prime powers in the Factorization is given by the order of the underlying rational primes
   vector<QuadprimePower> Qlist; // prime powers Q (as (P,e) pairs)
   vector<Qideal> QIlist;        // prime powers Q (as ideals)
   vector<Quad> CRT_vector;      // list of Quads =1 mod each Q and =0 mod the others (set when first needed)
@@ -75,12 +76,19 @@ public:
   explicit Factorization(const Qideal &);           // constructor
 
   long size() const { return Qlist.size(); }
+
+  // In the following methods, the order of the
+  // primes/prime-powers/exponents is unchanged, hence is the order of
+  // the underlying rational primes.  In particular, primes() returns
+  // a list of the primes which is not necessarily sorted by norm.
   Quadprime prime(int i) const { return Qlist[i].first; }
   vector<Quadprime> primes() const;
   int exponent(int i) const { return Qlist[i].second; }
   vector<int> exponents() const;
   Qideal prime_power(int i) const {return QIlist[i];}
   vector<QuadprimePower> prime_powers() const {return Qlist; }
+  // The next method sorts the output of primes() into norm order
+  vector<Quadprime> sorted_primes() const;
 
   Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]
   friend vector<Quadprime> pdivs(Qideal& n);
