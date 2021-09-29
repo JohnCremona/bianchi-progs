@@ -1,7 +1,7 @@
 import os
 import re
 from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
-from psort import ideal_label
+from psort import ideal_label, ideal_from_label
 
 whitespace = re.compile(r'\s+')
 
@@ -13,16 +13,12 @@ FORM_DIR = os.path.join(DATA_DIR, "newforms")
 
 
 Qx = PolynomialRing(QQ,'x')
-fields = [1,2,3,7,11,19,43,67,163]
 
 def split(line):
     return whitespace.split(line.strip())
 
 def field(d):
-    if not d in fields:
-        raise ValueError("only d in {} are valid".format(fields))
-    t = 0 if d<3 else 1
-    n = d if d<3 else (d+1)//4
+    t,n = (1, (d+1)//4) if d%4==3 else (0, d)
     x = polygen(QQ)
     gen_name = 'i' if d==1 else 't' if d==2 else 'a'
     K = NumberField(x**2-t*x+n, gen_name)
@@ -46,6 +42,7 @@ def old_ideal_label(I):
 
 import re
 ideal_label_regex = re.compile(r'\d+\.\d+\.\d+')
+new_ideal_label_regex = re.compile(r'\d+\.\d+')
 
 def parse_ideal_label(s):
     if not ideal_label_regex.match(s):
@@ -53,10 +50,13 @@ def parse_ideal_label(s):
     #s = re.sub(r']','',re.sub(r'\[','',s))
     return [int(i) for i in s.split(r'.')]
 
-def ideal_from_label(K,s):
-    H = parse_ideal_label(s)
-    H[0]/= H[2]
-    return ideal_from_HNF(K,H)
+def ideal_from_IQF_label(K,s):
+    try:
+        H = parse_ideal_label(s)
+        H[0]/= H[2]
+        return ideal_from_HNF(K,H)
+    except ValueError:
+        return ideal_from_label(K,s)
 
 def ideal_divisor_iterator(I):
     IF = I.factor()
@@ -76,7 +76,7 @@ def read_dimtabeis(d, fname):
                 continue
             dd, w, label, dimall, dimcusp, dimeis = L.split()
             #H = parse_ideal_label(label)
-            I = ideal_from_label(K,label)
+            I = ideal_from_IQF_label(K,label)
             print("%s dimensions: %s %s %s"%(I,dimall,dimcusp,dimeis))
 
 # NB The following function takes as input a dimtabeis as produced by
@@ -99,7 +99,7 @@ def make_dimtabnew(d, fname, min_norm=1, max_norm=None, verbose=False):
             dd, w, label, dimall, dimcusp, dimeis = L.split()
             assert (int(dd)==d) and int(w)==2
             dimcusp = int(dimcusp)
-            I = ideal_from_label(K,label)
+            I = ideal_from_IQF_label(K,label)
             Inorm = I.norm()
             if max_norm!=None and Inorm>max_norm:
                 break
@@ -154,7 +154,7 @@ def parse_dims_line(L, K, d):
     dd, w, label, dimall, dimcusp, dimcuspnew, dimeis = L.split()
     assert int(dd) == d
     assert int(w) == 2
-    N = ideal_from_label(K,label)
+    N = ideal_from_IQF_label(K,label)
     level_label = ideal_label(N)
     D = K.discriminant().abs()
     field_label = "2.0.{}.1".format(D)
@@ -229,7 +229,7 @@ def parse_newforms_line(line, K):
     hecke_poly = data[10]
     dimension = 1 if hecke_poly == 'x' else int(Qx(hecke_poly).degree())
     # level
-    N = ideal_from_label(K, data[1])
+    N = ideal_from_IQF_label(K, data[1])
     level_label = ideal_label(N)
     level_norm = int(level_label.split(".")[0])
     level_ideal = data[3]
