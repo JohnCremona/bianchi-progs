@@ -257,7 +257,6 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
     cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
   eigdata olddata(N,D,nap,verbose);
   int nforms=olddata.nforms;
-  if (nforms==0) return;
   Qideal M = N/D;
   int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;
   vector<long> betalist;
@@ -270,6 +269,8 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
     }
   if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmultiplicity<<endl;
   olddim2+=oldmultiplicity*olddata.nforms2;
+  if (nforms==0) return;
+
   if(verbose) cout << "Computing W multiplicities." << endl;
   vector<long> nextoldformap(nap);
   for(int iform=0; iform<nforms; iform++)

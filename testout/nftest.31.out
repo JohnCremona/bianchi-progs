@@ -24,7 +24,7 @@ Integration matrix = [-4+a,3;-3-a,a], factor   = 7
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 90
 L/P ratio    = 5, cuspidal factor = 18
-Integration matrix = [-1-a,1;-10+a,1-a], factor   = 9
+Integration matrix = [3,1;2-3a,1-a], factor   = 9
 
 >>>> Level 14.3 = (-5+a,-4-2a), norm = 14 <<<<
 
@@ -33,7 +33,7 @@ Integration matrix = [-1-a,1;-10+a,1-a], factor   = 9
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 90
 L/P ratio    = 5, cuspidal factor = 9
-Integration matrix = [-2+a,1;-9-a,a], factor   = 9
+Integration matrix = [3,1;-1+3a,a], factor   = 9
 
 >>>> Level 20.3 = (2+2a,-8+2a), norm = 20 <<<<
 

@@ -47,8 +47,6 @@ long vecgcd(const vector<long>& a)
   return g;
 }
 
-//#define testbezout
-
 // returns content and sets c such that content(a) = a.c
 long vecbezout2(const vector<long>& a, vector<long>& c)
 {
@@ -61,6 +59,8 @@ long vecbezout2(const vector<long>& a, vector<long>& c)
   return g;
 }
 
+//#define testbezout3
+
 // returns content and sets c such that content(a) = a.c
 long vecbezout3(const vector<long>& a, vector<long>& c)
 {
@@ -68,7 +68,7 @@ long vecbezout3(const vector<long>& a, vector<long>& c)
   if (n!=3) return vecbezout(a, c);
 
   long aa=a[0], bb=a[1], cc=a[2];
-#ifdef testbezout
+#ifdef testbezout3
   cout<<"Computing vecbezout3("<<a<<")"<<endl;
 #endif
   if ((aa==0)&&(bb==0))
@@ -91,7 +91,7 @@ long vecbezout3(const vector<long>& a, vector<long>& c)
   long h1=h/g, c1=cc/g;
   c = {x*z, y*z, w};
   assert (a[0]*c[0]+a[1]*c[1]+a[2]*c[2]==g);
-#ifdef testbezout
+#ifdef testbezout3
   cout<<"   g="<<g<<", first solution is "<<c<<"; "<<flush;
   vector<long> perp1 = {-c1*x, -c1*y, h1};
   vector<long> perp2 = {-b1, a1, 0};
@@ -100,14 +100,26 @@ long vecbezout3(const vector<long>& a, vector<long>& c)
   assert (a[0]*perp2[0]+a[1]*perp2[1]+a[2]*perp2[2]==0);
 #endif
   // now minimize
+  long lambda, mu;
+#ifdef testbezout3
   long x2y2 = x*x+y*y;
-  long lambda = roundover(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
-  long mu = roundover((b1*x-a1*y)*z, a1*a1+b1*b1);
+  lambda = roundover(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
+  mu = roundover((b1*x-a1*y)*z, a1*a1+b1*b1);
+  cout << "--using long ints, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
+#endif
+  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
+  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
+  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
+  longify(rlambda, lambda);
+  longify(rmu, mu);
+#ifdef testbezout3
+  cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
+#endif
   c[0] -= lambda*c1*x+mu*b1;
   c[1] -= lambda*c1*y-mu*a1;
   c[2] += lambda*h1;
   assert (a[0]*c[0]+a[1]*c[1]+a[2]*c[2]==g);
-#ifdef testbezout
+#ifdef testbezout3
   cout<<" vecbezout3("<<a<<") = "<<c<<endl;
 #endif
   return g;

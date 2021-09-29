@@ -886,10 +886,8 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
 
   if(verbose)
     {
-      if(vp>0) cout<<"Q"; else cout<<"P";
-      cout<<" = "<<P<<" = ("<<P.gen()<<")\t";
-      if(vp>0) cout<<"N(Q)"; else cout<<"N(P)";
-      cout<<" = "<<P.norm()<<"\t";
+      string PQ = (vp>0? "Q": "P");
+      cout<<PQ<<" = "<<P<<" = "<<gens_string(P)<<"\tN("<<PQ<<") = "<<P.norm()<<"\t";
     }
   for (int i=0; i<n1ds; i++)
     {

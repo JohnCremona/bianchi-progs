@@ -408,17 +408,21 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   assert (r+s==1);
   assert (contains(r));
   assert (J.contains(s));
-  if (r.nm > nm*J.nm)
+  if (r.nm<0 || s.nm<0) // can only happen if there was overflow
     {
-      Qideal IJ = (*this)*J;
-      Quad r1 =   IJ.reduce(r);
-      // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<" (norm "<<IJ.nm<<"): r="<<r<<" (norm "<<r.nm<<")";
-      // cout << " reduces mod IJ to "<<r1<<endl;
-      assert (contains(r1));
-      assert (J.contains(1-r1));
-      r = r1;
-      s = 1-r;
+      cout<<"I="<<(*this)<<", J="<<J<<": initial r="<<r<<" (norm "<<r.nm<<"), s=1-r="<<s<<" (norm "<<s.nm<<")"<<"; N(IJ) = "<<r.nm*J.nm<<endl;
+      cout<<"v = "<<v<<", w="<<w<<endl;
+      exit(1);
     }
+  Qideal IJ = (*this)*J;
+  Quad r1 =   IJ.reduce(r);
+  // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<" (norm "<<IJ.nm<<"): r="<<r<<" (norm "<<r.nm<<")";
+  // cout << " reduces mod IJ to "<<r1<<endl;
+  assert (contains(r1));
+  assert (J.contains(1-r1));
+  r = r1;
+  s = 1-r;
+  // cout<<"I="<<(*this)<<", J="<<J<<": r="<<r<<", s=1-r="<<s<<endl;
   return 1;
 }
 
@@ -502,7 +506,8 @@ mat22 AB_matrix(const Quad& a, const Quad& c)
   Qideal I({a,c});
   Qideal I0 = Qideal(a)/I, I1 = Qideal(c)/I;
   Quad r0, r1;
-  I0.is_coprime_to(I1, r0, r1);
+  int t = I0.is_coprime_to(I1, r0, r1);
+  assert (t && "I0, I1 coprime");
   long g = I.norm();
   b = -(r1*g)/c;
   assert (b*c == -r1*g);
