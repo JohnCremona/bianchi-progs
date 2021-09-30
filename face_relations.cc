@@ -109,6 +109,8 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
 
 #if(USE_SMATS)
   relmat = smat(maxnumrel,ngens);
+  relmat_rowdata = vector<int>(10,0);
+  maxrowsize = 0;
 #else
   relmat.init(maxnumrel,ngens);
 #endif
@@ -277,6 +279,9 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       if (verbose) cout<<relation<<endl;
       return;
     }
+  int n = relation.size();
+  relmat_rowdata[n] +=1;
+  if (n>maxrowsize) maxrowsize=n;
   numrel++;
   if(numrel<=maxnumrel)
     {
@@ -765,7 +770,10 @@ void face_relations::solve_relations()
 #ifdef TIME_RELATION_SOLVING
   if (verbose)
     {
-      cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<"\n";
+      cout<<"\nStarting to solve relation matrix of size "<<numrel<<" x "<<ngens<<", density "<<density(relmat)<<"\n"<<flush;
+      cout<<"# nonzero entries in row\t\t#rows"<<endl;
+      for (int i=1; i<=maxrowsize; i++)
+        cout<<i<<"\t\t\t\t\t"<<relmat_rowdata[i]<<endl;
     }
    timer t;
    t.start("relation solver");

@@ -49,6 +49,8 @@ private:
 
 #ifdef USE_SMATS
   smat relmat;
+  vector<int> relmat_rowdata;
+  int maxrowsize;
 #else
   mat relmat;
 #endif
