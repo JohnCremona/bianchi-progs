@@ -212,8 +212,6 @@ int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusf
 // if type = -s<0 , return U{sigmas[s],oo}
 
 modsym::modsym(const mat22& U, int type) // U in SL2
-{
-  RatQuad alpha = (type>=0? alphas[type]: sigmas[-type]);
-  a = U(alpha);
-  b = U.image_oo();
-}
+  : a(U(type>=0? alphas[type]: sigmas[-type])),
+    b(U.image_oo())
+{;}

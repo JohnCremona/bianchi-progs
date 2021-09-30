@@ -346,7 +346,8 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
 
 vec homspace::maninvector(Quadprime& P, int proj)
 {
-  assert (P.is_principal());
+  int t = P.is_principal();
+  assert (t && "P should be principal in maninvector()");
   vector<Quad> resmodp=P.residues();
   Quad p = P.gen();
   vec ans = chain(0,p, proj), part;             // =0, but sets the right length.

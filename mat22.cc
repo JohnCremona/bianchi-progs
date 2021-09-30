@@ -71,7 +71,7 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2) // assume [M1] square and M1,M2 coprim
   return mat22(a,b,c,d);
 }
 
-mat22 AtkinLehner(Quadprime& P, Qideal& N) // =AL(P^e,N/P^e) where P^e||N
+mat22 AtkinLehnerP(Quadprime& P, const Qideal& N) // =AL(P^e,N/P^e) where P^e||N
 {
   Qideal M1(1), M2(N);
   while (P.divides(M2))
@@ -128,7 +128,7 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
 
   vector<Quad> resmodp = P.residues();
   mats.reserve(P.norm());
-  for(vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); r++)
+  for(vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
     {
       Quad a = *r;
       mats.push_back(M*mat22(1,a,nu,1+a*nu));

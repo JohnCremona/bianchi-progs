@@ -78,8 +78,8 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
     }
   if (!ok)
     {
-      int n = mats.size();
-      cout<<"\n*************Bad "<< (n==2? "edge": "face") << " relation!\n";
+      int nsides = mats.size();
+      cout<<"\n*************Bad "<< (nsides==2? "edge": "face") << " relation!\n";
       cout<<"alphas: "<<as<<endl;
       cout<<"betas:  "<<bs<<endl;
       exit(1);
@@ -107,7 +107,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
   numrel = 0;
   hmod = 0;
 
-#if(USE_SMATS)
+#ifdef USE_SMATS
   relmat = smat(maxnumrel,ngens);
   relmat_rowdata = vector<int>(10,0);
   maxrowsize = 0;
@@ -766,7 +766,7 @@ void face_relations::solve_relations()
       cout<<"relmat = "<<M<<endl;
       cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
     }
-#if(USE_SMATS)
+#ifdef USE_SMATS
 #ifdef TIME_RELATION_SOLVING
   if (verbose)
     {

@@ -42,7 +42,7 @@ long sqrt_mod_p(long a, long p) // p odd prime, a quadratic residue
 long vecgcd(const vector<long>& a)
 {
   long g=0;
-  for(vector<long>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ai++)
+  for(vector<long>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
     g = gcd(g, *ai);
   return g;
 }
@@ -139,7 +139,7 @@ long vecbezout(const vector<long>& a, vector<long>& c)
   long x = 1, g = vecgcd(a);
   vector<long> a0=a;
   if (g>1)
-    for(vector<long>::iterator ai=a0.begin(); ai!=a0.end(); ai++)
+    for(vector<long>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
   c = vector<long>(n, 0);
@@ -231,11 +231,11 @@ void findzbasis(const vector<long>& first, const vector<long>& second, vector<lo
   vector<long>::const_iterator ai, bi, aj, bj;
   // Find a nonsingular 2x2 block:
   int t=1;
-  for (ai=first.begin(), bi=second.begin(); t && ai!=first.end(); ai++, bi++)
+  for (ai=first.begin(), bi=second.begin(); t && ai!=first.end(); ++ai, ++bi)
     {
       a = *ai;
       b = *bi;
-      for (aj=ai+1, bj=bi+1; t && aj!=first.end(); aj++, bj++)
+      for (aj=ai+1, bj=bi+1; t && aj!=first.end(); ++aj, ++bj)
         {
           c = *aj;
           d = *bj;
@@ -255,7 +255,7 @@ void findzbasis(const vector<long>& first, const vector<long>& second, vector<lo
   cout<<" - after step 0, {a,b,c} = "<<basis<<endl;
 #endif
   // process all the rest
-  for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ai++, bi++)
+  for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ++ai, ++bi)
     {
       long e = *ai %c, f = *bi;
       basis = hnf22(a,b, e, f);

@@ -7,6 +7,8 @@
 #include <eclib/matrix.h>
 #include "edge_relations.h"
 
+#define USE_SMATS
+
 class face_relations {
 public:
   face_relations() {;}

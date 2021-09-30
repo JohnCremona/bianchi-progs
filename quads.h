@@ -89,11 +89,15 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void setnorm()
   {
     nm = r*r + n*i*i;
-    if (t) {nm += r*i;};
+    if (t && r && i) {nm += r*i;};
   }
   Quad(long x=0, long y=0, long nrm=-1) :r(x),i(y), nm(nrm)
   {
-    if (nm<0) setnorm();
+    if (nm<0) //setnorm();
+      {
+        nm = r*r + n*i*i;
+        if (t && r && i) {nm += r*i;};
+      }
   }
   explicit Quad(const bigcomplex& z);   //rounds to nearest
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {;}

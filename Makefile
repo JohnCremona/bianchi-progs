@@ -9,16 +9,17 @@ ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
-USE_SMATS=1
-#  It is recommended to USE_SMATS when finding rational newforms
+#  USE_SMATS compiler flag (set/unset in face_relations.h)
+#
+#  It is recommended set USE_SMATS when finding rational newforms
 #  only, since the linear algebra is done correctly modulo p=2^30-35
 #  and only lifted to Z when an eigenvector is found. Programs which
-#  compute Hecke matrices and their characteristic polynomials such
-#  as hecketest.cc try to lift the whole modular symbol space and
-#  this easily fails.  In that case do not USE_SMATS and the linear
-#  algebra will be done using multiprecision integer arithmetic
-#  instead.  This is much slower: e.g. with level (128), field 1 it
-#  takes 20m instead of <1s.
+#  compute Hecke matrices and their characteristic polynomials such as
+#  hecketest.cc try to lift the whole modular symbol space and this
+#  easily fails.  In that case unset USE_SMATS, and the linear algebra
+#  will be done using multiprecision integer arithmetic instead.  This
+#  is much slower: e.g. with level (128), field 1 it takes 20m instead
+#  of <1s.
 
 GCC=g++ -std=c++11
 CC = $(GCC)
@@ -41,11 +42,11 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 # for profiling:
-#CFLAGS = -c -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR) -DUSE_SMATS=$(USE_SMATS)
+#CFLAGS = -c -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
 #LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR) -DUSE_SMATS=$(USE_SMATS)
+CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests

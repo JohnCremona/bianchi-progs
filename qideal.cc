@@ -288,7 +288,8 @@ Qideal Qideal::operator*(const Quad& alpha) const
 }
 
 Qideal Qideal::operator*(Qideal& f) const
-{ Qideal ans=*this;
+{
+  Qideal ans(*this);
   ans*=f;
   return ans;
 }
@@ -692,7 +693,7 @@ Quad Qideal::second_generator(const Quad& a)
 // primes.cc)
 Qideal Qideal::sqrt_class(int anti)
 {
-  for (vector<Qideal>::const_iterator A = Quad::class_group.begin(); A!=Quad::class_group.end(); A++)
+  for (vector<Qideal>::const_iterator A = Quad::class_group.begin(); A!=Quad::class_group.end(); ++A)
     {
       Qideal Asq = *A;
       Asq *= Asq;
@@ -962,12 +963,13 @@ Qideal::Qideal(const string& s)           // ideal from label N.i
   string Nstr, istr;
   std::getline(ss, Nstr, '.');
   std::getline(ss, istr);
-  long N, i;
+  long N;
   stringstream(Nstr)>>N;
   if (N==0)
     *this = Qideal(0);
   else
     {
+      long i;
       stringstream(istr)>>i;
       *this = Qideal_from_norm_index(N,i);
     }
