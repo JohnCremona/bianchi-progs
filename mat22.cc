@@ -3,32 +3,32 @@
 #include "primes.h"
 #include "mat22.h"
 
-matop::matop(const Quad& p, const Quad& n)
+// Implementation of Hecke and Atkin-Lehner matrices
+
+vector<mat22> Hecke(const Quad& p)  // P=(p) principal prime
 {
- if (p==n)
-   {
-     mats.resize(1, mat22(0,-1,n,0));
-   }
- else
- if (div(p,n))   // W involution, 1 term
-   {
-      Quad u,v,a,b;
-      for (u=1, v=n; div(p,v); v/=p, u*=p) ;
-      quadbezout(u,v,a,b);
-      mats.resize(1, mat22(u*a,-b,n,u));
-   }
-else                 // Hecke operator, p+1 terms
-  {
-    vector<Quad> resmodp = residues(p);
-    vector<Quad>::const_iterator r=resmodp.begin();
-    while(r!=resmodp.end())
-      mats.push_back(mat22(1,*r++,0,p));
-    mats.push_back(mat22(p,0,0,1));
-  }
+  vector<Quad> resmodp = residues(p);
+  vector<mat22> mats(1+resmodp.size());
+  for (vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
+    mats.push_back(mat22(1,*r,0,p));
+  mats.push_back(mat22(p,0,0,1));
+  return mats;
 }
 
-// partial implementation of Hecke and Atkin-Lehner matrices, assuming
-// ideals have square ideal class:
+mat22 AtkinLehner(const Quad& p, const Quad& n) // P=(p) principal prime
+{
+  Quad u,v,a,b;
+  for (u=1, v=n; div(p,v); v/=p, u*=p) ;
+  quadbezout(u,v,a,b);
+  return mat22(u*a,-b,n,u);
+}
+
+mat22 AtkinLehner(const Quad& p, Qideal& N) // P=(p) principal prime dividing N
+{
+  Qideal P(p);
+  return AtkinLehner(P, N);
+}
+
 
 mat22 AtkinLehner(Qideal& M1, Qideal& M2) // assume [M1] square and M1,M2 coprime
 {

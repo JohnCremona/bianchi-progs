@@ -95,10 +95,12 @@ inline ostream& operator<< (ostream& s, const mat22& m)
    return s;
 }
 
-mat22 AtkinLehner(const Quad& p, Qideal& N); // P=(p) principal prime
+mat22 AtkinLehner(const Quad& p, const Quad& n); // P=(p) principal prime dividing N=(n)
+mat22 AtkinLehner(const Quad& p, Qideal& N); // P=(p) principal prime dividing N
 mat22 AtkinLehner(Qideal& M1, Qideal& M2); // assume [M1] square and M1,M2 coprime
 mat22 AtkinLehnerP(Quadprime& P, const Qideal& N); // =AL(P^e,N/P^e) where P^e||N
 
+vector<mat22> Hecke(const Quad& p);  // P=(p) principal prime
 vector<mat22> Hecke(const Quad& p, Qideal& N); //  P=(p) principal prime not dividing N
 vector<mat22> Hecke(Quadprime& P, Qideal& N); // assume [P] square
 
@@ -117,20 +119,36 @@ class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
   matop() {;}
+  explicit matop(const mat22& m) :mats({m}) {;}
   explicit matop(const vector<mat22>& mlist) :mats(mlist) {;}
-  matop(const Quad& p, const Quad& n);  // constructor for AL & Hecke ops (non-ideal version)
-  matop(Quadprime& P, Qideal& N)        // constructor for AL & hecke ops (ideal version)
-  {
-    if (P.divides(N))   // W involution, 1 term
-      mats = {AtkinLehnerP(P, N)};
-    else                 // Hecke operator, p+1 terms
-      mats = Hecke(P, N);
-  }
-  explicit matop(Qideal& N) :mats({Fricke(N)})             // constructor for Fricke op (principal ideal version)
-  {;}
   mat22 operator[](int i) const {return mats[i];}
   int length() const {return mats.size();}
 };
+
+inline matop AtkinLehnerOp(const Quad& p, const Quad& n)
+{
+  return matop(AtkinLehner(p,n));
+}
+
+inline matop AtkinLehnerOp(Quadprime& P, const Qideal& N)
+{
+  return matop(AtkinLehnerP(P,N));
+}
+
+inline matop HeckeOp(Quadprime& P, Qideal& N)
+{
+  return matop(Hecke(P,N));
+}
+
+inline matop AtkinLehnerOrHeckeOp(Quadprime& P, Qideal& N)
+{
+  return (P.divides(N)? AtkinLehnerOp(P,N): HeckeOp(P,N));
+}
+
+inline matop FrickeOp(Qideal& N)
+{
+  return matop(Fricke(N));
+}
 
 #endif
 

@@ -1167,7 +1167,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
   matop Tp;
   if (!Quad::is_Euclidean)  // not needed in Euclidean case where we
-    Tp = matop(P, N);       // use Manin-Heilbronn matrices instead
+    Tp = HeckeOp(P, N);       // use Manin-Heilbronn matrices instead
 
   map<int,vec> images; // [j,v] stores image of j'th M-symbol in v
                        // (so we don't compute any more than once)

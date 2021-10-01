@@ -219,47 +219,47 @@ smat homspace::s_calcop_restricted(const string opname, const matop& mlist, cons
 
 mat homspace::heckeop(Quadprime& P, int dual, int display)
 {
-  return calcop(opname(P), matop(P,N), dual, display);
+  return calcop(opname(P), AtkinLehnerOrHeckeOp(P,N), dual, display);
 }
 
 vec homspace::heckeop_col(Quadprime& P, int j, int display)
 {
-  return calcop_col(matop(P,N), j);
+  return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
 }
 
 mat homspace::heckeop_cols(Quadprime& P, const vec& jlist, int display)
 {
-  return calcop_cols(matop(P,N), jlist);
+  return calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
 }
 
 smat homspace::s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
 {
-  return s_calcop_cols(matop(P,N), jlist);
+  return s_calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
 }
 
 smat homspace::s_heckeop(Quadprime& P, int dual, int display)
 {
-  return s_calcop(opname(P), matop(P,N), dual, display);
+  return s_calcop(opname(P), AtkinLehnerOrHeckeOp(P,N), dual, display);
 }
 
 mat homspace::heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
 {
-  return calcop_restricted(opname(P), matop(P,N), s, dual, display);
+  return calcop_restricted(opname(P), AtkinLehnerOrHeckeOp(P,N), s, dual, display);
 }
 
 smat homspace::s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
 {
-  return s_calcop_restricted(opname(P), matop(P,N), s, dual, display);
+  return s_calcop_restricted(opname(P), AtkinLehnerOrHeckeOp(P,N), s, dual, display);
 }
 
 mat homspace::wop(Quadprime& Q, int dual, int display)
 {
-  return calcop(opname(Q), matop(Q,N), dual,display);
+  return calcop(opname(Q), AtkinLehnerOp(Q,N), dual,display);
 }
 
 mat homspace::fricke(int dual, int display)
 {
-  return calcop(opname(N), matop(N), dual,display);
+  return calcop(opname(N), FrickeOp(N), dual,display);
 }
 
 mat homspace::opmat(int i, int dual, int verb)
@@ -267,7 +267,7 @@ mat homspace::opmat(int i, int dual, int verb)
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")...";
+    cout<<"Computing " << opname(P) <<"...";
   return heckeop(P,dual,verb); // Automatically chooses W or T
 }
 
@@ -276,7 +276,7 @@ vec homspace::opmat_col(int i, int j, int verb)
   if((i<0)||(i>=nap)) return vec(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")...";
+    cout<<"Computing " << opname(P) <<"...";
   return heckeop_col(P,j,verb); // Automatically chooses W or T
 }
 
@@ -285,7 +285,7 @@ mat homspace::opmat_cols(int i, const vec& jlist, int verb)
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")...";
+    cout<<"Computing " << opname(P) <<"...";
   return heckeop_cols(P,jlist,verb); // Automatically chooses W or T
 }
 
@@ -294,7 +294,7 @@ smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
   if((i<0)||(i>=nap)) return smat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")...";
+    cout<<"Computing " << opname(P) <<"...";
   return s_heckeop_cols(P,jlist,verb); // Automatically chooses W or T
 }
 
@@ -303,7 +303,7 @@ mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
   if((i<0)||(i>=nap)) return mat(dim(s));  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")"
+    cout<<"Computing " << opname(P)
         <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
   return heckeop_restricted(P,s,dual,verb); // Automatically chooses W or T
 }
@@ -318,7 +318,7 @@ smat homspace::s_opmat(int i, int dual, int v)
   Quadprime P = primelist[i];
   if(v)
     {
-      cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P<<")...";
+      cout<<"Computing " << opname(P) <<"...";
       smat ans = s_heckeop(P,dual,0); // Automatically chooses W or T
       cout<<"done."<<endl;
       return ans;
@@ -335,8 +335,8 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
   Quadprime P = primelist[i];
   if(v)
     {
-      cout<<"Computing " << (P.divides(N) ? W_opname : T_opname) <<"("<<P
-	  <<") restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
+      cout<<"Computing " << opname(P)
+          <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
       smat ans = s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
       cout<<"done."<<endl;
       return ans;

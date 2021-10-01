@@ -102,10 +102,10 @@ int main(void)
       mat_m wq(dim), wq2;
       vector<mat_m> wqlist;
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
-	{
+        {
           Quadprime Q = *pr;
-	  cout << "Computing W_"<<Q<<"..." << flush;
-	  wq =  h.heckeop(Q,0,mats);
+          cout << "Computing W_"<<Q<<"..." << flush;
+          wq =  h.wop(Q,0,mats);
 	  cout << "done. " << flush;
           // bigint lambda = to_ZZ(den);
           // int dimplus = addscalar(wq,-lambda).nullity();
