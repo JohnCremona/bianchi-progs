@@ -217,8 +217,11 @@ void Quad::setup_geometry()
     }
   case 2: case 5:
     {
-      add_alpha_pair(3, w, +1);
-      add_sigma(w,3);
+      if (d!=5)
+        {
+          add_alpha_pair(3, w, +1);
+          add_sigma(w,3);
+        }
       break;
     }
   case 11:
@@ -252,8 +255,10 @@ void Quad::setup_geometry()
   default:
     return;
   case 5:
+    {
       add_alpha_pair(2*w, 4+w, +1);      // N(s)=20
       return;
+    }
   case 23:
     {
       add_alpha_pair(w+1, 2-w, +1); // N(s)=8
@@ -449,6 +454,9 @@ void make_triangles()
   // Lists of aas triangles (i.e. two principal and one non-principal vertex)
   Quad w = Quad::w;
   switch(Quad::d) {
+  case 5:
+    aas_triangles = {{{1,1,1},0}, {{2,1,1},-w}};
+    break;
   case 23:
     aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
     break;

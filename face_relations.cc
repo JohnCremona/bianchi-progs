@@ -174,6 +174,7 @@ void face_relations::make_relations()
   if (field==5)
     {
       square_relation_5();
+      hexagon_relation_5();
       return;
     }
 
@@ -300,7 +301,7 @@ void face_relations::triangle_relation_0()
 {
   if(verbose)
     {
-      cout << "Face relation type 1 (triangles):\n";
+      cout << "Face relation type 1 (universal triangle):\n";
     }
   vector<long> rel(3);
   vector<int> types(3,0), done(nsymb, 0);
@@ -321,7 +322,7 @@ void face_relations::triangle_relation_0()
       }
   if(verbose)
     {
-      cout << "After generic triangle relation, number of relations = " << numrel <<"\n";
+      cout << "After universal triangle relation, number of relations = " << numrel <<"\n";
     }
 }
 
@@ -734,7 +735,7 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 }
 
 // extra square relation for field 5
-void face_relations::square_relation_5(int check)
+void face_relations::square_relation_5()
 {
   if(verbose)
     cout << "Square relation for d=5:\n";
@@ -749,11 +750,38 @@ void face_relations::square_relation_5(int check)
                          action(P1, M1),
                          action(P1, M1*M2)};
 
-  general_relation(Mops, types, signs, 2, check);
+  general_relation(Mops, types, signs, 2);
 
   if(verbose)
     {
       cout << "After square relation, number of relations = " << numrel <<"\n";
+    }
+}
+
+// extra hexagon relation for field 5
+void face_relations::hexagon_relation_5()
+{
+  if(verbose)
+    cout << "Hexagon relation for d=5:\n";
+
+  vector<int> types = {0,-1,-1, 0,-1,-1}, // type -1 means {sigmas[1],oo}
+              signs = {1,-1,1,  1,-1,1};
+
+  mat22 M1 = M_alphas[1];
+  mat22 TS2 = mat22::TS * mat22::TS;
+  mat22 M1S = M1*mat22::S;
+  vector<action> Mops = {action(P1, mat22::identity),
+                         action(P1, mat22::identity),
+                         action(P1, M1S*TS2),
+                         action(P1, M1S),
+                         action(P1, M1S),
+                         action(P1, TS2)};
+
+  general_relation(Mops, types, signs, 3);
+
+  if(verbose)
+    {
+      cout << "After hexagon relation, number of relations = " << numrel <<"\n";
     }
 }
 

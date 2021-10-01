@@ -282,6 +282,9 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
     }
   else
     {
+#ifdef DEBUG_CHAIN
+      cerr<<"chain(alpha,beta) with alpha="<<alpha<<" non-principal"<<endl;
+#endif
       return chain(beta, proj) - chain(alpha, proj);
     }
 }
