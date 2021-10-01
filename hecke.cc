@@ -4,23 +4,6 @@
 #include <eclib/xmod.h>
 #include "homspace.h"
 
-const string W_opname("W");
-const string T_opname("T");
-
-string homspace::opname(const Quadprime& P)
-{
-  ostringstream ans;
-  ans << (P.divides(N) ? W_opname : T_opname) << "(" << P << ")";
-  return ans.str();
-}
-
-string homspace::opname(const Qideal& P)
-{
-  ostringstream ans;
-  ans << (P.divides(N) ? W_opname : T_opname) << "(" << P << ")";
-  return ans.str();
-}
-
 vector<long> homspace::eigrange(long i)
 {
   vector<long> ans;
@@ -54,10 +37,10 @@ vector<long> homspace::eigrange(long i)
     }
 }
 
-vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj)
+vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
-  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); ++mi)
+  for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     {
       vec part = chain((*mi)(alpha), proj);
       if(hmod)
@@ -70,13 +53,13 @@ vec homspace::applyop(const matop& mlist, const RatQuad& alpha, int proj)
 }
 
 //#define DEBUG_APPLYOP
-vec homspace::applyop(const matop& mlist, const modsym& m, int proj)
+vec homspace::applyop(const matop& T, const modsym& m, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
 #ifdef DEBUG_APPLYOP
   cout<<"In applyop() with modular symbol "<<m<<" (proj = "<<proj<<")"<<endl;
 #endif
-  for (vector<mat22>::const_iterator mi = mlist.mats.begin(); mi!=mlist.mats.end(); ++mi)
+  for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     {
       mat22 M = *mi;
 #ifdef DEBUG_APPLYOP
@@ -101,61 +84,61 @@ vec homspace::applyop(const matop& mlist, const modsym& m, int proj)
   return ans;
 }
 
-mat homspace::calcop(const string opname, const matop& mlist, int dual, int display)
+mat homspace::calcop(const matop& T, int dual, int display)
 {
   mat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
-     { vec colj = applyop(mlist,freemods[j]);
+     { vec colj = applyop(T,freemods[j]);
        if(hmod) colj=reduce_modp(colj,hmod);
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
   if(dual) m = transpose(m);
-  if (display) cout << "Matrix of " << opname << " = " << m;
+  if (display) cout << "Matrix of " << T.name() << " = " << m;
   if (display && (dimension>1)) cout << endl;
   return m;
 }
 
-vec homspace::calcop_col(const matop& mlist, int j)
+vec homspace::calcop_col(const matop& T, int j)
 {
-  vec colj = applyop(mlist,freemods[j-1]);
+  vec colj = applyop(T,freemods[j-1]);
   if(hmod) colj=reduce_modp(colj,hmod);
   return colj;
 }
 
-mat homspace::calcop_cols(const matop& mlist, const vec& jlist)
+mat homspace::calcop_cols(const matop& T, const vec& jlist)
 {
   int i, d = dim(jlist);
   mat m(d,rk);
   for (i=1; i<=d; i++)
     {
       int j = jlist[i];
-      vec colj = applyop(mlist,freemods[j-1]);
+      vec colj = applyop(T,freemods[j-1]);
       if(hmod) colj=reduce_modp(colj,hmod);
       m.setcol(i,colj);
      }
   return m;
 }
 
-smat homspace::s_calcop_cols(const matop& mlist, const vec& jlist)
+smat homspace::s_calcop_cols(const matop& T, const vec& jlist)
 {
   int i, d = dim(jlist);
   smat m(d,rk);
   for (i=1; i<=d; i++)
     {
       int j = jlist[i];
-      svec colj = applyop(mlist,freemods[j-1]);
+      svec colj = applyop(T,freemods[j-1]);
       if(hmod) colj.reduce_mod_p(hmod);
       m.setrow(i,colj);
      }
   return m;
 }
 
-smat homspace::s_calcop(const string  opname, const matop& mlist, int dual, int display)
+smat homspace::s_calcop(const matop& T, int dual, int display)
 {
   smat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
-     { svec colj = applyop(mlist,freemods[j]);
+     { svec colj = applyop(T,freemods[j]);
        if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j+1,colj);
      }
@@ -167,21 +150,21 @@ smat homspace::s_calcop(const string  opname, const matop& mlist, int dual, int 
   else if(!dual) {m=transpose(m);}
   if (display)
     {
-      cout << "Matrix of " << opname << " = ";
+      cout << "Matrix of " << T.name() << " = ";
       if (dimension>1) cout << "\n";
       cout<<m.as_mat();
     }
   return m;
 }
 
-mat homspace::calcop_restricted(const string opname, const matop& mlist, const subspace& s, int dual, int display)
+mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int display)
 {
   long d=dim(s);
   mat m(d,rk);
   for (long j=0; j<d; j++)
      {
        long jj = pivots(s)[j+1]-1;
-       vec colj = applyop(mlist,freemods[jj]);
+       vec colj = applyop(T,freemods[jj]);
        if(hmod) colj=reduce_modp(colj,hmod);
        m.setrow(j+1,colj);
      }
@@ -190,19 +173,19 @@ mat homspace::calcop_restricted(const string opname, const matop& mlist, const s
   else
     m = m*basis(s);
   if(!dual) m=transpose(m); // dual is default for restricted ops
-  if (display) cout << "Matrix of " << opname << " = " << m;
+  if (display) cout << "Matrix of " << T.name() << " = " << m;
   if (display && (dimension>1)) cout << endl;
   return m;
 }
 
-smat homspace::s_calcop_restricted(const string opname, const matop& mlist, const ssubspace& s, int dual, int display)
+smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display)
 {
   long d=dim(s);
   smat m(d,rk);
   for (long j=1; j<=d; j++)
      {
        long jj = pivots(s)[j];
-       svec colj = applyop(mlist,freemods[jj-1]);
+       svec colj = applyop(T,freemods[jj-1]);
        if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j,colj);
      }
@@ -211,7 +194,7 @@ smat homspace::s_calcop_restricted(const string opname, const matop& mlist, cons
   if(!dual) m=transpose(m); // dual is default for restricted ops
   if (display)
     {
-      cout << "Matrix of " << opname << " = " << m.as_mat();
+      cout << "Matrix of " << T.name() << " = " << m.as_mat();
       if (dimension>1) cout << endl;
     }
   return m;
@@ -219,7 +202,7 @@ smat homspace::s_calcop_restricted(const string opname, const matop& mlist, cons
 
 mat homspace::heckeop(Quadprime& P, int dual, int display)
 {
-  return calcop(opname(P), AtkinLehnerOrHeckeOp(P,N), dual, display);
+  return calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
 }
 
 vec homspace::heckeop_col(Quadprime& P, int j, int display)
@@ -239,27 +222,27 @@ smat homspace::s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
 
 smat homspace::s_heckeop(Quadprime& P, int dual, int display)
 {
-  return s_calcop(opname(P), AtkinLehnerOrHeckeOp(P,N), dual, display);
+  return s_calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
 }
 
 mat homspace::heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
 {
-  return calcop_restricted(opname(P), AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+  return calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
 }
 
 smat homspace::s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
 {
-  return s_calcop_restricted(opname(P), AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+  return s_calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
 }
 
 mat homspace::wop(Quadprime& Q, int dual, int display)
 {
-  return calcop(opname(Q), AtkinLehnerOp(Q,N), dual,display);
+  return calcop(AtkinLehnerOp(Q,N), dual,display);
 }
 
 mat homspace::fricke(int dual, int display)
 {
-  return calcop(opname(N), FrickeOp(N), dual,display);
+  return calcop(FrickeOp(N), dual,display);
 }
 
 mat homspace::opmat(int i, int dual, int verb)
@@ -267,7 +250,7 @@ mat homspace::opmat(int i, int dual, int verb)
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << opname(P) <<"...";
+    cout<<"Computing " << opname(P,N) <<"...";
   return heckeop(P,dual,verb); // Automatically chooses W or T
 }
 
@@ -276,7 +259,7 @@ vec homspace::opmat_col(int i, int j, int verb)
   if((i<0)||(i>=nap)) return vec(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << opname(P) <<"...";
+    cout<<"Computing " << opname(P,N) <<"...";
   return heckeop_col(P,j,verb); // Automatically chooses W or T
 }
 
@@ -285,7 +268,7 @@ mat homspace::opmat_cols(int i, const vec& jlist, int verb)
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << opname(P) <<"...";
+    cout<<"Computing " << opname(P,N) <<"...";
   return heckeop_cols(P,jlist,verb); // Automatically chooses W or T
 }
 
@@ -294,7 +277,7 @@ smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
   if((i<0)||(i>=nap)) return smat(dimension);  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << opname(P) <<"...";
+    cout<<"Computing " << opname(P,N) <<"...";
   return s_heckeop_cols(P,jlist,verb); // Automatically chooses W or T
 }
 
@@ -303,7 +286,7 @@ mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
   if((i<0)||(i>=nap)) return mat(dim(s));  // shouldn't happen
   Quadprime P = primelist[i];
   if(verbose)
-    cout<<"Computing " << opname(P)
+    cout<<"Computing " << opname(P,N)
         <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
   return heckeop_restricted(P,s,dual,verb); // Automatically chooses W or T
 }
@@ -318,7 +301,7 @@ smat homspace::s_opmat(int i, int dual, int v)
   Quadprime P = primelist[i];
   if(v)
     {
-      cout<<"Computing " << opname(P) <<"...";
+      cout<<"Computing " << opname(P,N) <<"...";
       smat ans = s_heckeop(P,dual,0); // Automatically chooses W or T
       cout<<"done."<<endl;
       return ans;
@@ -335,7 +318,7 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
   Quadprime P = primelist[i];
   if(v)
     {
-      cout<<"Computing " << opname(P)
+      cout<<"Computing " << opname(P,N)
           <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
       smat ans = s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
       cout<<"done."<<endl;

@@ -66,20 +66,18 @@ public:
   vec chain(const modsym& m, int proj=0)
   {return chain(m.alpha(), m.beta(), proj);}
 
-  vec applyop(const matop& mlist, const RatQuad& m, int proj=0);
-  vec applyop(const matop& mlist, const modsym& m, int proj=0);
+  vec applyop(const matop& T, const RatQuad& m, int proj=0);
+  vec applyop(const matop& T, const modsym& m, int proj=0);
 
-  mat calcop(const string opname, const matop& mlist, int dual=1, int display=0);
-  vec calcop_col(const matop& mlist, int j);
-  mat calcop_cols(const matop& mlist, const vec& jlist);
-  smat s_calcop(const string opname, const matop& mlist, int dual, int display);
-  smat s_calcop_cols(const matop& mlist, const vec& jlist);
-  mat calcop_restricted(const string opname, const matop& mlist, const subspace& s, int dual, int display);
-  smat s_calcop_restricted(const string opname, const matop& mlist, const ssubspace& s, int dual, int display);
+  mat calcop(const matop& T, int dual=1, int display=0);
+  vec calcop_col(const matop& T, int j);
+  mat calcop_cols(const matop& T, const vec& jlist);
+  smat s_calcop(const matop& T, int dual, int display);
+  smat s_calcop_cols(const matop& T, const vec& jlist);
+  mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
+  smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
 public:
-  string opname(const Quadprime& P);
-  string opname(const Qideal& P);
    mat heckeop(Quadprime& P, int dual=1, int display=0);
    vec heckeop_col(Quadprime& P, int j, int display=0);
    mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0);

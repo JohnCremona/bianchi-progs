@@ -95,6 +95,29 @@ inline ostream& operator<< (ostream& s, const mat22& m)
    return s;
 }
 
+// Atkin-Lehner and Hecke operators
+
+inline string opname(const Quad& p, const Quad& n)
+{
+  ostringstream ans;
+  ans << (div(p,n) ? "W" : "T") << "(" << p << ")";
+  return ans.str();
+}
+
+inline string opname(const Quadprime& P, const Qideal& N)
+{
+  ostringstream ans;
+  ans << (P.divides(N) ? "W" : "T") << "(" << P << ")";
+  return ans.str();
+}
+
+inline string opname(const Qideal& N)
+{
+  ostringstream ans;
+  ans << "W(" << N << ")";
+  return ans.str();
+}
+
 mat22 AtkinLehner(const Quad& p, const Quad& n); // P=(p) principal prime dividing N=(n)
 mat22 AtkinLehner(const Quad& p, Qideal& N); // P=(p) principal prime dividing N
 mat22 AtkinLehner(Qideal& M1, Qideal& M2); // assume [M1] square and M1,M2 coprime
@@ -118,26 +141,28 @@ inline mat22 Fricke(Qideal& N) // assumes [N] square
 class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
+  string the_name;
   matop() {;}
-  explicit matop(const mat22& m) :mats({m}) {;}
-  explicit matop(const vector<mat22>& mlist) :mats(mlist) {;}
+  explicit matop(const mat22& m, const string& n="") :mats({m}), the_name(n) {;}
+  explicit matop(const vector<mat22>& mlist, const string& n="") :mats(mlist), the_name(n) {;}
   mat22 operator[](int i) const {return mats[i];}
   int length() const {return mats.size();}
+  string name() const {return the_name;}
 };
 
 inline matop AtkinLehnerOp(const Quad& p, const Quad& n)
 {
-  return matop(AtkinLehner(p,n));
+  return matop(AtkinLehner(p,n), opname(p,n));
 }
 
 inline matop AtkinLehnerOp(Quadprime& P, const Qideal& N)
 {
-  return matop(AtkinLehnerP(P,N));
+  return matop(AtkinLehnerP(P,N), opname(P,N));
 }
 
 inline matop HeckeOp(Quadprime& P, Qideal& N)
 {
-  return matop(Hecke(P,N));
+  return matop(Hecke(P,N), opname(P,N));
 }
 
 inline matop AtkinLehnerOrHeckeOp(Quadprime& P, Qideal& N)
@@ -147,7 +172,7 @@ inline matop AtkinLehnerOrHeckeOp(Quadprime& P, Qideal& N)
 
 inline matop FrickeOp(Qideal& N)
 {
-  return matop(Fricke(N));
+  return matop(Fricke(N), opname(N));
 }
 
 #endif
