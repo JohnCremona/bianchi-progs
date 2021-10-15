@@ -435,16 +435,24 @@ def write_bmf_upload_file(data, fname, table, sl2):
 
 # e.g. (assumes directory ~/bmf-upload exists)
 # sage: %runfile bianchi.py
-# sage: dimdat = read_dimtabeis_new(43, "dimtabeis.43.all.newdims")
-# sage: sl2_levels = read_data("sl2_levels_43", str)
-# sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.sl2", 'dims', sl2=True)
-# sage: write_bmf_upload_file(dimdat, "bmf_dims.43.1-10000.no_sl2", 'dims', sl2=False)
-# sage: formdat = read_newforms(43, "newforms.43.1-10000")
-# sage: write_bmf_upload_file(formdat, "bmf_forms.43.1-10000", 'forms', True)
+# sage: d=43
+# sage: N1=1
+# sage: N2=1000
+# sage: dimdat = read_dimtabeis_new(d, "dimtabeis.{}.all.newdims".format(d))
+# sage: sl2_levels = []
+# sage: if d in [1,2,3,7,11,19,43,67,163,20]:
+# sage:    sl2_levels = read_data("sl2_levels_{}".format(d), str)
+# sage:    write_bmf_upload_file(dimdat, "bmf_dims.{}.{}-{}.sl2".format(d,N1,N1), 'dims', sl2=True)
+# sage: write_bmf_upload_file(dimdat, "bmf_dims.{}.{}-{}.no_sl2".format(d,N1,N2), 'dims', sl2=False)
+# sage: formdat = read_newforms(d, "newforms.{}.{}-{}".format(d,N1,N2))
+# sage: write_bmf_upload_file(formdat, "bmf_forms.{}.{}-{}".format(d,N1,N2), 'forms', True)
 
 # Copy the three files to legendre in bmf-upload/.
 # Do the upload as follows:
 # sage: from lmfdb import db
-# sage: db.bmf_forms.copy_from("/scratch/home/jcremona/bmf-upload/bmf_forms.43.1-10000")
-# sage: db.bmf_dims.update_from_file("/scratch/home/jcremona/bmf-upload/bmf_dims.43.1-10000.sl2")
-# sage: db.bmf_dims.copy_from("/scratch/home/jcremona/bmf-upload/bmf_dims.43.1-10000.no_sl2")
+# sage: d=43
+# sage: N1=1
+# sage: N2=1000
+# sage: db.bmf_forms.copy_from("/scratch/home/jcremona/bmf-upload/bmf_forms.{}.{}-{}".format(d,N1,N2))
+# sage: db.bmf_dims.update_from_file("/scratch/home/jcremona/bmf-upload/bmf_dims.{}.{}-{}.sl2".format(d,N1,N2))
+# sage: db.bmf_dims.copy_from("/scratch/home/jcremona/bmf-upload/bmf_dims.{}.{}-{}.no_sl2".format(d,N1,N2))
