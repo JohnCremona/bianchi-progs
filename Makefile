@@ -72,14 +72,15 @@ DISCS9=4 8  3 7 11 19 43 67 163
 DISCSX=5 23 31
 DISCS=$(DISCS9) $(DISCSX)
 FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
-FIELDSX=5
-FIELDS_hom=
-FIELDS=$(FIELDS_full) $(FIELDSX)
+#FIELDS_full=
+FIELDS_hom=5
+FIELDSX=
+FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
-HOM_TESTS =
-FULL_TESTS = $(HOM_TESTS) homtest dimtable dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+HOM_TESTS = homtest dimtable dimtabeis
+FULL_TESTS = $(HOM_TESTS) dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin

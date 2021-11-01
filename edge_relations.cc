@@ -311,9 +311,6 @@ void edge_relations::edge_relations_2_d12mod4()
 
   // sigma#1 = (1+w)/2  (d%4=1), w/2 (d%4=2)
 
-  if (!plusflag)
-    return;
-
   action K(P1, -1,b,0,1); assert (K.det()==-1);
   assert (check_rel({mat22::identity, mat22(-1,b,0,1)}, {-1,-1}, {1,-1}));
 
@@ -328,6 +325,11 @@ void edge_relations::edge_relations_2_d12mod4()
       ++ngens;
       gens.push_back(off+i);
       coordindex[off + i] = ngens;
+      if (!plusflag && (i!=k))
+        {
+          ++ngens;
+          gens.push_back(off+k);
+        }
       coordindex[off + k] = ngens;
     }
 }
