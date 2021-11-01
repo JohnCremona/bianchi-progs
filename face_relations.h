@@ -40,8 +40,6 @@ private:
   void square_relation_2();             // extra square relation for field 2
   void rectangle_relation_7();          // extra rectangle relation for field 7
   void hexagon_relation_11();           // extra hexagon relation for field 11
-  void square_relation_5();             // extra square relation for field 5
-  void hexagon_relation_5();            // extra hexagon relation for field 5
 
   void cyclic_triangle_relation(int i, int check=1);                             // generic cyclic triangle relation
   void general_triangle_relation(const vector<int>& tri, int check=1);           // generic triangle relation

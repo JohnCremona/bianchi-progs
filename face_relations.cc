@@ -171,13 +171,6 @@ void face_relations::make_relations()
       return;
     }
 
-  if (field==5)
-    {
-      square_relation_5();
-      hexagon_relation_5();
-      return;
-    }
-
   // additional triangle and square relations
 
   make_faces();  // implemented in geometry.cc
@@ -549,7 +542,7 @@ void face_relations::general_relation(const vector<action>& Mops,
   if (check)
     assert(check_rel(Mats, types, signs));
 
-  // Adjustments will be needed on applyinh J when one of the alphas[t] has denominator 2.
+  // Adjustments will be needed on applying J when one of the alphas[t] has denominator 2.
   if (!plusflag)
     {
       vector<mat22> Jmats;  // Jmats only used in checking validity of relation
@@ -732,57 +725,6 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 
   if(verbose)
     cout << "After square relation "<< squ <<", number of relations = " << numrel <<"\n";
-}
-
-// extra square relation for field 5
-void face_relations::square_relation_5()
-{
-  if(verbose)
-    cout << "Square relation for d=5:\n";
-
-  vector<int> types(4, -1), // type -1 means {sigmas[1],oo}
-    signs = {1,-1,1,-1};
-
-  mat22 M1 = M_alphas[1];
-  mat22 M2 = mat22::Tmat(-1);
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, M2),
-                         action(P1, M1),
-                         action(P1, M1*M2)};
-
-  general_relation(Mops, types, signs, 2);
-
-  if(verbose)
-    {
-      cout << "After square relation, number of relations = " << numrel <<"\n";
-    }
-}
-
-// extra hexagon relation for field 5
-void face_relations::hexagon_relation_5()
-{
-  if(verbose)
-    cout << "Hexagon relation for d=5:\n";
-
-  vector<int> types = {0,-1,-1, 0,-1,-1}, // type -1 means {sigmas[1],oo}
-              signs = {1,-1,1,  1,-1,1};
-
-  mat22 M1 = M_alphas[1];
-  mat22 TS2 = mat22::TS * mat22::TS;
-  mat22 M1S = M1*mat22::S;
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, mat22::identity),
-                         action(P1, M1S*TS2),
-                         action(P1, M1S),
-                         action(P1, M1S),
-                         action(P1, TS2)};
-
-  general_relation(Mops, types, signs, 3);
-
-  if(verbose)
-    {
-      cout << "After hexagon relation, number of relations = " << numrel <<"\n";
-    }
 }
 
 void face_relations::solve_relations()

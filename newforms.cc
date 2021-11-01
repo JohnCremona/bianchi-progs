@@ -505,7 +505,7 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
   if(verbose)cout<<nfound<<" easy cases out of "<<n1ds<<endl;
 #endif
-  if (is_square)
+  if (is_square || !N.is_principal())
     {
       return;
     }

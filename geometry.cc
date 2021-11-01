@@ -47,7 +47,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
   RatQuad alpha(-d,c);
   mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
-  //  cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
+  //cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
   assert (M.det()==1);
   alphas.push_back(alpha);
   M_alphas.push_back(M);
@@ -256,7 +256,7 @@ void Quad::setup_geometry()
     return;
   case 5:
     {
-      add_alpha_pair(2*w, 4+w, +1);      // N(s)=20
+      add_alpha_pair(2*w, w-4, +1);      // N(s)=20
       return;
     }
   case 23:
@@ -404,6 +404,7 @@ int check_aas_triangle(const vector<int>& T, const Quad& u)
 void make_triangles()
 {
   // Lists of general triangles and cyclic triangles (aaa, i.e. all vertices principal cusps)
+  // NB Not including the {0,1,oo} triangle which is handles as a special case.
   switch(Quad::d) {
   case 43:
     triangles = {{3,7,4}};
@@ -431,6 +432,7 @@ void make_triangles()
                  {7,11,10}, {7,19,17}};
     cyclic_triangles = {};
     break;
+  case 5:
   default:
     triangles = {};
     cyclic_triangles = {};
@@ -455,7 +457,7 @@ void make_triangles()
   Quad w = Quad::w;
   switch(Quad::d) {
   case 5:
-    aas_triangles = {{{1,1,1},0}, {{2,1,1},-w}};
+    aas_triangles = {{{1,1,1},0}, {{2,1,1},0}};
     break;
   case 23:
     aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
@@ -536,6 +538,11 @@ void make_squares()
                {{2,66,0,75}, {0,0,0}},
                {{50,9,55,2}, {0,0,0}},
                {{83,11,81,0}, {0,0,0}}};
+    break;
+  case 5:
+    squares = {{{0, 1, 0,1}, {0,0,0}},
+               {{2, 1, 3, 1}, {-1,-1-w,0}},
+               {{0, 3, 0, 2}, {-1,-1,0}}};
     break;
   default:
     squares = {};
