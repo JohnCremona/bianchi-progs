@@ -299,7 +299,7 @@ void edge_relations::edge_relations_2_d12mod4()
           gens.push_back(off+i);
           coordindex[off + i] = ngens;
           coordindex[off + m] = -ngens;
-          if (!plusflag)
+          if (!plusflag && (i!=l) && (i!=k))
             {
               ++ngens;
               gens.push_back(off+l);
