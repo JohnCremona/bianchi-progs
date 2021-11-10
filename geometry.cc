@@ -171,7 +171,7 @@ void Quad::setup_geometry()
   case 2: // (2) = (2,w)^2
   case 6:
     {
-      Quad u = d/2;
+      Quad u = d/2 -1-w;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_flip.push_back(1); // 1-1
       add_sigma(w,2, 0);
@@ -243,9 +243,12 @@ void Quad::setup_geometry()
   case 6:
   case 9:
     {
-      add_alpha_foursome(3, w+1, w-1);
-      add_sigma(w,3);
-      break;
+      if (d>6)
+        {
+          add_alpha_foursome(3, w+1, w-1);
+          add_sigma(w,3);
+          break;
+        }
     }
   } // d%12
 
@@ -257,6 +260,11 @@ void Quad::setup_geometry()
   case 5:
     {
       add_alpha_pair(2*w, w-4, +1);      // N(s)=20
+      return;
+    }
+  case 6:
+    {
+      add_alpha_pair(2*w, 5, +1);      // N(s)=24
       return;
     }
   case 23:
@@ -433,6 +441,7 @@ void make_triangles()
     cyclic_triangles = {};
     break;
   case 5:
+  case 6:
   default:
     triangles = {};
     cyclic_triangles = {};
@@ -458,6 +467,9 @@ void make_triangles()
   switch(Quad::d) {
   case 5:
     aas_triangles = {{{1,1,1},0}, {{2,1,1},0}};
+    break;
+  case 6:
+    aas_triangles = {{{1,1,1},1}};
     break;
   case 23:
     aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
@@ -487,7 +499,7 @@ void make_triangles()
 
 int check_square(const vector<int>& S, const vector<Quad>& xyz)
 {
-  // Check:  the square has vertices {alpha_i, oo, alpha[j'], beta}
+  // Check:  the square has vertices {alpha_i, oo, alpha[j']+z, beta}
   // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
   // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
 
@@ -540,9 +552,13 @@ void make_squares()
                {{83,11,81,0}, {0,0,0}}};
     break;
   case 5:
-    squares = {{{0, 1, 0,1}, {0,0,0}},
+    squares = {{{0, 1, 0, 1}, {0,0,0}},
                {{2, 1, 3, 1}, {-1,-1-w,0}},
                {{0, 3, 0, 2}, {-1,-1,0}}};
+    break;
+  case 6:
+    squares = {{{0, 2, 0, 2}, {0,0,0}},
+               {{3, 1, 3, 1}, {1,-w,0}}};
     break;
   default:
     squares = {};

@@ -705,6 +705,7 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
   int i=squ[0], j=squ[1], k=squ[2], l=squ[3];
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   int symmetry = (((i==k)&&(j==l))? 2: 0);
+  if (Quad::d==5) symmetry=2; // not yet automatic
   if(verbose)
     {
       cout << "Applying ";

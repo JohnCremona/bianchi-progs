@@ -37,7 +37,7 @@ vector<int> euclidean_fields = {1,2,3,7,11};
 // fields for which geometry is defined
 vector<int> valid_fields = {1, 2, 3, 7, 11,  // Euclidean
                             19, 43, 67, 163, // other class number 1
-                            5,               // class number 2 (incomplete)
+                            5, 6,            // class number 2 (incomplete)
                             23, 31};         // class number 3 (incomplete)
 
 vector<int> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
