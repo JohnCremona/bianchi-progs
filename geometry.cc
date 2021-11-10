@@ -173,7 +173,8 @@ void Quad::setup_geometry()
     {
       Quad u = d/2 -1-w;
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
-      alpha_flip.push_back(1); // 1-1
+      alpha_inv.push_back(1);   // 1-1
+      alpha_flip.push_back(1);  // 1-1
       add_sigma(w,2, 0);
       break;
     }
@@ -507,7 +508,7 @@ int check_square(const vector<int>& S, const vector<Quad>& xyz)
 
   // {alpha_i, oo} = (I)_i
   // {oo, alpha_j'+z} = (T^z*M_j)_j
-  // {alpha_j'+z, beta} = (T^z*M_j*T^k*M_k)_k
+  // {alpha_j'+z, beta} = (T^z*M_j*T^x*M_k)_k
   // {beta, alpha_i} = (M_i'*T^y)_l
 
   // int i=S[0], j=S[1], k=S[2], l=S[3];
@@ -557,8 +558,8 @@ void make_squares()
                {{0, 3, 0, 2}, {-1,-1,0}}};
     break;
   case 6:
-    squares = {{{0, 2, 0, 2}, {0,0,0}},
-               {{3, 1, 3, 1}, {1,-w,0}}};
+    squares = {{{0, 3, 0, 2}, {0,0,0}},
+               {{3, 1, 2, 1}, {1,-w,0}}};
     break;
   default:
     squares = {};
@@ -566,7 +567,10 @@ void make_squares()
 
 #ifdef CHECK_SQUARES
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
-    assert(check_square(Si->first, Si->second));
+    {
+      // cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
+      assert(check_square(Si->first, Si->second));
+    }
 #endif
 }
 
