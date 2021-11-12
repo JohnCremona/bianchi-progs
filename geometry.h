@@ -37,6 +37,9 @@ extern vector<pair<vector<int>, Quad>> aas_triangles;
 // indices i,j,k,l and x,y such that M_j(x+alpha_k') =  M_i'(y+alpha_l), defining a square relation
 extern vector<pair<vector<int>, vector<Quad>> > squares;
 
+// indices i,j,k,l,m,n and x1,y1,x2,y2 defining a hexagon relation
+extern vector<pair<vector<int>, vector<Quad>> > hexagons;
+
 // initialization function, to be called before constructing face_relations class (for non-Euclidean fields)
 void make_faces();
 

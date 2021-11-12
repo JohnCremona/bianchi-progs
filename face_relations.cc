@@ -102,7 +102,27 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
 {
   P1 = ER->P1;
   nsymb = P1->size();
-  maxnumrel=2*(n_alphas+n_sigmas-1)*nsymb;
+  maxnumrel = 2*(plusflag?1:2)*nsymb;
+  if (verbose)
+    cout<<"initial bound on #relations = "<<maxnumrel<<endl;
+
+  if (!Quad::is_Euclidean)
+    {
+      make_faces();  // implemented in geometry.cc
+
+      if (verbose)
+        {
+          cout<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
+          cout<<triangles.size()<<" triangle relations"<<endl;
+          cout<<aas_triangles.size()<<" aas triangle relations"<<endl;
+          cout<<squares.size()<<" square relations"<<endl;
+          cout<<hexagons.size()<<" hexagon relations"<<endl;
+        }
+      maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
+      if (verbose)
+        cout<<"final bound on #relations = "<<maxnumrel<<endl;
+    }
+
   ngens = ER->ngens;
   numrel = 0;
   hmod = 0;
@@ -173,8 +193,6 @@ void face_relations::make_relations()
 
   // additional triangle and square relations
 
-  make_faces();  // implemented in geometry.cc
-
   if (Quad::class_number==1)
     triangle_relation_2();
 
@@ -197,6 +215,13 @@ void face_relations::make_relations()
       if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
       for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); ++S)
         general_square_relation(S->first, S->second);
+    }
+
+  if (!hexagons.empty())
+    {
+      if(verbose) cout<<"\nApplying "<<hexagons.size()<<" general hexgaon relations"<<endl;
+      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator H = hexagons.begin(); H!=hexagons.end(); ++H)
+        general_hexagon_relation(H->first, H->second);
     }
 
   if (Quad::class_number==1)
@@ -726,6 +751,52 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 
   if(verbose)
     cout << "After square relation "<< squ <<", number of relations = " << numrel <<"\n";
+}
+
+// generic hexagon relation: indices i,j,k,l,m,n and u,x1,y1,x2,y2 such that
+// gamma = M_i'*T^x1*M_k'*T^y1(alpha[m]) = T^u*M_j'*T^x2*M_l'*T^y2(alpha[n]).
+
+// The hexagon has vertices {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma}
+// where beta1 = M_i'(x1+alpha[k]), beta2 = T^u*M_j'(x2+alpha[l]),
+
+// Edges (3 in each orientation)
+
+// +{gamma, beta1} = (M_i'*T^x1*M_k'*T^y1)_m
+// +{beta1, alpha_i} = (M_i'*T^x1)_k
+// +{alpha_i, oo} = (I)_i
+// {oo, u+alpha_j} = - (T^u)_j
+// {u+alpha_j, beta2} = - (T^u*M_j'*T^x2)_l
+// {beta2, gamma} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
+
+void face_relations::general_hexagon_relation(const vector<int>& hex, const vector<Quad>& ux1y1x2y2, int check)
+{
+  int i=hex[0], j=hex[1], k=hex[2], l=hex[3], m=hex[4], n=hex[5];
+  Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
+  int symmetry = 0; // work this out later
+  if(verbose)
+    {
+      cout << "Applying ";
+      //      if (symmetry) cout<<"symmetric ";
+      cout<<"hexagon relation "<<hex<<" (u,x1,y1,x2,y2) = "<<ux1y1x2y2<<"\n";
+    }
+
+  vector<int> types = {m,k,i,j,l,n}, signs = {1,1,1,-1,-1,-1};
+  mat22 M2 = M_alphas[alpha_inv[i]] * mat22::Tmat(x1);
+  mat22 M1 = M2 * M_alphas[alpha_inv[k]] * mat22::Tmat(y1);
+  mat22 M3 = mat22::Tmat(u);
+  mat22 M4 = M3 * M_alphas[alpha_inv[j]] * mat22::Tmat(x2);
+  mat22 M5 = M4 * M_alphas[alpha_inv[l]] * mat22::Tmat(y2);
+  vector<action> Mops = {action(P1, M1),
+                         action(P1, M2),
+                         action(P1, mat22::identity),
+                         action(P1, M3),
+                         action(P1, M4),
+                         action(P1, M5)};
+
+  general_relation(Mops, types, signs, symmetry, check);
+
+  if(verbose)
+    cout << "After hexagon relation "<< hex <<", number of relations = " << numrel <<"\n";
 }
 
 void face_relations::solve_relations()

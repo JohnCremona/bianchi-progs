@@ -40,6 +40,7 @@ vector<int> cyclic_triangles;
 vector<vector<int> > triangles;
 vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
+vector<pair<vector<int>, vector<Quad>> > hexagons;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -470,7 +471,7 @@ void make_triangles()
     aas_triangles = {{{1,1,1},0}, {{2,1,1},0}};
     break;
   case 6:
-    aas_triangles = {{{1,1,1},1}};
+    aas_triangles = {{{1,1,1},0}, {{3,1,1},0}};
     break;
   case 23:
     aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
@@ -574,9 +575,61 @@ void make_squares()
 #endif
 }
 
+/****************************************************************
+
+ Code defining hexagon relations
+
+***************************************************************/
+
+#define CHECK_HEXAGONS
+
+int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
+{
+  // Check:  the hexagon has vertices {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma}
+  // where beta1 = M_i'(x1+alpha[k]), beta2 = M_j'(x2+alpha[l]),
+  // gamma = M_i'*T^x1*M_k'*T^y1(alpha[m]) = T^u*M_j'*T^x2*M_l'*T^y2(alpha[n]).
+
+  // Edges:
+
+  // +{alpha_i, oo} = (I)_i
+  // +{beta1, alpha_i} = (M_i'*T^x1)_k
+  // +{gamma, beta1} = (M_i'*T^x1*M_k'*T^y1)_m
+  // -{u+alpha_j, oo} = - (T^u)_j
+  // -{beta2, alpha_j} = - (T^u*M_j'*T^x2)_l
+  // -{gamma, beta2} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
+
+  Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
+  int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
+  RatQuad gamma1 = (M_alphas[alpha_inv[i]]*mat22::Tmat(x1)*M_alphas[alpha_inv[k]])(y1+alphas[m]);
+  RatQuad gamma2 = (mat22::Tmat(u)*M_alphas[alpha_inv[j]]*mat22::Tmat(x2)*M_alphas[alpha_inv[l]])(y2+alphas[n]);
+  return gamma1==gamma2;
+}
+
+void make_hexagons()
+{
+  Quad w = Quad::w;
+  // Lists of general hexagons
+  switch(Quad::d) {
+  case 6:
+    hexagons = {{{1, 0, 0, 1, 1, 0}, {w+1, w, -w-1, -w, w+1}}};
+    break;
+  default:
+    hexagons = {};
+  }
+
+#ifdef CHECK_HEXAGONS
+  for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Hi = hexagons.begin(); Hi!=hexagons.end(); ++Hi)
+    {
+      // cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
+      assert(check_hexagon(Hi->first, Hi->second));
+    }
+#endif
+}
+
 void make_faces()
 {
   make_triangles();
   make_squares();
+  make_hexagons();
 }
 
