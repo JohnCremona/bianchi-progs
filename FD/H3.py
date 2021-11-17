@@ -299,7 +299,7 @@ def singular_points_in_class(I, IC=None, verbose=False):
         print("Ideal class #{}: denominators {}".format(IC.index(I), slist))
     for s in slist:
         rlist = [r for r in k.ideal(s).residues() if k.ideal(r,s) == I]
-        ss = [cusp2(r, s, k, IC) for r in rlist]
+        ss = [cusp(reduce_mod_Ok(r/s), k, IC) for r in rlist]
         if verbose:
             print(" - denominator s = {}, numerators {}, sigmas {}".format(s, rlist, ss))
         sigmas += ss
@@ -493,7 +493,7 @@ def plot1hemi(kdata, H):
     Xmax = 0.5
     x0, y0 = kdata['emb'](H[0])
     eq = (X - x0)**2 + (Y - y0)**2 + Z**2 - H[1]
-    return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1)
+    return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1, color='lightgreen')
 
 def plot_Bianchi_diagram(k, Hlist):
     """
@@ -501,6 +501,65 @@ def plot_Bianchi_diagram(k, Hlist):
     """
     kdata = make_k(k.discriminant())
     return sum([plot1hemi(kdata, H) for H in Hlist])
+
+def circ(c,r):
+    return circle(c, r,
+                  aspect_ratio=1, edgecolor='blue', alpha = 0.2)
+
+def disc(c,r):
+    return circle(c, r,
+                  aspect_ratio=1, feill=True, rgbcolor='blue', alpha = 0.2)
+
+def plot_FunDomain_projection(k, alphas, sigmas):
+    w = k.gen()
+    D = k.discriminant().abs()
+    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
+    rootd = emb(w).imag()
+    Ymax = 3*rootd/(4 if ZZ(D).mod(4) == 3  else 2)
+    Xmax = 3*0.5
+
+    triplets, extra_alphas = alpha_triples(alphas)
+
+#    A = [xy_coords(to_k(a,k)) for a in alphas]
+#    A = [(xy[0], xy[1]*rootd) for xy in A]
+    A = [list(emb(to_k(a))) for a in alphas+extra_alphas]
+    R = [RR(radius_squared(a)).sqrt() for a in alphas+extra_alphas]
+    #print("circle centres: {}".format(A))
+
+#    S = [xy_coords(to_k(s,k)) for s in sigmas]
+#    S = [(xy[0], xy[1]*rootd) for xy in S]
+    S = [list(emb(to_k(s))) for s in sigmas if not s.is_infinity()]
+    #print("singular points: {}".format(S))
+
+    C = [list(emb(P[2][0])) for P in triplets]
+    #print(triplets)
+    #print("corners: {}".format(C))
+
+    circles  = [circ(centre, radius) for centre, radius in zip(A,R)]
+    centres  = [point(P, rgbcolor = 'blue', pointsize=22) for P in A]
+    sing_pts = [point(P, rgbcolor = 'red', pointsize=50) for P in S]
+    corners  = [point(P, rgbcolor = 'yellow', pointsize=22) for P in C]
+
+    z = w-ZZ(1)/2 if ZZ(D).mod(4)==3 else w
+    TL=list(emb((-1+z)/2))
+    TR=list(emb((1+z)/2))
+    BR=list(emb((1-z)/2))
+    BL=list(emb((-1-z)/2))
+    lines = [line([TL,TR], rgbcolor='black'),
+             line([TR,BR], rgbcolor='black'),
+             line([BR,BL], rgbcolor='black'),
+             line([BL,TL], rgbcolor='black')]
+
+    proj = sum(circles) + sum(centres) + sum(sing_pts) + sum(corners) + sum(lines)
+    proj.set_axes_range(-Xmax, Xmax, -Ymax, Ymax)
+    return proj
+
+def is_redundant(P, alphas):
+    """Return True iff P is strictly covered by any of the hemispheres
+    S_a for a in the list alphas.
+    """
+    return any(is_under(P,a)==1 for a in alphas)
+
 
 def alpha_triples(alphas):
     """Given a list of principal cusps
@@ -537,9 +596,6 @@ def alpha_triples(alphas):
                enumerate(Alist) if i<j and
                circles_intersect(ai, aj)]
 
-    def is_redundant(P):
-        return any(is_under(P,a)==1 for a in xalphas)
-
     for i,j in ij_list:
         ai = xalphas[i]
         aj = xalphas[j]
@@ -547,7 +603,7 @@ def alpha_triples(alphas):
             if i!=k and j!=k and {i,k} in ij_list and {j,k} in ij_list:
                 ak = xalphas[k]
                 P = tri_inter(ai, aj, ak)
-                if P and P[1] and in_rectangle(P[0]) and not is_redundant(P):
+                if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
                     if P not in corners:
                         trip = [P[1],(ai,aj,ak),P]
                         triples.append(trip)
@@ -595,7 +651,7 @@ def alpha_doubles(alphas, sigmas):
         ai = xalphas[i]
         aj = xalphas[j]
         P = bi_inter(ai, aj)
-        if P:
+        if P and P[1] and not is_redundant(P, xalphas):
             sig = [s for s in SP if is_under(s,ai)==0 and is_under(s,aj)==0]
             assert len(sig)==1
             dub = [P[1],(cusp(sig[0][0]),ai,aj),P]
