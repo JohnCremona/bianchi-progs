@@ -8,6 +8,8 @@ w = k.gen()
 Ok = k.ring_of_integers()
 emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
 rootd=RR(-dk).sqrt()
+Ireps=[c.ideal() for c in k.class_group()]
+
 J = Matrix(2,2,[-k(1), k(0), k(0), k(1)])
 Smat = Matrix(2,2,[k(0), k(-1), k(1), k(0)])
 inf = NFCusp(k,infinity)
