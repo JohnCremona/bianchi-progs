@@ -487,10 +487,13 @@ def square_parameters(S, alphas, M_alphas, alpha_inv):
     return [[i,j,kk,l],[x,y,z]]
 
 def aaa_triangle_parameters(T, alphas, M_alphas):
-    """
-    For T a triangle with all vertices principal cusps, returns
+    """For T a triangle with all vertices principal cusps, returns
     [i,j,k] where M_alphas[i](alpha[j]) = alpha[k] + x with x
     integral, where T has vertices [alpha_i, oo, alpha_j].
+
+    Since we currently only allow both alpha[i] and alpha[j] to be
+    exact (no shift for alpha[j]) we may need to consider rotations and
+    reflections to get valid parameters.
     """
     k = nf(T[0])
     if k.class_number()==1:
@@ -500,13 +503,19 @@ def aaa_triangle_parameters(T, alphas, M_alphas):
     inf = cusp(oo, k)
     T = std_poly(T, alphas)[1]
     assert T[1] == inf
-    i = alpha_index(T[0], alphas)
-    assert i!=-1
-    j = alpha_index(T[2], alphas)
-    assert j!=-1
-    k, x = alpha_index_with_translation(apply(M_alphas[i], alphas[j]), alphas)
-    assert k!=-1
-    return [i,j,k]
+    for Jloop in range(2):
+        if Jloop:
+            T = std_poly(apply(Jmat,T), alphas)[1]
+        for Rloop in range(3):
+            if Rloop:
+                T = std_poly(cycle_poly(T), alphas)[1]
+            i = alpha_index(T[0], alphas)
+            j = alpha_index(T[2], alphas)
+            if i>=0 and j>=0:
+                k, x = alpha_index_with_translation(apply(M_alphas[i], alphas[j]), alphas)
+                assert k!=-1
+                return [i,j,k]
+    return None
 
 def symmetries(S):
     n = len(S)

@@ -622,6 +622,8 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats):
 def principal_polyhedra(alphas, debug=False):
     k = alphas[0].number_field()
     triplets, extra_alphas = alpha_triples(alphas)
+    # only used for the 3d plot:
+    hemispheres = [cusp_to_point(a) for a in alphas+extra_alphas]
 
     if debug:
         print("{} triplets:".format(len(triplets)))
@@ -650,7 +652,7 @@ def principal_polyhedra(alphas, debug=False):
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats) for orb in orbits]
     print("Constructed {} polyhedra".format(len(polyhedra)))
     print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
-    return polyhedra
+    return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
     k = alphas[0].number_field()
@@ -683,10 +685,12 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     #faces = sum([G.faces() for G in polyhedra],[])
     return polyhedra
 
-def all_polyhedra(k):
+def all_polyhedra(k, debug=False):
     alphas = precomputed_alphas(k)
     sigmas = singular_points_by_class(smallest_ideal_class_representatives(k))[1:]
-    return [principal_polyhedra(alphas)] + [singular_polyhedra(alphas, sigs) for sigs in sigmas]
+    polys, hemis = principal_polyhedra(alphas, debug)
+    polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
+    return polys, hemis
 
 def is_poly_principal(T):
     return all(a.ideal()==1 for a in T)
