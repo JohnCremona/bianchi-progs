@@ -1,0 +1,9 @@
+
+P1N TEST PROGRAM
+Enter field: Q(sqrt(-10))	discriminant = 40	min poly(a) = a^2+10.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,a] ]
+testing split/merge of multi-indices...
+testing P1(N) symbol-index bijections for ideals of norm up to 100...
+testing P1(N) symbol-index bijections for Quads of norm up to 100...
+done

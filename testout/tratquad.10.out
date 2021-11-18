@@ -1,0 +1,16 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-10))	discriminant = 40	min poly(a) = a^2+10.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,a] ]
+
+Enter Quads, a and b: a = 12+3a
+b = 45+6a
+q = a/b = (4+a)/(15+2a)
+b*q==a? 1
+round(q) = 0
+translation_reduce(q) = (4+a)/(15+2a)
+q==round(q)+translation_reduce(q)? 1
+recip(q) = (15+2a)/(4+a)
+ideal(q) = [1,a] = ()
+q = (4+a)/(15+2a) is principal
+denominator_ideal(q) = [265,140+a] = P5*P53b
+representation of q with ideal coprime to 2*3*5: (4+a)/(15+2a), which has ideal [1,a] = () (and the same denominator ideal)

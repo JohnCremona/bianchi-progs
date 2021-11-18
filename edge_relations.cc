@@ -478,6 +478,7 @@ void edge_relations::edge_pairing_plus(int i)
   assert (check_rel({mat22::identity, M_alphas[i]}, {i+1, i}));
   assert (check_rel({mat22::identity, M_alphas[i+1]}, {i, i+1}));
   assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
+  assert (check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
 
   for (j=0; j<nsymb; j++)
     {
@@ -485,28 +486,29 @@ void edge_relations::edge_pairing_plus(int i)
         continue;
       k = M(j);
       l = J(j);
-      m = J(k);
+      m = J(k); assert (l==M(m));
       done[j] = done[m] = 1;
 
-      if (plusflag && (j==m))  // then also k==l
+      if (k==l) // equivalently, j==m
         {
-          assert (k==l);
+          assert (j==m);
+          coordindex[off1+k] = 0;
           coordindex[off2+j] = 0;
-          coordindex[off1+l] = 0;
         }
       else
         {
+          assert (j!=m);
           ++ngens;
-          gens.push_back(off2+j);
-          coordindex[off2+j] = ngens;
+          gens.push_back(off1+l);
+          coordindex[off1+l] = ngens;
           coordindex[off1+k] = -ngens;
-          if (!plusflag && j!=m)
+          if (!plusflag)
             {
               ++ngens;
-              gens.push_back(off1+l);
+              gens.push_back(off2+j);
             }
+          coordindex[off2+j] = ngens;
           coordindex[off2+m] = -ngens;
-          coordindex[off1+l] = ngens;
         }
     }
 }

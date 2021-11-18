@@ -28,6 +28,7 @@ CC = $(GCC)
 #OPTFLAG = -DNDEBUG -O3 -Wall -fPIC
 # to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
+#OPTFLAG = -O0 -Wall -fPIC
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
@@ -72,15 +73,16 @@ DISCS9=4 8  3 7 11 19 43 67 163
 DISCSX=5 23 31
 DISCS=$(DISCS9) $(DISCSX)
 FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
-#FIELDS_full=
-FIELDS_hom=5
+#FIELDS_full=23 31
+FIELDS_hom=5 6 10
+#FIELDS_hom=
 FIELDSX=
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
 HOM_TESTS = homtest dimtable dimtabeis
-FULL_TESTS = $(HOM_TESTS) dimtabeis hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin

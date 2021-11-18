@@ -269,6 +269,11 @@ void Quad::setup_geometry()
       add_alpha_pair(2*w, 5, +1);      // N(s)=24
       return;
     }
+  case 10:
+    {
+      add_alpha_pair(2*w, 9, +1);      // N(s)=40
+      return;
+    }
   case 23:
     {
       add_alpha_pair(w+1, 2-w, +1); // N(s)=8
@@ -442,6 +447,10 @@ void make_triangles()
                  {7,11,10}, {7,19,17}};
     cyclic_triangles = {};
     break;
+  case 10:
+    triangles = {{2,7,4}};
+    cyclic_triangles = {};
+    break;
   case 5:
   case 6:
   default:
@@ -472,6 +481,9 @@ void make_triangles()
     break;
   case 6:
     aas_triangles = {{{1,1,1},0}, {{3,1,1},0}};
+    break;
+  case 10:
+    aas_triangles = {{{1,1,1},1}, {{8,1,1},-w}};
     break;
   case 23:
     aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
@@ -562,6 +574,12 @@ void make_squares()
     squares = {{{0, 3, 0, 2}, {0,0,0}},
                {{3, 1, 2, 1}, {1,-w,0}}};
     break;
+  case 10:
+    squares = {{{0, 2, 0, 2}, {0,0,0}},
+               {{6, 1, 7, 0}, {w+1,0,-w}},
+               {{8, 1, 9, 1}, {w+1,0,-w}},
+               {{2, 8, 3, 9}, {0,0,0}}};
+    break;
   default:
     squares = {};
   }
@@ -612,6 +630,9 @@ void make_hexagons()
   switch(Quad::d) {
   case 6:
     hexagons = {{{1, 0, 0, 1, 1, 0}, {w+1, w, -w-1, -w, w+1}}};
+    break;
+  case 10:
+    hexagons = {{{2, 1, 1, 2, 2, 1}, {0, -1, 0, 1, 0}}};
     break;
   default:
     hexagons = {};

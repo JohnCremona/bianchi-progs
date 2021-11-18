@@ -112,11 +112,11 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
 
       if (verbose)
         {
-          cout<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
-          cout<<triangles.size()<<" triangle relations"<<endl;
-          cout<<aas_triangles.size()<<" aas triangle relations"<<endl;
-          cout<<squares.size()<<" square relations"<<endl;
-          cout<<hexagons.size()<<" hexagon relations"<<endl;
+          cout<<cyclic_triangles.size()<<" extra cyclic triangle relation types"<<endl;
+          cout<<triangles.size()<<" extra triangle relation types"<<endl;
+          cout<<aas_triangles.size()<<" aas triangle relation types"<<endl;
+          cout<<squares.size()<<" square relation types"<<endl;
+          cout<<hexagons.size()<<" hexagon relation types"<<endl;
         }
       maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
       if (verbose)
@@ -573,7 +573,7 @@ void face_relations::general_relation(const vector<action>& Mops,
       vector<mat22> Jmats;  // Jmats only used in checking validity of relation
       for (int s=0; s<len; s++)
         {
-          if (check) // first matrix is always I
+          if (check)
             Jmats.push_back(J*Mats[s]*J);
           int t = types[s];
           RatQuad a;
@@ -606,7 +606,7 @@ void face_relations::general_relation(const vector<action>& Mops,
       vector<long> rel(len);
       for (int s=0; s<len; s++)
         {
-          long k = (s==0? j: Mops[s](j));
+          long k = Mops[s](j);  // NB first matrix is NOT I for hexagons
           rel[s] = k;
           if (sym[s]) done[k]=1;
         }

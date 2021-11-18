@@ -2,7 +2,7 @@
 #include "homspace.h"
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 23, 31};
+vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 23, 31};
 
 int main ()
 {
