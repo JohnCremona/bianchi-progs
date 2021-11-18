@@ -44,6 +44,9 @@ def precomputed_alphas(k_or_d):
 
     alphas_dict[6] = [cusp(a) for a in [0, (w+1)/2, 5/(2*w), -5/(2*w)]]
 
+    alphas_dict[10] = [cusp(a) for a in [0, (w+1)/2, w/3, -w/3, (1+w)/3, (-1-w)/3, (1-w)/3,
+                                         (-1+w)/3, 9/(2*w), -9/(2*w)]]
+
     alphas_dict[23] = [cusp(a) for a in [0, (1+2*w)/4, (-1-2*w)/4,
                                          (1+w)/3, (-1-w)/3, (2-w)/(1+w),
                                          (-2+w)/(1+w), (1+w)/(2-w),
@@ -891,11 +894,95 @@ def reduce_alphas_mod_Ok(alist):
     """
     a0 = next(a for a in alist if not a in QQ)
     k = a0.parent()
-    Ok = k.ring_of_integers()
+    Ireps = smallest_ideal_class_representatives(k)
     alist = [k(a) for a in alist]
     alphas = []
     for a in alist:
-        if not any(a-b in Ok for b in alphas):
+        if not any((a-b).is_integral() for b in alphas):
             alphas.append(reduce_mod_Ok(a))
     return [cusp(a) for a in alphas]
+
+def cong_mod(r1, r2, s):
+    return ((r1-r2)/s).is_integral()
+
+def find_edge_pairs(alphas, debug=False):
+    from utils import add_two_alphas, add_four_alphas, nf
+
+    k = nf(alphas[0])
+    Ireps = smallest_ideal_class_representatives(k)
+    A1 = [a for a in alphas if a.denominator()==1]
+    A2 = [a for a in alphas if a.denominator()==2]
+    A3 = [a for a in alphas if a.denominator()==3]
+    A = [a for a in alphas if a.denominator() not in [1,2,3]]
+    S = list(set(k(a.denominator()) for a in A))
+    S.sort(key = lambda z: z.norm())
+
+    new_alphas = []
+    M_alphas = []
+    pluspairs = []
+    minuspairs = []
+    fours = []
+
+    for s in S:
+        if not ispos(s):
+            s = -s
+            sgn = -1
+        else:
+            sgn = +1
+        if debug:
+            print("s = {}".format(s))
+        As = [a for a in A if makepos(a.denominator())==s]
+        for a in As:
+            if debug:
+                print("  a = {}".format(a))
+            r = sgn*k(a.numerator())
+            if debug:
+                print("  r = {}".format(r))
+            rs = (r,s)
+            mrs = (-r,s)
+            rsq = r*r
+            if cong_mod(rsq, +1, s):
+                if not any(pair in pluspairs for pair in (rs, mrs)):
+                    if ispos(r):
+                        if debug:
+                            print("  - adding plus pair {}".format(rs))
+                        pluspairs.append(rs)
+                        add_two_alphas(s, r, +1, new_alphas, M_alphas)
+                    else:
+                        if debug:
+                            print("  - adding plus pair {}".format(mrs))
+                        pluspairs.append(mrs)
+                        add_two_alphas(s, -r, +1, new_alphas, M_alphas)
+                continue
+            if cong_mod(rsq, -1, s):
+                if not any(pair in minuspairs for pair in (rs, mrs)):
+                    if ispos(r):
+                        if debug:
+                            print("  - adding minus pair {}".format(rs))
+                        minuspairs.append(rs)
+                        add_two_alphas(s, r, -1, new_alphas, M_alphas)
+                    else:
+                        if debug:
+                            print("  - adding minus pair {}".format(mrs))
+                        minuspairs.append(mrs)
+                        add_two_alphas(s, -r, -1, new_alphas, M_alphas)
+                continue
+            if debug:
+                print("  - looking for a foursome")
+            adash = next(ad for ad in As if cong_mod(r*ad.numerator(), -1, s))
+            rdash = k(adash.numerator())
+            rds = (rdash,s)
+            mrds = (-rdash,s)
+            if not any(pair in fours for pair in (rs, mrs, rds, mrds)):
+                if ispos(r):
+                    if debug:
+                        print("  - adding foursome {}".format(rs))
+                    fours.append(rs)
+                    add_four_alphas(s, r, rdash, new_alphas, M_alphas)
+                else:
+                    if debug:
+                        print("  - adding foursome {}".format(mrs))
+                    fours.append(mrs)
+                    add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
+    return A1, A2, A3, new_alphas, M_alphas, pluspairs, minuspairs, fours
 
