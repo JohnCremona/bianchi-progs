@@ -1042,75 +1042,7 @@ def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
 
     return True
 
-    #     a1x = []
-    #     a1s = []
-    #     z_in_k = intersection_points_in_k(a0,a1)
-    #     if z_in_k:
-    #         zz = [cusp(z, k) for z in z_in_k]
-    #         if debug:
-    #             print("intersection points in k: {}".format(z_in_k))
-    #         # check that each is *either* singular *or* contained in some S_a2
-    #         ok = True
-    #         for z in zz:
-    #             ok1 = False
-    #             if z in alist:
-    #                 ok1 = True
-    #                 a1x.append(z)
-    #                 if z not in xlist:
-    #                     xlist.append(z)
-    #             else:
-    #                 if is_singular(z, sigmas):
-    #                     ok1 = True
-    #                     a1s.append(z)
-    #                 else:
-    #                     for a2 in alist:
-    #                         if is_inside(z, a2, True):
-    #                             ok1 = True
-    #                             a1x.append(a2)
-    #                             if a2 not in xlist:
-    #                                 xlist.append(a2)
-    #                             break
-    #             ok = ok and ok1
-    #         if debug:
-    #             if ok:
-    #                 print("ok: each is either singular {} or is covered by {}".format(a1s,a1x))
-    #             else:
-    #                 print("not ok")
-    #     else:
-    #         # check that either one S_a2 covers both, or two cover one each:
-    #         t = []
-    #         ok = False
-    #         for a2 in alist:
-    #             if a2 == a1:
-    #                 continue
-    #             t2 = are_intersection_points_covered_by_one(a0, a1, a2, plot=False)
-    #             if debug:
-    #                 print("a0={}, a1={}, a2={}:  t2={}".format(a0, a1,a2,t2))
-    #             if t2:
-    #                 if debug and plot:
-    #                     are_intersection_points_covered_by_one(a0, a1, a2, plot=True)
-    #                 t.append(t2)
-    #                 a1x.append(a2)
-    #                 if a2 not in xlist:
-    #                     xlist.append(a2)
-    #                 if debug:
-    #                     print("Now t = {}".format(t))
-    #             if t2==2 or -t2 in t:
-    #                 ok = True
-    #                 if debug:
-    #                     print("Breaking as t = {}".format(t))
-    #                 break
-    #     if ok:
-    #         if debug:
-    #             # then the intersection points of a and a1 are covered
-    #             print(" - intersection points of {} and {} are covered by {}".format(a0,a1,a1x))
-    #     else:
-    #         if debug:
-    #             print(" - intersection points of {} and {} are not covered".format(a0,a1))
-    #         return False, []
-    # return True, xlist
-
-def are_alphas_surrounded(alist, slist, debug=False):
+def are_alphas_surrounded(alist, slist, verbose=False, debug=False):
     """Given alist, a candidate list of principal cusps, and slist, a
     complete list of singular points, tests whether the boundary of
     every disc S_a is contained in the union of the translates of the
@@ -1122,13 +1054,14 @@ def are_alphas_surrounded(alist, slist, debug=False):
 
     """
     for i, a in enumerate(alist):
-        print("Testing alpha #{}/{} = {}".format(i+1, len(alist), a))
+        if verbose or debug:
+            print("Testing alpha #{}/{} = {}".format(i+1, len(alist), a))
         ok = is_alpha_surrounded(a, alist, slist, debug)
         if not ok:
-            if True:#debug:
+            if verbose or debug:
                 print(" no, {} is not surrounded".format(a))
             return False
-        if debug:
+        if verbose or debug:
             print(" ok, {} is surrounded".format(a))
     return True
 
@@ -1185,6 +1118,41 @@ def principal_cusps_up_to(k, maxn, fussy=True):
             alist.append(a)
             Alist.append(A)
     return alist
+
+def find_covering_alphas(k, sigmas=None, verbose=False):
+    """Returns a finite list of principal cusps a such that the S_{a+t}
+    for all integral t cover CC apart from singular points.
+
+    For n>=1 successively, we test as a candidate set all a=r/s with
+    r,s coprime, r reduced mod s, N(s)<=n (omitting any for which S_a
+    is contained in any earlier S_a') until we succeed.
+
+    sigmas can be set to a list of singular points (up to
+    translation), otherwise these will be computed.
+
+    Returns maxn, alphas, sigmas
+
+    Other functions will then (1) saturate the set, (2) discard
+    redundancies.
+
+    """
+    if sigmas is None:
+        sigmas = singular_points_new(k)
+    ok = False
+    maxn = 0
+    while not ok:
+        maxn = next_norm(k, maxn+1)
+        if verbose:
+            print("Testing max norm {}".format(maxn))
+        alphas = principal_cusps_up_to(k, maxn)
+        ok = are_alphas_surrounded(alphas, sigmas, debug=False)
+        if verbose and not ok:
+            print("{} fails, continuing...".format(maxn))
+        if ok:
+            if verbose:
+                print("Success with max norm {}!".format(maxn))
+            return maxn, alphas, sigmas
+
 
 def reduce_alphas_mod_Ok(alist):
     """Rahm's list of alpha = lambda/mu in k includes repeats (up to
