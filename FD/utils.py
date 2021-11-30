@@ -52,7 +52,8 @@ def kgcd(a,b, k=None):
 
 def frac(x):
     """
-    Return coprime a,b such that x=a/b.  x can be an element of k or a cusp.
+    Return coprime [a,b] (if they exist) such that x=a/b, otherwise any such [a,b].
+    x can be an element of k or a cusp.
     """
     if x == oo:
         return [1, 0]

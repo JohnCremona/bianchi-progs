@@ -2,96 +2,14 @@
 
 from itertools import chain #, combinations
 
-from sage.all import (Infinity, Matrix, ZZ, QQ, CC, NumberField,
+from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
                       Graph, srange, Set, sign, var, implicit_plot3d, NFCusp, Integer, oo,
-                      infinity, polygen)
+                      infinity, polygen, point, line, circle)
 
-from utils import (to_k, cusp, cusp2, cusp_label, Imat, apply,
+from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
                    translate_cusp, smallest_ideal_class_representatives)
 
-# Precomputed alphas for some fields
-
-def precomputed_alphas(k_or_d):
-
-    if k_or_d in ZZ:
-        # then d=k>0 should be square-free
-        x = polygen(QQ)
-        d = k_or_d
-        if d%4==3:
-            k = NumberField(x**2-x+(1+d)//4, 'w')
-        else:
-            k = NumberField(x**2+d, 'w')
-    else:
-        k = k_or_d
-        d = -k.discriminant().squarefree_part()
-
-    w = k.gen()
-    IC = smallest_ideal_class_representatives(k)
-    cusp = lambda a: NFCusp(k, k(a), lreps=IC)
-
-    alphas_dict = {}
-    alphas_dict[1] = [cusp(0)]
-    alphas_dict[2] = [cusp(0)]
-    alphas_dict[3] = [cusp(0)]
-    alphas_dict[7] = [cusp(0)]
-    alphas_dict[11] = [cusp(0)]
-    alphas_dict[19] = [cusp(a) for a in [0, w/2,(w-1)/2]]
-
-    alphas_dict[43] = [cusp(a) for a in [0, w/2, (-1+w)/2, w/3, -w/3,
-                                         (1-w)/3, (-1+w)/3, (1+w)/3, (-1-w)/3]]
-
-    alphas_dict[5] = [cusp(a) for a in [0, w/2, (w-4)/(2*w), (4-w)/(2*w)]]
-
-    alphas_dict[6] = [cusp(a) for a in [0, (w+1)/2, 5/(2*w), -5/(2*w)]]
-
-    alphas_dict[10] = [cusp(a) for a in [0, (w+1)/2, w/3, -w/3, (1+w)/3, (-1-w)/3, (1-w)/3,
-                                         (-1+w)/3, 9/(2*w), -9/(2*w)]]
-
-    alphas_dict[23] = [cusp(a) for a in [0, (1+2*w)/4, (-1-2*w)/4,
-                                         (1+w)/3, (-1-w)/3, (2-w)/(1+w),
-                                         (-2+w)/(1+w), (1+w)/(2-w),
-                                         (-1-w)/(2-w), (-3+w)/(2+w),
-                                         (3-w)/(2+w), (-2-w)/(3-w),
-                                         (2+w)/(3-w)]]
-
-    alphas_dict[31] = [cusp(a) for a in [0, (1+2*w)/4, (-1-2*w)/4, w/3,
-                                         (-w)/3, (1-w)/3, (-1+w)/3,
-                                         (1+w)/3, (-1-w)/3, 3/w, (-3)/w,
-                                         3/(1-w), (-3)/(1-w), 3/(1+w),
-                                         (-3)/(1+w), 3/(2-w), -3/(2-w),
-                                         (-6+w)/(3+w), (6-w)/(3+w),
-                                         (5+w)/(4-w), (-5-w)/(4-w)]]
-
-    alphas_dict[67] = [cusp(a) for a in [0, w/2, (-1+w)/2, w/3, (-w)/3,
-                                         (1-w)/3, (-1+w)/3, (1+w)/3, (-1-w)/3, w/4, (-w)/4, (-1+w)/4, (1-w)/4,
-                                         (1+w)/4, (-1-w)/4, (2-w)/4, (-2+w)/4, (6+w)/(3-w), (-6-w)/(3-w),
-                                         (2+w)/(3-w), (-2-w)/(3-w), (7-w)/(2+w), (-7+w)/(2+w), (3-w)/(2+w),
-                                         (-3+w)/(2+w)]]
-
-    alphas_dict[163] = [cusp(a) for a in [0, (w)/2, (-1+w)/2, (w)/3,
-                                          (-w)/3, (1-w)/3, (-1+w)/3, (1+w)/3, (-1-w)/3, (w)/4, (-w)/4, (-1+w)/4,
-                                          (1-w)/4, (1+w)/4, (-1-w)/4, (2-w)/4, (-2+w)/4, (w)/5, (-w)/5,
-                                          (-1+w)/5, (1-w)/5, (2*w)/5, (-2*w)/5, (2-2*w)/5, (-2+2*w)/5, (2+w)/5,
-                                          (-2-w)/5, (1-2*w)/5, (-1+2*w)/5, (-2+w)/5, (2-w)/5, (2+2*w)/5, (-2-2*w)/5,
-                                          (1+w)/5, (-1-w)/5, (1+2*w)/5, (-1-2*w)/5, (w)/6, (-w)/6, (1-w)/6,
-                                          (-1+w)/6, (1+w)/6, (-1-w)/6, (-2+w)/6, (2-w)/6, (2+w)/6, (-2-w)/6,
-                                          (3-w)/6, (-3+w)/6, (12)/(w), (-12)/(w), (17)/(w), (-17)/(w),
-                                          (12)/(1-w), (-12)/(1-w), (17)/(1-w), (-17)/(1-w), (12)/(1+w),
-                                          (-12)/(1+w), (-17+w)/(1+w), (17-w)/(1+w), (12)/(2-w), (-12)/(2-w),
-                                          (-16-w)/(2-w), (16+w)/(2-w), 7/(2+w), (-7)/(2+w), (18-w)/(2+w),
-                                          (-18+w)/(2+w), (-11+w)/(2+w), (11-w)/(2+w), (-16+w)/(2+w),
-                                          (16-w)/(2+w), 7/(3-w), (-7)/(3-w), (17+w)/(3-w), (-17-w)/(3-w),
-                                          (-10-w)/(3-w), (10+w)/(3-w), (-15-w)/(3-w), (15+w)/(3-w), (3+w)/7,
-                                          (-3-w)/7, (-1+2*w)/7, (1-2*w)/7, (1+2*w)/7, (-1-2*w)/7, (3-2*w)/7,
-                                          (-3+2*w)/7, (2+3*w)/7, (-2-3*w)/7, (5-w)/(3+w), (-5+w)/(3+w),
-                                          (-17+w)/(3+w), (17-w)/(3+w), (4+w)/(4-w), (-4-w)/(4-w), (-16-w)/(4-w),
-                                          (16+w)/(4-w)]]
-
-    if d in alphas_dict:
-        return alphas_dict[d]
-
-    print("No precomputed alphas for field {}".format(k))
-    return None
+from alphas import precomputed_alphas
 
 def make_k(dk):
     """
@@ -184,6 +102,18 @@ def is_under(P, a):
     ad = a.denominator()
     al = a.numerator()/ad
     return sign(1/ad.norm() - (z-al).norm() - t2)
+
+def is_inside(a, b, strict=False):
+    """Returns True iff a is inside (or strictly inside) the circle
+    centred on b, where a,b are cusps with b principal.
+    """
+    k = nf(a)
+    d2 = (to_k(a,k)-to_k(b,k)).norm()
+    r2 = radius_squared(b)
+    if strict:
+        return d2 < r2
+    else:
+        return d2 <= r2
 
 def covering_hemispheres(P, option=None):
     """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
@@ -411,7 +341,7 @@ def tau(P1, P2):
     +2 if they do not intersect and are external to each other
     +1 if they are externally tangent
     0  if they intersect in two distinct points
-    -1 if they are internally tangent
+    -1 if they are internally tangent (or equal)
     -2 if they do not intersect and one is inside the other
     """
     a1, r1sq = P1
@@ -428,8 +358,15 @@ def circles_intersect(P1,P2):
 def circles_tangent(P1,P2, exterior=True):
     return tau(P1,P2) == (+1 if exterior else -1)
 
-def circle_inside_circle(P1,P2):
-    return P1[1]<P2[1] and tau(P1,P2)==-2
+def circle_inside_circle(P1,P2, strict=True):
+    # t = P1[1]<P2[1] and tau(P1,P2)==-2
+    # if strict or t:
+    #     return t
+    # return (P1[1]<P2[1] and tau(P1,P2)==-1)
+
+    t1 = (P1[1]<P2[1]) if strict else (P1[1]<=P2[1])
+    t2 = tau(P1,P2) in ([-2] if strict else [-2,-1])
+    return t1 and t2
 
 def xy_coords(alpha):
     """
@@ -472,17 +409,16 @@ def slope(alpha, centre=0):
     """
     return slope2(*xy_coords(alpha-centre))
 
+def slope_before(es1, es2):
+    e1, s1 = es1
+    e2, s2 = es2
+    return (e1==e2 and s1<=s2) or (e1!=e2 and s1>s2)
+
 def in_first_half(alpha1, alpha2, centre=0):
     """
     Return True if the clockwise angle from alpha1 round to alpha2 is < pi.
     """
-    e1, s1 = slope(alpha1, centre)
-    e2, s2 = slope(alpha2, centre)
-    if s1==Infinity:
-        return e1*e2<0 and s2!=Infinity
-    if s2==Infinity:
-        return e1*e2>0
-    return e1*e2*(s1-s2)<0
+    return slope_before(slope(alpha1, centre), slope(alpha2, centre))
 
 # plotting functions taken essentiall from MA
 
@@ -505,15 +441,32 @@ def plot_Bianchi_diagram(k, Hlist):
     kdata = make_k(k.discriminant())
     return sum([plot1hemi(kdata, H) for H in Hlist])
 
-def circ(c,r):
+def circ(c,r, fill):
     return circle(c, r,
-                  aspect_ratio=1, edgecolor='blue', alpha = 0.2)
+                  aspect_ratio=1,
+                  edgecolor='blue' if fill else 'black',
+                  thickness=1 if fill else 2,
+                  alpha = 0.2,
+                  fill=fill)
 
 def disc(c,r):
     return circle(c, r,
-                  aspect_ratio=1, feill=True, rgbcolor='blue', alpha = 0.2)
+                  aspect_ratio=1, fill=True, rgbcolor='blue', alpha = 0.2)
 
-def plot_FunDomain_projection(k, alphas, sigmas):
+def plot_circles_and_points(cc, pp, fill=False):
+    circles = [circ(c, r, fill) for c, r in cc]
+    points = [point(P, rgbcolor='red', pointsize=50) for P in pp]
+    return sum(circles) + sum(points)
+
+def plot_circles(alist, fill=False):
+    k = nf(alist[0])
+    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    A = [list(emb(to_k(a, k))) for a in alist]
+    R = [RR(radius_squared(a)).sqrt() for a in alist]
+    circles = [(c,r) for c,r in zip(A,R)]
+    return plot_circles_and_points(circles, [], fill)
+
+def plot_FunDomain_projection(k, alphas, sigmas, fill=False):
     w = k.gen()
     D = k.discriminant().abs()
     emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
@@ -523,14 +476,10 @@ def plot_FunDomain_projection(k, alphas, sigmas):
 
     triplets, extra_alphas = alpha_triples(alphas)
 
-#    A = [xy_coords(to_k(a,k)) for a in alphas]
-#    A = [(xy[0], xy[1]*rootd) for xy in A]
     A = [list(emb(to_k(a))) for a in alphas+extra_alphas]
     R = [RR(radius_squared(a)).sqrt() for a in alphas+extra_alphas]
     #print("circle centres: {}".format(A))
 
-#    S = [xy_coords(to_k(s,k)) for s in sigmas]
-#    S = [(xy[0], xy[1]*rootd) for xy in S]
     S = [list(emb(to_k(s))) for s in sigmas if not s.is_infinity()]
     #print("singular points: {}".format(S))
 
@@ -538,10 +487,8 @@ def plot_FunDomain_projection(k, alphas, sigmas):
     #print(triplets)
     #print("corners: {}".format(C))
 
-    circles  = [circ(centre, radius) for centre, radius in zip(A,R)]
-    centres  = [point(P, rgbcolor = 'blue', pointsize=22) for P in A]
-    sing_pts = [point(P, rgbcolor = 'red', pointsize=50) for P in S]
-    corners  = [point(P, rgbcolor = 'yellow', pointsize=22) for P in C]
+    circles  = [(c, r) for c, r in zip(A,R)]
+    proj = plot_circles_and_points(circles, S, fill=fill)
 
     z = w-ZZ(1)/2 if ZZ(D).mod(4)==3 else w
     TL=list(emb((-1+z)/2))
@@ -553,7 +500,7 @@ def plot_FunDomain_projection(k, alphas, sigmas):
              line([BR,BL], rgbcolor='black'),
              line([BL,TL], rgbcolor='black')]
 
-    proj = sum(circles) + sum(centres) + sum(sing_pts) + sum(corners) + sum(lines)
+    proj += sum(lines)
     proj.set_axes_range(-Xmax, Xmax, -Ymax, Ymax)
     return proj
 
@@ -770,103 +717,428 @@ def in_rectangle(a):
     f = 1 + a.parent().disc()%2
     return xy_in_rectangle(xy_coords(a), f)
 
-def is_alpha_surrounded(a, alist, slist, debug=False):
-    """Given alist, a candidate list of principal cusps, and slist, a
-    complete list of singular points (excluding oo), tests whether the
-    disc S_a is contained in the union of the translates of the S_b
-    for b in alist, apart from any singular points on the boundary.
+def is_sigma_surrounded(sigma, alist, debug=False):
+    """Given a singular point s and a candidate list of principal cusps
+    alist, tests whether the discs S_{a+t} for a in alist and t in Ok
+    completely surround sigma.
 
-    Returns either (True, xlist) with xlist a list of any translates
-    needed, or (False, None)
+    Returns either (True, xlist) with xlist a list of all a+t needed,
+    or (False, [])
+
     """
-    k = alist[0].number_field()
+
+    k = nf(alist[0])
     w = k.gen()
-    xlist = set()
 
-    # convert a to a point with radius
-    A = cusp_to_point(a)
+    # convert s to a point
+    s = to_k(sigma, k)
     if debug:
-        print("A = {}".format(A))
-    # extract the relevant singular points, if any:
-    Slist = [to_k(s) for s in slist]
-    Slist = [s for s in Slist if is_under([s,0], a)==0]
-    if debug:
-        print("Slist = {}".format(Slist))
+        print("s = {}".format(s))
+
     # extend the candidate list by including offsets:
-    offsets = [a+b*w for a in [-1,0,1] for b in [-1,0,1]]
-    alistx = sum([[translate_cusp(b,t) for t in offsets] for b in alist], [])
-    # extract the relevant alphas:
-    Alist = [cusp_to_point(a) for a in alistx]
-    Alist = [a for a in Alist if circles_intersect(A, a)]
-    # sort these by slope:
-    Alist.sort(key=lambda a: slope(a[0], A[0]))
+
+    offsets = [-1-w,-w,1-w,-1,1,-1+w,w,1+w]
+    alist = sum([[translate_cusp(b,t) for t in offsets] for b in alist], alist)
+
+    # extract the relevant alphas, if any:
+
+    alist = [a for a in alist if is_under([s,0], a)==0]
+    alist = [a for a in alist if not any(circle_inside_circle(cusp_to_point(a), cusp_to_point(b), False)
+                                         for b in alist if b!=a)]
+
     if debug:
-        print("Alist (sorted) = {}".format(Alist))
-        print("Relative slopes: {}".format([slope(a[0],A[0]) for a in Alist]))
+        print(" relevant alphas: {}".format(alist))
 
-    def test(A1, A2, detail=False):
-        if not in_first_half(A1[0], A2[0], A[0]):
-            if detail:
-                print("test 1 fails (not close together)")
-            return False, None, None
-        if not circles_intersect(A1, A2):
-            if detail:
-                print("test 2 fails (circles do not intersect)")
-            return False, None, None
-        t = bi_inter(cusp(A1[0]), cusp(A2[0]))
-        if t is None:
-            if detail:
-                print("test 3 fails (intersection does not cover boundary)")
-            return False, None, None
-        c, r2 = t
-        if detail:
-            print("c = {}, r2 = {}".format(c, r2))
-        x,y = xy_coords(c)
-        if -half<x and x<= half and -half<y and y<=half:
-            x1 = A1[0]
-            x2 = A2[0]
-        else:
-            x1 = x2 = None
-        if r2==0:
-            return (c in Slist), x1, x2
-        else:
-            return is_under(t, a), x1, x2
+    Alist = [cusp_to_point(a) for a in alist]
+    # sort these by slope:
+    Alist.sort(key=lambda a: slope(a[0], s))
+    Aslopes = [slope(a[0], s) for a in Alist]
+    if debug:
+        print(" Alist (sorted) = {}".format(Alist))
+        print(" Relative slopes: {}".format(Aslopes))
 
-    for i, b in enumerate(Alist):
-        flag, a1, a2 = test(Alist[i-1], b, debug)
-        if flag:
-            if a1 and cusp(a1) not in alist:
-                xlist.add(a1)
-            if a2 and cusp(a2) not in alist:
-                xlist.add(a2)
-        else:
+    for i, t2 in enumerate(Aslopes):
+        t1 = Aslopes[i-1]
+        if not slope_before(t1, t2):
             if debug:
-                print("test fails for {} and {}".format(Alist[i-1], Alist[i]))
-                print("slopes {} and {}".format(slope(Alist[i-1][0], A[0]),slope(Alist[i][0], A[0])))
-                test(Alist[i-1], b, True)
-            return False, None
+                print(" !Failure around {} between {} and {}".format(s, alist[i-1], alist[i]))
+            return False, []
+    return True, alist
+
+def are_sigmas_surrounded(sigmas, alist, debug=False):
+    """Given a list of singular points s and a candidate list of principal
+    cusps alist, tests whether the discs S_{a+t} for a in alist and t
+    in Ok completely surround all sigmas.
+
+    Returns either (True, xlist) with xlist a list of all a+t needed,
+    or (False, [])
+
+    """
+    xlist = []
+    for s in sigmas:
+        if s.is_infinity():
+            continue
+        ok, xlist1 = is_sigma_surrounded(s, alist, debug)
+        if not ok:
+            if debug:
+                print("{} is not surrounded".format(s))
+            return False, s
+        if debug:
+            print("{} is surrounded by {}".format(s, xlist1))
+        for a in xlist1:
+            if a not in xlist:
+                xlist.append(a)
+
+    if debug:
+        print("All sigmas are surrounded, by {}".format(xlist))
     return True, xlist
 
+def tri_det(a1, a2, a3):
+    return Matrix(3,3,[a1,a2,a3, a1.conjugate(), a2.conjugate(), a3.conjugate(), 1, 1, 1]).det()
+
+def intersection_points_in_k(a1,a2):
+    """Given principal cusps a1,a2 returns a list of 0, 1 or 2 points (in
+    k) where the circles S_a1, S_a2 intersect.
+    """
+    k = nf(a1)
+    alist = [a1,a2]
+    # Check the cusps are principal, not infinity, and with unit ideal
+    assert all((not a.is_infinity()) and (a.ideal()==1) for a in alist)
+    # Define the square radii and centres
+    r1sq, r2sq = [radius_squared(a) for a in alist]
+    al1, al2 = [to_k(a, k) for a in alist]
+    delta = al2-al1
+    n = delta.norm()
+    d1 = n - (r1sq + r2sq)
+    d2 = d1**2 - 4*r1sq*r2sq
+    if d2 > 0:
+        return []
+    z = ((al1+al2) + (r1sq-r2sq)/delta.conjugate())/2
+    return [z + r/(2*delta.conjugate()) for r in k(d2).sqrt(all=True, extend=False)]
+
+def intersection_points_in_CC(a1,a2):
+    """Given principal cusps a1,a2 returns a list of 0, 1 or 2 points (in
+    CC) where the circles S_a1, S_a2 intersect.
+    """
+    k = nf(a1)
+    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    alist = [a1,a2]
+    # Check the cusps are principal, not infinity, and with unit ideal
+    assert all((not a.is_infinity()) and (a.ideal()==1) for a in alist)
+    # Define the square radii and centres
+    r1sq, r2sq = [radius_squared(a) for a in alist]
+    al1, al2 = [to_k(a, k) for a in alist]
+    delta = al2-al1
+    n = delta.norm()
+    d1 = n - (r1sq + r2sq)
+    d2 = d1**2 - 4*r1sq*r2sq
+    if d2 > 0:
+        return []
+    z = emb(((al1+al2) + (r1sq-r2sq)/delta.conjugate())/2)
+    if d2 == 0:
+        return [z]
+    rd2 = CC(d2).sqrt() # pure imaginary
+    z1 = z + rd2/(2*emb(delta.conjugate()))
+    z2 = 2*z-z1 # = z - rd2/(2*emb(delta.conjugate()))
+    return [z1,z2]
+
+def show_intersection(a1,a2):
+    zz = intersection_points_in_CC(a1,a2)
+    if len(zz)==2:
+        zz.append((zz[0]+zz[1])/2)
+    points = [list(z) for z in zz]
+    k = nf(a1)
+    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    A = [list(emb(to_k(a, k))) for a in [a1,a2]]
+    R = [RR(radius_squared(a)).sqrt() for a in [a1,a2]]
+    circles = [(c,r) for c,r in zip(A,R)]
+    return plot_circles_and_points(circles, points, True)
+
+def are_intersection_points_covered_by_one(a1, a2, a, plot=False):
+    """Given principal cusps a1, a2, a such that the circles S_a1 and
+    S_a2 intersect in distinct points, test whether S_a covers either
+    or both.
+
+    Returns 0 if neither, 2 if both, +1 or -1 if just one.  The signs
+    are consistent so that if a returns +1 and a' returns -1 then each
+    intersection point is covered by either S_a or S_a'.
+    """
+    k = nf(a1)
+    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    alist = [a1,a2,a]
+    # Check the cusps are principal, not infinity, and with unit ideal
+    assert all((not a.is_infinity()) and (a.ideal()==1) for a in alist)
+
+    # Define the square radii and centres
+    r1sq, r2sq, rsq = [radius_squared(a) for a in alist]
+    al1, al2, al = [to_k(a, k) for a in alist]
+    n1, n2 = [a.norm() for a in [al1, al2]]
+    #
+    delta = al2-al1
+    n = delta.norm()
+    z0 = ((al1+al2) + (r1sq-r2sq)/delta.conjugate())/2
+    d1 = n - (r1sq + r2sq)
+    d2 = d1**2 - 4*r1sq*r2sq
+    if d2 >= 0:
+        raise RuntimeError("cusps {} and {} have non-intersecting circles")
+
+    if plot:
+        points = [list(z) for z in intersection_points_in_CC(a1,a2)]
+        circle = (list(emb(to_k(a, k))), RR(radius_squared(a)).sqrt())
+        pic = plot_circles([a1,a2], False) + plot_circles_and_points([circle], points, True)
+        pic.show()
+        input("press Enter...")
+
+    T = 2 * n * (rsq - (z0-al).norm()) + d2/2 # rational
+    T2 = T**2
+    D = tri_det(al, al2, al1) # pure imaginary
+    D2 = QQ(D**2)             # negative rational
+    d2D2 = d2*D2              # positive rational
+
+    # the covering condition is \pm sqrt(d2)*D < T
+    #print("T = {}, D = {}, d2 = {}".format(T,D,d2))
+
+    if d2D2 < T2:
+        return 2 if T>0 else 0 if T<0 else '?'
+    if d2D2 > T2:
+        u = QQ(D/(w-w.conjugate()))
+        return -1 if u>0 else +1 if u<0 else 0
+    return 0
+
+def is_singular(s, sigmas):
+    from utils import sigma_index_with_translation
+    return sigma_index_with_translation(s, sigmas)[0]!=-1
+
+def translates(a):
+    return [translate_cusp(a,t) for t in [-w-1,-w,-w+1,-1,0,1,w-1,w,w+1]]
+
+def is_inside_one(z, alist):
+    """Test whether the cusp z is strictly inside at least one S_a for a
+    in alist.  If so return True, a; otherwise return False, None.
+    """
+    try:
+        a = next(a for a in alist if is_inside(z, a, strict=True))
+        return True, a
+    except StopIteration:
+        return False, None
+
+def are_intersection_points_covered(a0, a1, alist, sigmas, debug=False):
+    """Given principal cusps a0, a1 whose circles S_a0, S_a1 intersect,
+    and a list of principal cusps alist each of whose circles S_a also
+    intersects S_a0, test whether each of the two intersection points
+    of S_a0 and S_a1 is either singular or strictly inside one of the
+    S_a.
+
+    We treat as a special case when the two intersection points are in
+    k.  If not, the code still uses exact arithmetic.
+
+    """
+    k = nf(a0)
+    z_in_k = intersection_points_in_k(a0,a1)
+    if z_in_k:
+        zz = [cusp(z, k) for z in z_in_k]
+        if debug:
+            print("intersection points in k: {}".format(z_in_k))
+        # check that each is *either* singular *or* contained in some S_a2
+        for z in zz:
+            if is_singular(z, sigmas):
+                if debug:
+                    print("{} is ok: singular".format(z))
+            else:
+                ok, a1 = is_inside_one(z, alist)
+                if ok:
+                    if debug:
+                        print("{} is ok: inside S_{}".format(z, a1))
+                else:
+                    return False
+        return True
+
+    # Now the intersection points are not in k. Check that either one
+    # S_a covers both, or two cover one each:
+    t = 0 # will hold +1 or -1 if we have covered only one of the two
+    for a2 in alist:
+        if a2 == a1:
+            continue
+        t2 = are_intersection_points_covered_by_one(a0, a1, a2, plot=False)
+        if debug:
+            print("a0={}, a1={}, a2={}:  t2={}, t={}".format(a0, a1,a2,t2,t))
+        if t2: # it is 2, +1 or -1
+            assert t2 in [-1,1,2]
+            if debug:
+                are_intersection_points_covered_by_one(a0, a1, a2, plot=True)
+            if t2==2 or ([t,t2] in [[1,-1],[-1,1]]):
+                if debug:
+                    print("t={}, t2={}, about to return True".format(t,t2))
+                return True
+            assert t2 in [-1,1] and t in [0,t2]
+            if debug:
+                print("t={}, t2={}, setting t to {}".format(t,t2,t2))
+            t = t2
+    return False
+
+def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
+    """Given a principal cusp a0, a candidate list of principal cusps
+    alist, tests whether the boundary of the disc S_a0 is contained in
+    the union of the translates S_{b+t} for b in alist, apart from any
+    singular points on the boundary.  It suffices to consider all b+t
+    such that S_{b+t} intersects S_a in two points and check that each
+    of the points is either singular or contained in some other
+    S_{b+t}.  This is simplest when the intersection points are in k;
+    if not then the method still uses exact arithmetic in k
+    throughout.
+
+    Returns either (True, xlist) with xlist a list of all b+t
+    needed, or (False, None)
+
+    """
+    k = nf(alist[0])
+    w = k.gen()
+    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
+
+    # convert a0 to a point with radius
+    A0 = cusp_to_point(a0)
+    if debug:
+        print("A0 = {}".format(A0))
+
+    # extend the candidate list by including offsets:
+
+    alist = sum([translates(b) for b in alist], [])
+
+    # check if S_a0 is strictly entirely contained in one S_alpha:
+    if any(circle_inside_circle(A0, cusp_to_point(b), True) for b in alist):
+        if debug:
+            a1 = next(b for b in alist if circle_inside_circle(A0, cusp_to_point(b), True))
+            print(" ok: circle {} is entirely inside circle {}".format(A0, cusp_to_point(a1)))
+        return True
+
+    # extract the relevant alphas, if any, namely those for which
+    # S_alpha and S_a0 properly intersect:
+
+    alist = [a for a in alist if circles_intersect(A0, cusp_to_point(a))]
+    # alist = [a for a in alist if not any(circle_inside_circle(cusp_to_point(a), cusp_to_point(b), False)
+    #                                      for b in alist if b!=a)]
+
+    if debug:
+        print(" relevant alphas: {}".format(alist))
+
+    if debug and plot:
+        pic = plot_circles([a0], False) + plot_circles(alist, True)
+        pic.show(figsize=[30,30])
+        input("press Enter...")
+
+    for i, a1 in enumerate(alist):
+        if debug:
+            print("\nTesting intersection points of {} and {}".format(a0,a1))
+        ok = are_intersection_points_covered(a0, a1, alist, sigmas, debug)
+        if ok:
+            if debug:
+                print(" - ok: intersection points of {} and {} are covered".format(a0,a1))
+        else:
+            if debug:
+                print(" - not ok: intersection points of {} and {} are not covered".format(a0,a1))
+            return False
+    if debug:
+        print("OK: all intersection points of {} and {} are covered".format(a0, a1))
+
+    return True
+
+    #     a1x = []
+    #     a1s = []
+    #     z_in_k = intersection_points_in_k(a0,a1)
+    #     if z_in_k:
+    #         zz = [cusp(z, k) for z in z_in_k]
+    #         if debug:
+    #             print("intersection points in k: {}".format(z_in_k))
+    #         # check that each is *either* singular *or* contained in some S_a2
+    #         ok = True
+    #         for z in zz:
+    #             ok1 = False
+    #             if z in alist:
+    #                 ok1 = True
+    #                 a1x.append(z)
+    #                 if z not in xlist:
+    #                     xlist.append(z)
+    #             else:
+    #                 if is_singular(z, sigmas):
+    #                     ok1 = True
+    #                     a1s.append(z)
+    #                 else:
+    #                     for a2 in alist:
+    #                         if is_inside(z, a2, True):
+    #                             ok1 = True
+    #                             a1x.append(a2)
+    #                             if a2 not in xlist:
+    #                                 xlist.append(a2)
+    #                             break
+    #             ok = ok and ok1
+    #         if debug:
+    #             if ok:
+    #                 print("ok: each is either singular {} or is covered by {}".format(a1s,a1x))
+    #             else:
+    #                 print("not ok")
+    #     else:
+    #         # check that either one S_a2 covers both, or two cover one each:
+    #         t = []
+    #         ok = False
+    #         for a2 in alist:
+    #             if a2 == a1:
+    #                 continue
+    #             t2 = are_intersection_points_covered_by_one(a0, a1, a2, plot=False)
+    #             if debug:
+    #                 print("a0={}, a1={}, a2={}:  t2={}".format(a0, a1,a2,t2))
+    #             if t2:
+    #                 if debug and plot:
+    #                     are_intersection_points_covered_by_one(a0, a1, a2, plot=True)
+    #                 t.append(t2)
+    #                 a1x.append(a2)
+    #                 if a2 not in xlist:
+    #                     xlist.append(a2)
+    #                 if debug:
+    #                     print("Now t = {}".format(t))
+    #             if t2==2 or -t2 in t:
+    #                 ok = True
+    #                 if debug:
+    #                     print("Breaking as t = {}".format(t))
+    #                 break
+    #     if ok:
+    #         if debug:
+    #             # then the intersection points of a and a1 are covered
+    #             print(" - intersection points of {} and {} are covered by {}".format(a0,a1,a1x))
+    #     else:
+    #         if debug:
+    #             print(" - intersection points of {} and {} are not covered".format(a0,a1))
+    #         return False, []
+    # return True, xlist
 
 def are_alphas_surrounded(alist, slist, debug=False):
     """Given alist, a candidate list of principal cusps, and slist, a
-    complete list of singular points (excluding oo), tests whether every
-    disc S_a is contained in the union of the translates of the S_b
-    for b in alist, apart from any singular points on the boundary.
+    complete list of singular points, tests whether the boundary of
+    every disc S_a is contained in the union of the translates of the
+    S_b for b in alist, apart from any singular points on the
+    boundary.
 
     Returns either (True, xlist) with xlist a list of any translates
-    needed, or (False, None)
+    needed, or (False, [])
+
     """
-    xlist = set()
-    for a in alist:
-        flag, xlist1 = is_alpha_surrounded(a, alist, slist, debug)
-        if not flag:
-            return False, None
+    for i, a in enumerate(alist):
+        print("Testing alpha #{}/{} = {}".format(i+1, len(alist), a))
+        ok = is_alpha_surrounded(a, alist, slist, debug)
+        if not ok:
+            if True:#debug:
+                print(" no, {} is not surrounded".format(a))
+            return False
         if debug:
-            print("{} is ok".format(a))
-        xlist = xlist.union(xlist1)
-    xlist = [cusp(x) for x in xlist]
-    return True, xlist
+            print(" ok, {} is surrounded".format(a))
+    return True
+
+def next_norm(k, n):
+    """
+    Returns the smallest integer m>=n which is a norm from O_k
+    """
+    while not k.elements_of_norm(n):
+        n+=1
+    return n
 
 def elements_of_norm(k, n):
     return iter(k.elements_of_norm(n))
@@ -875,16 +1147,44 @@ def elements_of_norm_upto(k, n, start=1):
     return chain(*(iter(k.elements_of_norm(n)) for n in range(start, n+1)))
 
 def reduced_numerators(s):
-    K = s.parent()
-    one = K.ideal(1)
-    for r in K.ideal(s).residues():
-        if K.ideal(r,s)==one:
+    k = s.parent()
+    one = ZZ(1)
+    for r in k.ideal(s).residues():
+        if k.ideal(r,s).norm() == one:
             yield r
 
 def principal_cusps_iter(k, maxnorm_s):
+    """
+    Iterator yielding all principal r/s with N(s)<=maxnorm_s
+    """
     for s in elements_of_norm_upto(k, maxnorm_s):
         for r in reduced_numerators(s):
-            yield cusp(r/s)
+            a = reduce_mod_Ok(r/s)
+            yield cusp(a, k)
+
+def principal_cusps_up_to(k, maxn, fussy=True):
+    """List of all principal r/s with N(s)<=maxnorm_s, omitting any whose
+    circles are contained in an earlier circle.  Since we loop through
+    circles in decreasing order of radius, no circle can be contained
+    in a later one.
+
+    If fussy, automatically increment maxn to the next integer which is a norm.
+    """
+    alist = []
+    Alist = []
+    if fussy:
+        maxn0 = maxn
+        maxn = next_norm(k, maxn0)
+        if maxn != maxn0:
+            print(" increasing maxn to {} since there are no elements of norm {}".format(maxn, list(range(maxn0,maxn))))
+    for a in principal_cusps_iter(k, maxn):
+        A = cusp_to_point(a)
+        #print("Testing {} = {} against {}".format(a, A, alist))
+        if not any(circle_inside_circle(A, B, False) for B in Alist):
+            #print("appending {} = {} to {}".format(a, A, alist))
+            alist.append(a)
+            Alist.append(A)
+    return alist
 
 def reduce_alphas_mod_Ok(alist):
     """Rahm's list of alpha = lambda/mu in k includes repeats (up to
@@ -900,22 +1200,28 @@ def reduce_alphas_mod_Ok(alist):
     for a in alist:
         if not any((a-b).is_integral() for b in alphas):
             alphas.append(reduce_mod_Ok(a))
-    return [cusp(a) for a in alphas]
+        else:
+            print("omitting a={} which is a translate of {}".format(a, next(b for b in alist if (a-b).is_integral())))
+    return [cusp(a, k, Ireps) for a in alphas]
 
 def cong_mod(r1, r2, s):
     return ((r1-r2)/s).is_integral()
 
 def find_edge_pairs(alphas, debug=False):
-    from utils import add_two_alphas, add_four_alphas, nf
+    from utils import add_two_alphas, add_four_alphas, nf, ispos
 
     k = nf(alphas[0])
-    Ireps = smallest_ideal_class_representatives(k)
     A1 = [a for a in alphas if a.denominator()==1]
     A2 = [a for a in alphas if a.denominator()==2]
-    A3 = [a for a in alphas if a.denominator()==3]
     A = [a for a in alphas if a.denominator() not in [1,2,3]]
     S = list(set(k(a.denominator()) for a in A))
     S.sort(key = lambda z: z.norm())
+    if debug:
+        print("Denominator 1: {}".format(A1))
+        print("Denominator 2: {}".format(A2))
+        print("Other denominators: {}".format(S))
+        for s in S:
+            print("s = {}: numerators {}".format(s, [a for a in A if a.denominator()==s]))
 
     new_alphas = []
     M_alphas = []
@@ -924,18 +1230,13 @@ def find_edge_pairs(alphas, debug=False):
     fours = []
 
     for s in S:
-        if not ispos(s):
-            s = -s
-            sgn = -1
-        else:
-            sgn = +1
         if debug:
             print("s = {}".format(s))
-        As = [a for a in A if makepos(a.denominator())==s]
+        As = [a for a in A if a.denominator()==s]
         for a in As:
             if debug:
                 print("  a = {}".format(a))
-            r = sgn*k(a.numerator())
+            r = k(a.numerator())
             if debug:
                 print("  r = {}".format(r))
             rs = (r,s)
@@ -969,20 +1270,27 @@ def find_edge_pairs(alphas, debug=False):
                 continue
             if debug:
                 print("  - looking for a foursome")
-            adash = next(ad for ad in As if cong_mod(r*ad.numerator(), -1, s))
-            rdash = k(adash.numerator())
-            rds = (rdash,s)
-            mrds = (-rdash,s)
-            if not any(pair in fours for pair in (rs, mrs, rds, mrds)):
-                if ispos(r):
-                    if debug:
-                        print("  - adding foursome {}".format(rs))
-                    fours.append(rs)
-                    add_four_alphas(s, r, rdash, new_alphas, M_alphas)
-                else:
-                    if debug:
-                        print("  - adding foursome {}".format(mrs))
-                    fours.append(mrs)
-                    add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
-    return A1, A2, A3, new_alphas, M_alphas, pluspairs, minuspairs, fours
-
+            try:
+                adash = next(ad for ad in As if cong_mod(r*ad.numerator(), -1, s))
+                rdash = k(adash.numerator())
+                rds = (rdash,s)
+                mrds = (-rdash,s)
+                if not any(pair in fours for pair in (rs, mrs, rds, mrds)):
+                    if ispos(r):
+                        if debug:
+                            print("  - adding foursome {}".format(rs))
+                        fours.append(rs)
+                        add_four_alphas(s, r, rdash, new_alphas, M_alphas)
+                    else:
+                        if debug:
+                            print("  - adding foursome {}".format(mrs))
+                        fours.append(mrs)
+                        add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
+            except StopIteration:
+                print("no negative inverse found for {} mod {}".format(r, s))
+    print("alphas with denominator 1: {}".format(A1))
+    print("alphas with denominator 2: {}".format(A2))
+    print("plus pairs: {}".format(pluspairs))
+    print("minus pairs: {}".format(minuspairs))
+    print("fours: {}".format(fours))
+    return A1, A2, new_alphas, M_alphas, pluspairs, minuspairs, fours
