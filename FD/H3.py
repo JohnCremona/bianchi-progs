@@ -7,7 +7,8 @@ from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
                       infinity, polygen, point, line, circle)
 
 from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
-                   translate_cusp, smallest_ideal_class_representatives)
+                   translate_cusp, negate_cusp, conj_cusp,
+                   smallest_ideal_class_representatives)
 
 from alphas import precomputed_alphas
 
@@ -115,7 +116,7 @@ def is_inside(a, b, strict=False):
     else:
         return d2 <= r2
 
-def covering_hemispheres(P, option=None):
+def covering_hemispheres1(P, option=None):
     """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
     on or under S_alpha.
 
@@ -150,6 +151,60 @@ def covering_hemispheres(P, option=None):
                             if r.is_integral() and k.ideal(r,s)==1:
                                 alphas.append(cusp(r/s, k))
     return alphas
+
+def covering_hemispheres2(P, option=None, debug=False):
+    """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
+    on or under S_alpha.
+
+    If option is 'exact' only returns alpha for which P is on S_alpha exactly.
+    If option is 'strict' only returns alpha for which P is strictly under S_alpha.
+    Otherwise (default), returns alpha for which P is under or on S_alpha.
+
+    """
+    alphas = []
+    z, t2 = P
+    k = z.parent()
+    a = z.numerator()   # in O_K
+    b = z.denominator() # in Z
+    sbound = (1/t2).floor()
+    if debug:
+        print("t2={} so bound on N(s) = {}".format(t2, sbound))
+    for snorm in srange(1,1+sbound):
+        for s in k.elements_of_norm(snorm):
+            sz = s*z
+            d1 = 1/snorm - t2
+            assert d1>=0
+            if debug:
+                print("s = {}, norm {}: d1 = {}".format(s, snorm, d1))
+            rbound = ((RR(sz.norm()).sqrt()+1)**2).floor()
+            if debug:
+                print("Bound on N(r) = {}".format(rbound))
+            for rnorm in srange(1+rbound):
+                for r in k.elements_of_norm(rnorm):
+                    if k.ideal(r,s)!=1:
+                        continue
+                    for pm in [-1,1]:
+                        a = pm*r/s
+                        d = d1 - (a-z).norm()
+                        if debug and d>=0:
+                            print("a = {}, d = {}".format(a, d))
+                        # we need d==0 for exact, d>0 for strict, else d>=0
+                        ok = (d>0) if option=='strict' else (d==0) if option=='exact' else (d>=0)
+                        if ok:
+                            a = cusp(a,k)
+                            if debug:
+                                print(" OK {}".format(a))
+                            alphas.append(a)
+    return alphas
+
+def covering_hemispheres_test(P, option=None):
+    res1 = covering_hemispheres1(P, option)
+    res2 = covering_hemispheres2(P, option)
+    if sorted(res1) != sorted(res2):
+        print("old and new disagree for P={}".format(P))
+    return res1
+
+covering_hemispheres = covering_hemispheres2
 
 def hemispheres_through(P):
     return covering_hemispheres(P, 'exact')
@@ -392,6 +447,7 @@ def reduce_mod_Ok(alpha):
     alpha -= (r*y).round('down')*w
     x = xy_coords(alpha)[0]
     alpha -= x.round('down')
+    assert in_rectangle(alpha)
     return alpha
 
 def slope2(x,y):
@@ -510,6 +566,74 @@ def is_redundant(P, alphas):
     """
     return any(is_under(P,a)==1 for a in alphas)
 
+def triple_intersections(alphas):
+    """Given a list of principal cusps alpha (all reduced mod O_k) return
+    a list of "corners" P = [z,tsq] each the intersection of an S_a
+    with at least two other S_{b+t} with z in the fundamental
+    rectangle and tsq>0.
+
+    Let u = (w-wbar)/2.  The fundamental rectangle F has TR corner at
+    (u+1)/2 and BL corner minus this.  Using symmetries (negation and
+    conjugation) we can work with the quarter-rectangle F4 with the
+    same TR and BL=0.  To recover F from F4 take the union of
+    z,-z,zbar,-zbar for z in F4.
+
+    The 9 quarter-rectangles adjacent to F4 consist of
+
+    -z, zbar, 1-zbar; -zbar, z, 1-zbar; u-z, u_zbar, u+1-zbar
+
+    for z in F4.
+    """
+    w = alphas[0].number_field().gen()
+    u = (w-w.conjugate())/2
+
+    # Extract the alphas in F4:
+    alphas4 = [a for a in alphas if cusp_in_quarter_rectangle(a)]
+
+    # Extend these by 8 translations:
+    def nbrs(a):
+        k = nf(a)
+        w = k.gen()
+        z = to_k(a, k)
+        cz = z.conjugate()
+        zlist = [-z, cz, 1-z, -cz, 1-cz, w-z, w+cz,
+                 cz+w-1 if w.trace() else 1+w-z]
+        alist = [cusp(z2, k) for z2 in zlist]
+        for b in alist:
+            if not b.ideal()==1:
+                print("cusp {} is a neighbour of principal cusp {} but is not principal".format(b,a))
+        return alist
+
+    xalphas4 = sum([nbrs(a) for a in alphas4], alphas4)
+    n = len(xalphas4)
+
+    # convert each cusp to a point P = [z,tsq] with tsq the square
+    # radius of S_a:
+
+    Alist = [cusp_to_point(a) for a in xalphas4]
+
+    corners4 = []
+    for a, A in zip(alphas4, Alist):
+        bb = [(b,B) for b,B in zip(xalphas4, Alist) if circles_intersect(A,B)]
+        for b,B in bb:
+            cc = [c for c,C in bb if circles_intersect(B,C)]
+            # now each pair of {a,b,c} intersect
+            for c in cc:
+                P = tri_inter(a, b, c)
+                if P and P[1] and in_quarter_rectangle(P[0]) and not is_redundant(P, xalphas4) and P not in corners4:
+                    corners4.append(P)
+
+    # These corners are in F4, so we apply symmetries to get all those in F:
+    corners = []
+    for P in corners4:
+        z = P[0]
+        zbar = z.conjugate()
+        for z2 in [z, -z, zbar, -zbar]:
+            if in_rectangle(z2):
+                P2 = [z2, P[1]]
+                if P2 not in corners:
+                    corners.append(P2)
+    return corners
 
 def alpha_triples(alphas):
     """Given a list of principal cusps
@@ -528,9 +652,7 @@ def alpha_triples(alphas):
     triples = []
     alpha_translates = []
     # Extend the alphas by 8 translations:
-    xalphas = sum([[translate_cusp(a,t) for t in
-                    [a+b*w for a in [-1,0,1] for b in [-1,0,1]]] for a in alphas],
-                  [])
+    xalphas = alphas + sum([[translate_cusp(a,t) for t in [-w-1,-w,1-w,-1,1,-1+w,w,1+w]] for a in alphas], [])
     n = len(xalphas)
     # convert each cusp to a point
     # [a,tsq] with tsq the square
@@ -549,9 +671,9 @@ def alpha_triples(alphas):
     for i,j in ij_list:
         ai = xalphas[i]
         aj = xalphas[j]
-        for k in range(max(i,j)+1, n):
-            if i!=k and j!=k and {i,k} in ij_list and {j,k} in ij_list:
-                ak = xalphas[k]
+        for k, ak in enumerate(alphas):# in range(max(i,j)+1, n):
+            if {i,k} in ij_list and {j,k} in ij_list:
+                #ak = xalphas[k]
                 P = tri_inter(ai, aj, ak)
                 if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
                     if P not in corners:
@@ -708,14 +830,30 @@ def xy_in_rectangle(xy, f):
     f = 1 or 2
     """
     x,y = xy
-    return -half<x and x<= half and -half<f*y and f*y<=half
+    fy = f*y
+    return -half<x and x<= half and -half<fy and fy<=half
 
-def cusp_in_rectangle(a):
-    return in_rectangle(to_k(a))
+def xy_in_quarter_rectangle(xy, f):
+    """
+    f = 1 or 2
+    """
+    x,y = xy
+    fy = f*y
+    return 0<=x and x<= half and 0<=fy and fy<=half
 
 def in_rectangle(a):
     f = 1 + a.parent().disc()%2
     return xy_in_rectangle(xy_coords(a), f)
+
+def in_quarter_rectangle(a):
+    f = 1 + nf(a).disc()%2
+    return xy_in_quarter_rectangle(xy_coords(a), f)
+
+def cusp_in_rectangle(a):
+    return in_rectangle(to_k(a))
+
+def cusp_in_quarter_rectangle(a):
+    return in_quarter_rectangle(to_k(a))
 
 def is_sigma_surrounded(sigma, alist, debug=False):
     """Given a singular point s and a candidate list of principal cusps
@@ -1153,6 +1291,80 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                 print("Success with max norm {}!".format(maxn))
             return maxn, alphas, sigmas
 
+def point_translates(P):
+    return [[P[0]+t,P[1]] for t in [-1-w,-1,-1+w,-1,0,1,-1+w,w,1+w]]
+
+def nverts(a, plist):
+    return len([P for P in plist if is_under(P,a)==0])
+
+def saturate_covering_alphas(k, alphas, debug=False):
+    """Given a covering set of alphas as produced by
+    find_covering_alphas(), add extras if necessary so that they are
+    "saturated", i.e. define the extended fundamental domain.
+
+    By Swan, we need to find the points P in H^3 with positive height
+    where at least 3 hemispheres S_a intersect, and for each P check
+    whether P is properly covered by an S_a for a not in the set of
+    alphas (up to translation).  If so, we need to add a to the set of
+    alphas.  If none, then we have the fundamental region (and can go
+    on to discard any redundant alphas).
+
+    """
+    sat = False
+    checked_points = []
+    alphas1 = [a for a in alphas] # copy so original list unchanged
+    while not sat:
+        n = max(a.denominator().norm() for a in alphas1)
+        m = next_norm(k, n+1)
+        all_points = triple_intersections(alphas1)
+        if debug:
+            print("Found {} potential vertices".format(len(all_points)))
+        points = [P for P in all_points if P[1]<=1/m]
+        if debug:
+            print(" -- of which {} are low enough to be properly covered by a new alpha".format(len(points)))
+        points = [P for P in points if in_quarter_rectangle(P[0])]
+        if debug:
+            print(" -- of which {} lie in the first quadrant".format(len(points)))
+        points = [P for P in points if P not in checked_points]
+        if debug:
+            print(" -- of which {} have not already been checked".format(len(points)))
+        sat = True        # will be set to False if we find out that the alphas are not already saturated
+        extra_alphas = [] # will be filled with any extra alphas needed
+        for P in points:
+            if debug:
+                print(" - checking P = {}".format(P))
+            extras = properly_covering_hemispheres(P)
+            if extras:
+                sat = False
+                hts = [radius_squared(a) - (P[0]-to_k(a)).norm() for a in extras]
+                m = max(hts)
+                extras0 = [a for a,h in zip(extras, hts) if h==m]
+                if debug:
+                    print("   - found properly covering {} with norms {}".format(extras, [a.denominator().norm() for a in extras]))
+                    print("     max height above P (height {}) is {}, for {}".format(P[1], m, extras0))
+                for a in extras0:
+                    ca = conj_cusp(a)
+                    for b in [a, negate_cusp(a), ca, negate_cusp(ca)]:
+                        if cusp_in_rectangle(b) and b not in extra_alphas:
+                            extra_alphas.append(b)
+            else:
+                print("   - OK, no properly covering alphas found")
+                checked_points.append(P)
+        if sat:
+            print(" alphas are saturated")
+        else:
+            print(" alphas not saturated, {} extras needed: {}".format(len(extra_alphas), extra_alphas))
+        alphas1 += extra_alphas
+
+    # Now delete any alphas with <3 vertices, allowing for translates
+    pointsx = []
+    for P in all_points:
+        for Q in point_translates(P):
+            if Q not in pointsx:
+                pointsx.append(Q)
+    alphas1 = [a for a in xalphas if nverts(a, pointsx)>=3]
+    points1 = triple_intersections(alphas1)
+    return alphas1, points1
 
 def reduce_alphas_mod_Ok(alist):
     """Rahm's list of alpha = lambda/mu in k includes repeats (up to

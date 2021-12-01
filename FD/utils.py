@@ -113,6 +113,9 @@ def cusp(x, k=None, Ireps=None):
         Ireps = smallest_ideal_class_representatives(k)
 
     a, b = frac(k(x))
+    if not ispos(b):
+        a=-a;
+        b=-b
     return NFCusp(k, a, b, lreps=Ireps)
 
 def cusp2(a,b, k=None, Ireps=None):
