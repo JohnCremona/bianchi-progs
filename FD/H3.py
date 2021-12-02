@@ -1114,7 +1114,7 @@ def are_intersection_points_covered(a0, a1, alist, sigmas, debug=False):
             t = t2
     return False
 
-def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
+def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False):
     """Given a principal cusp a0, a candidate list of principal cusps
     alist, tests whether the boundary of the disc S_a0 is contained in
     the union of the translates S_{b+t} for b in alist, apart from any
@@ -1125,8 +1125,12 @@ def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
     if not then the method still uses exact arithmetic in k
     throughout.
 
-    Returns either (True, xlist) with xlist a list of all b+t
-    needed, or (False, None)
+    pairs_ok is a list of pairs (a1,a2) whose intersection points are
+    known to be covered, so can be skipped.
+
+    Returns (True/False, new_pairs_ok) where new_pairs_ok is an
+    updated list of pairs whose intersections have been shown to be
+    covered.
 
     """
     k = nf(alist[0])
@@ -1147,7 +1151,7 @@ def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
         if debug:
             a1 = next(b for b in alist if circle_inside_circle(A0, cusp_to_point(b), True))
             print(" ok: circle {} is entirely inside circle {}".format(A0, cusp_to_point(a1)))
-        return True
+        return True, pairs_ok
 
     # extract the relevant alphas, if any, namely those for which
     # S_alpha and S_a0 properly intersect:
@@ -1164,44 +1168,80 @@ def is_alpha_surrounded(a0, alist, sigmas, debug=False, plot=False):
         pic.show(figsize=[30,30])
         input("press Enter...")
 
+    a0_pairs_ok = [pr for pr in pairs_ok if a0 in pr]
+    new_pairs_ok = pairs_ok.copy()
+    all_ok = True
     for i, a1 in enumerate(alist):
+        pair = [a0,a1]
+        pair.sort()
+        if pair in a0_pairs_ok:
+            if debug:
+                print("\nSkipping pair {}".format(pair))
+            continue
         if debug:
-            print("\nTesting intersection points of {} and {}".format(a0,a1))
+            print("\nTesting intersection points of {}".format(pair))
         ok = are_intersection_points_covered(a0, a1, alist, sigmas, debug)
         if ok:
+            new_pairs_ok.append(pair)
             if debug:
                 print(" - ok: intersection points of {} and {} are covered".format(a0,a1))
         else:
             if debug:
                 print(" - not ok: intersection points of {} and {} are not covered".format(a0,a1))
-            return False
+            all_ok = False
     if debug:
-        print("OK: all intersection points of {} and {} are covered".format(a0, a1))
+        if all_ok:
+            print("OK: all intersection points of {} are covered".format(a0))
+        else:
+            print("No: not all intersection points of {} are covered".format(a0))
+    return all_ok, new_pairs_ok
 
-    return True
+def are_alphas_surrounded(alist_ok, alist_open, slist, pairs_ok=[],
+                          verbose=False, debug=False):
+    """Given alist_ok and alist_open, lists of principal cusps, and slist,
+    a complete list of singular points, tests whether the boundary of
+    every disc S_a for a in alist_open is contained in the union of
+    the translates of the S_b for b in alist_ok+alist_open, apart from
+    any singular points on the boundary.
 
-def are_alphas_surrounded(alist, slist, verbose=False, debug=False):
-    """Given alist, a candidate list of principal cusps, and slist, a
-    complete list of singular points, tests whether the boundary of
-    every disc S_a is contained in the union of the translates of the
-    S_b for b in alist, apart from any singular points on the
-    boundary.
+    Any a which pass are added to a new copy of alist_ok, while any
+    which fail are added to a new alist_open, so success means that
+    the latter is empty.  This allows for incremental testing by
+    adding more a to alist_open.
 
-    Returns either (True, xlist) with xlist a list of any translates
-    needed, or (False, [])
+    pairs_ok is list of pairs (a1,a2) whose intersection points are
+    known to be covered.
+
+    Returns (True/False, new_alist_ok, new_alist_open, new_pairs_ok).
+
+    NB All a in alist_open will be tested, i.e. we carry on after a
+    failure.
 
     """
-    for i, a in enumerate(alist):
-        if verbose or debug:
-            print("Testing alpha #{}/{} = {}".format(i+1, len(alist), a))
-        ok = is_alpha_surrounded(a, alist, slist, debug)
-        if not ok:
+    alist = alist_ok + alist_open
+    new_alist_ok = alist_ok.copy()
+    new_alist_open = []
+    all_ok = True
+    for i, a in enumerate(alist_open):
+        if cusp_in_quarter_rectangle(a):
             if verbose or debug:
-                print(" no, {} is not surrounded".format(a))
-            return False
-        if verbose or debug:
-            print(" ok, {} is surrounded".format(a))
-    return True
+                print("Testing alpha #{}/{} = {}".format(i+1, len(alist_open), a))
+            ok, new_pairs_ok = is_alpha_surrounded(a, alist, slist, pairs_ok, debug)
+            pairs_ok = new_pairs_ok
+            if ok:
+                if verbose or debug:
+                    print(" ok, {} is surrounded".format(a))
+            else:
+                all_ok = False
+                if verbose or debug:
+                    print(" no, {} is not surrounded".format(a))
+        else:
+            ok = True
+        if ok:
+            new_alist_ok.append(a)
+        else:
+            new_alist_open.append(a)
+    return all_ok, new_alist_ok, new_alist_open, pairs_ok
 
 def next_norm(k, n):
     """
@@ -1226,15 +1266,22 @@ def reduced_numerators(s):
 
 def principal_cusps_iter(k, maxnorm_s):
     """
-    Iterator yielding all principal r/s with N(s)<=maxnorm_s
+    Return iterator yielding all principal r/s with N(s)<=maxnorm_s
     """
     for s in elements_of_norm_upto(k, maxnorm_s):
         for r in reduced_numerators(s):
-            a = reduce_mod_Ok(r/s)
-            yield cusp(a, k)
+            yield cusp(reduce_mod_Ok(r/s), k)
+
+def principal_cusps_of_norm(k, norm_s):
+    """
+    Return iterator yielding all principal r/s with N(s)=maxnorm_s
+    """
+    for s in k.elements_of_norm(norm_s):
+        for r in reduced_numerators(s):
+            yield cusp(reduce_mod_Ok(r/s), k)
 
 def principal_cusps_up_to(k, maxn, fussy=True):
-    """List of all principal r/s with N(s)<=maxnorm_s, omitting any whose
+    """List of all principal r/s with N(s)<=maxn, omitting any whose
     circles are contained in an earlier circle.  Since we loop through
     circles in decreasing order of radius, no circle can be contained
     in a later one.
@@ -1278,18 +1325,38 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
         sigmas = singular_points_new(k)
     ok = False
     maxn = 0
+    alphas_ok = []
+    alphas_open = []
+    pairs_ok = []
+    Alist = []
     while not ok:
         maxn = next_norm(k, maxn+1)
+        nc = 0 # number of new alphas added to list
+        for a in principal_cusps_of_norm(k, maxn):
+            A = cusp_to_point(a)
+            if not any(circle_inside_circle(A, B, False) for B in Alist):
+                if cusp_in_quarter_rectangle(a):
+                    alphas_open.append(a)
+                    nc += 1
+                else:
+                    alphas_ok.append(a)
+                Alist.append(A)
         if verbose:
-            print("Testing max norm {}".format(maxn))
-        alphas = principal_cusps_up_to(k, maxn)
-        ok = are_alphas_surrounded(alphas, sigmas, debug=False)
-        if verbose and not ok:
-            print("{} fails, continuing...".format(maxn))
+            print("Adding {} alphas of norm {} (plus symmetrics)".format(nc, maxn))
+        if nc==0:
+            continue
+        ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=False)
         if ok:
             if verbose:
-                print("Success with max norm {}!".format(maxn))
-            return maxn, alphas, sigmas
+                print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
+            return maxn, new_alphas_ok, sigmas
+        else:
+            alphas_ok = new_alphas_ok
+            alphas_open = new_alphas_open
+            pairs_ok = new_pairs_ok
+            if verbose:
+                print("{} alphas out of {} with max norm {} are not surrounded, continuing...".format
+                      (len(alphas_open), len(alphas_open)+len(alphas_ok), maxn))
 
 def point_translates(P):
     return [[P[0]+t,P[1]] for t in [-1-w,-1,-1+w,-1,0,1,-1+w,w,1+w]]
@@ -1312,7 +1379,7 @@ def saturate_covering_alphas(k, alphas, debug=False):
     """
     sat = False
     checked_points = []
-    alphas1 = [a for a in alphas] # copy so original list unchanged
+    alphas1 = alphas.copy() # copy so original list unchanged
     while not sat:
         n = max(a.denominator().norm() for a in alphas1)
         m = next_norm(k, n+1)
@@ -1339,9 +1406,10 @@ def saturate_covering_alphas(k, alphas, debug=False):
                 hts = [radius_squared(a) - (P[0]-to_k(a)).norm() for a in extras]
                 m = max(hts)
                 extras0 = [a for a,h in zip(extras, hts) if h==m]
+                norms0 = [a.denominator().norm() for a in extras0]
                 if debug:
                     print("   - found properly covering {} with norms {}".format(extras, [a.denominator().norm() for a in extras]))
-                    print("     max height above P (height {}) is {}, for {}".format(P[1], m, extras0))
+                    print("     max height above P (height {}) is {}, for {} with norms {}".format(P[1], m, extras0, norms0))
                 for a in extras0:
                     ca = conj_cusp(a)
                     for b in [a, negate_cusp(a), ca, negate_cusp(ca)]:
@@ -1351,9 +1419,11 @@ def saturate_covering_alphas(k, alphas, debug=False):
                 print("   - OK, no properly covering alphas found")
                 checked_points.append(P)
         if sat:
-            print(" alphas are saturated")
+            m = max([a.denominator().norm() for a in alphas1])
+            print(" alphas are saturated! {} alphas with max norm {}".format(len(alphas1), m))
         else:
-            print(" alphas not saturated, {} extras needed: {}".format(len(extra_alphas), extra_alphas))
+            m = max([a.denominator().norm() for a in extra_alphas])
+            print(" alphas not saturated, {} extras needed: {} (norms at most {})".format(len(extra_alphas), extra_alphas, m))
         alphas1 += extra_alphas
 
     # Now delete any alphas with <3 vertices, allowing for translates
@@ -1362,7 +1432,7 @@ def saturate_covering_alphas(k, alphas, debug=False):
         for Q in point_translates(P):
             if Q not in pointsx:
                 pointsx.append(Q)
-    alphas1 = [a for a in xalphas if nverts(a, pointsx)>=3]
+    alphas1 = [a for a in alphas1 if nverts(a, pointsx)>=3]
     points1 = triple_intersections(alphas1)
     return alphas1, points1
 
@@ -1393,7 +1463,7 @@ def find_edge_pairs(alphas, debug=False):
     k = nf(alphas[0])
     A1 = [a for a in alphas if a.denominator()==1]
     A2 = [a for a in alphas if a.denominator()==2]
-    A = [a for a in alphas if a.denominator() not in [1,2,3]]
+    A = [a for a in alphas if a.denominator() not in [1,2]]
     S = list(set(k(a.denominator()) for a in A))
     S.sort(key = lambda z: z.norm())
     if debug:
@@ -1408,6 +1478,7 @@ def find_edge_pairs(alphas, debug=False):
     pluspairs = []
     minuspairs = []
     fours = []
+    long_fours = []
 
     for s in S:
         if debug:
@@ -1458,13 +1529,15 @@ def find_edge_pairs(alphas, debug=False):
                 if not any(pair in fours for pair in (rs, mrs, rds, mrds)):
                     if ispos(r):
                         if debug:
-                            print("  - adding foursome {}".format(rs))
+                            print("  - adding foursome {}".format((r,s,rdash)))
                         fours.append(rs)
+                        long_fours.append((s,r,rdash))
                         add_four_alphas(s, r, rdash, new_alphas, M_alphas)
                     else:
                         if debug:
-                            print("  - adding foursome {}".format(mrs))
+                            print("  - adding foursome {}".format((-r,s,rdash)))
                         fours.append(mrs)
+                        long_fours.append((s,-r,-rdash))
                         add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
             except StopIteration:
                 print("no negative inverse found for {} mod {}".format(r, s))
@@ -1473,4 +1546,10 @@ def find_edge_pairs(alphas, debug=False):
     print("plus pairs: {}".format(pluspairs))
     print("minus pairs: {}".format(minuspairs))
     print("fours: {}".format(fours))
-    return A1, A2, new_alphas, M_alphas, pluspairs, minuspairs, fours
+    for r,s in pluspairs:
+        print("add_alpha_pair({}, {}, +1)".format(s,r))
+    for r,s in minuspairs:
+        print("add_alpha_pair({}, {}, -1)".format(s,r))
+    for s, r1, r2 in long_fours:
+        print("add_alpha_foursome({}, {}, {})".format(s,r1,r2))
+    return A1, A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
