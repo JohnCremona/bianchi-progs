@@ -44,6 +44,12 @@ Cuboctahedron = Graph([(0, 2), (0, 6), (0, 7), (0, 11),
                        (9, 10)],
                       name = "cuboctahedron")
 
+Octahedron = Graph( [(0, 1), (0, 2), (0, 4), (0, 5), (1, 2), (1, 3),
+                     (1, 4), (2, 3), (2, 5), (3, 4), (3, 5), (4, 5)],
+                    name = "octahedron")
+
+Unknown = Graph(name="unknown")
+
 # To add a new type of polyhedron, given one G of the new type:
 #
 # V = G.vertices()
@@ -55,9 +61,10 @@ Cuboctahedron = Graph([(0, 2), (0, 6), (0, 7), (0, 11),
 # NewPoly = Graph(..., name="new name")
 #
 
-all_polys = (Tetrahedron, Cube,
+all_polys = (Tetrahedron, Cube, Octahedron,
              TriangularPrism, SquarePrism, HexagonalPrism,
-             HexagonalCap, TruncatedTetrahedron, Cuboctahedron)
+             HexagonalCap, TruncatedTetrahedron, Cuboctahedron,
+             Unknown)
 
 def poly_type(pol):
     for G in all_polys:
@@ -69,5 +76,6 @@ def all_poly_types(pols):
     return [poly_type(pol) for pol in pols]
 
 def poly_types(pols):
-    return dict([(std_pol.name(), sum([pol.is_isomorphic(std_pol) for pol in pols]))
-                 for std_pol in all_polys])
+    n_unknown = sum(1 for pol in pols if poly_type(pol)=='unknown')
+    return dict([(std_pol.name(), sum(1 for pol in pols if pol.is_isomorphic(std_pol)))
+                 for std_pol in all_polys] + [('unknown', n_unknown)])

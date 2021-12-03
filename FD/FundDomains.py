@@ -1,6 +1,6 @@
 from sage.all import (RR, ZZ, pi, oo, sqrt, floor, ceil,
                       circle, point, var, implicit_plot3d,
-                      arctan,
+                      arctan, srange, xsrange, Integer,
                       cached_function)
 
 def fundamental_domain(k):

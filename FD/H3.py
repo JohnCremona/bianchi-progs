@@ -1,6 +1,6 @@
 # Functions for working with H3 and hemispheres etc.
 
-from itertools import chain #, combinations
+from itertools import chain
 
 from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
                       Graph, srange, Set, sign, var, implicit_plot3d, NFCusp, Integer, oo,
@@ -183,7 +183,7 @@ def covering_hemispheres2(P, option=None, debug=False):
                 for r in k.elements_of_norm(rnorm):
                     if k.ideal(r,s)!=1:
                         continue
-                    for pm in [-1,1]:
+                    for pm in [-1,1] if r else [1]:
                         a = pm*r/s
                         d = d1 - (a-z).norm()
                         if debug and d>=0:
@@ -241,9 +241,12 @@ def infinity_matrix(a, P=None, Plist=None):
         return M0
     else:
         Q = apply3d(M0,P)
+        assert P[1]==Q[1]
         if Q in Plist:
             return M0
         for R in Plist:
+            if R[1]!=Q[1]:
+                continue
             z = R[0]-Q[0]
             if z.is_integral():
                 M = Matrix([[1,z],[0,1]])*M0
@@ -253,7 +256,7 @@ def infinity_matrix(a, P=None, Plist=None):
                     print("M(P) = {}".format(apply3d(M,P)))
                 assert apply3d(M,P) in Plist
                 return M
-        raise RuntimeError("infinity_matrix failed")
+        raise RuntimeError("infinity_matrix failed with a={}, P={}, Plist={}".format(a,P,Plist))
 
 
 def singular_points_in_class(I, IC=None, verbose=False):
@@ -305,7 +308,7 @@ def singular_points_by_class(IC, verbose=False):
     """
     return [singular_points_in_class(I, IC=IC, verbose=verbose) for I in IC]
 
-def singular_points_new(k, verbose=False):
+def singular_points(k, verbose=False):
     """Return a list of singular points, one representative for each
     orbit under integral translations.
 
@@ -332,8 +335,8 @@ def singular_points_MA(k):
     """
     if k.class_number()==1:
         return []
-    from FundDomands import singular_points, reduce_ab_mod_ok
-    S = singular_points(k)
+    from FundDomains import singular_points as spMA, reduce_ab_mod_ok
+    S = spMA(k)
     # include negatives:
     S = S + [[-ab[0],-ab[1]] for ab in S]
     # reduce mod O_k
@@ -369,7 +372,7 @@ def test_singular_points(dmin, dmax, verbose=False):
             continue
         if verbose:
             print("d={}, {} has class number {}".format(d, k, h))
-        sigmas = singular_points_new(k)
+        sigmas = singular_points(k)
         if verbose:
             print("New sigmas: {}".format(sigmas))
         old_sigmas = singular_points_MA(k)
@@ -647,12 +650,17 @@ def alpha_triples(alphas):
     tsq>0; (2) a list of the extra translates required
 
     """
-    w = alphas[0].number_field().gen()
+    k = nf(alphas[0])
+    w = k.gen()
     corners = []
     triples = []
     alpha_translates = []
     # Extend the alphas by 8 translations:
-    xalphas = alphas + sum([[translate_cusp(a,t) for t in [-w-1,-w,1-w,-1,1,-1+w,w,1+w]] for a in alphas], [])
+    # xalphas = sum([[translate_cusp(a,t) for t in
+    #                 [a+b*w for a in [-1,0,1] for b in [-1,0,1]]] for a in alphas],
+    # [])
+    #xalphas = alphas + sum([[translate_cusp(a,t) for t in [-w-1,-w,1-w,-1,1,-1+w,w,1+w]] for a in alphas], [])
+    xalphas = sum([translates(a) for a in alphas], [])
     n = len(xalphas)
     # convert each cusp to a point
     # [a,tsq] with tsq the square
@@ -671,9 +679,10 @@ def alpha_triples(alphas):
     for i,j in ij_list:
         ai = xalphas[i]
         aj = xalphas[j]
-        for k, ak in enumerate(alphas):# in range(max(i,j)+1, n):
+        #for k, ak in enumerate(alphas):
+        for k in range(max(i,j)+1, n):
             if {i,k} in ij_list and {j,k} in ij_list:
-                #ak = xalphas[k]
+                ak = xalphas[k]
                 P = tri_inter(ai, aj, ak)
                 if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
                     if P not in corners:
@@ -701,7 +710,7 @@ def alpha_doubles(alphas, sigmas):
     w = alphas[0].number_field().gen()
     SP = [[to_k(s),0] for s in sigmas if not s.is_infinity()]
     # get list of alpha translates a such that at least one sigma is on S_a:
-    xalphas = sum([[translate_cusp(a,t) for t in [a+b*w for a in [-1,0,1] for b in [-1,0,1]]] for a in alphas], [])
+    xalphas = sum([[translate_cusp(al, a+b*w) for a in [-1,0,1] for b in [-1,0,1]] for al in alphas], [])
     xalphas = [a for a in xalphas if any(is_under(P,a)==0 for P in SP)]
     # convert each principal cusp to
     # a point [a,tsq] with tsq the
@@ -725,13 +734,15 @@ def alpha_doubles(alphas, sigmas):
         P = bi_inter(ai, aj)
         if P and P[1] and not is_redundant(P, xalphas):
             sig = [s for s in SP if is_under(s,ai)==0 and is_under(s,aj)==0]
-            assert len(sig)==1
-            dub = [P[1],(cusp(sig[0][0]),ai,aj),P]
-            if dub not in doublets:
-                doublets.append(dub)
-                for a in dub[1]:
-                    if a not in alpha_translates and a not in alphas:
-                        alpha_translates.append(a)
+            if len(sig)!=1:
+                print("{} singular points are on both S_{} and S_{}".format(len(sig), ai, aj))
+            if sig:
+                dub = [P[1],(cusp(sig[0][0]),ai,aj),P]
+                if dub not in doublets:
+                    doublets.append(dub)
+                    for a in dub[1]:
+                        if a not in alpha_translates and a not in alphas:
+                            alpha_translates.append(a)
     return doublets, alpha_translates
 
 def orbit_polyhedron(orb, Plist, Pverts, Pmats):
@@ -748,7 +759,7 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats):
     return G
 
 def principal_polyhedra(alphas, debug=False):
-    k = alphas[0].number_field()
+    k = nf(alphas[0])
     triplets, extra_alphas = alpha_triples(alphas)
     # only used for the 3d plot:
     hemispheres = [cusp_to_point(a) for a in alphas+extra_alphas]
@@ -761,13 +772,15 @@ def principal_polyhedra(alphas, debug=False):
     Plist = [t[2] for t in triplets]
     if debug:
         print("Plist: {}".format(Plist))
-    Psupps = [hemispheres_through(P) for P in Plist]
+    #Psupps = [hemispheres_through(P) for P in Plist]
+    Psupps = [[a for a in alphas+extra_alphas if is_under(P,a)==0] for P in Plist]
     if debug:
         print("Psupps: {}".format(Psupps))
     Pmats = [[Imat] + [infinity_matrix(a, P, Plist) for a in Psupp] for P, Psupp in zip(Plist, Psupps)]
     if debug:
         print("Pmats: {}".format(Pmats))
-    Pverts = [[cusp(oo,k)] + list(t[1]) for t in triplets]
+    #Pverts = [[cusp(oo,k)] + list(t[1]) for t in triplets]
+    Pverts = [[cusp(oo,k)] + [a for a in alphas+extra_alphas if a in Psupp] for P,Psupp in zip(Plist,Psupps)]
     orbits = set()
     for i,P in enumerate(Plist):
         Qlist = [apply3d(M,P) for M in Pmats[i]]
@@ -776,14 +789,14 @@ def principal_polyhedra(alphas, debug=False):
             print("New orbit from P_{}={}: {}".format(i,P,orb))
             orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
-    print("Found {} orbits:".format(orbits))
+    print("Found {} orbits".format(len(orbits)))
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats) for orb in orbits]
     print("Constructed {} polyhedra".format(len(polyhedra)))
     print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
     return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
-    k = alphas[0].number_field()
+    k = nf(alphas[0])
     doublets, extra_alphas = alpha_doubles(alphas, sigmas)
 
     if debug:
@@ -1359,12 +1372,12 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                       (len(alphas_open), len(alphas_open)+len(alphas_ok), maxn))
 
 def point_translates(P):
-    return [[P[0]+t,P[1]] for t in [-1-w,-1,-1+w,-1,0,1,-1+w,w,1+w]]
+    return [[P[0]+a+b*w, P[1]] for a in [-1,0,1] for b in [-1,0,1]]
 
 def nverts(a, plist):
-    return len([P for P in plist if is_under(P,a)==0])
+    return sum([1 for P in plist if is_under(P,a)==0])
 
-def saturate_covering_alphas(k, alphas, debug=False):
+def saturate_covering_alphas(k, alphas, sigmas, debug=False):
     """Given a covering set of alphas as produced by
     find_covering_alphas(), add extras if necessary so that they are
     "saturated", i.e. define the extended fundamental domain.
@@ -1376,6 +1389,7 @@ def saturate_covering_alphas(k, alphas, debug=False):
     alphas.  If none, then we have the fundamental region (and can go
     on to discard any redundant alphas).
 
+    At the end we discard any alphas with <3 vertices (including translates and singular points).
     """
     sat = False
     checked_points = []
@@ -1416,7 +1430,8 @@ def saturate_covering_alphas(k, alphas, debug=False):
                         if cusp_in_rectangle(b) and b not in extra_alphas:
                             extra_alphas.append(b)
             else:
-                print("   - OK, no properly covering alphas found")
+                if debug:
+                    print("   - OK, no properly covering alphas found")
                 checked_points.append(P)
         if sat:
             m = max([a.denominator().norm() for a in alphas1])
@@ -1426,13 +1441,20 @@ def saturate_covering_alphas(k, alphas, debug=False):
             print(" alphas not saturated, {} extras needed: {} (norms at most {})".format(len(extra_alphas), extra_alphas, m))
         alphas1 += extra_alphas
 
+    m = max([a.denominator().norm() for a in alphas1])
+    print("After saturation we now have {} alphas with max norm {}".format(len(alphas1), m))
+
     # Now delete any alphas with <3 vertices, allowing for translates
     pointsx = []
-    for P in all_points:
+    for P in all_points+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
         for Q in point_translates(P):
             if Q not in pointsx:
                 pointsx.append(Q)
+    nv = [nverts(a, pointsx) for a in alphas1]
+    print("# vertices for these alphas: {}".format(nv))
     alphas1 = [a for a in alphas1 if nverts(a, pointsx)>=3]
+    m = max([a.denominator().norm() for a in alphas1])
+    print("After removing alphas which go through <3 vertices, we now have {} alphas with max norm {}".format(len(alphas1), m))
     points1 = triple_intersections(alphas1)
     return alphas1, points1
 
@@ -1458,17 +1480,48 @@ def cong_mod(r1, r2, s):
     return ((r1-r2)/s).is_integral()
 
 def find_edge_pairs(alphas, debug=False):
-    from utils import add_two_alphas, add_four_alphas, nf, ispos
+    from utils import add_two_alphas, add_four_alphas, nf, ispos, alpha_index_with_translation
 
     k = nf(alphas[0])
-    A1 = [a for a in alphas if a.denominator()==1]
-    A2 = [a for a in alphas if a.denominator()==2]
-    A = [a for a in alphas if a.denominator() not in [1,2]]
+    w = k.gen()
+
+    # Extract the a for which 2*a is integral, which we treat
+    # separately:
+    A2 = [a for a in alphas if (2*to_k(a,k)).is_integral()]
+
+    # For a such that 2*a is not integral and we make sure that we
+    # have complete sets of {a,-a} pairs, not just up to translation:
+    #A = [a for a in alphas if a.denominator() not in [1,2]]
+    A = []
+    for a in alphas:
+        ma = negate_cusp(a)
+        if a not in A2 and alpha_index_with_translation(ma, A)[0]<0:
+            r,i = to_k(a,k)
+            if w.trace()==0:
+                if r<0 and i==half:
+                    a = cusp(k([r,-half]), k)
+                elif i<0 and r==half:
+                    a = cusp(k([-half,i]), k)
+            else:
+                if i==half:
+                    if r>0:
+                        a = cusp(k([r,i-1]), k)
+                    elif r<-half:
+                        a = cusp(k([r+1,i-1]), k)
+                elif 2*r+i==1 and i<0:
+                    a = cusp(k([r-1,i]), k)
+            r,i = to_k(a,k)
+            if i>0:
+                A.append(a)
+                A.append(negate_cusp(a))
+            else:
+                A.append(negate_cusp(a))
+                A.append(a)
+
     S = list(set(k(a.denominator()) for a in A))
     S.sort(key = lambda z: z.norm())
     if debug:
-        print("Denominator 1: {}".format(A1))
-        print("Denominator 2: {}".format(A2))
+        print("Denominator | 2: {}".format(A2))
         print("Other denominators: {}".format(S))
         for s in S:
             print("s = {}: numerators {}".format(s, [a for a in A if a.denominator()==s]))
@@ -1541,15 +1594,16 @@ def find_edge_pairs(alphas, debug=False):
                         add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
             except StopIteration:
                 print("no negative inverse found for {} mod {}".format(r, s))
-    print("alphas with denominator 1: {}".format(A1))
-    print("alphas with denominator 2: {}".format(A2))
+    print("alphas with denominator | 2: {}".format(A2))
     print("plus pairs: {}".format(pluspairs))
     print("minus pairs: {}".format(minuspairs))
     print("fours: {}".format(fours))
+    # for paasting into C++:
+    print("// C++ code")
     for r,s in pluspairs:
-        print("add_alpha_pair({}, {}, +1)".format(s,r))
+        print("add_alpha_pair({}, {}, +1);".format(s,r))
     for r,s in minuspairs:
-        print("add_alpha_pair({}, {}, -1)".format(s,r))
+        print("add_alpha_pair({}, {}, -1);".format(s,r))
     for s, r1, r2 in long_fours:
-        print("add_alpha_foursome({}, {}, {})".format(s,r1,r2))
-    return A1, A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
+        print("add_alpha_foursome({}, {}, {});".format(s,r1,r2))
+    return A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
