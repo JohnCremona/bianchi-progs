@@ -745,15 +745,25 @@ def alpha_doubles(alphas, sigmas):
                             alpha_translates.append(a)
     return doublets, alpha_translates
 
-def orbit_polyhedron(orb, Plist, Pverts, Pmats):
+def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
+    if debug:
+        print("Constructing orbit polyhedron {}".format(orb))
     i = orb[0]
     P = Plist[i]
+    if debug:
+        print("Base point P = {}".format(P))
     E = []
     for j in orb:
         Q = Plist[j]
         QV  = Pverts[j]
+        if debug:
+            print(" Q = {} with vertices {} and matrices {}".format(Q, QV, Pmats[j]))
+            print(" which map Q to {}".format([apply3d(M,Q) for M in Pmats[j]]))
         MQP = [M for M in Pmats[j] if apply3d(M,Q)==P]
         V = [[apply(M, a) for a in QV] for M in MQP]
+        if debug:
+            print(" {} transfer matrices map these to {}".format(len(MQP), V))
+            print(" adding edges {}".format([[[t[0],t[i]] for i in range(1,len(QV))] for t in V]))
         E += sum([[[t[0],t[i]] for i in range(1,len(QV))] for t in V], [])
     G = Graph([[cusp_label(a),cusp_label(b)] for a,b in E])
     return G
@@ -772,14 +782,12 @@ def principal_polyhedra(alphas, debug=False):
     Plist = [t[2] for t in triplets]
     if debug:
         print("Plist: {}".format(Plist))
-    #Psupps = [hemispheres_through(P) for P in Plist]
-    Psupps = [[a for a in alphas+extra_alphas if is_under(P,a)==0] for P in Plist]
+    Psupps = [hemispheres_through(P) for P in Plist]
     if debug:
         print("Psupps: {}".format(Psupps))
     Pmats = [[Imat] + [infinity_matrix(a, P, Plist) for a in Psupp] for P, Psupp in zip(Plist, Psupps)]
     if debug:
         print("Pmats: {}".format(Pmats))
-    #Pverts = [[cusp(oo,k)] + list(t[1]) for t in triplets]
     Pverts = [[cusp(oo,k)] + [a for a in alphas+extra_alphas if a in Psupp] for P,Psupp in zip(Plist,Psupps)]
     orbits = set()
     for i,P in enumerate(Plist):
@@ -790,6 +798,9 @@ def principal_polyhedra(alphas, debug=False):
             orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
     print("Found {} orbits".format(len(orbits)))
+    print("Orbits:")
+    for orb in orbits:
+        print(orb)
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats) for orb in orbits]
     print("Constructed {} polyhedra".format(len(polyhedra)))
     print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
