@@ -242,8 +242,7 @@ void Quad::setup_geometry()
       add_sigma(1+w,3);
       break;
     }
-  case 6:
-  case 9:
+  case 6:  case 9:
     {
       if (d>6)
         {
@@ -290,6 +289,21 @@ void Quad::setup_geometry()
       add_alpha_pair(2-w, 3);
       add_alpha_pair(3+w, w-6, +1);   // N(s)=20
       add_alpha_pair(4-w, 5+w, +1);
+      return;
+    }
+  case 47:
+    {
+      add_alpha_pair(w - 1, 5, +1);
+      add_alpha_pair(w, 5, +1);
+      // add_alpha_pair(4, 2*w - 1, +1);
+      add_alpha_pair(w - 4, w + 3, +1);
+      add_alpha_pair(w - 4, 2*w + 3, +1);
+      add_alpha_pair(w + 3, w - 4, +1);
+      add_alpha_pair(w + 3, 2*w - 5, +1);
+      add_alpha_pair(6, 2*w - 1, +1);
+      add_alpha_foursome(w - 3, w + 4, w + 2);
+      add_alpha_foursome(w + 2, w - 3, w - 5);
+      add_alpha_foursome(5, 2*w + 1, 2*w - 3);
       return;
     }
   case 67:
@@ -447,6 +461,10 @@ void make_triangles()
                  {7,11,10}, {7,19,17}};
     cyclic_triangles = {};
     break;
+  case 47: // PLUS ONE MORE![2*w - 3:5], oo, [-2*w + 4:-5]
+    triangles = {{7, 6, 20}, {6, 4, 28}, {26, 24, 19}, {24, 3, 8},
+                 {4, 15, 2}, {10, 6, 1}, {15, 10, 0},  {22, 17, 0},
+                 {12, 21, 29}, {30, 17, 15}};
   case 10:
     triangles = {{2,7,4}};
     cyclic_triangles = {};
@@ -491,6 +509,17 @@ void make_triangles()
   case 31:
     aas_triangles = {{{11,1,1},0}, {{2,1,1},-w}, {{2,2,2},-1}, {{10,2,2},w-1} };
     break;
+
+  case 47:
+    aas_triangles =     {{{19, 1, 1}, -w + 1}, {{6, 1, 1}, 0},
+                         {{8, 1, 1}, -w + 1}, {{4, 3, 2}, 0},
+                         {{2, 2, 3}, 0}, {{16, 2, 2}, 0},
+                         {{18, 3, 2}, 0}, {{30, 2, 3}, 0},
+                         {{9, 5, 5}, 0}, {{6, 4, 5}, 0},
+                         {{2, 5, 4}, -1}, {{30, 5, 4}, 0},
+                         {{21, 4, 5}, 0}, {{8, 6, 6}, -w},
+                         {{24, 6, 6}, -w}, {{4, 6, 6}, 0}};
+
   default:
     aas_triangles = {};
   }
@@ -580,6 +609,8 @@ void make_squares()
                {{8, 1, 9, 1}, {w+1,0,-w}},
                {{2, 8, 3, 9}, {0,0,0}}};
     break;
+  case 47:
+    squares = {{{2, 0, 1, 25}, {1, 0, 0}}};
   default:
     squares = {};
   }
