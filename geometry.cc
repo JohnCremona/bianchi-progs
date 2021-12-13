@@ -37,7 +37,7 @@ vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
 vector<int> cyclic_triangles;
-vector<vector<int> > triangles;
+vector<pair<vector<int>, Quad>> aaa_triangles;
 vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
 vector<pair<vector<int>, vector<Quad>> > hexagons;
@@ -232,7 +232,7 @@ void Quad::setup_geometry()
       if (d>23)
         {
           add_sigma(w,3);
-          add_sigma(1-w,3);
+          add_sigma(w-1,3);
         }
       break;
     }
@@ -273,6 +273,73 @@ void Quad::setup_geometry()
       add_alpha_pair(2*w, 9, +1);      // N(s)=40
       return;
     }
+  case 13:
+    {
+      add_alpha_pair(2*w, w - 12, +1);
+      add_alpha_pair(4, w + 2, -1);
+      add_alpha_foursome(5, 2*w + 2, 2*w - 2);
+      return;
+    }
+  case 14:
+    {
+      add_alpha_pair(w - 1, 4, +1);
+      add_alpha_pair(w + 1, 4, +1);
+      add_alpha_pair(w - 4, w + 7, +1);
+      add_alpha_pair(w + 4, w - 7, +1);
+      add_alpha_pair(6, 2*w + 3, +1);
+      add_alpha_pair(2*w, 13, +1);
+      add_alpha_pair(5, 2*w, -1);
+      add_alpha_foursome(w - 2, w + 5, w + 3);
+      add_alpha_foursome(w + 2, w - 3, w - 5);
+      return;
+    }
+  case 15:
+    {
+      add_alpha_pair(2*w - 1, w - 4, +1);
+      return;
+    }
+  case 17:
+    {
+      add_alpha_pair(w - 2, w + 6, +1);
+      add_alpha_pair(w + 2, w - 6, +1);
+      add_alpha_pair(6, 2*w + 3, +1);
+      add_alpha_pair(w - 5, 2*w + 3, +1);
+      add_alpha_pair(w + 5, 2*w - 3, +1);
+      add_alpha_pair(2*w, w - 16, +1);
+      add_alpha_pair(4, w, -1);
+      add_alpha_pair(4, w + 2, -1);
+      add_alpha_foursome(w - 1, 7, 5);
+      add_alpha_foursome(w + 1, 7, 5);
+      add_alpha_foursome(7, 3*w - 3, 3*w + 3);
+      return;
+    }
+  case 21:
+    {
+      add_alpha_pair(w, 8, +1);
+      add_alpha_pair(2*w, w - 20, +1);
+      add_alpha_pair(2*w, 13, +1);
+      add_alpha_pair(2*w, w - 8, +1);
+      add_alpha_pair(4, w, -1);
+      add_alpha_pair(4, w + 2, -1);
+      add_alpha_foursome(w - 1, 9, -5);
+      add_alpha_foursome(w + 1, 9, -5);
+      add_alpha_foursome(9, 4*w + 4, 4*w - 4);
+      return;
+    }
+  case 22:
+    {
+      add_alpha_pair(2*w, 21, +1);
+      add_alpha_pair(9, 4*w, -1);
+      add_alpha_foursome(4, w + 1, -w + 1);
+      add_alpha_foursome(w, 9, -5);
+      add_alpha_foursome(w - 1, 9, 5);
+      add_alpha_foursome(w + 1, 9, 5);
+      add_alpha_foursome(5, w + 2, w - 2);
+      add_alpha_foursome(5, 2*w + 1, -2*w + 1);
+      add_alpha_foursome(w + 2, w - 5, w - 9);
+      add_alpha_foursome(w - 2, w + 9, w + 5);
+      return;
+    }
   case 23:
     {
       add_alpha_pair(w+1, 2-w, +1); // N(s)=8
@@ -295,7 +362,6 @@ void Quad::setup_geometry()
     {
       add_alpha_pair(w - 1, 5, +1);
       add_alpha_pair(w, 5, +1);
-      // add_alpha_pair(4, 2*w - 1, +1);
       add_alpha_pair(w - 4, w + 3, +1);
       add_alpha_pair(w - 4, 2*w + 3, +1);
       add_alpha_pair(w + 3, w - 4, +1);
@@ -389,11 +455,11 @@ void Quad::setup_geometry()
 
 #define CHECK_TRIANGLES
 
-int check_triangle(const vector<int>& T)
+int check_aaa_triangle(const vector<int>& T, const Quad& u)
 {
-  // cout<<"Checking aaa-triangle "<<T<<endl;
+  // cout<<"Checking aaa-triangle ("<<T<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
-  RatQuad x = (Mi(Mj.preimage_oo()) - Mk.preimage_oo());
+  RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
   return (x.is_integral());
 }
 
@@ -414,12 +480,12 @@ int check_aas_triangle(const vector<int>& T, const Quad& u)
 
 // aaa triangle relations:
 
-// {i,j,k} where M_alphas[i](alphas[j]) = x + alphas[k] with x integral.
+// {{i,j,k},u} where M_alphas[i](alphas[j]+u) = x + alphas[k] with x integral.
 
-// The triangle has vertices [alpha_i, oo, alpha_j] and edges
+// The triangle has vertices [alpha_i, oo, alpha_j+u] and edges
 // (I)_i = {alpha_i, oo},
-// (M1)_j' = M_j' * {alpha_j',oo} = {oo, alpha_j},
-// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j, alpha_i}
+// (M1)_j' = T^u * M_j' * {alpha_j',oo} = {oo, alpha_j +u},
+// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j +u, alpha_i}
 
 // aas triangle relations:
 
@@ -436,50 +502,50 @@ void make_triangles()
   // NB Not including the {0,1,oo} triangle which is handles as a special case.
   switch(Quad::d) {
   case 43:
-    triangles = {{3,7,4}};
+    aaa_triangles = {{{3,7,4}, 0}};
     cyclic_triangles = {};
     break;
   case 67:
-    triangles = {{3,7,4}, {0,19,24}, {1,22,17}, {3,13,18}, {3,22,15}, {9,13,16}};
+    aaa_triangles = {{{3,7,4}, 0}, {{0,19,24}, 0}, {{1,22,17}, 0}, {{3,13,18}, 0}, {{3,22,15}, 0}, {{9,13,16}, 0}};
     cyclic_triangles = {9};
     break;
   case 163:
-    triangles = {{3,7,4}, {3, 21, 49}, {3, 53, 23}, {3, 71, 87}, {3, 83, 94}, {3, 85, 79}, {3, 98, 84},
-                 {7, 98, 93}, {9, 13, 16}, {9, 69, 78}, {13, 25, 77}, {13, 33, 57}, {13, 61, 30}, {13, 69, 26},
-                 {17, 33, 29}, {21, 28, 32}, {21, 35, 27}, {21, 59, 79}, {21, 71, 63}, {21, 75, 94}, {21, 98, 67},
-                 {23, 51, 3}, {25, 33, 23}, {25, 45, 67}, {27, 76, 48}, {27, 79, 13}, {29, 48, 93}, {31, 35, 19},
-                 {33, 45, 98}, {37, 40, 44}, {41, 45, 48}, {41, 73, 66}, {47, 96, 33}, {49, 84, 67}, {49, 87, 63},
-                 {53, 83, 75}, {53, 85, 59}, {59, 89, 62}, {61, 69, 23}, {73, 92, 21}, {77, 87, 5} };
+    aaa_triangles = {{{3,7,4}, 0}, {{3, 21, 49}, 0}, {{3, 53, 23}, 0}, {{3, 71, 87}, 0}, {{3, 83, 94}, 0}, {{3, 85, 79}, 0}, {{3, 98, 84}, 0},
+                 {{7, 98, 93}, 0}, {{9, 13, 16}, 0}, {{9, 69, 78}, 0}, {{13, 25, 77}, 0}, {{13, 33, 57}, 0}, {{13, 61, 30}, 0}, {{13, 69, 26}, 0},
+                 {{17, 33, 29}, 0}, {{21, 28, 32}, 0}, {{21, 35, 27}, 0}, {{21, 59, 79}, 0}, {{21, 71, 63}, 0}, {{21, 75, 94}, 0}, {{21, 98, 67}, 0},
+                 {{23, 51, 3}, 0}, {{25, 33, 23}, 0}, {{25, 45, 67}, 0}, {{27, 76, 48}, 0}, {{27, 79, 13}, 0}, {{29, 48, 93}, 0}, {{31, 35, 19}, 0},
+                 {{33, 45, 98}, 0}, {{37, 40, 44}, 0}, {{41, 45, 48}, 0}, {{41, 73, 66}, 0}, {{47, 96, 33}, 0}, {{49, 84, 67}, 0}, {{49, 87, 63}, 0},
+                 {{53, 83, 75}, 0}, {{53, 85, 59}, 0}, {{59, 89, 62}, 0}, {{61, 69, 23}, 0}, {{73, 92, 21}, 0}, {{77, 87, 5}, 0} };
     cyclic_triangles = {9, 17};
     break;
   case 23:
-    triangles = {{0,3,6}, {0,5,8}, {0,9,12}, {1,6,12}, {7,9,2}};
+    aaa_triangles = {{{0,3,6}, 0}, {{0,5,8}, 0}, {{0,9,12}, 0}, {{1,6,12}, 0}, {{7,9,2}, 0}};
     cyclic_triangles = {};
     break;
   case 31:
-    triangles = {{0,3,10}, {0,5,12}, {0,7,14}, {0,15,7}, {1,19,10}, {3,6,8}, {3,10,13}, {3,15,12},
-                 {7,11,10}, {7,19,17}};
+    aaa_triangles = {{{0,3,10}, 0}, {{0,5,12}, 0}, {{0,7,14}, 0}, {{0,15,7}, 0}, {{1,19,10}, 0}, {{3,6,8}, 0}, {{3,10,13}, 0}, {{3,15,12}, 0},
+                 {{7,11,10}, 0}, {{7,19,17}, 0}};
     cyclic_triangles = {};
     break;
   case 47: // PLUS ONE MORE![2*w - 3:5], oo, [-2*w + 4:-5]
-    triangles = {{7, 6, 20}, {6, 4, 28}, {26, 24, 19}, {24, 3, 8},
-                 {4, 15, 2}, {10, 6, 1}, {15, 10, 0},  {22, 17, 0},
-                 {12, 21, 29}, {30, 17, 15}};
+    aaa_triangles = {{{7, 6, 20}, 0}, {{6, 4, 28}, 0}, {{26, 24, 19}, 0}, {{24, 3, 8}, 0},
+                 {{4, 15, 2}, 0}, {{10, 6, 1}, 0}, {{15, 10, 0}, 0},  {{22, 17, 0}, 0},
+                 {{12, 21, 29}, 0}, {{30, 17, 15}, 0}};
   case 10:
-    triangles = {{2,7,4}};
+    aaa_triangles = {{{2,7,4}, 0}};
     cyclic_triangles = {};
     break;
   case 5:
   case 6:
   default:
-    triangles = {};
+    aaa_triangles = {};
     cyclic_triangles = {};
   }
 
 #ifdef CHECK_TRIANGLES
-  for (vector<vector<int> >::const_iterator Ti = triangles.begin(); Ti!=triangles.end(); ++Ti)
+  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
     {
-      assert(check_triangle(*Ti));
+      assert(check_aaa_triangle(Ti->first, Ti->second));
     }
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
     assert(check_cyclic_triangle(*Ti));

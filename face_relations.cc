@@ -113,12 +113,12 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
       if (verbose)
         {
           cout<<cyclic_triangles.size()<<" extra cyclic triangle relation types"<<endl;
-          cout<<triangles.size()<<" extra triangle relation types"<<endl;
+          cout<<aaa_triangles.size()<<" extra aaa triangle relation types"<<endl;
           cout<<aas_triangles.size()<<" aas triangle relation types"<<endl;
           cout<<squares.size()<<" square relation types"<<endl;
           cout<<hexagons.size()<<" hexagon relation types"<<endl;
         }
-      maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
+      maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + aaa_triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
       if (verbose)
         cout<<"final bound on #relations = "<<maxnumrel<<endl;
     }
@@ -203,11 +203,11 @@ void face_relations::make_relations()
         cyclic_triangle_relation(*T);
     }
 
-  if (!triangles.empty())
+  if (!aaa_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<triangles.size()<<" general triangle relations"<<endl;
-      for (vector<vector<int>>::const_iterator T = triangles.begin(); T!=triangles.end(); ++T)
-        general_triangle_relation(*T);
+      if(verbose) cout<<"\nApplying "<<aaa_triangles.size()<<" general aaa-triangle relations"<<endl;
+      for (vector<pair<vector<int>, Quad>>::const_iterator T = aaa_triangles.begin(); T!=aaa_triangles.end(); ++T)
+        aaa_triangle_relation(*T);
     }
 
   if (!squares.empty())
@@ -229,7 +229,7 @@ void face_relations::make_relations()
 
   if (!aas_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<aas_triangles.size()<<" aas-triangle relations"<<endl;
+      if(verbose) cout<<"\nApplying "<<aas_triangles.size()<<" general aas-triangle relations"<<endl;
       for (vector<pair<vector<int>, Quad>>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
         aas_triangle_relation(*T);
     }
@@ -646,12 +646,12 @@ void face_relations::cyclic_triangle_relation(int i, int check)
   if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
 }
 
-// Template for all other triangle relations, given M_alphas[i](alphas[j]) = x + alphas[k] with x integral
+// Template for other aaa-triangle relations, given M_alphas[i](alphas[j]+u) = x + alphas[k] with x integral
 
-// The triangle has vertices [alpha_i, oo, alpha_j] and edges
+// The triangle has vertices [alpha_i, oo, alpha_j+u] and edges
 // (I)_i = {alpha_i, oo},
-// (M1)_j' = M_j' * {alpha_j',oo} = {oo, alpha_j},
-// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j, alpha_i}
+// (M1)_j' = T^u * M_j' * {alpha_j',oo} = {oo, alpha_j +u},
+// (M2)_k = M_i' * T^x * {alpha_k, oo} = M_i' * {x+alpha_k, oo} = {alpha_j +u, alpha_i}
 
 // The general relation for a (c:d)-symbol s has symbols s, M1(s), M2(s).
 
@@ -671,26 +671,28 @@ void face_relations::cyclic_triangle_relation(int i, int check)
 // also have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.
 // The first is OK since alpha_flip[0]=0, but not the second.
 
-void face_relations::general_triangle_relation(const vector<int>& tri, int check)
+void face_relations::aaa_triangle_relation(const pair<vector<int>, Quad>& tri, int check)
 {
-  int i=tri[0], j=tri[1], k=tri[2];
+  vector<int> T = tri.first;
+  Quad u = tri.second;
+  int i=T[0], j=T[1], k=T[2];
   if(verbose)
-    cout << "Applying triangle relation "<<tri<<"\n";
+    cout << "Applying aaa-triangle relation ["<<T<<"; "<<u<<"]\n";
 
   RatQuad beta = M_alphas[j].preimage_oo();
   RatQuad gamma = M_alphas[k].preimage_oo();
-  RatQuad x = M_alphas[i](beta)-gamma;
+  RatQuad x = M_alphas[i](beta+u) - gamma;
   assert (x.is_integral());
 
   vector<int> types = {i,alpha_inv[j],k}, signs(3, 1);
   vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, M_alphas[alpha_inv[j]]),
+                         action(P1, mat22::Tmat(u) * M_alphas[alpha_inv[j]]),
                          action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()))};
 
   general_relation(Mops, types, signs, 0, check);
 
   if(verbose)
-    cout << "After triangle relation "<<tri<<", number of relations = " << numrel <<"\n\n";
+    cout << "After aaa-triangle relation ["<<T<<"; "<<u<<"], number of relations = " << numrel <<"\n\n";
 }
 
 void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check)

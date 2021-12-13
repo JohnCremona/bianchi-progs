@@ -28,8 +28,9 @@ extern vector<int> edge_fours;  // indices of first of a 4-tuple (r1,-r1,r2,-r2)
 // indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
 extern vector<int> cyclic_triangles;
 
-// indices i,j,k such that M_i(alpha_j)=alpha_k +translation, giving triangle relations
+// indices [[i,j,k],u] such that M_i(alpha_j+u)=alpha_k +translation, giving triangle relations
 extern vector<vector<int> > triangles;
+extern vector<pair<vector<int>, Quad>> aaa_triangles;
 
 // [[i,j,k],u] such that M_i(sigma_j+u)=sigma_k +translation, giving triangle relations
 extern vector<pair<vector<int>, Quad>> aas_triangles;

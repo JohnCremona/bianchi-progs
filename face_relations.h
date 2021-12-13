@@ -42,8 +42,8 @@ private:
   void hexagon_relation_11();           // extra hexagon relation for field 11
 
   void cyclic_triangle_relation(int i, int check=1);                             // generic cyclic triangle relation
-  void general_triangle_relation(const vector<int>& tri, int check=1);           // generic triangle relation
-  void aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check=1);
+  void aaa_triangle_relation(const pair<vector<int>, Quad>& tri, int check=1);   // generic aaa-triangle relation
+  void aas_triangle_relation(const pair<vector<int>, Quad>& tri, int check=1);   // generic aas-triangle relation
   void general_square_relation(const vector<int>& squ, const vector<Quad>& xyz, int check=1);  // generic square relation
   void general_hexagon_relation(const vector<int>& hex, const vector<Quad>& ux1y1x2y2, int check=1);  // generic hexagon relation
   void general_relation(const vector<action>& Mops, const vector<int>& types, const vector<int>& signs,
