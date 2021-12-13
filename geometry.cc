@@ -41,6 +41,7 @@ vector<pair<vector<int>, Quad>> aaa_triangles;
 vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
 vector<pair<vector<int>, vector<Quad>> > hexagons;
+int faces_made;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -447,6 +448,11 @@ void Quad::setup_geometry()
   }
 }
 
+// read from data file 'geodata.dat' into global variables
+// aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
+void read_faces(int verbose=0);
+
+
 /****************************************************************
 
  Code defining triangle relations
@@ -496,107 +502,19 @@ int check_aas_triangle(const vector<int>& T, const Quad& u)
 // - (T^u)_{-j} = - T^u * {sigma_j,oo} = {oo, sigma_j+u},
 // (M_i'*T^x)_{-k} = M_i' * T^x * {sigma_k, oo} = M_i' * {x+sigma_k, oo} = {sigma_j+u, alpha_i}
 
-void make_triangles()
+void check_triangles()
 {
-  // Lists of general triangles and cyclic triangles (aaa, i.e. all vertices principal cusps)
-  // NB Not including the {0,1,oo} triangle which is handles as a special case.
-  switch(Quad::d) {
-  case 43:
-    aaa_triangles = {{{3,7,4}, 0}};
-    cyclic_triangles = {};
-    break;
-  case 67:
-    aaa_triangles = {{{3,7,4}, 0}, {{0,19,24}, 0}, {{1,22,17}, 0}, {{3,13,18}, 0}, {{3,22,15}, 0}, {{9,13,16}, 0}};
-    cyclic_triangles = {9};
-    break;
-  case 163:
-    aaa_triangles = {{{3,7,4}, 0}, {{3, 21, 49}, 0}, {{3, 53, 23}, 0}, {{3, 71, 87}, 0}, {{3, 83, 94}, 0}, {{3, 85, 79}, 0}, {{3, 98, 84}, 0},
-                 {{7, 98, 93}, 0}, {{9, 13, 16}, 0}, {{9, 69, 78}, 0}, {{13, 25, 77}, 0}, {{13, 33, 57}, 0}, {{13, 61, 30}, 0}, {{13, 69, 26}, 0},
-                 {{17, 33, 29}, 0}, {{21, 28, 32}, 0}, {{21, 35, 27}, 0}, {{21, 59, 79}, 0}, {{21, 71, 63}, 0}, {{21, 75, 94}, 0}, {{21, 98, 67}, 0},
-                 {{23, 51, 3}, 0}, {{25, 33, 23}, 0}, {{25, 45, 67}, 0}, {{27, 76, 48}, 0}, {{27, 79, 13}, 0}, {{29, 48, 93}, 0}, {{31, 35, 19}, 0},
-                 {{33, 45, 98}, 0}, {{37, 40, 44}, 0}, {{41, 45, 48}, 0}, {{41, 73, 66}, 0}, {{47, 96, 33}, 0}, {{49, 84, 67}, 0}, {{49, 87, 63}, 0},
-                 {{53, 83, 75}, 0}, {{53, 85, 59}, 0}, {{59, 89, 62}, 0}, {{61, 69, 23}, 0}, {{73, 92, 21}, 0}, {{77, 87, 5}, 0} };
-    cyclic_triangles = {9, 17};
-    break;
-  case 23:
-    aaa_triangles = {{{0,3,6}, 0}, {{0,5,8}, 0}, {{0,9,12}, 0}, {{1,6,12}, 0}, {{7,9,2}, 0}};
-    cyclic_triangles = {};
-    break;
-  case 31:
-    aaa_triangles = {{{0,3,10}, 0}, {{0,5,12}, 0}, {{0,7,14}, 0}, {{0,15,7}, 0}, {{1,19,10}, 0}, {{3,6,8}, 0}, {{3,10,13}, 0}, {{3,15,12}, 0},
-                 {{7,11,10}, 0}, {{7,19,17}, 0}};
-    cyclic_triangles = {};
-    break;
-  case 47: // PLUS ONE MORE![2*w - 3:5], oo, [-2*w + 4:-5]
-    aaa_triangles = {{{7, 6, 20}, 0}, {{6, 4, 28}, 0}, {{26, 24, 19}, 0}, {{24, 3, 8}, 0},
-                 {{4, 15, 2}, 0}, {{10, 6, 1}, 0}, {{15, 10, 0}, 0},  {{22, 17, 0}, 0},
-                 {{12, 21, 29}, 0}, {{30, 17, 15}, 0}};
-  case 10:
-    aaa_triangles = {{{2,7,4}, 0}};
-    cyclic_triangles = {};
-    break;
-  case 5:
-  case 6:
-  default:
-    aaa_triangles = {};
-    cyclic_triangles = {};
-  }
-
-#ifdef CHECK_TRIANGLES
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
     {
       assert(check_aaa_triangle(Ti->first, Ti->second));
     }
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
     assert(check_cyclic_triangle(*Ti));
-#endif
-
-  if (Quad::class_number==1)
-    {
-      aas_triangles = {};
-      return;
-    }
-
-  // Lists of aas triangles (i.e. two principal and one non-principal vertex)
-  Quad w = Quad::w;
-  switch(Quad::d) {
-  case 5:
-    aas_triangles = {{{1,1,1},0}, {{2,1,1},0}};
-    break;
-  case 6:
-    aas_triangles = {{{1,1,1},0}, {{3,1,1},0}};
-    break;
-  case 10:
-    aas_triangles = {{{1,1,1},1}, {{8,1,1},-w}};
-    break;
-  case 23:
-    aas_triangles = {{{1,1,1},0}, {{6,1,1},0}, {{12,1,1},0}, {{1,2,2},w}, {{8,2,2},0}, {{10,2,2},0}};
-    break;
-  case 31:
-    aas_triangles = {{{11,1,1},0}, {{2,1,1},-w}, {{2,2,2},-1}, {{10,2,2},w-1} };
-    break;
-
-  case 47:
-    aas_triangles =     {{{19, 1, 1}, -w + 1}, {{6, 1, 1}, 0},
-                         {{8, 1, 1}, -w + 1}, {{4, 3, 2}, 0},
-                         {{2, 2, 3}, 0}, {{16, 2, 2}, 0},
-                         {{18, 3, 2}, 0}, {{30, 2, 3}, 0},
-                         {{9, 5, 5}, 0}, {{6, 4, 5}, 0},
-                         {{2, 5, 4}, -1}, {{30, 5, 4}, 0},
-                         {{21, 4, 5}, 0}, {{8, 6, 6}, -w},
-                         {{24, 6, 6}, -w}, {{4, 6, 6}, 0}};
-
-  default:
-    aas_triangles = {};
-  }
-#ifdef CHECK_TRIANGLES
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
     {
       assert(check_aas_triangle(Ti->first, Ti->second));
     }
-#endif
 }
-
 
 /****************************************************************
 
@@ -628,66 +546,13 @@ int check_square(const vector<int>& S, const vector<Quad>& xyz)
   return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
 }
 
-void make_squares()
+void check_squares()
 {
-  Quad w = Quad::w;
-  // Lists of general squares
-  switch(Quad::d) {
-  case 19:
-    squares = {{{0,1,0,1}, {0,0,0}}};
-    break;
-  case 43:
-    squares = {{{0,5,1,6}, {1-w, 0,0}},
-               {{1,7,1,7}, {1, -1,0}}};
-    break;
-  case 67:
-    squares = {{{3, 2, 4,12}, {0,0,0}},
-               {{9, 0, 9, 0}, {0,0,0}},
-               {{13, 0,14, 8}, {0,1,0}}};
-    break;
-  case 163:
-    squares = {{{42,36,8,30}, {0,0,0}},
-               {{17,43,17,43}, {0,0,0}},
-               {{38,0,37,19}, {0,0,0}},
-               {{41,35,7,29}, {0,0,0}},
-               {{11,31,89,33}, {0,0,0}},
-               {{1,90,1,90}, {-w,w,w}},
-               {{88,9,87,8}, {0,0,0}},
-               {{1,89,1,89}, {1,-1,0}},
-               {{62,8,59,2}, {-1,0,0}},
-               {{11,17,11,17}, {0,0,0}},
-               {{2,66,0,75}, {0,0,0}},
-               {{50,9,55,2}, {0,0,0}},
-               {{83,11,81,0}, {0,0,0}}};
-    break;
-  case 5:
-    squares = {{{0, 1, 0, 1}, {0,0,0}},
-               {{2, 1, 3, 1}, {-1,-1-w,0}},
-               {{0, 3, 0, 2}, {-1,-1,0}}};
-    break;
-  case 6:
-    squares = {{{0, 3, 0, 2}, {0,0,0}},
-               {{3, 1, 2, 1}, {1,-w,0}}};
-    break;
-  case 10:
-    squares = {{{0, 2, 0, 2}, {0,0,0}},
-               {{6, 1, 7, 0}, {w+1,0,-w}},
-               {{8, 1, 9, 1}, {w+1,0,-w}},
-               {{2, 8, 3, 9}, {0,0,0}}};
-    break;
-  case 47:
-    squares = {{{2, 0, 1, 25}, {1, 0, 0}}};
-  default:
-    squares = {};
-  }
-
-#ifdef CHECK_SQUARES
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
     {
       // cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
       assert(check_square(Si->first, Si->second));
     }
-#endif
 }
 
 /****************************************************************
@@ -720,34 +585,151 @@ int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
   return gamma1==gamma2;
 }
 
-void make_hexagons()
+void check_hexagons()
 {
-  Quad w = Quad::w;
-  // Lists of general hexagons
-  switch(Quad::d) {
-  case 6:
-    hexagons = {{{1, 0, 0, 1, 1, 0}, {w+1, w, -w-1, -w, w+1}}};
-    break;
-  case 10:
-    hexagons = {{{2, 1, 1, 2, 2, 1}, {0, -1, 0, 1, 0}}};
-    break;
-  default:
-    hexagons = {};
-  }
-
-#ifdef CHECK_HEXAGONS
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Hi = hexagons.begin(); Hi!=hexagons.end(); ++Hi)
     {
       // cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
       assert(check_hexagon(Hi->first, Hi->second));
     }
-#endif
+}
+
+/****************************************************************
+
+ Code for reading face relations from file 'geodata.dat'
+
+***************************************************************/
+
+// reads from data file into global variables aaa_triangles,
+// aas_triangles, cyclic_triangles, squares, hexagons
+
+void read_faces(int verbose)
+{
+  ifstream geodata;
+  string line;
+  int file_d, i, j;
+  char G;
+  Quad u;
+
+  geodata.open("geodata.dat");
+  getline(geodata, line);
+  while (!geodata.eof())
+    {
+      istringstream input_line(line);
+      input_line >> file_d;
+      if (file_d==-1)
+        break;
+      if (file_d != Quad::d)
+        {
+          if (verbose)
+            cout<<"Skipping line: "<<line<<endl;
+          getline(geodata, line);
+          continue;
+        }
+      if (verbose)
+        cout<<"Processing line "<<line<<endl;
+      input_line >> G;
+      switch(G) {
+      case 'C': // cyclic triangle
+        {
+          if (verbose)
+            cout << " reading cyclic triangle data"<<endl;
+          input_line >> j;
+          if (verbose)
+            cout << " - j = "<< j <<endl;
+          cyclic_triangles.push_back(j);
+          break;
+        }
+      case 'A': // aaa-triangle
+      case 'S': // aas-triangle
+        {
+          if (verbose)
+            cout << " reading AA"<<G<<"-triangle data"<<endl;
+          vector<int> ijk;
+          for (i=0; i<3; i++)
+            {
+              input_line >> j;
+              ijk.push_back(j);
+            }
+          if (verbose)
+            cout << " - ijk = "<<ijk<<endl;
+          input_line >> u;
+          if (verbose)
+            cout << " - u = "<< u <<endl;
+          if (G=='A')
+            aaa_triangles.push_back({ijk, u});
+          else
+            aas_triangles.push_back({ijk, u});
+          break;
+        }
+      case 'Q': // square
+        {
+          if (verbose)
+            cout << " reading square data"<<endl;
+          vector<int> ijkl;
+          for (i=0; i<4; i++)
+            {
+              input_line >> j;
+              ijkl.push_back(j);
+            }
+          if (verbose)
+            cout << " - ijkl = "<<ijkl<<endl;
+          vector<Quad> xyz;
+          for (i=0; i<3; i++)
+            {
+              input_line >> u;
+              xyz.push_back(u);
+            }
+          if (verbose)
+            cout << " - xyz = "<< xyz <<endl;
+          squares.push_back({ijkl, xyz});
+          break;
+        }
+      case 'H': // hexagon
+        {
+          if (verbose)
+            cout << " reading hexagon data"<<endl;
+          vector<int> ijklmn;
+          for (i=0; i<6; i++)
+            {
+              input_line >> j;
+              ijklmn.push_back(j);
+            }
+          if (verbose)
+            cout << " - ijklmn = "<<ijklmn<<endl;
+          vector<Quad> ux1y1x2y2;
+          for (i=0; i<5; i++)
+            {
+              input_line >> u;
+              ux1y1x2y2.push_back(u);
+            }
+          if (verbose)
+            cout << " - ux1y1x2y2 = "<<ux1y1x2y2<<endl;
+          hexagons.push_back({ijklmn, ux1y1x2y2});
+          break;
+        }
+      default:
+        break;
+      }
+      getline(geodata, line);
+    }
+  geodata.close();
 }
 
 void make_faces()
 {
-  make_triangles();
-  make_squares();
-  make_hexagons();
+  if (faces_made)
+    return;
+  read_faces(0);
+#ifdef CHECK_TRIANGLES
+  check_triangles();
+#endif
+#ifdef CHECK_SQUARES
+  check_squares();
+#endif
+#ifdef CHECK_HEXAGONS
+  check_hexagons();
+#endif
+  faces_made = 1;
 }
 
