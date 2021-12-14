@@ -41,7 +41,4 @@ extern vector<pair<vector<int>, vector<Quad>> > squares;
 // indices i,j,k,l,m,n and x1,y1,x2,y2 defining a hexagon relation
 extern vector<pair<vector<int>, vector<Quad>> > hexagons;
 
-// initialization function, to be called before constructing face_relations class (for non-Euclidean fields)
-extern int faces_made;
-
 #endif

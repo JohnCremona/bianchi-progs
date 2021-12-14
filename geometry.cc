@@ -4,6 +4,11 @@
 
 #include "geometry.h"
 
+#define CHECK_TRIANGLES
+#define CHECK_SQUARES
+#define CHECK_HEXAGONS
+
+
 // Definitions of commonly used matrices
 
 mat22 mat22::identity(1,0,0,1);
@@ -25,6 +30,7 @@ mat22 mat22::R(0,1,1,0);
 // sigma_flip is a permutation of range(n_sigmas) such that
 // sigma_flip[i]=j where -sigma[i] = sigma[j] mod 1.
 
+// Definitions of global objects declared in geometry.h:
 
 int n_alphas, n_sigmas;
 vector<RatQuad> alphas;
@@ -41,7 +47,6 @@ vector<pair<vector<int>, Quad>> aaa_triangles;
 vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
 vector<pair<vector<int>, vector<Quad>> > hexagons;
-int faces_made;
 
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
@@ -56,11 +61,38 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   n_alphas++;
 }
 
-// If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s, -r2/s
-// with matrices [r2,t;s,-r1] and similar
+// If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s,
+// -r2/s with matrices [r2,t;s,-r1] and similar.  When r1==r2 we have
+// aa "minus pair" with r1^2=-1 (mod s), and when r1==-r2 we have a
+// "plus pair" with r1^2=+1 (mod s).
 
 void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
 {
+  Quad t = -(r1*r2+1)/s;
+  if (r1==r2) // "-" pair, r1*r2=-1 (mod s)
+    {
+      edge_pairs_minus.push_back(n_alphas);
+      alpha_inv.push_back(n_alphas);   // identity
+      alpha_inv.push_back(n_alphas+1); // identity
+      alpha_flip.push_back(n_alphas+1);   // transposition with next
+      alpha_flip.push_back(n_alphas);     // transposition with previous
+      add_alpha( r1, t, s, -r1); // alpha =  r1/s
+      add_alpha(-r1, t, s,  r1); // alpha = -r1/s
+      return;
+    }
+  if (r1==-r2) // "+" pair, r1*r2=+1 (mod s)
+    {
+      edge_pairs_plus.push_back(n_alphas);
+      alpha_inv.push_back(n_alphas+1); // transposition with next
+      alpha_inv.push_back(n_alphas);   // transposition with previous
+      alpha_flip.push_back(n_alphas+1);   // transposition with next
+      alpha_flip.push_back(n_alphas);     // transposition with previous
+      add_alpha(-r1, t, s, -r1); // alpha =  r1/s
+      add_alpha( r1, t, s,  r1); // alpha = -r1/s
+      return;
+    }
+  // Now we have four distinct alphas
+
   edge_fours.push_back(n_alphas);
   alpha_inv.push_back(n_alphas+2);
   alpha_inv.push_back(n_alphas+3);
@@ -70,39 +102,10 @@ void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
   alpha_flip.push_back(n_alphas);
   alpha_flip.push_back(n_alphas+3);
   alpha_flip.push_back(n_alphas+2);
-  Quad t = -(r1*r2+1)/s;
   add_alpha( r2, t, s, -r1); // alpha =  r1/s
   add_alpha(-r2, t, s,  r1); // alpha = -r1/s
   add_alpha( r1, t, s, -r2); // alpha =  r2/s
   add_alpha(-r1, t, s,  r2); // alpha = -r2/s
-}
-
-// If r*r = -1 mod s we have r/s, -r/s
-// with matrices [r,t;s,-r] and [-r,t;s,r]
-// where t = (-r^2-1)/s.
-// If r*r = +1 mod s we have r/s, -r/s
-// with matrices [-r,t;s,-r] and [r,t;s,r]
-// where t = (r^2-1)/s.
-
-void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
-{
-  if (sign==-1)
-    {
-      edge_pairs_minus.push_back(n_alphas);
-      alpha_inv.push_back(n_alphas);   // identity
-      alpha_inv.push_back(n_alphas+1); // identity
-    }
-  else
-    {
-      edge_pairs_plus.push_back(n_alphas);
-      alpha_inv.push_back(n_alphas+1); // transposition with next
-      alpha_inv.push_back(n_alphas);   // transposition with previous
-    }
-  alpha_flip.push_back(n_alphas+1);   // transposition with next
-  alpha_flip.push_back(n_alphas);     // transposition with previous
-  Quad t = (r*r*sign-1)/s;
-  add_alpha(-sign*r, t, s, -r); // alpha =  r/s
-  add_alpha( sign*r, t, s,  r); // alpha = -r/s
 }
 
 // add r/s to the list of singular points, and optionally also -r/s (unless -r/s=r/s mod 1)
@@ -125,9 +128,15 @@ void add_sigma(const Quad& r, const Quad& s)
     }
 }
 
-// Global function to be used once during setting the field:
+// Global functions to be used once during setting the field:
 
-void make_faces();
+// read from data file 'geodata.dat' into global variables alphas, sigmas,
+// aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
+void read_data(int verbose=0);
+
+void check_triangles();
+void check_squares();
+void check_hexagons();
 void alphas_sigmas_universal();
 void alphas_sigmas_denom_2();
 void alphas_sigmas_denom_3();
@@ -144,7 +153,17 @@ void Quad::setup_geometry()
   alphas_sigmas_denom_2();
   alphas_sigmas_denom_3();
   alphas_sigmas_other();
-  make_faces();
+
+  read_data(0);
+#ifdef CHECK_TRIANGLES
+  check_triangles();
+#endif
+#ifdef CHECK_SQUARES
+  check_squares();
+#endif
+#ifdef CHECK_HEXAGONS
+  check_hexagons();
+#endif
 }
 
 void alphas_sigmas_universal()
@@ -212,7 +231,7 @@ void alphas_sigmas_denom_2()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      add_alpha_pair(4, 1+2*w, +1);
+      add_alpha_foursome(4, 1+2*w, -(1+2*w));
       add_sigma(w,2);
       add_sigma(1-w,2);
       break;
@@ -230,7 +249,7 @@ void alphas_sigmas_denom_3()
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_pair(3, w, -1);
+      add_alpha_foursome(3, w, w);
       add_alpha_foursome(3, 1+w, 1-w);
       break;
     }
@@ -239,7 +258,7 @@ void alphas_sigmas_denom_3()
       if (d>19) // e.g. 43, 67, 163
         {
           add_alpha_foursome(3, w, 1-w);
-          add_alpha_pair(3, 1+w, -1);
+          add_alpha_foursome(3, 1+w, 1+w);
         }
       break;
     }
@@ -247,14 +266,14 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_pair(3, w, +1);
+          add_alpha_foursome(3, w, -w);
           add_sigma(w,3);
         }
       break;
     }
   case 11:
     {
-      add_alpha_pair(3, 1+w, +1);
+      add_alpha_foursome(3, 1+w, -1-w);
       if (d>23)
         {
           add_sigma(w,3);
@@ -292,113 +311,87 @@ void alphas_sigmas_other()
     return;
   case 5:
     {
-      add_alpha_pair(2*w, w-4, +1);      // N(s)=20
+      add_alpha_foursome(2*w, w-4, 4-w);      // N(s)=20
       return;
     }
   case 6:
     {
-      add_alpha_pair(2*w, 5, +1);      // N(s)=24
+      add_alpha_foursome(2*w, 5, -5);      // N(s)=24
       return;
     }
   case 10:
     {
-      add_alpha_pair(2*w, 9, +1);      // N(s)=40
+      add_alpha_foursome(2*w, 9, -9);      // N(s)=40
       return;
     }
-  case 13:
-    {
-      add_alpha_pair(2*w, w - 12, +1);
-      add_alpha_pair(4, w + 2, -1);
-      add_alpha_foursome(5, 2*w + 2, 2*w - 2);
-      return;
-    }
-  case 14:
-    {
-      add_alpha_pair(w - 1, 4, +1);
-      add_alpha_pair(w + 1, 4, +1);
-      add_alpha_pair(w - 4, w + 7, +1);
-      add_alpha_pair(w + 4, w - 7, +1);
-      add_alpha_pair(6, 2*w + 3, +1);
-      add_alpha_pair(2*w, 13, +1);
-      add_alpha_pair(5, 2*w, -1);
-      add_alpha_foursome(w - 2, w + 5, w + 3);
-      add_alpha_foursome(w + 2, w - 3, w - 5);
-      return;
-    }
-  case 15:
-    {
-      add_alpha_pair(2*w - 1, w - 4, +1);
-      return;
-    }
-  case 17:
-    {
-      add_alpha_pair(w - 2, w + 6, +1);
-      add_alpha_pair(w + 2, w - 6, +1);
-      add_alpha_pair(6, 2*w + 3, +1);
-      add_alpha_pair(w - 5, 2*w + 3, +1);
-      add_alpha_pair(w + 5, 2*w - 3, +1);
-      add_alpha_pair(2*w, w - 16, +1);
-      add_alpha_pair(4, w, -1);
-      add_alpha_pair(4, w + 2, -1);
-      add_alpha_foursome(w - 1, 7, 5);
-      add_alpha_foursome(w + 1, 7, 5);
-      add_alpha_foursome(7, 3*w - 3, 3*w + 3);
-      return;
-    }
-  case 21:
-    {
-      add_alpha_pair(w, 8, +1);
-      add_alpha_pair(2*w, w - 20, +1);
-      add_alpha_pair(2*w, 13, +1);
-      add_alpha_pair(2*w, w - 8, +1);
-      add_alpha_pair(4, w, -1);
-      add_alpha_pair(4, w + 2, -1);
-      add_alpha_foursome(w - 1, 9, -5);
-      add_alpha_foursome(w + 1, 9, -5);
-      add_alpha_foursome(9, 4*w + 4, 4*w - 4);
-      return;
-    }
-  case 22:
-    {
-      add_alpha_pair(2*w, 21, +1);
-      add_alpha_pair(9, 4*w, -1);
-      add_alpha_foursome(4, w + 1, -w + 1);
-      add_alpha_foursome(w, 9, -5);
-      add_alpha_foursome(w - 1, 9, 5);
-      add_alpha_foursome(w + 1, 9, 5);
-      add_alpha_foursome(5, w + 2, w - 2);
-      add_alpha_foursome(5, 2*w + 1, -2*w + 1);
-      add_alpha_foursome(w + 2, w - 5, w - 9);
-      add_alpha_foursome(w - 2, w + 9, w + 5);
-      return;
-    }
+  // case 13:
+  //   {
+  //     add_alpha_foursome(5, 2*w + 2, 2*w - 2);
+  //     return;
+  //   }
+  // case 14:
+  //   {
+  //     add_alpha_foursome(w - 2, w + 5, w + 3);
+  //     add_alpha_foursome(w + 2, w - 3, w - 5);
+  //     return;
+  //   }
+  // case 15:
+  //   {
+  //     return;
+  //   }
+  // case 17:
+  //   {
+  //     add_alpha_foursome(w - 1, 7, 5);
+  //     add_alpha_foursome(w + 1, 7, 5);
+  //     add_alpha_foursome(7, 3*w - 3, 3*w + 3);
+  //     return;
+  //   }
+  // case 21:
+  //   {
+  //     add_alpha_foursome(w - 1, 9, -5);
+  //     add_alpha_foursome(w + 1, 9, -5);
+  //     add_alpha_foursome(9, 4*w + 4, 4*w - 4);
+  //     return;
+  //   }
+  // case 22:
+  //   {
+  //     add_alpha_foursome(4, w + 1, -w + 1);
+  //     add_alpha_foursome(w, 9, -5);
+  //     add_alpha_foursome(w - 1, 9, 5);
+  //     add_alpha_foursome(w + 1, 9, 5);
+  //     add_alpha_foursome(5, w + 2, w - 2);
+  //     add_alpha_foursome(5, 2*w + 1, -2*w + 1);
+  //     add_alpha_foursome(w + 2, w - 5, w - 9);
+  //     add_alpha_foursome(w - 2, w + 9, w + 5);
+  //     return;
+  //   }
   case 23:
     {
-      add_alpha_pair(w+1, 2-w, +1); // N(s)=8
-      add_alpha_pair(2-w, 1+w, +1);
-      add_alpha_pair(2+w, w-3, +1); // N(s)=12
-      add_alpha_pair(3-w, -2-w, +1);
+      add_alpha_foursome(w+1, 2-w, w-2); // N(s)=8
+      add_alpha_foursome(2-w, 1+w, -1-w);
+      add_alpha_foursome(2+w, w-3, 3-w); // N(s)=12
+      add_alpha_foursome(3-w, -2-w, w+2);
       return;
     }
   case 31:
     {
-      add_alpha_pair(w, 3, +1);       // N(s)=8
-      add_alpha_pair(1-w, 3, +1);
-      add_alpha_pair(1+w, 3);         // N(s)=10
-      add_alpha_pair(2-w, 3);
-      add_alpha_pair(3+w, w-6, +1);   // N(s)=20
-      add_alpha_pair(4-w, 5+w, +1);
+      add_alpha_foursome(w, 3, -3);       // N(s)=8
+      add_alpha_foursome(1-w, 3, -3);
+      add_alpha_foursome(1+w, 3, 3);         // N(s)=10
+      add_alpha_foursome(2-w, 3, 3);
+      add_alpha_foursome(3+w, w-6, 6-w);   // N(s)=20
+      add_alpha_foursome(4-w, 5+w, -5-w);
       return;
     }
   case 47:
     {
-      add_alpha_pair(w - 1, 5, +1);
-      add_alpha_pair(w, 5, +1);
-      add_alpha_pair(w - 4, w + 3, +1);
-      add_alpha_pair(w - 4, 2*w + 3, +1);
-      add_alpha_pair(w + 3, w - 4, +1);
-      add_alpha_pair(w + 3, 2*w - 5, +1);
-      add_alpha_pair(6, 2*w - 1, +1);
+      add_alpha_foursome(w - 1, 5, -5);
+      add_alpha_foursome(w, 5, -5);
+      add_alpha_foursome(w - 4, w + 3, -3-w);
+      add_alpha_foursome(w - 4, 2*w + 3, -3-2*w);
+      add_alpha_foursome(w + 3, w - 4, 4-w);
+      add_alpha_foursome(w + 3, 2*w - 5, 5-2*w);
+      add_alpha_foursome(6, 2*w - 1, 1-2*w);
       add_alpha_foursome(w - 3, w + 4, w + 2);
       add_alpha_foursome(w + 2, w - 3, w - 5);
       add_alpha_foursome(5, 2*w + 1, 2*w - 3);
@@ -464,7 +457,7 @@ void alphas_sigmas_other()
 
       add_alpha_foursome(7, w+3, 2*w-1);
       add_alpha_foursome(7, 2*w+1, 3-2*w);
-      add_alpha_pair(7, 2+3*w);
+      add_alpha_foursome(7, 2+3*w, 2+3*w);
       assert (n_alphas==91);
 
       // 4 alphas with s=3+w (norm 53), and 4 conjugates of these
@@ -479,18 +472,12 @@ void alphas_sigmas_other()
   }
 }
 
-// read from data file 'geodata.dat' into global variables
-// aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
-void read_faces(int verbose=0);
-
 
 /****************************************************************
 
  Code defining triangle relations
 
 ***************************************************************/
-
-#define CHECK_TRIANGLES
 
 int check_aaa_triangle(const vector<int>& T, const Quad& u)
 {
@@ -553,8 +540,6 @@ void check_triangles()
 
 ***************************************************************/
 
-#define CHECK_SQUARES
-
 int check_square(const vector<int>& S, const vector<Quad>& xyz)
 {
   // Check:  the square has vertices {alpha_i, oo, alpha[j']+z, beta}
@@ -591,8 +576,6 @@ void check_squares()
  Code defining hexagon relations
 
 ***************************************************************/
-
-#define CHECK_HEXAGONS
 
 int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
 {
@@ -634,7 +617,7 @@ void check_hexagons()
 // reads from data file into global variables aaa_triangles,
 // aas_triangles, cyclic_triangles, squares, hexagons
 
-void read_faces(int verbose)
+void read_data(int verbose)
 {
   ifstream geodata;
   string line;
@@ -713,22 +696,5 @@ void read_faces(int verbose)
       getline(geodata, line);
     }
   geodata.close();
-}
-
-void make_faces()
-{
-  if (faces_made)
-    return;
-  read_faces(0);
-#ifdef CHECK_TRIANGLES
-  check_triangles();
-#endif
-#ifdef CHECK_SQUARES
-  check_squares();
-#endif
-#ifdef CHECK_HEXAGONS
-  check_hexagons();
-#endif
-  faces_made = 1;
 }
 
