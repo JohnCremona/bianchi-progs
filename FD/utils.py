@@ -467,6 +467,7 @@ def square_parameters(S, alphas, M_alphas, alpha_inv):
     For S a square, returns [[i,j,k,l],[x,y,z]] where
     """
     k = nf(alphas[0])
+    d = -k.disc().squarefree_part()
     inf = cusp(oo, k)
 
     S = std_poly(S, alphas)[1]
@@ -488,21 +489,25 @@ def square_parameters(S, alphas, M_alphas, alpha_inv):
     alpha1 = x + to_k(apply(Mk, inf))
     alpha2 = y + to_k(apply(Ml.inverse(), inf))
     assert apply(Mi*Tz*Mj,cusp(alpha1)) == cusp(alpha2)
+    xr,xi = x
+    yr,yi = y
+    zr,zi = z
+    print("{} Q {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, xr,xi, yr,yi, zr,zi))
     return [[i,j,kk,l],[x,y,z]]
 
 def aaa_triangle_parameters(T, alphas, M_alphas):
     """For T a triangle with all vertices principal cusps, returns
-    [i,j,k] where M_alphas[i](alpha[j]) = alpha[k] + x with x
+    [[i,j,k],u] where M_alphas[i](alpha[j]+u) = alpha[k] + x with x
     integral, where T has vertices [alpha_i, oo, alpha_j].
 
-    Since we currently only allow both alpha[i] and alpha[j] to be
-    exact (no shift for alpha[j]) we may need to consider rotations and
-    reflections to get valid parameters.
+    We consider rotations and reflections.
     """
     k = nf(T[0])
+    d = -k.disc().squarefree_part()
     if k.class_number()==1:
         for T0 in [tri0(k), tri1(k), tri2(k)]:
             if poly_equiv(T, T0, sign=0):
+                print("universal triangle")
                 return T0
     inf = cusp(oo, k)
     T = std_poly(T, alphas)[1]
@@ -514,11 +519,14 @@ def aaa_triangle_parameters(T, alphas, M_alphas):
             if Rloop:
                 T = std_poly(cycle_poly(T), alphas)[1]
             i = alpha_index(T[0], alphas)
-            j = alpha_index(T[2], alphas)
+            j, u = alpha_index_with_translation(T[2], alphas)
             if i>=0 and j>=0:
-                k, x = alpha_index_with_translation(apply(M_alphas[i], alphas[j]), alphas)
+                k, x = alpha_index_with_translation(apply(M_alphas[i], T[2]), alphas)
                 assert k!=-1
-                return [i,j,k]
+                assert translate_cusp(alphas[k],x) == apply(M_alphas[i], translate_cusp(alphas[j],u))
+                ur, ui = u
+                print("{} T {} {} {} {} {}".format(d, i, j, k, ur, ui))
+                return [[i,j,k], u]
     return None
 
 def symmetries(S):
@@ -569,6 +577,7 @@ def aas_triangle_parameters(T, alphas, M_alphas, sigmas):
 
     """
     k = nf(T[0])
+    d = -k.disc().squarefree_part()
     T = std_aas_triangle(T, alphas)
     assert T[1] == cusp(oo, k)
     i = alpha_index(T[0], alphas)
@@ -577,6 +586,8 @@ def aas_triangle_parameters(T, alphas, M_alphas, sigmas):
     assert j!=-1
     k, x = sigma_index_with_translation(apply(M_alphas[i], T[2]), sigmas)
     assert k!=-1
+    ur, ui = u
+    print("{} U {} {} {} {} {}".format(d, i, j, k, ur, ui))
     return [[i,j,k], u]
 
 def hexagon_parameters(H, alphas, M_alphas):
@@ -584,18 +595,25 @@ def hexagon_parameters(H, alphas, M_alphas):
     For a principal hexagon [a_i, oo, a_j, b_2, gamma, b_1]
     """
     k = nf(H[0])
+    d = -k.disc().squarefree_part()
     H = std_poly(H, alphas)[1]
     assert H[1]==cusp(oo, k)
     i = alpha_index(H[0], alphas)
     assert i>=0
-    k, x1 = alpha_index_with_translation(apply(M_alphas[i], H[5]), alphas)
-    m, y1 = alpha_index_with_translation(apply(M_alphas[k]*Tmat(-x1)*M_alphas[i], H[4]), alphas)
+    kk, x1 = alpha_index_with_translation(apply(M_alphas[i], H[5]), alphas)
+    m, y1 = alpha_index_with_translation(apply(M_alphas[kk]*Tmat(-x1)*M_alphas[i], H[4]), alphas)
     j, u = alpha_index_with_translation(H[2], alphas)
     assert j>=0
     l, x2 = alpha_index_with_translation(apply(M_alphas[j]*Tmat(-u), H[3]), alphas)
     n, y2 = alpha_index_with_translation(apply(M_alphas[l]*Tmat(-x2)*M_alphas[j]*Tmat(-u), H[4]), alphas)
-    gamma1 = apply(M_alphas[i].inverse()*Tmat(x1)*M_alphas[k].inverse()*Tmat(y1), alphas[m])
+    gamma1 = apply(M_alphas[i].inverse()*Tmat(x1)*M_alphas[kk].inverse()*Tmat(y1), alphas[m])
     gamma2 = apply(Tmat(u)*M_alphas[j].inverse()*Tmat(x2)*M_alphas[l].inverse()*Tmat(y2), alphas[n])
     #print(gamma1, gamma2)
     assert gamma1==gamma2
-    return [[i,j,k,l,m,n],[u,x1,y1,x2,y2]]
+    ur,ui = u
+    x1r,x1i = x1
+    y1r,y1i = y1
+    x2r,x2i = x2
+    y2r,y2i = y2
+    print("{} Q {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, m, n, ur,ui, x1r,x1i, y1r,y1i, x2r,x2i, y2r,y2i))
+    return [[i,j,kk,l,m,n],[u,x1,y1,x2,y2]]

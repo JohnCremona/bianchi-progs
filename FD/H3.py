@@ -13,11 +13,15 @@ from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
 from alphas import precomputed_alphas
 
 def make_k(dk):
-    """
-    Given a negative fundamental discriminant, constructs the associated imaginary quadratic field
-    and returns a dict containing this and useful other data
+    """Given a negative fundamental discriminant, or positive square-free
+    d, constructs the associated imaginary quadratic field and returns
+    a dict containing this and useful other data
+
     """
     x = polygen(QQ)
+    if dk>0:
+        assert dk.is_squarefree()
+        dk = -dk if dk%4==3 else -4*dk
     if dk%4==1:
         k = NumberField(x**2-x+(1-dk)//4, 'w')
     else:
@@ -165,7 +169,6 @@ def covering_hemispheres2(P, option=None, debug=False):
     z, t2 = P
     k = z.parent()
     a = z.numerator()   # in O_K
-    b = z.denominator() # in Z
     sbound = (1/t2).floor()
     if debug:
         print("t2={} so bound on N(s) = {}".format(t2, sbound))
@@ -542,7 +545,7 @@ def plot_FunDomain_projection(k, alphas, sigmas, fill=False):
     S = [list(emb(to_k(s))) for s in sigmas if not s.is_infinity()]
     #print("singular points: {}".format(S))
 
-    C = [list(emb(P[2][0])) for P in triplets]
+    #C = [list(emb(P[2][0])) for P in triplets]
     #print(triplets)
     #print("corners: {}".format(C))
 
@@ -587,9 +590,6 @@ def triple_intersections(alphas):
 
     for z in F4.
     """
-    w = alphas[0].number_field().gen()
-    u = (w-w.conjugate())/2
-
     # Extract the alphas in F4:
     alphas4 = [a for a in alphas if cusp_in_quarter_rectangle(a)]
 
@@ -608,7 +608,6 @@ def triple_intersections(alphas):
         return alist
 
     xalphas4 = sum([nbrs(a) for a in alphas4], alphas4)
-    n = len(xalphas4)
 
     # convert each cusp to a point P = [z,tsq] with tsq the square
     # radius of S_a:
@@ -651,11 +650,11 @@ def alpha_triples(alphas):
 
     """
     k = nf(alphas[0])
-    w = k.gen()
     corners = []
     triples = []
     alpha_translates = []
     # Extend the alphas by 8 translations:
+    #w = k.gen()
     # xalphas = sum([[translate_cusp(a,t) for t in
     #                 [a+b*w for a in [-1,0,1] for b in [-1,0,1]]] for a in alphas],
     # [])
@@ -1026,7 +1025,8 @@ def are_intersection_points_covered_by_one(a1, a2, a, plot=False):
     intersection point is covered by either S_a or S_a'.
     """
     k = nf(a1)
-    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    w = k.gen()
+    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
     alist = [a1,a2,a]
     # Check the cusps are principal, not infinity, and with unit ideal
     assert all((not a.is_infinity()) and (a.ideal()==1) for a in alist)
@@ -1072,6 +1072,7 @@ def is_singular(s, sigmas):
     return sigma_index_with_translation(s, sigmas)[0]!=-1
 
 def translates(a):
+    w = nf(a).gen()
     return [translate_cusp(a,t) for t in [-w-1,-w,-w+1,-1,0,1,w-1,w,w+1]]
 
 def is_inside_one(z, alist):
@@ -1157,10 +1158,6 @@ def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False)
     covered.
 
     """
-    k = nf(alist[0])
-    w = k.gen()
-    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
-
     # convert a0 to a point with radius
     A0 = cusp_to_point(a0)
     if debug:
@@ -1346,7 +1343,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
 
     """
     if sigmas is None:
-        sigmas = singular_points_new(k)
+        sigmas = singular_points(k)
     ok = False
     maxn = 0
     alphas_ok = []
@@ -1383,6 +1380,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                       (len(alphas_open), len(alphas_open)+len(alphas_ok), maxn))
 
 def point_translates(P):
+    w = P[0].parent().gen()
     return [[P[0]+a+b*w, P[1]] for a in [-1,0,1] for b in [-1,0,1]]
 
 def nverts(a, plist):
@@ -1490,23 +1488,113 @@ def reduce_alphas_mod_Ok(alist):
 def cong_mod(r1, r2, s):
     return ((r1-r2)/s).is_integral()
 
-def find_edge_pairs(alphas, debug=False):
-    from utils import add_two_alphas, add_four_alphas, nf, ispos, alpha_index_with_translation
+def denom_2_alphas(k):
+    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    w = k.gen()
+    d8 = d%8
+    alist = []
+    if d8 in [1,3,5]:
+        alist.append(cusp(w/2,k))
+    if d8 in [2,6]:
+        alist.append(cusp((1+w)/2,k))
+    if d8 == 3:
+        alist.append(cusp((w-1)/2,k))
+    return alist
+
+def denom_2_sigmas(k):
+    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    w = k.gen()
+    d8 = d%8
+    slist = []
+    if d8 in [1,5]:
+        slist.append(cusp((1+w)/2,k))
+    if d8 in [2,6]:
+        slist.append(cusp(w/2,k))
+    if d8 == 7:
+        slist.append(cusp(w/2,k))
+        slist.append(cusp((1-w)/2,k))
+    return slist
+
+def denom_3_alphas(k):
+    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    w = k.gen()
+    d12 = d%12
+    alist = []
+    if d in [1, 2, 3, 7, 11, 5, 6, 15]:
+        return alist
+    if d12 in [1,2,3,5,7,10]:
+        alist.append(cusp(w/3,k))
+        alist.append(cusp(-w/3,k))
+    if d12 in [1,6,7,9,10,11]:
+        alist.append(cusp((1+w)/3,k))
+        alist.append(cusp((-1-w)/3,k))
+    if d12 in [1,3,6,7,9,10]:
+        alist.append(cusp((1-w)/3,k))
+        alist.append(cusp((w-1)/3,k))
+    return alist
+
+def denom_3_sigmas(k):
+    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    w = k.gen()
+    d12 = d%12
+    slist = []
+    if d12 in [2, 5]:
+        slist.append(cusp(w/3, k))
+        slist.append(cusp(-w/3, k))
+    if d12 == 11 and d!=23:
+        slist.append(cusp(w/3, k))
+        slist.append(cusp(-w/3, k))
+        slist.append(cusp((w-1)/3,k))
+        slist.append(cusp((1-w)/3,k))
+    if d12 == 3:
+        slist.append(cusp((1+w)/3,k))
+        slist.append(cusp((-1-w)/3,k))
+    if d12 in [6,9] and d!=6:
+        slist.append(cusp(w/3,k))
+        slist.append(cusp(-w/3,k))
+    return slist
+
+def alpha_in_list(a, alist, up_to_translation=True):
+    from utils import alpha_index_with_translation
+    if up_to_translation:
+        return alpha_index_with_translation(a, alist)[0]>=0
+    else:
+        return a in alist
+
+def compare_alpha_lists(alist1, alist2):
+    return len(alist1)==len(alist2) and all(alpha_in_list(a,alist2) for a in alist1) and all(alpha_in_list(a,alist1) for a in alist2)
+
+def find_edge_pairs(alphas, sigmas, debug=False):
+    from utils import nf, ispos, add_two_alphas, add_four_alphas
 
     k = nf(alphas[0])
     w = k.gen()
+    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
 
-    # Extract the a for which 2*a is integral, which we treat
+    # Extract the a for which 2*a or 3*a is integral, which we treat
     # separately:
-    A2 = [a for a in alphas if (2*to_k(a,k)).is_integral()]
+    A1 = [a for a in alphas if to_k(a,k).is_integral()]
+    assert A1 == [cusp(0,k)]
+    A2 = [a for a in alphas if a not in A1 and (2*to_k(a,k)).is_integral()]
+    A2exp = denom_2_alphas(k)
+    if not compare_alpha_lists(A2, A2exp):
+        print("*******************denom 2 alphas are {}, expected {}".format(A2, A2exp))
+    A2 = A2exp # use the expected list for consistent normalisation and order
+    A12 = A1 + A2
+    A3 = [a for a in alphas if not alpha_in_list(a, A12) and (3*to_k(a,k)).is_integral()]
+    A3exp = denom_3_alphas(k)
+    if not compare_alpha_lists(A3, A3exp):
+        print("*******************denom 3 alphas are {}, expected {}".format(A3, A3exp))
+    A3 = A3exp # use the expected list for consistent normalisation and order
+    A123 = A12 + A3
 
-    # For a such that 2*a is not integral and we make sure that we
+    # For a such that 2*a, 3*a are not integral and we make sure that we
     # have complete sets of {a,-a} pairs, not just up to translation:
-    #A = [a for a in alphas if a.denominator() not in [1,2]]
+
     A = []
     for a in alphas:
         ma = negate_cusp(a)
-        if a not in A2 and alpha_index_with_translation(ma, A)[0]<0:
+        if not alpha_in_list(a, A123) and not alpha_in_list(ma, A):
             r,i = to_k(a,k)
             if w.trace()==0:
                 if r<0 and i==half:
@@ -1532,7 +1620,7 @@ def find_edge_pairs(alphas, debug=False):
     S = list(set(k(a.denominator()) for a in A))
     S.sort(key = lambda z: z.norm())
     if debug:
-        print("Denominator | 2: {}".format(A2))
+        print("Denominator 1,2,3: {}".format(A123))
         print("Other denominators: {}".format(S))
         for s in S:
             print("s = {}: numerators {}".format(s, [a for a in A if a.denominator()==s]))
@@ -1563,12 +1651,10 @@ def find_edge_pairs(alphas, debug=False):
                         if debug:
                             print("  - adding plus pair {}".format(rs))
                         pluspairs.append(rs)
-                        add_two_alphas(s, r, +1, new_alphas, M_alphas)
                     else:
                         if debug:
                             print("  - adding plus pair {}".format(mrs))
                         pluspairs.append(mrs)
-                        add_two_alphas(s, -r, +1, new_alphas, M_alphas)
                 continue
             if cong_mod(rsq, -1, s):
                 if not any(pair in minuspairs for pair in (rs, mrs)):
@@ -1576,12 +1662,10 @@ def find_edge_pairs(alphas, debug=False):
                         if debug:
                             print("  - adding minus pair {}".format(rs))
                         minuspairs.append(rs)
-                        add_two_alphas(s, r, -1, new_alphas, M_alphas)
                     else:
                         if debug:
                             print("  - adding minus pair {}".format(mrs))
                         minuspairs.append(mrs)
-                        add_two_alphas(s, -r, -1, new_alphas, M_alphas)
                 continue
             if debug:
                 print("  - looking for a foursome")
@@ -1596,25 +1680,128 @@ def find_edge_pairs(alphas, debug=False):
                             print("  - adding foursome {}".format((r,s,rdash)))
                         fours.append(rs)
                         long_fours.append((s,r,rdash))
-                        add_four_alphas(s, r, rdash, new_alphas, M_alphas)
                     else:
                         if debug:
                             print("  - adding foursome {}".format((-r,s,rdash)))
                         fours.append(mrs)
                         long_fours.append((s,-r,-rdash))
-                        add_four_alphas(s, -r, -rdash, new_alphas, M_alphas)
             except StopIteration:
                 print("no negative inverse found for {} mod {}".format(r, s))
+
+
+    for r,s in pluspairs:
+        add_two_alphas(s, r, +1, new_alphas, M_alphas)
+    for r,s in minuspairs:
+        add_two_alphas(s, r, -1, new_alphas, M_alphas)
+    for s, r1, r2 in long_fours:
+        add_four_alphas(s, r1, r2, new_alphas, M_alphas)
+
+    # Process the sigmas, standardising those with denominator 2 and 3 and putting the rest inot +/- pairs
+
+    # Extract the s with denominator 2 or 3, which we treat
+    # separately:
+    S2 = [s for s in sigmas if (not s.is_infinity()) and (2*to_k(s,k)).is_integral()]
+    S2exp = denom_2_sigmas(k)
+    if not compare_alpha_lists(S2, S2exp):
+        print("*******************denom 2 sigmas are {}, expected {}".format(S2, S2exp))
+    S2 = S2exp # use the expected list for consistent normalisation and order
+    S3 = [s for s in sigmas if (not s.is_infinity()) and (not alpha_in_list(s, S2)) and (3*to_k(s,k)).is_integral()]
+    S3exp = denom_3_sigmas(k)
+    if not compare_alpha_lists(S3, S3exp):
+        print("*******************denom 3 sigmas are {}, expected {}".format(S3, S3exp))
+    S3 = S3exp # use the expected list for consistent normalisation and order
+    S23 = S2 + S3
+
+    S = []
+    for s in sigmas:
+        ms = negate_cusp(s)
+        if not s.is_infinity() and not alpha_in_list(s, S23) and not alpha_in_list(ms, S):
+            r,i = to_k(s,k)
+            if w.trace()==0:
+                if r<0 and i==half:
+                    s = cusp(k([r,-half]), k)
+                elif i<0 and r==half:
+                    s = cusp(k([-half,i]), k)
+            else:
+                if i==half:
+                    if r>0:
+                        s = cusp(k([r,i-1]), k)
+                    elif r<-half:
+                        s = cusp(k([r+1,i-1]), k)
+                elif 2*r+i==1 and i<0:
+                    s = cusp(k([r-1,i]), k)
+            r,i = to_k(s,k)
+            if i>0:
+                S.append(s)
+                S.append(negate_cusp(s))
+            else:
+                S.append(negate_cusp(s))
+                S.append(s)
+
     print("alphas with denominator | 2: {}".format(A2))
+    print("alphas with denominator | 3: {}".format(A3))
     print("plus pairs: {}".format(pluspairs))
     print("minus pairs: {}".format(minuspairs))
     print("fours: {}".format(fours))
-    # for paasting into C++:
-    print("// C++ code")
+
+    print("sigmas with denominator 2: {}".format(S2))
+    print("sigmas with denominator 3: {}".format(S3))
+    print("other (finite) sigmas: {}".format(S))
+    new_sigmas = [cusp(oo,k)] + S2 + S3 + S
+
+    # # for pasting into C++:
+    # print("// C++ code")
+    # for r,s in pluspairs:
+    #     print("add_alpha_orbit({}, {}, {});".format(s,r,-r))
+    # for r,s in minuspairs:
+    #     print("add_alpha_orbit({}, {}, {});".format(s,r,r))
+    # for s, r1, r2 in long_fours:
+    #     print("add_alpha_orbit({}, {}, {});".format(s,r1,r2))
+    # for pasting into data file:
+    print("// for copying into geodat.dat")
+    print("0")
+    print("0 d={}".format(d))
+    print("0")
     for r,s in pluspairs:
-        print("add_alpha_pair({}, {}, +1);".format(s,r))
+        sr, si = s
+        r1r, r1i = r
+        r2r, r2i = -r
+        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
     for r,s in minuspairs:
-        print("add_alpha_pair({}, {}, -1);".format(s,r))
+        sr, si = s
+        r1r, r1i = r
+        r2r, r2i = r
+        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
     for s, r1, r2 in long_fours:
-        print("add_alpha_foursome({}, {}, {});".format(s,r1,r2))
-    return A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
+        sr, si = s
+        r1r, r1i = r1
+        r2r, r2i = r2
+        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
+    for s in S:
+        sr, si = s.denominator()
+        rr, ri = s.numerator()
+        print("{} S {} {} {} {} {} {}".format(d, rr,ri, sr,si))
+    return A123, new_alphas, new_sigmas
+
+#
+# From scratch:
+#
+def alpha_sigma_data(d):
+    k = make_k(d)['k']
+    print("k = {}, class number {}".format(k,k.class_number()))
+    sigmas = singular_points(k)
+    print("{} singular points: {}".format(len(sigmas), sigmas))
+    maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, True)
+    print("{} covering alphas, max denom norm {}: {}".format(len(alphas0), maxn, alphas0))
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas)
+    maxn = max(a.denominator().norm() for a in alphas1)
+    print("{} fundamental domain alphas, max denom norm {}: {}".format(len(alphas1), maxn, alphas1))
+    # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
+    data = find_edge_pairs(alphas1, sigmas)
+    alphas2 = data[0] + data[1]
+    new_sigmas = data[2]
+    # for adding to precomputed alphas in alphas.py:
+    print("alphas: [" + ", ".join(["({})/({})".format(a.numerator(), a.denominator()) for a in alphas2]) + "]\n")
+    print("sigmas: [" + ", ".join(["({})/({})".format(s.numerator(), s.denominator()) for s in new_sigmas]) + "]\n")
+    return data
+
