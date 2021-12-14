@@ -108,8 +108,6 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
 
   if (!Quad::is_Euclidean)
     {
-      make_faces();  // implemented in geometry.cc
-
       if (verbose)
         {
           cout<<cyclic_triangles.size()<<" extra cyclic triangle relation types"<<endl;

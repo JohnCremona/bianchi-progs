@@ -107,48 +107,67 @@ void add_alpha_pair(const Quad& s, const Quad& r, int sign=-1)
 
 // add r/s to the list of singular points, and optionally also -r/s (unless -r/s=r/s mod 1)
 
-void add_sigma(const Quad& r, const Quad& s, int both_signs=1)
+void add_sigma(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
-  if (both_signs)
+  if (s==0 || s==2) // don't also include -sigma
+    {
+      sigma_flip.push_back(n_sigmas);     // identity
+      n_sigmas+=1;
+    }
+  else
     {
       sigmas.push_back(-sigma);
       sigma_flip.push_back(n_sigmas+1);   // transposition with next
       sigma_flip.push_back(n_sigmas);     // transposition with previous
       n_sigmas+=2;
     }
-  else
-    {
-      sigma_flip.push_back(n_sigmas);     // identity
-      n_sigmas+=1;
-    }
 }
 
 // Global function to be used once during setting the field:
 
+void make_faces();
+void alphas_sigmas_universal();
+void alphas_sigmas_denom_2();
+void alphas_sigmas_denom_3();
+void alphas_sigmas_other();
+
 void Quad::setup_geometry()
 {
-  int d = Quad::d;
   n_alphas = n_sigmas = 0;
 
-  add_sigma(1,0, 0); // fill in the 0'th entry in sigmas,
+  alphas_sigmas_universal();
+
+  if (Quad::is_Euclidean) return;
+
+  alphas_sigmas_denom_2();
+  alphas_sigmas_denom_3();
+  alphas_sigmas_other();
+  make_faces();
+}
+
+void alphas_sigmas_universal()
+{
+  // sigma_0 = oo:
+
+  add_sigma(1,0); // fill in the 0'th entry in sigmas,
                   // so the others will be indexed from 1
 
-  // alphas (only 0) with denominator 1:
+  // alpha_0 = 0:
 
   add_alpha(0,-1,1,0);  // alpha[0] = 0
   alpha_inv.push_back(0); // 0-0
   alpha_flip.push_back(0); // 0-0
   assert (n_alphas==1);
+}
 
-  if (Quad::is_Euclidean) return;
+// alphas and sigmas with denominator 2:
 
+void alphas_sigmas_denom_2()
+{
+  int d = Quad::d;
   Quad w = Quad::w;
-
-  // alphas and sigmas with denominator 2:
-
-  // these are always w/2 and (1+w)/2 but we use (w-1)/2 instead of (w+1)/2 when d%4=3
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
   // alpha = (w+1)/2, sigma = w/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
@@ -167,7 +186,7 @@ void Quad::setup_geometry()
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
       alpha_flip.push_back(1); // 1-1
-      add_sigma(w+1,2, 0);
+      add_sigma(w+1,2);
       break;
     }
   case 2: // (2) = (2,w)^2
@@ -177,7 +196,7 @@ void Quad::setup_geometry()
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1);   // 1-1
       alpha_flip.push_back(1);  // 1-1
-      add_sigma(w,2, 0);
+      add_sigma(w,2);
       break;
     }
   case 3:
@@ -194,13 +213,19 @@ void Quad::setup_geometry()
   case 7: // (2) = (2,w)*(2,1-w)
     {
       add_alpha_pair(4, 1+2*w, +1);
-      add_sigma(w,2, 0);
-      add_sigma(1-w,2, 0);
+      add_sigma(w,2);
+      add_sigma(1-w,2);
       break;
     }
   } // d%8
+}
 
-  // alphas and sigmas with denominator 3:
+// alphas and sigmas with denominator 3:
+
+void alphas_sigmas_denom_3()
+{
+  int d = Quad::d;
+  Quad w = Quad::w;
 
   switch (d%12) {
   case 1: case 10:
@@ -253,6 +278,12 @@ void Quad::setup_geometry()
         }
     }
   } // d%12
+}
+
+void alphas_sigmas_other()
+{
+  int d = Quad::d;
+  Quad w = Quad::w;
 
   switch (d) {
   case 19:
@@ -607,9 +638,9 @@ void read_faces(int verbose)
 {
   ifstream geodata;
   string line;
-  int file_d, i, j;
+  int file_d, i, j, k, l, m, n;
   char G;
-  Quad u;
+  Quad u, x, y, z, x1, y1, x2, y2;
 
   geodata.open("geodata.dat");
   getline(geodata, line);
@@ -645,67 +676,35 @@ void read_faces(int verbose)
         {
           if (verbose)
             cout << " reading AA"<<G<<"-triangle data"<<endl;
-          vector<int> ijk;
-          for (i=0; i<3; i++)
-            {
-              input_line >> j;
-              ijk.push_back(j);
-            }
+          input_line >> i >> j >> k >> u;
           if (verbose)
-            cout << " - ijk = "<<ijk<<endl;
-          input_line >> u;
-          if (verbose)
-            cout << " - u = "<< u <<endl;
+            cout << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
           if (G=='A')
-            aaa_triangles.push_back({ijk, u});
+            aaa_triangles.push_back({{i,j,k}, u});
           else
-            aas_triangles.push_back({ijk, u});
+            aas_triangles.push_back({{i,j,k}, u});
           break;
         }
       case 'Q': // square
         {
           if (verbose)
             cout << " reading square data"<<endl;
-          vector<int> ijkl;
-          for (i=0; i<4; i++)
-            {
-              input_line >> j;
-              ijkl.push_back(j);
-            }
+          input_line >> i >> j >> k >> l >> x >> y >> z;
           if (verbose)
-            cout << " - ijkl = "<<ijkl<<endl;
-          vector<Quad> xyz;
-          for (i=0; i<3; i++)
-            {
-              input_line >> u;
-              xyz.push_back(u);
-            }
-          if (verbose)
-            cout << " - xyz = "<< xyz <<endl;
-          squares.push_back({ijkl, xyz});
+            cout << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
+                 << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
+          squares.push_back({{i,j,k,l}, {x,y,z}});
           break;
         }
       case 'H': // hexagon
         {
           if (verbose)
             cout << " reading hexagon data"<<endl;
-          vector<int> ijklmn;
-          for (i=0; i<6; i++)
-            {
-              input_line >> j;
-              ijklmn.push_back(j);
-            }
+          input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
           if (verbose)
-            cout << " - ijklmn = "<<ijklmn<<endl;
-          vector<Quad> ux1y1x2y2;
-          for (i=0; i<5; i++)
-            {
-              input_line >> u;
-              ux1y1x2y2.push_back(u);
-            }
-          if (verbose)
-            cout << " - ux1y1x2y2 = "<<ux1y1x2y2<<endl;
-          hexagons.push_back({ijklmn, ux1y1x2y2});
+            cout << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
+                 << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
+          hexagons.push_back({{i,j,k,l,m,n}, {u,x1,y1,x2,y2}});
           break;
         }
       default:

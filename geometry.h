@@ -43,6 +43,5 @@ extern vector<pair<vector<int>, vector<Quad>> > hexagons;
 
 // initialization function, to be called before constructing face_relations class (for non-Euclidean fields)
 extern int faces_made;
-void make_faces();
 
 #endif
