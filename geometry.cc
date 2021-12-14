@@ -66,7 +66,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 // aa "minus pair" with r1^2=-1 (mod s), and when r1==-r2 we have a
 // "plus pair" with r1^2=+1 (mod s).
 
-void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
+void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
   Quad t = -(r1*r2+1)/s;
   if (r1==r2) // "-" pair, r1*r2=-1 (mod s)
@@ -110,7 +110,7 @@ void add_alpha_foursome(const Quad& s, const Quad& r1, const Quad& r2)
 
 // add r/s to the list of singular points, and optionally also -r/s (unless -r/s=r/s mod 1)
 
-void add_sigma(const Quad& r, const Quad& s)
+void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
@@ -140,7 +140,6 @@ void check_hexagons();
 void alphas_sigmas_universal();
 void alphas_sigmas_denom_2();
 void alphas_sigmas_denom_3();
-void alphas_sigmas_other();
 
 void Quad::setup_geometry()
 {
@@ -152,9 +151,9 @@ void Quad::setup_geometry()
 
   alphas_sigmas_denom_2();
   alphas_sigmas_denom_3();
-  alphas_sigmas_other();
 
-  read_data(0);
+  read_data(0); // read remaining alphas and sigmas and all faces from geodat.dat
+
 #ifdef CHECK_TRIANGLES
   check_triangles();
 #endif
@@ -170,7 +169,7 @@ void alphas_sigmas_universal()
 {
   // sigma_0 = oo:
 
-  add_sigma(1,0); // fill in the 0'th entry in sigmas,
+  add_sigma_orbit(1,0); // fill in the 0'th entry in sigmas,
                   // so the others will be indexed from 1
 
   // alpha_0 = 0:
@@ -205,7 +204,7 @@ void alphas_sigmas_denom_2()
       add_alpha(w,u,2,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
       alpha_flip.push_back(1); // 1-1
-      add_sigma(w+1,2);
+      add_sigma_orbit(w+1,2);
       break;
     }
   case 2: // (2) = (2,w)^2
@@ -215,7 +214,7 @@ void alphas_sigmas_denom_2()
       add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1);   // 1-1
       alpha_flip.push_back(1);  // 1-1
-      add_sigma(w,2);
+      add_sigma_orbit(w,2);
       break;
     }
   case 3:
@@ -231,9 +230,8 @@ void alphas_sigmas_denom_2()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      add_alpha_foursome(4, 1+2*w, -(1+2*w));
-      add_sigma(w,2);
-      add_sigma(1-w,2);
+      add_sigma_orbit(w,2);
+      add_sigma_orbit(1-w,2);
       break;
     }
   } // d%8
@@ -249,16 +247,16 @@ void alphas_sigmas_denom_3()
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_foursome(3, w, w);
-      add_alpha_foursome(3, 1+w, 1-w);
+      add_alpha_orbit(3, w, w);
+      add_alpha_orbit(3, 1+w, 1-w);
       break;
     }
   case 7:
     {
       if (d>19) // e.g. 43, 67, 163
         {
-          add_alpha_foursome(3, w, 1-w);
-          add_alpha_foursome(3, 1+w, 1+w);
+          add_alpha_orbit(3, w, 1-w);
+          add_alpha_orbit(3, 1+w, 1+w);
         }
       break;
     }
@@ -266,210 +264,37 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_foursome(3, w, -w);
-          add_sigma(w,3);
+          add_alpha_orbit(3, w, -w);
+          add_sigma_orbit(w,3);
         }
       break;
     }
   case 11:
     {
-      add_alpha_foursome(3, 1+w, -1-w);
+      add_alpha_orbit(3, 1+w, -1-w);
       if (d>23)
         {
-          add_sigma(w,3);
-          add_sigma(w-1,3);
+          add_sigma_orbit(w,3);
+          add_sigma_orbit(w-1,3);
         }
       break;
     }
   case 3:
     {
-      add_alpha_foursome(3, w, w-1);
-      add_sigma(1+w,3);
+      add_alpha_orbit(3, w, w-1);
+      add_sigma_orbit(1+w,3);
       break;
     }
   case 6:  case 9:
     {
       if (d>6)
         {
-          add_alpha_foursome(3, w+1, w-1);
-          add_sigma(w,3);
+          add_alpha_orbit(3, w+1, w-1);
+          add_sigma_orbit(w,3);
           break;
         }
     }
   } // d%12
-}
-
-void alphas_sigmas_other()
-{
-  int d = Quad::d;
-  Quad w = Quad::w;
-
-  switch (d) {
-  case 19:
-  case 43:
-  default:
-    return;
-  case 5:
-    {
-      add_alpha_foursome(2*w, w-4, 4-w);      // N(s)=20
-      return;
-    }
-  case 6:
-    {
-      add_alpha_foursome(2*w, 5, -5);      // N(s)=24
-      return;
-    }
-  case 10:
-    {
-      add_alpha_foursome(2*w, 9, -9);      // N(s)=40
-      return;
-    }
-  // case 13:
-  //   {
-  //     add_alpha_foursome(5, 2*w + 2, 2*w - 2);
-  //     return;
-  //   }
-  // case 14:
-  //   {
-  //     add_alpha_foursome(w - 2, w + 5, w + 3);
-  //     add_alpha_foursome(w + 2, w - 3, w - 5);
-  //     return;
-  //   }
-  // case 15:
-  //   {
-  //     return;
-  //   }
-  // case 17:
-  //   {
-  //     add_alpha_foursome(w - 1, 7, 5);
-  //     add_alpha_foursome(w + 1, 7, 5);
-  //     add_alpha_foursome(7, 3*w - 3, 3*w + 3);
-  //     return;
-  //   }
-  // case 21:
-  //   {
-  //     add_alpha_foursome(w - 1, 9, -5);
-  //     add_alpha_foursome(w + 1, 9, -5);
-  //     add_alpha_foursome(9, 4*w + 4, 4*w - 4);
-  //     return;
-  //   }
-  // case 22:
-  //   {
-  //     add_alpha_foursome(4, w + 1, -w + 1);
-  //     add_alpha_foursome(w, 9, -5);
-  //     add_alpha_foursome(w - 1, 9, 5);
-  //     add_alpha_foursome(w + 1, 9, 5);
-  //     add_alpha_foursome(5, w + 2, w - 2);
-  //     add_alpha_foursome(5, 2*w + 1, -2*w + 1);
-  //     add_alpha_foursome(w + 2, w - 5, w - 9);
-  //     add_alpha_foursome(w - 2, w + 9, w + 5);
-  //     return;
-  //   }
-  case 23:
-    {
-      add_alpha_foursome(w+1, 2-w, w-2); // N(s)=8
-      add_alpha_foursome(2-w, 1+w, -1-w);
-      add_alpha_foursome(2+w, w-3, 3-w); // N(s)=12
-      add_alpha_foursome(3-w, -2-w, w+2);
-      return;
-    }
-  case 31:
-    {
-      add_alpha_foursome(w, 3, -3);       // N(s)=8
-      add_alpha_foursome(1-w, 3, -3);
-      add_alpha_foursome(1+w, 3, 3);         // N(s)=10
-      add_alpha_foursome(2-w, 3, 3);
-      add_alpha_foursome(3+w, w-6, 6-w);   // N(s)=20
-      add_alpha_foursome(4-w, 5+w, -5-w);
-      return;
-    }
-  case 47:
-    {
-      add_alpha_foursome(w - 1, 5, -5);
-      add_alpha_foursome(w, 5, -5);
-      add_alpha_foursome(w - 4, w + 3, -3-w);
-      add_alpha_foursome(w - 4, 2*w + 3, -3-2*w);
-      add_alpha_foursome(w + 3, w - 4, 4-w);
-      add_alpha_foursome(w + 3, 2*w - 5, 5-2*w);
-      add_alpha_foursome(6, 2*w - 1, 1-2*w);
-      add_alpha_foursome(w - 3, w + 4, w + 2);
-      add_alpha_foursome(w + 2, w - 3, w - 5);
-      add_alpha_foursome(5, 2*w + 1, 2*w - 3);
-      return;
-    }
-  case 67:
-    {
-      add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
-      add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
-      add_alpha_foursome(3-w, w+6, 2+w); // alphas 17,18,19,20
-      add_alpha_foursome(2+w, 7-w, 3-w); // alphas 21,22,23,24
-      assert (n_alphas==25);
-      assert (M_alphas.size()==25);
-      assert (alpha_inv.size()==25);
-      return;
-    }
-  case 163:
-    {
-      add_alpha_foursome(4, w, w-1);   // alphas  9,10,11,12
-      add_alpha_foursome(4, w+1, 2-w); // alphas 13,14,15,16
-      assert (n_alphas==17);
-
-      // For d=163 we have 82 more alphas!
-
-      // 20 alphas with s=5 (norm 25)
-
-      add_alpha_foursome(5, w, w-1);
-      add_alpha_foursome(5, 2*w, 2-2*w);
-      add_alpha_foursome(5, w+2, 1-2*w);
-      add_alpha_foursome(5, w-2, 2+2*w);
-      add_alpha_foursome(5, w+1, 1+2*w);
-      assert (n_alphas==37);
-
-      // 12 alphas with s=6 (norm 36)
-
-      add_alpha_foursome(6, w, 1-w);
-      add_alpha_foursome(6, 1+w, w-2);
-      add_alpha_foursome(6, 2+w, 3-w);
-      assert (n_alphas==49);
-
-      // 4 alphas with s=w (norm 41), and 4 conjugates of these
-
-      add_alpha_foursome(w, 12, 17);
-      add_alpha_foursome(1-w, 12, 17);
-      assert (n_alphas==57);
-
-      // 4 alphas with s=1+w (norm 43), and 4 conjugates of these
-
-      add_alpha_foursome(1+w, 12, w-17);
-      add_alpha_foursome(2-w, 12, -w-16);
-      assert (n_alphas==65);
-
-      // 8 alphas with s=2+w (norm 47), and 8 conjugates of these
-
-      add_alpha_foursome(2+w, 7, 18-w);
-      add_alpha_foursome(2+w, w-11, w-16);
-
-      add_alpha_foursome(3-w, 7, 17+w);
-      add_alpha_foursome(3-w, -w-10, -w-15);
-      assert (n_alphas==81);
-
-      // 10 alphas with s=7 (norm 49)
-
-      add_alpha_foursome(7, w+3, 2*w-1);
-      add_alpha_foursome(7, 2*w+1, 3-2*w);
-      add_alpha_foursome(7, 2+3*w, 2+3*w);
-      assert (n_alphas==91);
-
-      // 4 alphas with s=3+w (norm 53), and 4 conjugates of these
-
-      add_alpha_foursome(3+w, 5-w, w-17);
-      add_alpha_foursome(4-w, w+4, -w-16);
-      assert (n_alphas==99);
-      assert (M_alphas.size()==99);
-      assert (alpha_inv.size()==99);
-
-    } // end of d=163 block
-  }
 }
 
 
@@ -617,13 +442,28 @@ void check_hexagons()
 // reads from data file into global variables aaa_triangles,
 // aas_triangles, cyclic_triangles, squares, hexagons
 
+// Each line starts with d, with d==0 meaning "ignore this line" (for
+// comments) and d==-1 means "stop reading", with the d values in
+// increasing order so that we can stop reading when we see a d value
+// larger than Quad::d.
+
+// The next non-space character is A,S,T,U,C,Q,H:
+
+// A 'alpha orbit' followed by 6 integers: s, r1, r2
+// S 'sigma orbit' followed by 4 integers: r, s
+// T 'aaa-triangle' followed by 5 integers: i,j,k; u
+// U 'aas-triangle' followed by 5 integers: i,j,k; u
+// C 'cyclic triangle' followed by 1 integer: i
+// Q 'square' followed by 10 integers: i,j,k,l; x,y,z
+// H 'hexagon' followed by 16 integers: i,j,k,l,m,n; u,x1,y1,x2,y2
+
 void read_data(int verbose)
 {
   ifstream geodata;
   string line;
   int file_d, i, j, k, l, m, n;
   char G;
-  Quad u, x, y, z, x1, y1, x2, y2;
+  Quad s, r, r1, r2, u, x, y, z, x1, y1, x2, y2;
 
   geodata.open("geodata.dat");
   getline(geodata, line);
@@ -631,7 +471,7 @@ void read_data(int verbose)
     {
       istringstream input_line(line);
       input_line >> file_d;
-      if (file_d==-1)
+      if (file_d==-1 || file_d > Quad::d)
         break;
       if (file_d != Quad::d)
         {
@@ -644,6 +484,26 @@ void read_data(int verbose)
         cout<<"Processing line "<<line<<endl;
       input_line >> G;
       switch(G) {
+      case 'A': // alpha orbit
+        {
+          if (verbose)
+            cout << " reading alpha orbit data"<<endl;
+          input_line >> s >> r1 >> r2;
+          if (verbose)
+            cout << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
+          add_alpha_orbit(s, r1, r2);
+          break;
+        }
+      case 'S': // sigma orbit
+        {
+          if (verbose)
+            cout << " reading sigma orbit data"<<endl;
+          input_line >> r >> s;
+          if (verbose)
+            cout << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
+          add_sigma_orbit(r, s);
+          break;
+        }
       case 'C': // cyclic triangle
         {
           if (verbose)
@@ -654,15 +514,15 @@ void read_data(int verbose)
           cyclic_triangles.push_back(j);
           break;
         }
-      case 'A': // aaa-triangle
-      case 'S': // aas-triangle
+      case 'T': // aaa-triangle
+      case 'U': // aas-triangle
         {
           if (verbose)
-            cout << " reading AA"<<G<<"-triangle data"<<endl;
+            cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl;
           input_line >> i >> j >> k >> u;
           if (verbose)
             cout << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
-          if (G=='A')
+          if (G=='T')
             aaa_triangles.push_back({{i,j,k}, u});
           else
             aas_triangles.push_back({{i,j,k}, u});
