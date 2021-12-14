@@ -76,7 +76,7 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
 #FIELDS_full=23 31
 FIELDS_hom=5 6 10
 #FIELDS_hom=
-FIELDSX=
+FIELDSX=47
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete

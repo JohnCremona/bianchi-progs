@@ -48,6 +48,48 @@ vector<pair<vector<int>, Quad>> aas_triangles;
 vector<pair<vector<int>, vector<Quad>> > squares;
 vector<pair<vector<int>, vector<Quad>> > hexagons;
 
+// Global functions to be used once during setting the field:
+
+// read from data file 'geodata.dat' into global variables alphas, sigmas,
+// aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
+void read_data(int verbose=0);
+
+void check_triangles();
+void check_squares();
+void check_hexagons();
+void alphas_sigmas_universal();
+void alphas_sigmas_denom_2();
+void alphas_sigmas_denom_3();
+
+void Quad::setup_geometry()
+{
+  n_alphas = n_sigmas = 0;
+
+  alphas_sigmas_universal();
+
+  if (Quad::is_Euclidean) return;
+
+  alphas_sigmas_denom_2();
+  alphas_sigmas_denom_3();
+
+  read_data(0); // read remaining alphas and sigmas and all faces from geodat.dat
+
+  // cout << "alphas:\n";
+  // for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
+  // cout << "sigmas:\n";
+  // for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
+
+#ifdef CHECK_TRIANGLES
+  check_triangles();
+#endif
+#ifdef CHECK_SQUARES
+  check_squares();
+#endif
+#ifdef CHECK_HEXAGONS
+  check_hexagons();
+#endif
+}
+
 // Given a,b,c,d with ad-bc=2 add alpha=-d/c and M_alpha=[a,b;c,d] to the global lists
 
 void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
@@ -126,43 +168,6 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
       sigma_flip.push_back(n_sigmas);     // transposition with previous
       n_sigmas+=2;
     }
-}
-
-// Global functions to be used once during setting the field:
-
-// read from data file 'geodata.dat' into global variables alphas, sigmas,
-// aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
-void read_data(int verbose=0);
-
-void check_triangles();
-void check_squares();
-void check_hexagons();
-void alphas_sigmas_universal();
-void alphas_sigmas_denom_2();
-void alphas_sigmas_denom_3();
-
-void Quad::setup_geometry()
-{
-  n_alphas = n_sigmas = 0;
-
-  alphas_sigmas_universal();
-
-  if (Quad::is_Euclidean) return;
-
-  alphas_sigmas_denom_2();
-  alphas_sigmas_denom_3();
-
-  read_data(0); // read remaining alphas and sigmas and all faces from geodat.dat
-
-#ifdef CHECK_TRIANGLES
-  check_triangles();
-#endif
-#ifdef CHECK_SQUARES
-  check_squares();
-#endif
-#ifdef CHECK_HEXAGONS
-  check_hexagons();
-#endif
 }
 
 void alphas_sigmas_universal()
@@ -309,6 +314,7 @@ int check_aaa_triangle(const vector<int>& T, const Quad& u)
   // cout<<"Checking aaa-triangle ("<<T<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
+  // cout<<"x = "<<x<<endl;
   return (x.is_integral());
 }
 
@@ -347,14 +353,16 @@ int check_aas_triangle(const vector<int>& T, const Quad& u)
 
 void check_triangles()
 {
-  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
-    {
-      assert(check_aaa_triangle(Ti->first, Ti->second));
-    }
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
     assert(check_cyclic_triangle(*Ti));
+  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
+    {
+      // cout<<"Checking aaa-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
+      assert(check_aaa_triangle(Ti->first, Ti->second));
+    }
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
     {
+      // cout<<"Checking aas-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
       assert(check_aas_triangle(Ti->first, Ti->second));
     }
 }
