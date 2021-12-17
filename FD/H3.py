@@ -8,7 +8,8 @@ from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
 
 from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
                    translate_cusp, negate_cusp, conj_cusp,
-                   smallest_ideal_class_representatives)
+                   smallest_ideal_class_representatives,
+                   alpha_index_with_translation)
 
 from alphas import precomputed_alphas
 
@@ -515,10 +516,12 @@ def disc(c,r):
     return circle(c, r,
                   aspect_ratio=1, fill=True, rgbcolor='blue', alpha = 0.2)
 
-def plot_circles_and_points(cc, pp, fill=False):
+def plot_circles_and_points(cc, pp1, pp2=[], pp3=[], fill=False):
     circles = [circ(c, r, fill) for c, r in cc]
-    points = [point(P, rgbcolor='red', pointsize=50) for P in pp]
-    return sum(circles) + sum(points)
+    points1 = [point(P, rgbcolor='red', pointsize=30) for P in pp1]
+    points2 = [point(P, rgbcolor='black', pointsize=30) for P in pp2]
+    points3 = [point(P, rgbcolor='blue', pointsize=30) for P in pp3]
+    return sum(circles) + sum(points1) + sum(points2) + sum(points3)
 
 def plot_circles(alist, fill=False):
     k = nf(alist[0])
@@ -526,14 +529,14 @@ def plot_circles(alist, fill=False):
     A = [list(emb(to_k(a, k))) for a in alist]
     R = [RR(radius_squared(a)).sqrt() for a in alist]
     circles = [(c,r) for c,r in zip(A,R)]
-    return plot_circles_and_points(circles, [], fill)
+    return plot_circles_and_points(circles, fill=fill)
 
 def plot_FunDomain_projection(k, alphas, sigmas, fill=False):
     w = k.gen()
     D = k.discriminant().abs()
     emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
     rootd = emb(w).imag()
-    Ymax = 3*rootd/(4 if ZZ(D).mod(4) == 3  else 2)
+    Ymax = (2.5*rootd)/(4 if ZZ(D).mod(4) == 3  else 2)
     Xmax = 3*0.5
 
     triplets, extra_alphas = alpha_triples(alphas)
@@ -550,7 +553,7 @@ def plot_FunDomain_projection(k, alphas, sigmas, fill=False):
     #print("corners: {}".format(C))
 
     circles  = [(c, r) for c, r in zip(A,R)]
-    proj = plot_circles_and_points(circles, S, fill=fill)
+    proj = plot_circles_and_points(circles, S, A, fill=fill)
 
     z = w-ZZ(1)/2 if ZZ(D).mod(4)==3 else w
     TL=list(emb((-1+z)/2))
@@ -694,55 +697,49 @@ def alpha_triples(alphas):
     triples.sort(key = lambda t:t[0])
     return triples, alpha_translates
 
-def alpha_doubles(alphas, sigmas):
-    """Given alphas, a list of principal cusps alpha (all reduced mod O_k)
-    and sigmas, a list of all singular points sigma in one nontrivial
-    ideal class, returns
-
-    (1) a list of [rsq,(a1,a2),P] where each ai is the translate of an
-    alpha, P = [z,rsq] is the bi-intersection of S_a1, S_a2 with z in
-    the fundamental rectangle and rsq>0;
-
-    (2) a list of the extra alpha-translates required.
+def sigma_triples(alphas, sigmas):
+    """Given alphas, and sigmas (which can be a complete set or just those
+    in one ideal class), returns a list of [rsq, (s, a1,a2), R] where
+    each ai is the translate of an alpha, s is a sigma on both S_a1
+    and S_a2, and R = [z,rsq] is the bi-intersection (with rsq>0) of
+    S_a1, S_a2.
 
     """
-    w = alphas[0].number_field().gen()
-    SP = [[to_k(s),0] for s in sigmas if not s.is_infinity()]
+    # get list of finite sigmas as full points:
+    xsigmas = [s for s in sigmas if not s.is_infinity()]
+    SP = [[to_k(s),0] for s in xsigmas]
+
     # get list of alpha translates a such that at least one sigma is on S_a:
+    w = alphas[0].number_field().gen()
     xalphas = sum([[translate_cusp(al, a+b*w) for a in [-1,0,1] for b in [-1,0,1]] for al in alphas], [])
     xalphas = [a for a in xalphas if any(is_under(P,a)==0 for P in SP)]
-    # convert each principal cusp to
-    # a point [a,tsq] with tsq the
-    # square radius of S_a:
-    Alist = [cusp_to_point(a) for a in xalphas]
-    #print("Alist: {}".format(Alist))
 
-    # Now we consider each pair (ai,aj) with i<j which intersect properly:
-    ij_list = [{i,j} for i,ai in
-               enumerate(Alist) for j,aj in
-               enumerate(Alist) if i<j and
-               circles_intersect(ai, aj)]
-    #print("ij_list: {}".format(ij_list))
+    triples = []
 
-    doublets = []
-    alpha_translates = []
+    for s,S in zip(xsigmas, SP):
+        # find the alphas a such that S_a passes through s:
+        alist = [a for a in xalphas if is_under(S,a)==0]
+        # sort these by slope:
+        alist.sort(key=lambda a: slope(to_k(a,k), S[0]))
 
-    for i,j in ij_list:
-        ai = xalphas[i]
-        aj = xalphas[j]
-        P = bi_inter(ai, aj)
-        if P and P[1] and not is_redundant(P, xalphas):
-            sig = [s for s in SP if is_under(s,ai)==0 and is_under(s,aj)==0]
-            if len(sig)!=1:
-                print("{} singular points are on both S_{} and S_{}".format(len(sig), ai, aj))
-            if sig:
-                dub = [P[1],(cusp(sig[0][0]),ai,aj),P]
-                if dub not in doublets:
-                    doublets.append(dub)
-                    for a in dub[1]:
-                        if a not in alpha_translates and a not in alphas:
-                            alpha_translates.append(a)
-    return doublets, alpha_translates
+        for i, ai in enumerate(alist):
+            aj = alist[i-1]
+            R = bi_inter(ai, aj)
+            assert R and R[1]
+            # test whether this corner R is a translate of one we already have
+            old = False
+            for t in triples:
+                x = t[1][0] - R[0]
+                if x.is_integral(): # we have a repeat corner, up to translation
+                    old = True
+                    R[0] += x
+                    trip = [[translate_cusp(c, x) for c in (s,ai,aj)], R]
+                    break
+            if not old:
+                trip = [[s,ai,aj], R]
+            triples.append(trip)
+
+    return triples
 
 def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
     if debug:
@@ -768,6 +765,7 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
     return G
 
 def principal_polyhedra(alphas, debug=False):
+    print("Constructing principal polyhedra")
     k = nf(alphas[0])
     triplets, extra_alphas = alpha_triples(alphas)
     # only used for the 3d plot:
@@ -789,12 +787,16 @@ def principal_polyhedra(alphas, debug=False):
         print("Pmats: {}".format(Pmats))
     Pverts = [[cusp(oo,k)] + [a for a in alphas+extra_alphas if a in Psupp] for P,Psupp in zip(Plist,Psupps)]
     orbits = set()
+    used_Pi = Set()
     for i,P in enumerate(Plist):
+        if i in used_Pi:
+            continue
         Qlist = [apply3d(M,P) for M in Pmats[i]]
         orb = Set([Plist.index(Q) for Q in Qlist])
-        if orb not in orbits:
+        if debug:
             print("New orbit from P_{}={}: {}".format(i,P,orb))
-            orbits.add(orb)
+        used_Pi = used_Pi.union(orb)
+        orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
     print("Found {} orbits".format(len(orbits)))
     print("Orbits:")
@@ -806,38 +808,69 @@ def principal_polyhedra(alphas, debug=False):
     return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
+    print("Constructing polyhedra from one ideal class, sigmas {}".format(sigmas))
     k = nf(alphas[0])
-    doublets, extra_alphas = alpha_doubles(alphas, sigmas)
+    triples = sigma_triples(alphas, sigmas)
 
     if debug:
-        print("{} doublets:".format(len(doublets)))
-        for t in doublets:
+        print("{} triples from sigmas {}:".format(len(triples), sigmas))
+        for t in triples:
             print(t)
 
-    Rlist = [d[2] for d in doublets]
+    Rlist = []
+    Rsupps = []
+    for t in triples:
+        R = t[1]
+        if R in Rlist:
+            continue
+        Rlist.append(R)
+        Rsupps.append(hemispheres_through(R))
+
     if debug:
         print("Rlist: {}".format(Rlist))
-    Rsupps = [hemispheres_through(R) for R in Rlist]
-    Rmats = [[Imat] + [infinity_matrix(a, R, Rlist) for a in Rsupp] for R,Rsupp in zip(Rlist, Rsupps)]
-    Rverts = [[cusp(oo,k)] + list(t[1]) for t in doublets]
+        print("Rsupps: {}".format(Rsupps))
+
+    Rmats = []
+    Rverts = []
+    for R,Rsupp in zip(Rlist, Rsupps):
+        Rmats.append([Imat] + [infinity_matrix(a, R, Rlist) for a in Rsupp])
+        verts = [cusp(oo,k)]
+        for t in triples:
+            if t[1]==R:
+                for v in t[0]:
+                    if v not in verts:
+                        verts.append(v)
+        Rverts.append(verts)
+
+    if debug:
+        for R, mats, verts in zip(Rlist, Rmats, Rverts):
+            print("R = {}\nmats: {}\nverts: {}".format(R, mats, verts))
+
     orbits = set()
-    for i,P in enumerate(Rlist):
-        #print("i={}, R={}, Rmats={}".format(i,P,Rmats))
-        Qlist = [apply3d(M,P) for M in Rmats[i]]
+    used_Ri = Set()
+    for i,R in enumerate(Rlist):
+        if i in used_Ri:
+            continue
+        print("i={}, R={}, {} Rmats".format(i,R, len(Rmats[i])))
+        Qlist = [apply3d(M,R) for M in Rmats[i]]
+        print("Qlist = {}".format(Qlist))
+        print("Qlist indices: {}".format([Rlist.index(Q) for Q in Qlist]))
         orb = Set([Rlist.index(Q) for Q in Qlist])
-        if orb not in orbits:
-            print("New orbit from R_{}={}: {}".format(i,P,orb))
+        if debug:
+            print("New orbit from R_{}={}: {}".format(i,R,orb))
+        used_Ri = used_Ri.union(orb)
         orbits.add(orb)
     orbit_reps = [list(orb) for orb in orbits]
     print("Found {} orbits with representative points {}:".format(len(orbits), orbit_reps))
-    polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats) for orb in orbit_reps]
+    polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbit_reps]
     print("Constructed {} polyhedra".format(len(polyhedra)))
     print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
     #faces = sum([G.faces() for G in polyhedra],[])
     return polyhedra
 
-def all_polyhedra(k, debug=False):
-    alphas = precomputed_alphas(k)
+def all_polyhedra(k, alphas=None, debug=False):
+    if alphas is None:
+        alphas = precomputed_alphas(k)
     sigmas = singular_points_by_class(smallest_ideal_class_representatives(k))[1:]
     polys, hemis = principal_polyhedra(alphas, debug)
     polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
@@ -1013,7 +1046,7 @@ def show_intersection(a1,a2):
     A = [list(emb(to_k(a, k))) for a in [a1,a2]]
     R = [RR(radius_squared(a)).sqrt() for a in [a1,a2]]
     circles = [(c,r) for c,r in zip(A,R)]
-    return plot_circles_and_points(circles, points, True)
+    return plot_circles_and_points(circles, points, fill=True)
 
 def are_intersection_points_covered_by_one(a1, a2, a, plot=False):
     """Given principal cusps a1, a2, a such that the circles S_a1 and
@@ -1047,7 +1080,7 @@ def are_intersection_points_covered_by_one(a1, a2, a, plot=False):
     if plot:
         points = [list(z) for z in intersection_points_in_CC(a1,a2)]
         circle = (list(emb(to_k(a, k))), RR(radius_squared(a)).sqrt())
-        pic = plot_circles([a1,a2], False) + plot_circles_and_points([circle], points, True)
+        pic = plot_circles([a1,a2], fill=False) + plot_circles_and_points([circle], points, fill=True)
         pic.show()
         input("press Enter...")
 
@@ -1185,7 +1218,7 @@ def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False)
         print(" relevant alphas: {}".format(alist))
 
     if debug and plot:
-        pic = plot_circles([a0], False) + plot_circles(alist, True)
+        pic = plot_circles([a0], fill=False) + plot_circles(alist, fill=True)
         pic.show(figsize=[30,30])
         input("press Enter...")
 
@@ -1386,7 +1419,7 @@ def point_translates(P):
 def nverts(a, plist):
     return sum([1 for P in plist if is_under(P,a)==0])
 
-def saturate_covering_alphas(k, alphas, sigmas, debug=False):
+def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
     """Given a covering set of alphas as produced by
     find_covering_alphas(), add extras if necessary so that they are
     "saturated", i.e. define the extended fundamental domain.
@@ -1442,16 +1475,18 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False):
                 if debug:
                     print("   - OK, no properly covering alphas found")
                 checked_points.append(P)
-        if sat:
-            m = max([a.denominator().norm() for a in alphas1])
-            print(" alphas are saturated! {} alphas with max norm {}".format(len(alphas1), m))
-        else:
-            m = max([a.denominator().norm() for a in extra_alphas])
-            print(" alphas not saturated, {} extras needed: {} (norms at most {})".format(len(extra_alphas), extra_alphas, m))
+        if verbose:
+            if sat:
+                m = max([a.denominator().norm() for a in alphas1])
+                print(" alphas are saturated! {} alphas with max norm {}".format(len(alphas1), m))
+            else:
+                m = max([a.denominator().norm() for a in extra_alphas])
+                print(" alphas not saturated, {} extras needed: {} (norms at most {})".format(len(extra_alphas), extra_alphas, m))
         alphas1 += extra_alphas
 
     m = max([a.denominator().norm() for a in alphas1])
-    print("After saturation we now have {} alphas with max norm {}".format(len(alphas1), m))
+    if verbose:
+        print("After saturation we now have {} alphas with max norm {}".format(len(alphas1), m))
 
     # Now delete any alphas with <3 vertices, allowing for translates
     pointsx = []
@@ -1460,10 +1495,12 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False):
             if Q not in pointsx:
                 pointsx.append(Q)
     nv = [nverts(a, pointsx) for a in alphas1]
-    print("# vertices for these alphas: {}".format(nv))
+    if verbose:
+        print("# vertices for these alphas: {}".format(nv))
     alphas1 = [a for a in alphas1 if nverts(a, pointsx)>=3]
     m = max([a.denominator().norm() for a in alphas1])
-    print("After removing alphas which go through <3 vertices, we now have {} alphas with max norm {}".format(len(alphas1), m))
+    if verbose:
+        print("After removing alphas which go through <3 vertices, we now have {} alphas with max norm {}".format(len(alphas1), m))
     points1 = triple_intersections(alphas1)
     return alphas1, points1
 
@@ -1531,6 +1568,11 @@ def denom_3_alphas(k):
     if d12 in [1,3,6,7,9,10]:
         alist.append(cusp((1-w)/3,k))
         alist.append(cusp((w-1)/3,k))
+    if len(alist)==4:
+        r1 = alist[0].numerator()
+        r2 = alist[0].numerator()
+        if not ((r1*r2+1)/3).is_integral():
+            alist[2], alist[3] = alist[3], alist[2]
     return alist
 
 def denom_3_sigmas(k):
@@ -1539,23 +1581,28 @@ def denom_3_sigmas(k):
     d12 = d%12
     slist = []
     if d12 in [2, 5]:
-        slist.append(cusp(w/3, k))
-        slist.append(cusp(-w/3, k))
-    if d12 == 11 and d!=23:
-        slist.append(cusp(w/3, k))
-        slist.append(cusp(-w/3, k))
-        slist.append(cusp((w-1)/3,k))
-        slist.append(cusp((1-w)/3,k))
-    if d12 == 3:
         slist.append(cusp((1+w)/3,k))
         slist.append(cusp((-1-w)/3,k))
-    if d12 in [6,9] and d!=6:
+        slist.append(cusp((1-w)/3,k))
+        slist.append(cusp((w-1)/3,k))
+    if d12 == 11:
+        if d==35:
+            slist.append(cusp(w/3,k))
+            slist.append(cusp(-w/3,k))
+        if d>35:
+            slist.append(cusp(w/3, k))
+            slist.append(cusp(-w/3, k))
+            slist.append(cusp((w-1)/3,k))
+            slist.append(cusp((1-w)/3,k))
+    if d12 == 3 and d>15:
+        slist.append(cusp((1+w)/3,k))
+        slist.append(cusp((-1-w)/3,k))
+    if d12 in [6,9] and d>6:
         slist.append(cusp(w/3,k))
         slist.append(cusp(-w/3,k))
     return slist
 
 def alpha_in_list(a, alist, up_to_translation=True):
-    from utils import alpha_index_with_translation
     if up_to_translation:
         return alpha_index_with_translation(a, alist)[0]>=0
     else:
@@ -1780,20 +1827,20 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     for s in S:
         sr, si = s.denominator()
         rr, ri = s.numerator()
-        print("{} S {} {} {} {} {} {}".format(d, rr,ri, sr,si))
+        print("{} S {} {} {} {}".format(d, rr,ri, sr,si))
     return A123, new_alphas, new_sigmas
 
 #
 # From scratch:
 #
-def alpha_sigma_data(d):
+def alpha_sigma_data(d, verbose=False):
     k = make_k(d)['k']
     print("k = {}, class number {}".format(k,k.class_number()))
     sigmas = singular_points(k)
     print("{} singular points: {}".format(len(sigmas), sigmas))
-    maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, True)
+    maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
     print("{} covering alphas, max denom norm {}: {}".format(len(alphas0), maxn, alphas0))
-    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas)
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
     print("{} fundamental domain alphas, max denom norm {}: {}".format(len(alphas1), maxn, alphas1))
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
@@ -1803,5 +1850,5 @@ def alpha_sigma_data(d):
     # for adding to precomputed alphas in alphas.py:
     print("alphas: [" + ", ".join(["({})/({})".format(a.numerator(), a.denominator()) for a in alphas2]) + "]\n")
     print("sigmas: [" + ", ".join(["({})/({})".format(s.numerator(), s.denominator()) for s in new_sigmas]) + "]\n")
-    return data
+    return alphas2, new_sigmas
 

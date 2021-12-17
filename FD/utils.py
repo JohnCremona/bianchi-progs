@@ -495,7 +495,7 @@ def square_parameters(S, alphas, M_alphas, alpha_inv):
     print("{} Q {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, xr,xi, yr,yi, zr,zi))
     return [[i,j,kk,l],[x,y,z]]
 
-def aaa_triangle_parameters(T, alphas, M_alphas):
+def aaa_triangle_parameters(T, alphas, M_alphas, strict=True):
     """For T a triangle with all vertices principal cusps, returns
     [[i,j,k],u] where M_alphas[i](alpha[j]+u) = alpha[k] + x with x
     integral, where T has vertices [alpha_i, oo, alpha_j].
@@ -524,10 +524,11 @@ def aaa_triangle_parameters(T, alphas, M_alphas):
                 k, x = alpha_index_with_translation(apply(M_alphas[i], T[2]), alphas)
                 assert k!=-1
                 assert translate_cusp(alphas[k],x) == apply(M_alphas[i], translate_cusp(alphas[j],u))
-                ur, ui = u
-                print("{} T {} {} {} {} {}".format(d, i, j, k, ur, ui))
-                return [[i,j,k], u]
-    return None
+                if u==0 or not strict:
+                    ur, ui = u
+                    print("{} T {} {} {} {} {}".format(d, i, j, k, ur, ui))
+                    return [[i,j,k], u]
+    return aaa_triangle_parameters(T, alphas, M_alphas, False)
 
 def symmetries(S):
     n = len(S)
@@ -615,5 +616,5 @@ def hexagon_parameters(H, alphas, M_alphas):
     y1r,y1i = y1
     x2r,x2i = x2
     y2r,y2i = y2
-    print("{} Q {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, m, n, ur,ui, x1r,x1i, y1r,y1i, x2r,x2i, y2r,y2i))
+    print("{} H {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, m, n, ur,ui, x1r,x1i, y1r,y1i, x2r,x2i, y2r,y2i))
     return [[i,j,kk,l,m,n],[u,x1,y1,x2,y2]]
