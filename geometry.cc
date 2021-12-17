@@ -54,9 +54,9 @@ vector<pair<vector<int>, vector<Quad>> > hexagons;
 // aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
 void read_data(int verbose=0);
 
-void check_triangles();
-void check_squares();
-void check_hexagons();
+void check_triangles(int verbose=0);
+void check_squares(int verbose=0);
+void check_hexagons(int verbose=0);
 void alphas_sigmas_universal();
 void alphas_sigmas_denom_2();
 void alphas_sigmas_denom_3();
@@ -72,21 +72,23 @@ void Quad::setup_geometry()
   alphas_sigmas_denom_2();
   alphas_sigmas_denom_3();
 
-  read_data(0); // read remaining alphas and sigmas and all faces from geodat.dat
-
-  // cout << "alphas:\n";
-  // for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
-  // cout << "sigmas:\n";
-  // for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
-
+  int debug = 0;
+  read_data(debug); // read remaining alphas and sigmas and all faces from geodat.dat
+  if (debug)
+    {
+      cout << "alphas:\n";
+      for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
+      cout << "sigmas:\n";
+      for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
+    }
 #ifdef CHECK_TRIANGLES
-  check_triangles();
+  check_triangles(debug);
 #endif
 #ifdef CHECK_SQUARES
-  check_squares();
+  check_squares(debug);
 #endif
 #ifdef CHECK_HEXAGONS
-  check_hexagons();
+  check_hexagons(debug);
 #endif
 }
 
@@ -134,7 +136,7 @@ void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
       return;
     }
   // Now we have four distinct alphas
-
+  assert(div(s,r1*r2+1));
   edge_fours.push_back(n_alphas);
   alpha_inv.push_back(n_alphas+2);
   alpha_inv.push_back(n_alphas+3);
@@ -254,6 +256,7 @@ void alphas_sigmas_denom_3()
     {
       add_alpha_orbit(3, w, w);
       add_alpha_orbit(3, 1+w, 1-w);
+      // no sigmas (3 inert)
       break;
     }
   case 7:
@@ -263,6 +266,7 @@ void alphas_sigmas_denom_3()
           add_alpha_orbit(3, w, 1-w);
           add_alpha_orbit(3, 1+w, 1+w);
         }
+      // no sigmas (3 inert)
       break;
     }
   case 2: case 5:
@@ -270,14 +274,19 @@ void alphas_sigmas_denom_3()
       if (d!=5)
         {
           add_alpha_orbit(3, w, -w);
-          add_sigma_orbit(w,3);
+          add_sigma_orbit(1+w,3);
+          add_sigma_orbit(1-w,3);
         }
       break;
     }
   case 11:
     {
       add_alpha_orbit(3, 1+w, -1-w);
-      if (d>23)
+      if (d==35)
+        {
+          add_sigma_orbit(w,3);
+        }
+      if (d>35)
         {
           add_sigma_orbit(w,3);
           add_sigma_orbit(w-1,3);
@@ -286,8 +295,11 @@ void alphas_sigmas_denom_3()
     }
   case 3:
     {
-      add_alpha_orbit(3, w, w-1);
-      add_sigma_orbit(1+w,3);
+      if (d>15)
+        {
+          add_alpha_orbit(3, w, w-1);
+          add_sigma_orbit(1+w,3);
+        }
       break;
     }
   case 6:  case 9:
@@ -309,25 +321,29 @@ void alphas_sigmas_denom_3()
 
 ***************************************************************/
 
-int check_aaa_triangle(const vector<int>& T, const Quad& u)
+int check_aaa_triangle(const vector<int>& T, const Quad& u, int verbose)
 {
-  // cout<<"Checking aaa-triangle ("<<T<<","<<u<<")"<<endl;
+  if (verbose)
+    cout<<"Checking aaa-triangle ("<<T<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
-  // cout<<"x = "<<x<<endl;
+  if (verbose)
+    cout<<"x = "<<x<<endl;
   return (x.is_integral());
 }
 
-int check_cyclic_triangle(int i)
+int check_cyclic_triangle(int i, int verbose)
 {
-  // cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
+  if (verbose)
+     cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
   Quad t=M_alphas[i].trace();
   return (t*t==1);
 }
 
-int check_aas_triangle(const vector<int>& T, const Quad& u)
+int check_aas_triangle(const vector<int>& T, const Quad& u, int verbose)
 {
-  // cout<<"Checking aas-triangle ("<<T<<","<<u<<")"<<endl;
+  if (verbose)
+    cout<<"Checking aas-triangle ("<<T<<","<<u<<")"<<endl;
   int i=T[0], j=T[1], k=T[2];
   RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
   return (x.is_integral());
@@ -351,19 +367,21 @@ int check_aas_triangle(const vector<int>& T, const Quad& u)
 // - (T^u)_{-j} = - T^u * {sigma_j,oo} = {oo, sigma_j+u},
 // (M_i'*T^x)_{-k} = M_i' * T^x * {sigma_k, oo} = M_i' * {x+sigma_k, oo} = {sigma_j+u, alpha_i}
 
-void check_triangles()
+void check_triangles(int verbose)
 {
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
-    assert(check_cyclic_triangle(*Ti));
+    assert(check_cyclic_triangle(*Ti, verbose));
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
     {
-      // cout<<"Checking aaa-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aaa_triangle(Ti->first, Ti->second));
+      if(verbose)
+        cout<<"Checking aaa-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
+      assert(check_aaa_triangle(Ti->first, Ti->second, verbose));
     }
   for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
     {
-      // cout<<"Checking aas-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aas_triangle(Ti->first, Ti->second));
+      if(verbose)
+        cout<<"Checking aas-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
+      assert(check_aas_triangle(Ti->first, Ti->second, verbose));
     }
 }
 
@@ -395,11 +413,12 @@ int check_square(const vector<int>& S, const vector<Quad>& xyz)
   return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
 }
 
-void check_squares()
+void check_squares(int verbose)
 {
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
     {
-      // cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
+      if (verbose)
+        cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
       assert(check_square(Si->first, Si->second));
     }
 }
@@ -432,11 +451,12 @@ int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
   return gamma1==gamma2;
 }
 
-void check_hexagons()
+void check_hexagons(int verbose)
 {
   for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Hi = hexagons.begin(); Hi!=hexagons.end(); ++Hi)
     {
-      // cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
+      if (verbose)
+        cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
       assert(check_hexagon(Hi->first, Hi->second));
     }
 }
@@ -483,7 +503,7 @@ void read_data(int verbose)
         break;
       if (file_d != Quad::d)
         {
-          if (verbose)
+          if (verbose>1)
             cout<<"Skipping line: "<<line<<endl;
           getline(geodata, line);
           continue;

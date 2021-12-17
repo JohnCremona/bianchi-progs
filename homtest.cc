@@ -3,7 +3,7 @@
 #define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 23, 31, 47};
+vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31, 47};
 
 int main ()
 {
