@@ -44,11 +44,12 @@ private:
   void edge_relations_2_d3mod8(); // 2 inert, 2 alphas, 0 sigmas
   void edge_relations_2_d7mod8(); // 2 split, 0 alphas, 2 sigmas
   void edge_relations_2_d12mod4(); // 2 ramified, alpha=w/2, sigma=(w+1)/2 or vice versa
-
+  void sigma_relations();          // for sigma with 2*sigma not integral
   void edge_pairing_minus(int i);   // edge relation pair, alpha=r/s with r^2=-1 (s)
   void edge_pairing_plus(int i);    // edge relation pair, alpha=r/s with r^2=+1 (s)
   void edge_pairing_double(int i);  // edge relation double pairing
   void report();
+  int check();
   friend class face_relations;
 };
 

@@ -90,7 +90,7 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
       cout << "After denominator 1 relations, ngens = "<<ngens<<endl;
       cout<<"Edge relations (denominator 2)\n";
     }
-  edge_relations_2();
+  edge_relations_2(); // alphas and sigmas with denom 2
   if(verbose)
     {
       cout << "After denominator 2 relations, ngens = "<<ngens<<endl;
@@ -135,8 +135,10 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
           if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
     }
+  sigma_relations();
   if (verbose)
     report();
+  //  assert(check());
 }
 
 void edge_relations::report()
@@ -152,7 +154,7 @@ void edge_relations::report()
   for (i=1; i<=ngens; i++)
     cout << gens[i] << " ";
   cout << "]" << endl;
-  cout << "coordindex = \n";
+  cout << "coordindex = "<<coordindex<<"\n";
   for (j=0; j<n_alphas+n_sigmas-1; j++)
     {
       if (j<n_alphas)
@@ -181,6 +183,85 @@ void edge_relations::report()
         }
     }
   cout << endl;
+}
+int edge_relations::check()
+{
+  if (verbose)
+    cout<<"Checking edge relations..."<<endl;
+  int i, i2, n;
+  pair<long, int> st, st2;
+  action J(P1, mat22::J);
+  Quad c,d, c2, d2;
+
+  for (i=0; i<(int)coordindex.size(); i++)
+    {
+      n = coordindex[i];
+      if (n==0) continue; // no check for this case yet
+      st = symbol_number_and_type(i);
+      if (n>0)
+        {
+          i2 = gens[n];
+          if (i2!=i)
+            {
+              st2 = symbol_number_and_type(i2);
+              // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
+              // if(J(st.first) != st2.first)
+              //   {
+              //     cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
+              //     cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
+              //     return 0;
+              //   }
+              if (st.second>0)
+                {
+                  if(alpha_flip[st.second] != st2.second)
+                    {
+                      cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
+                      cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
+                      cout<<"alpha_flip["<<st.second<<"] = "<<alpha_flip[st.second]<<endl;
+                      return 0;
+                    }
+                }
+              else
+                {
+                  if(sigma_flip[-st.second] != -st2.second)
+                    {
+                      cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
+                      cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
+                      cout<<"sigma_flip["<<-st.second<<"] = "<<sigma_flip[-st.second]<<endl;
+                      return 0;
+                    }
+                }
+            }
+        }
+      else // (n<0)
+        {
+          if (st.second<0)
+            {
+              cout<<"i="<<i<<", coordindex[i]="<<n<<"<0, but ";
+              cout<<"st = ("<<st.first<<","<<st.second<<"), with t<0"<<endl;
+              return 0;
+            }
+          i2 = gens[-n];
+          st2 = symbol_number_and_type(i2);
+          action M(P1, M_alphas[st.second]);
+          // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
+          if (!  (((alpha_inv[st.second] == st2.second) && (M(st2.first) == st.first))
+                  || ((alpha_flip[alpha_inv[st.second]] == st2.second) && (M(J(st2.first)) == st.first))))
+            {
+              cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
+              cout<<"i ->  s t = ("<<st.first<<","<<st.second<<"), ";
+              cout<<"i2 -> st2 = ("<<st2.first<<","<<st2.second<<"), \n";
+              cout<<" alpha_inv["<<st.second<<"] = "<<alpha_inv[st.second];
+              cout<<"; M("<<st2.first<<") = "<<M(st2.first)<<endl;
+              cout<<" alpha_flip[alpha_inv["<<st.second<<"]] = "<< alpha_flip[alpha_inv[st.second]];
+              cout<<"; MJ("<<st2.first<<") = "<<M(J(st2.first))<<endl;
+              return 0;
+            }
+        }
+    }
+  if (verbose)
+    cout<<"... finished checking edge relations..."<<endl;
+  return 1;
 }
 
 void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
@@ -257,24 +338,31 @@ void edge_relations::edge_relations_2()
   } // switch on d%4
 }
 
+//#define DEBUG
+
 // edge relations for one alpha, one sigma with denominator 2 when 2 is ramified d%4=1,2 (d>2)
 void edge_relations::edge_relations_2_d12mod4()
 {
-  Quad w = Quad::w;
-  Quad a=w, b=w;
-  ((Quad::d)%4==1? b: a) += 1;
-
-  // for d=1(4), a=w, b=w+1
-  // for d=2(4), a=w+1, b=w
-  // so alphas[1] = a/2, sigmas[1] = b/2
+  Quad w = Quad::w, a, b;
+  // alphas[1] = a/2, sigmas[1] = b/2
+  if ((Quad::d)%4==1)   // for d=1(4), alpha_1=w/2, sigma_1=(w+1)/2
+    {
+      a = w;
+      b = w+1;
+    }
+  else                 // for d=2(4), alpha_1=(w+1)/2, sigma_1=w/2
+    {
+      a = w+1;
+      b = w;
+    }
 
   action M(P1, M_alphas[1]);
   action L(P1, -1,a,0,1); assert (L.det()==-1);
 
-  // alpha#1 = w/2 (d%4=1), (w+1)/2 (d%4=2)
+  // alpha_1 = a/2 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
-  assert(check_rel({mat22::identity, M_alphas[1]}, {1,1}));
-  assert(check_rel({mat22::identity, mat22(-1,a,0,1)}, {1,1}, {1,-1}));
+  assert(check_rel({mat22::identity, M}, {1,1}));
+  assert(check_rel({mat22::identity, L}, {1,1}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off = offset(1);
@@ -299,20 +387,35 @@ void edge_relations::edge_relations_2_d12mod4()
           gens.push_back(off+i);
           coordindex[off + i] = ngens;
           coordindex[off + m] = -ngens;
-          if (!plusflag && (i!=l) && (i!=k))
+#ifdef DEBUG
+          cout<<" - increasing ngens to "<<ngens<<" and adding "<<off+i<< " to gens..."<<endl;
+          cout<<" - setting coordindex["<<off+i<< "] to "<<ngens<<endl;
+          cout<<" - setting coordindex["<<off+m<< "] to "<<-ngens<<endl;
+#endif
+          if ((i!=l) && (i!=k))
             {
-              ++ngens;
-              gens.push_back(off+l);
+              if (!plusflag)
+                {
+                  ++ngens;
+                  gens.push_back(off+l);
+#ifdef DEBUG
+                  cout<<" - increasing ngens to "<<ngens<<" and adding "<<off+l<< " to gens..."<<endl;
+#endif
+                }
+              coordindex[off + l] = ngens;
+              coordindex[off + k] = -ngens;
+#ifdef DEBUG
+              cout<<" - setting coordindex["<<off+l<< "] to "<<ngens<<endl;
+              cout<<" - setting coordindex["<<off+k<< "] to "<<-ngens<<endl;
+#endif
             }
-          coordindex[off + l] = ngens;
-          coordindex[off + k] = -ngens;
         }
     }
 
-  // sigma#1 = (1+w)/2  (d%4=1), w/2 (d%4=2)
+  // sigma_1 = b/2 = (1+w)/2  (d%4=1), w/2 (d%4=2)
 
   action K(P1, -1,b,0,1); assert (K.det()==-1);
-  assert (check_rel({mat22::identity, mat22(-1,b,0,1)}, {-1,-1}, {1,-1}));
+  assert (check_rel({mat22::identity, K}, {-1,-1}, {1,-1}));
 
   std::fill(done.begin(), done.end(), 0);
   off = offset(-1);
@@ -325,12 +428,22 @@ void edge_relations::edge_relations_2_d12mod4()
       ++ngens;
       gens.push_back(off+i);
       coordindex[off + i] = ngens;
+#ifdef DEBUG
+      cout<<" - increasing ngens to "<<ngens<<" and adding "<<off+i<< " to gens..."<<endl;
+      cout<<" - setting coordindex["<<off+i<< "] to "<<ngens<<endl;
+#endif
       if (!plusflag && (i!=k))
         {
           ++ngens;
           gens.push_back(off+k);
+#ifdef DEBUG
+          cout<<" - increasing ngens to "<<ngens<<" and adding "<<off+k<< " to gens..."<<endl;
+#endif
         }
       coordindex[off + k] = ngens;
+#ifdef DEBUG
+      cout<<" - setting coordindex["<<off+k<< "] to "<<ngens<<endl;
+#endif
     }
 }
 
@@ -338,7 +451,8 @@ void edge_relations::edge_relations_2_d12mod4()
 
 void edge_relations::edge_relations_2_d7mod8()
 {
-  // sigma#1 = w/2,  sigma#2 = (1-w)/2
+  // sigma_1 = w/2,  sigma_2 = (1-w)/2
+
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
       Quad x = (2*sigmas[t]).num();
@@ -346,7 +460,7 @@ void edge_relations::edge_relations_2_d7mod8()
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
 
-      assert (check_rel({mat22::identity, mat22(-1,x,0,1)}, {-t,-t}, {1,-1}));
+      assert (check_rel({mat22::identity, L}, {-t,-t}, {1,-1}));
 
       for (i=0; i<nsymb; i++)
         {
@@ -387,10 +501,10 @@ void edge_relations::edge_relations_2_d3mod8()
   // Also (g)_(w-1)/2 = (gL)_(w-1)/2      with L = [-1,w-1;0,1],  det=-1, order 2, if plus
   //                  = -(gLM)_w/2
 
-  assert(check_rel({mat22::identity, M_alphas[1]}, {2,1}, {1,1}));
+  assert(check_rel({mat22::identity, M}, {2,1}, {1,1}));
   assert(check_rel({mat22::identity, M_alphas[2]}, {1,2}, {1,1}));
   assert(check_rel({mat22::identity, mat22(-1,w,0,1)}, {1,1}, {1,-1}));
-  assert(check_rel({mat22::identity, mat22(-1,w-1,0,1)}, {2,2}, {1,-1}));
+  assert(check_rel({mat22::identity, L}, {2,2}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off1 = offset(1), off2 = offset(2);
@@ -539,5 +653,42 @@ void edge_relations::edge_pairing_double(int i)
         }
       coordindex[off2+j2] = ngens;
       coordindex[off4+k2] = -ngens;
+    }
+}
+
+void edge_relations::sigma_relations()          // for sigma with 2*sigma not integral
+{
+  action J(P1, mat22::J);
+  int i, j, k, l, off, off1, off2;
+  for (i=0; i<n_sigmas; i++)
+    {
+      j = sigma_flip[i];
+      // if i==j,  dealt with in edge_relations_2()
+      // if i>j we already dealt with this pair
+      if (j<=i) continue;
+      // otherwise the symbols of types -i, -j are identified in pairs when plusflag is true
+      if (!plusflag) // no relations, just register the gens
+        {
+          off = offset(-i);
+          for (k=0; k<nsymb; k++)
+            {
+              ++ngens;
+              gens.push_back(off+k);
+              coordindex[off+k] = ngens;
+            }
+        }
+      else
+        {
+          off1 = offset(-i);
+          off2 = offset(-j);
+          for (k=0; k<nsymb; k++)
+            {
+              l = J(k);
+              ++ngens;
+              gens.push_back(off1+k);
+              coordindex[off1+k] = ngens;
+              coordindex[off2+l] = ngens;
+            }
+        }
     }
 }

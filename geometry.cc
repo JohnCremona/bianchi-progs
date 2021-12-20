@@ -112,6 +112,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 
 void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
+  assert(div(s,r1*r2+1));
   Quad t = -(r1*r2+1)/s;
   if (r1==r2) // "-" pair, r1*r2=-1 (mod s)
     {
@@ -136,7 +137,6 @@ void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
       return;
     }
   // Now we have four distinct alphas
-  assert(div(s,r1*r2+1));
   edge_fours.push_back(n_alphas);
   alpha_inv.push_back(n_alphas+2);
   alpha_inv.push_back(n_alphas+3);
