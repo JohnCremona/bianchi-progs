@@ -34,7 +34,7 @@ void symb_index_test(Qideal N, int verbose=0)
 
 void init()
 {
-  long d;
+  QUINT d;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
   Quad::displayfield(cout);
@@ -48,7 +48,7 @@ int main(void)
   multi_index_test({2,4,2});
   multi_index_test({1,5,6});
   int both=1, sorted=1;
-  long maxn=100;
+  QUINT maxn=100;
   cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
   Qidealooper loop(1, maxn, both, sorted);
   while( loop.not_finished() )

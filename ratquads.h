@@ -10,7 +10,7 @@ class RatQuad {
 public:
   // constructors
   RatQuad(const Quad& nn=0, const Quad& d=1, int reduce=0);
-  RatQuad(long a, long b, long dd, int reduce=0); // (a+b*w)/dd
+  RatQuad(QUINT a, QUINT b, QUINT dd, int reduce=0); // (a+b*w)/dd
 
   // RatQuad manipulations
 
@@ -101,7 +101,7 @@ inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int reduce)
     (*this).reduce();
 }
 
-inline RatQuad::RatQuad(long a, long b, long dd, int reduce) // (a+b*w)/dd
+inline RatQuad::RatQuad(QUINT a, QUINT b, QUINT dd, int reduce) // (a+b*w)/dd
   :d(a,b), n(a,b)
 {
   if (reduce)

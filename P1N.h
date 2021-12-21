@@ -58,7 +58,8 @@ public:
   // test function
   void check(int verbose=0);
 protected:
-  long nrm, phi, psi;
+  QUINT nrm;
+  long phi, psi;
   Qideal N;  // the level
   int np;    // number of bad primes
 };

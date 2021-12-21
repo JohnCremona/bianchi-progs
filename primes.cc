@@ -6,10 +6,10 @@
 #include <list>
 
 //Definition of static data members of class Quadprimes:
-long Quadprimes::maxnorm;
+QUINT Quadprimes::maxnorm;
 vector<Quadprime> Quadprimes::list;
 
-void Quadprimes::display(ostream& s, long maxn) // by default don't list any primes
+void Quadprimes::display(ostream& s, QUINT maxn) // by default don't list any primes
 {
   s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
@@ -31,7 +31,8 @@ void Quadprimes::display(ostream& s, long maxn) // by default don't list any pri
 
 vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
 {
-  long d=Quad::d, disc=-Quad::disc, t=Quad::t;
+  QUINT d=Quad::d, disc=-Quad::disc;
+  int t=Quad::t;
   vector<Quadprime> Plist;
 
   if (p==2) // treat as special case
@@ -80,7 +81,7 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
     // We order so the HNFs are [p,b,1], [p,b',1] with b<b'
     {
       //      cout << "odd split case" << endl;
-      long r, b1, b2;
+      QUINT r, b1, b2;
       if (t)
         {
           r = sqrt_mod_p(disc, p);
@@ -108,9 +109,9 @@ Factorization::Factorization(const Qideal& II)
   Qideal J(I);    // copy for dividing out primes while leaving I unchanged
   // cout<<" J = "<< J <<endl;
   Qideal Q; int e;
-  vector<long> pdivs_norm = pdivs(I.norm());
+  vector<QUINT> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
-  for(vector<long>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); ++pi)
+  for(vector<QUINT>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); ++pi)
     {
       vector<Quadprime> PP = Quadprimes_above(*pi);
       //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
@@ -236,7 +237,7 @@ Quad Factorization::solve_CRT(const vector<Quad>& v) // solution to x=v[i] mod Q
   return a;
 }
 
-void Quadprimes::init(long maxn)
+void Quadprimes::init(QUINT maxn)
 {
   maxnorm = maxn;
   vector<Quadprime> list1, list2;
@@ -252,7 +253,7 @@ void Quadprimes::init(long maxn)
       for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); ++Pi)
         {
           Quadprime P = *Pi;
-          long q = P.norm();
+          QUINT q = P.norm();
           //          cout<<"P = "<<P<<" with norm "<<q<<endl;
           if(q==p) // degree 1 prime
             list1.push_back(P);
@@ -339,7 +340,7 @@ vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
 // implementation of class Qideal_lists //
 //////////////////////////////////////////
 
-map<long, vector<Qideal>> Qideal_lists::N_to_Ilist;
+map<QUINT, vector<Qideal>> Qideal_lists::N_to_Ilist;
 
 // return a sublist including exactly one of each conjugate pair (the
 // one with smaller index).  This is a local function and we assume
@@ -361,11 +362,11 @@ vector<Qideal> remove_conjugates(const vector<Qideal>& Ilist)
   return Ilist_no_conj;
 }
 
-vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
+vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
 {
   if (N<1) return {};
   if (N==1) return {Qideal(1)};
-  map<long, vector<Qideal>>::iterator I_N = N_to_Ilist.find(N);
+  map<QUINT, vector<Qideal>>::iterator I_N = N_to_Ilist.find(N);
   if (I_N!=N_to_Ilist.end())
     {
       vector<Qideal> Ilist = I_N->second;
@@ -388,12 +389,12 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
       return (N_to_Ilist[N] = {Qideal()});
     }
 
-  vector<long> pp = pdivs(N);
+  vector<QUINT> pp = pdivs(N);
   int np = pp.size();
 
   if (np==1) // prime power case
     {
-      long p = pp[0];
+      QUINT p = pp[0];
       long e = val(p,N);
 #ifdef DEBUG_SORT
       cout<<"Constructing ideals of norm "<<N<<"="<<p<<"^"<<e<<endl;
@@ -465,7 +466,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
   // outer list sorted by size of the underlying prime (not the prime
   // power):
   vector<vector<Qideal>> II;
-  for (vector<long>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
+  for (vector<QUINT>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
     II.push_back(ideals_with_norm(pow(*pi, val(*pi, N))));
 
   ans = {Qideal()}; // unit ideal
@@ -498,10 +499,10 @@ vector<Qideal> Qideal_lists::ideals_with_norm(long N, int both_conj)
   return ans;
 }
 
-vector<Qideal> Qideal_lists::ideals_with_bounded_norm(long maxnorm, int both_conj)
+vector<Qideal> Qideal_lists::ideals_with_bounded_norm(QUINT maxnorm, int both_conj)
 {
   vector<Qideal> ans;
-  for (long N=1; N<=maxnorm; N++)
+  for (QUINT N=1; N<=maxnorm; N++)
     {
       vector<Qideal> I_N = ideals_with_norm(N);
       ans.insert(ans.end(), I_N.begin(), I_N.end());

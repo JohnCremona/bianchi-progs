@@ -1,12 +1,12 @@
 #include "looper.h"
 
-long floorsqrt(long asq)
+QUINT floorsqrt(QUINT asq)
 {
   if(asq<0) return 0;
-  return (long)(sqrt(double(asq)+0.1));
+  return (QUINT)(sqrt(double(asq)+0.1));
 }
 
-int issquare(long asq, long& a)
+int issquare(QUINT asq, QUINT& a)
 {
   if(asq<0) return 0;
   a = floorsqrt(asq);
@@ -26,7 +26,7 @@ void Quadlooper::setblims()
       bmax = include_conjugates? floorsqrt(n-1) : floorsqrt(n/3);
       break;
     default:
-      long m = (d%4==3? 4*n: n);
+      QUINT m = (d%4==3? 4*n: n);
       bmax = floorsqrt(m/d);
       bmin = include_conjugates? -bmax : 0;
       if (d*bmin*bmin==m) bmin++;
@@ -61,7 +61,7 @@ int Quadlooper::finda()
 {
   if (d%4==3)
     {
-      long c, csq = 4*n-d*b*b;
+      QUINT c, csq = 4*n-d*b*b;
       if(issquare(csq,c)) {a=(c-b)/2; return 1;}
       return 0;
     }

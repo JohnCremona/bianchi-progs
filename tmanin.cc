@@ -3,13 +3,14 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163,23,31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163,23,31};
 
 int main ()
 {
- int d,max=200000;
- cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
- if (!check_field(d, fields))
+  long d;
+  QUINT max=200000;
+  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+  if (!check_field(d, fields))
    {
      cerr<<"field must be one of: "<<fields<<endl;
      exit(1);
@@ -30,7 +31,7 @@ int main ()
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
- long firstn, lastn;
+ QUINT firstn, lastn;
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for Quads: ";
@@ -49,7 +50,7 @@ int main ()
        {
 #endif
      cerr<<endl;
-     long normN = N.norm();
+     QUINT normN = N.norm();
      string efilename = eigfile(N);
      string label = ideal_label(N);
      cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;

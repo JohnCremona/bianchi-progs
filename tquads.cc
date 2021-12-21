@@ -78,7 +78,7 @@ int main ()
  cout << "pos(a) = " << pos(a) << endl;
 
 //Test of residues
- vector<Quad> resmoda = residues(a);  long norma=quadnorm(a);
+ vector<Quad> resmoda = residues(a);  QUINT norma=quadnorm(a);
  cout << norma << " residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions
@@ -161,7 +161,7 @@ int main ()
    }
  else
    {
-     long maxn = 10;
+     QUINT maxn = 10;
      int s;
      mat22 M;
      for(Quadlooper alpha(1,maxn,1); alpha.ok(); ++alpha)

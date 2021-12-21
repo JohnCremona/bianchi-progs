@@ -8,7 +8,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 23, 31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163, 23, 31};
 
 #define MAXPRIME 10000
 
@@ -36,7 +36,8 @@ struct factor_comparison {
 
 int main(void)
 {
- int d,max=10000;
+  long d;
+  QUINT max=10000;
  int np,ip,jp;
  Quad n; int mats, pols, facs, plusflag, cuspidal=1;
  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
@@ -54,7 +55,7 @@ int main(void)
  cerr << "Factor the char polys (0/1)? "; cin >> facs;
  Qideal N;
 #ifdef LOOPER
- long firstn, lastn;
+ QUINT firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr << "How many Hecke matrices T_p? ";
@@ -67,7 +68,7 @@ int main(void)
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-  long normn = N.norm();
+  QUINT normn = N.norm();
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
   homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
   int dim = h.h1dim();

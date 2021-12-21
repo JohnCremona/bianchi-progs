@@ -16,12 +16,12 @@ RatQuad RatQuad::zero(0,1,1, 0);
 int RatQuad::reduce()
 {
   // first divide out by content
-  long c = gcd(n.content(), d.content());
+  QUINT c = gcd(n.content(), d.content());
   if (c>1) {n/=c; d/=c;}
 
   // find gcd(n,d) when ideal (n,d) is principal (will return 0 if ideal not principal):
   Quad g = quadgcd(n,d);
-  long ng = quadnorm(g);
+  QUINT ng = quadnorm(g);
   if (ng>1) {n/=g; d/=g;}
 
   // final adjustment by units:

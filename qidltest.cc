@@ -7,7 +7,7 @@
 
 void test1(Qideal& I)
 {
-  long NI = I.norm();
+  QUINT NI = I.norm();
   cout << "Ideal " << ideal_label(I) << " = " << I << " (norm " << NI << ")";
   if (I.is_principal())
     cout << " is principal, with generator " << I.gen();
@@ -31,7 +31,7 @@ void test1(Qideal& I)
 
 void test2(Qideal& I)
 {
-  long NI = I.norm();
+  QUINT NI = I.norm();
   Qideal J = I.conj();
   if (I.is_principal()&& !J.is_principal())
     {
@@ -57,10 +57,10 @@ void residuetest(Qideal& I)
   if (I.norm()==1) return;
 
   Factorization F = I.factorization();
-  long phi=1;
+  QUINT phi=1;
   for (int i=0; i<F.size(); i++)
     {
-      long np = F.prime(i).norm();
+      QUINT np = F.prime(i).norm();
       phi *= (np-1);
       for (long e=1; e<F.exponent(i); e++)
         phi *= np;
@@ -71,7 +71,7 @@ void residuetest(Qideal& I)
   cout<<invres.first<<endl;
   cout << " with inverses:\n";
   cout<<invres.second<<endl;
-  assert ((long)invres.first.size()==phi);
+  assert ((QUINT)invres.first.size()==phi);
 }
 
 void ABmatrixtest(Qideal& I)
@@ -98,7 +98,7 @@ void looptest()
       cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
     }
 
-  long firstn, lastn;
+  QUINT firstn, lastn;
   cout<<"\nEnter first and last norm for Qideal loop: ";
   cin >> firstn >> lastn;
   if (lastn==0) exit(0);
@@ -118,7 +118,7 @@ void looptest()
 
 void labeltest()
 {
-  long firstn=1, lastn=100;
+  QUINT firstn=1, lastn=100;
   cout<<"testing labels and label parsing for all ideal of norm from "<<firstn<<" to "<<lastn<<endl;
   int both=1, sorted=1;
   Qidealooper loop(firstn, lastn, both, sorted);
@@ -142,7 +142,7 @@ void stringtest()
       cin >> s;
       if (s[0]=='0') return;
       Qideal I(s);
-      long N = I.norm();
+      QUINT N = I.norm();
       cout << "ideal is "<<I<<" with norm " << N <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
     }
 }
@@ -154,7 +154,7 @@ void show_primes()
 
 void init()
 {
-  long d;
+  QUINT d;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
   Quad::displayfield(cout);

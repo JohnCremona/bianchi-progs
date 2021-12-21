@@ -9,7 +9,7 @@ vector<long> homspace::eigrange(long i)
   vector<long> ans;
   if((i<0)||(i>=nap)) return ans;  // shouldn't happen
   Quadprime P = primelist[i];
-  long normp = P.norm();
+  QUINT normp = (long)P.norm();
   if (verbose)
     cout << "eigrange for P = " << P << ":\t";
   if(P.divides(N))

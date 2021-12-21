@@ -1,6 +1,5 @@
 // FILE P1N.CC: implementation of class for P^1(O_K/N) for an arbitrary ideal N
 
-
 #include <iostream>
 
 #include "P1N.h"
@@ -47,7 +46,8 @@ P1N::P1N(const Qideal& I)
   phi = psi = 1;
   for (int i=0; i<np; i++)
     {
-      long normp = F.prime(i).norm(),  e = F.exponent(i);
+      QUINT normp = F.prime(i).norm();
+      long e = F.exponent(i);
       phi *= (normp-1);
       psi *= (normp+1);
       e--;
@@ -170,7 +170,7 @@ void P1N::reduce(Quad& c, Quad& d)   // simplify c,d without changing (c:d)
     }
   else // at least divide out by the gcd of the contents
     {
-      long g = gcd(c.content(), d.content());
+      QUINT g = gcd(c.content(), d.content());
       if (g>1)
         {
           c /= g;

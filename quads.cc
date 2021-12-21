@@ -13,12 +13,12 @@
 
 //Declare static data members of class Quad:
 
-int Quad::d;
-int Quad::disc;
-int Quad::t;
-int Quad::n;
+long Quad::d;
+QUINT Quad::disc;
+long Quad::t;
+QUINT Quad::n;
 char Quad::name;
-int Quad::maxnorm;
+QUINT Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
 int Quad::class_number;
@@ -32,33 +32,33 @@ long nquadprimes;         //The number of them.
 vector<Quad> quadunits, squareunits;
 Quad fundunit;
 
-vector<int> euclidean_fields = {1,2,3,7,11};
+vector<long> euclidean_fields = {1,2,3,7,11};
 
 // fields for which geometry is defined
-vector<int> valid_fields = {1, 2, 3, 7, 11,  // Euclidean
+vector<long> valid_fields = {1, 2, 3, 7, 11,  // Euclidean
                             19, 43, 67, 163, // other class number 1
                             5, 6, 10, 13, 15, 22,   // class number 2 (incomplete)
                             17, 21,                 // class number 4 (incomplete)
                             14, 23, 31, 47};         // odd class number >1 (incomplete)
 
-vector<int> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
-vector<int> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
-vector<int> class_number_three_fields = {23,31,59,83,107,139,211,283,307,331,379,499,547,643,883,907};
+vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
+vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
+vector<long> class_number_three_fields = {23,31,59,83,107,139,211,283,307,331,379,499,547,643,883,907};
 
-int check_field(int d, vector<int> fields)
+int check_field(long d, vector<long> fields)
 {
   return (std::find(fields.begin(), fields.end(), d) != fields.end());
 }
 
 // declaration of "extern" functions declared in quads.h:
 Quad (*mult)(const Quad& a, const Quad& b);
-Quad (*qdivi)(const Quad& a, long c);
+Quad (*qdivi)(const Quad& a, QUINT c);
 int (*pos)(const Quad& a);
 Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
 Quad (*quadconj)(const Quad& a);
 
-Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
+Quad qdivi0(const Quad& a, QUINT c) // c>0,    // used when t=0
 {
   Quad ans;
   if (c>0)
@@ -75,7 +75,7 @@ Quad qdivi0(const Quad& a, long c) // c>0,    // used when t=0
   return ans;
 }
 
-Quad qdivi1(const Quad& a, long c) // used when t=1
+Quad qdivi1(const Quad& a, QUINT c) // used when t=1
 {
   Quad ans;
   if (c>0)
@@ -92,13 +92,7 @@ Quad qdivi1(const Quad& a, long c) // used when t=1
   return ans;
 }
 
-int squarefree_part(int dd)
-{
-  int d = sqdivs(dd).back();
-  return abs(dd)/(d*d);
-}
-
-void Quad::field(int dd, int max)
+void Quad::field(long dd, QUINT max)
 {
   // if (!check_field(dd))
   //   {
@@ -111,14 +105,18 @@ void Quad::field(int dd, int max)
   is_Euclidean = check_field(d, euclidean_fields);
   class_number = (check_field(d, class_number_one_fields)? 1: 0);
 
-  if ((d+1)%4) {t=0; disc=4*d; n=d;
-               quadconj=&quadconj0;
-               mult=&mult0; qdivi=&qdivi0;
-              }
- else         {t=1; disc=d;   n=(d+1)/4;
-               quadconj=&quadconj1;
-               mult=&mult1; qdivi=&qdivi1;
-              }
+  if ((d+1)%4)
+    {
+      t=0; disc=4*d; n=d;
+      quadconj=&quadconj0;
+      mult=&mult0; qdivi=&qdivi0;
+    }
+  else
+    {
+      t=1; disc=d;   n=(d+1)/4;
+      quadconj=&quadconj1;
+      mult=&mult1; qdivi=&qdivi1;
+    }
   w = Quad(0,1, n);
   zero = Quad(0,0, 0);
   one = Quad(1,0, 1);
@@ -218,8 +216,8 @@ int val(const Quad& factor, const Quad& number)
 
 vector<Quad> residues(const Quad& a)
 {
-  long norma = a.norm(), m = gcd(a.re(), a.im());
-  long rednorma = (norma/m)/m;
+  QUINT norma = a.norm(), m = gcd(a.re(), a.im());
+  QUINT rednorma = (norma/m)/m;
   vector<Quad> ans;
   for(int j=0; j<m*rednorma; j++)
     for(int k=0; k<m; k++) 
@@ -254,45 +252,30 @@ Quad::operator string() const
 ostream& operator<<(ostream& s, const Quad& a)
 {
   s << (string)a;
-  // long  i = a.i, r = a.r;
-// if (i==0) s<<r;
-// else {if (r==0) 
-//        {
-//         if (i==1) ;
-//         else if (i==-1) s << "-";
-//              else s << i;
-//        }
-//        else 
-//        {s<<r; 
-//         if(i>0) s<<"+"; else s<<"-";
-//         if (abs(i)>1) s<<abs(i);
-//        }
-//       s<<Quad::name;
-//      }
-return s;
+  return s;
 }
 
 
 //Functions for computing quad-primes, initializing the vector<Quad>
 //quadprimes.  NB all primes are "pos" i.e. normalized w.r.t. units
 
-void factorp0(long p, long& a, long& b, int d)
+void factorp0(long p, QUINT& a, QUINT& b, QUINT d)
 // finds a,b s.t. a^2+d*b^2=0 (mod p)
 { int found=0;
   for (b=1; !found; b++)
-  { long a2 = p - d*b*b;
-    a = (long)round(sqrt(double(a2)));
+  { QUINT a2 = p - d*b*b;
+    a = (QUINT)round(sqrt(double(a2)));
     found = (a*a == a2);
   }
   b--;
 }
  
-void factorp1(long p, long& a, long& b, int d)
+void factorp1(long p, QUINT& a, QUINT& b, QUINT d)
 // finds a,b s.t. a^2+a*b+((d+1)/4)*b^2=0 (mod p)
 { int found=0; long fourp = 4*p;
   for (b=1; !found; b++)
-  { long a2 = fourp -d*b*b;
-    a = (long)round(sqrt(double(a2)));
+  { QUINT a2 = fourp -d*b*b;
+    a = (QUINT)round(sqrt(double(a2)));
     found = (a*a == a2);
   }
   b--;
@@ -301,8 +284,9 @@ void factorp1(long p, long& a, long& b, int d)
 
 vector<Quad> Quad::primes_above(long p, int& sig)
 {
-  int d=Quad::d, disc=-Quad::disc, t=Quad::t;
-  long a,b;  Quad pi, piconj;
+  QUINT d=Quad::d, disc=-Quad::disc;
+  int t=Quad::t;
+  QUINT a,b;  Quad pi, piconj;
   vector<Quad> list;
   sig = kronecker(disc,p);
   switch (sig) {
@@ -322,7 +306,7 @@ vector<Quad> Quad::primes_above(long p, int& sig)
     pi = makepos(Quad(a,b, p));
     piconj = makepos(quadconj(pi));
     // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
-    int c = posmod(a*invmod(b,p),p);
+    QUINT c = posmod(a*invmod(b,p),p);
     if (2*c<p)
       {
         list.push_back(pi);
@@ -385,14 +369,14 @@ void Quad::initquadprimes()
 
 Quad primdiv(const Quad& a)
 {
-  long na=quadnorm(a);
+  QUINT na=quadnorm(a);
   if (na<2) return 0;   // must return something!
   vector<Quad>::const_iterator pr;
   for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
     {
       Quad p=*pr;
       if (div(p,a)) return p;
-      long np=quadnorm(p);
+      QUINT np=quadnorm(p);
       if (np*np>na) return makepos(a);
     }
   cout<<"No prime divisor found for "<<a<<" so assuming prime!\n";
@@ -400,7 +384,7 @@ Quad primdiv(const Quad& a)
 }
 
 vector<Quad> pdivs(const Quad& aa)
-{ Quad a=aa; long norma=quadnorm(a);
+{ Quad a=aa; QUINT norma=quadnorm(a);
   vector<Quad> plist; // will hold prime factors
   if (norma<2) return plist;
   vector<Quad>::const_iterator pr;
@@ -415,7 +399,7 @@ vector<Quad> pdivs(const Quad& aa)
 	 }
        else 
 	 {
-	   long normp=quadnorm(p);
+	   QUINT normp=quadnorm(p);
 	   if (normp*normp>norma) 
 	     {
 	       plist.push_back(makepos(a));
@@ -565,7 +549,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
 
 // returns n = round(true_real_part_of(alpha/beta)), so alpha-n*beta
 // is reduced mod Z<beta>
-long nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
+QUINT nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
 {
   return roundover((alpha*quadconj(beta)).re(), beta.norm());
 }
@@ -576,15 +560,15 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 #ifdef test_reduce
   cout << "reduction of "<<gamma<<" mod <"<<alpha<<","<<beta<<">"<< flush;
 #endif
-  long d = (quadconj(alpha)*beta).im();
+  QUINT d = (quadconj(alpha)*beta).im();
   assert (d>0);
-  long x = roundover((-gamma*quadconj(beta)).im(), d);
-  long y = roundover(( gamma*quadconj(alpha)).im(), d);
+  QUINT x = roundover((-gamma*quadconj(beta)).im(), d);
+  QUINT y = roundover(( gamma*quadconj(alpha)).im(), d);
   Quad ans = gamma - (x*alpha + y*beta);
 #ifdef test_reduce
   cout << " is "<< ans << " (x="<<x<<", y="<<y<<")"<<endl;
 #endif
-  long gn = quadnorm(ans);
+  QUINT gn = quadnorm(ans);
   vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,
                         ans-alpha-beta, ans-alpha+beta, ans+alpha-beta, ans+alpha+beta};
   for (vector<Quad>::const_iterator t=tests.begin(); t!=tests.end(); ++t)
@@ -605,13 +589,13 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 
 // Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
 // The new alpha has the smallest norm.
-// U holds the unirmodular transform
+// U holds the unimodular transform
 void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 {
 #ifdef test_reduce
   Quad alpha0=alpha, beta0=beta;
   cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
-  long U11, U12, U21, U22;
+  QUINT U11, U12, U21, U22;
 #endif
   U.reset(); // to the identity
   int s=1;
@@ -619,7 +603,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
   while (s)
     {
       s = 0; // will be set to 1 if anything changes
-      long n = nearest_long_to_Quad_quotient(beta,alpha);
+      QUINT n = nearest_long_to_Quad_quotient(beta,alpha);
       if(n!=0)
         {
           s=1;
@@ -672,20 +656,20 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 
 // there follow 4 "flavours" of findminQuad returning different amounts of data
 
-vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
+vector<QUINT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 { alpha=al;
   beta=be;
-  vector<long> c = {1, 0}; // alpha = c[0]*al + c[1]*be  always
-  vector<long> d = {0, 1}; // beta  = d[0]*al + d[1]*be  always
+  vector<QUINT> c = {1, 0}; // alpha = c[0]*al + c[1]*be  always
+  vector<QUINT> d = {0, 1}; // beta  = d[0]*al + d[1]*be  always
 
   while (1)
     {
-      long n = nearest_long_to_Quad_quotient(alpha,beta);
+      QUINT n = nearest_long_to_Quad_quotient(alpha,beta);
       alpha -= n*beta;
       c[0]  -= n*d[0];
       c[1]  -= n*d[1];
       Quad temp = alpha; alpha = -beta; beta = temp;
-      long t = c[0]; c[0] = -d[0]; d[0] = t;
+      QUINT t = c[0]; c[0] = -d[0]; d[0] = t;
            t = c[1]; c[1] = -d[1]; d[1] = t;
       if (quadnorm(beta) >= quadnorm(alpha))
         {
@@ -705,7 +689,7 @@ vector<long> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& 
     }
 }
 
-vector<long> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
+vector<QUINT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
 { Quad gen1;
   return findminquadcoeffs(alpha,beta,gen0,gen1);
 }
@@ -748,129 +732,6 @@ void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
   findminquad(alpha,beta,gen0,gen1);
 }
 
-// the next four functions (quadbezout1/2, quadgcd1/2) are redundant now
-
-/************************************************************************************
-Quad quadbezout1(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
-{Quad a=alpha,b=beta,c,x=0,oldx=1,newx,y=1,oldy=0,newy,q,g;
- while (b!=0)
- { q = a/b;
-   c    = a    - q*b; a    = b; b = c;
-   newx = oldx - q*x; oldx = x; x = newx;
-   newy = oldy - q*y; oldy = y; y = newy;
-  }
- coeff1=oldx; coeff2=oldy; g=a;
-//Next two lines try to get coeff1,coeff2 as small as possible
- if(beta!=0)
- {
-  coeff1 = coeff1%beta;            //reduced
-  coeff2 = (g-coeff1*alpha)/beta;     //should be exact
- }
- while (!pos(g))
-   { g*=fundunit; coeff1*=fundunit; coeff2*=fundunit;
-   }
-#ifdef testbezout
-//CHECK:
-  if (div(g,alpha) && div(g,beta) && (g==coeff1*alpha+coeff2*beta)) {;}  //OK
-  else 
-    {cerr<<"Error in quadbezout1!"<<endl;
-     cerr<<"alpha = "<<alpha<<endl;
-     cerr<<"beta  = "<<beta<<endl;
-     cerr<<"coeff1 = "<<coeff1<<endl;
-     cerr<<"coeff2 = "<<coeff2<<endl;
-     cerr<<"g   = "<<g<<endl;
-     }
-#endif
- return g;
-}
-
-Quad quadbezout2(const Quad& alpha, const Quad& beta, Quad& coeff1, Quad& coeff2)
-{
-  Quad g;
-  if (div(beta, alpha)) { g=beta; coeff1=0; coeff2=1;}
-  else if (div(alpha, beta)) { g=alpha; coeff1=1; coeff2=0;}
-  else
-    {
-      long n = Quad::n; long t = Quad::t;
-      vector<long> rv(4), iv(4), basis(3), x(4), y(4), z(4);
-      rv[0] = alpha.re(); iv[0] = alpha.im();
-      rv[1] = beta.re();  iv[1] = beta.im();
-      rv[2] = -n*iv[0];    iv[2] = rv[0] + t*iv[0];
-      rv[3] = -n*iv[1];    iv[3] = rv[1] + t*iv[1];
-      findzbasiscoeffs(rv,iv,basis,x,y);
-      Quad al=Quad(basis[0],basis[1]), be=basis[2];
-      vector<long> coeff = findminquadcoeffs(al,be,g);
-      for(int i=0; i<4; i++) z[i] = coeff[0]*y[i] + coeff[1]*x[i];
-      coeff1 = Quad(z[0],z[2]);    coeff2 = Quad(z[1],z[3]);
-//Next two lines try to get coeff1,2 as small as possible
-      if(beta!=0)
-      {
-       coeff1 = coeff1%beta;            //reduced
-       coeff2 = (g-coeff1*alpha)/beta;  //should be exact
-      }
-    }
-  while (!pos(g)) { g*=fundunit; coeff1*=fundunit; coeff2*=fundunit;} 
-#ifdef testbezout
-//CHECK:
-  if (div(g,alpha) && div(g,beta) && (g==coeff1*alpha+coeff2*beta)) {;}  //OK
-  else 
-    {cerr<<"Error in quadbezout2!"<<endl;
-     cerr<<"alpha = "<<alpha<<endl;
-     cerr<<"beta  = "<<beta<<endl;
-     cerr<<"coeff1 = "<<coeff1<<endl;
-     cerr<<"coeff2 = "<<coeff2<<endl;
-     cerr<<"g   = "<<g<<endl;
-     }
-#endif
-  return g;
-}
-
-Quad quadgcd1(const Quad& aa, const Quad& bb)  //Only works for Euclidean fields!
-{Quad a=aa,b=bb,c,q;
- while (b.nm != 0)
-   {
-     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
-     q = a/b; c = a-q*b; a = b; b = c;
-     //     cout<<"quotient "<<q<<", remainder "<<c<<" (norm "<<c.nm<<")"<<endl;
-     //     cout<<"a="<<a<<" (norm "<<a.nm<<"), b="<<b<<" (norm "<<b.nm<<")\n";
-     if(b.nm >= a.nm){cout<<"error--norm not reduced!\n";exit(1);}
-   }
- while (!pos(a)) a*=fundunit;
- return a;
-}
-
-Quad quadgcd2(const Quad& alpha, const Quad& beta)
-//Same as quadbezout2 except don't need coeff1, coeff2
-{
-  if (div(beta, alpha)) return beta;
-  if (div(alpha, beta)) return alpha;
-  long n = Quad::n, t=Quad::t;
-  vector<long> rv(4), iv(4), basis(3);
-  rv[0] = alpha.r; iv[0] = alpha.i;
-  rv[1] = beta.r;  iv[1] = beta.i;
-  rv[2] = -n*iv[0];    iv[2] = rv[0] + t*iv[0];
-  rv[3] = -n*iv[1];    iv[3] = rv[1] + t*iv[1];
-//cout<<"About to call findzbasis with rv="<<rv<<", iv="<<iv<<", basis="<<basis<<endl;
-  findzbasis(rv,iv,basis);
-  Quad g, al=Quad(basis[0],basis[1]), be=basis[2];
-  vector<long> v = findminquadcoeffs(al,be,g);
-  while (!pos(g)) g*=fundunit;
-#ifdef testbezout
-//CHECK:
-  if (div(g,alpha) && div(g,beta)) {;}  //OK
-  else
-    {cerr<<"Error in quadgcd2!"<<endl;
-     cerr<<"alpha = "<<alpha<<endl;
-     cerr<<"beta  = "<<beta<<endl;
-     cerr<<"g   = "<<g<<endl;
-   }
-#endif
-  return g;
-}
-
-*******************************************************************************************/
-
-
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
 //
 // a,d>0; c>=0
@@ -878,16 +739,16 @@ Quad quadgcd2(const Quad& alpha, const Quad& beta)
 // d|a and d|b
 // 0 <=c < a
 
-vector<long> HNF(const Quad& alpha)
+vector<QUINT> HNF(const Quad& alpha)
 {
-  long N = alpha.norm(), xa = alpha.re(), ya = alpha.im(), u, v;
-  long g = bezout(xa,ya,u,v);  // g=u*xa+v*ya=gcd(xa,ya)
-  long x = xa/g, y = ya/g;
+  QUINT N = alpha.norm(), xa = alpha.re(), ya = alpha.im(), u, v;
+  QUINT g = bezout(xa,ya,u,v);  // g=u*xa+v*ya=gcd(xa,ya)
+  QUINT x = xa/g, y = ya/g;
   // Now the HNF is g*[a, b+w] for some b mod a=N/g
-  long t = Quad::t, n = Quad::n;
-  long a = N/(g*g);
-  long b = posmod(((v-t*u)*x - n*u*y), a);
-  vector<long> ans;
+  QUINT t = Quad::t, n = Quad::n;
+  QUINT a = N/(g*g);
+  QUINT b = posmod(((v-t*u)*x - n*u*y), a);
+  vector<QUINT> ans;
   ans.push_back(a*g);
   ans.push_back(b*g);
   ans.push_back(g);
@@ -899,7 +760,7 @@ vector<long> HNF(const Quad& alpha)
 
 string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
-  vector<long>H = HNF(alpha);
+  vector<QUINT>H = HNF(alpha);
   stringstream s;
   s << "[" << alpha.norm() << "," << H[1] << "," << H[2] << "]";
   return s.str();
@@ -907,7 +768,7 @@ string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 
 string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
-  vector<long>H = HNF(alpha);
+  vector<QUINT>H = HNF(alpha);
   stringstream s;
   s << alpha.norm() << "." << H[1] << "." << H[2];
   return s.str();
@@ -938,7 +799,7 @@ int is_ideal_Galois_stable(const Quad& a)
 
 string ideal_code(const Quad& N) // string code for a (principal) ideal N
 {
-  vector<long>H = HNF(N);
+  vector<QUINT>H = HNF(N);
   stringstream s;
   s << quadnorm(N) << "." << H[1] << "." << H[2];
   return s.str();

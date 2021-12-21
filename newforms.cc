@@ -290,16 +290,6 @@ int newform::is_base_change_twist(void) const
   return 1;
 }
 
-long squarefree_part(long d)
-{
-  if (d==0) return d;
-  vector<long> sd = sqdivs(d);
-  long maxd = sd[sd.size()-1];
-  long ans = d/(maxd*maxd);
-  //cout << "d has max square divisor "<<maxd<<"^2"<<" and squarefree part "<<ans<<endl;
-  return ans;
-}
-
 // if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
 int newform::base_change_discriminant(void) const
 {
@@ -401,7 +391,7 @@ int newform::is_CM(void) const
       long ap = *api++;
       Quadprime P = *pr++;
       if (ap==0) continue;
-      long dp = ap*ap-4*P.norm();
+      long dp = ap*ap-4*QUINT(P.norm());
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;

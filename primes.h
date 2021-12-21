@@ -25,7 +25,7 @@ class Quadprime : public Qideal {
   int character; // 0 (ramified), +1 (split), -1 (inert).
 public:
   // constructor
-  Quadprime(long a, long b, long c, long pp, long ind=1)
+  Quadprime(QUINT a, QUINT b, QUINT c, long pp, long ind=1)
     : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p); fill();}
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
   Quadprime() : Qideal() { p=0; character=0;}
@@ -59,10 +59,10 @@ vector<Quadprime> Quadprimes_above(long p); // p should be an integer prime
 
 class Quadprimes {
 public:
-  static long maxnorm;           // largest norm of primes
+  static QUINT maxnorm;           // largest norm of primes
   static vector<Quadprime> list;  // the list of primes
-  static void init(long maxn=1000);     //  sets the list up
-  static void display(ostream& s = cout, long maxn=0); // by default don't list any primes
+  static void init(QUINT maxn=1000);     //  sets the list up
+  static void display(ostream& s = cout, QUINT maxn=0); // by default don't list any primes
 };
 
 class Factorization {

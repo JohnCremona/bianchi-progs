@@ -3,12 +3,13 @@
 #define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31, 47};
+vector<long> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31, 47};
 
 int main ()
 {
- int d,max=1000;
- cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+  long d;
+  QUINT max=1000;
+  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
  if (!check_field(d, fields))
    {
      cerr<<"field must be one of: "<<fields<<endl;
@@ -19,7 +20,7 @@ int main ()
  cerr << "Verbose? "; cin>>verbose;
  cerr << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
- long firstn, lastn;
+ QUINT firstn, lastn;
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for level: ";
@@ -34,7 +35,7 @@ int main ()
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
 #endif
-         long normn = N.norm();
+         QUINT normn = N.norm();
          cout << ">>>> Level " << ideal_label(N)
               << " = " << gens_string(N)
               <<", norm = "<<normn<<" <<<<";

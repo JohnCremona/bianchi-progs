@@ -2,20 +2,21 @@
 #include "homspace.h"
 
 // List of fields for which this has been implemented so far:
-vector<int> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31};
 
 int main ()
 {
- int d,max=1000;
- cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
- if (!check_field(d, fields))
-   {
-     cerr<<"field must be one of: "<<fields<<endl;
-     exit(1);
-   }
+  long d;
+  QUINT max=1000;
+  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
+  if (!check_field(d, fields))
+    {
+      cerr<<"field must be one of: "<<fields<<endl;
+      exit(1);
+    }
  cout << "Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
- long firstn, lastn; Quad n;
+ QUINT firstn, lastn; Quad n;
  int both_conj, plusflag, verbose=0;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Plus space only? (0/1) "; cin >> plusflag;
@@ -32,7 +33,7 @@ int main ()
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
-     long normn = N.norm();
+     QUINT normn = N.norm();
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t "<<normn<<"\t\t"; // level and norm
      homspace hplus(N,1,0, verbose);  //level, plusflag, cuspidal, verbose
