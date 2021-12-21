@@ -28,17 +28,21 @@ extern vector<int> edge_fours;  // indices of first of a 4-tuple (r1,-r1,r2,-r2)
 // indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
 extern vector<int> cyclic_triangles;
 
-// indices [[i,j,k],u] such that M_i(alpha_j+u)=alpha_k +translation, giving triangle relations
-extern vector<vector<int> > triangles;
-extern vector<pair<vector<int>, Quad>> aaa_triangles;
+// typedefs for readability.
 
-// [[i,j,k],u] such that M_i(sigma_j+u)=sigma_k +translation, giving triangle relations
-extern vector<pair<vector<int>, Quad>> aas_triangles;
+typedef pair<vector<int>, Quad> TRIANGLE;
+typedef pair<vector<int>, vector<Quad>> POLYGON;
 
-// indices i,j,k,l and x,y such that M_j(x+alpha_k') =  M_i'(y+alpha_l), defining a square relation
-extern vector<pair<vector<int>, vector<Quad>> > squares;
+// aaa triangles: [[i,j,k],u] such that M_i(alpha_j+u)=alpha_k +translation
+// aas triangles: [[i,j,k],u] such that M_i(sigma_j+u)=sigma_k +translation
+// (We could make TRIANGLE a special case of POLYGON where the second component is a vector of length 1.)
 
-// indices i,j,k,l,m,n and x1,y1,x2,y2 defining a hexagon relation
-extern vector<pair<vector<int>, vector<Quad>> > hexagons;
+// squares:  [[i,j,k,l],[x,y,z]] such that M_j(x+alpha_k') =  z + M_i'(y+alpha_l)
+// hexagons: [[i,j,k,l,m,n], [u,x1,y1,x2,y2]]
+
+extern vector<TRIANGLE> aaa_triangles;
+extern vector<TRIANGLE> aas_triangles;
+extern vector<POLYGON> squares;
+extern vector<POLYGON> hexagons;
 
 #endif

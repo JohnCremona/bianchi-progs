@@ -204,22 +204,22 @@ void face_relations::make_relations()
   if (!aaa_triangles.empty())
     {
       if(verbose) cout<<"\nApplying "<<aaa_triangles.size()<<" general aaa-triangle relations"<<endl;
-      for (vector<pair<vector<int>, Quad>>::const_iterator T = aaa_triangles.begin(); T!=aaa_triangles.end(); ++T)
+      for (vector<TRIANGLE>::const_iterator T = aaa_triangles.begin(); T!=aaa_triangles.end(); ++T)
         aaa_triangle_relation(*T);
     }
 
   if (!squares.empty())
     {
       if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
-      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator S = squares.begin(); S!=squares.end(); ++S)
-        general_square_relation(S->first, S->second);
+      for (vector<POLYGON>::const_iterator S = squares.begin(); S!=squares.end(); ++S)
+        general_square_relation(*S);
     }
 
   if (!hexagons.empty())
     {
       if(verbose) cout<<"\nApplying "<<hexagons.size()<<" general hexgaon relations"<<endl;
-      for (vector<pair<vector<int>, vector<Quad>> >::const_iterator H = hexagons.begin(); H!=hexagons.end(); ++H)
-        general_hexagon_relation(H->first, H->second);
+      for (vector<POLYGON>::const_iterator H = hexagons.begin(); H!=hexagons.end(); ++H)
+        general_hexagon_relation(*H);
     }
 
   if (Quad::class_number==1)
@@ -228,7 +228,7 @@ void face_relations::make_relations()
   if (!aas_triangles.empty())
     {
       if(verbose) cout<<"\nApplying "<<aas_triangles.size()<<" general aas-triangle relations"<<endl;
-      for (vector<pair<vector<int>, Quad>>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
+      for (vector<TRIANGLE>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
         aas_triangle_relation(*T);
     }
 }
@@ -725,8 +725,10 @@ void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, i
 // {z+alpha_j', beta} = (T^z*M_j*T^x*M_k)_k
 // {beta, alpha_i} = (M_i'*T^y)_l
 
-void face_relations::general_square_relation(const vector<int>& squ, const vector<Quad>& xyz, int check)
+void face_relations::general_square_relation(const POLYGON& S, int check)
 {
+  const vector<int>& squ = S.first;
+  const vector<Quad>& xyz = S.second;
   int i=squ[0], j=squ[1], k=squ[2], l=squ[3];
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   int symmetry = (((i==k)&&(j==l))? 2: 0);
@@ -768,8 +770,10 @@ void face_relations::general_square_relation(const vector<int>& squ, const vecto
 // {u+alpha_j, beta2} = - (T^u*M_j'*T^x2)_l
 // {beta2, gamma} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
 
-void face_relations::general_hexagon_relation(const vector<int>& hex, const vector<Quad>& ux1y1x2y2, int check)
+void face_relations::general_hexagon_relation(const POLYGON& H, int check)
 {
+  const vector<int>& hex = H.first;
+  const vector<Quad>& ux1y1x2y2 = H.second;
   int i=hex[0], j=hex[1], k=hex[2], l=hex[3], m=hex[4], n=hex[5];
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int symmetry = 0; // work this out later

@@ -43,10 +43,10 @@ vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
 vector<int> cyclic_triangles;
-vector<pair<vector<int>, Quad>> aaa_triangles;
-vector<pair<vector<int>, Quad>> aas_triangles;
-vector<pair<vector<int>, vector<Quad>> > squares;
-vector<pair<vector<int>, vector<Quad>> > hexagons;
+vector<TRIANGLE> aaa_triangles;
+vector<TRIANGLE> aas_triangles;
+vector<POLYGON> squares;
+vector<POLYGON> hexagons;
 
 // Global functions to be used once during setting the field:
 
@@ -321,11 +321,13 @@ void alphas_sigmas_denom_3()
 
 ***************************************************************/
 
-int check_aaa_triangle(const vector<int>& T, const Quad& u, int verbose)
+int check_aaa_triangle(const TRIANGLE& T, int verbose)
 {
+  const vector<int>& tri = T.first;
+  const Quad& u = T.second;
   if (verbose)
-    cout<<"Checking aaa-triangle ("<<T<<","<<u<<")"<<endl;
-  mat22 Mi=M_alphas[T[0]], Mj=M_alphas[T[1]], Mk=M_alphas[T[2]];
+    cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
+  mat22 Mi=M_alphas[tri[0]], Mj=M_alphas[tri[1]], Mk=M_alphas[tri[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
   if (verbose)
     cout<<"x = "<<x<<endl;
@@ -340,11 +342,13 @@ int check_cyclic_triangle(int i, int verbose)
   return (t*t==1);
 }
 
-int check_aas_triangle(const vector<int>& T, const Quad& u, int verbose)
+int check_aas_triangle(const TRIANGLE& T, int verbose)
 {
+  const vector<int>& tri = T.first;
+  const Quad& u = T.second;
   if (verbose)
-    cout<<"Checking aas-triangle ("<<T<<","<<u<<")"<<endl;
-  int i=T[0], j=T[1], k=T[2];
+    cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<endl;
+  int i=tri[0], j=tri[1], k=tri[2];
   RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
   return (x.is_integral());
 }
@@ -371,17 +375,17 @@ void check_triangles(int verbose)
 {
   for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
     assert(check_cyclic_triangle(*Ti, verbose));
-  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
+  for (vector<TRIANGLE>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
     {
       if(verbose)
         cout<<"Checking aaa-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aaa_triangle(Ti->first, Ti->second, verbose));
+      assert(check_aaa_triangle(*Ti, verbose));
     }
-  for (vector<pair<vector<int>, Quad>>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
+  for (vector<TRIANGLE>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
     {
       if(verbose)
         cout<<"Checking aas-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aas_triangle(Ti->first, Ti->second, verbose));
+      assert(check_aas_triangle(*Ti, verbose));
     }
 }
 
@@ -391,9 +395,9 @@ void check_triangles(int verbose)
 
 ***************************************************************/
 
-int check_square(const vector<int>& S, const vector<Quad>& xyz)
+int check_square(const POLYGON& squ)
 {
-  // Check:  the square has vertices {alpha_i, oo, alpha[j']+z, beta}
+  // Check:  the square {{i,j,k,l},{x,y,z}} has vertices {alpha_i, oo, alpha[j']+z, beta}
   // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
   // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
 
@@ -404,7 +408,8 @@ int check_square(const vector<int>& S, const vector<Quad>& xyz)
   // {alpha_j'+z, beta} = (T^z*M_j*T^x*M_k)_k
   // {beta, alpha_i} = (M_i'*T^y)_l
 
-  // int i=S[0], j=S[1], k=S[2], l=S[3];
+  const vector<int>& S = squ.first;  // int i=S[0], j=S[1], k=S[2], l=S[3];
+  const vector<Quad>& xyz = squ.second;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   mat22 Mi=M_alphas[S[0]], Mj=M_alphas[S[1]], Mk=M_alphas[S[2]], Ml=M_alphas[S[3]];
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
@@ -419,7 +424,7 @@ void check_squares(int verbose)
     {
       if (verbose)
         cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
-      assert(check_square(Si->first, Si->second));
+      assert(check_square(*Si));
     }
 }
 
@@ -429,10 +434,13 @@ void check_squares(int verbose)
 
 ***************************************************************/
 
-int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
+int check_hexagon(const POLYGON& hex)
 {
-  // Check:  the hexagon has vertices {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma}
-  // where beta1 = M_i'(x1+alpha[k]), beta2 = M_j'(x2+alpha[l]),
+  // Check: the hexagon {{i,j,k,l,m,n},{u,x1,y1,x2,y2}} has vertices
+  // {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma} where
+
+  // beta1 = M_i'(x1+alpha[k]),
+  // beta2 = M_j'(x2+alpha[l]),
   // gamma = M_i'*T^x1*M_k'*T^y1(alpha[m]) = T^u*M_j'*T^x2*M_l'*T^y2(alpha[n]).
 
   // Edges:
@@ -444,6 +452,8 @@ int check_hexagon(const vector<int>& ijklmn, const vector<Quad>& ux1y1x2y2)
   // -{beta2, alpha_j} = - (T^u*M_j'*T^x2)_l
   // -{gamma, beta2} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
 
+  const vector<int>& ijklmn = hex.first;
+  const vector<Quad>& ux1y1x2y2 = hex.second;
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
   RatQuad gamma1 = (M_alphas[alpha_inv[i]]*mat22::Tmat(x1)*M_alphas[alpha_inv[k]])(y1+alphas[m]);
@@ -457,7 +467,7 @@ void check_hexagons(int verbose)
     {
       if (verbose)
         cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
-      assert(check_hexagon(Hi->first, Hi->second));
+      assert(check_hexagon(*Hi));
     }
 }
 
