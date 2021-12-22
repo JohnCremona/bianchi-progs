@@ -1,6 +1,6 @@
 
 P1N TEST PROGRAM
-Enter field: Q(sqrt(-15))	discriminant = 15	min poly(a) = a^2-a+4.
+Enter field: Q(sqrt(-15))	discriminant = -15	min poly(a) = a^2-a+4.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 testing split/merge of multi-indices...

@@ -4,7 +4,7 @@
 
 int main ()
 {
-  int d,max;
+  long d, max;
   cerr << "Enter field: " << flush;  cin >> d;
   cerr << "Enter max. norm for primes: " << flush;  cin >> max;
   cerr << endl;

@@ -13,13 +13,13 @@ class mat22 {
 private:
    Quad a,b,c,d;
 public:
-  mat22() :a(0),b(0),c(0),d(0) {}
+  mat22() :a(Quad::zero),b(Quad::zero),c(Quad::zero),d(Quad::zero) {}
   mat22(const Quad& ia, const Quad& ib, const Quad& ic, const Quad& id)
     :a(ia),b(ib),c(ic),d(id) {}
   static mat22 identity;
   static mat22 J;
   static mat22 S;
-  static mat22 Tmat(const Quad& x) {return mat22(1,x,0,1);}
+  static mat22 Tmat(const Quad& x) {return mat22(Quad::one,x,Quad::zero,Quad::one);}
   static mat22 TS;
   static mat22 TiS;
   static mat22 R;
@@ -82,7 +82,8 @@ public:
   Quad det() const {return a*d-b*c;}
   Quad trace() const {return a+d;}
 
-  int is_scalar() const {return ((b==0) && (c==0) && (a==d));}
+  int is_scalar() const {return (b.is_zero() && c.is_zero() && (a==d));}
+  int is_unimodular(int strict=1) const {Quad dt=det(); return ((dt==Quad::one) || ((!strict) && (dt.norm()==1)));}
 
   friend ostream& operator<< (ostream&, const mat22&); // inline below
   friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
@@ -129,12 +130,12 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N); // assume [P] square
 
 inline mat22 Fricke(const Quad& n)
 {
-  return mat22(0,-1,n,0);
+  return mat22(Quad::zero,-Quad::one, n,Quad::zero);
 }
 
 inline mat22 Fricke(Qideal& N) // assumes [N] square
 {
-  Qideal One(1);
+  Qideal One(Quad::one);
   return AtkinLehner(N, One);
 }
 

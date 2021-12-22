@@ -41,7 +41,7 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
   lambda(f->lambda), ratio(f->loverp),
   nap(f->aplist.size()), debug(db)
 {
-  double rootdisc = sqrt((double)Quad::disc), modlambda = realnorm(lambda);
+  double rootdisc = sqrt((double)(Quad::absdisc)), modlambda = realnorm(lambda);
   factor = 4*PI/(rootdisc*sqrt(realnorm(N))*modlambda);
   lambdares = residues(lambda);
   chitable = makechitable(lambda, lambdares);

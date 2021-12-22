@@ -9,7 +9,7 @@ class RatQuad {
 
 public:
   // constructors
-  RatQuad(const Quad& nn=0, const Quad& d=1, int reduce=0);
+  RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int reduce=0);
   RatQuad(QUINT a, QUINT b, QUINT dd, int reduce=0); // (a+b*w)/dd
 
   // RatQuad manipulations
@@ -31,7 +31,7 @@ public:
   }
   RatQuad translation_reduce() const             // reduce mod Quads
   {
-    return (d==0? RatQuad(1,0): RatQuad(n%d,d));
+    return (d.is_zero()? RatQuad::oo: RatQuad(n%d,d));
   }
   Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
   Qideal ideal() const;                          // ideal (n,d)
@@ -82,7 +82,7 @@ class modsym {
  private:
     RatQuad a,b;
  public:
-    modsym() :a(0), b(0) {}
+  modsym() :a(RatQuad::zero), b(RatQuad::zero) {}
     modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
     explicit modsym(const mat22& M, int type=0);              //conversion from (c:d)
     RatQuad alpha() const {return a;}
@@ -234,8 +234,8 @@ inline int operator!=(const RatQuad& r1, const RatQuad& r2)
 
 inline ostream& operator<<(ostream& s, const RatQuad& r)
 {
-   if (r.d==Quad(0)) s<<"oo";
-   else if (r.d==Quad(1)) s<<r.n;
+  if ((r.d).is_zero()) s<<"oo";
+  else if (r.d==Quad::one) s<<r.n;
    else s << "(" << r.n << ")/(" << r.d << ")";
    return s;
 }

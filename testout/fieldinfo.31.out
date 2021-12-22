@@ -1,4 +1,4 @@
-Q(sqrt(-31))	discriminant = 31	min poly(a) = a^2-a+8.
+Q(sqrt(-31))	discriminant = -31	min poly(a) = a^2-a+8.
 Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 22 prime ideals initialised, max norm = 100

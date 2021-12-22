@@ -11,7 +11,7 @@ string eigfile(const Quad& N)    //returns filename for eigs at level N
   stringstream s;
   s << getenv("NF_DIR");
   if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/2.0." << (Quad::disc) << ".1/";
+  s << "/" << field_label() << "/";
   s << ideal_code(N);
   return s.str();
 }
@@ -21,7 +21,7 @@ string eigfile(Qideal& N)    //returns filename for eigs at level N
   stringstream s;
   s << getenv("NF_DIR");
   if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/2.0." << (Quad::disc) << ".1/";
+  s << "/" << field_label() << "/";
   if (Quad::class_number==1) // for backwards compatibility of data file names
     s << ideal_code(N.gen());
   else

@@ -1,4 +1,4 @@
-Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
 >>>> Level 144.1 = (12), norm = 144 <<<<

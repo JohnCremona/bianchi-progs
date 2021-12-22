@@ -1,4 +1,4 @@
-Q(sqrt(-22))	discriminant = 88	min poly(a) = a^2+22.
+Q(sqrt(-22))	discriminant = -88	min poly(a) = a^2+22.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 29 prime ideals initialised, max norm = 100

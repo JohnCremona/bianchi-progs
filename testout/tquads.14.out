@@ -1,4 +1,4 @@
-Enter field: Enter max. norm for primes: The field is Q(sqrt(-14))	discriminant = 56	min poly(a) = a^2+14.
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-14))	discriminant = -56	min poly(a) = a^2+14.
 Class number 4
 Ideal class group representatives: [ [1,a] [2,a] [3,1+a] [3,2+a] ]
 

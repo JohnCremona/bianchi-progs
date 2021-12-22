@@ -1,6 +1,6 @@
 
 QIDEAL TEST PROGRAM
-Enter field: Q(sqrt(-5))	discriminant = 20	min poly(a) = a^2+5.
+Enter field: Q(sqrt(-5))	discriminant = -20	min poly(a) = a^2+5.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,1+a] ]
 169 prime ideals initialised, max norm = 1000

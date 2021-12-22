@@ -15,6 +15,7 @@
 
 long Quad::d;
 QUINT Quad::disc;
+QUINT Quad::absdisc;
 long Quad::t;
 QUINT Quad::n;
 char Quad::name;
@@ -63,13 +64,13 @@ Quad qdivi0(const Quad& a, QUINT c) // c>0,    // used when t=0
   Quad ans;
   if (c>0)
     {
-      ans.r = roundover(a.r,c);
-      ans.i = roundover(a.i,c);
+      ans.r = rounded_division(a.r,c);
+      ans.i = rounded_division(a.i,c);
     }
   else
     {
-      ans.r = roundover(-a.r,-c);
-      ans.i = roundover(-a.i,-c);
+      ans.r = rounded_division(-a.r,-c);
+      ans.i = rounded_division(-a.i,-c);
     }
   ans.setnorm();
   return ans;
@@ -80,19 +81,19 @@ Quad qdivi1(const Quad& a, QUINT c) // used when t=1
   Quad ans;
   if (c>0)
     {
-      ans.i = roundover(a.i,c);
-      ans.r = roundover(2*a.r+a.i-c*ans.i,2*c);
+      ans.i = rounded_division(a.i,c);
+      ans.r = rounded_division(2*a.r+a.i-c*ans.i,2*c);
     }
   else
     {
-      ans.i = roundover(-a.i,-c);
-      ans.r = roundover(-2*a.r-a.i+c*ans.i,-2*c);
+      ans.i = rounded_division(-a.i,-c);
+      ans.r = rounded_division(-2*a.r-a.i+c*ans.i,-2*c);
     }
   ans.setnorm();
   return ans;
 }
 
-void Quad::field(long dd, QUINT max)
+void Quad::field(long dd, long max)
 {
   // if (!check_field(dd))
   //   {
@@ -107,19 +108,20 @@ void Quad::field(long dd, QUINT max)
 
   if ((d+1)%4)
     {
-      t=0; disc=4*d; n=d;
+      t=0; absdisc=4*d; disc=-absdisc; n=d;
       quadconj=&quadconj0;
       mult=&mult0; qdivi=&qdivi0;
     }
   else
     {
-      t=1; disc=d;   n=(d+1)/4;
+      t=1; absdisc=d; disc=-d;   n=(d+1)/4;
       quadconj=&quadconj1;
       mult=&mult1; qdivi=&qdivi1;
     }
-  w = Quad(0,1, n);
-  zero = Quad(0,0, 0);
-  one = Quad(1,0, 1);
+  bigint i0(0), i1(1);
+  w = Quad(i0, i1, n);
+  zero = Quad(i0,i0, i0);
+  one = Quad(i1,i0, i1);
 
   switch (d) {
   case 1:  pos=&pos13; name='i'; nunits=4; fundunit=w; break;
@@ -132,13 +134,13 @@ void Quad::field(long dd, QUINT max)
   quadbezout=&quadbezout_psea;
 
   int i;
-  quadunits.push_back(1);
+  quadunits.push_back(one);
   quadunits.push_back(fundunit);
   for(i=2; i<nunits; i++)
     quadunits.push_back(fundunit*quadunits[i-1]);
   for(i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
-  maxnorm=max;
+  maxnorm=BIGINT(max);
   if(class_number==1)
     initquadprimes();
   Quadprimes::init(max);
@@ -168,6 +170,11 @@ void Quad::displayfield(ostream& s)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
+int Quad::chi(bigint p)
+{
+  return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
+}
+
 int Quad::chi(long p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(-d,p));
@@ -177,12 +184,13 @@ Quad::Quad(const bigcomplex& z)
 {bigfloat x=real(z), y=imag(z);
  if(d>1) y/=sqrt(to_bigfloat(d));
  if(d>2) {x-=y; y*=2.0;}
- longify(x, r); longify(y, i);    //Rounded
+ Iasb(r,x); Iasb(i,y);    //Rounded
+ //longify(x, r); longify(y, i);    //Rounded
  setnorm();
 }
 
 Quad::operator bigcomplex() const
-{bigfloat x=to_bigfloat(r), y=to_bigfloat(i);
+{bigfloat x=I2bigfloat(r), y=I2bigfloat(i);
  if(d>2) {y/=2.0; x+=y;}
  if(d>1) y*=sqrt(to_bigfloat(d));
  return bigcomplex(x,y);
@@ -220,8 +228,11 @@ vector<Quad> residues(const Quad& a)
   QUINT rednorma = (norma/m)/m;
   vector<Quad> ans;
   for(int j=0; j<m*rednorma; j++)
-    for(int k=0; k<m; k++) 
-      ans.push_back(Quad(j,k)%a) ;
+    {
+      QUINT J(j);
+      for(int k=0; k<m; k++)
+        ans.push_back(Quad(J,QUINT(k))%a);
+    }
   return ans;
 }
 
@@ -263,19 +274,20 @@ void factorp0(long p, QUINT& a, QUINT& b, QUINT d)
 // finds a,b s.t. a^2+d*b^2=0 (mod p)
 { int found=0;
   for (b=1; !found; b++)
-  { QUINT a2 = p - d*b*b;
-    a = (QUINT)round(sqrt(double(a2)));
+  {
+    QUINT a2 = p - d*b*b;
+    Iasb(a, sqrt(I2bigfloat(a2)));
     found = (a*a == a2);
   }
   b--;
 }
- 
+
 void factorp1(long p, QUINT& a, QUINT& b, QUINT d)
 // finds a,b s.t. a^2+a*b+((d+1)/4)*b^2=0 (mod p)
 { int found=0; long fourp = 4*p;
   for (b=1; !found; b++)
   { QUINT a2 = fourp -d*b*b;
-    a = (QUINT)round(sqrt(double(a2)));
+    Iasb(a, sqrt(I2bigfloat(a2)));
     found = (a*a == a2);
   }
   b--;
@@ -284,29 +296,31 @@ void factorp1(long p, QUINT& a, QUINT& b, QUINT d)
 
 vector<Quad> Quad::primes_above(long p, int& sig)
 {
-  QUINT d=Quad::d, disc=-Quad::disc;
+  QUINT d(Quad::d), disc(Quad::disc), P(p);
   int t=Quad::t;
   QUINT a,b;  Quad pi, piconj;
   vector<Quad> list;
-  sig = kronecker(disc,p);
+  sig = Quad::chi(p);
+  //  cout<<"disc = "<<disc<<", p="<<p<<", chi(p)="<<sig<<endl;
+  QUINT i0(0), i1(1), i2(2), i3(3);
   switch (sig) {
   case  0: // ramified
-    pi =  (d==1 ? Quad(1,1, 2) :
-           d==2 ? Quad(0,1, 2) :
-           d==3 ? Quad(1,1, 3) :
-           Quad(-1,2, d));
+    pi =  (d==1 ? Quad(i1,i1, i2) :
+           d==2 ? Quad(i0,i1, i2) :
+           d==3 ? Quad(i1,i1, i3) :
+           Quad(-i1,i2, d));
     list.push_back(pi);
     break;
   case -1: // inert
-    pi = Quad(p,0, p*p);
+    pi = Quad(P,i0, P*P);
     list.push_back(pi);
     break;
   case 1: // split
     if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
-    pi = makepos(Quad(a,b, p));
+    pi = makepos(Quad(a,b, P));
     piconj = makepos(quadconj(pi));
     // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
-    QUINT c = posmod(a*invmod(b,p),p);
+    long c = posmod(a*invmod(b,p),p);
     if (2*c<p)
       {
         list.push_back(pi);
@@ -370,7 +384,7 @@ void Quad::initquadprimes()
 Quad primdiv(const Quad& a)
 {
   QUINT na=quadnorm(a);
-  if (na<2) return 0;   // must return something!
+  if (na<2) return Quad::zero;   // must return something!
   vector<Quad>::const_iterator pr;
   for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
     {
@@ -426,12 +440,12 @@ vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
       nd*=(1+e);
     }
   vector<Quad> dlist(nd);
-  dlist[0]=1;
+  dlist[0]=Quad::one;
   nd=nu;
   vector<int>::iterator ei;
   for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
    {
-     p = *pr; 
+     p = *pr;
      e = *ei;
      for (int j=0; j<e; j++)
        for (int k=0; k<nd; k++)
@@ -528,21 +542,21 @@ vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
 Quad invmod(const Quad& a, const Quad& p)
 {Quad x,y;
  Quad g=quadbezout(a,p,x,y);
- if (g==1) return x;
+ if (g==Quad::one) return x;
  else {cerr<<"invmod called with "<<a<<" and "<<p<<" -- not coprime!"<<endl;
-       return 0;
+   return Quad::zero;
       }
 }
 
 int coprime(const Quad& a, const Quad& b) 
 {
   Quad g = quadgcd(a,b); 
-  return g==1;
+  return g==Quad::one;
 }
 
 int invertible(const Quad& a, const Quad& b, Quad& inverse)
 { Quad y; Quad g = quadbezout(a,b,inverse,y);
-  return g==1;
+  return g==Quad::one;
 }
 
 //#define test_reduce
@@ -551,7 +565,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
 // is reduced mod Z<beta>
 QUINT nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
 {
-  return roundover((alpha*quadconj(beta)).re(), beta.norm());
+  return rounded_division((alpha*quadconj(beta)).re(), beta.norm());
 }
 
 // reduction of gamma modulo Z<alpha,beta>
@@ -562,8 +576,8 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 #endif
   QUINT d = (quadconj(alpha)*beta).im();
   assert (d>0);
-  QUINT x = roundover((-gamma*quadconj(beta)).im(), d);
-  QUINT y = roundover(( gamma*quadconj(alpha)).im(), d);
+  QUINT x = rounded_division((-gamma*quadconj(beta)).im(), d);
+  QUINT y = rounded_division(( gamma*quadconj(alpha)).im(), d);
   Quad ans = gamma - (x*alpha + y*beta);
 #ifdef test_reduce
   cout << " is "<< ans << " (x="<<x<<", y="<<y<<")"<<endl;
@@ -659,8 +673,9 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 vector<QUINT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 { alpha=al;
   beta=be;
-  vector<QUINT> c = {1, 0}; // alpha = c[0]*al + c[1]*be  always
-  vector<QUINT> d = {0, 1}; // beta  = d[0]*al + d[1]*be  always
+  QUINT i0(0), i1(1);
+  vector<QUINT> c = {i1, i0}; // alpha = c[0]*al + c[1]*be  always
+  vector<QUINT> d = {i0, i1}; // beta  = d[0]*al + d[1]*be  always
 
   while (1)
     {
@@ -670,7 +685,7 @@ vector<QUINT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad&
       c[1]  -= n*d[1];
       Quad temp = alpha; alpha = -beta; beta = temp;
       QUINT t = c[0]; c[0] = -d[0]; d[0] = t;
-           t = c[1]; c[1] = -d[1]; d[1] = t;
+            t = c[1]; c[1] = -d[1]; d[1] = t;
       if (quadnorm(beta) >= quadnorm(alpha))
         {
           // alpha is now the non-zero Quad of least norm in the lattice [al,be]
@@ -694,7 +709,7 @@ vector<QUINT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
   return findminquadcoeffs(alpha,beta,gen0,gen1);
 }
 
-//#define DEBUG_FINDMINQUAD
+#define DEBUG_FINDMINQUAD
 
 void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 // same as findminquadscoeffs but don't need coeffs
@@ -745,9 +760,8 @@ vector<QUINT> HNF(const Quad& alpha)
   QUINT g = bezout(xa,ya,u,v);  // g=u*xa+v*ya=gcd(xa,ya)
   QUINT x = xa/g, y = ya/g;
   // Now the HNF is g*[a, b+w] for some b mod a=N/g
-  QUINT t = Quad::t, n = Quad::n;
   QUINT a = N/(g*g);
-  QUINT b = posmod(((v-t*u)*x - n*u*y), a);
+  QUINT b = posmod(((v-(Quad::t)*u)*x - (Quad::n)*u*y), a);
   vector<QUINT> ans;
   ans.push_back(a*g);
   ans.push_back(b*g);
@@ -777,13 +791,13 @@ string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
 string field_label() // returns field label, e.g. '2.0.4.1'
 {
   stringstream s;
-  s << "2.0." << Quad::disc << ".1";
+  s << "2.0." << Quad::absdisc << ".1";
   return s.str();
 }
 
 int are_associate(const Quad& a, const Quad& b)
 {
-  if(a==0) return (b==0);
+  if(a.is_zero()) return (b.is_zero());
   if(a.norm() != b.norm()) return 0;
   vector<Quad>::const_iterator eps;
   for(eps=quadunits.begin(); eps!=quadunits.end(); ++eps)
@@ -833,16 +847,16 @@ int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
   return -1;
 }
 
-double gauss(const Quad& m, const vector<Quad>& reslist)
+bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
 {
 //cout<<"Computing g(chi) for lambda = " << m << endl;
-  double ans1=0; //double ans2=0;
-  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0),sqrt(to_bigfloat(Quad::disc)));
+  bigfloat ans1(0); //double ans2=0;
+  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0),sqrt(I2bigfloat(Quad::absdisc)));
   vector<Quad>::const_iterator r=reslist.begin();
   while(r!=reslist.end())
   {
     Quad res = *r++;
-      double term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
+      bigfloat term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
       ans1+=term1;      //    ans2+=term2;
   }
   return ans1;

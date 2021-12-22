@@ -3,7 +3,7 @@
 
 int main ()
 {
- int d,max;
+  long d, max;
  cout << "Enter field: " << flush;  cin >> d;
  cout << "Enter max. norm for primes: " << flush;  cin >> max;
  Quad::field(d,max);
@@ -39,7 +39,7 @@ int main ()
  Qideal J = q.denominator_ideal();
  cout << "denominator_ideal(q) = "<<J<<" = "<<J.factorization()<<endl;
  cout << "representation of q with ideal coprime to 2*3*5: ";
- q.reduce(Qideal(30));
+ q.reduce(Qideal(BIGINT(30)));
  I = q.ideal();
  cout << q << ", which has ideal "<<I<<" = "<<I.factorization();
  assert (J == q.denominator_ideal());

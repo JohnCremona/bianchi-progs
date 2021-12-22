@@ -1,6 +1,6 @@
 
 QIDEAL TEST PROGRAM
-Enter field: Q(sqrt(-43))	discriminant = 43	min poly(a) = a^2-a+11.
+Enter field: Q(sqrt(-43))	discriminant = -43	min poly(a) = a^2-a+11.
 Non-Euclidean, class number 1
 175 primes initialised, max norm = 1000
 350 prime ideals initialised, max norm = 1000

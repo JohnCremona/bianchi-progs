@@ -2,7 +2,8 @@
 
 int main(void)
 {
-  int d,max=1000, conj;
+  long d, max(1000);
+  int conj;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d,max);
   QUINT firstn, lastn; Quad n;

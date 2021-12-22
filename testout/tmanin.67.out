@@ -1,4 +1,4 @@
-Q(sqrt(-67))	discriminant = 67	min poly(a) = a^2-a+17.
+Q(sqrt(-67))	discriminant = -67	min poly(a) = a^2-a+17.
 Non-Euclidean, class number 1
 17874 primes initialised, max norm = 200000
 >>>> Level 17.1 = (a), norm = 17 <<<<

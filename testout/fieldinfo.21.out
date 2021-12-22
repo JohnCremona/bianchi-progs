@@ -1,4 +1,4 @@
-Q(sqrt(-21))	discriminant = 84	min poly(a) = a^2+21.
+Q(sqrt(-21))	discriminant = -84	min poly(a) = a^2+21.
 Class number 4
 Ideal class group representatives: [ [1,a] [2,1+a] [3,a] [5,2+a] ]
 23 prime ideals initialised, max norm = 100

@@ -1,4 +1,4 @@
-Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
+Q(sqrt(-11))	discriminant = -11	min poly(a) = a^2-a+3.
 Euclidean
 27 primes initialised, max norm = 100
 3 3.0.1 (a) 3 1 1

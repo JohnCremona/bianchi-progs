@@ -10,15 +10,15 @@ vector<mat22> Hecke(const Quad& p)  // P=(p) principal prime
   vector<Quad> resmodp = residues(p);
   vector<mat22> mats(1+resmodp.size());
   for (vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
-    mats.push_back(mat22(1,*r,0,p));
-  mats.push_back(mat22(p,0,0,1));
+    mats.push_back(mat22(Quad::one,*r,Quad::zero,p));
+  mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
   return mats;
 }
 
 mat22 AtkinLehner(const Quad& p, const Quad& n) // P=(p) principal prime
 {
   Quad u,v,a,b;
-  for (u=1, v=n; div(p,v); v/=p, u*=p) ;
+  for (u=Quad::one, v=n; div(p,v); v/=p, u*=p) ;
   quadbezout(u,v,a,b);
   return mat22(u*a,-b,n,u);
 }
@@ -42,7 +42,7 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2) // assume [M1] square and M1,M2 coprim
     }
 
   Qideal I = M1.sqrt_coprime_to(M2);
-  if (I.norm()==0)
+  if (I.is_zero())
     {
       cerr<<"Cannot compute AtkinLehner("<<ideal_label(M1)<<") as its class is not a square"<<endl;
       return mat22();
@@ -73,7 +73,7 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2) // assume [M1] square and M1,M2 coprim
 
 mat22 AtkinLehnerP(Quadprime& P, const Qideal& N) // =AL(P^e,N/P^e) where P^e||N
 {
-  Qideal M1(1), M2(N);
+  Qideal M1(Quad::one), M2(N);
   while (P.divides(M2))
     {
       M1 *= P;
@@ -87,10 +87,10 @@ vector<mat22> Hecke(const Quad& p, Qideal& N)
   vector<Quad> resmodp = residues(p);
   vector<Quad>::const_iterator r=resmodp.begin();
   vector<mat22> mats;
-  mats.reserve(quadnorm(p));
+  mats.reserve(I2long(quadnorm(p)));
   while(r!=resmodp.end())
-    mats.push_back(mat22(1,*r++,0,p));
-  mats.push_back(mat22(p,0,0,1));
+    mats.push_back(mat22(Quad::one,*r++,Quad::zero,p));
+  mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
   return mats;
 }
 
@@ -105,7 +105,7 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
     return Hecke(P.gen(), N);
   vector<mat22> mats;
   Qideal A = P.sqrt_coprime_to(N); // A^2*P is principal, with A coprime to N, or A=0
-  if (A.norm()==0)
+  if (A.is_zero())
     {
       cerr<<"Cannot compute Hecke("<<ideal_label(P)<<") as its class is not a square"<<endl;
       return mats;
@@ -127,11 +127,11 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   assert (!P.divides(nu));
 
   vector<Quad> resmodp = P.residues();
-  mats.reserve(P.norm());
+  mats.reserve(I2long(P.norm()));
   for(vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
     {
       Quad a = *r;
-      mats.push_back(M*mat22(1,a,nu,1+a*nu));
+      mats.push_back(M*mat22(Quad::one,a,nu,Quad::one+a*nu));
     }
   mats.push_back(M);
 #ifdef DEBUG_HECKE

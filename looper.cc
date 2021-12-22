@@ -2,8 +2,10 @@
 
 QUINT floorsqrt(QUINT asq)
 {
-  if(asq<0) return 0;
-  return (QUINT)(sqrt(double(asq)+0.1));
+  if(asq<0) return BIGINT(0);
+  QUINT r;
+  Iasb(r, sqrt(I2bigfloat(asq)+0.1));
+  return r;
 }
 
 int issquare(QUINT asq, QUINT& a)
@@ -15,20 +17,21 @@ int issquare(QUINT asq, QUINT& a)
 
 void Quadlooper::setblims()
 {
+  bigint zero(0);
   switch (d)
     {
     case 1:
-      bmin = 0;
+      bmin = zero;
       bmax = include_conjugates? floorsqrt(n-1) : floorsqrt(n/2);
       break;
     case 3:
-      bmin = 0;
+      bmin = zero;
       bmax = include_conjugates? floorsqrt(n-1) : floorsqrt(n/3);
       break;
     default:
       QUINT m = (d%4==3? 4*n: n);
       bmax = floorsqrt(m/d);
-      bmin = include_conjugates? -bmax : 0;
+      bmin = include_conjugates? -bmax : zero;
       if (d*bmin*bmin==m) bmin++;
     }
 }
@@ -43,7 +46,7 @@ void Quadlooper::nstep()
 {
   n++;
   if (n>nlim) return;
-  while(kronecker(-d,n)==-1)
+  while(kronecker(disc,n)==-1)
     {
       n++;
       if (n>nlim) return;

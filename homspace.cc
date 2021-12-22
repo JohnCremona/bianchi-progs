@@ -269,10 +269,10 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
   Quad a(alpha.num()), b(alpha.den()), x, y;
   Quad g = quadbezout(a,b, x,y);
   //  cout<<"gcd("<<a<<","<<b<<") = " << g <<endl;
-  if (g==1)
+  if (g==Quad::one)
     {
       mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
-      assert (M.det()==Quad::one);
+      assert (M.is_unimodular());
       Quad c = N.reduce(x), d = N.reduce(-b);
 #ifdef DEBUG_CHAIN
       cout<<"Computing alpha->beta chain {"<<alpha<<","<<beta<<"}\n";
@@ -302,7 +302,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
   //   if (!Quad::is_Euclidean)
   cout<<" INIT (c:d)_0=("<<c<<":"<<d<<")_0 = "<< modsym(lift_to_SL2(N,c,d),0)<<") AT "<< RatQuad(a,b,1) << endl;
 #endif
-   while (quadnorm(b))
+  while (!b.is_zero())
      {
        pseudo_euclidean_step(a,b, t, c,d);
        //c = N.reduce(c); d = N.reduce(d); // reduce modulo the level

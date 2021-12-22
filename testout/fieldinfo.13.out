@@ -1,4 +1,4 @@
-Q(sqrt(-13))	discriminant = 52	min poly(a) = a^2+13.
+Q(sqrt(-13))	discriminant = -52	min poly(a) = a^2+13.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,1+a] ]
 30 prime ideals initialised, max norm = 100

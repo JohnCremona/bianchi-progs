@@ -60,7 +60,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static QUINT     n;          // norm of w
   static char      name;       // name of w for printing
   static QUINT  maxnorm;       // largest norm of primes
-  static QUINT     disc;       // discriminant
+  static QUINT     disc, absdisc;       // discriminant (<0) and its absolute value
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
   static int class_number;   // 0 if not set
@@ -68,10 +68,10 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static Quad zero;
   static Quad one;
   static Quad w;
-
-  static void field(long dd, QUINT max=1000);
+  static void field(long dd, long max=1000);
   static void displayfield(ostream& s = cout);
   static int chi(long p); // quadratic character associated to the field
+  static int chi(QUINT p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
   static void fill_class_group();
@@ -85,14 +85,14 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void setnorm()
   {
     nm = r*r + n*i*i;
-    if (t && r && i) {nm += r*i;};
+    if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
   }
-  Quad(QUINT x=0, QUINT y=0, QUINT nrm=-1) :r(x),i(y), nm(nrm)
+  Quad(QUINT x=BIGINT(0), QUINT y=BIGINT(0), QUINT nrm=-BIGINT(1)) :r(x),i(y), nm(nrm)
   {
-    if (nm<0) //setnorm();
+    if (is_negative(nm)) //setnorm();
       {
         nm = r*r + n*i*i;
-        if (t && r && i) {nm += r*i;};
+        if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
       }
   }
   explicit Quad(const bigcomplex& z);   //rounds to nearest
@@ -149,7 +149,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad operator- () const {return Quad(-r,-i);}
   Quad operator/ (const Quad& b) const
   {
-    if (b.i)
+    if (!::is_zero(b.i))
       return qdivi(mult(*this,quadconj(b)), b.nm);
     else
       return qdivi(*this,b.r);
@@ -157,7 +157,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad operator/ (QUINT b) const {return qdivi(*this,b);}
   void operator/=(const Quad& b)
   {
-    if (b.i)
+    if (!::is_zero(b.i))
       *this=qdivi(mult(*this,quadconj(b)), b.nm);
     else
       *this=qdivi(*this,b.r);
@@ -190,24 +190,24 @@ inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
 inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
 inline Quad mult0(const Quad& a, const Quad& b)
 {
-  if (b.i==0)
+  if (::is_zero(b.i))
     return b.r * a;
-  if (a.i==0)
+  if (::is_zero(a.i))
     return a.r * b;
   return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r, a.nm*b.nm);
 }
 inline Quad mult1(const Quad& a, const Quad& b)
 {
-  if (b.i==0)
+  if (::is_zero(b.i))
     return b.r * a;
-  if (a.i==0)
+  if (::is_zero(a.i))
     return a.r * b;
   return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);
 }
 inline int pos13(const Quad& a)
-   {return (((a.i>=0)&&(a.r>0))||((a.r==0)&&(a.i==0)));}
+{return ((is_nonnegative(a.i)&&is_positive(a.r))||((::is_zero(a.r))&&(::is_zero(a.i))));}
 inline int pos2(const Quad& a)
-   {return ((a.i>0)||((a.i==0)&&(a.r>=0)));}
+{return (is_positive(a.i)||(::is_zero(a.i)&&is_nonnegative(a.r)));}
 inline Quad operator*(QUINT m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
 inline Quad operator+(QUINT m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(QUINT m, const Quad& a) {return Quad(m-a.r,-a.i);}
@@ -252,12 +252,13 @@ int is_ideal_Galois_stable(const Quad&);
 
 #include <values.h>
 
-inline double realnorm(const Quad& z) {  return sqrt(double(quadnorm(z)));}
-inline double psif(bigcomplex z) {  return to_double(cos(4*PI*real(z)));}
-inline double psig(bigcomplex z) {  return to_double(sin(4*PI*real(z)));}
+inline bigfloat realnorm(const Quad& z) {  return sqrt(I2bigfloat(quadnorm(z)));}
+inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
+inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
+
 int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist);
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist);
-double gauss(const Quad& m, const vector<Quad>& reslist);
+bigfloat gauss(const Quad& m, const vector<Quad>& reslist);
 string ideal_code(const Quad& N); // string code for a (principal)  ideal
 
 #endif

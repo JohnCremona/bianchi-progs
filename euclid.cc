@@ -63,9 +63,9 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   // For convergents we need c1,d1 and t
 
   int compute_c1d1=1, compute_c2d2=1;
-  if (c1==Quad::zero && d1==Quad::zero)
+  if (c1.is_zero() && d1.is_zero())
     compute_c1d1 = 0;
-  if (c2==Quad::zero && d2==Quad::zero)
+  if (c2.is_zero() && d2.is_zero())
     compute_c2d2 = 0;
 #ifdef DEBUG_PSEA
   cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.nm<<", b="<<b<<", N(b)="<<b.nm<<endl;
@@ -81,7 +81,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       return;
     }
 
-  Quad u, q = 0;  // common simple special case where N(a)<N(b), q = 0 with no work
+  Quad u, q = Quad::zero;  // common simple special case where N(a)<N(b), q = 0 with no work
 
   if (a.nm<b.nm) // just swap over
     {
@@ -141,7 +141,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 #endif
 
       // We need to use temporary copies of a,b in case this alpha fails
-      a1 = a; b1 = b; q = 0;
+      a1 = a; b1 = b; q = Quad::zero;
 
       // First see if we can reduce without a further shift (since
       // rounded division is relatively expensive, and here the new
@@ -152,7 +152,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
         {
           // Find the shift taking a/b closest to alpha
           q = (a*s-b*r)/(b*s); // closest integer to (a/b)-(r/s)
-          if (q.nm)            // do the extra translation by q
+          if (!q.is_zero())            // do the extra translation by q
             {
               a1 = a-q*b, b1 = b;
               M.apply_left(a1,b1);
@@ -164,12 +164,12 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
           b = b1;
           if (compute_c1d1)
             {
-              if (q.nm) d1 += q*c1;
+              if (!q.is_zero()) d1 += q*c1;
               M.apply_right_inverse(c1,d1);
             }
           if (compute_c2d2)
             {
-              if (q.nm) d2 += q*c2;
+              if (!q.is_zero()) d2 += q*c2;
               M.apply_right_inverse(c2,d2);
             }
 #ifdef DEBUG_PSEA
@@ -212,7 +212,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       if (div(b*s,q))  // success!
         {
           q /= (b*s);
-          if (q.nm) // else nothing more needs doing since the translation is trivial
+          if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
             {
               a -= q*b;
               if (compute_c1d1)
@@ -247,8 +247,8 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
   if (gcd(aa.nm,bb.nm)==1) return Quad::one;
   Quad a(aa), b(bb); int t=0;
-  while (b.nm && t>=0) pseudo_euclidean_step(a, b, t);
-  if (b.nm)
+  while (!b.is_zero() && t>=0) pseudo_euclidean_step(a, b, t);
+  if (!b.is_zero())
     {
       // cout<<"Warning: quadgcd_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
       // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
@@ -267,6 +267,7 @@ Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Using (pseudo-)EA
 {
+  // cout<<"quadbezout("<<aa<<","<<bb<<")"<<endl;
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
   int t=0;
   while (b.nm>0 && t>=0)
@@ -276,7 +277,7 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
       assert (c1*a+d1*b==bb);
       assert (c2*a+d2*b==aa);
     }
-  if (b.nm)
+  if (!b.is_zero())
     {
       // cout<<"Warning: quadbezout_psea() called with (a,b)=("<<aa<<","<<bb<<"), which generate a non-principal ideal."<<endl;
       // cout<<"  Pseudo-Euclidean Algorithm reached singular point a/b = ("<<a<<")/("<<b<<") = "<<sigmas[-t]<<endl;
@@ -295,6 +296,7 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   xx = d1;
   yy = -d2;
   assert (aa*xx+bb*yy==a);
+  // cout<<"quadbezout("<<aa<<","<<bb<<") finds gcd="<<a<<" and initially xx="<<xx<<", yy="<<yy<<endl;
 
   while (!pos(a))
     {
@@ -302,12 +304,15 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
       xx *= fundunit;
       yy *= fundunit;
     }
-  if (bb.nm) // reduce x mod bb/g and adjust y to match
+  if (!bb.is_zero()) // reduce x mod bb/g and adjust y to match
     {
       Quad a0 = aa/a, b0 = bb/a;
       Quad tmp = xx/b0; // rounded
+      // cout<<"quadbezout("<<aa<<","<<bb<<") next finds gcd="<<a<<" and xx="<<xx<<", yy="<<yy<<endl;
+      // cout<<" adjustment t="<<tmp<<" is rounded division of xx by "<<bb<<"/"<<a<<endl;
       xx -= b0*tmp;
       yy += a0*tmp;
+      // cout<<" finally xx="<<xx<<", yy="<<yy<<endl;
       assert (aa*xx+bb*yy==a);
     }
   return a;

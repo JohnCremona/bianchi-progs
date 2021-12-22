@@ -22,7 +22,7 @@ int main(void)
   cerr << "----------------------------------------------------------------\n\n";
   // max is the maximum norm of precomputed primes.  It should be
   // large enough to include all prime factors of levels computed,
-  int d,max=250000;
+  long d, max(250000);
   cerr<<"Enter field: \n";
   cin >> d;
   Quad::field(d,max);
@@ -33,7 +33,7 @@ int main(void)
 
   cerr<<"Enter level (ideal label or generator): \n";
   cin>>N;
-  long normn = N.norm();
+  QUINT normn = N.norm();
   if (verbose)
     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
 
@@ -94,7 +94,7 @@ int main(void)
       prime_indexes[np] = ip = prime_index(P);
       if (ip>maxip)
         maxip = ip;
-      long normp = P.norm();
+      long normp = I2long(P.norm());
       if (normp>maxnormp)
         maxnormp = normp;
       // if(verbose)

@@ -6,6 +6,7 @@ Qidealooper::Qidealooper(QUINT nmin, QUINT nmax, int both_conjugates, int sorted
   : n(nmin), maxn(nmax), both(both_conjugates), sort(sorted)
 {
   vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n, both): ideals_with_norm(n, both));
+  //  cout<<" Qidealooper inserting "<<Ilist.size()<<" ideals of norm "<<n<<" into queue: "<<Ilist<<endl;
   I_norm_n.insert(I_norm_n.end(), Ilist.begin(), Ilist.end());
   advance();
 }
@@ -25,6 +26,7 @@ void Qidealooper::advance()
     {
       n++;
       vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n, both): ideals_with_norm(n, both));
+      //      cout<<" Qidealooper inserting "<<Ilist.size()<<" ideals of norm "<<n<<" into queue: "<<Ilist<<endl;
       I_norm_n.insert(I_norm_n.end(), Ilist.begin(), Ilist.end());
     }
   // now either n>maxn and I_norm_n is empty, or n<=maxn and it is
@@ -35,10 +37,11 @@ vector<Qideal> Quad::class_group;
 
 void Quad::fill_class_group()
 {
-  QUINT MB = floor(2*sqrt(disc)/PI);
+  QUINT MB; // Minkowski bound
+  Iasb(MB, 2*sqrt(I2bigfloat(absdisc))/PI);
   class_group.push_back(Qideal());
   if(class_number==1) return;
-  Qidealooper loop(1, MB, 1, 1);
+  Qidealooper loop(BIGINT(1), MB, 1, 1);
   while( loop.not_finished() )
     {
       Qideal I = loop.next();

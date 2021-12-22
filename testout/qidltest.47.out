@@ -1,6 +1,6 @@
 
 QIDEAL TEST PROGRAM
-Enter field: Q(sqrt(-47))	discriminant = 47	min poly(a) = a^2-a+12.
+Enter field: Q(sqrt(-47))	discriminant = -47	min poly(a) = a^2-a+12.
 Class number 5
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] ]
 166 prime ideals initialised, max norm = 1000

@@ -1,4 +1,4 @@
-Q(sqrt(-19))	discriminant = 19	min poly(a) = a^2-a+5.
+Q(sqrt(-19))	discriminant = -19	min poly(a) = a^2-a+5.
 Non-Euclidean, class number 1
 18011 primes initialised, max norm = 200000
 >>>> Level 19.1 = (-1+2a), norm = 19 <<<<

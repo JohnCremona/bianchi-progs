@@ -1,6 +1,6 @@
 
 QIDEAL TEST PROGRAM
-Enter field: Q(sqrt(-3))	discriminant = 3	min poly(w) = w^2-w+1.
+Enter field: Q(sqrt(-3))	discriminant = -3	min poly(w) = w^2-w+1.
 Euclidean
 167 primes initialised, max norm = 1000
 334 prime ideals initialised, max norm = 1000

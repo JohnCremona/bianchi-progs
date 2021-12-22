@@ -1,4 +1,4 @@
-Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 17999 primes initialised, max norm = 200000
 >>>> Level 65.3 = (7+4i), norm = 65 <<<<

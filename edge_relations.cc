@@ -269,7 +269,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   Quad unit = fundunit;
   int lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  action eps(P1,unit,0,0,1);  assert (eps.det()==unit);
+  action eps(P1,unit,Quad::zero,Quad::zero,Quad::one);  assert (eps.det()==unit);
   action sof(P1, mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
@@ -343,21 +343,21 @@ void edge_relations::edge_relations_2()
 // edge relations for one alpha, one sigma with denominator 2 when 2 is ramified d%4=1,2 (d>2)
 void edge_relations::edge_relations_2_d12mod4()
 {
-  Quad w = Quad::w, a, b;
+  Quad w = Quad::w, zero=Quad::zero, one=Quad::one, a, b;
   // alphas[1] = a/2, sigmas[1] = b/2
   if ((Quad::d)%4==1)   // for d=1(4), alpha_1=w/2, sigma_1=(w+1)/2
     {
       a = w;
-      b = w+1;
+      b = w+one;
     }
   else                 // for d=2(4), alpha_1=(w+1)/2, sigma_1=w/2
     {
-      a = w+1;
+      a = w+one;
       b = w;
     }
 
   action M(P1, M_alphas[1]);
-  action L(P1, -1,a,0,1); assert (L.det()==-1);
+  action L(P1, -one,a,zero,one); assert (L.det()==-one);
 
   // alpha_1 = a/2 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
@@ -414,7 +414,7 @@ void edge_relations::edge_relations_2_d12mod4()
 
   // sigma_1 = b/2 = (1+w)/2  (d%4=1), w/2 (d%4=2)
 
-  action K(P1, -1,b,0,1); assert (K.det()==-1);
+  action K(P1, -one,b,zero,one); assert (K.det()==-one);
   assert (check_rel({mat22::identity, K}, {-1,-1}, {1,-1}));
 
   std::fill(done.begin(), done.end(), 0);
@@ -451,12 +451,13 @@ void edge_relations::edge_relations_2_d12mod4()
 
 void edge_relations::edge_relations_2_d7mod8()
 {
+  Quad zero=Quad::zero, one=Quad::one;
   // sigma_1 = w/2,  sigma_2 = (1-w)/2
 
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
-      Quad x = (2*sigmas[t]).num();
-      action L(P1, -1, x, 0,1); // fixes x/2 = sigma
+      Quad x = (BIGINT(2)*sigmas[t]).num();
+      action L(P1, -one, x, zero,one); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
 
@@ -487,13 +488,13 @@ void edge_relations::edge_relations_2_d7mod8()
 // edge relations for two alphas with denominator 2 whenever 2 is inert, i.e. d%8=3 (d>3)
 void edge_relations::edge_relations_2_d3mod8()
 {
-  Quad w = Quad::w;
+  Quad w = Quad::w, zero=Quad::zero, one=Quad::one;
   long j, k, l, m;
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
   action M(P1, M_alphas[1]);
-  action L(P1, -1,w-1,0,1); assert (L.det()==-1);
+  action L(P1, -one,w-one,zero,one); assert (L.det()==-one);
 
   // M maps w/2 --> oo --> (w-1)/2, where M = [w-1,u;2,-w], det=1,  order 3
   // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gM(oo),gM(w/2)} = -(gM)_w/2.
@@ -503,7 +504,7 @@ void edge_relations::edge_relations_2_d3mod8()
 
   assert(check_rel({mat22::identity, M}, {2,1}, {1,1}));
   assert(check_rel({mat22::identity, M_alphas[2]}, {1,2}, {1,1}));
-  assert(check_rel({mat22::identity, mat22(-1,w,0,1)}, {1,1}, {1,-1}));
+  assert(check_rel({mat22::identity, mat22(-one,w,zero,one)}, {1,1}, {1,-1}));
   assert(check_rel({mat22::identity, L}, {2,2}, {1,-1}));
 
   vector<int> done(nsymb, 0);

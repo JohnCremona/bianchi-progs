@@ -4,12 +4,12 @@
 
 int main ()
 {
- int d,max;
+  long d, max;
  cout << "Enter field: " << flush;  cin >> d;
  cout << "Enter max. norm for primes: " << flush;  cin >> max;
  Quad::field(d,max);
  cout << "The field is "; Quad::displayfield(cout); cout << endl;
- Quad w(0,1);
+ Quad w = Quad::w;
  cout << "w   = " << w << endl;
  cout << "w*w = " << (w*w) << endl;
  Quad a,b,c,p;
@@ -66,7 +66,7 @@ int main ()
  if (c==a) {cout<<" \t--OK!";} 
  else      {cout<<" \t--NO!";} 
  cout<<endl;
- c=a/3;
+ c=a/BIGINT(3);
  cout << "a/3 = " << c << endl;
  c=a+b;
  cout << "c = a+b = " << c << endl;
@@ -90,7 +90,7 @@ int main ()
      cout << "A prime divisor of a: " << pda << endl;
      vector<Quad> plist = pdivs(a);
      cout << "The list of all prime divisors of a: " << plist << endl;
-     vector<Quad> elist;
+     vector<int> elist;
      pr=plist.begin();
      while(pr!=plist.end()) elist.push_back(val(*pr++,a));
      cout << "Exponents: " << elist << endl;
@@ -134,10 +134,10 @@ int main ()
  //Test of gcd and bezout
  Quad g,h,x,y;
  cout << "Testing gcd and bezout."<<endl;
- while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, a!=0)
+ while(cout<<"Enter Quads a and b (a=0 to stop): ", cin >> a >> b, !a.is_zero())
    {
      g = quadgcd(a,b);
-     if (g!=0)
+     if (!g.is_zero())
        cout << "gcd("<<a<<","<<b<<") = "<< g <<endl;
      if (Quad::class_number==1)
        {
@@ -161,11 +161,11 @@ int main ()
    }
  else
    {
-     QUINT maxn = 10;
+     QUINT minn(1), maxn(10);
      int s;
      mat22 M;
-     for(Quadlooper alpha(1,maxn,1); alpha.ok(); ++alpha)
-       for(Quadlooper beta(1,maxn,1); beta.ok(); ++beta)
+     for(Quadlooper alpha(minn,maxn,1); alpha.ok(); ++alpha)
+       for(Quadlooper beta(minn,maxn,1); beta.ok(); ++beta)
          {
            a = alpha;
            b = beta;

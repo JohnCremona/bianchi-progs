@@ -6,9 +6,9 @@
 #include "geometry.h"
 
 // Constants
-RatQuad RatQuad::oo(1,0,1, 0);
-RatQuad RatQuad::one(1,1,1, 0);
-RatQuad RatQuad::zero(0,1,1, 0);
+RatQuad RatQuad::oo(BIGINT(1),BIGINT(0),BIGINT(1), 0);
+RatQuad RatQuad::one(BIGINT(1),BIGINT(1),BIGINT(1), 0);
+RatQuad RatQuad::zero(BIGINT(0),BIGINT(1),BIGINT(1), 0);
 
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
@@ -47,8 +47,8 @@ Qideal RatQuad::ideal() const
 
 Qideal RatQuad::denominator_ideal() const
 {
-  if (d==0)
-    return Qideal(0);
+  if (d.is_zero())
+    return Qideal(BIGINT(0));
   return Qideal(d) / Qideal({n,d});
 }
 

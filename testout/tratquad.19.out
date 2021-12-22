@@ -1,4 +1,4 @@
-Enter field: Enter max. norm for primes: The field is Q(sqrt(-19))	discriminant = 19	min poly(a) = a^2-a+5.
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-19))	discriminant = -19	min poly(a) = a^2-a+5.
 Non-Euclidean, class number 1
 23 primes initialised, max norm = 100
 

@@ -1,6 +1,6 @@
 
 P1N TEST PROGRAM
-Enter field: Q(sqrt(-7))	discriminant = 7	min poly(a) = a^2-a+2.
+Enter field: Q(sqrt(-7))	discriminant = -7	min poly(a) = a^2-a+2.
 Euclidean
 169 primes initialised, max norm = 1000
 testing split/merge of multi-indices...

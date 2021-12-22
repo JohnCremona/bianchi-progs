@@ -353,10 +353,10 @@ void face_relations::triangle_relation_1_3()
   vector<int> types(3,0), done(nsymb, 0);
   long j, k;
 
-  Quad w(0,1);
+  Quad w=Quad::w, zero=Quad::zero, one=Quad::one;
   long field = Quad::d;
-  action X = (field==1? action(P1,w,1,1,0): action(P1,1,w,w-1,0));
-  assert (X.det()==(field==1? -1: 1));
+  action X = (field==1? action(P1,w,one,one,zero): action(P1,one,w,w-one,zero));
+  assert (X.det()==(field==1? -one: one));
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -385,8 +385,8 @@ void face_relations::square_relation_2()
   vector<int> types(4,0), done(nsymb, 0);
   long j, k;
 
-  Quad w(0,1);
-  action U(P1,w,1,1,0);  assert (U.det()==-1);
+  Quad w=Quad::w, zero=Quad::zero, one=Quad::one;
+  action U(P1,w,one,one,zero);  assert (U.det()==-one);
   action S(P1, mat22::S);
   action J(P1, mat22::J);
 
@@ -430,10 +430,10 @@ void face_relations::rectangle_relation_7()
   vector<long> rel(4);
   vector<int> types(4,0), done(nsymb, 0);
   long j, k;
-  Quad w(0,1);
+  Quad w=Quad::w, zero=Quad::zero, one=Quad::one;
 
-  action Y(P1,1,-w,1-w,-1);  assert (Y.det()==1);
-  action USof(P1,w,-1,1,0);  assert (USof.det()==1);
+  action Y(P1,one,-w,one-w,-one); assert (Y.is_unimodular());
+  action US(P1,w,-one,one,zero);   assert (US.is_unimodular());
   action R(P1, mat22::R);
 
   for (k=0; k<nsymb; k++)
@@ -443,7 +443,7 @@ void face_relations::rectangle_relation_7()
           {
             rel[j] = (j? Y(rel[j-2]): k);
             done[rel[j]] = 1;
-            rel[j+1] = USof(rel[j]);
+            rel[j+1] = US(rel[j]);
             if (plusflag)
               done[R(rel[j+1])]=1;
           }
@@ -461,13 +461,13 @@ void face_relations::hexagon_relation_11()
   vector<long> rel(6);
   vector<int> types(6,0), done(nsymb, 0);
   long j, k;
-  Quad w(0,1);
+  Quad w=Quad::w, zero=Quad::zero, one=Quad::one, two(BIGINT(2));
 
-  //  action X(P1,1,-w,1-w,-2); // as in JC thesis (order 3)
-  action X(P1,-2,w,w-1,1);      // its inverse, so the hexagon edges are in the right order
-  assert (X.det()==1);
-  action USof(P1,w,-1,1,0);
-  assert (USof.det()==1);
+  //  action X(P1,one,-w,one-w,-2); // as in JC thesis (order 3)
+  action X(P1,-two,w,w-one,one);      // its inverse, so the hexagon edges are in the right order
+  assert (X.is_unimodular());
+  action US(P1,w,-one,one,zero);
+  assert (US.is_unimodular());
   action R(P1, mat22::R);
 
   for (k=0; k<nsymb; k++)
@@ -477,7 +477,7 @@ void face_relations::hexagon_relation_11()
           {
             rel[j] = (j? X(rel[j-2]): k);
             done[rel[j]] = 1;
-            rel[j+1] = USof(rel[j]);
+            rel[j+1] = US(rel[j]);
             if(plusflag)
               done[R(rel[j+1])]=1;
           }
@@ -496,11 +496,12 @@ void face_relations::hexagon_relation_11()
 void face_relations::triangle_relation_2()
 {
   int field = Quad::d;
-  Quad w = Quad::w;
-  long j, k, u=(field-3)/8; // u=2, 5, 8, 20 for 19,43,67,163
+  Quad w=Quad::w, zero=Quad::zero, one=Quad::one;
+  long j, k;
+  Quad u=BIGINT((field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
-  action K(P1, M_alphas[1]);  assert (K.det()==1); // oo --> (w-1)/2 --> w/2 --> oo
-  action N(P1, 1+w,u-w,2,-w); assert (N.det()==1); // oo --> (w+1)/2 --> w/2 --> oo
+  action K(P1, M_alphas[1]);  assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
+  action N(P1, one+w,u-w,BIGINT(2),-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
   // triangle to the second with determinant -1.  Both have order 3 so
@@ -568,6 +569,7 @@ void face_relations::general_relation(const vector<action>& Mops,
   // Adjustments will be needed on applying J when one of the alphas[t] has denominator 2.
   if (!plusflag)
     {
+      Quad two(BIGINT(2));
       vector<mat22> Jmats;  // Jmats only used in checking validity of relation
       for (int s=0; s<len; s++)
         {
@@ -578,12 +580,12 @@ void face_relations::general_relation(const vector<action>& Mops,
           if (t>=0)
             {
               Jtypes[s] = alpha_flip[t];
-              a = 2*alphas[t];
+              a = two*alphas[t];
             }
           else
             {
               Jtypes[s] = -sigma_flip[-t];
-              a = 2*sigmas[-t];
+              a = two*sigmas[-t];
             }
           if (a.is_integral())
             {

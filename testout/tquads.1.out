@@ -1,4 +1,4 @@
-Enter field: Enter max. norm for primes: The field is Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 167 primes initialised, max norm = 1000
 

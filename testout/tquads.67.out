@@ -1,4 +1,4 @@
-Enter field: Enter max. norm for primes: The field is Q(sqrt(-67))	discriminant = 67	min poly(a) = a^2-a+17.
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-67))	discriminant = -67	min poly(a) = a^2-a+17.
 Non-Euclidean, class number 1
 186 primes initialised, max norm = 1000
 

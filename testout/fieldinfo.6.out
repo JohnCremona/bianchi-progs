@@ -1,4 +1,4 @@
-Q(sqrt(-6))	discriminant = 24	min poly(a) = a^2+6.
+Q(sqrt(-6))	discriminant = -24	min poly(a) = a^2+6.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 24 prime ideals initialised, max norm = 100

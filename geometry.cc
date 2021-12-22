@@ -11,12 +11,12 @@
 
 // Definitions of commonly used matrices
 
-mat22 mat22::identity(1,0,0,1);
-mat22 mat22::J(-1,0,0,1);
-mat22 mat22::S(0,-1,1,0);
-mat22 mat22::TS(1,-1,1,0);   // = T*S
-mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
-mat22 mat22::R(0,1,1,0);
+mat22 mat22::identity(BIGINT(1),BIGINT(0),BIGINT(0),BIGINT(1));
+mat22 mat22::J(-BIGINT(1),BIGINT(0),BIGINT(0),BIGINT(1));
+mat22 mat22::S(BIGINT(0),-BIGINT(1),BIGINT(1),BIGINT(0));
+mat22 mat22::TS(BIGINT(1),-BIGINT(1),BIGINT(1),BIGINT(0));   // = T*S
+mat22 mat22::TiS(-BIGINT(1),-BIGINT(1),BIGINT(1),BIGINT(0)); // = T^{-1}*S
+mat22 mat22::R(BIGINT(0),BIGINT(1),BIGINT(1),BIGINT(0));
 
 // Definitions of alphas and associated matrices M_alpha such that
 // det(M_alpha)=1 and M_alpha(alpha)=oo.
@@ -99,7 +99,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   RatQuad alpha(-d,c);
   mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
   //cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
-  assert (M.det()==1);
+  assert (M.is_unimodular());
   alphas.push_back(alpha);
   M_alphas.push_back(M);
   n_alphas++;
@@ -112,8 +112,8 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 
 void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
-  assert(div(s,r1*r2+1));
-  Quad t = -(r1*r2+1)/s;
+  assert(div(s,r1*r2+Quad::one));
+  Quad t = -(r1*r2+Quad::one)/s;
   if (r1==r2) // "-" pair, r1*r2=-1 (mod s)
     {
       edge_pairs_minus.push_back(n_alphas);
@@ -158,7 +158,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
-  if (s==0 || s==2) // don't also include -sigma
+  if (s.is_zero() || s==Quad(BIGINT(2))) // don't also include -sigma
     {
       sigma_flip.push_back(n_sigmas);     // identity
       n_sigmas+=1;
@@ -176,12 +176,12 @@ void alphas_sigmas_universal()
 {
   // sigma_0 = oo:
 
-  add_sigma_orbit(1,0); // fill in the 0'th entry in sigmas,
+  add_sigma_orbit(Quad::one,Quad::zero); // fill in the 0'th entry in sigmas,
                   // so the others will be indexed from 1
 
   // alpha_0 = 0:
 
-  add_alpha(0,-1,1,0);  // alpha[0] = 0
+  add_alpha(Quad::zero,-Quad::one,Quad::one,Quad::zero);  // alpha[0] = 0
   alpha_inv.push_back(0); // 0-0
   alpha_flip.push_back(0); // 0-0
   assert (n_alphas==1);
@@ -191,8 +191,9 @@ void alphas_sigmas_universal()
 
 void alphas_sigmas_denom_2()
 {
-  int d = Quad::d;
-  Quad w = Quad::w;
+  long d = Quad::d;
+  bigint D(d);
+  Quad w = Quad::w, two=Quad(BIGINT(2));
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
   // alpha = (w+1)/2, sigma = w/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
@@ -207,28 +208,28 @@ void alphas_sigmas_denom_2()
   case 1: // (2) = (2,w+1)^2
   case 5:
     {
-      Quad u = (d-1)/2;
-      add_alpha(w,u,2,-w);  // alpha[1] = w/2
+      Quad u = (D-1)/2;
+      add_alpha(w,u,two,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
       alpha_flip.push_back(1); // 1-1
-      add_sigma_orbit(w+1,2);
+      add_sigma_orbit(w+Quad::one,two);
       break;
     }
   case 2: // (2) = (2,w)^2
   case 6:
     {
-      Quad u = d/2 -1-w;
-      add_alpha(1+w,u,2,-1-w);  // alpha[1] = (1+w)/2
+      Quad u = D/2 -1-w;
+      add_alpha(Quad::one+w,u,two,-Quad::one-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1);   // 1-1
       alpha_flip.push_back(1);  // 1-1
-      add_sigma_orbit(w,2);
+      add_sigma_orbit(w,two);
       break;
     }
   case 3:
     {
-      Quad u = (d-3)/8;  // = 2, 5, 8, 20 for d=19,43,67,163 = 3 (mod 8) so 2 is inert
-      add_alpha(w-1,u,2,-w);  // alpha[1] = w/2
-      add_alpha(w,u,2,1-w);   // alpha[2] = (w-1)/2
+      Quad u = (D-3)/8;  // = 2, 5, 8, 20 for d=19,43,67,163 = 3 (mod 8) so 2 is inert
+      add_alpha(w-Quad::one,u,two,-w);  // alpha[1] = w/2
+      add_alpha(w,u,two,Quad::one-w);   // alpha[2] = (w-1)/2
       alpha_inv.push_back(2); // 1-2
       alpha_inv.push_back(1); // 2-1
       alpha_flip.push_back(1); // 1-1
@@ -237,8 +238,8 @@ void alphas_sigmas_denom_2()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      add_sigma_orbit(w,2);
-      add_sigma_orbit(1-w,2);
+      add_sigma_orbit(w,two);
+      add_sigma_orbit(Quad::one-w,two);
       break;
     }
   } // d%8
@@ -249,13 +250,13 @@ void alphas_sigmas_denom_2()
 void alphas_sigmas_denom_3()
 {
   int d = Quad::d;
-  Quad w = Quad::w;
+  Quad w = Quad::w, three=Quad(BIGINT(3));
 
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_orbit(3, w, w);
-      add_alpha_orbit(3, 1+w, 1-w);
+      add_alpha_orbit(three, w, w);
+      add_alpha_orbit(three, Quad::one+w, Quad::one-w);
       // no sigmas (3 inert)
       break;
     }
@@ -263,8 +264,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>19) // e.g. 43, 67, 163
         {
-          add_alpha_orbit(3, w, 1-w);
-          add_alpha_orbit(3, 1+w, 1+w);
+          add_alpha_orbit(three, w, Quad::one-w);
+          add_alpha_orbit(three, Quad::one+w, Quad::one+w);
         }
       // no sigmas (3 inert)
       break;
@@ -273,23 +274,23 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_orbit(3, w, -w);
-          add_sigma_orbit(1+w,3);
-          add_sigma_orbit(1-w,3);
+          add_alpha_orbit(three, w, -w);
+          add_sigma_orbit(Quad::one+w,three);
+          add_sigma_orbit(Quad::one-w,three);
         }
       break;
     }
   case 11:
     {
-      add_alpha_orbit(3, 1+w, -1-w);
+      add_alpha_orbit(three, Quad::one+w, -Quad::one-w);
       if (d==35)
         {
-          add_sigma_orbit(w,3);
+          add_sigma_orbit(w,three);
         }
       if (d>35)
         {
-          add_sigma_orbit(w,3);
-          add_sigma_orbit(w-1,3);
+          add_sigma_orbit(w,three);
+          add_sigma_orbit(w-Quad::one,three);
         }
       break;
     }
@@ -297,8 +298,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>15)
         {
-          add_alpha_orbit(3, w, w-1);
-          add_sigma_orbit(1+w,3);
+          add_alpha_orbit(three, w, w-Quad::one);
+          add_sigma_orbit(Quad::one+w,three);
         }
       break;
     }
@@ -306,8 +307,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>6)
         {
-          add_alpha_orbit(3, w+1, w-1);
-          add_sigma_orbit(w,3);
+          add_alpha_orbit(three, w+Quad::one, w-Quad::one);
+          add_sigma_orbit(w,three);
           break;
         }
     }
@@ -339,7 +340,7 @@ int check_cyclic_triangle(int i, int verbose)
   if (verbose)
      cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
   Quad t=M_alphas[i].trace();
-  return (t*t==1);
+  return (t*t==Quad::one);
 }
 
 int check_aas_triangle(const TRIANGLE& T, int verbose)

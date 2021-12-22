@@ -5,6 +5,11 @@
 #include <numeric>
 #include "intprocs.h"
 
+int is_nonnegative(QUINT a)
+{
+  return is_positive(a) || is_zero(a);
+}
+
 long squarefree_part(long d)
 {
   if (d==0) return d;
@@ -19,27 +24,39 @@ long squarefree_part(long d)
 // division truncates towards 0, while we need rounding, with a
 // consistent behaviour for halves (they go up here).
 //
-// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
+// For b>0, rounded_division(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
+//
+// bigint version of a similar function roundover(a,b) is in marith.h implmented as
+// {bigint a0=(a%b); bigint c = (a-a0)/b; if(2*a0>b) c+=1; return c;}
+// which is not quite the same
 
-QUINT roundover(QUINT a, QUINT b)
+long rounded_division(long a, long b)
 {
   std::ldiv_t qr = ldiv(a, b);
-  QUINT r = qr.rem, q = qr.quot;
-  QUINT r2 = r<<1;
+  long r = qr.rem, q = qr.quot;
+  long r2 = r<<1;
   return (r2<-b? q-1: (r2>=b? q+1: q));
 }
 
-// eclib only has the following for bigints
-QUINT sqrt_mod_p(QUINT a, long p) // p odd prime, a quadratic residue
+QUINT rounded_division(QUINT a, QUINT b)
 {
-  bigint rr;
-  sqrt_mod_p(rr, BIGINT(posmod(a,p)), BIGINT(p));
-  return I2long(rr);
+  QUINT q, r;
+  ::divides(a,b, q,r);
+  assert (a==b*q+r);
+  QUINT r2 = 2*r;
+  // We want -b <= r2 < +b
+  if (r2<-b)
+    return q-1;
+  else
+    if (r2>=b)
+      return q+1;
+    else
+      return q;
 }
 
 QUINT vecgcd(const vector<QUINT>& a)
 {
-  QUINT g=0;
+  QUINT g=BIGINT(0);
   for(vector<QUINT>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
     g = gcd(g, *ai);
   return g;
@@ -66,19 +83,20 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
   if (n!=3) return vecbezout(a, c);
 
   QUINT aa=a[0], bb=a[1], cc=a[2];
+  QUINT ZERO = BIGINT(0), ONE=BIGINT(1);
 #ifdef testbezout3
   cout<<"Computing vecbezout3("<<a<<")"<<endl;
 #endif
-  if ((aa==0)&&(bb==0))
+  if ((aa==ZERO)&&(bb==ZERO))
     {
-      if (cc<0)
+      if (cc<ZERO)
         {
-          c = {0,0,-1};
+          c = {ZERO,ZERO,-ONE};
           return -cc;
         }
       else
         {
-          c = {0,0,1};
+          c = {ZERO,ZERO,ONE};
           return cc;
         }
     }
@@ -101,18 +119,18 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
   QUINT lambda, mu;
 #ifdef testbezout3
   QUINT x2y2 = x*x+y*y;
-  lambda = roundover(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
-  mu = roundover((b1*x-a1*y)*z, a1*a1+b1*b1);
-  cout << "--using long ints, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
+  lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
+  mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
+  cout << " (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
 #endif
-  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
-  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
-  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
-  longify(rlambda, lambda);
-  longify(rmu, mu);
-#ifdef testbezout3
-  cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
-#endif
+  // bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
+  // bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
+  // bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
+  // longify(rlambda, lambda);
+  // longify(rmu, mu);
+  //#ifdef testbezout3
+  //  cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
+  //#endif
   c[0] -= lambda*c1*x+mu*b1;
   c[1] -= lambda*c1*y-mu*a1;
   c[2] += lambda*h1;
@@ -134,14 +152,14 @@ QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
   int n=(int)a.size();
   if (n==2) return vecbezout2(a, c);
   if (n==3) return vecbezout3(a, c);
-  QUINT x = 1, g = vecgcd(a);
+  QUINT x = BIGINT(1), g = vecgcd(a);
   vector<QUINT> a0=a;
   if (g>1)
     for(vector<QUINT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
-  c = vector<QUINT>(n, 0);
-  QUINT g1=0;
+  c = vector<QUINT>(n, BIGINT(0));
+  QUINT g1=BIGINT(0);
   for(int i=0; i<n &&g1!=1; i++)
     {
       g1=bezout(g1,a0[i],x,c[i]);
@@ -158,13 +176,13 @@ QUINT xmodvecbezout(QUINT s, const vector<QUINT>& a, vector<QUINT>& c)
 {
   int n=(int)a.size();
   int i, j;
-  QUINT x=1, ci=1, g=0;
+  QUINT x=BIGINT(1), ci=BIGINT(1), g=BIGINT(0);
   for(i=0; i<n; i++)
     {
       g = bezout(g,a[i],x,ci);
-      c[i] = xmod(ci,s);
+      c[i] = mod(ci,s);
       for(j=0; j<i; j++)
-        c[j] = xmodmul(c[j],x,s);
+        c[j] = mod(c[j]*x,s);
     }
   return g;
 }
@@ -172,7 +190,7 @@ QUINT xmodvecbezout(QUINT s, const vector<QUINT>& a, vector<QUINT>& c)
 QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c)
 //returns g = a.c
 {
-  return std::inner_product(a.begin(), a.end(), c.begin(), 0);
+  return std::inner_product(a.begin(), a.end(), c.begin(), BIGINT(0));
 }
 
 //#define testbezout
@@ -188,7 +206,7 @@ vector<QUINT> hnf22(QUINT a, QUINT b, QUINT c, QUINT d)
   QUINT bb = bezout(b,d, x,y);
   QUINT cc = abs(a*(d/bb)-(b/bb)*c);
   QUINT aa = a*x+c*y;
-  if (cc) aa = posmod(aa,cc);
+  if (!is_zero(cc)) aa = posmod(aa,cc);
   vector<QUINT> v = {aa, bb, cc};
 #ifdef testbezout
   cout<<v<<endl;
@@ -218,7 +236,7 @@ void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<
         {
           c = *aj;
           d = *bj;
-          if (a*d-b*c)
+          if (a*d != b*c)
             {
               basis = hnf22(a,b, c,d);
               t = 0;

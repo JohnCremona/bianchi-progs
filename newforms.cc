@@ -198,7 +198,7 @@ void newform::find_matrix(int j)
     cout<<"computing integration matrix..."<<flush;
   matdot=0;
   Qideal N(nf->N);
-  for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
+  for (Quadlooper dl(BIGINT(2), BIGINT(1000), 1); dl.ok()&&!matdot; ++dl)
     { d=(Quad)dl;
       Qideal D(d);
       if (N.is_coprime_to(D))
@@ -214,7 +214,7 @@ void newform::find_matrix(int j)
                 {
                   c /= -b;
                   a /= d; // now a*d-b*c=1 with c in N
-                  assert (a*d-b*c==1);
+                  assert (a*d-b*c==Quad::one);
                   matdot = abs((nf->h1->chain(b,d, 1))[j]);
                 } // b coprime to d test
             } // loop over b
@@ -391,7 +391,7 @@ int newform::is_CM(void) const
       long ap = *api++;
       Quadprime P = *pr++;
       if (ap==0) continue;
-      long dp = ap*ap-4*QUINT(P.norm());
+      long dp = ap*ap-4*I2long(P.norm());
       //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
       dp = squarefree_part(dp);
       //cout<<" with squarefree part "<<dp<<endl;
@@ -464,7 +464,7 @@ void newforms::init()
       cout<<"P0 = "<<P0<<", plist = "<<plist<<", iP0 = "<<iP0<<endl;
     }
   assert (plist[iP0]==P0);
-  nP0 = P0.norm();
+  nP0 = I2long(P0.norm());
 }
 
 //#define DEBUG_LAMBDA
@@ -481,14 +481,14 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
         if(verbose) cout<<"Newform "<<i<<": lambda=1 will do.\n";
 #endif
-        nflist[i].lambda=Quad(1);
+        nflist[i].lambda=Quad::one;
         nflist[i].lambdadot=nflist[i].pdot;
         gotlambda[i]=1;
         nfound++;
       }
     else
       {
-        nflist[i].lambda=Quad(0); // indicates no lambda exists (yet)
+        nflist[i].lambda=Quad::zero; // indicates no lambda exists (yet)
         nflist[i].lambdadot=0;
 	gotlambda[i]=0;
       }
@@ -504,7 +504,7 @@ void newforms::find_lambdas()
   for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
     {
       Quadprime L = *Li;
-      if (L.divides(2)) continue;
+      if (L.divides(BIGINT(2))) continue;
       if (L.divides(N)) continue;
       if (!L.is_principal()) continue;
       Quad lam = L.gen();
@@ -620,7 +620,7 @@ void newforms::fill_in_newform_data(int everything)
 
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
   find_jlist();
-  zero_infinity = h1->chaincd(0, 1, 0, 1); // last 1 means use projcoord
+  zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
   mvp=h1->maninvector(P0, 1);              // last 1 means use projcoord
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
@@ -1125,7 +1125,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
   cout<<"In apvec with P = "<<P<<endl;
 #endif
   vector<long> apv(n1ds);
-  long ap,normp=P.norm();
+  long ap, normp=I2long(P.norm());
 
   int vp = val(P,N);
 
@@ -1229,7 +1229,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
           while(res!=resmodp.end())
             {
               b = *res++;
-              if(b==0) continue; // handled above as special case
+              if(b.is_zero()) continue; // handled above as special case
               a = -p;
               u1=u*p; u2=v-u*b;
               ind = h1->ER.coords(h1->index(u1,u2));
@@ -1238,7 +1238,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
               cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
 #endif
               update(pcd,imagej,ind,nfhmod);
-              while(b!=0)
+              while(!b.is_zero())
                 {
                   q=a/b; c=a-b*q; u3=q*u2-u1;
                   a=-b; b=c; u1=u2; u2=u3;

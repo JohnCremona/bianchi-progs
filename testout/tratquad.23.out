@@ -1,4 +1,4 @@
-Enter field: Enter max. norm for primes: The field is Q(sqrt(-23))	discriminant = 23	min poly(a) = a^2-a+6.
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-23))	discriminant = -23	min poly(a) = a^2-a+6.
 Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 

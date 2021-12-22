@@ -7,8 +7,7 @@ vector<long> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22
 
 int main ()
 {
-  long d;
-  QUINT max=1000;
+  long d, max(1000);
   cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
  if (!check_field(d, fields))
    {

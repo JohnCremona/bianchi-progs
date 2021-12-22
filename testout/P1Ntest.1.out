@@ -1,6 +1,6 @@
 
 P1N TEST PROGRAM
-Enter field: Q(sqrt(-1))	discriminant = 4	min poly(i) = i^2+1.
+Enter field: Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 167 primes initialised, max norm = 1000
 testing split/merge of multi-indices...

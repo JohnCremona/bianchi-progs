@@ -1,4 +1,4 @@
-Q(sqrt(-10))	discriminant = 40	min poly(a) = a^2+10.
+Q(sqrt(-10))	discriminant = -40	min poly(a) = a^2+10.
 Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 25 prime ideals initialised, max norm = 100

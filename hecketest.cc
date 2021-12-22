@@ -36,8 +36,7 @@ struct factor_comparison {
 
 int main(void)
 {
-  long d;
-  QUINT max=10000;
+  long d, max(MAXPRIME);
  int np,ip,jp;
  Quad n; int mats, pols, facs, plusflag, cuspidal=1;
  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;

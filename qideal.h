@@ -56,7 +56,7 @@ public:
   Quad gen();          // smallest element, so a generator iff principal
   vector<Quad> gens(); // reduced Z-module ggens
   vector<QUINT> get_rv() const {return {ac, b*c};} // real parts of Z-module gens
-  vector<QUINT> get_iv() const {return { 0, c};}   // imag parts of Z-module gens
+  vector<QUINT> get_iv() const {return { BIGINT(0), c};}   // imag parts of Z-module gens
 
   void set_index(int ind=0); // if 0 (default) computes the correct index
   long get_index()
@@ -108,7 +108,8 @@ public:
   int is_coprime_to(const Qideal& I) const
   {
     QUINT g = gcd(ac, I.ac);
-    return (g==1? 1: gcd(g, c*I.c*(b-I.b))==1);
+    QUINT one = BIGINT(1);
+    return (g==one? 1: gcd(g, c*I.c*(b-I.b))==one);
   }
   int is_coprime_to(const Quad& alpha) const
   {
@@ -157,7 +158,7 @@ public:
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
-  int is_Galois_stable() {return (2*b+Quad::t) % a == 0;}
+  int is_Galois_stable() {return div(a, (2*b+Quad::t));}
 
   int is_equivalent(const Qideal& I)
   {
@@ -169,12 +170,12 @@ public:
   }
   int contains(const QUINT& n) const
   {
-    return n%(ac)==0;
+    return div(ac, n);
   }
   int contains(const Quad& alpha) const;
   int contains(const Qideal& I) const
   {
-    return ((I.c)%c==0) && ((I.ac)%ac==0) && contains(I.zgen(1));
+    return div(c,I.c) && div(ac,I.ac) && contains(I.zgen(1));
   };
   vector<QUINT> zcoeffs(const Quad& alpha) const // for alpha in this, return Z-coeffs {x,y} w.r.t.Z-gens.
   {
@@ -193,8 +194,8 @@ public:
   Qideal conj() const;            // returns the conjugate ideal
 
   Quad reduce(const Quad& alpha); // reduction of alpha modulo this ideal (not const; may fill())
-  Quad resnum(int i); // the i'the residue mod this, in standard order (0'th is 0)
-  int numres(const Quad& alpha) const; // the index of a residue mod this, in standard order (0'th is 0)
+  Quad resnum(long i); // the i'the residue mod this, in standard order (0'th is 0)
+  long numres(const Quad& alpha) const; // the index of a residue mod this, in standard order (0'th is 0)
   // return a list of (reduced) residues modulo this ideal:
   vector<Quad> residues();
   // return a list of (reduced) invertible residues modulo this ideal, and a list of their inverses

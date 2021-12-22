@@ -9,7 +9,7 @@ vector<long> homspace::eigrange(long i)
   vector<long> ans;
   if((i<0)||(i>=nap)) return ans;  // shouldn't happen
   Quadprime P = primelist[i];
-  QUINT normp = (long)P.norm();
+  long normp = I2long(P.norm());
   if (verbose)
     cout << "eigrange for P = " << P << ":\t";
   if(P.divides(N))
@@ -333,11 +333,11 @@ vec homspace::maninvector(Quadprime& P, int proj)
   assert (t && "P should be principal in maninvector()");
   vector<Quad> resmodp=P.residues();
   Quad p = P.gen();
-  vec ans = chain(0,p, proj), part;             // =0, but sets the right length.
+  vec ans = chain(Quad::zero,p, proj), part;             // =0, but sets the right length.
   vector<Quad>::const_iterator res=resmodp.begin();
   while(res!=resmodp.end())
     {
-      if (*res==0) ++res;
+      if (res->is_zero()) ++res;
       part = chain(*res++,p, proj);
       if(hmod)
         ans.addmodp(part,hmod);
@@ -350,7 +350,7 @@ vec homspace::maninvector(Quadprime& P, int proj)
 
 vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj)
 {
-  vec ans = chain(0,lambda, proj), part;          // =0, but sets the right length.
+  vec ans = chain(Quad::zero,lambda, proj), part;          // =0, but sets the right length.
   vector<int>::const_iterator chi=chitable.begin();
   vector<Quad>::const_iterator r=res.begin();
   while(r!=res.end())
@@ -364,25 +364,3 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
   if(hmod) ans=reduce_modp(ans,hmod);
  return ans;
 }
-
-#if (0) // methods not used
-
-vec homspace::newhecke(const Quad& p, const Quad& n, const Quad& d)
-                                     // Will only work after "proj"
-{
-  vec ans = chain(p*n,d, 1), part;
-  vector<Quad> resmodp=residues(p);  Quad dp = d*p;
-  vector<Quad>::const_iterator res=resmodp.begin();
-  while(res!=resmodp.end())
-    {
-      part = chain(n+d*(*res++),dp, 1);
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
-    }
-  if(hmod) ans=reduce_modp(ans,hmod);
-  return ans;
-}
-
-#endif

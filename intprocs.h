@@ -3,17 +3,18 @@
 #if     !defined(_INTPROCS_H)
 #define _INTPROCS_H      1       //flags that this file has been included
 
-#include <eclib/arith.h>
+#include <eclib/interface.h>
+#include <eclib/marith.h>
 
-typedef long QUINT; // integer type for components of a Quad
+typedef bigint QUINT; // integer type for components of a Quad
 
+int is_nonnegative(QUINT a);
 long squarefree_part(long d);
 
-// For b>0, roundover(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
-QUINT roundover(QUINT aa, QUINT bb);
-
-// eclib only has the following for bigints
-QUINT sqrt_mod_p(QUINT a, long p); // p odd prime, a quadratic residue
+// For b>0, rounded_division(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
+//
+QUINT rounded_division(QUINT aa, QUINT bb);
+long rounded_division(long aa, long bb);
 
 //functions needed for non-euclidean fields to compute bezout/quadgcd
 

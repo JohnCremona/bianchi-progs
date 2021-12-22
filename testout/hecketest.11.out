@@ -1,4 +1,4 @@
-Q(sqrt(-11))	discriminant = 11	min poly(a) = a^2-a+3.
+Q(sqrt(-11))	discriminant = -11	min poly(a) = a^2-a+3.
 Euclidean
 1237 primes initialised, max norm = 10000
 >>>> Level 99.1 = (3+5a), norm = 99 <<<<

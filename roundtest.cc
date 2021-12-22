@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <eclib/arith.h>
-#include "quads.h"
+#include "intprocs.h"
 
 int main ()
 {
@@ -11,7 +11,7 @@ int main ()
       for(a=-10; a<=10; a++)
         {
           cout << "("<<a<<","<<b<<"):\t";
-          q = roundover(a,b);
+          q = rounded_division(a,b);
           r = a-b*q;
           cout<<"--> (q,r) = ("<<q<<","<<r<<")\n";
         }

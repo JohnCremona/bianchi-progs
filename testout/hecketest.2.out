@@ -1,4 +1,4 @@
-Q(sqrt(-2))	discriminant = 8	min poly(t) = t^2+2.
+Q(sqrt(-2))	discriminant = -8	min poly(t) = t^2+2.
 Euclidean
 1225 primes initialised, max norm = 10000
 >>>> Level 144.2 = (12), norm = 144 <<<<

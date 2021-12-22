@@ -1,4 +1,4 @@
-Q(sqrt(-14))	discriminant = 56	min poly(a) = a^2+14.
+Q(sqrt(-14))	discriminant = -56	min poly(a) = a^2+14.
 Class number 4
 Ideal class group representatives: [ [1,a] [2,a] [3,1+a] [3,2+a] ]
 22 prime ideals initialised, max norm = 100

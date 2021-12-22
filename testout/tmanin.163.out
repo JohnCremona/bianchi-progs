@@ -1,4 +1,4 @@
-Q(sqrt(-163))	discriminant = 163	min poly(a) = a^2-a+41.
+Q(sqrt(-163))	discriminant = -163	min poly(a) = a^2-a+41.
 Non-Euclidean, class number 1
 18106 primes initialised, max norm = 200000
 >>>> Level 121.1 = (11), norm = 121 <<<<

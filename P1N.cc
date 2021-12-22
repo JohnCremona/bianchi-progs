@@ -42,11 +42,11 @@ P1N::P1N(const Qideal& I)
 {
   Factorization F = N.factorization(); //  factorization is cached in N
   np = F.size();
-  nrm = N.norm();
+  nrm = I2long(N.norm());
   phi = psi = 1;
   for (int i=0; i<np; i++)
     {
-      QUINT normp = F.prime(i).norm();
+      long normp = I2long(F.prime(i).norm());
       long e = F.exponent(i);
       phi *= (normp-1);
       psi *= (normp+1);
@@ -103,8 +103,8 @@ void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
 {
   if (np==0) // at level (1), the only symbol is (0:1), lifting to the identity matrix
     {
-      c = 0;
-      d = 1;
+      c = Quad::zero;
+      d = Quad::one;
       return;
     }
   if (np==1)
@@ -114,11 +114,11 @@ void P1N::make_symb(long i, Quad& c, Quad& d) // the i'th (c:d) symbol
       if (i<nrm)
         {
           c = N.resnum(i);
-          d = 1;
+          d = Quad::one;
         }
       else
         {
-          c = 1;
+          c = Quad::one;
           d = N.resnum(noninvertible_residue_indices[i-nrm]);
         }
       return;
@@ -148,14 +148,14 @@ void P1N::reduce(Quad& c, Quad& d)   // simplify c,d without changing (c:d)
   if (N.is_coprime_to(d,u)) // scale to (c:1)
     {
       c = N.reduce(c*u);
-      d = 1;
+      d = Quad::one;
       // cout<<"  -- returning ("<<c<<":"<<d<<")"<<endl;
       return;
     }
   if (N.is_coprime_to(c,u)) // scale to (1:d)
     {
       d = N.reduce(d*u);
-      c = 1;
+      c = Quad::one;
       // cout<<"  -- returning ("<<c<<":"<<d<<")"<<endl;
       return;
     }
@@ -235,8 +235,9 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
   cout<<"Lifting symbol (c:d)=("<<c<<":"<<d<<") mod "<<N<<" to SL2"<<endl;
 #endif
   // Special cases (1): (c:1), (1:d) need no work:
-  if (d==1) return mat22(1,0,c,1);
-  if (c==1) return mat22(0,-1,1,d);
+  Quad one=Quad::one, zero=Quad::zero;
+  if (d==one) return mat22(one,zero,c,one);
+  if (c==one) return mat22(zero,-one,one,d);
 
 #ifdef DEBUG_LIFT
   cout<<"Neither c nor d is invertible modulo "<<N<<": testing whether ideal (c,d) is principal"<<endl;
@@ -244,13 +245,13 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
   // General case: neither c nor d is invertible.
 
   int ok=0;
-  for (int i=1; i<N.norm() && !ok; i++)
+  for (long i=1; i<N.norm() && !ok; i++)
     {
       Quad t = N.resnum(i);
       if (!N.is_coprime_to(t)) continue;
       Quad ct=N.reduce(c*t), dt=N.reduce(d*t);
       h = quadbezout(ct,dt, x, y);
-      ok = (h!=0);
+      ok = (!h.is_zero());
       if (ok) // then is principal with ct*x+dt*y=h
         {
 #ifdef DEBUG_LIFT
@@ -268,7 +269,7 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 #ifdef DEBUG_LIFT
       cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
-      assert (a*d-b*c==1);
+      assert (a*d-b*c==Quad::one);
       mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
       cout<<" returning  "<< M <<endl;
@@ -278,7 +279,7 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 
   // Test if (c,d)=(h), principal:
   h = quadbezout(c,d, x, y);
-  if (h!=0) // then is principal with c*x+d*y=h, and h=1 since reduced
+  if (!h.is_zero()) // then is principal with c*x+d*y=h, and h=1 since reduced
     {
 #ifdef DEBUG_LIFT
       cout<<"ideal (c,d)=("<<h<<"), success"<<endl;
@@ -308,14 +309,14 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 #endif
       z *= y;  // now z=0 (mod y), z=1 (mod N)
       a = y;
-      b =  1 - (x+1)*z;  // = 1 (mod y), -x (mod N)
-      c = -1 + (c+1)*z;  // =-1 (mod y),  c (mod N)
-      d = (1+b*c)/a;     // 1+b*c = 0 (mod y), 1-c*x = d*y = a*d (mod N)
+      b =  one - (x+one)*z;  // = 1 (mod y), -x (mod N)
+      c = -one + (c+one)*z;  // =-1 (mod y),  c (mod N)
+      d = (one+b*c)/a;     // 1+b*c = 0 (mod y), 1-c*x = d*y = a*d (mod N)
     }
 #ifdef DEBUG_LIFT
   cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
 #endif
-  assert (a*d-b*c==1);
+  assert (a*d-b*c==one);
   mat22 M(a,b,c,d);
 #ifdef DEBUG_LIFT
   cout<<" returning  "<< M <<endl;
@@ -329,7 +330,7 @@ mat22 P1N::lift_to_SL2(long ind)
   Quad c, d;
   make_symb(ind, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
   mat22 M = ::lift_to_SL2(N, c, d);
-  assert (M.det()==1);
+  assert (M.is_unimodular());
   assert (index(M.entry(1,0), M.entry(1,1))==ind);
   return M;
 }
