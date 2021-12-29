@@ -148,8 +148,8 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
-  if (alpha.nm==0)
-    *this = Qideal(0);
+  if (::is_zero(alpha.nm))
+    *this = Qideal(BIGINT(0));
   else
     {
       vector<Quad> gens(1,alpha);
@@ -809,7 +809,7 @@ istream& operator>>(istream& s, Qideal& y)
   s >> st;
   if (st.find(".")==string::npos) // string contains no "."
     {
-      QUINT r = BIGINT(st.c_str()), i;
+      QUINT r(BIGINT(st.c_str())), i;
       s >> i;
       Quad alpha(r,i);
       y = Qideal(alpha);
