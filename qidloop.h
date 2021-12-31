@@ -23,7 +23,7 @@
 class Qidealooper {
 
 public:
-  Qidealooper(QUINT nmin, QUINT nmax,
+  Qidealooper(long nmin, long nmax,
               int both_conjugates=0,   // default only 1 conj
               int sorted=0);           // default unsorted within each norm
   Qideal next();

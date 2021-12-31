@@ -161,7 +161,7 @@ int main ()
    }
  else
    {
-     QUINT minn(1), maxn(10);
+     long minn(1), maxn(10);
      int s;
      mat22 M;
      for(Quadlooper alpha(minn,maxn,1); alpha.ok(); ++alpha)

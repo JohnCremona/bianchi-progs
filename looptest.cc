@@ -6,7 +6,7 @@ int main(void)
   int conj;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d,max);
-  QUINT firstn, lastn; Quad n;
+  long firstn, lastn; Quad n;
 
   cout << "Include conjugates? " << flush;  cin >> conj;
   cout<<"Enter first and last norm for Quad loop: ";

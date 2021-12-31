@@ -1,0 +1,80 @@
+Q(sqrt(-47))	discriminant = -47	min poly(a) = a^2-a+12.
+Class number 5
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] ]
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+Cuspidal dimension = 1
+Computing W_P2a...done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 1
+
+Involution!
+Computing W_P3a...done. Factors are:
+1:	[1 1]	(degree 1)	 to power 1
+
+Involution!
+
+Computing T_P2b...done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 1
+
+Computing T_P3b...done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+
+Computing T_P7a...done. Factors are:
+1:	[0 1]	(degree 1)	 to power 1
+
+Computing T_P7b...done. Factors are:
+1:	[-2 1]	(degree 1)	 to power 1
+
+Computing T_P17a...done. Factors are:
+1:	[0 1]	(degree 1)	 to power 1
+
+>>>> Level 96.4 = (-8+2a), norm = 96 <<<<
+Cuspidal dimension = 15
+ denominator = 2
+Computing W_P2a...done. Factors are:
+1:	[1 1]	(degree 1)	 to power 7
+2:	[-1 1]	(degree 1)	 to power 8
+
+Involution!
+Computing W_P2b...done. Factors are:
+1:	[1 1]	(degree 1)	 to power 3
+2:	[-1 1]	(degree 1)	 to power 12
+
+Involution!
+Computing W_P3b...done. Factors are:
+1:	[-1 1]	(degree 1)	 to power 2
+2:	[1 1]	(degree 1)	 to power 13
+
+Involution!
+
+Computing T_P3a...done. Factors are:
+1:	[0 1]	(degree 1)	 to power 3
+2:	[-2 1]	(degree 1)	 to power 6
+3:	[2 1]	(degree 1)	 to power 6
+
+Computing T_P7a...done. Factors are:
+1:	[-4 1]	(degree 1)	 to power 1
+2:	[0 1]	(degree 1)	 to power 1
+3:	[4 1]	(degree 1)	 to power 1
+4:	[-2 1]	(degree 1)	 to power 12
+
+Computing T_P7b...done. Factors are:
+1:	[-4 1]	(degree 1)	 to power 1
+2:	[-2 1]	(degree 1)	 to power 1
+3:	[2 1]	(degree 1)	 to power 3
+4:	[0 1]	(degree 1)	 to power 5
+5:	[4 1]	(degree 1)	 to power 5
+
+Computing T_P17a...done. Factors are:
+1:	[0 1]	(degree 1)	 to power 1
+2:	[2 1]	(degree 1)	 to power 1
+3:	[-4 1]	(degree 1)	 to power 3
+4:	[-6 1]	(degree 1)	 to power 5
+5:	[6 1]	(degree 1)	 to power 5
+
+Computing T_P17b...done. Factors are:
+1:	[-8 1]	(degree 1)	 to power 1
+2:	[6 1]	(degree 1)	 to power 1
+3:	[-4 1]	(degree 1)	 to power 2
+4:	[-2 1]	(degree 1)	 to power 2
+5:	[0 1]	(degree 1)	 to power 9
+

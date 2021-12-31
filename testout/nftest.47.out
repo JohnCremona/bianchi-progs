@@ -1,0 +1,54 @@
+
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+
+1 newform(s) at level 6.1 = (a,-6):
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 1 1 2 0 2 0 -6 4 -6 8 4 -2 -12 -4 -14 4 6 12 8 0 -12 -4 -4 14 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 110
+L/P ratio    = 5/2, cuspidal factor = 11
+Integration matrix = [-5-2a,5;-6+a,1-a], factor   = 11
+
+>>>> Level 6.4 = (-1+a,-6), norm = 6 <<<<
+
+1 newform(s) at level 6.4 = (-1+a,-6):
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 1 -1 2 1 2 0 -6 0 4 8 -6 4 -12 -2 -14 -4 6 4 8 12 -12 0 -4 -4 -8 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 110
+L/P ratio    = 5/2, cuspidal factor = 11
+Integration matrix = [-7+2a,5;-5-a,a], factor   = 11
+
+>>>> Level 12.3 = (6,2a), norm = 12 <<<<
+
+1 newform(s) at level 12.3 = (6,2a):
+1:	basis = [];	aqlist = [ 1 1 -1 ];	aplist = [ -1 -1 1 -2 -4 2 0 6 -4 2 -4 12 6 0 12 6 8 -10 0 12 8 -4 12 -12 -6 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 120
+L/P ratio    = 2, cuspidal factor = 3
+Integration matrix = [5+2a,a;12-2a,5], factor   = 3
+
+>>>> Level 12.4 = (6,-2+2a), norm = 12 <<<<
+
+1 newform(s) at level 12.4 = (6,-2+2a):
+1:	basis = [];	aqlist = [ 1 1 -1 ];	aplist = [ -1 -1 -2 1 2 -4 6 0 -4 -4 2 12 0 6 6 12 -10 8 12 0 -4 8 -12 12 0 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 120
+L/P ratio    = 2, cuspidal factor = 3
+Integration matrix = [-19,2a;-4+4a,5], factor   = 12
+
+>>>> Level 17.1 = (-3+2a,-7-a), norm = 17 <<<<
+
+1 newform(s) at level 17.1 = (-3+2a,-7-a):
+1:	basis = [];	aqlist = [ 1 ];	aplist = [ -1 0 2 -1 3 -2 -1 -5 4 -3 -4 -7 6 -13 -6 -14 5 0 12 6 8 1 7 -15 -15 ]
+Sign of F.E. = -1
+Twisting prime lambda = 1, factor = 132
+L/P ratio    = 3, cuspidal factor = 11
+Integration matrix = [9-2a,-2+a;-7-a,3], factor   = 11
+
+>>>> Level 17.2 = (1+2a,-8+a), norm = 17 <<<<
+
+1 newform(s) at level 17.2 = (1+2a,-8+a):
+1:	basis = [];	aqlist = [ 1 ];	aplist = [ 0 -1 -1 2 -2 3 -5 -1 4 -4 -3 -7 -13 6 -14 -6 0 5 6 12 1 8 -15 7 7 ]
+Sign of F.E. = -1
+Twisting prime lambda = 1, factor = 132
+L/P ratio    = 3, cuspidal factor = 11
+Integration matrix = [-1+3a,-2+a;8-a,3], factor   = 11

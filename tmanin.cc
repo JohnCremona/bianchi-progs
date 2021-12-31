@@ -3,7 +3,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<long> fields = {1,2,3,7,11,19,43,67,163,23,31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163,23,31,47};
 
 int main ()
 {
@@ -30,7 +30,7 @@ int main ()
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
 #ifdef LOOPER
- QUINT firstn, lastn;
+ long firstn, lastn;
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for Quads: ";

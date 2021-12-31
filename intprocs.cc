@@ -46,17 +46,16 @@ QUINT rounded_division(QUINT a, QUINT b)
   QUINT r2 = 2*r;
   // We want -b <= r2 < +b
   if (r2<-b)
-    return q-1;
+    q-=1;
   else
     if (r2>=b)
-      return q+1;
-    else
-      return q;
+      q+=1;
+  return q;
 }
 
 QUINT vecgcd(const vector<QUINT>& a)
 {
-  QUINT g=BIGINT(0);
+  QUINT g(0);
   for(vector<QUINT>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
     g = gcd(g, *ai);
   return g;
@@ -83,13 +82,13 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
   if (n!=3) return vecbezout(a, c);
 
   QUINT aa=a[0], bb=a[1], cc=a[2];
-  QUINT ZERO = BIGINT(0), ONE=BIGINT(1);
+  QUINT ZERO(0), ONE(1);
 #ifdef testbezout3
   cout<<"Computing vecbezout3("<<a<<")"<<endl;
 #endif
-  if ((aa==ZERO)&&(bb==ZERO))
+  if ((is_zero(aa))&&(is_zero(bb)))
     {
-      if (cc<ZERO)
+      if (is_negative(cc))
         {
           c = {ZERO,ZERO,-ONE};
           return -cc;
@@ -152,14 +151,14 @@ QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
   int n=(int)a.size();
   if (n==2) return vecbezout2(a, c);
   if (n==3) return vecbezout3(a, c);
-  QUINT x = BIGINT(1), g = vecgcd(a);
+  QUINT x(1), g = vecgcd(a);
   vector<QUINT> a0=a;
   if (g>1)
     for(vector<QUINT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
   c = vector<QUINT>(n, BIGINT(0));
-  QUINT g1=BIGINT(0);
+  QUINT g1(0);
   for(int i=0; i<n &&g1!=1; i++)
     {
       g1=bezout(g1,a0[i],x,c[i]);
@@ -176,7 +175,7 @@ QUINT xmodvecbezout(QUINT s, const vector<QUINT>& a, vector<QUINT>& c)
 {
   int n=(int)a.size();
   int i, j;
-  QUINT x=BIGINT(1), ci=BIGINT(1), g=BIGINT(0);
+  QUINT x(1), ci(1), g(0);
   for(i=0; i<n; i++)
     {
       g = bezout(g,a[i],x,ci);

@@ -135,9 +135,14 @@ edge_relations::edge_relations(P1N* s, int plus, int verb)
           if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
     }
+  if(verbose)
+    cout<<"Singular edge relations...";
   sigma_relations();
-  if (verbose)
-    report();
+  if(verbose)
+    {
+      cout<<" ngens now "<< ngens<<endl;
+      report();
+    }
   //  assert(check());
 }
 
@@ -451,12 +456,12 @@ void edge_relations::edge_relations_2_d12mod4()
 
 void edge_relations::edge_relations_2_d7mod8()
 {
-  Quad zero=Quad::zero, one=Quad::one;
+  Quad zero=Quad::zero, one=Quad::one, two(2);
   // sigma_1 = w/2,  sigma_2 = (1-w)/2
 
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
-      Quad x = (BIGINT(2)*sigmas[t]).num();
+      Quad x = (two*sigmas[t]).num();
       action L(P1, -one, x, zero,one); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
@@ -660,7 +665,7 @@ void edge_relations::edge_pairing_double(int i)
 void edge_relations::sigma_relations()          // for sigma with 2*sigma not integral
 {
   action J(P1, mat22::J);
-  int i, j, k, l, off, off1, off2;
+  int i, j, k, l, off1, off2;
   for (i=0; i<n_sigmas; i++)
     {
       j = sigma_flip[i];
@@ -668,28 +673,20 @@ void edge_relations::sigma_relations()          // for sigma with 2*sigma not in
       // if i>j we already dealt with this pair
       if (j<=i) continue;
       // otherwise the symbols of types -i, -j are identified in pairs when plusflag is true
-      if (!plusflag) // no relations, just register the gens
+      off1 = offset(-i);
+      off2 = offset(-j);
+      for (k=0; k<nsymb; k++)
         {
-          off = offset(-i);
-          for (k=0; k<nsymb; k++)
+          ++ngens;
+          gens.push_back(off1+k);
+          coordindex[off1+k] = ngens;
+          l = J(k);
+          if (!plusflag)
             {
               ++ngens;
-              gens.push_back(off+k);
-              coordindex[off+k] = ngens;
+              gens.push_back(off2+l);
             }
-        }
-      else
-        {
-          off1 = offset(-i);
-          off2 = offset(-j);
-          for (k=0; k<nsymb; k++)
-            {
-              l = J(k);
-              ++ngens;
-              gens.push_back(off1+k);
-              coordindex[off1+k] = ngens;
-              coordindex[off2+l] = ngens;
-            }
+          coordindex[off2+l] = ngens;
         }
     }
 }

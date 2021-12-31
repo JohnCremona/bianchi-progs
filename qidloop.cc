@@ -2,7 +2,7 @@
 
 #include "qidloop.h"
 
-Qidealooper::Qidealooper(QUINT nmin, QUINT nmax, int both_conjugates, int sorted)
+Qidealooper::Qidealooper(long nmin, long nmax, int both_conjugates, int sorted)
   : n(nmin), maxn(nmax), both(both_conjugates), sort(sorted)
 {
   vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n, both): ideals_with_norm(n, both));
@@ -37,11 +37,10 @@ vector<Qideal> Quad::class_group;
 
 void Quad::fill_class_group()
 {
-  QUINT MB; // Minkowski bound
-  Iasb(MB, 2*sqrt(I2bigfloat(absdisc))/PI);
+  long MB = floor(2*sqrt(I2long(absdisc))/PI); // Minkowski bound
   class_group.push_back(Qideal());
   if(class_number==1) return;
-  Qidealooper loop(BIGINT(1), MB, 1, 1);
+  Qidealooper loop(1, MB, 1, 1);
   while( loop.not_finished() )
     {
       Qideal I = loop.next();

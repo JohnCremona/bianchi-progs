@@ -48,15 +48,15 @@ int main(void)
   multi_index_test({2,4,2});
   multi_index_test({1,5,6});
   int both=1, sorted=1;
-  QUINT one(1), maxn(100);
+  long maxn(100);
   cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
-  Qidealooper loop(one, maxn, both, sorted);
+  Qidealooper loop(1, maxn, both, sorted);
   while( loop.not_finished() )
     {
       symb_index_test(loop.next(), 0);
     }
   cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
-  Quadlooper alpha(one, maxn, both);
+  Quadlooper alpha(1, maxn, both);
   while( alpha.ok() )
     {
       symb_index_test(Qideal(alpha), 0);

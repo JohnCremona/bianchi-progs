@@ -57,7 +57,7 @@ void residuetest(Qideal& I)
   if (I.norm()==1) return;
 
   Factorization F = I.factorization();
-  QUINT phi=BIGINT(1);
+  QUINT phi(1);
   for (int i=0; i<F.size(); i++)
     {
       QUINT np = F.prime(i).norm();
@@ -92,23 +92,23 @@ void ABmatrixtest(Qideal& I)
 
 void looptest()
 {
-  bigint one(1), bound(50);
+  long bound = 50;
   cout << "\nIdeals of norm up to "<<bound<<" (sorted, both conjugates):" << endl;
-  Qidealooper loop_both(one, bound, 1, 1);
+  Qidealooper loop_both(1, bound, 1, 1);
   while( loop_both.not_finished() )
     {
       Qideal I = loop_both.next();
       cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
     }
   cout << "\nIdeals of norm up to "<<bound<<" (sorted, only one of each conjugate pair):" << endl;
-  Qidealooper loop_one(one, bound, 0, 1);
+  Qidealooper loop_one(1, bound, 0, 1);
   while( loop_one.not_finished() )
     {
       Qideal I = loop_one.next();
       cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
     }
 
-  QUINT firstn, lastn;
+  long firstn, lastn;
   cout<<"\nEnter first and last norm for Qideal loop: ";
   cin >> firstn >> lastn;
   if (is_zero(lastn)) exit(0);
@@ -128,7 +128,7 @@ void looptest()
 
 void labeltest()
 {
-  QUINT firstn(1), lastn(100);
+  long firstn(1), lastn(100);
   cout<<"testing labels and label parsing for all ideal of norm from "<<firstn<<" to "<<lastn<<endl;
   int both=1, sorted=1;
   Qidealooper loop(firstn, lastn, both, sorted);

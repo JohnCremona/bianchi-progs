@@ -198,7 +198,7 @@ void newform::find_matrix(int j)
     cout<<"computing integration matrix..."<<flush;
   matdot=0;
   Qideal N(nf->N);
-  for (Quadlooper dl(BIGINT(2), BIGINT(1000), 1); dl.ok()&&!matdot; ++dl)
+  for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
     { d=(Quad)dl;
       Qideal D(d);
       if (N.is_coprime_to(D))
@@ -504,7 +504,7 @@ void newforms::find_lambdas()
   for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
     {
       Quadprime L = *Li;
-      if (L.divides(BIGINT(2))) continue;
+      if (L.divides(2)) continue;
       if (L.divides(N)) continue;
       if (!L.is_principal()) continue;
       Quad lam = L.gen();

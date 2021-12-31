@@ -19,7 +19,7 @@ int main ()
  cerr << "Verbose? "; cin>>verbose;
  cerr << "Plus space? "; cin>>plusflag;
 #ifdef LOOPER
- QUINT firstn, lastn;
+ long firstn, lastn;
  int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for level: ";

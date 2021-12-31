@@ -2,7 +2,7 @@
 #include "homspace.h"
 
 // List of fields for which this has been implemented so far:
-vector<long> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163, 5, 6, 10, 13, 14, 15, 17, 21, 22, 23, 31, 47};
 
 int main ()
 {
@@ -15,7 +15,7 @@ int main ()
     }
  cout << "Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-"<<d<<"))" << endl;
  Quad::field(d,max);
- QUINT firstn, lastn; Quad n;
+ long firstn, lastn; Quad n;
  int both_conj, plusflag, verbose=0;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Plus space only? (0/1) "; cin >> plusflag;
@@ -42,6 +42,7 @@ int main ()
          homspace hall(N,0,0, verbose);  //level, plusflag, cuspidal, verbose
          int dimall = hall.h1cuspdim();
          int dimminus = dimall-dimplus;
+         assert (dimminus>=0);
          cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;
        }
      else

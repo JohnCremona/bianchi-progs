@@ -19,7 +19,7 @@ class symb {
    Quad c,d;
    const moddata *N;
  public:
-  symb() :c(0), d(0), N(0)   {;}
+  symb() :c((long)0), d((long)0), N((long)0)   {;}
    symb(const Quad& cc, const Quad& dd, const moddata * iN) :c(cc), d(dd), N(iN)  {;}
    Quad cee() const        {return c;}
    Quad dee() const        {return d;}

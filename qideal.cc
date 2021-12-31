@@ -149,7 +149,7 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
   if (::is_zero(alpha.nm))
-    *this = Qideal(BIGINT(0));
+    *this = Qideal(QUINT(0));
   else
     {
       vector<Quad> gens(1,alpha);
@@ -272,7 +272,7 @@ Qideal Qideal::operator*(const QUINT& d) const
 {
   if (d==0)
     {
-      return Qideal(0);
+      return Qideal(Quad());
     }
   Qideal ans = Qideal(a,b,c*d);
   if (iclass!=-1)
@@ -305,7 +305,7 @@ void Qideal::operator*=(const QUINT& d)
 {
   if (d==0)
     {
-      *this=Qideal(0);
+      *this=Qideal(Quad());
       return;
     }
   QUINT dd = abs(d);
@@ -809,8 +809,9 @@ istream& operator>>(istream& s, Qideal& y)
   s >> st;
   if (st.find(".")==string::npos) // string contains no "."
     {
-      QUINT r(BIGINT(st.c_str())), i;
-      s >> i;
+      long r = stoi(st);
+      s >> st;
+      long i = stoi(st);
       Quad alpha(r,i);
       y = Qideal(alpha);
     }
@@ -894,7 +895,7 @@ vector<Qideal> ideals_with_norm(QUINT N, int both_conj)
 vector<Qideal> ideals_with_bounded_norm(QUINT maxnorm, int both_conj)
 {
   vector<Qideal> ans;
-  for (QUINT N=BIGINT(1); N<=maxnorm; N++)
+  for (QUINT N(1); N<=maxnorm; N++)
     {
       vector<Qideal> IN = ideals_with_norm(N, both_conj);
       ans.insert(ans.end(), IN.begin(), IN.end());
@@ -974,7 +975,7 @@ Qideal::Qideal(const string& s)           // ideal from label N.i
   QUINT N;
   stringstream(Nstr)>>N;
   if (N==0)
-    *this = Qideal(0);
+    *this = Qideal(Quad());
   else
     {
       long i;

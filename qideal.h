@@ -108,7 +108,7 @@ public:
   int is_coprime_to(const Qideal& I) const
   {
     QUINT g = gcd(ac, I.ac);
-    QUINT one = BIGINT(1);
+    QUINT one(1);
     return (g==one? 1: gcd(g, c*I.c*(b-I.b))==one);
   }
   int is_coprime_to(const Quad& alpha) const

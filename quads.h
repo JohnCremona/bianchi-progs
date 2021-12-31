@@ -87,23 +87,27 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
     nm = r*r + n*i*i;
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
   }
-  Quad(QUINT x=BIGINT(0), QUINT y=BIGINT(0), QUINT nrm=-BIGINT(1)) :r(x),i(y), nm(nrm)
+  Quad() :r((long)0), i((long)0), nm((long)0)  {}
+  Quad(QUINT x) :r(x), i((long)0), nm(x*x)  {}
+  Quad(long x) :r(x), i((long)0), nm(x*x)  {}
+  Quad(QUINT x, QUINT y) :r(x),i(y), nm(x*x + n*y*y)
   {
-    if (is_negative(nm)) //setnorm();
-      {
-        nm = r*r + n*i*i;
-        if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
-      }
+    if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
   }
+  Quad(long x, long y) :r(x),i(y), nm(x*x + n*y*y)
+  {
+    if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
+  }
+  Quad(QUINT x, QUINT y, QUINT nrm) :r(x), i(y), nm(nrm)  {}
   explicit Quad(const bigcomplex& z);   //rounds to nearest
-  Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {;}
+  Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {}
   Quad conj() const {return quadconj(*this);}
   QUINT re() const {return r;}
   QUINT im() const {return i;}
   QUINT norm() const {return nm;}
   QUINT content() const {return gcd(r,i);}
   Quad pos_assoc() const {return makepos(*this);}
-  int is_zero() const {return nm==0;}
+  int is_zero() const {return ::is_zero(nm);}
 
 //operators and related functions (friends are inlined below):
 

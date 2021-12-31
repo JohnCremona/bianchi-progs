@@ -70,20 +70,22 @@ TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin mor
 tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
-DISCSX=5 23 31
+DISCSX=5 23 31 47
 DISCS=$(DISCS9) $(DISCSX)
-FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
-FIELDS_full=
+FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47
+#FIELDS_full=47
 FIELDS_hom=5 6 10 13 14 15 17 21 22
-FIELDS_hom=
-FIELDSX=47
+#FIELDS_hom=
+FIELDSX=
 #FIELDSX=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 #FIELDS=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
+#FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
-HOM_TESTS = homtest dimtable dimtabeis
+#HOM_TESTS = homtest dimtable dimtabeis
+HOM_TESTS = homtest dimtabeis
 FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 

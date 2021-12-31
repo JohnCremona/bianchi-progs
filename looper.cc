@@ -2,9 +2,9 @@
 
 QUINT floorsqrt(QUINT asq)
 {
-  if(asq<0) return BIGINT(0);
-  QUINT r;
-  Iasb(r, sqrt(I2bigfloat(asq)+0.1));
+  QUINT r(0);
+  if(asq>0)
+    Iasb(r, sqrt(I2bigfloat(asq)+0.1));
   return r;
 }
 

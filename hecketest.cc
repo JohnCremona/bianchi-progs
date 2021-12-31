@@ -8,7 +8,7 @@
 //#define LOOPER
 
 // List of fields for which this has been implemented so far:
-vector<long> fields = {1,2,3,7,11,19,43,67,163, 23, 31};
+vector<long> fields = {1,2,3,7,11,19,43,67,163, 23, 31, 47};
 
 #define MAXPRIME 10000
 
@@ -95,7 +95,7 @@ int main(void)
   vector<Quadprime>::const_iterator pr;
   int nq = badprimes.size();
   vector<bigint> charpol;
-  bigint MMODULUS = to_ZZ(MODULUS);
+  bigint MMODULUS(MODULUS);
   if (dim>0)
     {
       mat_m id = (den*den)*idmat(int(dim));
@@ -107,7 +107,7 @@ int main(void)
           cout << "Computing W_"<<Q<<"..." << flush;
           wq =  h.wop(Q,0,mats);
 	  cout << "done. " << flush;
-          // bigint lambda = to_ZZ(den);
+          // bigint lambda(den);
           // int dimplus = addscalar(wq,-lambda).nullity();
           // cout << "+1 eigenspace has dimension "<<dimplus<<endl;
           // int dimminus = addscalar(wq,lambda).nullity();
@@ -196,7 +196,7 @@ vector<bigint> char_poly(mat_m A,  long denom, int show_factors) // using NTL
   if (denom>1)
     {
       // cout<<"Before rescaling, char poly = "<<ntl_cp<<endl;
-      bigint dpow = to_ZZ(1);
+      bigint dpow(1);
       for(i=0; i<=d; i++)
         {
           SetCoeff(ntl_cp, d-i, coeff(ntl_cp, d-i)/dpow);

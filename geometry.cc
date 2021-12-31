@@ -11,12 +11,12 @@
 
 // Definitions of commonly used matrices
 
-mat22 mat22::identity(BIGINT(1),BIGINT(0),BIGINT(0),BIGINT(1));
-mat22 mat22::J(-BIGINT(1),BIGINT(0),BIGINT(0),BIGINT(1));
-mat22 mat22::S(BIGINT(0),-BIGINT(1),BIGINT(1),BIGINT(0));
-mat22 mat22::TS(BIGINT(1),-BIGINT(1),BIGINT(1),BIGINT(0));   // = T*S
-mat22 mat22::TiS(-BIGINT(1),-BIGINT(1),BIGINT(1),BIGINT(0)); // = T^{-1}*S
-mat22 mat22::R(BIGINT(0),BIGINT(1),BIGINT(1),BIGINT(0));
+mat22 mat22::identity(1,0,0,1);
+mat22 mat22::J(-1,0,0,1);
+mat22 mat22::S(0,-1,1,0);
+mat22 mat22::TS(1,-1,1,0);   // = T*S
+mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
+mat22 mat22::R(0,1,1,0);
 
 // Definitions of alphas and associated matrices M_alpha such that
 // det(M_alpha)=1 and M_alpha(alpha)=oo.
@@ -158,7 +158,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
-  if (s.is_zero() || s==Quad(BIGINT(2))) // don't also include -sigma
+  if (s.is_zero() || s==Quad(2)) // don't also include -sigma
     {
       sigma_flip.push_back(n_sigmas);     // identity
       n_sigmas+=1;
@@ -193,7 +193,7 @@ void alphas_sigmas_denom_2()
 {
   long d = Quad::d;
   bigint D(d);
-  Quad w = Quad::w, two=Quad(BIGINT(2));
+  Quad w = Quad::w, two(2);
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
   // alpha = (w+1)/2, sigma = w/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
@@ -250,7 +250,7 @@ void alphas_sigmas_denom_2()
 void alphas_sigmas_denom_3()
 {
   int d = Quad::d;
-  Quad w = Quad::w, three=Quad(BIGINT(3));
+  Quad w = Quad::w, three(3);
 
   switch (d%12) {
   case 1: case 10:
