@@ -17,7 +17,7 @@ int issquare(QUINT asq, QUINT& a)
 
 void Quadlooper::setblims()
 {
-  bigint zero(0);
+  QUINT zero(0);
   switch (d)
     {
     case 1:

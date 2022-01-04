@@ -192,7 +192,7 @@ void alphas_sigmas_universal()
 void alphas_sigmas_denom_2()
 {
   long d = Quad::d;
-  bigint D(d);
+  QUINT D(d);
   Quad w = Quad::w, two(2);
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2

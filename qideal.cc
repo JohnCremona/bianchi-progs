@@ -215,7 +215,7 @@ void Qideal::operator+=(const QUINT& aa)
   if (divides(aa))
     return;  //ideal remains unchanged
   vector<QUINT> rv = get_rv(), iv = get_iv();
-  bigint z(0);
+  QUINT z(0);
   rv.push_back(aa);
   rv.push_back(z);
   iv.push_back(z);
@@ -376,7 +376,7 @@ void Qideal::operator*=(Qideal& f)
           return;
         }
     }
-  bigint z1(1);
+  QUINT z1(1);
   Quad x1(a), x2(b,z1), y1(f.a), y2(f.b,z1);
   vector<Quad> gens = {x1*y1, x1*y2, x2*y1, x2*y2};
   // cout<<"operator *= with this = "<<(*this)<<" and "<<f<<endl;
@@ -461,7 +461,7 @@ Quad Qideal::reduce(const Quad& alpha)
 // Map from i to res (only depends on i mod norm)
 Quad Qideal::resnum(long i) // the i'the residue mod this, in standard order (0'th is 0)
 {
-  bigint quot, rem;
+  QUINT quot, rem;
   ::divides(posmod(BIGINT(i), nm), ac, quot, rem);
   return reduce(Quad(rem, quot));
 }
@@ -618,7 +618,7 @@ void Qideal::operator/=(const QUINT&n)
 { QUINT na=abs(n);
   if (na==1) return;
   // cout<<"applying operator/= to ideal "<<(*this)<<" and "<<n<<endl;
-  bigint quot, rem;
+  QUINT quot, rem;
   if (!::divides(c, na, quot, rem))
     {
       cerr<<"***inexact division of "<<*this<<" by integer "<<n<<" ***"<<endl;
@@ -636,7 +636,7 @@ void Qideal::operator/=(const Quad&alpha)
   if (alpha.nm==BIGINT(1)) return;
   (*this) *= alpha.conj();
   QUINT na = alpha.norm();
-  bigint quot, rem;
+  QUINT quot, rem;
   if (!::divides(c, na, quot, rem))
     {
       cerr << "***inexact ideal division of "<<*this<<" by Quad "<<alpha<<" ***"<<endl;
@@ -656,7 +656,7 @@ void Qideal::operator/=(const Qideal&f)
   // cout<<"dividing "<<(*this)<<" by "<<f<<endl;
   (*this) *= fc;
   //cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
-  bigint quot, rem;
+  QUINT quot, rem;
   if (!::divides(c, nf, quot, rem))
     {
       cerr << "***inexact division of "<<keep<<" by ideal "<<f<<" of norm "<<nf<<" ***"<<endl;

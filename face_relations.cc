@@ -846,7 +846,7 @@ void face_relations::solve_relations()
               << MODULUS << endl;
 #ifdef USE_CRT
        int mod2 = 1073741783; // 2^30-41
-       bigint mmod(MODULUS); mmod*=mod2;
+       QUINT mmod(MODULUS); mmod*=mod2;
        if(verbose)
          cout << "repeating kernel computation, modulo " << mod2 << endl;
        smat_elim sme2(relmat,mod2);

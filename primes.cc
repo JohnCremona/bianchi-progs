@@ -31,10 +31,10 @@ void Quadprimes::display(ostream& s, long maxn) // by default don't list any pri
 
 vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
 {
-  long d=Quad::d; bigint disc=Quad::disc;
+  long d=Quad::d; QUINT disc=Quad::disc;
   int t=Quad::t;
   vector<Quadprime> Plist;
-  bigint zero(0), one(1), P(p);
+  QUINT zero(0), one(1), P(p);
 
   if (p==2) // treat as special case
     {

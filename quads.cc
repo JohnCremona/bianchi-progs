@@ -118,7 +118,7 @@ void Quad::field(long dd, long max)
       quadconj=&quadconj1;
       mult=&mult1; qdivi=&qdivi1;
     }
-  bigint i0(0), i1(1);
+  QUINT i0(0), i1(1);
   w = Quad(i0, i1, n);
   zero = Quad(i0,i0, i0);
   one = Quad(i1,i0, i1);
@@ -170,7 +170,7 @@ void Quad::displayfield(ostream& s)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
-int Quad::chi(bigint p)
+int Quad::chi(QUINT p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
 }
