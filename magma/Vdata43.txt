@@ -1,0 +1,2708 @@
+Magma V2.26-3     Sat Jun 12 2021 17:42:39 on john-Latitude-E5470 [Seed = 
+77629721]
+Type ? for help.  Type <Ctrl>-D to quit.
+rec<recformat<in_G, G, standard_sharblies, cone_lattice, cone_space, 
+initial_form, three_poly, two_poly, one_poly, zero_poly, torsion_units, dets, 
+O2_in_cone_space, O2_in_cone_space_ij, ideal_reps, cuspclasses, standardorder, 
+Qstandardorder, zero_reversers> | 
+    in_G := function(A) ... end function,
+    G := GL,
+    standard_sharblies := [
+        rec<recformat<vertices, O2_vertices, lift_matrix, coefficient, bary, 
+            is_voronoi_reduced, containing_cell, GL_type, is_strongly_reduced> |
+            vertices := [
+                [ 11, 8, 3, 17 ],
+                [ 101, 68, 30, 164 ]
+            ],
+            O2_vertices := [
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ]
+            ],
+            coefficient := 1,
+            bary := [        112   33*w + 76]
+            [-33*w + 109         181],
+            is_voronoi_reduced := true,
+            GL_type := 1,
+            is_strongly_reduced := true>,
+        rec<recformat<vertices, O2_vertices, lift_matrix, coefficient, bary, 
+            is_voronoi_reduced, containing_cell, GL_type, is_strongly_reduced> |
+            vertices := [
+                [ 107, 70, 32, 172 ],
+                [ 101, 68, 30, 164 ]
+            ],
+            O2_vertices := [
+                [
+                    -2*w + 9,
+                    -4*w + 2
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ]
+            ],
+            coefficient := 1,
+            bary := [        208  62*w + 138]
+            [-62*w + 200         336],
+            is_voronoi_reduced := true,
+            GL_type := 2,
+            is_strongly_reduced := true>,
+        rec<recformat<vertices, O2_vertices, lift_matrix, coefficient, bary, 
+            is_voronoi_reduced, containing_cell, GL_type, is_strongly_reduced> |
+            vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 9, 6, 3, 17 ]
+            ],
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    3,
+                    -w + 3
+                ]
+            ],
+            coefficient := 1,
+            bary := [       9  3*w + 6]
+            [-3*w + 9       18],
+            is_voronoi_reduced := true,
+            GL_type := 3,
+            is_strongly_reduced := true>,
+        rec<recformat<vertices, O2_vertices, lift_matrix, coefficient, bary, 
+            is_voronoi_reduced, containing_cell, GL_type, is_strongly_reduced> |
+            vertices := [
+                [ 9, 6, 3, 17 ],
+                [ 11, 7, 4, 23 ]
+            ],
+            O2_vertices := [
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 3
+                ]
+            ],
+            coefficient := 1,
+            bary := [       20  7*w + 13]
+            [-7*w + 20        40],
+            is_voronoi_reduced := true,
+            GL_type := 4,
+            is_strongly_reduced := true>
+    ],
+    cone_lattice := Standard Lattice of rank 4 and degree 4
+    Determinant: 43
+    Factored Determinant: 43
+    Inner Product Matrix:
+    [ 1  0  0  0]
+    [ 0  2  1  0]
+    [ 0  1 22  0]
+    [ 0  0  0  1],
+    cone_space := Full Vector space of degree 4 over Rational Field
+    Inner Product Matrix:
+    [ 1  0  0  0]
+    [ 0  2  1  0]
+    [ 0  1 22  0]
+    [ 0  0  0  1],
+    three_poly := [
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -2*w + 9,
+                    -4*w + 2
+                ],
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    w + 2,
+                    5
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ],
+                [
+                    3*w,
+                    2*w + 10
+                ]
+            ],
+            bary := [         344  103*w + 228]
+            [-103*w + 331          559],
+            cone_vertices := [
+                [ 9, 6, 3, 17 ],
+                [ 107, 70, 32, 172 ],
+                [ 11, 8, 3, 17 ],
+                [ 17, 10, 5, 25 ],
+                [ 101, 68, 30, 164 ],
+                [ 99, 66, 30, 164 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [ w + 1 -w + 2]
+                [     4 -w - 2],
+
+                [-w - 2  w - 2]
+                [    -4  w + 1],
+
+                [-11*w + 19   3*w - 30]
+                [-13*w - 18  11*w - 19],
+
+                [ 9*w + 20 -9*w + 10]
+                [       49 -9*w - 20],
+
+                [ 2*w - 39  6*w + 20]
+                [13*w - 31 -2*w + 39]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2 * 3
+            Generators:
+                [ w + 1 -w + 2]
+                [     4 -w - 2]
+
+                [-1  0]
+                [ 0 -1]
+
+                [-11*w + 19   3*w - 30]
+                [-13*w - 18  11*w - 19],
+            polytope := 3-dimensional polytope with 6 vertices:
+                (  9,   6,   3,  17),
+                (107,  70,  32, 172),
+                ( 11,   8,   3,  17),
+                ( 17,  10,   5,  25),
+                (101,  68,  30, 164),
+                ( 99,  66,  30, 164)        ,
+            form := [ 13, -228/43, -103/43, 8 ],
+            neighbors := [
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            -3*w + 7,
+                            -4*w - 3
+                        ],
+                        [
+                            -2*w + 9,
+                            -4*w + 2
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            w + 9,
+                            -2*w + 12
+                        ],
+                        [
+                            2*w + 8,
+                            -w + 14
+                        ]
+                    ],
+                    bary := [         487  143*w + 321]
+                    [-143*w + 464          768],
+                    form := [ 49/3, -293/43, -392/129, 31/3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ]
+                    ],
+                    bary := [        89  25*w + 48]
+                    [-25*w + 73        121],
+                    form := [ 4/3, -68/129, -12/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            -2*w + 9,
+                            -4*w + 2
+                        ],
+                        [
+                            -w + 11,
+                            -4*w + 7
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            3*w,
+                            2*w + 10
+                        ],
+                        [
+                            3*w + 3,
+                            w + 13
+                        ]
+                    ],
+                    bary := [         470  143*w + 304]
+                    [-143*w + 447          768],
+                    form := [ 49/3, -836/129, -392/129, 10 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            10,
+                            -3*w + 10
+                        ],
+                        [
+                            -3*w + 3,
+                            -3*w - 7
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            w + 9,
+                            -2*w + 12
+                        ],
+                        [
+                            3*w,
+                            2*w + 10
+                        ]
+                    ],
+                    bary := [         419  126*w + 287]
+                    [-126*w + 413          700],
+                    form := [ 15, -793/129, -349/129, 9 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            30,
+                            -9*w + 29
+                        ],
+                        [
+                            -9*w + 10,
+                            -9*w - 20
+                        ],
+                        [
+                            -8*w + 19,
+                            -11*w - 8
+                        ],
+                        [
+                            -3*w + 30,
+                            -11*w + 19
+                        ],
+                        [
+                            -2*w + 9,
+                            -4*w + 2
+                        ],
+                        [
+                            w + 9,
+                            -2*w + 12
+                        ],
+                        [
+                            3*w,
+                            2*w + 10
+                        ],
+                        [
+                            6*w + 20,
+                            -2*w + 39
+                        ],
+                        [
+                            8*w + 11,
+                            2*w + 37
+                        ]
+                    ],
+                    bary := [          5759  1726*w + 3828]
+                    [-1726*w + 5554           9382],
+                    form := [ 347/3, -6088/129, -915/43, 71 ]>
+            ],
+            neighbors_mover := [
+                <
+                    2,
+
+                    [       5   -w - 2]
+                    [-3*w + 4    w - 8]
+                >,
+
+                <
+                    3,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    2,
+
+                    [ -4*w + 2   2*w - 9]
+                    [-2*w - 15   4*w + 2]
+                >,
+
+                <
+                    2,
+
+                    [-w - 2  w - 1]
+                    [ w - 9  w + 6]
+                >,
+
+                <
+                    3,
+
+                    [ 11*w - 19  -3*w + 30]
+                    [ 13*w + 18 -11*w + 19]
+                >
+            ],
+            graph := Graph
+            Vertex      Neighbours
+
+            1   3 4 6 ;
+            2   4 5 6 ;
+            3   1 4 5 ;
+            4   1 2 3 ;
+            5   2 3 6 ;
+            6   1 2 5 ;
+        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    2,
+                    -w + 2
+                ],
+                [
+                    3,
+                    -w + 2
+                ],
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 3
+                ],
+                [
+                    w + 1,
+                    5
+                ]
+            ],
+            bary := [        46  17*w + 23]
+            [-17*w + 40         92],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 4, 2, 2, 13 ],
+                [ 9, 3, 3, 13 ],
+                [ 9, 6, 3, 17 ],
+                [ 11, 7, 4, 23 ],
+                [ 13, 5, 5, 25 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [       5   -w - 1]
+                [-2*w + 4       -5]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [       5   -w - 1]
+                [-2*w + 4       -5],
+            polytope := 3-dimensional polytope with 6 vertices:
+                ( 0,  0,  0,  1),
+                ( 4,  2,  2, 13),
+                ( 9,  3,  3, 13),
+                ( 9,  6,  3, 17),
+                (11,  7,  4, 23),
+                (13,  5,  5, 25)        ,
+            form := [ 2, -62/129, -16/43, 1 ],
+            neighbors := [
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ]
+                    ],
+                    bary := [        89  25*w + 48]
+                    [-25*w + 73        121],
+                    form := [ 4/3, -68/129, -12/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            2,
+                            -w + 2
+                        ],
+                        [
+                            2,
+                            -w + 3
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            3,
+                            -w + 4
+                        ],
+                        [
+                            -w + 1,
+                            -w - 3
+                        ],
+                        [
+                            -w + 3,
+                            -2*w - 1
+                        ],
+                        [
+                            w,
+                            w + 4
+                        ],
+                        [
+                            w + 2,
+                            7
+                        ]
+                    ],
+                    bary := [        82  32*w + 66]
+                    [-32*w + 98        221],
+                    form := [ 8/3, -104/129, -50/129, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            2,
+                            -w + 1
+                        ],
+                        [
+                            2,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 3
+                        ],
+                        [
+                            w + 1,
+                            5
+                        ]
+                    ],
+                    bary := [        43  17*w + 13]
+                    [-17*w + 30         86],
+                    form := [ 2, -13/43, -17/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            6,
+                            -2*w + 5
+                        ],
+                        [
+                            -2*w + 3,
+                            -2*w - 5
+                        ],
+                        [
+                            -w + 1,
+                            -w - 3
+                        ],
+                        [
+                            -w + 7,
+                            -3*w + 2
+                        ],
+                        [
+                            w + 1,
+                            5
+                        ],
+                        [
+                            w + 4,
+                            -w + 7
+                        ],
+                        [
+                            2*w,
+                            w + 8
+                        ]
+                    ],
+                    bary := [        253  89*w + 123]
+                    [-89*w + 212         449],
+                    form := [ 16/3, -190/129, -136/129, 3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            2,
+                            -w + 2
+                        ],
+                        [
+                            5,
+                            -2*w + 5
+                        ],
+                        [
+                            -w + 1,
+                            -w - 4
+                        ],
+                        [
+                            -w + 1,
+                            -w - 3
+                        ],
+                        [
+                            -w + 4,
+                            -2*w - 1
+                        ],
+                        [
+                            -w + 6,
+                            -3*w + 1
+                        ],
+                        [
+                            w + 1,
+                            5
+                        ],
+                        [
+                            w + 4,
+                            -w + 8
+                        ],
+                        [
+                            2*w,
+                            w + 9
+                        ]
+                    ],
+                    bary := [        203  82*w + 105]
+                    [-82*w + 187         463],
+                    form := [ 16/3, -154/129, -122/129, 7/3 ]>
+            ],
+            neighbors_mover := [
+                <
+                    3,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    3,
+
+                    [       7   -w - 2]
+                    [-2*w + 6       -5]
+                >,
+
+                <
+                    1,
+
+                    [  w - 8   w + 2]
+                    [3*w - 4       5]
+                >,
+
+                <
+                    3,
+
+                    [-w + 3     -3]
+                    [  -2*w  w - 4]
+                >,
+
+                <
+                    3,
+
+                    [       5   -w - 1]
+                    [-2*w + 4       -5]
+                >
+            ],
+            graph := Graph
+            Vertex      Neighbours
+
+            1   2 3 4 ;
+            2   1 5 6 ;
+            3   1 4 6 ;
+            4   1 3 5 ;
+            5   2 4 6 ;
+            6   2 3 5 ;
+        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ],
+                [
+                    3,
+                    -w + 2
+                ],
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    4,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    -w + 2,
+                    -w - 2
+                ],
+                [
+                    -w + 2,
+                    -w - 1
+                ],
+                [
+                    w + 2,
+                    5
+                ]
+            ],
+            bary := [        89  25*w + 48]
+            [-25*w + 73        121],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 1, 1, 0, 1 ],
+                [ 9, 3, 3, 13 ],
+                [ 9, 6, 3, 17 ],
+                [ 16, 8, 4, 17 ],
+                [ 11, 8, 3, 17 ],
+                [ 13, 5, 4, 17 ],
+                [ 13, 7, 3, 13 ],
+                [ 17, 10, 5, 25 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [ w + 1 -w + 2]
+                [     4 -w - 2],
+
+                [-w - 2  w - 2]
+                [    -4  w + 1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [ w + 1 -w + 2]
+                [     4 -w - 2],
+            polytope := 3-dimensional polytope with 9 vertices:
+                ( 0,  0,  0,  1),
+                ( 1,  1,  0,  1),
+                ( 9,  3,  3, 13),
+                ( 9,  6,  3, 17),
+                (16,  8,  4, 17),
+                (11,  8,  3, 17),
+                (13,  5,  4, 17),
+                (13,  7,  3, 13),
+                (17, 10,  5, 25)        ,
+            form := [ 4/3, -68/129, -12/43, 1 ],
+            neighbors := [
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            2,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            -w + 1,
+                            -w - 3
+                        ],
+                        [
+                            w + 1,
+                            5
+                        ]
+                    ],
+                    bary := [        46  17*w + 23]
+                    [-17*w + 40         92],
+                    form := [ 2, -62/129, -16/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            3,
+                            -w + 4
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            w,
+                            w + 3
+                        ]
+                    ],
+                    bary := [        41  12*w + 35]
+                    [-12*w + 47         82],
+                    form := [ 2, -110/129, -38/129, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            0
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            4,
+                            -w + 2
+                        ],
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            -w + 3,
+                            -w - 1
+                        ],
+                        [
+                            w + 1,
+                            3
+                        ],
+                        [
+                            w + 1,
+                            4
+                        ],
+                        [
+                            w + 2,
+                            4
+                        ]
+                    ],
+                    bary := [       129  33*w + 48]
+                    [-33*w + 81        129],
+                    form := [ 1, -16/43, -11/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            6,
+                            -2*w + 5
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            2*w,
+                            w + 7
+                        ]
+                    ],
+                    bary := [        128   41*w + 64]
+                    [-41*w + 105         198],
+                    form := [ 14/3, -196/129, -124/129, 3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            4,
+                            -w + 4
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            -w + 1,
+                            -w - 1
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 3,
+                            5
+                        ]
+                    ],
+                    bary := [        75  17*w + 52]
+                    [-17*w + 69         92],
+                    form := [ 2, -148/129, -16/43, 5/3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -2*w + 3,
+                            -2*w - 3
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            w + 6,
+                            -w + 8
+                        ]
+                    ],
+                    bary := [        157   41*w + 93]
+                    [-41*w + 134         198],
+                    form := [ 14/3, -94/43, -124/129, 11/3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            -2*w + 9,
+                            -4*w + 2
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            w + 9,
+                            -2*w + 12
+                        ],
+                        [
+                            3*w,
+                            2*w + 10
+                        ]
+                    ],
+                    bary := [         344  103*w + 228]
+                    [-103*w + 331          559],
+                    form := [ 13, -228/43, -103/43, 8 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 5,
+                            -2*w + 1
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ],
+                        [
+                            w + 5,
+                            -w + 7
+                        ],
+                        [
+                            2*w,
+                            w + 6
+                        ]
+                    ],
+                    bary := [        162   46*w + 81]
+                    [-46*w + 127         208],
+                    form := [ 14/3, -78/43, -134/129, 11/3 ]>
+            ],
+            neighbors_mover := [
+                <
+                    2,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    2,
+
+                    [ w - 4      3]
+                    [   2*w -w + 3]
+                >,
+
+                <
+                    4,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    2,
+
+                    [ w - 3      3]
+                    [   2*w -w + 4]
+                >,
+
+                <
+                    2,
+
+                    [-w - 1  w - 1]
+                    [    -6  w + 4]
+                >,
+
+                <
+                    2,
+
+                    [     -5   w + 2]
+                    [2*w - 6       7]
+                >,
+
+                <
+                    1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    2,
+
+                    [  -w - 6      2*w]
+                    [2*w - 10    w + 9]
+                >
+            ],
+            graph := Graph
+            Vertex      Neighbours
+
+            1   2 3 4 ;
+            2   1 6 8 ;
+            3   1 4 7 ;
+            4   1 3 6 9 ;
+            5   7 8 9 ;
+            6   2 4 8 9 ;
+            7   3 5 9 ;
+            8   2 5 6 ;
+            9   4 5 6 7 ;
+        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1
+                ],
+                [
+                    3,
+                    -w + 2
+                ],
+                [
+                    4,
+                    -w + 2
+                ],
+                [
+                    4,
+                    -w + 3
+                ],
+                [
+                    -w + 2,
+                    -w - 2
+                ],
+                [
+                    -w + 2,
+                    -w - 1
+                ],
+                [
+                    -w + 3,
+                    -w - 1
+                ],
+                [
+                    w + 1,
+                    3
+                ],
+                [
+                    w + 1,
+                    4
+                ],
+                [
+                    w + 2,
+                    4
+                ]
+            ],
+            bary := [       129  33*w + 48]
+            [-33*w + 81        129],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 1, 0, 0, 0 ],
+                [ 1, 1, 0, 1 ],
+                [ 9, 3, 3, 13 ],
+                [ 16, 4, 4, 13 ],
+                [ 16, 8, 4, 17 ],
+                [ 13, 5, 4, 17 ],
+                [ 13, 7, 3, 13 ],
+                [ 17, 5, 4, 13 ],
+                [ 13, 3, 3, 9 ],
+                [ 13, 4, 4, 16 ],
+                [ 17, 8, 4, 16 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [   -4 w + 2]
+                [w - 3     4],
+
+                [-w + 3     -4]
+                [-w - 1  w - 2],
+
+                [ w + 1 -w + 2]
+                [     4 -w - 2],
+
+                [     3 -w - 1]
+                [-w + 2     -4],
+
+                [ w + 2 -w + 2]
+                [     4 -w - 1],
+
+                [-1  1]
+                [-1  0],
+
+                [-w - 1  w - 3]
+                [    -3  w + 1],
+
+                [   -4 w + 1]
+                [w - 2     3],
+
+                [-w + 2     -4]
+                [-w - 1  w - 3],
+
+                [ w - 2      3]
+                [ w + 2 -w + 2],
+
+                [ 0  1]
+                [-1  1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^3 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [     3 -w - 1]
+                [-w + 2     -4]
+
+                [   -4 w + 2]
+                [w - 3     4],
+            polytope := 3-dimensional polytope with 12 vertices        ,
+            form := [ 1, -16/43, -11/43, 1 ],
+            neighbors := [
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            3,
+                            -w + 3
+                        ],
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -w + 1,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 2,
+                            5
+                        ]
+                    ],
+                    bary := [        89  25*w + 48]
+                    [-25*w + 73        121],
+                    form := [ 4/3, -68/129, -12/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            0
+                        ],
+                        [
+                            3,
+                            -w + 1
+                        ],
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            4,
+                            -w + 2
+                        ],
+                        [
+                            -w + 3,
+                            -w - 2
+                        ],
+                        [
+                            w,
+                            3
+                        ],
+                        [
+                            w + 1,
+                            3
+                        ],
+                        [
+                            w + 1,
+                            4
+                        ]
+                    ],
+                    bary := [        89  25*w + 16]
+                    [-25*w + 41         89],
+                    form := [ 1, -25/129, -12/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            0
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            3,
+                            w + 1
+                        ],
+                        [
+                            4,
+                            w + 1
+                        ],
+                        [
+                            4,
+                            w + 2
+                        ],
+                        [
+                            -w + 2,
+                            3
+                        ],
+                        [
+                            -w + 2,
+                            4
+                        ],
+                        [
+                            -w + 3,
+                            4
+                        ],
+                        [
+                            w + 1,
+                            w - 3
+                        ],
+                        [
+                            w + 1,
+                            w - 2
+                        ],
+                        [
+                            w + 2,
+                            w - 2
+                        ]
+                    ],
+                    bary := [       129 -33*w + 81]
+                    [ 33*w + 48        129],
+                    form := [ 1, -27/43, 11/43, 1 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            4,
+                            -w + 2
+                        ],
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -2*w + 1,
+                            -w - 5
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            -w + 3,
+                            -w - 1
+                        ],
+                        [
+                            -w + 6,
+                            -2*w + 1
+                        ],
+                        [
+                            w + 1,
+                            4
+                        ],
+                        [
+                            w + 2,
+                            4
+                        ],
+                        [
+                            w + 5,
+                            -w + 6
+                        ]
+                    ],
+                    bary := [        217   57*w + 80]
+                    [-57*w + 137         217],
+                    form := [ 7/3, -37/43, -79/129, 7/3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            1,
+                            0
+                        ],
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            5,
+                            -w + 3
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            -w + 3,
+                            -w - 1
+                        ],
+                        [
+                            -w + 3,
+                            -w
+                        ],
+                        [
+                            w + 1,
+                            3
+                        ],
+                        [
+                            w + 2,
+                            3
+                        ],
+                        [
+                            w + 2,
+                            4
+                        ]
+                    ],
+                    bary := [       121  25*w + 48]
+                    [-25*w + 73         89],
+                    form := [ 1, -68/129, -12/43, 4/3 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            4,
+                            -w + 2
+                        ],
+                        [
+                            -8*w + 4,
+                            -3*w - 19
+                        ],
+                        [
+                            -8*w + 8,
+                            -4*w - 17
+                        ],
+                        [
+                            -7*w + 5,
+                            -3*w - 16
+                        ],
+                        [
+                            -4*w + 25,
+                            -7*w + 2
+                        ],
+                        [
+                            -3*w + 22,
+                            -6*w + 3
+                        ],
+                        [
+                            -3*w + 26,
+                            -7*w + 5
+                        ],
+                        [
+                            -w + 3,
+                            -w - 1
+                        ],
+                        [
+                            w + 1,
+                            3
+                        ],
+                        [
+                            4*w + 17,
+                            -3*w + 19
+                        ],
+                        [
+                            4*w + 21,
+                            -4*w + 21
+                        ],
+                        [
+                            5*w + 18,
+                            -3*w + 22
+                        ]
+                    ],
+                    bary := [          5805  1386*w + 1500]
+                    [-1386*w + 2886           4386],
+                    form := [ 34, -500/43, -462/43, 45 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            3,
+                            -w + 2
+                        ],
+                        [
+                            -7*w + 2,
+                            -3*w - 23
+                        ],
+                        [
+                            -7*w + 5,
+                            -4*w - 21
+                        ],
+                        [
+                            -6*w + 3,
+                            -3*w - 19
+                        ],
+                        [
+                            -4*w + 21,
+                            -8*w
+                        ],
+                        [
+                            -3*w + 19,
+                            -7*w + 2
+                        ],
+                        [
+                            -3*w + 22,
+                            -8*w + 4
+                        ],
+                        [
+                            -w + 2,
+                            -w - 2
+                        ],
+                        [
+                            w + 1,
+                            4
+                        ],
+                        [
+                            3*w + 16,
+                            -4*w + 21
+                        ],
+                        [
+                            3*w + 19,
+                            -5*w + 23
+                        ],
+                        [
+                            4*w + 17,
+                            -4*w + 25
+                        ]
+                    ],
+                    bary := [          4386  1386*w + 1500]
+                    [-1386*w + 2886           5805],
+                    form := [ 45, -500/43, -462/43, 34 ]>,
+                rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+                    fullstabilizer, stabilizer_plus, polytope, form, 
+                    oriented_facets, GL_facet_types, neighbors, neighbors_mover,
+                    gamma, GLtype, graph, mover> | 
+                    O2_vertices := [
+                        [
+                            4,
+                            -w + 3
+                        ],
+                        [
+                            -8*w + 4,
+                            -5*w - 18
+                        ],
+                        [
+                            -7*w + 2,
+                            -4*w - 17
+                        ],
+                        [
+                            -5*w + 23,
+                            -8*w + 4
+                        ],
+                        [
+                            -4*w + 21,
+                            -7*w + 5
+                        ],
+                        [
+                            -4*w + 25,
+                            -8*w + 8
+                        ],
+                        [
+                            -w + 2,
+                            -w - 1
+                        ],
+                        [
+                            w + 2,
+                            4
+                        ],
+                        [
+                            3*w + 19,
+                            -3*w + 22
+                        ],
+                        [
+                            3*w + 23,
+                            -4*w + 25
+                        ],
+                        [
+                            4*w + 21,
+                            -3*w + 26
+                        ],
+                        [
+                            8*w,
+                            4*w + 21
+                        ]
+                    ],
+                    bary := [          5805  1386*w + 2919]
+                    [-1386*w + 4305           5805],
+                    form := [ 45, -973/43, -462/43, 45 ]>
+            ],
+            neighbors_mover := [
+                <
+                    3,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    3,
+
+                    [ 0 -1]
+                    [ 1 -1]
+                >,
+
+                <
+                    4,
+
+                    [ w - 2 -w - 2]
+                    [ w + 1     -4]
+                >,
+
+                <
+                    3,
+
+                    [     4 -w - 1]
+                    [-w + 2     -3]
+                >,
+
+                <
+                    3,
+
+                    [-1  1]
+                    [-1  0]
+                >,
+
+                <
+                    4,
+
+                    [ 3*w + 19  -8*w + 4]
+                    [-3*w + 22 -5*w - 18]
+                >,
+
+                <
+                    4,
+
+                    [ 3*w + 23  -7*w + 2]
+                    [-4*w + 25 -4*w - 17]
+                >,
+
+                <
+                    4,
+
+                    [-w - 1  w - 2]
+                    [-w + 3     -4]
+                >
+            ],
+            graph := Graph
+            Vertex      Neighbours
+
+            1   2 3 4 ;
+            2   1 3 10 ;
+            3   1 2 8 ;
+            4   1 7 11 ;
+            5   9 10 11 ;
+            6   7 8 12 ;
+            7   4 6 11 ;
+            8   3 6 12 ;
+            9   5 10 12 ;
+            10  2 5 9 ;
+            11  4 5 7 ;
+            12  6 8 9 ;
+        >
+    ],
+    two_poly := [
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    -2*w + 9,
+                    -4*w + 2
+                ],
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    w + 2,
+                    5
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ]
+            ],
+            bary := [        236  70*w + 156]
+            [-70*w + 226         378],
+            cone_vertices := [
+                [ 107, 70, 32, 172 ],
+                [ 11, 8, 3, 17 ],
+                [ 17, 10, 5, 25 ],
+                [ 101, 68, 30, 164 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-11*w + 19   3*w - 30]
+                [-13*w - 18  11*w - 19]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-11*w + 19   3*w - 30]
+                [-13*w - 18  11*w - 19],
+            stabilizer_plus := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-11*w + 19   3*w - 30]
+                [-13*w - 18  11*w - 19],
+            polytope := 2-dimensional polytope with 4 vertices:
+                (107,  70,  32, 172),
+                ( 11,   8,   3,  17),
+                ( 17,  10,   5,  25),
+                (101,  68,  30, 164)        ,
+            GL_facet_types := [
+                <
+                    1,
+
+                    -1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    2,
+
+                    1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    1,
+
+                    1,
+
+                    [-w - 2  w - 2]
+                    [    -4  w + 1]
+                >,
+
+                <
+                    2,
+
+                    1,
+
+                    [   w + 29 -6*w - 10]
+                    [-7*w + 28   -w - 26]
+                >
+            ]>,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    w + 2,
+                    5
+                ]
+            ],
+            bary := [        37  11*w + 24]
+            [-11*w + 35         59],
+            cone_vertices := [
+                [ 9, 6, 3, 17 ],
+                [ 11, 8, 3, 17 ],
+                [ 17, 10, 5, 25 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-w - 1  w - 2]
+                [    -4  w + 2],
+
+                [ w + 2 -w + 2]
+                [     4 -w - 1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-w - 1  w - 2]
+                [    -4  w + 2],
+            stabilizer_plus := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-w - 1  w - 2]
+                [    -4  w + 2],
+            polytope := 2-dimensional polytope with 3 vertices:
+                ( 9,  6,  3, 17),
+                (11,  8,  3, 17),
+                (17, 10,  5, 25)        ,
+            GL_facet_types := [
+                <
+                    2,
+
+                    1,
+
+                    [ 2*w - 39  6*w + 20]
+                    [13*w - 31 -2*w + 39]
+                >,
+
+                <
+                    2,
+
+                    1,
+
+                    [ -w - 29 6*w + 10]
+                    [7*w - 28   w + 26]
+                >,
+
+                <
+                    2,
+
+                    1,
+
+                    [ -3*w + 26  -3*w - 17]
+                    [-10*w + 11   4*w - 25]
+                >
+            ]>,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    3,
+                    -w + 2
+                ],
+                [
+                    3,
+                    -w + 3
+                ]
+            ],
+            bary := [       18   6*w + 9]
+            [-6*w + 15        31],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 9, 3, 3, 13 ],
+                [ 9, 6, 3, 17 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            stabilizer_plus := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            polytope := 2-dimensional polytope with 3 vertices:
+                (0,  0,  0,  1),
+                (9,  3,  3, 13),
+                (9,  6,  3, 17)        ,
+            GL_facet_types := [
+                <
+                    3,
+
+                    -1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    3,
+
+                    -1,
+
+                    [ w - 4      3]
+                    [   2*w -w + 3]
+                >,
+
+                <
+                    1,
+
+                    1,
+
+                    [-w - 2  w - 1]
+                    [ w - 9  w + 6]
+                >
+            ]>,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    2,
+                    -w + 2
+                ],
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 3
+                ]
+            ],
+            bary := [       24  9*w + 15]
+            [-9*w + 24        54],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 4, 2, 2, 13 ],
+                [ 9, 6, 3, 17 ],
+                [ 11, 7, 4, 23 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            stabilizer_plus := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            polytope := 2-dimensional polytope with 4 vertices:
+                ( 0,  0,  0,  1),
+                ( 4,  2,  2, 13),
+                ( 9,  6,  3, 17),
+                (11,  7,  4, 23)        ,
+            GL_facet_types := [
+                <
+                    3,
+
+                    -1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    4,
+
+                    -1,
+
+                    [1 0]
+                    [0 1]
+                >,
+
+                <
+                    3,
+
+                    -1,
+
+                    [-w - 2  w - 1]
+                    [    -6  w + 3]
+                >,
+
+                <
+                    2,
+
+                    -1,
+
+                    [-2*w + 12    -w - 9]
+                    [ -9*w + 2  5*w - 19]
+                >
+            ]>,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ],
+                [
+                    3,
+                    -w + 2
+                ],
+                [
+                    4,
+                    -w + 3
+                ],
+                [
+                    -w + 2,
+                    -w - 2
+                ],
+                [
+                    -w + 2,
+                    -w - 1
+                ]
+            ],
+            bary := [        52  14*w + 24]
+            [-14*w + 38         62],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 1, 1, 0, 1 ],
+                [ 9, 3, 3, 13 ],
+                [ 16, 8, 4, 17 ],
+                [ 13, 5, 4, 17 ],
+                [ 13, 7, 3, 13 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-w - 2  w - 2]
+                [    -4  w + 1],
+
+                [ w + 1 -w + 2]
+                [     4 -w - 2]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-w - 2  w - 2]
+                [    -4  w + 1],
+            stabilizer_plus := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-w - 2  w - 2]
+                [    -4  w + 1],
+            polytope := 2-dimensional polytope with 6 vertices:
+                ( 0,  0,  0,  1),
+                ( 1,  1,  0,  1),
+                ( 9,  3,  3, 13),
+                (16,  8,  4, 17),
+                (13,  5,  4, 17),
+                (13,  7,  3, 13)        ,
+            GL_facet_types := [
+                <
+                    4,
+
+                    1,
+
+                    [-w + 3     -3]
+                    [     6 -w - 2]
+                >,
+
+                <
+                    1,
+
+                    1,
+
+                    [  w - 9   w + 6]
+                    [2*w - 7       7]
+                >,
+
+                <
+                    4,
+
+                    -1,
+
+                    [     -7   w + 2]
+                    [2*w - 6       5]
+                >,
+
+                <
+                    1,
+
+                    1,
+
+                    [-3*w + 21 -2*w - 15]
+                    [ -7*w + 7  3*w - 17]
+                >,
+
+                <
+                    4,
+
+                    -1,
+
+                    [ w - 4      3]
+                    [   2*w -w + 3]
+                >,
+
+                <
+                    1,
+
+                    -1,
+
+                    [ w + 2 -w + 1]
+                    [-w + 9 -w - 6]
+                >
+            ]>,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            bary := [2 1]
+            [1 2],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 1, 0, 0, 0 ],
+                [ 1, 1, 0, 1 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-1  1]
+                [-1  0],
+
+                [ 0 -1]
+                [ 1 -1],
+
+                [ 0 -1]
+                [-1  0],
+
+                [ 1  0]
+                [ 1 -1],
+
+                [-1  1]
+                [ 0  1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2 * 3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-1  1]
+                [-1  0]
+
+                [ 0 -1]
+                [-1  0],
+            stabilizer_plus := MatrixGroup(2, K) of order 2 * 3
+            Generators:
+                [-1  1]
+                [-1  0]
+
+                [-1  0]
+                [ 0 -1]
+
+                [ 1 -1]
+                [ 1  0]
+
+                [ 0 -1]
+                [ 1 -1]
+
+                [ 0  1]
+                [-1  1],
+            polytope := 2-dimensional polytope with 3 vertices:
+                (0, 0, 0, 1),
+                (1, 0, 0, 0),
+                (1, 1, 0, 1)        ,
+            GL_facet_types := [
+                <
+                    4,
+
+                    -1,
+
+                    [-w + 3     -3]
+                    [     6 -w - 2]
+                >,
+
+                <
+                    4,
+
+                    1,
+
+                    [     6 -w - 2]
+                    [-w + 3     -3]
+                >,
+
+                <
+                    4,
+
+                    1,
+
+                    [-w + 3     -3]
+                    [ w + 3 -w + 1]
+                >
+            ]>
+    ],
+    one_poly := [
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    -w + 1,
+                    -w - 2
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ]
+            ],
+            bary := [        112   33*w + 76]
+            [-33*w + 109         181],
+            cone_vertices := [
+                [ 11, 8, 3, 17 ],
+                [ 101, 68, 30, 164 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [ 2*w - 39  6*w + 20]
+                [13*w - 31 -2*w + 39]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [ 2*w - 39  6*w + 20]
+                [13*w - 31 -2*w + 39]
+
+                [-1  0]
+                [ 0 -1],
+            stabilizer_plus := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            polytope := 1-dimensional polytope with 2 vertices:
+                ( 11,   8,   3,  17),
+                (101,  68,  30, 164)        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    -2*w + 9,
+                    -4*w + 2
+                ],
+                [
+                    w + 9,
+                    -2*w + 12
+                ]
+            ],
+            bary := [        208  62*w + 138]
+            [-62*w + 200         336],
+            cone_vertices := [
+                [ 107, 70, 32, 172 ],
+                [ 101, 68, 30, 164 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-38*w + 63 11*w - 103]
+                [-44*w - 64  38*w - 63]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-38*w + 63 11*w - 103]
+                [-44*w - 64  38*w - 63],
+            stabilizer_plus := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-38*w + 63 11*w - 103]
+                [-44*w - 64  38*w - 63],
+            polytope := 1-dimensional polytope with 2 vertices:
+                (107,  70,  32, 172),
+                (101,  68,  30, 164)        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    0,
+                    1
+                ],
+                [
+                    3,
+                    -w + 3
+                ]
+            ],
+            bary := [       9  3*w + 6]
+            [-3*w + 9       18],
+            cone_vertices := [
+                [ 0, 0, 0, 1 ],
+                [ 9, 6, 3, 17 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            stabilizer_plus := MatrixGroup(2, K) of order 2
+            Generators:
+                [-1  0]
+                [ 0 -1],
+            polytope := 1-dimensional polytope with 2 vertices:
+                (0,  0,  0,  1),
+                (9,  6,  3, 17)        >,
+        rec<recformat<O2_vertices, bary, cone_vertices, stabilizer, 
+            fullstabilizer, stabilizer_plus, polytope, form, oriented_facets, 
+            GL_facet_types, neighbors, neighbors_mover, gamma, GLtype, graph, 
+            mover> | 
+            O2_vertices := [
+                [
+                    3,
+                    -w + 3
+                ],
+                [
+                    -w + 1,
+                    -w - 3
+                ]
+            ],
+            bary := [       20  7*w + 13]
+            [-7*w + 20        40],
+            cone_vertices := [
+                [ 9, 6, 3, 17 ],
+                [ 11, 7, 4, 23 ]
+            ],
+            stabilizer := [
+                [1 0]
+                [0 1],
+
+                [-6*w + 23   -w - 19]
+                [    -12*w  6*w - 23],
+
+                [-6*w - 17   6*w - 6]
+                [ 2*w - 40  6*w + 17],
+
+                [     -5   w + 1]
+                [2*w - 4       5]
+            ],
+            fullstabilizer := MatrixGroup(2, K) of order 2^3
+            Generators:
+                [-1  0]
+                [ 0 -1]
+
+                [-6*w + 23   -w - 19]
+                [    -12*w  6*w - 23]
+
+                [-6*w - 17   6*w - 6]
+                [ 2*w - 40  6*w + 17],
+            stabilizer_plus := MatrixGroup(2, K) of order 2^2
+            Generators:
+                [-6*w - 17   6*w - 6]
+                [ 2*w - 40  6*w + 17]
+
+                [-1  0]
+                [ 0 -1]
+
+                [ 6*w + 17  -6*w + 6]
+                [-2*w + 40 -6*w - 17],
+            polytope := 1-dimensional polytope with 2 vertices:
+                ( 9,  6,  3, 17),
+                (11,  7,  4, 23)        >
+    ],
+    torsion_units := [
+        [1, 0],
+        [-1, 0]
+    ],
+    dets := {
+        0,
+        w + 2,
+        1,
+        2,
+        3,
+        4,
+        -4,
+        -3,
+        -2,
+        -1,
+        -w - 2,
+        -w - 1,
+        -w,
+        -w + 1,
+        -w + 2,
+        -w + 3,
+        w - 3,
+        w - 2,
+        w - 1,
+        w,
+        w + 1
+    },
+    O2_in_cone_space := [
+        [ 1, 0, 0, 0 ],
+        [ 11, 0, 0, 0 ],
+        [ 0, 0, 0, 1 ],
+        [ 0, 0, 0, 11 ]
+    ],
+    O2_in_cone_space_ij := [
+        [
+            [ 4, 0, 0, 0 ],
+            [ 13, 0, 0, 0 ],
+            [ 1, 1, 0, 1 ],
+            [ 1, 1, -1, 11 ]
+        ],
+        [
+            [ 13, 0, 0, 0 ],
+            [ 44, 0, 0, 0 ],
+            [ 11, 0, 1, 1 ],
+            [ 11, 11, 0, 11 ]
+        ],
+        [
+            [ 1, 1, 0, 1 ],
+            [ 11, 0, 1, 1 ],
+            [ 0, 0, 0, 4 ],
+            [ 0, 0, 0, 13 ]
+        ],
+        [
+            [ 1, 1, -1, 11 ],
+            [ 11, 11, 0, 11 ],
+            [ 0, 0, 0, 13 ],
+            [ 0, 0, 0, 44 ]
+        ]
+    ],
+    ideal_reps := [
+        Principal Ideal of OK
+        Generator:
+            [1, 0]
+    ],
+    standardorder := [
+        [
+            0,
+            1
+        ],
+        [
+            1,
+            0
+        ],
+        [
+            1,
+            1
+        ],
+        [
+            2,
+            -w + 2
+        ],
+        [
+            3,
+            -w + 2
+        ],
+        [
+            3,
+            -w + 3
+        ],
+        [
+            4,
+            -w + 2
+        ],
+        [
+            4,
+            -w + 3
+        ],
+        [
+            -2*w + 9,
+            -4*w + 2
+        ],
+        [
+            -w + 1,
+            -w - 3
+        ],
+        [
+            -w + 1,
+            -w - 2
+        ],
+        [
+            -w + 2,
+            -w - 2
+        ],
+        [
+            -w + 2,
+            -w - 1
+        ],
+        [
+            -w + 3,
+            -w - 1
+        ],
+        [
+            w + 1,
+            3
+        ],
+        [
+            w + 1,
+            4
+        ],
+        [
+            w + 1,
+            5
+        ],
+        [
+            w + 2,
+            4
+        ],
+        [
+            w + 2,
+            5
+        ],
+        [
+            w + 9,
+            -2*w + 12
+        ],
+        [
+            3*w,
+            2*w + 10
+        ]
+    ],
+    Qstandardorder := [
+        [ 0, 0, 0, 1 ],
+        [ 1, 0, 0, 0 ],
+        [ 1, 1, 0, 1 ],
+        [ 4, 2, 2, 13 ],
+        [ 9, 3, 3, 13 ],
+        [ 9, 6, 3, 17 ],
+        [ 16, 4, 4, 13 ],
+        [ 16, 8, 4, 17 ],
+        [ 107, 70, 32, 172 ],
+        [ 11, 7, 4, 23 ],
+        [ 11, 8, 3, 17 ],
+        [ 13, 5, 4, 17 ],
+        [ 13, 7, 3, 13 ],
+        [ 17, 5, 4, 13 ],
+        [ 13, 3, 3, 9 ],
+        [ 13, 4, 4, 16 ],
+        [ 13, 5, 5, 25 ],
+        [ 17, 8, 4, 16 ],
+        [ 17, 10, 5, 25 ],
+        [ 101, 68, 30, 164 ],
+        [ 99, 66, 30, 164 ]
+    ],
+    zero_reversers := []>
+
+Total time: 1.119 seconds, Total memory usage: 32.09MB
