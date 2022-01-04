@@ -42,6 +42,7 @@ int main ()
          homspace hall(N,0,0, verbose);  //level, plusflag, cuspidal, verbose
          int dimall = hall.h1cuspdim();
          int dimminus = dimall-dimplus;
+         assert (dimminus>=0);
          cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;
        }
      else
