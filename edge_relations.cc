@@ -609,7 +609,7 @@ void edge_relations::edge_pairing_plus(int i)
       m = J(k); assert (l==M(m));
       done[j] = done[m] = 1;
 
-      if (k==l) // equivalently, j==m
+      if (k==l && plusflag) // equivalently, j==m
         {
           assert (j==m);
           coordindex[off1+k] = 0;
@@ -617,18 +617,18 @@ void edge_relations::edge_pairing_plus(int i)
         }
       else
         {
-          assert (j!=m);
+          assert (j!=m || !plusflag);
           ++ngens;
           gens.push_back(off1+l);
           coordindex[off1+l] = ngens;
-          coordindex[off1+k] = -ngens;
-          if (!plusflag)
+          coordindex[off2+m] = -ngens;
+          if (!plusflag && j!=m)
             {
               ++ngens;
               gens.push_back(off2+j);
             }
           coordindex[off2+j] = ngens;
-          coordindex[off2+m] = -ngens;
+          coordindex[off1+k] = -ngens;
         }
     }
 }

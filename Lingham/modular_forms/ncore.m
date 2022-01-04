@@ -14,11 +14,13 @@ if D mod 4 eq 3 then
    OK:=IntegerRing(K);  
    im:=hom<L -> K | 2*w-1>;
    b:=4;
+   conj:=hom<K -> K | 1-w>; 
 else
    K<w>:=NumberField(x^2+D);
    OK:=IntegerRing(K);
    im:=hom<L -> K | w>;
    b:=2;
+   conj:=hom<K -> K | -w>; 
 end if;
 
 iim:=Inverse(im);
@@ -30,4 +32,3 @@ KK:=CartesianProduct(K,K);
 MI:=Matrix([[1,0],[0,1]]);
 MJ:=Matrix([[1,0],[0,-1]]);
 
-conj:=hom<K -> K | 1-w>; 

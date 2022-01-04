@@ -217,7 +217,7 @@ function Inter(S)     // Swan's algorithm
                                  end if;
                               end for;
                               if <S_p[1],S_p[2]> notin S then
-"new point found";
+                              "new point found, ", S_p;
 			         S:=S join {<S_p[1],S_p[2]>};
                               end if;
                            end if;
