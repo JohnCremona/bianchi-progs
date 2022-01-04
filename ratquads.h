@@ -250,6 +250,9 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
 
 int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
 
+// Debugging version, does a second conjugate test and compares
+int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
+
 inline ostream& operator<< (ostream& s, const modsym& m)
 {
    s << "{" << (m.a) << "," << (m.b) << "}";

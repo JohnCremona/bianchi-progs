@@ -18,7 +18,7 @@ int cusplist::index(const RatQuad& c)
   Quad n = N.gen();
   for(vector<RatQuad>::iterator ci = cusps.begin(); ci != cusps.end(); ++ci)
     {
-      int t = cuspeq(*ci, c, N, plusflag);
+      int t = cuspeq_conj(*ci, c, N, plusflag);
       if (Quad::class_number==1)
         {
           int t1 = cuspeq(*ci, c, n, plusflag);
