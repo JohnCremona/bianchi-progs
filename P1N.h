@@ -45,6 +45,7 @@ public:
   void reduce(Quad& c, Quad& d);            // simplify c,d without changing (c:d)
   long index(const Quad& c, const Quad& d); // index i of (c:d)
   long size() const {return psi;}
+  Qideal level() const {return N;}
 
   long merge_indices(const vector<long>& klist) const {return ::merge_indices(psilist, klist);}
   vector<long> split_indices(long k) const {return ::split_indices(psilist, k);}

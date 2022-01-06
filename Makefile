@@ -21,6 +21,11 @@ LIBDIR = $(ECLIB_BASE)/lib
 #  is much slower: e.g. with level (128), field 1 it takes 20m instead
 #  of <1s.
 
+# The type of integers used for components of Quad, Qideal, RatQuad
+# can be either long or bigint (=NTL's ZZ), and is typedef'd to QUINT
+# in the code.  By default the type is long and QUINT_IS_long is
+# defined; to use bigints define QUINT_IS_ZZ in intprocs.h.
+
 GCC=g++ -std=c++11 -fmax-errors=1
 CC = $(GCC)
 
@@ -28,7 +33,6 @@ CC = $(GCC)
 #OPTFLAG = -DNDEBUG -O3 -Wall -fPIC
 # to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
-#OPTFLAG = -O0 -Wall -fPIC
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
@@ -43,7 +47,7 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 # for profiling:
-#CFLAGS = -c -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
 #LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
@@ -73,9 +77,9 @@ DISCS9=4 8  3 7 11 19 43 67 163
 DISCSX=5 23 31 47
 DISCS=$(DISCS9) $(DISCSX)
 FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
-FIELDS_full=
+#FIELDS_full=
 FIELDS_hom=5 6 10 13 14 15 17 21 22 47
-#FIELDS_hom=47
+#FIELDS_hom=
 FIELDSX=
 #FIELDSX=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)

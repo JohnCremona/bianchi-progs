@@ -6,7 +6,7 @@
 #include <eclib/arith.h>
 #include <eclib/unimod.h>
 #include <assert.h>
-#include "intprocs.h" // typdefs QUINT
+#include "intprocs.h" // typedefs QUINT
 
 #define PI M_PI
 
@@ -59,7 +59,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static long      t;          // trace of w (= 0 or 1)
   static QUINT     n;          // norm of w
   static char      name;       // name of w for printing
-  static QUINT  maxnorm;       // largest norm of primes
+  static long      maxnorm;       // largest norm of primes
   static QUINT     disc, absdisc;       // discriminant (<0) and its absolute value
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
@@ -71,7 +71,6 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static void field(long dd, long max=1000);
   static void displayfield(ostream& s = cout);
   static int chi(long p); // quadratic character associated to the field
-  static int chi(QUINT p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
   static void fill_class_group();
@@ -88,12 +87,15 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
   }
   Quad() :r((long)0), i((long)0), nm((long)0)  {}
+#ifdef QUINT_IS_ZZ
+  static int chi(QUINT p); // quadratic character associated to the field
   Quad(QUINT x) :r(x), i((long)0), nm(x*x)  {}
-  Quad(long x) :r(x), i((long)0), nm(x*x)  {}
   Quad(QUINT x, QUINT y) :r(x),i(y), nm(x*x + n*y*y)
   {
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
   }
+#endif
+  Quad(long x) :r(x), i((long)0), nm(x*x)  {}
   Quad(long x, long y) :r(x),i(y), nm(x*x + n*y*y)
   {
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
@@ -256,7 +258,7 @@ int is_ideal_Galois_stable(const Quad&);
 
 #include <values.h>
 
-inline bigfloat realnorm(const Quad& z) {  return sqrt(I2bigfloat(quadnorm(z)));}
+inline bigfloat realnorm(const Quad& z) {  return sqrt(to_bigfloat(quadnorm(z)));}
 inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
 inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
 

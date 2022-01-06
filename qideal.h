@@ -18,6 +18,8 @@ protected:
   long index;   // Index (from 1) of this ideal in the standard
                 // sorting of ideals of the same norm, or -1 if not known
   Factorization *F; // pointer to the ideal's factorization (only set when needed)
+  vector<Quad> the_residues;
+  void make_residues();
 
 public:
 //constructors
@@ -56,7 +58,7 @@ public:
   Quad gen();          // smallest element, so a generator iff principal
   vector<Quad> gens(); // reduced Z-module ggens
   vector<QUINT> get_rv() const {return {ac, b*c};} // real parts of Z-module gens
-  vector<QUINT> get_iv() const {return { BIGINT(0), c};}   // imag parts of Z-module gens
+  vector<QUINT> get_iv() const {return { ZERO, c};}   // imag parts of Z-module gens
 
   void set_index(int ind=0); // if 0 (default) computes the correct index
   long get_index()

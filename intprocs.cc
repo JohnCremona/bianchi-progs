@@ -5,9 +5,12 @@
 #include <numeric>
 #include "intprocs.h"
 
-int is_nonnegative(QUINT a)
+int divides(long a, long b, long& q, long& r)
 {
-  return is_positive(a) || is_zero(a);
+  std::ldiv_t qr = ldiv(a, b);
+  r = qr.rem;
+  q = qr.quot;
+  return (r==0);
 }
 
 long squarefree_part(long d)
@@ -38,6 +41,12 @@ long rounded_division(long a, long b)
   return (r2<-b? q-1: (r2>=b? q+1: q));
 }
 
+#ifdef QUINT_IS_ZZ
+int is_nonnegative(QUINT a)
+{
+  return is_positive(a) || is_zero(a);
+}
+
 QUINT rounded_division(QUINT a, QUINT b)
 {
   QUINT q, r;
@@ -51,6 +60,14 @@ QUINT rounded_division(QUINT a, QUINT b)
     if (r2>=b)
       q+=1;
   return q;
+}
+#endif
+
+void sqrt_mod_p(long & x, long a, long p)
+{
+  bigint rr;
+  sqrt_mod_p(rr, BIGINT(posmod(a,p)), BIGINT(p));
+  x = I2long(rr);
 }
 
 QUINT vecgcd(const vector<QUINT>& a)
@@ -82,13 +99,12 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
   if (n!=3) return vecbezout(a, c);
 
   QUINT aa=a[0], bb=a[1], cc=a[2];
-  QUINT ZERO(0), ONE(1);
 #ifdef testbezout3
   cout<<"Computing vecbezout3("<<a<<")"<<endl;
 #endif
   if ((is_zero(aa))&&(is_zero(bb)))
     {
-      if (is_negative(cc))
+      if (cc<0)
         {
           c = {ZERO,ZERO,-ONE};
           return -cc;
@@ -116,10 +132,10 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
 #endif
   // now minimize
   QUINT lambda, mu;
-#ifdef testbezout3
   QUINT x2y2 = x*x+y*y;
   lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
   mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
+#ifdef testbezout3
   cout << " (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
 #endif
   // bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
@@ -157,7 +173,7 @@ QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
     for(vector<QUINT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
-  c = vector<QUINT>(n, BIGINT(0));
+  c = vector<QUINT>(n, QUINT(0));
   QUINT g1(0);
   for(int i=0; i<n &&g1!=1; i++)
     {
@@ -189,7 +205,7 @@ QUINT xmodvecbezout(QUINT s, const vector<QUINT>& a, vector<QUINT>& c)
 QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c)
 //returns g = a.c
 {
-  return std::inner_product(a.begin(), a.end(), c.begin(), BIGINT(0));
+  return std::inner_product(a.begin(), a.end(), c.begin(), QUINT(0));
 }
 
 //#define testbezout

@@ -66,7 +66,7 @@ int main ()
  if (c==a) {cout<<" \t--OK!";} 
  else      {cout<<" \t--NO!";} 
  cout<<endl;
- c=a/BIGINT(3);
+ c=a/THREE;
  cout << "a/3 = " << c << endl;
  c=a+b;
  cout << "c = a+b = " << c << endl;

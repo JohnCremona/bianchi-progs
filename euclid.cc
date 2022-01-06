@@ -61,26 +61,22 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   // We record the type of the transformation in t unless it is initialised to -1.
   // For simple gcd, we need none of these;  for bezout (extended EA) we need c1,d1 and c2,d2
   // For convergents we need c1,d1 and t
-
-  int compute_c1d1=1, compute_c2d2=1;
-  if (c1.is_zero() && d1.is_zero())
-    compute_c1d1 = 0;
-  if (c2.is_zero() && d2.is_zero())
-    compute_c2d2 = 0;
 #ifdef DEBUG_PSEA
   cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.nm<<", b="<<b<<", N(b)="<<b.nm<<endl;
 #endif
-  if (b.nm<0) // impossible unless there has been overflow
-    {
-      cerr<<"Something is wrong: b="<<b<<" should not have negative norm "<<b.nm<<endl;
-      exit(1);
-    }
   if (b.nm==0)
     {
       t=0;
       return;
     }
+  if (b.nm<0) // impossible unless there has been overflow
+    {
+      cerr<<"Something is wrong: b="<<b<<" should not have negative norm "<<b.nm<<endl;
+      exit(1);
+    }
 
+  int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
+  int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
   Quad u, q = Quad::zero;  // common simple special case where N(a)<N(b), q = 0 with no work
 
   if (a.nm<b.nm) // just swap over
@@ -92,12 +88,10 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
       if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
       if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
-      cout <<" type=0";
-      cout << endl;
+      cout <<" type=0" << endl;
 #endif
       t = 0;
       return;
-
     }
 
   q = a/b;  // rounded, so N(a/b -q) is minimal
@@ -120,8 +114,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
       if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
       if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
-      cout <<" type=0";
-      cout << endl;
+      cout <<" type=0" << endl;
 #endif
       t = 0;
       return;
