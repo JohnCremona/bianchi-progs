@@ -104,7 +104,7 @@ int main(void)
   // See whether we need to compute more ap:
 
   if(verbose)
-    cerr << "Largest prime index (based at 0) for which we need ap is " << maxip <<"."<<endl;
+    cout << "Largest prime index (based at 0) for which we need ap is " << maxip <<"."<<endl;
   if (maxip>nap-1)
     {
       computation_needed = 1;
@@ -133,7 +133,6 @@ int main(void)
       for(np=0; np<nprimes; np++)
         {
           P = primes_needed[np];
-          // convert to a prime ideal:
           vector<long> apv = nf.apvec(P);
           if(verbose)
             cerr << "List of a_P for P = "<<P<<": "<<apv<<endl;

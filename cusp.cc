@@ -23,8 +23,6 @@ int cusplist::index(const RatQuad& c)
     {
 #ifdef DEBUG_CUSPS
       cout<<" comparing cusp "<<c<<" with cusp "<<(*ci)<<endl;
-#endif
-#ifdef DEBUG_CUSPS
       int t = cuspeq_conj(*ci, c, N, plusflag);
 #else
       int t = cuspeq(*ci, c, N, plusflag);

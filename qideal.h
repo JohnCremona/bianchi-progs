@@ -144,7 +144,6 @@ public:
   // J exists (i.e., if the ideal class is not a square, return the
   // zero ideal.  (implemented in primes.cc)
   Qideal sqrt_coprime_to(const Qideal& N);
-
   //
   Qideal operator/(const QUINT&) const;
   Qideal operator/(const Quad&) const;
@@ -161,6 +160,9 @@ public:
   int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
   int is_Galois_stable() {return div(a, (2*b+Quad::t));}
+  // Test whether this ideal is a prime, or a prime power:
+  int is_prime();
+  int is_prime_power();
 
   int is_equivalent(const Qideal& I)
   {

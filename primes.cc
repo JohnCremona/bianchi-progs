@@ -9,6 +9,30 @@
 QUINT Quadprimes::maxnorm;
 vector<Quadprime> Quadprimes::list;
 
+// Quadprime constructor from an ideal (which should be a nonzero prime ideal)
+
+Quadprime::Quadprime(Qideal& I) :Qideal(I)
+{
+  if (I.is_prime())
+    {
+      *this = I.factorization().prime(0);
+    }
+  else
+    {
+      cerr << "***cannot construct a prime ideal from the ideal "<<I<<" = "<<F<<", which is not prime!"<<endl;
+    }
+}
+
+
+istream& operator>>(istream& s, Quadprime& P)
+{
+  Qideal I;
+  s >> I;
+  P = Quadprime(I);
+  return s;
+}
+
+
 void Quadprimes::display(ostream& s, long maxn) // by default don't list any primes
 {
   s << list.size() << " prime ideals initialised, ";
@@ -603,5 +627,9 @@ int Qideal::is_square()
     if ((*ei)%2==1) return 0;
   return 1;
 }
+
+// Test whether an ideal is a prime, or a prime power:
+int Qideal::is_prime() {return factorization().is_prime();}
+int Qideal::is_prime_power() {return factorization().is_prime_power();}
 
 // END OF FILE primes.cc

@@ -68,7 +68,7 @@ Qideal::Qideal()   //default ideal is whole ring
 { ; }
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0)
+  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0), the_residues(i.the_residues)
 { // don't copy the pointer F (though we could copy the underlying Factorizarion)
   if(iclass!=-1)
     {
@@ -410,7 +410,7 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   // cout<<"is_coprime_to() with I="<<(*this)<<", J="<<J<<endl;
   // cout<<" coeffs of r are "<<w[0]<<" and "<< J.c * w[2]<<endl;
   r =   zcombo(w[0],  J.c * w[2]);
-  s =   Quad::one-r;
+  s =   Quad::one - r;
   assert (contains(r));
   assert (J.contains(s));
   if (r.nm<0 || s.nm<0) // can only happen if there was overflow
@@ -478,22 +478,23 @@ long Qideal::numres(const Quad& alpha) const // the index of a residue mod this,
 
 void Qideal::make_residues() // fill the_residues, a sorted list of reduced residues
 {
-  if (the_residues.empty())
+  if (the_residues.size()!=nm)
     {
+      the_residues.clear();
       QUINT quot, rem, i(0);
       while (i<nm)
         {
           ::divides(i, ac, quot, rem);
-          the_residues.push_back(reduce(Quad(rem, quot)));
+          Quad res(rem,quot);
+          the_residues.push_back(reduce(res));
           i++;
         }
     }
 }
 
-vector<Quad> Qideal::residues()
+vector<Quad> Qideal::residues() // list of residues, sorted
 {
-  if (the_residues.empty())
-    make_residues();
+  make_residues();
   return the_residues;
 }
 
