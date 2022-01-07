@@ -56,8 +56,9 @@ public:
   // each M in GL2 permutes the (c:d) symbols by right multiplcation:
   long apply(const mat22& M, long i);
 
-  // test function
-  void check(int verbose=0);
+  // test functions
+  void check(int verbose=0);       // checks indexing
+  void check_lifts(int verbose=0); // checks lifts to SL2
 protected:
   long nrm, phi, psi;
   Qideal N;  // the level

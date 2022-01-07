@@ -26,10 +26,11 @@ void multi_index_test(const vector<long>& nlist, int verbose=0)
     }
 }
 
-void symb_index_test(Qideal N, int verbose=0)
+void P1N_test(Qideal N, int verbose=0)
 {
   P1N P1(N);
   P1.check(verbose);
+  P1.check_lifts(verbose);
 }
 
 void init()
@@ -53,13 +54,13 @@ int main(void)
   Qidealooper loop(1, maxn, both, sorted);
   while( loop.not_finished() )
     {
-      symb_index_test(loop.next(), 0);
+      P1N_test(loop.next(), 0);
     }
   cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
   Quadlooper alpha(1, maxn, both);
   while( alpha.ok() )
     {
-      symb_index_test(Qideal(alpha), 0);
+      P1N_test(Qideal(alpha), 0);
       ++alpha;
     }
   cout<<"done"<<endl;

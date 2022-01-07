@@ -14,10 +14,16 @@ void cusplist::display() const
 
 int cusplist::index(const RatQuad& c)
 {
+#ifdef DEBUG_CUSPS
+  cout<<"Testing cusp "<<c<<" against existing list"<<endl;
+#endif
   // add c to list if not there already, and return index
   Quad n = N.gen();
   for(vector<RatQuad>::iterator ci = cusps.begin(); ci != cusps.end(); ++ci)
     {
+#ifdef DEBUG_CUSPS
+      cout<<" comparing cusp "<<c<<" with cusp "<<(*ci)<<endl;
+#endif
 #ifdef DEBUG_CUSPS
       int t = cuspeq_conj(*ci, c, N, plusflag);
 #else

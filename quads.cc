@@ -582,7 +582,10 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
   QUINT y = rounded_division(( gamma*quadconj(alpha)).im(), d);
   Quad ans = gamma - (x*alpha + y*beta);
 #ifdef test_reduce
-  cout << " is "<< ans << " (x="<<x<<", y="<<y<<")"<<endl;
+  cout << " is "<< ans << " (d="<<d<<", x="<<x<<", y="<<y<<")"<<endl;
+  cout << " x*alpha =  "<< x*alpha << endl;
+  cout << " y*beta =  "<< y*beta << endl;
+  cout << " x*alpha+y*beta =  "<< x*alpha+y*beta << endl;
 #endif
   QUINT gn = quadnorm(ans);
   vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,

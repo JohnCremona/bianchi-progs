@@ -335,8 +335,8 @@ mat22 P1N::lift_to_SL2(long ind)
   return M;
 }
 
-// test function
-void P1N::check(int verbose)
+// test functions
+void P1N::check(int verbose)       // checks indexing
 {
   if (verbose)
     {
@@ -364,3 +364,24 @@ void P1N::check(int verbose)
     }
 }
 
+void P1N::check_lifts(int verbose) // checks lifts to SL2
+{
+  if (verbose)
+    {
+      cout << "Testing lifts from P1(N) to SL(2,O_K) for N = " << N << ": ";
+    }
+  long i;
+  Quad c, d;
+  for (i=0; i<psi; i++)
+    {
+      make_symb(i, c, d);
+      mat22 M = lift_to_SL2(i);
+      if (verbose)
+        {
+          cout << i << " --> ("<<c<<":"<<d << ") lifts to " << M << endl;
+        }
+      // NB The lift_to_SL2() method already tests these assertions:
+      // assert(M.is_unimodular());
+      // assert (i==index(M.entry(1,0), M.entry(1,1)));
+    }
+}

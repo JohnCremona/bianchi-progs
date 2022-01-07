@@ -407,9 +407,10 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   vector<QUINT> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
   if (vecbezout(v, w)!=1)
     return 0;
+  // cout<<"is_coprime_to() with I="<<(*this)<<", J="<<J<<endl;
+  // cout<<" coeffs of r are "<<w[0]<<" and "<< J.c * w[2]<<endl;
   r =   zcombo(w[0],  J.c * w[2]);
-  s =   J.zcombo(w[1], -c * w[2]);
-  assert (r+s==Quad::one);
+  s =   Quad::one-r;
   assert (contains(r));
   assert (J.contains(s));
   if (r.nm<0 || s.nm<0) // can only happen if there was overflow
@@ -450,10 +451,10 @@ Quad Qideal::reduce(const Quad& alpha)
 {
   if (iclass==-1)
     fill();
-  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<endl;
+  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<": --> "<<alpha%ac<<endl;
   if ((quadconj(g0)*g1).i<0)
     cout<<"Badly oriented Z-basis "<<endl;
-  return reduce_mod_zbasis(alpha, g0, g1);
+  return reduce_mod_zbasis(alpha%ac, g0, g1);
 }
 
 // The i'th residue is Quad(x,y) for x mod a*c, y mod c; i = a*c*y+x
