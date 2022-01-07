@@ -18,6 +18,8 @@ protected:
   long index;   // Index (from 1) of this ideal in the standard
                 // sorting of ideals of the same norm, or -1 if not known
   Factorization *F; // pointer to the ideal's factorization (only set when needed)
+  vector<Quad> the_residues;
+  void make_residues();
 
 public:
 //constructors
@@ -56,7 +58,7 @@ public:
   Quad gen();          // smallest element, so a generator iff principal
   vector<Quad> gens(); // reduced Z-module ggens
   vector<QUINT> get_rv() const {return {ac, b*c};} // real parts of Z-module gens
-  vector<QUINT> get_iv() const {return { BIGINT(0), c};}   // imag parts of Z-module gens
+  vector<QUINT> get_iv() const {return { ZERO, c};}   // imag parts of Z-module gens
 
   void set_index(int ind=0); // if 0 (default) computes the correct index
   long get_index()
@@ -142,7 +144,6 @@ public:
   // J exists (i.e., if the ideal class is not a square, return the
   // zero ideal.  (implemented in primes.cc)
   Qideal sqrt_coprime_to(const Qideal& N);
-
   //
   Qideal operator/(const QUINT&) const;
   Qideal operator/(const Quad&) const;
@@ -159,6 +160,9 @@ public:
   int is_principal(Quad& g);   // same but puts generator into g
   int is_square();
   int is_Galois_stable() {return div(a, (2*b+Quad::t));}
+  // Test whether this ideal is a prime, or a prime power:
+  int is_prime();
+  int is_prime_power();
 
   int is_equivalent(const Qideal& I)
   {

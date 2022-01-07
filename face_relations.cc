@@ -496,7 +496,7 @@ void face_relations::hexagon_relation_11()
 void face_relations::triangle_relation_2()
 {
   int field = Quad::d;
-  Quad w=Quad::w, zero=Quad::zero, one=Quad::one;
+  Quad w=Quad::w, one=Quad::one;
   long j, k;
   Quad u((field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 

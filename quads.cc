@@ -19,7 +19,7 @@ QUINT Quad::absdisc;
 long Quad::t;
 QUINT Quad::n;
 char Quad::name;
-QUINT Quad::maxnorm;
+long Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
 int Quad::class_number;
@@ -140,7 +140,7 @@ void Quad::field(long dd, long max)
     quadunits.push_back(fundunit*quadunits[i-1]);
   for(i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
-  maxnorm=BIGINT(max);
+  maxnorm=max;
   if(class_number==1)
     initquadprimes();
   Quadprimes::init(max);
@@ -170,10 +170,12 @@ void Quad::displayfield(ostream& s)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
+#ifdef QUINT_IS_ZZ
 int Quad::chi(QUINT p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
 }
+#endif
 
 int Quad::chi(long p)
 {
@@ -190,7 +192,7 @@ Quad::Quad(const bigcomplex& z)
 }
 
 Quad::operator bigcomplex() const
-{bigfloat x=I2bigfloat(r), y=I2bigfloat(i);
+{bigfloat x = to_bigfloat(r), y = to_bigfloat(i);
  if(d>2) {y/=2.0; x+=y;}
  if(d>1) y*=sqrt(to_bigfloat(d));
  return bigcomplex(x,y);
@@ -276,7 +278,7 @@ void factorp0(long p, QUINT& a, QUINT& b, QUINT d)
   for (b=1; !found; b++)
   {
     QUINT a2 = p - d*b*b;
-    Iasb(a, sqrt(I2bigfloat(a2)));
+    Iasb(a, sqrt(to_bigfloat(a2)));
     found = (a*a == a2);
   }
   b--;
@@ -287,7 +289,7 @@ void factorp1(long p, QUINT& a, QUINT& b, QUINT d)
 { int found=0; long fourp = 4*p;
   for (b=1; !found; b++)
   { QUINT a2 = fourp -d*b*b;
-    Iasb(a, sqrt(I2bigfloat(a2)));
+    Iasb(a, sqrt(to_bigfloat(a2)));
     found = (a*a == a2);
   }
   b--;
@@ -296,12 +298,12 @@ void factorp1(long p, QUINT& a, QUINT& b, QUINT d)
 
 vector<Quad> Quad::primes_above(long p, int& sig)
 {
-  QUINT d(Quad::d), disc(Quad::disc), P(p);
+  QUINT d(Quad::d), P(p);
   int t=Quad::t;
   QUINT a,b;  Quad pi, piconj;
   vector<Quad> list;
   sig = Quad::chi(p);
-  //  cout<<"disc = "<<disc<<", p="<<p<<", chi(p)="<<sig<<endl;
+  //  cout<<"disc = "<<Quad::disc<<", p="<<p<<", chi(p)="<<sig<<endl;
   QUINT i0(0), i1(1), i2(2), i3(3);
   switch (sig) {
   case  0: // ramified
@@ -851,7 +853,9 @@ bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
 {
 //cout<<"Computing g(chi) for lambda = " << m << endl;
   bigfloat ans1(0); //double ans2=0;
-  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0),sqrt(I2bigfloat(Quad::absdisc)));
+  bigfloat rootdisc;
+  rootdisc = sqrt(to_bigfloat(Quad::absdisc));
+  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0), rootdisc);
   vector<Quad>::const_iterator r=reslist.begin();
   while(r!=reslist.end())
   {

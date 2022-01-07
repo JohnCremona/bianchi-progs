@@ -40,10 +40,10 @@ void Qideal::fill()
 {
   if (iclass!=-1) return;
   //  cout<<"Filling in data for ideal"<<(*this)<<endl;
-  g0=Quad(a); g1=Quad(b,BIGINT(1));
+  g0=Quad(a); g1=Quad(b,ONE);
   unimod U;
   sl2z_reduce(g0,g1, U);
-  if ((quadconj(g0)*g1).im()<0)
+  if ((quadconj(g0)*g1).i<0)
     cout<<"Badly oriented Z-basis in fill() 1"<<endl;
   //  cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
   iclass = (div(g0,g1)? 0: 1); // 0 means principal
@@ -57,18 +57,18 @@ void Qideal::fill()
       g1*=fundunit;
     }
   //  cout<<" -- now gens are "<<gens()<<endl;
-  if ((quadconj(g0)*g1).im()<0)
+  if ((quadconj(g0)*g1).i<0)
     cout<<"Badly oriented Z-basis in fill() 2"<<endl;
   if (!pos(g0))
     cout<<"After fill(), generator g0 = "<<g0<<" not normalised"<<endl;
 }
 
 Qideal::Qideal()   //default ideal is whole ring
-  : a(BIGINT(1)), b(BIGINT(0)), c(BIGINT(1)), ac(BIGINT(1)), nm(BIGINT(1)), iclass(0), g0(Quad::one), g1(Quad::w), index(1), F(0)
+  : a(ONE), b(ZERO), c(ONE), ac(ONE), nm(ONE), iclass(0), g0(Quad::one), g1(Quad::w), index(1), F(0)
 { ; }
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0)
+  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0), the_residues(i.the_residues)
 { // don't copy the pointer F (though we could copy the underlying Factorizarion)
   if(iclass!=-1)
     {
@@ -90,7 +90,7 @@ Qideal::Qideal(const QUINT& aa, const QUINT& bb, const QUINT& cc)
 {
   if (::is_zero(cc))
     {
-      a=BIGINT(1); b=c=ac=nm=BIGINT(0); iclass=0; g0=g1=Quad::zero; index=1;
+      a=ONE; b=c=ac=nm=ZERO; iclass=0; g0=g1=Quad::zero; index=1;
     }
   else
   {
@@ -110,7 +110,7 @@ Qideal::Qideal(const QUINT& aa, const QUINT& bb, const QUINT& cc)
 }
 
 Qideal::Qideal(const QUINT& n)       // princ ideal gen by QUINT
-  : a(BIGINT(1)), b(BIGINT(0)), c(abs(n)), iclass(0), g0(abs(n)), g1(BIGINT(0), abs(n)), index(-1), F(0)
+  : a(ONE), b(ZERO), c(abs(n)), iclass(0), g0(abs(n)), g1(ZERO, abs(n)), index(-1), F(0)
 {
   ac=a*c; nm=ac*c;
 }
@@ -136,11 +136,11 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
   for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); ++g)
     {
       Quad a = *g;
-      rv.push_back(a.re());
-      iv.push_back(a.im());
+      rv.push_back(a.r);
+      iv.push_back(a.i);
       a *=Quad::w;
-      rv.push_back(a.re());
-      iv.push_back(a.im());
+      rv.push_back(a.r);
+      iv.push_back(a.i);
     }
   // cout<<"rv = "<<rv<<", iv = "<<iv<<endl;
   *this = Qideal(rv, iv);
@@ -323,7 +323,7 @@ void Qideal::operator*=(const Quad& alpha)
 {
   if (c==0 || alpha.norm()==1) return;              // this is unchanged
   if (alpha.is_zero()) { *this=Qideal(alpha); return;}         // this becomes 0
-  if (alpha.im()==0) {*this *= alpha.re(); return;} // alpha in Z
+  if (alpha.i==0) {*this *= alpha.r; return;} // alpha in Z
   if (iclass==0) {
     // cout<<"operator *= with this="<<(*this)<<" (which is principal with generator "<<g0<<") and "<<alpha<<endl;
     *this=Qideal(g0*alpha);
@@ -332,7 +332,7 @@ void Qideal::operator*=(const Quad& alpha)
     return;
   } // this is principal
 
-  vector<Quad> gens = {alpha*Quad(a), alpha*Quad(b,BIGINT(1))}; // without the factor c
+  vector<Quad> gens = {alpha*Quad(a), alpha*Quad(b,ONE)}; // without the factor c
   QUINT fac = c;
   *this = Qideal(gens);
   c *= fac;
@@ -408,8 +408,7 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   if (vecbezout(v, w)!=1)
     return 0;
   r =   zcombo(w[0],  J.c * w[2]);
-  s =   J.zcombo(w[1], -c * w[2]);
-  assert (r+s==Quad::one);
+  s =   Quad::one - r;
   assert (contains(r));
   assert (J.contains(s));
   if (r.nm<0 || s.nm<0) // can only happen if there was overflow
@@ -450,10 +449,10 @@ Quad Qideal::reduce(const Quad& alpha)
 {
   if (iclass==-1)
     fill();
-  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<endl;
-  if ((quadconj(g0)*g1).im()<0)
+  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<": --> "<<alpha%ac<<endl;
+  if ((quadconj(g0)*g1).i<0)
     cout<<"Badly oriented Z-basis "<<endl;
-  return reduce_mod_zbasis(alpha, g0, g1);
+  return reduce_mod_zbasis(alpha%ac, g0, g1);
 }
 
 // The i'th residue is Quad(x,y) for x mod a*c, y mod c; i = a*c*y+x
@@ -461,24 +460,40 @@ Quad Qideal::reduce(const Quad& alpha)
 // Map from i to res (only depends on i mod norm)
 Quad Qideal::resnum(long i) // the i'the residue mod this, in standard order (0'th is 0)
 {
-  QUINT quot, rem;
-  ::divides(posmod(BIGINT(i), nm), ac, quot, rem);
-  return reduce(Quad(rem, quot));
+  // QUINT quot, rem;
+  // ::divides(posmod(BIGINT(i), nm), ac, quot, rem);
+  // return reduce(Quad(rem, quot));
+  make_residues();
+  return the_residues[i];
 }
 
 long Qideal::numres(const Quad& alpha) const // the index of a residue mod this, in standard order (0'th is 0)
 {
-  QUINT y = posmod(alpha.im(), c);
-  QUINT x = posmod(alpha.re()-b*(alpha.im()-y), ac);
+  QUINT y = posmod(alpha.i, c);
+  QUINT x = posmod(alpha.r-b*(alpha.i-y), ac);
   return I2long(x + ac*y);
+}
+
+void Qideal::make_residues() // fill the_residues, a sorted list of reduced residues
+{
+  if (the_residues.size()!=nm)
+    {
+      the_residues.clear();
+      QUINT quot, rem, i(0);
+      while (i<nm)
+        {
+          ::divides(i, ac, quot, rem);
+          Quad res(rem,quot);
+          the_residues.push_back(reduce(res));
+          i++;
+        }
+    }
 }
 
 vector<Quad> Qideal::residues() // list of residues, sorted
 {
-  long i, n = I2long(nm);
-  vector<Quad> res; res.reserve(n);
-  for (i=0; i<n; i++) res.push_back(resnum(i));
-  return res;
+  make_residues();
+  return the_residues;
 }
 
 // lists of invertible residues, and their inverses
@@ -633,7 +648,7 @@ void Qideal::operator/=(const QUINT&n)
 
 void Qideal::operator/=(const Quad&alpha)
 {
-  if (alpha.nm==BIGINT(1)) return;
+  if (alpha.nm==ONE) return;
   (*this) *= alpha.conj();
   QUINT na = alpha.norm();
   QUINT quot, rem;
@@ -651,7 +666,7 @@ void Qideal::operator/=(const Quad&alpha)
 void Qideal::operator/=(const Qideal&f)
 {
   QUINT nf = f.norm();
-  if (nf==BIGINT(1)) return;
+  if (nf==ONE) return;
   Qideal keep = *this, fc = f.conj();
   // cout<<"dividing "<<(*this)<<" by "<<f<<endl;
   (*this) *= fc;

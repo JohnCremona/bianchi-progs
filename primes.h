@@ -28,6 +28,7 @@ public:
   Quadprime(QUINT a, QUINT b, QUINT c, long pp, long ind=1)
     : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p); fill();}
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
+  Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}
   int is_ramified() const {return character==0;}
   int is_split() const {return character==1;}
@@ -36,6 +37,7 @@ public:
   int residue_degree() const {return (character==-1? 2: 1);}
   int ramification_degree() const {return (character==0? 2: 1);}
   friend inline ostream& operator<<(ostream& s, const Quadprime& x);
+  friend istream& operator>>(istream& s, Quadprime& P);
 };
 
 inline ostream& operator<<(ostream& s, const Quadprime& x)
@@ -53,7 +55,6 @@ inline ostream& operator<<(ostream& s, const QuadprimePower& Q)
   if (Q.second>1) s << "^" << Q.second;
   return s;
 }
-
 
 vector<Quadprime> Quadprimes_above(long p); // p should be an integer prime
 
@@ -90,6 +91,9 @@ public:
   // The next method sorts the output of primes() into norm order
   vector<Quadprime> sorted_primes() const;
 
+  // Test whether this factorization represents a prime, or a prime power:
+  int is_prime() {return Qlist.size()==1 && Qlist[0].second==1;}
+  int is_prime_power() {return Qlist.size()==1;}
   Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]
   friend vector<Quadprime> pdivs(Qideal& n);
   friend vector<Qideal> alldivs(Qideal& a);

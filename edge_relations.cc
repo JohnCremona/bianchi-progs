@@ -43,7 +43,7 @@ RatQuad base_point(int t)
 
 edge_relations::edge_relations(P1N* s, int plus, int verb)
   :P1(s), plusflag(plus), verbose(verb)
-{
+{ //cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
   nsymb = P1->size();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;

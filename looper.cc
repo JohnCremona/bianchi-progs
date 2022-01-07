@@ -4,7 +4,7 @@ QUINT floorsqrt(QUINT asq)
 {
   QUINT r(0);
   if(asq>0)
-    Iasb(r, sqrt(I2bigfloat(asq)+0.1));
+    Iasb(r, sqrt(to_bigfloat(asq)+0.1));
   return r;
 }
 

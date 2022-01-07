@@ -10,7 +10,7 @@ class face_relations;
 
 class edge_relations {
 public:
-  edge_relations() {;}
+  edge_relations() {;}//{cout<<"In default edge_relations constructor"<<endl;}
   edge_relations(P1N*, int plus, int verb=0);
   long coords(int i) const {return coordindex[i];}
   long coords(int i, int t) const {return coordindex[i+offset(t)];}
