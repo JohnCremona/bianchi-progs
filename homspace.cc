@@ -110,6 +110,7 @@ void homspace::make_freemods()
       if (verbose)
         cout<< m << " --> " << flush;
       vec v = chain(m);
+      if (hmod) v = reduce_modp(v,hmod);
       ei[i+1] = denom1;
       if (v!=ei && v!=-ei)
         {
