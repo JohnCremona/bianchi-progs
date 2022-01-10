@@ -39,12 +39,17 @@ vector<long> euclidean_fields = {1,2,3,7,11};
 vector<long> valid_fields = {1, 2, 3, 7, 11,  // Euclidean
                             19, 43, 67, 163, // other class number 1
                             5, 6, 10, 13, 15, 22,   // class number 2 (incomplete)
-                            17, 21,                 // class number 4 (incomplete)
-                            14, 23, 31, 47};         // odd class number >1 (incomplete)
+                            14, 17, 21,                 // class number 4 (incomplete)
+                            23, 31, 47, 59};         // odd class number >1 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
 vector<long> class_number_three_fields = {23,31,59,83,107,139,211,283,307,331,379,499,547,643,883,907};
+vector<long> class_number_four_fields = {14,17,21,30,33,34,39,42,46,55,57,70,73,78,82,85,93,97,102,130,
+                                         133,142,155,177,190,193,195,203,219,253,259,291,323,355,435,483,
+                                         555,595,627,667,715,723,763,795,955,1003,1027,1227,1243,1387,1411,1435,1507, 1555};
+vector<long> class_number_five_fields = {47,79,103,127,131,179,227,347,443,523,571,619,683,691,739,787,947,
+                                         1051,1123,1723,1747,1867,2203,2347, 2683};
 
 int check_field(long d, vector<long> fields)
 {
@@ -104,7 +109,22 @@ void Quad::field(long dd, long max)
   if (d!=dd)
     cout << "Replacing d = " << dd << " with " << d << endl;
   is_Euclidean = check_field(d, euclidean_fields);
-  class_number = (check_field(d, class_number_one_fields)? 1: 0);
+  class_number = 0;
+  if (check_field(d, class_number_one_fields))
+    class_number=1;
+  else
+    if (check_field(d, class_number_two_fields))
+      class_number=2;
+    else
+      if (check_field(d, class_number_three_fields))
+        class_number=3;
+      else
+        if (check_field(d, class_number_four_fields))
+          class_number=4;
+        else
+          if (check_field(d, class_number_five_fields))
+            class_number=5;
+
 
   if ((d+1)%4)
     {

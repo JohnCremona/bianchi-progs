@@ -244,39 +244,6 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 #endif
   // General case: neither c nor d is invertible.
 
-  int ok=0;
-  for (long i=1; i<N.norm() && !ok; i++)
-    {
-      Quad t = N.resnum(i);
-      if (!N.is_coprime_to(t)) continue;
-      Quad ct=N.reduce(c*t), dt=N.reduce(d*t);
-      h = quadbezout(ct,dt, x, y);
-      ok = (!h.is_zero());
-      if (ok) // then is principal with ct*x+dt*y=h
-        {
-#ifdef DEBUG_LIFT
-          cout<<"ideal (c,d)=("<<h<<"), success"<<endl;
-#endif
-          a = y;
-          b = -x;
-          c = ct / h;
-          d = dt / h;
-        }
-    }
-
-  if (ok)
-    {
-#ifdef DEBUG_LIFT
-      cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
-#endif
-      assert (a*d-b*c==Quad::one);
-      mat22 M(a,b,c,d);
-#ifdef DEBUG_LIFT
-      cout<<" returning  "<< M <<endl;
-#endif
-      return M;
-    }
-
   // Test if (c,d)=(h), principal:
   h = quadbezout(c,d, x, y);
   if (!h.is_zero()) // then is principal with c*x+d*y=h, and h=1 since reduced
@@ -307,11 +274,10 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 #ifdef DEBUG_LIFT
       cout<<" inverse of y mod N is z = "<<z<<" with y*z="<<y*z<<endl;
 #endif
-      z *= y;  // now z=0 (mod y), z=1 (mod N)
-      a = y;
-      b =  one - (x+one)*z;  // = 1 (mod y), -x (mod N)
-      c = -one + (c+one)*z;  // =-1 (mod y),  c (mod N)
-      d = (one+b*c)/a;     // 1+b*c = 0 (mod y), 1-c*x = d*y = a*d (mod N)
+      a = Quad::one;
+      b = N.reduce(-x*z);
+      c = N.reduce(c*y); // so b*c == -x*c = d*y-1
+      d = a + b*c; // = d*y mod N
     }
 #ifdef DEBUG_LIFT
   cout<<" replacing c by "<<c<<" and d by "<<d<<", which are coprime"<<endl;
