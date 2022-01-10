@@ -408,6 +408,7 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   if (vecbezout(v, w)!=1)
     return 0;
   // cout<<"is_coprime_to() with I="<<(*this)<<", J="<<J<<endl;
+  // cout<<"vecbezout("<<v<<") returns "<<w<<endl;
   // cout<<" coeffs of r are "<<w[0]<<" and "<< J.c * w[2]<<endl;
   r =   zcombo(w[0],  J.c * w[2]);
   s =   Quad::one - r;
@@ -478,7 +479,7 @@ long Qideal::numres(const Quad& alpha) const // the index of a residue mod this,
 
 void Qideal::make_residues() // fill the_residues, a sorted list of reduced residues
 {
-  if (the_residues.size()!=nm)
+  if (the_residues.size()!=(ulong)I2long(nm))
     {
       the_residues.clear();
       QUINT quot, rem, i(0);

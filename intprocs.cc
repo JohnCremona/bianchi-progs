@@ -132,20 +132,23 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
 #endif
   // now minimize
   QUINT lambda, mu;
+#ifdef QUINT_IS_ZZ
   QUINT x2y2 = x*x+y*y;
   lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
   mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
 #ifdef testbezout3
   cout << " (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
 #endif
-  // bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
-  // bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
-  // bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
-  // longify(rlambda, lambda);
-  // longify(rmu, mu);
-  //#ifdef testbezout3
-  //  cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
-  //#endif
+#else
+  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
+  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
+  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
+  longify(rlambda, lambda);
+  longify(rmu, mu);
+#ifdef testbezout3
+   cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
+#endif
+#endif
   c[0] -= lambda*c1*x+mu*b1;
   c[1] -= lambda*c1*y-mu*a1;
   c[2] += lambda*h1;

@@ -74,11 +74,11 @@ TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin mor
 tests: $(TESTS)
 
 DISCS9=4 8  3 7 11 19 43 67 163
-DISCSX=5 23 31 47
+DISCSX=5 23 31 47 59
 DISCS=$(DISCS9) $(DISCSX)
-FIELDS_full=1 2 3 7 11 19 43 67 163 23 31
+FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59
 #FIELDS_full=
-FIELDS_hom=5 6 10 13 14 15 17 21 22 47
+FIELDS_hom=5 6 10 13 14 15 17 21 22
 #FIELDS_hom=
 FIELDSX=
 #FIELDSX=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
