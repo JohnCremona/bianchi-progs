@@ -1,0 +1,52 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+
+>>>> Level 27.2 = (9,3a), norm = 27 <<<<
+Retrieving newform data for N = 27.2
+
+1 newform(s) at level 27.2 = (9,3a):
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 1 1 4 2 0 0 -2 -4 4 -8 6 0 -4 -2 12 -6 -6 6 -6 4 16 -2 14 -2 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 8
+L/P ratio    = 1, cuspidal factor = 2
+Integration matrix = [-22-3a,-a;9-3a,2], factor   = 4
+Making homspace and bases...
+About to recover 1 newform bases (nap=25)
+Recovering newform #1, eigs [ 1 -1 1 4 2 0 0 -2 -4 4 -8 6 0 -4 -2 12 -6 -6 6 -6 ]...
+Entering form_finder, depth = 0, dimension 25
+restarting at depth = 0, dimension 25
+Computing W(P3a)...done.
+ eig 1 gives new subspace at depth 1 of dimension 12
+ eig -1 gives new subspace at depth 2 of dimension 7
+ eig 1 gives new subspace at depth 3 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+Finished makebases()
+About to start computing ap...
+P = P127a = (1+5a,-25+2a)	N(P) = 127	   16 
+P = P127b = (-6+5a,-23-2a)	N(P) = 127	    4 
+P = P137a = (-9+5a,-22-3a)	N(P) = 137	   10 
+P = P137b = (4+5a,-25+3a)	N(P) = 137	    8 
+P = P139a = (-4+3a)	N(P) = 139	    8 
+P = P139b = (1+3a)	N(P) = 139	   -4 
+P = P163a = (-7+3a)	N(P) = 163	    4 
+P = P163b = (4+3a)	N(P) = 163	  -20 
+P = P167a = (-14+5a,-25-3a)	N(P) = 167	   -6 
+P = P167b = (9+5a,-28+3a)	N(P) = 167	  -18 
+P = P13 = (13)	N(P) = 169	  -18 
+P = P181a = (-23+2a,-10-7a)	N(P) = 181	  -10 
+P = P181b = (21+2a,-17+7a)	N(P) = 181	   14 
+P = P193a = (12+5a,-29+4a)	N(P) = 193	  -10 
+P = P193b = (-17+5a,-25-4a)	N(P) = 193	   14 
+P = P197a = (13+a)	N(P) = 197	  -10 
+P = P197b = (-14+a)	N(P) = 197	   -8 
+P = P199a = (17+4a,-20+7a)	N(P) = 199	   16 
+P = P199b = (-21+4a,-13-7a)	N(P) = 199	   -8 
+P = P223a = (8+3a)	N(P) = 223	   16 
+P = P223b = (-11+3a)	N(P) = 223	   16 
+P = P239a = (26+a,-5+9a)	N(P) = 239	  -20 
+P = P239b = (-27+a,4-9a)	N(P) = 239	   20 
+P = P241a = (-3+7a,-34-a)	N(P) = 241	    2 
+P = P241b = (-4+7a,-35+a)	N(P) = 241	   26 
+...done.
+Writing data to file nftmp/2.0.59.1/27.2......done.

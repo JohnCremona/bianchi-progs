@@ -2,16 +2,13 @@
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
 
-// List of fields for which this has been implemented so far:
-vector<long> fields = {1,2,3,7,11,19,43,67,163,23,31,47};
-
 int main ()
 {
   long d, max(200000);
-  cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
-  if (!check_field(d, fields))
+  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+  if (!check_field(d))
    {
-     cerr<<"field must be one of: "<<fields<<endl;
+     cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  Quad::field(d,max);

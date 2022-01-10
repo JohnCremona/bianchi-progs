@@ -7,9 +7,6 @@
 #include "homspace.h"
 //#define LOOPER
 
-// List of fields for which this has been implemented so far:
-vector<long> fields = {1,2,3,7,11,19,43,67,163, 23, 31, 47};
-
 #define MAXPRIME 10000
 
 vector<bigint> char_poly(mat_m A, long denom=1, int show_factors=0); // using NTL
@@ -39,10 +36,10 @@ int main(void)
   long d, max(MAXPRIME);
  int np,ip,jp;
  Quad n; int mats, pols, facs, plusflag, cuspidal=1;
- cerr << "Enter field (one of "<<fields<<"): " << flush;  cin >> d;
- if (!check_field(d, fields))
+ cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ if (!check_field(d))
    {
-     cerr<<"field must be one of: "<<fields<<endl;
+     cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
  Quad::field(d,max);
