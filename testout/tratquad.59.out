@@ -1,0 +1,16 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-59))	discriminant = -59	min poly(a) = a^2-a+15.
+Class number 3
+Ideal class group representatives: [ [1,a] [3,a] [3,2+a] ]
+
+Enter Quads, a and b: a = 12+3a
+b = 45+6a
+q = a/b = (4+a)/(15+2a)
+b*q==a? 1
+round(q) = 0
+translation_reduce(q) = (4+a)/(15+2a)
+q==round(q)+translation_reduce(q)? 1
+recip(q) = (15+2a)/(4+a)
+ideal(q) = [7,4+a] = P7b
+q = (4+a)/(15+2a) is not principal
+denominator_ideal(q) = [45,30+a] = P3a^2*P5a
+representation of q with ideal coprime to 2*3*5: (4+a)/(15+2a), which has ideal [7,4+a] = P7b (and the same denominator ideal)
