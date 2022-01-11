@@ -1,0 +1,19 @@
+Q(sqrt(-79))	discriminant = -79	min poly(a) = a^2-a+20.
+Class number 5
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [4,a] [4,3+a] ]
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+
+1 newform(s) at level 2.1 = (2,a):
+Writing data to file nftmp/2.0.79.1/2.1...done.
+===========================================
+>>>> Level 10.1 = (a,-10), norm = 10 <<<<
+
+1 newform(s) at level 10.1 = (a,-10):
+Writing data to file nftmp/2.0.79.1/10.1...done.
+===========================================
+>>>> Level 16.1 = (-4+a,-8-2a), norm = 16 <<<<
+
+1 newform(s) at level 16.1 = (-4+a,-8-2a):
+Writing data to file nftmp/2.0.79.1/16.1...done.
+===========================================
+

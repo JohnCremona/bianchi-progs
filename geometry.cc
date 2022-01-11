@@ -255,8 +255,8 @@ void alphas_sigmas_denom_3()
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_orbit(three, w, w);
-      add_alpha_orbit(three, Quad::one+w, Quad::one-w);
+      add_alpha_orbit(three, w, w);  // + pair
+      add_alpha_orbit(three, Quad::one+w, Quad::one-w); // 4-some
       // no sigmas (3 inert)
       break;
     }
@@ -264,8 +264,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>19) // e.g. 43, 67, 163
         {
-          add_alpha_orbit(three, w, Quad::one-w);
-          add_alpha_orbit(three, Quad::one+w, Quad::one+w);
+          add_alpha_orbit(three, w, Quad::one-w); // 4-some
+          add_alpha_orbit(three, Quad::one+w, Quad::one+w); // + pair
         }
       // no sigmas (3 inert)
       break;
@@ -274,7 +274,7 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_orbit(three, w, -w);
+          add_alpha_orbit(three, w, -w); // - pair
           add_sigma_orbit(Quad::one+w,three);
           add_sigma_orbit(Quad::one-w,three);
         }
@@ -282,12 +282,12 @@ void alphas_sigmas_denom_3()
     }
   case 11:
     {
-      add_alpha_orbit(three, Quad::one+w, -Quad::one-w);
-      if (d==35)
+      add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // - pair
+      if (0) //(d==35)
         {
           add_sigma_orbit(w,three);
         }
-      if (d>35)
+      if (d>=35)
         {
           add_sigma_orbit(w,three);
           add_sigma_orbit(w-Quad::one,three);
@@ -298,7 +298,7 @@ void alphas_sigmas_denom_3()
     {
       if (d>15)
         {
-          add_alpha_orbit(three, w, w-Quad::one);
+          add_alpha_orbit(three, w, w-Quad::one); // 4-some
           add_sigma_orbit(Quad::one+w,three);
         }
       break;
@@ -307,7 +307,7 @@ void alphas_sigmas_denom_3()
     {
       if (d>6)
         {
-          add_alpha_orbit(three, w+Quad::one, w-Quad::one);
+          add_alpha_orbit(three, w+Quad::one, w-Quad::one); // 4-some
           add_sigma_orbit(w,three);
           break;
         }
