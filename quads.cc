@@ -37,10 +37,12 @@ vector<long> euclidean_fields = {1,2,3,7,11};
 
 // fields for which geometry is defined
 vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclidean
-                            19, 43, 67, 163,                          // other class number 1
-                             5, 6, 10, 13, 15, 22, 35, 51,            // class number 2 (incomplete)
-                             14, 17, 21, 39,                            // class number 4 (incomplete)
-                            23, 31, 47, 59, 71, 79, 83};              // odd class number >1 (incomplete)
+                             19, 43, 67, 163,                         // other class number 1
+                             5, 6, 10, 13, 15, 22, 35, 51, 91,        // class number 2 (incomplete)
+                             14, 17, 21, 39, 55,                      // class number 4 (incomplete)
+                             87,                                      // class number 6 (incomplete)
+                             95,                                      // class number 8 (incomplete)
+                             23, 31, 47, 59, 71, 79, 83};             // odd class number >1 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
