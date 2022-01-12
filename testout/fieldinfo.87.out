@@ -1,0 +1,25 @@
+Q(sqrt(-87))	discriminant = -87	min poly(a) = a^2-a+22.
+Class number 6
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,1+a] [4,2+a] [4,1+a] ]
+21 prime ideals initialised, max norm = 100
+P2a = 2.1 = [2,a] = (2,a) (not principal)
+P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal)
+P3 = 3.1 = [3,1+a] = (3,1+a) (not principal)
+P7a = 7.1 = [7,2+a] = (2+a,-5+a) (not principal)
+P7b = 7.2 = [7,4+a] = (-3+a,-4-a) (not principal)
+P11a = 11.1 = [11,a] = (a,-11) (not principal)
+P11b = 11.2 = [11,10+a] = (-1+a,-11) (not principal)
+P13a = 13.1 = [13,5+a] = (5+a,-8+a) (not principal)
+P13b = 13.2 = [13,7+a] = (-6+a,-7-a) (not principal)
+P17a = 17.1 = [17,3+a] = (3+a,-11+2a) (not principal)
+P17b = 17.2 = [17,13+a] = (-4+a,-9-2a) (not principal)
+P5 = 25.1 = 5[1,a] = (5,5a) = (5) (principal)
+P29 = 29.1 = [29,14+a] = (-1+2a,-15+a) (not principal)
+P41a = 41.1 = [41,17+a] = (-7+2a,-17-a) (not principal)
+P41b = 41.2 = [41,23+a] = (5+2a,-13+3a) (not principal)
+P47a = 47.1 = [47,8+a] = (8+a,-15+4a) (not principal)
+P47b = 47.2 = [47,38+a] = (-9+a,-11-4a) (not principal)
+P67a = 67.1 = [67,19+a] = (-10+3a,-19-a) (not principal)
+P67b = 67.2 = [67,47+a] = (7+3a,-20+a) (not principal)
+P89a = 89.1 = [89,12+a] = (12+a,-17+6a) (not principal)
+P89b = 89.2 = [89,76+a] = (-13+a,-11-6a) (not principal)

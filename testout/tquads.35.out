@@ -1,0 +1,83 @@
+Enter field: Enter max. norm for primes: The field is Q(sqrt(-35))	discriminant = -35	min poly(a) = a^2-a+9.
+Class number 2
+Ideal class group representatives: [ [1,a] [3,a] ]
+
+w   = a
+w*w = -9+a
+Enter a Quad, a: a = 5+6a
+real(a) = 5
+imag(a) = 6
+quadconj(a) = 11-6a
+quadnorm(a) = 379
+HNF(a) = [ 379 64 1 ]
+ideal_label(a) = 379.64.1
+---------------------------------------------------------------
+172 prime ideals initialised, max norm = 1000
+Here are the first 20 prime ideals:
+P3a = 3.1 = [3,a] = (3,a) (not principal)
+P3b = 3.2 = [3,2+a] = (3,-1+a) (not principal)
+P2 = 4.1 = 2[1,a] = (2,2a) = (2) (principal)
+P5 = 5.1 = [5,2+a] = (2+a,-3+a) (not principal)
+P7 = 7.1 = [7,3+a] = (3+a,-4+a) (not principal)
+P11a = 11.1 = [11,1+a] = (1+a,-9+2a) = (1+a) (principal)
+P11b = 11.2 = [11,9+a] = (-2+a,-9-a) = (-2+a) (principal)
+P13a = 13.1 = [13,5+a] = (5+a,-3+2a) (not principal)
+P13b = 13.2 = [13,7+a] = (-6+a,-1-2a) (not principal)
+P17a = 17.1 = [17,6+a] = (6+a,-5+2a) (not principal)
+P17b = 17.2 = [17,10+a] = (-7+a,-3-2a) (not principal)
+P29a = 29.1 = [29,4+a] = (4+a,-9+5a) = (4+a) (principal)
+P29b = 29.2 = [29,24+a] = (-5+a,-9-4a) = (-5+a) (principal)
+P47a = 47.1 = [47,11+a] = (11+a,-3+4a) (not principal)
+P47b = 47.2 = [47,35+a] = (-12+a,1-4a) (not principal)
+P71a = 71.1 = [71,32+a] = (-7+2a,-18-5a) = (-7+2a) (principal)
+P71b = 71.2 = [71,38+a] = (5+2a,-18+7a) = (5+2a) (principal)
+P73a = 73.1 = [73,14+a] = (14+a,-3+5a) (not principal)
+P73b = 73.2 = [73,58+a] = (-15+a,2-5a) (not principal)
+P79a = 79.1 = [79,26+a] = (-1+3a,-27+2a) = (-1+3a) (principal)
+---------------------------------------------------------------
+b=a*a=-299+96a
+val(a,b) = 2
+div(a,b) = 1
+div(b,a) = 0
+b/a (=a?) = 5+6a 	--OK!
+a/3 = 2+2a
+c = a+b = -294+102a
+c-b (=a?)  = 5+6a 	--OK!
+pos(a) = 1
+379 residues modulo a: [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 19-6a 20-6a 21-6a 22-6a 23-6a 24-6a 25-6a 26-6a -27+5a -26+5a -25+5a -24+5a -23+5a -22+5a -21+5a -20+5a -19+5a -18+5a -17+5a -16+5a -15+5a -14+5a -13+5a -12+5a -16-a -15-a -14-a -13-a -12-a -11-a -10-a -9-a -8-a -7-a -6-a -5-a -4-a -3-a -2-a -1-a -a 1-a 2-a 3-a 4-a 5-a 6-a 7-a 8-a 9-a 10-a 11-a 12-a 13-a 14-a 15-a 16-a 17-a 18-a 19-a 20-a 21-a 22-a 23-a 24-a 25-a 26-a 27-a 28-a 29-a 30-a -28+4a -27+4a -26+4a -25+4a -24+4a -23+4a -22+4a -21+4a -20+4a -19+4a -18+4a -17+4a -16+4a -15+4a -14+4a -13+4a -12+4a -11+4a -10+4a -9+4a -8+4a -7+4a -6+4a -5+4a -9-2a -8-2a -7-2a -6-2a -5-2a -4-2a -3-2a -2-2a -1-2a -2a 1-2a 2-2a 3-2a 4-2a 5-2a 6-2a 7-2a 8-2a 9-2a 10-2a 11-2a 12-2a 13-2a 14-2a 15-2a 16-2a 17-2a 18-2a 19-2a 20-2a 21-2a 22-2a 23-2a 24-2a 25-2a 26-2a 27-2a 28-2a 29-2a -29+3a -28+3a -27+3a -26+3a -25+3a -24+3a -23+3a -22+3a -21+3a -20+3a -19+3a -18+3a -17+3a -16+3a -15+3a -14+3a -13+3a -12+3a -11+3a -10+3a -9+3a -8+3a -7+3a -6+3a -5+3a -4+3a -3+3a -2+3a -1+3a 3a 1+3a 2+3a -2-3a -1-3a -3a 1-3a 2-3a 3-3a 4-3a 5-3a 6-3a 7-3a 8-3a 9-3a 10-3a 11-3a 12-3a 13-3a 14-3a 15-3a 16-3a 17-3a 18-3a 19-3a 20-3a 21-3a 22-3a 23-3a 24-3a 25-3a 26-3a 27-3a 28-3a 29-3a -29+2a -28+2a -27+2a -26+2a -25+2a -24+2a -23+2a -22+2a -21+2a -20+2a -19+2a -18+2a -17+2a -16+2a -15+2a -14+2a -13+2a -12+2a -11+2a -10+2a -9+2a -8+2a -7+2a -6+2a -5+2a -4+2a -3+2a -2+2a -1+2a 2a 1+2a 2+2a 3+2a 4+2a 5+2a 6+2a 7+2a 8+2a 9+2a 5-4a 6-4a 7-4a 8-4a 9-4a 10-4a 11-4a 12-4a 13-4a 14-4a 15-4a 16-4a 17-4a 18-4a 19-4a 20-4a 21-4a 22-4a 23-4a 24-4a 25-4a 26-4a 27-4a 28-4a -30+a -29+a -28+a -27+a -26+a -25+a -24+a -23+a -22+a -21+a -20+a -19+a -18+a -17+a -16+a -15+a -14+a -13+a -12+a -11+a -10+a -9+a -8+a -7+a -6+a -5+a -4+a -3+a -2+a -1+a a 1+a 2+a 3+a 4+a 5+a 6+a 7+a 8+a 9+a 10+a 11+a 12+a 13+a 14+a 15+a 16+a 12-5a 13-5a 14-5a 15-5a 16-5a 17-5a 18-5a 19-5a 20-5a 21-5a 22-5a 23-5a 24-5a 25-5a 26-5a 27-5a -26+6a -25+6a -24+6a -23+6a -22+6a -21+6a -20+6a -19+6a -23 -22 -21 -20 -19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 ]
+Testing prime divisor functions.
+Enter a: Prime ideal factorization of A = (a):	P2*P3a*P11a*P83a
+
+Ideals with the same norm as A:    	[ 2[2739,2256+a] 2[2739,1893+a] 2[2739,1758+a] 2[2739,1395+a] 2[2739,1343+a] 2[2739,980+a] 2[2739,845+a] 2[2739,482+a] ]
+Prime ideal divisors of A:         	[ P3a P2 P11a P83a ]
+All ideal divisors of A:           	[ [1,a] 2[1,a] [3,a] 2[3,a] [11,1+a] 2[11,1+a] [33,12+a] 2[33,12+a] [83,15+a] 2[83,15+a] [249,15+a] 2[249,15+a] [913,430+a] 2[913,430+a] [2739,2256+a] 2[2739,2256+a] ]
+All ideals whose square divides A: 	[ [1,a] ]
+All squarefree ideal divisors of A:	[ [1,a] [3,a] 2[1,a] 2[3,a] [11,1+a] [33,12+a] 2[11,1+a] 2[33,12+a] [83,15+a] [249,15+a] 2[83,15+a] 2[249,15+a] [913,430+a] [2739,2256+a] 2[913,430+a] 2[2739,2256+a] ]
+Testing gcd and bezout.
+Enter Quads a and b (a=0 to stop): gcd(12+34a,56+78a) = 2+2a
+Enter Quads a and b (a=0 to stop): Systematic testing of bezout...generalised_extended_euclid(1,1) = [0,-1; 1,-1]; (1,1) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1,2) = [-1,0; 2,-1]; (1,2) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1,1-a) = [-1,0; 1-a,-1]; (1,1-a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1,3) = [-1,0; 3,-1]; (1,3) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1,a) = [-1,0; a,-1]; (1,a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(2,1) = [0,-1; 1,-2]; (2,1) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(2,2) = [0,-1; 1,-1]; (2,2) is principal, maps to (-2)/(0) = oo
+generalised_extended_euclid(2,1-a) = [4,-a; 1-a,-2]; (2,1-a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(2,3) = [-1,1; -3,2]; (2,3) is principal, maps to (1)/(0) = oo
+generalised_extended_euclid(2,a) = [-5,1-a; a,-2]; (2,a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1-a,1) = [0,-1; 1,-1+a]; (1-a,1) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1-a,2) = [a,-5; 2,-1+a]; (1-a,2) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(1-a,1-a) = [0,-1; 1,-1]; (1-a,1-a) is principal, maps to (-1+a)/(0) = oo
+generalised_extended_euclid(1-a,3) = [1,0; 0,1]; (1-a,3) is not principal, maps to singular point (1-a)/(3) = (1-a)/(3)
+generalised_extended_euclid(1-a,a) = [-1,-1; a,-1+a]; (1-a,a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(3,1) = [0,-1; 1,-3]; (3,1) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(3,2) = [-1,2; -2,3]; (3,2) is principal, maps to (1)/(0) = oo
+generalised_extended_euclid(3,1-a) = [1,0; 0,1]; (3,1-a) is not principal, maps to singular point (3)/(1-a) = (a)/(3)
+generalised_extended_euclid(3,3) = [0,-1; 1,-1]; (3,3) is principal, maps to (-3)/(0) = oo
+generalised_extended_euclid(3,a) = [1,0; 0,1]; (3,a) is not principal, maps to singular point (3)/(a) = (1-a)/(3)
+generalised_extended_euclid(a,1) = [0,-1; 1,-a]; (a,1) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(a,2) = [-1+a,4; 2,-a]; (a,2) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(a,1-a) = [-1,-1; 1-a,-a]; (a,1-a) is principal, maps to (-1)/(0) = oo
+generalised_extended_euclid(a,3) = [1,0; 0,1]; (a,3) is not principal, maps to singular point (a)/(3) = (a)/(3)
+generalised_extended_euclid(a,a) = [0,-1; 1,-1]; (a,a) is principal, maps to (-a)/(0) = oo
+done.

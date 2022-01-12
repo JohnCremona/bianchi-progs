@@ -1,0 +1,9 @@
+
+P1N TEST PROGRAM
+Enter field: Q(sqrt(-95))	discriminant = -95	min poly(a) = a^2-a+24.
+Class number 8
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [5,2+a] ]
+testing split/merge of multi-indices...
+testing P1(N) symbol-index bijections for ideals of norm up to 100...
+testing P1(N) symbol-index bijections for Quads of norm up to 100...
+done

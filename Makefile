@@ -73,21 +73,31 @@ headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h ne
 TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest
 tests: $(TESTS)
 
-DISCS9=4 8  3 7 11 19 43 67 163
-DISCSX=5 23 31 47 59 71 79 83
-DISCS=$(DISCS9) $(DISCSX)
+# These are for creation of temporary newforms directories for tests:
+DISCS9=4 8 3 7 11 19 43 67 163
+DISCSXodd=15 23 31 35 39 47 51 55 59 71 79 83 87 91 95
+DISCSXeven=20 24 40 52 56 68 84 88
+DISCS=$(DISCS9) $(DISCSXodd) $(DISCSXeven)
+
+# These control which tests run on which fields:
+
+# All tests: basic arithmetic, homology dimensions, newforms
 FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
-FIELDS_hom=5 6 10 13 14 15 17 21 22
+
+# Only: basic arithmetic, homology dimensions
+FIELDS_hom=5 6 10 13 14 15 17 21 22 35 39 55 95
 #FIELDS_hom=
-FIELDSX=
-#FIELDSX=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
+
+# Only: basic arithmetic
+FIELDSX=51 87 91
+#FIELDSX=
+
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
-#FIELDS=1 2 3 7 11 19 43 67 163 23 31 5 6 10 13 14 15 17 21 22 47
 #FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
-BASIC_TESTS =  tquads tratquad looptest fieldinfo qidltest P1Ntest
+BASIC_TESTS =  fieldinfo tquads tratquad looptest P1Ntest qidltest
 HOM_TESTS = homtest dimtable dimtabeis
 FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
