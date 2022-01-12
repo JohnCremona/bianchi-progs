@@ -86,11 +86,11 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
 
 # Only: basic arithmetic, homology dimensions
-FIELDS_hom=5 6 10 13 14 15 17 21 22 35 39 51 55 91 95
+FIELDS_hom=5 6 10 13 14 15 17 21 22 35 39 51 55 87 91 95
 #FIELDS_hom=
 
 # Only: basic arithmetic
-FIELDSX=87
+FIELDSX=
 #FIELDSX=
 
 FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
