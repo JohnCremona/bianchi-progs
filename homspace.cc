@@ -1,8 +1,5 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-//#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
-                // NB this is experimental only
-
 #include <eclib/method.h>
 #include <eclib/matrix.h>
 #include "euclid.h"
@@ -110,7 +107,6 @@ void homspace::make_freemods()
       if (verbose)
         cout<< m << " --> " << flush;
       vec v = chain(m);
-      if (hmod) v = reduce_modp(v,hmod);
       ei[i+1] = denom1;
       if (v!=ei && v!=-ei)
         {
@@ -250,16 +246,16 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
   cout<<"Symbol ("<<c<<":"<<d<<") has index "<<ind<<" plus offset "<< ER.offset(type) <<" = "<<ind+ER.offset(type)
        <<", giving coordindex "<<i;
 #endif
-  long n = (proj? projcoord.ncols(): rk);
-  vec ans(n); // initialises to 0
   if (i)
     {
-      ans = sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i)));
+      vec ans = reduce_modp(sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i))), hmod);
 #ifdef DEBUG_CHAIN
       cout << ": coordinate vector "<<ans<<endl;
 #endif
+      return ans;
     }
-  return ans;
+  else
+    return vec((proj? projcoord.ncols(): rk)); // zero vector
 }
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
@@ -286,11 +282,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 #ifdef DEBUG_CHAIN
       cerr<<"chain(alpha,beta) with alpha="<<alpha<<" non-principal"<<endl;
 #endif
-      vec va = chain(alpha, proj), vb = chain(beta, proj);
-      if(hmod)
-        return reduce_modp(addmodp(va,-vb,hmod),hmod);
-      else
-        return vb - va;
+      return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
     }
 }
 
@@ -316,30 +308,19 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
            cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_t'=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(lift_to_SL2(N,c,d),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif
            // Look up this symbol, convert to a vector w.r.t. homology basis
-           vec part = chaincd(c, d, u, proj);
-           if(hmod)
-             {
-               ans.addmodp(part,hmod);
-               ans = reduce_modp(ans,hmod);
-             }
-           else
-             ans += part;
+           ans = reduce_modp(ans + chaincd(c, d, u, proj), hmod);
+#ifdef DEBUG_CHAIN
+           cout<<" partial coordinate vector = "<<ans<<endl;
+#endif
          }
        else // t<0 means that the last step took us to sigma[|t|] via
             // a translation only.  We will not reach b=0; instead we
             // finish off by subtracting M{sigma[|t|],oo} where M has
             // second row (c,d). [See Lingham's thesis, p.77]
          {
-           vec part = - chaincd(c, d, t, proj);
-           if(hmod)
-             {
-               ans.addmodp(part,hmod);
-               ans = reduce_modp(ans,hmod);
-             }
-           else
-             ans += part;
+           ans = reduce_modp(ans - chaincd(c, d, t, proj), hmod);
 #ifdef DEBUG_CHAIN
-           cout<<" coordinate vector = "<<ans<<endl;
+           cout<<" full coordinate vector = "<<ans<<endl;
 #endif
            return ans;
          }
@@ -347,39 +328,29 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 
    // We get here when b=0, so no singular edge was used
 #ifdef DEBUG_CHAIN
-   cout<<" coordinate vector = "<<ans<<endl;
+   cout<<" full coordinate vector = "<<ans<<endl;
 #endif
    return ans;
 }
 
 vec reduce_modp(const vec& v, const scalar& p)
 {
+  if (p==0) return v;
   long i, d=dim(v);
-  scalar ai, p2 = p>>1;
   vec ans(d);
-  for(i=1; i<=dim(v); i++)
-    {
-      ai = v[i]%p;
-      while( ai>p2) ai-=p;
-      while(-ai>p2) ai+=p;
-      ans[i] = ai;
-    }
+  for(i=1; i<=d; i++)
+    ans[i] = mod(v[i], p);
   return ans;
 }
 
 mat reduce_modp(const mat& m, const scalar& p)
 {
+  if (p==0) return m;
   long i, j, nr=m.nrows(), nc=m.ncols();
-  scalar aij, p2 = p>>1;
   mat ans(nr,nc);
   for(i=1; i<=nr; i++)
     for(j=1; j<=nc; j++)
-      {
-        aij = m(i,j)%p;
-        while( aij>p2) aij-=p;
-        while(-aij>p2) aij+=p;
-        ans(i,j) = aij;
-      }
+      ans(i,j) = mod(m(i,j),p);
   return ans;
 }
 

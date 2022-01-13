@@ -1,6 +1,9 @@
 // FILE FACE_RELATIONS.CC: Implemention of the face relations for class homspace
 
 //#define TIME_RELATION_SOLVING
+//#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
+                // NB this is experimental only
+
 
 #include "mat22.h"
 #include "ratquads.h"
@@ -896,9 +899,20 @@ void face_relations::solve_relations()
    coord.init(ngens,rk); // 0'th is unused
    for(long i=1; i<=ngens; i++)
      coord.setrow(i,sp.row(i).as_vec());
+#ifdef USE_CRT
+   long maxcoord =0;
+   for(long i=1; i<=ngens; i++)
+     for(long j=1; j<=rk; j++)
+       {
+         long cij = coord(i,j);
+         if (abs(cij)>maxcoord) maxcoord=cij;
+       }
+   if (verbose)
+     cout << "Max entry in coord is "<<maxcoord<<endl;
+#endif
    // if hmod>0, coord is only defined modulo hmod
    sp=smat(0,0); // clear space
-#else
+#else // not using smats
   relmat = relmat.slice(numrel,ngens);
   if(verbose)
     {

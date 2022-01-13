@@ -1142,6 +1142,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
               cout<<"------------------------"<<endl;
               nflist[i].display();
               cout<<"------------------------"<<endl;
+              exit(1);
             }
           apv[i] = aq;
         }
@@ -1308,7 +1309,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 	  cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
 	      <<" for form # "<<(i+1)<<" is outside valid range "
 	      <<-maxap<<"..."<<maxap<<endl;
-          //          exit(1);
+          exit(1);
 	}
     }
 #ifdef DEBUG_APVEC

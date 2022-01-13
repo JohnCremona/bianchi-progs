@@ -110,6 +110,9 @@ int main(void)
           // int dimminus = addscalar(wq,lambda).nullity();
           // cout << "-1 eigenspace has dimension "<<dimminus<<endl;
           charpol = char_poly(wq, den, facs&&!hmod);
+          // if (hmod)
+          //   for(vector<bigint>::iterator cpi = charpol.begin(); cpi!=charpol.end(); cpi++)
+          //     *cpi = mod(*cpi, hmod);
           if (pols)
             cout << "char poly coeffs = " << charpol;
           cout << endl;

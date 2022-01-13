@@ -41,14 +41,7 @@ vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
   for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
-    {
-      vec part = chain((*mi)(alpha), proj);
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
-    }
-  if(hmod) ans=reduce_modp(ans,hmod);
+    ans = reduce_modp(ans + chain((*mi)(alpha), proj), hmod);
   return ans;
 }
 
@@ -69,15 +62,11 @@ vec homspace::applyop(const matop& T, const modsym& m, int proj)
 #ifdef DEBUG_APPLYOP
       cout<<" summand = "<<part<<"..."<<flush;
 #endif
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
+      ans = reduce_modp(ans + part, hmod);
 #ifdef DEBUG_APPLYOP
       cout<<" partial sum = "<<ans<<"..."<<endl;
 #endif
     }
-  if(hmod) ans=reduce_modp(ans,hmod);
 #ifdef DEBUG_APPLYOP
   cout<<" final sum = "<<ans<<"..."<<endl;
 #endif
@@ -89,7 +78,6 @@ mat homspace::calcop(const matop& T, int dual, int display)
   mat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
      { vec colj = applyop(T,freemods[j]);
-       if(hmod) colj=reduce_modp(colj,hmod);
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
@@ -102,7 +90,6 @@ mat homspace::calcop(const matop& T, int dual, int display)
 vec homspace::calcop_col(const matop& T, int j)
 {
   vec colj = applyop(T,freemods[j-1]);
-  if(hmod) colj=reduce_modp(colj,hmod);
   return colj;
 }
 
@@ -114,7 +101,6 @@ mat homspace::calcop_cols(const matop& T, const vec& jlist)
     {
       int j = jlist[i];
       vec colj = applyop(T,freemods[j-1]);
-      if(hmod) colj=reduce_modp(colj,hmod);
       m.setcol(i,colj);
      }
   return m;
@@ -128,7 +114,6 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist)
     {
       int j = jlist[i];
       svec colj = applyop(T,freemods[j-1]);
-      if(hmod) colj.reduce_mod_p(hmod);
       m.setrow(i,colj);
      }
   return m;
@@ -139,7 +124,6 @@ smat homspace::s_calcop(const matop& T, int dual, int display)
   smat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
      { svec colj = applyop(T,freemods[j]);
-       if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j+1,colj);
      }
   if(cuspidal)
@@ -165,7 +149,6 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
      {
        long jj = pivots(s)[j+1]-1;
        vec colj = applyop(T,freemods[jj]);
-       if(hmod) colj=reduce_modp(colj,hmod);
        m.setrow(j+1,colj);
      }
   if(hmod)
@@ -186,7 +169,6 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
      {
        long jj = pivots(s)[j];
        svec colj = applyop(T,freemods[jj-1]);
-       if(hmod) colj.reduce_mod_p(hmod);
        m.setrow(j,colj);
      }
   m = mult_mod_p(m,basis(s),MODULUS);
@@ -334,17 +316,9 @@ vec homspace::maninvector(Quadprime& P, int proj)
   vector<Quad> resmodp=P.residues();
   Quad p = P.gen();
   vec ans = chain(Quad::zero,p, proj), part;             // =0, but sets the right length.
-  vector<Quad>::const_iterator res=resmodp.begin();
+  vector<Quad>::const_iterator res=resmodp.begin()+1;
   while(res!=resmodp.end())
-    {
-      if (res->is_zero()) ++res;
-      part = chain(*res++,p, proj);
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
-    }
-  if(hmod) ans=reduce_modp(ans,hmod);
+    ans = reduce_modp(ans + chain(*res++,p, proj), hmod);
   return ans;
 }
 
@@ -354,13 +328,6 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
   vector<int>::const_iterator chi=chitable.begin();
   vector<Quad>::const_iterator r=res.begin();
   while(r!=res.end())
-   {
-     part = (*chi++)*chain(*r++,lambda, proj);
-      if(hmod)
-        ans.addmodp(part,hmod);
-      else
-        ans += part;
-   }
-  if(hmod) ans=reduce_modp(ans,hmod);
+    ans = reduce_modp(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
  return ans;
 }
