@@ -18,7 +18,11 @@ void Qideal::abc_from_HNF(const vector<QUINT>& basis)
   ac = a*c;
   nm = ac*c;
   if (!ok())
-    { cerr <<"***Warning: "<< *this <<" not ok in abc_from_HNF***"<<endl;}
+    {
+      cerr <<"***Error: "<< *this <<" not ok in abc_from_HNF with basis "<<basis<<": a="
+           <<a<<" should divide N("<<b<<"+w) = "<<(b*(b + Quad::t) + Quad::n)<<" ***"<<endl;
+      exit(1);
+    }
 }
 
 Quad Qideal::gen()  // smallest element, so a generator iff principal

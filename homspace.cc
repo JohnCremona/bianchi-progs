@@ -130,15 +130,25 @@ void homspace::kernel_delta()
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(N, plusflag);
   mat deltamat(2*rk,rk);
-  int i;
+  int i, ia, ib;
   for (i=0; i<rk; i++)
     {
       modsym m = freemods[i];
       RatQuad a = m.alpha(), b = m.beta();
-      deltamat(cusps.index(b)+1, i+1) += 1;  // N.B. offset of 1
-      deltamat(cusps.index(a)+1, i+1) -= 1;
       if (verbose>1)
-        cout << "#"<<i<<" -->  C"<<(cusps.index(b)+1)<<" - C"<<(cusps.index(a)+1)<<endl;
+        cout<<"Finding index of cusp "<<b<<"..."<<flush;
+      ib = cusps.index(b);
+      if (verbose>1)
+        cout<<" index is "<<ib<<endl;
+      deltamat(ib+1, i+1) += 1;  // N.B. offset of 1
+      if (verbose>1)
+        cout<<"Finding index of cusp "<<a<<"..."<<flush;
+      ia = cusps.index(a);
+      if (verbose>1)
+        cout<<" index is "<<ia<<endl;
+      deltamat(ia+1, i+1) -= 1;
+      if (verbose)
+        cout << "#"<<i<<" -->  C"<<(ib+1)<<" - C"<<(ia+1)<<endl;
     }
   ncusps=cusps.count();
   if(verbose)

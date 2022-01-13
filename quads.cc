@@ -690,7 +690,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
   assert (U21*alpha+U22*beta == beta0);
   assert (quadnorm(alpha)<=quadnorm(beta));
   assert (nearest_long_to_Quad_quotient(alpha,beta)==0);
-  assert ((quadconj(alpha)*beta).im() > 0)
+  assert ((quadconj(alpha)*beta).im() > 0);
 #endif
 }
 
@@ -736,7 +736,7 @@ vector<QUINT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
   return findminquadcoeffs(alpha,beta,gen0,gen1);
 }
 
-#define DEBUG_FINDMINQUAD
+//#define DEBUG_FINDMINQUAD
 
 void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
 // same as findminquadscoeffs but don't need coeffs
