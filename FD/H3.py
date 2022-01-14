@@ -1554,26 +1554,26 @@ def denom_2_sigmas(k):
 
 def denom_3_alphas(k):
     d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    if d in [1, 2, 3, 7, 11, 5, 6, 15, 19]:
+        return []
+
     w = k.gen()
     d12 = d%12
-    alist = []
-    if d in [1, 2, 3, 7, 11, 5, 6, 15]:
-        return alist
-    if d12 in [1,2,3,5,7,10]:
-        alist.append(cusp(w/3,k))
-        alist.append(cusp(-w/3,k))
-    if d12 in [1,6,7,9,10,11]:
-        alist.append(cusp((1+w)/3,k))
-        alist.append(cusp((-1-w)/3,k))
-    if d12 in [1,3,6,7,9,10]:
-        alist.append(cusp((1-w)/3,k))
-        alist.append(cusp((w-1)/3,k))
-    if len(alist)==4:
-        r1 = alist[0].numerator()
-        r2 = alist[0].numerator()
-        if not ((r1*r2+1)/3).is_integral():
-            alist[2], alist[3] = alist[3], alist[2]
-    return alist
+
+    if d12==3:
+        alist = [w, w-1]
+    if d12==7:
+        alist = [w, 1-w, 1+w]
+    if d12==11:
+        alist = [1+w]
+    if d12 in [1,10]:
+        alist = [w, 1+w, 1-w]
+    if d12 in [2,5]:
+        alist = [w]
+    if d12 in [6,9]:
+        alist = [1+w, w-1]
+
+    return sum([[cusp(a/3,k), cusp(-a/3,k)] for a in alist], [])
 
 def denom_3_sigmas(k):
     d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
@@ -1586,10 +1586,10 @@ def denom_3_sigmas(k):
         slist.append(cusp((1-w)/3,k))
         slist.append(cusp((w-1)/3,k))
     if d12 == 11:
-        if d==35:
-            slist.append(cusp(w/3,k))
-            slist.append(cusp(-w/3,k))
-        if d>35:
+        # if d==35:
+        #     slist.append(cusp(w/3,k))
+        #     slist.append(cusp(-w/3,k))
+        if d>=35:
             slist.append(cusp(w/3, k))
             slist.append(cusp(-w/3, k))
             slist.append(cusp((w-1)/3,k))
@@ -1640,6 +1640,9 @@ def find_edge_pairs(alphas, sigmas, debug=False):
 
     A = []
     for a in alphas:
+        da = a.denominator()
+        if not ispos(da):
+            a = cusp(to_k(a))
         ma = negate_cusp(a)
         if not alpha_in_list(a, A123) and not alpha_in_list(ma, A):
             r,i = to_k(a,k)
@@ -1760,6 +1763,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     S23 = S2 + S3
 
     S = []
+    S_mod_neg = []
     for s in sigmas:
         ms = negate_cusp(s)
         if not s.is_infinity() and not alpha_in_list(s, S23) and not alpha_in_list(ms, S):
@@ -1778,11 +1782,14 @@ def find_edge_pairs(alphas, sigmas, debug=False):
                 elif 2*r+i==1 and i<0:
                     s = cusp(k([r-1,i]), k)
             r,i = to_k(s,k)
+            neg_s = negate_cusp(s)
             if i>0:
+                S_mod_neg.append(s)
                 S.append(s)
-                S.append(negate_cusp(s))
+                S.append(neg_s)
             else:
-                S.append(negate_cusp(s))
+                S_mod_neg.append(neg_s)
+                S.append(neg_s)
                 S.append(s)
 
     print("alphas with denominator | 2: {}".format(A2))
@@ -1793,7 +1800,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
 
     print("sigmas with denominator 2: {}".format(S2))
     print("sigmas with denominator 3: {}".format(S3))
-    print("other (finite) sigmas: {}".format(S))
+    print("other (finite) sigmas (up to sign): {}".format(S_mod_neg))
     new_sigmas = [cusp(oo,k)] + S2 + S3 + S
 
     # # for pasting into C++:
@@ -1824,7 +1831,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
         r1r, r1i = r1
         r2r, r2i = r2
         print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
-    for s in S:
+    for s in S_mod_neg:
         sr, si = s.denominator()
         rr, ri = s.numerator()
         print("{} S {} {} {} {}".format(d, rr,ri, sr,si))
