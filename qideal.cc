@@ -43,13 +43,13 @@ vector<Quad> Qideal::gens() // reduced Z-module gens
 void Qideal::fill()
 {
   if (iclass!=-1) return;
-  //  cout<<"Filling in data for ideal"<<(*this)<<endl;
+  // cout<<"Filling in data for ideal"<<(*this)<<" with a = "<<a<<", b = "<<b<<", c = "<<c<<endl;
   g0=Quad(a); g1=Quad(b,ONE);
   unimod U;
   sl2z_reduce(g0,g1, U);
-  if ((quadconj(g0)*g1).i<0)
-    cout<<"Badly oriented Z-basis in fill() 1"<<endl;
-  //  cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
+  // if ((quadconj(g0)*g1).i<0)
+  //   cout<<"Badly oriented Z-basis in fill() 1"<<endl;
+  // cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
   iclass = (div(g0,g1)? 0: 1); // 0 means principal
   // scale by content:
   g1 *= c;
@@ -60,9 +60,9 @@ void Qideal::fill()
       g0*=fundunit;
       g1*=fundunit;
     }
-  //  cout<<" -- now gens are "<<gens()<<endl;
-  if ((quadconj(g0)*g1).i<0)
-    cout<<"Badly oriented Z-basis in fill() 2"<<endl;
+  // cout<<" -- now gens are "<<gens()<<endl;
+  // if ((quadconj(g0)*g1).i<0)
+  //   cout<<"Badly oriented Z-basis in fill() 2"<<endl;
   if (!pos(g0))
     cout<<"After fill(), generator g0 = "<<g0<<" not normalised"<<endl;
 }
@@ -429,17 +429,22 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   // cout<<"vecbezout("<<v<<") returns "<<w<<endl;
   // cout<<" coeffs of r are "<<w[0]<<" and "<< J.c * w[2]<<endl;
   r =   zcombo(w[0],  J.c * w[2]);
+  // cout << " r0="<<r<<endl;
   s =   Quad::one - r;
   assert (contains(r));
   assert (J.contains(s));
-  if (r.nm<0 || s.nm<0) // can only happen if there was overflow
+  if (r.nm<0 || s.nm<0) // could happen if there was overflow, except
+                        // that we compute norms of Quads on
+                        // construction and test there anyway
     {
       cout<<"I="<<(*this)<<", J="<<J<<": initial r="<<r<<" (norm "<<r.nm<<"), s=1-r="<<s<<" (norm "<<s.nm<<")"<<"; N(IJ) = "<<r.nm*J.nm<<endl;
       cout<<"v = "<<v<<", w="<<w<<endl;
       exit(1);
     }
   Qideal IJ = (*this)*J;
-  Quad r1 =   IJ.reduce(r);
+  // cout << " I0*I1="<<IJ<<" with norm "<<IJ.norm()<<endl;
+  // Quad r1 =   IJ.reduce(r); // filling IJ leads to overflow
+  Quad r1 = r%IJ.smallest_integer();
   // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<" (norm "<<IJ.nm<<"): r="<<r<<" (norm "<<r.nm<<")";
   // cout << " reduces mod IJ to "<<r1<<endl;
   assert (contains(r1));
@@ -484,11 +489,12 @@ Qideal Qideal::primitive_part() const      // largest primitive factor of this (
 // reduction of alpha modulo this ideal
 Quad Qideal::reduce(const Quad& alpha)
 {
+  // cout<<"Reducing "<<alpha<<" mod "<<(*this)<<endl;
   if (iclass==-1)
     fill();
-  //  cout<<"Reducing "<<alpha<<" mod "<<(*this)<<" with gens "<<gens()<<": --> "<<alpha%ac<<endl;
-  if ((quadconj(g0)*g1).i<0)
-    cout<<"Badly oriented Z-basis "<<endl;
+  // cout<<" gens "<<gens()<<": --> "<<alpha%ac<<endl;
+  // if ((quadconj(g0)*g1).i<0)
+  //   cout<<"Badly oriented Z-basis "<<endl;
   return reduce_mod_zbasis(alpha%ac, g0, g1);
 }
 
@@ -553,9 +559,14 @@ pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues()
   return {res, inv};
 }
 
+//#define DEBUG_AB_MATRIX
+
 // An AB-matrix with given first column
 mat22 AB_matrix(const Quad& a, const Quad& c)
 {
+#ifdef DEBUG_AB_MATRIX
+  cout<<"Constructing an AB-matrix with first column a="<<a<<", c="<<c<<endl;
+#endif
   Quad b, d;
   if (!quadbezout(a,c,d,b).is_zero()) // then (a,c)=(g) and a*d+b*c=g
     {
@@ -563,9 +574,20 @@ mat22 AB_matrix(const Quad& a, const Quad& c)
     }
   // otherwise (a,c) is not principal (and a,c are nonzero)
   Qideal I({a,c});
+#ifdef DEBUG_AB_MATRIX
+  cout<<" I=(a,c)="<<I<<endl;
+#endif
   Qideal I0 = Qideal(a)/I, I1 = Qideal(c)/I;
+#ifdef DEBUG_AB_MATRIX
+  cout<<" I0="<<I0<<endl;
+  cout<<" I1="<<I1<<endl;
+#endif
   Quad r0, r1;
   int t = I0.is_coprime_to(I1, r0, r1);
+#ifdef DEBUG_AB_MATRIX
+  cout<<" r0="<<r0<<endl;
+  cout<<" r1="<<r1<<endl;
+#endif
   assert (t && "I0, I1 coprime");
   QUINT g = I.norm();
   b = -(r1*g)/c;

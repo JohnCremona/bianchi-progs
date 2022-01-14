@@ -152,13 +152,17 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 
   // Form ab-matrices with first columns equal to the two cusp representations
 
-  mat22 M1 = AB_matrix(cc1.n, cc1.d), // [a1,b1;a2,b2]
-    M2 = AB_matrix(cc2.n, cc2.d);     // [a1',b1';a2',b2']
+  mat22 M1 = AB_matrix(cc1.n, cc1.d); // [a1,b1;a2,b2]
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - A = "<<M1<<", det = "<<M1.det()<<endl;
+#endif
+  mat22 M2 = AB_matrix(cc2.n, cc2.d); // [a1',b1';a2',b2']
+#ifdef DEBUG_CUSP_EQ
+  cout<<" - B = "<<M2<<", det = "<<M2.det()<<endl;
+#endif
   assert (M1.det()==M2.det());
   Quad a2db2 = M2.entry(1,0)*M1.entry(1,1), a2b2d = M1.entry(1,0)*M2.entry(1,1);
 #ifdef DEBUG_CUSP_EQ
-  cout<<" - A = "<<M1<<", det = "<<M1.det()<<endl;
-  cout<<" - B = "<<M2<<", det = "<<M2.det()<<endl;
   cout<<" - a2'*b2 = "<<a2db2<<", a2*b2' = "<<a2b2d<<endl;
 #endif
 
