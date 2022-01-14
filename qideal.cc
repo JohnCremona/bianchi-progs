@@ -397,6 +397,20 @@ void Qideal::operator*=(Qideal& f)
   iclass=index=-1;
 }
 
+int Qideal::is_equivalent(const Qideal& I)
+{
+  // return (I.conj()*(*this)).is_principal();
+  Qideal I1 = I.primitive_part(), J1 = primitive_part();
+  return (I1==J1) || (I1.conj()*J1).is_principal();
+}
+
+int Qideal::is_anti_equivalent(Qideal& I)
+{
+  // return (I*(*this)).is_principal();
+  Qideal I1 = I.primitive_part(), J1 = primitive_part();
+  return (I1*J1).is_principal();
+}
+
 int Qideal::contains(const Quad& alpha) const
 {
   if (is_zero())
@@ -449,6 +463,22 @@ int Qideal::is_coprime_to(const Quad& alpha, Quad& inverse)
       assert (divides(alpha*inverse-Quad::one));
     }
   return t;
+}
+
+void Qideal::make_primitive()              // divide out content
+{
+  if (c==ONE) return;
+  if (iclass!=-1) { g0/=c; g1/=c; }
+  c = ONE;
+  ac = a;
+  nm = a;
+}
+
+Qideal Qideal::primitive_part() const      // largest primitive factor of this (=this/content)
+{
+  Qideal I = *this;
+  I.make_primitive();
+  return I;
 }
 
 // reduction of alpha modulo this ideal
@@ -604,7 +634,6 @@ mat22 Qideal::AB_matrix()
   assert (Qideal({h0,h1}) == C);
   return M;
 }
-
 
 Qideal Qideal::operator/(const QUINT&n) const
 { Qideal ans=*this;
@@ -789,7 +818,7 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)
 
 int Qideal::ok() const
 {
-  return div(a, b*(b + Quad::t) + Quad::n);
+  return nm>=0 and div(a, b*(b + Quad::t) + Quad::n);
 }
 
 int Qideal::is_principal()

@@ -70,6 +70,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
   cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
   cout<<" (N="<<N<<")"<<endl;
 #endif
+  if ((c1-c2).is_integral()) return 1;
   Quad q1 = c1.d, q2 = c2.d, q3, s1,r1,s2,r2;
   quadbezout(c1.n,q1,s1,r1);  s1*=q2;
   quadbezout(c2.n,q2,s2,r2);  s2*=q1;
@@ -96,11 +97,14 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 
 int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 {
-  if (c1==c2) return 1;
 #ifdef DEBUG_CUSP_EQ
   cout<<"Testing equivalence of cusps "<<c1<<" and "<<c2;
   cout<<" (N="<<N<<")"<<endl;
 #endif
+  // Quick tests
+  if (c1==c2) return 1;
+  if ((c1-c2).is_integral()) return 1;
+
   // test ideals are in the same class:
   Qideal I1 = c1.ideal(), I2 = c2.ideal();
   if (!I1.is_equivalent(I2))

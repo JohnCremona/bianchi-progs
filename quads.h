@@ -85,6 +85,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   {
     nm = r*r + n*i*i;
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
+    assert (nm>=0);
   }
   Quad() :r((long)0), i((long)0), nm((long)0)  {}
 #ifdef QUINT_IS_ZZ
@@ -99,6 +100,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad(long x, long y) :r(x),i(y), nm(x*x + n*y*y)
   {
     if (t && !::is_zero(r) && !::is_zero(i)) {nm += r*i;};
+    assert (nm>=0);
   }
   Quad(QUINT x, QUINT y, QUINT nrm) :r(x), i(y), nm(nrm)  {}
   explicit Quad(const bigcomplex& z);   //rounds to nearest
