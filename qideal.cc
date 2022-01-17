@@ -443,8 +443,8 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
     }
   Qideal IJ = (*this)*J;
   // cout << " I0*I1="<<IJ<<" with norm "<<IJ.norm()<<endl;
-  // Quad r1 =   IJ.reduce(r); // filling IJ leads to overflow
-  Quad r1 = r%IJ.smallest_integer();
+  Quad r1 =   IJ.reduce(r); // causes filling of IJ which leads to overflow
+  //Quad r1 = r%IJ.smallest_integer();
   // cout << "I="<<(*this)<<", J="<<J<<", IJ="<<IJ<<" (norm "<<IJ.nm<<"): r="<<r<<" (norm "<<r.nm<<")";
   // cout << " reduces mod IJ to "<<r1<<endl;
   assert (contains(r1));

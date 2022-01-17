@@ -6,7 +6,7 @@
 #include <eclib/interface.h>
 #include <eclib/marith.h>
 
-//#define QUINT_IS_ZZ
+#define QUINT_IS_ZZ
 
 #ifndef QUINT_IS_ZZ
 #define QUINT_IS_long

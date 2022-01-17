@@ -1,6 +1,6 @@
 #include "qidloop.h"
 #include "homspace.h"
-//#define LOOPER
+#define LOOPER
 //#define CHECK_CONJUGATE
 
 int main ()
