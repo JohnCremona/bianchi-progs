@@ -143,7 +143,7 @@ protected:
   vec zero_infinity;
 public:
   Qideal N;  // the level
-  vector<Quadprime> plist; // bad primes
+  vector<Quadprime> plist; // list of primes, first bad then good in order
   int is_square, npdivs;
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1; // pointer to one, not an array

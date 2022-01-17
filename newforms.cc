@@ -164,7 +164,7 @@ newform::newform(newforms* nfs,
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
   Qideal N(nf->N);
-  while ((eigs.size()<20) && (api!=aplist.end()))
+  while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
     {
       while (pr->divides(N))  { ++pr; ++api; }
       eigs.push_back(*api);
@@ -435,36 +435,24 @@ void newforms::init()
 {
   is_square = N.is_square();
   Factorization F = N.factorization();
-  plist = primelist(N, 20); // shadows h1->primelist in case we do not construct h1
-  if (verbose>1) cout << "Ordered list of primes (bad primes first): "<<plist<<endl;
+  // List of bad primes (dividing N) followed by good primes to length np:
+  nap = 20;
+  plist = make_primelist(N, nap, iP0); // shadows h1->primelist in case we do not construct h1
+  P0 = plist[iP0];
+  nP0 = I2long(P0.norm());
+//
+// P0 is the smallest good principal prime: and iP0 its index (in
+// plist, which starts with the bad primes and then the good
+// primes in order).  P0 must be principal since we have only
+// implemented maninvector() for principal primes.
+//
+  if (verbose>1)
+    cout << "Ordered list of primes (bad primes first): "<<plist<<endl;
   nwq = npdivs = F.size();
-  nap=20;
   ntp=nap-nwq;
   h1=0;
   of=0;
   nfhmod=0;
-//
-// get smallest good principal prime: and its index (in the list of
-// primes which starts with the bad primes and then the good primes in
-// order).  P0 must be principal since we have only implemented
-// maninvector() for principal primes.
-//
-  vector<Quadprime>::const_iterator Pi=plist.begin();
-  P0 = *Pi;
-  iP0 = 0;
-  while (P0.divides(N) || !P0.is_principal())
-    {
-      ++Pi;     // First "good" prime
-      ++iP0;
-      P0 = *Pi;
-    }
-  assert (plist[iP0]==P0);
-  if (plist[iP0]!=P0)
-    {
-      cout<<"P0 = "<<P0<<", plist = "<<plist<<", iP0 = "<<iP0<<endl;
-    }
-  assert (plist[iP0]==P0);
-  nP0 = I2long(P0.norm());
 }
 
 //#define DEBUG_LAMBDA
@@ -821,7 +809,8 @@ void newforms::make_projcoord()
 
 void newforms::createfromdata()
 {
-  if(verbose) cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
+  if(verbose)
+    cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
 
 // Read newform data from file into eigdata structure.
 
@@ -904,7 +893,7 @@ void newforms::getap(int first, int last, int verbose)
     }
   if(last<=nap)
     {
-      cout<<"Already have "<<nap <<" ap so no need to compute more"<<endl;
+      cout<<"Already have "<<nap <<" ap " << "at level "<<N<<" so no need to compute more"<<endl;
     }
   // now nap < last <= nQP
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;

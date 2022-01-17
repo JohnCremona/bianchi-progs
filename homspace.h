@@ -110,7 +110,10 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types);
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 
-// List of bad primes (dividing N) followed by good primes to length np:
-vector<Quadprime> primelist(Qideal& N, int np);
+// List of bad primes (dividing N) followed by good primes to length
+// at least np, making sure that the list includes at least one good
+// principal prime.  iP0 is set to the index in the list of the first
+// good principal prime.
+vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0);
 
 #endif

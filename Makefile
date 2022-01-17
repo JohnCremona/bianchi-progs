@@ -287,7 +287,6 @@ moreap.o: moreap.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
 moreap_loop.o: moreap_loop.cc newforms.h ratquads.h quads.h intprocs.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
  edge_relations.h geometry.h P1N.h looper.h
-mquads.o: mquads.cc mquads.h
 newforms.o: newforms.cc looper.h quads.h intprocs.h newforms.h ratquads.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
  edge_relations.h geometry.h P1N.h
@@ -317,7 +316,7 @@ quads.o: quads.cc intprocs.h quads.h primes.h qideal.h geometry.h mat22.h \
  ratquads.h
 ratquads.o: ratquads.cc ratquads.h quads.h intprocs.h qideal.h mat22.h \
  primes.h geometry.h
-roundtest.o: roundtest.cc quads.h intprocs.h
+roundtest.o: roundtest.cc intprocs.h
 symb.o: symb.cc symb.h moddata.h quads.h intprocs.h mat22.h ratquads.h \
  primes.h qideal.h euclid.h geometry.h
 symbtest.o: symbtest.cc symb.h moddata.h quads.h intprocs.h mat22.h \
@@ -328,7 +327,6 @@ testlf1.o: testlf1.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
 tmanin.o: tmanin.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h
-tmquads.o: tmquads.cc mquads.h
 tquads.o: tquads.cc looper.h quads.h intprocs.h geometry.h mat22.h \
  ratquads.h primes.h qideal.h
 tratquad.o: tratquad.cc ratquads.h quads.h intprocs.h primes.h qideal.h

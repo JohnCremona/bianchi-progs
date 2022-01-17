@@ -17,7 +17,9 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
   hmod = 0;
   plusflag=hp;
   nap = 20;
-  primelist = ::primelist(N, nap); // first nap primes, bad primes first, otherwise in standard order
+  // first nap (at least) primes, bad primes first, otherwise in standard order
+  int iP0;
+  primelist = make_primelist(N, nap, iP0);
 
   if (verbose)
     {
@@ -364,17 +366,28 @@ mat reduce_modp(const mat& m, const scalar& p)
   return ans;
 }
 
-// List of bad primes (dividing N) followed by good primes to length np:
-vector<Quadprime> primelist(Qideal& N, int np)
+// List of bad primes (dividing N) followed by good primes to length
+// at least np, making sure that the list includes at least one good
+// principal prime.  iP0 is set to the index in the list of the first
+// good principal prime.
+vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0)
 {
   vector<Quadprime> ans = N.factorization().sorted_primes();
   vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
-  while (ans.size()<(unsigned)np)
+  iP0 = -1;
+  while ((ans.size()<(unsigned)np) || (iP0<0))
     {
       Quadprime P = *Pi++;
       if (!P.divides(N))
-        ans.push_back(P);
+        {
+          ans.push_back(P);
+          if (P.is_principal() && iP0==-1)
+            {
+              iP0 = ans.size()-1; // index of current last in list, indexed from 0
+            }
+        }
     }
+  // cout<<"make_primelist(N="<<N<<", np="<<np<<") returns "<<ans<<" (size "<<ans.size()<<") with P0="<<ans[iP0]<<", iP0="<<iP0<<endl;
   return ans;
 }
 

@@ -49,7 +49,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
         }
       newforms olddata(M,verbose);
       olddata.createfromscratch();
-      olddata.getap(1,20,0);
+      olddata.getap(1, max(neigs,20), 0);
       olddata.output_to_file(eigfilename);
       if(verbose)
         {
