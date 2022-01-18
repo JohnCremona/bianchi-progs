@@ -1,0 +1,25 @@
+#!/bin/bash
+d=$1
+N=$2
+
+NAP=100
+VERBOSE=0
+
+ln -s tmanin_loop_long tmanin_l_$d$_$N
+
+echo $d ${VERBOSE} 1 ${NAP} 1 1 $N $N | ./tmanin_l_$d$_$N
+
+if [ $? -eq 0 ]
+then
+  echo "tmanin (d=$d, N=$N) using long ints succeeded"
+  /bin/rm tmanin_l_$d$_$N
+else
+  echo "******************** tmanin (d=$d, N=$N) using long ints FAILED, rerunning with ZZ *******************************"
+  ln -s tmanin_loop_ZZ tmanin_ZZ_$d$_$N
+  echo $d ${VERBOSE} 1 ${NAP} 1 1 $N $N | ./tmanin_ZZ_$d$_$N
+  /bin/rm tmanin_ZZ_$d$_$N
+fi
+
+# To use in parallel runs, one level norm per run:
+#
+# parallel -j 10 --progress ./tmanin_hybrid 59 {1} ::: `seq 1101 1200`
