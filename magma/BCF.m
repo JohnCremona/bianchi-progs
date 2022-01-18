@@ -26,6 +26,9 @@ procedure dimtable(d, minnorm, maxnorm, include_zero)
   OK := Integers(K);
   print "K = ", K;
   Vdata := VoronoiData(BianchiCuspForms(K,1*OK));
+  outputfilename := "dims" cat Sprintf("%o",d) cat "DY.txt";
+  print "Output file is ", outputfilename;
+  SetColumns(0);
 
   for n in [minnorm..maxnorm] do
      S := IdealsOfNorm(K, n);
@@ -35,6 +38,7 @@ procedure dimtable(d, minnorm, maxnorm, include_zero)
            d := Dimension(BianchiCuspForms(K,N : VorData:=Vdata));
            if d gt 0 or include_zero then
               print label, d;
+              PrintFile(outputfilename, Sprintf("%o %o",label, d));
            end if;
      end for;
   end for;
