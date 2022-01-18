@@ -20,6 +20,7 @@ else
   PROG="./tmanin_ZZ_${d}_${N}"
   ln -s tmanin_loop_ZZ "${PROG}"
   echo "${PARAMS}" | "${PROG}"
+  /bin/rm "${PROG}"
 fi
 
 # To use in parallel runs, one level norm per run:
