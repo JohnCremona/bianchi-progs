@@ -10,7 +10,7 @@ PARAMS="${d} ${VERBOSE} 1 ${NAP} 1 1 ${N} ${N}"
 PROG="./tmanin_l_${d}_${N}"
 ln -s tmanin_loop_long "${PROG}"
 
-if ! (echo "${PARAMS}" | "${PROG}");
+if (echo "${PARAMS}" | "${PROG}");
 then
   echo "${PROG} using long ints succeeded"
   /bin/rm "${PROG}"
