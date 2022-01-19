@@ -7,16 +7,12 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
-  :N(I)
+homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
+  :verbose(verb), cuspidal(cuspid), plusflag(hp),
+   N(I), nap(20), characteristic(ch), hmod(0)
 {
   P1 = P1N(N);
   nsymb = P1.size();
-  verbose=verb;
-  cuspidal=cuspid;
-  hmod = 0;
-  plusflag=hp;
-  nap = 20;
   // first nap (at least) primes, bad primes first, otherwise in standard order
   int iP0;
   primelist = make_primelist(N, nap, iP0);
@@ -39,7 +35,7 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb)
   ER = edge_relations(&P1, hp, verb);
   ngens = ER.get_ngens();
 
-  FR = face_relations(&ER, hp, verb); // fills relmat with the relations and solves
+  FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
   denom1 = FR.get_denom();
   rk = FR.get_rank();
   hmod = FR.get_hmod();
@@ -159,13 +155,22 @@ void homspace::kernel_delta()
       if(verbose>1)
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
-  kern = kernel(smat(deltamat));
+  scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
   vec pivs, npivs;
   int d2;
-  smat sk;
-  int ok = liftmat(smat_elim(deltamat).kernel(npivs,pivs),MODULUS,sk,d2);
-  if (!ok)
-    cout << "**!!!** failed to lift modular kernel\n" << endl;
+  kern = kernel(smat(deltamat), modulus);
+  int ok = 1;
+  if (characteristic==0)
+    {
+      smat sk;
+      ok = liftmat(smat_elim(deltamat, modulus).kernel(npivs,pivs),MODULUS,sk,d2);
+      if (!ok)
+        cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
+    }
+  else
+    {
+      d2 = 1;
+    }
 
   tkernbas = transpose(kern.bas());         // dim(kern) x rank
   if(verbose>1)

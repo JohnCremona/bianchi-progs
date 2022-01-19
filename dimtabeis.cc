@@ -1,5 +1,6 @@
 #include "qidloop.h"
 #include "homspace.h"
+//#define MODP
 
 int main ()
 {
@@ -10,7 +11,13 @@ int main ()
       cerr<<"field must be one of: "<<valid_fields<<endl;
       exit(1);
     }
-  cout << "# Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
+  long ch=0;
+#ifdef MODP
+  cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
+#endif
+  cout << "# Table of dimensions of ";
+  if (ch) cout<<"mod "<<ch<<" ";
+  cout<<"weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
   Quad::field(d,max);
  long firstn, lastn; Quad n;
  int both_conj;
@@ -30,7 +37,7 @@ int main ()
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
-     homspace hplus(N, plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
+     homspace hplus(N, plusflag, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
      int dimcusp = hplus.h1cuspdim();
      int dimall = hplus.h1dim();
      int dimeis = dimall-dimcusp;
