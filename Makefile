@@ -4,8 +4,8 @@
 # the following line might not be necessary.  If installed anywhere
 # else set the install directory here:
 
-#ECLIB_BASE=/usr/local
-ECLIB_BASE=$(HOME)/eclib
+ECLIB_BASE=/usr/local
+#ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -38,6 +38,7 @@ OPTFLAG = -O3 -Wall -fPIC
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
 # appended below.  Otherwise set USE_BOOST=0.
 
+#USE_BOOST=1
 ifeq ($(USE_BOOST), 1)
  BOOST_ASIO_LIB = -lboost_system-mt
  BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
@@ -62,7 +63,7 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3 ccs4
 ccs1: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc moddata.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
+ccs3: symb.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc dimtable_modp.cc
 ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc
 
 headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h
@@ -70,7 +71,7 @@ headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h ne
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -98,7 +99,7 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = homtest dimtable dimtabeis
+HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp
 FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
@@ -213,6 +214,9 @@ symbtest: symbtest.o symb.o moddata.o $(OBJS)
 homtest: homtest.o $(OBJS)
 	$(CC) -o homtest homtest.o $(OBJS) $(LFLAGS)
 
+dimtable_modp: dimtable_modp.o $(OBJS)
+	$(CC) -o dimtable_modp dimtable_modp.o $(OBJS) $(LFLAGS)
+
 dimtable: dimtable.o $(OBJS)
 	$(CC) -o dimtable dimtable.o $(OBJS) $(LFLAGS)
 
@@ -261,6 +265,9 @@ homspace.o: homspace.cc euclid.h quads.h intprocs.h cusp.h mat22.h \
  ratquads.h primes.h qideal.h homspace.h face_relations.h \
  edge_relations.h geometry.h P1N.h
 homtest.o: homtest.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
+ cusp.h mat22.h ratquads.h primes.h face_relations.h edge_relations.h \
+ geometry.h P1N.h
+dimtable_modp.o: dimtable_modp.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
  cusp.h mat22.h ratquads.h primes.h face_relations.h edge_relations.h \
  geometry.h P1N.h
 intprocs.o: intprocs.cc intprocs.h
