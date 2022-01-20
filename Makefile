@@ -63,15 +63,15 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3 ccs4
 ccs1: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc moddata.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc dimtable_modp.cc
-ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc
+ccs3: symb.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
+ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc
 
 headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -99,7 +99,7 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp
+HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp hecketest_modp
 FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
@@ -226,6 +226,9 @@ dimtabeis: dimtabeis.o $(OBJS)
 hecketest: hecketest.o $(OBJS)
 	$(CC) -o hecketest hecketest.o $(OBJS) $(LFLAGS)
 
+hecketest_modp: hecketest_modp.o $(OBJS)
+	$(CC) -o hecketest_modp hecketest_modp.o $(OBJS) $(LFLAGS)
+
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
 
@@ -259,6 +262,9 @@ geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h intprocs.h \
 hecke.o: hecke.cc homspace.h cusp.h mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h face_relations.h edge_relations.h geometry.h P1N.h
 hecketest.o: hecketest.cc qidloop.h qideal.h quads.h intprocs.h \
+ homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
+ edge_relations.h geometry.h P1N.h
+hecketest_modp.o: hecketest_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
  edge_relations.h geometry.h P1N.h
 homspace.o: homspace.cc euclid.h quads.h intprocs.h cusp.h mat22.h \
