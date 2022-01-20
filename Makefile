@@ -63,7 +63,7 @@ sources: ccs headers
 ccs: ccs1 ccs2 ccs3 ccs4
 ccs1: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc moddata.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc tmanin.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc xtmanin.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
+ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc
 
 headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h
@@ -71,7 +71,7 @@ headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h ne
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest tmanin moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -100,7 +100,7 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  fieldinfo tquads tratquad looptest P1Ntest qidltest
 HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp hecketest_modp
-FULL_TESTS = $(HOM_TESTS) hecketest tmanin nftest nflist moreap moreap1 modularity modularity_modp
+FULL_TESTS = $(HOM_TESTS) hecketest makenf nftest nflist moreap moreap1 modularity modularity_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin
@@ -154,20 +154,17 @@ OBJS = quads.o intprocs.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
 
-tmanin: tmanin.o $(OBJS)
-	$(CC) -g -o tmanin tmanin.o $(OBJS) $(LFLAGS)
+makenf: makenf.o $(OBJS)
+	$(CC) -g -o makenf makenf.o $(OBJS) $(LFLAGS)
 
-tmanin_loop.o: tmanin.cc $(OBJS)
-	$(CC) -DLOOPER $(CFLAGS) tmanin.cc -o tmanin_loop.o
+makenf_loop.o: makenf.cc $(OBJS)
+	$(CC) -DLOOPER $(CFLAGS) makenf.cc -o makenf_loop.o
 
-tmanin_loop: tmanin_loop.o $(OBJS)
-	$(CC) -g -o tmanin_loop tmanin_loop.o $(OBJS) $(LFLAGS)
+makenf_loop: makenf_loop.o $(OBJS)
+	$(CC) -g -o makenf_loop makenf_loop.o $(OBJS) $(LFLAGS)
 
 pmanin: pmanin.o $(OBJS)
 	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
-
-xtmanin: xtmanin.o $(OBJS)
-	$(CC) -o xtmanin xtmanin.o $(OBJS) $(LFLAGS)
 
 testlf1: testlf1.o lf1.o $(OBJS)
 	$(CC) -o testlf1 testlf1.o lf1.o $(OBJS) $(LFLAGS)
@@ -337,15 +334,12 @@ symbtest.o: symbtest.cc symb.h moddata.h quads.h intprocs.h mat22.h \
 testlf1.o: testlf1.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
  edge_relations.h geometry.h P1N.h lf1.h
-tmanin.o: tmanin.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
+makenf.o: makenf.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h
 tquads.o: tquads.cc looper.h quads.h intprocs.h geometry.h mat22.h \
  ratquads.h primes.h qideal.h
 tratquad.o: tratquad.cc ratquads.h quads.h intprocs.h primes.h qideal.h
-xtmanin.o: xtmanin.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
- primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
 
 # Some tables
 
