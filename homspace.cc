@@ -32,7 +32,7 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
         cout << endl;
     }
 
-  ER = edge_relations(&P1, hp, verb);
+  ER = edge_relations(&P1, hp, verb, characteristic);
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
