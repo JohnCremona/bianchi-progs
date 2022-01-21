@@ -148,8 +148,9 @@ public:
   int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
+  long characteristic; // 0 or prime
   vector<newform> nflist;
-  explicit newforms(const Qideal& N, int disp=0);
+  explicit newforms(const Qideal& N, int disp=0, long ch=0);
   ~newforms(void) {
                    if(h1)delete h1;
                   }

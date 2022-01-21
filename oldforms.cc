@@ -6,17 +6,19 @@ inline int testbit(long a, long i) {return (a& (1<<i));}
 
 string ideal_code(const Quad& N); // string code for a (principal)  ideal
 
-string eigfile(const Quad& N)    //returns filename for eigs at level N
+string eigfile(const Quad& N, long p)    //returns filename for eigs at level N, characteristic p
 {
   stringstream s;
   s << getenv("NF_DIR");
   if (s.str().empty()) {s.clear(); s<<"./newforms";}
   s << "/" << field_label() << "/";
   s << ideal_code(N);
+  if (p)
+    s << "_mod_"<<p;
   return s.str();
 }
 
-string eigfile(Qideal& N)    //returns filename for eigs at level N
+string eigfile(Qideal& N, long p)    //returns filename for eigs at level N, characteristic p
 {
   stringstream s;
   s << getenv("NF_DIR");
@@ -26,28 +28,27 @@ string eigfile(Qideal& N)    //returns filename for eigs at level N
     s << ideal_code(N.gen());
   else
     s << ideal_label(N);
+  if (p)
+    s << "_mod_"<<p;
   return s.str();
 }
 
 // Implementation of eigdata constructor -- reads data from file
-eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose)
+eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
   : N(iN), M(iM)
 {
   if(verbose) cout << "Getting eigdata for " << M << endl;
-  string eigfilename;
-  if (Quad::class_number==1) // for backwards compatibility of data file names
-    eigfilename = eigfile(M.gen());
-  else
-    eigfilename = eigfile(M);
+  string eigfilename = (Quad::class_number==1? eigfile(M.gen(), ch): eigfile(M, ch));
   ifstream data(eigfilename.c_str());
   if (!data)
     {
       if(verbose)
         {
           cout << "No data file for M = " << M;
+          if (ch) cout << " mod " << ch;
           cout << "  so creating newforms at that level..." << endl;
         }
-      newforms olddata(M,verbose);
+      newforms olddata(M,verbose, ch);
       olddata.createfromscratch();
       olddata.getap(1, max(neigs,20), 0);
       olddata.output_to_file(eigfilename);
@@ -209,8 +210,8 @@ static long min_newform_level_norm[20] = {0,65, // d=1
                                           0,0,0,0,9,        // d=11
                                           0,0,0,0,0,0,0,4}; // d=19
 
-oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose)
-  : N(iN), plist(pr)
+oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose, long ch)
+  : N(iN), characteristic(ch), plist(pr)
 {
    nap = plist.size();
    noldclasses = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
@@ -245,7 +246,9 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
 {
   if (D==N)
     return;
-  long min_norm = (Quad::d <=19? min_newform_level_norm[Quad::d]: 1);
+  long min_norm = 1;
+  if (Quad::d <=19 && (characteristic==0))
+    min_norm = min_newform_level_norm[Quad::d];
   if (D.norm() < min_norm)
     {
       if(verbose)
@@ -255,7 +258,7 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
     }
   if(verbose)
     cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
-  eigdata olddata(N,D,nap,verbose);
+  eigdata olddata(N,D,nap,verbose, characteristic);
   int nforms=olddata.nforms;
   Qideal M = N/D;
   int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;

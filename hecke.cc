@@ -14,26 +14,37 @@ vector<long> homspace::eigrange(long i)
     cout << "eigrange for P = " << P << ":\t";
   if(P.divides(N))
     {
-      ans = {-1, 1};
+      if (characteristic==2)
+        ans = {1};
+      else
+        ans = {-1, 1};
       if (verbose)
 	cout << ans << endl;
       return ans;
     }
   else
     {
-      long aplim=2;
-      while (aplim*aplim<=4*normp) aplim++;
-      aplim--;
-      if(verbose)
-	cout << "|ap| up to "<<aplim<<":\t";
-      long ap, l = 2*aplim+1;
-      ans = vector<long>(l);
-      ans[0]=0;
-      for(ap=-aplim; ap<=aplim; ap++)
-	ans[ap+aplim] = ap;
-      if (verbose)
-	cout << ans << endl;
-      return ans;
+      if (characteristic==0)
+        {
+          long aplim=2;
+          while (aplim*aplim<=4*normp) aplim++;
+          aplim--;
+          if(verbose)
+            cout << "|ap| up to "<<aplim<<":\t";
+          ans = vector<long>(2*aplim+1);
+          std::iota(ans.begin(), ans.end(), -aplim);
+          if (verbose)
+            cout << ans << endl;
+          return ans;
+        }
+      else
+        {
+          ans = vector<long>(characteristic);
+          std::iota(ans.begin(), ans.end(), 0);
+          if (verbose)
+            cout << ans << endl;
+          return ans;
+        }
     }
 }
 

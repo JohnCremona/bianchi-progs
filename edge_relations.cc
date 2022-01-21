@@ -41,8 +41,8 @@ RatQuad base_point(int t)
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(P1N* s, int plus, int verb)
-  :P1(s), plusflag(plus), verbose(verb)
+edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
+  :P1(s), plusflag(plus), verbose(verb), characteristic(ch)
 { //cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
   nsymb = P1->size();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);
@@ -189,7 +189,8 @@ void edge_relations::report()
     }
   cout << endl;
 }
-int edge_relations::check()
+
+int edge_relations::check() // not completely implemented, don't use
 {
   if (verbose)
     cout<<"Checking edge relations..."<<endl;
@@ -304,7 +305,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
 	      for (k=0; k<lenrel; k++) cout<<b[k]<<" ";
               cout<<endl;
 	    }
-          if (triv)
+          if (triv && (characteristic!=2))
             for (k=0; k<lenrel; k++) coordindex[a[k]]=coordindex[b[k]]=0;
           else
             {
@@ -313,7 +314,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
               for(k=0; k<lenrel; k++)
                 {
                   coordindex[a[k]] =  ngens;
-                  coordindex[b[k]] = -ngens;
+                  if (!triv) coordindex[b[k]] = -ngens; // only in char.2
                 }
             }
         }
@@ -381,7 +382,8 @@ void edge_relations::edge_relations_2_d12mod4()
       k = M(l); // = L(m)
       done[i] = done[k] = done[l] = done[m] = 1;
 
-      if (i==m) // i==m iff l==k since M,L commute, both order 2
+      int triv = (i==m);  // i==m iff l==k since M,L commute, both order 2
+      if (triv && characteristic!=2)
         {
           coordindex[off + i] = 0;
           coordindex[off + l] = 0;
@@ -391,7 +393,7 @@ void edge_relations::edge_relations_2_d12mod4()
           ++ngens;
           gens.push_back(off+i);
           coordindex[off + i] = ngens;
-          coordindex[off + m] = -ngens;
+          if (!triv) coordindex[off + m] = -ngens;
 #ifdef DEBUG
           cout<<" - increasing ngens to "<<ngens<<" and adding "<<off+i<< " to gens..."<<endl;
           cout<<" - setting coordindex["<<off+i<< "] to "<<ngens<<endl;
@@ -408,7 +410,7 @@ void edge_relations::edge_relations_2_d12mod4()
 #endif
                 }
               coordindex[off + l] = ngens;
-              coordindex[off + k] = -ngens;
+              if (!triv) coordindex[off + k] = -ngens;
 #ifdef DEBUG
               cout<<" - setting coordindex["<<off+l<< "] to "<<ngens<<endl;
               cout<<" - setting coordindex["<<off+k<< "] to "<<-ngens<<endl;
@@ -562,7 +564,8 @@ void edge_relations::edge_pairing_minus(int i)
           j2 = J(j);
           k2 = J(k);
           done[j] = done[k] = 1;
-          if (j==k) // symbol trivial
+          int triv = (j==k); // symbol trivial except in char.2
+          if (triv && characteristic!=2)
             {
               coordindex[off1+j] = 0;
               coordindex[off2+j2] = 0;
@@ -572,14 +575,14 @@ void edge_relations::edge_pairing_minus(int i)
               ++ngens;
               gens.push_back(off1+j);
               coordindex[off1+j] = ngens;
-              coordindex[off1+k] = -ngens;
+              if (!triv) coordindex[off1+k] = -ngens;
               if (!plusflag)
                 {
                   ++ngens;
                   gens.push_back(off2+j2);
                 }
               coordindex[off2+j2] = ngens;
-              coordindex[off2+k2] = -ngens;
+              if (!triv) coordindex[off2+k2] = -ngens;
             }
         }
     }
@@ -609,7 +612,8 @@ void edge_relations::edge_pairing_plus(int i)
       m = J(k); assert (l==M(m));
       done[j] = done[m] = 1;
 
-      if (k==l && plusflag) // equivalently, j==m
+      int triv = (k==l && plusflag); // equivalently, j==m
+      if (triv && characteristic!=2)
         {
           assert (j==m);
           coordindex[off1+k] = 0;
@@ -617,7 +621,7 @@ void edge_relations::edge_pairing_plus(int i)
         }
       else
         {
-          assert (j!=m || !plusflag);
+          assert (j!=m || !plusflag || characteristic==2);
           ++ngens;
           gens.push_back(off1+l);
           coordindex[off1+l] = ngens;

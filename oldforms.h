@@ -5,8 +5,8 @@
 
 #include "primes.h"
 
-string eigfile(const Quad& N);    //returns filename for eigs at level N
-string eigfile(Qideal& N);        //returns filename for eigs at level N
+string eigfile(const Quad& N, long p=0);    //returns filename for eigs at level N, characteristic p
+string eigfile(Qideal& N, long p=0);        //returns filename for eigs at level N, characteristic p
 
 class eigdata {
 
@@ -23,7 +23,7 @@ public:
   vector<vector<int> > intdata;  // sfe, pdot, dp0, cuspidalfactor,
                                  // lambdadot, matdot
   vector<vector<Quad> > Quaddata; // lambda, a, b, c, d
-  eigdata(Qideal& iN, const Qideal& iM, int neigs=-1, int verbose=0);
+  eigdata(Qideal& iN, const Qideal& iM, int neigs=-1, int verbose=0, int ch=0);
 };
 
 
@@ -33,13 +33,14 @@ class oldforms {
   int olddim1, olddim2, olddimall;  // total dim of rational oldforms, resp. non-rational, all oldform
  private:
   Qideal N;
+  long characteristic;
   vector<Quadprime> plist;
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims;
   vector<Qideal> oldlevels;
   void getoldclasses(Qideal& D, int verbose);
  public:
-  oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose=0);
+  oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose=0, long ch=0);
   long dimoldpart(const vector<long> aplist);
   void display(void) const;
 };

@@ -78,7 +78,11 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
     }
   else
     basis = (nf->h1->FR.coord)*v;
-  makeprimitive(basis); // this is now independent of h1's denom1
+  if (nf->characteristic==0)
+    {
+      makeprimitive(basis); // this is now independent of h1's denom1
+    }
+  //  else we have just reduced it mod p
   if (nf->verbose >1)
   {
     cout << "short newform basis = "<<v<<endl;
@@ -110,6 +114,9 @@ void newform::fill_in_data(int j)
   rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
 
   // Check they agree:
+  if (nf->characteristic>0)
+    return;
+
   if (pdot != dp0*pdot0)
     {
       cout << "Inconsistent values for L/P computed two ways!"<<endl;
@@ -174,7 +181,7 @@ newform::newform(newforms* nfs,
 
 void newform::find_cuspidal_factor(const vec& v)
 {
-  if(nf->h1->cuspidal)
+  if(nf->h1->cuspidal || nf->characteristic)
     {
       cuspidalfactor=1;
     }
@@ -416,7 +423,7 @@ void newforms::makeh1plus(void)
 {
   if(!h1)
     {
-      h1 = new homspace(N,1,0,0);
+      h1 = new homspace(N,1,0,0, characteristic);
       nfhmod=hmod = h1->h1hmod();
     }
 }
@@ -424,10 +431,9 @@ void newforms::makeh1plus(void)
 long newforms::matdim(void) {return h1->dimension;}
 long newforms::matden(void) {return h1->denom3;}
 
-newforms::newforms(const Qideal& iN, int disp)
-  : N(iN)
+newforms::newforms(const Qideal& iN, int disp, long ch)
+  : N(iN), verbose(disp), characteristic(ch)
 {
-  verbose = disp;
   init();
 }
 
@@ -553,7 +559,7 @@ void newforms::createfromscratch()
       cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<plist<<")...\n";
     }
 
-  of = new oldforms(N, plist, verbose);
+  of = new oldforms(N, plist, verbose, characteristic);
   if(verbose)
     {
       of->display();
@@ -620,8 +626,8 @@ void newforms::fill_in_newform_data(int everything)
 // this here instead of within the newform constructors, as one lambda
 // might work for more than one newform). NB If the level is square
 // SFE=-1 then no such lambda will exist.
-
-  find_lambdas();
+  if (characteristic==0)
+    find_lambdas();
 }
 
 void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
@@ -814,7 +820,7 @@ void newforms::createfromdata()
 
 // Read newform data from file into eigdata structure.
 
-  eigdata filedata(N, N, -1, verbose>1);  // neigs=-1 means get ALL from file
+  eigdata filedata(N, N, -1, verbose>1, characteristic);  // neigs=-1 means get ALL from file
 
 // Extract number of newforms and their eigenvalues from this.
 
@@ -1094,13 +1100,7 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 #ifdef DEBUG_APVEC
   cout<<"--adding "<<part<<" (ind="<<ind<<") to imagej, ";
 #endif
-  if(hmod)
-    {
-      imagej.addmodp(part, hmod);
-      imagej = reduce_modp(imagej);
-    }
-  else
-    imagej += part;
+  imagej = reduce_modp(imagej + part, hmod);
 #ifdef DEBUG_APVEC
   cout<<"updated imagej is "<<imagej<<endl;
 #endif
@@ -1292,14 +1292,15 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 // #ifdef DEBUG_APVEC
 //       cout << "ap = " << ap << endl;
 // #endif
-// check it is in range:
-      if((ap>maxap)||(-ap>maxap))
-	{
-	  cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
-	      <<" for form # "<<(i+1)<<" is outside valid range "
-	      <<-maxap<<"..."<<maxap<<endl;
-          exit(1);
-	}
+// check it is in range (in characteristic 0 only):
+      if (characteristic==0)
+        if((ap>maxap)||(-ap>maxap))
+          {
+            cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
+                <<" for form # "<<(i+1)<<" is outside valid range "
+                <<-maxap<<"..."<<maxap<<endl;
+            exit(1);
+          }
     }
 #ifdef DEBUG_APVEC
       cout << "Good prime: ap list = " << apv << endl;
