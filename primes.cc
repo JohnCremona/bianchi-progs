@@ -594,7 +594,7 @@ Qideal Qideal::sqrt_coprime_to(const Qideal& N)
     }
   Qideal A = sqrt_class(1); // so A^2*this is principal
   if (A.nm==0) return A;
-  Qidealooper looper(2, 100);
+  Qidealooper looper(2, 1000);
   while (looper.not_finished())
     {
       Qideal J = looper.next();
