@@ -140,6 +140,14 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   return mats;
 }
 
+// Matrix inducing T_{A,A} at level N, when A^2 is principal and A+N=1
+
+mat22 Char(Qideal& A, const Qideal& N)
+{
+  Quad g;
+  return A.AB_matrix_of_level(A, N, g);
+}
+
 RatQuad mat22::operator()(const RatQuad& q)const
 {
   Quad r = q.num(), s = q.den();

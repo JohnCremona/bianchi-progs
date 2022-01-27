@@ -227,6 +227,11 @@ mat homspace::fricke(int dual, int display)
   return calcop(FrickeOp(N), dual,display);
 }
 
+mat homspace::nu(Qideal& A, int dual, int display)
+{
+  return calcop(CharOp(A, N), dual,display);
+}
+
 mat homspace::opmat(int i, int dual, int verb)
 {
   if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen

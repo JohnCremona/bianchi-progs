@@ -139,6 +139,10 @@ inline mat22 Fricke(Qideal& N) // assumes [N] square
   return AtkinLehner(N, One);
 }
 
+// Matrix inducing T_{A,A} at level N, when A^2 is principal and A+N=1
+
+mat22 Char(Qideal& A, const Qideal& N);
+
 class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
@@ -175,6 +179,14 @@ inline matop FrickeOp(Qideal& N)
 {
   return matop(Fricke(N), opname(N));
 }
+
+inline matop CharOp(Qideal& A, const Qideal& N)
+{
+  ostringstream s;
+  s << "chi";
+  return matop(Char(A,N), s.str());
+}
+
 
 #endif
 

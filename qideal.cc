@@ -816,8 +816,8 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)
 
   // find the determinant of the matrix to be constructed:
   Qideal IJ = J*(*this);
-  IJ.fill();
-  g = IJ.g0;
+  if (!IJ.is_principal(g))
+    cerr<<"ideals "<<(*this)<<" and "<<J<<" do not have principal product in AB_matrix_of_level()"<<endl;
 
   // Construct the second column:
   Qideal Iconj = conj();

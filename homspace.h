@@ -88,7 +88,9 @@ public:
    smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display);
    mat wop(Quadprime& Q, int dual=1, int display=0);
    mat fricke(int dual=1, int display=0);
-//   mat conj(int display=0) const;
+  // unramified character
+  mat nu(Qideal& A, int dual=1, int display=0);
+  //   mat conj(int display=0) const;
   vec maninvector(Quadprime& P, int proj=0);
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);
   // no longer used, implementation commented out:
@@ -105,7 +107,6 @@ public:
 int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
 // Special case: all signs +1
 int check_rel(const vector<mat22>& mats, const vector<int>& types);
-
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
