@@ -569,6 +569,7 @@ Quad invmod(const Quad& a, const Quad& p)
  if (g==Quad::one) return x;
  else {cerr<<"invmod called with "<<a<<" and "<<p<<" -- not coprime!"<<endl;
    return Quad::zero;
+   exit(1);
       }
 }
 
@@ -725,6 +726,7 @@ vector<QUINT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad&
               cerr << "c0,c1 = "<<c[0]<<","<<c[1]<<endl;
               cerr << "alpha = "<<alpha<< " not equal to "<<c[0]*al + c[1]*be<<endl;
             }
+          exit(1);
 #endif
           return c;
         }

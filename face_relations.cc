@@ -100,8 +100,8 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
 // face relations
 //
 
-face_relations::face_relations(edge_relations* er, int plus, int verb)
-  :ER(er), plusflag(plus), verbose(verb)
+face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
+  :ER(er), plusflag(plus), verbose(verb), characteristic(ch)
 {
   P1 = ER->P1;
   nsymb = P1->size();
@@ -154,7 +154,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb)
       if (rk>0)
         {
           if (verbose>1) cout << "coord:" << coord;
-          if (hmod)
+          if (hmod && characteristic==0)
             cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
           else
             cout << "lifted ok, denominator = " << denom << endl;
@@ -305,7 +305,10 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
   numrel++;
   if(numrel<=maxnumrel)
     {
-      make_primitive(relation);
+      if (characteristic==0)
+        make_primitive(relation);
+      else
+        relation.reduce_mod_p(characteristic);
       if (verbose) cout<<relation<<endl;
       relmat.setrow(numrel,relation);
     }
@@ -815,7 +818,18 @@ void face_relations::solve_relations()
     {
       mat M = relmat.as_mat().slice(numrel,ngens);
       cout<<"relmat = "<<M<<endl;
-      cout<<"rank(relmat) = "<<relmat.rank()<<", ngens = "<<ngens<<endl;
+      if (characteristic)
+        {
+          vec pcols, npcols;
+          long rk_modp, ny_modp;
+          echmodp_uptri(M, pcols, npcols, rk_modp, ny_modp, characteristic);
+          cout<<"rank_mod_p(relmat) = "<<rk_modp;
+        }
+      else
+        {
+          cout<<"rank(relmat) = "<<relmat.rank();
+        }
+      cout<<", ngens = "<<ngens<<endl;
     }
 #ifdef USE_SMATS
 #ifdef TIME_RELATION_SOLVING
@@ -829,7 +843,8 @@ void face_relations::solve_relations()
    timer t;
    t.start("relation solver");
 #endif
-   smat_elim sme(relmat);
+   scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
+   smat_elim sme(relmat, modulus);
    int d1;
    smat ker = sme.kernel(npivs, pivs), sp;
 #ifdef TIME_RELATION_SOLVING
@@ -841,7 +856,16 @@ void face_relations::solve_relations()
        cout<<"\n";
      }
 #endif
-   int ok = liftmat(ker,MODULUS,sp,d1);
+   int ok = 1;
+   if (characteristic==0)
+     {
+       ok = liftmat(ker,MODULUS,sp,d1);
+     }
+   else
+     {
+       d1 = 1;
+       sp = ker;
+     }
    if (!ok)
      {
        if(verbose)
@@ -880,8 +904,8 @@ void face_relations::solve_relations()
      }
    if (ok)
      {
-       hmod = 0;
-       denom = d1;
+       hmod = characteristic;
+       denom = (characteristic==0? d1: 1);
      }
    else
      {
@@ -912,7 +936,7 @@ void face_relations::solve_relations()
 #endif
    // if hmod>0, coord is only defined modulo hmod
    sp=smat(0,0); // clear space
-#else // not using smats
+#else // not using smats; not yet implemented for characteristic>0
   relmat = relmat.slice(numrel,ngens);
   if(verbose)
     {

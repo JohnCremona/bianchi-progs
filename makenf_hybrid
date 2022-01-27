@@ -7,8 +7,8 @@ VERBOSE=0
 
 PARAMS="${d} ${VERBOSE} 1 ${NAP} 1 1 ${N} ${N}"
 
-PROG="./tmanin_l_${d}_${N}"
-ln -s tmanin_loop_long "${PROG}"
+PROG="./makenf_l_${d}_${N}"
+ln -s makenf_loop_long "${PROG}"
 
 if (echo "${PARAMS}" | "${PROG}");
 then
@@ -17,12 +17,12 @@ then
 else
   echo "******************** ${PROG} using long ints FAILED, rerunning with ZZ *******************************"
   /bin/rm "${PROG}"
-  PROG="./tmanin_ZZ_${d}_${N}"
-  ln -s tmanin_loop_ZZ "${PROG}"
+  PROG="./makenf_ZZ_${d}_${N}"
+  ln -s makenf_loop_ZZ "${PROG}"
   echo "${PARAMS}" | "${PROG}"
   /bin/rm "${PROG}"
 fi
 
 # To use in parallel runs, one level norm per run:
 #
-# parallel -j 10 --progress ./tmanin_hybrid 59 {1} ::: `seq 1101 1200`
+# parallel -j 10 --progress ./makenf_hybrid 59 {1} ::: `seq 1101 1200`

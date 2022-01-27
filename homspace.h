@@ -25,10 +25,11 @@ public:
   smat tkernbas; // transpose of kernel(delta) basis
   vector<modsym> freemods;
   mat projcoord;
-  long hmod; // if >0, failed to lift from modular linear algebra
+  long characteristic; // =0 or prime p
+  long hmod; // if >0, did not lift from modular linear algebra
              // so coord is modulo this
 
-  homspace(const Qideal& I, int hp, int cuspid, int verb);
+  homspace(const Qideal& I, int hp, int cuspid, int verb=0, long ch=0);
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed

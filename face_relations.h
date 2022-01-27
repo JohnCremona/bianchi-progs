@@ -12,7 +12,7 @@
 class face_relations {
 public:
   face_relations() {;}
-  face_relations(edge_relations*, int plus, int verb=0);
+  face_relations(edge_relations*, int plus, int verb=0, long ch=0);
   long ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
   long get_denom() const {return denom;}
@@ -25,7 +25,7 @@ private:
   P1N* P1;  // shortcut to ER->P1
   int plusflag, verbose;
   long ngens, nsymb, numrel, maxnumrel;
-  long hmod, denom, rk;
+  long hmod, characteristic, denom, rk;
   vec pivs;
 
   void make_relations();        // creates relation matrix relmat

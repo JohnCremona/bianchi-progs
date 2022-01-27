@@ -11,7 +11,7 @@ class face_relations;
 class edge_relations {
 public:
   edge_relations() {;}//{cout<<"In default edge_relations constructor"<<endl;}
-  edge_relations(P1N*, int plus, int verb=0);
+  edge_relations(P1N*, int plus, int verb=0, long ch=0);
   long coords(int i) const {return coordindex[i];}
   long coords(int i, int t) const {return coordindex[i+offset(t)];}
   long gen(int i) const {return gens[i];}  // indexed from 1 not 0
@@ -33,6 +33,7 @@ public:
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
   int plusflag, verbose;
+  long characteristic; // =0 or prime p
   long nsymb, ngens;
   vector<int> coordindex, gens;
 

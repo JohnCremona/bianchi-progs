@@ -29,7 +29,7 @@ level (group Gamma_0(level) always).  "plusspace=1" means only find
 forms invariant under unit involution, i.e. invariant under GL rather
 than SL.
 
-tmanin is the main program despite its name ("test manin"); as well as
+makenf is the main program despite its name ("test manin"); as well as
 finding the homspace as in homtest (plusspace) it eliminates oldforms
 and computes Hecke operators.  (Primes are numbered from 0, so to get
 the first 50 ap answer "0 49" to the prompt) For this you MUST have
@@ -43,5 +43,5 @@ previously run 7+4i, but to run 3-11i or 11+3i you need to have run
 eigs2, ..., eigs 11 which should be created.
 
 testlf1: for a level for which quite a few eigenvalues have been
-computed and stored using tmanin, run this to compute periods etc.
+computed and stored using makenf, run this to compute periods etc.
 

@@ -2,6 +2,7 @@
 #include "homspace.h"
 #define LOOPER
 //#define CHECK_CONJUGATE
+//#define MODP
 
 int main ()
 {
@@ -12,6 +13,10 @@ int main ()
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
+  long ch=0;
+#ifdef MODP
+  cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
+#endif
  Quad::field(d,max);
  int verbose, plusflag=1;
  cerr << "Verbose? "; cin>>verbose;
@@ -40,8 +45,12 @@ int main ()
            cout<<endl;
          else
            cout << "\t";
-         homspace h(N,plusflag, 0, verbose);  //level, plusflag, cuspidal, verbose
-         cout << "Dimension = " << h.h1cuspdim() << endl;
+         homspace h(N,plusflag, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
+         cout << "Dimension";
+#ifdef MODP
+         if (ch) cout << " (mod "<<ch<<")";
+#endif
+         cout << " = " << h.h1cuspdim() << endl;
 #ifdef CHECK_CONJUGATE
          if (!h.check_conjugate())
            {
