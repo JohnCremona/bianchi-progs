@@ -313,6 +313,7 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
 
 long oldforms::dimoldpart(vector<long> aplist)
 { int ans = 0;
+  if (characteristic!=0) return 0;   // until we work out how to compute this
   if (aplist.size()==0) return 0;   // all lists "start with" a null list!
   //  cout<<"dimoldpart: aplist="<<aplist<<endl;
   for (int i=0; i<noldclasses; i++)

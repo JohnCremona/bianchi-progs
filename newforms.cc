@@ -570,7 +570,8 @@ void newforms::createfromscratch()
   long mindepth = npdivs;
   dimsplit = n1ds = 0;
   long olddimall = (of->olddimall);
-  nnflist = upperbound = (h1->h1cuspdim()) - olddimall;
+  nnflist = upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
+
   if(verbose)
     {
       cout<<"cuspidal dimension = "<<h1->h1cuspdim()<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;

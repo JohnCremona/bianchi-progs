@@ -154,7 +154,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
       if (rk>0)
         {
           if (verbose>1) cout << "coord:" << coord;
-          if (hmod)
+          if (hmod && characteristic==0)
             cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
           else
             cout << "lifted ok, denominator = " << denom << endl;

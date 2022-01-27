@@ -41,6 +41,13 @@ vector<long> homspace::eigrange(long i)
         {
           ans = vector<long>(characteristic);
           std::iota(ans.begin(), ans.end(), 0);
+          // if (normp%characteristic)
+          //   {
+          //     long eis =  (1+normp)%characteristic;
+          //     if (verbose)
+          //       cout << ans << " without "<<eis<<" = ";
+          //     ans.erase(std::find(ans.begin(), ans.end(), eis));
+          //   }
           if (verbose)
             cout << ans << endl;
           return ans;
