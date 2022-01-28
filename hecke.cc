@@ -245,6 +245,7 @@ mat homspace::fricke(int dual, int display)
   return calcop(FrickeOp(N), dual,display);
 }
 
+// A must be coprime to the level
 mat homspace::nu(Qideal& A, int dual, int display)
 {
   return calcop(CharOp(A, N), dual,display);

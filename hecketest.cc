@@ -3,7 +3,6 @@
 #include <eclib/mmatrix.h>
 #include <NTL/mat_ZZ.h>
 #include <NTL/mat_poly_ZZ.h>
-//#include <NTL/pair_ZZX_long.h>
 #include <NTL/ZZXFactoring.h>
 #include "qidloop.h"
 #include "homspace.h"
@@ -103,10 +102,50 @@ int main(void)
   vector<Quadprime>::const_iterator pr;
   if (dim>0)
     {
-      vector<mat_ZZ> tplist, wqlist;
+      vector<mat_ZZ> tplist, wqlist, nulist;
+
+      // Compute unramified quadratic characters and check that they are involutions and commute
+
+      for (vector<Qideal>::iterator Ai = Quad::class_group_2_cotorsion_gens.begin();
+           Ai != Quad::class_group_2_cotorsion_gens.end(); Ai++)
+        {
+          // find an ideal in same class as A, coprime to N
+          Quad c, d;
+          Qideal A = Ai->equivalent_coprime_to(N, c, d);
+          cout << "Computing nu_"<< A <<"..." << flush;
+          mat_ZZ nu = mat_to_mat_ZZ(h.nu(A, 0, show_mats));
+	  cout << "done. " << flush;
+
+          ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
+          if (show_pols)
+            {
+              cout << "char poly coeffs = " << charpol << endl;
+            }
+          if(show_factors)
+            {
+              display_factors(charpol);
+            }
+          cout << endl;
+          if (!check_involution(nu,den, 1))
+            {
+              exit(1);
+            }
+          if (!check_commute(nu, nulist))
+            {
+              cout << "********* unramified character matrices do not commute with each other ***********" << endl;
+              exit(1);
+            }
+	  nulist.push_back(nu);
+	}
+
+      // Compute Atkin-Lehner operators and check that they are involutions and commute
+      // restricted to Q such that the power of Q dividing N has square ideal class
+
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
+          if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && Q.sqrt_class().is_zero())
+            continue; // we have an odd power of an ideal with non-square ideal class
           cout << "Computing W_"<<Q<<"..." << flush;
           mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,show_mats));
 	  cout << "done. " << flush;
@@ -125,12 +164,20 @@ int main(void)
             {
               exit(1);
             }
+          if (!check_commute(wq, nulist))
+            {
+              cout << "********* W_Q does not commute with unramified character matrices ***********" << endl;
+              exit(1);
+            }
           if (!check_commute(wq, wqlist))
             {
+              cout << "********* W_Q matrices do not commute with each other ***********" << endl;
               exit(1);
             }
 	  wqlist.push_back(wq);
 	}
+
+      // Compute Hecke operators and check that they commute with eachother and with A-Ls
 
 #ifndef LOOPER
       cerr << "How many Hecke matrices T_p? ";
@@ -143,6 +190,8 @@ int main(void)
 	{
           Quadprime P = *pr;
 	  while (P.divides(N)) {++pr; P=*pr; np++;}
+          if ((Quad::class_group_2_rank>0) && P.sqrt_class().is_zero())
+             continue; // we have an ideal with non-square ideal class
 	  cout << "Computing T_" << P << "..."<<flush;
 	  mat_ZZ tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
 	  cout << "done. " << flush;
@@ -159,12 +208,19 @@ int main(void)
             }
           cout << endl;
 
+          if (!check_commute(tp, nulist))
+            {
+              cout << "********* T_P does not commute with unramified character matrices ***********" << endl;
+              exit(1);
+            }
           if (!check_commute(tp, wqlist))
             {
+              cout << "********* W_Q and T_P matrices do not commute with each other ***********" << endl;
               exit(1);
             }
           if (!check_commute(tp, tplist))
             {
+              cout << "********* T_P matrices do not commute with each other ***********" << endl;
               exit(1);
             }
 	  tplist.push_back(tp);
