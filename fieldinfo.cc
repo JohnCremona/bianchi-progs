@@ -9,7 +9,7 @@ int main ()
   cerr << "Enter max. norm for primes: " << flush;  cin >> max;
   cerr << endl;
   Quad::field(d,max);
-  Quad::displayfield(cout);
+  Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
   if (Quad::class_number>1)
     {
       Quadprimes::display(cout, max);

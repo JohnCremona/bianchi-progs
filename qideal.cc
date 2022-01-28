@@ -1116,6 +1116,25 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
   return 1;
 }
 
+// return i if I is equivalent to the i'th ideal in Jlist, else -1
+int find_ideal_class(Qideal I, const vector<Qideal>& Jlist)
+{
+  for (vector<Qideal>::const_iterator J=Jlist.begin(); J!=Jlist.end(); J++)
+    if (I.is_equivalent(*J))
+      return J-Jlist.begin();
+  return -1;
+}
+
+// return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
+int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
+{
+  Qideal Ibar = I.conj();
+  for (vector<Qideal>::const_iterator J=Jlist.begin(); J!=Jlist.end(); J++)
+    if (!((*J)*Ibar).sqrt_class().is_zero())
+      return J-Jlist.begin();
+  return -1;
+}
+
 // brute force test whether a is a square of some element of reslist, mod M
 
 int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist)

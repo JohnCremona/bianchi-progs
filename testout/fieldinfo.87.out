@@ -1,6 +1,9 @@
 Q(sqrt(-87))	discriminant = -87	min poly(a) = a^2-a+22.
 Class number 6
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,1+a] [4,2+a] [4,1+a] ]
+2-rank of class group = 1
+ 2-torsion   generators [ [3,1+a] ], 2-torsion   elements [ [1,a] [3,1+a] ]
+ 2-cotorsion generators [ [2,a] ], 2-cotorsion elements [ [1,a] [2,a] ]
 21 prime ideals initialised, max norm = 100
 P2a = 2.1 = [2,a] = (2,a) (not principal)
 P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal)

@@ -63,13 +63,18 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static QUINT     disc, absdisc;       // discriminant (<0) and its absolute value
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
-  static int class_number;   // 0 if not set
-  static vector<Qideal> class_group; // ideals class representatives (no structure)
+  static int class_number;
+  static int class_group_2_rank;
+  static vector<Qideal> class_group;                // list of ideals representing ideal classes (no structure)
+  static vector<Qideal> class_group_2_torsion;      // list of ideals representing 2-torsion in class group
+  static vector<Qideal> class_group_2_torsion_gens; // list of ideals generating 2-torsion in class group
+  static vector<Qideal> class_group_2_cotorsion;      // list of ideals representing class group mod squares
+  static vector<Qideal> class_group_2_cotorsion_gens; // list of ideals generating class group mod squares
   static Quad zero;
   static Quad one;
   static Quad w;
   static void field(long dd, long max=1000);
-  static void displayfield(ostream& s = cout);
+  static void displayfield(ostream& s = cout, int info2=0); // if info2, also output info about 2-part of class group
   static int chi(long p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);

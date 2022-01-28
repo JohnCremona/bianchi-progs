@@ -1,6 +1,7 @@
 Q(sqrt(-23))	discriminant = -23	min poly(a) = a^2-a+6.
 Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
+2-rank of class group = 0
 23 prime ideals initialised, max norm = 100
 P2a = 2.1 = [2,a] = (2,a) (not principal)
 P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal)

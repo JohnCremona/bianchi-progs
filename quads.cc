@@ -23,6 +23,7 @@ long Quad::maxnorm;
 int Quad::nunits;
 int Quad::is_Euclidean;
 int Quad::class_number;
+int Quad::class_group_2_rank;
 Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
@@ -126,7 +127,7 @@ void Quad::field(long dd, long max)
         else
           if (check_field(d, class_number_five_fields))
             class_number=5;
-
+  // else class number is set in fill_class_group()
 
   if ((d+1)%4)
     {
@@ -173,7 +174,7 @@ void Quad::field(long dd, long max)
   fill_class_group();
 }
 
-void Quad::displayfield(ostream& s)
+void Quad::displayfield(ostream& s, int info2)
 {s<<"Q(sqrt("<<-d<<"))\tdiscriminant = "<<disc;
  s<<"\tmin poly("<<name<<") = "<<name<<"^2"; if(t) s<<"-"<<name; 
  s<<"+"<<n<<".\n";
@@ -187,6 +188,17 @@ void Quad::displayfield(ostream& s)
  default:
    cout << "Class number " << class_number << endl;
    cout << "Ideal class group representatives: " << class_group << endl;
+   if (info2)
+     {
+       cout << "2-rank of class group = " << class_group_2_rank << endl;
+       if (class_group_2_rank>0)
+         {
+           cout << " 2-torsion   generators " << class_group_2_torsion_gens
+                << ", 2-torsion   elements "<< class_group_2_torsion<<endl;
+           cout << " 2-cotorsion generators " << class_group_2_cotorsion_gens
+                << ", 2-cotorsion elements "<< class_group_2_cotorsion<<endl;
+         }
+     }
  }
  if (class_number==1)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;

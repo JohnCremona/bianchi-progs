@@ -1,6 +1,9 @@
 Q(sqrt(-91))	discriminant = -91	min poly(a) = a^2-a+23.
 Class number 2
 Ideal class group representatives: [ [1,a] [5,1+a] ]
+2-rank of class group = 1
+ 2-torsion   generators [ [5,1+a] ], 2-torsion   elements [ [1,a] [5,1+a] ]
+ 2-cotorsion generators [ [5,1+a] ], 2-cotorsion elements [ [1,a] [5,1+a] ]
 34 prime ideals initialised, max norm = 100
 P2 = 4.1 = 2[1,a] = (2,2a) = (2) (principal)
 P5a = 5.1 = [5,1+a] = (5,1+a) (not principal)

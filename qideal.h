@@ -209,6 +209,11 @@ private:
   void abc_from_HNF(const vector<QUINT>&);
 };
 
+// return i if I is equivalent to the i'th ideal in Jlist, else -1
+int find_ideal_class(Qideal I, const vector<Qideal>& Jlist);
+// return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
+int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist);
+
 // An AB-matrix with given first column
 mat22 AB_matrix(const Quad& a, const Quad& c);
 
