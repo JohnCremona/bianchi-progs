@@ -11,9 +11,16 @@
 
 #define MAXPRIME 10000
 
+// convert an eclib mat to an NTL mat_ZZ:
 mat_ZZ mat_to_mat_ZZ(mat A);
-
-ZZX scaled_charpoly(mat_ZZ A, const ZZ& den);
+// compute char poly of A/den:
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den);
+// check that a matrix is a scaled involution:
+int check_involution(const mat_ZZ& A, long den=1, int verbose=0);
+// check that a matrix commutes with all those in a list:
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist);
+// display factors of a polynomaial:
+void display_factors(const ZZX& f);
 
 // function to sort a factorization vector, first by degree of factor
 // then exponent of factor then lexicographically
@@ -38,7 +45,7 @@ struct factor_comparison {
 int main(void)
 {
   long d, max(MAXPRIME);
- int np,ip,jp;
+ int np;
  Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal=1;
  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
  if (!check_field(d))
@@ -94,10 +101,8 @@ int main(void)
 
   vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
   vector<Quadprime>::const_iterator pr;
-  int nq = badprimes.size();
   if (dim>0)
     {
-      ZZX charpol; ZZ content; vec_pair_ZZX_long factors;
       vector<mat_ZZ> tplist, wqlist;
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
@@ -105,45 +110,33 @@ int main(void)
           cout << "Computing W_"<<Q<<"..." << flush;
           mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,show_mats));
 	  cout << "done. " << flush;
-	  wqlist.push_back(wq);
 
-          charpol = scaled_charpoly(wq, to_ZZ(den));
+          ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
             {
               cout << "char poly coeffs = " << charpol << endl;
             }
           if(show_factors)
             {
-              factor(content, factors, charpol);
-              ::sort(factors.begin(), factors.end(), fact_cmp);
-              cout<<"Factors are:"<<endl;
-              long nf = factors.length();
-              for(int i=0; i<nf; i++)
-                {
-                  cout<<(i+1)<<":\t"<<factors[i].a
-                      <<"\t(degree "<<deg(factors[i].a)<<")";
-                  cout<<"\t to power "<<factors[i].b;
-                  cout<<endl;
-                }
+              display_factors(charpol);
             }
           cout << endl;
-          if (IsDiag(power(wq,2), dim, to_ZZ(den*den)))
+          if (!check_involution(wq,den, 1))
             {
-              cout << "Involution!" << "\n";
-            }
-          else
-            {
-              cout << "NOT an involution...." << "\n";
               exit(1);
             }
-
+          if (!check_commute(wq, wqlist))
+            {
+              exit(1);
+            }
+	  wqlist.push_back(wq);
 	}
+
 #ifndef LOOPER
       cerr << "How many Hecke matrices T_p? ";
       cin >> np;
       cout<<endl;
 #endif
-      ip=0;
       for (pr=Quadprimes::list.begin();
 	   pr!=Quadprimes::list.end() && ((pr-Quadprimes::list.begin())<np);
 	   ++pr)
@@ -155,49 +148,25 @@ int main(void)
 	  cout << "done. " << flush;
 	  tplist.push_back(tp);
 
-          charpol = scaled_charpoly(tp, to_ZZ(den));
+          ZZX charpol = scaled_charpoly(tp, to_ZZ(den));
           if (show_pols)
             {
               cout << "char poly coeffs = " << charpol << endl;
             }
           if(show_factors)
             {
-              factor(content, factors, charpol);
-              ::sort(factors.begin(), factors.end(), fact_cmp);
-              cout<<"Factors are:"<<endl;
-              long nf = factors.length();
-              for(int i=0; i<nf; i++)
-                {
-                  cout<<(i+1)<<":\t"<<factors[i].a
-                      <<"\t(degree "<<deg(factors[i].a)<<")";
-                  cout<<"\t to power "<<factors[i].b;
-                  cout<<endl;
-                }
+              display_factors(charpol);
             }
           cout << endl;
 
-	  for (int kp=0; kp<nq; kp++)
-	    {
-              mat_ZZ tpwq = tp * wqlist[kp];
-              mat_ZZ wqtp = wqlist[kp] * tp;
-	      if (tpwq!=wqtp)
-	      {
-		cout << "Problem: T_"<<P
-		     <<" and W_Q matrix #"<<kp<<" do not commute!" << "\n";
-                exit(1);
-	      }
-	    }
-	  for (jp=0; jp<ip; jp++)
-	    {
-              mat_ZZ tp1tp2 = tp * tplist[jp];
-              mat_ZZ tp2tp1 = tplist[jp] * tp;
-	      if (tp1tp2!=tp2tp1)
-		{
-		  cout << "Problem: T_"<<P
-		       <<" does not commute with T_P #" <<jp << "!\n";
-                  exit(1);
-		}
-	    }
+          if (!check_commute(tp, wqlist))
+            {
+              exit(1);
+            }
+          if (!check_commute(tp, tplist))
+            {
+              exit(1);
+            }
 	  tplist.push_back(tp);
 	}
     }      // end of if(dim>0)
@@ -219,7 +188,7 @@ mat_ZZ mat_to_mat_ZZ(mat A)
   return ntl_A;
 }
 
-ZZX scaled_charpoly(mat_ZZ A, const ZZ& den)
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den)
 {
   ZZX charpol;
   CharPoly(charpol, A);
@@ -234,4 +203,40 @@ ZZX scaled_charpoly(mat_ZZ A, const ZZ& den)
         }
     }
   return charpol;
+}
+
+int check_involution(const mat_ZZ& A, long den, int verbose)
+{
+  int res = IsDiag(power(A,2), A.NumRows(), to_ZZ(den*den));
+  if (verbose)
+    cout << (res? "Involution!": "NOT an involution....") << "\n";
+  return res;
+}
+
+// check that a matrix commutes with all those in a list:
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
+{
+  for(vector<mat_ZZ>::const_iterator B = Blist.begin(); B!=Blist.end(); B++)
+    {
+      if ((A*(*B))!=((*B)*A))
+        return 0;
+    }
+  return 1;
+}
+
+// display factors of a polynomaial:
+void display_factors(const ZZX& f)
+{
+  ZZ content; vec_pair_ZZX_long factors;
+  factor(content, factors, f);
+  ::sort(factors.begin(), factors.end(), fact_cmp);
+  cout<<"Factors are:"<<endl;
+  long nf = factors.length();
+  for(int i=0; i<nf; i++)
+    {
+      cout<<(i+1)<<":\t"<<factors[i].a
+          <<"\t(degree "<<deg(factors[i].a)<<")";
+      cout<<"\t to power "<<factors[i].b;
+      cout<<endl;
+    }
 }
