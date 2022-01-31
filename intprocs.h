@@ -58,4 +58,6 @@ QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c);
 
 void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<QUINT>& basis);
 
+inline int testbit(long a, long i) {return (a& (1<<i));}
+
 #endif

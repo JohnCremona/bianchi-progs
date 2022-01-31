@@ -245,10 +245,30 @@ mat homspace::fricke(int dual, int display)
   return calcop(FrickeOp(N), dual,display);
 }
 
-// A must be coprime to the level
+// A must be coprime to the level and A^2 principal
 mat homspace::nu(Qideal& A, int dual, int display)
 {
   return calcop(CharOp(A, N), dual,display);
+}
+
+// Matrix of T_{P^2} for good P with P^2 principal
+mat homspace::hecke_sq_op(Quadprime& P, int dual, int display)
+{
+  return calcop(HeckeSqOp(P, N), dual,display);
+}
+
+// Matrix of (T_{P})^2 for good P with P^2 principal
+// using
+//        (T_P)^2 = T_{P^2} + N(P)*T_{P,P}
+//
+mat homspace::hecke_op_sq(Quadprime& P, int dual, int display)
+{
+  return calcop(HeckeSqOp(P, N), dual,display)+ I2long(P.norm())*nu(P, dual, display);
+}
+
+mat homspace::hecke_pq_op(Quadprime& P, Quadprime& Q, int dual, int display) // when PQ principal
+{
+  return calcop(HeckePQOp(P, Q, N), dual,display);
 }
 
 mat homspace::opmat(int i, int dual, int verb)

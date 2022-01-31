@@ -140,6 +140,93 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   return mats;
 }
 
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal
+{
+#ifdef DEBUG_HECKE
+  cout<<"In Hecke("<<P<<"^2), level "<<N<<endl;
+#endif
+  vector<mat22> mats;
+  Qideal P2 = P*P;
+  Quad g;
+  mat22 M = P.AB_matrix_of_level(P, N, g); // sets g to a generator of
+                                           // P^2, raising an error if
+                                           // P^2 not principal
+
+  // we need v in N invertible mod P
+  vector<Quad> gens = N.gens(); // at least one of these is not in P
+  Quad v = gens[0];
+  if (P.contains(v))
+    v = gens[1];
+  assert (N.contains(v) && !P.contains(v));
+
+  // (1) [1,a; 0,g]   for a mod P^2                (N(P)^2 matrices)
+  // (2) [g,0; a*v,1] for a mod P^2 non-invertible (N(P) matrices)
+  vector<Quad> resmodp2 = P2.residues();
+  for(vector<Quad>::const_iterator r=resmodp2.begin(); r!=resmodp2.end(); ++r)
+    {
+      Quad a = *r;
+      mats.push_back(mat22(Quad::one, a, Quad::zero, g));
+      if (P.contains(a))
+        mats.push_back(mat22(g, Quad::zero , a*v, Quad::one));
+    }
+
+  // (3) a (P,P) matrix of level N (1 matrix, so N(P)^2_N(P)+1 in all)
+  mats.push_back(M);
+
+#ifdef DEBUG_HECKE
+  cout<<" Hecke matrices are "<<mats<<endl;
+#endif
+  return mats;
+}
+
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N) // T_{PQ} when PQ principal
+{
+#ifdef DEBUG_HECKE
+  cout<<"In Hecke("<<P<<"*"<<Q<<"), level "<<N<<endl;
+#endif
+  vector<mat22> mats;
+  Quad g;
+  mat22 M = P.AB_matrix_of_level(Q, N, g); // sets g to a generator of
+                                           // PQ, raising an error if
+                                           // PQ not principal
+
+  // We need v in N, invertible mod PQ
+  vector<Quad> gens = N.gens(); // Z-module gens
+  // if both gens are divisible by P or Q then each is divisible by
+  // exactly one, so their sum is divisible by neither
+  Quad v = gens[0];
+  if ((P.contains(v) || Q.contains(v)))
+    {
+      v = gens[1];
+      if ((P.contains(v) || Q.contains(v)))
+        {
+          v = gens[0]+gens[1];
+        }
+    }
+  assert (N.contains(v) && !P.contains(v) && !Q.contains(v));
+
+  // (1) [1,a;0,g]   for a mod PQ                (N(P)N(Q) matrices)
+  // (2) [g,0;a*v,1] for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
+  vector<Quad> resmodpq = (P*Q).residues();
+  for(vector<Quad>::const_iterator r=resmodpq.begin(); r!=resmodpq.end(); ++r)
+    {
+      Quad a = *r;
+      mats.push_back(mat22(Quad::one, a, Quad::zero, g));
+      if (P.contains(a) or Q.contains(a)) // or both
+        mats.push_back(mat22(g, Quad::zero, a*v, Quad::one));
+    }
+
+  // (3) (P,Q) and (Q,P) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
+  mats.push_back(M);
+  M = Q.AB_matrix_of_level(P, N, g);
+  mats.push_back(M);
+
+#ifdef DEBUG_HECKE
+  cout<<" Hecke matrices are "<<mats<<endl;
+#endif
+  return mats;
+}
+
 // Matrix inducing T_{A,A} at level N, when A^2 is principal and A+N=1
 
 mat22 Char(Qideal& A, const Qideal& N)

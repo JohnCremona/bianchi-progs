@@ -1,7 +1,7 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
 #include <eclib/mmatrix.h>
-#include <NTL/mat_ZZ.h>
+#include <NTL/LLL.h>
 #include <NTL/mat_poly_ZZ.h>
 #include <NTL/ZZXFactoring.h>
 #include "qidloop.h"
@@ -18,8 +18,12 @@ ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den);
 int check_involution(const mat_ZZ& A, long den=1, int verbose=0);
 // check that a matrix commutes with all those in a list:
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist);
-// display factors of a polynomaial:
+// display factors of a polynomial:
 void display_factors(const ZZX& f);
+// rank of an NTL matrix:
+long rank(mat_ZZ A);
+// nullity of an NTL matrix:
+long nullity(mat_ZZ A);
 
 // function to sort a factorization vector, first by degree of factor
 // then exponent of factor then lexicographically
@@ -44,7 +48,7 @@ struct factor_comparison {
 int main(void)
 {
   long d, max(MAXPRIME);
- int np;
+  int np, ntp;
  Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal=1;
  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
  if (!check_field(d))
@@ -102,12 +106,12 @@ int main(void)
   vector<Quadprime>::const_iterator pr;
   if (dim>0)
     {
-      vector<mat_ZZ> tplist, wqlist, nulist;
+      vector<mat_ZZ> tplist, tpqlist, wqlist, nulist;
 
       // Compute unramified quadratic characters and check that they are involutions and commute
 
-      for (vector<Qideal>::iterator Ai = Quad::class_group_2_cotorsion_gens.begin();
-           Ai != Quad::class_group_2_cotorsion_gens.end(); Ai++)
+      for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
+           Ai != Quad::class_group_2_torsion_gens.end(); Ai++)
         {
           // find an ideal in same class as A, coprime to N
           Quad c, d;
@@ -137,6 +141,26 @@ int main(void)
             }
 	  nulist.push_back(nu);
 	}
+
+      int nr2 = Quad::class_group_2_rank;
+      mat_ZZ I = ident_mat_ZZ(dim);
+      if (nr2)
+        {
+          for (int i=0; i<(1<<nr2); i++)
+            {
+              mat_ZZ A = I;
+              string sgs = "";
+              for (int j=0; j<nr2; j++)
+                {
+                  int s = testbit(i,j);
+                  A = A * (nulist[j] + (s? -den: den)*I);
+                  sgs += (s? "-": "+");
+                }
+              cout << "nu-eigenspace " << sgs << ": " << flush;
+              int n = rank(A);
+              cout << n <<endl;
+            }
+        }
 
       // Compute Atkin-Lehner operators and check that they are involutions and commute
       // restricted to Q such that the power of Q dividing N has square ideal class
@@ -184,17 +208,43 @@ int main(void)
       cin >> np;
       cout<<endl;
 #endif
-      for (pr=Quadprimes::list.begin();
-	   pr!=Quadprimes::list.end() && ((pr-Quadprimes::list.begin())<np);
+      Quadprime P0; // when h=2 this will be the first good nonprincipal prime.
+      int P0_set=0;
+      for (pr=Quadprimes::list.begin(), ntp=0;
+	   pr!=Quadprimes::list.end() && (ntp<np);
 	   ++pr)
 	{
           Quadprime P = *pr;
-	  while (P.divides(N)) {++pr; P=*pr; np++;}
+          mat_ZZ tp, tpq;
+	  if (P.divides(N))
+            continue;
+          int use_PQ = 0;
           if ((Quad::class_group_2_rank>0) && P.sqrt_class().is_zero())
-             continue; // we have an ideal with non-square ideal class
-	  cout << "Computing T_" << P << "..."<<flush;
-	  mat_ZZ tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
-	  cout << "done. " << flush;
+            {
+              // we have an ideal with non-square ideal class
+              if ((P*P).is_principal())
+                {
+                  use_PQ = 1;
+                  cout << "Computing T_{" << P << "}^2..."<<flush;
+                  tp = mat_to_mat_ZZ(h.hecke_op_sq(P,0, 0));
+                  cout << "done. ";
+                  if (show_mats)
+                    cout << "Matrix is \n" << tp;
+                  cout << endl;
+                }
+              else
+                {
+                  cout << "Not computing any operator for P = "<<P<<" since class number is even but P^2 not principal and [P] not square"<<endl;
+                  continue;
+                }
+            }
+          else
+            {
+              cout << "Computing T_" << P << "..."<<flush;
+              tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
+              cout << "done. " << flush;
+            }
+          ntp++;
 	  tplist.push_back(tp);
 
           ZZX charpol = scaled_charpoly(tp, to_ZZ(den));
@@ -215,16 +265,67 @@ int main(void)
             }
           if (!check_commute(tp, wqlist))
             {
-              cout << "********* W_Q and T_P matrices do not commute with each other ***********" << endl;
+              cout << "********* T_P does not commute with W_Q matrices ***********" << endl;
               exit(1);
             }
           if (!check_commute(tp, tplist))
             {
-              cout << "********* T_P matrices do not commute with each other ***********" << endl;
+              cout << "********* T_P does not commute with other T_P matrices ***********" << endl;
               exit(1);
             }
-	  tplist.push_back(tp);
-	}
+
+          if (use_PQ)
+            {
+              if (P0_set)
+                {
+                  cout << "Computing T_{" << P << "} T_{" << P0 << "}..."<<flush;
+                  tpq = mat_to_mat_ZZ(h.hecke_pq_op(P, P0, 0, 0));
+                  cout << "done. ";
+                  if (show_mats)
+                    cout << "Matrix is \n" << tpq;
+                  cout << endl;
+                  tpqlist.push_back(tpq);
+
+                  charpol = scaled_charpoly(tp, to_ZZ(den));
+                  if (show_pols)
+                    {
+                      cout << "char poly coeffs = " << charpol << endl;
+                    }
+                  if(show_factors)
+                    {
+                      display_factors(charpol);
+                    }
+                  cout << endl;
+
+                  if (!check_commute(tpq, nulist))
+                    {
+                      cout << "********* T_PQ does not commute with unramified character matrices ***********" << endl;
+                      exit(1);
+                    }
+                  if (!check_commute(tpq, wqlist))
+                    {
+                      cout << "********* T_PQ does not commute with W_Q matrices ***********" << endl;
+                      exit(1);
+                    }
+                  if (!check_commute(tpq, tplist))
+                    {
+                      cout << "********* T_PQ does not commuute with T_P matrices ***********" << endl;
+                      exit(1);
+                    }
+                  if (!check_commute(tpq, tpqlist))
+                    {
+                      cout << "********* T_PQ does not commuute with other T_PQ matrices ***********" << endl;
+                      exit(1);
+                    }
+                }
+              else
+                {
+                  P0 = P;
+                  P0_set = 1;
+                }
+            }
+
+        }
     }      // end of if(dim>0)
 
 }       // end of while()
@@ -295,4 +396,17 @@ void display_factors(const ZZX& f)
       cout<<"\t to power "<<factors[i].b;
       cout<<endl;
     }
+}
+
+// rank of an NTL matrix:
+long rank(mat_ZZ A)
+{
+  ZZ d2;
+  return image(d2, A);
+}
+
+// nullity of an NTL matrix:
+long nullity(mat_ZZ A)
+{
+  return A.NumRows()-rank(A);
 }

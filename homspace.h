@@ -89,8 +89,11 @@ public:
    smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display);
    mat wop(Quadprime& Q, int dual=1, int display=0);
    mat fricke(int dual=1, int display=0);
-  // unramified character
+  // unramified character (A coprime to the level and A^2 principal)
   mat nu(Qideal& A, int dual=1, int display=0);
+  mat hecke_sq_op(Quadprime& P, int dual=1, int display=0); // T_{P^2} when P^2 principal
+  mat hecke_op_sq(Quadprime& P, int dual=1, int display=0); // (T_P)^2   when P^2 principal
+  mat hecke_pq_op(Quadprime& P, Quadprime& Q, int dual=1, int display=0); // when PQ principal
   //   mat conj(int display=0) const;
   vec maninvector(Quadprime& P, int proj=0);
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);

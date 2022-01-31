@@ -127,6 +127,8 @@ mat22 AtkinLehnerP(Quadprime& P, const Qideal& N); // =AL(P^e,N/P^e) where P^e||
 vector<mat22> Hecke(const Quad& p);  // P=(p) principal prime
 vector<mat22> Hecke(const Quad& p, Qideal& N); //  P=(p) principal prime not dividing N
 vector<mat22> Hecke(Quadprime& P, Qideal& N); // assume [P] square
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N); // T_{P^2}, when P^2 is principal (and P not)
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N); // assume P*Q principal, P,Q not dividing N
 
 inline mat22 Fricke(const Quad& n)
 {
@@ -170,6 +172,20 @@ inline matop HeckeOp(Quadprime& P, Qideal& N)
   return matop(Hecke(P,N), opname(P,N));
 }
 
+inline matop HeckeSqOp(Quadprime& P, Qideal& N)
+{
+  ostringstream s;
+  s << "T(" << P << "^2)";
+  return matop(HeckeSq(P,N), s.str());
+}
+
+inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
+{
+  ostringstream s;
+  s << "T(" << P << "*" << Q << ")";
+  return matop(HeckePQ(P,Q,N), s.str());
+}
+
 inline matop AtkinLehnerOrHeckeOp(Quadprime& P, Qideal& N)
 {
   return (P.divides(N)? AtkinLehnerOp(P,N): HeckeOp(P,N));
@@ -183,7 +199,7 @@ inline matop FrickeOp(Qideal& N)
 inline matop CharOp(Qideal& A, const Qideal& N)
 {
   ostringstream s;
-  s << "chi";
+  s << "nu";
   return matop(Char(A,N), s.str());
 }
 
