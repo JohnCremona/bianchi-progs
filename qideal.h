@@ -133,6 +133,12 @@ public:
   // return J = (c/d)*this coprime to N, or (if anti=1) J such that J*this=(c) and d=1
   // (implemented in primes.cc)
   Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti=0);
+  // Same again if you don't need c,d
+  Qideal equivalent_coprime_to(const Qideal& N, int anti=0)
+  {
+    Quad c, d;
+    return equivalent_coprime_to(N, c, d, anti);
+  }
 
   // return J such that J^2 is equivalent to this (or J^2*this is
   // principal if anti==1), or if no such J exists (i.e., if the ideal

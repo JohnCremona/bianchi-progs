@@ -4,11 +4,31 @@
 #include <eclib/xmod.h>
 #include "homspace.h"
 
+// When the class number is odd, the i'th operator for 0 <= i < nap
+// means either W_Q where Q is the i'th prime dividing the level, if i
+// < nbp = #{bad primes}, or T_P where P is the (i-nbp)'th good prime.
+// The list of these Q then P is in homspace::primelist.
+
+// In general, (only relevant when the class number is even) we have 0
+// <= i <= n2r+nap where n2r is the 2-rank of the class group; the
+// first n2r operators are the involutions T_{A,A} for the n2r ideals
+// A in homspace::nulist (coprime to N and generating the 2-torsion in
+// the class group)
+
+// the list of possible (integer) eigenvalues for the i'th operator:
 vector<long> homspace::eigrange(long i)
 {
   vector<long> ans;
-  if((i<0)||(i>=nap)) return ans;  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return ans;  // shouldn't happen
+  if (i<n2r)
+    {
+      if (characteristic==2)
+        ans = {1};
+      else
+        ans = {-1, 1};
+      return ans;
+    }
+  Quadprime P = primelist[i-n2r];
   long normp = I2long(P.norm());
   if (verbose)
     cout << "eigrange for P = " << P << ":\t";
@@ -41,13 +61,6 @@ vector<long> homspace::eigrange(long i)
         {
           ans = vector<long>(characteristic);
           std::iota(ans.begin(), ans.end(), 0);
-          // if (normp%characteristic)
-          //   {
-          //     long eis =  (1+normp)%characteristic;
-          //     if (verbose)
-          //       cout << ans << " without "<<eis<<" = ";
-          //     ans.erase(std::find(ans.begin(), ans.end(), eis));
-          //   }
           if (verbose)
             cout << ans << endl;
           return ans;
@@ -63,31 +76,14 @@ vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
   return ans;
 }
 
-//#define DEBUG_APPLYOP
 vec homspace::applyop(const matop& T, const modsym& m, int proj)
 { vec ans(rk);
   if (proj) ans.init(projcoord.ncols());
-#ifdef DEBUG_APPLYOP
-  cout<<"In applyop() with modular symbol "<<m<<" (proj = "<<proj<<")"<<endl;
-#endif
   for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     {
       mat22 M = *mi;
-#ifdef DEBUG_APPLYOP
-      cout<<"Applying matrix "<<M<<"..."<<flush;
-#endif
-      vec part = chain(M(m.alpha()), M(m.beta()), proj);
-#ifdef DEBUG_APPLYOP
-      cout<<" summand = "<<part<<"..."<<flush;
-#endif
-      ans = reduce_modp(ans + part, hmod);
-#ifdef DEBUG_APPLYOP
-      cout<<" partial sum = "<<ans<<"..."<<endl;
-#endif
+      ans = reduce_modp(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);
     }
-#ifdef DEBUG_APPLYOP
-  cout<<" final sum = "<<ans<<"..."<<endl;
-#endif
   return ans;
 }
 
@@ -103,12 +99,6 @@ mat homspace::calcop(const matop& T, int dual, int display)
   if (display) cout << "Matrix of " << T.name() << " = " << m;
   if (display && (dimension>1)) cout << endl;
   return m;
-}
-
-vec homspace::calcop_col(const matop& T, int j)
-{
-  vec colj = applyop(T,freemods[j-1]);
-  return colj;
 }
 
 mat homspace::calcop_cols(const matop& T, const vec& jlist)
@@ -200,81 +190,14 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
   return m;
 }
 
-mat homspace::heckeop(Quadprime& P, int dual, int display)
-{
-  return calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
-}
-
-vec homspace::heckeop_col(Quadprime& P, int j, int display)
-{
-  return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
-}
-
-mat homspace::heckeop_cols(Quadprime& P, const vec& jlist, int display)
-{
-  return calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
-}
-
-smat homspace::s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
-{
-  return s_calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
-}
-
-smat homspace::s_heckeop(Quadprime& P, int dual, int display)
-{
-  return s_calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
-}
-
-mat homspace::heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
-{
-  return calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
-}
-
-smat homspace::s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
-{
-  return s_calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
-}
-
-mat homspace::wop(Quadprime& Q, int dual, int display)
-{
-  return calcop(AtkinLehnerOp(Q,N), dual,display);
-}
-
-mat homspace::fricke(int dual, int display)
-{
-  return calcop(FrickeOp(N), dual,display);
-}
-
-// A must be coprime to the level and A^2 principal
-mat homspace::nu(Qideal& A, int dual, int display)
-{
-  return calcop(CharOp(A, N), dual,display);
-}
-
-// Matrix of T_{P^2} for good P with P^2 principal
-mat homspace::hecke_sq_op(Quadprime& P, int dual, int display)
-{
-  return calcop(HeckeSqOp(P, N), dual,display);
-}
-
-// Matrix of (T_{P})^2 for good P with P^2 principal
-// using
-//        (T_P)^2 = T_{P^2} + N(P)*T_{P,P}
-//
-mat homspace::hecke_op_sq(Quadprime& P, int dual, int display)
-{
-  return calcop(HeckeSqOp(P, N), dual,display)+ I2long(P.norm())*nu(P, dual, display);
-}
-
-mat homspace::hecke_pq_op(Quadprime& P, Quadprime& Q, int dual, int display) // when PQ principal
-{
-  return calcop(HeckePQOp(P, Q, N), dual,display);
-}
-
 mat homspace::opmat(int i, int dual, int verb)
 {
-  if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return mat(dimension);  // shouldn't happen
+  if (i<n2r)
+    {
+      return nu(i, dual, verb);
+    }
+  Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
   return heckeop(P,dual,verb); // Automatically chooses W or T
@@ -282,8 +205,12 @@ mat homspace::opmat(int i, int dual, int verb)
 
 vec homspace::opmat_col(int i, int j, int verb)
 {
-  if((i<0)||(i>=nap)) return vec(dimension);  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return vec(dimension);  // shouldn't happen
+  if (i<n2r)
+    {
+      return calcop_col(CharOp(nulist[i], N), j);
+    }
+  Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
   return heckeop_col(P,j,verb); // Automatically chooses W or T
@@ -291,8 +218,12 @@ vec homspace::opmat_col(int i, int j, int verb)
 
 mat homspace::opmat_cols(int i, const vec& jlist, int verb)
 {
-  if((i<0)||(i>=nap)) return mat(dimension);  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return mat(dimension);  // shouldn't happen
+  if (i<n2r)
+    {
+      return calcop_cols(CharOp(nulist[i], N), jlist);
+    }
+  Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
   return heckeop_cols(P,jlist,verb); // Automatically chooses W or T
@@ -300,8 +231,12 @@ mat homspace::opmat_cols(int i, const vec& jlist, int verb)
 
 smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
 {
-  if((i<0)||(i>=nap)) return smat(dimension);  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return smat(dimension);  // shouldn't happen
+  if (i<n2r)
+    {
+      return s_calcop_cols(CharOp(nulist[i], N), jlist);
+    }
+  Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
   return s_heckeop_cols(P,jlist,verb); // Automatically chooses W or T
@@ -309,8 +244,12 @@ smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
 
 mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
 {
-  if((i<0)||(i>=nap)) return mat(dim(s));  // shouldn't happen
-  Quadprime P = primelist[i];
+  if((i<0)||(i>=nap+n2r)) return mat(dim(s));  // shouldn't happen
+  if (i<n2r)
+    {
+      return calcop_restricted(CharOp(nulist[i], N), s, dual, verb);
+    }
+  Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N)
         <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
@@ -319,12 +258,12 @@ mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
 
 smat homspace::s_opmat(int i, int dual, int v)
 {
-  //  if(i==-1) return s_conj(dual,v);
-  if((i<0)||(i>=nap))
+  if((i<0)||(i>=nap+n2r))  return smat(dimension);  // shouldn't happen
+  if (i<n2r)
     {
-      return smat(dimension);  // shouldn't happen
+      return s_calcop(CharOp(nulist[i], N), dual, v);
     }
-  Quadprime P = primelist[i];
+  Quadprime P = primelist[i-n2r];
   if(v)
     {
       cout<<"Computing " << opname(P,N) <<"...";
@@ -337,11 +276,12 @@ smat homspace::s_opmat(int i, int dual, int v)
 
 smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
 {
-  if((i<0)||(i>=nap))
+  if((i<0)||(i>=nap+n2r)) return smat(dim(s));  // shouldn't happen
+  if (i<n2r)
     {
-      return smat(dim(s));  // shouldn't happen
+      return s_calcop_restricted(CharOp(nulist[i], N), s, dual, v);
     }
-  Quadprime P = primelist[i];
+  Quadprime P = primelist[i-n2r];
   if(v)
     {
       cout<<"Computing " << opname(P,N)

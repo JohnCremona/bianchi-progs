@@ -434,13 +434,9 @@ long newforms::matden(void) {return h1->denom3;}
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : N(iN), verbose(disp), characteristic(ch)
 {
-  init();
-}
-
-void newforms::init()
-{
   is_square = N.is_square();
   Factorization F = N.factorization();
+
   // List of bad primes (dividing N) followed by good primes to length np:
   nap = 20;
   plist = make_primelist(N, nap, iP0); // shadows h1->primelist in case we do not construct h1

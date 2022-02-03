@@ -18,8 +18,9 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
-  long ngens, nsymb, nap;
+  long ngens, nsymb, nap, n2r;
   vector<Quadprime> primelist; // list of primes in standard order, bad primes first
+  vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
 
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
@@ -50,7 +51,9 @@ public:
    smat s_opmat_cols(int i, const vec& jlist, int verb=0);
    smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
    long matdim(void) {return dimension;}
-   vector<long> eigrange(long i);
+
+  // the list of possible (integer) eigenvalues for the i'th operator:
+  vector<long> eigrange(long i);
 
    long h1cuspdim() const {return dim(kern);}
    long h1dim() const {return dimension;}  // No confusion with subspace::dim
@@ -71,7 +74,12 @@ public:
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
   mat calcop(const matop& T, int dual=1, int display=0);
-  vec calcop_col(const matop& T, int j);
+
+  vec calcop_col(const matop& T, int j)
+  {
+    return applyop(T,freemods[j-1]);
+  }
+
   mat calcop_cols(const matop& T, const vec& jlist);
   smat s_calcop(const matop& T, int dual, int display);
   smat s_calcop_cols(const matop& T, const vec& jlist);
@@ -79,21 +87,85 @@ public:
   smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
 public:
-   mat heckeop(Quadprime& P, int dual=1, int display=0);
-   vec heckeop_col(Quadprime& P, int j, int display=0);
-   mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0);
-   smat s_heckeop(Quadprime& P, int dual, int display);
-   svec s_heckeop_col(Quadprime& P, int j, int display);
-   smat s_heckeop_cols(Quadprime& P, const vec& jlist, int display);
-   mat heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display);
-   smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display);
-   mat wop(Quadprime& Q, int dual=1, int display=0);
-   mat fricke(int dual=1, int display=0);
+  mat heckeop(Quadprime& P, int dual=1, int display=0)
+  {
+    return calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
+  }
+
+  vec heckeop_col(Quadprime& P, int j, int display=0)
+  {
+    return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
+  }
+
+  mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0)
+  {
+    return calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
+  }
+
+  smat s_heckeop(Quadprime& P, int dual, int display)
+  {
+    return s_calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
+  }
+
+  svec s_heckeop_col(Quadprime& P, int j, int display)
+  {
+    return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
+  }
+
+  smat s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
+  {
+    return s_calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
+  }
+
+  mat heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
+  {
+    return calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+  }
+
+  smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
+  {
+    return s_calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+  }
+
+  mat wop(Quadprime& Q, int dual=1, int display=0)
+  {
+    return calcop(AtkinLehnerOp(Q,N), dual,display);
+  }
+
+  mat fricke(int dual=1, int display=0)
+  {
+    return calcop(FrickeOp(N), dual,display);
+  }
+
   // unramified character (A coprime to the level and A^2 principal)
-  mat nu(Qideal& A, int dual=1, int display=0);
-  mat hecke_sq_op(Quadprime& P, int dual=1, int display=0); // T_{P^2} when P^2 principal
-  mat hecke_op_sq(Quadprime& P, int dual=1, int display=0); // (T_P)^2   when P^2 principal
-  mat hecke_pq_op(Quadprime& P, Quadprime& Q, int dual=1, int display=0); // when PQ principal
+  mat nu_op(Qideal& A, int dual=1, int display=0)
+  {
+    return calcop(CharOp(A, N), dual,display);
+  }
+  // as previous, for the i'th such involution (for 0<=i<Quad::class_group_2_rank)
+  mat nu(int i, int dual=1, int display=0)
+  {
+    return nu_op(nulist[i], dual, display);
+  }
+
+  // T_{P^2} when P^2 principal
+  mat hecke_sq_op(Quadprime& P, int dual=1, int display=0)
+  {
+    return calcop(HeckeSqOp(P, N), dual,display);
+  }
+
+  // (T_P)^2 when P^2 principal, using  (T_P)^2 = T_{P^2} + N(P)*T_{P,P}
+  mat hecke_op_sq(Quadprime& P, int dual=1, int display=0)
+  {
+    return calcop(HeckeSqOp(P, N), dual,display)+ I2long(P.norm())*nu_op(P, dual, display);
+  }
+
+  // T_{PQ} for P!=Q when PQ principal
+  mat hecke_pq_op(Quadprime& P, Quadprime& Q, int dual=1, int display=0)
+  {
+    return calcop(HeckePQOp(P, Q, N), dual,display);
+  }
+
   //   mat conj(int display=0) const;
   vec maninvector(Quadprime& P, int proj=0);
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);

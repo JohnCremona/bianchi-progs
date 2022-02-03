@@ -9,13 +9,22 @@
 
 homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
   :verbose(verb), cuspidal(cuspid), plusflag(hp),
-   N(I), nap(20), characteristic(ch), hmod(0)
+   N(I), nap(20), n2r(Quad::class_group_2_rank), characteristic(ch), hmod(0)
 {
   P1 = P1N(N);
   nsymb = P1.size();
   // first nap (at least) primes, bad primes first, otherwise in standard order
   int iP0;
   primelist = make_primelist(N, nap, iP0);
+  if (Quad::class_group_2_rank > 0)
+    // populate nulist with a list of ideals coprime to N whose classes generate the 2-torsion
+    {
+      for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
+           Ai!=Quad::class_group_2_torsion_gens.end(); ++Ai)
+        {
+          nulist.push_back(Ai->equivalent_coprime_to(N));
+        }
+    }
 
   if (verbose)
     {

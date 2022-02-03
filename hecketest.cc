@@ -110,14 +110,10 @@ int main(void)
 
       // Compute unramified quadratic characters and check that they are involutions and commute
 
-      for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
-           Ai != Quad::class_group_2_torsion_gens.end(); Ai++)
+      for (int i=0; i<Quad::class_group_2_rank; i++)
         {
-          // find an ideal in same class as A, coprime to N
-          Quad c, d;
-          Qideal A = Ai->equivalent_coprime_to(N, c, d);
-          cout << "Computing nu_"<< A <<"..." << flush;
-          mat_ZZ nu = mat_to_mat_ZZ(h.nu(A, 0, show_mats));
+          cout << "Computing nu_"<< h.nulist[i] <<"..." << flush;
+          mat_ZZ nu = mat_to_mat_ZZ(h.nu(i, 0, show_mats));
 	  cout << "done. " << flush;
 
           ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
