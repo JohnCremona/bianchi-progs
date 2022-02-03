@@ -3,7 +3,7 @@ QIDEAL TEST PROGRAM
 Enter field: Q(sqrt(-11))	discriminant = -11	min poly(a) = a^2-a+3.
 Euclidean
 173 primes initialised, max norm = 1000
-346 prime ideals initialised, max norm = 1000
+173 prime ideals initialised, max norm = 1000
 P3a = 3.1 = [3,a] = (a,-3+a) = (a) (principal)
 P3b = 3.2 = [3,2+a] = (-1+a,-3) = (-1+a) (principal)
 P2 = 4.1 = 2[1,a] = (2,2a) = (2) (principal)

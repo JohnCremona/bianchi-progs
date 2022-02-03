@@ -3,7 +3,7 @@ QIDEAL TEST PROGRAM
 Enter field: Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 167 primes initialised, max norm = 1000
-334 prime ideals initialised, max norm = 1000
+167 prime ideals initialised, max norm = 1000
 P2 = 2.1 = [2,1+i] = (1+i,-1+i) = (1+i) (principal)
 P5a = 5.1 = [5,2+i] = (2+i,-1+2i) = (2+i) (principal)
 P5b = 5.2 = [5,3+i] = (1+2i,-2+i) = (1+2i) (principal)

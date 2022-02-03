@@ -3,7 +3,7 @@ QIDEAL TEST PROGRAM
 Enter field: Q(sqrt(-7))	discriminant = -7	min poly(a) = a^2-a+2.
 Euclidean
 169 primes initialised, max norm = 1000
-338 prime ideals initialised, max norm = 1000
+169 prime ideals initialised, max norm = 1000
 P2a = 2.1 = [2,a] = (a,-2+a) = (a) (principal)
 P2b = 2.2 = [2,1+a] = (-1+a,-2) = (-1+a) (principal)
 P7 = 7.1 = [7,3+a] = (-1+2a,-4+a) = (-1+2a) (principal)

@@ -3,7 +3,7 @@ QIDEAL TEST PROGRAM
 Enter field: Q(sqrt(-19))	discriminant = -19	min poly(a) = a^2-a+5.
 Non-Euclidean, class number 1
 172 primes initialised, max norm = 1000
-344 prime ideals initialised, max norm = 1000
+172 prime ideals initialised, max norm = 1000
 P2 = 4.1 = 2[1,a] = (2,2a) = (2) (principal)
 P5a = 5.1 = [5,a] = (a,-5+a) = (a) (principal)
 P5b = 5.2 = [5,4+a] = (-1+a,-5) = (-1+a) (principal)

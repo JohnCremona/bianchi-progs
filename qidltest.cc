@@ -157,26 +157,16 @@ void stringtest()
     }
 }
 
-void show_primes()
+int main(void)
 {
-  Quadprimes::display(cout, 200);
-}
+  cout << endl << "QIDEAL TEST PROGRAM" << endl;
 
-void init()
-{
   long d;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
   Quad::displayfield(cout);
-  if (Quad::class_number==1)
-    Quadprimes::init();
-}
+  Quadprimes::display(cout, 200);
 
-int main(void)
-{
-  cout << endl << "QIDEAL TEST PROGRAM" << endl;
-  init();
-  show_primes();
   looptest();
   stringtest();
   labeltest();

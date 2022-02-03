@@ -33,18 +33,15 @@ void P1N_test(Qideal N, int verbose=0)
   P1.check_lifts(verbose);
 }
 
-void init()
+int main(void)
 {
+  cout << endl << "P1N TEST PROGRAM" << endl;
+
   long d;
   cout << "Enter field: " << flush;  cin >> d;
   Quad::field(d);
   Quad::displayfield(cout);
-}
 
-int main(void)
-{
-  cout << endl << "P1N TEST PROGRAM" << endl;
-  init();
   cout << "testing split/merge of multi-indices..." << endl;
   multi_index_test({2,4,2});
   multi_index_test({1,5,6});
