@@ -101,6 +101,7 @@ Quad qdivi1(const Quad& a, QUINT c) // used when t=1
   return ans;
 }
 
+// static function (one for the class, not per instance)
 void Quad::field(long dd, long max)
 {
   // if (!check_field(dd))
@@ -174,6 +175,7 @@ void Quad::field(long dd, long max)
   fill_class_group();
 }
 
+// static function (one for the class, not per instance)
 void Quad::displayfield(ostream& s, int info2)
 {s<<"Q(sqrt("<<-d<<"))\tdiscriminant = "<<disc;
  s<<"\tmin poly("<<name<<") = "<<name<<"^2"; if(t) s<<"-"<<name; 
@@ -214,6 +216,21 @@ int Quad::chi(QUINT p)
 int Quad::chi(long p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(-d,p));
+}
+
+// binary index i of [I] in C/C^2 (0 <= i < 2^{2-rank}).
+//
+// "binary" means that the bits of I give the coordinates w.r.t. the
+// basis class_group_2_cotorsion_gens
+int Quad::ideal_class_mod_squares(const Qideal& I)
+{
+  return find_ideal_class_mod_squares(I, class_group_2_cotorsion);
+}
+
+// image (+1/-1) of I under i'th quadratic character (0 <= i < 2^{2-rank})
+int Quad::unramified_character(int i, const Qideal& I)
+{
+  return (i & ideal_class_mod_squares(I) ? -1 : +1); // bitwise &
 }
 
 Quad::Quad(const bigcomplex& z)

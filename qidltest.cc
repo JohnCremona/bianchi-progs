@@ -92,13 +92,29 @@ void ABmatrixtest(Qideal& I)
 
 void looptest()
 {
-  long bound = 50;
-  cout << "\nIdeals of norm up to "<<bound<<" (sorted, both conjugates):" << endl;
+  long bound = 50; int n2r = Quad::class_group_2_rank;
+  cout << "\nIdeals of norm up to "<<bound<<" (sorted, both conjugates";
+  if (n2r>0)
+    cout<<",with images of ideals under unramified quadratic class group characters" << endl;
+  cout << "):" << endl;
   Qidealooper loop_both(1, bound, 1, 1);
   while( loop_both.not_finished() )
     {
       Qideal I = loop_both.next();
-      cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
+      string g = gens_string(I);
+      cout << ideal_label(I) << " = " << I << " = " << g;
+      if (n2r>0)
+        {
+          cout <<"\t[";
+          for (int i=0; i<n2r; i++)
+            {
+              if (i>0) cout << ", ";
+              //cout << "("<<Quad::ideal_class_mod_squares(I)<<")";
+              cout << Quad::unramified_character(1<<i, I);
+            }
+          cout << "]";
+        }
+      cout << endl;
     }
   cout << "\nIdeals of norm up to "<<bound<<" (sorted, only one of each conjugate pair):" << endl;
   Qidealooper loop_one(1, bound, 0, 1);

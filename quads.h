@@ -70,6 +70,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static vector<Qideal> class_group_2_torsion_gens; // list of ideals generating 2-torsion in class group
   static vector<Qideal> class_group_2_cotorsion;      // list of ideals representing class group mod squares
   static vector<Qideal> class_group_2_cotorsion_gens; // list of ideals generating class group mod squares
+  static int ideal_class_mod_squares(const Qideal& I); // binary index of [I] from 0 to 2^{2-rank}-1
+  static int unramified_character(int i, const Qideal& I); // image (+1/-1) of I under i'th quadratic character
   static Quad zero;
   static Quad one;
   static Quad w;
