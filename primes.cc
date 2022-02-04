@@ -417,7 +417,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
     }
 
   vector<QUINT> pp = pdivs(N);
-  int np = pp.size();
+  int np = pp.size(), k;
 
   if (np==1) // prime power case
     {
@@ -449,27 +449,44 @@ vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
           ans.push_back(I);
           return (N_to_Ilist[N] = {I});
         case +1:
-          Qideal P = Quadprimes_above(I2long(p))[0];
-          std::list<Qideal> II; long k;
-          if (e%2)
+          std::list<Qideal> II;
+          vector<Quadprime> PP = Quadprimes_above(I2long(p));
+          Qideal P = PP[0], Q=PP[1];
+          switch (e)
             {
-              k = (e-1)/2;
-              I = P;
-            }
-          else
-            {
-              k = (e-2)/2;
-              I = P*P;
-              II.push_back(Qideal(pow(p,k+1)));
-            }
-          P *= P;
-          while (k>=0)
-            {
-              Qideal J = I*pow(p,k);
-              II.push_front(J);
-              II.push_back(J.conj());
-              I *= P;
-              k -= 1;
+            case 1:
+              II = {P, Q};
+              break;
+            case 2:
+              II = {P*P, P*Q, Q*Q};
+              break;
+            case 3:
+              II = {P*P*P, P*P*Q, P*Q*Q, Q*Q*Q};
+              break;
+            case 4:
+              II = {P*P*P*P, P*P*P*Q, P*P*Q*Q, P*Q*Q*Q, Q*Q*Q*Q};
+              break;
+            default:
+              if (e%2)
+                {
+                  k = (e-1)/2;
+                  I = P;
+                }
+              else
+                {
+                  k = (e-2)/2;
+                  I = P*P;
+                  II.push_back(Qideal(pow(p,k+1)));
+                }
+              P *= P;
+              while (k>=0)
+                {
+                  Qideal J = I*pow(p,k);
+                  II.push_front(J);
+                  II.push_back(J.conj());
+                  I *= P;
+                  k -= 1;
+                }
             }
 #ifdef DEBUG_SORT
           cout<<"Constructed list of "<<II.size()<<" ideals"<<endl;

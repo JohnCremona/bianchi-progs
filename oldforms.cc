@@ -68,7 +68,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
   if(nforms>0){
     if(neigs<0)nap=neigs=neigsonfile;
     else nap= (neigsonfile<neigs?neigsonfile:neigs);
-    int nwq=N.factorization().size();
+    int nwq = (ch==0? N.factorization().size(): 0);
     int ntp=nap-nwq;
     vector<Quadprime> qlist = pdivs(M);
     if(verbose) cout<<"Prime divisors of lower level "<<M<<" are "<<qlist<<endl;
@@ -82,33 +82,40 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
     for(i=0; i<nforms; i++)
       {
 	eigs[i].resize(nap);
-	aqs[i].resize(nq);
 	aps[i].resize(nap);
-        intdata[i].resize(6);
-        Quaddata[i].resize(5);
+        if (ch==0)
+          {
+            aqs[i].resize(nq);
+            intdata[i].resize(6);
+            Quaddata[i].resize(5);
+          }
       }
 
-    // Read the auxiliary data:
-    for (i=0; i<nforms; i++) data>>intdata[i][0];  // sfe
-    for (i=0; i<nforms; i++) data>>intdata[i][1];  // pdot
-    for (i=0; i<nforms; i++) data>>intdata[i][2];  // dp0
-    for (i=0; i<nforms; i++) data>>intdata[i][3];  // cuspidalfactor
-    for (i=0; i<nforms; i++) data>>Quaddata[i][0]; // lambda
-    for (i=0; i<nforms; i++) data>>intdata[i][4];  // lambdadot
-    for (i=0; i<nforms; i++) data>>Quaddata[i][1]; // a
-    for (i=0; i<nforms; i++) data>>Quaddata[i][2]; // b
-    for (i=0; i<nforms; i++) data>>Quaddata[i][3]; // c
-    for (i=0; i<nforms; i++) data>>Quaddata[i][4]; // d
-    for (i=0; i<nforms; i++) data>>intdata[i][5];  // matdot
-
-    //  Read the W-eigenvalues at level M into aqs:
     vector<vector<long> >::iterator f; long eig;
-    for(i=0; i<nq; i++)
-      for(f=aqs.begin(); f!=aqs.end(); ++f)
-	{
-	  data>>eig;
-	  (*f)[i]=eig;
-	}
+
+    if (ch==0)
+      {
+        // Read the auxiliary data (unless in positive characteristic):
+        for (i=0; i<nforms; i++) data>>intdata[i][0];  // sfe
+        for (i=0; i<nforms; i++) data>>intdata[i][1];  // pdot
+        for (i=0; i<nforms; i++) data>>intdata[i][2];  // dp0
+        for (i=0; i<nforms; i++) data>>intdata[i][3];  // cuspidalfactor
+        for (i=0; i<nforms; i++) data>>Quaddata[i][0]; // lambda
+        for (i=0; i<nforms; i++) data>>intdata[i][4];  // lambdadot
+        for (i=0; i<nforms; i++) data>>Quaddata[i][1]; // a
+        for (i=0; i<nforms; i++) data>>Quaddata[i][2]; // b
+        for (i=0; i<nforms; i++) data>>Quaddata[i][3]; // c
+        for (i=0; i<nforms; i++) data>>Quaddata[i][4]; // d
+        for (i=0; i<nforms; i++) data>>intdata[i][5];  // matdot
+
+        //  Read the W-eigenvalues at level M into aqs:
+        for(i=0; i<nq; i++)
+          for(f=aqs.begin(); f!=aqs.end(); ++f)
+            {
+              data>>eig;
+              (*f)[i]=eig;
+            }
+      }
 
     // Next read the coefficients at level M into aps:
     for(i=0; i<neigs; i++)
@@ -123,18 +130,24 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
     if(verbose)
       {
 	cout << "Finished reading eigdata." << endl;
-	cout << "aqs = " << endl;
-	for(i=0; i<nforms; i++) cout<<i<<": "<<aqs[i]<<endl;
+        if (ch==0)
+          {
+            cout << "aqs = " << endl;
+            for(i=0; i<nforms; i++) cout<<i<<": "<<aqs[i]<<endl;
+          }
 	cout << "aps = " << endl;
 	for(i=0; i<nforms; i++) cout<<i<<": "<<aps[i]<<endl;
-	cout << "intdata = " << endl;
-	for(i=0; i<nforms; i++) cout<<i<<": "<<intdata[i]<<endl;
-	cout << "Quaddata = " << endl;
-	for(i=0; i<nforms; i++) cout<<i<<": "<<Quaddata[i]<<endl;
+        if (ch==0)
+          {
+            cout << "intdata = " << endl;
+            for(i=0; i<nforms; i++) cout<<i<<": "<<intdata[i]<<endl;
+            cout << "Quaddata = " << endl;
+            for(i=0; i<nforms; i++) cout<<i<<": "<<Quaddata[i]<<endl;
+          }
       }
 
     // Now construct the eigenvalue sequence, first Wq eigenvalues for
-    // bad primes then Tp-eigenvalues for good primes
+    // bad primes (unless ch>0) then Tp-eigenvalues for good primes
 
     int countp=0, countq=0;
     for (vector<Quadprime>::const_iterator Pi=Quadprimes::list.begin();
@@ -212,7 +225,9 @@ oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose, long ch
   : N(iN), characteristic(ch), plist(pr)
 {
    nap = plist.size();
-   noldclasses = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
+   noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
+   if (ch>0)
+     return;
    vector<Qideal> DD = alldivs(N);
    if (verbose>1)
      {
@@ -268,6 +283,8 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
       if(beta>0) k++;
       betalist.push_back(beta);
     }
+  if (characteristic>0)
+    oldmultiplicity=0;
   if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmultiplicity<<endl;
   olddim2+=oldmultiplicity*olddata.nforms2;
   if (nforms==0) return;

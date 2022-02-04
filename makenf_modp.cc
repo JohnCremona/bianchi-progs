@@ -36,6 +36,8 @@ int main ()
  cin >> firstn >> lastn;
  stringstream dimtabfilename;
  dimtabfilename << "dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
+ if (ch>0)
+   dimtabfilename << ".mod_"<<ch;
  ofstream dimtab(dimtabfilename.str().c_str());
 
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
@@ -47,7 +49,7 @@ int main ()
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
 #endif
-     cerr<<endl;
+
      QUINT normN = N.norm();
      string efilename = eigfile(N, ch);
      string label = ideal_label(N);
