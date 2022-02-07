@@ -4,13 +4,28 @@
 
 int main ()
 {
-  long d, max(1000000);
+  long d, maxnorm(10000); // must be at least as many as #eigs on file
  cerr << "Enter field: " << flush;  cin >> d;
- Quad::field(d,max);
  Quad n;
  long nap;
  cerr << "How many coefficients ap? "<<flush; cin>>nap;
-#ifndef LOOPER
+#ifdef LOOPER
+ long firstn, lastn;
+ cerr<<"Enter first and last norm for Quads: ";
+ cin >> firstn >> lastn;
+ cerr<<endl;
+ int both_conj=1;
+ if (lastn>maxnorm)  maxnorm = lastn;
+#endif
+
+ Quad::field(d,maxnorm);
+
+#ifdef LOOPER
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
+   {
+     Qideal N = loop.next();
+#else
  if (Quad::class_number==1)
    {
      vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
@@ -24,19 +39,6 @@ int main ()
        }
      cout << "..." << endl;
    }
-#endif
-#ifdef LOOPER
- long firstn, lastn;
- cerr<<"Enter first and last norm for Quads: ";
- cin >> firstn >> lastn;
- cerr<<endl;
- int both_conj=1;
-
- Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
- while( loop.not_finished() )
-   {
-     Qideal N = loop.next();
-#else
  Qideal N;
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
