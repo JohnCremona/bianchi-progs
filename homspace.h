@@ -191,6 +191,7 @@ mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 // at least np, making sure that the list includes at least one good
 // principal prime.  iP0 is set to the index in the list of the first
 // good principal prime.
-vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0);
+// If p (default 0) is nonzero, omit bad primes and primes dividing P
+vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
 
 #endif

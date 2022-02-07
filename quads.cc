@@ -703,6 +703,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
         }
     }
   // alpha is now the non-zero Quad of least norm in the lattice [alpha,beta]
+  // and beta/alpha is in the closed fundamental region
 
   // We want to orient so that beta/alpha has positive imaginary part
   // e.g. so that the basis [1,w] is reduced
@@ -710,6 +711,10 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 
   if ((quadconj(alpha)*beta).im() < 0)
     beta=-beta;
+
+  // If we wanted to make sure that beta/alpha is unambiguously defined when on the boundary:
+  // if (2*(quadconj(alpha)*beta).re() == -quadnorm(alpha))
+  //   beta+=alpha;
 
 #ifdef test_reduce
   cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta

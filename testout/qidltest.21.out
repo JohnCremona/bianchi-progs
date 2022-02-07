@@ -64,7 +64,7 @@ Ideals of norm up to 50 (sorted, both conjugates,with images of ideals under unr
 10.1 = [10,7+a] = (-3+a,-7-a)	[1, -1]
 10.2 = [10,3+a] = (3+a,-7+a)	[1, -1]
 11.1 = [11,1+a] = (1+a,-11)	[-1, 1]
-11.2 = [11,10+a] = (-1+a,-11)	[-1, 1]
+11.2 = [11,10+a] = (-1+a,-10-a)	[-1, 1]
 12.1 = 2[3,a] = (6,2a)	[1, -1]
 14.1 = [14,7+a] = (-7+a,-7-a)	[-1, -1]
 15.1 = [15,12+a] = (-3+a,-9-2a)	[-1, 1]
@@ -81,7 +81,7 @@ Ideals of norm up to 50 (sorted, both conjugates,with images of ideals under unr
 22.1 = [22,1+a] = (1+a)	[1, 1]
 22.2 = [22,21+a] = (-1+a)	[1, 1]
 23.1 = [23,5+a] = (5+a,-13+2a)	[-1, 1]
-23.2 = [23,18+a] = (-5+a,-13-2a)	[-1, 1]
+23.2 = [23,18+a] = (-5+a,-8-3a)	[-1, 1]
 24.1 = 2[6,3+a] = (-6+2a,-6-2a)	[-1, -1]
 25.1 = [25,2+a] = (2+a)	[1, 1]
 25.2 = 5[1,a] = (5)	[1, 1]
@@ -107,7 +107,7 @@ Ideals of norm up to 50 (sorted, both conjugates,with images of ideals under unr
 40.1 = 2[10,7+a] = (-6+2a,-14-2a)	[1, -1]
 40.2 = 2[10,3+a] = (6+2a,-14+2a)	[1, -1]
 41.1 = [41,15+a] = (-11+2a,-4-3a)	[-1, -1]
-41.2 = [41,26+a] = (11+2a,-4+3a)	[-1, -1]
+41.2 = [41,26+a] = (-4+3a,-11-2a)	[-1, -1]
 42.1 = [42,21+a] = (2a,-21-a)	[-1, 1]
 44.1 = 2[11,1+a] = (2+2a,-22)	[-1, 1]
 44.2 = 2[11,10+a] = (-2+2a,-20-2a)	[-1, 1]
@@ -256,13 +256,13 @@ Ideal 11.1 = [11,1+a] (norm 11) is not principal, generators [ 1+a -11 ] with fa
  with inverses:
 [ 1 -5 4 3 -2 2 -3 -4 5 -1 ]
 AB-matrix of 11.1 is [1+a,11; -11,-5+5a]
-Ideal 11.2 = [11,10+a] (norm 11) is not principal, generators [ -1+a -11 ] with factorization P11b
+Ideal 11.2 = [11,10+a] (norm 11) is not principal, generators [ -1+a -10-a ] with factorization P11b
 11 residues mod 11.2: [ 0 1 2 3 4 5 -5 -4 -3 -2 -1 ]
 10 invertible residues mod 11.2:
 [ 1 2 3 4 5 -5 -4 -3 -2 -1 ]
  with inverses:
 [ 1 -5 4 3 -2 2 -3 -4 5 -1 ]
-AB-matrix of 11.2 is [-1+a,11; -11,5+5a]
+AB-matrix of 11.2 is [-1+a,10-a; -10-a,5+5a]
 Ideal 12.1 = 2[3,a] (norm 12) is not principal, generators [ 6 2a ] with factorization P2^2*P3
 12 residues mod 12.1: [ 0 1 2 -3 -2 -1 -a 1-a 2-a -3-a -2-a -1-a ]
 4 invertible residues mod 12.1:
@@ -375,13 +375,13 @@ Ideal 23.1 = [23,5+a] (norm 23) is not principal, generators [ 5+a -13+2a ] with
  with inverses:
 [ 1 -6+a 3-a 1-a -4+a 4 5-a 3 a 2-a -2 2 -2+a -a -3 -5+a -4 4-a -1+a -3+a 6-a -1 ]
 AB-matrix of 23.1 is [5+a,13+2a; -13+2a,-25+5a]
-Ideal 23.2 = [23,18+a] (norm 23) is not principal, generators [ -5+a -13-2a ] with factorization P23b
+Ideal 23.2 = [23,18+a] (norm 23) is not principal, generators [ -5+a -8-3a ] with factorization P23b
 23 residues mod 23.2: [ 0 1 2 3 4 a 1+a 2+a 3+a 4+a 5+a 6+a -6-a -5-a -4-a -3-a -2-a -1-a -a -4 -3 -2 -1 ]
 22 invertible residues mod 23.2:
 [ 1 2 3 4 a 1+a 2+a 3+a 4+a 5+a 6+a -6-a -5-a -4-a -3-a -2-a -1-a -a -4 -3 -2 -1 ]
  with inverses:
 [ 1 -6-a 3+a 1+a -4-a 4 5+a 3 -a 2+a -2 2 -2-a a -3 -5-a -4 4+a -1-a -3-a 6+a -1 ]
-AB-matrix of 23.2 is [-5+a,13-2a; -13-2a,25+5a]
+AB-matrix of 23.2 is [-5+a,8-3a; -8-3a,25+5a]
 Ideal 24.1 = 2[6,3+a] (norm 24) is not principal, generators [ -6+2a -6-2a ] with factorization P2^3*P3
 24 residues mod 24.1: [ 0 1 2 3 4 5 6 -5 -4 -3 -2 -1 a 1+a 2+a 3+a -2-a -1-a -a 1-a 2-a 3-a -2+a -1+a ]
 8 invertible residues mod 24.1:
