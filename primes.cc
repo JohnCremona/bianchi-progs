@@ -416,7 +416,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
   vector<Qideal> ans;
   Qideal I;
   vector<QUINT> pp = pdivs(N);
-  int np = pp.size(), k;
+  int np = pp.size();
 
   if (np==1) // prime power case
     {
