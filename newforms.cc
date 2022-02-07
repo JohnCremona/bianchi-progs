@@ -77,12 +77,11 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
       basis = reduce_modp(matmulmodp(nf->h1->FR.coord, vcol, nf->hmod).col(1));
     }
   else
-    basis = (nf->h1->FR.coord)*v;
-  if (nf->characteristic==0)
     {
+      basis = (nf->h1->FR.coord)*v;
       makeprimitive(basis); // this is now independent of h1's denom1
     }
-  //  else we have just reduced it mod p
+
   if (nf->verbose >1)
   {
     cout << "short newform basis = "<<v<<endl;
@@ -98,11 +97,15 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
 
 void newform::fill_in_data(int j)
 {
-  // extract Atkin-Lehner eigs from first entries of eigs list:
-  copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
+  sfe = 0;
+  if (nf->characteristic==0)
+    {
+      // extract Atkin-Lehner eigs from first entries of eigs list:
+      copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
 
-  // Sign of functional equation = minus product of all A-L eigenvalues
-  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+      // Sign of functional equation = minus product of all A-L eigenvalues
+      sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+    }
 
   // compute L/P as n_F({0,oo})
   int pdot0 = abs(nf->zero_infinity[j]);
@@ -113,9 +116,10 @@ void newform::fill_in_data(int j)
   pdot = abs(nf->mvp[j]);
   rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
 
-  // Check they agree:
   if (nf->characteristic>0)
     return;
+
+  // Check they agree:
 
   if (pdot != dp0*pdot0)
     {
@@ -439,7 +443,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 
   // List of bad primes (dividing N) followed by good primes to length np:
   nap = 20;
-  plist = make_primelist(N, nap, iP0); // shadows h1->primelist in case we do not construct h1
+  plist = make_primelist(N, nap, iP0, characteristic); // shadows h1->primelist in case we do not construct h1
   P0 = plist[iP0];
   nP0 = I2long(P0.norm());
 //
@@ -449,9 +453,17 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 // implemented maninvector() for principal primes.
 //
   if (verbose>1)
-    cout << "Ordered list of primes (bad primes first): "<<plist<<endl;
-  nwq = npdivs = F.size();
-  ntp=nap-nwq;
+    cout << "Ordered list of primes (bad primes "<<(characteristic==0?"first":"excluded")<<"): "<<plist<<endl;
+  if (characteristic==0)
+    {
+      nwq = npdivs = F.size();
+      ntp=nap-nwq;
+    }
+  else
+    {
+      nwq = 0;
+      ntp = nap;
+    }
   h1=0;
   of=0;
   nfhmod=0;
@@ -552,13 +564,15 @@ void newforms::createfromscratch()
   if(verbose)
     {
       cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
-      cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<plist<<")...\n";
+      if (characteristic==0)
+        cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<plist<<")...\n";
     }
 
   of = new oldforms(N, plist, verbose, characteristic);
   if(verbose)
     {
-      of->display();
+      if (characteristic==0)
+        of->display();
       cout<<"Finding rational newforms...\n";
     }
 
@@ -595,7 +609,8 @@ void newforms::createfromscratch()
   if(verbose)
     {cout << "Total dimension " << dimall << " made up as follows:\n";
      cout << "dim(newforms) = " << n1ds+n2ds << " of which " << n1ds << " is rational; \n";
-     cout << "dim(oldforms) = " << olddimall << " of which " << (of->olddim1) << " is rational; \n";
+     if (characteristic==0)
+       cout << "dim(oldforms) = " << olddimall << " of which " << (of->olddim1) << " is rational; \n";
      cout<<endl;
    }
   delete of;
@@ -658,7 +673,8 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
         }
       else
         nflist[use_nf_number].basis = (h1->FR.coord)*b1;
-      makeprimitive(nflist[use_nf_number].basis); // this is now independent of h1's denom1
+      if (characteristic==0)
+        makeprimitive(nflist[use_nf_number].basis); // this is now independent of h1's denom1
     }
 }
 
@@ -676,13 +692,17 @@ void newforms::display(int detail)
 
 void newform::display(void) const
 {
-  cout << "basis = " << basis
-      << ";\taqlist = " << aqlist
-      << ";\taplist = " << aplist << endl;
- cout << "Sign of F.E. = " << sfe << endl;
- cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
- cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
- cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+  cout << "basis = " << basis;
+  if (nf->characteristic==0)
+    cout << ";\taqlist = " << aqlist;
+  cout << ";\taplist = " << aplist << endl;
+  if (nf->characteristic==0)
+    {
+      cout << "Sign of F.E. = " << sfe << endl;
+      cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
+      cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+      cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+    }
 }
 
 void newforms::list(long nap)
@@ -691,28 +711,33 @@ void newforms::list(long nap)
   for(int i=0; i<n1ds; i++)
     {
       cout << flabel << " " << idlabel << " " << codeletter(i) << " " << idgens << " 2 ";  // last is weight
-      int bc = nflist[i].is_base_change();
-      if (bc)
-        {
-          int bcd = nflist[i].base_change_discriminant();
-          cout << bcd;
-        }
+      if (characteristic>0)
+        cout << characteristic << " ";
       else
         {
-          int bct = nflist[i].is_base_change_twist();
-          if (bct)
+          int bc = nflist[i].is_base_change();
+          if (bc)
             {
-              // NB if we have not enough inert a_P we might not be
-              // able to determine the discriminant; the following
-              // will return 1 in this case.
-              int bcd = nflist[i].base_change_twist_discriminant();
-              cout << (-bcd);
+              int bcd = nflist[i].base_change_discriminant();
+              cout << bcd;
             }
           else
-            cout << "0";
+            {
+              int bct = nflist[i].is_base_change_twist();
+              if (bct)
+                {
+                  // NB if we have not enough inert a_P we might not be
+                  // able to determine the discriminant; the following
+                  // will return 1 in this case.
+                  int bcd = nflist[i].base_change_twist_discriminant();
+                  cout << (-bcd);
+                }
+              else
+                cout << "0";
+            }
+          cout << " ";
+          cout << nflist[i].is_CM() << " ";
         }
-      cout << " ";
-      cout << nflist[i].is_CM() << " ";
       nflist[i].list(nap);
       cout << endl;
     }
@@ -721,15 +746,19 @@ void newforms::list(long nap)
 void newform::list(long nap) const
 {
   if(nap==-1) nap=aplist.size();
-  cout << sfe << " " << loverp << " ";
-  cout << "[";
   vector<long>::const_iterator ai;
-  for(ai=aqlist.begin(); ai!=aqlist.end(); ++ai)
+
+  if (nf->characteristic==0)
     {
-      if(ai!=aqlist.begin()) cout<<",";
-      cout<<(*ai);
+      cout << sfe << " " << loverp << " ";
+      cout << "[";
+      for(ai=aqlist.begin(); ai!=aqlist.end(); ++ai)
+        {
+          if(ai!=aqlist.begin()) cout<<",";
+          cout<<(*ai);
+        }
+      cout << "] ";
     }
-  cout << "] ";
   // The x here is essentially a place-holder representing the Hecke
   // field defining polynomial so that the output here will be
   // consistent with newforms whose Hecke field has degree >1
@@ -902,7 +931,9 @@ void newforms::getap(int first, int last, int verbose)
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
-      getoneap(*pr++,verbose);
+      Quadprime P = *pr++;
+      if ((characteristic==0) || !(P.divides(N) || P.norm()%characteristic!=0))
+        getoneap(P, verbose);
       nap++;
     }
 }
@@ -922,7 +953,12 @@ void newforms::output_to_file(string eigfile) const
     }
   // Line 2
   out<<nap<<endl;  if(echo) cout<<nap<<endl;
+
   vector<newform>::const_iterator f;
+
+  if (characteristic==0)
+    {
+
   vector<long>::const_iterator ap;
   // Line 3: SFEs
   for(f=nflist.begin(); f!=nflist.end(); ++f)
@@ -1016,6 +1052,7 @@ void newforms::output_to_file(string eigfile) const
       if(echo) cout<<endl;
     }
   out<<endl;  if(echo) cout<<endl;
+    } // end of if (characteristic==0) block
   for(int i=0; i<nap; i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
@@ -1286,18 +1323,20 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
            ap = top/fac;
         }
       apv[i]=ap;
-// #ifdef DEBUG_APVEC
-//       cout << "ap = " << ap << endl;
-// #endif
-// check it is in range (in characteristic 0 only):
-      if (characteristic==0)
-        if((ap>maxap)||(-ap>maxap))
-          {
-            cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
-                <<" for form # "<<(i+1)<<" is outside valid range "
-                <<-maxap<<"..."<<maxap<<endl;
-            exit(1);
-          }
+      if (characteristic>0)
+        apv[i] = posmod(ap, characteristic);
+      else
+        {
+          apv[i]=ap;
+          // check it is in range (in characteristic 0 only):
+          if((ap>maxap)||(-ap>maxap))
+            {
+              cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
+                  <<" for form # "<<(i+1)<<" is outside valid range "
+                  <<-maxap<<"..."<<maxap<<endl;
+              exit(1);
+            }
+        }
     }
 #ifdef DEBUG_APVEC
       cout << "Good prime: ap list = " << apv << endl;

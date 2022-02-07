@@ -50,3 +50,6 @@ P1Ntest
 # temporary test output files
 *.testout
 nftmp/*
+
+# symlink to magma/sorting.m
+magma/*
