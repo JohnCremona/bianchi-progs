@@ -77,12 +77,11 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
       basis = reduce_modp(matmulmodp(nf->h1->FR.coord, vcol, nf->hmod).col(1));
     }
   else
-    basis = (nf->h1->FR.coord)*v;
-  if (nf->characteristic==0)
     {
+      basis = (nf->h1->FR.coord)*v;
       makeprimitive(basis); // this is now independent of h1's denom1
     }
-  //  else we have just reduced it mod p
+
   if (nf->verbose >1)
   {
     cout << "short newform basis = "<<v<<endl;
@@ -98,6 +97,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
 
 void newform::fill_in_data(int j)
 {
+  sfe = 0;
   if (nf->characteristic==0)
     {
       // extract Atkin-Lehner eigs from first entries of eigs list:
@@ -106,8 +106,6 @@ void newform::fill_in_data(int j)
       // Sign of functional equation = minus product of all A-L eigenvalues
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
-  else
-    sfe = 0;
 
   // compute L/P as n_F({0,oo})
   int pdot0 = abs(nf->zero_infinity[j]);
@@ -118,9 +116,10 @@ void newform::fill_in_data(int j)
   pdot = abs(nf->mvp[j]);
   rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
 
-  // Check they agree:
   if (nf->characteristic>0)
     return;
+
+  // Check they agree:
 
   if (pdot != dp0*pdot0)
     {
@@ -454,7 +453,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 // implemented maninvector() for principal primes.
 //
   if (verbose>1)
-    cout << "Ordered list of primes (bad primes "<<(ch==0?"first":"excluded")<<"): "<<plist<<endl;
+    cout << "Ordered list of primes (bad primes "<<(characteristic==0?"first":"excluded")<<"): "<<plist<<endl;
   if (characteristic==0)
     {
       nwq = npdivs = F.size();
@@ -697,13 +696,13 @@ void newform::display(void) const
   if (nf->characteristic==0)
     cout << ";\taqlist = " << aqlist;
   cout << ";\taplist = " << aplist << endl;
-  if (nf->characteristic>0)
-    return;
-
-  cout << "Sign of F.E. = " << sfe << endl;
-  cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
-  cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
-  cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+  if (nf->characteristic==0)
+    {
+      cout << "Sign of F.E. = " << sfe << endl;
+      cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
+      cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+      cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+    }
 }
 
 void newforms::list(long nap)
@@ -735,9 +734,9 @@ void newforms::list(long nap)
                 }
               else
                 cout << "0";
-              cout << " ";
-              cout << nflist[i].is_CM() << " ";
             }
+          cout << " ";
+          cout << nflist[i].is_CM() << " ";
         }
       nflist[i].list(nap);
       cout << endl;
@@ -933,11 +932,8 @@ void newforms::getap(int first, int last, int verbose)
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
       Quadprime P = *pr++;
-      if (P.divides(N))
-        continue;
-      if ((characteristic>0) && (P.norm()%characteristic==0))
-        continue;
-      getoneap(P, verbose);
+      if ((characteristic==0) || !(P.divides(N) || P.norm()%characteristic!=0))
+        getoneap(P, verbose);
       nap++;
     }
 }

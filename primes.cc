@@ -408,14 +408,13 @@ vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
 #ifdef DEBUG_SORT
   cout<<"Computing sorted list of ideals with norm "<<N<<endl<<flush;
 #endif
-  vector<Qideal> ans;
-  Qideal I;
-
   if (N==1)
     {
       return (N_to_Ilist[N] = {Qideal()});
     }
 
+  vector<Qideal> ans;
+  Qideal I;
   vector<QUINT> pp = pdivs(N);
   int np = pp.size(), k;
 
@@ -449,49 +448,24 @@ vector<Qideal> Qideal_lists::ideals_with_norm(QUINT N, int both_conj)
           ans.push_back(I);
           return (N_to_Ilist[N] = {I});
         case +1:
-          std::list<Qideal> II;
           vector<Quadprime> PP = Quadprimes_above(I2long(p));
           Qideal P = PP[0], Q=PP[1];
-          switch (e)
+          ans = {P, Q};
+          for (long i=1; i<e; i++)
             {
-            case 1:
-              II = {P, Q};
-              break;
-            case 2:
-              II = {P*P, P*Q, Q*Q};
-              break;
-            case 3:
-              II = {P*P*P, P*P*Q, P*Q*Q, Q*Q*Q};
-              break;
-            case 4:
-              II = {P*P*P*P, P*P*P*Q, P*P*Q*Q, P*Q*Q*Q, Q*Q*Q*Q};
-              break;
-            default:
-              if (e%2)
-                {
-                  k = (e-1)/2;
-                  I = P;
-                }
-              else
-                {
-                  k = (e-2)/2;
-                  I = P*P;
-                  II.push_back(Qideal(pow(p,k+1)));
-                }
-              P *= P;
-              while (k>=0)
-                {
-                  Qideal J = I*pow(p,k);
-                  II.push_front(J);
-                  II.push_back(J.conj());
-                  I *= P;
-                  k -= 1;
-                }
+              I = Q*ans[i]; // = Q^(i+1)
+              for (vector<Qideal>::iterator PQ=ans.begin(); PQ!=ans.end(); PQ++)
+                (*PQ) *= P;
+              ans.push_back(I);
             }
 #ifdef DEBUG_SORT
-          cout<<"Constructed list of "<<II.size()<<" ideals"<<endl;
+            {
+              cerr<<"**********************Constructed list of "<<ans.size()<<" ideals: ";
+              for (vector<Qideal>::iterator J=ans.begin(); J!=ans.end(); ++ans)
+                cerr<<*J<<" ";
+              cerr<<endl;
+            }
 #endif
-          ans.insert(ans.end(), II.begin(), II.end());
           for (long i=0; i<=e; i++)
             ans[i].set_index(i+1);
 #ifdef DEBUG_SORT

@@ -55,10 +55,10 @@ Ideals of norm up to 50 (sorted, both conjugates,with images of ideals under unr
 3.1 = [3,1+a] = (3,1+a)	[-1]
 4.1 = 2[1,a] = (2)	[1]
 5.1 = [5,1+a] = (1+a,-4+a)	[-1]
-5.2 = [5,3+a] = (-2+a,-3-a)	[-1]
+5.2 = [5,3+a] = (-2+a,-5)	[-1]
 9.1 = 3[1,a] = (3)	[1]
 11.1 = [11,4+a] = (4+a,-3+2a)	[-1]
-11.2 = [11,6+a] = (-5+a,-1-2a)	[-1]
+11.2 = [11,6+a] = (-5+a,-6-a)	[-1]
 12.1 = 2[3,1+a] = (6,2+2a)	[-1]
 13.1 = [13,a] = (a)	[1]
 13.2 = [13,12+a] = (-1+a)	[1]
@@ -71,20 +71,20 @@ Ideals of norm up to 50 (sorted, both conjugates,with images of ideals under unr
 20.1 = 2[5,1+a] = (2+2a,-8+2a)	[-1]
 20.2 = 2[5,3+a] = (-4+2a,-10)	[-1]
 23.1 = [23,7+a] = (7+a,-2+3a)	[-1]
-23.2 = [23,15+a] = (-8+a,1-3a)	[-1]
+23.2 = [23,15+a] = (-8+a,-7-2a)	[-1]
 25.1 = [25,21+a] = (-4+a)	[1]
 25.2 = 5[1,a] = (5)	[1]
 25.3 = [25,3+a] = (3+a)	[1]
 27.1 = 3[3,1+a] = (9,3+3a)	[-1]
 29.1 = [29,11+a] = (-7+2a,-11-a)	[-1]
-29.2 = [29,17+a] = (5+2a,-12+a)	[-1]
+29.2 = [29,17+a] = (5+2a,-7+3a)	[-1]
 33.1 = [33,4+a] = (4+a)	[1]
 33.2 = [33,28+a] = (-5+a)	[1]
 36.1 = 6[1,a] = (6)	[1]
 39.1 = [39,13+a] = (3a,-13+2a)	[-1]
 39.2 = [39,25+a] = (-3+3a,-14+a)	[-1]
 41.1 = [41,10+a] = (10+a,-1+4a)	[-1]
-41.2 = [41,30+a] = (-11+a,3-4a)	[-1]
+41.2 = [41,30+a] = (-11+a,-8-3a)	[-1]
 43.1 = [43,5+a] = (5+a)	[1]
 43.2 = [43,37+a] = (-6+a)	[1]
 44.1 = 2[11,4+a] = (8+2a,-6+4a)	[-1]
@@ -147,13 +147,13 @@ Ideal 5.1 = [5,1+a] (norm 5) is not principal, generators [ 1+a -4+a ] with fact
  with inverses:
 [ 1 -2 2 -1 ]
 AB-matrix of 5.1 is [1+a,-5; -4+a,-1-2a]
-Ideal 5.2 = [5,3+a] (norm 5) is not principal, generators [ -2+a -3-a ] with factorization P5b
+Ideal 5.2 = [5,3+a] (norm 5) is not principal, generators [ -2+a -5 ] with factorization P5b
 5 residues mod 5.2: [ 0 1 2 -2 -1 ]
 4 invertible residues mod 5.2:
 [ 1 2 -2 -1 ]
  with inverses:
 [ 1 -2 2 -1 ]
-AB-matrix of 5.2 is [-2+a,-5; -3-a,3-2a]
+AB-matrix of 5.2 is [-2+a,-4+a; -5,-6-a]
 Ideal 9.1 = 3[1,a] (norm 9) is principal, with generator 3 with factorization P3^2
 9 residues mod 9.1: [ 0 1 -1 a 1+a -1+a -a 1-a -1-a ]
 6 invertible residues mod 9.1:
@@ -168,13 +168,13 @@ Ideal 11.1 = [11,4+a] (norm 11) is not principal, generators [ 4+a -3+2a ] with 
  with inverses:
 [ 1 -1+a -a 3 -2 2 -3 a 1-a -1 ]
 AB-matrix of 11.1 is [4+a,-6-a; -3+2a,4-3a]
-Ideal 11.2 = [11,6+a] (norm 11) is not principal, generators [ -5+a -1-2a ] with factorization P11b
+Ideal 11.2 = [11,6+a] (norm 11) is not principal, generators [ -5+a -6-a ] with factorization P11b
 11 residues mod 11.2: [ 0 1 2 3 -1+a a -a 1-a -3 -2 -1 ]
 10 invertible residues mod 11.2:
 [ 1 2 3 -1+a a -a 1-a -3 -2 -1 ]
  with inverses:
 [ 1 -a -1+a 3 -2 2 -3 1-a a -1 ]
-AB-matrix of 11.2 is [-5+a,-7+a; -1-2a,-1-3a]
+AB-matrix of 11.2 is [-5+a,-3+2a; -6-a,-11]
 Ideal 12.1 = 2[3,1+a] (norm 12) is not principal, generators [ 6 2+2a ] with factorization P2*P3
 12 residues mod 12.1: [ 0 1 2 -3 -2 -1 a -1-a -a 1-a 2-a -1+a ]
 6 invertible residues mod 12.1:
@@ -259,13 +259,13 @@ Ideal 23.1 = [23,7+a] (norm 23) is not principal, generators [ 7+a -2+3a ] with 
  with inverses:
 [ 1 -4+a 1-a -1-a -2+a 4 3-a 3 2+a -a -2 2 a -2-a -3 -3+a -4 2-a 1+a -1+a 4-a -1 ]
 AB-matrix of 23.1 is [7+a,-7-2a; -2+3a,9-4a]
-Ideal 23.2 = [23,15+a] (norm 23) is not principal, generators [ -8+a 1-3a ] with factorization P23b
+Ideal 23.2 = [23,15+a] (norm 23) is not principal, generators [ -8+a -7-2a ] with factorization P23b
 23 residues mod 23.2: [ 0 1 2 3 4 -3+a -2+a -1+a a 1+a 2+a 3+a -3-a -2-a -1-a -a 1-a 2-a 3-a -4 -3 -2 -1 ]
 22 invertible residues mod 23.2:
 [ 1 2 3 4 -3+a -2+a -1+a a 1+a 2+a 3+a -3-a -2-a -1-a -a 1-a 2-a 3-a -4 -3 -2 -1 ]
  with inverses:
 [ 1 -3-a a -2+a -1-a 4 2+a 3 3-a -1+a -2 2 1-a -3+a -3 -2-a -4 1+a 2-a -a 3+a -1 ]
-AB-matrix of 23.2 is [-8+a,-9+2a; 1-3a,-5-4a]
+AB-matrix of 23.2 is [-8+a,-2+3a; -7-2a,-16+a]
 Ideal 25.1 = [25,21+a] (norm 25) is principal, with generator -4+a with factorization P5a^2
 25 residues mod 25.1: [ 0 1 2 3 a 1+a 2+a 3+a 4+a 5+a 6+a 3+2a 4+2a -4-2a -3-2a -6-a -5-a -4-a -3-a -2-a -1-a -a -3 -2 -1 ]
 20 invertible residues mod 25.1:
