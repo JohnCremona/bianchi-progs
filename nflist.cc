@@ -11,7 +11,7 @@ int main ()
  cerr << "How many coefficients ap? "<<flush; cin>>nap;
 #ifdef LOOPER
  long firstn, lastn;
- cerr<<"Enter first and last norm for Quads: ";
+ cerr<<"Enter first and last norm for levels: ";
  cin >> firstn >> lastn;
  cerr<<endl;
  int both_conj=1;

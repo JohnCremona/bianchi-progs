@@ -156,7 +156,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
       {
 	int pindex = Pi - Quadprimes::list.begin();
         Quadprime P = *Pi;
-	if (P.divides(N))
+	if (P.divides(N) && (ch==0))
           {
 	    if(verbose)
 	      cout<<"P="<<P<<" = bad prime # "<<countq<<" [";

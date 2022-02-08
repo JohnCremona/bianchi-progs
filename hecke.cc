@@ -19,7 +19,11 @@
 vector<long> homspace::eigrange(long i)
 {
   vector<long> ans;
-  if((i<0)||(i>=nap+n2r)) return ans;  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in eigrange(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       if (characteristic==2)
@@ -192,7 +196,11 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
 
 mat homspace::opmat(int i, int dual, int verb)
 {
-  if((i<0)||(i>=nap+n2r)) return mat(dimension);  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in opmat(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return nu(i, dual, verb);
@@ -205,7 +213,11 @@ mat homspace::opmat(int i, int dual, int verb)
 
 vec homspace::opmat_col(int i, int j, int verb)
 {
-  if((i<0)||(i>=nap+n2r)) return vec(dimension);  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in opmat_col(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return calcop_col(CharOp(nulist[i], N), j);
@@ -218,7 +230,11 @@ vec homspace::opmat_col(int i, int j, int verb)
 
 mat homspace::opmat_cols(int i, const vec& jlist, int verb)
 {
-  if((i<0)||(i>=nap+n2r)) return mat(dimension);  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in opmat_cols(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return calcop_cols(CharOp(nulist[i], N), jlist);
@@ -231,7 +247,11 @@ mat homspace::opmat_cols(int i, const vec& jlist, int verb)
 
 smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
 {
-  if((i<0)||(i>=nap+n2r)) return smat(dimension);  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in s_opmat_cols(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return s_calcop_cols(CharOp(nulist[i], N), jlist);
@@ -244,7 +264,11 @@ smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
 
 mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
 {
-  if((i<0)||(i>=nap+n2r)) return mat(dim(s));  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in opmat_restricted(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return calcop_restricted(CharOp(nulist[i], N), s, dual, verb);
@@ -258,7 +282,11 @@ mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
 
 smat homspace::s_opmat(int i, int dual, int v)
 {
-  if((i<0)||(i>=nap+n2r))  return smat(dimension);  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in s_opmat(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return s_calcop(CharOp(nulist[i], N), dual, v);
@@ -276,7 +304,11 @@ smat homspace::s_opmat(int i, int dual, int v)
 
 smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
 {
-  if((i<0)||(i>=nap+n2r)) return smat(dim(s));  // shouldn't happen
+  if((i<0)||(i>=nap+n2r))   // shouldn't happen
+    {
+      cerr << "Error in s_opmat_restricted(): i="<<i<<" but should be between 0 and "<<nap+n2r<<endl;
+      exit(1);
+    }
   if (i<n2r)
     {
       return s_calcop_restricted(CharOp(nulist[i], N), s, dual, v);

@@ -150,34 +150,46 @@ newform::newform(newforms* nfs,
                  const vector<long>& aq, const vector<long>& ap)
 {
   nf=nfs;
-  sfe = intdata[0];
-  //  cout<<"sfe from file = "<<sfe<<endl;
-  pdot = intdata[1];
-  dp0 = intdata[2];
-  loverp = rational(abs(pdot),dp0*(Quad::nunits));
-  cuspidalfactor = intdata[3];
-  lambda = Quaddata[0];
-  lambdadot = intdata[4];
-  a = Quaddata[1];
-  b = Quaddata[2];
-  c = Quaddata[3];
-  d = Quaddata[4];
-  matdot = intdata[5];
-  aqlist = aq;
-  // Recompute sign of functional equation = minus product of all A-L eigenvalues
-  int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
-  if (newsfe!=sfe)
-    cout<<"Problem in data on file for level "<<nfs->N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
-  aplist = ap;
+  int ch = nf->characteristic;
+  if (ch == 0)
+    {
+      sfe = intdata[0];
+      //  cout<<"sfe from file = "<<sfe<<endl;
+      pdot = intdata[1];
+      dp0 = intdata[2];
+      loverp = rational(abs(pdot),dp0*(Quad::nunits));
+      cuspidalfactor = intdata[3];
+      lambda = Quaddata[0];
+      lambdadot = intdata[4];
+      a = Quaddata[1];
+      b = Quaddata[2];
+      c = Quaddata[3];
+      d = Quaddata[4];
+      matdot = intdata[5];
+      aqlist = aq;
+      // Recompute sign of functional equation = minus product of all A-L eigenvalues
+      int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+      if (newsfe!=sfe)
+        cout<<"Problem in data on file for level "<<nfs->N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
+    }
+
   // recreate eigs list (in case we need to recover basis vector):
-  // start with Atkin-Lehner eigs aq, then Tp eigs ap for good p
-  eigs = aq;
+  // start with Atkin-Lehner eigs aq (if ch==0), then Tp eigs ap for
+  // good p
+  aplist = ap;
+  if (ch == 0)
+    eigs = aq;
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
   Qideal N(nf->N);
   while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
     {
-      while (pr->divides(N))  { ++pr; ++api; }
+      Quadprime P = *pr;
+      while ((P.divides(N)) || (ch>0 && (P.norm()%ch==0)))
+        {
+          P = *pr++;
+          ++api;
+        }
       eigs.push_back(*api);
       ++pr; ++api;
     }
@@ -767,7 +779,11 @@ void newform::list(long nap) const
   for(ai=aplist.begin(); ai!=aplist.begin()+nap && ai!=aplist.end(); ++ai)
     {
       if(ai!=aplist.begin()) cout<<",";
-      cout<<(*ai);
+      long ap = *ai;
+      if ((nf->characteristic>0) && (ap<0)) // we use -999 for omitted eigs
+        cout << "*";
+      else
+        cout << ap;
     }
   cout <<"]";
 }
@@ -903,9 +919,14 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
   for (int i=0; i<n1ds; i++)
     {
       int ap = apv[i];
-      int cp = (vp==0?ap:(vp==1?-ap:0));
+      int cp = ((vp==0)||(characteristic>0)? ap : (vp==1? -ap : 0));
       if(verbose)
-        cout<<setw(5)<<ap<<" ";
+        {
+          if ((characteristic>0) && (ap==-999))
+            cout<<setw(5)<<"?"<<" ";
+          else
+            cout<<setw(5)<<ap<<" ";
+        }
       if(store)
         nflist[i].aplist.push_back(cp);
     }
@@ -931,9 +952,7 @@ void newforms::getap(int first, int last, int verbose)
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
-      Quadprime P = *pr++;
-      if ((characteristic==0) || !(P.divides(N) || P.norm()%characteristic!=0))
-        getoneap(P, verbose);
+      getoneap(*pr++, verbose);
       nap++;
     }
 }
@@ -1149,12 +1168,23 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 #endif
   vector<long> apv(n1ds);
   long ap, normp=I2long(P.norm());
+  int i, vp = val(P,N);
 
-  int vp = val(P,N);
+  if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
+    {
+      for (i=0; i<n1ds; i++)
+        {
+          apv[i] = -999;
+        }
+#ifdef DEBUG_APVEC
+      cout << "ignored prime: ap list = " << apv << endl;
+#endif
+      return apv;
+    }
 
   if (vp>0) // bad prime, we already know the eigenvalues
     {
-      for (int i=0; i<n1ds; i++)
+      for (i=0; i<n1ds; i++)
         {
           int ip = find(plist.begin(),plist.end(),P) - plist.begin();
           long aq = nflist[i].aqlist[ip];
@@ -1301,7 +1331,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
 // recover eigenvalues:
 
-  for (int i=0; i<n1ds; i++)
+  for (i=0; i<n1ds; i++)
     {
       int j0 = nflist[i].j0;
       int fac = nflist[i].fac;

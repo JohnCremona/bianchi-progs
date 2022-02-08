@@ -4,7 +4,7 @@
 
 int main ()
 {
-  long d, max(200000);
+  long d, max(1000);
   cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
   if (!check_field(d))
    {

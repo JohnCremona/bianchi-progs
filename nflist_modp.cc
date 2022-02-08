@@ -4,16 +4,31 @@
 
 int main ()
 {
-  long d, max(1000000);
+  long d, maxnorm(10000);
   cerr << "Enter field: " << flush;  cin >> d;
   long ch=0;
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
 
-  Quad::field(d,max);
   Quad n;
   long nap;
   cerr << "How many coefficients ap? "<<flush; cin>>nap;
-#ifndef LOOPER
+#ifdef LOOPER
+ long firstn, lastn;
+ cerr<<"Enter first and last norm for levels: ";
+ cin >> firstn >> lastn;
+ cerr<<endl;
+ int both_conj=1;
+ if (lastn>maxnorm)  maxnorm = lastn;
+#endif
+
+ Quad::field(d,maxnorm);
+
+#ifdef LOOPER
+ Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ while( loop.not_finished() )
+   {
+     Qideal N = loop.next();
+#else
  if (Quad::class_number==1)
    {
      vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
@@ -27,19 +42,6 @@ int main ()
        }
      cout << "..." << endl;
    }
-#endif
-#ifdef LOOPER
- long firstn, lastn;
- cerr<<"Enter first and last norm for Quads: ";
- cin >> firstn >> lastn;
- cerr<<endl;
- int both_conj=1;
-
- Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
- while( loop.not_finished() )
-   {
-     Qideal N = loop.next();
-#else
  Qideal N;
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
@@ -54,7 +56,7 @@ int main ()
      else
        {
          //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
-         newforms nf(N,0);
+         newforms nf(N,0, ch);
          nf.createfromdata();
          nf.list(nap);
        }
