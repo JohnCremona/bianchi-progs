@@ -187,8 +187,9 @@ newform::newform(newforms* nfs,
       Quadprime P = *pr;
       while ((P.divides(N)) || (ch>0 && (P.norm()%ch==0)))
         {
-          P = *pr++;
+          ++pr;
           ++api;
+          P = *pr;
         }
       eigs.push_back(*api);
       ++pr; ++api;
