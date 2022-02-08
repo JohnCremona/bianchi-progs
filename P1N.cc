@@ -227,7 +227,7 @@ long P1N::apply(const mat22& M, long i)
 
 //#define DEBUG_LIFT
 
-// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d) in P^1(N)
+// return a matrix [a, b; c, d] with det=1 and (c:d)=(cc:dd) in P^1(N)
 mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 {
   Quad a, b, c(cc), d(dd), inv, x, y, z, h;
@@ -290,7 +290,19 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
   return M;
 }
 
-// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d)
+// return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
+// If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
+// otherwise such u,v will be computed and returned.
+mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, Quad& u, Quad& v)
+{
+  // CRT: lift (cc:dd) in P^1(N) to (c:d) in P^1(MN) which also lifts (0:1) in P^1(M), then lift that
+  if (u.is_zero() && v.is_zero())
+    M.is_coprime_to(N, u, v); // u+v=1, u in M, v in N
+  Qideal MN = M*N;
+  return lift_to_SL2(MN, cc*u, dd*u+v);
+}
+
+// return a matrix [a, b; c, d] with det=1 and (c:d)= i'th symbol in P^1(N)
 mat22 P1N::lift_to_SL2(long ind)
 {
   Quad c, d;
@@ -299,6 +311,23 @@ mat22 P1N::lift_to_SL2(long ind)
   assert (M.is_unimodular());
   assert (index(M.entry(1,0), M.entry(1,1))==ind);
   return M;
+}
+
+// return a matrix [a, b; c, d] with det=1, c in M and (c:d) equal
+// to the i'th symbol (requires M,N coprime). If (u,v)!=(0,0) they
+// should satisfy u+v=1 with u in N, v in M, otherwise such u,v will
+// be computed and returned.
+mat22 P1N::lift_to_Gamma_0(long i, Qideal M, Quad& u, Quad& v)
+{
+  if (u.is_zero() && v.is_zero())
+    M.is_coprime_to(N, u, v); // u+v=1, u in M, v in N
+  Quad c, d;
+  make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
+  mat22 G = ::lift_to_Gamma_0(M, N, c, d, u, v);
+  assert (G.is_unimodular());
+  assert (index(G.entry(1,0), G.entry(1,1))==i);
+  assert (M.contains(G.entry(1,0)));
+  return G;
 }
 
 // test functions
@@ -330,21 +359,35 @@ void P1N::check(int verbose)       // checks indexing
     }
 }
 
-void P1N::check_lifts(int verbose) // checks lifts to SL2
+void P1N::check_lifts(int verbose) // checks lifts to SL2 and Gamma_0(P) for a P coprime to N
 {
+  long i;
+  Quad c, d, u, v;
+
+  Quadprime P; // the first prime not dividing the level
+  for (vector<Quadprime>::const_iterator pr = Quadprimes::list.begin(); pr!=Quadprimes::list.end(); ++pr)
+    {
+      P = *pr;
+      if (!P.divides(N))
+        break;
+    }
+
   if (verbose)
     {
-      cout << "Testing lifts from P1(N) to SL(2,O_K) for N = " << N << ": ";
+      cout << "Testing lifts from P1(N) to SL(2,O_K) and to Gamma_0(P) for N = " << N << " and P= "<<P<<":\n";
     }
-  long i;
-  Quad c, d;
   for (i=0; i<psi; i++)
     {
       make_symb(i, c, d);
       mat22 M = lift_to_SL2(i);
       if (verbose)
         {
-          cout << i << " --> ("<<c<<":"<<d << ") lifts to " << M << endl;
+          cout << i << " --> ("<<c<<":"<<d << ") lifts to " << M;
+        }
+      M = lift_to_Gamma_0(i, P, u, v);
+      if (verbose)
+        {
+          cout << " --> "<< M << " (in Gamma_0(P))" << endl;
         }
       // NB The lift_to_SL2() method already tests these assertions:
       // assert(M.is_unimodular());

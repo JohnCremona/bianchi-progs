@@ -50,8 +50,14 @@ public:
   long merge_indices(const vector<long>& klist) const {return ::merge_indices(psilist, klist);}
   vector<long> split_indices(long k) const {return ::split_indices(psilist, k);}
 
-  // return a matrix M = [a, b; c, d] with det=1 lifting the i'th (c:d) symbol
+  // return a matrix [a, b; c, d] with det=1 and (c:d) equal to the i'th symbol
   mat22 lift_to_SL2(long i);
+
+  // return a matrix [a, b; c, d] with det=1, c in M and (c:d) equal
+  // to the i'th symbol (requires M,N coprime). If (u,v)!=(0,0) they
+  // should satisfy u+v=1 with u in N, v in M, otherwise such u,v will
+  // be computed and returned.
+  mat22 lift_to_Gamma_0(long i, Qideal M, Quad& u=Quad::zero, Quad& v=Quad::zero);
 
   // each M in GL2 permutes the (c:d) symbols by right multiplcation:
   long apply(const mat22& M, long i);
@@ -65,8 +71,14 @@ protected:
   int np;    // number of bad primes
 };
 
-// compute a matrix M = [a, b; c, d] with det=1 lifting (c:d) in P^1(N)
+// return a matrix [a, b; c, d] with det=1 and (c:d)=(cc:dd) in P^1(N)
 mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd);
+
+// return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
+// If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
+// otherwise such u,v will be computed and returned.
+mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, Quad& u=Quad::zero, Quad& v=Quad::zero);
+
 
 // class for action of 2x2 matrices on a P1N
 class action  :public mat22 {

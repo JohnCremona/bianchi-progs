@@ -120,7 +120,7 @@ public:
 
   // versions returning more data
 
-  // return 1 iff this is coprime to I; if so, set r in this and s in I with r+s=1
+  // return 1 iff this is coprime to J; if so, set r in this and s in J with r+s=1
   int is_coprime_to(Qideal& J, Quad& r, Quad& s);
 
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
