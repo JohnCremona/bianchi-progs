@@ -467,16 +467,9 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 //
   if (verbose>1)
     cout << "Ordered list of primes (bad primes "<<(characteristic==0?"first":"excluded")<<"): "<<plist<<endl;
-  if (characteristic==0)
-    {
-      nwq = npdivs = F.size();
-      ntp=nap-nwq;
-    }
-  else
-    {
-      nwq = 0;
-      ntp = nap;
-    }
+  npdivs = F.size();
+  nwq = (characteristic==0? npdivs : 0);
+  ntp=nap-nwq;
   h1=0;
   of=0;
   nfhmod=0;
@@ -590,7 +583,7 @@ void newforms::createfromscratch()
     }
 
   maxdepth = nap;
-  long mindepth = npdivs;
+  long mindepth = (characteristic==0? npdivs: nap);
   dimsplit = n1ds = 0;
   long olddimall = (of->olddimall);
   nnflist = upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());

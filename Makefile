@@ -38,7 +38,7 @@ OPTFLAG = -O3 -Wall -fPIC
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
 # appended below.  Otherwise set USE_BOOST=0.
 
-#USE_BOOST=1
+USE_BOOST=1
 ifeq ($(USE_BOOST), 1)
  BOOST_ASIO_LIB = -lboost_system-mt
  BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
@@ -64,7 +64,7 @@ ccs: ccs1 ccs2 ccs3 ccs4
 ccs1: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc moddata.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
-ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc
+ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
 
 headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h moddata.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h
 
@@ -99,7 +99,7 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS =  fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp hecketest_modp
+HOM_TESTS = homtest dimtable dimtabeis #dimtable_modp hecketest_modp nflist_modp
 FULL_TESTS = $(HOM_TESTS) hecketest makenf nftest nflist moreap moreap1 modularity modularity_modp #makenf_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
@@ -183,6 +183,9 @@ nflist_loop.o: nflist.cc $(OBJS)
 
 nflist_loop: nflist_loop.o $(OBJS)
 	$(CC) -o nflist_loop nflist_loop.o $(OBJS) $(LFLAGS)
+
+nflist_modp: nflist_modp.o $(OBJS)
+	$(CC) -o nflist_modp nflist_modp.o $(OBJS) $(LFLAGS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)
@@ -304,6 +307,9 @@ newforms.o: newforms.cc looper.h quads.h intprocs.h newforms.h ratquads.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
  edge_relations.h geometry.h P1N.h
 nflist.o: nflist.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
+ ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
+ face_relations.h edge_relations.h geometry.h P1N.h
+nflist_modp.o: nflist_modp.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h
 nftest.o: nftest.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \

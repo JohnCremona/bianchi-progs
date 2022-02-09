@@ -117,7 +117,7 @@ private:
   svec s_opmat_col(int i, int j, int v=0)
   {return h1->s_opmat_col(i,j,v);}
   smat s_opmat_cols(int i, const vec& jlist, int v=0)
-  {return h1->s_opmat_cols(i,jlist,v);}
+  {return h1->s_opmat_cols(i,jlist,verbose);}
   smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0)
   {return h1->s_opmat_restricted(i,s,d,v);}
   long matdim(void);

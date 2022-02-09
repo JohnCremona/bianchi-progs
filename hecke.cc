@@ -206,9 +206,12 @@ mat homspace::opmat(int i, int dual, int verb)
       return nu(i, dual, verb);
     }
   Quadprime P = primelist[i-n2r];
-  if(verbose)
+  if(verb)
     cout<<"Computing " << opname(P,N) <<"...";
-  return heckeop(P,dual,verb); // Automatically chooses W or T
+  mat ans = heckeop(P,dual,verb); // Automatically chooses W or T
+  if (verb)
+    cout<<"done."<<endl;
+  return ans;
 }
 
 vec homspace::opmat_col(int i, int j, int verb)
@@ -225,7 +228,10 @@ vec homspace::opmat_col(int i, int j, int verb)
   Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
-  return heckeop_col(P,j,verb); // Automatically chooses W or T
+  vec ans = heckeop_col(P,j,verb); // Automatically chooses W or T
+  if (verb)
+    cout<<"done."<<endl;
+  return ans;
 }
 
 mat homspace::opmat_cols(int i, const vec& jlist, int verb)
@@ -242,7 +248,10 @@ mat homspace::opmat_cols(int i, const vec& jlist, int verb)
   Quadprime P = primelist[i-n2r];
   if(verbose)
     cout<<"Computing " << opname(P,N) <<"...";
-  return heckeop_cols(P,jlist,verb); // Automatically chooses W or T
+  mat ans = heckeop_cols(P,jlist,verb); // Automatically chooses W or T
+  if (verb)
+    cout<<"done."<<endl;
+  return ans;
 }
 
 smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
@@ -257,9 +266,12 @@ smat homspace::s_opmat_cols(int i, const vec& jlist, int verb)
       return s_calcop_cols(CharOp(nulist[i], N), jlist);
     }
   Quadprime P = primelist[i-n2r];
-  if(verbose)
+  if(verb)
     cout<<"Computing " << opname(P,N) <<"...";
-  return s_heckeop_cols(P,jlist,verb); // Automatically chooses W or T
+  smat ans = s_heckeop_cols(P,jlist,verb); // Automatically chooses W or T
+  if (verb)
+    cout<<"done."<<endl;
+  return ans;
 }
 
 mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
@@ -274,7 +286,7 @@ mat homspace::opmat_restricted(int i, const subspace& s, int dual, int verb)
       return calcop_restricted(CharOp(nulist[i], N), s, dual, verb);
     }
   Quadprime P = primelist[i-n2r];
-  if(verbose)
+  if(verb)
     cout<<"Computing " << opname(P,N)
         <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
   return heckeop_restricted(P,s,dual,verb); // Automatically chooses W or T
@@ -295,11 +307,13 @@ smat homspace::s_opmat(int i, int dual, int v)
   if(v)
     {
       cout<<"Computing " << opname(P,N) <<"...";
-      smat ans = s_heckeop(P,dual,0); // Automatically chooses W or T
-      cout<<"done."<<endl;
-      return ans;
     }
-  else return s_heckeop(P,dual,0); // Automatically chooses W or T
+  smat ans = s_heckeop(P,dual,0); // Automatically chooses W or T
+  if(v)
+    {
+      cout<<"done."<<endl;
+    }
+  return ans;
 }
 
 smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
@@ -318,11 +332,13 @@ smat homspace::s_opmat_restricted(int i, const ssubspace& s, int dual, int v)
     {
       cout<<"Computing " << opname(P,N)
           <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
-      smat ans = s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
-      cout<<"done."<<endl;
-      return ans;
     }
-  else return s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
+  smat ans = s_heckeop_restricted(P,s,dual,0); // Automatically chooses W or T
+  if(v)
+    {
+      cout<<"done."<<endl;
+    }
+  return ans;
 }
 
 vec homspace::maninvector(Quadprime& P, int proj)
