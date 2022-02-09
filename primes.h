@@ -66,6 +66,61 @@ public:
   static void display(ostream& s = cout, long maxn=0); // by default don't list any primes
 };
 
+class QuadprimeLooper {
+public:
+  // Constructor: the iterator will skip primes dividing N
+  QuadprimeLooper(Qideal level=Qideal())
+    :Pi(Quadprimes::list.begin()), N(level)
+  {
+    P = *Pi;
+    while (P.divides(N) && ok())
+      {
+        ++Pi;
+        P = *Pi;
+      }
+  }
+  // increment, if possible, skipping primes dividing N
+  void operator++()
+  {
+    ++Pi;
+    if (ok())
+      {
+        P = *Pi;
+        while (P.divides(N) && ok())
+          {
+            ++Pi;
+            if (ok())
+              P = *Pi;
+          }
+      }
+  }
+  // return the current P
+  operator Quadprime()
+  {
+    return P;
+  }
+  // test whether we have reached the end of Quadprimes::list
+  int ok()
+  {
+    return Pi!=Quadprimes::list.end();
+  }
+  int at_end()
+  {
+    return Pi==Quadprimes::list.end();
+  }
+  void reset()
+  {
+    Pi = Quadprimes::list.begin();
+    P = *Pi;
+    while (P.divides(N)) P = *Pi++;
+  }
+private:
+  vector<Quadprime>::iterator Pi;
+  Qideal N;
+  Quadprime P;
+};
+
+
 class Factorization {
   Qideal I;                     // the ideal whose factorization this is
 // The order of the prime powers in the Factorization is given by the order of the underlying rational primes
