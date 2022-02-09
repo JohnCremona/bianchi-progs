@@ -18,7 +18,9 @@ Entering form_finder, depth = 0, dimension 42
 restarting at depth = 0, dimension 42
 Computing W(P2a)...done.
  eig 1 gives new subspace at depth 1 of dimension 21
+Computing W(P3a)...done.
  eig -1 gives new subspace at depth 2 of dimension 8
+Computing T(P2b)...done.
  eig -2 gives new subspace at depth 3 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()
