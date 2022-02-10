@@ -13,10 +13,8 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
 {
   P1 = P1N(N);
   nsymb = P1.size();
-  // first nap (at least) primes, bad primes first, otherwise in standard order
-  int iP0;
-  primelist = make_primelist(N, nap, iP0, characteristic);
-  if (Quad::class_group_2_rank > 0)
+
+  if ((characteristic==0) && (Quad::class_group_2_rank > 0))
     // populate nulist with a list of ideals coprime to N whose classes generate the 2-torsion
     {
       for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
@@ -26,9 +24,30 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
         }
     }
 
+  if (characteristic==0) // fill badprimes with Q|N such that [Q] is square
+    {
+      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
+      for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+        {
+          Quadprime Q = *Qi;
+          long e = val(Q,N);
+          if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+            badprimes.push_back(Q);
+        }
+    }
+  nwq = badprimes.size();
+
+  // Now make the list of nap good primes (excluding those dividing characteristic if >0)
+  QuadprimeLooper L(characteristic==0? N : characteristic*N);
+  for (int i=0; i<nap; i++, ++L)
+    {
+      goodprimes.push_back((Quadprime)L);
+    }
+
+  // here need to find first principal prime P0
+
   if (verbose)
     {
-      cout << "Ordered list of primes (bad primes "<<(ch==0?"first":"excluded")<<"): "<<primelist<<endl;
       cout << nsymb << " symbols";
       if (!Quad::is_Euclidean)
         {

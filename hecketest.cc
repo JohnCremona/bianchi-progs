@@ -164,7 +164,7 @@ int main(void)
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
-          if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && Q.sqrt_class().is_zero())
+          if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && !Q.has_square_class())
             continue; // we have an odd power of an ideal with non-square ideal class
           cout << "Computing W_"<<Q<<"..." << flush;
           mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,show_mats));
@@ -215,7 +215,7 @@ int main(void)
 	  if (P.divides(N))
             continue;
           int use_PQ = 0;
-          if ((Quad::class_group_2_rank>0) && P.sqrt_class().is_zero())
+          if (P.has_square_class())
             {
               // we have an ideal with non-square ideal class
               if ((P*P).is_principal())

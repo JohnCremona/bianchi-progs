@@ -162,15 +162,24 @@ inline matop AtkinLehnerOp(const Quad& p, const Quad& n)
   return matop(AtkinLehner(p,n), opname(p,n));
 }
 
+//  operator T_{A,A}W_{P^e} where P^e||N, class [P^e] square with
+//  A^2*P^e principal, A coprime to N
+
 inline matop AtkinLehnerOp(Quadprime& P, const Qideal& N)
 {
   return matop(AtkinLehnerP(P,N), opname(P,N));
 }
 
+// The operator T_{A,A}*T_P where P does not divide N, class [P]
+// square with A^2P principal, A coprime to N
+
 inline matop HeckeOp(Quadprime& P, Qideal& N)
 {
   return matop(Hecke(P,N), opname(P,N));
 }
+
+// The operator T_{A,A}*T_{P^2}, where P does not divide N, with AP
+// principal and A coprime to N
 
 inline matop HeckeSqOp(Quadprime& P, Qideal& N)
 {
@@ -179,16 +188,14 @@ inline matop HeckeSqOp(Quadprime& P, Qideal& N)
   return matop(HeckeSq(P,N), s.str());
 }
 
+// The operator T_{A,A}*T_{PQ} where P,Q do not divide N, class [PQ]
+// square with A^2PQ principal, A coprime to N
+
 inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 {
   ostringstream s;
   s << "T(" << P << "*" << Q << ")";
   return matop(HeckePQ(P,Q,N), s.str());
-}
-
-inline matop AtkinLehnerOrHeckeOp(Quadprime& P, Qideal& N)
-{
-  return (P.divides(N)? AtkinLehnerOp(P,N): HeckeOp(P,N));
 }
 
 inline matop FrickeOp(Qideal& N)
@@ -203,6 +210,13 @@ inline matop CharOp(Qideal& A, const Qideal& N)
   return matop(Char(A,N), s.str());
 }
 
+// return a matrix [a, b; c, d] with det=1 and (c:d)=(cc:dd) in P^1(N)
+mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd);
+
+// return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
+// If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
+// otherwise such u,v will be computed and returned.
+mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, Quad& u=Quad::zero, Quad& v=Quad::zero);
 
 #endif
 

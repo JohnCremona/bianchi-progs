@@ -1130,7 +1130,7 @@ int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
 {
   Qideal Ibar = I.conj();
   for (vector<Qideal>::const_iterator J=Jlist.begin(); J!=Jlist.end(); J++)
-    if (!((*J)*Ibar).sqrt_class().is_zero())
+    if (((*J)*Ibar).has_square_class())
       return J-Jlist.begin();
   return -1;
 }

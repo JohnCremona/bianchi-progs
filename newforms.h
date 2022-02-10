@@ -104,6 +104,8 @@ class newforms :public splitter_base {
 friend class newform;
 private:
   int dimsplit, maxdepth, upperbound;
+
+  // instantiations of virtual functions required by the splitter_base class:
   mat opmat(int i, int d, int v=0)
   {return h1->opmat(i,d,v);}
   vec opmat_col(int i, int j, int v=0)
@@ -120,8 +122,10 @@ private:
   {return h1->s_opmat_cols(i,jlist,verbose);}
   smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0)
   {return h1->s_opmat_restricted(i,s,d,v);}
-  long matdim(void);
-  long matden(void);
+  long matdim(void)
+  {return h1->dimension;}
+  long matden(void)
+  {return h1->denom3;}
   vector<long> eigrange(int i) {return h1->eigrange(i);}
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
 

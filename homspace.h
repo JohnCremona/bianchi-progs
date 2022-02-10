@@ -18,8 +18,9 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
-  long ngens, nsymb, nap, n2r;
-  vector<Quadprime> primelist; // list of primes in standard order, bad primes first
+  long ngens, nsymb, nap, n2r, nwq;
+  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
+  vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
 
   ssubspace kern;
@@ -41,26 +42,37 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
-   mat opmat(int, int dual=1, int verb=0);
-   vec opmat_col(int, int j, int verb=0);
-   mat opmat_cols(int, const vec& jlist, int verb=0);
-   mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
-  // versions returning an smat:
-   smat s_opmat(int i,int dual, int verb=0);
-   svec s_opmat_col(int i, int j, int verb=0);
-   smat s_opmat_cols(int i, const vec& jlist, int verb=0);
-   smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
-   long matdim(void) {return dimension;}
+  // For the automatic finding of 1-dimensional egenspaces we need to
+  // interface with eclib's splitter class, which wants to know thw
+  // i'th operator matix and its possible eigenvalues, for i=0,1,2,...
 
+  // the list of matrices defining the i'th operator:
+  matop h1matop(int);
   // the list of possible (integer) eigenvalues for the i'th operator:
   vector<long> eigrange(long i);
 
-   long h1cuspdim() const {return dim(kern);}
-   long h1dim() const {return dimension;}  // No confusion with subspace::dim
-   long h1denom() const {return denom1;}
-   long h1cdenom() const {return denom3;}
-   long h1ncusps() const {return ncusps;}
-   long h1hmod() const {return hmod;}
+  // the next 9 functions are required by the splitter_base class (via
+  // functions of the same name in the newforms class which is derived
+  // from the splitter_base class)
+
+  // mat/vec versions:
+  mat opmat(int, int dual=1, int verb=0);
+  vec opmat_col(int, int j, int verb=0);
+  mat opmat_cols(int, const vec& jlist, int verb=0);
+  mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
+  // smat/svec versions:
+  smat s_opmat(int i,int dual, int verb=0);
+  svec s_opmat_col(int i, int j, int verb=0);
+  smat s_opmat_cols(int i, const vec& jlist, int verb=0);
+  smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
+  long matdim(void) {return dimension;}
+
+  long h1cuspdim() const {return dim(kern);}
+  long h1dim() const {return dimension;}  // No confusion with subspace::dim
+  long h1denom() const {return denom1;}
+  long h1cdenom() const {return denom3;}
+  long h1ncusps() const {return ncusps;}
+  long h1hmod() const {return hmod;}
 
   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
   vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);
@@ -74,57 +86,52 @@ public:
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
   mat calcop(const matop& T, int dual=1, int display=0);
-
-  vec calcop_col(const matop& T, int j)
-  {
-    return applyop(T,freemods[j-1]);
-  }
-
+  vec calcop_col(const matop& T, int j)  {return applyop(T,freemods[j-1]);}
   mat calcop_cols(const matop& T, const vec& jlist);
+  mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
   smat s_calcop(const matop& T, int dual, int display);
   smat s_calcop_cols(const matop& T, const vec& jlist);
-  mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
   smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
 public:
   mat heckeop(Quadprime& P, int dual=1, int display=0)
   {
-    return calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
+    return calcop(HeckeOp(P,N), dual, display);
   }
 
   vec heckeop_col(Quadprime& P, int j, int display=0)
   {
-    return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
+    return calcop_col(HeckeOp(P,N), j);
   }
 
   mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0)
   {
-    return calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
+    return calcop_cols(HeckeOp(P,N), jlist);
   }
 
   smat s_heckeop(Quadprime& P, int dual, int display)
   {
-    return s_calcop(AtkinLehnerOrHeckeOp(P,N), dual, display);
+    return s_calcop(HeckeOp(P,N), dual, display);
   }
 
   svec s_heckeop_col(Quadprime& P, int j, int display)
   {
-    return calcop_col(AtkinLehnerOrHeckeOp(P,N), j);
+    return calcop_col(HeckeOp(P,N), j);
   }
 
   smat s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
   {
-    return s_calcop_cols(AtkinLehnerOrHeckeOp(P,N), jlist);
+    return s_calcop_cols(HeckeOp(P,N), jlist);
   }
 
   mat heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
   {
-    return calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+    return calcop_restricted(HeckeOp(P,N), s, dual, display);
   }
 
   smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
   {
-    return s_calcop_restricted(AtkinLehnerOrHeckeOp(P,N), s, dual, display);
+    return s_calcop_restricted(HeckeOp(P,N), s, dual, display);
   }
 
   mat wop(Quadprime& Q, int dual=1, int display=0)

@@ -102,18 +102,22 @@ void Quad::fill_class_group()
   class_group_2_rank = class_group_2_torsion_gens.size();
 
   // find ideals generating and representing Cl/Cl^2
-  for (vector<Qideal>::iterator I=class_group.begin()+1; I!=class_group.end(); I++)
+  for (vector<Qideal>::iterator Ii=class_group.begin()+1; Ii!=class_group.end(); ++Ii)
     {
-      if ((*I).sqrt_class().is_zero()) // then J is not a square
+      Qideal I = *Ii;
+      if (!I.has_square_class()) // then I is not a square
         {
-          if (find_ideal_class_mod_squares(*I, class_group_2_cotorsion)==-1)
+          if (find_ideal_class_mod_squares(I, class_group_2_cotorsion)==-1)
             {
               // add a new 2-cotorsion generator
-              class_group_2_cotorsion_gens.push_back(*I);
+              class_group_2_cotorsion_gens.push_back(I);
               // compute the new coset
               vector<Qideal> new_2_cotorsion;
-              for (vector<Qideal>::iterator J=class_group_2_cotorsion.begin(); J!=class_group_2_cotorsion.end(); J++)
-                new_2_cotorsion.push_back(class_group[find_ideal_class((*I)*(*J), class_group)]);
+              for (vector<Qideal>::iterator Ji=class_group_2_cotorsion.begin(); Ji!=class_group_2_cotorsion.end(); ++Ji)
+                {
+                  Qideal J = *Ji;
+                  new_2_cotorsion.push_back(class_group[find_ideal_class(I*J, class_group)]);
+                }
               // append the new coset
               class_group_2_cotorsion.insert(class_group_2_cotorsion.end(), new_2_cotorsion.begin(), new_2_cotorsion.end());
             }

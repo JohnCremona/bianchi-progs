@@ -445,9 +445,6 @@ void newforms::makeh1plus(void)
     }
 }
 
-long newforms::matdim(void) {return h1->dimension;}
-long newforms::matden(void) {return h1->denom3;}
-
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : N(iN), verbose(disp), characteristic(ch)
 {
