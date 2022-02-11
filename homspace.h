@@ -18,10 +18,7 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
-  long ngens, nsymb, nap, n2r, nwq;
-  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
-  vector<Quadprime> goodprimes;  // good primes in order
-  vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
+  long ngens, nsymb, nap, nwq;
 
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
@@ -42,31 +39,6 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
-  // For the automatic finding of 1-dimensional egenspaces we need to
-  // interface with eclib's splitter class, which wants to know thw
-  // i'th operator matix and its possible eigenvalues, for i=0,1,2,...
-
-  // the list of matrices defining the i'th operator:
-  matop h1matop(int);
-  // the list of possible (integer) eigenvalues for the i'th operator:
-  vector<long> eigrange(long i);
-
-  // the next 9 functions are required by the splitter_base class (via
-  // functions of the same name in the newforms class which is derived
-  // from the splitter_base class)
-
-  // mat/vec versions:
-  mat opmat(int, int dual=1, int verb=0);
-  vec opmat_col(int, int j, int verb=0);
-  mat opmat_cols(int, const vec& jlist, int verb=0);
-  mat opmat_restricted(int i,const subspace& s, int dual, int verb=0);
-  // smat/svec versions:
-  smat s_opmat(int i,int dual, int verb=0);
-  svec s_opmat_col(int i, int j, int verb=0);
-  smat s_opmat_cols(int i, const vec& jlist, int verb=0);
-  smat s_opmat_restricted(int i, const ssubspace& s, int dual,int verb=0);
-  long matdim(void) {return dimension;}
-
   long h1cuspdim() const {return dim(kern);}
   long h1dim() const {return dimension;}  // No confusion with subspace::dim
   long h1denom() const {return denom1;}
@@ -86,11 +58,11 @@ public:
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
   mat calcop(const matop& T, int dual=1, int display=0);
-  vec calcop_col(const matop& T, int j)  {return applyop(T,freemods[j-1]);}
-  mat calcop_cols(const matop& T, const vec& jlist);
+  vec calcop_col(const matop& T, int j, int verb=0)  {return applyop(T,freemods[j-1]);}
+  mat calcop_cols(const matop& T, const vec& jlist, int verb=0);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
   smat s_calcop(const matop& T, int dual, int display);
-  smat s_calcop_cols(const matop& T, const vec& jlist);
+  smat s_calcop_cols(const matop& T, const vec& jlist, int verb=0);
   smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
 public:
@@ -149,11 +121,6 @@ public:
   {
     return calcop(CharOp(A, N), dual,display);
   }
-  // as previous, for the i'th such involution (for 0<=i<Quad::class_group_2_rank)
-  mat nu(int i, int dual=1, int display=0)
-  {
-    return nu_op(nulist[i], dual, display);
-  }
 
   // T_{P^2} when P^2 principal
   mat hecke_sq_op(Quadprime& P, int dual=1, int display=0)
@@ -193,12 +160,5 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types);
 
 vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
 mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
-
-// List of bad primes (dividing N) followed by good primes to length
-// at least np, making sure that the list includes at least one good
-// principal prime.  iP0 is set to the index in the list of the first
-// good principal prime.
-// If p (default 0) is nonzero, omit bad primes and primes dividing P
-vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
 
 #endif

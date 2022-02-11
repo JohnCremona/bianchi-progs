@@ -221,10 +221,12 @@ static long min_newform_level_norm[20] = {0,65, // d=1
                                           0,0,0,0,9,        // d=11
                                           0,0,0,0,0,0,0,4}; // d=19
 
-oldforms::oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose, long ch)
-  : N(iN), characteristic(ch), plist(pr)
+oldforms::oldforms(Qideal& iN, const vector<Quadprime>& badp, const vector<Quadprime>& goodp, int verbose, long ch)
+  : N(iN), characteristic(ch), badprimes(badp), goodprimes(goodp)
 {
-   nap = plist.size();
+  plist = badprimes;
+  plist.insert(plist.end(), goodprimes.begin(), goodprimes.end());
+  nap = plist.size();
    noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
    if (ch>0)
      return;

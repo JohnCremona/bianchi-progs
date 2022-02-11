@@ -98,10 +98,17 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
 void newform::fill_in_data(int j)
 {
   sfe = 0;
+
+  // Atkin-Lehner eigenvalues
+
+  // TODO (for even h)
+  // Does not yet account for the fact that in even class number we
+  // may have nwq<npdivs and need to work harder! Also in this case
+  // the first n2r eigs will be +1 and can be ignored.
   if (nf->characteristic==0)
     {
       // extract Atkin-Lehner eigs from first entries of eigs list:
-      copy(eigs.begin(), eigs.begin()+(nf->npdivs), back_inserter(aqlist));
+      copy(eigs.begin(), eigs.begin()+(nf->nwq), back_inserter(aqlist));
 
       // Sign of functional equation = minus product of all A-L eigenvalues
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
@@ -150,7 +157,9 @@ newform::newform(newforms* nfs,
                  const vector<long>& aq, const vector<long>& ap)
 {
   nf=nfs;
-  int ch = nf->characteristic;
+  Qideal N(nf->N);
+  int ch(nf->characteristic);
+
   if (ch == 0)
     {
       sfe = intdata[0];
@@ -170,22 +179,38 @@ newform::newform(newforms* nfs,
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
       int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
       if (newsfe!=sfe)
-        cout<<"Problem in data on file for level "<<nfs->N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
+        cout<<"Problem in data on file for level "<<N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
     }
 
   // recreate eigs list (in case we need to recover basis vector):
-  // start with Atkin-Lehner eigs aq (if ch==0), then Tp eigs ap for
-  // good p
+  // start with unramified char eigs (all +1), then Atkin-Lehner eigs
+  // aq (if ch==0), then Tp eigs ap for good p, omitting those not
+  // used for splitting off.
   aplist = ap;
   if (ch == 0)
-    eigs = aq;
+    {
+      // The first n2r eigs are all +1
+      eigs.resize(nf->n2r, +1);
+
+      // The next nwq eigs come from aq but only for the primes in badprimes
+      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
+      vector<Quadprime>::iterator Qi;
+      vector<long>::const_iterator aqi;
+      for (Qi = allbadprimes.begin(), aqi=aq.begin(); Qi!=allbadprimes.end(); ++Qi, ++aqi)
+        {
+          Quadprime Q = *Qi;
+          long e = val(Q,N);
+          if (nf->n2r==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+            eigs.push_back(*aqi);
+        }
+    }
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
-  Qideal N(nf->N);
   while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
     {
       Quadprime P = *pr;
-      while ((P.divides(N)) || (ch>0 && (P.norm()%ch==0)))
+      //  Copy a_P for P in goodprimes, i.e. with [P] square
+      while ((P.divides(N)) || (ch>0 && (P.norm()%ch==0)) || !P.has_square_class())
         {
           ++pr;
           ++api;
@@ -446,30 +471,81 @@ void newforms::makeh1plus(void)
 }
 
 newforms::newforms(const Qideal& iN, int disp, long ch)
-  : N(iN), verbose(disp), characteristic(ch)
+  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
 {
   is_square = N.is_square();
-  Factorization F = N.factorization();
 
-  // List of bad primes (dividing N) followed by good primes to length np:
+  // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
+  if ((characteristic==0) && (Quad::class_group_2_rank > 0))
+    nulist = make_nulist(N);
+
+  // badprimes is a list of primes Q|N such that [Q^e] is square
+  if (characteristic==0)
+    badprimes = make_badprimes(N);
+  nwq = badprimes.size();
+
+  // goodprimes is a list of at least nap good primes (excluding those
+  // dividing characteristic if >0), includinge at least one principal
+  // one which has index iP0;
+
   nap = 20;
-  plist = make_primelist(N, nap, iP0, characteristic); // shadows h1->primelist in case we do not construct h1
-  P0 = plist[iP0];
+  goodprimes = make_goodprimes(N, nap, iP0, characteristic);
+  nap = goodprimes.size(); // it may be > original nap
+
+  P0 = goodprimes[iP0];
   nP0 = I2long(P0.norm());
-//
+
 // P0 is the smallest good principal prime: and iP0 its index (in
 // plist, which starts with the bad primes and then the good
 // primes in order).  P0 must be principal since we have only
 // implemented maninvector() for principal primes.
-//
+
   if (verbose>1)
-    cout << "Ordered list of primes (bad primes "<<(characteristic==0?"first":"excluded")<<"): "<<plist<<endl;
-  npdivs = F.size();
-  nwq = (characteristic==0? npdivs : 0);
-  ntp=nap-nwq;
+    {
+      if (characteristic==0)
+        cout << "bad primes used: "<< badprimes<<endl;
+      cout << "good primes used: "<<goodprimes<<endl;
+    }
+
   h1=0;
   of=0;
   nfhmod=0;
+}
+
+// instantiations of virtual functions required by the splitter_base class:
+mat newforms::opmat(int i, int dual, int verb)
+{
+  return h1->calcop(h1matop(i),dual,verb);
+}
+
+vec newforms::opmat_col(int i, int j, int verb)
+{
+  return h1->calcop_col(h1matop(i),j, verb);
+}
+
+mat newforms::opmat_cols(int i, const vec& jlist, int verb)
+{
+  return h1->calcop_cols(h1matop(i),jlist, verb);
+}
+
+mat newforms::opmat_restricted(int i, const subspace& s, int dual, int verb)
+{
+  return h1->calcop_restricted(h1matop(i),s,dual,verb);
+}
+
+smat newforms::s_opmat(int i, int dual, int verb)
+{
+  return h1->s_calcop(h1matop(i),dual, verbose);
+}
+
+smat newforms::s_opmat_cols(int i, const vec& jlist, int verb)
+{
+  return h1->s_calcop_cols(h1matop(i),jlist, verbose);
+}
+
+smat newforms::s_opmat_restricted(int i, const ssubspace& s, int dual, int verb)
+{
+  return h1->s_calcop_restricted(h1matop(i),s,dual,0);
 }
 
 //#define DEBUG_LAMBDA
@@ -568,10 +644,10 @@ void newforms::createfromscratch()
     {
       cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
       if (characteristic==0)
-        cout<<"Retrieving oldform data for level "<<N<<" (primelist="<<plist<<")...\n";
+        cout<<"Retrieving oldform data for level "<<N<<"...\n";
     }
 
-  of = new oldforms(N, plist, verbose, characteristic);
+  of = new oldforms(N, badprimes, goodprimes, verbose, characteristic);
   if(verbose)
     {
       if (characteristic==0)
@@ -580,7 +656,7 @@ void newforms::createfromscratch()
     }
 
   maxdepth = nap;
-  long mindepth = (characteristic==0? npdivs: nap);
+  long mindepth = (characteristic==0? n2r+nwq+iP0: nap);
   dimsplit = n1ds = 0;
   long olddimall = (of->olddimall);
   nnflist = upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
@@ -1177,7 +1253,7 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
     {
       for (i=0; i<n1ds; i++)
         {
-          int ip = find(plist.begin(),plist.end(),P) - plist.begin();
+          int ip = find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
           long aq = nflist[i].aqlist[ip];
           if(!((aq==1)||(aq==-1)))
             {
@@ -1363,6 +1439,197 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
       cout << "Good prime: ap list = " << apv << endl;
 #endif
   return apv;
+}
+
+// Strategy for operators used to automatically cut out 1-dimensional
+// rational eigenspaces, in characteristic 0:
+
+// The first n2r (=Quad::class_group_2_rank) operators are T_{A,A}
+// where A runs over n2r ideals coprime to N whose classes generate
+// the 2-torsion in the class group. These are involutions, but we
+// only consider the +1-eigenspace since we only want to find
+// eigenspaces with trivial unramified character.  When the class
+// number is odd, then n2r=0 so there are none of these.  The list of
+// ideals A used here is newforms::nulist.
+
+// Next come nwq operators T_{A,A}*W_Q, where Q is the i'th prime
+// dividing the level to power e and [Q^e] is square (so either [W] is
+// square or e is even).  By the usual abuse of notation we write W_Q
+// when we really mean W_{Q^e}, and A is coprime to N such that A^2Q^e
+// is principal.  The list of primes Q is in badprimes, of length nwq.
+// When the class number is odd, nwq is the number of prime factors of
+// N, but in general it may be smaller, even 0.  For each of these we
+// consider +1,-1 as eigenvalues.
+
+// Finally come nap operators for good primes P, where the constructor
+// sets nap=20 (by default) and fills the array goodprimes with the
+// first nap primes not dividing N.  The operator for P is *either*
+// T_{A,A}*T_P, when the class [P] is square and A^2*P is principal;
+// *or* T_{A,A}*T_{P^2} when [P] is not square, and A*P is principal.
+//
+// In the first case the eigenvalues considered are integers a with
+// |a|<=2*sqrt(N(P)).  In the second case we use the identity
+//
+// T_{P^2} = (T_P)^2 + N(P)T_{P,P}
+//
+// to deduce that when the central character is trivial, the
+// eigenvalues satisfy
+//
+// a_{P^2} = (a_P)^2 + N(P)
+//
+// so the eigenvalues we consider for T_{A,A}T_{P^2} are
+// {a^2+N(P) : 0<=a<=4N(P)}.
+
+matop newforms::h1matop(int i) // return the list of matrices defining the i'th operator
+{
+  assert (i>=0);
+  if (i<n2r) // then we yield T_{A,A} where A is the i'th generator of the class group mod squares
+    return CharOp(nulist[i], N);
+  i -= n2r;
+  if (i<nwq) // then we yield T_{A,A}*W_QQ where QQ is the power of Q exactly dividing N and A^2*QQ is principal
+    return AtkinLehnerOp(badprimes[i], N);
+  // else we yield, for P the i'th good prime,
+  // either T_{A,A}*T_P if [P] is square with A^2*P principal,
+  // or     T_{A,A}*T_{P^2} if [P] is not square, where A*P is principal
+  i -= nwq;
+  Quadprime P = goodprimes[i];
+  if (P.has_square_class())
+    return HeckeOp(P, N);
+  else
+    return HeckeSqOp(P, N);
+}
+
+// the list of possible (integer) eigenvalues for the i'th operator:
+vector<long> newforms::eigrange(int i)
+{
+  vector<long> ans;
+  assert (i>=0);
+
+  if (i<n2r)
+    {
+      ans = {1};
+      return ans;
+    }
+  i -= n2r;
+
+  if (verbose>1)
+    cout << "eigrange for P = " << badprimes[i] << ":\t";
+
+  if (i<nwq)
+    {
+      if (characteristic==2)
+        ans = {1};
+      else
+        ans = {-1, 1};
+      if (verbose>1)
+	cout << ans << endl;
+      return ans;
+    }
+  i -= nwq;
+
+  if (characteristic>0)
+    {
+      ans = vector<long>(characteristic);
+      std::iota(ans.begin(), ans.end(), 0);
+      if (verbose>1)
+        cout << ans << endl;
+      return ans;
+    }
+
+  Quadprime P = goodprimes[i];
+  long normp = I2long(P.norm());
+  long aplim=2;
+  while (aplim*aplim<=4*normp) aplim++;
+  aplim--;
+  if (P.has_square_class())
+    {
+      ans = vector<long>(2*aplim+1);
+      std::iota(ans.begin(), ans.end(), -aplim);
+    }
+  else // want eigs of T_{P^2} such that T_P has integral eig
+    {
+      ans = vector<long>(aplim+1);
+      std::iota(ans.begin(), ans.end(), 0);
+      for (vector<long>::iterator ai = ans.begin(); ai!=ans.end(); ++ai)
+        *ai = (*ai)*(*ai) + normp;
+    }
+  if (verbose>1)
+    cout << ans << endl;
+  return ans;
+}
+
+
+
+
+// List of bad primes (dividing N) followed by good primes to length
+// at least np, making sure that the list includes at least one good
+// principal prime.  iP0 is set to the index in the list of the first
+// good principal prime.
+vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p)
+{
+  vector<Quadprime> ans;
+  if (p==0)
+    ans = N.factorization().sorted_primes();
+  vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
+  iP0 = -1;
+  while ((ans.size()<(unsigned)np) || (iP0<0))
+    {
+      Quadprime P = *Pi++;
+      if (P.divides(N))
+        continue;
+      if ((p>0) && (P.norm()%p==0))
+        continue;
+      ans.push_back(P);
+      if (P.is_principal() && iP0==-1)
+        {
+          iP0 = ans.size()-1; // index of current last in list, indexed from 0
+        }
+    }
+  // cout<<"make_primelist(N="<<N<<", np="<<np<<") returns "<<ans<<" (size "<<ans.size()<<") with P0="<<ans[iP0]<<", iP0="<<iP0<<endl;
+  return ans;
+}
+
+
+// compute a list of ideals coprime to N whose classes generate the 2-torsion
+vector<Qideal> make_nulist(Qideal& N)
+{
+  vector<Qideal> nulist;
+  for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
+       Ai!=Quad::class_group_2_torsion_gens.end(); ++Ai)
+    nulist.push_back(Ai->equivalent_coprime_to(N));
+  return nulist;
+}
+
+// compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
+vector<Quadprime> make_badprimes(Qideal& N)
+{
+  vector<Quadprime> badprimes,  allbadprimes = N.factorization().sorted_primes();
+  for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+    {
+      Quadprime Q = *Qi;
+      long e = val(Q,N);
+      if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+        badprimes.push_back(Q);
+    }
+  return badprimes;
+}
+
+// compute a list of at least nap good primes (excluding those
+// dividing characteristic if >0), to include at least on principal
+// one which has index iP0;
+vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p)
+{
+  vector<Quadprime> goodprimes;
+  QuadprimeLooper L(p==0? N : p*N);
+  iP0=-1;
+  for (int i=0; (i<np) || (iP0<0); i++, ++L)
+    {
+      Quadprime P = L;
+      goodprimes.push_back(P);
+      if (P.is_principal() && iP0==-1)
+        iP0 = goodprimes.size()-1;
+    }
+  return goodprimes;
 }
 
 //end of newforms.cc

@@ -34,13 +34,13 @@ class oldforms {
  private:
   Qideal N;
   long characteristic;
-  vector<Quadprime> plist;
+  vector<Quadprime> badprimes, goodprimes, plist;
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims;
   vector<Qideal> oldlevels;
   void getoldclasses(Qideal& D, int verbose);
  public:
-  oldforms(Qideal& iN, const vector<Quadprime>& pr, int verbose=0, long ch=0);
+  oldforms(Qideal& iN, const vector<Quadprime>& badp, const vector<Quadprime>& goodp, int verbose=0, long ch=0);
   long dimoldpart(const vector<long> aplist);
   void display(void) const;
 };

@@ -8,43 +8,10 @@
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
-  :verbose(verb), cuspidal(cuspid), plusflag(hp),
-   N(I), nap(20), n2r(Quad::class_group_2_rank), characteristic(ch), hmod(0)
+  :verbose(verb), cuspidal(cuspid), plusflag(hp), N(I), characteristic(ch), hmod(0)
 {
   P1 = P1N(N);
   nsymb = P1.size();
-
-  if ((characteristic==0) && (Quad::class_group_2_rank > 0))
-    // populate nulist with a list of ideals coprime to N whose classes generate the 2-torsion
-    {
-      for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
-           Ai!=Quad::class_group_2_torsion_gens.end(); ++Ai)
-        {
-          nulist.push_back(Ai->equivalent_coprime_to(N));
-        }
-    }
-
-  if (characteristic==0) // fill badprimes with Q|N such that [Q] is square
-    {
-      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
-      for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
-        {
-          Quadprime Q = *Qi;
-          long e = val(Q,N);
-          if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
-            badprimes.push_back(Q);
-        }
-    }
-  nwq = badprimes.size();
-
-  // Now make the list of nap good primes (excluding those dividing characteristic if >0)
-  QuadprimeLooper L(characteristic==0? N : characteristic*N);
-  for (int i=0; i<nap; i++, ++L)
-    {
-      goodprimes.push_back((Quadprime)L);
-    }
-
-  // here need to find first principal prime P0
 
   if (verbose)
     {
@@ -399,32 +366,5 @@ mat reduce_modp(const mat& m, const scalar& p)
   return ans;
 }
 
-// List of bad primes (dividing N) followed by good primes to length
-// at least np, making sure that the list includes at least one good
-// principal prime.  iP0 is set to the index in the list of the first
-// good principal prime.
-vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p)
-{
-  vector<Quadprime> ans;
-  if (p==0)
-    ans = N.factorization().sorted_primes();
-  vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
-  iP0 = -1;
-  while ((ans.size()<(unsigned)np) || (iP0<0))
-    {
-      Quadprime P = *Pi++;
-      if (P.divides(N))
-        continue;
-      if ((p>0) && (P.norm()%p==0))
-        continue;
-      ans.push_back(P);
-      if (P.is_principal() && iP0==-1)
-        {
-          iP0 = ans.size()-1; // index of current last in list, indexed from 0
-        }
-    }
-  // cout<<"make_primelist(N="<<N<<", np="<<np<<") returns "<<ans<<" (size "<<ans.size()<<") with P0="<<ans[iP0]<<", iP0="<<iP0<<endl;
-  return ans;
-}
 
 // The remaining methods for class homspace are implemented in hecke.cc.

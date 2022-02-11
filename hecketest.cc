@@ -5,7 +5,7 @@
 #include <NTL/mat_poly_ZZ.h>
 #include <NTL/ZZXFactoring.h>
 #include "qidloop.h"
-#include "homspace.h"
+#include "newforms.h"
 //#define LOOPER
 
 #define MAXPRIME 10000
@@ -58,6 +58,7 @@ int main(void)
    }
  Quad::field(d,max);
  Quad::displayfield(cout);
+ int n2r = Quad::class_group_2_rank;
  cerr << "Plus space (0/1)? "; cin>>plusflag;
  cerr << "Cuspidal subspace (0/1)? "; cin>>cuspidal;
  cerr << "See the hecke matrices (0/1)? "; cin >> show_mats;
@@ -102,51 +103,52 @@ int main(void)
            <<" and their factorizations are not useful."<<endl;
     }
 
-  vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
   vector<Quadprime>::const_iterator pr;
   if (dim>0)
     {
       vector<mat_ZZ> tplist, tpqlist, wqlist, nulist;
 
-      // Compute unramified quadratic characters and check that they are involutions and commute
-
-      for (int i=0; i<Quad::class_group_2_rank; i++)
+      if (n2r)
         {
-          cout << "Computing nu_"<< h.nulist[i] <<"..." << flush;
-          mat_ZZ nu = mat_to_mat_ZZ(h.nu(i, 0, show_mats));
-	  cout << "done. " << flush;
+          // Compute unramified quadratic characters and check that they are involutions and commute
 
-          ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
-          if (show_pols)
-            {
-              cout << "char poly coeffs = " << charpol << endl;
-            }
-          if(show_factors)
-            {
-              display_factors(charpol);
-            }
-          cout << endl;
-          if (!check_involution(nu,den, 1))
-            {
-              exit(1);
-            }
-          if (!check_commute(nu, nulist))
-            {
-              cout << "********* unramified character matrices do not commute with each other ***********" << endl;
-              exit(1);
-            }
-	  nulist.push_back(nu);
-	}
+          vector<Qideal> t2ideals = make_nulist(N);
+          mat_ZZ I = ident_mat_ZZ(dim);
 
-      int nr2 = Quad::class_group_2_rank;
-      mat_ZZ I = ident_mat_ZZ(dim);
-      if (nr2)
-        {
-          for (int i=0; i<(1<<nr2); i++)
+          for (vector<Qideal>::iterator t2i=t2ideals.begin(); t2i!=t2ideals.end(); ++t2i)
+            {
+              Qideal A = *t2i;
+              cout << "Computing nu_"<< A <<"..." << flush;
+              mat_ZZ nu = mat_to_mat_ZZ(h.nu_op(A, 0, show_mats));
+              cout << "done. " << flush;
+
+              ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
+              if (show_pols)
+                {
+                  cout << "char poly coeffs = " << charpol << endl;
+                }
+              if(show_factors)
+                {
+                  display_factors(charpol);
+                }
+              cout << endl;
+              if (!check_involution(nu,den, 1))
+                {
+                  exit(1);
+                }
+              if (!check_commute(nu, nulist))
+                {
+                  cout << "********* unramified character matrices do not commute with each other ***********" << endl;
+                  exit(1);
+                }
+              nulist.push_back(nu);
+            }
+
+          for (int i=0; i<(1<<n2r); i++)
             {
               mat_ZZ A = I;
               string sgs = "";
-              for (int j=0; j<nr2; j++)
+              for (int j=0; j<n2r; j++)
                 {
                   int s = testbit(i,j);
                   A = A * (nulist[j] + (s? -den: den)*I);
@@ -161,6 +163,7 @@ int main(void)
       // Compute Atkin-Lehner operators and check that they are involutions and commute
       // restricted to Q such that the power of Q dividing N has square ideal class
 
+      vector<Quadprime> badprimes = make_badprimes(N);
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
@@ -215,7 +218,7 @@ int main(void)
 	  if (P.divides(N))
             continue;
           int use_PQ = 0;
-          if (P.has_square_class())
+          if (!P.has_square_class())
             {
               // we have an ideal with non-square ideal class
               if ((P*P).is_principal())

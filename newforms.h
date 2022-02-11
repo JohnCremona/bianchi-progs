@@ -44,7 +44,6 @@ ap : list of Fourier coefficients at all primes
 
 */
 
-
 class newform {
 friend class newforms;
 public:
@@ -106,27 +105,28 @@ private:
   int dimsplit, maxdepth, upperbound;
 
   // instantiations of virtual functions required by the splitter_base class:
-  mat opmat(int i, int d, int v=0)
-  {return h1->opmat(i,d,v);}
-  vec opmat_col(int i, int j, int v=0)
-  {return h1->opmat_col(i,j,v);}
-  mat opmat_cols(int i, const vec& jlist, int v=0)
-  {return h1->opmat_cols(i,jlist,v);}
-  mat opmat_restricted(int i, const subspace& s, int d, int v=0)
-  {return h1->opmat_restricted(i,s,d,v);}
-  smat s_opmat(int i, int d, int v=0)
-  {return h1->s_opmat(i,d,v);}
-  svec s_opmat_col(int i, int j, int v=0)
-  {return h1->s_opmat_col(i,j,v);}
-  smat s_opmat_cols(int i, const vec& jlist, int v=0)
-  {return h1->s_opmat_cols(i,jlist,verbose);}
-  smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0)
-  {return h1->s_opmat_restricted(i,s,d,v);}
+  mat opmat(int i, int d, int v=0);
+  vec opmat_col(int i, int j, int v=0);
+  mat opmat_cols(int i, const vec& jlist, int v=0);
+  mat opmat_restricted(int i, const subspace& s, int d, int v=0);
+  smat s_opmat(int i, int d, int v=0);
+  svec s_opmat_col(int i, int j, int v=0);
+  smat s_opmat_cols(int i, const vec& jlist, int v=0);
+  smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0);
   long matdim(void)
   {return h1->dimension;}
   long matden(void)
   {return h1->denom3;}
-  vector<long> eigrange(int i) {return h1->eigrange(i);}
+
+  // For the automatic finding of 1-dimensional egenspaces we need to
+  // interface with eclib's splitter class, which wants to know thw
+  // i'th operator matix and its possible eigenvalues, for i=0,1,2,...
+
+  // the list of matrices defining the i'th operator:
+  matop h1matop(int);
+  // the list of possible (integer) eigenvalues for the i'th operator:
+  vector<long> eigrange(int i);
+
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
 
   // data used for ap computation
@@ -147,9 +147,11 @@ protected:
   vec zero_infinity;
 public:
   Qideal N;  // the level
-  vector<Quadprime> plist; // list of primes, first bad then good in order
-  int is_square, npdivs;
-  int verbose, n1ds,n2ds, nnflist, nap, ntp, nwq;
+  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
+  vector<Quadprime> goodprimes;  // good primes in order
+  vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
+  int is_square;
+  int verbose, n1ds,n2ds, nnflist, nwq, nap, n2r;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   long characteristic; // 0 or prime
@@ -193,5 +195,23 @@ private:
   void createfromdata();
   void makebases(); // if created from stored data but need bases and homspace
 };
+
+
+// List of bad primes (dividing N) followed by good primes to length
+// at least np, making sure that the list includes at least one good
+// principal prime.  iP0 is set to the index in the list of the first
+// good principal prime.
+// If p (default 0) is nonzero, omit bad primes and primes dividing P
+vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
+
+// compute a list of ideals coprime to N whose classes generate the 2-torsion
+vector<Qideal> make_nulist(Qideal& N);
+// compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
+vector<Quadprime> make_badprimes(Qideal& N);
+// compute a list of at least nap good primes (excluding those
+// dividing characteristic if >0), to include at least on principal
+// one which has index iP0;
+vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
+
 
 #endif
