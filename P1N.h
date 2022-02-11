@@ -57,7 +57,7 @@ public:
   // to the i'th symbol (requires M,N coprime). If (u,v)!=(0,0) they
   // should satisfy u+v=1 with u in N, v in M, otherwise such u,v will
   // be computed and returned.
-  mat22 lift_to_Gamma_0(long i, Qideal M, Quad& u=Quad::zero, Quad& v=Quad::zero);
+  mat22 lift_to_Gamma_0(long i, Qideal M, const Quad& u = Quad::zero, const Quad& v = Quad::zero);
 
   // each M in GL2 permutes the (c:d) symbols by right multiplcation:
   long apply(const mat22& M, long i);

@@ -119,8 +119,10 @@ int main(void)
             {
               Qideal A = *t2i;
               cout << "Computing nu_"<< A <<"..." << flush;
-              mat_ZZ nu = mat_to_mat_ZZ(h.nu_op(A, 0, show_mats));
+              mat_ZZ nu = mat_to_mat_ZZ(h.nu_op(A, 0, 0));
               cout << "done. " << flush;
+              if (show_mats)
+                cout << "Matrix is \n" << nu << endl;
 
               ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
               if (show_pols)
@@ -170,8 +172,10 @@ int main(void)
           if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && !Q.has_square_class())
             continue; // we have an odd power of an ideal with non-square ideal class
           cout << "Computing W_"<<Q<<"..." << flush;
-          mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,show_mats));
+          mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,0));
 	  cout << "done. " << flush;
+          if (show_mats)
+            cout << "Matrix is \n" << wq << endl;
 
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
@@ -242,6 +246,8 @@ int main(void)
               cout << "Computing T_" << P << "..."<<flush;
               tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
               cout << "done. " << flush;
+              if (show_mats)
+                cout << "Matrix is \n" << tp <<endl;
             }
           ntp++;
 	  tplist.push_back(tp);

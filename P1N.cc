@@ -240,13 +240,14 @@ mat22 P1N::lift_to_SL2(long ind)
 // to the i'th symbol (requires M,N coprime). If (u,v)!=(0,0) they
 // should satisfy u+v=1 with u in N, v in M, otherwise such u,v will
 // be computed and returned.
-mat22 P1N::lift_to_Gamma_0(long i, Qideal M, Quad& u, Quad& v)
+mat22 P1N::lift_to_Gamma_0(long i, Qideal M, const Quad& u, const Quad& v)
 {
-  if (u.is_zero() && v.is_zero())
-    M.is_coprime_to(N, u, v); // u+v=1, u in M, v in N
+  Quad uu(u), vv(v);
+  if (uu.is_zero() && vv.is_zero())
+    M.is_coprime_to(N, uu, vv); // u+v=1, u in M, v in N
   Quad c, d;
   make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
-  mat22 G = ::lift_to_Gamma_0(M, N, c, d, u, v);
+  mat22 G = ::lift_to_Gamma_0(M, N, c, d, uu, vv);
   assert (G.is_unimodular());
   assert (index(G.entry(1,0), G.entry(1,1))==i);
   assert (M.contains(G.entry(1,0)));

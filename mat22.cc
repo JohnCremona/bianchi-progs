@@ -164,7 +164,7 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
 // N(P)^2+N(P)+1 matrices representing T_{A,A}*T_{P^2}, where P does
 // not divide N, with AP principal and A coprime to N.
 
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal, P not dividing N
 {
 #ifdef DEBUG_HECKE
   cout<<"In Hecke("<<P<<"^2), level "<<N<<endl;
@@ -181,12 +181,14 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal
   // (2) M * lift(a:1) for a mod P^2 non-invertible (N(P) matrices)
   // with the second factor a lift from P^1(P^2) to Gamma_0(N)
   vector<Quad> resmodp2 = P2.residues();
+  Quad u, v;
+  N.is_coprime_to(P2, u, v); // u+v=1, u in N, v in P2
   for(vector<Quad>::const_iterator r=resmodp2.begin(); r!=resmodp2.end(); ++r)
     {
       Quad a = *r;
-      mats.push_back(M*lift_to_Gamma_0(N, P2, Quad::one, a));
+      mats.push_back(M*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M*lift_to_Gamma_0(N, P2, 1, Quad::one));
+        mats.push_back(M*lift_to_Gamma_0(N, P2, 1, Quad::one, u, v));
     }
 
   // (3) an (AP,AP) matrix of level N, i.e. just diag(g,g) (1 matrix, so N(P)^2_N(P)+1 in all)
@@ -221,12 +223,14 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N) // T_{PQ} when PQ p
   // (1) M*lift(1:a) for a mod PQ                (N(P)N(Q) matrices)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
   vector<Quad> resmodpq = PQ.residues();
+  Quad u, v;
+  N.is_coprime_to(PQ, u, v); // u+v=1, u in N, v in PQ
   for(vector<Quad>::const_iterator r=resmodpq.begin(); r!=resmodpq.end(); ++r)
     {
       Quad a = *r;
-      mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a));
+      mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(N, PQ, 1, Quad::one));
+        mats.push_back(M*lift_to_Gamma_0(N, PQ, 1, Quad::one, u, v));
     }
 
   // (3) (AP,AQ) and (AQ,AP) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
@@ -329,11 +333,12 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 // return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
 // If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
 // otherwise such u,v will be computed and returned.
-mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, Quad& u, Quad& v)
+mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, const Quad& u, const Quad& v)
 {
   // CRT: lift (cc:dd) in P^1(N) to (c:d) in P^1(MN) which also lifts (0:1) in P^1(M), then lift that
-  if (u.is_zero() && v.is_zero())
-    M.is_coprime_to(N, u, v); // u+v=1, u in M, v in N
+  Quad uu(u), vv(v);
+  if (uu.is_zero() && vv.is_zero())
+    M.is_coprime_to(N, uu, vv); // u+v=1, u in M, v in N
   Qideal MN = M*N;
-  return lift_to_SL2(MN, cc*u, dd*u+v);
+  return lift_to_SL2(MN, cc*uu, dd*uu+vv);
 }

@@ -429,7 +429,6 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   // cout<<"vecbezout("<<v<<") returns "<<w<<endl;
   // cout<<" coeffs of r are "<<w[0]<<" and "<< J.c * w[2]<<endl;
   r =   zcombo(w[0],  J.c * w[2]);
-  // cout << " r0="<<r<<endl;
   s =   Quad::one - r;
   assert (contains(r));
   assert (J.contains(s));
@@ -1162,6 +1161,5 @@ vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist)
     }
   return chi;
 }
-
 
 // END OF FILE qideal.cc
