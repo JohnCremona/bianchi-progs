@@ -20,6 +20,8 @@ public:
   static mat22 J;
   static mat22 S;
   static mat22 Tmat(const Quad& x) {return mat22(Quad::one,x,Quad::zero,Quad::one);}
+  static mat22 diag(const Quad& x, const Quad& y) {return mat22(x,Quad::zero,Quad::zero,y);}
+  static mat22 scalar(const Quad& x) {return mat22(x,Quad::zero,Quad::zero,x);}
   static mat22 TS;
   static mat22 TiS;
   static mat22 R;

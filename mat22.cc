@@ -164,7 +164,7 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
 // N(P)^2+N(P)+1 matrices representing T_{A,A}*T_{P^2}, where P does
 // not divide N, with AP principal and A coprime to N.
 
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal, P not dividing N
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} , P not dividing N
 {
 #ifdef DEBUG_HECKE
   cout<<"In Hecke("<<P<<"^2), level "<<N<<endl;
@@ -173,7 +173,8 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal, P 
   Quad g,h;
   Qideal A = P.equivalent_coprime_to(N,g,h,1); // A*P=(g) is principal, with A coprime to N
   Qideal P2 = P*P;
-  Qideal AP=A*P, AP2 = A*P2;
+  Qideal AP2 = A*P2;
+  assert (Qideal(g)==A*P);
   // Make an (AP^2,A)-matrix of level N:
   mat22 M = AP2.AB_matrix_of_level(A, N, h); //  sets h to a generator of (AP)^2, not needed
 
@@ -188,11 +189,11 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} when P^2 principal, P 
       Quad a = *r;
       mats.push_back(M*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M*lift_to_Gamma_0(N, P2, 1, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
     }
 
   // (3) an (AP,AP) matrix of level N, i.e. just diag(g,g) (1 matrix, so N(P)^2_N(P)+1 in all)
-  mats.push_back(mat22(g, Quad::zero , Quad::zero, g));
+  mats.push_back(mat22::scalar(g));
 
 #ifdef DEBUG_HECKE
   cout<<" Hecke matrices are "<<mats<<endl;
@@ -230,7 +231,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N) // T_{PQ} when PQ p
       Quad a = *r;
       mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(N, PQ, 1, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(N, PQ, a, Quad::one, u, v));
     }
 
   // (3) (AP,AQ) and (AQ,AP) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
