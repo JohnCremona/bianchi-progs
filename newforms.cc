@@ -1463,10 +1463,11 @@ vector<long> newforms::apvec(Quadprime& P)
 
   if (vp>0) // bad prime, we already know the eigenvalues
     {
+      int ip = find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
+      long aq;
       for (i=0; i<n1ds; i++)
         {
-          int ip = find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
-          long aq = nflist[i].aqlist[ip];
+          apv[i] = aq = nflist[i].aqlist[ip];
           if(!((aq==1)||(aq==-1)))
             {
               cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
@@ -1476,7 +1477,6 @@ vector<long> newforms::apvec(Quadprime& P)
               cout<<"------------------------"<<endl;
               exit(1);
             }
-          apv[i] = aq;
         }
 #ifdef DEBUG_APVEC
       cout<<"Bad prime: aq list = "<<apv<<endl;
@@ -1486,16 +1486,16 @@ vector<long> newforms::apvec(Quadprime& P)
 
   // now P is a good prime
 
-  long aplim=2;
-  while (aplim*aplim<=4*normp) aplim++;
-  aplim--;
-  vector<long> elist = vector<long>(2*aplim+1);
-  std::iota(elist.begin(), elist.end(), -aplim);
+  vector<long> elist = good_eigrange(P);
 
   if (Quad::is_Euclidean)
-    return apvec_euclidean(P, elist);
+    apv = apvec_euclidean(P, elist);
   else
-    return apvec(HeckeOp(P,N), elist);
+    apv = apvec(HeckeOp(P,N), elist);
+#ifdef DEBUG_APVEC
+  cout<<"Good prime: ap list = "<<apv<<endl;
+#endif
+  return apv;
 }
 
 // Strategy for operators used to automatically cut out 1-dimensional
@@ -1556,6 +1556,29 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
     return HeckeSqOp(P, N);
 }
 
+// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P))
+vector<long> good_eigrange(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  long aplim=2;
+  while (aplim*aplim<=4*normp) aplim++;
+  aplim--;
+  if (P.has_square_class())
+    {
+      vector<long> ans(2*aplim+1);
+      std::iota(ans.begin(), ans.end(), -aplim);
+      return ans;
+    }
+  else // want eigs of T_{P^2} such that T_P has integral eig
+    {
+      vector<long> ans(aplim+1);
+      std::iota(ans.begin(), ans.end(), 0);
+      for (vector<long>::iterator ai = ans.begin(); ai!=ans.end(); ++ai)
+        *ai = (*ai)*(*ai) + normp;
+      return ans;
+    }
+}
+
 // the list of possible (integer) eigenvalues for the i'th operator:
 vector<long> newforms::eigrange(int i)
 {
@@ -1593,30 +1616,11 @@ vector<long> newforms::eigrange(int i)
       return ans;
     }
 
-  Quadprime P = goodprimes[i];
-  long normp = I2long(P.norm());
-  long aplim=2;
-  while (aplim*aplim<=4*normp) aplim++;
-  aplim--;
-  if (P.has_square_class())
-    {
-      ans = vector<long>(2*aplim+1);
-      std::iota(ans.begin(), ans.end(), -aplim);
-    }
-  else // want eigs of T_{P^2} such that T_P has integral eig
-    {
-      ans = vector<long>(aplim+1);
-      std::iota(ans.begin(), ans.end(), 0);
-      for (vector<long>::iterator ai = ans.begin(); ai!=ans.end(); ++ai)
-        *ai = (*ai)*(*ai) + normp;
-    }
+  ans = good_eigrange(goodprimes[i]);
   if (verbose>1)
     cout << ans << endl;
   return ans;
 }
-
-
-
 
 // List of bad primes (dividing N) followed by good primes to length
 // at least np, making sure that the list includes at least one good

@@ -218,5 +218,8 @@ vector<Quadprime> make_badprimes(Qideal& N);
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
 
+// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P)) if [P] is square, else
+// list of possible eigs for T_{P^2}
+vector<long> good_eigrange(Quadprime& P);
 
 #endif
