@@ -183,7 +183,12 @@ private:
 
   void getap(int first, int last, int verbose=0);
   void getoneap(Quadprime& P, int verbose=0, int store=1);
-  vector<long> apvec(Quadprime& P);  // computes a[P] for each newform
+  // compute eigenvalue at P for each newform
+  vector<long> apvec(Quadprime& P);
+  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in elist
+  vector<long> apvec_euclidean(Quadprime& P, const vector<long>& elist);
+  // compute eigenvalue of op for each newform and check that it is in elist
+  vector<long> apvec(const matop& op, const vector<long>& elist);
 
   void output_to_file(string eigfile) const;
 

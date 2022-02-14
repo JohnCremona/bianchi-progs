@@ -1207,6 +1207,78 @@ void newforms::find_jlist()
 
 //#define DEBUG_APVEC
 
+// compute eigenvalue of op for each newform and check that it is in elist
+vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
+{
+#ifdef DEBUG_APVEC
+  cout<<"In apvec with operator "<<op.name()<<endl;
+#endif
+  vector<long> apv(n1ds);
+
+  // Compute the image images[j] of the j'th symbol under op, for all necessary j.
+
+  map<int,vec> images;
+  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
+    {
+      long j=*jj; // from 1
+      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
+      long s_number = st.first;  // (c:d) symbol number
+      int s_type    = st.second; // symbol type (negative for singular edges)
+
+      // Now we compute the projected image of symbol under op
+
+      modsym m(h1->P1.lift_to_SL2(s_number), s_type);
+      images[j] = h1->applyop(op, m, 1);
+    }
+
+// recover eigenvalues:
+
+  for (int i=0; i<n1ds; i++)
+    {
+      int j0 = nflist[i].j0;
+      int fac = nflist[i].fac;
+      int top = images[j0][i+1];
+      long ap;
+      // The eigenvalue is now top/fac (which should divide exactly)
+      if(nfhmod)
+        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
+      else
+        {
+#ifdef DEBUG_APVEC
+          cout << "ap   = " << top << "/" << fac << " = " <<top/fac<<endl;
+#endif
+          if (top%fac !=0)
+            {
+              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
+              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
+              cout<<flush;
+            }
+           ap = top/fac;
+        }
+      apv[i]=ap;
+      if (characteristic>0)
+        apv[i] = posmod(ap, characteristic);
+      else
+        {
+          apv[i]=ap;
+          // check it is in range (in characteristic 0 only):
+          if(std::find(elist.begin(), elist.end(), ap)==elist.end())
+            {
+              cout<<"Error:  eigenvalue "<<ap<<" for "<<op.name()
+                  <<" for form # "<<(i+1)<<" is outside valid range "
+                  << elist<<endl;
+              exit(1);
+            }
+        }
+    }
+#ifdef DEBUG_APVEC
+      cout << "eigenvalue list = " << apv << endl;
+#endif
+  return apv;
+}
+
+// Special code for T_P for Euclidean fields, for good P only
+
 // The following utility does the following.  Given an integer ind:
 // - if ind>0 it adds the ind'th row of pcd to imagej;
 // - if ind<0 it subtracts the |ind|'th row of pcd from imagej;
@@ -1226,15 +1298,155 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 #endif
 }
 
-//#define DEBUG_APVEC
-vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, for principal P
+// compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in elist
+vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
 {
+  assert (Quad::is_Euclidean && "field must be Euclidean in apvec_euclidean()");
+  assert (val(P,N)==0 && "P must be good in apvec_euclidean()");
   Quad p = P.gen();
+#ifdef DEBUG_APVEC
+  cout<<"In apvec_euclidean with P = "<<P<<endl;
+#endif
+  vector<long> apv(n1ds);
+
+  //images[j] is the image of the j'th M-symbol
+  map<int,vec> images;
+  Quad a,b,c,q,u1,u2,u3;
+
+  // Compute the image of the necessary M-symbols (hopefully only one)
+
+  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
+    {
+      vec imagej=vec(n1ds); // initialised to 0
+      long j=*jj; // from 1
+      // Since this code is only used in the Euclidean case,
+      // all symbols have type 0
+      long s_number = h1->ER.gen(j);  // (c:d) symbol number
+      Quad u, v;
+      h1->P1.make_symb(s_number, u, v);
+
+#ifdef DEBUG_APVEC
+      cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
+          <<" = ("<<u<<":"<<v<<")_"<<s_type<<" ..."<<flush;
+#endif
+
+      // Now we compute the projected image of symbol s=(u:v)_t under
+      // T_P.
+
+      // This code is for Euclidean fields only, using Manin-Heilbronn
+      // matrices: Loop over residues res mod P and for each res
+      // compute several M-symbol image parts (u1:v1).  Accumulate the
+      // associated vectors in vec imagej using the utility
+      // update(projcoord, imagej, ind, nfhmod), where (u1:v1) is the
+      // ind'th symbol.
+
+      mat& pcd = h1->projcoord;
+
+      // Matrix [1,0;0,p]
+      long ind = h1->ER.coords(h1->index(u,p*v));
+#ifdef DEBUG_APVEC
+      cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
+#endif
+      update(pcd,imagej,ind,nfhmod);
+
+      // Matrix [p,0;0,1]
+      ind = h1->ER.coords(h1->index(p*u,v));
+#ifdef DEBUG_APVEC
+      cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
+#endif
+      update(pcd,imagej,ind,nfhmod);
+
+      // Other matrices, several for each nonzero residue b mod p
+      vector<Quad> resmodp = P.residues();
+      vector<Quad>::const_iterator res=resmodp.begin();
+      while(res!=resmodp.end())
+        {
+          b = *res++;
+          if(b.is_zero()) continue; // handled above as special case
+          a = -p;
+          u1=u*p; u2=v-u*b;
+          ind = h1->ER.coords(h1->index(u1,u2));
+#ifdef DEBUG_APVEC
+          cout<<"Residue class "<<b<<": ";
+          cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
+#endif
+          update(pcd,imagej,ind,nfhmod);
+          while(!b.is_zero())
+            {
+              q=a/b; c=a-b*q; u3=q*u2-u1;
+              a=-b; b=c; u1=u2; u2=u3;
+              ind = h1->ER.coords(h1->index(u1,u2));
+#ifdef DEBUG_APVEC
+              cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
+#endif
+              update(pcd,imagej,ind,nfhmod);
+            }
+#ifdef DEBUG_APVEC
+          cout<<" partial image after term is "<<imagej<<endl;
+#endif
+        }
+      images[j]=imagej;
+
+#ifdef DEBUG_APVEC
+      cout<<" image " << j << " is "<<images[j]<<endl;
+#endif
+
+    }
+
+// recover eigenvalues:
+
+  for (long i=0; i<n1ds; i++)
+    {
+      int j0 = nflist[i].j0;
+      int fac = nflist[i].fac;
+      int top = images[j0][i+1];
+      long ap;
+      // The eigenvalue is now top/fac (which should divide exactly)
+      if(nfhmod)
+        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
+      else
+        {
+#ifdef DEBUG_APVEC
+          cout << "ap   = " << top << "/" << fac << " = " <<top/fac<<endl;
+#endif
+          if (top%fac !=0)
+            {
+              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
+              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
+              cout<<flush;
+            }
+           ap = top/fac;
+        }
+      apv[i]=ap;
+      if (characteristic>0)
+        apv[i] = posmod(ap, characteristic);
+      else
+        {
+          apv[i]=ap;
+          // check it is in range (in characteristic 0 only):
+          if(std::find(elist.begin(), elist.end(), ap)==elist.end())
+            {
+              cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
+                  <<" for form # "<<(i+1)<<" is outside valid range "
+                  <<elist<<endl;
+              exit(1);
+            }
+        }
+    }
+#ifdef DEBUG_APVEC
+  cout << "ap list = " << apv << endl;
+#endif
+  return apv;
+}
+
+// compute a[P] for each newform
+vector<long> newforms::apvec(Quadprime& P)
+{
 #ifdef DEBUG_APVEC
   cout<<"In apvec with P = "<<P<<endl;
 #endif
   vector<long> apv(n1ds);
-  long ap, normp=I2long(P.norm());
+  long normp=I2long(P.norm());
   int i, vp = val(P,N);
 
   if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
@@ -1274,171 +1486,16 @@ vector<long> newforms::apvec(Quadprime& P)  // computes a[P] for each newform, f
 
   // now P is a good prime
 
-  long maxap=(long)(2*sqrt((double)normp)); // for validity check
+  long aplim=2;
+  while (aplim*aplim<=4*normp) aplim++;
+  aplim--;
+  vector<long> elist = vector<long>(2*aplim+1);
+  std::iota(elist.begin(), elist.end(), -aplim);
 
-  matop Tp;
-  if (!Quad::is_Euclidean)  // not needed in Euclidean case where we
-    Tp = HeckeOp(P, N);       // use Manin-Heilbronn matrices instead
-
-  map<int,vec> images; // [j,v] stores image of j'th M-symbol in v
-                       // (so we don't compute any more than once)
-  Quad a,b,c,q,u1,u2,u3;
-
-  // Compute the image of the necessary M-symbols (hopefully only one)
-#ifdef DEBUG_APVEC
-  cout<<"Computing images of M-symbols"<<endl<<flush;
-  cout<<"jlist = "<<jlist<<endl;
-  cout<<"j's for each newform: ";
-  for (i=0; i<n1ds; i++) cout<<nflist[i].j0<<" ";
-  cout<<endl;
-  cout<<"factors for each newform: ";
-  for (i=0; i<n1ds; i++) cout<<nflist[i].fac<<" ";
-  cout<<endl;
-#endif
-
-  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
-    {
-      vec imagej=vec(n1ds); // initialised to 0
-      long j=*jj; // from 1
-      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
-      long s_number = st.first;  // (c:d) symbol number
-      int s_type    = st.second; // symbol type (negative for singular edges)
-
-      Quad u, v;
-      h1->P1.make_symb(s_number, u, v);
-
-#ifdef DEBUG_APVEC
-      cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
-          <<" = ("<<u<<":"<<v<<")_"<<s_type<<" ..."<<flush;
-#endif
-
-      // Now we compute the projected image of symbol s=(u:v)_t under
-      // T_P.
-
-      if (Quad::is_Euclidean)
-        {
-
-          // This code is for Euclidean fields only, using Manin-Heilbronn
-          // matrices: Loop over residues res mod P and for each res
-          // compute several M-symbol image parts (u1:v1).  Accumulate the
-          // associated vectors in vec imagej using the utility
-          // update(projcoord, imagej, ind, nfhmod), where (u1:v1) is the
-          // ind'th symbol.
-
-          // Since this code is only used in the Euclidean case,
-          // s_type=0 and can be ignored.
-
-          mat& pcd = h1->projcoord;
-
-          // Matrix [1,0;0,p]
-          long ind = h1->ER.coords(h1->index(u,p*v));
-#ifdef DEBUG_APVEC
-          cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
-#endif
-          update(pcd,imagej,ind,nfhmod);
-
-          // Matrix [p,0;0,1]
-          ind = h1->ER.coords(h1->index(p*u,v));
-#ifdef DEBUG_APVEC
-          cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
-#endif
-          update(pcd,imagej,ind,nfhmod);
-
-          // Other matrices, several for each nonzero residue b mod p
-          vector<Quad> resmodp = P.residues();
-          vector<Quad>::const_iterator res=resmodp.begin();
-          while(res!=resmodp.end())
-            {
-              b = *res++;
-              if(b.is_zero()) continue; // handled above as special case
-              a = -p;
-              u1=u*p; u2=v-u*b;
-              ind = h1->ER.coords(h1->index(u1,u2));
-#ifdef DEBUG_APVEC
-              cout<<"Residue class "<<b<<": ";
-              cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
-#endif
-              update(pcd,imagej,ind,nfhmod);
-              while(!b.is_zero())
-                {
-                  q=a/b; c=a-b*q; u3=q*u2-u1;
-                  a=-b; b=c; u1=u2; u2=u3;
-                  ind = h1->ER.coords(h1->index(u1,u2));
-#ifdef DEBUG_APVEC
-                  cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
-#endif
-                  update(pcd,imagej,ind,nfhmod);
-                }
-#ifdef DEBUG_APVEC
-              cout<<" partial image after term is "<<imagej<<endl;
-#endif
-            }
-          images[j]=imagej;
-
-        } // end of Euclidean case
-
-      else // non-Euclidean case, apply T_p directly to the modular symbol represented by j
-
-        {
-          mat22 M = h1->P1.lift_to_SL2(s_number);
-          modsym m(M, s_type);
-#ifdef DEBUG_APVEC
-          cout<<"\n coset rep = " << M << "\n modular symbol m = "<<m<<endl;
-          cout<<"chain(m, 0) = "<<h1->chain(m,0)<<endl;
-          cout<<"chain(m, 1) = "<<h1->chain(m,1)<<endl;
-#endif
-          images[j] = h1->applyop(Tp, m, 1);
-        }
-
-#ifdef DEBUG_APVEC
-      cout<<" image " << j << " is "<<images[j]<<endl;
-#endif
-
-    }
-
-// recover eigenvalues:
-
-  for (i=0; i<n1ds; i++)
-    {
-      int j0 = nflist[i].j0;
-      int fac = nflist[i].fac;
-      int top = images[j0][i+1];
-      // The eigenvalue is now top/fac (which should divide exactly)
-      if(nfhmod)
-        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
-      else
-        {
-#ifdef DEBUG_APVEC
-          cout << "ap   = " << top << "/" << fac << " = " <<top/fac<<endl;
-#endif
-          if (top%fac !=0)
-            {
-              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
-              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
-              cout<<flush;
-            }
-           ap = top/fac;
-        }
-      apv[i]=ap;
-      if (characteristic>0)
-        apv[i] = posmod(ap, characteristic);
-      else
-        {
-          apv[i]=ap;
-          // check it is in range (in characteristic 0 only):
-          if((ap>maxap)||(-ap>maxap))
-            {
-              cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
-                  <<" for form # "<<(i+1)<<" is outside valid range "
-                  <<-maxap<<"..."<<maxap<<endl;
-              exit(1);
-            }
-        }
-    }
-#ifdef DEBUG_APVEC
-      cout << "Good prime: ap list = " << apv << endl;
-#endif
-  return apv;
+  if (Quad::is_Euclidean)
+    return apvec_euclidean(P, elist);
+  else
+    return apvec(HeckeOp(P,N), elist);
 }
 
 // Strategy for operators used to automatically cut out 1-dimensional
