@@ -48,7 +48,7 @@ int main ()
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
-     nf.createfromscratch();
+     nf.find();
      //nf.display();
      nf.getap(startp,stopp,verbose);
      //cout << "After sort_lmfdb():\n";

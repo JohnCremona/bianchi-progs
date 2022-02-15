@@ -73,13 +73,27 @@ public:
 
   // After finding all newforms using the basic constructor and
   // setting h1's projcoord, fill in the rest of the data for this,
-  // given that it is the j'th newform:
-  // - ap and sfe
-  // - L/P
-  // - manin vector data
-  // - integration matrix using find_matrix()
+  // given that it is the j'th newform, extracting the aqlist from
+  // eigs:
+  //  - aq and sfe from eigs
+  //  - L/P
+  //  - manin vector data
+  //  - integration matrix  // using find_matrix()
 
-  void fill_in_data(int j);
+  void data_from_eigs(int j);
+
+  // When a newform has been read from file, we have the aqlist and
+  // aplist but not the sequence of eigs in order.  This is needed
+  // both for recovering the basis vector from the h1 (in case we want
+  // to compute more ap), and for computing oldform multiplcities.
+  void eigs_from_data();
+
+  // For M a *multiple* of this level N, make the list of eigs
+  // appropriate for the higher level, taking into account the primes
+  // P (if any) dividing M but not N. For such P we delete the a_P
+  // from the sublist of T_P eigenvalues and insert a 0 into the W_Q
+  // eigenvalues. The oldform constructor will deal with this.
+  vector<long> oldform_eigs(Qideal& M);
 
   void display(void) const;
   void list(long nap=-1) const;
@@ -147,6 +161,7 @@ protected:
   vec zero_infinity;
 public:
   Qideal N;  // the level
+  vector<Quadprime> allbadprimes; // list of all bad primes Q (dividing the level N)
   vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
@@ -198,8 +213,8 @@ private:
   void sort_eigs(void);
   void sort_lmfdb(void);
 
-  void createfromscratch();
-  void createfromdata();
+  void find();
+  int read_from_file(); // returns 1 for success, 0 if no data file exists
   void makebases(); // if created from stored data but need bases and homspace
 };
 
@@ -214,7 +229,7 @@ vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
 // compute a list of ideals coprime to N whose classes generate the 2-torsion
 vector<Qideal> make_nulist(Qideal& N);
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_badprimes(Qideal& N);
+vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprimes);
 // compute a list of at least nap good primes (excluding those
 // dividing characteristic if >0), to include at least on principal
 // one which has index iP0;

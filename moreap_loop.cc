@@ -31,7 +31,7 @@ int main(void)
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
-     nf.createfromdata();
+     nf.read_from_file();
      if (showforms) nf.display();
 
      int nnf = nf.n1ds;

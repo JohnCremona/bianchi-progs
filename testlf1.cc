@@ -28,7 +28,7 @@ int main ()
      n = makepos((Quad)alpha);  long normn = quadnorm(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
-     nf.createfromdata();
+     nf.read_from_file();
      nf.display();
      int denom = nf.h1->h1denom();
      if(denom!=1) cout << "Denom = " << denom << endl;

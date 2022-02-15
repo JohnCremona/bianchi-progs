@@ -165,7 +165,8 @@ int main(void)
       // Compute Atkin-Lehner operators and check that they are involutions and commute
       // restricted to Q such that the power of Q dividing N has square ideal class
 
-      vector<Quadprime> badprimes = make_badprimes(N);
+      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
+      vector<Quadprime> badprimes = make_badprimes(N, allbadprimes);
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;

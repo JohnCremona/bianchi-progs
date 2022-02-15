@@ -57,7 +57,7 @@ int main ()
        {
          //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
          newforms nf(N,0, ch);
-         nf.createfromdata();
+         nf.read_from_file();
          nf.list(nap);
        }
    }

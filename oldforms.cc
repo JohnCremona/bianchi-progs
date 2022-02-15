@@ -47,7 +47,7 @@ eigdata::eigdata(Qideal& iN, const Qideal& iM, int neigs, int verbose, int ch)
           cout << "  so creating newforms at that level..." << endl;
         }
       newforms olddata(M,verbose, ch);
-      olddata.createfromscratch();
+      olddata.find();
       olddata.getap(1, max(neigs,20), 0);
       olddata.output_to_file(eigfilename);
       if(verbose)
@@ -221,60 +221,68 @@ static long min_newform_level_norm[20] = {0,65, // d=1
                                           0,0,0,0,9,        // d=11
                                           0,0,0,0,0,0,0,4}; // d=19
 
-oldforms::oldforms(Qideal& iN, const vector<Quadprime>& badp, const vector<Quadprime>& goodp, int verbose, long ch)
-  : N(iN), characteristic(ch), badprimes(badp), goodprimes(goodp)
+oldforms::oldforms(const newforms* nfs)
+  : nf(nfs)
 {
-  plist = badprimes;
-  plist.insert(plist.end(), goodprimes.begin(), goodprimes.end());
+  plist = nf->badprimes;
+  plist.insert(plist.end(), nf->goodprimes.begin(), nf->goodprimes.end());
   nap = plist.size();
-   noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
-   if (ch>0)
-     return;
-   vector<Qideal> DD = alldivs(N);
-   if (verbose>1)
-     {
-       cout<<"List of all divisors of N: ";
-       for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
-         {
-           if (Di!=DD.begin())
-             cout << ", ";
-           cout << ideal_label(*Di) << " = " << (*Di);
-         }
-       cout << endl;
-     }
-   for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
-     {
-       getoldclasses(*Di,verbose); // will skip D==N
-     }
-   for (int i=0; i<noldclasses; i++)
-     olddim1 += oldclassdims[i];
-   olddimall = olddim1 + olddim2;
-   if(verbose)
-     {
-       cout<<"Leaving oldform constructor with olddim1 = "<<olddim1;
-       cout<<", olddim2 = "<<olddim2<<", olddimall="<<olddimall<<endl;
-     }
+  noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
+  if (nf->characteristic>0)
+    return;
+  N = nf->N;
+  vector<Qideal> DD = alldivs(N);
+  if (nf->verbose>1)
+    {
+      cout<<"List of all divisors of N: ";
+      for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
+        {
+          if (Di!=DD.begin())
+            cout << ", ";
+          cout << ideal_label(*Di) << " = " << (*Di);
+        }
+      cout << endl;
+    }
+  for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
+    {
+      getoldclasses(*Di); // will skip D==N
+    }
+  for (int i=0; i<noldclasses; i++)
+    olddim1 += oldclassdims[i];
+  olddimall = olddim1 + olddim2;
+  if(nf->verbose)
+    {
+      cout<<"Leaving oldform constructor with olddim1 = "<<olddim1;
+      cout<<", olddim2 = "<<olddim2<<", olddimall="<<olddimall<<endl;
+    }
 }
 
 //really a subroutine of the constructor
-void oldforms::getoldclasses(Qideal& D, int verbose)
+void oldforms::getoldclasses(Qideal& D)
 {
   if (D==N)
     return;
   long min_norm = 1;
-  if (Quad::d <=19 && (characteristic==0))
+  if (Quad::d <=19 && (nf->characteristic==0))
     min_norm = min_newform_level_norm[Quad::d];
   if (D.norm() < min_norm)
     {
-      if(verbose)
+      if(nf->verbose)
         cout<<"Skipping oldforms from sublevel "<<ideal_label(D)<<" whose norm "<<D.norm()
             <<" is less than "<< min_norm <<endl;
       return;
     }
-  if(verbose)
+  if(nf->verbose)
     cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
-  eigdata olddata(N,D,nap,verbose, characteristic);
-  int nforms=olddata.nforms;
+
+  newforms olddata(D, nf->verbose, nf->characteristic);
+  olddata.read_from_file();
+  int nforms=olddata.n1ds;
+  vector<vector<long>> oldeigs;
+  for (int i=0; i<nforms; i++)
+    {
+      oldeigs.push_back(olddata.nflist[i].oldform_eigs(N));
+    }
   Qideal M = N/D;
   int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;
   vector<long> betalist;
@@ -285,18 +293,18 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
       if(beta>0) k++;
       betalist.push_back(beta);
     }
-  if (characteristic>0)
+  if (nf->characteristic>0)
     oldmultiplicity=0;
-  if(verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmultiplicity<<endl;
-  olddim2+=oldmultiplicity*olddata.nforms2;
+  if(nf->verbose) cout<<"betas="<<betalist<<", each oldspace dimension is "<<oldmultiplicity<<endl;
+  olddim2+=oldmultiplicity*olddata.n2ds;
   if (nforms==0) return;
 
-  if(verbose) cout << "Computing W multiplicities." << endl;
+  if(nf->verbose) cout << "Computing W multiplicities." << endl;
   vector<long> nextoldformap(nap);
   for(int iform=0; iform<nforms; iform++)
     { for (int c=0; c<(1<<k); c++)
         {
-          if(verbose) cout << "c = " << c << endl;
+          if(nf->verbose) cout << "c = " << c << endl;
           multiplicity=1; j=0;
           ;
           for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(multiplicity>0); ++Qi)
@@ -307,18 +315,18 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
                 { int bit = testbit(c,j); j++;
                   nextoldformap[i] = bit?1:-1;
                   if (odd(beta)) xmultiplicity =  (beta+1)/2;
-                  else if((*Qi).divides(D) && (olddata.eigs[iform][i]==-1)) xmultiplicity=beta/2;
+                  else if((*Qi).divides(D) && (oldeigs[iform][i]==-1)) xmultiplicity=beta/2;
                   else xmultiplicity=(beta/2)+1;
                   if (!bit) xmultiplicity=1+beta-xmultiplicity;
                   multiplicity*=xmultiplicity;
                 }
-              else nextoldformap[i] = olddata.eigs[iform][i];
+              else nextoldformap[i] = oldeigs[iform][i];
             }
-          if(verbose) cout << "Multiplicity = " << multiplicity << endl;
+          if(nf->verbose) cout << "Multiplicity = " << multiplicity << endl;
           if (multiplicity>0)
             {
               for(int i=plist.size(); i<nap; i++)
-                nextoldformap[i] = olddata.eigs[iform][i];
+                nextoldformap[i] = oldeigs[iform][i];
               oldformap.push_back(nextoldformap);
               oldclassdims.push_back(multiplicity);
               oldlevels.push_back(D);
@@ -330,7 +338,7 @@ void oldforms::getoldclasses(Qideal& D, int verbose)
 
 long oldforms::dimoldpart(vector<long> aplist)
 { int ans = 0;
-  if (characteristic!=0) return 0;   // until we work out how to compute this
+  if (nf->characteristic!=0) return 0;   // until we work out how to compute this
   if (aplist.size()==0) return 0;   // all lists "start with" a null list!
   //  cout<<"dimoldpart: aplist="<<aplist<<endl;
   for (int i=0; i<noldclasses; i++)

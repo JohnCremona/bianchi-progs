@@ -29,7 +29,7 @@ int main ()
    {
 #endif
      newforms nf(N,verbose);
-     nf.createfromdata();
+     nf.read_from_file();
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {

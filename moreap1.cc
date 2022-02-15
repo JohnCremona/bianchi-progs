@@ -20,7 +20,7 @@ int main(void)
      string efilename = eigfile(N);
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N,verbose);
-     nf.createfromdata();
+     nf.read_from_file();
      if (showforms) nf.display();
 
      int nnf = nf.n1ds;

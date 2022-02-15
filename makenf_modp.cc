@@ -55,7 +55,7 @@ int main ()
      string label = ideal_label(N);
      cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
      newforms nf(N,verbose, ch);
-     nf.createfromscratch();
+     nf.find();
 #ifdef LOOPER
      int dimcusp, dimeis, dimall;
      // output lines as in dimtabeis:

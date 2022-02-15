@@ -95,7 +95,20 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
 
 // fill in data for the j'th newform (j based at 1)
 
-void newform::fill_in_data(int j)
+// In detail: this assumes we have the list of eigs; it extracts
+// aqlist from this (but this may not be complete for even class
+// number) and the extra data (sfe, integration data etc) but *not*
+// aplist:
+
+//  - aq and sfe from eigs
+//  - L/P
+//  - manin vector data
+//  - integration matrix  // using find_matrix()
+
+// The reason for the parameter j is to access data computed and
+// stored in the newforms class
+
+void newform::data_from_eigs(int j)
 {
   sfe = 0;
 
@@ -152,6 +165,104 @@ void newform::fill_in_data(int j)
   find_matrix(j);
 }
 
+// When a newform has been read from file, we have the aqlist and
+// aplist but not the sequence of eigs in order.  This is needed
+// both for recovering the basis vector from the h1 (in case we want
+// to compute more ap), and for computing oldform multiplcities.
+
+void newform::eigs_from_data()
+  // recreate eigs list (in case we need to recover basis vector):
+  // start with unramified char eigs (all +1), then Atkin-Lehner eigs
+  // aq (if ch==0), then Tp eigs ap for good p, omitting those not
+  // used for splitting off.
+{
+  int ch(nf->characteristic);
+  if (ch == 0)
+    {
+      // The first n2r eigs are all +1
+      eigs.resize(nf->n2r, +1);
+
+      // The next nwq eigs come from aq but only for the primes in badprimes
+      vector<Quadprime>::iterator Qi;
+      vector<long>::const_iterator aqi;
+      for (Qi = nf->allbadprimes.begin(), aqi=aqlist.begin(); Qi!=nf->allbadprimes.end(); ++Qi, ++aqi)
+        {
+          Quadprime Q = *Qi;
+          long e = val(Q, nf->N);
+          if (nf->n2r==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+            eigs.push_back(*aqi);
+        }
+    }
+  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+  vector<long>::const_iterator api=aplist.begin();
+  while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
+    {
+      Quadprime P = *pr;
+      //  Copy a_P for P in goodprimes, i.e. with [P] square
+      while ((P.divides(nf->N)) || (ch>0 && (P.norm()%ch==0)) || !P.has_square_class())
+        {
+          ++pr;
+          ++api;
+          P = *pr;
+        }
+      eigs.push_back(*api);
+      ++pr; ++api;
+    }
+}
+
+// For M a *multiple* of this level N, make the list of eigs
+// appropriate for the higher level, taking into account the primes
+// P (if any) dividing M but not N. For such P we delete the a_P
+// from the sublist of T_P eigenvalues and insert a 0 into the W_Q
+// eigenvalues. The oldform constructor will deal with this.
+vector<long> newform::oldform_eigs(Qideal& M)
+{
+  assert (nf->N.divides(M));
+  vector<long> M_eigs;
+
+  // insert eigs for central characters:
+  if (nf->characteristic == 0)  // the first n2r eigs are all +1
+    {
+      M_eigs.resize(nf->n2r, +1);
+    }
+
+  vector<long>::const_iterator ei = eigs.begin() + (nf->n2r);
+  vector<Quadprime> allMprimes = M.factorization().sorted_primes();
+  vector<Quadprime> Mprimes = make_badprimes(M, allMprimes);
+  for (vector<Quadprime>::iterator Qi = Mprimes.begin(); Qi!=Mprimes.end(); ++Qi)
+    {
+      Quadprime Q = *Qi;
+      if (Q.divides(nf->N))
+        {
+          if (nf->verbose)
+            cout << " keeping W eigenvalue "<<(*ei)<< " at "<<Q<<endl;
+          M_eigs.push_back(*ei++);
+        }
+      else
+        {
+          if (nf->verbose)
+            cout << " dummy W eigenvalue 0 at "<<Q<<endl;
+          M_eigs.push_back(0); // dummy value, oldforms class will handle this
+        }
+    }
+  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+    {
+      Quadprime P = *Pi;
+      if (!P.divides(nf->N))
+        {
+          if (!P.divides(M)) // else this T_P eigenvalue is ignored
+            {
+              if (nf->verbose)
+                cout << " keeping eigenvalue "<<(*ei)<< " at "<<P<<endl;
+              M_eigs.push_back(*ei);
+            }
+          ++ei;
+        }
+    }
+  return M_eigs;
+}
+
+
 newform::newform(newforms* nfs,
                  const vector<int>& intdata, const vector<Quad>& Quaddata,
                  const vector<long>& aq, const vector<long>& ap)
@@ -182,43 +293,11 @@ newform::newform(newforms* nfs,
         cout<<"Problem in data on file for level "<<N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
     }
 
-  // recreate eigs list (in case we need to recover basis vector):
-  // start with unramified char eigs (all +1), then Atkin-Lehner eigs
-  // aq (if ch==0), then Tp eigs ap for good p, omitting those not
-  // used for splitting off.
   aplist = ap;
-  if (ch == 0)
-    {
-      // The first n2r eigs are all +1
-      eigs.resize(nf->n2r, +1);
 
-      // The next nwq eigs come from aq but only for the primes in badprimes
-      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
-      vector<Quadprime>::iterator Qi;
-      vector<long>::const_iterator aqi;
-      for (Qi = allbadprimes.begin(), aqi=aq.begin(); Qi!=allbadprimes.end(); ++Qi, ++aqi)
-        {
-          Quadprime Q = *Qi;
-          long e = val(Q,N);
-          if (nf->n2r==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
-            eigs.push_back(*aqi);
-        }
-    }
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  vector<long>::const_iterator api=aplist.begin();
-  while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
-    {
-      Quadprime P = *pr;
-      //  Copy a_P for P in goodprimes, i.e. with [P] square
-      while ((P.divides(N)) || (ch>0 && (P.norm()%ch==0)) || !P.has_square_class())
-        {
-          ++pr;
-          ++api;
-          P = *pr;
-        }
-      eigs.push_back(*api);
-      ++pr; ++api;
-    }
+  // recreate eigs list (in case we need to recover basis vector):
+
+  eigs_from_data();
 }
 
 void newform::find_cuspidal_factor(const vec& v)
@@ -479,9 +558,12 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   if ((characteristic==0) && (Quad::class_group_2_rank > 0))
     nulist = make_nulist(N);
 
+  // badprimes is a list of all primes Q|N
+  allbadprimes = N.factorization().sorted_primes();
+
   // badprimes is a list of primes Q|N such that [Q^e] is square
   if (characteristic==0)
-    badprimes = make_badprimes(N);
+    badprimes = make_badprimes(N, allbadprimes);
   nwq = badprimes.size();
 
   // goodprimes is a list of at least nap good primes (excluding those
@@ -631,7 +713,7 @@ void newforms::find_lambdas()
     }
 }
 
-void newforms::createfromscratch()
+void newforms::find()
 {
   if(verbose)
     cout<<"Constructing homspace at level "<<ideal_label(N)<<" ...\n";
@@ -647,7 +729,7 @@ void newforms::createfromscratch()
         cout<<"Retrieving oldform data for level "<<N<<"...\n";
     }
 
-  of = new oldforms(N, badprimes, goodprimes, verbose, characteristic);
+  of = new oldforms(this);
   if(verbose)
     {
       if (characteristic==0)
@@ -698,7 +780,7 @@ void newforms::createfromscratch()
   nap=0;
 }
 
-// fill in extra data in each newforms:
+// fill in extra data in each newform:
 void newforms::fill_in_newform_data(int everything)
 {
   if(n1ds==0) return; // no work to do
@@ -711,7 +793,7 @@ void newforms::fill_in_newform_data(int everything)
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
     for (int j=0; j<n1ds; j++)
-      nflist[j].fill_in_data(j+1);
+      nflist[j].data_from_eigs(j+1);
 
 // Find the twisting primes for each newform (more efficient to do
 // this here instead of within the newform constructors, as one lambda
@@ -922,7 +1004,7 @@ void newforms::make_projcoord()
 // Second constructor, in which data is read from file in directory
 // newforms. If not, recreates it from eigs
 
-void newforms::createfromdata()
+int newforms::read_from_file()
 {
   if(verbose)
     cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
@@ -948,10 +1030,12 @@ void newforms::createfromdata()
           cout << " aqs = "<< filedata.aqs[i] <<endl;
           cout << " aps = "<< filedata.aps[i] <<endl;
         }
+      // the constructor here calls eigs_from_data() so these newforms have their eigs lists
       nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
                                filedata.aqs[i],filedata.aps[i]));
     }
   nap=filedata.nap;
+  return 1;
 }
 
 void newforms::makebases()
@@ -1390,7 +1474,7 @@ vector<long> newforms::apvec(Quadprime& P)
 
   if (vp>0) // bad prime, we already know the eigenvalues
     {
-      int ip = find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
+      int ip = std::find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
       long aq;
       for (i=0; i<n1ds; i++)
         {
@@ -1585,10 +1669,10 @@ vector<Qideal> make_nulist(Qideal& N)
 }
 
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_badprimes(Qideal& N)
+vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprimes)
 {
-  vector<Quadprime> badprimes,  allbadprimes = N.factorization().sorted_primes();
-  for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+  vector<Quadprime> badprimes;
+  for (vector<Quadprime>::const_iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
     {
       Quadprime Q = *Qi;
       long e = val(Q,N);
