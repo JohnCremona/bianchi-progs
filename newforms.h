@@ -189,6 +189,8 @@ private:
   vector<long> apvec_euclidean(Quadprime& P, const vector<long>& elist);
   // compute eigenvalue of op for each newform and check that it is in elist
   vector<long> apvec(const matop& op, const vector<long>& elist);
+  // compute eigenvalues given the image images[j] for each j in jlist
+  vector<long> apvec_from_images(map<int,vec> images, const vector<long>& elist, const string& name);
 
   void output_to_file(string eigfile) const;
 

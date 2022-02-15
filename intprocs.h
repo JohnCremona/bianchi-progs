@@ -60,4 +60,7 @@ void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<
 
 inline int testbit(long a, long i) {return (a& (1<<i));}
 
+// return list of integers from first to last inclusive
+vector<long> range(long first, long last);
+
 #endif

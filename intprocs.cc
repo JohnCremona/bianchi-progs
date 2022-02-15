@@ -286,3 +286,12 @@ void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<
 #endif
     }
 }
+
+// return list of integers from first to last inclusive
+vector<long> range(long first, long last)
+{
+  long n = last-first+1;
+  vector<long> ans(n);
+  std::iota(ans.begin(), ans.end(), first);
+  return ans;
+}

@@ -1207,31 +1207,10 @@ void newforms::find_jlist()
 
 //#define DEBUG_APVEC
 
-// compute eigenvalue of op for each newform and check that it is in elist
-vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
+// compute eigenvalues given the image images[j] for each j in jlist
+vector<long> newforms::apvec_from_images(map<int,vec> images, const vector<long>& elist, const string& name)
 {
-#ifdef DEBUG_APVEC
-  cout<<"In apvec with operator "<<op.name()<<endl;
-#endif
   vector<long> apv(n1ds);
-
-  // Compute the image images[j] of the j'th symbol under op, for all necessary j.
-
-  map<int,vec> images;
-  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
-    {
-      long j=*jj; // from 1
-      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
-      long s_number = st.first;  // (c:d) symbol number
-      int s_type    = st.second; // symbol type (negative for singular edges)
-
-      // Now we compute the projected image of symbol under op
-
-      modsym m(h1->P1.lift_to_SL2(s_number), s_type);
-      images[j] = h1->applyop(op, m, 1);
-    }
-
-// recover eigenvalues:
 
   for (int i=0; i<n1ds; i++)
     {
@@ -1264,15 +1243,41 @@ vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
           // check it is in range (in characteristic 0 only):
           if(std::find(elist.begin(), elist.end(), ap)==elist.end())
             {
-              cout<<"Error:  eigenvalue "<<ap<<" for "<<op.name()
+              cout<<"Error:  eigenvalue "<<ap<<" for operator "<<name
                   <<" for form # "<<(i+1)<<" is outside valid range "
                   << elist<<endl;
               exit(1);
             }
         }
     }
+  return apv;
+}
+
+
+// compute eigenvalue of op for each newform and check that it is in elist
+vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
+{
 #ifdef DEBUG_APVEC
-      cout << "eigenvalue list = " << apv << endl;
+  cout<<"In apvec with operator "<<op.name()<<endl;
+#endif
+  // Compute the image images[j] of the j'th symbol under op, for all necessary j.
+  map<int,vec> images;
+  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
+    {
+      long j=*jj; // from 1
+      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
+      long s_number = st.first;  // (c:d) symbol number
+      int s_type    = st.second; // symbol type (negative for singular edges)
+
+      // Now we compute the projected image of symbol under op
+
+      modsym m(h1->P1.lift_to_SL2(s_number), s_type);
+      images[j] = h1->applyop(op, m, 1);
+    }
+
+  vector<long> apv = apvec_from_images(images, elist, op.name());
+#ifdef DEBUG_APVEC
+  cout << "eigenvalue list = " << apv << endl;
 #endif
   return apv;
 }
@@ -1289,13 +1294,7 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 {
   if (ind==0) return;
   vec part = (ind>0? pcd.row(ind): -pcd.row(-ind));
-#ifdef DEBUG_APVEC
-  cout<<"--adding "<<part<<" (ind="<<ind<<") to imagej, ";
-#endif
   imagej = reduce_modp(imagej + part, hmod);
-#ifdef DEBUG_APVEC
-  cout<<"updated imagej is "<<imagej<<endl;
-#endif
 }
 
 // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in elist
@@ -1304,10 +1303,6 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
   assert (Quad::is_Euclidean && "field must be Euclidean in apvec_euclidean()");
   assert (val(P,N)==0 && "P must be good in apvec_euclidean()");
   Quad p = P.gen();
-#ifdef DEBUG_APVEC
-  cout<<"In apvec_euclidean with P = "<<P<<endl;
-#endif
-  vector<long> apv(n1ds);
 
   //images[j] is the image of the j'th M-symbol
   map<int,vec> images;
@@ -1325,11 +1320,6 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
       Quad u, v;
       h1->P1.make_symb(s_number, u, v);
 
-#ifdef DEBUG_APVEC
-      cout<<"Computing image under T("<<p<<") of "<<j<<"'th M-symbol"
-          <<" = ("<<u<<":"<<v<<")_"<<s_type<<" ..."<<flush;
-#endif
-
       // Now we compute the projected image of symbol s=(u:v)_t under
       // T_P.
 
@@ -1344,16 +1334,10 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
 
       // Matrix [1,0;0,p]
       long ind = h1->ER.coords(h1->index(u,p*v));
-#ifdef DEBUG_APVEC
-      cout<<"u1="<<u<<", u2="<<p*v<<", ind="<<ind<<endl;
-#endif
       update(pcd,imagej,ind,nfhmod);
 
       // Matrix [p,0;0,1]
       ind = h1->ER.coords(h1->index(p*u,v));
-#ifdef DEBUG_APVEC
-      cout<<"u1="<<p*u<<", u2="<<v<<", ind="<<ind<<endl;
-#endif
       update(pcd,imagej,ind,nfhmod);
 
       // Other matrices, several for each nonzero residue b mod p
@@ -1366,75 +1350,21 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
           a = -p;
           u1=u*p; u2=v-u*b;
           ind = h1->ER.coords(h1->index(u1,u2));
-#ifdef DEBUG_APVEC
-          cout<<"Residue class "<<b<<": ";
-          cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
-#endif
           update(pcd,imagej,ind,nfhmod);
           while(!b.is_zero())
             {
               q=a/b; c=a-b*q; u3=q*u2-u1;
               a=-b; b=c; u1=u2; u2=u3;
               ind = h1->ER.coords(h1->index(u1,u2));
-#ifdef DEBUG_APVEC
-              cout<<"a="<<a<<", b="<<b<<", u1="<<u1<<", u2="<<u2<<", ind="<<ind<<endl;
-#endif
               update(pcd,imagej,ind,nfhmod);
             }
-#ifdef DEBUG_APVEC
-          cout<<" partial image after term is "<<imagej<<endl;
-#endif
         }
       images[j]=imagej;
-
-#ifdef DEBUG_APVEC
-      cout<<" image " << j << " is "<<images[j]<<endl;
-#endif
-
     }
 
-// recover eigenvalues:
-
-  for (long i=0; i<n1ds; i++)
-    {
-      int j0 = nflist[i].j0;
-      int fac = nflist[i].fac;
-      int top = images[j0][i+1];
-      long ap;
-      // The eigenvalue is now top/fac (which should divide exactly)
-      if(nfhmod)
-        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
-      else
-        {
+  vector<long> apv = apvec_from_images(images, elist, opname(P,N));
 #ifdef DEBUG_APVEC
-          cout << "ap   = " << top << "/" << fac << " = " <<top/fac<<endl;
-#endif
-          if (top%fac !=0)
-            {
-              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
-              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
-              cout<<flush;
-            }
-           ap = top/fac;
-        }
-      apv[i]=ap;
-      if (characteristic>0)
-        apv[i] = posmod(ap, characteristic);
-      else
-        {
-          apv[i]=ap;
-          // check it is in range (in characteristic 0 only):
-          if(std::find(elist.begin(), elist.end(), ap)==elist.end())
-            {
-              cout<<"Error:  eigenvalue "<<ap<<" for P="<<P
-                  <<" for form # "<<(i+1)<<" is outside valid range "
-                  <<elist<<endl;
-              exit(1);
-            }
-        }
-    }
-#ifdef DEBUG_APVEC
-  cout << "ap list = " << apv << endl;
+  cout << "eigenvalue list = " << apv << endl;
 #endif
   return apv;
 }
@@ -1451,10 +1381,7 @@ vector<long> newforms::apvec(Quadprime& P)
 
   if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
     {
-      for (i=0; i<n1ds; i++)
-        {
-          apv[i] = -999;
-        }
+      for (i=0; i<n1ds; i++) apv[i] = -999;
 #ifdef DEBUG_APVEC
       cout << "ignored prime: ap list = " << apv << endl;
 #endif
@@ -1565,14 +1492,11 @@ vector<long> good_eigrange(Quadprime& P)
   aplim--;
   if (P.has_square_class())
     {
-      vector<long> ans(2*aplim+1);
-      std::iota(ans.begin(), ans.end(), -aplim);
-      return ans;
+      return range(-aplim, aplim);
     }
   else // want eigs of T_{P^2} such that T_P has integral eig
     {
-      vector<long> ans(aplim+1);
-      std::iota(ans.begin(), ans.end(), 0);
+      vector<long> ans = range(0,aplim);
       for (vector<long>::iterator ai = ans.begin(); ai!=ans.end(); ++ai)
         *ai = (*ai)*(*ai) + normp;
       return ans;
@@ -1609,8 +1533,7 @@ vector<long> newforms::eigrange(int i)
 
   if (characteristic>0)
     {
-      ans = vector<long>(characteristic);
-      std::iota(ans.begin(), ans.end(), 0);
+      ans = range(0,characteristic-1);
       if (verbose>1)
         cout << ans << endl;
       return ans;
