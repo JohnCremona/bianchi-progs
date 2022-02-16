@@ -213,9 +213,14 @@ private:
   void sort_eigs(void);
   void sort_lmfdb(void);
 
+  // find newforms by splitting homspace
   void find();
-  int read_from_file(); // returns 1 for success, 0 if no data file exists
-  void makebases(); // if created from stored data but need bases and homspace
+  // try to read from file, return 1 for success (data file exists) or 0 if no data file exists
+  int read_from_file();
+  // try to read from file, and if no data file exists, finds from scratch and stores
+  void read_from_file_or_find();
+  // if created from stored data but need bases and homspace
+  void makebases();
 };
 
 

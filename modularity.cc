@@ -42,7 +42,7 @@ int main(void)
   cin >> nforms >> nprimes;
 
   newforms nf(N,verbose>1);
-  nf.read_from_file();
+  nf.read_from_file_or_find();
   if (verbose && showforms)
     nf.display();
   int nnf = nf.n1ds;

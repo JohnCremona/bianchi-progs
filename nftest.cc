@@ -29,7 +29,7 @@ int main ()
    {
 #endif
      newforms nf(N,verbose);
-     nf.read_from_file();
+     nf.read_from_file_or_find();
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {

@@ -218,8 +218,15 @@ void newform::eigs_from_data()
 vector<long> newform::oldform_eigs(Qideal& M)
 {
   assert (nf->N.divides(M));
+
+  eigs_from_data();
   vector<long> M_eigs;
 
+  if (nf->verbose)
+    {
+      cout<<"Making oldform eigs at level "<<ideal_label(M)<<" from eigs at level "<<ideal_label(nf->N)<<endl;
+      cout<<" - input eigs: "<<eigs<<endl;
+    }
   // insert eigs for central characters:
   if (nf->characteristic == 0)  // the first n2r eigs are all +1
     {
@@ -234,30 +241,35 @@ vector<long> newform::oldform_eigs(Qideal& M)
       Quadprime Q = *Qi;
       if (Q.divides(nf->N))
         {
-          if (nf->verbose)
+          if (nf->verbose>1)
             cout << " keeping W eigenvalue "<<(*ei)<< " at "<<Q<<endl;
           M_eigs.push_back(*ei++);
         }
       else
         {
-          if (nf->verbose)
+          if (nf->verbose>1)
             cout << " dummy W eigenvalue 0 at "<<Q<<endl;
           M_eigs.push_back(0); // dummy value, oldforms class will handle this
         }
     }
-  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
+       Pi != Quadprimes::list.end() && ei!=eigs.end(); ++Pi)
     {
       Quadprime P = *Pi;
       if (!P.divides(nf->N))
         {
           if (!P.divides(M)) // else this T_P eigenvalue is ignored
             {
-              if (nf->verbose)
+              if (nf->verbose>1)
                 cout << " keeping eigenvalue "<<(*ei)<< " at "<<P<<endl;
               M_eigs.push_back(*ei);
             }
           ++ei;
         }
+    }
+  if (nf->verbose)
+    {
+      cout<<" - output eigs: "<<M_eigs<<endl;
     }
   return M_eigs;
 }
@@ -1001,23 +1013,144 @@ void newforms::make_projcoord()
     h1->projcoord.setcol(j, nflist[j-1].basis);
 }
 
-// Second constructor, in which data is read from file in directory
-// newforms. If not, recreates it from eigs
+// try to read from file, and if no data file exists, finds from scratch and stores
+void newforms::read_from_file_or_find()
+{
+  if (verbose>1)
+    cout << " - reading newform data for level "<<ideal_label(N)<<endl;
+  int ok = read_from_file();
+  if (ok)
+    {
+      if (verbose>1)
+        cout << " - successfully read newform data for level "<<ideal_label(N)<<endl;
+      return;
+    }
+  if (verbose)
+    cout << " - no newform data for level "<<ideal_label(N)<<" exists, finding newforms..."<<endl;
+  find();
+  if (verbose)
+    cout << " - found "<<n1ds<<" newforms for level "<<ideal_label(N)<<endl;
+  if (n1ds>0)
+    {
+      if (verbose)
+        cout << " - computing eigenvalues... "<<endl;
+      getap(1, 20, 0);
+    }
+  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
+  output_to_file(eigfilename);
+  if(verbose)
+    {
+      cout << "  finished creating and storing newforms at level " << N << endl;
+      if (verbose>1)
+        display();
+    }
+}
 
 int newforms::read_from_file()
 {
   if(verbose)
     cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
 
-// Read newform data from file into eigdata structure.
+// Read newform data from file
 
-  eigdata filedata(N, N, -1, verbose>1, characteristic);  // neigs=-1 means get ALL from file
+//  eigdata filedata(N, N, -1, verbose>1, characteristic);  // neigs=-1 means get ALL from file
+
+  if(verbose>1) cout << "Getting newform data for " << N << endl;
+  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
+  ifstream data(eigfilename.c_str());
+  if (!data)
+    {
+      if(verbose)
+        {
+          cout << "No data file for M = " << N;
+          if (characteristic) cout << " mod " << characteristic;
+        }
+      return 0;
+    }
+  data >> n1ds >> n2ds >> nap;
+  if(verbose>1)
+    {
+      cout<<" read data for "<<n1ds<<" newforms at level "<<N
+          <<", total new dimension = "<<(n1ds+n2ds)<<", nap = "<<nap<<endl;
+    }
+  if (n1ds==0)
+    return 1;
+
+  vector<vector<long> > aqs(n1ds), aps(n1ds), eigs(n1ds);
+  vector<vector<int> > intdata(n1ds);   // sfe, pdot, dp0, cuspidalfactor, lambdadot, matdot
+  vector<vector<Quad> > Quaddata(n1ds); // lambda, a, b, c, d
+
+  int i;
+  for(i=0; i<n1ds; i++)
+    {
+      eigs[i].resize(nap);
+      aps[i].resize(nap);
+      if (characteristic==0)
+        {
+          aqs[i].resize(nwq);
+          intdata[i].resize(6);
+          Quaddata[i].resize(5);
+        }
+    }
+
+  vector<vector<long> >::iterator f; long eig;
+
+  if (characteristic==0)
+    {
+      // Read the auxiliary data (unless in positive characteristic):
+      for (i=0; i<n1ds; i++) data>>intdata[i][0];  // sfe
+      for (i=0; i<n1ds; i++) data>>intdata[i][1];  // pdot
+      for (i=0; i<n1ds; i++) data>>intdata[i][2];  // dp0
+      for (i=0; i<n1ds; i++) data>>intdata[i][3];  // cuspidalfactor
+      for (i=0; i<n1ds; i++) data>>Quaddata[i][0]; // lambda
+      for (i=0; i<n1ds; i++) data>>intdata[i][4];  // lambdadot
+      for (i=0; i<n1ds; i++) data>>Quaddata[i][1]; // a
+      for (i=0; i<n1ds; i++) data>>Quaddata[i][2]; // b
+      for (i=0; i<n1ds; i++) data>>Quaddata[i][3]; // c
+      for (i=0; i<n1ds; i++) data>>Quaddata[i][4]; // d
+      for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
+
+      //  Read the W-eigenvalues at level M into aqs:
+      for(i=0; i<nwq; i++)
+        for(f=aqs.begin(); f!=aqs.end(); ++f)
+          {
+            data>>eig;
+            (*f)[i]=eig;
+          }
+    }
+
+  // Next read the coefficients at level M into aps:
+  for(i=0; i<nap; i++)
+    for(f=aps.begin(); f!=aps.end(); ++f)
+      {
+        data>>eig;
+        (*f)[i]=eig;
+      }
+
+  data.close();
+
+  if(verbose>1)
+    {
+      cout << "Finished reading newform data for level " << N << endl;
+      if (characteristic==0)
+        {
+          cout << "aqs = " << endl;
+          for(i=0; i<n1ds; i++) cout<<i<<": "<<aqs[i]<<endl;
+        }
+      cout << "aps = " << endl;
+      for(i=0; i<n1ds; i++) cout<<i<<": "<<aps[i]<<endl;
+      if (characteristic==0)
+        {
+          cout << "intdata = " << endl;
+          for(i=0; i<n1ds; i++) cout<<i<<": "<<intdata[i]<<endl;
+          cout << "Quaddata = " << endl;
+          for(i=0; i<n1ds; i++) cout<<i<<": "<<Quaddata[i]<<endl;
+        }
+    }
 
 // Extract number of newforms and their eigenvalues from this.
 
-  nnflist=n1ds=filedata.nforms;
-  n2ds=filedata.nforms2;
-  if(verbose>1) cout << " found "<<n1ds << " newforms for N = " << ideal_label(N) << endl;
+  if(verbose>1) cout << " read "<<n1ds << " newforms for N = " << ideal_label(N) << endl;
 
  // construct the newforms from this data
   for(int i=0; i<n1ds; i++)
@@ -1025,16 +1158,14 @@ int newforms::read_from_file()
       if(verbose>1)
         {
           cout << " constructing newform # " << i << endl;
-          cout << " intdata  = "<< filedata.intdata[i] <<endl;
-          cout << " Quaddata = "<< filedata.Quaddata[i] <<endl;
-          cout << " aqs = "<< filedata.aqs[i] <<endl;
-          cout << " aps = "<< filedata.aps[i] <<endl;
+          cout << " intdata  = "<< intdata[i] <<endl;
+          cout << " Quaddata = "<< Quaddata[i] <<endl;
+          cout << " aqs = "<< aqs[i] <<endl;
+          cout << " aps = "<< aps[i] <<endl;
         }
       // the constructor here calls eigs_from_data() so these newforms have their eigs lists
-      nflist.push_back(newform(this,filedata.intdata[i],filedata.Quaddata[i],
-                               filedata.aqs[i],filedata.aps[i]));
+      nflist.push_back(newform(this,intdata[i],Quaddata[i], aqs[i],aps[i]));
     }
-  nap=filedata.nap;
   return 1;
 }
 

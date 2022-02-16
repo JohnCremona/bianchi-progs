@@ -276,13 +276,19 @@ void oldforms::getoldclasses(Qideal& D)
     cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
 
   newforms olddata(D, nf->verbose, nf->characteristic);
-  olddata.read_from_file();
+  olddata.read_from_file_or_find();
   int nforms=olddata.n1ds;
   vector<vector<long>> oldeigs;
   for (int i=0; i<nforms; i++)
     {
       oldeigs.push_back(olddata.nflist[i].oldform_eigs(N));
     }
+  if(nforms>0 && nf->verbose)
+    {
+      cout << "eigs = " << endl;
+      for(int i=0; i<nforms; i++) cout<<i<<": "<<oldeigs[i]<<endl;
+    }
+
   Qideal M = N/D;
   int k=0, oldmultiplicity=1, xmultiplicity, multiplicity, j, beta;
   vector<long> betalist;
