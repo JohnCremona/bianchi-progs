@@ -1053,8 +1053,6 @@ int newforms::read_from_file()
 
 // Read newform data from file
 
-//  eigdata filedata(N, N, -1, verbose>1, characteristic);  // neigs=-1 means get ALL from file
-
   if(verbose>1) cout << "Getting newform data for " << N << endl;
   string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
   ifstream data(eigfilename.c_str());

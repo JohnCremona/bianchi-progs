@@ -10,24 +10,6 @@ string eigfile(Qideal& N, long p=0);        //returns filename for eigs at level
 
 class newforms;
 
-class eigdata {
-
-// Contains eigs info about a sub-level.  The constructor can be used
-// to get eigs from a lower level to construct oldforms, and also to
-// retrieve data for this level.
-
-public:
-  Qideal N;
-  Qideal M;
-  int nforms,nforms2;
-  int nap;
-  vector<vector<long> > aqs, aps, eigs;
-  vector<vector<int> > intdata;  // sfe, pdot, dp0, cuspidalfactor,
-                                 // lambdadot, matdot
-  vector<vector<Quad> > Quaddata; // lambda, a, b, c, d
-  eigdata(Qideal& iN, const Qideal& iM, int neigs=-1, int verbose=0, int ch=0);
-};
-
 class oldforms {
  public:
   int noldclasses, nap;
