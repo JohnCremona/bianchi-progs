@@ -138,8 +138,12 @@ private:
 
   // the list of matrices defining the i'th operator:
   matop h1matop(int);
+  // cached list of previous
+  vector<matop> h1matops;
   // the list of possible (integer) eigenvalues for the i'th operator:
   vector<long> eigrange(int i);
+  // cached list of previous
+  vector<vector<long>> eigranges;
 
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
 

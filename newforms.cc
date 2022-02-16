@@ -609,37 +609,37 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 // instantiations of virtual functions required by the splitter_base class:
 mat newforms::opmat(int i, int dual, int verb)
 {
-  return h1->calcop(h1matop(i),dual,verb);
+  return h1->calcop(h1matops[i],dual,verb);
 }
 
 vec newforms::opmat_col(int i, int j, int verb)
 {
-  return h1->calcop_col(h1matop(i),j, verb);
+  return h1->calcop_col(h1matops[i],j, verb);
 }
 
 mat newforms::opmat_cols(int i, const vec& jlist, int verb)
 {
-  return h1->calcop_cols(h1matop(i),jlist, verb);
+  return h1->calcop_cols(h1matops[i],jlist, verb);
 }
 
 mat newforms::opmat_restricted(int i, const subspace& s, int dual, int verb)
 {
-  return h1->calcop_restricted(h1matop(i),s,dual,verb);
+  return h1->calcop_restricted(h1matops[i],s,dual,verb);
 }
 
 smat newforms::s_opmat(int i, int dual, int verb)
 {
-  return h1->s_calcop(h1matop(i),dual, verbose);
+  return h1->s_calcop(h1matops[i],dual, verbose);
 }
 
 smat newforms::s_opmat_cols(int i, const vec& jlist, int verb)
 {
-  return h1->s_calcop_cols(h1matop(i),jlist, verbose);
+  return h1->s_calcop_cols(h1matops[i],jlist, verbose);
 }
 
 smat newforms::s_opmat_restricted(int i, const ssubspace& s, int dual, int verb)
 {
-  return h1->s_calcop_restricted(h1matop(i),s,dual,0);
+  return h1->s_calcop_restricted(h1matops[i],s,dual,0);
 }
 
 //#define DEBUG_LAMBDA
@@ -772,6 +772,11 @@ void newforms::find()
     }
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
+      for (int i=0; i<maxdepth; i++)
+        {
+          h1matops.push_back(h1matop(i));
+          eigranges.push_back(eigrange(i));
+        }
       use_nf_number=-1; // flags to use() that the nfs found are new
       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
@@ -1171,6 +1176,11 @@ void newforms::makebases()
 {
   if(!h1) makeh1plus();  // create the homology space
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
+  for (int i=0; i<20; i++)
+    {
+      h1matops.push_back(h1matop(i));
+      eigranges.push_back(eigrange(i));
+    }
   form_finder splitspace(this, 1, nap, 0, 1, 0, verbose);
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
