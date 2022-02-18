@@ -194,7 +194,7 @@ void newform::eigs_from_data()
       long ap = *api;
       if (!P.has_square_class()) // eigenvalues of T_{P^2}, not T_P
         {
-          ap = ap*ap + normP;
+          ap = ap*ap + I2long(normP);
         }
       eigs.push_back(ap);
       // cout<<" - P = "<<P<<": eig = "<<ap<<endl;
@@ -1661,10 +1661,11 @@ vector<long> newforms::apvec(Quadprime& P)
         apv = apvec(HeckeOp(P,N), maxap); // T_P
       else
         {
+          long normP = I2long(P.norm());
           apv = apvec(HeckeSqOp(P,N), maxap); // T_{P^2}
           for (i=0; i<n1ds; i++)
             {
-              long ap, ap2 = apv[i]-P.norm();
+              long ap, ap2 = apv[i]-normP;
               cout<<"P="<<P<<", (a_P)^2 = "<<ap2<<endl;
               if (is_square(ap2, ap))
                 {
