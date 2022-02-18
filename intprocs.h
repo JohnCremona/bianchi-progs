@@ -63,4 +63,7 @@ inline int testbit(long a, long i) {return (a& (1<<i));}
 // return list of integers from first to last inclusive
 vector<long> range(long first, long last);
 
+// return 1 with r=sqrt(a) if a is square, else return 0:
+long is_square(long a, long& r);
+
 #endif

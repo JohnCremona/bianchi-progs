@@ -295,3 +295,11 @@ vector<long> range(long first, long last)
   std::iota(ans.begin(), ans.end(), first);
   return ans;
 }
+
+// return 1 with r=sqrt(a) if a is square, else return 0:
+long is_square(long a, long& r)
+{
+  if (a<0) return 0;
+  r = (long)(sqrt((double)a)+0.001);
+  return (a == r*r);
+}

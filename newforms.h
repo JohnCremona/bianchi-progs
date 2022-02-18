@@ -169,7 +169,7 @@ public:
   vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
-  int is_square;
+  int level_is_square;
   int verbose, n1ds,n2ds, nwq, nap, n2r;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;

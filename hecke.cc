@@ -72,6 +72,12 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
      }
   if (verb)
     cout<<"done."<<endl;
+  // if (verb)
+  //   {
+  //     cout << "Matrix of " << T.name() << " = ";
+  //     if (dimension>1) cout << "\n";
+  //     cout<<m.as_mat();
+  //   }
   return m;
 }
 

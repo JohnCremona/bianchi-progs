@@ -560,7 +560,7 @@ void newforms::makeh1plus(void)
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : maxdepth(MAXDEPTH), N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
 {
-  is_square = N.is_square();
+  level_is_square = N.is_square();
 
   // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
   if ((characteristic==0) && (Quad::class_group_2_rank > 0))
@@ -668,7 +668,7 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
   if(verbose)cout<<nfound<<" easy cases out of "<<n1ds<<endl;
 #endif
-  if (is_square || !N.is_principal())
+  if (level_is_square || !N.is_principal())
     {
       return;
     }
@@ -1201,6 +1201,15 @@ void newforms::makebases()
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 
+// getoneap(P) uses apvec(P) to compute, and display and/or store, a
+// list of eigenvalues e for the prime P (one for each newform),
+// specified as follows:
+//
+// - for good P with [P] square, e=a_P
+// - for good P with [P] non-square, e=|a_P| (sign not yet determined), via a_P^2, via a_{P^2}
+// - for bad P with Q=P^e||N and [Q] square, the A-L eigenvalue at Q
+// - for bad P with Q=P^e||N and [Q] non-square, +1 (sign not yet determined)
+
 void newforms::getoneap(Quadprime& P, int verbose, int store)
 {
   vector<long> apv=apvec(P);
@@ -1228,6 +1237,10 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
   if(verbose)
     cout << endl;
 }
+
+// getap() computes getoneap(P) to compute, and display and/or store,
+// eigenvalues e for each newform, for the primes P in the given
+// range, as specified above.
 
 void newforms::getap(int first, int last, int verbose)
 {
@@ -1481,7 +1494,6 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, long maxap, const 
   return apv;
 }
 
-
 // compute eigenvalue of op for each newform and check that it is <= maxap
 vector<long> newforms::apvec(const matop& op, long maxap)
 {
@@ -1597,19 +1609,27 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
   return apv;
 }
 
+// apvec(P) returns a list of eigenvalues e for the prime P (one for each newform),
+// specified as follows:
+//
+// - for good P with [P] square, e=a_P
+// - for good P with [P] non-square, e=|a_P| (sign not yet determined), via a_P^2, via a_{P^2}
+// - for bad P with Q=P^e||N and [Q] square, the A-L eigenvalue at Q
+// - for bad P with Q=P^e||N and [Q] non-square, +1 (sign not yet determined)
+
 // compute a[P] for each newform
 vector<long> newforms::apvec(Quadprime& P)
 {
 #ifdef DEBUG_APVEC
   cout<<"In apvec with P = "<<P<<endl;
 #endif
-  vector<long> apv(n1ds);
+  vector<long> apv;
   long normp=I2long(P.norm());
   int i, vp = val(P,N);
 
   if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
     {
-      for (i=0; i<n1ds; i++) apv[i] = -999;
+      apv.resize(n1ds, -999);
 #ifdef DEBUG_APVEC
       cout << "ignored prime: ap list = " << apv << endl;
 #endif
@@ -1618,23 +1638,11 @@ vector<long> newforms::apvec(Quadprime& P)
 
   if (vp>0) // bad prime
     {
-      apv = apvec(AtkinLehnerOp(P,N), 1);
-
-      // int ip = std::find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
-      // long aq;
-      // for (i=0; i<n1ds; i++)
-      //   {
-      //     apv[i] = aq = nflist[i].aqlist[ip];
-      //     if(!((aq==1)||(aq==-1)))
-      //       {
-      //         cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
-      //             <<" for form # "<<(i+1)<<" is neither +1 nor -1"<<endl;
-      //         cout<<"------------------------"<<endl;
-      //         nflist[i].display();
-      //         cout<<"------------------------"<<endl;
-      //         exit(1);
-      //       }
-      //   }
+      long e = val(P,N);
+      if (e%2==0 || P.has_square_class()) // then [P^e] is a square
+        apv = apvec(AtkinLehnerOp(P,N), 1);
+      else
+        apv.resize(n1ds, +1);
 #ifdef DEBUG_APVEC
       cout<<"Bad prime: aq list = "<<apv<<endl;
 #endif
@@ -1648,7 +1656,28 @@ vector<long> newforms::apvec(Quadprime& P)
   if (Quad::is_Euclidean)
     apv = apvec_euclidean(P, maxap);
   else
-    apv = apvec(HeckeOp(P,N), maxap);
+    {
+      if (P.has_square_class())
+        apv = apvec(HeckeOp(P,N), maxap); // T_P
+      else
+        {
+          apv = apvec(HeckeSqOp(P,N), maxap); // T_{P^2}
+          for (i=0; i<n1ds; i++)
+            {
+              long ap, ap2 = apv[i]-P.norm();
+              cout<<"P="<<P<<", (a_P)^2 = "<<ap2<<endl;
+              if (is_square(ap2, ap))
+                {
+                  cout<<", |a_P| = "<<ap<<endl;
+                  apv[i] = ap;
+                }
+              else
+                {
+                  cout<<" is not a square!"<<endl;
+                }
+            }
+        }
+    }
 #ifdef DEBUG_APVEC
   cout<<"Good prime: ap list = "<<apv<<endl;
 #endif
