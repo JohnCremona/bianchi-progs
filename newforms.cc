@@ -114,17 +114,9 @@ void newform::data_from_eigs(int j)
 {
   sfe = 0;
 
-  // Atkin-Lehner eigenvalues
-
-  // TODO (for even h)
-  // Does not yet account for the fact that in even class number we
-  // may have nwq<npdivs and need to work harder! Also in this case
-  // the first n2r eigs will be +1 and can be ignored.
+  // the first n2r eigs are +1 and can be ignored.
   if (nf->characteristic==0)
     {
-      // extract Atkin-Lehner eigs from first entries of eigs list:
-      copy(eigs.begin(), eigs.begin()+(nf->nwq), back_inserter(aqlist));
-
       // Sign of functional equation = minus product of all A-L eigenvalues
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
@@ -278,7 +270,6 @@ vector<long> newform::oldform_eigs(Qideal& M)
     }
   return M_eigs;
 }
-
 
 newform::newform(newforms* nfs,
                  const vector<int>& intdata, const vector<Quad>& Quaddata,
@@ -588,7 +579,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   // dividing characteristic if >0), includinge at least one principal
   // one which has index iP0;
 
-  nap = 20;
+  nap = MAXDEPTH;
   goodprimes = make_goodprimes(N, nap, iP0, characteristic);
   nap = goodprimes.size(); // it may be > original nap
   if (nap!=20)
@@ -756,7 +747,7 @@ void newforms::find()
       cout<<"Finding rational newforms...\n";
     }
 
-  long mindepth = (characteristic==0? n2r+nwq+iP0: nap);
+  long mindepth = (characteristic==0? n2r+iP0: nap);
   n1ds = 0;
   upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
   if(verbose)
@@ -1051,7 +1042,7 @@ void newforms::read_from_file_or_find()
   if (n1ds>0)
     {
       if (verbose)
-        cout << " - computing eigenvalues numbers 1 to "<<nap<<"... "<<endl;
+        cout << " - computing eigenvalues numbers 1 to "<<max(nap,25)<<"... "<<endl;
       getap(1, max(nap,25), 0);
     }
   string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
@@ -1665,7 +1656,9 @@ vector<long> newforms::apvec(Quadprime& P)
 }
 
 // Strategy for operators used to automatically cut out 1-dimensional
-// rational eigenspaces, in characteristic 0:
+// rational eigenspaces, in characteristic 0. NB We no longer include
+// Atkin-Lehner operators W_Q in splitting, owing to the complications
+// in computing oldform multiplicities.
 
 // The first n2r (=Quad::class_group_2_rank) operators are T_{A,A}
 // where A runs over n2r ideals coprime to N whose classes generate
@@ -1675,20 +1668,12 @@ vector<long> newforms::apvec(Quadprime& P)
 // number is odd, then n2r=0 so there are none of these.  The list of
 // ideals A used here is newforms::nulist.
 
-// Next come nwq operators T_{A,A}*W_Q, where Q is the i'th prime
-// dividing the level to power e and [Q^e] is square (so either [W] is
-// square or e is even).  By the usual abuse of notation we write W_Q
-// when we really mean W_{Q^e}, and A is coprime to N such that A^2Q^e
-// is principal.  The list of primes Q is in badprimes, of length nwq.
-// When the class number is odd, nwq is the number of prime factors of
-// N, but in general it may be smaller, even 0.  For each of these we
-// consider +1,-1 as eigenvalues.
-
-// Finally come nap operators for good primes P, where the constructor
-// sets nap=20 (by default) and fills the array goodprimes with the
-// first nap primes not dividing N.  The operator for P is *either*
-// T_{A,A}*T_P, when the class [P] is square and A^2*P is principal;
-// *or* T_{A,A}*T_{P^2} when [P] is not square, and A*P is principal.
+// Then come nap operators for good primes P, where the constructor
+// sets nap to the default MAXDEPTH (by default) and fills the array
+// goodprimes with the first nap primes not dividing N.  The operator
+// for P is *either* T_{A,A}*T_P, when the class [P] is square and
+// A^2*P is principal; *or* T_{A,A}*T_{P^2} when [P] is not square,
+// and A*P is principal.
 //
 // In the first case the eigenvalues considered are integers a with
 // |a|<=2*sqrt(N(P)).  In the second case we use the identity

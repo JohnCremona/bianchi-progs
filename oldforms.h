@@ -12,12 +12,11 @@ class newforms;
 
 class oldforms {
  public:
-  int noldclasses, nap;
+  Qideal N;
+  int noldclasses;
   int olddim1, olddim2, olddimall;  // total dim of rational oldforms, resp. non-rational, all oldform
  private:
   const newforms* nf;
-  Qideal N;
-  vector<Quadprime> plist;
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims;
   vector<Qideal> oldlevels;

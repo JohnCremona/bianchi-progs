@@ -33,20 +33,21 @@ string eigfile(Qideal& N, long p)    //returns filename for eigs at level N, cha
 
 // Implementation of oldform member functions
 
-//This must include newforms in the minus space for tests to pass!
-static long min_newform_level_norm[20] = {0,65, // d=1
-                                          32,   // d=2
-                                          49,   // d=3
-                                          0,0,25,           // d=7
-                                          0,0,0,0,9,        // d=11
-                                          0,0,0,0,0,0,0,4}; // d=19
+// List for small fields of least norm with positive dimension.  This
+// must include newforms in the minus space for tests to pass!  We
+// could omit this, it just saves reading a lot of almost trivial data
+// files for small levels which have no newforms.
+
+static long min_newform_level_norm[24] = {0,65,32,49, // d=-,1,2,3
+                                          0,8,3,25,   // d=-,5,6,7
+                                          0,0,1,9,    // d=-,-,10,11
+                                          0,1,1,12,   // d=-,13,14,15
+                                          0,1,0,4,    // d=-,17,-,19
+                                          0,1,1,6};   // d=-,21,22,23
 
 oldforms::oldforms(const newforms* nfs)
   : nf(nfs)
 {
-  plist = nf->goodprimes;
-  plist.insert(plist.end(), nf->goodprimes.begin(), nf->goodprimes.end());
-  nap = plist.size();
   noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
   if (nf->characteristic>0)
     return;
@@ -83,7 +84,7 @@ void oldforms::getoldclasses(Qideal& D)
   if (D==N)
     return;
   long min_norm = 1;
-  if (Quad::d <=19 && (nf->characteristic==0))
+  if (Quad::d <=23 && nf->characteristic==0)
     min_norm = min_newform_level_norm[Quad::d];
   if (D.norm() < min_norm)
     {
@@ -98,6 +99,8 @@ void oldforms::getoldclasses(Qideal& D)
   newforms olddata(D, nf->verbose, nf->characteristic);
   olddata.read_from_file_or_find();
   int nforms=olddata.n1ds;
+  if (nforms==0)
+    return;
 
   // Compute the oldform multiplicity as the number of divisors of N/D
   int oldmult;
@@ -128,38 +131,6 @@ void oldforms::getoldclasses(Qideal& D)
       noldclasses++;
     }
 }
-      // for (int c=0; c<(1<<k); c++)
-      //   {
-      //     if(nf->verbose) cout << "c = " << c << endl;
-      //     multiplicity=1; j=0;
-
-      //     for (vector<Quadprime>::const_iterator Qi = plist.begin(); Qi != plist.end()&&(multiplicity>0); ++Qi)
-      //       {
-      //         int i = Qi - plist.begin();
-      //         beta=betalist[i];
-      //         if (beta>0)
-      //           { int bit = testbit(c,j); j++;
-      //             nextoldformap[i] = bit?1:-1;
-      //             if (odd(beta)) xmultiplicity =  (beta+1)/2;
-      //             else if((*Qi).divides(D) && (oldeigs[iform][i]==-1)) xmultiplicity=beta/2;
-      //             else xmultiplicity=(beta/2)+1;
-      //             if (!bit) xmultiplicity=1+beta-xmultiplicity;
-      //             multiplicity*=xmultiplicity;
-      //           }
-      //         else nextoldformap[i] = oldeigs[iform][i];
-      //       }
-      //     if(nf->verbose) cout << "Multiplicity = " << multiplicity << endl;
-      //     if (multiplicity>0)
-      //       {
-      //         for(int i=plist.size(); i<nap; i++)
-      //           nextoldformap[i] = oldeigs[iform][i];
-      //         oldformap.push_back(nextoldformap);
-      //         oldclassdims.push_back(multiplicity);
-      //         oldlevels.push_back(D);
-      //         noldclasses++;
-      //       }
-      //   }
-      //}
 
 long oldforms::dimoldpart(vector<long> aplist)
 { int ans = 0;
@@ -183,7 +154,7 @@ void oldforms::display(void) const
   if (noldclasses>0)
   {
     cout << "\nOld classes for level "<<N<<"\n~~~~~~~~~~~\n";
-    cout << "Level   Dimension " << plist << endl;
+    cout << "Level   Dimension " << nf->goodprimes << endl;
     for (int i=0; i<noldclasses; i++)
     { cout << oldlevels[i] << "       " << oldclassdims[i] << "       ";
       cout << oldformap[i] << endl;
