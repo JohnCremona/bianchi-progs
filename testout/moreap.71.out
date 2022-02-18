@@ -13,15 +13,11 @@ L/P ratio    = 2, cuspidal factor = 6
 Integration matrix = [-35+2a,5;7a,1-a], factor   = 5
 Making homspace and bases...
 About to recover 1 newform bases (nap=25)
-Recovering newform #1, eigs [ 1 -1 -2 -1 -2 -3 -1 -6 -4 -1 -8 2 -6 -11 4 -5 -4 -4 -14 16 11 -11 0 -15 -3 ]...
+Recovering newform #1, eigs [ -2 -1 -2 -3 -1 -6 -4 -1 -8 2 -6 -11 4 -5 -4 -4 -14 16 11 -11 0 -15 -3 ]...
 Entering form_finder, depth = 0, dimension 42
 restarting at depth = 0, dimension 42
-Computing W(P2a)...done.
- eig 1 gives new subspace at depth 1 of dimension 21
-Computing W(P3a)...done.
- eig -1 gives new subspace at depth 2 of dimension 8
 Computing T(P2b)...done.
- eig -2 gives new subspace at depth 3 of dimension 1
+ eig -2 gives new subspace at depth 1 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()
 About to start computing ap...

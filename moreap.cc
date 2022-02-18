@@ -24,7 +24,12 @@ int main(void)
      cin  >> lastp; cout << endl;
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N,verbose);
-     nf.read_from_file();
+     int ok = nf.read_from_file();
+     if (!ok)
+       {
+         cout<<"No newform data available for level "<<ideal_label(N)<<endl;
+         continue;
+       }
      if (showforms) nf.display();
 
      int nnf = nf.n1ds;

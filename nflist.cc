@@ -31,7 +31,7 @@ int main ()
      vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
      long np=0;
      cout << "Primes: "<<endl;
-     while(np<nap)
+     while(np<(nap<0?25:nap))
        {
          Quadprime p = *pr++;
          np ++;

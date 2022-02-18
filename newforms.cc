@@ -10,6 +10,8 @@
 #include "newforms.h"
 #include "eclib/curvesort.h" // for letter codes
 
+#define MAXDEPTH 20 // maximum depth for splitting off eigenspaces
+
 // Notes on scaling:
 //
 // For a newform F (however normalised), the periods of F are the
@@ -172,42 +174,41 @@ void newform::data_from_eigs(int j)
 
 void newform::eigs_from_data()
   // recreate eigs list (in case we need to recover basis vector):
-  // start with unramified char eigs (all +1), then Atkin-Lehner eigs
-  // aq (if ch==0), then Tp eigs ap for good p, omitting those not
-  // used for splitting off.
+  // start with unramified char eigs (all +1), then Tp eigs ap for
+  // good p
 {
+  // cout<<"In eigs_from_data, aplist = "<<aplist<<endl;
   int ch(nf->characteristic);
-  if (ch == 0)
-    {
-      // The first n2r eigs are all +1
-      eigs.resize(nf->n2r, +1);
+  if (ch == 0)      // the first n2r eigs are all +1
+    eigs.resize(nf->n2r, +1);
+  else
+    eigs.resize(0, +1);
 
-      // The next nwq eigs come from aq but only for the primes in badprimes
-      vector<Quadprime>::iterator Qi;
-      vector<long>::const_iterator aqi;
-      for (Qi = nf->allbadprimes.begin(), aqi=aqlist.begin(); Qi!=nf->allbadprimes.end(); ++Qi, ++aqi)
-        {
-          Quadprime Q = *Qi;
-          long e = val(Q, nf->N);
-          if (nf->n2r==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
-            eigs.push_back(*aqi);
-        }
-    }
+  // Get a_P or a_{P^2} from the a_P in aplist, for good P
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
-  while (((int)eigs.size() < nf->nap) && (api!=aplist.end()))
+  while (((int)eigs.size() < nf->nap+nf->n2r) && (api!=aplist.end()))
     {
       Quadprime P = *pr;
-      //  Copy a_P for P in goodprimes, i.e. with [P] square
-      while ((P.divides(nf->N)) || (ch>0 && (P.norm()%ch==0)) || !P.has_square_class())
+      QUINT normP = P.norm();
+      while ((P.divides(nf->N)) || (ch>0 && (normP%ch==0)))
         {
+          // cout<<" - P = "<<P<<": bad prime, skipping"<<endl;
           ++pr;
           ++api;
           P = *pr;
+          normP = P.norm();
         }
-      eigs.push_back(*api);
+      long ap = *api;
+      if (!P.has_square_class()) // eigenvalues of T_{P^2}, not T_P
+        {
+          ap = ap*ap + normP;
+        }
+      eigs.push_back(ap);
+      // cout<<" - P = "<<P<<": eig = "<<ap<<endl;
       ++pr; ++api;
     }
+  // cout<<" eigs_from_data produced eigs = "<<eigs<<endl;
 }
 
 // For M a *multiple* of this level N, make the list of eigs
@@ -234,24 +235,28 @@ vector<long> newform::oldform_eigs(Qideal& M)
     }
 
   vector<long>::const_iterator ei = eigs.begin() + (nf->n2r);
-  vector<Quadprime> allMprimes = M.factorization().sorted_primes();
-  vector<Quadprime> Mprimes = make_badprimes(M, allMprimes);
-  for (vector<Quadprime>::iterator Qi = Mprimes.begin(); Qi!=Mprimes.end(); ++Qi)
+  if (nf->nwq>0)
     {
-      Quadprime Q = *Qi;
-      if (Q.divides(nf->N))
+      vector<Quadprime> allMprimes = M.factorization().sorted_primes();
+      vector<Quadprime> Mprimes = make_badprimes(M, allMprimes);
+      for (vector<Quadprime>::iterator Qi = Mprimes.begin(); Qi!=Mprimes.end(); ++Qi)
         {
-          if (nf->verbose>1)
-            cout << " keeping W eigenvalue "<<(*ei)<< " at "<<Q<<endl;
-          M_eigs.push_back(*ei++);
-        }
-      else
-        {
-          if (nf->verbose>1)
-            cout << " dummy W eigenvalue 0 at "<<Q<<endl;
-          M_eigs.push_back(0); // dummy value, oldforms class will handle this
+          Quadprime Q = *Qi;
+          if (Q.divides(nf->N))
+            {
+              if (nf->verbose>1)
+                cout << " keeping W eigenvalue "<<(*ei)<< " at "<<Q<<endl;
+              M_eigs.push_back(*ei++);
+            }
+          else
+            {
+              if (nf->verbose>1)
+                cout << " dummy W eigenvalue 0 at "<<Q<<endl;
+              M_eigs.push_back(0); // dummy value, oldforms class will handle this
+            }
         }
     }
+
   for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
        Pi != Quadprimes::list.end() && ei!=eigs.end(); ++Pi)
     {
@@ -562,7 +567,7 @@ void newforms::makeh1plus(void)
 }
 
 newforms::newforms(const Qideal& iN, int disp, long ch)
-  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
+  : maxdepth(MAXDEPTH), N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
 {
   is_square = N.is_square();
 
@@ -576,7 +581,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   // badprimes is a list of primes Q|N such that [Q^e] is square
   if (characteristic==0)
     badprimes = make_badprimes(N, allbadprimes);
-  nwq = badprimes.size();
+  // nwq = badprimes.size();
+  nwq = 0; // prevents any W_Q being used for splitting
 
   // goodprimes is a list of at least nap good primes (excluding those
   // dividing characteristic if >0), includinge at least one principal
@@ -585,7 +591,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   nap = 20;
   goodprimes = make_goodprimes(N, nap, iP0, characteristic);
   nap = goodprimes.size(); // it may be > original nap
-
+  if (nap!=20)
+    cout<<" nap changed to "<<nap<<" since goodprimes = "<<goodprimes<<endl;
   P0 = goodprimes[iP0];
   nP0 = I2long(P0.norm());
 
@@ -596,8 +603,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 
   if (verbose>1)
     {
-      if (characteristic==0)
-        cout << "bad primes used: "<< badprimes<<endl;
+      // if (characteristic==0)
+      //   cout << "bad primes used: "<< badprimes<<endl;
       cout << "good primes used: "<<goodprimes<<endl;
     }
 
@@ -740,8 +747,8 @@ void newforms::find()
       if (characteristic==0)
         cout<<"Retrieving oldform data for level "<<N<<"...\n";
     }
-
   of = new oldforms(this);
+  long olddimall = (of->olddimall);
   if(verbose)
     {
       if (characteristic==0)
@@ -749,12 +756,9 @@ void newforms::find()
       cout<<"Finding rational newforms...\n";
     }
 
-  maxdepth = nap;
   long mindepth = (characteristic==0? n2r+nwq+iP0: nap);
-  dimsplit = n1ds = 0;
-  long olddimall = (of->olddimall);
-  nnflist = upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
-
+  n1ds = 0;
+  upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
   if(verbose)
     {
       cout<<"cuspidal dimension = "<<h1->h1cuspdim()<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;
@@ -809,13 +813,22 @@ void newforms::fill_in_newform_data(int everything)
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
-    for (int j=0; j<n1ds; j++)
-      nflist[j].data_from_eigs(j+1);
+    {
+      // compute A-L eigenvalues
+      for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+        {
+          vector<long> apv = apvec(AtkinLehnerOp(*Qi,N), 1);
+          for (int j=0; j<n1ds; j++)
+            nflist[j].aqlist.push_back(apv[j]);
+        }
+      for (int j=0; j<n1ds; j++)
+        nflist[j].data_from_eigs(j+1);
+    }
 
-// Find the twisting primes for each newform (more efficient to do
-// this here instead of within the newform constructors, as one lambda
-// might work for more than one newform). NB If the level is square
-// SFE=-1 then no such lambda will exist.
+  // Find the twisting primes for each newform (more efficient to do
+  // this here instead of within the newform constructors, as one lambda
+  // might work for more than one newform). NB If the level is square
+  // SFE=-1 then no such lambda will exist.
   if (characteristic==0)
     find_lambdas();
 }
@@ -1038,8 +1051,8 @@ void newforms::read_from_file_or_find()
   if (n1ds>0)
     {
       if (verbose)
-        cout << " - computing eigenvalues... "<<endl;
-      getap(1, 20, 0);
+        cout << " - computing eigenvalues numbers 1 to "<<nap<<"... "<<endl;
+      getap(1, max(nap,25), 0);
     }
   string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
   output_to_file(eigfilename);
@@ -1065,8 +1078,9 @@ int newforms::read_from_file()
     {
       if(verbose)
         {
-          cout << "No data file for M = " << N;
+          cout << "No data file for level " << ideal_label(N);
           if (characteristic) cout << " mod " << characteristic;
+          cout << endl;
         }
       return 0;
     }
@@ -1090,7 +1104,7 @@ int newforms::read_from_file()
       aps[i].resize(nap);
       if (characteristic==0)
         {
-          aqs[i].resize(nwq);
+          aqs[i].resize(allbadprimes.size());
           intdata[i].resize(6);
           Quaddata[i].resize(5);
         }
@@ -1114,7 +1128,7 @@ int newforms::read_from_file()
       for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
 
       //  Read the W-eigenvalues at level M into aqs:
-      for(i=0; i<nwq; i++)
+      for(i=0; i<(int)allbadprimes.size(); i++)
         for(f=aqs.begin(); f!=aqs.end(); ++f)
           {
             data>>eig;
@@ -1176,12 +1190,12 @@ void newforms::makebases()
 {
   if(!h1) makeh1plus();  // create the homology space
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
-  for (int i=0; i<20; i++)
+  for (int i=0; i<maxdepth; i++)
     {
       h1matops.push_back(h1matop(i));
       eigranges.push_back(eigrange(i));
     }
-  form_finder splitspace(this, 1, nap, 0, 1, 0, verbose);
+  form_finder splitspace(this, 1, maxdepth, 0, 1, 0, verbose);
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {
@@ -1249,7 +1263,7 @@ void newforms::getap(int first, int last, int verbose)
 
 void newforms::output_to_file(string eigfile) const
 {
-  int echo=0;
+  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
   out.open(eigfile.c_str());
   // Line 1
@@ -1350,7 +1364,7 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
   out<<endl;  if(echo) cout<<endl;
-  for(int i=0; i<nwq; i++)
+  for(int i=0; i<(int)allbadprimes.size(); i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
 	{
@@ -1431,7 +1445,7 @@ void newforms::find_jlist()
 //#define DEBUG_APVEC
 
 // compute eigenvalues given the image images[j] for each j in jlist
-vector<long> newforms::apvec_from_images(map<int,vec> images, const vector<long>& elist, const string& name)
+vector<long> newforms::apvec_from_images(map<int,vec> images, long maxap, const string& name)
 {
   vector<long> apv(n1ds);
 
@@ -1464,11 +1478,11 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, const vector<long>
         {
           apv[i]=ap;
           // check it is in range (in characteristic 0 only):
-          if(std::find(elist.begin(), elist.end(), ap)==elist.end())
+          if (abs(ap)>maxap)
             {
               cout<<"Error:  eigenvalue "<<ap<<" for operator "<<name
                   <<" for form # "<<(i+1)<<" is outside valid range "
-                  << elist<<endl;
+                  << -maxap<<"..."<<maxap<<endl;
               exit(1);
             }
         }
@@ -1477,8 +1491,8 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, const vector<long>
 }
 
 
-// compute eigenvalue of op for each newform and check that it is in elist
-vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
+// compute eigenvalue of op for each newform and check that it is <= maxap
+vector<long> newforms::apvec(const matop& op, long maxap)
 {
 #ifdef DEBUG_APVEC
   cout<<"In apvec with operator "<<op.name()<<endl;
@@ -1498,7 +1512,7 @@ vector<long> newforms::apvec(const matop& op, const vector<long>& elist)
       images[j] = h1->applyop(op, m, 1);
     }
 
-  vector<long> apv = apvec_from_images(images, elist, op.name());
+  vector<long> apv = apvec_from_images(images, maxap, op.name());
 #ifdef DEBUG_APVEC
   cout << "eigenvalue list = " << apv << endl;
 #endif
@@ -1520,8 +1534,8 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
   imagej = reduce_modp(imagej + part, hmod);
 }
 
-// compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in elist
-vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
+// compute eigenvalue at P for each newform (good P, Euclidean) and check that it is <= maxap
+vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
 {
   assert (Quad::is_Euclidean && "field must be Euclidean in apvec_euclidean()");
   assert (val(P,N)==0 && "P must be good in apvec_euclidean()");
@@ -1585,7 +1599,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, const vector<long>& elist)
       images[j]=imagej;
     }
 
-  vector<long> apv = apvec_from_images(images, elist, opname(P,N));
+  vector<long> apv = apvec_from_images(images, maxap, opname(P,N));
 #ifdef DEBUG_APVEC
   cout << "eigenvalue list = " << apv << endl;
 #endif
@@ -1611,23 +1625,25 @@ vector<long> newforms::apvec(Quadprime& P)
       return apv;
     }
 
-  if (vp>0) // bad prime, we already know the eigenvalues
+  if (vp>0) // bad prime
     {
-      int ip = std::find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
-      long aq;
-      for (i=0; i<n1ds; i++)
-        {
-          apv[i] = aq = nflist[i].aqlist[ip];
-          if(!((aq==1)||(aq==-1)))
-            {
-              cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
-                  <<" for form # "<<(i+1)<<" is neither +1 nor -1"<<endl;
-              cout<<"------------------------"<<endl;
-              nflist[i].display();
-              cout<<"------------------------"<<endl;
-              exit(1);
-            }
-        }
+      apv = apvec(AtkinLehnerOp(P,N), 1);
+
+      // int ip = std::find(badprimes.begin(),badprimes.end(),P) - badprimes.begin();
+      // long aq;
+      // for (i=0; i<n1ds; i++)
+      //   {
+      //     apv[i] = aq = nflist[i].aqlist[ip];
+      //     if(!((aq==1)||(aq==-1)))
+      //       {
+      //         cout<<"Error: Atkin-Lehner eigenvalue "<<aq<<" for Q="<<P
+      //             <<" for form # "<<(i+1)<<" is neither +1 nor -1"<<endl;
+      //         cout<<"------------------------"<<endl;
+      //         nflist[i].display();
+      //         cout<<"------------------------"<<endl;
+      //         exit(1);
+      //       }
+      //   }
 #ifdef DEBUG_APVEC
       cout<<"Bad prime: aq list = "<<apv<<endl;
 #endif
@@ -1636,12 +1652,12 @@ vector<long> newforms::apvec(Quadprime& P)
 
   // now P is a good prime
 
-  vector<long> elist = good_eigrange(P);
+  long maxap = max_T_P_eigenvalue(P);
 
   if (Quad::is_Euclidean)
-    apv = apvec_euclidean(P, elist);
+    apv = apvec_euclidean(P, maxap);
   else
-    apv = apvec(HeckeOp(P,N), elist);
+    apv = apvec(HeckeOp(P,N), maxap);
 #ifdef DEBUG_APVEC
   cout<<"Good prime: ap list = "<<apv<<endl;
 #endif
@@ -1706,13 +1722,20 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
     return HeckeSqOp(P, N);
 }
 
-// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P))
-vector<long> good_eigrange(Quadprime& P)
+long max_T_P_eigenvalue(Quadprime& P)
 {
   long normp = I2long(P.norm());
   long aplim=2;
   while (aplim*aplim<=4*normp) aplim++;
   aplim--;
+  return aplim;
+}
+
+// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P))
+vector<long> good_eigrange(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  long aplim=max_T_P_eigenvalue(P);
   if (P.has_square_class())
     {
       return range(-aplim, aplim);
@@ -1739,9 +1762,6 @@ vector<long> newforms::eigrange(int i)
     }
   i -= n2r;
 
-  if (verbose>1)
-    cout << "eigrange for P = " << badprimes[i] << ":\t";
-
   if (i<nwq)
     {
       if (characteristic==2)
@@ -1749,7 +1769,7 @@ vector<long> newforms::eigrange(int i)
       else
         ans = {-1, 1};
       if (verbose>1)
-	cout << ans << endl;
+        cout << "eigrange for Q = " << badprimes[i] << " (norm "<<badprimes[i].norm()<<"):\t" << ans << endl;
       return ans;
     }
   i -= nwq;
@@ -1764,7 +1784,7 @@ vector<long> newforms::eigrange(int i)
 
   ans = good_eigrange(goodprimes[i]);
   if (verbose>1)
-    cout << ans << endl;
+    cout << "eigrange for P = " << goodprimes[i] << " (norm "<<goodprimes[i].norm()<<"):\t" << ans << endl;
   return ans;
 }
 

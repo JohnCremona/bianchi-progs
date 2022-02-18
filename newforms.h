@@ -116,7 +116,7 @@ public:
 class newforms :public splitter_base {
 friend class newform;
 private:
-  int dimsplit, maxdepth, upperbound;
+  int maxdepth, upperbound;
 
   // instantiations of virtual functions required by the splitter_base class:
   mat opmat(int i, int d, int v=0);
@@ -170,7 +170,7 @@ public:
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   int is_square;
-  int verbose, n1ds,n2ds, nnflist, nwq, nap, n2r;
+  int verbose, n1ds,n2ds, nwq, nap, n2r;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   long characteristic; // 0 or prime
@@ -204,12 +204,12 @@ private:
   void getoneap(Quadprime& P, int verbose=0, int store=1);
   // compute eigenvalue at P for each newform
   vector<long> apvec(Quadprime& P);
-  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in elist
-  vector<long> apvec_euclidean(Quadprime& P, const vector<long>& elist);
-  // compute eigenvalue of op for each newform and check that it is in elist
-  vector<long> apvec(const matop& op, const vector<long>& elist);
+  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is <= maxap
+  vector<long> apvec_euclidean(Quadprime& P, long maxap);
+  // compute eigenvalue of op for each newform and check that it is <= maxap
+  vector<long> apvec(const matop& op, long maxap);
   // compute eigenvalues given the image images[j] for each j in jlist
-  vector<long> apvec_from_images(map<int,vec> images, const vector<long>& elist, const string& name);
+  vector<long> apvec_from_images(map<int,vec> images, long maxap, const string& name);
 
   void output_to_file(string eigfile) const;
 
@@ -244,6 +244,8 @@ vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprime
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
 
+// Return largest integer <= +2*sqrt(N(P))
+long max_T_P_eigenvalue(Quadprime& P);
 // Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P)) if [P] is square, else
 // list of possible eigs for T_{P^2}
 vector<long> good_eigrange(Quadprime& P);
