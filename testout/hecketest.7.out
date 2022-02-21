@@ -3,36 +3,36 @@ Euclidean
 1231 primes initialised, max norm = 10000
 >>>> Level 88.5 = (2+6a), norm = 88 <<<<
 Cuspidal dimension = 3
-Computing W_P2a...done. Factors are:
+Computing W(P2a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W_P2b...done. Factors are:
+Computing W(P2b)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W_P11a...done. Factors are:
+Computing W(P11a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 3
 
 Involution!
 
-Computing T_P7...done. Factors are:
+Computing T(P7)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[4 1]	(degree 1)	 to power 2
 
-Computing T_P3...done. Factors are:
+Computing T(P3)...done. Factors of characteristic polynomial are:
 1:	[-4 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 
-Computing T_P11b...done. Factors are:
+Computing T(P11b)...done. Factors of characteristic polynomial are:
 1:	[6 1]	(degree 1)	 to power 1
 2:	[0 1]	(degree 1)	 to power 2
 
-Computing T_P23a...done. Factors are:
+Computing T(P23a)...done. Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 3
 
-Computing T_P23b...done. Factors are:
+Computing T(P23b)...done. Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 3
 

@@ -69,7 +69,7 @@ int main(void)
  QUINT firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- cerr << "How many Hecke matrices T_p? ";
+ cerr << "How many Hecke matrices T(P)? ";
  cin >> np;
  Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
  while( loop.not_finished() )
@@ -127,7 +127,7 @@ int main(void)
               ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
               if (show_pols)
                 {
-                  cout << "char poly coeffs = " << charpol << endl;
+                  cout << "Coefficients of characteristic polynomial are " << charpol << endl;
                 }
               if(show_factors)
                 {
@@ -172,7 +172,7 @@ int main(void)
           Quadprime Q = *pr;
           if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && !Q.has_square_class())
             continue; // we have an odd power of an ideal with non-square ideal class
-          cout << "Computing W_"<<Q<<"..." << flush;
+          cout << "Computing W("<<Q<<")..." << flush;
           mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,0));
 	  cout << "done. " << flush;
           if (show_mats)
@@ -181,7 +181,7 @@ int main(void)
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
             {
-              cout << "char poly coeffs = " << charpol << endl;
+              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
             }
           if(show_factors)
             {
@@ -194,12 +194,12 @@ int main(void)
             }
           if (!check_commute(wq, nulist))
             {
-              cout << "********* W_Q does not commute with unramified character matrices ***********" << endl;
+              cout << "********* W(Q) does not commute with unramified character matrices ***********" << endl;
               exit(1);
             }
           if (!check_commute(wq, wqlist))
             {
-              cout << "********* W_Q matrices do not commute with each other ***********" << endl;
+              cout << "********* W(Q) matrices do not commute with each other ***********" << endl;
               exit(1);
             }
 	  wqlist.push_back(wq);
@@ -208,7 +208,7 @@ int main(void)
       // Compute Hecke operators and check that they commute with eachother and with A-Ls
 
 #ifndef LOOPER
-      cerr << "How many Hecke matrices T_p? ";
+      cerr << "How many Hecke matrices T(P)? ";
       cin >> np;
       cout<<endl;
 #endif
@@ -229,7 +229,7 @@ int main(void)
               if ((P*P).is_principal())
                 {
                   use_PQ = 1;
-                  cout << "Computing T_{" << P << "}^2..."<<flush;
+                  cout << "Computing T(" << P << ")^2..."<<flush;
                   tp = mat_to_mat_ZZ(h.hecke_op_sq(P,0, 0));
                   cout << "done. ";
                   if (show_mats)
@@ -244,7 +244,7 @@ int main(void)
             }
           else
             {
-              cout << "Computing T_" << P << "..."<<flush;
+              cout << "Computing T(" << P << ")..."<<flush;
               tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
               cout << "done. " << flush;
               if (show_mats)
@@ -256,7 +256,7 @@ int main(void)
           ZZX charpol = scaled_charpoly(tp, to_ZZ(den));
           if (show_pols)
             {
-              cout << "char poly coeffs = " << charpol << endl;
+              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
             }
           if(show_factors)
             {
@@ -266,17 +266,17 @@ int main(void)
 
           if (!check_commute(tp, nulist))
             {
-              cout << "********* T_P does not commute with unramified character matrices ***********" << endl;
+              cout << "********* T(P) does not commute with unramified character matrices ***********" << endl;
               exit(1);
             }
           if (!check_commute(tp, wqlist))
             {
-              cout << "********* T_P does not commute with W_Q matrices ***********" << endl;
+              cout << "********* T(P) does not commute with W(Q) matrices ***********" << endl;
               exit(1);
             }
           if (!check_commute(tp, tplist))
             {
-              cout << "********* T_P does not commute with other T_P matrices ***********" << endl;
+              cout << "********* T(P) does not commute with other T(P) matrices ***********" << endl;
               exit(1);
             }
 
@@ -284,7 +284,7 @@ int main(void)
             {
               if (P0_set)
                 {
-                  cout << "Computing T_{" << P << "} T_{" << P0 << "}..."<<flush;
+                  cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
                   tpq = mat_to_mat_ZZ(h.hecke_pq_op(P, P0, 0, 0));
                   cout << "done. ";
                   if (show_mats)
@@ -295,7 +295,7 @@ int main(void)
                   charpol = scaled_charpoly(tp, to_ZZ(den));
                   if (show_pols)
                     {
-                      cout << "char poly coeffs = " << charpol << endl;
+                      cout << "Coefficients of characteristic polynomial are " << charpol << endl;
                     }
                   if(show_factors)
                     {
@@ -305,22 +305,22 @@ int main(void)
 
                   if (!check_commute(tpq, nulist))
                     {
-                      cout << "********* T_PQ does not commute with unramified character matrices ***********" << endl;
+                      cout << "********* T(PQ) does not commute with unramified character matrices ***********" << endl;
                       exit(1);
                     }
                   if (!check_commute(tpq, wqlist))
                     {
-                      cout << "********* T_PQ does not commute with W_Q matrices ***********" << endl;
+                      cout << "********* T(PQ) does not commute with all W matrices ***********" << endl;
                       exit(1);
                     }
                   if (!check_commute(tpq, tplist))
                     {
-                      cout << "********* T_PQ does not commuute with T_P matrices ***********" << endl;
+                      cout << "********* T(PQ) does not commuute with all T matrices ***********" << endl;
                       exit(1);
                     }
                   if (!check_commute(tpq, tpqlist))
                     {
-                      cout << "********* T_PQ does not commuute with other T_PQ matrices ***********" << endl;
+                      cout << "********* T(PQ) does not commuute with other T(PQ) matrices ***********" << endl;
                       exit(1);
                     }
                 }
@@ -393,7 +393,7 @@ void display_factors(const ZZX& f)
   ZZ content; vec_pair_ZZX_long factors;
   factor(content, factors, f);
   ::sort(factors.begin(), factors.end(), fact_cmp);
-  cout<<"Factors are:"<<endl;
+  cout<<"Factors of characteristic polynomial are:"<<endl;
   long nf = factors.length();
   for(int i=0; i<nf; i++)
     {

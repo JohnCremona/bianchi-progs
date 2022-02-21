@@ -3,39 +3,39 @@ Euclidean
 1236 primes initialised, max norm = 10000
 >>>> Level 441.2 = (21), norm = 441 <<<<
 Cuspidal dimension = 3
-Computing W_P3...done. Factors are:
+Computing W(P3)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W_P7a...done. Factors are:
+Computing W(P7a)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W_P7b...done. Factors are:
+Computing W(P7b)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
 
-Computing T_P2...done. Factors are:
+Computing T(P2)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[3 1]	(degree 1)	 to power 2
 
-Computing T_P13a...done. Factors are:
+Computing T(P13a)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 
-Computing T_P13b...done. Factors are:
+Computing T(P13b)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 2
 
-Computing T_P19a...done. Factors are:
+Computing T(P19a)...done. Factors of characteristic polynomial are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 
-Computing T_P19b...done. Factors are:
+Computing T(P19b)...done. Factors of characteristic polynomial are:
 1:	[4 1]	(degree 1)	 to power 1
 2:	[-4 1]	(degree 1)	 to power 2
 

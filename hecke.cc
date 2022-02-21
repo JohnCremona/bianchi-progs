@@ -60,9 +60,9 @@ mat homspace::calcop_cols(const matop& T, const vec& jlist, int verb)
 
 smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
 {
-  if(verb)
-    cout<<"Computing " << T.name() <<"...";
   int i, d = dim(jlist);
+  if(verb)
+    cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop_cols() with d="<<d<<", jlist="<<jlist<<"...";
   smat m(d,rk);
   for (i=1; i<=d; i++)
     {
@@ -84,7 +84,7 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
 smat homspace::s_calcop(const matop& T, int dual, int display)
 {
   if(display)
-    cout<<"Computing " << T.name() <<"..."<<flush;
+    cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop()..."<<flush;
   smat m(rk,rk);
   for (long j=0; j<rk; j++) if (needed[j])
      { svec colj = applyop(T,freemods[j]);
@@ -135,7 +135,7 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
 smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display)
 {
   if(display)
-    cout<<"Computing " << T.name() <<"..."
+    cout<<"Computing " << T.name()// <<" in s_calcop_restricted()"
         <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
   long d=dim(s);
   smat m(d,rk);

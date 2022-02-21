@@ -89,10 +89,8 @@ public:
   void eigs_from_data();
 
   // For M a *multiple* of this level N, make the list of eigs
-  // appropriate for the higher level, taking into account the primes
-  // P (if any) dividing M but not N. For such P we delete the a_P
-  // from the sublist of T_P eigenvalues and insert a 0 into the W_Q
-  // eigenvalues. The oldform constructor will deal with this.
+  // appropriate for the higher level, deleting the a_P for P dividing
+  // M but not N from the sublist of T(P) eigenvalues.
   vector<long> oldform_eigs(Qideal& M);
 
   void display(void) const;
@@ -204,12 +202,12 @@ private:
   void getoneap(Quadprime& P, int verbose=0, int store=1);
   // compute eigenvalue at P for each newform
   vector<long> apvec(Quadprime& P);
-  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is <= maxap
-  vector<long> apvec_euclidean(Quadprime& P, long maxap);
-  // compute eigenvalue of op for each newform and check that it is <= maxap
-  vector<long> apvec(const matop& op, long maxap);
+  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is within bounds
+  vector<long> apvec_euclidean(Quadprime& P, pair<long,long> apbounds);
+  // compute eigenvalue of op for each newform and check that it is within bounds
+  vector<long> apvec(const matop& op, pair<long,long> apbounds);
   // compute eigenvalues given the image images[j] for each j in jlist
-  vector<long> apvec_from_images(map<int,vec> images, long maxap, const string& name);
+  vector<long> apvec_from_images(map<int,vec> images, pair<long,long> apbounds, const string& name);
 
   void output_to_file(string eigfile) const;
 
@@ -244,10 +242,13 @@ vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprime
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
 
-// Return largest integer <= +2*sqrt(N(P))
-long max_T_P_eigenvalue(Quadprime& P);
+// Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
+pair<long,long> eigenvalue_range(Quadprime& P);
+// Return {-m,3*m} whereor m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
+pair<long,long> eigenvalue_sq_range(Quadprime& P);
+
 // Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P)) if [P] is square, else
-// list of possible eigs for T_{P^2}
+// list of possible eigs for T(P^2) = T(P)^2-N(P), assuming T(P,P) trivial
 vector<long> good_eigrange(Quadprime& P);
 
 #endif

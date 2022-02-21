@@ -72,7 +72,7 @@ int main(void)
  QUINT firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
- cerr << "How many Hecke matrices T_p? ";
+ cerr << "How many Hecke matrices T(P)? ";
  cin >> np;
  Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
  while( loop.not_finished() )
@@ -98,7 +98,7 @@ int main(void)
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
-          cout << "Computing W_"<<Q<<"..." << flush;
+          cout << "Computing W("<<Q<<")..." << flush;
           mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.wop(Q,0,show_mats));
 	  cout << "done. " << flush;
 	  wqlist.push_back(wq);
@@ -135,7 +135,7 @@ int main(void)
             }
         }
 #ifndef LOOPER
-      cerr << "How many Hecke matrices T_p? ";
+      cerr << "How many Hecke matrices T(P)? ";
       cin >> np;
       cout<<endl;
 #endif
@@ -146,7 +146,7 @@ int main(void)
 	{
           Quadprime P = *pr;
 	  while (P.divides(N)) {++pr; P=*pr; np++;}
-	  cout << "Computing T_" << P << "..."<<flush;
+	  cout << "Computing T(" << P << ")..."<<flush;
 	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.heckeop(P,0,show_mats));
 	  cout << "done. " << flush;
 	  tplist.push_back(tp);
@@ -177,8 +177,8 @@ int main(void)
               mat_ZZ_p wqtp = wqlist[kp] * tp;
 	      if (tpwq!=wqtp)
                 {
-                  cout << "Problem: T_"<<P
-                       <<" and W_Q matrix #"<<kp<<" do not commute!" << "\n";
+                  cout << "Problem: T("<<P
+                       <<") and W(Q) matrix #"<<kp<<" do not commute!" << "\n";
                   exit(1);
                 }
 	    }
@@ -188,8 +188,8 @@ int main(void)
               mat_ZZ_p tp2tp1 = tplist[jp] * tp;
 	      if (tp1tp2!=tp2tp1)
 		{
-		  cout << "Problem: T_"<<P
-		       <<" does not commute with T_P #" <<jp << "!\n";
+		  cout << "Problem: T("<<P
+		       <<") does not commute with T(P) #" <<jp << "!\n";
                   exit(1);
 		}
 	    }

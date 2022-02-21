@@ -58,8 +58,8 @@
 
 // A second way to compute L(F,1)/P' which only involves integral
 // periods is to use a "Manin vector" mvp for some good prime p, which
-// is the sum over x mod p of {0,x/p}, since (1+N(p)-a_p)*n'_F({0,oo})
-// = n'_F(mvp), hence L/P' = n'_F(mvp)/(1+N(p)-a_p).
+// is the sum over x mod p of {0,x/p}, since (1+N(p)-a(p))*n'_F({0,oo})
+// = n'_F(mvp), hence L/P' = n'_F(mvp)/(1+N(p)-a(p)).
 
 // NB in the newform constructor we cannot use projcoord since that is
 // only computed after all the newforms are found
@@ -176,7 +176,7 @@ void newform::eigs_from_data()
   else
     eigs.resize(0, +1);
 
-  // Get a_P or a_{P^2} from the a_P in aplist, for good P
+  // Get a(P) or a(P^2) from the a(P) in aplist, for good P
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   vector<long>::const_iterator api=aplist.begin();
   while (((int)eigs.size() < nf->nap+nf->n2r) && (api!=aplist.end()))
@@ -192,9 +192,9 @@ void newform::eigs_from_data()
           normP = P.norm();
         }
       long ap = *api;
-      if (!P.has_square_class()) // eigenvalues of T_{P^2}, not T_P
+      if (!P.has_square_class()) // then we need the eigenvalue of T(P^2)
         {
-          ap = ap*ap + I2long(normP);
+          ap = ap*ap - I2long(normP);
         }
       eigs.push_back(ap);
       // cout<<" - P = "<<P<<": eig = "<<ap<<endl;
@@ -205,9 +205,9 @@ void newform::eigs_from_data()
 
 // For M a *multiple* of this level N, make the list of eigs
 // appropriate for the higher level, taking into account the primes
-// P (if any) dividing M but not N. For such P we delete the a_P
-// from the sublist of T_P eigenvalues and insert a 0 into the W_Q
-// eigenvalues. The oldform constructor will deal with this.
+// P (if any) dividing M but not N. For such P we delete the a(P)
+// from the sublist of T(P) eigenvalues.
+
 vector<long> newform::oldform_eigs(Qideal& M)
 {
   assert (nf->N.divides(M));
@@ -255,7 +255,7 @@ vector<long> newform::oldform_eigs(Qideal& M)
       Quadprime P = *Pi;
       if (!P.divides(nf->N))
         {
-          if (!P.divides(M)) // else this T_P eigenvalue is ignored
+          if (!P.divides(M)) // else this T(P) eigenvalue is ignored
             {
               if (nf->verbose>1)
                 cout << " keeping eigenvalue "<<(*ei)<< " at "<<P<<endl;
@@ -808,7 +808,7 @@ void newforms::fill_in_newform_data(int everything)
       // compute A-L eigenvalues
       for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
         {
-          vector<long> apv = apvec(AtkinLehnerOp(*Qi,N), 1);
+          vector<long> apv = apvec(AtkinLehnerOp(*Qi,N), {-1,1});
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
         }
@@ -908,7 +908,7 @@ void newforms::list(long nap)
               int bct = nflist[i].is_base_change_twist();
               if (bct)
                 {
-                  // NB if we have not enough inert a_P we might not be
+                  // NB if we have not enough inert a(P) we might not be
                   // able to determine the discriminant; the following
                   // will return 1 in this case.
                   int bcd = nflist[i].base_change_twist_discriminant();
@@ -1205,8 +1205,8 @@ void newforms::makebases()
 // list of eigenvalues e for the prime P (one for each newform),
 // specified as follows:
 //
-// - for good P with [P] square, e=a_P
-// - for good P with [P] non-square, e=|a_P| (sign not yet determined), via a_P^2, via a_{P^2}
+// - for good P with [P] square, e=a(P)
+// - for good P with [P] non-square, e=|a(P)| (sign not yet determined), via a(P)^2, via a(P^2)
 // - for bad P with Q=P^e||N and [Q] square, the A-L eigenvalue at Q
 // - for bad P with Q=P^e||N and [Q] non-square, +1 (sign not yet determined)
 
@@ -1394,7 +1394,7 @@ void newforms::output_to_file(string eigfile) const
 
 // For each newform we want a pivotal index j in [1,ngens] such that
 // the j'th coordinate is nonzero, so that we can compute the Hecke
-// eigenvalue a_p by only computing the image of the j'th
+// eigenvalue a(p) by only computing the image of the j'th
 // edge-generator.
 
 void newforms::find_jlist()
@@ -1449,7 +1449,7 @@ void newforms::find_jlist()
 //#define DEBUG_APVEC
 
 // compute eigenvalues given the image images[j] for each j in jlist
-vector<long> newforms::apvec_from_images(map<int,vec> images, long maxap, const string& name)
+vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> apbounds, const string& name)
 {
   vector<long> apv(n1ds);
 
@@ -1482,11 +1482,11 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, long maxap, const 
         {
           apv[i]=ap;
           // check it is in range (in characteristic 0 only):
-          if (abs(ap)>maxap)
+          if ((ap<apbounds.first)||(ap>apbounds.second))
             {
               cout<<"Error:  eigenvalue "<<ap<<" for operator "<<name
                   <<" for form # "<<(i+1)<<" is outside valid range "
-                  << -maxap<<"..."<<maxap<<endl;
+                  << apbounds.first<<"..."<<apbounds.second<<endl;
               exit(1);
             }
         }
@@ -1494,8 +1494,8 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, long maxap, const 
   return apv;
 }
 
-// compute eigenvalue of op for each newform and check that it is <= maxap
-vector<long> newforms::apvec(const matop& op, long maxap)
+// compute eigenvalue of op for each newform and check that it is within bounds
+vector<long> newforms::apvec(const matop& op, pair<long,long> apbounds)
 {
 #ifdef DEBUG_APVEC
   cout<<"In apvec with operator "<<op.name()<<endl;
@@ -1515,14 +1515,14 @@ vector<long> newforms::apvec(const matop& op, long maxap)
       images[j] = h1->applyop(op, m, 1);
     }
 
-  vector<long> apv = apvec_from_images(images, maxap, op.name());
+  vector<long> apv = apvec_from_images(images, apbounds, op.name());
 #ifdef DEBUG_APVEC
   cout << "eigenvalue list = " << apv << endl;
 #endif
   return apv;
 }
 
-// Special code for T_P for Euclidean fields, for good P only
+// Special code for T(P) for Euclidean fields, for good P only
 
 // The following utility does the following.  Given an integer ind:
 // - if ind>0 it adds the ind'th row of pcd to imagej;
@@ -1537,8 +1537,8 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
   imagej = reduce_modp(imagej + part, hmod);
 }
 
-// compute eigenvalue at P for each newform (good P, Euclidean) and check that it is <= maxap
-vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
+// compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in [minap,..,maxap]
+vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
 {
   assert (Quad::is_Euclidean && "field must be Euclidean in apvec_euclidean()");
   assert (val(P,N)==0 && "P must be good in apvec_euclidean()");
@@ -1561,7 +1561,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
       h1->P1.make_symb(s_number, u, v);
 
       // Now we compute the projected image of symbol s=(u:v)_t under
-      // T_P.
+      // T(P).
 
       // This code is for Euclidean fields only, using Manin-Heilbronn
       // matrices: Loop over residues res mod P and for each res
@@ -1602,7 +1602,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
       images[j]=imagej;
     }
 
-  vector<long> apv = apvec_from_images(images, maxap, opname(P,N));
+  vector<long> apv = apvec_from_images(images, apbounds, opname(P,N));
 #ifdef DEBUG_APVEC
   cout << "eigenvalue list = " << apv << endl;
 #endif
@@ -1612,8 +1612,8 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, long maxap)
 // apvec(P) returns a list of eigenvalues e for the prime P (one for each newform),
 // specified as follows:
 //
-// - for good P with [P] square, e=a_P
-// - for good P with [P] non-square, e=|a_P| (sign not yet determined), via a_P^2, via a_{P^2}
+// - for good P with [P] square, e=a(P)
+// - for good P with [P] non-square, e=|a(P)| (sign not yet determined), via a(P)^2, via a(P^2)
 // - for bad P with Q=P^e||N and [Q] square, the A-L eigenvalue at Q
 // - for bad P with Q=P^e||N and [Q] non-square, +1 (sign not yet determined)
 
@@ -1640,7 +1640,7 @@ vector<long> newforms::apvec(Quadprime& P)
     {
       long e = val(P,N);
       if (e%2==0 || P.has_square_class()) // then [P^e] is a square
-        apv = apvec(AtkinLehnerOp(P,N), 1);
+        apv = apvec(AtkinLehnerOp(P,N), {-1,1});
       else
         apv.resize(n1ds, +1);
 #ifdef DEBUG_APVEC
@@ -1651,25 +1651,23 @@ vector<long> newforms::apvec(Quadprime& P)
 
   // now P is a good prime
 
-  long maxap = max_T_P_eigenvalue(P);
-
   if (Quad::is_Euclidean)
-    apv = apvec_euclidean(P, maxap);
+    apv = apvec_euclidean(P, eigenvalue_range(P));
   else
     {
       if (P.has_square_class())
-        apv = apvec(HeckeOp(P,N), maxap); // T_P
+        apv = apvec(HeckeOp(P,N), eigenvalue_range(P)); // T(P)
       else
         {
           long normP = I2long(P.norm());
-          apv = apvec(HeckeSqOp(P,N), maxap); // T_{P^2}
+          apv = apvec(HeckeSqOp(P,N), eigenvalue_sq_range(P)); // T(P^2)
           for (i=0; i<n1ds; i++)
             {
-              long ap, ap2 = apv[i]-normP;
-              cout<<"P="<<P<<", (a_P)^2 = "<<ap2<<endl;
+              long ap, ap2 = apv[i] + normP;
+              cout<<"P="<<P<<", a(P)^2 = "<<ap2;
               if (is_square(ap2, ap))
                 {
-                  cout<<", |a_P| = "<<ap<<endl;
+                  cout<<", |a(P)| = "<<ap<<endl;
                   apv[i] = ap;
                 }
               else
@@ -1690,7 +1688,7 @@ vector<long> newforms::apvec(Quadprime& P)
 // Atkin-Lehner operators W_Q in splitting, owing to the complications
 // in computing oldform multiplicities.
 
-// The first n2r (=Quad::class_group_2_rank) operators are T_{A,A}
+// The first n2r (=Quad::class_group_2_rank) operators are T(A,A)
 // where A runs over n2r ideals coprime to N whose classes generate
 // the 2-torsion in the class group. These are involutions, but we
 // only consider the +1-eigenspace since we only want to find
@@ -1701,34 +1699,34 @@ vector<long> newforms::apvec(Quadprime& P)
 // Then come nap operators for good primes P, where the constructor
 // sets nap to the default MAXDEPTH (by default) and fills the array
 // goodprimes with the first nap primes not dividing N.  The operator
-// for P is *either* T_{A,A}*T_P, when the class [P] is square and
-// A^2*P is principal; *or* T_{A,A}*T_{P^2} when [P] is not square,
+// for P is *either* T(A,A)*T(P), when the class [P] is square and
+// A^2*P is principal; *or* T(A,A)*T(P^2) when [P] is not square,
 // and A*P is principal.
 //
 // In the first case the eigenvalues considered are integers a with
 // |a|<=2*sqrt(N(P)).  In the second case we use the identity
 //
-// T_{P^2} = (T_P)^2 + N(P)T_{P,P}
+// T(P^2) = T(P)^2 - N(P)T(P,P)
 //
-// to deduce that when the central character is trivial, the
+// to deduce that -- when the central character is trivial -- the
 // eigenvalues satisfy
 //
-// a_{P^2} = (a_P)^2 + N(P)
+// a(P^2) = a(P)^2 - N(P)
 //
-// so the eigenvalues we consider for T_{A,A}T_{P^2} are
-// {a^2+N(P) : 0<=a<=4N(P)}.
+// so the eigenvalues we consider for T(A,A)*T(P^2) are
+// {a^2-N(P) : 0<=a<=2*sqrt(N(P))}.
 
 matop newforms::h1matop(int i) // return the list of matrices defining the i'th operator
 {
   assert (i>=0);
-  if (i<n2r) // then we yield T_{A,A} where A is the i'th generator of the class group mod squares
+  if (i<n2r) // then we yield T(A,A) where A is the i'th generator of the class group mod squares
     return CharOp(nulist[i], N);
   i -= n2r;
-  if (i<nwq) // then we yield T_{A,A}*W_QQ where QQ is the power of Q exactly dividing N and A^2*QQ is principal
+  if (i<nwq) // then we yield T(A,A)*W(Q^e) where Q^e is the power of Q exactly dividing N and A^2*Q^e is principal
     return AtkinLehnerOp(badprimes[i], N);
   // else we yield, for P the i'th good prime,
-  // either T_{A,A}*T_P if [P] is square with A^2*P principal,
-  // or     T_{A,A}*T_{P^2} if [P] is not square, where A*P is principal
+  // either T(A,A)*T(P) if [P] is square with A^2*P principal,
+  // or     T(A,A)*T(P^2) if [P] is not square, where A*P is principal
   i -= nwq;
   Quadprime P = goodprimes[i];
   if (P.has_square_class())
@@ -1737,29 +1735,37 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
     return HeckeSqOp(P, N);
 }
 
-long max_T_P_eigenvalue(Quadprime& P)
+// Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
+pair<long,long> eigenvalue_range(Quadprime& P)
 {
   long normp = I2long(P.norm());
   long aplim=2;
   while (aplim*aplim<=4*normp) aplim++;
   aplim--;
-  return aplim;
+  return {-aplim, aplim};
+}
+
+// Return {-m,3*m} whereor m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
+pair<long,long> eigenvalue_sq_range(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  return {-normp, 3*normp};
 }
 
 // Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P))
 vector<long> good_eigrange(Quadprime& P)
 {
   long normp = I2long(P.norm());
-  long aplim=max_T_P_eigenvalue(P);
   if (P.has_square_class())
     {
-      return range(-aplim, aplim);
+      pair<long,long> apbounds = eigenvalue_range(P);
+      return range(apbounds.first, apbounds.second);
     }
-  else // want eigs of T_{P^2} such that T_P has integral eig
+  else // want eigs of T(P^2)=T(P)^2-N(P) such that T(P) has integral eig
     {
-      vector<long> ans = range(0,aplim);
-      for (vector<long>::iterator ai = ans.begin(); ai!=ans.end(); ++ai)
-        *ai = (*ai)*(*ai) + normp;
+      pair<long,long> apbounds = eigenvalue_range(P);
+      vector<long> ans = range(0,apbounds.second);
+      for_each(ans.begin(), ans.end(), [normp](long a)->long{return a*a-normp;});
       return ans;
     }
 }

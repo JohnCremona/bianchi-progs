@@ -61,8 +61,8 @@ vector<mat22> Hecke(const Quad& p, Qideal& N)
 
 // For [M1] square and M1,M2 coprime; the level is N=M1*M2.
 //
-// This is a matrix representing the operator T_{I,I}W_{M1} where
-// I^2M1 is principal
+// This is a matrix representing the operator T(I,I)*W(M1) where
+// I^2*M1 is principal
 
 mat22 AtkinLehner(Qideal& M1, Qideal& M2)
 {
@@ -116,7 +116,7 @@ mat22 AtkinLehnerP(Quadprime& P, const Qideal& N)
 
 //#define DEBUG_HECKE
 
-// N(P)+1 matrices representing T_{A,A}*T_P where P does not divide N
+// N(P)+1 matrices representing T(A,A)*T(P) where P does not divide N
 // and the class [P] is square with A^2P principal, A coprime to N.
 
 vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
@@ -161,10 +161,10 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   return mats;
 }
 
-// N(P)^2+N(P)+1 matrices representing T_{A,A}*T_{P^2}, where P does
+// N(P)^2+N(P)+1 matrices representing T(A,A)*T(P^2), where P does
 // not divide N, with AP principal and A coprime to N.
 
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} , P not dividing N
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In Hecke("<<P<<"^2), level "<<N<<endl;
@@ -203,11 +203,11 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N) // T_{P^2} , P not dividing N
   return mats;
 }
 
-// (N(P)+1)(N(Q)+1) matrices representing T_{A,A}*T_{PQ} where P,Q do
+// (N(P)+1)(N(Q)+1) matrices representing T(A,A)*T(PQ) where P,Q do
 // not divide N and class [PQ] square with A^2PQ principal, A coprime
 // to N.  When PQ is principal we take A=1.
 
-vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N) // T_{PQ} when PQ principal
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In Hecke("<<P<<"*"<<Q<<"), level "<<N<<endl;
@@ -246,7 +246,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N) // T_{PQ} when PQ p
   return mats;
 }
 
-// Matrix inducing T_{A,A} at level N, when A^2 is principal and A+N=1
+// Matrix inducing T(A,A) at level N, when A^2 is principal and A+N=1
 
 mat22 Char(Qideal& A, const Qideal& N)
 {

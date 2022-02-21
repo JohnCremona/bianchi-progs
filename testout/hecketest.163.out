@@ -4,38 +4,38 @@ Non-Euclidean, class number 1
 >>>> Level 121.1 = (11), norm = 121 <<<<
 Cuspidal dimension = 1
  denominator = 3
-Computing W_P11...done. Factors are:
+Computing W(P11)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
 
-Computing T_P2...done. Factors are:
+Computing T(P2)...done. Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T_P3...done. Factors are:
+Computing T(P3)...done. Factors of characteristic polynomial are:
 1:	[5 1]	(degree 1)	 to power 1
 
-Computing T_P5...done. Factors are:
+Computing T(P5)...done. Factors of characteristic polynomial are:
 1:	[9 1]	(degree 1)	 to power 1
 
-Computing T_P41a...done. Factors are:
+Computing T(P41a)...done. Factors of characteristic polynomial are:
 1:	[8 1]	(degree 1)	 to power 1
 
-Computing T_P41b...done. Factors are:
+Computing T(P41b)...done. Factors of characteristic polynomial are:
 1:	[8 1]	(degree 1)	 to power 1
 
-Computing T_P43a...done. Factors are:
+Computing T(P43a)...done. Factors of characteristic polynomial are:
 1:	[6 1]	(degree 1)	 to power 1
 
-Computing T_P43b...done. Factors are:
+Computing T(P43b)...done. Factors of characteristic polynomial are:
 1:	[6 1]	(degree 1)	 to power 1
 
-Computing T_P47a...done. Factors are:
+Computing T(P47a)...done. Factors of characteristic polynomial are:
 1:	[-8 1]	(degree 1)	 to power 1
 
-Computing T_P47b...done. Factors are:
+Computing T(P47b)...done. Factors of characteristic polynomial are:
 1:	[-8 1]	(degree 1)	 to power 1
 
-Computing T_P7...done. Factors are:
+Computing T(P7)...done. Factors of characteristic polynomial are:
 1:	[10 1]	(degree 1)	 to power 1
 

@@ -3,94 +3,94 @@ Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 >>>> Level 6.1 = (a), norm = 6 <<<<
 Cuspidal dimension = 1
-Computing W_P2a...done. Factors are:
+Computing W(P2a)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W_P3a...done. Factors are:
+Computing W(P3a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
 Involution!
 
-Computing T_P2b...done. Factors are:
+Computing T(P2b)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
-Computing T_P3b...done. Factors are:
+Computing T(P3b)...done. Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T_P13a...done. Factors are:
+Computing T(P13a)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 
-Computing T_P13b...done. Factors are:
+Computing T(P13b)...done. Factors of characteristic polynomial are:
 1:	[2 1]	(degree 1)	 to power 1
 
-Computing T_P23...done. Factors are:
+Computing T(P23)...done. Factors of characteristic polynomial are:
 1:	[4 1]	(degree 1)	 to power 1
 
 >>>> Level 12.1 = (2a,-6+a), norm = 12 <<<<
 Cuspidal dimension = 2
-Computing W_P2a...done. Factors are:
+Computing W(P2a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W_P3a...done. Factors are:
+Computing W(P3a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
 
-Computing T_P2b...done. Factors are:
+Computing T(P2b)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 
-Computing T_P3b...done. Factors are:
+Computing T(P3b)...done. Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 2
 
-Computing T_P13a...done. Factors are:
+Computing T(P13a)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 2
 
-Computing T_P13b...done. Factors are:
+Computing T(P13b)...done. Factors of characteristic polynomial are:
 1:	[2 1]	(degree 1)	 to power 2
 
-Computing T_P23...done. Factors are:
+Computing T(P23)...done. Factors of characteristic polynomial are:
 1:	[4 1]	(degree 1)	 to power 2
 
 >>>> Level 36.5 = (6), norm = 36 <<<<
 Cuspidal dimension = 8
-Computing W_P2a...done. Factors are:
+Computing W(P2a)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 2:	[1 1]	(degree 1)	 to power 6
 
 Involution!
-Computing W_P2b...done. Factors are:
+Computing W(P2b)...done. Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 2:	[1 1]	(degree 1)	 to power 6
 
 Involution!
-Computing W_P3a...done. Factors are:
+Computing W(P3a)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 2
 2:	[-1 1]	(degree 1)	 to power 6
 
 Involution!
-Computing W_P3b...done. Factors are:
+Computing W(P3b)...done. Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 2
 2:	[-1 1]	(degree 1)	 to power 6
 
 Involution!
 
-Computing T_P13a...done. Factors are:
+Computing T(P13a)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 4
 2:	[2 1]	(degree 1)	 to power 4
 
-Computing T_P13b...done. Factors are:
+Computing T(P13b)...done. Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 4
 2:	[2 1]	(degree 1)	 to power 4
 
-Computing T_P23...done. Factors are:
+Computing T(P23)...done. Factors of characteristic polynomial are:
 1:	[4 1]	(degree 1)	 to power 8
 
-Computing T_P5...done. Factors are:
+Computing T(P5)...done. Factors of characteristic polynomial are:
 1:	[2 1]	(degree 1)	 to power 8
 
-Computing T_P29a...done. Factors are:
+Computing T(P29a)...done. Factors of characteristic polynomial are:
 1:	[-6 1]	(degree 1)	 to power 8
 

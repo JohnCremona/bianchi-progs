@@ -129,7 +129,7 @@ mat22 AtkinLehnerP(Quadprime& P, const Qideal& N); // =AL(P^e,N/P^e) where P^e||
 vector<mat22> Hecke(const Quad& p);  // P=(p) principal prime
 vector<mat22> Hecke(const Quad& p, Qideal& N); //  P=(p) principal prime not dividing N
 vector<mat22> Hecke(Quadprime& P, Qideal& N); // assume [P] square
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N); // T_{P^2}, when P^2 is principal (and P not)
+vector<mat22> HeckeSq(Quadprime& P, Qideal& N); // T(P^2), when P^2 is principal (and P not)
 vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N); // assume P*Q principal, P,Q not dividing N
 
 inline mat22 Fricke(const Quad& n)
@@ -143,7 +143,7 @@ inline mat22 Fricke(Qideal& N) // assumes [N] square
   return AtkinLehner(N, One);
 }
 
-// Matrix inducing T_{A,A} at level N, when A^2 is principal and A+N=1
+// Matrix inducing T(A,A) at level N, when A^2 is principal and A+N=1
 
 mat22 Char(Qideal& A, const Qideal& N);
 
@@ -164,7 +164,7 @@ inline matop AtkinLehnerOp(const Quad& p, const Quad& n)
   return matop(AtkinLehner(p,n), opname(p,n));
 }
 
-//  operator T_{A,A}W_{P^e} where P^e||N, class [P^e] square with
+//  operator T(A,A)*W(P^e) where P^e||N, class [P^e] square with
 //  A^2*P^e principal, A coprime to N
 
 inline matop AtkinLehnerOp(Quadprime& P, const Qideal& N)
@@ -172,15 +172,15 @@ inline matop AtkinLehnerOp(Quadprime& P, const Qideal& N)
   return matop(AtkinLehnerP(P,N), opname(P,N));
 }
 
-// The operator T_{A,A}*T_P where P does not divide N, class [P]
-// square with A^2P principal, A coprime to N
+// The operator T(A,A)*T(P) where P does not divide N, class [P]
+// square with P*A^2 principal, A coprime to N
 
 inline matop HeckeOp(Quadprime& P, Qideal& N)
 {
   return matop(Hecke(P,N), opname(P,N));
 }
 
-// The operator T_{A,A}*T_{P^2}, where P does not divide N, with AP
+// The operator T(A,A)*T(P^2), where P does not divide N, with AP
 // principal and A coprime to N
 
 inline matop HeckeSqOp(Quadprime& P, Qideal& N)
@@ -190,8 +190,8 @@ inline matop HeckeSqOp(Quadprime& P, Qideal& N)
   return matop(HeckeSq(P,N), s.str());
 }
 
-// The operator T_{A,A}*T_{PQ} where P,Q do not divide N, class [PQ]
-// square with A^2PQ principal, A coprime to N
+// The operator T(A,A)*T(PQ) where P,Q do not divide N, class [PQ]
+// square with A^2*P*Q principal, A coprime to N
 
 inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 {
