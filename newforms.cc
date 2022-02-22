@@ -169,7 +169,7 @@ void newform::eigs_from_data()
   // start with unramified char eigs (all +1), then Tp eigs ap for
   // good p
 {
-  // cout<<"In eigs_from_data, aplist = "<<aplist<<endl;
+  // cout<<"In eigs_from_data (level "<<ideal_label(nf->N)<<"), aplist = "<<aplist<<endl;
   int ch(nf->characteristic);
   if (ch == 0)      // the first n2r eigs are all +1
     eigs.resize(nf->n2r, +1);
@@ -303,7 +303,7 @@ newform::newform(newforms* nfs,
 
   aplist = ap;
 
-  // recreate eigs list (in case we need to recover basis vector):
+  // recreate eigs list (used to recover basis vector, and for oldclasses at higher levels):
 
   eigs_from_data();
 }
@@ -607,37 +607,37 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 // instantiations of virtual functions required by the splitter_base class:
 mat newforms::opmat(int i, int dual, int verb)
 {
-  return h1->calcop(h1matops[i],dual,verb);
+  return h1->calcop(h1matop(i),dual,verb);
 }
 
 vec newforms::opmat_col(int i, int j, int verb)
 {
-  return h1->calcop_col(h1matops[i],j, verb);
+  return h1->calcop_col(h1matop(i),j, verb);
 }
 
 mat newforms::opmat_cols(int i, const vec& jlist, int verb)
 {
-  return h1->calcop_cols(h1matops[i],jlist, verb);
+  return h1->calcop_cols(h1matop(i),jlist, verb);
 }
 
 mat newforms::opmat_restricted(int i, const subspace& s, int dual, int verb)
 {
-  return h1->calcop_restricted(h1matops[i],s,dual,verb);
+  return h1->calcop_restricted(h1matop(i),s,dual,verb);
 }
 
 smat newforms::s_opmat(int i, int dual, int verb)
 {
-  return h1->s_calcop(h1matops[i],dual, verbose);
+  return h1->s_calcop(h1matop(i),dual, verbose);
 }
 
 smat newforms::s_opmat_cols(int i, const vec& jlist, int verb)
 {
-  return h1->s_calcop_cols(h1matops[i],jlist, verbose);
+  return h1->s_calcop_cols(h1matop(i),jlist, verbose);
 }
 
 smat newforms::s_opmat_restricted(int i, const ssubspace& s, int dual, int verb)
 {
-  return h1->s_calcop_restricted(h1matops[i],s,dual,0);
+  return h1->s_calcop_restricted(h1matop(i),s,dual,0);
 }
 
 //#define DEBUG_LAMBDA
@@ -735,24 +735,76 @@ void newforms::find()
   if(verbose)
     {
       cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
-      if (characteristic==0)
-        cout<<"Retrieving oldform data for level "<<N<<"...\n";
-    }
-  of = new oldforms(this);
-  long olddimall = (of->olddimall);
-  if(verbose)
-    {
-      if (characteristic==0)
-        of->display();
-      cout<<"Finding rational newforms...\n";
     }
 
-  long mindepth = (characteristic==0? n2r+iP0: nap);
+  // fill the h1matops and eigranges lists with empties; the functions
+  // h1matop(i) and eigrange(i) will compute and store these the first
+  // time they are needed.
+  for (int i=0; i<maxdepth; i++)
+    {
+      h1matops.push_back(matop());
+      eigranges.push_back(vector<long>());
+    }
+
+  // find dimension of trivial character subspace
+  int dimtrivcusp;
+  int dimtrivall;
+  if (n2r>0)
+    {
+      // We are only computing dimensions here so do not use dual
+      // mats, which saves transposing:
+      smat m = h1->s_calcop(h1matop(0), 0, verbose);
+      ssubspace s = eigenspace(m, +1);
+      ssubspace sc = eigenspace(restrict_mat(m, h1->kern), +1);
+      dimtrivall = dim(s);
+      dimtrivcusp = dim(sc);
+      if (verbose)
+        cout<<"Dimension of +1 eigenspace for first character = "<<dimtrivall
+            <<" (cuspidal dimension "<<dimtrivcusp<<")"<<endl;
+      for (int i=1; i<n2r && dimtrivall>0; i++)
+        {
+          m = h1->s_calcop(h1matop(i), 0, verbose);
+          s = subeigenspace(m, +1, s);
+          sc = subeigenspace(restrict_mat(m, h1->kern), +1, s);
+          dimtrivall = dim(s);
+          dimtrivcusp = dim(sc);
+          if (verbose)
+            cout<<"Dimension of +1 eigenspace for first "<<i+1<<" characters has dimension "<<dimtrivall
+                <<" (cuspidal dimension "<<dimtrivcusp<<")"<<endl;
+        }
+    }
+  else
+    {
+      dimtrivcusp = dimcusp;
+      dimtrivall = dimall;
+    }
+  long mindepth, olddimall = 0;
   n1ds = 0;
-  upperbound = (characteristic==0? (h1->h1cuspdim()) - olddimall: h1->h1dim());
+
+  if(characteristic==0)
+    {
+      if(verbose)
+        cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
+      of = new oldforms(this);
+      olddimall = (of->olddimall);
+      if(verbose)
+        of->display();
+      mindepth = n2r+iP0;
+      upperbound = dimtrivcusp - olddimall;
+    }
+  else
+    {
+      mindepth = nap;
+      upperbound = dimall;
+    }
+
   if(verbose)
     {
-      cout<<"cuspidal dimension = "<<h1->h1cuspdim()<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;
+      cout<<"Finding rational newforms...\n";
+      cout<<"cuspidal dimension = "<<dimcusp;
+      if (n2r>0)
+        cout<<" (trivial character subspace dimension "<<dimtrivcusp<<")";
+      cout<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;
     }
   if(verbose>1)
     {
@@ -767,11 +819,6 @@ void newforms::find()
     }
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
-      for (int i=0; i<maxdepth; i++)
-        {
-          h1matops.push_back(h1matop(i));
-          eigranges.push_back(eigrange(i));
-        }
       use_nf_number=-1; // flags to use() that the nfs found are new
       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
@@ -805,10 +852,16 @@ void newforms::fill_in_newform_data(int everything)
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
     {
-      // compute A-L eigenvalues
+      // compute A-L eigenvalues (where possible at this stage)
       for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
         {
-          vector<long> apv = apvec(AtkinLehnerOp(*Qi,N), {-1,1});
+          Quadprime Q = *Qi;
+          long e = val(Q,N);
+          vector<long> apv(n1ds, +1); // default in case nonsquare class
+          if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+            {
+              apv = apvec(AtkinLehnerOp(*Qi,N), {-1,1});
+            }
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
         }
@@ -1181,10 +1234,13 @@ void newforms::makebases()
 {
   if(!h1) makeh1plus();  // create the homology space
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
+  // fill the h1matops and eigranges lists with empties; the functions
+  // h1matop(i) and eigrange(i) will compute and store these the first
+  // time they are needed.
   for (int i=0; i<maxdepth; i++)
     {
-      h1matops.push_back(h1matop(i));
-      eigranges.push_back(eigrange(i));
+      h1matops.push_back(matop());
+      eigranges.push_back(vector<long>());
     }
   form_finder splitspace(this, 1, maxdepth, 0, 1, 0, verbose);
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
@@ -1664,15 +1720,16 @@ vector<long> newforms::apvec(Quadprime& P)
           for (i=0; i<n1ds; i++)
             {
               long ap, ap2 = apv[i] + normP;
-              cout<<"P="<<P<<", a(P)^2 = "<<ap2;
+              //cout<<"P="<<P<<", a(P)^2 = "<<ap2;
               if (is_square(ap2, ap))
                 {
-                  cout<<", |a(P)| = "<<ap<<endl;
+                  //cout<<", |a(P)| = "<<ap<<endl;
                   apv[i] = ap;
                 }
               else
                 {
-                  cout<<" is not a square!"<<endl;
+                  cerr<<"P="<<P<<", a(P)^2 = "<<ap2<<" is not a square!"<<endl;
+                  exit(1);
                 }
             }
         }
@@ -1719,20 +1776,26 @@ vector<long> newforms::apvec(Quadprime& P)
 matop newforms::h1matop(int i) // return the list of matrices defining the i'th operator
 {
   assert (i>=0);
-  if (i<n2r) // then we yield T(A,A) where A is the i'th generator of the class group mod squares
-    return CharOp(nulist[i], N);
-  i -= n2r;
-  if (i<nwq) // then we yield T(A,A)*W(Q^e) where Q^e is the power of Q exactly dividing N and A^2*Q^e is principal
-    return AtkinLehnerOp(badprimes[i], N);
-  // else we yield, for P the i'th good prime,
-  // either T(A,A)*T(P) if [P] is square with A^2*P principal,
-  // or     T(A,A)*T(P^2) if [P] is not square, where A*P is principal
-  i -= nwq;
-  Quadprime P = goodprimes[i];
-  if (P.has_square_class())
-    return HeckeOp(P, N);
-  else
-    return HeckeSqOp(P, N);
+  if (h1matops[i].length()==0) // we have not already computed and stored it, so we do so now
+    {
+      if (i<n2r) // then we use T(A,A) where A is the i'th generator of the class group mod squares
+        {
+          h1matops[i] = CharOp(nulist[i], N);
+        }
+      else
+        // else we yield, for P the (i-n2r)'th good prime,
+        // either T(A,A)*T(P)   if [P] is square with A^2*P principal,
+        // or     T(A,A)*T(P^2) if [P] is not square, where A*P is principal
+        {
+          i -= n2r;
+          Quadprime P = goodprimes[i];
+          if (P.has_square_class())
+            h1matops[i] = HeckeOp(P, N);
+          else
+            h1matops[i] = HeckeSqOp(P, N);
+        }
+    }
+  return h1matops[i];
 }
 
 // Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
@@ -1765,7 +1828,7 @@ vector<long> good_eigrange(Quadprime& P)
     {
       pair<long,long> apbounds = eigenvalue_range(P);
       vector<long> ans = range(0,apbounds.second);
-      for_each(ans.begin(), ans.end(), [normp](long a)->long{return a*a-normp;});
+      for_each(ans.begin(), ans.end(), [normp](long& a){a = a*a-normp;});
       return ans;
     }
 }
@@ -1773,40 +1836,26 @@ vector<long> good_eigrange(Quadprime& P)
 // the list of possible (integer) eigenvalues for the i'th operator:
 vector<long> newforms::eigrange(int i)
 {
-  vector<long> ans;
   assert (i>=0);
-
-  if (i<n2r)
+  if (eigranges[i].empty())
     {
-      ans = {1};
-      return ans;
-    }
-  i -= n2r;
-
-  if (i<nwq)
-    {
-      if (characteristic==2)
-        ans = {1};
+      if (i<n2r)
+        {
+          eigranges[i] = {1};
+        }
       else
-        ans = {-1, 1};
-      if (verbose>1)
-        cout << "eigrange for Q = " << badprimes[i] << " (norm "<<badprimes[i].norm()<<"):\t" << ans << endl;
-      return ans;
+        {
+          i -= n2r;
+          Quadprime P = goodprimes[i];
+          if (characteristic>0)
+            eigranges[i] = range(0,characteristic-1);
+          else
+            eigranges[i] = good_eigrange(P);
+          if (verbose>1)
+            cout << "eigrange for P = " << P << " (norm "<<P.norm()<<"):\t" << eigranges[i] << endl;
+        }
     }
-  i -= nwq;
-
-  if (characteristic>0)
-    {
-      ans = range(0,characteristic-1);
-      if (verbose>1)
-        cout << ans << endl;
-      return ans;
-    }
-
-  ans = good_eigrange(goodprimes[i]);
-  if (verbose>1)
-    cout << "eigrange for P = " << goodprimes[i] << " (norm "<<goodprimes[i].norm()<<"):\t" << ans << endl;
-  return ans;
+  return eigranges[i];
 }
 
 // List of bad primes (dividing N) followed by good primes to length
