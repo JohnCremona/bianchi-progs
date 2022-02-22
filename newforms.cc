@@ -563,8 +563,12 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   level_is_square = N.is_square();
 
   // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
-  if ((characteristic==0) && (Quad::class_group_2_rank > 0))
-    nulist = make_nulist(N);
+  if ((characteristic==0) && (n2r > 0))
+    {
+      nulist = make_nulist(N);
+      if (verbose>1)
+        cout<<"nulist: "<<nulist<<endl;
+    }
 
   // badprimes is a list of all primes Q|N
   allbadprimes = N.factorization().sorted_primes();
@@ -754,8 +758,9 @@ void newforms::find()
       // We are only computing dimensions here so do not use dual
       // mats, which saves transposing:
       smat m = h1->s_calcop(h1matop(0), 0, verbose);
-      ssubspace s = eigenspace(m, +1);
-      ssubspace sc = eigenspace(restrict_mat(m, h1->kern), +1);
+      // matden() is the matrix denominator so here we are computing the +1-eigenspace
+      ssubspace s = eigenspace(m, matden());
+      ssubspace sc = eigenspace(restrict_mat(m, h1->kern), matden());
       dimtrivall = dim(s);
       dimtrivcusp = dim(sc);
       if (verbose)
@@ -764,8 +769,8 @@ void newforms::find()
       for (int i=1; i<n2r && dimtrivall>0; i++)
         {
           m = h1->s_calcop(h1matop(i), 0, verbose);
-          s = subeigenspace(m, +1, s);
-          sc = subeigenspace(restrict_mat(m, h1->kern), +1, s);
+          s = subeigenspace(m, matden(), s);
+          sc = subeigenspace(restrict_mat(m, h1->kern), matden(), s);
           dimtrivall = dim(s);
           dimtrivcusp = dim(sc);
           if (verbose)
@@ -1778,6 +1783,7 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
   assert (i>=0);
   if (h1matops[i].length()==0) // we have not already computed and stored it, so we do so now
     {
+      // cout<<"Computing matop "<<i<<"..."<<flush;
       if (i<n2r) // then we use T(A,A) where A is the i'th generator of the class group mod squares
         {
           h1matops[i] = CharOp(nulist[i], N);
@@ -1795,6 +1801,7 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
             h1matops[i] = HeckeSqOp(P, N);
         }
     }
+  // cout<<"done: "<<h1matops[i].mats<<endl;
   return h1matops[i];
 }
 
