@@ -705,6 +705,7 @@ def sigma_triples(alphas, sigmas):
     S_a1, S_a2.
 
     """
+    k = nf(alphas[0])
     # get list of finite sigmas as full points:
     xsigmas = [s for s in sigmas if not s.is_infinity()]
     SP = [[to_k(s),0] for s in xsigmas]
@@ -1812,6 +1813,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     # for s, r1, r2 in long_fours:
     #     print("add_alpha_orbit({}, {}, {});".format(s,r1,r2))
     # for pasting into data file:
+    print("//////////////////////////////")
     print("// for copying into geodat.dat")
     print("0")
     print("0 d={}".format(d))
@@ -1835,6 +1837,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
         sr, si = s.denominator()
         rr, ri = s.numerator()
         print("{} S {} {} {} {}".format(d, rr,ri, sr,si))
+    print("//////////////////////////////")
     return A123, new_alphas, new_sigmas
 
 #
@@ -1847,15 +1850,113 @@ def alpha_sigma_data(d, verbose=False):
     print("{} singular points: {}".format(len(sigmas), sigmas))
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
     print("{} covering alphas, max denom norm {}: {}".format(len(alphas0), maxn, alphas0))
-    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, verbose=verbose)
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, debug=verbose, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
     print("{} fundamental domain alphas, max denom norm {}: {}".format(len(alphas1), maxn, alphas1))
+    print("{} fundamental vertices, min square height = {}".format(len(points), min(P[1] for P in points)))
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
     data = find_edge_pairs(alphas1, sigmas)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
     # for adding to precomputed alphas in alphas.py:
-    print("alphas: [" + ", ".join(["({})/({})".format(a.numerator(), a.denominator()) for a in alphas2]) + "]\n")
-    print("sigmas: [" + ", ".join(["({})/({})".format(s.numerator(), s.denominator()) for s in new_sigmas]) + "]\n")
+    alpha_string = "alphalist[{}] = [".format(d) + ", ".join(["({})/({})".format(a.numerator(), a.denominator()) for a in alphas2]) + "]\n"
+    alpha_string = alpha_string.replace(" ", "").replace('w','t').replace(",(",", (").replace("="," = ")
+    print(alpha_string)
+    sigma_string = "sigmas: [" + ", ".join(["({})/({})".format(s.numerator(), s.denominator()) for s in new_sigmas]) + "]\n"
+    print(sigma_string)
     return alphas2, new_sigmas
+
+def tessellation(d, verbose=False, plot2D=False, plot3D=False):
+    from utils import (make_M_alphas,
+                       make_poly_from_edges,
+                       poly_equiv, tri0, tri1, tri2, cycle_poly, std_poly,
+                       poly_gl2_orbit_reps,
+                       aas_triangle_gl2_orbit_reps,
+                       square_parameters,
+                       aaa_triangle_parameters,
+                       aas_triangle_parameters,
+                       hexagon_parameters)
+    from polyhedra import all_poly_types, poly_type, poly_types
+
+    kdata = make_k(d)
+    k = kdata['k']
+    if verbose:
+        print("Field: {}".format(k))
+        print("Discriminant: {}".format(k.discriminant()))
+        print("Class number: {}".format(k.class_number()))
+
+    alphas = precomputed_alphas(d)
+    if alphas:
+        if verbose:
+            print("using precomputed alphas")
+        sigmas = singular_points(k)
+        data = find_edge_pairs(alphas, sigmas)
+        alphas = data[0] + data[1]
+        sigmas = data[2]
+    else:
+        if verbose:
+            print("computing alphas from scratch")
+        alphas, sigmas = alpha_sigma_data(d, verbose)
+
+    M_alphas, alpha_inv = make_M_alphas(alphas)
+    print("{} alphas".format(len(alphas)))
+    print("{} sigmas".format(len(sigmas)))
+
+    if plot2D:
+        print("plotting projection of fundamental domain")
+        show(plot_FunDomain_projection(k, alphas, sigmas))
+
+
+    polys, hemis = all_polyhedra(k, alphas)
+    print("{} polyhedra constructed".format(len(polys)))
+    if plot3D:
+        print("plotting fundamental domain")
+        show(plot_Bianchi_diagram(k,hemis))
+
+    pt = poly_types(polys)
+    if pt['unknown']:
+        print("{} polyhedra have unknown type!".format(pt['unknown']))
+        return
+    for pol,num in pt.items():
+        if num:
+            print("{}: {}".format(pol,num))
+
+    triangles = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==3] for G in polys],[])]
+    squares = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==4] for G in polys],[])]
+    hexagons = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==6] for G in polys],[])]
+    aaa_triangles = [T for T in triangles if is_poly_principal(T)]
+    aas_triangles = [T for T in triangles if not is_poly_principal(T)]
+
+    if verbose:
+        print("All polyhedron faces:")
+        print("{} triangles, of which {} are aaa and {} are aas".format(len(triangles),len(aaa_triangles),len(aas_triangles)))
+        print("{} squares".format(len(squares)))
+        print("{} hexagons".format(len(hexagons)))
+
+        print()
+        print("Finding GL2-orbits of faces...")
+
+    aaa_triangles0 = poly_gl2_orbit_reps(aaa_triangles, alphas)
+    aas_triangles0 = aas_triangle_gl2_orbit_reps(aas_triangles, alphas)
+    squares0 = poly_gl2_orbit_reps(squares, alphas)
+    hexagons0 = poly_gl2_orbit_reps(hexagons, alphas)
+
+    if verbose:
+        print("GL2-orbits of faces:")
+        print("{} aaa-triangles".format(len(aaa_triangles0)))
+        print("{} aas-triangles".format(len(aas_triangles0)))
+        print("{} squares".format(len(squares0)))
+        print("{} hexagons".format(len(hexagons0)))
+
+    print("Face parameters")
+    print("//////////////////////////////")
+    for T in aaa_triangles0:
+        aaa_triangle_parameters(T, alphas, M_alphas)
+    for T in aas_triangles0:
+        aas_triangle_parameters(T, alphas, M_alphas, sigmas)
+    for S in squares0:
+        square_parameters(S, alphas, M_alphas, alpha_inv)
+    for H in hexagons0:
+        hexagon_parameters(H, alphas, M_alphas)
+    print("//////////////////////////////")
 
