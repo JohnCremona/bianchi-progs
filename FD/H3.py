@@ -1866,7 +1866,7 @@ def alpha_sigma_data(d, verbose=False):
     print(sigma_string)
     return alphas2, new_sigmas
 
-def tessellation(d, verbose=False, plot2D=False, plot3D=False):
+def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
                        make_poly_from_edges,
                        poly_equiv, tri0, tri1, tri2, cycle_poly, std_poly,
@@ -1911,6 +1911,8 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False):
     print("{} polyhedra constructed".format(len(polys)))
     if plot3D:
         print("plotting fundamental domain")
+        from sage.misc.viewer import viewer
+        viewer.browser(browser)
         show(plot_Bianchi_diagram(k,hemis))
 
     pt = poly_types(polys)
