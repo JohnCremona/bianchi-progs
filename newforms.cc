@@ -672,7 +672,7 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
   if(verbose)cout<<nfound<<" easy cases out of "<<n1ds<<endl;
 #endif
-  if (level_is_square || !N.is_principal())
+  if (level_is_square || !N.is_principal() || n2r>0)
     {
       return;
     }
@@ -865,7 +865,7 @@ void newforms::fill_in_newform_data(int everything)
           vector<long> apv(n1ds, +1); // default in case nonsquare class
           if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
             {
-              apv = apvec(AtkinLehnerOp(*Qi,N), {-1,1});
+              apv = apvec(AtkinLehnerPOp(*Qi,N), {-1,1});
             }
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
@@ -1701,7 +1701,7 @@ vector<long> newforms::apvec(Quadprime& P)
     {
       long e = val(P,N);
       if (e%2==0 || P.has_square_class()) // then [P^e] is a square
-        apv = apvec(AtkinLehnerOp(P,N), {-1,1});
+        apv = apvec(AtkinLehnerPOp(P,N), {-1,1});
       else
         apv.resize(n1ds, +1);
 #ifdef DEBUG_APVEC

@@ -58,7 +58,18 @@ QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c);
 
 void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<QUINT>& basis);
 
-inline int testbit(long a, long i) {return (a& (1<<i));}
+// return the i'th bit of a (a>=0) (not needed, NTL has this)
+// inline int bit(long a, long i) {return (a& (1<<i));}
+// return the dot product (0/1) of a and b bitwise, with 0<=a,b<2^r
+int dotbits(long a, long b, int r);
+// return a basis for the orthogonal complement of a<2^r (viewed as a bit vector of length r)
+vector<long> dotperp(long a, int r);
+// return a basis for the orthogonal complement of the span of a in alist (viewed as bit vectors of length r)
+vector<long> dotperp(vector<long> alist, int r);
+// return list of bits of a
+vector<int> bits(long a, int r);
+// recover a from its bit vector of length r
+long from_bits(vector<int> aa, int r);
 
 // return list of integers from first to last inclusive
 vector<long> range(long first, long last);

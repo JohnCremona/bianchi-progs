@@ -108,7 +108,7 @@ public:
 
   mat wop(Quadprime& Q, int dual=1, int display=0)
   {
-    return calcop(AtkinLehnerOp(Q,N), dual,display);
+    return calcop(AtkinLehnerPOp(Q,N), dual,display);
   }
 
   mat fricke(int dual=1, int display=0)

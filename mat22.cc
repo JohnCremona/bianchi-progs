@@ -17,6 +17,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+// T(P) for P=(p) principal prime
 vector<mat22> Hecke(const Quad& p)  // P=(p) principal prime
 {
   vector<Quad> resmodp = residues(p);
@@ -27,7 +28,8 @@ vector<mat22> Hecke(const Quad& p)  // P=(p) principal prime
   return mats;
 }
 
-mat22 AtkinLehner(const Quad& p, const Quad& n) // P=(p) principal prime
+// W(P) for P=(p) principal prime dividing n
+mat22 AtkinLehner(const Quad& p, const Quad& n)
 {
   Quad u,v,a,b;
   for (u=Quad::one, v=n; div(p,v); v/=p, u*=p) ;
@@ -35,22 +37,11 @@ mat22 AtkinLehner(const Quad& p, const Quad& n) // P=(p) principal prime
   return mat22(u*a,-b,n,u);
 }
 
-mat22 AtkinLehner(const Quad& p, Qideal& N) // P=(p) principal prime dividing N
+// W(P) for P=(p) principal prime dividing N
+mat22 AtkinLehner(const Quad& p, Qideal& N)
 {
   Qideal P(p);
   return AtkinLehner(P, N);
-}
-
-vector<mat22> Hecke(const Quad& p, Qideal& N)
-{
-  vector<Quad> resmodp = residues(p);
-  vector<Quad>::const_iterator r=resmodp.begin();
-  vector<mat22> mats;
-  mats.reserve(I2long(quadnorm(p)));
-  while(r!=resmodp.end())
-    mats.push_back(mat22(Quad::one,*r++,Quad::zero,p));
-  mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
-  return mats;
 }
 
 //////////////////////////
@@ -101,7 +92,7 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2)
   return mat22(a,b,c,d);
 }
 
-// Same as above with M1=P^e, M2=N/P^e where P^e||N
+// W(P^e) at level N where P^e||N
 
 mat22 AtkinLehnerP(Quadprime& P, const Qideal& N)
 {
@@ -125,7 +116,7 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   cout<<"In Hecke("<<P<<"), level "<<N<<endl;
 #endif
   if (P.is_principal())
-    return Hecke(P.gen(), N);
+    return Hecke(P.gen());
   vector<mat22> mats;
   Qideal A = P.sqrt_coprime_to(N); // A^2*P is principal, with A coprime to N, or A=0
   assert (!A.is_zero() && "[P] should be square in Hecke(P)");
@@ -246,6 +237,92 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   return mats;
 }
 
+// T(P)W(M1) for P*M1 principal, P not dividing N=M1*M2, (M1,M2)=1.
+
+// Later we'll implement a more general version giving T(A,A)T(P)W(M1) when [P*M1] is square
+
+//#define DEBUG_HECKE
+vector<mat22> HeckeAL(Quadprime& P, Qideal& M1, Qideal& M2)
+{
+#ifdef DEBUG_HECKE
+  cout<<"In HeckeAL() with P="<<P<<", M1="<<ideal_label(M1)<<", M2="<<ideal_label(M2)<<endl;
+#endif
+  vector<mat22> mats;
+  Qideal PM1 = P*M1;
+  Quad g, h, h1, x, u, v;
+  int i = PM1.is_principal(g);
+  assert (i && "P*M1 is principal");
+  i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
+  assert (i && "P and M1 are coprime");
+  Qideal M3 = M2.equivalent_coprime_to(PM1, h, x, 1); // M2*M3=(h)
+  assert (Qideal(h) == M2*M3);
+  i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
+  assert (i && "M2*M3 is coprime to P*M1");
+  h *= h1;
+  M3 *= h1;
+  Qideal M2M3 = M2*M3;
+  assert (Qideal(h) == M2M3);
+
+  Quad a, b, c, d, r, s;
+  i = PM1.is_coprime_to(M2M3, r, s); // r+s=1, r in PM1, s in M2M3
+  assert (i);
+
+  // First handle (1:0) mod P*M1, finding a lift [a,b;c,d] with c in M2M3 so h|c
+  mat22 m = lift_to_Gamma_0(M2M3, PM1, 1, 0, s, r);
+#ifdef DEBUG_HECKE
+  cout<<" Lift of (1:0) mod "<<PM1<<" to Gamma_0("<<M2M3<<") is "<<m<<endl;
+#endif
+  a = m.entry(0,0);
+  b = m.entry(0,1)*h;
+  c = m.entry(1,0)/h;
+  d = m.entry(1,1);
+  m = mat22(d, -c, -b*g, g*a);
+  assert (M1.contains(d));
+  assert (M1.contains(g));
+  assert ((M1*M2).contains(b*g));
+  assert (m.det()==g);
+  mats.push_back(m);
+  vector<Quad> resmodp = P.residues();
+  for(vector<Quad>::const_iterator x=resmodp.begin(); x!=resmodp.end(); ++x)
+    {
+      c = v*(*x)+u;
+      d = v;
+      m = lift_to_Gamma_0(M2M3, PM1, c, d, s, r);
+      a = m.entry(0,0);
+      b = m.entry(0,1)*h;
+      c = m.entry(1,0)/h;
+      d = m.entry(1,1);
+      m = mat22(d, -c, -b*g, g*a);
+      assert (M1.contains(d) && M1.contains(g));
+      assert ((M1*M2).contains(b*g));
+      assert (m.det()==g);
+      mats.push_back(m);
+    }
+#ifdef DEBUG_HECKE
+  cout<<" Hecke matrices are "<<mats<<endl;
+#endif
+  return mats;
+}
+
+// T(P)W(Q^e) for P*Q^e principal, at level N where Q^e||N and P does not divide N
+
+// Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
+
+vector<mat22> HeckeALP(Quadprime& P, Quadprime& Q, Qideal& N)
+{
+#ifdef DEBUG_HECKE
+  cout<<"In HeckeALP() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
+#endif
+  Qideal M1(Quad::one), M2(N);
+  while (Q.divides(M2))
+    {
+      M1 *= Q;
+      M2 /= Q;
+    }
+  return HeckeAL(P,M1,M2);
+}
+
+
 // Matrix inducing T(A,A) at level N, when A^2 is principal and A+N=1
 
 mat22 Char(Qideal& A, const Qideal& N)
@@ -340,6 +417,9 @@ mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, cons
   Quad uu(u), vv(v);
   if (uu.is_zero() && vv.is_zero())
     M.is_coprime_to(N, uu, vv); // u+v=1, u in M, v in N
+  assert (M.contains(uu));
+  assert (N.contains(vv));
+  assert (uu+vv==Quad::one);
   Qideal MN = M*N;
   return lift_to_SL2(MN, cc*uu, dd*uu+vv);
 }
