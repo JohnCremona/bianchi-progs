@@ -122,16 +122,10 @@ public:
     return calcop(CharOp(A, N), dual,display);
   }
 
-  // T(P^2) when P^2 principal
+  // T(P^2) when P^2 principal or T(A,A)T(P) with AP principal
   mat hecke_sq_op(Quadprime& P, int dual=1, int display=0)
   {
     return calcop(HeckeSqOp(P, N), dual,display);
-  }
-
-  // T(P)^2 when P^2 principal, using  T(P)^2 = T(P^2) + N(P)*T(P,P)
-  mat hecke_op_sq(Quadprime& P, int dual=1, int display=0)
-  {
-    return calcop(HeckeSqOp(P, N), dual,display)+ I2long(P.norm())*nu_op(P, dual, display);
   }
 
   // T(PQ) for P!=Q when PQ principal

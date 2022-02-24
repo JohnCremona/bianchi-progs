@@ -144,6 +144,7 @@ mat22 AtkinLehnerP(Quadprime& P, const Qideal& N);
 // T(P) where P does not divide N and [P] square
 vector<mat22> Hecke(Quadprime& P, Qideal& N);
 // T(P^2), when P^2 is principal (and P not), P not dividing N
+// or T(A,A)T(P^2) otherwise
 vector<mat22> HeckeSq(Quadprime& P, Qideal& N);
 // T(PQ) for [PQ] square, P,Q not dividing N
 vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N);

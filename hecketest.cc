@@ -120,7 +120,7 @@ int main(void)
               Qideal A = *t2i;
               cout << "Computing nu_"<< A <<"..." << flush;
               mat_ZZ nu = mat_to_mat_ZZ(h.nu_op(A, 0, 0));
-              cout << "done. " << flush;
+              cout << "done. " << endl;
               if (show_mats)
                 cout << "Matrix is \n" << nu << endl;
 
@@ -186,7 +186,7 @@ int main(void)
             continue; // we have an odd power of an ideal with non-square ideal class
           cout << "Computing W("<<Q<<")..." << flush;
           mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,0));
-	  cout << "done. " << flush;
+	  cout << "done. " << endl;
           if (show_mats)
             cout << "Matrix is \n" << wq << endl;
 
@@ -239,28 +239,23 @@ int main(void)
           int use_PQ = 0;
           if (!P.has_square_class())
             {
-              // we have an ideal with non-square ideal class
-              if ((P*P).is_principal())
-                {
-                  use_PQ = 1;
-                  cout << "Computing T(" << P << ")^2..."<<flush;
-                  tp = mat_to_mat_ZZ(h.hecke_op_sq(P,0, 0));
-                  cout << "done. ";
-                  if (show_mats)
-                    cout << "Matrix is \n" << tp;
-                  cout << endl;
-                }
-              else
-                {
-                  cout << "Not computing any operator for P = "<<P<<" since class number is even but P^2 not principal and [P] not square"<<endl;
-                  continue;
-                }
+              // we have an ideal with non-square ideal class, compute
+              // T(P^2)*T(A,A) instead, where AP is principal and A
+              // coprime to N.  We don't get to choose A here, so this
+              // is only useful if we know the eigenvalue of T(P,P),
+              // but this is just a test.
+              use_PQ = 1;
+              cout << "Computing T(" << P << "^2)..."<<flush;
+              tp = mat_to_mat_ZZ(h.hecke_sq_op(P,0, 0));
+              cout << "done. " << endl;
+              if (show_mats)
+                cout << "Matrix is \n" << tp << endl;
             }
           else
             {
               cout << "Computing T(" << P << ")..."<<flush;
               tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
-              cout << "done. " << flush;
+              cout << "done. " << endl;
               if (show_mats)
                 cout << "Matrix is \n" << tp <<endl;
             }
@@ -302,10 +297,9 @@ int main(void)
                 {
                   cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
                   tpq = mat_to_mat_ZZ(h.hecke_pq_op(P, P0, 0, 0));
-                  cout << "done. ";
+                  cout << "done. " << endl;
                   if (show_mats)
-                    cout << "Matrix is \n" << tpq;
-                  cout << endl;
+                    cout << "Matrix is \n" << tpq << endl;
                   tpqlist.push_back(tpq);
 
                   charpol = scaled_charpoly(tpq, to_ZZ(den));
@@ -358,10 +352,9 @@ int main(void)
                     {
                       cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
                       tpwq = mat_to_mat_ZZ(h.calcop(HeckeALPOp(P,Q,N), 0, 0));
-                      cout << "done. ";
+                      cout << "done. " << endl;
                       if (show_mats)
-                        cout << "Matrix is \n" << tpwq;
-                      cout << endl;
+                        cout << "Matrix is \n" << tpwq << endl;
                       tpwqlist.push_back(tpwq);
                       charpol = scaled_charpoly(tpwq, to_ZZ(den));
                       if (show_pols)
