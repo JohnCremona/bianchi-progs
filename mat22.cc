@@ -256,10 +256,10 @@ vector<mat22> HeckeAL(Quadprime& P, Qideal& M1, Qideal& M2)
   assert (i && "P and M1 are coprime");
   Qideal M3 = M2.equivalent_coprime_to(PM1, h, x, 1); // M2*M3=(h)
   assert (Qideal(h) == M2*M3);
-  i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
-  assert (i && "M2*M3 is coprime to P*M1");
-  h *= h1;
-  M3 *= h1;
+  // i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
+  // assert (i && "M2*M3 is coprime to P*M1");
+  // h *= h1;
+  // M3 *= h1;
   Qideal M2M3 = M2*M3;
   assert (Qideal(h) == M2M3);
 

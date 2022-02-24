@@ -298,7 +298,7 @@ int main(void)
 
           if (use_PQ)
             {
-              if (P0_set)
+              if (P0_set && (P*P0).has_square_class())
                 {
                   cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
                   tpq = mat_to_mat_ZZ(h.hecke_pq_op(P, P0, 0, 0));
