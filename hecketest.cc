@@ -351,7 +351,7 @@ int main(void)
                   if ((P*Qe).is_principal())
                     {
                       cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                      tpwq = mat_to_mat_ZZ(h.calcop(HeckeALPOp(P,Q,N), 0, 0));
+                      tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N), 0, 0));
                       cout << "done. " << endl;
                       if (show_mats)
                         cout << "Matrix is \n" << tpwq << endl;

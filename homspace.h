@@ -69,47 +69,47 @@ public:
 public:
   mat heckeop(Quadprime& P, int dual=1, int display=0)
   {
-    return calcop(HeckeOp(P,N), dual, display);
+    return calcop(HeckePOp(P,N), dual, display);
   }
 
   vec heckeop_col(Quadprime& P, int j, int display=0)
   {
-    return calcop_col(HeckeOp(P,N), j);
+    return calcop_col(HeckePOp(P,N), j);
   }
 
   mat heckeop_cols(Quadprime& P, const vec& jlist, int display=0)
   {
-    return calcop_cols(HeckeOp(P,N), jlist);
+    return calcop_cols(HeckePOp(P,N), jlist);
   }
 
   smat s_heckeop(Quadprime& P, int dual, int display)
   {
-    return s_calcop(HeckeOp(P,N), dual, display);
+    return s_calcop(HeckePOp(P,N), dual, display);
   }
 
   svec s_heckeop_col(Quadprime& P, int j, int display)
   {
-    return calcop_col(HeckeOp(P,N), j);
+    return calcop_col(HeckePOp(P,N), j);
   }
 
   smat s_heckeop_cols(Quadprime& P, const vec& jlist, int display)
   {
-    return s_calcop_cols(HeckeOp(P,N), jlist);
+    return s_calcop_cols(HeckePOp(P,N), jlist);
   }
 
   mat heckeop_restricted(Quadprime& P, const subspace& s, int dual, int display)
   {
-    return calcop_restricted(HeckeOp(P,N), s, dual, display);
+    return calcop_restricted(HeckePOp(P,N), s, dual, display);
   }
 
   smat s_heckeop_restricted(Quadprime& P, const ssubspace& s, int dual, int display)
   {
-    return s_calcop_restricted(HeckeOp(P,N), s, dual, display);
+    return s_calcop_restricted(HeckePOp(P,N), s, dual, display);
   }
 
   mat wop(Quadprime& Q, int dual=1, int display=0)
   {
-    return calcop(AtkinLehnerPOp(Q,N), dual,display);
+    return calcop(AtkinLehnerQOp(Q,N), dual,display);
   }
 
   mat fricke(int dual=1, int display=0)
@@ -126,7 +126,7 @@ public:
   // T(P^2) when P^2 principal or T(A,A)T(P) with AP principal
   mat hecke_sq_op(Quadprime& P, int dual=1, int display=0)
   {
-    return calcop(HeckeSqOp(P, N), dual,display);
+    return calcop(HeckePSqOp(P, N), dual,display);
   }
 
   // T(PQ) for P!=Q when PQ principal

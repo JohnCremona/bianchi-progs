@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////
 
 // T(P) for P=(p) principal prime
-vector<mat22> Hecke(const Quad& p)  // P=(p) principal prime
+vector<mat22> HeckeP(const Quad& p)  // P=(p) principal prime
 {
   vector<Quad> resmodp = residues(p);
   vector<mat22> mats(1+resmodp.size());
@@ -49,12 +49,12 @@ mat22 AtkinLehner(const Quad& p, Qideal& N)
 //
 //////////////////////////
 
-// For [M1] square and M1,M2 coprime; the level is N=M1*M2.
-//
-// This is a matrix representing the operator T(I,I)*W(M1) where
-// I^2*M1 is principal
+// Level N=M1*M2 and M1,M2 coprime: if extend=0, M1 must be principal,
+// then this is a matrix representing W(M1); if extend=1, [M1] must be
+// square and it represents T(I,I)*W(M1) where I^2*M1 is principal,
+// I coprime to N.
 
-mat22 AtkinLehner(Qideal& M1, Qideal& M2)
+mat22 AtkinLehner(Qideal& M1, Qideal& M2, int extend)
 {
   if ((M1.is_principal() && M2.is_principal()))
     {
@@ -65,8 +65,18 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2)
       return W;
     }
 
-  Qideal I = M1.sqrt_coprime_to(M2);
-  assert (!I.is_zero() && "[M1] should be square in  AtkinLehner(M1,M2)");
+  // if extend=0 we require M1 to be principal, otherwise it is enough for it to have square class
+
+  Qideal I(Quad::one);
+  if (extend)
+    {
+      I = M1.sqrt_coprime_to(M2);
+      assert (!I.is_zero() && "[M1] should be square in  AtkinLehner(M1,M2,1)");
+    }
+  else
+    {
+      assert (M1.is_principal() && "M1 should be principal in  AtkinLehner(M1,M2,0)");
+    }
   Quad g, a, c, x, y;
   Qideal IM1 = I*M1;
   Qideal IsqM1 = I*IM1;
@@ -91,34 +101,41 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2)
   return mat22(a,b,c,d);
 }
 
-// W(P^e) at level N where P^e||N
+// Level N, Q|N prime, Q^e||N: if extend=0, Q^e must be principal,
+// then this is a matrix representing W(Q^e); if extend=1, [Q^e] must
+// be square and it represents T(A,A)*W(Q^e) where A^2*Q^e is
+// principal, A coprime to N.
 
-mat22 AtkinLehnerP(Quadprime& P, const Qideal& N)
+mat22 AtkinLehnerQ(Quadprime& Q, const Qideal& N, int extend)
 {
   Qideal M1(Quad::one), M2(N);
-  while (P.divides(M2))
+  while (Q.divides(M2))
     {
-      M1 *= P;
-      M2 /= P;
+      M1 *= Q;
+      M2 /= Q;
     }
-  return AtkinLehner(M1,M2);
+  return AtkinLehner(M1,M2, extend);
 }
 
 //#define DEBUG_HECKE
 
-// N(P)+1 matrices representing T(A,A)*T(P) where P does not divide N
-// and the class [P] is square with A^2P principal, A coprime to N.
+// Level N, P prime not dividing N.
 
-vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
+// N(P)+1 matrices representing T(P) when P is principal, or (if
+// extend=1) representing T(A,A)*T(P) when the class [P] is square
+// with A^2*P principal, A coprime to N.
+
+vector<mat22> HeckeP(Quadprime& P, Qideal& N, int extend)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In Hecke("<<P<<"), level "<<N<<endl;
+  cout<<"In HeckeP("<<P<<"), level "<<N<<endl;
 #endif
   if (P.is_principal())
-    return Hecke(P.gen());
+    return HeckeP(P.gen());
+  assert (extend==1 && "P must be principal in HeckeP(P,N,0)");
   vector<mat22> mats;
   Qideal A = P.sqrt_coprime_to(N); // A^2*P is principal, with A coprime to N, or A=0
-  assert (!A.is_zero() && "[P] should be square in Hecke(P)");
+  assert (!A.is_zero() && "[P] should be square in HeckeP(P,N,1)");
   Qideal AP = A*P;
   int i = ((A*AP).is_principal());
   assert(i && "A^2*P is principal");
@@ -151,22 +168,40 @@ vector<mat22> Hecke(Quadprime& P, Qideal& N) // assume [P] square
   return mats;
 }
 
-// N(P)^2+N(P)+1 matrices representing T(A,A)*T(P^2), where P does
-// not divide N, with AP principal and A coprime to N.
+// Level N, P prime not dividing N.
 
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N)
+// Returns N(P)^2+N(P)+1 matrices representing either T(P^2), if P^2
+// is principal, or (when extend=1) representing T(A,A)T(P^2) with AP
+// principal and A coprime to N.
+
+vector<mat22> HeckePSq(Quadprime& P, Qideal& N, int extend)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In Hecke("<<P<<"^2), level "<<N<<endl;
+  cout<<"In HeckePSq(P,N) with P="<<P<<", N="<<N<<endl;
 #endif
-  vector<mat22> mats;
-  Quad g,h;
-  Qideal A = P.equivalent_coprime_to(N,g,h,1); // A*P=(g) is principal, with A coprime to N
   Qideal P2 = P*P;
-  Qideal AP2 = A*P2;
-  assert (Qideal(g)==A*P);
+  Qideal A(Quad::one), AP2=P2;
+  Quad g,h;
+  int i = P2.is_principal(g);
+  if (i) // then no need to extend
+    extend = 0;
+  if (extend==0)
+    {
+      assert (i && "P^2 must be principal in HeckePSq(P,N,0)");
+    }
+  else
+    {
+      A = P.equivalent_coprime_to(N,g,h,1); // A*P=(g) is principal, with A coprime to N
+      AP2 = A*P2;
+      assert (Qideal(g)==A*P);
+    }
+  vector<mat22> mats;
   // Make an (AP^2,A)-matrix of level N:
-  mat22 M = AP2.AB_matrix_of_level(A, N, h); //  sets h to a generator of (AP)^2, not needed
+  mat22 M;
+  if (extend)
+    M = AP2.AB_matrix_of_level(A, N, h); //  sets h to a generator of (AP)^2, not needed
+  else
+    M = mat22(g,0,0,1);
 
   // (1) M * lift(1:a) for a mod P^2                (N(P)^2 matrices)
   // (2) M * lift(a:1) for a mod P^2 non-invertible (N(P) matrices)
@@ -182,9 +217,12 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N)
         mats.push_back(M*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
     }
 
-  // (3) an (AP,AP) matrix of level N, i.e. just diag(g,g) (1 matrix, so N(P)^2_N(P)+1 in all)
-  mats.push_back(mat22::scalar(g));
-
+  // (3) an (AP,AP) matrix of level N  (1 matrix, so N(P)^2_N(P)+1 in all):
+  // if extend=1 this is just diag(g,g), else it's a (P,P)-matrix of level N
+  if (extend)
+    mats.push_back(mat22::scalar(g));
+  else
+    mats.push_back(P.AB_matrix_of_level(P, N, h));
 #ifdef DEBUG_HECKE
   cout<<" Hecke matrices are "<<mats<<endl;
 #endif
@@ -193,20 +231,32 @@ vector<mat22> HeckeSq(Quadprime& P, Qideal& N)
   return mats;
 }
 
-// (N(P)+1)(N(Q)+1) matrices representing T(A,A)*T(PQ) where P,Q do
-// not divide N and class [PQ] square with A^2PQ principal, A coprime
-// to N.  When PQ is principal we take A=1.
+// Level N, P,Q distinct primes not dividing N.
 
-vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
+// Returns (N(P)+1)(N(Q)+1) matrices representing T(PQ) if P*Q is
+// principal, or (if extend=1) T(A,A)T(PQ) if class [PQ] is square
+// with A^2PQ principal, A coprime to N.
+
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In Hecke("<<P<<"*"<<Q<<"), level "<<N<<endl;
+  cout<<"In HeckePQ(P,Q,N) with P="<<P<<", Q="<<Q<<", N="<<N<<endl;
 #endif
-  vector<mat22> mats;
   Quad g;
-  Qideal PQ = P*Q;
-  Qideal A = PQ.sqrt_coprime_to(N); // APQ is principal, with A coprime to N, or A=0
-  assert (!A.is_zero() && "[PQ] should be square in HeckePQ()");
+  Qideal A(Quad::one), PQ = P*Q;
+  int i = PQ.is_principal(g);
+  if (i) // then no need to extend
+    extend = 0;
+  if (extend==0)
+    {
+      assert (i && "PQ must be principal in HeckePQ(P,Q,N,0)");
+    }
+  else
+    {
+      A = PQ.sqrt_coprime_to(N); // APQ is principal, with A coprime to N, or A=0
+      assert (!A.is_zero() && "[PQ] must be square in HeckePQ(P,Q,N,1)");
+    }
+  vector<mat22> mats;
   Qideal AP=A*P, AQ=A*Q, APQ = A*PQ;
   mat22 M = APQ.AB_matrix_of_level(A, N, g); // sets g to a generator of A^2PQ,
                                              //raising an error if not principal
@@ -236,21 +286,29 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   return mats;
 }
 
-// T(P)W(M1) for P*M1 principal, P not dividing N=M1*M2, (M1,M2)=1.
+// Level N=M1*M2, P prime not dividing N, M1,M2 coprime
 
-// Later we'll implement a more general version giving T(A,A)T(P)W(M1) when [P*M1] is square
+// Returns N(P)+1 matrices for T(P)W(M1) if P*M1 is principal
+
+// Later we'll implement a more general version (extend=1) giving
+// T(A,A)T(P)W(M1) when [P*M1] is square
 
 //#define DEBUG_HECKE
-vector<mat22> HeckeAL(Quadprime& P, Qideal& M1, Qideal& M2)
+vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2, int extend)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckeAL() with P="<<P<<", M1="<<ideal_label(M1)<<", M2="<<ideal_label(M2)<<endl;
+  cout<<"In HeckePAL(P,M1,M1) with P="<<P<<", M1="<<ideal_label(M1)<<", M2="<<ideal_label(M2)<<endl;
 #endif
+  if (extend==1)
+    {
+      cerr<<"HeckePAL(P,M1,M2,extend=1) not yet implemented"<<endl;
+      exit(1);
+    }
   vector<mat22> mats;
   Qideal PM1 = P*M1;
   Quad g, h, h1, x, u, v;
   int i = PM1.is_principal(g);
-  assert (i && "P*M1 is principal");
+  assert (i && "P*M1 must be principal in HeckePAL(P,M1,M2,0");
   i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
   assert (i && "P and M1 are coprime");
   Qideal M3 = M2.equivalent_coprime_to(PM1, h, x, 1); // M2*M3=(h)
@@ -303,14 +361,16 @@ vector<mat22> HeckeAL(Quadprime& P, Qideal& M1, Qideal& M2)
   return mats;
 }
 
-// T(P)W(Q^e) for P*Q^e principal, at level N where Q^e||N and P does not divide N
+// Level N, P prime not dividing N, Q^e||N
+
+// Returns matrices for T(P)W(Q^e) for P*Q^e principal
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-vector<mat22> HeckeALP(Quadprime& P, Quadprime& Q, Qideal& N)
+vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckeALP() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
+  cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
 #endif
   Qideal M1(Quad::one), M2(N);
   while (Q.divides(M2))
@@ -318,7 +378,7 @@ vector<mat22> HeckeALP(Quadprime& P, Quadprime& Q, Qideal& N)
       M1 *= Q;
       M2 /= Q;
     }
-  return HeckeAL(P,M1,M2);
+  return HeckePAL(P,M1,M2, extend);
 }
 
 

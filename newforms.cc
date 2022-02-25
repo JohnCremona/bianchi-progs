@@ -864,7 +864,7 @@ void newforms::fill_in_newform_data(int everything)
           vector<long> apv(n1ds, +1); // default in case nonsquare class
           if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
             {
-              apv = apvec(AtkinLehnerPOp(*Qi,N), {-1,1});
+              apv = apvec(AtkinLehnerQOp(*Qi,N), {-1,1});
             }
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
@@ -1700,7 +1700,7 @@ vector<long> newforms::apvec(Quadprime& P)
     {
       long e = val(P,N);
       if (e%2==0 || P.has_square_class()) // then [P^e] is a square
-        apv = apvec(AtkinLehnerPOp(P,N), {-1,1});
+        apv = apvec(AtkinLehnerQOp(P,N), {-1,1});
       else
         apv.resize(n1ds, +1);
 #ifdef DEBUG_APVEC
@@ -1716,11 +1716,11 @@ vector<long> newforms::apvec(Quadprime& P)
   else
     {
       if (P.has_square_class())
-        apv = apvec(HeckeOp(P,N), eigenvalue_range(P)); // T(P)
+        apv = apvec(HeckePOp(P,N), eigenvalue_range(P)); // T(P)
       else
         {
           long normP = I2long(P.norm());
-          apv = apvec(HeckeSqOp(P,N), eigenvalue_sq_range(P)); // T(P^2)
+          apv = apvec(HeckePSqOp(P,N), eigenvalue_sq_range(P)); // T(P^2)
           for (i=0; i<n1ds; i++)
             {
               long ap, ap2 = apv[i] + normP;
@@ -1795,9 +1795,9 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
           i -= n2r;
           Quadprime P = goodprimes[i];
           if (P.has_square_class())
-            h1matops[i] = HeckeOp(P, N);
+            h1matops[i] = HeckePOp(P, N);
           else
-            h1matops[i] = HeckeSqOp(P, N);
+            h1matops[i] = HeckePSqOp(P, N);
         }
     }
   // cout<<"done: "<<h1matops[i].mats<<endl;

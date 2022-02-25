@@ -61,7 +61,27 @@
 
 // Operators implemented so far:
 
-// HeckeOp(P, N) is T(P) at level N when P is principal
+// HeckePOp(P, N) is T(P) at level N when P is principal
+// HeckePSqOp(P, N) is T(P^2) at level N when P^2 is principal (P coprime to N)
+// HeckePQOp(P, Q, N) is T(PQ) at level N where P*Q is principal (P,Q coprime to N and distinct)
+
+// AtkinLehnerOp(M1, M2) is W(M1) at level N=M1*M2 when M1 is principal
+// AtkinLehnerQOp(Q, N) is W(Q^e) at level N where Q is prime, Q^e||N and Q^e is principal
+// FrickeOp(N) is W(N) at level N where N is principal
+
+// HeckePALQOp(P, Q, N) is T(P)W(Q^e) at level N where P*Q^e is principal (P,Q as above)
+// HeckePALOp(P, M1, M2) is T(P)W(M1) at level N=M1*M2 where P*M1 is principal (P,M1,M2 as above)
+
+// CharOp(A, N) is T(A,A) at level N where A^2 is principal, A coprime to N
+
+// For all but the last, there is an extended version where the
+// relevant ideal is only assumed to be of square class, not
+// necessarily principal, and the operator returned is T(B,B) times
+// the advertised operator for suitable B coprime to N.  It is up to
+// the user whether this is sensible!  It always will be in odd class
+// number, where the extended version is the default.  It is also
+// relevant when the class group has no 4-torsion, i.e. is
+// (odd)*(elementary abelian 2-group).
 
 // Utilities for contructing names
 
@@ -89,7 +109,7 @@ inline string opname(const Qideal& N)
 // For use only over fields of class number 1, probably now redundant.
 
 // T(P) for P=(p) principal prime
-vector<mat22> Hecke(const Quad& p);
+vector<mat22> HeckeP(const Quad& p);
 // W(P) for P=(p) principal prime dividing n
 mat22 AtkinLehner(const Quad& p, const Quad& n);
 // W(P) for P=(p) principal prime dividing N
@@ -99,40 +119,40 @@ mat22 AtkinLehner(const Quad& p, Qideal& N);
 
 // Atkin-Lehner operators
 
-// W(M1) at level N=M1*M2, where [M1] is square and M1,M2 coprime
-mat22 AtkinLehner(Qideal& M1, Qideal& M2);
-// W(P^e) at level N where P^e||N
-mat22 AtkinLehnerP(Quadprime& P, const Qideal& N);
+// W(M1) at level N=M1*M2, where M1 is principal (or [M1] square if extend=1) and M1,M2 coprime
+mat22 AtkinLehner(Qideal& M1, Qideal& M2, int extend=Quad::class_number%2);
+// W(Q^e) at level N where Q^e||N and Q^e is principal (or [Q^e] square if extend=1)
+mat22 AtkinLehnerQ(Quadprime& Q, const Qideal& N, int extend=Quad::class_number%2);
 
 // Pure Hecke operators
 
-// T(P) where P does not divide N and [P] square
-vector<mat22> Hecke(Quadprime& P, Qideal& N);
-// T(P^2), when P^2 is principal (and P not), P not dividing N
-// or T(A,A)T(P^2) otherwise
-vector<mat22> HeckeSq(Quadprime& P, Qideal& N);
+// T(P) where P does not divide N and P principal (or [P] square if extend=1)
+vector<mat22> HeckeP(Quadprime& P, Qideal& N, int extend=Quad::class_number%2);
+// T(P^2), when P^2 is principal (and P not), P not dividing N,
+// or T(A,A)T(P^2) where A*P is principal if extend=1
+vector<mat22> HeckePSq(Quadprime& P, Qideal& N, int extend=Quad::class_number%2);
 // T(PQ) for [PQ] square, P,Q not dividing N
-vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N);
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend=Quad::class_number%2);
 
 // Products of Hecke and Atkin-Lehner operators
 
 // T(P)W(M1) at level N for P*M1 principal, P not dividing N=M1*M2
-vector<mat22> HeckeAL(Quadprime& P, Qideal& M1, Qideal& M2);
+vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2, int extend=Quad::class_number%2);
 // T(P)W(Q^e) at level N for P*Q^e principal, P not dividing N, Q^e||N
-vector<mat22> HeckeALP(Quadprime& P, Quadprime& Q, Qideal& N);
+vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend=Quad::class_number%2);
 
 inline mat22 Fricke(const Quad& n)
 {
   return mat22(Quad::zero,-Quad::one, n,Quad::zero);
 }
 
-inline mat22 Fricke(Qideal& N) // assumes [N] square
+inline mat22 Fricke(Qideal& N, int extend=Quad::class_number%2) // assumes [N] square
 {
   Qideal One(Quad::one);
   return AtkinLehner(N, One);
 }
 
-// Matrix inducing T(A,A) at level N, when A^2 is principal and A+N=1
+// Matrix inducing T(A,A) at level N, when A^2 is principal and A,N coprime
 
 mat22 Char(Qideal& A, const Qideal& N);
 
@@ -153,51 +173,52 @@ inline matop AtkinLehnerOp(const Quad& p, const Quad& n)
   return matop(AtkinLehner(p,n), opname(p,n));
 }
 
-//  operator T(A,A)*W(P^e) where P^e||N, class [P^e] square with
-//  A^2*P^e principal, A coprime to N
+//  operator W(Q^e) or T(A,A)*W(Q^e) where Q^e||N, either Q^e
+//  principal of extend=1 and class [Q^e] square with A^2*P^e
+//  principal, A coprime to N
 
-inline matop AtkinLehnerPOp(Quadprime& P, const Qideal& N)
+inline matop AtkinLehnerQOp(Quadprime& Q, const Qideal& N, int extend=Quad::class_number%2)
 {
-  return matop(AtkinLehnerP(P,N), opname(P,N));
+  return matop(AtkinLehnerQ(Q,N, extend), opname(Q,N));
 }
 
 // assume [M1] square and M1,M2 coprime
 //  operator T(A,A)*W(M1) where N=M1*M2, class [M1] square with
 //  A^2*M1 principal, A coprime to N, M1,M2 coprime
 
-inline matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
+inline matop AtkinLehnerOp(Qideal& M1, Qideal& M2, int extend=Quad::class_number%2)
 {
   ostringstream s;
   s << "W(" << ideal_label(M1) << ")";
-  return matop(AtkinLehner(M1,M2), s.str());
+  return matop(AtkinLehner(M1,M2, extend), s.str());
 }
 
 // The operator T(A,A)*T(P) where P does not divide N, class [P]
 // square with P*A^2 principal, A coprime to N
 
-inline matop HeckeOp(Quadprime& P, Qideal& N)
+inline matop HeckePOp(Quadprime& P, Qideal& N, int extend=Quad::class_number%2)
 {
-  return matop(Hecke(P,N), opname(P,N));
+  return matop(HeckeP(P,N, extend), opname(P,N));
 }
 
 // The operator T(A,A)*T(P^2), where P does not divide N, with AP
 // principal and A coprime to N
 
-inline matop HeckeSqOp(Quadprime& P, Qideal& N)
+inline matop HeckePSqOp(Quadprime& P, Qideal& N, int extend=Quad::class_number%2)
 {
   ostringstream s;
   s << "T(" << P << "^2)";
-  return matop(HeckeSq(P,N), s.str());
+  return matop(HeckePSq(P,N, extend), s.str());
 }
 
 // The operator T(A,A)*T(PQ) where P,Q do not divide N, class [PQ]
 // square with A^2*P*Q principal, A coprime to N
 
-inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
+inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N, int extend=Quad::class_number%2)
 {
   ostringstream s;
   s << "T(" << P << "*" << Q << ")";
-  return matop(HeckePQ(P,Q,N), s.str());
+  return matop(HeckePQ(P,Q,N, extend), s.str());
 }
 
 // The operator T(P)W(Q) where P does not divide N, Q^e||N,
@@ -205,27 +226,27 @@ inline matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-inline matop HeckeALPOp(Quadprime& P, Quadprime& Q, Qideal& N)
+inline matop HeckePALQOp(Quadprime& P, Quadprime& Q, Qideal& N, int extend=Quad::class_number%2)
 {
   ostringstream s;
   s << "T(" << P << ")*W(" << Q << ")";
-  return matop(HeckeALP(P,Q,N), s.str());
+  return matop(HeckePALQ(P,Q,N, extend), s.str());
 }
 
 // The operator T(P)W(M1) where P does not divide N=M1*M2, M1,M2 coprime and P*M1 principal
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(M1) when [P*M1] is square
 
-inline matop HeckeALOp(Quadprime& P, Qideal& M1, Qideal& M2)
+inline matop HeckePALOp(Quadprime& P, Qideal& M1, Qideal& M2, int extend=Quad::class_number%2)
 {
   ostringstream s;
   s << "T(" << P << ")*W(" << ideal_label(M1) << ")";
-  return matop(HeckeAL(P,M1,M2), s.str());
+  return matop(HeckePAL(P,M1,M2, extend), s.str());
 }
 
-inline matop FrickeOp(Qideal& N)
+inline matop FrickeOp(Qideal& N, int extend=Quad::class_number%2)
 {
-  return matop(Fricke(N), opname(N));
+  return matop(Fricke(N, extend), opname(N));
 }
 
 inline matop CharOp(Qideal& A, const Qideal& N)
