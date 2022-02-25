@@ -3,8 +3,6 @@
 #if     !defined(_QUADS_H)
 #define _QUADS_H      1       //flags that this file has been included
 
-#include <eclib/arith.h>
-#include <eclib/unimod.h>
 #include <assert.h>
 #include "intprocs.h" // typedefs QUINT
 

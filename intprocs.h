@@ -3,15 +3,23 @@
 #if     !defined(_INTPROCS_H)
 #define _INTPROCS_H      1       //flags that this file has been included
 
-#include <eclib/interface.h>
-#include <eclib/marith.h>
+// for convenience we put all the includes from eclib here, since all
+// other files include this one directly or indirectly:
 
-#define QUINT_IS_ZZ
+#include <eclib/xsplit.h>   // which includes method.h
+#include <eclib/rat.h>
+#include <eclib/unimod.h>
+#include <eclib/timer.h>
+#include <eclib/curvesort.h> // for letter codes
+
+// define this in the Makefile (and make clean) to use ZZ as base integer type instead of long int
+//#define QUINT_IS_ZZ
 
 #ifndef QUINT_IS_ZZ
 #define QUINT_IS_long
 typedef long QUINT; // integer type for components of a Quad
 #else
+#include <eclib/marith.h>
 typedef bigint QUINT; // integer type for components of a Quad
 inline bigfloat to_bigfloat(const bigint& x) { return to_RR(x);}
 #endif
@@ -76,5 +84,8 @@ vector<long> range(long first, long last);
 
 // return 1 with r=sqrt(a) if a is square, else return 0:
 long is_square(long a, long& r);
+
+vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
+mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 
 #endif

@@ -8,7 +8,6 @@
 #include <numeric>   // std::multiplies
 #include "looper.h"
 #include "newforms.h"
-#include "eclib/curvesort.h" // for letter codes
 
 #define MAXDEPTH 20 // maximum depth for splitting off eigenspaces
 
@@ -586,7 +585,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   nap = MAXDEPTH;
   goodprimes = make_goodprimes(N, nap, iP0, characteristic);
   nap = goodprimes.size(); // it may be > original nap
-  if (nap!=20)
+  if (nap!=MAXDEPTH)
     cout<<" nap changed to "<<nap<<" since goodprimes = "<<goodprimes<<endl;
   P0 = goodprimes[iP0];
   nP0 = I2long(P0.norm());

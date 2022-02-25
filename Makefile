@@ -34,11 +34,21 @@ CC = $(GCC)
 # to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
 
+# By default the type of integers used in Quads is long, which can
+# result in overflow for large levels over larger fields.  Change this
+# to 1 (and make clean and rebuild) to compile using ZZ as base
+# integer type for Quads instead.  That results in slower code, but it
+# does not overflow!
+BASE_TYPE_ZZ=0
+ifeq ($(BASE_TYPE_ZZ), 1)
+ BASE_TYPE_FLAG = -D QUINT_IS_ZZ
+endif
+
 # NB If used with a multithreaded build of eclib then you MUST define
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
-# appended below.  Otherwise set USE_BOOST=0.
+# appended below.  Otherwise set USE_BOOST=0 (or do not set it).
 
-USE_BOOST=1
+#USE_BOOST=1
 ifeq ($(USE_BOOST), 1)
  BOOST_ASIO_LIB = -lboost_system-mt
  BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
@@ -48,11 +58,11 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 # for profiling:
-#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 #LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
@@ -66,12 +76,12 @@ ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relation
 ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
 
-headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h
+headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -237,93 +247,92 @@ qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geo
 # recreate with
 # for f in *.cc; do g++ -MM -std=c++11 ${f}; done
 #
-
 cusp.o: cusp.cc cusp.h mat22.h ratquads.h quads.h intprocs.h primes.h \
  qideal.h
 dimtabeis.o: dimtabeis.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 dimtable.o: dimtable.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
  cusp.h mat22.h ratquads.h primes.h face_relations.h edge_relations.h \
- geometry.h P1N.h
+ geometry.h P1N.h hecke.h
 dimtable_modp.o: dimtable_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h homspace.h cusp.h face_relations.h edge_relations.h \
- geometry.h P1N.h
+ geometry.h P1N.h hecke.h
 euclid.o: euclid.cc euclid.h quads.h intprocs.h geometry.h mat22.h \
  ratquads.h primes.h qideal.h
 face_relations.o: face_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h homspace.h cusp.h face_relations.h edge_relations.h \
- geometry.h P1N.h
+ geometry.h P1N.h hecke.h
 fieldinfo.o: fieldinfo.cc primes.h qideal.h quads.h intprocs.h
 geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h
-hecke.o: hecke.cc homspace.h cusp.h mat22.h ratquads.h quads.h intprocs.h \
- primes.h qideal.h face_relations.h edge_relations.h geometry.h P1N.h
+hecke.o: hecke.cc hecke.h mat22.h ratquads.h quads.h intprocs.h primes.h \
+ qideal.h
 hecketest.o: hecketest.cc qidloop.h qideal.h quads.h intprocs.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 hecketest_modp.o: hecketest_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 homspace.o: homspace.cc euclid.h quads.h intprocs.h cusp.h mat22.h \
  ratquads.h primes.h qideal.h homspace.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 homtest.o: homtest.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
  cusp.h mat22.h ratquads.h primes.h face_relations.h edge_relations.h \
- geometry.h P1N.h
+ geometry.h P1N.h hecke.h
 intprocs.o: intprocs.cc intprocs.h
 lf1.o: lf1.cc lf1.h newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 looper.o: looper.cc looper.h quads.h intprocs.h
 looptest.o: looptest.cc looper.h quads.h intprocs.h
 makenf.o: makenf.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 makenf_modp.o: makenf_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 mat22.o: mat22.cc primes.h qideal.h quads.h intprocs.h mat22.h ratquads.h
 modularity.o: modularity.cc newforms.h ratquads.h quads.h intprocs.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 modularity_modp.o: modularity_modp.cc newforms.h ratquads.h quads.h \
  intprocs.h oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 moreap1.o: moreap1.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 moreap.o: moreap.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 moreap_loop.o: moreap_loop.cc newforms.h ratquads.h quads.h intprocs.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h looper.h
+ edge_relations.h geometry.h P1N.h hecke.h looper.h
 newforms.o: newforms.cc looper.h quads.h intprocs.h newforms.h ratquads.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 nflist.o: nflist.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 nflist_modp.o: nflist_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 nftest.o: nftest.cc qidloop.h qideal.h quads.h intprocs.h newforms.h \
  ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 oldforms.o: oldforms.cc newforms.h ratquads.h quads.h intprocs.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h
+ edge_relations.h geometry.h P1N.h hecke.h
 P1N.o: P1N.cc P1N.h mat22.h ratquads.h quads.h intprocs.h primes.h \
  qideal.h
 P1Ntest.o: P1Ntest.cc looper.h quads.h intprocs.h qidloop.h qideal.h \
  mat22.h ratquads.h primes.h P1N.h
 pmanin.o: pmanin.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h looper.h
+ edge_relations.h geometry.h P1N.h hecke.h looper.h
 primes.o: primes.cc primes.h qideal.h quads.h intprocs.h qidloop.h
 qideal.o: qideal.cc intprocs.h mat22.h ratquads.h quads.h primes.h \
  qideal.h
@@ -337,7 +346,7 @@ ratquads.o: ratquads.cc ratquads.h quads.h intprocs.h qideal.h mat22.h \
 roundtest.o: roundtest.cc intprocs.h
 testlf1.o: testlf1.cc newforms.h ratquads.h quads.h intprocs.h oldforms.h \
  primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
- edge_relations.h geometry.h P1N.h lf1.h
+ edge_relations.h geometry.h P1N.h hecke.h lf1.h
 tquads.o: tquads.cc looper.h quads.h intprocs.h geometry.h mat22.h \
  ratquads.h primes.h qideal.h
 tratquad.o: tratquad.cc ratquads.h quads.h intprocs.h primes.h qideal.h

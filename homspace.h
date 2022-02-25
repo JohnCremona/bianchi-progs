@@ -5,6 +5,7 @@
 
 #include "cusp.h"
 #include "face_relations.h"
+#include "hecke.h"
 
 class homspace {
 friend class newforms;
@@ -151,8 +152,5 @@ public:
 int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
 // Special case: all signs +1
 int check_rel(const vector<mat22>& mats, const vector<int>& types);
-
-vec reduce_modp(const vec& v, const scalar& p=DEFAULT_MODULUS);
-mat reduce_modp(const mat& m, const scalar& p=DEFAULT_MODULUS);
 
 #endif

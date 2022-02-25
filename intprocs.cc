@@ -1,6 +1,5 @@
 // FILE INTPROCS.CC
 
-#include <eclib/subspace.h>
 #include <assert.h>
 #include <numeric>
 #include "intprocs.h"
@@ -386,3 +385,23 @@ vector<long> dotperp(vector<long> alist, int r)
   return ans;
 }
 
+vec reduce_modp(const vec& v, const scalar& p)
+{
+  if (p==0) return v;
+  long i, d=dim(v);
+  vec ans(d);
+  for(i=1; i<=d; i++)
+    ans[i] = mod(v[i], p);
+  return ans;
+}
+
+mat reduce_modp(const mat& m, const scalar& p)
+{
+  if (p==0) return m;
+  long i, j, nr=m.nrows(), nc=m.ncols();
+  mat ans(nr,nc);
+  for(i=1; i<=nr; i++)
+    for(j=1; j<=nc; j++)
+      ans(i,j) = mod(m(i,j),p);
+  return ans;
+}

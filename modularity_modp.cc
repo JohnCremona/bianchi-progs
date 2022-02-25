@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include "newforms.h"
-#include "eclib/curvesort.h" // for letter codes
 
 long prime_index(const Quadprime& P)
 {

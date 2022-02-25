@@ -3,8 +3,6 @@
 #if     !defined(_FACE_RELATIONS_H)
 #define _FACE_RELATIONS_H      1       //flags that this file has been included
 
-#include <eclib/method.h>
-#include <eclib/matrix.h>
 #include "edge_relations.h"
 
 #define USE_SMATS

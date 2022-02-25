@@ -10,9 +10,6 @@
 #include "homspace.h"
 #include "face_relations.h"
 #include <assert.h>
-#ifdef TIME_RELATION_SOLVING
-#include <eclib/timer.h>
-#endif
 
 #ifdef USE_CRT
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);

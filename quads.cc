@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-#include <eclib/arith.h>
-#include <eclib/unimod.h>
 #include "intprocs.h"
 #include "quads.h"
 #include "primes.h"

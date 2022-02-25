@@ -98,8 +98,8 @@ void oldforms::getoldclasses(Qideal& D)
 
   newforms olddata(D, nf->verbose, nf->characteristic);
   olddata.read_from_file_or_find();
-  int nforms=olddata.n1ds;
-  if (nforms==0)
+  int old1ds=olddata.n1ds, old2ds=olddata.n2ds;
+  if (old1ds==0 && old2ds==0)
     return;
 
   // Compute the oldform multiplicity as the number of divisors of N/D
@@ -121,9 +121,9 @@ void oldforms::getoldclasses(Qideal& D)
   // oldmult, we do not need to subdivide this into 2^k pieces.
 
   if(nf->verbose) cout<<" each oldspace dimension is "<<oldmult<<endl;
-  olddim2+=oldmult*olddata.n2ds;
+  olddim2+=oldmult*old2ds;
 
-  for(int iform=0; iform<nforms; iform++)
+  for(int iform=0; iform<old1ds; iform++)
     {
       oldformap.push_back(olddata.nflist[iform].oldform_eigs(N));
       oldclassdims.push_back(oldmult);
