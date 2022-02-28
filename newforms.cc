@@ -861,11 +861,19 @@ void newforms::fill_in_newform_data(int everything)
         {
           Quadprime Q = *Qi;
           long e = val(Q,N);
+          Qideal Qe = Q;
+          while (--e) Qe *= Q;
           vector<long> apv(n1ds, +1); // default in case nonsquare class
-          if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
+          if (Qe.is_principal())
             {
-              apv = apvec(AtkinLehnerQOp(*Qi,N), {-1,1});
+              apv = apvec(AtkinLehnerQOp(Q,N), {-1,1});
             }
+          else
+            if (Qe.has_square_class()) // then [Q^e] is a square
+              {
+                Qideal A = Qe.sqrt_coprime_to(N);
+                apv = apvec(AtkinLehnerQChiOp(Q,A,N), {-1,1});
+              }
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
         }
@@ -1699,48 +1707,56 @@ vector<long> newforms::apvec(Quadprime& P)
   if (vp>0) // bad prime
     {
       long e = val(P,N);
-      if (e%2==0 || P.has_square_class()) // then [P^e] is a square
-        apv = apvec(AtkinLehnerQOp(P,N), {-1,1});
-      else
-        apv.resize(n1ds, +1);
-#ifdef DEBUG_APVEC
-      cout<<"Bad prime: aq list = "<<apv<<endl;
-#endif
+      Qideal Pe = P;
+      while (--e) Pe*=P;
+      if (Pe.is_principal())
+        {
+          return apvec(AtkinLehnerQOp(P,N), {-1,1});
+        }
+      if (Pe.has_square_class())
+        {
+          Qideal A = Pe.sqrt_coprime_to(N);
+          return apvec(AtkinLehnerQChiOp(P,A,N), {-1,1});
+        }
+      apv.resize(n1ds, +1);
       return apv;
     }
 
   // now P is a good prime
 
   if (Quad::is_Euclidean)
-    apv = apvec_euclidean(P, eigenvalue_range(P));
-  else
+    return apvec_euclidean(P, eigenvalue_range(P));
+  if (P.is_principal())
+    return apvec(HeckePOp(P,N), eigenvalue_range(P)); // T(P)
+  if (P.has_square_class())
     {
-      if (P.has_square_class())
-        apv = apvec(HeckePOp(P,N), eigenvalue_range(P)); // T(P)
+      Qideal A = P.sqrt_coprime_to(N);
+      return apvec(HeckePChiOp(P,A,N), eigenvalue_range(P)); // T(P)*T(A,A)
+    }
+  Qideal P2 = P*P;
+  long normP = I2long(P.norm());
+  if (P2.is_principal())  // T(P^2)
+    {
+      apv = apvec(HeckeP2Op(P,N), eigenvalue_sq_range(P));
+    }
+  else // T(P^2)*T(A,A) with A*P principal
+    {
+      Qideal A = P.equivalent_coprime_to(N, 1);
+      apv = apvec(HeckeP2ChiOp(P,A,N), eigenvalue_sq_range(P));
+    }
+  for (i=0; i<n1ds; i++)
+    {
+      long ap, ap2 = apv[i] + normP;
+      if (is_square(ap2, ap))
+        {
+          apv[i] = ap;
+        }
       else
         {
-          long normP = I2long(P.norm());
-          apv = apvec(HeckePSqOp(P,N), eigenvalue_sq_range(P)); // T(P^2)
-          for (i=0; i<n1ds; i++)
-            {
-              long ap, ap2 = apv[i] + normP;
-              //cout<<"P="<<P<<", a(P)^2 = "<<ap2;
-              if (is_square(ap2, ap))
-                {
-                  //cout<<", |a(P)| = "<<ap<<endl;
-                  apv[i] = ap;
-                }
-              else
-                {
-                  cerr<<"P="<<P<<", a(P)^2 = "<<ap2<<" is not a square!"<<endl;
-                  exit(1);
-                }
-            }
+          cerr<<"P="<<P<<", a(P)^2 = "<<ap2<<" is not a square!"<<endl;
+          exit(1);
         }
     }
-#ifdef DEBUG_APVEC
-  cout<<"Good prime: ap list = "<<apv<<endl;
-#endif
   return apv;
 }
 
@@ -1780,27 +1796,42 @@ vector<long> newforms::apvec(Quadprime& P)
 matop newforms::h1matop(int i) // return the list of matrices defining the i'th operator
 {
   assert (i>=0);
-  if (h1matops[i].length()==0) // we have not already computed and stored it, so we do so now
+  if (h1matops[i].length()!=0)
+    return h1matops[i];
+  // else we have not already computed and stored it, so we do so now
+
+  // cout<<"Computing matop "<<i<<"..."<<flush;
+  if (i<n2r) // then we use T(A,A) where A is the i'th generator of the class group mod squares
     {
-      // cout<<"Computing matop "<<i<<"..."<<flush;
-      if (i<n2r) // then we use T(A,A) where A is the i'th generator of the class group mod squares
-        {
-          h1matops[i] = CharOp(nulist[i], N);
-        }
-      else
-        // else we yield, for P the (i-n2r)'th good prime,
-        // either T(A,A)*T(P)   if [P] is square with A^2*P principal,
-        // or     T(A,A)*T(P^2) if [P] is not square, where A*P is principal
-        {
-          i -= n2r;
-          Quadprime P = goodprimes[i];
-          if (P.has_square_class())
-            h1matops[i] = HeckePOp(P, N);
-          else
-            h1matops[i] = HeckePSqOp(P, N);
-        }
+      h1matops[i] = CharOp(nulist[i], N);
+      return h1matops[i];
     }
-  // cout<<"done: "<<h1matops[i].mats<<endl;
+  // else we yield, for P the (i-n2r)'th good prime,
+  // T(P)          if P is principal, or
+  // T(A,A)*T(P)   if [P] is square with A^2*P principal, or
+  // T(P^2)        if P^2 is principal, or
+  // T(A,A)*T(P^2) where A*P is principal
+  i -= n2r;
+  Quadprime P = goodprimes[i];
+  if (P.is_principal())
+    {
+      h1matops[i] = HeckePOp(P, N);
+      return h1matops[i];
+    }
+  if (P.has_square_class())
+    {
+      Qideal A = P.sqrt_coprime_to(N);
+      h1matops[i] = HeckePChiOp(P, A, N);
+      return h1matops[i];
+    }
+  Qideal P2 = P*P;
+  if (P2.is_principal())
+    {
+      h1matops[i] = HeckeP2Op(P, N);
+      return h1matops[i];
+    }
+  Qideal A = P.equivalent_coprime_to(N,1);
+  h1matops[i] = HeckeP2ChiOp(P, A, N);
   return h1matops[i];
 }
 

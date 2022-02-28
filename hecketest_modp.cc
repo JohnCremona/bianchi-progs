@@ -99,7 +99,7 @@ int main(void)
         {
           Quadprime Q = *pr;
           cout << "Computing W("<<Q<<")..." << flush;
-          mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.wop(Q,0,show_mats));
+          mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.calcop(AtkinLehnerQOp(Q,N),0,show_mats));
 	  cout << "done. " << flush;
 	  wqlist.push_back(wq);
 
@@ -147,7 +147,7 @@ int main(void)
           Quadprime P = *pr;
 	  while (P.divides(N)) {++pr; P=*pr; np++;}
 	  cout << "Computing T(" << P << ")..."<<flush;
-	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.heckeop(P,0,show_mats));
+	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.calcop(HeckePOp(P,N), 0, show_mats));
 	  cout << "done. " << flush;
 	  tplist.push_back(tp);
 

@@ -119,7 +119,7 @@ int main(void)
             {
               Qideal A = *t2i;
               cout << "Computing nu_"<< A <<"..." << flush;
-              mat_ZZ nu = mat_to_mat_ZZ(h.nu_op(A, 0, 0));
+              mat_ZZ nu = mat_to_mat_ZZ(h.calcop(CharOp(A, N), 0, 0));
               cout << "done. " << endl;
               if (show_mats)
                 cout << "Matrix is \n" << nu << endl;
@@ -182,10 +182,25 @@ int main(void)
       for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
-          if ((Quad::class_group_2_rank>0) && (val(Q, N)%2==1) && !Q.has_square_class())
-            continue; // we have an odd power of an ideal with non-square ideal class
-          cout << "Computing W("<<Q<<")..." << flush;
-          mat_ZZ wq =  mat_to_mat_ZZ(h.wop(Q,0,0));
+          int e = val(Q,N);
+          Qideal Qe = Q;
+          matop op;
+          while (--e) Qe *= Q;
+          if (Qe.is_principal()) // we compute W_Q directly
+            {
+              cout << "Computing W("<<Q<<")..." << flush;
+              op = AtkinLehnerQOp(Q, N);
+            }
+          else
+            if (Qe.has_square_class()) // we compute T(A,A)*W_Q
+              {
+                Qideal A = Qe.sqrt_coprime_to(N);
+                cout << "Computing W("<<Q<<")*T(A,A) for A="<<A<<"..." << flush;
+                op = AtkinLehnerQChiOp(Q, A, N);
+              }
+            else  // we have an odd power of an ideal with non-square ideal class and compute nothing
+              continue;
+          mat_ZZ wq =  mat_to_mat_ZZ(h.calcop(op,0,0));
 	  cout << "done. " << endl;
           if (show_mats)
             cout << "Matrix is \n" << wq << endl;
@@ -236,31 +251,51 @@ int main(void)
           mat_ZZ tp, tpq, tpwq;
 	  if (P.divides(N))
             continue;
-          int use_PQ = 0;
-          if (!P.has_square_class())
+          int P_class_order=1; // will hold order of [P] mod squares
+          matop op;
+          if (P.is_principal())
             {
-              // we have an ideal with non-square ideal class, compute
-              // T(P^2)*T(A,A) instead, where AP is principal and A
-              // coprime to N.  We don't get to choose A here, so this
-              // is only useful if we know the eigenvalue of T(P,P),
-              // but this is just a test.
-              use_PQ = 1;
-              cout << "Computing T(" << P << "^2)..."<<flush;
-              tp = mat_to_mat_ZZ(h.hecke_sq_op(P,0, 0));
-              cout << "done. " << endl;
-              if (show_mats)
-                cout << "Matrix is \n" << tp << endl;
+              op = HeckePOp(P, N);
+              cout << "Computing T(" << P << ")..."<<flush;
             }
           else
             {
-              cout << "Computing T(" << P << ")..."<<flush;
-              tp = mat_to_mat_ZZ(h.heckeop(P,0,show_mats));
-              cout << "done. " << endl;
-              if (show_mats)
-                cout << "Matrix is \n" << tp <<endl;
+              if (P.has_square_class())
+                {
+                  Qideal A = P.sqrt_coprime_to(N);
+                  op = HeckePChiOp(P, A, N);
+                  cout << "Computing T(" << P << ")*T(A,A) for A="<<A<<"..."<<flush;
+                }
+              else
+                {
+                  P_class_order = 2;
+                  if ((!P0_set) && (Quad::class_number==2))
+                    {
+                      P0 = P;
+                      P0_set = 1;
+                      cout<<"Setting P0 to "<<P0<<endl;
+                    }
+                  if ((P*P).is_principal())
+                    {
+                      op = HeckeP2Op(P, N);
+                      cout << "Computing T(" << P << "^2)..."<<flush;
+                    }
+                  else
+                    {
+                      Qideal A = P.equivalent_coprime_to(N,1);
+                      op = HeckeP2ChiOp(P, A, N);
+                      cout << "Computing T(" << P << "^2)*T(A,A) for A="<<A<<"..."<<flush;
+                    }
+                }
             }
+
+          tp = mat_to_mat_ZZ(h.calcop(op, 0, show_mats));
+          cout << "done. " << endl;
+          if (show_mats)
+            cout << "Matrix is \n" << tp <<endl;
+
           ntp++;
-	  tplist.push_back(tp);
+          tplist.push_back(tp);
 
           ZZX charpol = scaled_charpoly(tp, to_ZZ(den));
           if (show_pols)
@@ -289,20 +324,82 @@ int main(void)
               exit(1);
             }
 
-          // Computing T(P)T(P0) when P*P0 is principal (P, P0 not principal)
+          // Computing T(P)T(P0) when P*P0 is principal (P, P0 not principal), or just of square class
 
-          if (use_PQ)
+          if (!(P0_set && (P0!=P) && (P_class_order==2)))
+            continue;
+
+          Qideal PP0 = P*P0;
+          if (PP0.is_principal())
             {
-              if (P0_set && (P*P0).has_square_class())
+              op = HeckePQOp(P,P0,N);
+              cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
+            }
+          else
+            if (PP0.has_square_class())
+              {
+                Qideal A = PP0.sqrt_coprime_to(N);
+                op = HeckePQChiOp(P,P0,A,N);
+                cout << "Computing T(" << P << ") T(" << P0 << ")*T(A,A) with A = "<<A<<"..."<<flush;
+              }
+            else
+              continue;
+
+          tpq = mat_to_mat_ZZ(h.calcop(op, 0, 0));
+          cout << "done. " << endl;
+          if (show_mats)
+            cout << "Matrix is \n" << tpq << endl;
+          tpqlist.push_back(tpq);
+
+          charpol = scaled_charpoly(tpq, to_ZZ(den));
+          if (show_pols)
+            {
+              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+            }
+          if(show_factors)
+            {
+              display_factors(charpol);
+            }
+          cout << endl;
+
+          if (!check_commute(tpq, nulist))
+            {
+              cout << "********* T(PQ) does not commute with unramified character matrices ***********" << endl;
+              exit(1);
+            }
+          if (!check_commute(tpq, wqlist))
+            {
+              cout << "********* T(PQ) does not commute with all W matrices ***********" << endl;
+              exit(1);
+            }
+          if (!check_commute(tpq, tplist))
+            {
+              cout << "********* T(PQ) does not commute with all T matrices ***********" << endl;
+              exit(1);
+            }
+          if (!check_commute(tpq, tpqlist))
+            {
+              cout << "********* T(PQ) does not commute with other T(PQ) matrices ***********" << endl;
+              exit(1);
+            }
+
+          // Computing T(P)W(Q) for suitable Q^e||N
+
+          vector<Qideal>::iterator qe=badprimepowers.begin();
+          vector<Quadprime>::iterator q=allbadprimes.begin();
+          for (; q!=allbadprimes.end(); ++q,++qe)
+            {
+              Quadprime Q = *q;
+              Qideal Qe = *qe;
+              if ((P*Qe).is_principal())
                 {
-                  cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
-                  tpq = mat_to_mat_ZZ(h.hecke_pq_op(P, P0, 0, 0));
+                  cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
+                  tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N), 0, 0));
                   cout << "done. " << endl;
                   if (show_mats)
-                    cout << "Matrix is \n" << tpq << endl;
-                  tpqlist.push_back(tpq);
-
-                  charpol = scaled_charpoly(tpq, to_ZZ(den));
+                    cout << "Matrix is \n" << tpwq << endl;
+                  tpwqlist.push_back(tpwq);
+                  charpol = scaled_charpoly(tpwq, to_ZZ(den));
                   if (show_pols)
                     {
                       cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -312,85 +409,30 @@ int main(void)
                       display_factors(charpol);
                     }
                   cout << endl;
-
-                  if (!check_commute(tpq, nulist))
+                  if (!check_commute(tpwq, nulist))
                     {
-                      cout << "********* T(PQ) does not commute with unramified character matrices ***********" << endl;
+                      cout << "********* T(P)W(Q) does not commute with unramified character matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpq, wqlist))
+                  if (!check_commute(tpwq, wqlist))
                     {
-                      cout << "********* T(PQ) does not commute with all W matrices ***********" << endl;
+                      cout << "********* T(P)W(Q) does not commute with all W matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpq, tplist))
+                  if (!check_commute(tpwq, tplist))
                     {
-                      cout << "********* T(PQ) does not commute with all T matrices ***********" << endl;
+                      cout << "********* T(P)W(Q) does not commute with all T matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpq, tpqlist))
+                  if (!check_commute(tpwq, tpqlist))
                     {
-                      cout << "********* T(PQ) does not commute with other T(PQ) matrices ***********" << endl;
+                      cout << "********* T(P)W(Q) does not commute with all T(PQ) matrices ***********" << endl;
                       exit(1);
                     }
-                }
-              else
-                {
-                  P0 = P;
-                  P0_set = 1;
-                }
-
-              // Computing T(P)W(Q) for suitable Q^e||N
-
-              vector<Qideal>::iterator qe=badprimepowers.begin();
-              vector<Quadprime>::iterator q=allbadprimes.begin();
-              for (; q!=allbadprimes.end(); ++q,++qe)
-                {
-                  Quadprime Q = *q;
-                  Qideal Qe = *qe;
-                  if ((P*Qe).is_principal())
+                  if (!check_commute(tpwq, tpwqlist))
                     {
-                      cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                      tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N), 0, 0));
-                      cout << "done. " << endl;
-                      if (show_mats)
-                        cout << "Matrix is \n" << tpwq << endl;
-                      tpwqlist.push_back(tpwq);
-                      charpol = scaled_charpoly(tpwq, to_ZZ(den));
-                      if (show_pols)
-                        {
-                          cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-                        }
-                      if(show_factors)
-                        {
-                          display_factors(charpol);
-                        }
-                      cout << endl;
-                      if (!check_commute(tpwq, nulist))
-                        {
-                          cout << "********* T(P)W(Q) does not commute with unramified character matrices ***********" << endl;
-                          exit(1);
-                        }
-                      if (!check_commute(tpwq, wqlist))
-                        {
-                          cout << "********* T(P)W(Q) does not commute with all W matrices ***********" << endl;
-                          exit(1);
-                        }
-                      if (!check_commute(tpwq, tplist))
-                        {
-                          cout << "********* T(P)W(Q) does not commute with all T matrices ***********" << endl;
-                          exit(1);
-                        }
-                      if (!check_commute(tpwq, tpqlist))
-                        {
-                          cout << "********* T(P)W(Q) does not commute with all T(PQ) matrices ***********" << endl;
-                          exit(1);
-                        }
-                      if (!check_commute(tpwq, tpwqlist))
-                        {
-                          cout << "********* T(P)W(Q) does not commute with other T(P)W(Q) matrices ***********" << endl;
-                          exit(1);
-                        }
+                      cout << "********* T(P)W(Q) does not commute with other T(P)W(Q) matrices ***********" << endl;
+                      exit(1);
                     }
                 }
             }
