@@ -17,11 +17,11 @@ Factors of characteristic polynomial are:
 
 Computing T(P5a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[21 1]	(degree 1)	 to power 1
+1:	[-21 1]	(degree 1)	 to power 1
 
 Computing T(P5b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[21 1]	(degree 1)	 to power 1
+1:	[-21 1]	(degree 1)	 to power 1
 
 Computing T(P5b) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -29,7 +29,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P7^2)...done. 
 Factors of characteristic polynomial are:
-1:	[43 1]	(degree 1)	 to power 1
+1:	[-43 1]	(degree 1)	 to power 1
 
 Computing T(P7) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -41,7 +41,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P13^2)...done. 
 Factors of characteristic polynomial are:
-1:	[157 1]	(degree 1)	 to power 1
+1:	[-157 1]	(degree 1)	 to power 1
 
 Computing T(P13) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -49,7 +49,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P19a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[343 1]	(degree 1)	 to power 1
+1:	[-343 1]	(degree 1)	 to power 1
 
 Computing T(P19a) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -57,7 +57,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P19b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[343 1]	(degree 1)	 to power 1
+1:	[-343 1]	(degree 1)	 to power 1
 
 Computing T(P19b) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -90,20 +90,14 @@ Factors of characteristic polynomial are:
 Computing T(P5a^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 1
-2:	[21 1]	(degree 1)	 to power 2
-3:	[-116 -28 4 1]	(degree 3)	 to power 1
-
-Computing T(P5a)W(7.1)...done. 
-Factors of characteristic polynomial are:
-1:	[6 1]	(degree 1)	 to power 1
-2:	[16 0 1]	(degree 2)	 to power 1
-3:	[1 -1 -3 1]	(degree 3)	 to power 1
+2:	[-21 1]	(degree 1)	 to power 2
+3:	[116 -28 -4 1]	(degree 3)	 to power 1
 
 Computing T(P5b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 1
-2:	[21 1]	(degree 1)	 to power 2
-3:	[-116 -28 4 1]	(degree 3)	 to power 1
+2:	[-21 1]	(degree 1)	 to power 2
+3:	[116 -28 -4 1]	(degree 3)	 to power 1
 
 Computing T(P5b) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -125,8 +119,8 @@ Factors of characteristic polynomial are:
 Computing T(P13^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-183 1]	(degree 1)	 to power 1
-2:	[157 1]	(degree 1)	 to power 2
-3:	[-311 -45 11 1]	(degree 3)	 to power 1
+2:	[-157 1]	(degree 1)	 to power 2
+3:	[311 -45 -11 1]	(degree 3)	 to power 1
 
 Computing T(P13) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -161,20 +155,20 @@ Involution!
 Computing T(P5a^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 2
-2:	[-4 1]	(degree 1)	 to power 2
-3:	[21 1]	(degree 1)	 to power 3
-4:	[-64 -8 1]	(degree 2)	 to power 1
+2:	[4 1]	(degree 1)	 to power 2
+3:	[-21 1]	(degree 1)	 to power 3
+4:	[-64 8 1]	(degree 2)	 to power 1
 5:	[496 16 1]	(degree 2)	 to power 1
-6:	[756 -36 1]	(degree 2)	 to power 1
+6:	[756 36 1]	(degree 2)	 to power 1
 
 Computing T(P5b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 2
-2:	[-4 1]	(degree 1)	 to power 2
-3:	[21 1]	(degree 1)	 to power 3
-4:	[-64 -8 1]	(degree 2)	 to power 1
+2:	[4 1]	(degree 1)	 to power 2
+3:	[-21 1]	(degree 1)	 to power 3
+4:	[-64 8 1]	(degree 2)	 to power 1
 5:	[496 16 1]	(degree 2)	 to power 1
-6:	[756 -36 1]	(degree 2)	 to power 1
+6:	[756 36 1]	(degree 2)	 to power 1
 
 Computing T(P5b) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -187,10 +181,10 @@ Factors of characteristic polynomial are:
 
 Computing T(P7^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 2
-2:	[3 1]	(degree 1)	 to power 2
+1:	[-3 1]	(degree 1)	 to power 2
+2:	[2 1]	(degree 1)	 to power 2
 3:	[-57 1]	(degree 1)	 to power 4
-4:	[43 1]	(degree 1)	 to power 5
+4:	[-43 1]	(degree 1)	 to power 5
 
 Computing T(P7) T(P5a)...done. 
 Factors of characteristic polynomial are:
@@ -209,10 +203,10 @@ Factors of characteristic polynomial are:
 
 Computing T(P13^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-23 1]	(degree 1)	 to power 2
-2:	[-3 1]	(degree 1)	 to power 2
+1:	[3 1]	(degree 1)	 to power 2
+2:	[23 1]	(degree 1)	 to power 2
 3:	[-183 1]	(degree 1)	 to power 4
-4:	[157 1]	(degree 1)	 to power 5
+4:	[-157 1]	(degree 1)	 to power 5
 
 Computing T(P13) T(P5a)...done. 
 Factors of characteristic polynomial are:

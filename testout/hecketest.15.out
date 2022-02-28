@@ -13,11 +13,11 @@ nu-eigenspace -: 1
 
 Computing T(P2a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[3 1]	(degree 1)	 to power 1
+1:	[-3 1]	(degree 1)	 to power 1
 
 Computing T(P2b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[3 1]	(degree 1)	 to power 1
+1:	[-3 1]	(degree 1)	 to power 1
 
 Computing T(P2b) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -25,7 +25,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P3^2)...done. 
 Factors of characteristic polynomial are:
-1:	[7 1]	(degree 1)	 to power 1
+1:	[-7 1]	(degree 1)	 to power 1
 
 Computing T(P3) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -33,7 +33,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P5^2)...done. 
 Factors of characteristic polynomial are:
-1:	[21 1]	(degree 1)	 to power 1
+1:	[-21 1]	(degree 1)	 to power 1
 
 Computing T(P5) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -41,7 +41,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P17a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[273 1]	(degree 1)	 to power 1
+1:	[-273 1]	(degree 1)	 to power 1
 
 Computing T(P17a) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -49,7 +49,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P17b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[273 1]	(degree 1)	 to power 1
+1:	[-273 1]	(degree 1)	 to power 1
 
 Computing T(P17b) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -65,7 +65,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[507 1]	(degree 1)	 to power 1
+1:	[-507 1]	(degree 1)	 to power 1
 
 Computing T(P23a) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -73,7 +73,7 @@ Factors of characteristic polynomial are:
 
 Computing T(P23b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[507 1]	(degree 1)	 to power 1
+1:	[-507 1]	(degree 1)	 to power 1
 
 Computing T(P23b) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -93,24 +93,12 @@ nu-eigenspace -: 4
 Computing T(P2b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-7 1]	(degree 1)	 to power 3
-2:	[3 1]	(degree 1)	 to power 4
-
-Computing T(P2b)W(2.1)...done. 
-Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 1
-2:	[3 1]	(degree 1)	 to power 2
-3:	[1 0 1]	(degree 2)	 to power 2
-
-Computing T(P2b)W(3.1)...done. 
-Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 1
-2:	[3 1]	(degree 1)	 to power 2
-3:	[1 0 1]	(degree 2)	 to power 2
+2:	[-3 1]	(degree 1)	 to power 4
 
 Computing T(P5^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 3
-2:	[21 1]	(degree 1)	 to power 4
+2:	[-21 1]	(degree 1)	 to power 4
 
 Computing T(P5) T(P2b)...done. 
 Factors of characteristic polynomial are:
@@ -132,7 +120,7 @@ Factors of characteristic polynomial are:
 Computing T(P17a^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-307 1]	(degree 1)	 to power 3
-2:	[273 1]	(degree 1)	 to power 4
+2:	[-273 1]	(degree 1)	 to power 4
 
 Computing T(P17a) T(P2b)...done. 
 Factors of characteristic polynomial are:
@@ -154,7 +142,7 @@ Factors of characteristic polynomial are:
 Computing T(P17b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-307 1]	(degree 1)	 to power 3
-2:	[273 1]	(degree 1)	 to power 4
+2:	[-273 1]	(degree 1)	 to power 4
 
 Computing T(P17b) T(P2b)...done. 
 Factors of characteristic polynomial are:
@@ -184,7 +172,7 @@ Factors of characteristic polynomial are:
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-553 1]	(degree 1)	 to power 3
-2:	[507 1]	(degree 1)	 to power 4
+2:	[-507 1]	(degree 1)	 to power 4
 
 Computing T(P23a) T(P2b)...done. 
 Factors of characteristic polynomial are:
@@ -206,7 +194,7 @@ Factors of characteristic polynomial are:
 Computing T(P23b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[-553 1]	(degree 1)	 to power 3
-2:	[507 1]	(degree 1)	 to power 4
+2:	[-507 1]	(degree 1)	 to power 4
 
 Computing T(P23b) T(P2b)...done. 
 Factors of characteristic polynomial are:
@@ -246,36 +234,15 @@ nu-eigenspace -: 9
 
 Computing T(P5^2)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 1
+1:	[-1 1]	(degree 1)	 to power 1
 2:	[-31 1]	(degree 1)	 to power 7
-3:	[21 1]	(degree 1)	 to power 8
-
-Computing T(P5)W(2.1)...done. 
-Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 1
-2:	[-6 1]	(degree 1)	 to power 3
-3:	[6 1]	(degree 1)	 to power 4
-4:	[16 0 1]	(degree 2)	 to power 4
-
-Computing T(P5)W(2.2)...done. 
-Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 1
-2:	[-6 1]	(degree 1)	 to power 3
-3:	[6 1]	(degree 1)	 to power 4
-4:	[16 0 1]	(degree 2)	 to power 4
-
-Computing T(P5)W(3.1)...done. 
-Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 1
-2:	[-6 1]	(degree 1)	 to power 3
-3:	[6 1]	(degree 1)	 to power 4
-4:	[16 0 1]	(degree 2)	 to power 4
+3:	[-21 1]	(degree 1)	 to power 8
 
 Computing T(P17a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[13 1]	(degree 1)	 to power 1
+1:	[-13 1]	(degree 1)	 to power 1
 2:	[-307 1]	(degree 1)	 to power 7
-3:	[273 1]	(degree 1)	 to power 8
+3:	[-273 1]	(degree 1)	 to power 8
 
 Computing T(P17a) T(P5)...done. 
 Factors of characteristic polynomial are:
@@ -306,9 +273,9 @@ Factors of characteristic polynomial are:
 
 Computing T(P17b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[13 1]	(degree 1)	 to power 1
+1:	[-13 1]	(degree 1)	 to power 1
 2:	[-307 1]	(degree 1)	 to power 7
-3:	[273 1]	(degree 1)	 to power 8
+3:	[-273 1]	(degree 1)	 to power 8
 
 Computing T(P17b) T(P5)...done. 
 Factors of characteristic polynomial are:
@@ -349,9 +316,9 @@ Factors of characteristic polynomial are:
 
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[7 1]	(degree 1)	 to power 1
+1:	[-7 1]	(degree 1)	 to power 1
 2:	[-553 1]	(degree 1)	 to power 7
-3:	[507 1]	(degree 1)	 to power 8
+3:	[-507 1]	(degree 1)	 to power 8
 
 Computing T(P23a) T(P5)...done. 
 Factors of characteristic polynomial are:
@@ -401,20 +368,13 @@ Computing T(P2a^2)...done.
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 2
 2:	[-7 1]	(degree 1)	 to power 5
-3:	[3 1]	(degree 1)	 to power 6
-
-Computing T(P2a)W(5.1)...done. 
-Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 2
-2:	[-1 1]	(degree 1)	 to power 2
-3:	[3 1]	(degree 1)	 to power 3
-4:	[1 0 1]	(degree 2)	 to power 3
+3:	[-3 1]	(degree 1)	 to power 6
 
 Computing T(P2b^2)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 2
 2:	[-7 1]	(degree 1)	 to power 5
-3:	[3 1]	(degree 1)	 to power 6
+3:	[-3 1]	(degree 1)	 to power 6
 
 Computing T(P2b) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -432,7 +392,7 @@ Computing T(P17a^2)...done.
 Factors of characteristic polynomial are:
 1:	[13 1]	(degree 1)	 to power 2
 2:	[-307 1]	(degree 1)	 to power 5
-3:	[273 1]	(degree 1)	 to power 6
+3:	[-273 1]	(degree 1)	 to power 6
 
 Computing T(P17a) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -451,7 +411,7 @@ Computing T(P17b^2)...done.
 Factors of characteristic polynomial are:
 1:	[13 1]	(degree 1)	 to power 2
 2:	[-307 1]	(degree 1)	 to power 5
-3:	[273 1]	(degree 1)	 to power 6
+3:	[-273 1]	(degree 1)	 to power 6
 
 Computing T(P17b) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -480,7 +440,7 @@ Computing T(P23a^2)...done.
 Factors of characteristic polynomial are:
 1:	[23 1]	(degree 1)	 to power 2
 2:	[-553 1]	(degree 1)	 to power 5
-3:	[507 1]	(degree 1)	 to power 6
+3:	[-507 1]	(degree 1)	 to power 6
 
 Computing T(P23a) T(P2a)...done. 
 Factors of characteristic polynomial are:
@@ -499,7 +459,7 @@ Computing T(P23b^2)...done.
 Factors of characteristic polynomial are:
 1:	[23 1]	(degree 1)	 to power 2
 2:	[-553 1]	(degree 1)	 to power 5
-3:	[507 1]	(degree 1)	 to power 6
+3:	[-507 1]	(degree 1)	 to power 6
 
 Computing T(P23b) T(P2a)...done. 
 Factors of characteristic polynomial are:

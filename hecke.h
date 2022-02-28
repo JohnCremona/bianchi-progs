@@ -276,7 +276,7 @@ inline matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 }
 
 // The operator T(P)W(Q) where P does not divide N, Q^e||N,
-// P*Q principal.
+// P*Q^e principal.
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 

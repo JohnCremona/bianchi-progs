@@ -273,7 +273,7 @@ int main(void)
                     {
                       P0 = P;
                       P0_set = 1;
-                      cout<<"Setting P0 to "<<P0<<endl;
+                      //cout<<"Setting P0 to "<<P0<<endl;
                     }
                   if ((P*P).is_principal())
                     {
