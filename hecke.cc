@@ -1,6 +1,7 @@
 // FILE HECKE.CC: Implemention of Hecke operators for class homspace
 
 #include "hecke.h"
+#include "P1N.h"
 
 // Implementation of Hecke and Atkin-Lehner matrices
 
@@ -301,7 +302,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   Quad g, u, v, a;
   Qideal PQ = P*Q;
   int i = PQ.is_principal(g);
-  assert (i && "PQ must be principal in HeckePQ(P,Q,N,0)");
+  assert (i && "PQ must be principal in HeckePQ(P,Q,N)");
   vector<Quad> resmodpq = PQ.residues();
   vector<mat22> mats;
   mat22 M = mat22(g,0,0,1);
@@ -326,6 +327,38 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 #endif
   long normP = I2long(P.norm()), normQ = I2long(Q.norm());
   assert ((long)mats.size()==(1+normP)*(1+normQ));
+  return mats;
+}
+
+// Level N, B square-free, principal and coprime to N
+
+// Returns \psi(B) = \prod_{P|B}(N(P)+1) matrices representing T(B).
+
+vector<mat22> HeckeB(Qideal& B, Qideal& N)
+{
+#ifdef DEBUG_HECKE
+  cout<<"In HeckeB(B,N) with B="<<B<<" = "<<B.factorization()<", N="<<N<<endl;
+#endif
+  Quad g, u, v, c, d;
+  int i = B.is_principal(g);
+  assert (i && "B must be principal in HeckePQ(B,N)");
+  mat22 M = mat22(g,0,0,1);
+  N.is_coprime_to(B, u, v); // u+v=1, u in N, v in B
+
+  // The matrices are
+  // M*lift(c:d) for all (c:d) in P1(O/B), lifted to Gamma_0(N)    (psi(B) matrices)
+  P1N P1B(B);
+  vector<mat22> mats;
+  mats.reserve(P1B.size());
+  for(i=0; i<P1B.size(); i++)
+    {
+      P1B.make_symb(i,c,d);
+      mats.push_back(M*lift_to_Gamma_0(N, B, c, d, u, v));
+    }
+
+#ifdef DEBUG_HECKE
+  cout<<" Hecke matrices are "<<mats<<endl;
+#endif
   return mats;
 }
 
@@ -370,29 +403,59 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
   return mats;
 }
 
+// Returns psi(B) matrices representing T(A,A)T(B) when
+// [B] is square, with A^2*B principal, A coprime to N.
+
+vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
+{
+#ifdef DEBUG_HECKE
+  cout<<"In HeckeB_Chi(B,A,N) with B="<<B<<" = "<<B.factorization()<<", N="<<N<<endl;
+#endif
+  Quad g, u, v, c,d;
+  Qideal AB = A*B;
+  Qideal A2B = A*AB;
+  int i = A2B.is_principal(g);
+  assert (i && "A^2B must be principal in HeckePQ(B,A,N)");
+  N.is_coprime_to(B, u, v); // u+v=1, u in N, v in B
+  mat22 M = AB.AB_matrix_of_level(A, N, g); // sets g to a generator of A^2B,
+                                             //raising an error if not principal
+
+  // The matrices are
+  // M*lift(c:d) for all (c:d) in P1(O/B), lifted to Gamma_0(N)    (psi(B) matrices)
+  P1N P1B(B);
+  vector<mat22> mats;
+  mats.reserve(P1B.size());
+  for(i=0; i<P1B.size(); i++)
+    {
+      P1B.make_symb(i,c,d);
+      mats.push_back(M*lift_to_Gamma_0(N, B, c, d, u, v));
+    }
+
+#ifdef DEBUG_HECKE
+  cout<<" Hecke matrices are "<<mats<<endl;
+#endif
+  assert ((long)mats.size()==P1B.size());
+  return mats;
+}
+
 // Level N=M1*M2, P prime not dividing N, M1,M2 coprime
 
 // Returns N(P)+1 matrices for T(P)W(M1) if P*M1 is principal
 
-// Later we'll implement a more general version (extend=1) giving
+// Later we'll implement a more general version giving
 // T(A,A)T(P)W(M1) when [P*M1] is square
 
 //#define DEBUG_HECKE
-vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2, int extend)
+vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePAL(P,M1,M1) with P="<<P<<", M1="<<ideal_label(M1)<<", M2="<<ideal_label(M2)<<endl;
 #endif
-  if (extend==1)
-    {
-      cerr<<"HeckePAL(P,M1,M2,extend=1) not yet implemented"<<endl;
-      exit(1);
-    }
   vector<mat22> mats;
   Qideal PM1 = P*M1;
   Quad g, h, h1, x, u, v;
   int i = PM1.is_principal(g);
-  assert (i && "P*M1 must be principal in HeckePAL(P,M1,M2,0");
+  assert (i && "P*M1 must be principal in HeckePAL(P,M1,M2");
   i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
   assert (i && "P and M1 are coprime");
   Qideal M3 = M2.equivalent_coprime_to(PM1, h, x, 1); // M2*M3=(h)
@@ -451,7 +514,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2, int extend)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend)
+vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
@@ -462,7 +525,7 @@ vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N, int extend)
       M1 *= Q;
       M2 /= Q;
     }
-  return HeckePAL(P,M1,M2, extend);
+  return HeckePAL(P,M1,M2);
 }
 
 
