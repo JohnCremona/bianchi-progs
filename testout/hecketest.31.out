@@ -3,30 +3,30 @@ Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 >>>> Level 10.1 = (-4+a,-2-2a), norm = 10 <<<<
 Cuspidal dimension = 1
-Computing W(P2a)...done. 
+Computing W(P2a)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W(P5a)...done. 
+Computing W(P5a)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
 Involution!
 
-Computing T(P2b)...done. 
+Computing T(P2b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
-Computing T(P5b)...done. 
+Computing T(P5b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T(P7a)...done. 
+Computing T(P7a)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-4 1]	(degree 1)	 to power 1
 
-Computing T(P7b)...done. 
+Computing T(P7b)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 
@@ -37,30 +37,30 @@ Factors of characteristic polynomial are:
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 Cuspidal dimension = 1
  denominator = 2
-Computing W(P2a)...done. 
+Computing W(P2a)*T(A,A) for A=[5,1+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W(P7b)...done. 
+Computing W(P7b)*T(A,A) for A=[5,1+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
 
-Computing T(P2b)...done. 
+Computing T(P2b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T(P5a)...done. 
+Computing T(P5a)*T(A,A) for A=[5,1+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T(P5b)...done. 
+Computing T(P5b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-3 1]	(degree 1)	 to power 1
 
-Computing T(P7a)...done. 
+Computing T(P7a)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
@@ -76,25 +76,25 @@ Factors of characteristic polynomial are:
 2:	[1 1]	(degree 1)	 to power 2
 
 Involution!
-Computing W(P5a)...done. 
+Computing W(P5a)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 3
 
 Involution!
 
-Computing T(P2b)...done. 
+Computing T(P2b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 3
 
-Computing T(P5b)...done. 
+Computing T(P5b)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 3
 
-Computing T(P7a)...done. 
+Computing T(P7a)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-4 1]	(degree 1)	 to power 3
 
-Computing T(P7b)...done. 
+Computing T(P7b)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 3
 
