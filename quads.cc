@@ -125,14 +125,14 @@ void Quad::field(long dd, long max)
 
   // else class number is set in fill_class_group()
 
-  QUINT odd = (d&1?d:d/2); // odd part of d
+  QUINT odd(d&1?d:d/2); // odd part of d
 
   switch (d%4)
     {
     case 1:
       {
         t=0; absdisc=4*d; disc=-absdisc; n=d;
-        discfactors.push_back(-4);
+        discfactors.push_back(QUINT(-4));
         quadconj=&quadconj0;
         mult=&mult0; qdivi=&qdivi0;
         break;
@@ -140,7 +140,7 @@ void Quad::field(long dd, long max)
     case 2:
       {
         t=0; absdisc=4*d; disc=-absdisc; n=d;
-        discfactors.push_back((odd%4==1 ? -8 : 8));
+        discfactors.push_back(QUINT(odd%4==1 ? -8 : 8));
         quadconj=&quadconj0;
         mult=&mult0; qdivi=&qdivi0;
         break;
