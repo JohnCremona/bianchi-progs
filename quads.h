@@ -263,6 +263,11 @@ vector<Quad> sqfreedivs(const Quad&);    // returns square-free divisors
 int are_associate(const Quad&, const Quad&);
 int is_ideal_Galois_stable(const Quad&);
 
+// convert a binary vector into a discriminant dividing Quad::disc
+QUINT discchar(vector<int> c);
+// convert a discriminant dividing Quad::disc into a binary vector
+vector<int> chardisc(QUINT D);
+
 // some other general-purpose functions
 
 #include <values.h>

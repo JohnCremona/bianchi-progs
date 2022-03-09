@@ -2,35 +2,6 @@
 #include <sstream>
 #include "newforms.h"
 
-string ideal_code(const Quad& N); // string code for a (principal)  ideal
-
-string eigfile(const Quad& N, long p)    //returns filename for eigs at level N, characteristic p
-{
-  stringstream s;
-  s << getenv("NF_DIR");
-  if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/" << field_label() << "/";
-  s << ideal_code(N);
-  if (p)
-    s << "_mod_"<<p;
-  return s.str();
-}
-
-string eigfile(Qideal& N, long p)    //returns filename for eigs at level N, characteristic p
-{
-  stringstream s;
-  s << getenv("NF_DIR");
-  if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/" << field_label() << "/";
-  if (Quad::class_number==1) // for backwards compatibility of data file names
-    s << ideal_code(N.gen());
-  else
-    s << ideal_label(N);
-  if (p)
-    s << "_mod_"<<p;
-  return s.str();
-}
-
 // Implementation of oldform member functions
 
 // List for small fields of least norm with positive dimension.  This
@@ -102,31 +73,65 @@ void oldforms::getoldclasses(Qideal& D)
   if (old1ds==0 && old2ds==0)
     return;
 
-  // Compute the oldform multiplicity as the number of divisors of N/D
-  int oldmult;
-  if (nf->characteristic>0)
-    oldmult=0;
-  else
+  // Compute the oldform multiplicity.
+
+  // Usually, this is the number of divisors of N/D, but if the class
+  // number is even and the form is self-twist by an unramified
+  // quadratic character chi, we only count the divisors in the kernel
+  // of chi.  The effect of this is that if there is at least one
+  // prime P dividing NN/D with chi(P)=-1, then the multiplicity is
+  // halved (rounded up).  For example, if N/D=P^e then usually the
+  // multiplicity is (e+1) but if chi(P)=-1 it is ceiling((e+1)/2),
+  // i.e. for e=1,2,3,4,5,... instead of the multiplicity being
+  // 2,3,4,5,... respectively it is 1,2,2,3,...
+
+  // Note that in the special case, the multiplicity may be different
+  // for different newforms at the same level.
+
+  int oldmult = 1, any_half_mults=0;
+  vector <int> old_mult(old1ds,0), half_mult(old1ds,0);
+  if (nf->characteristic==0)
     {
-      vector<Quadprime>::const_iterator Pi;
-      for (Pi = nf->allbadprimes.begin(), oldmult=1; Pi!=nf->allbadprimes.end(); ++Pi)
+      for (auto Pi = nf->allbadprimes.begin(); Pi!=nf->allbadprimes.end(); ++Pi)
         {
-          int fac = (1 + val(*Pi, N) - val(*Pi, D));
-          //cout<<" prime "<<(*Pi)<<" contributes a factor of "<<fac<<" to the oldspace multiplicity"<<endl;
+          Quadprime P = *Pi;
+          int fac = (1 + val(P, N) - val(P, D));
           oldmult *= fac;
+          if ((fac>1) && (Quad::class_group_2_rank>0))
+            {
+              for(int iform=0; iform<old1ds; iform++)
+                {
+                  QUINT CMD = olddata.nflist[iform].CMD;
+                  if (!is_zero(CMD) and P.genus_character(CMD)==-1)
+                    {
+                      half_mult[iform]=1;
+                      any_half_mults=1;
+                    }
+                }
+            }
+        }
+      for(int iform=0; iform<old1ds; iform++)
+        {
+          old_mult[iform] = (half_mult[iform]? (1+oldmult)/2: oldmult);
         }
     }
 
   // As we are not using W's, all oldform multiplicities are equal to
   // oldmult, we do not need to subdivide this into 2^k pieces.
 
-  if(nf->verbose) cout<<" each oldspace dimension is "<<oldmult<<endl;
+  if(nf->verbose)
+    {
+      if (any_half_mults)
+        cout<<" oldspace dimensions are "<<old_mult<<endl;
+      else
+        cout<<" each oldspace dimension is "<<oldmult<<endl;
+    }
   olddim2+=oldmult*old2ds;
 
   for(int iform=0; iform<old1ds; iform++)
     {
       oldformap.push_back(olddata.nflist[iform].oldform_eigs(N));
-      oldclassdims.push_back(oldmult);
+      oldclassdims.push_back(old_mult[iform]);
       oldlevels.push_back(D);
       noldclasses++;
     }

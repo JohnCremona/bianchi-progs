@@ -18,7 +18,11 @@ The first two lines relate to the level:
 2. nap  : number of Fourier coefficients
 
 The next 11 lines (3--13) have n1ds (or 2*n1ds) entries each, one per
-newform for integers and 2 per newform for quads:
+newform for integers and 2 per newform for quads.  Here, "newform"
+really refers to a set of unramified quadratic twists, of size 2^r
+(where r=Quad::class_group_2_rank), so just 1 for odd class number, or
+for unramified self-twist forms only 2^{r-1}.  The latter condition is
+stored in line 14, which is only present when the class number is odd.
 
 3.  sfe : sign of functional equation (= - product of aq)
 4.  pdot: projection of Manin vector
@@ -28,6 +32,9 @@ newform for integers and 2 per newform for quads:
 8.  lambdadot : scaling factor for lambda
 9-12. a, b, c, d : entries of a matrix M=[a,b;N*c,d] in Gamma_0(N) s.t.
 13. matdot       : the integral of f over {0,M(0)} is matdot*x
+
+The next line is only present over field with even class number.
+14. CMD: 0, or for forms which are self-twist by an unramified quadratic character, its discriminant.
 
 The next lines contain the Atkin-Lehner eigenvalues for the bad primes
 (in standard order):
@@ -57,6 +64,7 @@ public:
   Quad a,b,c,d; int matdot;    // integration matrix and factor
   int j0; int fac, facinv;
   long cuspidalfactor;
+  QUINT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
 
   newform(void) :basis(0), aplist(0) {;}
   // constructor to use just after finding the eigenspace: just sets
@@ -92,8 +100,6 @@ public:
 
   void display(void) const;
   void list(long nap=-1) const;
-  // To find cuspidal factor:
-  void find_cuspidal_factor(const vec& v);
   // To find matrix for integration:
   void find_matrix(int j);
   // Test if form is base-change

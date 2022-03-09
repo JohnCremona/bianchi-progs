@@ -241,6 +241,8 @@ vector<Qideal> ideals_with_bounded_norm(QUINT maxnorm, int both_conj=1);
 
 string ideal_label(Qideal& I); // returns label of ideal I
 string gens_string(Qideal& I);  // returns string of gens, of the form (x) if principal or (x,y) ideal I
+string eigfile(const Quad& N, long p=0);    //returns filename for eigs at level N, characteristic p
+string eigfile(Qideal& N, long p=0);        //returns filename for eigs at level N, characteristic p
 
 // Class to hold sorted lists of ideals of given norm
 class Qideal_lists {

@@ -671,6 +671,11 @@ vector<int> Qideal::genus_character()
   return bits(genus_class(), Quad::discfactors.size());
 }
 
+int Quadprime::genus_character(const QUINT& D)
+{
+  return (dotbits(from_bits(chardisc(D)), genus_class(), Quad::discfactors.size())? -1: +1);
+}
+
 // Test whether an ideal is a prime, or a prime power:
 int Qideal::is_prime() {return factorization().is_prime();}
 int Qideal::is_prime_power() {return factorization().is_prime_power();}

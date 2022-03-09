@@ -37,7 +37,8 @@ public:
   int residue_degree() const {return (character==-1? 2: 1);}
   int ramification_degree() const {return (character==0? 2: 1);}
 
-  vector<int> genus_character();
+  vector<int> genus_character(); // vector of unram char values, one per prime discriminant
+  int genus_character(const QUINT& D); // one unram char value
   long genus_class() {return from_bits(genus_character());}
   int has_square_class() {return (genus_class()==0);}
 

@@ -5,9 +5,6 @@
 
 #include "primes.h"
 
-string eigfile(const Quad& N, long p=0);    //returns filename for eigs at level N, characteristic p
-string eigfile(Qideal& N, long p=0);        //returns filename for eigs at level N, characteristic p
-
 class newforms;
 
 class oldforms {

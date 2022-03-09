@@ -951,3 +951,21 @@ bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
   return ans1;
 }
 
+// convert a binary vector into a discriminant dividing Quad::disc
+QUINT discchar(vector<int> c)
+{
+  QUINT D(1);
+  for(int i=0; i<(int)c.size(); i++)
+    if (c[i])
+      D *= Quad::discfactors[i];
+  return D;
+}
+
+// convert a discriminant dividing Quad::disc into a binary vector
+vector<int> chardisc(QUINT D)
+{
+  vector<int> ans;
+  for(auto di=Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di)
+    ans.push_back(div(*di,D));
+  return ans;
+}

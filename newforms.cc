@@ -91,7 +91,17 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   // Find the ratio of the least period w.r.t. integral homology
   // divided by the least period w.r.t. homology relative to cusps.
   // this uses the vector v so must be done now
-  find_cuspidal_factor(v);
+  if(nf->h1->cuspidal || nf->characteristic)
+    {
+      cuspidalfactor=1;
+    }
+  else
+    {
+      cuspidalfactor = vecgcd((nf->h1->tkernbas)*v);
+      if(nf->verbose)
+        cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
+    }
+  CMD = 0; // will be set later
 }
 
 // fill in data for the j'th newform (j based at 1)
@@ -293,6 +303,7 @@ newform::newform(newforms* nfs,
       c = Quaddata[3];
       d = Quaddata[4];
       matdot = intdata[5];
+      CMD = intdata[6];
       aqlist = aq;
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
       int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
@@ -305,20 +316,6 @@ newform::newform(newforms* nfs,
   // recreate eigs list (used to recover basis vector, and for oldclasses at higher levels):
 
   eigs_from_data();
-}
-
-void newform::find_cuspidal_factor(const vec& v)
-{
-  if(nf->h1->cuspidal || nf->characteristic)
-    {
-      cuspidalfactor=1;
-    }
-  else
-    {
-      cuspidalfactor = vecgcd((nf->h1->tkernbas)*v);
-      if(nf->verbose)
-        cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
-    }
 }
 
 // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
@@ -1161,7 +1158,7 @@ int newforms::read_from_file()
       if (characteristic==0)
         {
           aqs[i].resize(allbadprimes.size());
-          intdata[i].resize(6);
+          intdata[i].resize(7);
           Quaddata[i].resize(5);
         }
     }
@@ -1182,6 +1179,10 @@ int newforms::read_from_file()
       for (i=0; i<n1ds; i++) data>>Quaddata[i][3]; // c
       for (i=0; i<n1ds; i++) data>>Quaddata[i][4]; // d
       for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
+      if (Quad::class_group_2_rank>0)
+        for (i=0; i<n1ds; i++) data>>intdata[i][6];  // CMD
+      else
+        for (i=0; i<n1ds; i++) intdata[i][6]=0;  // not used
 
       //  Read the W-eigenvalues at level M into aqs:
       for(i=0; i<(int)allbadprimes.size(); i++)
@@ -1355,35 +1356,45 @@ void newforms::output_to_file(string eigfile) const
     {
 
   vector<long>::const_iterator ap;
-  // Line 3: SFEs
+
+  // Line 3: SFE
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->sfe)<<" ";
       if(echo) cout<<setw(5)<<(f->sfe)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 4: pdots
+
+  // Line 4: pdot
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->pdot)<<" ";
       if(echo) cout<<setw(5)<<(f->pdot)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 5: dp0s
+
+  // Line 5: dp0
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->dp0)<<" ";
       if(echo) cout<<setw(5)<<(f->dp0)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 6: cuspidal factors
+
+  // Line 6: cuspidal factor
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->cuspidalfactor)<<" ";
       if(echo) cout<<setw(5)<<(f->cuspidalfactor)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 7: lambdas
+
+  // Line 7: lambda
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       Quad lambda = f->lambda;
@@ -1391,14 +1402,18 @@ void newforms::output_to_file(string eigfile) const
       if(echo) cout<<setw(5)<< lambda.re()<<" "<< lambda.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 8: lambdadots
+
+  // Line 8: lambdadot
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->lambdadot)<<" ";
       if(echo) cout<<setw(5)<<(f->lambdadot)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
+
   // Lines 9,10,11,12: a,b,c,d:
+
   Quad a;
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
@@ -1428,14 +1443,29 @@ void newforms::output_to_file(string eigfile) const
       if(echo) cout<<setw(5)<< a.re()<<" "<< a.im()<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
-  // Line 13: matdots
+
+  // Line 13: matdot
+
   for(f=nflist.begin(); f!=nflist.end(); ++f)
     {
       out<<setw(5)<<(f->matdot)<<" ";
       if(echo) cout<<setw(5)<<(f->matdot)<<" ";
     }
   out<<endl;  if(echo) cout<<endl;
+
+  // Line 14: CMD
+
+  if (Quad::class_group_2_rank>0)
+    {
+      for(f=nflist.begin(); f!=nflist.end(); ++f)
+        {
+          out<<setw(5)<<(f->CMD)<<" ";
+          if(echo) cout<<setw(5)<<(f->CMD)<<" ";
+        }
+      out<<endl;  if(echo) cout<<endl;
+    }
   out<<endl;  if(echo) cout<<endl;
+
   for(int i=0; i<(int)allbadprimes.size(); i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
