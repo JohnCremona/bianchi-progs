@@ -14,6 +14,7 @@
 long Quad::d;
 QUINT Quad::disc;
 QUINT Quad::absdisc;
+vector<QUINT> Quad::discfactors;
 long Quad::t;
 QUINT Quad::n;
 char Quad::name;
@@ -102,11 +103,6 @@ Quad qdivi1(const Quad& a, QUINT c) // used when t=1
 // static function (one for the class, not per instance)
 void Quad::field(long dd, long max)
 {
-  // if (!check_field(dd))
-  //   {
-  //     cerr<<"field "<<dd<<" is not implemented: it must be one of: "<<valid_fields<<endl;
-  //     exit(1);
-  //   }
   d = squarefree_part(dd);
   if (d!=dd)
     cout << "Replacing d = " << dd << " with " << d << endl;
@@ -126,19 +122,42 @@ void Quad::field(long dd, long max)
         else
           if (check_field(d, class_number_five_fields))
             class_number=5;
+
   // else class number is set in fill_class_group()
 
-  if ((d+1)%4)
+  QUINT odd = (d&1?d:d/2); // odd part of d
+
+  switch (d%4)
     {
-      t=0; absdisc=4*d; disc=-absdisc; n=d;
-      quadconj=&quadconj0;
-      mult=&mult0; qdivi=&qdivi0;
+    case 1:
+      {
+        t=0; absdisc=4*d; disc=-absdisc; n=d;
+        discfactors.push_back(-4);
+        quadconj=&quadconj0;
+        mult=&mult0; qdivi=&qdivi0;
+        break;
+      }
+    case 2:
+      {
+        t=0; absdisc=4*d; disc=-absdisc; n=d;
+        discfactors.push_back((odd%4==1 ? -8 : 8));
+        quadconj=&quadconj0;
+        mult=&mult0; qdivi=&qdivi0;
+        break;
+      }
+    case 3:
+    default:
+      {
+        t=1; absdisc=d; disc=-d;   n=(d+1)/4;
+        quadconj=&quadconj1;
+        mult=&mult1; qdivi=&qdivi1;
+      }
     }
-  else
+  vector<QUINT> pp = pdivs(odd);
+  for (auto pi=pp.begin(); pi!=pp.end(); ++pi)
     {
-      t=1; absdisc=d; disc=-d;   n=(d+1)/4;
-      quadconj=&quadconj1;
-      mult=&mult1; qdivi=&qdivi1;
+      QUINT p = *pi;
+      discfactors.push_back((p%4==1?p:-p));
     }
   QUINT i0(0), i1(1);
   w = Quad(i0, i1, n);
@@ -193,6 +212,13 @@ void Quad::displayfield(ostream& s, int info2)
        cout << "2-rank of class group = " << class_group_2_rank << endl;
        if (class_group_2_rank>0)
          {
+           cout << " discriminant = ";
+           for (auto di=discfactors.begin(); di!=discfactors.end(); ++di)
+             {
+               if (di!=discfactors.begin()) cout<<"*";
+               cout<<"("<<(*di)<<")";
+             }
+           cout<<endl;
            cout << " 2-torsion   generators " << class_group_2_torsion_gens
                 << ", 2-torsion   elements "<< class_group_2_torsion<<endl;
            cout << " 2-cotorsion generators " << class_group_2_cotorsion_gens

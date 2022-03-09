@@ -23,6 +23,34 @@ Quadprime::Quadprime(Qideal& I) :Qideal(I)
     }
 }
 
+vector<int> Quadprime::genus_character()
+{
+  vector<int> ans(1+Quad::class_group_2_rank, 0);
+  if (Quad::class_group_2_rank==0 || is_inert() || is_principal())
+    return ans;
+  int i=0, i0=-1, tot=0;
+  for (auto di = Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di, ++i)
+    {
+      int k = kronecker(*di,p);
+      if (k)
+        {
+          ans[i] = int(-1==k); // we want additive characters, values 0,1 mod 2
+          tot ^= ans[i];       // binary + (exclusive or)
+        }
+      else
+        {
+          i0 = i;
+        }
+    }
+  if (i0!=-1) // then we have a ramified prime
+    {
+      ans[i0] = tot;
+      tot = 0;
+    }
+  //  cout<<"P="<<(*this)<<": genus character "<<ans<<endl;
+  assert (tot==0);
+  return ans;
+}
 
 istream& operator>>(istream& s, Quadprime& P)
 {
@@ -33,7 +61,7 @@ istream& operator>>(istream& s, Quadprime& P)
 }
 
 
-void Quadprimes::display(ostream& s, long maxn) // by default don't list any primes
+void Quadprimes::display(ostream& s, long maxn, int show_genus)
 {
   s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
@@ -46,10 +74,17 @@ void Quadprimes::display(ostream& s, long maxn) // by default don't list any pri
       Quad pi;
       cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
       if (P.is_principal(pi))
-        cout << " = ("<< pi <<") (principal)";
+        cout << " = ("<< pi <<") (principal";
       else
-        cout << " (not principal)";
-      cout<<endl;
+        cout << " (not principal";
+      if (show_genus && Quad::class_group_2_rank>0)
+        {
+          vector<int> c = P.genus_character();
+          cout << ": ";
+          for (auto ci = c.begin(); ci!=c.end(); ++ci)
+            cout << (*ci? "-": "+");
+        }
+      cout<<")"<<endl;
     }
 }
 
@@ -617,6 +652,23 @@ int Qideal::is_square()
   for (vector<int>::const_iterator ei = ee.begin(); ei!=ee.end(); ++ei)
     if ((*ei)%2==1) return 0;
   return 1;
+}
+
+long Qideal::genus_class()
+{
+  long c = 0;
+  vector<QuadprimePower> PP = factorization().prime_powers();
+  for (auto PPi = PP.begin(); PPi!=PP.end(); ++PPi)
+    {
+      if ((PPi->second)%2==1)
+        c ^= from_bits((PPi->first).genus_character());
+    }
+  return c;
+}
+
+vector<int> Qideal::genus_character()
+{
+  return bits(genus_class(), Quad::discfactors.size());
 }
 
 // Test whether an ideal is a prime, or a prime power:

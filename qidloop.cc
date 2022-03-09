@@ -99,6 +99,7 @@ void Quad::fill_class_group()
     {
       *J = class_group[find_ideal_class(*J, class_group)];
     }
+  assert (class_group_2_torsion_gens.size()+1 == discfactors.size());
   class_group_2_rank = class_group_2_torsion_gens.size();
 
   // find ideals generating and representing Cl/Cl^2

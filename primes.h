@@ -36,6 +36,11 @@ public:
   long prime() const {return p;}
   int residue_degree() const {return (character==-1? 2: 1);}
   int ramification_degree() const {return (character==0? 2: 1);}
+
+  vector<int> genus_character();
+  long genus_class() {return from_bits(genus_character());}
+  int has_square_class() {return (genus_class()==0);}
+
   friend inline ostream& operator<<(ostream& s, const Quadprime& x);
   friend istream& operator>>(istream& s, Quadprime& P);
 };
@@ -63,7 +68,7 @@ public:
   static QUINT maxnorm;           // largest norm of primes
   static vector<Quadprime> list;  // the list of primes
   static void init(long maxn=1000);     //  sets the list up
-  static void display(ostream& s = cout, long maxn=0); // by default don't list any primes
+  static void display(ostream& s = cout, long maxn=0, int show_genus=0);
 };
 
 class QuadprimeLooper {

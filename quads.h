@@ -59,10 +59,11 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static char      name;       // name of w for printing
   static long      maxnorm;       // largest norm of primes
   static QUINT     disc, absdisc;       // discriminant (<0) and its absolute value
+  static vector<QUINT> discfactors;     // prime discriminant factors of discriminant
   static int   nunits;       // number of units
   static int is_Euclidean;   // 1 for Euclidean fields, else 0
-  static int class_number;
-  static int class_group_2_rank;
+  static int class_number;   // the class number
+  static int class_group_2_rank; // 2-rank of class group (= 1 less than length of discfactors)
   static vector<Qideal> class_group;                // list of ideals representing ideal classes (no structure)
   static vector<Qideal> class_group_2_torsion;      // list of ideals representing 2-torsion in class group
   static vector<Qideal> class_group_2_torsion_gens; // list of ideals generating 2-torsion in class group

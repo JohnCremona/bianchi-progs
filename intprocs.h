@@ -78,6 +78,7 @@ vector<long> dotperp(vector<long> alist, int r);
 vector<int> bits(long a, int r);
 // recover a from its bit vector of length r
 long from_bits(vector<int> aa, int r);
+inline long from_bits(vector<int> aa) {return from_bits(aa, aa.size());}
 
 // return list of integers from first to last inclusive
 vector<long> range(long first, long last);

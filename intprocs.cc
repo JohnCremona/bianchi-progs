@@ -318,7 +318,7 @@ vector<int> bits(long a, int r)
   vector<int> ans(r);
   for(int i=0; i<r; i++)
     ans[i] = bit(a,i);
-  assert (a==from_bits(ans,r));
+  // assert (a==from_bits(ans,r));
   return ans;
 }
 
@@ -329,7 +329,7 @@ long from_bits(vector<int> aa, int r)
   for(int i=0; i<r; i++)
     if (aa[i])
       a |= (1<<i); // sets the i'th bit to 1
-  assert (aa==bits(a,r));
+  // assert (aa==bits(a,r));
   return a;
 }
 

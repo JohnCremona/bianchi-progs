@@ -140,17 +140,15 @@ public:
     return equivalent_coprime_to(N, c, d, anti);
   }
 
+  vector<int> genus_character();
+  long genus_class();
+  int has_square_class() {return (genus_class()==0);}
+
   // return J such that J^2 is equivalent to this (or J^2*this is
   // principal if anti==1), or if no such J exists (i.e., if the ideal
   // class is not a square), return the zero ideal.  (implemented in
   // primes.cc)
   Qideal sqrt_class(int anti=0);
-
-  // test if this has square ideal class
-  int has_square_class()
-  {
-    return (Quad::class_group_2_rank==0? 1: !sqrt_class().is_zero());
-  }
 
   // return J coprime to N such that J^2*this is principal; if no such
   // J exists (i.e., if the ideal class is not a square, return the

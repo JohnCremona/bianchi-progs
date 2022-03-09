@@ -12,7 +12,7 @@ int main ()
   Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
   if (Quad::class_number>1)
     {
-      Quadprimes::display(cout, max);
+      Quadprimes::display(cout, max, 1);
       exit(0);
     }
   //  Quadprimes::display(cout, 0);
