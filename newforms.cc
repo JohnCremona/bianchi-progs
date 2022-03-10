@@ -815,8 +815,8 @@ void newforms::find()
     }
   if(upperbound<0) // check for error condition
     {
-      cout<<"Error:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<dimtrivcusp<<" -- aborting"<<endl;
-      exit(1);
+      cout<<"*** Warning:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<dimtrivcusp<<" ***"<<endl;
+      // exit(1);
     }
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
@@ -890,19 +890,15 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
 {
   if (use_nf_number==-1)
     {
-      if (n1ds<upperbound)
+      //cout<<"Constructing newform with eigs "<<eigs<<endl;
+      nflist.push_back(newform(this,b1,eigs));
+      n1ds++;
+      if (n1ds>upperbound)
         {
-          //cout<<"Constructing newform with eigs "<<eigs<<endl;
-          nflist.push_back(newform(this,b1,eigs));
-          n1ds++;
-        }
-      else
-        {
-          cout << "Error in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
-          cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
-               <<upperbound<<").\n";
+          cout << "*** Warning: in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
+          cout << "1D newforms ("<< n1ds+1 <<") than the estimated total new-dimension ("
+               <<upperbound<<") ***"<<endl;
           //cout<<"Extra newform has eigs "<<eigs<<endl;
-          exit(1);
         }
     }
   else // store eigs and basis

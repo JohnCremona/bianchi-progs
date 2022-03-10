@@ -64,6 +64,17 @@ vector<int> Quadprime::genus_character()
   return ans;
 }
 
+int Quadprime::genus_character(const QUINT& D)
+{
+  int r = Quad::discfactors.size();
+  // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
+  // cout<<" with character values "<< chardisc(D) <<endl;
+  // cout<<"genus_class of P is "<<genus_class()<<", bits "<<bits(genus_class(), r)<<endl;
+  int dot = dotbits(from_bits(chardisc(D)), genus_class(), r);
+  // cout<<"dot product = "<<dot<<" --> "<<(dot? -1: +1)<<endl;
+  return (dot? -1: +1);
+}
+
 istream& operator>>(istream& s, Quadprime& P)
 {
   Qideal I;
@@ -71,7 +82,6 @@ istream& operator>>(istream& s, Quadprime& P)
   P = Quadprime(I);
   return s;
 }
-
 
 void Quadprimes::display(ostream& s, long maxn, int show_genus)
 {
@@ -681,14 +691,6 @@ long Qideal::genus_class()
 vector<int> Qideal::genus_character()
 {
   return bits(genus_class(), Quad::discfactors.size());
-}
-
-int Quadprime::genus_character(const QUINT& D)
-{
-  // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D<<endl;
-  // cout<<"chardisc(D) = "<<chardisc(D)<<", index = "<<from_bits(chardisc(D))<<endl;
-  // cout<<"genus_class of P is "<<genus_class()<<", bits "<<bits(genus_class(),1+Quad::class_group_2_rank)<<endl;
-  return (dotbits(from_bits(chardisc(D)), genus_class(), Quad::class_group_2_rank)? -1: +1);
 }
 
 // Test whether an ideal is a prime, or a prime power:

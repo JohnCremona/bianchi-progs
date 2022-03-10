@@ -270,7 +270,7 @@ fieldinfo.o: fieldinfo.cc primes.h qideal.h quads.h intprocs.h
 geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h
 hecke.o: hecke.cc hecke.h mat22.h ratquads.h quads.h intprocs.h primes.h \
- qideal.h
+ qideal.h P1N.h
 hecketest.o: hecketest.cc qidloop.h qideal.h quads.h intprocs.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h hecke.h
