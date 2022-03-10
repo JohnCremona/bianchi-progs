@@ -946,7 +946,7 @@ void newform::display(void) const
       cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
       cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
       cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
-      if (CMD)
+      if (CMD!=0)
         cout << "Unramified self-twist by discriminant "<<CMD<<endl;
     }
 }
