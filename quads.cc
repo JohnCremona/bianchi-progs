@@ -962,10 +962,13 @@ QUINT discchar(vector<int> c)
 }
 
 // convert a discriminant dividing Quad::disc into a binary vector
+
 vector<int> chardisc(QUINT D)
 {
   vector<int> ans;
   for(auto di=Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di)
-    ans.push_back(div(*di,D));
+    ans.push_back(div_disc(*di,D));
+  // cout<<"discfactors: "<< Quad::discfactors << endl;
+  // cout<<"chardisc("<<D<<") = "<<ans<<endl;
   return ans;
 }

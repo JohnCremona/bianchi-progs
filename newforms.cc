@@ -790,7 +790,7 @@ void newforms::find()
       olddimall = (of->olddimall);
       if(verbose)
         of->display();
-      mindepth = n2r+iP0;
+      mindepth = n2r+iP0+2;
       upperbound = dimtrivcusp - olddimall;
     }
   else
@@ -1334,7 +1334,7 @@ void newforms::getap(int first, int last, int verbose)
     {
       long cmd = nflist[i].is_CM();
       if (posmod(cmd,4)!=1) cmd*=4;
-      if (div(cmd,Quad::disc))
+      if (div_disc(cmd,Quad::disc))
         nflist[i].CMD = QUINT(cmd);
     }
 }

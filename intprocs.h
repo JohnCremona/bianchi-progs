@@ -80,6 +80,9 @@ vector<int> bits(long a, int r);
 long from_bits(vector<int> aa, int r);
 inline long from_bits(vector<int> aa) {return from_bits(aa, aa.size());}
 
+// For D1, D fundamental discriminants, test if D=D1*D2 with D2 another discriminant
+int div_disc(QUINT D1, QUINT D);
+
 // return list of integers from first to last inclusive
 vector<long> range(long first, long last);
 

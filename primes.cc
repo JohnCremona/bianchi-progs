@@ -66,6 +66,8 @@ vector<int> Quadprime::genus_character()
 
 int Quadprime::genus_character(const QUINT& D)
 {
+  if (!div_disc(D, Quad::disc))
+    return 0;
   int r = Quad::discfactors.size();
   // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
   // cout<<" with character values "<< chardisc(D) <<endl;

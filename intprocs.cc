@@ -385,6 +385,14 @@ vector<long> dotperp(vector<long> alist, int r)
   return ans;
 }
 
+int div_disc(QUINT D1, QUINT D)
+{
+  if (!div(D1,D))
+    return 0;
+  QUINT d = posmod(D/D1, 4);
+  return (d==0 || d==1);
+}
+
 vec reduce_modp(const vec& v, const scalar& p)
 {
   if (p==0) return v;
