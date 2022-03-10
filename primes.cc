@@ -25,13 +25,25 @@ Quadprime::Quadprime(Qideal& I) :Qideal(I)
 
 vector<int> Quadprime::genus_character()
 {
-  vector<int> ans(1+Quad::class_group_2_rank, 0);
-  if (Quad::class_group_2_rank==0 || is_inert() || is_principal())
+  // cout<<"Finding genus character of P="<<(*this)<<endl;
+
+  // NB this function is indirectly called in fill_class_group() at
+  // which point Quad::class_group_2_rank has not been set
+
+  int r = Quad::discfactors.size()-1; // = Quad::class_group_2_rank
+  vector<int> ans(1+r, 0);
+  if (r==0 || is_inert() || is_principal())
     return ans;
+  // cout<<" -- not principal, even class number..."<<endl;
   int i=0, i0=-1, tot=0;
   for (auto di = Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di, ++i)
     {
-      int k = kronecker(*di,p);
+      int k;
+      long d = I2long(*di);
+      if (p==2)
+        k = (d%2? (posmod(d,8)==1? +1 : -1) : 0);
+      else
+        k = legendre(d,p);
       if (k)
         {
           ans[i] = int(-1==k); // we want additive characters, values 0,1 mod 2
@@ -47,7 +59,7 @@ vector<int> Quadprime::genus_character()
       ans[i0] = tot;
       tot = 0;
     }
-  //  cout<<"P="<<(*this)<<": genus character "<<ans<<endl;
+  // cout<<"P="<<(*this)<<": genus character "<<ans<<endl;
   assert (tot==0);
   return ans;
 }
@@ -661,7 +673,7 @@ long Qideal::genus_class()
   for (auto PPi = PP.begin(); PPi!=PP.end(); ++PPi)
     {
       if ((PPi->second)%2==1)
-        c ^= from_bits((PPi->first).genus_character());
+        c ^= (PPi->first).genus_class();
     }
   return c;
 }
