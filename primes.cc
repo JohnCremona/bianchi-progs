@@ -143,7 +143,7 @@ vector<Quadprime> Quadprimes_above(long p) // p should be an integer prime
       return Plist;
     }
 
-  if (kronecker(disc,p) == -1) //inert
+  if (legendre(disc,p) == -1) //inert
     {
       //      cout << "odd inert case" << endl;
       Plist.push_back(Quadprime(one,zero,P, p));
