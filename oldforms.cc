@@ -102,10 +102,22 @@ void oldforms::getoldclasses(Qideal& D)
               for(int iform=0; iform<old1ds; iform++)
                 {
                   QUINT CMD = olddata.nflist[iform].CMD;
-                  if (!is_zero(CMD) and P.genus_character(CMD)==-1)
+                  if (!is_zero(CMD))
                     {
-                      half_mult[iform]=1;
-                      any_half_mults=1;
+                      if (nf->verbose)
+                        cout<<"Form "<<(iform+1)<<" has unramified self-twist by "<<CMD<<endl;
+                      if (P.genus_character(CMD)==-1)
+                        {
+                          if (nf->verbose)
+                            cout<<"chi("<<P<<") = -1, so halving oldform multiplicity"<<endl;
+                          half_mult[iform]=1;
+                          any_half_mults=1;
+                        }
+                      else
+                        {
+                          if (nf->verbose)
+                            cout<<"chi("<<P<<") = +1"<<endl;
+                        }
                     }
                 }
             }
@@ -159,7 +171,15 @@ void oldforms::display(void) const
   if (noldclasses>0)
   {
     cout << "\nOld classes for level "<<N<<"\n~~~~~~~~~~~\n";
-    cout << "Level   Dimension " << nf->goodprimes << endl;
+    cout << "Level   Dimension ";
+    int r = Quad::class_group_2_rank;
+    if (r>0)
+      {
+        cout<<"[";
+        while(r--) cout<<" nu";
+        cout<<" ] ";
+      }
+    cout << nf->goodprimes << endl;
     for (int i=0; i<noldclasses; i++)
     { cout << oldlevels[i] << "       " << oldclassdims[i] << "       ";
       cout << oldformap[i] << endl;

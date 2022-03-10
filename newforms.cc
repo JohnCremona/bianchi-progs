@@ -815,7 +815,7 @@ void newforms::find()
     }
   if(upperbound<0) // check for error condition
     {
-      cout<<"Error:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<(h1->h1cuspdim())<<" -- aborting"<<endl;
+      cout<<"Error:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<dimtrivcusp<<" -- aborting"<<endl;
       exit(1);
     }
   if(upperbound>0)  // Else no newforms certainly so do no work!
@@ -946,6 +946,8 @@ void newform::display(void) const
       cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
       cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
       cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+      if (CMD)
+        cout << "Unramified self-twist by discriminant "<<CMD<<endl;
     }
 }
 
@@ -1331,6 +1333,13 @@ void newforms::getap(int first, int last, int verbose)
     {
       getoneap(*pr++, verbose);
       nap++;
+    }
+  for (int i=0; i<n1ds; i++)
+    {
+      long cmd = nflist[i].is_CM();
+      if (posmod(cmd,4)!=1) cmd*=4;
+      if (div(cmd,Quad::disc))
+        nflist[i].CMD = QUINT(cmd);
     }
 }
 
@@ -1841,8 +1850,8 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
   // T(A,A)*T(P)   if [P] is square with A^2*P principal, or
   // T(P^2)        if P^2 is principal, or
   // T(A,A)*T(P^2) where A*P is principal
-  i -= n2r;
-  Quadprime P = goodprimes[i];
+
+  Quadprime P = goodprimes[i-n2r];
   if (P.is_principal())
     {
       h1matops[i] = HeckePOp(P, N);
@@ -1906,14 +1915,17 @@ vector<long> newforms::eigrange(int i)
   assert (i>=0);
   if (eigranges[i].empty())
     {
+      if (verbose>1)
+        cout<<"Filling eigrange["<<i<<"]"<<endl;
       if (i<n2r)
         {
           eigranges[i] = {1};
         }
       else
         {
-          i -= n2r;
-          Quadprime P = goodprimes[i];
+          Quadprime P = goodprimes[i-n2r];
+          if (verbose>1)
+            cout<<"Using goodprimes["<<i-n2r<<"] = "<<P<<endl;
           if (characteristic>0)
             eigranges[i] = range(0,characteristic-1);
           else
@@ -1921,6 +1933,11 @@ vector<long> newforms::eigrange(int i)
           if (verbose>1)
             cout << "eigrange for P = " << P << " (norm "<<P.norm()<<"):\t" << eigranges[i] << endl;
         }
+    }
+  else
+    {
+      if (verbose>1)
+        cout << "cached eigrange[" << i << "] is " << eigranges[i] << endl;
     }
   return eigranges[i];
 }

@@ -673,7 +673,10 @@ vector<int> Qideal::genus_character()
 
 int Quadprime::genus_character(const QUINT& D)
 {
-  return (dotbits(from_bits(chardisc(D)), genus_class(), Quad::discfactors.size())? -1: +1);
+  // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D<<endl;
+  // cout<<"chardisc(D) = "<<chardisc(D)<<", index = "<<from_bits(chardisc(D))<<endl;
+  // cout<<"genus_class of P is "<<genus_class()<<", bits "<<bits(genus_class(),1+Quad::class_group_2_rank)<<endl;
+  return (dotbits(from_bits(chardisc(D)), genus_class(), Quad::class_group_2_rank)? -1: +1);
 }
 
 // Test whether an ideal is a prime, or a prime power:
