@@ -1332,10 +1332,10 @@ void newforms::getap(int first, int last, int verbose)
     }
   for (int i=0; i<n1ds; i++)
     {
-      long cmd = nflist[i].is_CM();
+      QUINT cmd(nflist[i].is_CM());
       if (posmod(cmd,4)!=1) cmd*=4;
-      if (div_disc(cmd,Quad::disc))
-        nflist[i].CMD = QUINT(cmd);
+      if (div_disc(cmd, Quad::disc))
+        nflist[i].CMD = cmd;
     }
 }
 
