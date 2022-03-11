@@ -49,6 +49,13 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
     }
 }
 
+// for i >=0, the i'th edge as a modsym
+modsym homspace::edge_generator(long i)
+{
+  pair<long, int> st = ER.symbol_number_and_type(i);
+  return modsym(P1.lift_to_SL2(st.first), st.second);
+}
+ 
 void homspace::make_freemods()
 {
   if (rk==0) return;
@@ -69,22 +76,19 @@ void homspace::make_freemods()
 
   for (i=0; i<rk; i++)
     {
-      long j = freegens[i];
-      long s = j;
-      int t = 0;
-      if (n_alphas>1)
-        {
-          pair<long, int> st = ER.symbol_number_and_type(j);
-          s = st.first;  // (c:d) symbol number
-          t = st.second; // symbol type (negative for singular edges)
-        }
-      mat22 U = P1.lift_to_SL2(s);
-      m = modsym(U, t);
+      m = edge_generator(freegens[i]);
       freemods.push_back(m);
       if (verbose)
-        cout<<"--lifting symbol #"<<s<<" to SL2: "<<U
-            <<", type "<<t<<" --> "<<m<<"\n"
-            <<i<<": "<<m<<endl;
+        {
+          long j = freegens[i];
+          pair<long, int> st = ER.symbol_number_and_type(j);
+          long s = st.first;  // (c:d) symbol number
+          long t = st.second; // symbol type (negative for singular edges)
+          mat22 U = P1.lift_to_SL2(s);
+          cout<<"--lifting symbol #"<<s<<" to SL2: "<<U
+              <<", type "<<t<<" --> "<<m<<"\n"
+              <<i<<": "<<m<<endl;
+        }
     }
 
   if (verbose)

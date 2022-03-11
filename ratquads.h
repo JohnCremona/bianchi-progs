@@ -89,7 +89,9 @@ class modsym {
     RatQuad  beta() const {return b;}
     modsym reverse() const {return modsym(b,a);}
     modsym conj() const {return modsym(a.conj(), b.conj());}
-    friend ostream& operator<< (ostream& s, const modsym& m); //inline below
+    friend int operator==(const modsym& m1, const modsym& m2);
+    friend int operator!=(const modsym& m1, const modsym& m2);
+  friend ostream& operator<< (ostream& s, const modsym& m); //inline below
 };
 
 // Inline RatQuad functions
@@ -238,6 +240,16 @@ inline ostream& operator<<(ostream& s, const RatQuad& r)
   else if (r.d==Quad::one) s<<r.n;
    else s << "(" << r.n << ")/(" << r.d << ")";
    return s;
+}
+
+inline int operator==(const modsym& m1, const modsym& m2)
+{
+  return m1.a==m2.a && m1.b==m2.b;
+}
+
+inline int operator!=(const modsym& m1, const modsym& m2)
+{
+  return m1.a!=m2.a || m1.b!=m2.b;
 }
 
 // Cusp equivalence mod Gamma_0(N)

@@ -1519,10 +1519,13 @@ void newforms::find_jlist()
   if(ok)
     {
       jlist.insert(j0);
+      modsym m0 = h1->generator(j0);
+      mjlist[j0] = m0;
       for (i=0; i<n1ds; i++)
 	{
           newform& nfi = nflist[i];
 	  nfi.j0 = j0;
+	  nfi.m0 = m0;
           nfi.fac = nfi.basis[j0];
           if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
 	}
@@ -1540,8 +1543,11 @@ void newforms::find_jlist()
       newform& nfi = nflist[i];
       vec& bas = nfi.basis;
       j=1; while(bas[j]==0) j++;
+      modsym m = h1->generator(j);
       jlist.insert(j); // jlist is a set so this will do nothing if it is already there
       nfi.j0 = j;
+      nfi.m0 = m;
+      mjlist[j] = m;
       nfi.fac = bas[j];
       if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
     }
@@ -1607,17 +1613,9 @@ vector<long> newforms::apvec(const matop& op, pair<long,long> apbounds)
   map<int,vec> images;
   for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
     {
-      long j=*jj; // from 1
-      pair<long, int> st = h1->ER.symbol_number_and_type(h1->ER.gen(j));
-      long s_number = st.first;  // (c:d) symbol number
-      int s_type    = st.second; // symbol type (negative for singular edges)
-
-      // Now we compute the projected image of symbol under op
-
-      modsym m(h1->P1.lift_to_SL2(s_number), s_type);
-      images[j] = h1->applyop(op, m, 1);
+      long j=*jj; // between 1 and ngens inclusive
+      images[j] = h1->applyop(op, mjlist[j], 1);
     }
-
   vector<long> apv = apvec_from_images(images, apbounds, op.name());
 #ifdef DEBUG_APVEC
   cout << "eigenvalue list = " << apv << endl;

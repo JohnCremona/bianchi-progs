@@ -62,7 +62,7 @@ public:
   int sfe;               // sign of F.E.
   Quad lambda; int lambdadot;  // twisting prime and factor
   Quad a,b,c,d; int matdot;    // integration matrix and factor
-  int j0; int fac, facinv;
+  int j0; modsym m0; int fac, facinv;
   long cuspidalfactor;
   QUINT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
 
@@ -152,9 +152,10 @@ private:
   int easy;
   vector<long> pdotlist, pdotlistinv;
 
-  long j0;
-  std::set<long> jlist;
-  // Look for a pivotal index j0 (from 1) such that
+  long j0; // single j0 in 1..ngens, a pivot for all newforms, or 0
+  std::set<long> jlist; // set of j in 1..ngens, including pivots for all newforms
+  map<long,modsym> mjlist; // corresponding modular symbols
+// Look for a pivotal index j0 (from 1) such that
   // nflist[i].basis[j0]!=0 for all i, or a set of such j (Each
   // newform stores a j0-value and this nonzero coordinate as "fac".)
   void find_jlist();
