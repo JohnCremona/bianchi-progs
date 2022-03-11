@@ -280,11 +280,12 @@ vector<long> newform::oldform_eigs(Qideal& M)
   return M_eigs;
 }
 
-newform::newform(newforms* nfs,
+newform::newform(newforms* nfs, int ind,
                  const vector<int>& intdata, const vector<Quad>& Quaddata,
                  const vector<long>& aq, const vector<long>& ap)
 {
   nf=nfs;
+  index = ind;
   Qideal N(nf->N);
   int ch(nf->characteristic);
 
@@ -845,6 +846,9 @@ void newforms::fill_in_newform_data(int everything)
 {
   if(n1ds==0) return; // no work to do
 
+  for (int j=0; j<n1ds; j++)
+    nflist[j].index = j+1;
+
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
   find_jlist();
   zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
@@ -1016,6 +1020,41 @@ void newform::list(long nap) const
         cout << ap;
     }
   cout <<"]";
+}
+
+// compute the eigenvalue for a single operator on this newform
+long newform::eigenvalue(const matop& op, pair<long,long> apbounds)
+{
+  vec image = nf->h1->applyop(op, m0, 1);
+  int top = image[index]; // where this is the i'th newform
+  long ap;
+  // The eigenvalue is now top/fac (which should divide exactly)
+  if(nf->nfhmod)
+    ap=mod(xmodmul(top,facinv,nf->nfhmod), nf->nfhmod);
+  else
+    {
+      if (top%fac !=0)
+        {
+          cout<<"Problem in eigenvalue: image = "<<image<< " has "<< index <<" entry "
+              <<top<<" which is not divisible by pivot "<<fac<<endl;
+          cout<<flush;
+        }
+      ap = top/fac;
+    }
+  if (nf->characteristic>0)
+    ap = posmod(ap, nf->characteristic);
+  else
+    {
+      // check it is in range (in characteristic 0 only):
+      if ((ap<apbounds.first)||(ap>apbounds.second))
+        {
+          cout<<"Error:  eigenvalue "<<ap<<" for operator "<<op.name()
+              <<" for form # "<< index <<" is outside valid range "
+              << apbounds.first<<"..."<<apbounds.second<<endl;
+          exit(1);
+        }
+    }
+  return ap;
 }
 
 // Sorting functions
@@ -1236,7 +1275,7 @@ int newforms::read_from_file()
           cout << " aps = "<< aps[i] <<endl;
         }
       // the constructor here calls eigs_from_data() so these newforms have their eigs lists
-      nflist.push_back(newform(this,intdata[i],Quaddata[i], aqs[i],aps[i]));
+      nflist.push_back(newform(this,i+1, intdata[i],Quaddata[i], aqs[i],aps[i]));
     }
   return 1;
 }

@@ -62,6 +62,7 @@ public:
   int sfe;               // sign of F.E.
   Quad lambda; int lambdadot;  // twisting prime and factor
   Quad a,b,c,d; int matdot;    // integration matrix and factor
+  int index;             // the index of this newform (from 1)
   int j0; modsym m0; int fac, facinv;
   long cuspidalfactor;
   QUINT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
@@ -72,7 +73,7 @@ public:
   newform(newforms* nfs, const vec& v, const vector<long>& eigs);
 
   // constructor to use when data read from file:
-  newform(newforms* nfs,
+  newform(newforms* nfs, int ind,
           const vector<int>& intdata, const vector<Quad>& Quaddata,
           const vector<long>& aq, const vector<long>& ap);
 
@@ -97,6 +98,9 @@ public:
   // appropriate for the higher level, deleting the a_P for P dividing
   // M but not N from the sublist of T(P) eigenvalues.
   vector<long> oldform_eigs(Qideal& M);
+
+  // compute the eigenvalue for a single operator on this newform
+  long eigenvalue(const matop& op, pair<long,long> apbounds);
 
   void display(void) const;
   void list(long nap=-1) const;
