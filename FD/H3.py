@@ -13,6 +13,8 @@ from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
 
 from alphas import precomputed_alphas
 
+from polyhedra import all_poly_types, poly_type, poly_types
+
 def make_k(dk):
     """Given a negative fundamental discriminant, or positive square-free
     d, constructs the associated imaginary quadratic field and returns
@@ -763,6 +765,13 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
             print(" adding edges {}".format([[[t[0],t[i]] for i in range(1,len(QV))] for t in V]))
         E += sum([[[t[0],t[i]] for i in range(1,len(QV))] for t in V], [])
     G = Graph([[cusp_label(a),cusp_label(b)] for a,b in E])
+    Ptype = poly_type(G)
+    if Ptype == 'unknown':
+        print("unrecognised polyhedron with faces {}".format(G.faces()))
+        show(G)
+    else:
+        if debug:
+            print("Constructed a {}".format(Ptype))
     return G
 
 def principal_polyhedra(alphas, debug=False):
@@ -1876,7 +1885,6 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
                        aaa_triangle_parameters,
                        aas_triangle_parameters,
                        hexagon_parameters)
-    from polyhedra import all_poly_types, poly_type, poly_types
 
     kdata = make_k(d)
     k = kdata['k']
@@ -1907,7 +1915,7 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
         show(plot_FunDomain_projection(k, alphas, sigmas))
 
 
-    polys, hemis = all_polyhedra(k, alphas)
+    polys, hemis = all_polyhedra(k, alphas, verbose)
     print("{} polyhedra constructed".format(len(polys)))
     if plot3D:
         print("plotting fundamental domain")
@@ -1918,7 +1926,10 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
     pt = poly_types(polys)
     if pt['unknown']:
         print("{} polyhedra have unknown type!".format(pt['unknown']))
-        return
+        for G in polys:
+            if poly_type(G) == 'unknown':
+                show(G)
+
     for pol,num in pt.items():
         if num:
             print("{}: {}".format(pol,num))
