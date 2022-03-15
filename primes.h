@@ -197,7 +197,7 @@ vector<long> good_eigrange(Quadprime& P);
 vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes);
 
 // compute a list of at least nap good primes (excluding those
-// dividing characteristic if >0), to include at least on principal
+// dividing characteristic if >0), to include at least one principal
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
 

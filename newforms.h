@@ -105,9 +105,9 @@ public:
   // check that the result is factor*a for some a between the bounds
   long eigenvalue(const matop& op, pair<long,long> apbounds, long factor=1);
   // compute aP for this newform, good P
-  long eigenvalueHecke(Quadprime& P, int verbose=1);
+  long eigenvalueHecke(Quadprime& P, int verbose=0);
   // compute A-L eigenvalue for this newform, for the bad prime Q
-  long eigenvalueAtkinLehner(Quadprime& Q, int verbose=1);
+  long eigenvalueAtkinLehner(Quadprime& Q, int verbose=0);
 
   void display(void) const;
   void list(long nap=-1) const;
@@ -213,14 +213,14 @@ private:
   // methods for computing Hecke eigenvalues
 
   void getap(int first, int last, int verbose=0);
-  void getoneap(Quadprime& P, int verbose=0, int store=1);
-  // compute eigenvalue at P for each newform
+
+  // compute list of eigenvalues at P for each newform
   vector<long> apvec(Quadprime& P);
-  // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is within bounds
+  // compute list of eigenvalues at P for each newform (good P, Euclidean) and check that it is within bounds
   vector<long> apvec_euclidean(Quadprime& P, pair<long,long> apbounds);
-  // compute eigenvalue of op for each newform and check that it is within bounds
+  // compute list of eigenvalues of op for each newform and check that it is within bounds
   vector<long> apvec(const matop& op, pair<long,long> apbounds);
-  // compute eigenvalues given the image images[j] for each j in jlist
+  // compute list of eigenvalues given the image images[j] for each j in jlist
   vector<long> apvec_from_images(map<int,vec> images, pair<long,long> apbounds, const string& name);
 
   void output_to_file(string eigfile) const;

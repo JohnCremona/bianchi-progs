@@ -108,23 +108,26 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
 
 // Fill in data for one newform. This assumes we have:
 
-// aqlist, cuspidalfactor
+// cuspidalfactor
 
 // and computes
 
-//  - sfe (uses aqlist)
 //  - L/P (uses cuspidalfactor)
 //  - dp0, pdot (uses nP0, aP0, mvp from newform class)
 //  - a,b,c,d,matdot (integration data) via find_matrix()
 
 void newform::data_from_eigs()
 {
-  sfe = 0;
+  // compute A-L eigenvalues now in odd class number, else they are
+  // computed in getap()
 
-  // the first n2r eigs are +1 and can be ignored.
-  if (nf->characteristic==0)
+  if (Quad::class_group_2_rank==0)
     {
-      // Sign of functional equation = minus product of all A-L eigenvalues
+      for (vector<Quadprime>::iterator Qi = nf->badprimes.begin(); Qi!=nf->badprimes.end(); ++Qi)
+        {
+          Quadprime Q = *Qi;
+          aqlist.push_back(eigenvalueAtkinLehner(Q));
+        }
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
 
@@ -815,9 +818,6 @@ void newforms::fill_in_newform_data(int everything)
 {
   if(n1ds==0) return; // no work to do
 
-  for (int j=0; j<n1ds; j++)
-    nflist[j].index = j+1;
-
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
   find_jlist();
   zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
@@ -825,18 +825,11 @@ void newforms::fill_in_newform_data(int everything)
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
-    {
-      // compute A-L eigenvalues (where possible at this stage)
-      for (vector<Quadprime>::iterator Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
-        {
-          Quadprime Q = *Qi;
-          vector<long> apv = apvec(Q);
-          for (int j=0; j<n1ds; j++)
-            nflist[j].aqlist.push_back(apv[j]);
-        }
-      for (int j=0; j<n1ds; j++)
+    for (int j=0; j<n1ds; j++)
+      {
+        nflist[j].index = j+1;
         nflist[j].data_from_eigs();
-    }
+      }
 
   // Find the twisting primes for each newform (more efficient to do
   // this here instead of within the newform constructors, as one lambda
@@ -1443,52 +1436,8 @@ void newforms::makebases()
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 
-// getoneap(P) uses apvec(P) to compute, and display and/or store, a
-// list of eigenvalues e for the prime P (one for each newform),
-// specified as follows:
-//
-// - for good P with [P] square, e=a(P)
-// - for good P with [P] non-square, e=|a(P)| (sign not yet determined), via a(P)^2, via a(P^2)
-// - for bad P with Q=P^e||N and [Q] square, the A-L eigenvalue at Q
-// - for bad P with Q=P^e||N and [Q] non-square, +1 (sign not yet determined)
-
-void newforms::getoneap(Quadprime& P, int verbose, int store)
-{
-  vector<long> apv=apvec(P);
-  int vp = val(P, N);
-
-  if(verbose)
-    {
-      string PQ = (vp>0? "Q": "P");
-      cout<<PQ<<" = "<<P<<" = "<<gens_string(P)<<"\tN("<<PQ<<") = "<<P.norm()<<"\t";
-    }
-  for (int i=0; i<n1ds; i++)
-    {
-      int ap = apv[i];
-      int cp = ((vp==0)||(characteristic>0)? ap : (vp==1? -ap : 0));
-      if(verbose)
-        {
-          if ((characteristic>0) && (ap==-999))
-            cout<<setw(5)<<"?"<<" ";
-          else
-            cout<<setw(5)<<ap<<" ";
-        }
-      if(store)
-        {
-          nflist[i].aplist.push_back(cp);
-          if (vp) // store A-L eigenvalue
-            {
-              nflist[i].aqlist.push_back(ap);
-            }
-        }
-    }
-  if(verbose)
-    cout << endl;
-}
-
-// getap() computes getoneap(P) to compute, and display and/or store,
-// eigenvalues e for each newform, for the primes P in the given
-// range, as specified above.
+// getap() calls apvec(P) to compute eigenvalues e for each newform,
+// for the primes P in the given range, as specified above.
 
 void newforms::getap(int first, int last, int verbose)
 {
@@ -1505,7 +1454,9 @@ void newforms::getap(int first, int last, int verbose)
       cout<<"Already have "<<nap <<" ap " << "at level "<<N<<" so no need to compute more"<<endl;
     }
   // now nap < last <= nQP
-  if (first==1)
+
+  vector<int> nonsquarebadprimes;
+  if (first==1 && Quad::class_group_2_rank>0)
     {
       for (int i=0; i<n1ds; i++)
         {
@@ -1513,13 +1464,94 @@ void newforms::getap(int first, int last, int verbose)
           nflist[i].genus_class_ideals.resize(1,Qideal(1));
           nflist[i].genus_class_aP.resize(1,1);
         }
+
+      // In the case of odd class number we will have already computed
+      // all the W(Q) eigenvalues.  Otherwise, we compute all those
+      // eigenvalues we can now (i.e. those for which Q^e has square
+      // class); for any which we cannot yet compute the stored values
+      // will be 0 and will be computed later, once we have enough a_P
+      // for P covering the genus classes. We store the list of
+      // indices of bad Q for which this will be needed.
+
+      for (auto Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
+        {
+          vector<long> aq = apvec(*Qi);
+          if (aq[0]==0)
+            nonsquarebadprimes.push_back(Qi-badprimes.begin());
+          for (int j=0; j<n1ds; j++)
+            nflist[j].aqlist.push_back(aq[j]);
+        }
+      // Sign of functional equation = minus product of all A-L eigenvalues
+      if (characteristic==0 && nonsquarebadprimes.empty())
+        for (int j=0; j<n1ds; j++)
+          {
+            nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
+            cout<<"j = "<<j<<endl;
+            cout<<"aqlist = "<<nflist[j].aqlist<<endl;
+            cout<<"sfe = "<<nflist[j].sfe<<endl;
+          }
     }
+
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
-      getoneap(*pr++, verbose);
+      Quadprime P = *pr++;
+      long vp = val(P, N);
+      vector<long> apv=apvec(P); // list of all T(P) or W(Q) eigenvalues
+
+      if(verbose)
+        {
+          string PorQ = (P.divides(N)? "Q": "P");
+          cout<<PorQ<<" = "<<P<<" = "<<gens_string(P)<<"\tN("<<PorQ<<") = "<<P.norm()<<"\t";
+
+          for (int i=0; i<n1ds; i++)
+            {
+              long ap = apv[i];
+              if ((characteristic>0) && (ap==-999))
+                cout<<setw(5)<<"?"<<" ";
+              else
+                cout<<setw(5)<<ap<<" ";
+            }
+          cout << endl;
+        }
+      for (int i=0; i<n1ds; i++)
+        {
+          long ap = apv[i];
+          long cp = ((vp==0)||(characteristic>0)? ap : (vp==1? -ap : 0));
+          nflist[i].aplist.push_back(cp);
+        }
       nap++;
     }
+
+  // fill in A-L eigenvalues for any missing Q (only relevant for even class number)
+
+  if (first==1 && !nonsquarebadprimes.empty())
+    {
+      for (auto i=nonsquarebadprimes.begin(); i!=nonsquarebadprimes.end(); ++i)
+        {
+          Quadprime Q = badprimes[*i];
+          int e = val(Q,N);
+          for (int j=0; j<n1ds; j++)
+            {
+              int aq = nflist[j].eigenvalueAtkinLehner(Q);
+              nflist[j].aqlist[*i] = aq;
+              int k = std::find(Quadprimes::list.begin(), Quadprimes::list.end(), Q) - Quadprimes::list.begin();
+              nflist[j].aplist[k] = (e>1? 0: -aq);
+            }
+        }
+      // Sign of functional equation = minus product of all A-L eigenvalues
+      if (characteristic==0)
+        for (int j=0; j<n1ds; j++)
+          {
+            nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
+            cout<<"j = "<<j<<endl;
+            cout<<"aqlist = "<<nflist[j].aqlist<<endl;
+            cout<<"sfe = "<<nflist[j].sfe<<endl;
+        }
+    }
+
+  // For even class number, test each newform for being unramified
+  // self-twist:
   for (int i=0; i<n1ds; i++)
     {
       QUINT cmd(nflist[i].is_CM());
@@ -1940,7 +1972,7 @@ vector<long> newforms::apvec(Quadprime& P)
           Qideal A = Pe.sqrt_coprime_to(N);
           return apvec(AtkinLehnerQChiOp(P,A,N), {-1,1});
         }
-      // Other values will be set later; for now we set them to 0
+      // Other values need to be found differently -- here we set them to 0
       vector<long> apv(n1ds, 0);
       return apv;
     }
