@@ -167,10 +167,10 @@ int main(void)
       // character matrices.  Restricted to Q such that the power of Q
       // dividing N has square ideal class
 
-      vector<Quadprime> allbadprimes = N.factorization().sorted_primes();
-      vector<Quadprime> badprimes = make_badprimes(N, allbadprimes);
+      vector<Quadprime> badprimes = N.factorization().sorted_primes();
+      vector<Quadprime> squarebadprimes = make_squarebadprimes(N, badprimes);
       vector<Qideal> badprimepowers;
-      for (pr=allbadprimes.begin(); pr!=allbadprimes.end(); ++pr)
+      for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
           Qideal Qe = Q;
@@ -179,7 +179,7 @@ int main(void)
           badprimepowers.push_back(Qe);
         }
 
-      for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
+      for (pr=squarebadprimes.begin(); pr!=squarebadprimes.end(); ++pr)
         {
           Quadprime Q = *pr;
           int e = val(Q,N);
@@ -386,8 +386,8 @@ int main(void)
           // Computing T(P)W(Q) for suitable Q^e||N
 
           vector<Qideal>::iterator qe=badprimepowers.begin();
-          vector<Quadprime>::iterator q=allbadprimes.begin();
-          for (; q!=allbadprimes.end(); ++q,++qe)
+          vector<Quadprime>::iterator q=badprimes.begin();
+          for (; q!=badprimes.end(); ++q,++qe)
             {
               Quadprime Q = *q;
               Qideal Qe = *qe;

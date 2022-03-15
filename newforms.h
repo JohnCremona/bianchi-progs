@@ -178,8 +178,7 @@ protected:
   vec zero_infinity;
 public:
   Qideal N;  // the level
-  vector<Quadprime> allbadprimes; // list of all bad primes Q (dividing the level N)
-  //  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
+  vector<Quadprime> badprimes; // list of all bad primes Q (dividing the level N)
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   int level_is_square;
@@ -251,7 +250,7 @@ vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
 // compute a list of ideals coprime to N whose classes generate the 2-torsion
 vector<Qideal> make_nulist(Qideal& N);
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprimes);
+vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes);
 // compute a list of at least nap good primes (excluding those
 // dividing characteristic if >0), to include at least on principal
 // one which has index iP0;

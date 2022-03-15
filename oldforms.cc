@@ -92,7 +92,7 @@ void oldforms::getoldclasses(Qideal& D)
   vector <int> old_mult(old1ds,0), half_mult(old1ds,0);
   if (nf->characteristic==0)
     {
-      for (auto Pi = nf->allbadprimes.begin(); Pi!=nf->allbadprimes.end(); ++Pi)
+      for (auto Pi = nf->badprimes.begin(); Pi!=nf->badprimes.end(); ++Pi)
         {
           Quadprime P = *Pi;
           int fac = (1 + val(P, N) - val(P, D));

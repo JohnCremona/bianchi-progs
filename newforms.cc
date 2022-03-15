@@ -541,8 +541,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
         cout<<"nulist: "<<nulist<<endl;
     }
 
-  // allbadprimes is a list of all primes Q|N
-  allbadprimes = N.factorization().sorted_primes();
+  // badprimes is a list of all primes Q|N
+  badprimes = N.factorization().sorted_primes();
   nwq = 0; // prevents any W_Q being used for splitting
 
   // goodprimes is a list of at least nap good primes (excluding those
@@ -827,7 +827,7 @@ void newforms::fill_in_newform_data(int everything)
   if (everything)
     {
       // compute A-L eigenvalues (where possible at this stage)
-      for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+      for (vector<Quadprime>::iterator Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
         {
           Quadprime Q = *Qi;
           vector<long> apv = apvec(Q);
@@ -1330,7 +1330,7 @@ int newforms::read_from_file()
       aps[i].resize(nap);
       if (characteristic==0)
         {
-          aqs[i].resize(allbadprimes.size());
+          aqs[i].resize(badprimes.size());
           intdata[i].resize(7);
           Quaddata[i].resize(5);
         }
@@ -1358,7 +1358,7 @@ int newforms::read_from_file()
         for (i=0; i<n1ds; i++) intdata[i][6]=0;  // not used
 
       //  Read the W-eigenvalues at level M into aqs:
-      for(i=0; i<(int)allbadprimes.size(); i++)
+      for(i=0; i<(int)badprimes.size(); i++)
         for(f=aqs.begin(); f!=aqs.end(); ++f)
           {
             data>>eig;
@@ -1661,7 +1661,7 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
 
-  for(int i=0; i<(int)allbadprimes.size(); i++)
+  for(int i=0; i<(int)badprimes.size(); i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
 	{
@@ -2149,17 +2149,17 @@ vector<Qideal> make_nulist(Qideal& N)
 }
 
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_badprimes(Qideal& N, const vector<Quadprime>& allbadprimes)
+vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes)
 {
-  vector<Quadprime> badprimes;
-  for (vector<Quadprime>::const_iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
+  vector<Quadprime> squarebadprimes;
+  for (vector<Quadprime>::const_iterator Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
     {
       Quadprime Q = *Qi;
       long e = val(Q,N);
       if (Quad::class_group_2_rank==0 || e%2==0 || Q.has_square_class()) // then [Q^e] is a square
-        badprimes.push_back(Q);
+        squarebadprimes.push_back(Q);
     }
-  return badprimes;
+  return squarebadprimes;
 }
 
 // compute a list of at least nap good primes (excluding those
