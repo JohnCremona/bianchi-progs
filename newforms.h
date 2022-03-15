@@ -66,6 +66,9 @@ public:
   int j0; modsym m0; int fac, facinv;
   long cuspidalfactor;
   QUINT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
+  vector<long> genus_classes;
+  vector<Qideal> genus_class_ideals;
+  vector<long> genus_class_aP;
 
   newform(void) :basis(0), aplist(0) {;}
   // constructor to use just after finding the eigenspace: just sets
@@ -79,14 +82,13 @@ public:
 
   // After finding all newforms using the basic constructor and
   // setting h1's projcoord, fill in the rest of the data for this,
-  // given that it is the j'th newform, extracting the aqlist from
-  // eigs:
+  // extracting the aqlist from eigs:
   //  - aq and sfe from eigs
   //  - L/P
   //  - manin vector data
   //  - integration matrix  // using find_matrix()
 
-  void data_from_eigs(int j);
+  void data_from_eigs();
 
   // When a newform has been read from file, we have the aqlist and
   // aplist but not the sequence of eigs in order.  This is needed
@@ -100,12 +102,17 @@ public:
   vector<long> oldform_eigs(Qideal& M);
 
   // compute the eigenvalue for a single operator on this newform
-  long eigenvalue(const matop& op, pair<long,long> apbounds);
+  // check that the result is factor*a for some a between the bounds
+  long eigenvalue(const matop& op, pair<long,long> apbounds, long factor=1);
+  // compute aP for this newform, good P
+  long eigenvalueHecke(Quadprime& P, int verbose=1);
+  // compute A-L eigenvalue for this newform, for the bad prime Q
+  long eigenvalueAtkinLehner(Quadprime& Q, int verbose=1);
 
   void display(void) const;
   void list(long nap=-1) const;
   // To find matrix for integration:
-  void find_matrix(int j);
+  void find_matrix();
   // Test if form is base-change
   int is_base_change(void) const;
   // Test if form is base-change up to twist
@@ -172,7 +179,7 @@ protected:
 public:
   Qideal N;  // the level
   vector<Quadprime> allbadprimes; // list of all bad primes Q (dividing the level N)
-  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
+  //  vector<Quadprime> badprimes; // list of bad primes Q with square ideal class or even exponent
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   int level_is_square;

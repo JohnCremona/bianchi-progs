@@ -101,25 +101,23 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
       if(nf->verbose)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
-  CMD = 0; // will be set later
+  // to be set later
+  CMD = 0;
+  sfe = pdot = dp0 = lambdadot = matdot = 0;
 }
 
-// fill in data for the j'th newform (j based at 1)
+// Fill in data for one newform. This assumes we have:
 
-// In detail: this assumes we have the list of eigs; it extracts
-// aqlist from this (but this may not be complete for even class
-// number) and the extra data (sfe, integration data etc) but *not*
-// aplist:
+// aqlist, cuspidalfactor
 
-//  - aq and sfe from eigs
-//  - L/P
-//  - manin vector data
-//  - integration matrix  // using find_matrix()
+// and computes
 
-// The reason for the parameter j is to access data computed and
-// stored in the newforms class
+//  - sfe (uses aqlist)
+//  - L/P (uses cuspidalfactor)
+//  - dp0, pdot (uses nP0, aP0, mvp from newform class)
+//  - a,b,c,d,matdot (integration data) via find_matrix()
 
-void newform::data_from_eigs(int j)
+void newform::data_from_eigs()
 {
   sfe = 0;
 
@@ -131,12 +129,12 @@ void newform::data_from_eigs(int j)
     }
 
   // compute L/P as n_F({0,oo})
-  int pdot0 = abs(nf->zero_infinity[j]);
+  int pdot0 = abs(nf->zero_infinity[index]);
   loverp =  rational(pdot0, (Quad::nunits) * cuspidalfactor);
 
   // compute L/P again using Manin vector
-  dp0  =  1 + (nf->nP0) - nf->aP0[j-1];  // aP0 is based at 0
-  pdot = abs(nf->mvp[j]);
+  dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
+  pdot = abs(nf->mvp[index]);
   rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
 
   if (nf->characteristic>0)
@@ -155,7 +153,7 @@ void newform::data_from_eigs(int j)
       cout << "nP0 = "<<nf->nP0<<endl;
       cout << "iP0 = "<<nf->iP0<<endl;
       cout << "eigs (size "<<eigs.size()<<") = "<<eigs<<endl;
-      cout << "ap0 = "<<nf->aP0[j]<<endl;
+      cout << "ap0 = "<<nf->aP0[index]<<endl;
       cout << "dp0 = "<<dp0<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
@@ -165,7 +163,7 @@ void newform::data_from_eigs(int j)
   // nonzero multiple "matdot" of the period P.
 
   // NB We do not currently use this, it should be further scaled
-  find_matrix(j);
+  find_matrix();
 }
 
 // When a newform has been read from file, we have the aqlist and
@@ -236,29 +234,7 @@ vector<long> newform::oldform_eigs(Qideal& M)
     }
 
   vector<long>::const_iterator ei = eigs.begin() + (nf->n2r);
-  if (nf->nwq>0)
-    {
-      vector<Quadprime> allMprimes = M.factorization().sorted_primes();
-      vector<Quadprime> Mprimes = make_badprimes(M, allMprimes);
-      for (vector<Quadprime>::iterator Qi = Mprimes.begin(); Qi!=Mprimes.end(); ++Qi)
-        {
-          Quadprime Q = *Qi;
-          if (Q.divides(nf->N))
-            {
-              if (nf->verbose>1)
-                cout << " keeping W eigenvalue "<<(*ei)<< " at "<<Q<<endl;
-              M_eigs.push_back(*ei++);
-            }
-          else
-            {
-              if (nf->verbose>1)
-                cout << " dummy W eigenvalue 0 at "<<Q<<endl;
-              M_eigs.push_back(0); // dummy value, oldforms class will handle this
-            }
-        }
-    }
-
-  for (vector<Quadprime>::const_iterator Pi = Quadprimes::list.begin();
+  for (auto Pi = Quadprimes::list.begin();
        Pi != Quadprimes::list.end() && ei!=eigs.end(); ++Pi)
     {
       Quadprime P = *Pi;
@@ -323,12 +299,10 @@ newform::newform(newforms* nfs, int ind,
 // integral over {0,M(0)} = {0,b/d} with M = [a,b;N*c,d] is a
 // nonzero multiple "matdot" of the period P.
 
-//  for the j'th newform (j based at 1)
-
-void newform::find_matrix(int j)
+void newform::find_matrix()
 {
   if(nf->verbose>1)
-    cout<<"computing integration matrix..."<<flush;
+    cout<<"computing integration matrix for newform "<<index<<"..."<<flush;
   matdot=0;
   Qideal N(nf->N);
   for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
@@ -348,7 +322,7 @@ void newform::find_matrix(int j)
                   c /= -b;
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
-                  matdot = abs((nf->h1->chain(b,d, 1))[j]);
+                  matdot = abs((nf->h1->chain(b,d, 1))[index]);
                 } // b coprime to d test
             } // loop over b
         } // d coprime to N test
@@ -567,13 +541,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
         cout<<"nulist: "<<nulist<<endl;
     }
 
-  // badprimes is a list of all primes Q|N
+  // allbadprimes is a list of all primes Q|N
   allbadprimes = N.factorization().sorted_primes();
-
-  // badprimes is a list of primes Q|N such that [Q^e] is square
-  if (characteristic==0)
-    badprimes = make_badprimes(N, allbadprimes);
-  // nwq = badprimes.size();
   nwq = 0; // prevents any W_Q being used for splitting
 
   // goodprimes is a list of at least nap good primes (excluding those
@@ -595,8 +564,6 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 
   if (verbose>1)
     {
-      // if (characteristic==0)
-      //   cout << "bad primes used: "<< badprimes<<endl;
       cout << "good primes used: "<<goodprimes<<endl;
     }
 
@@ -755,9 +722,10 @@ void newforms::find()
       // We are only computing dimensions here so do not use dual
       // mats, which saves transposing:
       smat m = h1->s_calcop(h1matop(0), 0, verbose);
-      // matden() is the matrix denominator so here we are computing the +1-eigenspace
+      // matden() is the matrix denominator so here we are computing the +1-eigenspace:
       ssubspace s = eigenspace(m, matden());
-      ssubspace sc = eigenspace(restrict_mat(m, h1->kern), matden());
+      smat mc = restrict_mat(m, h1->kern);
+      ssubspace sc = eigenspace(mc, matden());
       dimtrivall = dim(s);
       dimtrivcusp = dim(sc);
       if (verbose)
@@ -767,7 +735,8 @@ void newforms::find()
         {
           m = h1->s_calcop(h1matop(i), 0, verbose);
           s = subeigenspace(m, matden(), s);
-          sc = subeigenspace(restrict_mat(m, h1->kern), matden(), s);
+          mc = restrict_mat(m, h1->kern);
+          sc = subeigenspace(mc, matden(), sc);
           dimtrivall = dim(s);
           dimtrivcusp = dim(sc);
           if (verbose)
@@ -861,25 +830,12 @@ void newforms::fill_in_newform_data(int everything)
       for (vector<Quadprime>::iterator Qi = allbadprimes.begin(); Qi!=allbadprimes.end(); ++Qi)
         {
           Quadprime Q = *Qi;
-          long e = val(Q,N);
-          Qideal Qe = Q;
-          while (--e) Qe *= Q;
-          vector<long> apv(n1ds, +1); // default in case nonsquare class
-          if (Qe.is_principal())
-            {
-              apv = apvec(AtkinLehnerQOp(Q,N), {-1,1});
-            }
-          else
-            if (Qe.has_square_class()) // then [Q^e] is a square
-              {
-                Qideal A = Qe.sqrt_coprime_to(N);
-                apv = apvec(AtkinLehnerQChiOp(Q,A,N), {-1,1});
-              }
+          vector<long> apv = apvec(Q);
           for (int j=0; j<n1ds; j++)
             nflist[j].aqlist.push_back(apv[j]);
         }
       for (int j=0; j<n1ds; j++)
-        nflist[j].data_from_eigs(j+1);
+        nflist[j].data_from_eigs();
     }
 
   // Find the twisting primes for each newform (more efficient to do
@@ -1023,7 +979,7 @@ void newform::list(long nap) const
 }
 
 // compute the eigenvalue for a single operator on this newform
-long newform::eigenvalue(const matop& op, pair<long,long> apbounds)
+long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
 {
   vec image = nf->h1->applyop(op, m0, 1);
   int top = image[index]; // where this is the i'th newform
@@ -1043,18 +999,198 @@ long newform::eigenvalue(const matop& op, pair<long,long> apbounds)
     }
   if (nf->characteristic>0)
     ap = posmod(ap, nf->characteristic);
-  else
+  else // check it is in range (in characteristic 0 only)
     {
-      // check it is in range (in characteristic 0 only):
-      if ((ap<apbounds.first)||(ap>apbounds.second))
+      if (divides(factor,ap))
+        {
+          ap /= factor;
+          if ((ap<factor*apbounds.first) || (ap>factor*apbounds.second))
+            {
+              cout<<"Error:  eigenvalue "<<ap<<" for operator "<<op.name()
+                  <<" for form # "<< index <<" is outside valid range "
+                  << factor << "*" << apbounds.first<<"..."<< factor << "*" <<apbounds.second<<endl;
+              exit(1);
+            }
+        }
+      else
         {
           cout<<"Error:  eigenvalue "<<ap<<" for operator "<<op.name()
-              <<" for form # "<< index <<" is outside valid range "
-              << apbounds.first<<"..."<<apbounds.second<<endl;
+              <<" for form # "<< index <<" is not a multiple of "
+              << factor << endl;
           exit(1);
         }
     }
   return ap;
+}
+
+long newform::eigenvalueHecke(Quadprime& P, int verbose)
+{
+  Qideal N = nf->N;
+  if (P.divides(N))
+    return 0; // we'll deal with A-L eigs later
+  long c = P.genus_class();
+  if (c==0) // then P has square class, compute aP directly via T(P) or T(P)*T(A,A)
+    {
+      if (P.is_principal())  // compute T(P)
+        {
+          if (verbose)
+            cout << "computing T("<<P<<") directly"<<endl;
+          return eigenvalue(HeckePOp(P, N), eigenvalue_range(P));
+        }
+      else   // P has square class, compute T(P)*T(A,A)
+        {
+          Qideal A = P.sqrt_coprime_to(N);
+          if (verbose)
+            cout << "computing T("<<P<<") using T(P)*T(A,A) with A = "<<ideal_label(A)<<endl;
+          return eigenvalue(HeckePChiOp(P,A,N), eigenvalue_range(P));
+        }
+    }
+  else // P does not have square class, its genus class is c>0
+    {
+      // See if we already have an eigenvalue for this genus class
+      vector<long>::iterator ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      if (ci != genus_classes.end()) // then we do
+        {
+          int i = ci - genus_classes.begin();
+          long factor = genus_class_aP[i];
+          Qideal B = genus_class_ideals[i]*P; // so B is square-free and of square class
+          if (verbose)
+            cout << "computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(B) with B = "
+                 <<ideal_label(genus_class_ideals[i])
+                 <<", with T(B) eigenvalue "<<factor<<endl;
+          if (B.is_principal())               // compute T(B)
+            return eigenvalue(HeckeBOp(B, N), eigenvalue_range(P), factor);
+          else                                // compute T(B)*T(A,A)
+            {
+              Qideal A = B.sqrt_coprime_to(N);
+              return eigenvalue(HeckeBChiOp(B,A,N), eigenvalue_range(P), factor);
+            }
+        }
+      else // we have a new genus class, compute a_{P}^2
+        {
+          if (verbose)
+            cout << "Computing T(P^2) to get a(P)^2" << endl;
+          Qideal P2 = P*P;
+          long aP, aP2;
+          long normP = I2long(P.norm());
+          if (P2.is_principal())  // compute T(P^2)
+            {
+              aP2 = eigenvalue(HeckeP2Op(P,N), eigenvalue_sq_range(P));
+            }
+          else // T(P^2)*T(A,A) with A*P principal
+            {
+              Qideal A = P.equivalent_coprime_to(N, 1);
+              aP2 = eigenvalue(HeckeP2ChiOp(P,A,N), eigenvalue_sq_range(P));
+            }
+          // Now aP2 is the eigenvalue of T(P^2)
+          aP2 += normP;
+          // Now aP2 is the eigenvalue of T(P)^2
+          if (verbose)
+            cout << "Computed a(P^2) = " << aP2 << endl;
+          if (is_square(aP2, aP))
+            {
+              if (aP!=0) // else we cannot use this as a new genus pivot
+                {
+                  if (verbose)
+                    cout << "Taking a(P) = " << aP << endl;
+                  // update genus_classes (append binary sum of each and c)
+                  // update genus_class_ideals (append product of each and P)
+                  // update genus_class_aP (append product of each and aP)
+                  long oldsize = genus_classes.size();
+                  if (verbose)
+                    cout<<" -- doubling number of genus classes covered by P with nonzero aP from "<<oldsize<<" to "<<2*oldsize<<endl;
+                  genus_classes.resize(2*oldsize);
+                  genus_class_ideals.resize(2*oldsize);
+                  genus_class_aP.resize(2*oldsize);
+                  for (int i = 0; i<oldsize; i++)
+                    {
+                      genus_classes[oldsize+i] = genus_classes[i]^c;
+                      genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
+                      genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
+                    }
+                }
+            }
+          else
+            {
+              cerr<<"P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!"<<endl;
+            }
+          return aP;
+        }
+    }
+}
+
+long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
+{
+  Qideal N = nf->N;
+  int e = val(Q,N);
+  if (e==0)
+    return 1;
+  Qideal Qe = Q;
+  while (--e) Qe*=Q;
+  if (Qe.is_principal())
+    {
+      if (verbose)
+        cout << "computing W("<<Q<<") directly"<<endl;
+      return eigenvalue(AtkinLehnerQOp(Q,N), {-1,1});
+    }
+  if (Qe.has_square_class())
+    {
+      Qideal A = Qe.sqrt_coprime_to(N);
+      if (verbose)
+        cout << "computing W("<<Q<<") using W(Q)*T(A,A) with A = "<<ideal_label(A)<<endl;
+      return eigenvalue(AtkinLehnerQChiOp(Q,A,N), {-1,1});
+    }
+
+  // Now we rely on already having aP for some P in the same genus
+  // class as Q^e, and compute W(Q)T(P)
+
+  // So far we have only imnplemented W(Q)T(P) when Q^e*P is
+  // principal, not when it only has square class, so we must find a
+  // good prime in the opposite ideal class to Q^e for which we know
+  // aP (and it is nonzero).
+
+  if (verbose)
+    cout << "computing W("<<Q<<") using W(A)*T(P) for suitable P (opposite class to Q^e="
+         <<ideal_label(Qe) <<", aP nonzero)"<<endl;
+  for (auto Pi = Quadprimes::list.begin(); Pi!=Quadprimes::list.end(); ++Pi)
+    {
+      Quadprime P = *Pi;
+      if (P.divides(N))
+        continue;
+      if (!Qe.is_anti_equivalent(P))
+        continue;
+      if (verbose)
+        cout << " - trying P = "<<P<<" which is in the right ideal class"<<endl;
+      vector<long int>::size_type i = Pi-Quadprimes::list.begin();
+      long aP;
+      if (i<=aplist.size())
+        {
+          aP = aplist[i];
+          if (verbose)
+            cout << " - stored a(P) = "<<aP<<endl;
+        }
+      else
+        {
+          aP = eigenvalueHecke(P, verbose);
+          if (verbose)
+            cout << " - computed a(P) = "<<aP<<endl;
+        }
+      if (aP==0)
+        {
+          if (verbose)
+            cout << " - no good as aP = "<<aP<<endl;
+          continue;
+        }
+      if (verbose)
+        cout << " - OK, aP = "<<aP<<endl;
+      long eQ = eigenvalue(HeckePALQOp(P, Q, N), {-1,+1}, aP);
+      if (verbose)
+        cout << " - eigenvalue of T(P)W(Q) is "<<aP*eQ<<" so A-L eigenvalue = "<<eQ<<endl;
+      return eQ;
+    }
+  cout << "*** Warning: unable to find a suitable auxiliary prime P for which "
+       << "the eigenvalue of T(P)W(Q) is known and nonzero!  Returning A-L eigenvalue of 0"<<endl;
+  return 0;
 }
 
 // Sorting functions
@@ -1338,7 +1474,13 @@ void newforms::getoneap(Quadprime& P, int verbose, int store)
             cout<<setw(5)<<ap<<" ";
         }
       if(store)
-        nflist[i].aplist.push_back(cp);
+        {
+          nflist[i].aplist.push_back(cp);
+          if (vp) // store A-L eigenvalue
+            {
+              nflist[i].aqlist.push_back(ap);
+            }
+        }
     }
   if(verbose)
     cout << endl;
@@ -1363,6 +1505,15 @@ void newforms::getap(int first, int last, int verbose)
       cout<<"Already have "<<nap <<" ap " << "at level "<<N<<" so no need to compute more"<<endl;
     }
   // now nap < last <= nQP
+  if (first==1)
+    {
+      for (int i=0; i<n1ds; i++)
+        {
+          nflist[i].genus_classes.resize(1,0);
+          nflist[i].genus_class_ideals.resize(1,Qideal(1));
+          nflist[i].genus_class_aP.resize(1,1);
+        }
+    }
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
@@ -1763,13 +1914,12 @@ vector<long> newforms::apvec(Quadprime& P)
 #ifdef DEBUG_APVEC
   cout<<"In apvec with P = "<<P<<endl;
 #endif
-  vector<long> apv;
   long normp=I2long(P.norm());
   int i, vp = val(P,N);
 
   if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
     {
-      apv.resize(n1ds, -999);
+      vector<long> apv(n1ds, -999);
 #ifdef DEBUG_APVEC
       cout << "ignored prime: ap list = " << apv << endl;
 #endif
@@ -1790,7 +1940,8 @@ vector<long> newforms::apvec(Quadprime& P)
           Qideal A = Pe.sqrt_coprime_to(N);
           return apvec(AtkinLehnerQChiOp(P,A,N), {-1,1});
         }
-      apv.resize(n1ds, +1);
+      // Other values will be set later; for now we set them to 0
+      vector<long> apv(n1ds, 0);
       return apv;
     }
 
@@ -1798,37 +1949,20 @@ vector<long> newforms::apvec(Quadprime& P)
 
   if (Quad::is_Euclidean)
     return apvec_euclidean(P, eigenvalue_range(P));
+
   if (P.is_principal())
     return apvec(HeckePOp(P,N), eigenvalue_range(P)); // T(P)
+
   if (P.has_square_class())
     {
       Qideal A = P.sqrt_coprime_to(N);
       return apvec(HeckePChiOp(P,A,N), eigenvalue_range(P)); // T(P)*T(A,A)
     }
-  Qideal P2 = P*P;
-  long normP = I2long(P.norm());
-  if (P2.is_principal())  // T(P^2)
-    {
-      apv = apvec(HeckeP2Op(P,N), eigenvalue_sq_range(P));
-    }
-  else // T(P^2)*T(A,A) with A*P principal
-    {
-      Qideal A = P.equivalent_coprime_to(N, 1);
-      apv = apvec(HeckeP2ChiOp(P,A,N), eigenvalue_sq_range(P));
-    }
+
+  // Now the class number is even, and we deal with the newforms individually
+  vector<long> apv;
   for (i=0; i<n1ds; i++)
-    {
-      long ap, ap2 = apv[i] + normP;
-      if (is_square(ap2, ap))
-        {
-          apv[i] = ap;
-        }
-      else
-        {
-          cerr<<"P="<<P<<", a(P)^2 = "<<ap2<<" is not a square!"<<endl;
-          exit(1);
-        }
-    }
+    apv.push_back(nflist[i].eigenvalueHecke(P, verbose));
   return apv;
 }
 
