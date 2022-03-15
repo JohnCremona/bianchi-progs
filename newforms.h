@@ -239,30 +239,4 @@ private:
   void makebases();
 };
 
-
-// List of bad primes (dividing N) followed by good primes to length
-// at least np, making sure that the list includes at least one good
-// principal prime.  iP0 is set to the index in the list of the first
-// good principal prime.
-// If p (default 0) is nonzero, omit bad primes and primes dividing P
-vector<Quadprime> make_primelist(Qideal& N, int np, int& iP0, int p=0);
-
-// compute a list of ideals coprime to N whose classes generate the 2-torsion
-vector<Qideal> make_nulist(Qideal& N);
-// compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes);
-// compute a list of at least nap good primes (excluding those
-// dividing characteristic if >0), to include at least on principal
-// one which has index iP0;
-vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
-
-// Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
-pair<long,long> eigenvalue_range(Quadprime& P);
-// Return {-m,3*m} whereor m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
-pair<long,long> eigenvalue_sq_range(Quadprime& P);
-
-// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P)) if [P] is square, else
-// list of possible eigs for T(P^2) = T(P)^2-N(P), assuming T(P,P) trivial
-vector<long> good_eigrange(Quadprime& P);
-
 #endif

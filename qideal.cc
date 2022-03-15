@@ -1161,6 +1161,16 @@ int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
   return -1;
 }
 
+// compute a list of ideals coprime to N whose classes generate the 2-torsion
+vector<Qideal> make_nulist(Qideal& N)
+{
+  vector<Qideal> nulist;
+  for (vector<Qideal>::iterator Ai = Quad::class_group_2_torsion_gens.begin();
+       Ai!=Quad::class_group_2_torsion_gens.end(); ++Ai)
+    nulist.push_back(Ai->equivalent_coprime_to(N));
+  return nulist;
+}
+
 // brute force test whether a is a square of some element of reslist, mod M
 
 int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist)

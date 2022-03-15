@@ -252,6 +252,9 @@ public:
   static vector<Qideal> ideals_with_bounded_norm(QUINT maxnorm, int both_conj=1);
 };
 
+// compute a list of ideals coprime to N whose classes generate the 2-torsion
+vector<Qideal> make_nulist(Qideal& N);
+
 // return 1 iff a is the square mod M of some r in reslist
 int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist);
 vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist);

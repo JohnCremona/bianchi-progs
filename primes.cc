@@ -699,4 +699,73 @@ vector<int> Qideal::genus_character()
 int Qideal::is_prime() {return factorization().is_prime();}
 int Qideal::is_prime_power() {return factorization().is_prime_power();}
 
+
+// Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
+pair<long,long> eigenvalue_range(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  long aplim=2;
+  while (aplim*aplim<=4*normp) aplim++;
+  aplim--;
+  return {-aplim, aplim};
+}
+
+// Return {-m,3*m} whereor m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
+pair<long,long> eigenvalue_sq_range(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  return {-normp, 3*normp};
+}
+
+// Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P))
+vector<long> good_eigrange(Quadprime& P)
+{
+  long normp = I2long(P.norm());
+  if (P.has_square_class())
+    {
+      pair<long,long> apbounds = eigenvalue_range(P);
+      return range(apbounds.first, apbounds.second);
+    }
+  else // want eigs of T(P^2)=T(P)^2-N(P) such that T(P) has integral eig
+    {
+      pair<long,long> apbounds = eigenvalue_range(P);
+      vector<long> ans = range(0,apbounds.second);
+      for_each(ans.begin(), ans.end(), [normp](long& a){a = a*a-normp;});
+      return ans;
+    }
+}
+
+// compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
+vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes)
+{
+  if (Quad::class_group_2_rank==0)
+    return badprimes;
+  vector<Quadprime> squarebadprimes;
+  for (vector<Quadprime>::const_iterator Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
+    {
+      Quadprime Q = *Qi;
+      if (val(Q,N)%2==0 || Q.has_square_class()) // then [Q^e] is a square
+        squarebadprimes.push_back(Q);
+    }
+  return squarebadprimes;
+}
+
+// compute a list of at least nap good primes (excluding those
+// dividing characteristic if >0), to include at least on principal
+// one which has index iP0;
+vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p)
+{
+  vector<Quadprime> goodprimes;
+  QuadprimeLooper L(p==0? N : p*N);
+  iP0=-1;
+  for (int i=0; (i<np) || (iP0<0); i++, ++L)
+    {
+      Quadprime P = L;
+      goodprimes.push_back(P);
+      if (P.is_principal() && iP0==-1)
+        iP0 = goodprimes.size()-1;
+    }
+  return goodprimes;
+}
+
 // END OF FILE primes.cc
