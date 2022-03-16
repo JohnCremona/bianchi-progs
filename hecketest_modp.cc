@@ -1,50 +1,11 @@
 // HECKETEST_MODP.CC  -- Test for Hecke operators in characteristic p>0
 
-#include <eclib/mmatrix.h>
-#include <NTL/mat_ZZ_p.h>
-#include <NTL/mat_poly_ZZ_p.h>
-#include <NTL/pair_ZZ_pX_long.h>
-#include <NTL/ZZ_pXFactoring.h>
+#include "matprocs.h"
 #include "qidloop.h"
 #include "homspace.h"
 //#define LOOPER
 
 #define MAXPRIME 10000
-
-mat_ZZ_p mat_to_mat_ZZ_p(mat A);
-
-// function to sort a factorization vector, first by degree of factor
-// then exponent of factor then lexicographically
-
-struct factor_comparison {
-  bool operator()(pair_ZZX_long& fac1, pair_ZZX_long& fac2)
-  {
-    // first sort by degree of the factor
-    int s = deg(fac1.a) - deg(fac2.a);
-    if(s) return (s<0); // true if fac1 has smaller degree
-
-    // then sort by exponent of the factor
-    s = fac1.b - fac2.b;
-    if(s) return (s<0); // true if fac1 is to a lower exponent
-
-    // finally lexicographically compare the coefficient lists
-    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(), fac2.a.rep.begin(), fac2.a.rep.end());
-  }
-  // bool operator()(pair_ZZ_pX_long& fac1, pair_ZZ_pX_long& fac2)
-  // {
-  //   // first sort by degree of the factor
-  //   int s = deg(fac1.a) - deg(fac2.a);
-  //   if(s) return (s<0); // true if fac1 has smaller degree
-
-  //   // then sort by exponent of the factor
-  //   s = fac1.b - fac2.b;
-  //   if(s) return (s<0); // true if fac1 is to a lower exponent
-
-  //   // finally lexicographically compare the coefficient lists
-  //   return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(), fac2.a.rep.begin(), fac2.a.rep.end());
-  // }
-}
-    fact_cmp;
 
 int main(void)
 {
@@ -198,17 +159,4 @@ int main(void)
 
    }       // end of while()
  exit(0);
-   }       // end of main()
-
-mat_ZZ_p mat_to_mat_ZZ_p(mat A)
-{
-  int i, j, d = A.nrows();
-
-  // copy into an NTL matrix:
-  mat_ZZ_p ntl_A;
-  ntl_A.SetDims(d,d);
-  for(i=1; i<=d; i++)
-    for(j=1; j<=d; j++)
-      ntl_A(i,j)=conv<ZZ_p>(A(i,j));
-  return ntl_A;
-}
+}       // end of main()

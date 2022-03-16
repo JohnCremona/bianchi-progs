@@ -1,49 +1,11 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
-#include <eclib/mmatrix.h>
-#include <NTL/LLL.h>
-#include <NTL/mat_poly_ZZ.h>
-#include <NTL/ZZXFactoring.h>
+#include "matprocs.h"
 #include "qidloop.h"
 #include "newforms.h"
 //#define LOOPER
 
 #define MAXPRIME 10000
-
-// convert an eclib mat to an NTL mat_ZZ:
-mat_ZZ mat_to_mat_ZZ(mat A);
-// compute char poly of A/den:
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den);
-// check that a matrix is a scaled involution:
-int check_involution(const mat_ZZ& A, long den=1, int verbose=0);
-// check that a matrix commutes with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist);
-// display factors of a polynomial:
-void display_factors(const ZZX& f);
-// rank of an NTL matrix:
-long rank(mat_ZZ A);
-// nullity of an NTL matrix:
-long nullity(mat_ZZ A);
-
-// function to sort a factorization vector, first by degree of factor
-// then exponent of factor then lexicographically
-
-struct factor_comparison {
-  bool operator()(pair_ZZX_long& fac1, pair_ZZX_long& fac2)
-  {
-    // first sort by degree of the factor
-    int s = deg(fac1.a) - deg(fac2.a);
-    if(s) return (s<0); // true if fac1 has smaller degree
-
-    // then sort by exponent of the factor
-    s = fac1.b - fac2.b;
-    if(s) return (s<0); // true if fac1 is to a lower exponent
-
-    // finally lexicographically compare the coefficient lists
-    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(), fac2.a.rep.begin(), fac2.a.rep.end());
-  }
-}
-    fact_cmp;
 
 int main(void)
 {
@@ -203,7 +165,7 @@ int main(void)
           mat_ZZ wq =  mat_to_mat_ZZ(h.calcop(op,0,0));
 	  cout << "done. " << endl;
           if (show_mats)
-            cout << "Matrix is \n" << wq << endl;
+            cout << "Matrix is \n" << h.calcop(op,0,0) << "\n="<<wq << endl;
 
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
@@ -443,82 +405,3 @@ int main(void)
 }       // end of while()
 exit(0);
 }       // end of main()
-
-mat_ZZ mat_to_mat_ZZ(mat A)
-{
-  int i, j, d = A.nrows();
-
-  // copy into an NTL matrix:
-  mat_ZZ ntl_A;
-  ntl_A.SetDims(d,d);
-  for(i=1; i<=d; i++)
-    for(j=1; j<=d; j++)
-      ntl_A(i,j)=conv<ZZ>(A(i,j));
-  return ntl_A;
-}
-
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den)
-{
-  ZZX charpol;
-  CharPoly(charpol, A);
-  long d = deg(charpol);
-  if (den>1)
-    {
-      bigint dpow(1);
-      for(int i=0; i<=d; i++)
-        {
-          SetCoeff(charpol, d-i, coeff(charpol, d-i)/dpow);
-          dpow *= den;
-        }
-    }
-  return charpol;
-}
-
-int check_involution(const mat_ZZ& A, long den, int verbose)
-{
-  int res = IsDiag(power(A,2), A.NumRows(), to_ZZ(den*den));
-  if (verbose)
-    cout << (res? "Involution!": "NOT an involution....") << "\n";
-  return res;
-}
-
-// check that a matrix commutes with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
-{
-  for(vector<mat_ZZ>::const_iterator B = Blist.begin(); B!=Blist.end(); B++)
-    {
-      if ((A*(*B))!=((*B)*A))
-        return 0;
-    }
-  return 1;
-}
-
-// display factors of a polynomaial:
-void display_factors(const ZZX& f)
-{
-  ZZ content; vec_pair_ZZX_long factors;
-  factor(content, factors, f);
-  ::sort(factors.begin(), factors.end(), fact_cmp);
-  cout<<"Factors of characteristic polynomial are:"<<endl;
-  long nf = factors.length();
-  for(int i=0; i<nf; i++)
-    {
-      cout<<(i+1)<<":\t"<<factors[i].a
-          <<"\t(degree "<<deg(factors[i].a)<<")";
-      cout<<"\t to power "<<factors[i].b;
-      cout<<endl;
-    }
-}
-
-// rank of an NTL matrix:
-long rank(mat_ZZ A)
-{
-  ZZ d2;
-  return image(d2, A);
-}
-
-// nullity of an NTL matrix:
-long nullity(mat_ZZ A)
-{
-  return A.NumRows()-rank(A);
-}

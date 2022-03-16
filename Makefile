@@ -71,12 +71,12 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs1 ccs2 ccs3 ccs4
-ccs1: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
+ccs1: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
 
-headers: intprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -148,21 +148,21 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-tquads: tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
-	$(CC) -o tquads tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
+OBJS = quads.o intprocs.o matprocs.o euclid.o geometry.o looper.o homspace.o \
+       newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
+       primes.o mat22.o ratquads.o cusp.o P1N.o
 
-P1Ntest: P1Ntest.o P1N.o tquads.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
-	$(CC) -o P1Ntest P1Ntest.o P1N.o quads.o looper.o intprocs.o euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
+tquads: tquads.o $(OBJS)
+	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
 
-fieldinfo: fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o ratquads.o
-	$(CC) -o fieldinfo fieldinfo.o quads.o euclid.o geometry.o intprocs.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
+P1Ntest: P1Ntest.o $(OBJS)
+	$(CC) -o P1Ntest P1Ntest.o $(OBJS) $(LFLAGS)
+
+fieldinfo: fieldinfo.o $(OBJS)
+	$(CC) -o fieldinfo fieldinfo.o $(OBJS) $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
-
-OBJS = quads.o intprocs.o euclid.o geometry.o looper.o homspace.o \
-       newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o ratquads.o cusp.o P1N.o
 
 makenf: makenf.o $(OBJS)
 	$(CC) -g -o makenf makenf.o $(OBJS) $(LFLAGS)
@@ -271,12 +271,12 @@ geometry.o: geometry.cc geometry.h mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h
 hecke.o: hecke.cc hecke.h mat22.h ratquads.h quads.h intprocs.h primes.h \
  qideal.h P1N.h
-hecketest.o: hecketest.cc qidloop.h qideal.h quads.h intprocs.h \
- newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
+hecketest.o: hecketest.cc matprocs.h intprocs.h qidloop.h qideal.h \
+ quads.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
+ mat22.h face_relations.h edge_relations.h geometry.h P1N.h hecke.h
+hecketest_modp.o: hecketest_modp.cc matprocs.h intprocs.h qidloop.h \
+ qideal.h quads.h homspace.h cusp.h mat22.h ratquads.h primes.h \
  face_relations.h edge_relations.h geometry.h P1N.h hecke.h
-hecketest_modp.o: hecketest_modp.cc qidloop.h qideal.h quads.h intprocs.h \
- homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
- edge_relations.h geometry.h P1N.h hecke.h
 homspace.o: homspace.cc euclid.h quads.h intprocs.h cusp.h mat22.h \
  ratquads.h primes.h qideal.h homspace.h face_relations.h \
  edge_relations.h geometry.h P1N.h hecke.h
@@ -296,6 +296,7 @@ makenf_modp.o: makenf_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 mat22.o: mat22.cc primes.h qideal.h quads.h intprocs.h mat22.h ratquads.h
+matprocs.o: matprocs.cc matprocs.h intprocs.h qidloop.h qideal.h quads.h
 modularity.o: modularity.cc newforms.h ratquads.h quads.h intprocs.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
  edge_relations.h geometry.h P1N.h hecke.h
