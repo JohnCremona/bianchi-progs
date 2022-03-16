@@ -798,7 +798,8 @@ void newforms::find()
 
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
-      cout<<"Finding rational newforms...\n";
+      if(verbose)
+        cout<<"Finding rational newforms...\n";
       use_nf_number=-1; // flags to use() that the nfs found are new
       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
