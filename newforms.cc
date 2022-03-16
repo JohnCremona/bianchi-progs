@@ -752,17 +752,21 @@ void newforms::find()
       dimtrivcusp = dimcusp;
       dimtrivall = dimall;
     }
-  long mindepth, olddimall = 0;
+  long mindepth, olddimall = 0, olddim1 = 0;
   n1ds = 0;
 
   if(characteristic==0)
     {
-      if(verbose)
-        cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
-      of = new oldforms(this);
-      olddimall = (of->olddimall);
-      if(verbose)
-        of->display();
+      if (dimtrivcusp>0)
+        {
+          if(verbose)
+            cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
+          of = new oldforms(this);
+          olddimall = (of->olddimall);
+          olddim1 = (of->olddim1);
+          if(verbose)
+            of->display();
+        }
       mindepth = n2r+iP0+3;  // with only +2 we get a fake rational newform at d=22, level 121.1
       upperbound = dimtrivcusp - olddimall;
     }
@@ -774,25 +778,27 @@ void newforms::find()
 
   if(verbose)
     {
-      cout<<"Finding rational newforms...\n";
       cout<<"cuspidal dimension = "<<dimcusp;
       if (n2r>0)
         cout<<" (trivial character subspace dimension "<<dimtrivcusp<<")";
       cout<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;
+      if(verbose>1)
+        {
+          cout<<"upperbound = "<<upperbound<<endl;
+          cout<<"maxdepth = "<<maxdepth<<endl;
+          cout<<"mindepth = "<<mindepth<<endl;
+        }
     }
-  if(verbose>1)
-    {
-      cout<<"upperbound = "<<upperbound<<endl;
-      cout<<"maxdepth = "<<maxdepth<<endl;
-      cout<<"mindepth = "<<mindepth<<endl;
-    }
+
   if(upperbound<0) // check for error condition
     {
       cout<<"*** Warning:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<dimtrivcusp<<" ***"<<endl;
       // exit(1);
     }
+
   if(upperbound>0)  // Else no newforms certainly so do no work!
     {
+      cout<<"Finding rational newforms...\n";
       use_nf_number=-1; // flags to use() that the nfs found are new
       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
@@ -801,11 +807,19 @@ void newforms::find()
   n2ds=upperbound-n1ds; // dimension of new, non-rational forms
   if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
   if(verbose)
-    {cout << "Total dimension " << dimall << " made up as follows:\n";
-     cout << "dim(newforms) = " << n1ds+n2ds << " of which " << n1ds << " is rational; \n";
-     if (characteristic==0)
-       cout << "dim(oldforms) = " << olddimall << " of which " << (of->olddim1) << " is rational; \n";
-     cout<<endl;
+    {
+      cout << "Total dimension " << dimall << " made up as follows:\n";
+      cout << "dim(newforms) = " << n1ds+n2ds;
+      if (n1ds>0)
+        cout << " of which " << n1ds << " is rational; ";
+      cout << endl;
+      if (characteristic==0)
+        {
+          cout << "dim(oldforms) = " << olddimall;
+          if (olddim1>0)
+            cout << " of which " << (olddim1) << " is rational; ";
+          cout<<endl;
+        }
    }
   delete of;
 
