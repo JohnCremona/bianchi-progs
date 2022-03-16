@@ -70,18 +70,20 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: ccs1 ccs2 ccs3 ccs4
-ccs1: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5
+ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
-ccs4: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
+ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabtwist.cc
+ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
+ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
 
 headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -230,6 +232,9 @@ dimtable: dimtable.o $(OBJS)
 dimtabeis: dimtabeis.o $(OBJS)
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)
 
+dimtabtwist: dimtabtwist.o $(OBJS)
+	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
+
 hecketest: hecketest.o $(OBJS)
 	$(CC) -o hecketest hecketest.o $(OBJS) $(LFLAGS)
 
@@ -258,6 +263,9 @@ dimtable.o: dimtable.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
 dimtable_modp.o: dimtable_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
  edge_relations.h geometry.h P1N.h hecke.h
+dimtabtwist.o: dimtabtwist.cc qidloop.h qideal.h quads.h intprocs.h \
+ newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
+ face_relations.h edge_relations.h geometry.h P1N.h hecke.h
 edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h homspace.h cusp.h face_relations.h edge_relations.h \
  geometry.h P1N.h hecke.h
