@@ -1497,7 +1497,33 @@ void newforms::getap(int first, int last, int verbose)
     {
       Quadprime P = *pr++;
       long vp = val(P, N);
-      vector<long> apv=apvec(P); // list of all T(P) or W(Q) eigenvalues
+      vector<long> apv;
+
+      // For bad primes P: if they have square class, or if first>1,
+      // then we have already computed the eigenvalues and stored them
+      // in nflist[*].aqlist. Here we only need to recover those
+      // values when vp==1 to store their negatives in the
+      // nflist[*].aplist.  If first==1 and they don't have square
+      // class, we do nothing now except store 0's as placeholders in
+      // the nflist[*].aplist.
+
+      if (vp==0)
+        {
+          apv=apvec(P); // list of all T(P) eigenvalues
+        }
+      else // bad prime
+        {
+          int k = std::find(badprimes.begin(), badprimes.end(), P) - badprimes.begin();
+          if (std::find(nonsquarebadprimes.begin(), nonsquarebadprimes.end(), k) == nonsquarebadprimes.end())
+            {
+              for (int j=0; j<n1ds; j++)
+                apv.push_back(nflist[j].aqlist[k]);
+            }
+          else // we don't know the eigenvalues yet
+            {
+              apv.resize(n1ds,0);
+            }
+        }
 
       if(verbose)
         {
@@ -1506,11 +1532,19 @@ void newforms::getap(int first, int last, int verbose)
 
           for (int i=0; i<n1ds; i++)
             {
+              cout<<setw(5);
               long ap = apv[i];
               if ((characteristic>0) && (ap==-999))
-                cout<<setw(5)<<"?"<<" ";
+                cout<<"?";
               else
-                cout<<setw(5)<<ap<<" ";
+                {
+                  if (vp==0 || ap!=0)
+                    cout << ap;
+                  else
+                    cout << "not yet determined";
+                }
+              // if (i<n1ds-1)
+              cout <<" ";
             }
           cout << endl;
         }
