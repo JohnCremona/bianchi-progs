@@ -75,7 +75,44 @@ int main(void)
           continue;
         }
 
-      cout << endl;
+      // Now we find the intersection of ker(T(P^2)-N(P)) for P
+      // running over primes with nontrivial genus class
+
+      // Or (when n2r>1) we could consider over all unramified
+      // quadratic characters chi and do this for P such that
+      // chi(P)=-1
+
+      // Loop over all Quadprimes P, while dim(s)>0, with a bound on the number of P
+      // skip if P.divides(N)
+      // skip if P.genus_class()==0
+      // m = h.s_calcop(HeckePOp(P, N), 0, 0);
+      // s = subeigenspace(m, den*I2long(P.norm()), s);
+
+      QuadprimeLooper Pi(N);
+      int ip = 0, np = 10;
+      int subdim = dim(s);
+      while (ip<np && subdim>0 && Pi.ok())
+        {
+          Quadprime P = Pi;
+          if (P.genus_class()!=0)
+            {
+              ip++;
+              Qideal P2 = P*P;
+              matop op;
+              if (P2.is_principal())
+                op = HeckeP2Op(P, N);
+              else   // compute T(P^2)*T(A,A)
+                {
+                  Qideal A = P.equivalent_coprime_to(N, 1);
+                  op = HeckeP2ChiOp(P,A,N);
+                }
+              m = h.s_calcop(op, 0, 0);
+              s = subeigenspace(m, -den*I2long(P.norm()), s);
+              subdim = dim(s);
+            }
+          ++Pi;
+        }
+      cout << subdim << endl;
 
     }       // end of while()
   exit(0);
