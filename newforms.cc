@@ -1027,14 +1027,14 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
       if (P.is_principal())  // compute T(P)
         {
           if (verbose)
-            cout << "computing T("<<P<<") directly"<<endl;
+            cout << "form "<<index<<", computing T("<<P<<") directly"<<endl;
           return eigenvalue(HeckePOp(P, N), eigenvalue_range(P));
         }
       else   // P has square class, compute T(P)*T(A,A)
         {
           Qideal A = P.sqrt_coprime_to(N);
           if (verbose)
-            cout << "computing T("<<P<<") using T(P)*T(A,A) with A = "<<ideal_label(A)<<endl;
+            cout << "form "<<index<<", computing T("<<P<<") using T(P)*T(A,A) with A = "<<ideal_label(A)<<endl;
           return eigenvalue(HeckePChiOp(P,A,N), eigenvalue_range(P));
         }
     }
@@ -1048,7 +1048,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           long factor = genus_class_aP[i];
           Qideal B = genus_class_ideals[i]*P; // so B is square-free and of square class
           if (verbose)
-            cout << "computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(B) with B = "
+            cout << "form "<<index<<", computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(B) with B = "
                  <<ideal_label(genus_class_ideals[i])
                  <<", with T(B) eigenvalue "<<factor<<endl;
           if (B.is_principal())               // compute T(B)
@@ -1062,7 +1062,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
       else // we have a new genus class, compute a_{P}^2
         {
           if (verbose)
-            cout << "Computing T(P^2) to get a(P)^2" << endl;
+            cout << "form "<<index<<", P = "<<P<<": computing T(P^2) to get a(P)^2" << endl;
           Qideal P2 = P*P;
           long aP, aP2;
           long normP = I2long(P.norm());
@@ -1079,19 +1079,21 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           aP2 += normP;
           // Now aP2 is the eigenvalue of T(P)^2
           if (verbose)
-            cout << "Computed a(P^2) = " << aP2 << endl;
+            cout << " - a(P^2) = " << aP2 << endl;
           if (is_square(aP2, aP))
             {
               if (aP!=0) // else we cannot use this as a new genus pivot
                 {
                   if (verbose)
-                    cout << "Taking a(P) = " << aP << endl;
+                    cout << " - taking a(P) = " << aP << endl;
                   // update genus_classes (append binary sum of each and c)
                   // update genus_class_ideals (append product of each and P)
                   // update genus_class_aP (append product of each and aP)
                   long oldsize = genus_classes.size();
                   if (verbose)
-                    cout<<" -- doubling number of genus classes covered by P with nonzero aP from "<<oldsize<<" to "<<2*oldsize<<endl;
+                    cout<<" -- form "<<index
+                        <<": doubling number of genus classes covered by P with nonzero aP from "<<oldsize
+                        <<" to "<<2*oldsize<<" using P="<<P<<endl;
                   genus_classes.resize(2*oldsize);
                   genus_class_ideals.resize(2*oldsize);
                   genus_class_aP.resize(2*oldsize);
@@ -1486,9 +1488,19 @@ void newforms::getap(int first, int last, int verbose)
         for (int j=0; j<n1ds; j++)
           {
             nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
-            cout<<"j = "<<j<<endl;
-            cout<<"aqlist = "<<nflist[j].aqlist<<endl;
-            cout<<"sfe = "<<nflist[j].sfe<<endl;
+            // cout<<"first time"<<endl;
+            // cout<<"j = "<<j<<endl;
+            // cout<<"aqlist = "<<nflist[j].aqlist<<endl;
+            // cout<<"sfe = "<<nflist[j].sfe<<endl;
+          }
+      else
+        if (verbose)
+          {
+            cout<<" * computed A-L eigenvalues for "<<badprimes.size()-nonsquarebadprimes.size()<<" out of "<<badprimes.size()<<" bad primes"<<endl;
+            cout<<" * missing:";
+            for (int j=0; j<(int)nonsquarebadprimes.size(); j++)
+              cout<<badprimes[nonsquarebadprimes[j]]<<" ";
+            cout<<endl;
           }
     }
 
@@ -1541,7 +1553,7 @@ void newforms::getap(int first, int last, int verbose)
                   if (vp==0 || ap!=0)
                     cout << ap;
                   else
-                    cout << "not yet determined";
+                    cout << "?";
                 }
               // if (i<n1ds-1)
               cout <<" ";
@@ -1561,13 +1573,19 @@ void newforms::getap(int first, int last, int verbose)
 
   if (first==1 && !nonsquarebadprimes.empty())
     {
+      if (verbose)
+        cout<<"Computing missing A-L eigenvalues"<<endl;
       for (auto i=nonsquarebadprimes.begin(); i!=nonsquarebadprimes.end(); ++i)
         {
           Quadprime Q = badprimes[*i];
+          if (verbose)
+            cout<<"Computing W("<<Q<<")"<<endl;
           int e = val(Q,N);
+          vector<long> aqv=apvec(Q); // list of all W(Q) eigenvalues
+
           for (int j=0; j<n1ds; j++)
             {
-              int aq = nflist[j].eigenvalueAtkinLehner(Q);
+              long aq = aqv[j]; //nflist[j].eigenvalueAtkinLehner(Q, verbose);
               nflist[j].aqlist[*i] = aq;
               int k = std::find(Quadprimes::list.begin(), Quadprimes::list.end(), Q) - Quadprimes::list.begin();
               nflist[j].aplist[k] = (e>1? 0: -aq);
@@ -1578,9 +1596,10 @@ void newforms::getap(int first, int last, int verbose)
         for (int j=0; j<n1ds; j++)
           {
             nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
-            cout<<"j = "<<j<<endl;
-            cout<<"aqlist = "<<nflist[j].aqlist<<endl;
-            cout<<"sfe = "<<nflist[j].sfe<<endl;
+            // cout<<"second time"<<endl;
+            // cout<<"j = "<<j<<endl;
+            // cout<<"aqlist = "<<nflist[j].aqlist<<endl;
+            // cout<<"sfe = "<<nflist[j].sfe<<endl;
         }
     }
 

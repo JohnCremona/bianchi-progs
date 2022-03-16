@@ -491,7 +491,13 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
     {
       c = v*(*x)+u;
       d = v;
+#ifdef DEBUG_HECKE
+      cout<<"lifting (c:d)=("<<c<<":"<<d<<") from "<<PM1<<" to Gamma_0("<<M2M3<<")"<<endl;
+#endif
       m = lift_to_Gamma_0(M2M3, PM1, c, d, s, r);
+#ifdef DEBUG_HECKE
+      cout<<" --> "<<m<<endl;
+#endif
       a = m.entry(0,0);
       b = m.entry(0,1)*h;
       c = m.entry(1,0)/h;
