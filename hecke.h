@@ -133,7 +133,7 @@ inline string opname(const Qideal& N)
 inline string opnameAA(const Qideal& A)
 {
   ostringstream ans;
-  ans << "A(" << A << "," << "A" << ")";
+  ans << "T(" << A << "," << A << ")";
   return ans.str();
 }
 

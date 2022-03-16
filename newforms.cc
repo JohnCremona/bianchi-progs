@@ -763,7 +763,7 @@ void newforms::find()
       olddimall = (of->olddimall);
       if(verbose)
         of->display();
-      mindepth = n2r+iP0+2;
+      mindepth = n2r+iP0+3;  // with only +2 we get a fake rational newform at d=22, level 121.1
       upperbound = dimtrivcusp - olddimall;
     }
   else
@@ -1107,7 +1107,8 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             }
           else
             {
-              cerr<<"P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!"<<endl;
+              cerr<<" -- form "<<index
+                  <<": P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!"<<endl;
             }
           return aP;
         }
