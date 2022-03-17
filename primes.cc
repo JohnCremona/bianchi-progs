@@ -30,13 +30,13 @@ vector<int> Quadprime::genus_character()
   // NB this function is indirectly called in fill_class_group() at
   // which point Quad::class_group_2_rank has not been set
 
-  int r = Quad::discfactors.size()-1; // = Quad::class_group_2_rank
+  int r = Quad::prime_disc_factors.size()-1; // = Quad::class_group_2_rank
   vector<int> ans(1+r, 0);
   if (r==0 || is_inert() || is_principal())
     return ans;
   // cout<<" -- not principal, even class number..."<<endl;
   int i=0, i0=-1, tot=0;
-  for (auto di = Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di, ++i)
+  for (auto di = Quad::prime_disc_factors.begin(); di!=Quad::prime_disc_factors.end(); ++di, ++i)
     {
       int k;
       long d = I2long(*di);
@@ -68,7 +68,7 @@ int Quadprime::genus_character(const QUINT& D)
 {
   if (!div_disc(D, Quad::disc))
     return 0;
-  int r = Quad::discfactors.size();
+  int r = Quad::prime_disc_factors.size();
   // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
   // cout<<" with character values "<< chardisc(D) <<endl;
   // cout<<"genus_class of P is "<<genus_class()<<", bits "<<bits(genus_class(), r)<<endl;
@@ -692,7 +692,7 @@ long Qideal::genus_class()
 
 vector<int> Qideal::genus_character()
 {
-  return bits(genus_class(), Quad::discfactors.size());
+  return bits(genus_class(), Quad::prime_disc_factors.size());
 }
 
 // Test whether an ideal is a prime, or a prime power:

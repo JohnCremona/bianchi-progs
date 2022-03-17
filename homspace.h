@@ -92,13 +92,17 @@ public:
   {
     return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1), c, dual);
   }
+  // total (cuspidal) dimension of subspace on which all T(A,A) act trivially
   int trivial_character_subspace_dimension(int c)
   {
     if (Quad::class_group_2_rank==0)
       return (c? h1cuspdim(): h1dim());
     return dim(trivial_character_subspace(c, 0));
   }
-
+  // list of (cuspidal) dimensions of subspaces on which all T(A,A)
+  // act trivially with self-twist by unramified quadratic char D for
+  // each D (including D=1, meaning no self-twist)
+  vector<int> trivial_character_subspace_dimension_by_twist(int c);
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},

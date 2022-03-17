@@ -30,17 +30,6 @@ int main(void)
   Quad::field(d,max);
   int n2r = Quad::class_group_2_rank;
   int nchi = (1<<n2r);
-  vector<QUINT> Dlist;
-  for(int chi_index=1; chi_index<nchi; chi_index++)
-    {
-      QUINT D(1);
-      for (int i=0; i<n2r; i++)
-        if (bit(chi_index,i)==1)
-          D *= Quad::discfactors[i];
-      if (D>0)
-        D = Quad::disc/D;
-      Dlist.push_back(D);
-    }
 
   cout << "# Table of dimensions of weight 2 Bianchi cuspidal spaces for GL2 over Q(sqrt(-"<<d<<"))\n";
   cout << "# Field\t\tLevel\tdim\tdim\t\tdim(s)\n";
@@ -48,8 +37,9 @@ int main(void)
   cout << "# \t\t\t    \ttriv char\ttriv char,\n";
   cout << "# \t\t\t    \t         \tself-twist by\n";
   cout << "# \t\t\t    \t         \t";
-  for (auto Di=Dlist.begin(); Di!=Dlist.end(); Di++)
-    cout<<setw(3)<<(*Di)<<" ";
+  cout<<"no "<<setw(4);
+  for (auto Di=Quad::all_disc_factors.begin()+1; Di!=Quad::all_disc_factors.end(); Di++)
+    cout<<(*Di)<<" ";
   cout << "any" << endl;
 
   Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
@@ -58,22 +48,24 @@ int main(void)
       N = loop.next();
       cout << field_label()<<"\t"<<ideal_label(N)<<"\t"; // level
       homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
-      int cdim = h.h1dim();
-      int den = h.h1cdenom();
 
+      int cdim = h.h1dim();
       cout << cdim << "\t";
 
       if (n2r == 0 || cdim==0)
         {
-          cout << "0\t0" << endl;
+          cout << "0\t\t0   ";
+          for(int i=0; i<nchi; i++)
+            cout<<"0   ";
+          cout << endl;
           continue;
         }
 
-      ssubspace s = h.trivial_character_subspace(cuspidal,0); // not dual
-      int dimtriv = dim(s);
-      cout << dimtriv << "\t\t";
+      int dimtriv = h.trivial_character_subspace_dimension(cuspidal);
+      cout << dimtriv << "\t";
       if (dimtriv == 0)
         {
+          cout << "\t0   ";
           for (int i=0; i<nchi; i++)
             cout << "0   ";
           cout << endl;
@@ -85,41 +77,18 @@ int main(void)
       // nontrivial unramified quadratic character chi. The number of
       // these is 2^n2r-1.
 
-      int stdim = 0;
-      for(auto Di = Dlist.begin(); Di!=Dlist.end(); ++Di)
+      // Here dimlist[0] is the dimension of the subspace with no
+      // self-twist (by an unramified quadratic character)
+
+      vector<int> dimlist = h.trivial_character_subspace_dimension_by_twist(cuspidal);
+
+      for(auto di = dimlist.begin(); di!=dimlist.end(); ++di)
         {
-          QUINT D = *Di;
-          ssubspace sD = s;
-          QuadprimeLooper Pi(N); // loop over primes not dividing N
-          int ip = 0, np = 10;   // only use 10 non-square-class primes
-          int subdim = dimtriv;
-          while (ip<np && subdim>0 && Pi.ok())
-            {
-              Quadprime P = Pi;
-              if (P.genus_character(D) == -1)
-                {
-                  ip++;
-                  long Pnorm = I2long(P.norm());
-                  long eig = -den*Pnorm;
-                  Qideal P2 = P*P;
-                  matop op;
-                  if (P2.is_principal())
-                    op = HeckeP2Op(P, N);
-                  else   // compute T(P^2)*T(A,A)
-                    {
-                      Qideal A = P.equivalent_coprime_to(N, 1);
-                      op = HeckeP2ChiOp(P,A,N);
-                    }
-                  smat m = h.s_calcop(op, 0, 0); // not dual, no display
-                  sD = subeigenspace(m, eig, sD);
-                  subdim = dim(sD);
-                }
-              ++Pi;
-            }
-          stdim += subdim;
-          // cout << subdim << "("<<D<<")   ";
-          cout << subdim << "   ";
+          if (di==dimlist.begin())
+            cout << "\t";
+          cout << *di << "   ";
         }
+      int stdim = std::accumulate(dimlist.begin()+1, dimlist.end(), 0, std::plus<int>());
       cout << stdim << endl;
     }       // end of while()
   exit(0);

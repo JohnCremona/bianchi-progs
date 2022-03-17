@@ -14,7 +14,8 @@
 long Quad::d;
 QUINT Quad::disc;
 QUINT Quad::absdisc;
-vector<QUINT> Quad::discfactors;
+vector<QUINT> Quad::prime_disc_factors;
+vector<QUINT> Quad::all_disc_factors;
 long Quad::t;
 QUINT Quad::n;
 char Quad::name;
@@ -132,7 +133,7 @@ void Quad::field(long dd, long max)
     case 1:
       {
         t=0; absdisc=4*d; disc=-absdisc; n=d;
-        discfactors.push_back(QUINT(-4));
+        prime_disc_factors.push_back(QUINT(-4));
         quadconj=&quadconj0;
         mult=&mult0; qdivi=&qdivi0;
         break;
@@ -140,7 +141,7 @@ void Quad::field(long dd, long max)
     case 2:
       {
         t=0; absdisc=4*d; disc=-absdisc; n=d;
-        discfactors.push_back(QUINT(odd%4==1 ? -8 : 8));
+        prime_disc_factors.push_back(QUINT(odd%4==1 ? -8 : 8));
         quadconj=&quadconj0;
         mult=&mult0; qdivi=&qdivi0;
         break;
@@ -157,8 +158,9 @@ void Quad::field(long dd, long max)
   for (auto pi=pp.begin(); pi!=pp.end(); ++pi)
     {
       QUINT p = *pi;
-      discfactors.push_back((p%4==1?p:-p));
+      prime_disc_factors.push_back((p%4==1?p:-p));
     }
+
   QUINT i0(0), i1(1);
   w = Quad(i0, i1, n);
   zero = Quad(i0,i0, i0);
@@ -190,6 +192,19 @@ void Quad::field(long dd, long max)
     setup_geometry();
 
   fill_class_group();
+
+  int n2r = class_group_2_rank; // which was set in fill_class_group()
+  int nchi = (1<<n2r);
+  for(int chi_index=0; chi_index<nchi; chi_index++)
+    {
+      QUINT D(1);
+      for (int i=0; i<n2r; i++)
+        if (bit(chi_index,i)==1)
+          D *= prime_disc_factors[i];
+      if (D>0)
+        D = Quad::disc/D;
+      all_disc_factors.push_back(D);
+    }
 }
 
 // static function (one for the class, not per instance)
@@ -213,9 +228,9 @@ void Quad::displayfield(ostream& s, int info2)
        if (class_group_2_rank>0)
          {
            cout << " discriminant = ";
-           for (auto di=discfactors.begin(); di!=discfactors.end(); ++di)
+           for (auto di=prime_disc_factors.begin(); di!=prime_disc_factors.end(); ++di)
              {
-               if (di!=discfactors.begin()) cout<<"*";
+               if (di!=prime_disc_factors.begin()) cout<<"*";
                cout<<"("<<(*di)<<")";
              }
            cout<<endl;
@@ -957,7 +972,7 @@ QUINT discchar(vector<int> c)
   QUINT D(1);
   for(int i=0; i<(int)c.size(); i++)
     if (c[i])
-      D *= Quad::discfactors[i];
+      D *= Quad::prime_disc_factors[i];
   return D;
 }
 
@@ -966,9 +981,9 @@ QUINT discchar(vector<int> c)
 vector<int> chardisc(QUINT D)
 {
   vector<int> ans;
-  for(auto di=Quad::discfactors.begin(); di!=Quad::discfactors.end(); ++di)
+  for(auto di=Quad::prime_disc_factors.begin(); di!=Quad::prime_disc_factors.end(); ++di)
     ans.push_back(div_disc(*di,D));
-  // cout<<"discfactors: "<< Quad::discfactors << endl;
+  // cout<<"prime_disc_factors: "<< Quad::prime_disc_factors << endl;
   // cout<<"chardisc("<<D<<") = "<<ans<<endl;
   return ans;
 }

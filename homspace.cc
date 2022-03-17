@@ -552,3 +552,58 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
     }
   return s;
 }
+
+// list of (cuspidal) dimensions of subspaces on which all T(A,A)
+// act trivially with self-twist by unramified quadratic char D for
+// each D (including D=1, meaning no self-twist)
+vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
+{
+  ssubspace s = trivial_character_subspace(c, 0); // cuspidal, not dual
+
+  vector<int> dimlist;
+  dimlist.push_back(dim(s));
+  int n2r = Quad::class_group_2_rank;
+  if (n2r==0)
+    return dimlist;
+
+  int nchi = Quad::all_disc_factors.size();
+  int stdim = 0; // total dim of nontrivial self-twist subspaces
+  int den = (c? h1cdenom(): h1denom());
+
+  for(auto Di = Quad::all_disc_factors.begin()+1; Di!=Quad::all_disc_factors.end(); ++Di)
+    {
+      QUINT D = *Di;
+      ssubspace sD = s;
+      int subdim = dim(s);
+
+      QuadprimeLooper Pi(N); // loop over primes not dividing N
+      int ip = 0, np = 10;   // only use 10 non-square-class primes
+      while (ip<np && subdim>0 && Pi.ok())
+        {
+          Quadprime P = Pi;
+          if (P.genus_character(D) == -1)
+            {
+              ip++;
+              long Pnorm = I2long(P.norm());
+              long eig = -den*Pnorm;
+              Qideal P2 = P*P;
+              matop op;
+              if (P2.is_principal())
+                op = HeckeP2Op(P, N);
+              else   // compute T(P^2)*T(A,A)
+                {
+                  Qideal A = P.equivalent_coprime_to(N, 1);
+                  op = HeckeP2ChiOp(P,A,N);
+                }
+              smat m = s_calcop(op, 0, 0); // not dual, no display
+              sD = subeigenspace(m, eig, sD);
+              subdim = dim(sD);
+            }
+          ++Pi;
+        }
+      stdim += subdim;
+      dimlist.push_back(subdim);
+    }
+  dimlist[0] = dim(s) - stdim;
+  return dimlist;
+}
