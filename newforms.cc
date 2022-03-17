@@ -718,40 +718,8 @@ void newforms::find()
     }
 
   // find dimension of trivial character subspace
-  int dimtrivcusp;
-  int dimtrivall;
-  if (n2r>0)
-    {
-      // We are only computing dimensions here so do not use dual
-      // mats, which saves transposing:
-      smat m = h1->s_calcop(h1matop(0), 0, verbose);
-      // matden() is the matrix denominator so here we are computing the +1-eigenspace:
-      ssubspace s = eigenspace(m, matden());
-      smat mc = restrict_mat(m, h1->kern);
-      ssubspace sc = eigenspace(mc, matden());
-      dimtrivall = dim(s);
-      dimtrivcusp = dim(sc);
-      if (verbose)
-        cout<<"Dimension of +1 eigenspace for first character = "<<dimtrivall
-            <<" (cuspidal dimension "<<dimtrivcusp<<")"<<endl;
-      for (int i=1; i<n2r && dimtrivall>0; i++)
-        {
-          m = h1->s_calcop(h1matop(i), 0, verbose);
-          s = subeigenspace(m, matden(), s);
-          mc = restrict_mat(m, h1->kern);
-          sc = subeigenspace(mc, matden(), sc);
-          dimtrivall = dim(s);
-          dimtrivcusp = dim(sc);
-          if (verbose)
-            cout<<"Dimension of +1 eigenspace for first "<<i+1<<" characters has dimension "<<dimtrivall
-                <<" (cuspidal dimension "<<dimtrivcusp<<")"<<endl;
-        }
-    }
-  else
-    {
-      dimtrivcusp = dimcusp;
-      dimtrivall = dimall;
-    }
+  int dimtrivcusp = h1->trivial_character_subspace_dimension(1);
+  //  int dimtrivall  = h1->trivial_character_subspace_dimension(0);
   long mindepth, olddimall = 0, olddim1 = 0;
   n1ds = 0;
 
@@ -812,13 +780,13 @@ void newforms::find()
       cout << "Total dimension " << dimall << " made up as follows:\n";
       cout << "dim(newforms) = " << n1ds+n2ds;
       if (n1ds>0)
-        cout << " of which " << n1ds << " is rational; ";
+        cout << ", of which " << n1ds << " is rational";
       cout << endl;
       if (characteristic==0)
         {
           cout << "dim(oldforms) = " << olddimall;
           if (olddim1>0)
-            cout << " of which " << (olddim1) << " is rational; ";
+            cout << ", of which " << (olddim1) << " is rational";
           cout<<endl;
         }
    }

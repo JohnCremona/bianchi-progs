@@ -75,6 +75,30 @@ public:
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);
   // no longer used, implementation commented out:
   // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
+
+  // The subspace cut out by the given eigenvalues for the basis of
+  // Quad::class_group_2_rank unramified characters.  If c==1 or if
+  // cuspidal==1 then the cuspidal subspace of this is returned.
+  ssubspace unramified_character_subspace(const vector<int>& eigs, int c, int dual);
+  // dimension of previous (for when we do no need the subspace itself):
+  int unramified_character_subspace_dimension(const vector<int>& eigs, int c)
+  {
+    if (Quad::class_group_2_rank==0)
+      return (c? h1cuspdim(): h1dim());
+    return dim(unramified_character_subspace(eigs, c, 0));
+  }
+  // Special cases of previous two, all eigenvalues +1:
+  ssubspace trivial_character_subspace(int c, int dual)
+  {
+    return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1), c, dual);
+  }
+  int trivial_character_subspace_dimension(int c)
+  {
+    if (Quad::class_group_2_rank==0)
+      return (c? h1cuspdim(): h1dim());
+    return dim(trivial_character_subspace(c, 0));
+  }
+
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},

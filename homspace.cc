@@ -523,3 +523,32 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
     ans = reduce_modp(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
  return ans;
 }
+
+// The subspace cut out by the given eigenvalues for the basis of
+// Quad::class_group_2_rank unramified characters:
+ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c, int dual)
+{
+  if (Quad::class_group_2_rank==0)
+    {
+      return ssubspace(c? h1cuspdim(): h1dim());
+    }
+  vector<Qideal> nulist = make_nulist(N);
+  vector<Qideal>::iterator nui = nulist.begin();
+  vector<int>::const_iterator ei = eigs.begin();
+  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
+  if (c && !cuspidal)
+    m = restrict_mat(m,kern);
+  long den = (c? h1cdenom(): h1denom());
+  ssubspace s = eigenspace(m, (*ei++)*den);
+  int subdim = dim(s);
+
+  for (; nui!=nulist.end() && subdim>0; ++nui, ++ei)
+    {
+      m = s_calcop(CharOp(*nui, N), dual, 0);
+      if (c && !cuspidal)
+        m = restrict_mat(m,kern);
+      s = subeigenspace(m, (*ei)*den, s);
+      subdim = dim(s);
+    }
+  return s;
+}
