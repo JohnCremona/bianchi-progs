@@ -190,3 +190,31 @@ void oldforms::display(void) const
  cout<<"Total dimension of all oldclasses = "<<olddimall<<endl;
 }
 
+// Given the new dimensions at level D and a multiple N of D, return
+// the oldspace dimensions at level N
+vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N)
+{
+  Qideal M = N/D;
+  vector<Qideal> DD = alldivs(M);
+  int nchi = newdimsD.size();
+  vector<int> ans = newdimsD;
+
+  for(int i=0; i<nchi; i++)
+    {
+      if (ans[i]>0)
+        {
+          int mult = 0;
+          for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
+            {
+              // cout<<"\ndiscrim "<< Quad::all_disc_factors[i]<<endl;
+              // cout<<"divisor "<< ideal_label(*Di) << endl;
+              // cout<<"charval "<< Di->genus_character(Quad::all_disc_factors[i]) << endl;
+              if (Di->genus_character(Quad::all_disc_factors[i])==+1)
+                mult +=1;
+            }
+          ans[i] *= mult;
+        }
+    }
+  return ans;
+}
+

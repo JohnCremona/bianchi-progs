@@ -24,4 +24,8 @@ class oldforms {
   void display(void) const;
 };
 
+// Given the new dimensions at level D and a multiple N of D, return
+// the oldspace dimensions at level N
+vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N);
+
 #endif

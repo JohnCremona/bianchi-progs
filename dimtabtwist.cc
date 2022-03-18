@@ -2,11 +2,9 @@
 //                                         cuspidal with trivial character
 //                                         cuspidal with trivial character and self-twist
 
-// This version only handles one unramified quadratic character, hence
-// is useful only for fields where the 2-rank of the class group is 1.
-
 #include "matprocs.h"
 #include "homspace.h"
+#include "oldforms.h"
 
 #define MAXPRIME 10000
 
@@ -32,45 +30,28 @@ int main(void)
   int nchi = (1<<n2r);
 
   cout << "# Table of dimensions of weight 2 Bianchi cuspidal spaces for GL2 over Q(sqrt(-"<<d<<"))\n";
-  cout << "# Field\t\tLevel\tdim\tdim\t\tdim(s)\n";
-  cout << "# \t\t\tcusp\tcusp\t\tcusp\n";
-  cout << "# \t\t\t    \ttriv char\ttriv char,\n";
-  cout << "# \t\t\t    \t         \tself-twist by\n";
-  cout << "# \t\t\t    \t         \t";
-  cout<<"no "<<setw(4);
-  for (auto Di=Quad::all_disc_factors.begin()+1; Di!=Quad::all_disc_factors.end(); Di++)
-    cout<<(*Di)<<" ";
-  cout << "any" << endl;
+  cout << "#   showing full (respectively old, new) dimensions of the cupidal space and its splitting\n";
+  cout << "#   into subspaces with no self-twist and self-twist by each unramified quadratic character.\n\n";
+
+  cout << "# Field\t\tLevel\tdim cusp\tdim cusp triv char\t" <<Quad::all_disc_factors << endl;
+  cout << "\t\t\t\t\tall\t\told\t\tnew" <<endl;
+  // keys: ideal labels for levels M
+  // values: new dimension at level M, by self-twist character
+  map<string, vector<int>> newdimlists;
 
   Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
   while( loop.not_finished() )
     {
       N = loop.next();
-      cout << field_label()<<"\t"<<ideal_label(N)<<"\t"; // level
+      string Nlabel = ideal_label(N);
+      cout << field_label() << "\t" << Nlabel << "\t"; // field, level
       homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
 
       int cdim = h.h1dim();
-      cout << cdim << "\t";
-
-      if (n2r == 0 || cdim==0)
-        {
-          cout << "0\t\t0   ";
-          for(int i=0; i<nchi; i++)
-            cout<<"0   ";
-          cout << endl;
-          continue;
-        }
+      cout << cdim << "\t\t";
 
       int dimtriv = h.trivial_character_subspace_dimension(cuspidal);
-      cout << dimtriv << "\t";
-      if (dimtriv == 0)
-        {
-          cout << "\t0   ";
-          for (int i=0; i<nchi; i++)
-            cout << "0   ";
-          cout << endl;
-          continue;
-        }
+      cout << dimtriv << " ";
 
       // Now we find the intersection of ker(T(P^2)-N(P)) for P
       // running over primes with genus character chi(P)=-1 for each
@@ -82,15 +63,38 @@ int main(void)
 
       vector<int> dimlist = h.trivial_character_subspace_dimension_by_twist(cuspidal);
 
-      for(auto di = dimlist.begin(); di!=dimlist.end(); ++di)
+      // full dimensions:
+      cout << dimlist<< "\t";
+
+      // Compute old dimensions from proper divisors and subtract:
+      vector<int> olddims(nchi,0);
+      vector<int> newdims = dimlist;
+      vector<Qideal> DD = alldivs(N);
+      for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
         {
-          if (di==dimlist.begin())
-            cout << "\t";
-          cout << *di << "   ";
+          Qideal D = *Di;
+          if (D==N)
+            continue;
+          vector<int> olddimsD = old_multiplicities(D, newdimlists[ideal_label(D)], N);
+          for (int i=0; i<nchi; i++)
+            {
+              olddims[i] += olddimsD[i];
+              newdims[i] -= olddimsD[i];
+            }
         }
-      int stdim = std::accumulate(dimlist.begin()+1, dimlist.end(), 0, std::plus<int>());
-      cout << stdim << endl;
-    }       // end of while()
+
+      // old dimensions:
+      int olddim = std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>());
+      cout << olddim << " " << olddims << "\t";
+
+      // new dimensions:
+      int newdim = std::accumulate(newdims.begin(), newdims.end(), 0, std::plus<int>());
+      cout << newdim << " " << newdims << endl;
+
+      // store new dimensions for use in multiple levels:
+      newdimlists[Nlabel] = newdims;
+
+    }       // end of while() level loop
   exit(0);
 }       // end of main()
 

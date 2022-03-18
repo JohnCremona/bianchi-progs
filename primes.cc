@@ -690,6 +690,15 @@ long Qideal::genus_class()
   return c;
 }
 
+int Qideal::genus_character(const QUINT& D) // one unram char value
+{
+  if (!div_disc(D, Quad::disc))
+    return 0;
+  int r = Quad::prime_disc_factors.size();
+  int dot = dotbits(from_bits(chardisc(D)), genus_class(), r);
+  return (dot? -1: +1);
+}
+
 vector<int> Qideal::genus_character()
 {
   return bits(genus_class(), Quad::prime_disc_factors.size());

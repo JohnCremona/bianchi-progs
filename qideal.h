@@ -142,6 +142,7 @@ public:
 
   vector<int> genus_character();
   long genus_class();
+  int genus_character(const QUINT& D); // one unram char value
   int has_square_class() {return (genus_class()==0);}
 
   // return J such that J^2 is equivalent to this (or J^2*this is

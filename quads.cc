@@ -201,7 +201,7 @@ void Quad::field(long dd, long max)
       for (int i=0; i<n2r; i++)
         if (bit(chi_index,i)==1)
           D *= prime_disc_factors[i];
-      if (D>0)
+      if (D>1) // negate positive ones except D=1 itlsef
         D = Quad::disc/D;
       all_disc_factors.push_back(D);
     }
