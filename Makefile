@@ -250,7 +250,8 @@ qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geo
 # DEPENDENCIES
 #
 # recreate with
-# for f in *.cc; do g++ -MM -std=c++11 ${f}; done
+# for f in *.cc; do g++ -MM -std=c++11 ${f}; done > t
+# and insert t here
 #
 cusp.o: cusp.cc cusp.h mat22.h ratquads.h quads.h intprocs.h primes.h \
  qideal.h
@@ -263,9 +264,9 @@ dimtable.o: dimtable.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
 dimtable_modp.o: dimtable_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
  edge_relations.h geometry.h P1N.h hecke.h
-dimtabtwist.o: dimtabtwist.cc qidloop.h qideal.h quads.h intprocs.h \
- newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
- face_relations.h edge_relations.h geometry.h P1N.h hecke.h
+dimtabtwist.o: dimtabtwist.cc matprocs.h intprocs.h qidloop.h qideal.h \
+ quads.h homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
+ edge_relations.h geometry.h P1N.h hecke.h oldforms.h
 edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  primes.h qideal.h homspace.h cusp.h face_relations.h edge_relations.h \
  geometry.h P1N.h hecke.h
