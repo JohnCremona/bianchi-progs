@@ -566,7 +566,6 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
   if (n2r==0)
     return dimlist;
 
-  int nchi = Quad::all_disc_factors.size();
   int stdim = 0; // total dim of nontrivial self-twist subspaces
   int den = (c? h1cdenom(): h1denom());
 

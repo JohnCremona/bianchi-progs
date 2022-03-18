@@ -16,7 +16,7 @@ int main(void)
   //  Quad n;
   int plusflag=1, cuspidal=1;
   Qideal N;
-  QUINT firstn, lastn;
+  long firstn, lastn;
 
   cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
   if (!check_field(d))
