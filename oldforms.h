@@ -28,4 +28,14 @@ class oldforms {
 // the oldspace dimensions at level N
 vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N);
 
+// The same with the list of divisors of N/D given
+vector<int> old_multiplicities(vector<int> newdimsD, vector<Qideal>& divisors);
+
+// Return the oldspace dimension at level N of a (rational) newform at
+// level D which is self-twist by discriminant d
+int old_multiplicity(Qideal D, QUINT d, Qideal N);
+
+// The same with the list of divisors of N/D given
+int old_multiplicity(QUINT d, vector<Qideal>& divisors);
+
 #endif
