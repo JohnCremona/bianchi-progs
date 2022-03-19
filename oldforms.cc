@@ -78,11 +78,8 @@ void oldforms::getoldclasses(Qideal& D)
     }
 
   if(nf->verbose)
-    {
-      cout<<" oldspace dimensions are "<<oldmults<<endl;
-      // cout<<"olddata.new1dims = "<<olddata.new1dims<<endl;
-      // cout<<"olddata.new2dims = "<<olddata.new2dims<<endl;
-    }
+    cout<<" oldspace dimensions for "<<old1ds<<" forms are "<<oldmults<<endl;
+
   vector<int> old1dimsD = old_multiplicities(olddata.new1dims, divisors);
   vector<int> old2dimsD = old_multiplicities(olddata.new2dims, divisors);
   for (int i=0; i<nchi; i++)

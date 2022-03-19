@@ -791,52 +791,37 @@ void newforms::find()
   if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
   assert (n2ds>=0 && "found more newforms than the dimensions!");
 
-  // split n1ds, end hence n2ds, by character:
-  if (n2r==0) // trivial special case
-    {
-      new1dims.resize(1, n1ds);
-      new2dims.resize(1, n2ds);
-    }
-  else
+  // We cannot yet split n1ds, and hence n2ds, by character since we
+  // cannot detect self-twist until we have computed more ap -- unless
+  // n1ds=0.  It would be possible to test whether the basis vector
+  // for each newform lies in the relevant subspaces intead. That is
+  // done in the getap() method.
+
+  if (n1ds==0)
     {
       new1dims.resize(nchi, 0);
-      for (int i=0; i<n1ds; i++)
-        {
-          QUINT CMD = nflist[i].CMD;
-          int j=0;
-          if (CMD!=0)
-            j = std::find(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(), CMD)
-              - Quad::all_disc_factors.begin();
-          new1dims[j] +=1;
-        }
-      new2dims.resize(nchi, 0);
-      for (int j=0; j<nchi; j++)
-        {
-          new2dims[j] = newdims[j] - new1dims[j];
-          assert (new2dims[j]>=0 && "found more newforms in one component than the dimensions!");
-        }
+      new2dims = newdims;
     }
-
 
   if(verbose)
     {
       cout << "Total new cuspidal dimension " << dimtrivcuspnew << " made up as follows:\n";
       cout << "Rational: "<<n1ds<<"; non-rational: "<<n2ds<<endl;
-      if (n2r>0)
-        {
-          cout << " rational non-self-twist: "<<new1dims[0]<<endl;
-          for (int j=1; j<nchi; j++)
-            {
-              if (new1dims[j]>0)
-                cout << " rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new1dims[j]<<endl;
-            }
-          cout << " non-rational non-self-twist: "<<new2dims[0]<<endl;
-          for (int j=1; j<nchi; j++)
-            {
-              if (new2dims[j]>0)
-                cout << " non-rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new2dims[j]<<endl;
-            }
-        }
+      // if (n2r>0)
+      //   {
+      //     cout << " rational non-self-twist: "<<new1dims[0]<<endl;
+      //     for (int j=1; j<nchi; j++)
+      //       {
+      //         if (new1dims[j]>0)
+      //           cout << " rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new1dims[j]<<endl;
+      //       }
+      //     cout << " non-rational non-self-twist: "<<new2dims[0]<<endl;
+      //     for (int j=1; j<nchi; j++)
+      //       {
+      //         if (new2dims[j]>0)
+      //           cout << " non-rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new2dims[j]<<endl;
+      //       }
+      //   }
     }
 
   fill_in_newform_data();
@@ -1489,7 +1474,8 @@ void newforms::makebases()
 
 void newforms::getap(int first, int last, int verbose)
 {
-  if (n1ds==0) return;
+  if (n1ds==0)
+    return;
   int nQP = Quadprimes::list.size();
   if(last>nQP)
     {
@@ -1534,10 +1520,6 @@ void newforms::getap(int first, int last, int verbose)
         for (int j=0; j<n1ds; j++)
           {
             nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
-            // cout<<"first time"<<endl;
-            // cout<<"j = "<<j<<endl;
-            // cout<<"aqlist = "<<nflist[j].aqlist<<endl;
-            // cout<<"sfe = "<<nflist[j].sfe<<endl;
           }
       else
         if (verbose)
@@ -1601,7 +1583,6 @@ void newforms::getap(int first, int last, int verbose)
                   else
                     cout << "?";
                 }
-              // if (i<n1ds-1)
               cout <<" ";
             }
           cout << endl;
@@ -1642,12 +1623,11 @@ void newforms::getap(int first, int last, int verbose)
         for (int j=0; j<n1ds; j++)
           {
             nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
-            // cout<<"second time"<<endl;
-            // cout<<"j = "<<j<<endl;
-            // cout<<"aqlist = "<<nflist[j].aqlist<<endl;
-            // cout<<"sfe = "<<nflist[j].sfe<<endl;
         }
     }
+
+  if (first>1)
+    return;
 
   // For even class number, test each newform for being unramified
   // self-twist:
@@ -1657,6 +1637,35 @@ void newforms::getap(int first, int last, int verbose)
       if (posmod(cmd,4)!=1) cmd*=4;
       if (div_disc(cmd, Quad::disc))
         nflist[i].CMD = cmd;
+    }
+
+  // Now we can split n1ds, and hence n2ds, by character:
+  if (n2r==0) // trivial special case
+    {
+      new1dims.resize(1, n1ds);
+      new2dims.resize(1, n2ds);
+    }
+  else
+    {
+      new1dims.resize(nchi, 0);
+      for (int i=0; i<n1ds; i++)
+        {
+          // Test each newform for being unramified self-twist:
+          QUINT cmd = nflist[i].CMD;
+          cout<<"form #"<<i<<": cmd="<<cmd<<endl;
+          int j=0;
+          if (cmd!=0) // then it is
+            j = std::find(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(), cmd)
+              - Quad::all_disc_factors.begin();
+          new1dims[j] +=1;
+        }
+      cout<<"new1dims = "<<new1dims<<endl;
+      new2dims.resize(nchi, 0);
+      for (int j=0; j<nchi; j++)
+        {
+          new2dims[j] = newdims[j] - new1dims[j];
+          assert (new2dims[j]>=0 && "found more newforms in one component than the dimensions!");
+        }
     }
 }
 
@@ -1672,9 +1681,10 @@ void newforms::output_to_file(string eigfile) const
     {
       int nchi = 1<<n2r;
       for (int i=0; i<nchi; i++)
-        out << new1dims[i];
+        out << new1dims[i] << " ";
       for (int i=0; i<nchi; i++)
-        out << new2dims[i];
+        out << new2dims[i] << " ";
+      out<<endl;
     }
 
   if(!n1ds)

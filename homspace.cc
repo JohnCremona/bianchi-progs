@@ -536,15 +536,16 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
   vector<Qideal>::iterator nui = nulist.begin();
   vector<int>::const_iterator ei = eigs.begin();
   smat m = s_calcop(CharOp(*nui++, N), dual, 0);
+  // cout<<"Finding common eigenspace of "<<nulist.size()<<" character involutions"<<endl;
   if (c && !cuspidal)
     m = restrict_mat(m,kern);
   long den = (c? h1cdenom(): h1denom());
   ssubspace s = eigenspace(m, (*ei++)*den);
   int subdim = dim(s);
 
-  for (; nui!=nulist.end() && subdim>0; ++nui, ++ei)
+  for (; nui!=nulist.end() && subdim>0; ++ei)
     {
-      m = s_calcop(CharOp(*nui, N), dual, 0);
+      m = s_calcop(CharOp(*nui++, N), dual, 0);
       if (c && !cuspidal)
         m = restrict_mat(m,kern);
       s = subeigenspace(m, (*ei)*den, s);
@@ -595,6 +596,8 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
                   op = HeckeP2ChiOp(P,A,N);
                 }
               smat m = s_calcop(op, 0, 0); // not dual, no display
+              if (c && !cuspidal)
+                m = restrict_mat(m,kern);
               sD = subeigenspace(m, eig, sD);
               subdim = dim(sD);
             }
