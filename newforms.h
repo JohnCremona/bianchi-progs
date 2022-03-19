@@ -15,6 +15,13 @@ The first two lines relate to the level:
 
 1. n1ds : number of rational newforms
    n2ds : total dimension of non-rational newforms
+   (so n1ds+n2ds is the total new cuspidal dimension)
+
+In even class number only, also:
+
+   new1dims : a list of 2^n2r dimensions summing to n1ds
+   new2dims : a list of 2^n2r dimensions summing to n2ds
+
 2. nap  : number of Fourier coefficients
 
 The next 11 lines (3--13) have n1ds (or 2*n1ds) entries each, one per
@@ -128,7 +135,7 @@ public:
 class newforms :public splitter_base {
 friend class newform;
 private:
-  int maxdepth, upperbound;
+  int maxdepth;
 
   // instantiations of virtual functions required by the splitter_base class:
   mat opmat(int i, int d, int v=0);
@@ -159,7 +166,7 @@ private:
 
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
 
-  // data used for ap computation
+  // data used for ap computation (Euclidean only)
   int easy;
   vector<long> pdotlist, pdotlistinv;
 
@@ -182,7 +189,25 @@ public:
   vector<Quadprime> goodprimes;  // good primes in order
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   int level_is_square;
-  int verbose, n1ds,n2ds, nwq, nap, n2r;
+  int verbose, nwq, nap, n2r, nchi;
+
+  // subdimensions of rational/non-rational new trivial character cuspidal subspaces
+  int n1ds, n2ds;
+  // dimensions of the trivial character cuspidal subspace, with its old and new subspaces:
+  int dimtrivcusp, dimtrivcuspold, dimtrivcuspnew;
+  // the same divided into 2^n2r parts, the i'th part being the
+  // dimension of the subspace which is self-twist by the i'th
+  // unramified quadratic character, except for i=0 for the part which
+  // is not self-twist.  (Ususally all the dimension is in this -'th
+  // part, but not always).
+  vector<int> alldims, olddims, newdims;
+  // Each of the previous dimensions is divided into a 1-dimensional
+  // part (spanned by rational forms) and a >=2-dimensional part (the
+  // rest). In particular, n1ds=sum(new1dims) and n2ds=sum(new2dims).
+  // Ususally these dims are all concentrated in the 0'th component
+  // (and always in odd class number when this is the only component).
+  vector<int> old1dims, new1dims;
+  vector<int> old2dims, new2dims;
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   long characteristic; // 0 or prime

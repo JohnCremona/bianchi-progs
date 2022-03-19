@@ -534,6 +534,7 @@ void newforms::makeh1plus(void)
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : maxdepth(MAXDEPTH), N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
 {
+  nchi = 1<<n2r;
   level_is_square = N.is_square();
 
   // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
@@ -699,14 +700,6 @@ void newforms::find()
   if(verbose)
     cout<<"Constructing homspace at level "<<ideal_label(N)<<" ...\n";
   makeh1plus();
-  nfhmod=hmod = h1->h1hmod();
-  int dimcusp = h1->h1cuspdim();
-  int dimall = h1->h1dim();
-
-  if(verbose)
-    {
-      cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
-    }
 
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
@@ -717,54 +710,75 @@ void newforms::find()
       eigranges.push_back(vector<long>());
     }
 
-  // find dimension of trivial character subspace
-  int dimtrivcusp = h1->trivial_character_subspace_dimension(1);
-  //  int dimtrivall  = h1->trivial_character_subspace_dimension(0);
-  long mindepth, olddimall = 0, olddim1 = 0;
-  n1ds = 0;
+  nfhmod=hmod = h1->h1hmod();
+  int dimcusp = h1->h1cuspdim();
+  int dimall = h1->h1dim();
 
+  if(verbose)
+    cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
+
+  // find dimension of trivial character subspace and its split by characters:
+  alldims = h1->trivial_character_subspace_dimension_by_twist(1);
+  dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
+  dimtrivcuspold=0;
+
+  long mindepth = nap;
+  int olddim1=0, olddim2=0;
+
+  // find oldform dimensions (all, rational, non-rational) and their split by characters:
   if(characteristic==0)
     {
-      if (dimtrivcusp>0)
-        {
-          if(verbose)
-            cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
-          of = new oldforms(this);
-          olddimall = (of->olddimall);
-          olddim1 = (of->olddim1);
-          if(verbose)
-            of->display();
-        }
-      mindepth = n2r+iP0+3;  // with only +2 we get a fake rational newform at d=22, level 121.1
-      upperbound = dimtrivcusp - olddimall;
+      if (verbose)
+        cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
+      of = new oldforms(this);
+      if (verbose)
+        of->display();
+
+      dimtrivcuspold = of->olddimall;
+      olddim1 = of->olddim1;
+      olddim2 = of->olddim2;
+
+      old1dims = of->old1dims;
+      old2dims = of->old2dims;
+      olddims = of->olddims;
+
+      mindepth = n2r+5;  // not too small else we may get fake rational newforms (eg d=22, level 121.1)
     }
-  else
+
+  // deduce newform dimensions and their split by characters (but we not yet know how much is rational):
+  dimtrivcuspnew = dimtrivcusp - dimtrivcuspold; // total new dimension at this level
+  assert (dimtrivcuspnew>=0 && "new dimension cannot be negative");
+  newdims.resize(nchi);
+  for (int i=0; i<nchi; i++)
     {
-      mindepth = nap;
-      upperbound = dimall;
+      newdims[i] = alldims[i] - olddims[i];
+      assert (newdims[i]>=0 && "components of new dimensions cannot be negative");
     }
 
   if(verbose)
     {
-      cout<<"cuspidal dimension = "<<dimcusp;
+      if(characteristic==0)
+
+      cout<<"total cuspidal dimension = "<<dimcusp;
       if (n2r>0)
-        cout<<" (trivial character subspace dimension "<<dimtrivcusp<<")";
-      cout<<", olddimall = "<<olddimall<<", so upper bound = "<<upperbound<<endl;
+        cout<<" (trivial character subspace dimension = "<<dimtrivcusp<<")";
+      cout << endl;
+      cout<<"  old cuspidal dimension = "<<dimtrivcuspold<<" of which "<<olddim1
+          <<" is rational and "<<olddim2<<" is not rational)"<<endl;
+      if (n2r>0)
+        cout<<"  (by self-twist character: "<<olddims<<", "<<old1dims<<", "<<old2dims<<")"<<endl;
+      cout<<"  new cuspidal dimension = "<<dimtrivcuspnew<<endl;
+      if (n2r>0)
+        cout<<"  (by self-twist character: "<<newdims<<")"<<endl;
       if(verbose>1)
         {
-          cout<<"upperbound = "<<upperbound<<endl;
           cout<<"maxdepth = "<<maxdepth<<endl;
           cout<<"mindepth = "<<mindepth<<endl;
         }
     }
 
-  if(upperbound<0) // check for error condition
-    {
-      cout<<"*** Warning:  total old dimension = "<<olddimall<<" as computed is greater than total cuspidal dimension "<<dimtrivcusp<<" ***"<<endl;
-      // exit(1);
-    }
-
-  if(upperbound>0)  // Else no newforms certainly so do no work!
+  n1ds = 0; // number of rational newforms found (will be incremented by the finder)
+  if(dimtrivcuspnew>0)  // Else no newforms certainly so do no work!
     {
       if(verbose)
         cout<<"Finding rational newforms...\n";
@@ -773,24 +787,57 @@ void newforms::find()
       ff.find();
      }
   if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
-  n2ds=upperbound-n1ds; // dimension of new, non-rational forms
+  n2ds=dimtrivcuspnew-n1ds; // dimension of new, non-rational forms
   if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
+  assert (n2ds>=0 && "found more newforms than the dimensions!");
+
+  // split n1ds, end hence n2ds, by character:
+  if (n2r==0) // trivial special case
+    {
+      new1dims.resize(1, n1ds);
+      new2dims.resize(1, n2ds);
+    }
+  else
+    {
+      new1dims.resize(nchi, 0);
+      for (int i=0; i<n1ds; i++)
+        {
+          QUINT CMD = nflist[i].CMD;
+          int j=0;
+          if (CMD!=0)
+            j = std::find(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(), CMD)
+              - Quad::all_disc_factors.begin();
+          new1dims[j] +=1;
+        }
+      new2dims.resize(nchi, 0);
+      for (int j=0; j<nchi; j++)
+        {
+          new2dims[j] = newdims[j] - new1dims[j];
+          assert (new2dims[j]>=0 && "found more newforms in one component than the dimensions!");
+        }
+    }
+
+
   if(verbose)
     {
-      cout << "Total dimension " << dimall << " made up as follows:\n";
-      cout << "dim(newforms) = " << n1ds+n2ds;
-      if (n1ds>0)
-        cout << ", of which " << n1ds << " is rational";
-      cout << endl;
-      if (characteristic==0)
+      cout << "Total new cuspidal dimension " << dimtrivcuspnew << " made up as follows:\n";
+      cout << "Rational: "<<n1ds<<"; non-rational: "<<n2ds<<endl;
+      if (n2r>0)
         {
-          cout << "dim(oldforms) = " << olddimall;
-          if (olddim1>0)
-            cout << ", of which " << (olddim1) << " is rational";
-          cout<<endl;
+          cout << " rational non-self-twist: "<<new1dims[0]<<endl;
+          for (int j=1; j<nchi; j++)
+            {
+              if (new1dims[j]>0)
+                cout << " rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new1dims[j]<<endl;
+            }
+          cout << " non-rational non-self-twist: "<<new2dims[0]<<endl;
+          for (int j=1; j<nchi; j++)
+            {
+              if (new2dims[j]>0)
+                cout << " non-rational, self-twist by "<<Quad::all_disc_factors[j]<<": "<<new2dims[j]<<endl;
+            }
         }
-   }
-  delete of;
+    }
 
   fill_in_newform_data();
   nap=0;
@@ -829,11 +876,11 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
       //cout<<"Constructing newform with eigs "<<eigs<<endl;
       nflist.push_back(newform(this,b1,eigs));
       n1ds++;
-      if (n1ds>upperbound)
+      if (n1ds>dimtrivcuspnew)
         {
           cout << "*** Warning: in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
-          cout << "1D newforms ("<< n1ds+1 <<") than the estimated total new-dimension ("
-               <<upperbound<<") ***"<<endl;
+          cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
+               <<dimtrivcusp<<") ***"<<endl;
           //cout<<"Extra newform has eigs "<<eigs<<endl;
         }
     }
@@ -1289,7 +1336,22 @@ int newforms::read_from_file()
         }
       return 0;
     }
-  data >> n1ds >> n2ds >> nap;
+  data >> n1ds >> n2ds;
+  new1dims.resize(nchi);
+  new2dims.resize(nchi);
+  if (n2r>0)
+    {
+      for (int i=0; i<nchi; i++)
+        data >> new1dims[i];
+      for (int i=0; i<nchi; i++)
+        data >> new2dims[i];
+    }
+  else
+    {
+      new1dims[0] = n1ds;
+      new2dims[0] = n2ds;
+    }
+  data >> nap;
   if(verbose>1)
     {
       cout<<" read data for "<<n1ds<<" newforms at level "<<N
@@ -1606,6 +1668,15 @@ void newforms::output_to_file(string eigfile) const
   // Line 1
   out<<n1ds<<" "<<n2ds<<endl;
   if(echo) cout<<n1ds<<" "<<n2ds<<endl;
+  if (n2r>0)
+    {
+      int nchi = 1<<n2r;
+      for (int i=0; i<nchi; i++)
+        out << new1dims[i];
+      for (int i=0; i<nchi; i++)
+        out << new2dims[i];
+    }
+
   if(!n1ds)
     {
       out.close();

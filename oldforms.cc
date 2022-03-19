@@ -5,36 +5,51 @@
 // Implementation of oldform member functions
 
 oldforms::oldforms(const newforms* nfs)
-  : nf(nfs)
+  : n2r(Quad::class_group_2_rank), nf(nfs)
 {
-  noldclasses = olddimall = olddim1 = olddim2 = 0; // will be incremented in getoldclasses()
-  if (nf->characteristic>0)
-    return;
+  nchi = 1<<n2r;
+  old1dims.resize(nchi); // will sum to olddim1
+  old2dims.resize(nchi); // will sum to olddim2
+  olddims.resize(nchi);  // will sum to olddimall
+  noldclasses = 0; // = olddim1 (since we are not splitting by AL-eigenvalue); will be incremented in getoldclasses()
+
   N = nf->N;
   vector<Qideal> DD = alldivs(N);
   for(auto Di = DD.begin(); Di!=DD.end(); ++Di)
-    getoldclasses(*Di); // will skip D==N
+    if (*Di!=N)
+      getoldclasses(*Di);
 
-  olddim1 = std::accumulate(oldclassdims.begin(), oldclassdims.end(), 0, std::plus<int>());
-  olddimall = olddim1 + olddim2;
+  olddim1   = std::accumulate(old1dims.begin(), old1dims.end(), 0, std::plus<int>());
+  olddim2   = std::accumulate(old2dims.begin(), old2dims.end(), 0, std::plus<int>());
+  olddimall = std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>());
+  if (nf->verbose >1)
+  {
+    cout<<"noldclasses = "<<noldclasses<<endl;
+    cout<<"olddim1 = "<<olddim1<<endl;
+    cout<<"olddim2 = "<<olddim2<<endl;
+    cout<<"olddimall = "<<olddimall<<endl;
+  }
+  assert (olddimall == olddim1 + olddim2);
+
   if(nf->verbose)
     {
-      cout<<"Leaving oldform constructor with olddim1 = "<<olddim1;
-      cout<<", olddim2 = "<<olddim2<<", olddimall="<<olddimall<<endl;
+      cout<<"Leaving oldform constructor with olddim1 = "<<olddim1
+          <<", olddim2 = "<<olddim2
+          <<", olddimall="<<olddimall<<endl;
     }
 }
 
 //really a subroutine of the constructor
 void oldforms::getoldclasses(Qideal& D)
 {
-  if (D==N)
-    return;
   if(nf->verbose)
-    cout << "\nGetting oldclasses for divisor " << ideal_label(D) << endl;
+    cout << "\nGetting oldclasses at level "<<ideal_label(N)<<" from divisor " << ideal_label(D) << endl;
 
   newforms olddata(D, nf->verbose, nf->characteristic);
   olddata.read_from_file_or_find();
   int old1ds=olddata.n1ds, old2ds=olddata.n2ds;
+  noldclasses += old1ds;
+
   if (old1ds==0 && old2ds==0)
     return;
 
@@ -46,24 +61,38 @@ void oldforms::getoldclasses(Qideal& D)
   Qideal M = N/D;
   vector<Qideal> divisors = alldivs(M);
   int oldmult = divisors.size(); // the usual multiplicity
-  vector<int>oldmults(old1ds);
+
+  vector<int>oldmults(old1ds, oldmult);   // list of multiplicities of each newform
   for(int i=0; i<old1ds; i++)
     {
       QUINT CMD = olddata.nflist[i].CMD;
-      oldmults[i] = (is_zero(CMD)? oldmult: old_multiplicity(CMD, divisors));
+      if (!is_zero(CMD))
+        oldmults[i] = old_multiplicity(CMD, divisors);
     }
-
-  if(nf->verbose)
-    cout<<" oldspace dimensions are "<<oldmults<<endl;
-
-  olddim2+=oldmult*old2ds;
-  noldclasses += old1ds;
 
   for(int iform=0; iform<old1ds; iform++)
     {
       oldformap.push_back(olddata.nflist[iform].oldform_eigs(N));
       oldclassdims.push_back(oldmults[iform]);
       oldlevels.push_back(D);
+    }
+
+  if(nf->verbose)
+    {
+      cout<<" oldspace dimensions are "<<oldmults<<endl;
+      // cout<<"olddata.new1dims = "<<olddata.new1dims<<endl;
+      // cout<<"olddata.new2dims = "<<olddata.new2dims<<endl;
+    }
+  vector<int> old1dimsD = old_multiplicities(olddata.new1dims, divisors);
+  vector<int> old2dimsD = old_multiplicities(olddata.new2dims, divisors);
+  for (int i=0; i<nchi; i++)
+    {
+      old1dims[i] += old1dimsD[i];
+      old2dims[i] += old2dimsD[i];
+      olddim1 += old1dimsD[i];
+      olddim2 += old2dimsD[i];
+      olddims[i] += (old1dimsD[i] + old2dimsD[i]);
+      olddimall += (old1dimsD[i] + old2dimsD[i]);
     }
 }
 
@@ -156,4 +185,3 @@ vector<int> old_multiplicities(vector<int> newdimsD, vector<Qideal>& divisors)
                  );
   return ans;
 }
-

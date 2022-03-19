@@ -11,8 +11,10 @@ class oldforms {
  public:
   Qideal N;
   int noldclasses;
-  int olddim1, olddim2, olddimall;  // total dim of rational oldforms, resp. non-rational, all oldform
- private:
+  int olddim1, olddim2, olddimall;         // total dim of rational (resp. non-rational, all) oldforms
+  vector<int> old1dims, old2dims, olddims; // partition of previous by unramified quadratic character
+  int n2r, nchi;
+private:
   const newforms* nf;
   vector< vector<long> >  oldformap;
   vector<long> oldclassdims;
