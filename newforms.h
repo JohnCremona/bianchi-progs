@@ -76,6 +76,7 @@ public:
   vector<long> genus_classes;
   vector<Qideal> genus_class_ideals;
   vector<long> genus_class_aP;
+  int fake; // flag for "fake rational" forms
 
   newform(void) :basis(0), aplist(0) {;}
   // constructor to use just after finding the eigenspace: just sets
@@ -135,8 +136,6 @@ public:
 class newforms :public splitter_base {
 friend class newform;
 private:
-  int maxdepth;
-
   // instantiations of virtual functions required by the splitter_base class:
   mat opmat(int i, int d, int v=0);
   vec opmat_col(int i, int j, int v=0);
@@ -165,10 +164,6 @@ private:
   vector<vector<long>> eigranges;
 
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
-
-  // data used for ap computation (Euclidean only)
-  int easy;
-  vector<long> pdotlist, pdotlistinv;
 
   long j0; // single j0 in 1..ngens, a pivot for all newforms, or 0
   std::set<long> jlist; // set of j in 1..ngens, including pivots for all newforms

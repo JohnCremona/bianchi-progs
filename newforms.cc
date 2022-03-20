@@ -532,7 +532,7 @@ void newforms::makeh1plus(void)
 }
 
 newforms::newforms(const Qideal& iN, int disp, long ch)
-  : maxdepth(MAXDEPTH), N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
+  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
 {
   nchi = 1<<n2r;
   level_is_square = N.is_square();
@@ -704,6 +704,7 @@ void newforms::find()
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
   // time they are needed.
+  int maxdepth(MAXDEPTH);
   for (int i=0; i<maxdepth; i++)
     {
       h1matops.push_back(matop());
@@ -722,8 +723,7 @@ void newforms::find()
   dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
   dimtrivcuspold=0;
 
-  long mindepth = nap;
-  int olddim1=0, olddim2=0;
+  int mindepth, olddim1, olddim2;
 
   // find oldform dimensions (all, rational, non-rational) and their split by characters:
   if(characteristic==0)
@@ -742,7 +742,12 @@ void newforms::find()
       old2dims = of->old2dims;
       olddims = of->olddims;
 
-      mindepth = n2r+5;  // not too small else we may get fake rational newforms (eg d=22, level 121.1)
+      mindepth = n2r+1;  // if too small we may get fake rational newforms (eg d=22, level 121.1)
+    }
+  else
+    {
+      olddim1 = olddim2 = 0;
+      mindepth = nap;
     }
 
   // deduce newform dimensions and their split by characters (but we not yet know how much is rational):
@@ -1033,6 +1038,8 @@ long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
 
 long newform::eigenvalueHecke(Quadprime& P, int verbose)
 {
+  if (fake)
+    return 0; // No need to compute more for a fake rational
   Qideal N = nf->N;
   if (P.divides(N))
     return 0; // we'll deal with A-L eigs later
@@ -1122,8 +1129,9 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             }
           else
             {
-              cerr<<" -- form "<<index
-                  <<": P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!"<<endl;
+              cout<<" -- form "<<index<<": P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!";
+              cout<<" -- tagging this as a fake rational, to be discarded"<<endl;
+              fake = 1;
             }
           return aP;
         }
@@ -1449,6 +1457,7 @@ void newforms::makebases()
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
   // time they are needed.
+  int maxdepth(MAXDEPTH);
   for (int i=0; i<maxdepth; i++)
     {
       h1matops.push_back(matop());
@@ -1490,6 +1499,15 @@ void newforms::getap(int first, int last, int verbose)
   // now nap < last <= nQP
 
   vector<int> nonsquarebadprimes;
+  if (first==1)
+    for (int i=0; i<n1ds; i++)
+      {
+        nflist[i].genus_classes.resize(1,0);
+        nflist[i].genus_class_ideals.resize(1,Qideal(1));
+        nflist[i].genus_class_aP.resize(1,1);
+        nflist[i].fake = 0;
+      }
+
   if (first==1 && Quad::class_group_2_rank>0)
     {
       for (int i=0; i<n1ds; i++)
@@ -1630,13 +1648,24 @@ void newforms::getap(int first, int last, int verbose)
     return;
 
   // For even class number, test each newform for being unramified
-  // self-twist:
+  // self-twist.  If so, then the number of genus_classes should be
+  // 2^{n2r-1} = nchi/2, else it should be 2^n2r = nchi.
   for (int i=0; i<n1ds; i++)
     {
+      if (nflist[i].fake)
+        continue;
       QUINT cmd(nflist[i].is_CM());
+      int ngcl = nflist[i].genus_classes.size();
       if (posmod(cmd,4)!=1) cmd*=4;
-      if (div_disc(cmd, Quad::disc))
-        nflist[i].CMD = cmd;
+      if (div_disc(cmd, Quad::disc)) // then we have an unramified self-twist
+        {
+          nflist[i].CMD = cmd;
+          assert (ngcl == nchi/2);
+        }
+      else // the usual case, not a self-twist
+        {
+          assert (ngcl == nchi);
+        }
     }
 
   // Now we can split n1ds, and hence n2ds, by character:
@@ -1652,14 +1681,14 @@ void newforms::getap(int first, int last, int verbose)
         {
           // Test each newform for being unramified self-twist:
           QUINT cmd = nflist[i].CMD;
-          cout<<"form #"<<i<<": cmd="<<cmd<<endl;
+          // cout<<"form #"<<i<<": cmd="<<cmd<<endl;
           int j=0;
           if (cmd!=0) // then it is
             j = std::find(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(), cmd)
               - Quad::all_disc_factors.begin();
           new1dims[j] +=1;
         }
-      cout<<"new1dims = "<<new1dims<<endl;
+      // cout<<"new1dims = "<<new1dims<<endl;
       new2dims.resize(nchi, 0);
       for (int j=0; j<nchi; j++)
         {
