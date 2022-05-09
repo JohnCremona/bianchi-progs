@@ -40,7 +40,7 @@ vector<long> euclidean_fields = {1,2,3,7,11};
 vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclidean
                              19, 43, 67, 163,                         // other class number 1
                              5, 6, 10, 13, 15, 22, 35, 51, 91,        // class number 2 (incomplete)
-                             14, 17, 21, 39, 55,                      // class number 4 (incomplete)
+                             14, 17, 21, 39, 42, 55,                  // class number 4 (incomplete)
                              87,                                      // class number 6 (incomplete)
                              95,                                      // class number 8 (incomplete)
                              23, 31, 47, 59, 71, 79, 83};             // odd class number >1 (incomplete)
