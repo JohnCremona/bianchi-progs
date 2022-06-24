@@ -387,7 +387,7 @@ vector<long> dotperp(vector<long> alist, int r)
 
 int div_disc(QUINT D1, QUINT D)
 {
-  if (!div(D1,D))
+  if (!divides(D1,D))
     return 0;
   QUINT d = posmod(D/D1, QUINT(4));
   return (d==0 || d==1);

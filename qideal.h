@@ -171,14 +171,14 @@ public:
   int is_principal(Quad& g);   // same but puts generator into g
   int is_primitive() const {return c==ONE;}
   int is_square();
-  int is_Galois_stable() const {return div(a, (2*b+Quad::t));}
+  int is_Galois_stable() const {return ::divides(a, (2*b+Quad::t));}
   int is_prime();
   int is_prime_power();
   int is_equivalent(const Qideal& I);
   int is_anti_equivalent(Qideal& I);
-  int contains(const QUINT& n) const  {return div(ac, n);}
+  int contains(const QUINT& n) const  {return ::divides(ac, n);}
   int contains(const Quad& alpha) const;
-  int contains(const Qideal& I) const  {return div(c,I.c) && div(ac,I.ac) && contains(I.zgen(1));}
+  int contains(const Qideal& I) const  {return ::divides(c,I.c) && ::divides(ac,I.ac) && contains(I.zgen(1));}
 
   vector<QUINT> zcoeffs(const Quad& alpha) const // for alpha in this, return Z-coeffs {x,y} w.r.t.Z-gens.
   {

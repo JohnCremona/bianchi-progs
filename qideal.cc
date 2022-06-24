@@ -416,7 +416,7 @@ int Qideal::contains(const Quad& alpha) const
   if (is_zero())
     return alpha.is_zero();
   else
-    return div(c,alpha.i) && div(ac,alpha.r-b*alpha.i);
+    return ::divides(c,alpha.i) && ::divides(ac,alpha.r-b*alpha.i);
 }
 
 // return 1 iff this is coprime to J; if so, set r in this and s in J with r+s=1
@@ -839,7 +839,7 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)
 
 int Qideal::ok() const
 {
-  return nm>=0 and div(a, b*(b + Quad::t) + Quad::n);
+  return nm>=0 && ::divides(a, b*(b + Quad::t) + Quad::n);
 }
 
 int Qideal::is_principal()
@@ -942,7 +942,7 @@ vector<Qideal> primitive_ideals_with_norm(QUINT N, int both_conj)
   QUINT t(Quad::t), n(Quad::n), z1(1);
   QUINT b, maxb = (both_conj? N-1: (N-t)/2);  // rounded down
   for (b=0; b<=maxb; b++)
-    if (div(N,(b*(b + t) + n)))
+    if (::divides(N,(b*(b + t) + n)))
       ans.push_back(Qideal(N,b,z1));
   //cout<<" primitive ideals with norm "<<N<<" both_conj="<<both_conj<<"): "<<ans<<endl;
   return ans;

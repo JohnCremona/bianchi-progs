@@ -30,7 +30,6 @@ const QUINT TWO(2);
 const QUINT THREE(3);
 
 inline long I2long(long n) {return n;}
-inline int div(long a, long b) {return (a==0? b==0: (b%a)==0);}
 inline int is_nonnegative(long a) {return a>=0;}
 inline int is_positive(long a) {return a>0;}
 void sqrt_mod_p(long & x, long a, long p);
