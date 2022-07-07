@@ -812,6 +812,8 @@ void newforms::find()
     {
       cout << "Total new cuspidal dimension " << dimtrivcuspnew << " made up as follows:\n";
       cout << "Rational: "<<n1ds<<"; non-rational: "<<n2ds<<endl;
+      if (n1ds>0 && n2r>0)
+        cout << " (this number of rational newforms might include fake rationals)" <<endl;
       // if (n2r>0)
       //   {
       //     cout << " rational non-self-twist: "<<new1dims[0]<<endl;
@@ -1014,10 +1016,11 @@ long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
     ap = posmod(ap, nf->characteristic);
   else // check it is in range (in characteristic 0 only)
     {
+      long absfac = abs(factor);
       if (divides(factor,ap))
         {
           ap /= factor;
-          if ((ap<factor*apbounds.first) || (ap>factor*apbounds.second))
+          if ((ap<absfac*apbounds.first) || (ap>absfac*apbounds.second))
             {
               cout<<"Error:  eigenvalue "<<ap<<" for operator "<<op.name()
                   <<" for form # "<< index <<" is outside valid range "
@@ -1630,7 +1633,8 @@ void newforms::getap(int first, int last, int verbose)
 
           for (int j=0; j<n1ds; j++)
             {
-              long aq = aqv[j]; //nflist[j].eigenvalueAtkinLehner(Q, verbose);
+              //long aq = aqv[j]; //nflist[j].eigenvalueAtkinLehner(Q, verbose);
+              long aq = nflist[j].eigenvalueAtkinLehner(Q, verbose);
               nflist[j].aqlist[*i] = aq;
               int k = std::find(Quadprimes::list.begin(), Quadprimes::list.end(), Q) - Quadprimes::list.begin();
               nflist[j].aplist[k] = (e>1? 0: -aq);
