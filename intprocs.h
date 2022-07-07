@@ -41,6 +41,7 @@ long squarefree_part(long d);
 #ifdef QUINT_IS_ZZ
 int is_nonnegative(QUINT a);
 QUINT rounded_division(QUINT aa, QUINT bb);
+int divides(const QUINT& aa, const QUINT& bb);
 #endif
 long rounded_division(long aa, long bb);
 

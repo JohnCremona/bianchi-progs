@@ -180,14 +180,9 @@ public:
   int contains(const Quad& alpha) const;
   int contains(const Qideal& I) const  {return ::divides(c,I.c) && ::divides(ac,I.ac) && contains(I.zgen(1));}
 
-  vector<QUINT> zcoeffs(const Quad& alpha) const // for alpha in this, return Z-coeffs {x,y} w.r.t.Z-gens.
-  {
-    return {(alpha.r-b*alpha.i)/ac, alpha.i/c};
-  }
-  Quad zcombo(const QUINT& x, const QUINT& y) const
-  {
-    return Quad(x*ac+y*b*c, y*c);
-  }
+  // for alpha in this ideal, return its Z-coeffs {x,y} w.r.t.Z-gens.
+  vector<QUINT> zcoeffs(const Quad& alpha) const {return {(alpha.r-b*alpha.i)/ac, alpha.i/c}; }
+  Quad zcombo(const QUINT& x, const QUINT& y) const { return Quad(x*ac+y*b*c, y*c); }
   int divides(const QUINT& n) const {return contains(n);}
   int divides(const Quad& alpha) const  {return contains(alpha);}
   int divides(const Qideal& I) const  {return contains(I);}

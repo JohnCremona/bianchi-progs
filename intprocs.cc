@@ -60,6 +60,11 @@ QUINT rounded_division(QUINT a, QUINT b)
       q+=1;
   return q;
 }
+
+int divides(const QUINT& aa, const QUINT& bb)
+{
+  return div(aa,bb);
+}
 #endif
 
 void sqrt_mod_p(long & x, long a, long p)
