@@ -14,15 +14,15 @@ int main ()
  Quad::field(d,max);
  Quad::displayfield(cout);
  Quad n; int verbose=0;
- int startp, stopp;
+ int nap;
  cerr << "Verbose? "; cin>>verbose;
-  cerr << "Which primes for Hecke eigenvalues (first#, last#)? ";
-  cin >> startp >> stopp; cerr << endl;
+  cerr << "How many primes for Hecke eigenvalues? ";
+  cin >> nap; cerr << endl;
   int nQP = Quadprimes::list.size();
-  if (stopp>nQP)
+  if (nap>nQP)
     {
-      cerr<<"Reducing last# to "<<nQP<<", the number of Quadprimes initialized"<<endl;
-      stopp=nQP;
+      cerr<<"Reducing from "<<nap<<" to "<<nQP<<", the number of Quadprimes initialized"<<endl;
+      nap=nQP;
     }
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
@@ -64,8 +64,9 @@ int main ()
             << dimcusp << "\t\t"
             << dimeis << endl;
 #endif
+     // So far the newforms may include some "fake rationals"
      //nf.display();
-     nf.getap(startp,stopp,verbose);
+     nf.getap(1, nap, verbose);
      //cout << "After sort_lmfdb():\n";
      nf.sort_lmfdb();
      nf.display(verbose);

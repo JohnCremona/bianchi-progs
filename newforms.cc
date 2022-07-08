@@ -798,9 +798,9 @@ void newforms::find()
 
   // We cannot yet split n1ds, and hence n2ds, by character since we
   // cannot detect self-twist until we have computed more ap -- unless
-  // n1ds=0.  It would be possible to test whether the basis vector
-  // for each newform lies in the relevant subspaces intead. That is
-  // done in the getap() method.
+  // n1ds=0.  [It would be possible to test whether the basis vector
+  // for each newform lies in the relevant subspaces intead.] The
+  // splitting of n1ds is done in the getap() method.
 
   if (n1ds==0)
     {
@@ -1132,8 +1132,11 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             }
           else
             {
-              cout<<" -- form "<<index<<": P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!";
-              cout<<" -- tagging this as a fake rational, to be discarded"<<endl;
+              if (verbose)
+                {
+                  cout<<" -- form "<<index<<": P="<<P<<", a(P)^2 = "<<aP2<<" is not a square!";
+                  cout<<" -- tagging this as a fake rational, to be discarded"<<endl;
+                }
               fake = 1;
             }
           return aP;
@@ -1651,13 +1654,45 @@ void newforms::getap(int first, int last, int verbose)
   if (first>1)
     return;
 
+  int nfakes=0; // counts number of "fake rationals" to be deleted
+  for (int i=0; i<n1ds; i++)
+    {
+      if (nflist[i].fake)
+        nfakes++;
+    }
+  if (nfakes)
+    {
+      if (verbose)
+        cout<<"The "<<n1ds<<" rational eigenspaces found originally include "
+            <<nfakes<<" fake rational(s) which will now be deleted." << endl;
+      int newn1ds=0;
+      for (int i=0; i<n1ds; i++)
+        {
+          while (nflist[i].fake)
+            i++;
+          if (newn1ds<i)
+            {
+              if (verbose)
+                cout<<"original eigenspace "<<i<<" being renumbered "<<newn1ds<<endl;
+              nflist[newn1ds] = nflist[i];
+            }
+          newn1ds++;
+        }
+      assert(newn1ds+nfakes==n1ds);
+      n1ds = newn1ds;
+      nflist.resize(n1ds);
+      if (verbose)
+        {
+          cout<<"Revised n1ds = "<<n1ds<<"; re-filling in newform data"<<endl;
+        }
+      fill_in_newform_data();
+    }
+
   // For even class number, test each newform for being unramified
   // self-twist.  If so, then the number of genus_classes should be
   // 2^{n2r-1} = nchi/2, else it should be 2^n2r = nchi.
   for (int i=0; i<n1ds; i++)
     {
-      if (nflist[i].fake)
-        continue;
       QUINT cmd(nflist[i].is_CM());
       int ngcl = nflist[i].genus_classes.size();
       if (posmod(cmd,4)!=1) cmd*=4;
@@ -2142,7 +2177,8 @@ vector<long> newforms::apvec(Quadprime& P)
       return apvec(HeckePChiOp(P,A,N), eigenvalue_range(P)); // T(P)*T(A,A)
     }
 
-  // Now the class number is even, and we deal with the newforms individually
+  // Now the class number is even, and we deal with the newforms individually.
+  // NB The call to eigenvalueHecke() may set the 'fake' flag on some newforms.
   vector<long> apv;
   for (i=0; i<n1ds; i++)
     apv.push_back(nflist[i].eigenvalueHecke(P, verbose));
