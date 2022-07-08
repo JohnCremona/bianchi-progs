@@ -1668,8 +1668,10 @@ void newforms::getap(int first, int last, int verbose)
       int newn1ds=0;
       for (int i=0; i<n1ds; i++)
         {
-          while (nflist[i].fake)
+          while (nflist[i].fake && i<n1ds)
             i++;
+          if (i==n1ds)
+            break; // for when we run off the end
           if (newn1ds<i)
             {
               if (verbose)
