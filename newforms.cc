@@ -716,11 +716,17 @@ void newforms::find()
   int dimall = h1->h1dim();
 
   if(verbose)
-    cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp<<")\n";
+    cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp;
 
   // find dimension of trivial character subspace and its split by characters:
   alldims = h1->trivial_character_subspace_dimension_by_twist(1);
   dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
+  if(verbose)
+    {
+      if(n2r>0)
+        cout<<", trivial character subspace dimension = "<<dimtrivcusp;
+      cout<<")\n";
+    }
   dimtrivcuspold=0;
 
   int mindepth, olddim1, olddim2;

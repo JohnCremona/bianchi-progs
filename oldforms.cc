@@ -11,7 +11,8 @@ oldforms::oldforms(const newforms* nfs)
   old1dims.resize(nchi); // will sum to olddim1
   old2dims.resize(nchi); // will sum to olddim2
   olddims.resize(nchi);  // will sum to olddimall
-  noldclasses = 0; // = olddim1 (since we are not splitting by AL-eigenvalue); will be incremented in getoldclasses()
+  noldclasses = 0;       // will be incremented in getoldclasses()
+  olddim1 = olddim2 = olddimall = 0;
 
   N = nf->N;
   vector<Qideal> DD = alldivs(N);
@@ -19,15 +20,22 @@ oldforms::oldforms(const newforms* nfs)
     if (*Di!=N)
       getoldclasses(*Di);
 
-  olddim1   = std::accumulate(old1dims.begin(), old1dims.end(), 0, std::plus<int>());
-  olddim2   = std::accumulate(old2dims.begin(), old2dims.end(), 0, std::plus<int>());
-  olddimall = std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>());
+  assert(olddim1   == std::accumulate(old1dims.begin(), old1dims.end(), 0, std::plus<int>()));
+  assert(olddim2   == std::accumulate(old2dims.begin(), old2dims.end(), 0, std::plus<int>()));
+  assert(olddimall == std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>()));
+
   if (nf->verbose >1)
   {
     cout<<"noldclasses = "<<noldclasses<<endl;
-    cout<<"olddim1 = "<<olddim1<<endl;
-    cout<<"olddim2 = "<<olddim2<<endl;
-    cout<<"olddimall = "<<olddimall<<endl;
+    cout<<"olddim1 = "  <<olddim1;
+    if (nchi>1) cout << " (by character: "<<old1dims<<")";
+    cout<<endl;
+    cout<<"olddim2 = "  <<olddim2;
+    if (nchi>1) cout << " (by character: "<<old2dims<<")";
+    cout<<endl;
+    cout<<"olddimall = "<<olddimall;
+    if (nchi>1) cout << " (by character: "<<olddims<<")";
+    cout<<endl;
   }
   assert (olddimall == olddim1 + olddim2);
 
@@ -55,8 +63,9 @@ void oldforms::getoldclasses(Qideal& D)
 
   // Compute the oldform multiplicities.
 
-  // Note that in class number 2, the multiplicity may be different
-  // for different newforms coming from the same level.
+  // Note that in even class number, the multiplicity may be different
+  // for different newforms coming from the same level, if some of
+  // them are self-twist.
 
   Qideal M = N/D;
   vector<Qideal> divisors = alldivs(M);
@@ -70,6 +79,9 @@ void oldforms::getoldclasses(Qideal& D)
         oldmults[i] = old_multiplicity(CMD, divisors);
     }
 
+  if(nf->verbose)
+    cout<<" oldspace dimensions for "<<old1ds<<" rational forms are "<<oldmults<<endl;
+
   for(int iform=0; iform<old1ds; iform++)
     {
       oldformap.push_back(olddata.nflist[iform].oldform_eigs(N));
@@ -77,19 +89,27 @@ void oldforms::getoldclasses(Qideal& D)
       oldlevels.push_back(D);
     }
 
-  if(nf->verbose)
-    cout<<" oldspace dimensions for "<<old1ds<<" forms are "<<oldmults<<endl;
-
   vector<int> old1dimsD = old_multiplicities(olddata.new1dims, divisors);
   vector<int> old2dimsD = old_multiplicities(olddata.new2dims, divisors);
+  int this_olddim1=0, this_olddim2=0, this_olddimall=0;
   for (int i=0; i<nchi; i++)
     {
       old1dims[i] += old1dimsD[i];
       old2dims[i] += old2dimsD[i];
-      olddim1 += old1dimsD[i];
-      olddim2 += old2dimsD[i];
+      this_olddim1 += old1dimsD[i];
+      this_olddim2 += old2dimsD[i];
       olddims[i] += (old1dimsD[i] + old2dimsD[i]);
-      olddimall += (old1dimsD[i] + old2dimsD[i]);
+      this_olddimall += (old1dimsD[i] + old2dimsD[i]);
+    }
+  olddim1 += this_olddim1;
+  olddim2 += this_olddim2;
+  olddimall += this_olddimall;
+  if(nf->verbose)
+    {
+      cout<<" total oldspace dimension from divisor "<<D<<" is "
+          <<this_olddim1<<"+"<<this_olddim2<<"="<<this_olddimall<<endl;
+      cout<<" cumulative total oldspace dimension from divisors so far is "
+          <<olddim1<<"+"<<olddim2<<"="<<olddimall<<endl;
     }
 }
 
