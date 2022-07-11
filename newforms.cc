@@ -716,16 +716,18 @@ void newforms::find()
   int dimall = h1->h1dim();
 
   if(verbose)
-    cout<<"Dimension = "<<dimall<<" (cuspidal dimension = "<<dimcusp;
+    {
+      cout<<"Dimension = "<<dimall<<endl;
+      cout<<" - cuspidal dimension = "<<dimcusp<<endl;
+    }
 
   // find dimension of trivial character subspace and its split by characters:
   alldims = h1->trivial_character_subspace_dimension_by_twist(1);
   dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
-  if(verbose)
+  if(verbose && (n2r>0))
     {
-      if(n2r>0)
-        cout<<", trivial character subspace dimension = "<<dimtrivcusp;
-      cout<<")\n";
+      cout<<" - cuspidal trivial character subspace dimension = "<<dimtrivcusp;
+      cout<<" = "<<alldims<< " split by self-twist character"<<endl;
     }
   dimtrivcuspold=0;
 
@@ -766,24 +768,24 @@ void newforms::find()
       assert (newdims[i]>=0 && "components of new dimensions cannot be negative");
     }
 
-  if(verbose)
+  if(verbose && (characteristic==0))
     {
-      if(characteristic==0)
-
-      cout<<"total cuspidal dimension = "<<dimcusp;
+      // cout<<" - cuspidal trivial character subspace dimension = "<<dimtrivcusp;
+      // cout<<" = "<<alldims<< " split by self-twist character"<<endl;
+      cout<<"Trivial character cuspidal subspace:"<<endl;
+      cout<<" - total dimension = "<<dimtrivcusp;
       if (n2r>0)
-        {
-          cout<<" (trivial character subspace dimension = "<<dimtrivcusp<<")";
-          cout<<"\n  (by self-twist character: "<<alldims<<")";
-        }
+        cout<<" = "<< alldims<<" split by self-twist character";
       cout << endl;
-      cout<<"  old cuspidal dimension = "<<dimtrivcuspold<<" of which "<<olddim1
-          <<" is rational and "<<olddim2<<" is not rational)"<<endl;
+      cout<<" - old dimension   = "<<dimtrivcuspold
+          <<" (rational:"<<olddim1<<"; non-rational: "<<olddim2<<")";
       if (n2r>0)
-        cout<<"  (by self-twist character: "<<olddims<<", "<<old1dims<<", "<<old2dims<<")"<<endl;
-      cout<<"  new cuspidal dimension = "<<dimtrivcuspnew<<endl;
+        cout<<" = "<< olddims <<" ("<<old1dims<<"; "<<old2dims
+            <<") split by self-twist character"<<endl;
+      cout<<" - new dimension   = "<<dimtrivcuspnew;
       if (n2r>0)
-        cout<<"  (by self-twist character: "<<newdims<<")"<<endl;
+        cout<<" = "<<newdims<<" split by self-twist character";
+      cout<<endl;
       if(verbose>1)
         {
           cout<<"maxdepth = "<<maxdepth<<endl;
