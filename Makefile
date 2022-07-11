@@ -21,11 +21,6 @@ LIBDIR = $(ECLIB_BASE)/lib
 #  is much slower: e.g. with level (128), field 1 it takes 20m instead
 #  of <1s.
 
-# The type of integers used for components of Quad, Qideal, RatQuad
-# can be either long or bigint (=NTL's ZZ), and is typedef'd to QUINT
-# in the code.  By default the type is long and QUINT_IS_long is
-# defined; to use bigints define QUINT_IS_ZZ in intprocs.h.
-
 GCC=g++ -std=c++11 -fmax-errors=1
 CC = $(GCC)
 
@@ -34,11 +29,14 @@ CC = $(GCC)
 # to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
 
-# By default the type of integers used in Quads is long, which can
-# result in overflow for large levels over larger fields.  Change this
-# to 1 (and make clean and rebuild) to compile using ZZ as base
-# integer type for Quads instead.  That results in slower code, but it
-# does not overflow!
+
+# The type of integers used for components of Quad, Qideal, RatQuad
+# can be either long or bigint (=NTL's ZZ), and is typedef'd to QUINT
+# in the code.  By default the type is long and QUINT_IS_long is
+# defined; this can result in overflow for large levels over larger
+# fields.  Change this to 1 (and make clean and rebuild) to compile
+# using ZZ as base integer type for Quads instead.  That results in
+# slower code, but it does not overflow!
 BASE_TYPE_ZZ=0
 ifeq ($(BASE_TYPE_ZZ), 1)
  BASE_TYPE_FLAG = -D QUINT_IS_ZZ
