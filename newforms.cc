@@ -556,7 +556,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   nap = MAXDEPTH;
   goodprimes = make_goodprimes(N, nap, iP0, characteristic);
   nap = goodprimes.size(); // it may be > original nap
-  if (nap!=MAXDEPTH)
+  if (nap!=MAXDEPTH && verbose)
     cout<<" nap changed to "<<nap<<" since goodprimes = "<<goodprimes<<endl;
   P0 = goodprimes[iP0];
   nP0 = I2long(P0.norm());
@@ -748,7 +748,7 @@ void newforms::find()
       old2dims = of->old2dims;
       olddims = of->olddims;
 
-      mindepth = n2r+1;  // if too small we may get fake rational newforms (eg d=22, level 121.1)
+      mindepth = n2r+3;  // if too small we may get fake rational newforms (eg d=22, level 121.1)
     }
   else
     {
@@ -772,7 +772,10 @@ void newforms::find()
 
       cout<<"total cuspidal dimension = "<<dimcusp;
       if (n2r>0)
-        cout<<" (trivial character subspace dimension = "<<dimtrivcusp<<")";
+        {
+          cout<<" (trivial character subspace dimension = "<<dimtrivcusp<<")";
+          cout<<"\n  (by self-twist character: "<<alldims<<")";
+        }
       cout << endl;
       cout<<"  old cuspidal dimension = "<<dimtrivcuspold<<" of which "<<olddim1
           <<" is rational and "<<olddim2<<" is not rational)"<<endl;
