@@ -1,0 +1,9 @@
+
+P1N TEST PROGRAM
+Enter field: Q(sqrt(-42))	discriminant = -168	min poly(a) = a^2+42.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,a] [3,a] [6,a] ]
+testing split/merge of multi-indices...
+testing P1(N) symbol-index bijections for ideals of norm up to 100...
+testing P1(N) symbol-index bijections for Quads of norm up to 100...
+done
