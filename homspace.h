@@ -80,13 +80,15 @@ public:
   // Quad::class_group_2_rank unramified characters.  If c==1 or if
   // cuspidal==1 then the cuspidal subspace of this is returned.
   ssubspace unramified_character_subspace(const vector<int>& eigs, int c, int dual);
-  // dimension of previous (for when we do no need the subspace itself):
+
+  // dimension of previous (for when we do not need the subspace itself):
   int unramified_character_subspace_dimension(const vector<int>& eigs, int c)
   {
     if (Quad::class_group_2_rank==0)
       return (c? h1cuspdim(): h1dim());
     return dim(unramified_character_subspace(eigs, c, 0));
   }
+
   // Special cases of previous two, all eigenvalues +1:
   ssubspace trivial_character_subspace(int c, int dual)
   {
@@ -99,10 +101,17 @@ public:
       return (c? h1cuspdim(): h1dim());
     return dim(trivial_character_subspace(c, 0));
   }
+
   // list of (cuspidal) dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
   vector<int> trivial_character_subspace_dimension_by_twist(int c);
+
+  // Dimension of the associated space of Bianchi modular forms (if
+  // c=0) or cusp forms (if c=1).  For odd class number this is the
+  // same as the dimension (resp. cuspidal dimension), but not for
+  // even class number, on account of unramified self-twist forms.
+  int bianchi_form_dimension(int c);
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},

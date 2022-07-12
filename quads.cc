@@ -37,6 +37,7 @@ Quad fundunit;
 vector<long> euclidean_fields = {1,2,3,7,11};
 
 // fields for which geometry is defined
+// (all with |disc|<100, and -42, -163)
 vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclidean
                              19, 43, 67, 163,                         // other class number 1
                              5, 6, 10, 13, 15, 22, 35, 51, 91,        // class number 2 (incomplete)

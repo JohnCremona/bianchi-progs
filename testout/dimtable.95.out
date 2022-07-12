@@ -1,5 +1,5 @@
-Table of dimensions of weight 2 Bianchi cusp forms for Q(sqrt(-95))
-Field	Weight	Level	Norm	dim(all)	dim(plus)	dim(minus)
+Table of dimensions of weight 2 Bianchi cusp forms over Q(sqrt(-95))
+Field	Weight	Level	Norm	dim(SL2)	dim(GL2)	dim(SL2)-dim(GL2)
 95	2	1.1	 1		1		0		1
 95	2	2.1	 2		1		0		1
 95	2	2.2	 2		1		0		1
