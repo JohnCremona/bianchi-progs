@@ -195,7 +195,7 @@ void newform::eigs_from_data()
       QUINT normP = P.norm();
       while ((P.divides(nf->N)) || (ch>0 && (normP%ch==0)))
         {
-          // cout<<" - P = "<<P<<": bad prime, skipping"<<endl;
+          // cout<<" - P = "<<ideal_label(P)<<": bad prime, skipping"<<endl;
           ++pr;
           ++api;
           P = *pr;
@@ -207,8 +207,10 @@ void newform::eigs_from_data()
           ap = ap*ap - I2long(normP);
         }
       eigs.push_back(ap);
-      // cout<<" - P = "<<P<<": eig = "<<ap<<endl;
+      //cout<<" - P = "<<ideal_label(P)<<": eig = "<<ap<<endl;
       ++pr; ++api;
+      if (pr == Quadprimes::list.end())
+        break;
     }
   // cout<<" eigs_from_data produced eigs = "<<eigs<<endl;
 }

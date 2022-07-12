@@ -72,7 +72,7 @@ ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5
 ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabtwist.cc
+ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
 
@@ -81,7 +81,7 @@ headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h n
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -109,7 +109,7 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
+HOM_TESTS = homtest dimtable dimtabeis dimtabnew hecketest #dimtable_modp hecketest_modp nflist_modp
 FULL_TESTS = $(HOM_TESTS) makenf nftest nflist moreap moreap1 modularity modularity_modp #makenf_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
@@ -230,6 +230,15 @@ dimtable: dimtable.o $(OBJS)
 dimtabeis: dimtabeis.o $(OBJS)
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)
 
+dimtabnew_loop.o: dimtabnew.cc $(OBJS)
+	$(CC) -DLOOPER $(CFLAGS) dimtabnew.cc -o dimtabnew_loop.o
+
+dimtabnew: dimtabnew.o $(OBJS)
+	$(CC) -o dimtabnew dimtabnew.o $(OBJS) $(LFLAGS)
+
+dimtabnew_loop: dimtabnew_loop.o $(OBJS)
+	$(CC) -o dimtabnew_loop dimtabnew_loop.o $(OBJS) $(LFLAGS)
+
 dimtabtwist: dimtabtwist.o $(OBJS)
 	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
 
@@ -260,6 +269,9 @@ dimtable.o: dimtable.cc qidloop.h qideal.h quads.h intprocs.h homspace.h \
  cusp.h mat22.h ratquads.h primes.h face_relations.h edge_relations.h \
  geometry.h P1N.h hecke.h
 dimtable_modp.o: dimtable_modp.cc qidloop.h qideal.h quads.h intprocs.h \
+ homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
+ edge_relations.h geometry.h P1N.h hecke.h
+dimtabnew.o: dimtabnew.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
  edge_relations.h geometry.h P1N.h hecke.h
 dimtabtwist.o: dimtabtwist.cc matprocs.h intprocs.h qidloop.h qideal.h \

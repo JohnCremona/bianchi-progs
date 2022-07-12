@@ -43,20 +43,10 @@ int main ()
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-     string datafilename = eigfile(N);
-     ifstream data(datafilename.c_str());
-     //cout<<"Opening data file "<<datafilename<<endl;
-     if(!data)
-       {
-         cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< N.norm()<<endl;
-       }
-     else
-       {
-         //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
-         newforms nf(N,0);
-         nf.read_from_file();
-         nf.list(nap);
-       }
+     //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
+     newforms nf(N,0);
+     if(nf.read_from_file())
+       nf.list(nap);
    }
 }
 

@@ -19,9 +19,6 @@ int main ()
   int both_conj;
   cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
   int verbose=0;
-  int plusflag=1;
-  // cout<<"Plus space only? (0/1) "; cin >> plusflag;
-  string group = (plusflag?"GL2":"SL2");
 
   cerr<<"Enter first and last norm for Quad loop: ";
   cin >> firstn >> lastn;
@@ -43,7 +40,7 @@ int main ()
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
-     homspace hplus(N, plusflag, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
+     homspace hplus(N, 1, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
      int dimcusp = hplus.bianchi_form_dimension(1);
      int dimall = hplus.bianchi_form_dimension(0);
      int dimeis = dimall-dimcusp;
