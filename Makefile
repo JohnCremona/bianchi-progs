@@ -87,7 +87,7 @@ tests: $(TESTS)
 # These are for creation of temporary newforms directories for tests:
 DISCS9=3 4 7 8 11 19 43 67 163
 DISCSXodd=15 23 31 35 39 47 51 55 59 71 79 83 87 91 95
-DISCSXeven=20 24 40 52 56 68 84 88
+DISCSXeven=20 24 40 42 52 56 68 84 88
 DISCS=$(DISCS9) $(DISCSXodd) $(DISCSXeven)
 
 # These control which tests run on which fields:
@@ -97,7 +97,7 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
 
 # Only: basic arithmetic, homology dimensions
-FIELDS_hom=5 6 10 13 14 15 17 21 22 35 39 51 55 87 91 95
+FIELDS_hom=5 6 10 13 14 15 17 21 22 35 39 42 51 55 87 91 95
 #FIELDS_hom=
 
 # Only: basic arithmetic
