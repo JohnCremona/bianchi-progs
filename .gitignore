@@ -34,6 +34,9 @@ tquads
 tratquad
 dimtable
 dimtabeis
+dimtabnew
+dimtabnew_loop
+dimtabtwist
 moreap
 moreap1
 moreap_loop
@@ -53,3 +56,9 @@ nftmp/*
 
 # symlink to magma/sorting.m
 magma/*
+
+FD/.ipynb_checkpoints
+__pycache__
+*.sobj
+# symbolic link
+psort.py
