@@ -1,0 +1,267 @@
+Q(sqrt(-5))	discriminant = -20	min poly(a) = a^2+5.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,1+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/1.1...done.
+===========================================
+
+>>>> Level 2.1 = (2,-1+a), norm = 2 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/2.1...done.
+===========================================
+
+>>>> Level 3.1 = (1+a,-3), norm = 3 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/3.1...done.
+===========================================
+
+>>>> Level 3.2 = (-1+a,-2-a), norm = 3 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/3.2...done.
+===========================================
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/4.1...done.
+===========================================
+
+>>>> Level 5.1 = (a), norm = 5 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/5.1...done.
+===========================================
+
+>>>> Level 6.1 = (1+a), norm = 6 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/6.1...done.
+===========================================
+
+>>>> Level 6.2 = (-1+a), norm = 6 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/6.2...done.
+===========================================
+
+>>>> Level 7.1 = (3+a,-4+a), norm = 7 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/7.1...done.
+===========================================
+
+>>>> Level 7.2 = (-3+a,-1-2a), norm = 7 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/7.2...done.
+===========================================
+
+>>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/8.1...done.
+===========================================
+
+>>>> Level 9.1 = (-2+a), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/9.1...done.
+===========================================
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/9.2...done.
+===========================================
+
+>>>> Level 9.3 = (2+a), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/9.3...done.
+===========================================
+
+>>>> Level 10.1 = (2a,-5-a), norm = 10 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/10.1...done.
+===========================================
+
+>>>> Level 12.1 = (2+2a,-6), norm = 12 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/12.1...done.
+===========================================
+
+>>>> Level 12.2 = (-2+2a,-4-2a), norm = 12 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/12.2...done.
+===========================================
+
+>>>> Level 14.1 = (3+a), norm = 14 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/14.1...done.
+===========================================
+
+>>>> Level 14.2 = (-3+a), norm = 14 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/14.2...done.
+===========================================
+
+>>>> Level 15.1 = (-5+a,-3a), norm = 15 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/15.1...done.
+===========================================
+
+>>>> Level 15.2 = (5+a,-5+2a), norm = 15 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/15.2...done.
+===========================================
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+
+1 newform(s) at level 16.1 = (4):
+Writing data to file nftmp/2.0.20.1/16.1...done.
+===========================================
+
+>>>> Level 18.1 = (-4+2a,-3-3a), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/18.1...done.
+===========================================
+
+>>>> Level 18.2 = (6,-3+3a), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/18.2...done.
+===========================================
+
+>>>> Level 18.3 = (4+2a,-7+a), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/18.3...done.
+===========================================
+
+>>>> Level 20.1 = (2a), norm = 20 <<<<
+
+1 newform(s) at level 20.1 = (2a):
+Writing data to file nftmp/2.0.20.1/20.1...done.
+===========================================
+
+>>>> Level 21.1 = (-1+2a), norm = 21 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/21.1...done.
+===========================================
+
+>>>> Level 21.2 = (4+a), norm = 21 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/21.2...done.
+===========================================
+
+>>>> Level 21.3 = (-4+a), norm = 21 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/21.3...done.
+===========================================
+
+>>>> Level 21.4 = (1+2a), norm = 21 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/21.4...done.
+===========================================
+
+>>>> Level 23.1 = (1+3a,-8-a), norm = 23 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/23.1...done.
+===========================================
+
+>>>> Level 23.2 = (-1+3a,-7-2a), norm = 23 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/23.2...done.
+===========================================
+
+>>>> Level 24.1 = (2+2a), norm = 24 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/24.1...done.
+===========================================
+
+>>>> Level 24.2 = (-2+2a), norm = 24 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/24.2...done.
+===========================================
+
+>>>> Level 25.1 = (5), norm = 25 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/25.1...done.
+===========================================
+
+>>>> Level 27.1 = (7+a,-6+3a), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/27.1...done.
+===========================================
+
+>>>> Level 27.2 = (3+3a,-9), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/27.2...done.
+===========================================
+
+>>>> Level 27.3 = (-3+3a,-6-3a), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/27.3...done.
+===========================================
+
+>>>> Level 27.4 = (-7+a,1-4a), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/27.4...done.
+===========================================
+
+>>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/28.1...done.
+===========================================
+
+>>>> Level 28.2 = (-6+2a,-2-4a), norm = 28 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/28.2...done.
+===========================================
+
+>>>> Level 29.1 = (-3+2a), norm = 29 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/29.1...done.
+===========================================
+
+>>>> Level 29.2 = (3+2a), norm = 29 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/29.2...done.
+===========================================
+
+>>>> Level 30.1 = (-5+a), norm = 30 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/30.1...done.
+===========================================
+
+>>>> Level 30.2 = (5+a), norm = 30 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/30.2...done.
+===========================================
+
+>>>> Level 32.1 = (8,-4+4a), norm = 32 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/32.1...done.
+===========================================
+
+>>>> Level 35.1 = (-5+3a,-5-4a), norm = 35 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/35.1...done.
+===========================================
+
+>>>> Level 35.2 = (5+3a,-10+a), norm = 35 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/35.2...done.
+===========================================
+
+>>>> Level 36.1 = (-4+2a), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/36.1...done.
+===========================================
+
+>>>> Level 36.2 = (6), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/36.2...done.
+===========================================
+
+>>>> Level 36.3 = (4+2a), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.20.1/36.3...done.
+===========================================
+
+>>>> Level 40.1 = (4a,-10-2a), norm = 40 <<<<
+
+1 newform(s) at level 40.1 = (4a,-10-2a):
+Writing data to file nftmp/2.0.20.1/40.1...done.
+===========================================
+

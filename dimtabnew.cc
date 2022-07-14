@@ -72,6 +72,10 @@ int main ()
              dimcuspnew <<= (Quad::class_group_2_rank - 1);
            }
        }
+     else
+       {
+         cout<<"no newforms file! ";
+       }
      cout << dimcuspnew << endl;
    }
 }

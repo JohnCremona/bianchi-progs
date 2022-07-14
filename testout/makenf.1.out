@@ -1,45 +1,54 @@
 Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 17999 primes initialised, max norm = 200000
+
 >>>> Level 65.3 = (7+4i), norm = 65 <<<<
 
 1 newform(s) at level 65.3 = (7+4i):
 Writing data to file nftmp/2.0.4.1/65.18.1...done.
 ===========================================
+
 >>>> Level 72.1 = (6+6i), norm = 72 <<<<
 
 1 newform(s) at level 72.1 = (6+6i):
 Writing data to file nftmp/2.0.4.1/72.6.6...done.
 ===========================================
+
 >>>> Level 98.1 = (7+7i), norm = 98 <<<<
 
 1 newform(s) at level 98.1 = (7+7i):
 Writing data to file nftmp/2.0.4.1/98.7.7...done.
 ===========================================
+
 >>>> Level 100.2 = (10), norm = 100 <<<<
 
 1 newform(s) at level 100.2 = (10):
 Writing data to file nftmp/2.0.4.1/100.0.10...done.
 ===========================================
+
 >>>> Level 106.1 = (9+5i), norm = 106 <<<<
 
 1 newform(s) at level 106.1 = (9+5i):
 Writing data to file nftmp/2.0.4.1/106.23.1...done.
 ===========================================
+
 >>>> Level 121.1 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.1 = (11):
 Writing data to file nftmp/2.0.4.1/121.0.11...done.
 ===========================================
+
 >>>> Level 130.1 = (9+7i), norm = 130 <<<<
 
 1 newform(s) at level 130.1 = (9+7i):
 Writing data to file nftmp/2.0.4.1/130.57.1...done.
 ===========================================
+
 >>>> Level 144.1 = (12), norm = 144 <<<<
 No newforms.
 Writing data to file nftmp/2.0.4.1/144.0.12...done.
 ===========================================
+
 >>>> Level 5330.3 = (29+67i), norm = 5330 <<<<
 
 4 newform(s) at level 5330.3 = (29+67i):

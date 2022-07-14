@@ -1,16 +1,19 @@
 Q(sqrt(-71))	discriminant = -71	min poly(a) = a^2-a+18.
 Class number 7
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [4,1+a] ]
+
 >>>> Level 18.1 = (a), norm = 18 <<<<
 
 1 newform(s) at level 18.1 = (a):
 Writing data to file nftmp/2.0.71.1/18.1...done.
 ===========================================
+
 >>>> Level 20.3 = (2+2a,-10), norm = 20 <<<<
 
 1 newform(s) at level 20.3 = (2+2a,-10):
 Writing data to file nftmp/2.0.71.1/20.3...done.
 ===========================================
+
 >>>> Level 24.1 = (-6+a,-6-3a), norm = 24 <<<<
 
 2 newform(s) at level 24.1 = (-6+a,-6-3a):

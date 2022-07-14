@@ -1,56 +1,68 @@
 Q(sqrt(-19))	discriminant = -19	min poly(a) = a^2-a+5.
 Non-Euclidean, class number 1
 18011 primes initialised, max norm = 200000
+
 >>>> Level 19.1 = (-1+2a), norm = 19 <<<<
 
 1 newform(s) at level 19.1 = (-1+2a):
 Writing data to file nftmp/2.0.19.1/19.9.1...done.
 ===========================================
+
 >>>> Level 20.1 = (2a), norm = 20 <<<<
 
 1 newform(s) at level 20.1 = (2a):
 Writing data to file nftmp/2.0.19.1/20.0.2...done.
 ===========================================
+
 >>>> Level 44.1 = (4+2a), norm = 44 <<<<
 
 1 newform(s) at level 44.1 = (4+2a):
 Writing data to file nftmp/2.0.19.1/44.4.2...done.
 ===========================================
+
 >>>> Level 76.1 = (-2+4a), norm = 76 <<<<
 
 2 newform(s) at level 76.1 = (-2+4a):
 Writing data to file nftmp/2.0.19.1/76.18.2...done.
 ===========================================
+
 >>>> Level 77.4 = (-1+4a), norm = 77 <<<<
 No newforms.
 Writing data to file nftmp/2.0.19.1/77.19.1...done.
 ===========================================
+
 >>>> Level 80.1 = (4a), norm = 80 <<<<
 No newforms.
 Writing data to file nftmp/2.0.19.1/80.0.4...done.
 ===========================================
+
 >>>> Level 405.1 = (9a), norm = 405 <<<<
 No newforms.
 Writing data to file nftmp/2.0.19.1/405.0.9...done.
 ===========================================
+
 >>>> Level 85.2 = (5+3a), norm = 85 <<<<
 
 1 newform(s) at level 85.2 = (5+3a):
 Writing data to file nftmp/2.0.19.1/85.30.1...done.
 ===========================================
+
 >>>> Level 95.2 = (9+a), norm = 95 <<<<
 No newforms.
 Writing data to file nftmp/2.0.19.1/95.9.1...done.
 ===========================================
+
 >>>> Level 100.2 = (10), norm = 100 <<<<
 No newforms.
 Writing data to file nftmp/2.0.19.1/100.0.10...done.
 ===========================================
+
 >>>> Level 100.3 = (8+2a), norm = 100 <<<<
 
 1 newform(s) at level 100.3 = (8+2a):
 Writing data to file nftmp/2.0.19.1/100.8.2...done.
 ===========================================
+
 >>>> Level 121.2 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.2 = (11):

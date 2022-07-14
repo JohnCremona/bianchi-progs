@@ -1,47 +1,57 @@
 Q(sqrt(-67))	discriminant = -67	min poly(a) = a^2-a+17.
 Non-Euclidean, class number 1
 17874 primes initialised, max norm = 200000
+
 >>>> Level 17.1 = (a), norm = 17 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/17.0.1...done.
 ===========================================
+
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
 
 1 newform(s) at level 67.1 = (-1+2a):
 Writing data to file nftmp/2.0.67.1/67.33.1...done.
 ===========================================
+
 >>>> Level 68.1 = (2a), norm = 68 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/68.0.2...done.
 ===========================================
+
 >>>> Level 81.1 = (9), norm = 81 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/81.0.9...done.
 ===========================================
+
 >>>> Level 121.1 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.1 = (11):
 Writing data to file nftmp/2.0.67.1/121.0.11...done.
 ===========================================
+
 >>>> Level 144.1 = (12), norm = 144 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/144.0.12...done.
 ===========================================
+
 >>>> Level 153.1 = (3a), norm = 153 <<<<
 
 1 newform(s) at level 153.1 = (3a):
 Writing data to file nftmp/2.0.67.1/153.0.3...done.
 ===========================================
+
 >>>> Level 196.1 = (14), norm = 196 <<<<
 
 1 newform(s) at level 196.1 = (14):
 Writing data to file nftmp/2.0.67.1/196.0.14...done.
 ===========================================
+
 >>>> Level 225.1 = (15), norm = 225 <<<<
 
 1 newform(s) at level 225.1 = (15):
 Writing data to file nftmp/2.0.67.1/225.0.15...done.
 ===========================================
+
 >>>> Level 261.2 = (-12+3a), norm = 261 <<<<
 
 1 newform(s) at level 261.2 = (-12+3a):

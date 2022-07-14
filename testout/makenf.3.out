@@ -1,45 +1,54 @@
 Q(sqrt(-3))	discriminant = -3	min poly(w) = w^2-w+1.
 Euclidean
 18021 primes initialised, max norm = 200000
+
 >>>> Level 73.1 = (8+w), norm = 73 <<<<
 
 1 newform(s) at level 73.1 = (8+w):
 Writing data to file nftmp/2.0.3.1/73.8.1...done.
 ===========================================
+
 >>>> Level 75.1 = (5+5w), norm = 75 <<<<
 
 1 newform(s) at level 75.1 = (5+5w):
 Writing data to file nftmp/2.0.3.1/75.5.5...done.
 ===========================================
+
 >>>> Level 100.1 = (10), norm = 100 <<<<
 No newforms.
 Writing data to file nftmp/2.0.3.1/100.0.10...done.
 ===========================================
+
 >>>> Level 121.1 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.1 = (11):
 Writing data to file nftmp/2.0.3.1/121.0.11...done.
 ===========================================
+
 >>>> Level 124.1 = (10+2w), norm = 124 <<<<
 
 1 newform(s) at level 124.1 = (10+2w):
 Writing data to file nftmp/2.0.3.1/124.10.2...done.
 ===========================================
+
 >>>> Level 147.2 = (7+7w), norm = 147 <<<<
 
 1 newform(s) at level 147.2 = (7+7w):
 Writing data to file nftmp/2.0.3.1/147.7.7...done.
 ===========================================
+
 >>>> Level 171.2 = (9+6w), norm = 171 <<<<
 
 1 newform(s) at level 171.2 = (9+6w):
 Writing data to file nftmp/2.0.3.1/171.33.3...done.
 ===========================================
+
 >>>> Level 192.1 = (8+8w), norm = 192 <<<<
 
 1 newform(s) at level 192.1 = (8+8w):
 Writing data to file nftmp/2.0.3.1/192.8.8...done.
 ===========================================
+
 >>>> Level 196.2 = (14), norm = 196 <<<<
 
 1 newform(s) at level 196.2 = (14):

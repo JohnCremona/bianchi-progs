@@ -1,0 +1,59 @@
+Q(sqrt(-42))	discriminant = -168	min poly(a) = a^2+42.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,a] [3,a] [6,a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/1.1...done.
+===========================================
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/2.1...done.
+===========================================
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/3.1...done.
+===========================================
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/4.1...done.
+===========================================
+
+>>>> Level 6.1 = (6,a), norm = 6 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/6.1...done.
+===========================================
+
+>>>> Level 7.1 = (a,-7), norm = 7 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/7.1...done.
+===========================================
+
+>>>> Level 8.1 = (4,2a), norm = 8 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/8.1...done.
+===========================================
+
+>>>> Level 9.1 = (3), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/9.1...done.
+===========================================
+
+>>>> Level 12.1 = (6,2a), norm = 12 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/12.1...done.
+===========================================
+
+>>>> Level 13.1 = (6+a,-7+a), norm = 13 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/13.1...done.
+===========================================
+
+>>>> Level 13.2 = (-6+a,-7-a), norm = 13 <<<<
+No newforms.
+Writing data to file nftmp/2.0.168.1/13.2...done.
+===========================================
+

@@ -1,55 +1,66 @@
 Q(sqrt(-2))	discriminant = -8	min poly(t) = t^2+2.
 Euclidean
 17968 primes initialised, max norm = 200000
+
 >>>> Level 32.1 = (4t), norm = 32 <<<<
 
 1 newform(s) at level 32.1 = (4t):
 Writing data to file nftmp/2.0.8.1/32.0.4...done.
 ===========================================
+
 >>>> Level 51.1 = (7+t), norm = 51 <<<<
 
 1 newform(s) at level 51.1 = (7+t):
 Writing data to file nftmp/2.0.8.1/51.7.1...done.
 ===========================================
+
 >>>> Level 54.1 = (2+5t), norm = 54 <<<<
 
 1 newform(s) at level 54.1 = (2+5t):
 Writing data to file nftmp/2.0.8.1/54.22.1...done.
 ===========================================
+
 >>>> Level 72.2 = (6t), norm = 72 <<<<
 
 1 newform(s) at level 72.2 = (6t):
 Writing data to file nftmp/2.0.8.1/72.0.6...done.
 ===========================================
+
 >>>> Level 98.1 = (7t), norm = 98 <<<<
 
 1 newform(s) at level 98.1 = (7t):
 Writing data to file nftmp/2.0.8.1/98.0.7...done.
 ===========================================
+
 >>>> Level 99.3 = (9+3t), norm = 99 <<<<
 
 1 newform(s) at level 99.3 = (9+3t):
 Writing data to file nftmp/2.0.8.1/99.9.3...done.
 ===========================================
+
 >>>> Level 100.1 = (10), norm = 100 <<<<
 
 1 newform(s) at level 100.1 = (10):
 Writing data to file nftmp/2.0.8.1/100.0.10...done.
 ===========================================
+
 >>>> Level 102.4 = (2+7t), norm = 102 <<<<
 No newforms.
 Writing data to file nftmp/2.0.8.1/102.44.1...done.
 ===========================================
+
 >>>> Level 114.1 = (4+7t), norm = 114 <<<<
 
 1 newform(s) at level 114.1 = (4+7t):
 Writing data to file nftmp/2.0.8.1/114.82.1...done.
 ===========================================
+
 >>>> Level 121.2 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.2 = (11):
 Writing data to file nftmp/2.0.8.1/121.0.11...done.
 ===========================================
+
 >>>> Level 144.2 = (12), norm = 144 <<<<
 
 1 newform(s) at level 144.2 = (12):

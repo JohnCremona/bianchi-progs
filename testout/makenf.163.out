@@ -1,16 +1,19 @@
 Q(sqrt(-163))	discriminant = -163	min poly(a) = a^2-a+41.
 Non-Euclidean, class number 1
 18106 primes initialised, max norm = 200000
+
 >>>> Level 121.1 = (11), norm = 121 <<<<
 
 1 newform(s) at level 121.1 = (11):
 Writing data to file nftmp/2.0.163.1/121.0.11...done.
 ===========================================
+
 >>>> Level 163.1 = (-1+2a), norm = 163 <<<<
 
 1 newform(s) at level 163.1 = (-1+2a):
 Writing data to file nftmp/2.0.163.1/163.81.1...done.
 ===========================================
+
 >>>> Level 244.1 = (8+2a), norm = 244 <<<<
 
 1 newform(s) at level 244.1 = (8+2a):

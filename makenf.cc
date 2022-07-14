@@ -45,7 +45,7 @@ int main ()
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
 #endif
-     cerr<<endl;
+     cout<<endl;
      QUINT normN = N.norm();
      string efilename = eigfile(N);
      string label = ideal_label(N);

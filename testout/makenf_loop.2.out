@@ -1,0 +1,579 @@
+Q(sqrt(-2))	discriminant = -8	min poly(t) = t^2+2.
+Euclidean
+17968 primes initialised, max norm = 200000
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/1.0.1...done.
+===========================================
+
+>>>> Level 2.1 = (t), norm = 2 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/2.0.1...done.
+===========================================
+
+>>>> Level 3.1 = (1+t), norm = 3 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/3.1.1...done.
+===========================================
+
+>>>> Level 3.2 = (-1+t), norm = 3 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/3.2.1...done.
+===========================================
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/4.0.2...done.
+===========================================
+
+>>>> Level 6.1 = (-2+t), norm = 6 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/6.4.1...done.
+===========================================
+
+>>>> Level 6.2 = (2+t), norm = 6 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/6.2.1...done.
+===========================================
+
+>>>> Level 8.1 = (2t), norm = 8 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/8.0.2...done.
+===========================================
+
+>>>> Level 9.1 = (-1+2t), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/9.4.1...done.
+===========================================
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/9.0.3...done.
+===========================================
+
+>>>> Level 9.3 = (1+2t), norm = 9 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/9.5.1...done.
+===========================================
+
+>>>> Level 11.1 = (3+t), norm = 11 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/11.3.1...done.
+===========================================
+
+>>>> Level 11.2 = (-3+t), norm = 11 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/11.8.1...done.
+===========================================
+
+>>>> Level 12.1 = (2+2t), norm = 12 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/12.2.2...done.
+===========================================
+
+>>>> Level 12.2 = (-2+2t), norm = 12 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/12.4.2...done.
+===========================================
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/16.0.4...done.
+===========================================
+
+>>>> Level 17.1 = (-3+2t), norm = 17 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/17.7.1...done.
+===========================================
+
+>>>> Level 17.2 = (3+2t), norm = 17 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/17.10.1...done.
+===========================================
+
+>>>> Level 18.1 = (4+t), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/18.4.1...done.
+===========================================
+
+>>>> Level 18.2 = (3t), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/18.0.3...done.
+===========================================
+
+>>>> Level 18.3 = (-4+t), norm = 18 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/18.14.1...done.
+===========================================
+
+>>>> Level 19.1 = (-1+3t), norm = 19 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/19.6.1...done.
+===========================================
+
+>>>> Level 19.2 = (1+3t), norm = 19 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/19.13.1...done.
+===========================================
+
+>>>> Level 22.1 = (-2+3t), norm = 22 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/22.14.1...done.
+===========================================
+
+>>>> Level 22.2 = (2+3t), norm = 22 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/22.8.1...done.
+===========================================
+
+>>>> Level 24.1 = (-4+2t), norm = 24 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/24.8.2...done.
+===========================================
+
+>>>> Level 24.2 = (4+2t), norm = 24 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/24.4.2...done.
+===========================================
+
+>>>> Level 25.1 = (5), norm = 25 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/25.0.5...done.
+===========================================
+
+>>>> Level 27.1 = (-5+t), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/27.22.1...done.
+===========================================
+
+>>>> Level 27.2 = (3+3t), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/27.3.3...done.
+===========================================
+
+>>>> Level 27.3 = (-3+3t), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/27.6.3...done.
+===========================================
+
+>>>> Level 27.4 = (5+t), norm = 27 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/27.5.1...done.
+===========================================
+
+>>>> Level 32.1 = (4t), norm = 32 <<<<
+
+1 newform(s) at level 32.1 = (4t):
+Writing data to file nftmp/2.0.8.1/32.0.4...done.
+===========================================
+
+>>>> Level 33.1 = (1+4t), norm = 33 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/33.25.1...done.
+===========================================
+
+>>>> Level 33.2 = (5+2t), norm = 33 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/33.19.1...done.
+===========================================
+
+>>>> Level 33.3 = (-5+2t), norm = 33 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/33.14.1...done.
+===========================================
+
+>>>> Level 33.4 = (-1+4t), norm = 33 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/33.8.1...done.
+===========================================
+
+>>>> Level 34.1 = (4+3t), norm = 34 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/34.24.1...done.
+===========================================
+
+>>>> Level 34.2 = (-4+3t), norm = 34 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/34.10.1...done.
+===========================================
+
+>>>> Level 36.1 = (-2+4t), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/36.8.2...done.
+===========================================
+
+>>>> Level 36.2 = (6), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/36.0.6...done.
+===========================================
+
+>>>> Level 36.3 = (2+4t), norm = 36 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/36.10.2...done.
+===========================================
+
+>>>> Level 38.1 = (6+t), norm = 38 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/38.6.1...done.
+===========================================
+
+>>>> Level 38.2 = (-6+t), norm = 38 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/38.32.1...done.
+===========================================
+
+>>>> Level 41.1 = (3+4t), norm = 41 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/41.11.1...done.
+===========================================
+
+>>>> Level 41.2 = (-3+4t), norm = 41 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/41.30.1...done.
+===========================================
+
+>>>> Level 43.1 = (5+3t), norm = 43 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/43.16.1...done.
+===========================================
+
+>>>> Level 43.2 = (-5+3t), norm = 43 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/43.27.1...done.
+===========================================
+
+>>>> Level 44.1 = (6+2t), norm = 44 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/44.6.2...done.
+===========================================
+
+>>>> Level 44.2 = (-6+2t), norm = 44 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/44.16.2...done.
+===========================================
+
+>>>> Level 48.1 = (4+4t), norm = 48 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/48.4.4...done.
+===========================================
+
+>>>> Level 48.2 = (-4+4t), norm = 48 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/48.8.4...done.
+===========================================
+
+>>>> Level 49.1 = (7), norm = 49 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/49.0.7...done.
+===========================================
+
+>>>> Level 50.1 = (5t), norm = 50 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/50.0.5...done.
+===========================================
+
+>>>> Level 51.1 = (7+t), norm = 51 <<<<
+
+1 newform(s) at level 51.1 = (7+t):
+Writing data to file nftmp/2.0.8.1/51.7.1...done.
+===========================================
+
+>>>> Level 51.2 = (-1+5t), norm = 51 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/51.10.1...done.
+===========================================
+
+>>>> Level 51.3 = (1+5t), norm = 51 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/51.41.1...done.
+===========================================
+
+>>>> Level 51.4 = (-7+t), norm = 51 <<<<
+
+1 newform(s) at level 51.4 = (-7+t):
+Writing data to file nftmp/2.0.8.1/51.44.1...done.
+===========================================
+
+>>>> Level 54.1 = (2+5t), norm = 54 <<<<
+
+1 newform(s) at level 54.1 = (2+5t):
+Writing data to file nftmp/2.0.8.1/54.22.1...done.
+===========================================
+
+>>>> Level 54.2 = (-6+3t), norm = 54 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/54.12.3...done.
+===========================================
+
+>>>> Level 54.3 = (6+3t), norm = 54 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/54.6.3...done.
+===========================================
+
+>>>> Level 54.4 = (-2+5t), norm = 54 <<<<
+
+1 newform(s) at level 54.4 = (-2+5t):
+Writing data to file nftmp/2.0.8.1/54.32.1...done.
+===========================================
+
+>>>> Level 57.1 = (-7+2t), norm = 57 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/57.25.1...done.
+===========================================
+
+>>>> Level 57.2 = (-5+4t), norm = 57 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/57.13.1...done.
+===========================================
+
+>>>> Level 57.3 = (5+4t), norm = 57 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/57.44.1...done.
+===========================================
+
+>>>> Level 57.4 = (7+2t), norm = 57 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/57.32.1...done.
+===========================================
+
+>>>> Level 59.1 = (-3+5t), norm = 59 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/59.23.1...done.
+===========================================
+
+>>>> Level 59.2 = (3+5t), norm = 59 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/59.36.1...done.
+===========================================
+
+>>>> Level 64.1 = (8), norm = 64 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/64.0.8...done.
+===========================================
+
+>>>> Level 66.1 = (-8+t), norm = 66 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/66.58.1...done.
+===========================================
+
+>>>> Level 66.2 = (-4+5t), norm = 66 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/66.52.1...done.
+===========================================
+
+>>>> Level 66.3 = (4+5t), norm = 66 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/66.14.1...done.
+===========================================
+
+>>>> Level 66.4 = (8+t), norm = 66 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/66.8.1...done.
+===========================================
+
+>>>> Level 67.1 = (-7+3t), norm = 67 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/67.20.1...done.
+===========================================
+
+>>>> Level 67.2 = (7+3t), norm = 67 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/67.47.1...done.
+===========================================
+
+>>>> Level 68.1 = (-6+4t), norm = 68 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/68.14.2...done.
+===========================================
+
+>>>> Level 68.2 = (6+4t), norm = 68 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/68.20.2...done.
+===========================================
+
+>>>> Level 72.1 = (8+2t), norm = 72 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/72.8.2...done.
+===========================================
+
+>>>> Level 72.2 = (6t), norm = 72 <<<<
+
+1 newform(s) at level 72.2 = (6t):
+Writing data to file nftmp/2.0.8.1/72.0.6...done.
+===========================================
+
+>>>> Level 72.3 = (-8+2t), norm = 72 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/72.28.2...done.
+===========================================
+
+>>>> Level 73.1 = (-1+6t), norm = 73 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/73.12.1...done.
+===========================================
+
+>>>> Level 73.2 = (1+6t), norm = 73 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/73.61.1...done.
+===========================================
+
+>>>> Level 75.1 = (5+5t), norm = 75 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/75.5.5...done.
+===========================================
+
+>>>> Level 75.2 = (-5+5t), norm = 75 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/75.10.5...done.
+===========================================
+
+>>>> Level 76.1 = (-2+6t), norm = 76 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/76.12.2...done.
+===========================================
+
+>>>> Level 76.2 = (2+6t), norm = 76 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/76.26.2...done.
+===========================================
+
+>>>> Level 81.1 = (7+4t), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/81.22.1...done.
+===========================================
+
+>>>> Level 81.2 = (-3+6t), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/81.12.3...done.
+===========================================
+
+>>>> Level 81.3 = (9), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/81.0.9...done.
+===========================================
+
+>>>> Level 81.4 = (3+6t), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/81.15.3...done.
+===========================================
+
+>>>> Level 81.5 = (-7+4t), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/81.59.1...done.
+===========================================
+
+>>>> Level 82.1 = (-8+3t), norm = 82 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/82.52.1...done.
+===========================================
+
+>>>> Level 82.2 = (8+3t), norm = 82 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/82.30.1...done.
+===========================================
+
+>>>> Level 83.1 = (9+t), norm = 83 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/83.9.1...done.
+===========================================
+
+>>>> Level 83.2 = (-9+t), norm = 83 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/83.74.1...done.
+===========================================
+
+>>>> Level 86.1 = (-6+5t), norm = 86 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/86.16.1...done.
+===========================================
+
+>>>> Level 86.2 = (6+5t), norm = 86 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/86.70.1...done.
+===========================================
+
+>>>> Level 88.1 = (-4+6t), norm = 88 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/88.28.2...done.
+===========================================
+
+>>>> Level 88.2 = (4+6t), norm = 88 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/88.16.2...done.
+===========================================
+
+>>>> Level 89.1 = (-9+2t), norm = 89 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/89.40.1...done.
+===========================================
+
+>>>> Level 89.2 = (9+2t), norm = 89 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/89.49.1...done.
+===========================================
+
+>>>> Level 96.1 = (-8+4t), norm = 96 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/96.16.4...done.
+===========================================
+
+>>>> Level 96.2 = (8+4t), norm = 96 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/96.8.4...done.
+===========================================
+
+>>>> Level 97.1 = (5+6t), norm = 97 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/97.17.1...done.
+===========================================
+
+>>>> Level 97.2 = (-5+6t), norm = 97 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/97.80.1...done.
+===========================================
+
+>>>> Level 98.1 = (7t), norm = 98 <<<<
+
+1 newform(s) at level 98.1 = (7t):
+Writing data to file nftmp/2.0.8.1/98.0.7...done.
+===========================================
+
+>>>> Level 99.1 = (-7+5t), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/99.58.1...done.
+===========================================
+
+>>>> Level 99.2 = (1+7t), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/99.85.1...done.
+===========================================
+
+>>>> Level 99.3 = (9+3t), norm = 99 <<<<
+
+1 newform(s) at level 99.3 = (9+3t):
+Writing data to file nftmp/2.0.8.1/99.9.3...done.
+===========================================
+
+>>>> Level 99.4 = (-9+3t), norm = 99 <<<<
+
+1 newform(s) at level 99.4 = (-9+3t):
+Writing data to file nftmp/2.0.8.1/99.24.3...done.
+===========================================
+
+>>>> Level 99.5 = (-1+7t), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/99.14.1...done.
+===========================================
+
+>>>> Level 99.6 = (7+5t), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.8.1/99.41.1...done.
+===========================================
+
+>>>> Level 100.1 = (10), norm = 100 <<<<
+
+1 newform(s) at level 100.1 = (10):
+Writing data to file nftmp/2.0.8.1/100.0.10...done.
+===========================================
+
