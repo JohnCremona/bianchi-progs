@@ -59,7 +59,11 @@ void oldforms::getoldclasses(Qideal& D)
   noldclasses += old1ds;
 
   if (old1ds==0 && old2ds==0)
-    return;
+    {
+      if(nf->verbose)
+        cout<<" oldspace dimension is 0"<<endl;
+      return;
+    }
 
   // Compute the oldform multiplicities.
 

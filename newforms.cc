@@ -807,7 +807,7 @@ void newforms::find()
   if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
   n2ds=dimtrivcuspnew-n1ds; // dimension of new, non-rational forms
   if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
-  assert (n2ds>=0 && "found more newforms than the dimensions!");
+  assert (n2ds>=0 && "found more newforms than the total new dimension!");
 
   // We cannot yet split n1ds, and hence n2ds, by character since we
   // cannot detect self-twist until we have computed more ap -- unless
@@ -1696,6 +1696,8 @@ void newforms::getap(int first, int last, int verbose)
       assert(newn1ds+nfakes==n1ds);
       n1ds = newn1ds;
       nflist.resize(n1ds);
+      n2ds += nfakes;
+      assert(n1ds+n2ds==dimtrivcuspnew);
       if (verbose)
         {
           cout<<"Revised n1ds = "<<n1ds<<"; re-filling in newform data"<<endl;
