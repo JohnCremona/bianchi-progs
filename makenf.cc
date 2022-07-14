@@ -32,8 +32,16 @@ int main ()
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
+
+ // Open file for output of dimension table
  stringstream dimtabfilename;
- dimtabfilename << "dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
+ dimtabfilename << getenv("NF_DIR");
+ if (dimtabfilename.str().empty())
+   {
+     dimtabfilename.clear();
+     dimtabfilename<<"./newforms";
+   }
+ dimtabfilename << "/dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
  ofstream dimtab(dimtabfilename.str().c_str());
 
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
