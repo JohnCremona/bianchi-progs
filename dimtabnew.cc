@@ -1,7 +1,6 @@
 #include "qidloop.h"
 #include "newforms.h"
 //#define MODP
-//#define LOOPER
 
 int main ()
 {
@@ -17,15 +16,13 @@ int main ()
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
 
-#ifdef LOOPER
   long firstn, lastn; Quad n;
-  int both_conj;
-  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
+  int both_conj=1;
+  //cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
 
   cerr<<"Enter first and last norm for Quad loop: ";
   cin >> firstn >> lastn;
   cerr<<endl;
-#endif
 
   Quad::field(d,max);
 
@@ -38,16 +35,10 @@ int main ()
  cout << "# Field\tWeight\tLevel\t";
  cout << "dim(all)\tdim(cuspidal)\tdim(cuspidal, new)" << endl;
 
-#ifdef LOOPER
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
-#else
-     Qideal N;
- while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
-   {
-#endif
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t\t"; // level
      homspace hplus(N, 1, 1, 0, ch);  //level, plusflag, cuspidal, verbose

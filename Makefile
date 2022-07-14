@@ -81,7 +81,7 @@ headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h n
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop dimtabnew_loop
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -108,15 +108,15 @@ FIELDS=$(FIELDS_full) $(FIELDS_hom) $(FIELDSX)
 #FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
-BASIC_TESTS = fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-FULL_TESTS = $(HOM_TESTS) makenf makenf_loop nftest nflist nflist_loop dimtabnew_loop moreap moreap1 modularity modularity_modp #dimtabnew #makenf_modp
+BASIC_TESTS = #fieldinfo tquads tratquad looptest P1Ntest qidltest
+HOM_TESTS = #homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
+FULL_TESTS = $(HOM_TESTS) makenf makenf_loop nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp  #makenf_modp
 ALL_TESTS = $(BASIC_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin
 test_output_dir = testout
 
-check_run = echo -n "Testing $${prog} for d=$${d}..."; ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully"; else echo "$${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
+check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o /dev/tty -f "runtime was %Us..." ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo " - $${prog} for d=$${d} completed successfully";  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
 
 
 export NF_DIR:=nftmp
@@ -230,14 +230,8 @@ dimtable: dimtable.o $(OBJS)
 dimtabeis: dimtabeis.o $(OBJS)
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)
 
-dimtabnew_loop.o: dimtabnew.cc $(OBJS)
-	$(CC) -DLOOPER $(CFLAGS) dimtabnew.cc -o dimtabnew_loop.o
-
 dimtabnew: dimtabnew.o $(OBJS)
 	$(CC) -o dimtabnew dimtabnew.o $(OBJS) $(LFLAGS)
-
-dimtabnew_loop: dimtabnew_loop.o $(OBJS)
-	$(CC) -o dimtabnew_loop dimtabnew_loop.o $(OBJS) $(LFLAGS)
 
 dimtabtwist: dimtabtwist.o $(OBJS)
 	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
