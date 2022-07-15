@@ -29,7 +29,7 @@ Writing data to file nftmp/2.0.88.1/9.1...done.
 
 >>>> Level 11.1 = (a,-11), norm = 11 <<<<
 
-1 newform(s) at level 11.1 = (a,-11):
+1 newform(s) at level 11.1 = (a,-11) (up to twist by unramified character):
 Writing data to file nftmp/2.0.88.1/11.1...done.
 ===========================================
 
@@ -115,7 +115,7 @@ Writing data to file nftmp/2.0.88.1/31.2...done.
 
 >>>> Level 32.1 = (8,4a), norm = 32 <<<<
 
-1 newform(s) at level 32.1 = (8,4a):
+1 newform(s) at level 32.1 = (8,4a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.88.1/32.1...done.
 ===========================================
 

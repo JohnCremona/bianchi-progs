@@ -1,0 +1,28 @@
+Q(sqrt(-17))	discriminant = -68	min poly(a) = a^2+17.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,1+a] [3,1+a] [3,2+a] ]
+
+>>>> Level 7.1 = (2+a,-5+a), norm = 7 <<<<
+
+1 newform(s) at level 7.1 = (2+a,-5+a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.68.1/7.1...done.
+===========================================
+
+>>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
+
+1 newform(s) at level 8.1 = (4,-2+2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.68.1/8.1...done.
+===========================================
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+
+2 newform(s) at level 9.2 = (3) (up to twist by unramified character):
+Writing data to file nftmp/2.0.68.1/9.2...done.
+===========================================
+
+>>>> Level 17.1 = (a), norm = 17 <<<<
+
+1 newform(s) at level 17.1 = (a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.68.1/17.1...done.
+===========================================
+
