@@ -97,30 +97,29 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
 
 # Basic arithmetic, homology dimensions, newforms
-FIELDS_nf=5 6 10 13 14 15 17 22
+FIELDS_nf=$(FIELDS_full) 5 6 10 13 14 15 17 22
 #FIELDS_nf=5 6 10 13 14 15 17
 
 # Basic arithmetic, homology dimensions
-FIELDS_hom=21 35 39 42 51 55 87 91 95
+FIELDS_hom=$(FIELDS_nf) 21 35 39 42 51 55 87 91 95
 #FIELDS_hom=
 
 # Only basic arithmetic
-FIELDSX=
-#FIELDSX=
-
-FIELDS=$(FIELDS_full) $(FIELDS_nf) $(FIELDS_hom) $(FIELDSX)
+FIELDS=$(FIELDS_hom)
 #FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = fieldinfo tquads tratquad looptest P1Ntest qidltest
-HOM_TESTS = $(BASIC_TESTS) homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-NF_TESTS = $(HOM_TESTS) makenf makenf_loop nftest nflist nflist_loop dimtabnew
-FULL_TESTS = $(NF_TESTS) moreap moreap1 modularity modularity_modp  #makenf_modp
+HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
+NF_TESTS = makenf makenf_loop nftest nflist nflist_loop dimtabnew
+FULL_TESTS = moreap moreap1 modularity modularity_modp  #makenf_modp
 
 test_input_dir = testin
 test_output_dir = testout
 
-check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o /dev/tty -f "runtime was %Us..." ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo " - $${prog} for d=$${d} completed successfully";  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
+TIMES := $(shell mktemp)
+
+check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o $(TIMES) -f "%Us" ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully in " `cat $(TIMES)`;  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
 
 
 export NF_DIR:=nftmp
