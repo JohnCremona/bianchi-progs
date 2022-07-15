@@ -1,0 +1,22 @@
+Q(sqrt(-13))	discriminant = -52	min poly(a) = a^2+13.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,1+a] ]
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+
+1 newform(s) at level 16.1 = (4) (up to twist by unramified character):
+Writing data to file nftmp/2.0.52.1/16.1...done.
+===========================================
+
+>>>> Level 26.1 = (2a,-13-a), norm = 26 <<<<
+
+2 newform(s) at level 26.1 = (2a,-13-a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.52.1/26.1...done.
+===========================================
+
+>>>> Level 49.1 = (-6+a), norm = 49 <<<<
+
+1 newform(s) at level 49.1 = (-6+a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.52.1/49.1...done.
+===========================================
+

@@ -99,7 +99,7 @@ Writing data to file nftmp/2.0.40.1/19.2...done.
 
 >>>> Level 20.1 = (2a,-10), norm = 20 <<<<
 
-1 newform(s) at level 20.1 = (2a,-10):
+1 newform(s) at level 20.1 = (2a,-10) (up to twist by unramified character):
 Writing data to file nftmp/2.0.40.1/20.1...done.
 ===========================================
 
@@ -150,7 +150,7 @@ Writing data to file nftmp/2.0.40.1/28.2...done.
 
 >>>> Level 32.1 = (8,4a), norm = 32 <<<<
 
-1 newform(s) at level 32.1 = (8,4a):
+1 newform(s) at level 32.1 = (8,4a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.40.1/32.1...done.
 ===========================================
 
@@ -191,7 +191,337 @@ Writing data to file nftmp/2.0.40.1/38.2...done.
 
 >>>> Level 40.1 = (2a), norm = 40 <<<<
 
-1 newform(s) at level 40.1 = (2a):
+1 newform(s) at level 40.1 = (2a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.40.1/40.1...done.
+===========================================
+
+>>>> Level 41.1 = (-1+2a), norm = 41 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/41.1...done.
+===========================================
+
+>>>> Level 41.2 = (1+2a), norm = 41 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/41.2...done.
+===========================================
+
+>>>> Level 44.1 = (2+2a), norm = 44 <<<<
+
+1 newform(s) at level 44.1 = (2+2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/44.1...done.
+===========================================
+
+>>>> Level 44.2 = (-2+2a), norm = 44 <<<<
+
+1 newform(s) at level 44.2 = (-2+2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/44.2...done.
+===========================================
+
+>>>> Level 45.1 = (3a,-15), norm = 45 <<<<
+
+1 newform(s) at level 45.1 = (3a,-15) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/45.1...done.
+===========================================
+
+>>>> Level 46.1 = (6+a), norm = 46 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/46.1...done.
+===========================================
+
+>>>> Level 46.2 = (-6+a), norm = 46 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/46.2...done.
+===========================================
+
+>>>> Level 47.1 = (-2+3a,-15-a), norm = 47 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/47.1...done.
+===========================================
+
+>>>> Level 47.2 = (2+3a,-15+a), norm = 47 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/47.2...done.
+===========================================
+
+>>>> Level 49.1 = (-3+2a), norm = 49 <<<<
+
+1 newform(s) at level 49.1 = (-3+2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/49.1...done.
+===========================================
+
+>>>> Level 49.2 = (7), norm = 49 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/49.2...done.
+===========================================
+
+>>>> Level 49.3 = (3+2a), norm = 49 <<<<
+
+1 newform(s) at level 49.3 = (3+2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/49.3...done.
+===========================================
+
+>>>> Level 50.1 = (10,5a), norm = 50 <<<<
+
+1 newform(s) at level 50.1 = (10,5a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/50.1...done.
+===========================================
+
+>>>> Level 52.1 = (8+2a,-10+4a), norm = 52 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/52.1...done.
+===========================================
+
+>>>> Level 52.2 = (-8+2a,-10-4a), norm = 52 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/52.2...done.
+===========================================
+
+>>>> Level 53.1 = (4+3a,-15+2a), norm = 53 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/53.1...done.
+===========================================
+
+>>>> Level 53.2 = (-4+3a,-15-2a), norm = 53 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/53.2...done.
+===========================================
+
+>>>> Level 55.1 = (-10+a,-5-5a), norm = 55 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/55.1...done.
+===========================================
+
+>>>> Level 55.2 = (10+a,-5+5a), norm = 55 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/55.2...done.
+===========================================
+
+>>>> Level 56.1 = (4+2a), norm = 56 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/56.1...done.
+===========================================
+
+>>>> Level 56.2 = (-4+2a), norm = 56 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/56.2...done.
+===========================================
+
+>>>> Level 59.1 = (7+a), norm = 59 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/59.1...done.
+===========================================
+
+>>>> Level 59.2 = (-7+a), norm = 59 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/59.2...done.
+===========================================
+
+>>>> Level 63.1 = (6+3a,-15+3a), norm = 63 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/63.1...done.
+===========================================
+
+>>>> Level 63.2 = (-6+3a,-15-3a), norm = 63 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/63.2...done.
+===========================================
+
+>>>> Level 64.1 = (8), norm = 64 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/64.1...done.
+===========================================
+
+>>>> Level 65.1 = (-5+2a), norm = 65 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/65.1...done.
+===========================================
+
+>>>> Level 65.2 = (5+2a), norm = 65 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/65.2...done.
+===========================================
+
+>>>> Level 70.1 = (-10+2a,-10-5a), norm = 70 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/70.1...done.
+===========================================
+
+>>>> Level 70.2 = (10+2a,-10+5a), norm = 70 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/70.2...done.
+===========================================
+
+>>>> Level 72.1 = (12,6a), norm = 72 <<<<
+
+1 newform(s) at level 72.1 = (12,6a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/72.1...done.
+===========================================
+
+>>>> Level 74.1 = (8+a), norm = 74 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/74.1...done.
+===========================================
+
+>>>> Level 74.2 = (-8+a), norm = 74 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/74.2...done.
+===========================================
+
+>>>> Level 76.1 = (6+2a), norm = 76 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/76.1...done.
+===========================================
+
+>>>> Level 76.2 = (-6+2a), norm = 76 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/76.2...done.
+===========================================
+
+>>>> Level 77.1 = (-8+3a,-15-4a), norm = 77 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/77.1...done.
+===========================================
+
+>>>> Level 77.2 = (-12+a,-5-6a), norm = 77 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/77.2...done.
+===========================================
+
+>>>> Level 77.3 = (12+a,-5+6a), norm = 77 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/77.3...done.
+===========================================
+
+>>>> Level 77.4 = (8+3a,-15+4a), norm = 77 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/77.4...done.
+===========================================
+
+>>>> Level 80.1 = (4a,-20), norm = 80 <<<<
+
+2 newform(s) at level 80.1 = (4a,-20) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/80.1...done.
+===========================================
+
+>>>> Level 81.1 = (9), norm = 81 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/81.1...done.
+===========================================
+
+>>>> Level 82.1 = (-2+4a,-20-a), norm = 82 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/82.1...done.
+===========================================
+
+>>>> Level 82.2 = (2+4a,-20+a), norm = 82 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/82.2...done.
+===========================================
+
+>>>> Level 88.1 = (4+4a,-20+2a), norm = 88 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/88.1...done.
+===========================================
+
+>>>> Level 88.2 = (-4+4a,-20-2a), norm = 88 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/88.2...done.
+===========================================
+
+>>>> Level 89.1 = (-7+2a), norm = 89 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/89.1...done.
+===========================================
+
+>>>> Level 89.2 = (7+2a), norm = 89 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/89.2...done.
+===========================================
+
+>>>> Level 90.1 = (3a), norm = 90 <<<<
+
+1 newform(s) at level 90.1 = (3a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/90.1...done.
+===========================================
+
+>>>> Level 91.1 = (-1+3a), norm = 91 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/91.1...done.
+===========================================
+
+>>>> Level 91.2 = (9+a), norm = 91 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/91.2...done.
+===========================================
+
+>>>> Level 91.3 = (-9+a), norm = 91 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/91.3...done.
+===========================================
+
+>>>> Level 91.4 = (1+3a), norm = 91 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/91.4...done.
+===========================================
+
+>>>> Level 92.1 = (12+2a,-10+6a), norm = 92 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/92.1...done.
+===========================================
+
+>>>> Level 92.2 = (-12+2a,-10-6a), norm = 92 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/92.2...done.
+===========================================
+
+>>>> Level 94.1 = (-2+3a), norm = 94 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/94.1...done.
+===========================================
+
+>>>> Level 94.2 = (2+3a), norm = 94 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/94.2...done.
+===========================================
+
+>>>> Level 95.1 = (-10+3a,-15-5a), norm = 95 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/95.1...done.
+===========================================
+
+>>>> Level 95.2 = (10+3a,-15+5a), norm = 95 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/95.2...done.
+===========================================
+
+>>>> Level 98.1 = (-6+4a,-20-3a), norm = 98 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/98.1...done.
+===========================================
+
+>>>> Level 98.2 = (14,7a), norm = 98 <<<<
+
+1 newform(s) at level 98.2 = (14,7a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.40.1/98.2...done.
+===========================================
+
+>>>> Level 98.3 = (6+4a,-20+3a), norm = 98 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/98.3...done.
+===========================================
+
+>>>> Level 99.1 = (3+3a), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/99.1...done.
+===========================================
+
+>>>> Level 99.2 = (-3+3a), norm = 99 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/99.2...done.
+===========================================
+
+>>>> Level 100.1 = (10), norm = 100 <<<<
+No newforms.
+Writing data to file nftmp/2.0.40.1/100.1...done.
 ===========================================
 
