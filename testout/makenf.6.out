@@ -1,0 +1,28 @@
+Q(sqrt(-6))	discriminant = -24	min poly(a) = a^2+6.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,a] ]
+
+>>>> Level 24.1 = (2a), norm = 24 <<<<
+
+1 newform(s) at level 24.1 = (2a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.24.1/24.1...done.
+===========================================
+
+>>>> Level 32.1 = (8,4a), norm = 32 <<<<
+
+1 newform(s) at level 32.1 = (8,4a) (up to twist by unramified character):
+Writing data to file nftmp/2.0.24.1/32.1...done.
+===========================================
+
+>>>> Level 36.1 = (6), norm = 36 <<<<
+
+1 newform(s) at level 36.1 = (6) (up to twist by unramified character):
+Writing data to file nftmp/2.0.24.1/36.1...done.
+===========================================
+
+>>>> Level 48.1 = (4a,-12), norm = 48 <<<<
+
+1 newform(s) at level 48.1 = (4a,-12) (up to twist by unramified character):
+Writing data to file nftmp/2.0.24.1/48.1...done.
+===========================================
+
