@@ -118,7 +118,7 @@ public:
   long eigenvalueAtkinLehner(Quadprime& Q, int verbose=0);
 
   void display(void) const;
-  void list(long nap=-1) const;
+  void list(string prefix, long nap=-1) const;
   // To find matrix for integration:
   void find_matrix();
   // Test if form is base-change
@@ -129,6 +129,13 @@ public:
   int base_change_discriminant(void) const;
   // if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
   int base_change_twist_discriminant(void) const;
+  // code to indicate base change or b.c. up to twist
+  int base_change_code() const
+  {
+    if (is_base_change()) return base_change_discriminant();
+    if (is_base_change_twist()) return -base_change_twist_discriminant();
+    return 0;
+  }
   // Test if form is CM, return 0 or the CM disc
   int is_CM(void) const;
 };

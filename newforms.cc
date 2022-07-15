@@ -938,45 +938,26 @@ void newform::display(void) const
 void newforms::list(long nap)
 {
   string idlabel = ideal_label(N), idgens = gens_string(N), flabel = field_label();
+  string s1 = flabel + " " + idlabel + " ";
+  string s2 = " " + idgens + " 2 ";
   for(int i=0; i<n1ds; i++)
-    {
-      cout << flabel << " " << idlabel << " " << codeletter(i) << " " << idgens << " 2 ";  // last is weight
-      if (characteristic>0)
-        cout << characteristic << " ";
-      else
-        {
-          int bc = nflist[i].is_base_change();
-          if (bc)
-            {
-              int bcd = nflist[i].base_change_discriminant();
-              cout << bcd;
-            }
-          else
-            {
-              int bct = nflist[i].is_base_change_twist();
-              if (bct)
-                {
-                  // NB if we have not enough inert a(P) we might not be
-                  // able to determine the discriminant; the following
-                  // will return 1 in this case.
-                  int bcd = nflist[i].base_change_twist_discriminant();
-                  cout << (-bcd);
-                }
-              else
-                cout << "0";
-            }
-          cout << " ";
-          cout << nflist[i].is_CM() << " ";
-        }
-      nflist[i].list(nap);
-      cout << endl;
-    }
+    nflist[i].list(s1 + codeletter(i) + s2, nap);
 }
 
-void newform::list(long nap) const
+void newform::list(string prefix, long nap) const
 {
   if(nap==-1) nap=aplist.size();
   vector<long>::const_iterator ai;
+
+  cout << prefix;
+
+  if (nf->characteristic>0)
+    cout << nf->characteristic << " ";
+  else
+    {
+      cout << base_change_code() << " ";
+      cout << is_CM() << " ";
+    }
 
   if (nf->characteristic==0)
     {
@@ -1003,7 +984,7 @@ void newform::list(long nap) const
       else
         cout << ap;
     }
-  cout <<"]";
+  cout <<"]" <<endl;
 }
 
 // compute the eigenvalue for a single operator on this newform
