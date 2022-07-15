@@ -202,7 +202,7 @@ void Quad::field(long dd, long max)
       for (int i=0; i<n2r; i++)
         if (bit(chi_index,i)==1)
           D *= prime_disc_factors[i];
-      if (D>1) // negate positive ones except D=1 itlsef
+      if (D>1) // negate positive ones except D=1 itself
         D = Quad::disc/D;
       all_disc_factors.push_back(D);
     }
@@ -988,3 +988,26 @@ vector<int> chardisc(QUINT D)
   // cout<<"chardisc("<<D<<") = "<<ans<<endl;
   return ans;
 }
+
+// all_disc_factors modulo D mod squares, i.e. factoring out D.  D
+// should be in all_disc_factors.  Returns a list of half the length
+// unless D=1.
+vector<QUINT> disc_factors_mod_D(const QUINT& D)
+{
+  if (D==ONE)
+    return Quad::all_disc_factors;
+  vector<int> Dv = chardisc(D);
+  // cout<<"D="<<D<<" Dv="<<Dv<<endl;
+  int i = std::find(Dv.begin(), Dv.end(), 0) - Dv.begin();
+  int j = std::find(Dv.begin(), Dv.end(), 1) - Dv.begin();
+  vector<QUINT> ans;
+  for( auto Di=Quad::all_disc_factors.begin(); Di!=Quad::all_disc_factors.end(); ++Di)
+    {
+      // cout<<"Di="<<(*Di)<<":"<<chardisc(*Di)<<endl;
+      if((chardisc(*Di)[i]==0) && (chardisc(*Di)[j]==0))
+        ans.push_back(*Di);
+    }
+  // cout<<"All discs "<<Quad::all_disc_factors<<" mod "<<D<<": "<<ans<<endl;
+  return ans;
+}
+

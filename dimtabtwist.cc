@@ -14,7 +14,7 @@ int main(void)
   //  Quad n;
   int plusflag=1, cuspidal=1;
   Qideal N;
-  long firstn, lastn;
+  long firstn=1, lastn;
 
   cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
   if (!check_field(d))
@@ -22,8 +22,8 @@ int main(void)
       cerr<<"field must be one of: "<<valid_fields<<endl;
       exit(1);
     }
-  cerr<<"Enter first and last norm for Quad loop: ";
-  cin >> firstn >> lastn;
+  cerr<<"Enter max norm for Quad loop: ";
+  cin >> lastn;
 
   Quad::field(d,max);
   int n2r = Quad::class_group_2_rank;

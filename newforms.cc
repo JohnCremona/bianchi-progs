@@ -524,6 +524,31 @@ int newform::is_CM(void) const
   return cmd;
 }
 
+// Return this twisted by the genus character associated to D
+newform newform::twist(const QUINT& D)
+{
+  newform f = *this; //copy constructor
+  if (D==ONE)
+    return f;
+  // Twist the ap:
+  auto Pi = Quadprimes::list.begin();
+  auto aPi=f.aplist.begin();
+  for (;
+       aPi!=f.aplist.end();
+       ++Pi, ++aPi)
+    (*aPi) *= Pi->genus_character(D);
+  // Twist the AL eigenvalues:
+  auto Qi = nf->badprimes.begin();
+  auto aQi=f.aqlist.begin();
+  for (;
+       aQi!=f.aqlist.end();
+       ++Qi, ++aQi)
+    (*aQi) *= Qi->genus_character(D);
+  // Twist the sfe:
+  f.sfe *= nf->N.genus_character(D);
+  return f;
+}
+
 void newforms::makeh1plus(void)
 {
   if(!h1)
@@ -909,7 +934,10 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
 void newforms::display(int detail)
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
- cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N) << ":" << endl;
+ cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N);
+ if (Quad::class_group_2_rank>0)
+   cout << " (up to twist by unramified character)";
+ cout  << ":"<< endl;
  if (detail)
    for(int i=0; i<n1ds; i++)
      {
@@ -940,8 +968,20 @@ void newforms::list(long nap)
   string idlabel = ideal_label(N), idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
-  for(int i=0; i<n1ds; i++)
-    nflist[i].list(s1 + codeletter(i) + s2, nap);
+  if (Quad::class_group_2_rank==0)
+    for(int i=0; i<n1ds; i++)
+      nflist[i].list(s1 + codeletter(i) + s2, nap);
+  else
+    for(int i=0; i<n1ds; i++)
+      {
+        QUINT D = nflist[i].CMD;
+        vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
+        int ntwists = twists.size();
+        // if(D!=0)
+        //   cout<<i<<": "<<ntwists<<" twists (D="<<D<<"), by "<<twists<<endl;
+        for (int j = 0; j<ntwists; j++)
+          nflist[i].twist(twists[j]).list(s1 + codeletter(i*ntwists+j) + s2, nap);
+      }
 }
 
 void newform::list(string prefix, long nap) const

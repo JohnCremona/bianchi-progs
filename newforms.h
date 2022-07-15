@@ -138,6 +138,8 @@ public:
   }
   // Test if form is CM, return 0 or the CM disc
   int is_CM(void) const;
+  // Return this twisted by the genus character associated to D
+  newform twist(const QUINT& D);
 };
 
 class newforms :public splitter_base {
@@ -219,6 +221,9 @@ public:
                    if(h1)delete h1;
                   }
   void display(int detail=1);
+  // List newforms in a fixed format. NB In even class number, each
+  // element from nflist gives rise to 2**n2r (or 2**(n2r-1) in case
+  // of forms with self-twist) actual rational newforms.
   void list(long nap=-1);
 
 private:

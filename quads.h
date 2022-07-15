@@ -282,6 +282,11 @@ vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist);
 bigfloat gauss(const Quad& m, const vector<Quad>& reslist);
 string ideal_code(const Quad& N); // string code for a (principal)  ideal
 
+// all_disc_factors modulo D mod squares, i.e. factoring out D.  D
+// should be in all_disc_factors.  Returns a list of half the length
+// unless D=1.
+vector<QUINT> disc_factors_mod_D(const QUINT& D);
+
 #endif
 
 // END OF FILE QUADS.H
