@@ -1,0 +1,10 @@
+Retrieving newform data for N = 17.1
+
+>>>> Level 17.1 = (-1+2a,-9+a), norm = 17 <<<<
+
+1 newform(s) at level 17.1 = (-1+2a,-9+a) (up to twist by unramified character):
+1:	basis = [];	aqlist = [ 1 ];	aplist = [ 0 -3 2 2 0 0 -2 -2 -1 -4 -4 -4 -4 -6 -6 6 6 4 4 2 4 4 4 4 8 ]
+Sign of F.E. = -1
+Twisting prime lambda = 1, factor = 8
+L/P ratio    = 1/2, cuspidal factor = 8
+Integration matrix = [-6-4a,-a;9-a,2], factor   = 8
