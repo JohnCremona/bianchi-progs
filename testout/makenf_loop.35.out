@@ -34,7 +34,7 @@ Writing data to file nftmp/2.0.35.1/7.1...done.
 
 >>>> Level 9.1 = (a), norm = 9 <<<<
 
-1 newform(s) at level 9.1 = (a):
+1 newform(s) at level 9.1 = (a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/9.1...done.
 ===========================================
 
@@ -45,7 +45,7 @@ Writing data to file nftmp/2.0.35.1/9.2...done.
 
 >>>> Level 9.3 = (-1+a), norm = 9 <<<<
 
-1 newform(s) at level 9.3 = (-1+a):
+1 newform(s) at level 9.3 = (-1+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/9.3...done.
 ===========================================
 
@@ -131,13 +131,13 @@ Writing data to file nftmp/2.0.35.1/27.1...done.
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 
-1 newform(s) at level 27.2 = (9,3a):
+1 newform(s) at level 27.2 = (9,3a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/27.2...done.
 ===========================================
 
 >>>> Level 27.3 = (9,-3+3a), norm = 27 <<<<
 
-1 newform(s) at level 27.3 = (9,-3+3a):
+1 newform(s) at level 27.3 = (9,-3+3a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/27.3...done.
 ===========================================
 
@@ -148,7 +148,7 @@ Writing data to file nftmp/2.0.35.1/27.4...done.
 
 >>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
 
-1 newform(s) at level 28.1 = (6+2a,-8+2a):
+1 newform(s) at level 28.1 = (6+2a,-8+2a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/28.1...done.
 ===========================================
 
@@ -184,7 +184,7 @@ Writing data to file nftmp/2.0.35.1/33.4...done.
 
 >>>> Level 35.1 = (-1+2a), norm = 35 <<<<
 
-1 newform(s) at level 35.1 = (-1+2a):
+1 newform(s) at level 35.1 = (-1+2a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/35.1...done.
 ===========================================
 
