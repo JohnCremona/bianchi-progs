@@ -1203,7 +1203,7 @@ long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
   // Now we rely on already having aP for some P in the same genus
   // class as Q^e, and compute W(Q)T(P)
 
-  // So far we have only imnplemented W(Q)T(P) when Q^e*P is
+  // So far we have only implemented W(Q)T(P) when Q^e*P is
   // principal, not when it only has square class, so we must find a
   // good prime in the opposite ideal class to Q^e for which we know
   // aP (and it is nonzero).
@@ -1222,7 +1222,7 @@ long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
         cout << " - trying P = "<<P<<" which is in the right ideal class"<<endl;
       vector<long int>::size_type i = Pi-Quadprimes::list.begin();
       long aP;
-      if (i<=aplist.size())
+      if (i<aplist.size())
         {
           aP = aplist[i];
           if (verbose)

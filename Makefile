@@ -101,11 +101,11 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
 
 # Basic arithmetic, homology dimensions, newforms
-FIELDS_nf=$(FIELDS_full) 5 6 10 13 14 15 17 22 21 35 39 51 55 87 91 95
-#FIELDS_nf=42
+FIELDS_nf=$(FIELDS_full) 5 6 10 13 14 15 17 22 21 35 39 42 51 55 87 91 95
+#FIELDS_nf=
 
 # Basic arithmetic, homology dimensions
-FIELDS_hom=$(FIELDS_nf) 42
+FIELDS_hom=$(FIELDS_nf)
 #FIELDS_hom=
 
 # Only basic arithmetic
