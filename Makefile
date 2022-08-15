@@ -59,6 +59,10 @@ endif
 #CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 #LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
+#for coverage:
+#CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+#LFLAGS = --coverage -fprofile-arcs -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
@@ -87,7 +91,7 @@ tests: $(TESTS)
 # These are for creation of temporary newforms directories for tests:
 DISCS9=3 4 7 8 11 19 43 67 163
 DISCSXodd=15 23 31 35 39 47 51 55 59 71 79 83 87 91 95
-DISCSXeven=20 24 40 42 52 56 68 84 88
+DISCSXeven=20 24 40 42 52 56 68 84 88 168
 DISCS=$(DISCS9) $(DISCSXodd) $(DISCSXeven)
 
 # These control which tests run on which fields:
@@ -97,11 +101,11 @@ FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83
 #FIELDS_full=
 
 # Basic arithmetic, homology dimensions, newforms
-FIELDS_nf=$(FIELDS_full) 5 6 10 13 14 15 17 22
-#FIELDS_nf=5 6 10 13 14 15 17
+FIELDS_nf=$(FIELDS_full) 5 6 10 13 14 15 17 22 21 35 39 51 55 87 91 95
+#FIELDS_nf=42
 
 # Basic arithmetic, homology dimensions
-FIELDS_hom=$(FIELDS_nf) 21 35 39 42 51 55 87 91 95
+FIELDS_hom=$(FIELDS_nf) 42
 #FIELDS_hom=
 
 # Only basic arithmetic
