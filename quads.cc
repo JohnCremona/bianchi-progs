@@ -68,6 +68,16 @@ Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
 Quad (*quadconj)(const Quad& a);
 
+Quad mult0(const Quad& a, const Quad& b)
+{
+  return Quad(a.r*b.r - Quad::n*a.i*b.i, a.r*b.i + a.i*b.r, a.nm*b.nm);
+}
+
+Quad mult1(const Quad& a, const Quad& b)
+{
+  return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);
+}
+
 Quad qdivi0(const Quad& a, QUINT c) // c>0,    // used when t=0
 {
   Quad ans;
@@ -252,6 +262,42 @@ int Quad::chi(QUINT p)
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
 }
 #endif
+
+Quad makepos(const Quad& a)
+{Quad ans=a;
+  while(!pos(ans)) {ans*=fundunit; }
+ return ans;
+}
+
+istream& operator>>(istream& s, Quad& x)
+{
+  s >> x.r >> x.i;
+  x.setnorm();
+  return s;
+}
+
+void Quad::setnorm()
+{
+  nm = r*r + n*i*i;
+  if (t) {nm += r*i;};
+  assert (nm>=0);
+}
+
+Quad Quad::operator/ (const Quad& b) const
+{
+  if (!::is_zero(b.i))
+    return qdivi(mult(*this,quadconj(b)), b.nm);
+  else
+    return qdivi(*this,b.r);
+}
+
+void Quad::operator/=(const Quad& b)
+{
+  if (!::is_zero(b.i))
+    *this=qdivi(mult(*this,quadconj(b)), b.nm);
+  else
+    *this=qdivi(*this,b.r);
+}
 
 int Quad::chi(long p)
 {
@@ -728,7 +774,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
           assert (U21*alpha+U22*beta == beta0);
 #endif
         }
-      if (quadnorm(beta) < quadnorm(alpha))
+      if (beta.nm < alpha.nm)
         {
           s=1;
           t = -alpha; alpha = beta; beta = t;
