@@ -44,7 +44,7 @@ int main(void)
            {
              Quadprime P = *Pi;
              vector<long> apv = nf.apvec(P);
-             cout << "ap for "<<P.gen()<<": "<<apv<<endl;
+             cout << "ap for "<<P<<": "<<apv<<endl;
            }
        }       // end of prime loop
  }          // end of level loop

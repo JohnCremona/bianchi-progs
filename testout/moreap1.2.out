@@ -11,8 +11,8 @@ L/P ratio    = 1/2, cuspidal factor = 4
 Integration matrix = [-3+4t,1;-9-3t,t], factor   = 4
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 109: [ -22 ]
+ap for P109: [ -22 ]
 Enter a rational prime p (0 to finish): 
-ap for -9+4t: [ 10 ]
-ap for 9+4t: [ 2 ]
+ap for P113a: [ 10 ]
+ap for P113b: [ 2 ]
 Enter a rational prime p (0 to finish): 

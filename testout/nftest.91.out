@@ -3,7 +3,7 @@ Retrieving newform data for N = 28.1
 >>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
 
 1 newform(s) at level 28.1 = (6+2a,-8+2a) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 0 0 -1 -2 4 -2 -2 0 0 -6 -6 4 4 -6 -6 8 8 12 12 6 6 6 6 -2 ]
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 0 0 -1 -2 4 -2 -2 0 0 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 36
 L/P ratio    = 3/2, cuspidal factor = 3

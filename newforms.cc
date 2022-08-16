@@ -101,6 +101,10 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
       if(nf->verbose)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
+  genus_classes.resize(1,0);
+  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_aP.resize(1,1);
+  fake = 0;
   // to be set later
   CMD = 0;
   sfe = pdot = dp0 = lambdadot = matdot = 0;
@@ -213,6 +217,62 @@ void newform::eigs_from_data()
         break;
     }
   // cout<<" eigs_from_data produced eigs = "<<eigs<<endl;
+  fill_in_genus_class_data();
+}
+
+// When a newform has been read from file, when the class number is
+// even,before computing more ap, we need to fill in the genus class
+// data for each newform.
+void newform::fill_in_genus_class_data()
+{
+  genus_classes.resize(1,0);
+  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_aP.resize(1,1);
+
+  // Now we fill the genus classes with known ideaqls and eigenvalues,
+  // one in each genus class:
+  int m2r = 0; // 2-rank of genus classes so far filled
+  int iP = -1;  // index of old prime P begin looked at
+  int nap = aplist.size();
+  vector<Quadprime>::iterator pr = Quadprimes::list.begin();
+  while((pr!=Quadprimes::list.end()) && (m2r<nf->n2r) && (iP<nap-1))
+    {
+      Quadprime P = *pr++;
+      iP++;
+      if (P.divides(nf->N))
+        continue;
+      long aP = aplist[iP];
+      if (aP==0)
+        continue;
+      long c = P.genus_class();
+      if (c==0)
+        continue;
+      // if (nf->verbose)
+      //   cout<<"form #"<<i<<" has eigenvalue "<<aP<<" and genus class "<<c<<endl;
+      // See if we already have an eigenvalue for this genus class
+      vector<long>::iterator ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      if (ci == genus_classes.end()) // then we do not
+        {
+          long oldsize = genus_classes.size();
+          genus_classes.resize(2*oldsize);
+          genus_class_ideals.resize(2*oldsize);
+          genus_class_aP.resize(2*oldsize);
+          for (int j = 0; j<oldsize; j++)
+            {
+              genus_classes[oldsize+j] = genus_classes[j]^c;
+              genus_class_ideals[oldsize+j] = genus_class_ideals[j]*P;
+              genus_class_aP[oldsize+j] = genus_class_aP[j]*aP;
+            }
+          m2r++;
+        }
+    } // loop on primes
+  if (nf->verbose>1)
+    {
+      cout<<"Finished filling in genus class data for form #"<<index<<endl;
+      cout<<"genus classes: "<<genus_classes<<endl;
+      cout<<"genus class ideals: "<<genus_class_ideals<<endl;
+      cout<<"genus class eigenvalues: "<<genus_class_aP<<endl;
+    }
 }
 
 // For M a *multiple* of this level N, make the list of eigs
@@ -234,9 +294,7 @@ vector<long> newform::oldform_eigs(Qideal& M)
     }
   // insert eigs for central characters:
   if (nf->characteristic == 0)  // the first n2r eigs are all +1
-    {
-      M_eigs.resize(nf->n2r, +1);
-    }
+    M_eigs.resize(nf->n2r, +1);
 
   vector<long>::const_iterator ei = eigs.begin() + (nf->n2r);
   for (auto Pi = Quadprimes::list.begin();
@@ -294,6 +352,10 @@ newform::newform(newforms* nfs, int ind,
     }
 
   aplist = ap;
+  genus_classes.resize(1,0);
+  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_aP.resize(1,1);
+  fake = 0;
 
   // recreate eigs list (used to recover basis vector, and for oldclasses at higher levels):
 
@@ -935,7 +997,7 @@ void newforms::display(int detail)
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
  cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N);
- if (Quad::class_group_2_rank>0)
+ if (n2r>0)
    cout << " (up to twist by unramified character)";
  cout  << ":"<< endl;
  if (detail)
@@ -968,7 +1030,7 @@ void newforms::list(long nap)
   string idlabel = ideal_label(N), idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
-  if (Quad::class_group_2_rank==0)
+  if (n2r==0)
     for(int i=0; i<n1ds; i++)
       nflist[i].list(s1 + codeletter(i) + s2, nap);
   else
@@ -1085,14 +1147,14 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
     {
       if (P.is_principal())  // compute T(P)
         {
-          if (verbose)
+          if (verbose>1)
             cout << "form "<<index<<", computing T("<<P<<") directly"<<endl;
           return eigenvalue(HeckePOp(P, N), eigenvalue_range(P));
         }
       else   // P has square class, compute T(P)*T(A,A)
         {
           Qideal A = P.sqrt_coprime_to(N);
-          if (verbose)
+          if (verbose>1)
             cout << "form "<<index<<", computing T("<<P<<") using T(P)*T(A,A) with A = "<<ideal_label(A)<<endl;
           return eigenvalue(HeckePChiOp(P,A,N), eigenvalue_range(P));
         }
@@ -1105,22 +1167,31 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
         {
           int i = ci - genus_classes.begin();
           long factor = genus_class_aP[i];
-          Qideal B = genus_class_ideals[i]*P; // so B is square-free and of square class
-          if (verbose)
-            cout << "form "<<index<<", computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(B) with B = "
-                 <<ideal_label(genus_class_ideals[i])
-                 <<", with T(B) eigenvalue "<<factor<<endl;
+          Qideal A = genus_class_ideals[i];
+          Qideal B = A*P; // so B is square-free and of square class
+          if (verbose>1)
+            cout << "form "<<index<<", computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
+                 <<ideal_label(A)
+                 <<", with T(A) eigenvalue "<<factor<<endl;
+          long aP;
           if (B.is_principal())               // compute T(B)
-            return eigenvalue(HeckeBOp(B, N), eigenvalue_range(P), factor);
+            aP = eigenvalue(HeckeBOp(B, N), eigenvalue_range(P), factor);
           else                                // compute T(B)*T(A,A)
             {
-              Qideal A = B.sqrt_coprime_to(N);
-              return eigenvalue(HeckeBChiOp(B,A,N), eigenvalue_range(P), factor);
+              Qideal C = B.sqrt_coprime_to(N);
+              aP = eigenvalue(HeckeBChiOp(B,C,N), eigenvalue_range(P), factor);
             }
+          // See whether P is a better genus class rep than the one we have:
+          if ((P.norm()<A.norm()) && (aP!=0))
+            {
+              genus_class_ideals[i] = P;
+              genus_class_aP[i] = aP;
+            }
+          return aP;
         }
       else // we have a new genus class, compute a_{P}^2
         {
-          if (verbose)
+          if (verbose>1)
             cout << "form "<<index<<", P = "<<P<<": computing T(P^2) to get a(P)^2" << endl;
           Qideal P2 = P*P;
           long aP, aP2;
@@ -1149,7 +1220,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                   // update genus_class_ideals (append product of each and P)
                   // update genus_class_aP (append product of each and aP)
                   long oldsize = genus_classes.size();
-                  if (verbose)
+                  if (verbose>1)
                     cout<<" -- form "<<index
                         <<": doubling number of genus classes covered by P with nonzero aP from "<<oldsize
                         <<" to "<<2*oldsize<<" using P="<<P<<endl;
@@ -1426,7 +1497,7 @@ int newforms::read_from_file()
       for (i=0; i<n1ds; i++) data>>Quaddata[i][3]; // c
       for (i=0; i<n1ds; i++) data>>Quaddata[i][4]; // d
       for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
-      if (Quad::class_group_2_rank>0)
+      if (n2r>0)
         for (i=0; i<n1ds; i++) data>>intdata[i][6];  // CMD
       else
         for (i=0; i<n1ds; i++) intdata[i][6]=0;  // not used
@@ -1539,55 +1610,48 @@ void newforms::getap(int first, int last, int verbose)
   // now nap < last <= nQP
 
   vector<int> nonsquarebadprimes;
+
   if (first==1)
-    for (int i=0; i<n1ds; i++)
-      {
-        nflist[i].genus_classes.resize(1,0);
-        nflist[i].genus_class_ideals.resize(1,Qideal(1));
-        nflist[i].genus_class_aP.resize(1,1);
-        nflist[i].fake = 0;
-      }
-
-  if (first==1 && Quad::class_group_2_rank>0)
     {
-      for (int i=0; i<n1ds; i++)
+      if (n2r>0)
         {
-          nflist[i].genus_classes.resize(1,0);
-          nflist[i].genus_class_ideals.resize(1,Qideal(1));
-          nflist[i].genus_class_aP.resize(1,1);
-        }
+          // In the case of odd class number we will have already computed
+          // all the W(Q) eigenvalues.  Otherwise, we compute all those
+          // eigenvalues we can now (i.e. those for which Q^e has square
+          // class); for any which we cannot yet compute the stored values
+          // will be 0 and will be computed later, once we have enough a_P
+          // for P covering the genus classes. We store the list of
+          // indices of bad Q for which this will be needed.
 
-      // In the case of odd class number we will have already computed
-      // all the W(Q) eigenvalues.  Otherwise, we compute all those
-      // eigenvalues we can now (i.e. those for which Q^e has square
-      // class); for any which we cannot yet compute the stored values
-      // will be 0 and will be computed later, once we have enough a_P
-      // for P covering the genus classes. We store the list of
-      // indices of bad Q for which this will be needed.
-
-      for (auto Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
-        {
-          vector<long> aq = apvec(*Qi);
-          if (aq[0]==0)
-            nonsquarebadprimes.push_back(Qi-badprimes.begin());
-          for (int j=0; j<n1ds; j++)
-            nflist[j].aqlist.push_back(aq[j]);
+          for (auto Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
+            {
+              vector<long> aq = apvec(*Qi);
+              if (aq[0]==0)
+                nonsquarebadprimes.push_back(Qi-badprimes.begin());
+              for (int j=0; j<n1ds; j++)
+                nflist[j].aqlist.push_back(aq[j]);
+            }
+          // Sign of functional equation = minus product of all A-L eigenvalues
+          if (characteristic==0 && nonsquarebadprimes.empty())
+            for (int j=0; j<n1ds; j++)
+              {
+                nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
+              }
+          else
+            if (verbose)
+              {
+                cout<<" * computed A-L eigenvalues for "<<badprimes.size()-nonsquarebadprimes.size()<<" out of "<<badprimes.size()<<" bad primes"<<endl;
+                cout<<" * missing:";
+                for (int j=0; j<(int)nonsquarebadprimes.size(); j++)
+                  cout<<badprimes[nonsquarebadprimes[j]]<<" ";
+                cout<<endl;
+              }
         }
-      // Sign of functional equation = minus product of all A-L eigenvalues
-      if (characteristic==0 && nonsquarebadprimes.empty())
-        for (int j=0; j<n1ds; j++)
-          {
-            nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
-          }
-      else
-        if (verbose)
-          {
-            cout<<" * computed A-L eigenvalues for "<<badprimes.size()-nonsquarebadprimes.size()<<" out of "<<badprimes.size()<<" bad primes"<<endl;
-            cout<<" * missing:";
-            for (int j=0; j<(int)nonsquarebadprimes.size(); j++)
-              cout<<badprimes[nonsquarebadprimes[j]]<<" ";
-            cout<<endl;
-          }
+    }
+  else // first>1, i.e. we are computing more ap
+    {
+      if (verbose>1)
+        cout << "We have "<<nap<<" eigenvalues out of "<<last<<" already, so we need to compute "<<(last-nap)<<" more."<<endl;
     }
 
   vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
@@ -1906,7 +1970,7 @@ void newforms::output_to_file(string eigfile) const
 
   // Line 14: CMD
 
-  if (Quad::class_group_2_rank>0)
+  if (n2r>0)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
         {

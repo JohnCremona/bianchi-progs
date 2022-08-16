@@ -11,8 +11,8 @@ L/P ratio    = 1/2, cuspidal factor = 4
 Integration matrix = [5-9a,-a;15+3a,2], factor   = 8
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 101: [ -198 ]
+ap for P101: [ -198 ]
 Enter a rational prime p (0 to finish): 
-ap for -1+6a: [ 8 ]
-ap for -5+6a: [ 8 ]
+ap for P103a: [ 8 ]
+ap for P103b: [ 8 ]
 Enter a rational prime p (0 to finish): 

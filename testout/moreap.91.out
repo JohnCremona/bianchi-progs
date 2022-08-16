@@ -1,0 +1,32 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+
+>>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
+Retrieving newform data for N = 28.1
+
+1 newform(s) at level 28.1 = (6+2a,-8+2a) (up to twist by unramified character):
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 0 0 -1 -2 4 -2 -2 0 0 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 36
+L/P ratio    = 3/2, cuspidal factor = 3
+Integration matrix = [-15-2a,a;-8+2a,3], factor   = 6
+Making homspace and bases...
+About to recover 1 newform bases (nap=10)
+Recovering newform #1, eigs [ 1 -5 -5 -2 3 -15 -15 0 0 ]...
+Entering form_finder, depth = 0, dimension 20
+restarting at depth = 0, dimension 20
+Computing nu...done.
+ eig 1 gives new subspace at depth 1 of dimension 4
+Computing T(P5a^2)...done.
+ eig -5 gives new subspace at depth 2 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+Finished makebases()
+About to start computing ap...
+P = P29a = (2+a)	N(P) = 29	   -6 
+P = P29b = (-3+a)	N(P) = 29	   -6 
+P = P31a = (11+a,-9+2a)	N(P) = 31	    4 
+P = P31b = (-12+a,-7-2a)	N(P) = 31	    4 
+P = P41a = (13+a,-2+3a)	N(P) = 41	   -6 
+...done.
+Writing data to file nftmp/2.0.91.1/28.1......done.

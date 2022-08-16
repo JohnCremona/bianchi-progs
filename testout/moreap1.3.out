@@ -11,8 +11,8 @@ L/P ratio    = 1/6, cuspidal factor = 3
 Integration matrix = [-4-5w,-w;14,1+w], factor   = 3
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 101: [ -202 ]
+ap for P101: [ -202 ]
 Enter a rational prime p (0 to finish): 
-ap for 2+9w: [ -4 ]
-ap for 9+2w: [ -4 ]
+ap for P103a: [ -4 ]
+ap for P103b: [ -4 ]
 Enter a rational prime p (0 to finish): 

@@ -1,0 +1,35 @@
+Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.
+---------------
+
+
+>>>> Level 9.1 = (a), norm = 9 <<<<
+Retrieving newform data for N = 9.1
+
+1 newform(s) at level 9.1 = (a) (up to twist by unramified character):
+1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 0 3 0 0 -4 4 0 0 0 0 2 -2 0 0 -16 16 0 0 -8 -8 0 0 0 0 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 4
+L/P ratio    = 1, cuspidal factor = 4
+Integration matrix = [-4-4a,-a;9-a,2], factor   = 4
+Unramified self-twist by discriminant -7
+Making homspace and bases...
+About to recover 1 newform bases (nap=25)
+Recovering newform #1, eigs [ 1 -3 3 -5 -7 -4 4 -13 -13 -17 -17 2 -2 -47 -47 -16 16 -73 -73 -8 -8 -83 -83 -97 -97 ]...
+Entering form_finder, depth = 0, dimension 6
+restarting at depth = 0, dimension 6
+Computing nu...done.
+ eig 1 gives new subspace at depth 1 of dimension 3
+Computing T(P3b^2)...done.
+ eig -3 gives new subspace at depth 2 of dimension 1
+Finished recovering newform bases, resorting back into lmfdb order...
+Finished makebases()
+About to start computing ap...
+ - a(P^2) = 0
+P = P103a = (7+5a,-15+4a)	N(P) = 103	    0 
+ - a(P^2) = 0
+P = P103b = (11+4a,-12+5a)	N(P) = 103	    0 
+P = P109a = (-7+3a)	N(P) = 109	   18 
+P = P109b = (4+3a)	N(P) = 109	   18 
+P = P149a = (-5+4a)	N(P) = 149	   22 
+...done.
+Writing data to file nftmp/2.0.35.1/9.1......done.

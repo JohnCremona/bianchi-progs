@@ -1,0 +1,18 @@
+Program moreap1: for given field and level, assumes that the newforms file exists, and computes more individual Hecke eigenvalues.
+---------------
+
+>>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
+
+1 newform(s) at level 28.1 = (6+2a,-8+2a) (up to twist by unramified character):
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 0 0 -1 -2 4 -2 -2 0 0 -6 -6 4 4 -6 ]
+Sign of F.E. = 1
+Twisting prime lambda = 1, factor = 36
+L/P ratio    = 3/2, cuspidal factor = 3
+Integration matrix = [-15-2a,a;-8+2a,3], factor   = 6
+Making homspace and bases...done.
+Enter a rational prime p (0 to finish): 
+ap for P37: [ -70 ]
+Enter a rational prime p (0 to finish): 
+ap for P41a: [ -6 ]
+ap for P41b: [ -6 ]
+Enter a rational prime p (0 to finish): 

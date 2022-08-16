@@ -11,27 +11,27 @@ L/P ratio    = 5/2, cuspidal factor = 14
 Integration matrix = [1-3a,2-a;6+a,1+a], factor   = 14
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for -5+4a: [ 18 ]
-ap for 1+4a: [ -10 ]
+ap for P101a: [ 18 ]
+ap for P101b: [ -10 ]
 Enter a rational prime p (0 to finish): 
-ap for 103: [ 82 ]
+ap for P103: [ 82 ]
 Enter a rational prime p (0 to finish): 
-ap for 107: [ 26 ]
+ap for P107: [ 26 ]
 Enter a rational prime p (0 to finish): 
-ap for 109: [ 10 ]
+ap for P109: [ 10 ]
 Enter a rational prime p (0 to finish): 
-ap for 113: [ 114 ]
+ap for P113: [ 114 ]
 Enter a rational prime p (0 to finish): 
-ap for 8+5a: [ -8 ]
-ap for -13+5a: [ -8 ]
+ap for P127a: [ -8 ]
+ap for P127b: [ -8 ]
 Enter a rational prime p (0 to finish): 
-ap for 13+3a: [ -20 ]
-ap for -16+3a: [ 0 ]
+ap for P131a: [ -20 ]
+ap for P131b: [ 0 ]
 Enter a rational prime p (0 to finish): 
-ap for 137: [ -214 ]
+ap for P137: [ -214 ]
 Enter a rational prime p (0 to finish): 
-ap for 16+a: [ -12 ]
-ap for -17+a: [ 12 ]
+ap for P139a: [ -12 ]
+ap for P139b: [ 12 ]
 Enter a rational prime p (0 to finish): 
-ap for 149: [ 110 ]
+ap for P149: [ 110 ]
 Enter a rational prime p (0 to finish): 

@@ -26,8 +26,8 @@ L/P ratio    = 0, cuspidal factor = 1
 Integration matrix = [13-32i,i;-96-38i,3], factor   = 1
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 10+i: [ -3 3 -5 -3 ]
-ap for 1+10i: [ 7 -9 -1 11 ]
+ap for P101a: [ -3 3 -5 -3 ]
+ap for P101b: [ 7 -9 -1 11 ]
 Enter a rational prime p (0 to finish): 
-ap for 103: [ -152 -166 114 124 ]
+ap for P103: [ -152 -166 114 124 ]
 Enter a rational prime p (0 to finish): 

@@ -11,8 +11,8 @@ L/P ratio    = 2, cuspidal factor = 1
 Integration matrix = [9-17a,-a;33+a,2], factor   = 7
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 101: [ -198 ]
+ap for P101: [ -198 ]
 Enter a rational prime p (0 to finish): 
-ap for 10+a: [ 7 ]
-ap for -11+a: [ 7 ]
+ap for P127a: [ 7 ]
+ap for P127b: [ 7 ]
 Enter a rational prime p (0 to finish): 

@@ -104,6 +104,11 @@ public:
   // to compute more ap), and for computing oldform multiplcities.
   void eigs_from_data();
 
+  // When a newform has been read from file, when the class number is
+  // even,before computing more ap, we need to fill in the genus class
+  // data for each newform.
+  void fill_in_genus_class_data();
+
   // For M a *multiple* of this level N, make the list of eigs
   // appropriate for the higher level, deleting the a_P for P dividing
   // M but not N from the sublist of T(P) eigenvalues.

@@ -11,8 +11,8 @@ L/P ratio    = 1/2, cuspidal factor = 4
 Integration matrix = [7-2a,-1;-2+7a,1-a], factor   = 4
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
-ap for 103: [ 162 ]
+ap for P103: [ 162 ]
 Enter a rational prime p (0 to finish): 
-ap for -11+2a: [ -12 ]
-ap for 9+2a: [ -12 ]
+ap for P107a: [ -12 ]
+ap for P107b: [ -12 ]
 Enter a rational prime p (0 to finish): 
