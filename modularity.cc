@@ -156,19 +156,20 @@ int main(void)
   for (nform=0; nform<nforms; nform++)
     {
       int not_found = 1;
+      vector<long> apvec_in = apvecs_in[nform];
       if (verbose)
-        cout << "Input Hecke eigenvalue data ap = " << apvecs_in[nform] << endl;
+        cout << "Input Hecke eigenvalue data ap = " << apvec_in << endl;
       if (Quad::class_group_2_rank==0)
         {
           for (kform=0; (kform<nnf) &&not_found; kform++)
             {
               string code = codeletter(kform);
               if (verbose)
-                cout << "Comparing with computed form "<<code<<" with ap = " << apvecs_comp[kform] << endl;
-              if (apvecs_comp[kform] == apvecs_in[nform])
+                cout << "Comparing with computed form "<<code<<", ap = " << apvecs_comp[kform] << endl;
+              if (apvecs_comp[kform] == apvec_in)
                 {
                   if (verbose)
-                    cout << " MATCHES form # "<<(kform+1)<<endl;
+                    cout << "  - input data MATCHES newform "<< code <<endl;
                   else
                     cout << code << endl;
                   not_found = 0;
@@ -195,11 +196,11 @@ int main(void)
                     (*aPi) *= Pi->genus_character(twists[jtwist]);
 
                   if (verbose)
-                    cout << "  - comparing with computed form "<<code<<" with ap = " << apvec_twist << endl;
-                  if (apvec_twist == apvecs_in[kform])
+                    cout << "  - comparing with computed form "<<code<<", ap = " << apvec_twist << endl;
+                  if (apvec_twist == apvec_in)
                     {
                       if (verbose)
-                        cout << " - MATCHES form # "<<(nform+1)<<endl;
+                        cout << "  - input data MATCHES newform "<< code <<endl;
                       else
                         cout << code << endl;
                       not_found = 0;

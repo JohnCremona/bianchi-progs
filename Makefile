@@ -97,11 +97,11 @@ DISCS=$(DISCS9) $(DISCSXodd) $(DISCSXeven)
 # These control which tests run on which fields:
 
 # All tests: basic arithmetic, homology dimensions, newforms, modularity
-FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83 5
+FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83 5 14 21 95
 #FIELDS_full=
 
 # Basic arithmetic, homology dimensions, newforms
-FIELDS_nf=$(FIELDS_full) 6 10 13 14 15 17 21 22 35 39 42 51 55 87 91 95
+FIELDS_nf=$(FIELDS_full) 6 10 13 15 17 22 35 39 42 51 55 87 91
 #FIELDS_nf=$(FIELDS_full)
 
 # Basic arithmetic, homology dimensions

@@ -158,8 +158,9 @@ int main(void)
   for (nform=0; nform<nforms; nform++)
     {
       int n_matches = 0;
+      vector<long> apvec_in = apvecs_in[nform];
       if (verbose)
-        cout << "Input Hecke eigenvalue data a_P (mod "<<p<<") = " << apvecs_in[nform] << endl;
+        cout << "Input Hecke eigenvalue data a_P (mod "<<p<<") = " << apvec_in << endl;
       if (Quad::class_group_2_rank==0)
         {
           for (kform=0; kform<nnf; kform++)
@@ -167,11 +168,11 @@ int main(void)
               string code = codeletter(kform);
               if (verbose)
                 cout << "Comparing with computed form "<<code
-                     <<" with a_P (mod "<<p<<") = " << apvecs_comp[kform] << endl;
-              if (apvecs_comp[kform] == apvecs_in[nform])
+                     <<", a_P (mod "<<p<<") = " << apvecs_comp[kform] << endl;
+              if (apvecs_comp[kform] == apvec_in)
                 {
                   if (verbose)
-                    cout << " MATCHES form # "<<(kform+1)<<endl;
+                    cout << "  input data MATCHES newform "<< code <<endl;
                   else
                     {
                       if (n_matches>0) cout << " ";
@@ -202,10 +203,10 @@ int main(void)
 
                   if (verbose)
                     cout << "  - comparing with computed form "<<code<<" with ap = " << apvec_twist << endl;
-                  if (apvec_twist == apvecs_in[kform])
+                  if (apvec_twist == apvec_in)
                     {
                       if (verbose)
-                        cout << " - MATCHES form # "<<(nform+1)<<endl;
+                        cout << "  input data MATCHES newform "<< code <<endl;
                       else
                         {
                           if (n_matches>0) cout << " ";
