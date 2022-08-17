@@ -27,8 +27,8 @@ int main(void)
   Quad::field(d,max);
   Qideal N;
   int verbose=0, showforms=0;
-  //cerr << "Verbose? "; cin>>verbose;
-  //cerr << "Display newforms (1/0)? "; cin>>showforms;
+  // cerr << "Verbose? "; cin>>verbose;
+  // cerr << "Display newforms (1/0)? "; cin>>showforms;
 
   cerr<<"Enter level (ideal label or generator): \n";
   cin>>N;
@@ -55,7 +55,12 @@ int main(void)
       exit(0);
     }
   if (verbose)
-    cerr << "There are " << nnf << " newforms on file, with ap for the first " << nap << " primes (with index 0.." << (nap-1) << ")" << endl;
+    {
+      cerr << "There are " << nnf << " newforms on file";
+      if (Quad::class_group_2_rank)
+        cerr << " (up to unramified quadratic twist)";
+      cerr << ", with ap for the first " << nap << " primes (with index 0.." << (nap-1) << ")" << endl;
+    }
   Quadprime P;
   // primes_needed will be a list of the prime ideals P for which
   // values of a_P will be input, and prime_indexes will be a list of
@@ -153,23 +158,59 @@ int main(void)
       int not_found = 1;
       if (verbose)
         cout << "Input Hecke eigenvalue data ap = " << apvecs_in[nform] << endl;
-      for (kform=0; (kform<nnf) &&not_found; kform++)
+      if (Quad::class_group_2_rank==0)
         {
-          if (verbose)
-            cout << "Comparing with computed form "<<codeletter(kform)<<" with ap = " << apvecs_comp[kform] << endl;
-          if (apvecs_comp[kform] == apvecs_in[nform])
+          for (kform=0; (kform<nnf) &&not_found; kform++)
             {
+              string code = codeletter(kform);
               if (verbose)
-                cout << " MATCHES form # "<<(kform+1)<<endl;
-              else
-                cout << codeletter(kform) << endl;
-              not_found = 0;
+                cout << "Comparing with computed form "<<code<<" with ap = " << apvecs_comp[kform] << endl;
+              if (apvecs_comp[kform] == apvecs_in[nform])
+                {
+                  if (verbose)
+                    cout << " MATCHES form # "<<(kform+1)<<endl;
+                  else
+                    cout << code << endl;
+                  not_found = 0;
+                }
+            }
+        }
+      else // even class number must look at unramified quadratic twists
+        {
+          for (kform=0; (kform<nnf) &&not_found; kform++)
+            {
+              QUINT D = nf.nflist[kform].CMD;
+              vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
+              int ntwists = twists.size();
+              vector<long> apvec = apvecs_comp[kform];
+              for (int jtwist = 0; jtwist<ntwists; jtwist++)
+                {
+                  int nform = kform*ntwists+jtwist;
+                  string code = codeletter(nform);
+                  vector<long> apvec_twist = apvec;
+                  // Twist the ap:
+                  auto Pi = primes_needed.begin();
+                  auto aPi = apvec_twist.begin();
+                  for (; aPi!=apvec_twist.end(); ++Pi, ++aPi)
+                    (*aPi) *= Pi->genus_character(twists[jtwist]);
+
+                  if (verbose)
+                    cout << "  - comparing with computed form "<<code<<" with ap = " << apvec_twist << endl;
+                  if (apvec_twist == apvecs_in[kform])
+                    {
+                      if (verbose)
+                        cout << " - MATCHES form # "<<(nform+1)<<endl;
+                      else
+                        cout << code << endl;
+                      not_found = 0;
+                    }
+                }
             }
         }
       if (not_found)
         {
           if (verbose)
-            cout << " HAS NO MATCH" << endl;
+            cout << " - has NO matching form" << endl;
           else
             cout << "?"<<endl;
         }

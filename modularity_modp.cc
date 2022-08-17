@@ -160,27 +160,67 @@ int main(void)
       int n_matches = 0;
       if (verbose)
         cout << "Input Hecke eigenvalue data a_P (mod "<<p<<") = " << apvecs_in[nform] << endl;
-      for (kform=0; kform<nnf; kform++)
+      if (Quad::class_group_2_rank==0)
         {
-          if (verbose)
-            cout << "Comparing with computed form "<<codeletter(kform)<<" with a_P (mod "<<p<<") = " << apvecs_comp[kform] << endl;
-          if (apvecs_comp[kform] == apvecs_in[nform])
+          for (kform=0; kform<nnf; kform++)
             {
+              string code = codeletter(kform);
               if (verbose)
-                cout << " MATCHES form # "<<(kform+1)<<endl;
-              else
+                cout << "Comparing with computed form "<<code
+                     <<" with a_P (mod "<<p<<") = " << apvecs_comp[kform] << endl;
+              if (apvecs_comp[kform] == apvecs_in[nform])
                 {
-                  if (n_matches>0) cout << " ";
-                  cout << codeletter(kform);
+                  if (verbose)
+                    cout << " MATCHES form # "<<(kform+1)<<endl;
+                  else
+                    {
+                      if (n_matches>0) cout << " ";
+                      cout << code;
+                    }
+                  n_matches++;
                 }
-              n_matches++;
+            }
+        }
+      else // even class number must look at unramified quadratic twists
+        {
+          for (kform=0; kform<nnf; kform++)
+            {
+              QUINT D = nf.nflist[kform].CMD;
+              vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
+              int ntwists = twists.size();
+              vector<long> apvec = apvecs_comp[kform];
+              for (int jtwist = 0; jtwist<ntwists; jtwist++)
+                {
+                  int nform = kform*ntwists+jtwist;
+                  string code = codeletter(nform);
+                  vector<long> apvec_twist = apvec;
+                  // Twist the ap:
+                  auto Pi = primes_needed.begin();
+                  auto aPi = apvec_twist.begin();
+                  for (; aPi!=apvec_twist.end(); ++Pi, ++aPi)
+                    (*aPi) = posmod(*aPi * Pi->genus_character(twists[jtwist]), p);
+
+                  if (verbose)
+                    cout << "  - comparing with computed form "<<code<<" with ap = " << apvec_twist << endl;
+                  if (apvec_twist == apvecs_in[kform])
+                    {
+                      if (verbose)
+                        cout << " - MATCHES form # "<<(nform+1)<<endl;
+                      else
+                        {
+                          if (n_matches>0) cout << " ";
+                          cout << code;
+                        }
+                      n_matches++;
+                    }
+                }
             }
         }
       if (!verbose) cout <<endl;
       if (n_matches==0)
         {
           if (verbose)
-            cout << " HAS NO MATCH" << endl;
+            cout << " - has NO match" << endl;
           else
             cout << "?"<<endl;
         }
