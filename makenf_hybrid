@@ -1,13 +1,16 @@
 #!/bin/bash
 d=$1
 N=$2
-
 NAP=100
 VERBOSE=0
+OUTPUT_EIGS=1
+BOTH_CONJUGATES=1
+FIRST_NORM=${N}
+LAST_NORM=${N}
 
-PARAMS="${d} ${VERBOSE} 1 ${NAP} 1 1 ${N} ${N}"
+PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${BOTH_CONJUGATES} ${FIRST_NORM} ${LAST_NORM}"
 
-PROG="./makenf_l_${d}_${N}"
+PROG="./makenf_long_${d}_${N}"
 ln -s makenf_loop_long "${PROG}"
 
 if (echo "${PARAMS}" | "${PROG}");
@@ -25,4 +28,4 @@ fi
 
 # To use in parallel runs, one level norm per run:
 #
-# parallel -j 10 --progress ./makenf_hybrid 59 {1} ::: `seq 1101 1200`
+# parallel -j 10 --progress ./makenf_hybrid 59 {1} ::: `seq 1 100`
