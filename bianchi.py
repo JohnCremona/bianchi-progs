@@ -134,9 +134,10 @@ def edit_haluk_output(f, fname):
             print(label)
             outfile.write("%s\t2\t%s\t %s\t %s\t %s\n"%(f,label,dimall,dimcusp,dimeis))
 
-def parse_dims_line(L, K, d):
-    """parse one line from a dimtabeis*newdims as output by
-    make_dimtabnew().  Lines have 7 columns:
+def parse_dims_line(L, K, D, field_label, d):
+    """parse one line from a dimtabeis.d.all.newdims as output by
+    make_dimtabnew(), *or* as output by dimtabnew.cc.  Lines in the
+    former case have 7 columns:
 
     d  field  (1, 2 or abs(disc))
     w  weight (2)
@@ -146,22 +147,28 @@ def parse_dims_line(L, K, d):
     dimcuspnew  (dimension of new cuspidal gl2-space)
     dimeis      (dimension of eisenstein gl2-space)
 
-    NB The LMFDB only stores cupidal dimensions, so the dimall and
-    dimeis columns are ignored.
+    The LMFDB only stores cupidal dimensions, so the dimall and dimeis
+    columns are ignored.
+
+    Files output by dimtabnew omit those columns.
 
     Returns the label and a dict containing all the data.
+
     """
-    dd, w, label, dimall, dimcusp, dimcuspnew, dimeis = L.split()
+    line_data = L.split()
+    ncols = len(line_data)
+    if ncols==7:
+        dd, w, level_label, dimall, dimcusp, dimcuspnew, dimeis = line_data
+    else:
+        dd, w, level_label, dimcusp, dimcuspnew = line_data
     assert int(dd) == d
     assert int(w) == 2
-    N = ideal_from_IQF_label(K,label)
-    level_label = ideal_label(N)
-    D = K.discriminant().abs()
-    field_label = "2.0.{}.1".format(D)
+    if "." not in level_label: ## for old-style HNF labels
+        level_label = ideal_label(ideal_from_IQF_label(K,level_label))
+    level_norm = int(level_label.split(".")[0])
     label = "-".join([field_label, level_label])
-    level_norm = N.norm()
-    dimcuspnew = int(dimcuspnew)
     dimcusp = int(dimcusp)
+    dimcuspnew = int(dimcuspnew)
     gl2_dims = {'2': {'new_dim': dimcuspnew, 'cuspidal_dim': dimcusp}}
     gl2_new_totaldim = dimcuspnew
     gl2_cusp_totaldim = dimcusp
@@ -197,7 +204,7 @@ def read_dimtabeis_new(d, fname):
     with open(filename) as infile:
         for L in infile:
             if L[0] != '#':
-                label, record = parse_dims_line(L, K, d)
+                label, record = parse_dims_line(L, K, D, field_label, d)
                 data[label] = record
     return data
 
