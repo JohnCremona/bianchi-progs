@@ -1208,7 +1208,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           // Now aP2 is the eigenvalue of T(P^2)
           aP2 += normP;
           // Now aP2 is the eigenvalue of T(P)^2
-          if (verbose)
+          if (verbose>1)
             cout << " - a(P^2) = " << aP2 << endl;
           if (is_square(aP2, aP))
             {

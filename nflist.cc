@@ -47,6 +47,8 @@ int main ()
      newforms nf(N,0);
      if(nf.read_from_file())
        nf.list(nap);
+     else
+       cout << "No data file for level " << ideal_label(N) << endl;
    }
 }
 
