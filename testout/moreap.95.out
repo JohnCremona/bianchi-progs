@@ -24,14 +24,10 @@ Computing T(P2b^2) * T([13,1+a],[13,1+a])...done.
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()
 About to start computing ap...
- - a(P^2) = 0
 P = P37a = (-5+2a,-16-a)	N(P) = 37	    0 
- - a(P^2) = 0
 P = P37b = (3+2a,-17+a)	N(P) = 37	    0 
 P = P7 = (7)	N(P) = 49	    5 
- - a(P^2) = 0
 P = P53a = (-9+2a,-13-3a)	N(P) = 53	    0 
- - a(P^2) = 0
 P = P53b = (7+2a,-16+3a)	N(P) = 53	    0 
 P = P61a = (-7+3a,-18-a)	N(P) = 61	   15 
 P = P61b = (4+3a,-19+a)	N(P) = 61	   15 

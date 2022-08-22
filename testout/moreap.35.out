@@ -24,9 +24,7 @@ Computing T(P3b^2)...done.
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()
 About to start computing ap...
- - a(P^2) = 0
 P = P103a = (7+5a,-15+4a)	N(P) = 103	    0 
- - a(P^2) = 0
 P = P103b = (11+4a,-12+5a)	N(P) = 103	    0 
 P = P109a = (-7+3a)	N(P) = 109	   18 
 P = P109b = (4+3a)	N(P) = 109	   18 

@@ -178,6 +178,7 @@ int main(void)
         }
       else // even class number must look at unramified quadratic twists
         {
+          int nform = 0;
           for (kform=0; (kform<nnf) &&not_found; kform++)
             {
               QUINT D = nf.nflist[kform].CMD;
@@ -186,8 +187,7 @@ int main(void)
               vector<long> apvec = apvecs_comp[kform];
               for (int jtwist = 0; jtwist<ntwists; jtwist++)
                 {
-                  int nform = kform*ntwists+jtwist;
-                  string code = codeletter(nform);
+                  string code = codeletter(nform++);
                   vector<long> apvec_twist = apvec;
                   // Twist the ap:
                   auto Pi = primes_needed.begin();

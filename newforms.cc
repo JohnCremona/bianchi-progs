@@ -1034,16 +1034,19 @@ void newforms::list(long nap)
     for(int i=0; i<n1ds; i++)
       nflist[i].list(s1 + codeletter(i) + s2, nap);
   else
-    for(int i=0; i<n1ds; i++)
-      {
-        QUINT D = nflist[i].CMD;
-        vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
-        int ntwists = twists.size();
-        // if(D!=0)
-        //   cout<<i<<": "<<ntwists<<" twists (D="<<D<<"), by "<<twists<<endl;
-        for (int j = 0; j<ntwists; j++)
-          nflist[i].twist(twists[j]).list(s1 + codeletter(i*ntwists+j) + s2, nap);
-      }
+    {
+      int nform = 0;
+      for(int i=0; i<n1ds; i++)
+        {
+          QUINT D = nflist[i].CMD;
+          vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
+          int ntwists = twists.size();
+          // if(D!=0)
+          //   cout<<i<<": "<<ntwists<<" twists (D="<<D<<"), by "<<twists<<endl;
+          for (int j = 0; j<ntwists; j++)
+            nflist[i].twist(twists[j]).list(s1 + codeletter(nform++) + s2, nap);
+        }
+    }
 }
 
 void newform::list(string prefix, long nap) const
