@@ -398,32 +398,48 @@ void newform::find_matrix()
     cout<<"M = ["<<a<<","<<b<<";"<<c<<","<<d<<"] with factor "<<matdot<<endl;
 }
 
+//#define DEBUG_BC
+
 int newform::is_base_change(void) const
 {
   if(!(nf->N.is_Galois_stable()))
     return 0;
   vector<long>::const_iterator ap = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(ap!=aplist.end())
+  Qideal N(nf->N);
+  while(ap!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long api = *ap++;
       Quadprime p0 = *pr++;
-      //cout<<"p="<<p0<<" has ap="<<api<<endl;
+#ifdef DEBUG_BC
+      cout<<"p="<<p0<<" has ap="<<api<<endl;
+#endif
       if(!p0.is_Galois_stable()) // this prime not inert or ramified
         {
           if (ap==aplist.end()) // the conjugate ap is not known
             return 1;
           long apj = *ap++;
-          //cout<<"Next prime has ap="<<apj<<endl;
+          Quadprime P1 =  *pr++;
+          // skip if either divides level:
+          if(p0.divides(N))
+            continue;
+          if(P1.divides(N))
+            continue;
+#ifdef DEBUG_BC
+          cout<<"Next prime "<<P1<<" has ap="<<apj<<endl;
+#endif
           if(api!=apj) // ap mismatch
             {
-              //cout<<"Mismatch -- not base-change"<<endl;
+#ifdef DEBUG_BC
+              cout<<"Mismatch -- not base-change"<<endl;
+#endif
               return 0;
             }
-          ++pr;
         }
     }
-  //cout<<"All OK -- base-change"<<endl;
+#ifdef DEBUG_BC
+  cout<<"All OK -- base-change"<<endl;
+#endif
   return 1;
 }
 
@@ -432,7 +448,7 @@ int newform::is_base_change_twist(void) const
   vector<long>::const_iterator ap = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
   Qideal N(nf->N);
-  while(ap!=aplist.end())
+  while(ap!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long api = *ap++;
       Quadprime p0 = *pr++;
@@ -448,7 +464,7 @@ int newform::is_base_change_twist(void) const
           long apj = *ap++;
           Quadprime P1 =  *pr++;
           // skip if either divides level:
-          if((nf->P0).divides(N))
+          if(p0.divides(N))
             continue;
           if(P1.divides(N))
             continue;
@@ -472,7 +488,7 @@ int newform::base_change_discriminant(void) const
   Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(api!=aplist.end())
+  while(api!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long ap = *api++;
       Quadprime P = *pr++;
@@ -493,15 +509,24 @@ int newform::base_change_discriminant(void) const
         {
           if (dp!=bcd) // mismatch: not possible?
             {
+              cout<<"\nWarning from base_change_discriminant(): bcd="<<bcd<<", dp="<<dp<<"; returning 0"<<endl;
               //cout<<"mismatch: bcd=0"<<endl;
-              return 1;
+              return 0;
             }
         }
     }
   return bcd;
 }
 
-// if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
+// if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d)), if any
+//
+// Method: for each split P, d will be the squarefree part of either
+// 2*p+a_P or 2*p-a_P, for some choice of sign depending on P.  So we
+// return d if there is a choice of signs giving the same d for all
+// split P, otherwise 0.
+
+//#define DEBUG_BCTD
+
 int newform::base_change_twist_discriminant(void) const
 {
   if (is_base_change_twist()==0) return 0;
@@ -509,14 +534,16 @@ int newform::base_change_twist_discriminant(void) const
   if (cmd!=0)
     {
       bcd1 = -cmd/(Quad::d);
-      //cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd1<<endl;
+#ifdef DEBUG_BCTD
+      cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd1<<endl;
+#endif
       return bcd1;
     }
-  bcd1 = bcd2 = 1;
+  bcd1 = bcd2 = 0; // flags that they have not yet been set
   Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(api!=aplist.end())
+  while(api!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long ap = *api++;
       Quadprime P = *pr++;
@@ -526,41 +553,87 @@ int newform::base_change_twist_discriminant(void) const
         continue;
       long dp1 = ap  + 2*P.prime();
       long dp2 = dp1 - 2*ap;
-      //cout<<"p="<<p<<" has ap="<<ap<<", discs "<<dp1<<", "<<dp2;
+#ifdef DEBUG_BCTD
+      cout<<"P="<<P<<" has aP="<<ap<<", discs "<<dp1<<", "<<dp2;
+#endif
       dp1 = squarefree_part(dp1);
       dp2 = squarefree_part(dp2);
-      //cout<<" with squarefree parts "<<dp1<<", "<<dp2<<endl;
+#ifdef DEBUG_BCTD
+      cout<<" with squarefree parts "<<dp1<<", "<<dp2<<endl;
+#endif
       if (dp1*dp2==0) continue;
-      if (dp1==dp2) return dp1; // no ambiguity!
-      if ((bcd1==1)&&(bcd2==1))  // first pair, store
+      if ((bcd1==0)&&(bcd2==0))  // first pair, store
         {
           bcd1 = dp1;
           bcd2 = dp2;
+#ifdef DEBUG_BCTD
+          cout<<" possible d: "<<bcd1<<", "<<bcd2<<endl;
+#endif
         }
-      else // see if only one is a repeatl if so it's the value we want
+      else // see if only one is a repeat, if so it's the value we want
         {
-          if ((dp1!=bcd1)&&(dp1!=bcd2))
+          if ((bcd1!=-1)&&(dp1!=bcd1)&&(dp2!=bcd1)) // then bcd1 is bogus
             {
-              return dp2;
+#ifdef DEBUG_BCTD
+              cout<<" eliminating d="<<bcd1<<endl;
+#endif
+              bcd1 = -1;
             }
-          if ((dp2!=bcd1)&&(dp2!=bcd2))
+          if ((bcd2!=-1)&&(dp1!=bcd2)&&(dp2!=bcd2)) // then bcd2 is bogus
             {
-              return dp1;
+#ifdef DEBUG_BCTD
+              cout<<" eliminating d="<<bcd2<<endl;
+#endif
+              bcd2 = -1;
             }
-          // otherwise we have the same two values as before so we go on
+          if ((bcd1==-1)&&(bcd2==-1)) // then we have no remaining candidates
+            {
+#ifndef DEBUG_BCTD
+              if (nf->verbose)
+#endif
+                cout<<"\nbase_change_twist_discriminant() finds no suitable d!"<<endl;
+              return 0;
+            }
+          // otherwise we still have at least one candidate, and continue
         }
     }
-  //cout<<"Warning from base_change_twist_discriminant(): unable to eliminate either of "<<bcd1<<" or "<<bcd2<<" so returning 1";
-  return 1;
+  // At this point, we have a valid d if and only if exactly one of
+  // bcd1, bcd2 is positive (or both if they are equal)
+  if ((bcd1>0)&&(bcd2>0)&&(bcd1==bcd2))
+    {
+#ifdef DEBUG_BCTD
+      cout<<" base_change_twist_discriminant() returns d = "<<bcd1<<endl;
+#endif
+      return bcd1;
+    }
+  if ((bcd1>0)&&(bcd2<=0))
+    {
+#ifdef DEBUG_BCTD
+      cout<<" base_change_twist_discriminant() returns d = "<<bcd1<<endl;
+#endif
+      return bcd1;
+    }
+  if ((bcd2>0)&&(bcd1<=0))
+    {
+#ifdef DEBUG_BCTD
+      cout<<" base_change_twist_discriminant() returns d = "<<bcd2<<endl;
+#endif
+      return bcd2;
+    }
+  cout<<"\nWarning from base_change_twist_discriminant(): bcd1="<<bcd1<<", bcd2="<<bcd2<<"; returning 0"<<endl;
+  return 0;
 }
 
 // Test if form is CM, return 0 or the CM disc
+
+#define DEBUG_CM
+
 int newform::is_CM(void) const
 {
   int cmd = 0;
   vector<long>::const_iterator api = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(api!=aplist.end())
+  while(api!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long ap = *api++;
       Quadprime P = *pr++;
@@ -1027,7 +1100,8 @@ void newform::display(void) const
 
 void newforms::list(long nap)
 {
-  string idlabel = ideal_label(N), idgens = gens_string(N), flabel = field_label();
+  string idlabel = (Quad::class_number==1? ideal_code(N.gen()): ideal_label(N));
+  string idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
   if (n2r==0)
