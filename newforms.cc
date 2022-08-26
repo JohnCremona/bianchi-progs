@@ -626,8 +626,6 @@ int newform::base_change_twist_discriminant(void) const
 
 // Test if form is CM, return 0 or the CM disc
 
-#define DEBUG_CM
-
 int newform::is_CM(void) const
 {
   int cmd = 0;
@@ -1100,7 +1098,8 @@ void newform::display(void) const
 
 void newforms::list(long nap)
 {
-  string idlabel = (Quad::class_number==1? ideal_code(N.gen()): ideal_label(N));
+  //  string idlabel = (Quad::class_number==1? ideal_code(N.gen()): ideal_label(N));
+  string idlabel = ideal_label(N);
   string idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
