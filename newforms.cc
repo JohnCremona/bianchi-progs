@@ -625,6 +625,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
 {
   nchi = 1<<n2r;
   level_is_square = N.is_square();
+  genus_class_trivial_counter.resize(nchi, 0);
 
   // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
   if ((characteristic==0) && (n2r > 0))
@@ -1192,8 +1193,16 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             }
           return aP;
         }
-      else // we have a new genus class, compute a_{P}^2
+      else // we have a new genus class, compute a_{P}^2 unless we already have at least 5 zeros in this class
         {
+          if (nf->genus_class_trivial_counter[c] >= 5)
+            {
+              if (verbose>0)
+                cout << "form "<<index<<", P = " <<P<<": genus class has "<<nf->genus_class_trivial_counter[c]
+                     <<" zero eigenvalues, so assuming self-twist, and taking aP=0"<<endl;
+              nf->genus_class_trivial_counter[c] +=1;
+              return 0;
+            }
           if (verbose>1)
             cout << "form "<<index<<", P = "<<P<<": computing T(P^2) to get a(P)^2" << endl;
           Qideal P2 = P*P;
