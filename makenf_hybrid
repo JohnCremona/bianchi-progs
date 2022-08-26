@@ -8,6 +8,15 @@ BOTH_CONJUGATES=1
 FIRST_NORM=${N}
 LAST_NORM=${N}
 
+# Make sure newforms directory exists!
+
+if [[ $((d % 4)) -ne 3 ]] ; then
+    D=$(( 4*d ))
+else
+    D=$d
+fi
+mkdir -p newforms/2.0.${D}.1
+
 PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${BOTH_CONJUGATES} ${FIRST_NORM} ${LAST_NORM}"
 
 PROG="./makenf_long_${d}_${N}"
