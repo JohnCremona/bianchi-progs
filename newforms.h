@@ -260,6 +260,10 @@ private:
   // compute list of eigenvalues given the image images[j] for each j in jlist
   vector<long> apvec_from_images(map<int,vec> images, pair<long,long> apbounds, const string& name);
 
+  // For each genus class c we count how many primes P in class c have
+  // a(P)=0, to aid i detecting self-twist forms.
+  vector<int> genus_class_trivial_counter;
+
   void output_to_file(string eigfile) const;
 
   // sorting functions
