@@ -106,8 +106,11 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   genus_class_aP.resize(1,1);
   fake = 0;
   // to be set later
-  CMD = 0;
+  CMD = 0;  // will be set to an unramified negative discriminant if self-twist
+  cm = 1;   // will be set to 0 or a negative square-free integer if CM
+  bc = 4;   // will be set to 0 or a square-free integer if base-change or twist of b.c.
   sfe = pdot = dp0 = lambdadot = matdot = 0;
+  genus_class_trivial_counter.resize(nf->nchi, 0);
 }
 
 // Fill in data for one newform. This assumes we have:
@@ -244,7 +247,7 @@ void newform::fill_in_genus_class_data()
       long aP = aplist[iP];
       if (aP==0)
         continue;
-      long c = P.genus_class();
+      long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0)
         continue;
       // if (nf->verbose)
@@ -355,11 +358,17 @@ newform::newform(newforms* nfs, int ind,
   genus_classes.resize(1,0);
   genus_class_ideals.resize(1,Qideal(1));
   genus_class_aP.resize(1,1);
+  genus_class_trivial_counter.resize(nf->nchi, 0);
   fake = 0;
 
   // recreate eigs list (used to recover basis vector, and for oldclasses at higher levels):
 
   eigs_from_data();
+
+  cm = 1; // will be set by calling is_CM() to 0, or a a negative
+          // square-free integer if CM
+  bc = 4; // will be set by calling base_change_code() to 0, or a
+          // square-free integer if base-change or twist of b.c.
 }
 
 // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
@@ -400,7 +409,45 @@ void newform::find_matrix()
 
 //#define DEBUG_BC
 
-int newform::is_base_change(void) const
+int newform::base_change_code(void)
+{
+  if (bc==4) // not yet set
+    {
+#ifdef DEBUG_BC
+      cout<<"bc not set, computing code..."<<endl;
+#endif
+      bc = 0;
+      if (is_base_change())
+        {
+#ifdef DEBUG_BC
+          cout<<" - form is bc..."<<flush;
+#endif
+          bc = base_change_discriminant();
+#ifdef DEBUG_BC
+          cout<<" with disc "<<bc<<endl;
+#endif
+        }
+      else if (is_base_change_twist())
+        {
+#ifdef DEBUG_BC
+          cout<<" - form is twist of bc..."<<flush;
+#endif
+          bc = -base_change_twist_discriminant();
+#ifdef DEBUG_BC
+          cout<<" with disc "<<-bc<<endl;
+#endif
+        }
+    }
+#ifdef DEBUG_BC
+  else
+    {
+      cout << "bc already set to "<<bc<<endl;
+    }
+#endif
+  return bc;
+}
+
+int newform::is_base_change(void)
 {
   if(!(nf->N.is_Galois_stable()))
     return 0;
@@ -443,7 +490,7 @@ int newform::is_base_change(void) const
   return 1;
 }
 
-int newform::is_base_change_twist(void) const
+int newform::is_base_change_twist(void)
 {
   vector<long>::const_iterator ap = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
@@ -481,7 +528,7 @@ int newform::is_base_change_twist(void) const
 }
 
 // if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
-int newform::base_change_discriminant(void) const
+int newform::base_change_discriminant(void)
 {
   if (is_base_change()==0) return 0;
   int bcd = 1;
@@ -527,30 +574,55 @@ int newform::base_change_discriminant(void) const
 
 //#define DEBUG_BCTD
 
-int newform::base_change_twist_discriminant(void) const
+int newform::base_change_twist_discriminant(void)
 {
   if (is_base_change_twist()==0) return 0;
-  int bcd1, bcd2, cmd = is_CM();
+  int cmd = is_CM();
   if (cmd!=0)
     {
-      bcd1 = -cmd/(Quad::d);
+      int bcd = -cmd/(Quad::d);
 #ifdef DEBUG_BCTD
-      cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd1<<endl;
+      cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd<<endl;
 #endif
-      return bcd1;
+      return bcd;
     }
-  bcd1 = bcd2 = 0; // flags that they have not yet been set
+  int bcd1 = 0, bcd2 = 0; // flags that they have not yet been set
+  int n_candidates = 0;
   Qideal N(nf->N);
   vector<long>::const_iterator api = aplist.begin();
   vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(api!=aplist.end() && pr!=Quadprimes::list.end())
+  Quadprime P;
+  long ap;
+  while(pr!=Quadprimes::list.end() && n_candidates !=1)
     {
-      long ap = *api++;
-      Quadprime P = *pr++;
-      if(!P.is_inert())
-        continue;
-      if(P.divides(N)) // this prime is bad
-        continue;
+      P = *pr++;
+      int use_P = P.is_inert() && !P.divides(N);
+      if (!use_P)
+        {
+          if (api!=aplist.end())
+            {
+              ++api; // must increment even if though this P is not being used
+            }
+          continue;
+        }
+      if (api!=aplist.end())
+        {
+          ap = *api++; // must increment even if this P is not being used
+#ifdef DEBUG_BCTD
+          cout<<" - using stored aP = "<<ap<<" for P = "<<P<<"..."<<endl;
+#endif
+        }
+      else
+        {
+          nf->makebases(); // does nothing if already made
+#ifdef DEBUG_BCTD
+          cout<<" - computing aP for P = "<<P<<"..."<<flush;
+#endif
+          ap = eigenvalueHecke(P);
+#ifdef DEBUG_BCTD
+          cout<<" done,  aP = "<<ap<<" for P = "<<P<<"..."<<endl;
+#endif
+        }
       long dp1 = ap  + 2*P.prime();
       long dp2 = dp1 - 2*ap;
 #ifdef DEBUG_BCTD
@@ -562,12 +634,13 @@ int newform::base_change_twist_discriminant(void) const
       cout<<" with squarefree parts "<<dp1<<", "<<dp2<<endl;
 #endif
       if (dp1*dp2==0) continue;
-      if ((bcd1==0)&&(bcd2==0))  // first pair, store
+      if (n_candidates==0)  // first pair, store
         {
           bcd1 = dp1;
           bcd2 = dp2;
+          n_candidates = (bcd1==bcd2? 1: 2);
 #ifdef DEBUG_BCTD
-          cout<<" possible d: "<<bcd1<<", "<<bcd2<<endl;
+          cout<<" possible d: "<<bcd1<<", "<<bcd2<<"; "<<n_candidates<<" candidate(s)"<<endl;
 #endif
         }
       else // see if only one is a repeat, if so it's the value we want
@@ -578,6 +651,7 @@ int newform::base_change_twist_discriminant(void) const
               cout<<" eliminating d="<<bcd1<<endl;
 #endif
               bcd1 = -1;
+              n_candidates = int(bcd2>0);
             }
           if ((bcd2!=-1)&&(dp1!=bcd2)&&(dp2!=bcd2)) // then bcd2 is bogus
             {
@@ -585,6 +659,7 @@ int newform::base_change_twist_discriminant(void) const
               cout<<" eliminating d="<<bcd2<<endl;
 #endif
               bcd2 = -1;
+              n_candidates = int(bcd1>0);
             }
           if ((bcd1==-1)&&(bcd2==-1)) // then we have no remaining candidates
             {
@@ -626,35 +701,36 @@ int newform::base_change_twist_discriminant(void) const
 
 // Test if form is CM, return 0 or the CM disc
 
-int newform::is_CM(void) const
+int newform::is_CM(void)
 {
-  int cmd = 0;
-  vector<long>::const_iterator api = aplist.begin();
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  while(api!=aplist.end() && pr!=Quadprimes::list.end())
+  if (cm==1) // not already set
     {
-      long ap = *api++;
-      Quadprime P = *pr++;
-      if (ap==0) continue;
-      long dp = ap*ap-4*I2long(P.norm());
-      //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
-      dp = squarefree_part(dp);
-      //cout<<" with squarefree part "<<dp<<endl;
-      if (dp==0) continue;
-      if (cmd==0) // first one
+      vector<long>::const_iterator api = aplist.begin();
+      vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+      while(api!=aplist.end() && pr!=Quadprimes::list.end())
         {
-          cmd = dp;
-        }
-      else
-        {
-          if (dp!=cmd) // mismatch: not CM
+          long ap = *api++;
+          Quadprime P = *pr++;
+          if (ap==0) continue;
+          long dp = ap*ap-4*I2long(P.norm());
+          //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
+          if (dp==0) continue;
+          dp = squarefree_part(dp);
+          //cout<<" with squarefree part "<<dp<<endl;
+          if (cm==1) // first one
+            {
+              cm = dp;
+              continue;
+            }
+          if (dp!=cm) // mismatch: not CM
             {
               //cout<<"mismatch: CM=0"<<endl;
-              return 0;
+              cm = 0;
+              break;
             }
         }
     }
-  return cmd;
+  return cm;
 }
 
 // Return this twisted by the genus character associated to D
@@ -692,11 +768,10 @@ void newforms::makeh1plus(void)
 }
 
 newforms::newforms(const Qideal& iN, int disp, long ch)
-  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch)
+  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch), have_bases(0)
 {
   nchi = 1<<n2r;
   level_is_square = N.is_square();
-  genus_class_trivial_counter.resize(nchi, 0);
 
   // nulist is a list of n2r ideals coprime to N whose classes generate the 2-torsion
   if ((characteristic==0) && (n2r > 0))
@@ -1005,6 +1080,7 @@ void newforms::find()
 
   fill_in_newform_data();
   nap=0;
+  have_bases=1;
 }
 
 // fill in extra data in each newform:
@@ -1104,6 +1180,11 @@ void newforms::list(long nap)
   string idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
+  for(int i=0; i<n1ds; i++) // make sure these are set *before* making the unramified twists
+    {
+      nflist[i].base_change_code();
+      nflist[i].is_CM();
+    }
   if (n2r==0)
     for(int i=0; i<n1ds; i++)
       nflist[i].list(s1 + codeletter(i) + s2, nap);
@@ -1123,7 +1204,7 @@ void newforms::list(long nap)
     }
 }
 
-void newform::list(string prefix, long nap) const
+void newform::list(string prefix, long nap)
 {
   if(nap==-1) nap=aplist.size();
   vector<long>::const_iterator ai;
@@ -1219,13 +1300,14 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
   Qideal N = nf->N;
   if (P.divides(N))
     return 0; // we'll deal with A-L eigs later
-  long c = P.genus_class();
+  long c = P.genus_class(1);  // 1 means reduce mod Quad::class_group_2_rank
+  //cout << "P=" <<P<<" has genus character "<<P.genus_character()<<" and genus class "<<c<<endl;
   if (c==0) // then P has square class, compute aP directly via T(P) or T(P)*T(A,A)
     {
       if (P.is_principal())  // compute T(P)
         {
           if (verbose>1)
-            cout << "form "<<index<<", computing T("<<P<<") directly"<<endl;
+            cout << "form "<<index<<", computing T("<<P<<") directly as "<<P<<" is principal"<<endl;
           return eigenvalue(HeckePOp(P, N), eigenvalue_range(P));
         }
       else   // P has square class, compute T(P)*T(A,A)
@@ -1239,6 +1321,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
   else // P does not have square class, its genus class is c>0
     {
       // See if we already have an eigenvalue for this genus class
+      //cout<<"P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
       vector<long>::iterator ci = std::find(genus_classes.begin(), genus_classes.end(), c);
       if (ci != genus_classes.end()) // then we do
         {
@@ -1268,12 +1351,12 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
         }
       else // we have a new genus class, compute a_{P}^2 unless we already have at least 5 zeros in this class
         {
-          if (nf->genus_class_trivial_counter[c] >= 5)
+          //cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
+          if (genus_class_trivial_counter[c] >= 5)
             {
               if (verbose>0)
-                cout << "form "<<index<<", P = " <<P<<": genus class has "<<nf->genus_class_trivial_counter[c]
+                cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
                      <<" zero eigenvalues, so assuming self-twist, and taking aP=0"<<endl;
-              nf->genus_class_trivial_counter[c] +=1;
               return 0;
             }
           if (verbose>1)
@@ -1312,12 +1395,20 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                   genus_classes.resize(2*oldsize);
                   genus_class_ideals.resize(2*oldsize);
                   genus_class_aP.resize(2*oldsize);
+                  genus_class_trivial_counter[c] = 0;
                   for (int i = 0; i<oldsize; i++)
                     {
                       genus_classes[oldsize+i] = genus_classes[i]^c;
                       genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
                       genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
                     }
+                }
+              else
+                {
+                  genus_class_trivial_counter[c] +=1;
+                  if (verbose>1)
+                    cout << "form "<<index<<", genus_class_trivial_counter for class "<<c
+                        <<" is now "<<genus_class_trivial_counter[c]<<endl;
                 }
             }
           else
@@ -1648,7 +1739,8 @@ int newforms::read_from_file()
 
 void newforms::makebases()
 {
-  if(!h1) makeh1plus();  // create the homology space
+  if(have_bases) return;
+  makeh1plus();  // create the homology space if not yet
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
@@ -1671,6 +1763,7 @@ void newforms::makebases()
   sort_lmfdb();
   if(verbose>1) cout<<"Filling in newform data..."<<endl;
   fill_in_newform_data(0);
+  have_bases=1;
   if(verbose) cout<<"Finished makebases()"<<endl;
 }
 

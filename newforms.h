@@ -76,7 +76,24 @@ public:
   vector<long> genus_classes;
   vector<Qideal> genus_class_ideals;
   vector<long> genus_class_aP;
+  // base-change code:
+  //  +1 for b.c. of form over Q with coeffs in Q
+  //  +d (d square-free) for b.c. of form over Q with coeffs in Q(sqrt(d))
+  //  -1 for twist of b.c. of form over Q with coeffs in Q
+  //  -d (d square-free) for twist of b.c. of form over Q with coeffs in Q(sqrt(d))
+  //  0  for not b.c. even up to twist
+  //  4  for not set
+  int bc;
+  // CM code:
+  //  -d (negative discriminant) if CM with discriminant -d
+  //  0 if not CM
+  //  1 if not set
+  int cm;
   int fake; // flag for "fake rational" forms
+
+  // For each genus class c we count how many primes P in class c have
+  // a(P)=0, to aid i detecting self-twist forms.
+  vector<int> genus_class_trivial_counter;
 
   newform(void) :basis(0), aplist(0) {;}
   // constructor to use just after finding the eigenspace: just sets
@@ -123,26 +140,21 @@ public:
   long eigenvalueAtkinLehner(Quadprime& Q, int verbose=0);
 
   void display(void) const;
-  void list(string prefix, long nap=-1) const;
+  void list(string prefix, long nap=-1);
   // To find matrix for integration:
   void find_matrix();
   // Test if form is base-change
-  int is_base_change(void) const;
+  int is_base_change(void);
   // Test if form is base-change up to twist
-  int is_base_change_twist(void) const;
+  int is_base_change_twist(void);
   // if form is base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
-  int base_change_discriminant(void) const;
+  int base_change_discriminant(void);
   // if form is twist of base-change, find the d s.t. the bc has eigenvalues in Q(sqrt(d))
-  int base_change_twist_discriminant(void) const;
+  int base_change_twist_discriminant(void);
   // code to indicate base change or b.c. up to twist
-  int base_change_code() const
-  {
-    if (is_base_change()) return base_change_discriminant();
-    if (is_base_change_twist()) return -base_change_twist_discriminant();
-    return 0;
-  }
+  int base_change_code(void);
   // Test if form is CM, return 0 or the CM disc
-  int is_CM(void) const;
+  int is_CM(void);
   // Return this twisted by the genus character associated to D
   newform twist(const QUINT& D);
 };
@@ -220,6 +232,7 @@ public:
   homspace* h1; // pointer to one, not an array
   long hmod, nfhmod;
   long characteristic; // 0 or prime
+  int have_bases;
   vector<newform> nflist;
   explicit newforms(const Qideal& N, int disp=0, long ch=0);
   ~newforms(void) {
@@ -259,10 +272,6 @@ private:
   vector<long> apvec(const matop& op, pair<long,long> apbounds);
   // compute list of eigenvalues given the image images[j] for each j in jlist
   vector<long> apvec_from_images(map<int,vec> images, pair<long,long> apbounds, const string& name);
-
-  // For each genus class c we count how many primes P in class c have
-  // a(P)=0, to aid i detecting self-twist forms.
-  vector<int> genus_class_trivial_counter;
 
   void output_to_file(string eigfile) const;
 
