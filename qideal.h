@@ -140,9 +140,11 @@ public:
     return equivalent_coprime_to(N, c, d, anti);
   }
 
-  vector<int> genus_character();
-  long genus_class();
-  int genus_character(const QUINT& D); // one unram char value
+  int genus_character(const QUINT& D); // one unram char value in {+1,-1}
+  vector<int> genus_character(); // vector of values in {0,1} of length r = #prime factors of field disc
+                                 // adding to 0 mod 2
+  long genus_class(int contract=0); // integer in [0,2^r-1] whose bits are genus_character() when contract=0
+                                    // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
 
   // return J such that J^2 is equivalent to this (or J^2*this is

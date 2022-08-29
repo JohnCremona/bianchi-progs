@@ -37,9 +37,10 @@ public:
   int residue_degree() const {return (character==-1? 2: 1);}
   int ramification_degree() const {return (character==0? 2: 1);}
 
-  vector<int> genus_character(); // vector of unram char values, one per prime discriminant
-  int genus_character(const QUINT& D); // one unram char value
-  long genus_class() {return from_bits(genus_character());}
+  vector<int> genus_character(); // vector of unram char values in {0,1}, one per prime discriminant
+  int genus_character(const QUINT& D); // one unram char value in {-1,1}
+  long genus_class(int contract=0); // integer in [0,2^r-1] whose bits are genus_character() when contract=0
+                                    // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
 
   friend inline ostream& operator<<(ostream& s, const Quadprime& x);

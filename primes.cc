@@ -30,6 +30,9 @@ vector<int> Quadprime::genus_character()
   // NB this function is indirectly called in fill_class_group() at
   // which point Quad::class_group_2_rank has not been set
 
+  // It returns a list of values in {0,1}, one per prime discriminant
+  // factor, which add to 0 mod 2
+
   int r = Quad::prime_disc_factors.size()-1; // = Quad::class_group_2_rank
   vector<int> ans(1+r, 0);
   if (r==0 || is_inert() || is_principal())
@@ -68,13 +71,20 @@ int Quadprime::genus_character(const QUINT& D)
 {
   if (!div_disc(D, Quad::disc))
     return 0;
-  int r = Quad::prime_disc_factors.size();
   // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
-  // cout<<" with character values "<< chardisc(D) <<endl;
-  // cout<<"genus_class of P is "<<genus_class()<<", bits "<<bits(genus_class(), r)<<endl;
-  int dot = dotbits(from_bits(chardisc(D)), genus_class(), r);
+  vector<int> v1 = chardisc(D), v2 = genus_character();
+  // cout<<" with character values "<< v1 << " for P and "<< v2 << " for D"<<endl;
+  int dot = std::inner_product(v1.begin(), v1.end(), v2.begin(), 0);
   // cout<<"dot product = "<<dot<<" --> "<<(dot? -1: +1)<<endl;
   return (dot? -1: +1);
+}
+
+long Quadprime::genus_class(int contract)
+{
+  vector<int> v = genus_character();
+  long c = from_bits(v);
+  if (contract) c %= (1<<Quad::class_group_2_rank);
+  return c;
 }
 
 istream& operator>>(istream& s, Quadprime& P)
@@ -678,15 +688,16 @@ int Qideal::is_square()
   return 1;
 }
 
-long Qideal::genus_class()
+long Qideal::genus_class(int contract)
 {
   long c = 0;
   vector<QuadprimePower> PP = factorization().prime_powers();
   for (auto PPi = PP.begin(); PPi!=PP.end(); ++PPi)
     {
       if ((PPi->second)%2==1)
-        c ^= (PPi->first).genus_class();
+        c ^= (PPi->first).genus_class(); // binary + (exclusive or)
     }
+  if (contract) c %= (1<<Quad::class_group_2_rank);
   return c;
 }
 
