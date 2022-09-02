@@ -5,8 +5,8 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
-  :verbose(verb), cuspidal(cuspid), plusflag(hp), N(I), characteristic(ch), hmod(0)
+homspace::homspace(const Qideal& I, int hp, int verb, long ch)
+  :verbose(verb), plusflag(hp), N(I), characteristic(ch), hmod(0)
 {
   P1 = P1N(N);
   nsymb = P1.size();
@@ -30,7 +30,7 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
 
   FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
   denom1 = FR.get_denom();
-  rk = FR.get_rank();
+  dimension = FR.get_rank();
   hmod = FR.get_hmod();
 
   make_freemods();
@@ -40,8 +40,8 @@ homspace::homspace(const Qideal& I, int hp, int cuspid, int verb, long ch)
   if(verbose)
     {
       cout << "number of cusps = " << ncusps << endl;
-      if (cuspidal)
-        cout << "dimension = " << dimension << endl;
+      cout << "dimension = " << dimension << endl;
+      cout << "cuspidal dimension = " << cuspidal_dimension << endl;
       cout<<"denom1 = "<<denom1<<endl;
       cout<<"denom2 = "<<denom2<<endl;
       cout<<"denom3 = "<<denom3<<endl;
@@ -58,23 +58,23 @@ modsym homspace::edge_generator(long i)
  
 void homspace::make_freemods()
 {
-  if (rk==0) return;
+  if (dimension==0) return;
 
   long i;
   modsym m;
 
-  freegens.resize(rk);
-  for (i=0; i<rk; i++)
+  freegens.resize(dimension);
+  for (i=0; i<dimension; i++)
     freegens[i] = ER.gen(FR.gen(i+1));
   if (verbose)
     {
       cout << "freegens: ";
-      for (i=0; i<rk; i++) cout << freegens[i] << " ";
+      for (i=0; i<dimension; i++) cout << freegens[i] << " ";
       cout << endl;
       cout << "Freemods:\n";
     }
 
-  for (i=0; i<rk; i++)
+  for (i=0; i<dimension; i++)
     {
       m = edge_generator(freegens[i]);
       freemods.push_back(m);
@@ -95,8 +95,8 @@ void homspace::make_freemods()
     {
       cout<<"Checking that freemods convert back to unit vectors:"<<endl;
     }
-  vec ei(rk); // initially 0
-  for (i=0; i<rk; i++)
+  vec ei(dimension); // initially 0
+  for (i=0; i<dimension; i++)
     {
       m = freemods[i];
       if (verbose)
@@ -124,9 +124,9 @@ void homspace::kernel_delta()
   if (verbose)
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(N, plusflag);
-  mat deltamat(2*rk,rk);
+  mat deltamat(2*dimension,dimension);
   int i, ia, ib;
-  for (i=0; i<rk; i++)
+  for (i=0; i<dimension; i++)
     {
       modsym m = freemods[i];
       RatQuad a = m.alpha(), b = m.beta();
@@ -173,7 +173,7 @@ void homspace::kernel_delta()
   if(verbose>1)
     cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
 
-  dimension = (cuspidal? dim(kern): rk);
+  cuspidal_dimension = dim(kern);
   denom2 = d2;
   denom3 = denom1 * denom2;
 
@@ -183,17 +183,8 @@ void homspace::kernel_delta()
       cout << "Basis of ker(delta):\n";
       cout << basiskern.as_mat();
       cout << "pivots: " << pivots(kern) << endl;
-    }
-  for (i=0; i<rk; i++)
-    {
-      int n = (cuspidal? ! trivial(basiskern.row(i+1).as_vec()) : 1);
-      needed.push_back(n);
-      if (verbose)
-        {
-          cout << "generator "<< i << ": " << freemods[i];
-          if (!n) cout << " (not needed)";
-          cout << endl;
-        }
+      for (i=0; i<dimension; i++)
+        cout << "generator "<< i << ": " << freemods[i] << endl;
     }
 }
 
@@ -207,16 +198,16 @@ int homspace::check_conjugate(int verb)
 {
   Qideal Nconj = N.conj();
   if (verb) cout<<"Constructing conjugate homspace for level "<<ideal_label(Nconj)<<"..."<<endl;
-  homspace H1conj(Nconj, plusflag, cuspidal, 0);
-  if (H1conj.rk!=rk)
+  homspace H1conj(Nconj, plusflag, 0);
+  if (H1conj.dimension!=dimension)
     {
       if (verb) cout<<"Error: this space and the conjugate space have differeent dimensions"<<endl;
       return 0;
     }
   if (verb)
-    cout<<" - dimensions equal ("<<rk<<"), constructing matrix of conjugation map..."<<endl;
-  mat conjmat1(rk,rk);
-  for (int i=0; i<rk; i++)
+    cout<<" - dimensions equal ("<<dimension<<"), constructing matrix of conjugation map..."<<endl;
+  mat conjmat1(dimension,dimension);
+  for (int i=0; i<dimension; i++)
     {
       conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
     }
@@ -224,14 +215,14 @@ int homspace::check_conjugate(int verb)
   if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
 
   // Now the reverse map
-  mat conjmat2(rk,rk);
-  for (int i=0; i<rk; i++)
+  mat conjmat2(dimension,dimension);
+  for (int i=0; i<dimension; i++)
     {
       conjmat2.setcol(i+1,chain(H1conj.freemods[i].conj()));
     }
   long conjmatrank2 = smat(conjmat2).rank();
   if (verb) cout<<" - reverse conjugation map has rank "<<conjmatrank2<<endl;
-  if (conjmatrank1==rk && conjmatrank2==rk)
+  if (conjmatrank1==dimension && conjmatrank2==dimension)
     {
       if (verb)
         cout<<" - spaces are isomorphic, as expected."<<endl;
@@ -269,7 +260,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
       return ans;
     }
   else
-    return vec((proj? projcoord.ncols(): rk)); // zero vector
+    return vec((proj? projcoord.ncols(): dimension)); // zero vector
 }
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
@@ -348,7 +339,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 }
 
 vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
-{ vec ans(rk);
+{ vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
   for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     ans = reduce_modp(ans + chain((*mi)(alpha), proj), hmod);
@@ -356,7 +347,7 @@ vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
 }
 
 vec homspace::applyop(const matop& T, const modsym& m, int proj)
-{ vec ans(rk);
+{ vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
   for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     {
@@ -366,19 +357,19 @@ vec homspace::applyop(const matop& T, const modsym& m, int proj)
   return ans;
 }
 
-mat homspace::calcop(const matop& T, int dual, int display)
+mat homspace::calcop(const matop& T, int cuspidal, int dual, int display)
 {
   if(display)
     cout<<"Computing " << T.name() <<"...";
-  mat m(rk,rk);
-  for (long j=0; j<rk; j++) if (needed[j])
+  mat m(dimension,dimension);
+  for (long j=0; j<dimension; j++)
      { vec colj = applyop(T,freemods[j]);
        m.setcol(j+1,colj);
      }
   if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
   if(dual) m = transpose(m);
-  // if (display) cout << "Matrix of " << T.name() << " = " << m;
-  // if (display && (dimension>1)) cout << endl;
+  if (display) cout << "Matrix of " << T.name() << " = " << m;
+  if (display && (dimension>1)) cout << endl;
   if (display)
     cout<<"done."<<endl;
   return m;
@@ -389,7 +380,7 @@ mat homspace::calcop_cols(const matop& T, const vec& jlist, int verb)
   if(verb)
     cout<<"Computing " << T.name() <<"...";
   int i, d = dim(jlist);
-  mat m(d,rk);
+  mat m(d,dimension);
   for (i=1; i<=d; i++)
     {
       int j = jlist[i];
@@ -406,7 +397,7 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
   int i, d = dim(jlist);
   if(verb)
     cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop_cols() with d="<<d<<", jlist="<<jlist<<"...";
-  smat m(d,rk);
+  smat m(d,dimension);
   for (i=1; i<=d; i++)
     {
       int j = jlist[i];
@@ -424,21 +415,21 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
   return m;
 }
 
-smat homspace::s_calcop(const matop& T, int dual, int display)
+smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
 {
   if(display)
     cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop()..."<<flush;
-  smat m(rk,rk);
-  for (long j=0; j<rk; j++) if (needed[j])
+  smat m(dimension,dimension);
+  for (long j=0; j<dimension; j++)
      { svec colj = applyop(T,freemods[j]);
        m.setrow(j+1,colj);
      }
-  // if(cuspidal)
-  //   {
-  //     m = restrict_mat(transpose(m),kern);
-  //     if(dual) m = transpose(m);
-  //   }
-  // else
+  if(cuspidal) // as above code computes the transpose
+    {
+      m = restrict_mat(transpose(m),kern);
+      if(dual) m = transpose(m);
+    }
+  else
     if(!dual) {m=transpose(m);}
   // if (display)
   //   {
@@ -457,7 +448,7 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
   if(display)
     cout<<"Computing " << T.name()
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
-  mat m(d,rk);
+  mat m(d,dimension);
   for (long j=0; j<d; j++)
      {
        long jj = pivots(s)[j+1]-1;
@@ -468,7 +459,7 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
     m = matmulmodp(m,basis(s),hmod);
   else
     m = m*basis(s);
-  if(!dual) m=transpose(m); // dual is default for restricted ops
+  if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display) cout << "Matrix of " << T.name() << " = " << m;
   // if (display && (dimension>1)) cout << endl;
   if (display)
@@ -482,7 +473,7 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
   if(display)
     cout<<"Computing " << T.name()// <<" in s_calcop_restricted()"
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
-  smat m(d,rk);
+  smat m(d,dimension);
   for (long j=1; j<=d; j++)
      {
        long jj = pivots(s)[j];
@@ -491,7 +482,7 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
      }
   m = mult_mod_p(m,basis(s),MODULUS);
   m.reduce_mod_p();
-  if(!dual) m=transpose(m); // dual is default for restricted ops
+  if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display)
   //   {
   //     cout << "Matrix of " << T.name() << " = " << m.as_mat();
@@ -527,59 +518,26 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
 
 // The subspace cut out by the given eigenvalues for the basis of
 // Quad::class_group_2_rank unramified characters:
-ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c, int dual)
+ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 {
-  if (Quad::class_group_2_rank==0)
-    {
-      return ssubspace(c? h1cuspdim(): h1dim());
-    }
-  vector<Qideal> nulist = make_nulist(N);
-  vector<Qideal>::iterator nui = nulist.begin();
-  vector<int>::const_iterator ei = eigs.begin();
-  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
-  cout<<"Finding common eigenspace of "<<nulist.size()<<" character involutions"<<endl;
-  if (c && !cuspidal)
-    m = restrict_mat(m,kern);
-  long den = (c? h1cdenom(): h1denom());
-  ssubspace s = eigenspace(m, (*ei++)*den);
-  int subdim = dim(s);
+  int subdim = h1dim();
+  long den = h1denom();
 
-  for (; nui!=nulist.end() && subdim>0; ++ei)
-    {
-      m = s_calcop(CharOp(*nui++, N), dual, 0);
-      if (c && !cuspidal)
-        m = restrict_mat(m,kern);
-      s = subeigenspace(m, (*ei)*den, s);
-      subdim = dim(s);
-    }
-  return s;
-}
-
-// dimension of previous (for when we do not need the subspace
-// itself).  NB This is faster than via calling the previous since
-// we can use the dual trick.
-int homspace::unramified_character_subspace_dimension(const vector<int>& eigs, int c)
-{
-  int subdim = (c? h1cuspdim(): h1dim());
-  if (Quad::class_group_2_rank==0) // no characters, so return full (resp. cuspidal) dimension
-    {
-      return subdim;
-    }
+  if (Quad::class_group_2_rank==0) // no characters, so return full (resp. cuspidal) space
+    return ssubspace(subdim);
 
   vector<Qideal> nulist = make_nulist(N);
   vector<Qideal>::iterator nui = nulist.begin();
   vector<int>::const_iterator ei = eigs.begin();
 
-  // Compute eigenspace for first character:
+  // Compute eigenspace for first character, then compute successive
+  // dual subspaces.
 
   int dual = 1;
-  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
-  long den = (c? h1cdenom(): h1denom());
+  smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
   long eig = (*ei++)*den;
   ssubspace s = eigenspace(m, eig);
   subdim = dim(s);
-
-  // While dimension remains positive, compute sub-eigenspace for successive characters:
 
   for (; nui!=nulist.end() && subdim>0; ++ei)
     {
@@ -588,58 +546,56 @@ int homspace::unramified_character_subspace_dimension(const vector<int>& eigs, i
       s = combine(s, eigenspace(m, eig));
       subdim = dim(s);
     }
-  if (c && !cuspidal) // work out hom much of this is cuspidal
+  return s;
+}
+
+// dimension of previous (for when we do not need the subspace
+// itself).  NB This is faster than via calling the previous since we
+// can use the dual trick.
+int homspace::unramified_character_subspace_dimension(const vector<int>& eigs, int cuspidal)
+{
+  ssubspace s = unramified_character_subspace(eigs);
+  if (cuspidal) // work out how much of this is cuspidal
     return (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
   else
-    return subdim;
+    return dim(s);
 }
 
 // list of (cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
-{ verbose=2;
+vector<int> homspace::trivial_character_subspace_dimension_by_twist(int cuspidal)
+{ //verbose=2;
+  long den = (cuspidal? h1cdenom(): h1denom());
+  int subdim = (cuspidal? cuspidal_dimension: dimension);
   vector<int> dimlist;
-  int subdim;
   if (Quad::class_group_2_rank==0)
     {
-      subdim = (c? h1cuspdim(): h1dim());
       dimlist.push_back(subdim);
       return dimlist;
     }
 
   if(verbose>1)
-    cout<<"\nFinding trivial character subspace..."<<flush;
-
-  vector<Qideal> nulist = make_nulist(N);
-  vector<Qideal>::iterator nui = nulist.begin();
-
-  // Compute eigenspace for first character:
-
-  int dual = 1;
-  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
-  long den = (c? h1cdenom(): h1denom());
-  long eig = den; // i.e. 1, but scaled
-  ssubspace s = eigenspace(m, eig);
-  subdim = dim(s);
-
-  // While dimension remains positive, compute sub-eigenspace for successive characters:
-
-  for (; nui!=nulist.end() && subdim>0; ++nui)
     {
-      m = s_calcop_restricted(CharOp(*nui, N), s, dual, 0);
-      s = combine(s, eigenspace(m, eig));
-      if (c) // work out how much of this is cuspidal
-        subdim = (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
-      else
-        subdim = dim(s);
+      cout<<"\nFull dimension = "<<dimension;
+      if (cuspidal) cout<<", cuspidal dimension = "<<subdim;
+      cout<<endl;
+      cout<<"Finding trivial character subspace..."<<flush;
     }
+
+  ssubspace s = unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1));
+  if (cuspidal) // work out how much of this is cuspidal
+    subdim = (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
+  else
+    subdim = dim(s);
 
   dimlist.push_back(subdim); // we'll subtract dimensions of
                              // nontrivial self-twist spaces from this
   if(verbose>1)
     {
-      cout<<"...done, dimension = "<<subdim<<endl;
+      cout<<"...done, dimension = "<<dim(s);
+      if (cuspidal) cout<<", cuspidal dimension = "<<subdim;
+      cout<<endl;
       cout<<"Pushing "<<subdim<<" onto dimlist, which is now "<<dimlist<<endl;
     }
 
@@ -651,10 +607,9 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
       if(verbose>1)
         cout<<"D = "<<D<<":"<<endl;
       ssubspace sD = s;
-      subdim = dimlist[0]; // = how much left unaccounted for
 
       QuadprimeLooper Pi(N); // loop over primes not dividing N
-      int ip = 0, np = 10; //5;   // only use first few non-square-class primes
+      int ip = 0, np = 10;   // only use first few non-square-class primes
 
       while (ip<np && subdim>0 && Pi.ok())
         {
@@ -682,22 +637,19 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
                   else
                     cout << " - computed "<<op.length()<<" op matrices for T(P^2)*T(A,A) for A = " << ideal_label(A) << endl;
                 }
-              smat m = s_calcop_restricted(op, sD, dual, (verbose>1)); // dual, no display
+              smat m = s_calcop_restricted(op, sD, 1, (verbose>1)); // dual, no display
               if(verbose>1)
                 {
                   cout << " - computed matrix of this op restricted to current subspace" << endl;
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
               sD = combine(sD, eigenspace(m, eig));
-              subdim = dim(sD);
+              if (cuspidal) // work out hom much of this is cuspidal
+                subdim = (mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank();
+              else
+                subdim = dim(sD);
               if(verbose>1)
                 cout<<" - done, now subdimension = "<<subdim<<endl;
-              if (c) // work out hom much of this is cuspidal
-                {
-                  subdim = (mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank();
-                  if(verbose>1)
-                    cout<<" - cuspidal subdim = "<<subdim<<endl;
-                }
               ++Pi; // extra increment, so we don't use both conjugates
             }
           ++Pi; // increment prime
@@ -723,14 +675,15 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
 // of the class group, except for self-twist eigenspaces which only
 // contribute 2**(r-1) forms.
 
-int homspace::bianchi_form_dimension(int c)
+int homspace::bianchi_form_dimension(int cuspidal)
 {
-  if (Quad::class_group_2_rank==0)
-    return (c? h1cuspdim(): h1dim());
-  vector<int> tdims = trivial_character_subspace_dimension_by_twist(c);
-  // cout<<"\ntdims = "<<tdims<<endl;
+  int n2r = Quad::class_group_2_rank;
+  if (n2r==0)
+    return (cuspidal? h1cuspdim(): h1dim());
+  vector<int> tdims = trivial_character_subspace_dimension_by_twist(cuspidal);
+  //cout<<"\ntdims = "<<tdims<<endl;
   int dim = 2*tdims[0];
   for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)
     dim += *tdim;
-  return dim << (Quad::class_group_2_rank - 1);
+  return dim << (n2r - 1);
 }

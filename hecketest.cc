@@ -11,7 +11,7 @@ int main(void)
 {
   long d, max(MAXPRIME);
   int np, ntp;
- Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal=1;
+ Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal;
  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
  if (!check_field(d))
    {
@@ -43,19 +43,10 @@ int main(void)
 #endif
   QUINT normn = N.norm();
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
-  homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
-  int dim = h.h1dim();
-  int den = h.h1denom();
-  int cden = h.h1cdenom();
-  if (cuspidal)
-    {
-      cout << "Cuspidal dimension = " << dim << endl;
-      den=cden;
-    }
-  else
-    {
-      cout << "Dimension = " << dim << endl;
-    }
+  homspace h(N,plusflag,0);  //level, plusflag, verbose
+  int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
+  int den = (cuspidal? h.h1cdenom(): h.h1denom());
+  cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << dim << endl;
   if(den!=1) cout << " denominator = " << den << endl;
   long hmod = h.h1hmod();
   if(hmod)
@@ -80,8 +71,9 @@ int main(void)
           for (vector<Qideal>::iterator t2i=t2ideals.begin(); t2i!=t2ideals.end(); ++t2i)
             {
               Qideal A = *t2i;
-              cout << "Computing nu_"<< A <<"..." << flush;
-              mat_ZZ nu = mat_to_mat_ZZ(h.calcop(CharOp(A, N), 0, 0));
+              cout << "Computing nu_"<< ideal_label(A) <<"..." << flush;
+              mat m = h.calcop(CharOp(A, N), cuspidal, 0, 1);
+              mat_ZZ nu = mat_to_mat_ZZ(m);
               cout << "done. " << endl;
               if (show_mats)
                 cout << "Matrix is \n" << nu << endl;
@@ -162,10 +154,11 @@ int main(void)
               }
             else  // we have an odd power of an ideal with non-square ideal class and compute nothing
               continue;
-          mat_ZZ wq =  mat_to_mat_ZZ(h.calcop(op,0,0));
+          mat m = h.calcop(op,cuspidal,0,0);
+          mat_ZZ wq =  mat_to_mat_ZZ(m);
 	  cout << "done. " << endl;
           if (show_mats)
-            cout << "Matrix is \n" << h.calcop(op,0,0) << "\n="<<wq << endl;
+            cout << "Matrix is \n" << m << "\n="<<wq << endl;
 
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
@@ -251,7 +244,7 @@ int main(void)
                 }
             }
 
-          tp = mat_to_mat_ZZ(h.calcop(op, 0, show_mats));
+          tp = mat_to_mat_ZZ(h.calcop(op,cuspidal, 0, show_mats));
           cout << "done. " << endl;
           if (show_mats)
             cout << "Matrix is \n" << tp <<endl;
@@ -307,7 +300,7 @@ int main(void)
             else
               continue;
 
-          tpq = mat_to_mat_ZZ(h.calcop(op, 0, 0));
+          tpq = mat_to_mat_ZZ(h.calcop(op,cuspidal, 0, 0));
           cout << "done. " << endl;
           if (show_mats)
             cout << "Matrix is \n" << tpq << endl;
@@ -356,7 +349,7 @@ int main(void)
               if ((P*Qe).is_principal())
                 {
                   cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                  tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N), 0, 0));
+                  tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0));
                   cout << "done. " << endl;
                   if (show_mats)
                     cout << "Matrix is \n" << tpwq << endl;

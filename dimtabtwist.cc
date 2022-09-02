@@ -12,7 +12,7 @@ int main(void)
 {
   long d, max(MAXPRIME);
   //  Quad n;
-  int plusflag=1, cuspidal=1;
+  int plusflag=1;
   Qideal N;
   long firstn=1, lastn;
 
@@ -45,12 +45,12 @@ int main(void)
       N = loop.next();
       string Nlabel = ideal_label(N);
       cout << field_label() << "\t" << Nlabel << "\t"; // field, level
-      homspace h(N,plusflag,cuspidal,0);  //level, plusflag, cuspidal, verbose
+      homspace h(N,plusflag,0);  //level, plusflag, verbose
 
-      int cdim = h.h1dim();
+      int cdim = h.h1cuspdim();
       cout << cdim << "\t\t";
 
-      int dimtriv = h.trivial_character_subspace_dimension(cuspidal);
+      int dimtriv = h.trivial_character_subspace_dimension(/*cuspidal*/ 1);
       cout << dimtriv << " ";
 
       // Now we find the intersection of ker(T(P^2)-N(P)) for P
@@ -61,7 +61,7 @@ int main(void)
       // Here dimlist[0] is the dimension of the subspace with no
       // self-twist (by an unramified quadratic character)
 
-      vector<int> dimlist = h.trivial_character_subspace_dimension_by_twist(cuspidal);
+      vector<int> dimlist = h.trivial_character_subspace_dimension_by_twist(/*cuspidal*/ 1);
 
       // full dimensions:
       cout << dimlist<< "\t";

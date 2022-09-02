@@ -12,7 +12,7 @@ int main(void)
   long d, max(MAXPRIME);
  int np,ip,jp;
  Quad n; int show_mats, show_pols, show_facs, plusflag, cuspidal=1;
- cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  if (!check_field(d))
    {
      cerr<<"field must be one of: "<<valid_fields<<endl;
@@ -45,8 +45,8 @@ int main(void)
 #endif
   QUINT normn = N.norm();
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
-  homspace h(N,plusflag,cuspidal,0, ch);  //level, plusflag, cuspidal, verbose, characteristic
-  int dim = h.h1dim();
+  homspace h(N,plusflag,0, ch);  //level, plusflag, verbose, characteristic
+  int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;
 
   vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
@@ -60,7 +60,7 @@ int main(void)
         {
           Quadprime Q = *pr;
           cout << "Computing W("<<Q<<")..." << flush;
-          mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.calcop(AtkinLehnerQOp(Q,N),0,show_mats));
+          mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.calcop(AtkinLehnerQOp(Q,N),cuspidal,0,show_mats));
 	  cout << "done. " << flush;
 	  wqlist.push_back(wq);
 
@@ -108,7 +108,7 @@ int main(void)
           Quadprime P = *pr;
 	  while (P.divides(N)) {++pr; P=*pr; np++;}
 	  cout << "Computing T(" << P << ")..."<<flush;
-	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.calcop(HeckePOp(P,N), 0, show_mats));
+	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.calcop(HeckePOp(P,N),cuspidal, 0, show_mats));
 	  cout << "done. " << flush;
 	  tplist.push_back(tp);
 

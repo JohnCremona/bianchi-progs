@@ -5,7 +5,7 @@
 int main ()
 {
   long d, max(1000);
-  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+  cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
     {
       cerr<<"field must be one of: "<<valid_fields<<endl;
@@ -40,7 +40,7 @@ int main ()
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
-     homspace hplus(N, 1, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
+     homspace hplus(N, 1, verbose, ch);  //level, plusflag, verbose, characteristic
      int dimcusp = hplus.bianchi_form_dimension(1);
      int dimall = hplus.bianchi_form_dimension(0);
      int dimeis = dimall-dimcusp;

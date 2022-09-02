@@ -91,7 +91,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   // Find the ratio of the least period w.r.t. integral homology
   // divided by the least period w.r.t. homology relative to cusps.
   // this uses the vector v so must be done now
-  if(nf->h1->cuspidal || nf->characteristic)
+  if(nf->characteristic)
     {
       cuspidalfactor=1;
     }
@@ -762,7 +762,7 @@ void newforms::makeh1plus(void)
 {
   if(!h1)
     {
-      h1 = new homspace(N,1,0,0, characteristic);
+      h1 = new homspace(N, /*plus*/ 1, /*verbose*/ 0, characteristic);
       nfhmod=hmod = h1->h1hmod();
     }
 }
@@ -835,7 +835,7 @@ mat newforms::opmat_restricted(int i, const subspace& s, int dual, int verb)
 
 smat newforms::s_opmat(int i, int dual, int verb)
 {
-  return h1->s_calcop(h1matop(i),dual, verbose);
+  return h1->s_calcop(h1matop(i),0, dual, verbose);
 }
 
 smat newforms::s_opmat_cols(int i, const vec& jlist, int verb)

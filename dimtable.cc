@@ -5,7 +5,7 @@
 int main ()
 {
   long d, max(1000);
-  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+  cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
     {
       cerr<<"field must be one of: "<<valid_fields<<endl;
@@ -42,11 +42,11 @@ int main ()
      QUINT normn = N.norm();
      cout << d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t "<<normn<<"\t\t"; // level and norm
-     homspace hplus(N,1,1, verbose, ch);  //level, plusflag, cuspidal, verbose
+     homspace hplus(N,1, verbose, ch);  //level, plusflag, verbose, characteristic
      int dimplus = hplus.bianchi_form_dimension(1);
      if (!plusflag)
        {
-         homspace hall(N,0,1, verbose, ch);  //level, plusflag, cuspidal, verbose
+         homspace hall(N,0, verbose, ch);  //level, plusflag, verbose, characteristic
          int dimall = hall.bianchi_form_dimension(1);
          int dimminus = dimall-dimplus;
          assert (dimminus>=0);
