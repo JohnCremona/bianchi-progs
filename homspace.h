@@ -81,25 +81,28 @@ public:
   // cuspidal==1 then the cuspidal subspace of this is returned.
   ssubspace unramified_character_subspace(const vector<int>& eigs, int c, int dual);
 
-  // dimension of previous (for when we do not need the subspace itself):
-  int unramified_character_subspace_dimension(const vector<int>& eigs, int c)
-  {
-    if (Quad::class_group_2_rank==0)
-      return (c? h1cuspdim(): h1dim());
-    return dim(unramified_character_subspace(eigs, c, 0));
-  }
+  // dimension of previous (for when we do not need the subspace
+  // itself).  NB This is faster than via calling the previous since
+  // we can use the dual trick.
+  int unramified_character_subspace_dimension(const vector<int>& eigs, int c);
+  // {
+  //   if (Quad::class_group_2_rank==0)
+  //     return (c? h1cuspdim(): h1dim());
+  //   return dim(unramified_character_subspace(eigs, c, 0));
+  // }
 
   // Special cases of previous two, all eigenvalues +1:
-  ssubspace trivial_character_subspace(int c, int dual)
-  {
-    return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1), c, dual);
-  }
+  // ssubspace trivial_character_subspace(int c, int dual)
+  // {
+  //   return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1), c, dual);
+  // }
+
   // total (cuspidal) dimension of subspace on which all T(A,A) act trivially
   int trivial_character_subspace_dimension(int c)
   {
     if (Quad::class_group_2_rank==0)
       return (c? h1cuspdim(): h1dim());
-    return dim(trivial_character_subspace(c, 0));
+    return unramified_character_subspace_dimension(vector<int>(Quad::class_group_2_rank, +1), c);
   }
 
   // list of (cuspidal) dimensions of subspaces on which all T(A,A)

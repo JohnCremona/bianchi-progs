@@ -433,12 +433,13 @@ smat homspace::s_calcop(const matop& T, int dual, int display)
      { svec colj = applyop(T,freemods[j]);
        m.setrow(j+1,colj);
      }
-  if(cuspidal)
-    {
-      m = restrict_mat(transpose(m),kern);
-      if(dual) m = transpose(m);
-    }
-  else if(!dual) {m=transpose(m);}
+  // if(cuspidal)
+  //   {
+  //     m = restrict_mat(transpose(m),kern);
+  //     if(dual) m = transpose(m);
+  //   }
+  // else
+    if(!dual) {m=transpose(m);}
   // if (display)
   //   {
   //     cout << "Matrix of " << T.name() << " = ";
@@ -452,10 +453,10 @@ smat homspace::s_calcop(const matop& T, int dual, int display)
 
 mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int display)
 {
+  long d=dim(s);
   if(display)
     cout<<"Computing " << T.name()
-        <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
-  long d=dim(s);
+        <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   mat m(d,rk);
   for (long j=0; j<d; j++)
      {
@@ -477,10 +478,10 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
 
 smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display)
 {
+  long d=dim(s);
   if(display)
     cout<<"Computing " << T.name()// <<" in s_calcop_restricted()"
-        <<" restricted to subspace of dimension "<<dim(s)<<" ..."<<flush;
-  long d=dim(s);
+        <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   smat m(d,rk);
   for (long j=1; j<=d; j++)
      {
@@ -536,7 +537,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
   vector<Qideal>::iterator nui = nulist.begin();
   vector<int>::const_iterator ei = eigs.begin();
   smat m = s_calcop(CharOp(*nui++, N), dual, 0);
-  // cout<<"Finding common eigenspace of "<<nulist.size()<<" character involutions"<<endl;
+  cout<<"Finding common eigenspace of "<<nulist.size()<<" character involutions"<<endl;
   if (c && !cuspidal)
     m = restrict_mat(m,kern);
   long den = (c? h1cdenom(): h1denom());
@@ -554,59 +555,160 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
   return s;
 }
 
+// dimension of previous (for when we do not need the subspace
+// itself).  NB This is faster than via calling the previous since
+// we can use the dual trick.
+int homspace::unramified_character_subspace_dimension(const vector<int>& eigs, int c)
+{
+  int subdim = (c? h1cuspdim(): h1dim());
+  if (Quad::class_group_2_rank==0) // no characters, so return full (resp. cuspidal) dimension
+    {
+      return subdim;
+    }
+
+  vector<Qideal> nulist = make_nulist(N);
+  vector<Qideal>::iterator nui = nulist.begin();
+  vector<int>::const_iterator ei = eigs.begin();
+
+  // Compute eigenspace for first character:
+
+  int dual = 1;
+  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
+  long den = (c? h1cdenom(): h1denom());
+  long eig = (*ei++)*den;
+  ssubspace s = eigenspace(m, eig);
+  subdim = dim(s);
+
+  // While dimension remains positive, compute sub-eigenspace for successive characters:
+
+  for (; nui!=nulist.end() && subdim>0; ++ei)
+    {
+      m = s_calcop_restricted(CharOp(*nui++, N), s, dual, 0);
+      eig = (*ei)*den;
+      s = combine(s, eigenspace(m, eig));
+      subdim = dim(s);
+    }
+  if (c && !cuspidal) // work out hom much of this is cuspidal
+    return (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
+  else
+    return subdim;
+}
+
 // list of (cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
 vector<int> homspace::trivial_character_subspace_dimension_by_twist(int c)
-{
-  ssubspace s = trivial_character_subspace(c, 0); // cuspidal, not dual
-
+{ verbose=2;
   vector<int> dimlist;
-  dimlist.push_back(dim(s));
-  int n2r = Quad::class_group_2_rank;
-  if (n2r==0)
-    return dimlist;
+  int subdim;
+  if (Quad::class_group_2_rank==0)
+    {
+      subdim = (c? h1cuspdim(): h1dim());
+      dimlist.push_back(subdim);
+      return dimlist;
+    }
 
-  int stdim = 0; // total dim of nontrivial self-twist subspaces
-  int den = (c? h1cdenom(): h1denom());
+  if(verbose>1)
+    cout<<"\nFinding trivial character subspace..."<<flush;
+
+  vector<Qideal> nulist = make_nulist(N);
+  vector<Qideal>::iterator nui = nulist.begin();
+
+  // Compute eigenspace for first character:
+
+  int dual = 1;
+  smat m = s_calcop(CharOp(*nui++, N), dual, 0);
+  long den = (c? h1cdenom(): h1denom());
+  long eig = den; // i.e. 1, but scaled
+  ssubspace s = eigenspace(m, eig);
+  subdim = dim(s);
+
+  // While dimension remains positive, compute sub-eigenspace for successive characters:
+
+  for (; nui!=nulist.end() && subdim>0; ++nui)
+    {
+      m = s_calcop_restricted(CharOp(*nui, N), s, dual, 0);
+      s = combine(s, eigenspace(m, eig));
+      if (c) // work out how much of this is cuspidal
+        subdim = (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
+      else
+        subdim = dim(s);
+    }
+
+  dimlist.push_back(subdim); // we'll subtract dimensions of
+                             // nontrivial self-twist spaces from this
+  if(verbose>1)
+    {
+      cout<<"...done, dimension = "<<subdim<<endl;
+      cout<<"Pushing "<<subdim<<" onto dimlist, which is now "<<dimlist<<endl;
+    }
+
+  // In the loop, s does not change, but the subspace sD depends on D
 
   for(auto Di = Quad::all_disc_factors.begin()+1; Di!=Quad::all_disc_factors.end(); ++Di)
     {
       QUINT D = *Di;
+      if(verbose>1)
+        cout<<"D = "<<D<<":"<<endl;
       ssubspace sD = s;
-      int subdim = dim(s);
+      subdim = dimlist[0]; // = how much left unaccounted for
 
       QuadprimeLooper Pi(N); // loop over primes not dividing N
-      int ip = 0, np = 5;   // only use 5 non-square-class primes
+      int ip = 0, np = 10; //5;   // only use first few non-square-class primes
+
       while (ip<np && subdim>0 && Pi.ok())
         {
           Quadprime P = Pi;
           if (P.genus_character(D) == -1)
             {
+              if(verbose>1)
+                cout<<"Forcing aP=0 for P = "<<P<<", starting with dimension "<<dim(sD)<<endl;
               ip++;
               long Pnorm = I2long(P.norm());
               long eig = -den*Pnorm;
-              Qideal P2 = P*P;
+              Qideal P2 = P*P, A;
               matop op;
               if (P2.is_principal())
                 op = HeckeP2Op(P, N);
               else   // compute T(P^2)*T(A,A)
                 {
-                  Qideal A = P.equivalent_coprime_to(N, 1);
+                  A = P.equivalent_coprime_to(N, 1);
                   op = HeckeP2ChiOp(P,A,N);
                 }
-              smat m = s_calcop(op, 0, 0); // not dual, no display
-              if (c && !cuspidal)
-                m = restrict_mat(m,kern);
-              sD = subeigenspace(m, eig, sD);
+              if(verbose>2)
+                {
+                  if (P2.is_principal())
+                    cout << " - computed "<<op.length()<<" op matrices for T(P^2)" << endl;
+                  else
+                    cout << " - computed "<<op.length()<<" op matrices for T(P^2)*T(A,A) for A = " << ideal_label(A) << endl;
+                }
+              smat m = s_calcop_restricted(op, sD, dual, (verbose>1)); // dual, no display
+              if(verbose>1)
+                {
+                  cout << " - computed matrix of this op restricted to current subspace" << endl;
+                  cout << " - computing subeigenspace for eigenvalue " << eig << endl;
+                }
+              sD = combine(sD, eigenspace(m, eig));
               subdim = dim(sD);
+              if(verbose>1)
+                cout<<" - done, now subdimension = "<<subdim<<endl;
+              if (c) // work out hom much of this is cuspidal
+                {
+                  subdim = (mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank();
+                  if(verbose>1)
+                    cout<<" - cuspidal subdim = "<<subdim<<endl;
+                }
+              ++Pi; // extra increment, so we don't use both conjugates
             }
-          ++Pi;
+          ++Pi; // increment prime
         }
-      stdim += subdim;
+      // Now, sD is the D-self-twist subspace.  We record either its
+      // dimension, or the cuspidal subdimension:
       dimlist.push_back(subdim);
+      dimlist[0] -= subdim;
+      if(verbose>1)
+        cout<<"Pushing "<<subdim<<" onto dimlist, which is now "<<dimlist<<endl;
     }
-  dimlist[0] = dim(s) - stdim;
   return dimlist;
 }
 
@@ -626,7 +728,7 @@ int homspace::bianchi_form_dimension(int c)
   if (Quad::class_group_2_rank==0)
     return (c? h1cuspdim(): h1dim());
   vector<int> tdims = trivial_character_subspace_dimension_by_twist(c);
-  //cout<<"\ntdims = "<<tdims<<endl;
+  // cout<<"\ntdims = "<<tdims<<endl;
   int dim = 2*tdims[0];
   for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)
     dim += *tdim;
