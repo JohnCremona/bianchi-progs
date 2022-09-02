@@ -31,7 +31,7 @@ int main ()
    cout<<"# (with trivial character, and including unramified quadratic twists)"<<endl;
  cout << "Field\tWeight\tLevel\tNorm\t";
  if (plusflag)
-   cout << "dim(SL2)" << endl;
+   cout << "dim(GL2)" << endl;
  else
    cout << "dim(SL2)\tdim(GL2)\tdim(SL2)-dim(GL2)" << endl;
 

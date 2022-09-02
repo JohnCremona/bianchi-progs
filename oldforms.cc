@@ -110,7 +110,7 @@ void oldforms::getoldclasses(Qideal& D)
   olddimall += this_olddimall;
   if(nf->verbose)
     {
-      cout<<" total oldspace dimension from divisor "<<D<<" is "
+      cout<<" total oldspace dimension from divisor "<<ideal_label(D)<<" is "
           <<this_olddim1<<"+"<<this_olddim2<<"="<<this_olddimall<<endl;
       cout<<" cumulative total oldspace dimension from divisors so far is "
           <<olddim1<<"+"<<olddim2<<"="<<olddimall<<endl;

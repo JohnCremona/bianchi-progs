@@ -1382,7 +1382,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             {
               if (aP!=0) // else we cannot use this as a new genus pivot
                 {
-                  if (verbose)
+                  if (verbose>1)
                     cout << " - taking a(P) = " << aP << endl;
                   // update genus_classes (append binary sum of each and c)
                   // update genus_class_ideals (append product of each and P)

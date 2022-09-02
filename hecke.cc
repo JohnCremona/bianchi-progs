@@ -188,7 +188,8 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
   assert (!P.divides(nu));
 
   vector<Quad> resmodp = P.residues();
-  mats.reserve(I2long(P.norm()));
+  long normP = I2long(P.norm());
+  mats.reserve(1+normP);
   for(vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
     {
       Quad a = *r;
@@ -198,7 +199,6 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
 #ifdef DEBUG_HECKE
   cout<<" Hecke matrices are "<<mats<<endl;
 #endif
-  long normP = I2long(P.norm());
   assert ((long)mats.size()==1+normP);
   return mats;
 }
