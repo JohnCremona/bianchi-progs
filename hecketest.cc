@@ -72,7 +72,7 @@ int main(void)
             {
               Qideal A = *t2i;
               cout << "Computing nu_"<< ideal_label(A) <<"..." << flush;
-              mat m = h.calcop(CharOp(A, N), cuspidal, 0, 1);
+              mat m = h.calcop(CharOp(A, N), cuspidal, 0, 0);
               mat_ZZ nu = mat_to_mat_ZZ(m);
               cout << "done. " << endl;
               if (show_mats)

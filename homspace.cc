@@ -549,54 +549,42 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
   return s;
 }
 
-// dimension of previous (for when we do not need the subspace
-// itself).  NB This is faster than via calling the previous since we
-// can use the dual trick.
-int homspace::unramified_character_subspace_dimension(const vector<int>& eigs, int cuspidal)
-{
-  ssubspace s = unramified_character_subspace(eigs);
-  if (cuspidal) // work out how much of this is cuspidal
-    return (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
-  else
-    return dim(s);
-}
-
-// list of (cuspidal) dimensions of subspaces on which all T(A,A)
+// list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<int> homspace::trivial_character_subspace_dimension_by_twist(int cuspidal)
+vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist()
 { //verbose=2;
-  long den = (cuspidal? h1cdenom(): h1denom());
-  int subdim = (cuspidal? cuspidal_dimension: dimension);
-  vector<int> dimlist;
+  long den = h1denom();
+  pair<int,int> subdims = {dimension, cuspidal_dimension};
+  vector<pair<int,int>> dimlist;
   if (Quad::class_group_2_rank==0)
     {
-      dimlist.push_back(subdim);
+      dimlist.push_back(subdims);
       return dimlist;
     }
 
   if(verbose>1)
     {
-      cout<<"\nFull dimension = "<<dimension;
-      if (cuspidal) cout<<", cuspidal dimension = "<<subdim;
-      cout<<endl;
+      cout<<"\nFull dimension = "<<dimension<<", cuspidal dimension = "<<cuspidal_dimension<<endl;
       cout<<"Finding trivial character subspace..."<<flush;
     }
 
-  ssubspace s = unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1));
-  if (cuspidal) // work out how much of this is cuspidal
-    subdim = (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank();
-  else
-    subdim = dim(s);
+  ssubspace s = trivial_character_subspace();
+  // we'll subtract dimensions of nontrivial self-twist spaces from this
+  subdims = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
+  dimlist.push_back(subdims);
 
-  dimlist.push_back(subdim); // we'll subtract dimensions of
-                             // nontrivial self-twist spaces from this
   if(verbose>1)
     {
-      cout<<"...done, dimension = "<<dim(s);
-      if (cuspidal) cout<<", cuspidal dimension = "<<subdim;
-      cout<<endl;
-      cout<<"Pushing "<<subdim<<" onto dimlist, which is now "<<dimlist<<endl;
+      cout<<"...done.  Full dimension = "<<subdims.first<<", cuspidal dimension = "<<subdims.second<<endl;
+      cout<<"Pushing these onto dimlist, which is now ";
+      cout<<"[";
+      for(auto di=dimlist.begin(); di!=dimlist.end(); ++di)
+        {
+          if (di!=dimlist.begin()) cout<<", ";
+          cout << "(" << (di->first) << "," << (di->second) << ")";
+        }
+      cout<<"]"<<endl;
     }
 
   // In the loop, s does not change, but the subspace sD depends on D
@@ -611,7 +599,7 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int cuspidal
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
 
-      while (ip<np && subdim>0 && Pi.ok())
+      while (ip<np && dim(sD)>0 && Pi.ok())
         {
           Quadprime P = Pi;
           if (P.genus_character(D) == -1)
@@ -644,30 +632,51 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int cuspidal
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
               sD = combine(sD, eigenspace(m, eig));
-              if (cuspidal) // work out hom much of this is cuspidal
-                subdim = (mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank();
-              else
-                subdim = dim(sD);
-              if(verbose>1)
-                cout<<" - done, now subdimension = "<<subdim<<endl;
+              subdims = {dim(sD),(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank()};
               ++Pi; // extra increment, so we don't use both conjugates
             }
           ++Pi; // increment prime
         }
       // Now, sD is the D-self-twist subspace.  We record either its
       // dimension, or the cuspidal subdimension:
-      dimlist.push_back(subdim);
-      dimlist[0] -= subdim;
+      dimlist.push_back(subdims);
+      dimlist[0].first -= subdims.first;
+      dimlist[0].second -= subdims.second;
       if(verbose>1)
-        cout<<"Pushing "<<subdim<<" onto dimlist, which is now "<<dimlist<<endl;
+        {
+          cout<<"Pushing onto dimlist, which is now ";
+          cout<<"[";
+          for(auto di=dimlist.begin(); di!=dimlist.end(); ++di)
+            {
+              if (di!=dimlist.begin()) cout<<", ";
+              cout << "(" << (di->first) << "," << (di->second) << ")";
+            }
+          cout<<"]"<<endl;
+        }
     }
   return dimlist;
 }
 
+// list of total or cuspidal dimensions of subspaces on which all T(A,A)
+// act trivially with self-twist by unramified quadratic char D for
+// each D (including D=1, meaning no self-twist)
+vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal)
+{
+  vector<pair<int,int>> dims = trivial_character_subspace_dimensions_by_twist();
+  vector<int> dims1;
+  for (auto di = dims.begin(); di!=dims.end(); ++di)
+    dims1.push_back((cuspidal?di->second:di->first));
+  return dims1;
+}
+
 // Dimension of the associated space of Bianchi modular forms (if
-// c=0) or cusp forms (if c=1).  For odd class number this is the
-// same as the dimension (resp. cuspidal dimension), but not for
-// even class number, on account of unramified self-twist forms.
+// cuspidal=0) or cusp forms (if cuspidal=1).  For odd class number
+// this is the same as the dimension (resp. cuspidal dimension), and
+// in general it is generically this multiplied by the size of
+// #(C/C^2) (which is the number of unramified quadratic characters),
+// but for unramified self-twist forms the multiplicity is only half of this.
+
+// GL2 only (i.e. require plusflag=1).
 
 // Each 1-dimensional eigenspce in homology (of the principal
 // component hyperbolic quotient) contributes, via twisting by
@@ -675,15 +684,18 @@ vector<int> homspace::trivial_character_subspace_dimension_by_twist(int cuspidal
 // of the class group, except for self-twist eigenspaces which only
 // contribute 2**(r-1) forms.
 
-int homspace::bianchi_form_dimension(int cuspidal)
+pair<int,int> homspace::bianchi_form_dimensions()
 {
   int n2r = Quad::class_group_2_rank;
   if (n2r==0)
-    return (cuspidal? h1cuspdim(): h1dim());
-  vector<int> tdims = trivial_character_subspace_dimension_by_twist(cuspidal);
+    return {dimension, cuspidal_dimension};
+  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist();
   //cout<<"\ntdims = "<<tdims<<endl;
-  int dim = 2*tdims[0];
+  pair<int,int> dims = {2*tdims[0].first, 2*tdims[0].second};
   for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)
-    dim += *tdim;
-  return dim << (n2r - 1);
+    {
+      dims.first += (tdim->first);
+      dims.second += (tdim->second);
+    }
+  return {dims.first << (n2r - 1), dims.second << (n2r - 1)};
 }

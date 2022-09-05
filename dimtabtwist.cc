@@ -30,7 +30,7 @@ int main(void)
   int nchi = (1<<n2r);
 
   cout << "# Table of dimensions of weight 2 Bianchi cuspidal spaces for GL2 over Q(sqrt(-"<<d<<"))\n";
-  cout << "#   showing full (respectively old, new) dimensions of the cupidal space and its splitting\n";
+  cout << "#   showing full (respectively old, new) dimensions of the cuspidal space and its splitting\n";
   cout << "#   into subspaces with no self-twist and self-twist by each unramified quadratic character.\n\n";
 
   cout << "# Field\t\tLevel\tdim cusp\tdim cusp triv char\t" <<Quad::all_disc_factors << endl;
@@ -61,7 +61,7 @@ int main(void)
       // Here dimlist[0] is the dimension of the subspace with no
       // self-twist (by an unramified quadratic character)
 
-      vector<int> dimlist = h.trivial_character_subspace_dimension_by_twist(/*cuspidal*/ 1);
+      vector<int> dimlist = h.trivial_character_subspace_dimensions_by_twist(/*cuspidal*/ 1);
 
       // full dimensions:
       cout << dimlist<< "\t";

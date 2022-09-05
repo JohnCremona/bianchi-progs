@@ -79,30 +79,72 @@ public:
   // basis of Quad::class_group_2_rank unramified characters.
   ssubspace unramified_character_subspace(const vector<int>& eigs);
 
-  // The dimension of the previous space (for when we do not need the
-  // subspace itself).  NB This is faster than via calling the
-  // previous since we can use the dual trick.
-  int unramified_character_subspace_dimension(const vector<int>& eigs, int cuspidal);
-
-  // total (or cuspidal) dimension of subspace on which all T(A,A) act trivially
-  int trivial_character_subspace_dimension(int cuspidal)
+  // The dimension and cuspidal of the previous space (for when we do
+  // not need the subspace itself).
+  pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs)
   {
-    if (Quad::class_group_2_rank==0)
-      return (cuspidal? h1cuspdim(): h1dim());
-    return unramified_character_subspace_dimension(vector<int>(Quad::class_group_2_rank, +1), cuspidal);
+    ssubspace s = unramified_character_subspace(eigs);
+    return {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
   }
 
-  // list of (cuspidal) dimensions of subspaces on which all T(A,A)
+  // The dimension or cuspidal dimension of the previous space (for
+  // when we do not need the subspace itself).
+  int unramified_character_subspace_dimension(const vector<int>& eigs, int cuspidal)
+  {
+    pair<int,int> dims = unramified_character_subspace_dimensions(eigs);
+    return (cuspidal? dims.second: dims.first);
+  }
+
+  // The (dual) subspace with eigenvalue +1 for all quadratic
+  // unramified characters.
+  ssubspace trivial_character_subspace()
+  {
+    return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1));
+  }
+
+  // total and cuspidal dimensions of subspace on which all T(A,A) act trivially
+  pair<int,int> trivial_character_subspace_dimensions()
+  {
+    return unramified_character_subspace_dimensions(vector<int>(Quad::class_group_2_rank, +1));
+  }
+
+  // total or cuspidal dimension of subspace on which all T(A,A) act trivially
+  int trivial_character_subspace_dimension(int cuspidal)
+  {
+    pair<int,int> dims = trivial_character_subspace_dimensions();
+    return (cuspidal? dims.second: dims.first);
+  }
+
+  // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<int> trivial_character_subspace_dimension_by_twist(int cuspidal);
+  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist();
 
-  // Dimension of the associated space of Bianchi modular forms (if
-  // cuspidal=0) or cusp forms (if cuspidal=1).  For odd class number
-  // this is the same as the dimension (resp. cuspidal dimension), but
-  // not for even class number, on account of unramified self-twist
-  // forms.
-  int bianchi_form_dimension(int cuspidal);
+  // list of total or cuspidal dimensions of subspaces on which all T(A,A)
+  // act trivially with self-twist by unramified quadratic char D for
+  // each D (including D=1, meaning no self-twist)
+  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal);
+
+  // Dimensions of the associated space of Bianchi modular forms
+  // (all,cuspidal). GL2 only.
+
+  // For odd class number these are the same as the homology dimension
+  // (resp. cuspidal dimension), and in general are generically these
+  // multiplied by the size of #(C/C^2) (which is the number of
+  // unramified quadratic characters), but for unramified self-twist
+  // forms the multiplicity is only half of this.
+
+  // Each 1-dimensional eigenspce in homology (of the principal
+  // component hyperbolic quotient) contributes, via twisting by
+  // unramified quadratic characters, 2**r forms, where r is the 2-rank
+  // of the class group, except for self-twist eigenspaces which only
+  // contribute 2**(r-1) forms.
+  pair<int,int> bianchi_form_dimensions();
+  int bianchi_form_dimension(int cuspidal)
+  {
+    pair<int,int> dims = bianchi_form_dimensions();
+    return (cuspidal? dims.second: dims.first);
+  }
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},

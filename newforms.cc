@@ -958,7 +958,7 @@ void newforms::find()
     }
 
   // find dimension of trivial character subspace and its split by characters:
-  alldims = h1->trivial_character_subspace_dimension_by_twist(1);
+  alldims = h1->trivial_character_subspace_dimensions_by_twist(1);
   dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
   if(verbose && (n2r>0))
     {
@@ -1001,6 +1001,7 @@ void newforms::find()
   for (int i=0; i<nchi; i++)
     {
       newdims[i] = alldims[i] - olddims[i];
+      // cout<<"i = "<<i<<", alldims[i]="<<alldims[i]<<", olddims[i]="<<olddims[i]<<endl;
       assert (newdims[i]>=0 && "components of new dimensions cannot be negative");
     }
 

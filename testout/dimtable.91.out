@@ -1,28 +1,32 @@
-Table of dimensions of weight 2 Bianchi cusp forms over Q(sqrt(-91))
-# (with trivial character, and including unramified quadratic twists)
-Field	Weight	Level	Norm	dim(SL2)	dim(GL2)	dim(SL2)-dim(GL2)
-91	2	1.1	 1		2		0		2
-91	2	4.1	 4		8		0		8
-91	2	5.1	 5		6		0		6
-91	2	5.2	 5		4		0		4
-91	2	7.1	 7		4		0		4
-91	2	9.1	 9		12		0		12
-91	2	13.1	 13		4		0		4
-91	2	16.1	 16		16		0		16
-91	2	19.1	 19		4		0		4
-91	2	19.2	 19		4		0		4
-91	2	20.1	 20		20		0		20
-91	2	20.2	 20		16		0		16
-91	2	23.1	 23		4		0		4
-91	2	23.2	 23		4		0		4
-91	2	25.1	 25		14		0		14
-91	2	25.2	 25		34		4		30
-91	2	25.3	 25		12		0		12
-91	2	28.1	 28		18		2		16
-91	2	29.1	 29		4		0		4
-91	2	29.2	 29		4		0		4
-91	2	31.1	 31		4		0		4
-91	2	31.2	 31		4		0		4
-91	2	35.1	 35		12		0		12
-91	2	35.2	 35		8		0		8
-91	2	36.1	 36		38		0		38
+Table of dimensions of level N homology over Q(sqrt(-91))
+
+   (The GL2 dimensions include all unramified quadratic character subspaces, while
+   the NGL2 dimensions are of just the trivial character subspace.)
+
+Field	Weight	Level	Norm	SL2		GL2		NGL2
+				all cuspidal	all cuspidal	all cuspidal
+91	2	1.1	 1	4   3		1   0		0   0
+91	2	4.1	 4	14   11		4   1		1   0
+91	2	5.1	 5	8   5		3   0		1   0
+91	2	5.2	 5	8   5		3   0		1   0
+91	2	7.1	 7	11   8		6   3		1   0
+91	2	9.1	 9	18   15		4   1		1   0
+91	2	13.1	 13	11   8		3   0		1   0
+91	2	16.1	 16	32   23		13   4		4   0
+91	2	19.1	 19	8   5		3   0		1   0
+91	2	19.2	 19	8   5		3   0		1   0
+91	2	20.1	 20	28   21		10   3		3   0
+91	2	20.2	 20	28   21		10   3		3   0
+91	2	23.1	 23	12   9		5   2		1   0
+91	2	23.2	 23	12   9		5   2		1   0
+91	2	25.1	 25	24   13		7   0		3   0
+91	2	25.2	 25	38   31		12   5		5   2
+91	2	25.3	 25	24   13		7   0		3   0
+91	2	28.1	 28	40   33		20   13		4   1
+91	2	29.1	 29	9   6		3   0		1   0
+91	2	29.2	 29	9   6		3   0		1   0
+91	2	31.1	 31	8   5		3   0		1   0
+91	2	31.2	 31	8   5		3   0		1   0
+91	2	35.1	 35	23   16		13   6		3   0
+91	2	35.2	 35	23   16		13   6		3   0
+91	2	36.1	 36	56   49		12   5		3   0

@@ -41,8 +41,9 @@ int main ()
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
      homspace hplus(N, 1, verbose, ch);  //level, plusflag, verbose, characteristic
-     int dimcusp = hplus.bianchi_form_dimension(1);
-     int dimall = hplus.bianchi_form_dimension(0);
+     pair<int,int> dims = hplus.bianchi_form_dimensions();
+     int dimcusp = dims.second;
+     int dimall = dims.first;
      int dimeis = dimall-dimcusp;
      cout << dimall << "\t\t" << dimcusp << "\t\t" << dimeis << endl;
    }

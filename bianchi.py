@@ -147,7 +147,7 @@ def parse_dims_line(L, K, D, field_label, d):
     dimcuspnew  (dimension of new cuspidal gl2-space)
     dimeis      (dimension of eisenstein gl2-space)
 
-    The LMFDB only stores cupidal dimensions, so the dimall and dimeis
+    The LMFDB only stores cuspidal dimensions, so the dimall and dimeis
     columns are ignored.
 
     Files output by dimtabnew omit those columns.
