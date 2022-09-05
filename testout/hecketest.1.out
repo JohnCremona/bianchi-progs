@@ -2,48 +2,42 @@ Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
 Euclidean
 1232 primes initialised, max norm = 10000
 >>>> Level 144.1 = (12), norm = 144 <<<<
-Dimension = 14
+Dimension = 11
 Computing W(P2)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 6
-2:	[-1 1]	(degree 1)	 to power 8
+1:	[1 1]	(degree 1)	 to power 5
+2:	[-1 1]	(degree 1)	 to power 6
 
 Involution!
 Computing W(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 5
-2:	[1 1]	(degree 1)	 to power 9
+1:	[-1 1]	(degree 1)	 to power 4
+2:	[1 1]	(degree 1)	 to power 7
 
 Involution!
 
 Computing T(P5a)...done. 
 Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 1
-2:	[2 1]	(degree 1)	 to power 2
-3:	[6 1]	(degree 1)	 to power 2
-4:	[-6 1]	(degree 1)	 to power 9
+1:	[2 1]	(degree 1)	 to power 2
+2:	[-6 1]	(degree 1)	 to power 9
 
 Computing T(P5b)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 3
-2:	[-6 1]	(degree 1)	 to power 11
+1:	[2 1]	(degree 1)	 to power 2
+2:	[-6 1]	(degree 1)	 to power 9
 
 Computing T(P13a)...done. 
 Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 1
-2:	[2 1]	(degree 1)	 to power 2
-3:	[14 1]	(degree 1)	 to power 2
-4:	[-14 1]	(degree 1)	 to power 9
+1:	[2 1]	(degree 1)	 to power 2
+2:	[-14 1]	(degree 1)	 to power 9
 
 Computing T(P13b)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 3
-2:	[-14 1]	(degree 1)	 to power 11
+1:	[2 1]	(degree 1)	 to power 2
+2:	[-14 1]	(degree 1)	 to power 9
 
 Computing T(P17a)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 1
-2:	[-2 1]	(degree 1)	 to power 2
-3:	[18 1]	(degree 1)	 to power 2
-4:	[-18 1]	(degree 1)	 to power 9
+1:	[-2 1]	(degree 1)	 to power 2
+2:	[-18 1]	(degree 1)	 to power 9
 
