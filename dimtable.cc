@@ -5,7 +5,7 @@
 int main ()
 {
   long d, max(1000);
-  cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+  cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
     {
       cerr<<"field must be one of: "<<valid_fields<<endl;
@@ -16,24 +16,39 @@ int main ()
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
  long firstn, lastn; Quad n;
- int both_conj, plusflag, verbose=0;
+ int both_conj, plusflag;
+ int dimall, dimcusp;
+
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Plus space only? (0/1) "; cin >> plusflag;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr<<endl;
  Quad::field(d,max);
+ int n2r = Quad::class_group_2_rank>0;
 
  cout << "Table of dimensions of ";
  if (ch) cout<<"mod "<<ch<<" ";
- cout<<"weight 2 Bianchi cusp forms over Q(sqrt(-"<<d<<"))" << endl;
- if (Quad::class_group_2_rank>0)
-   cout<<"# (with trivial character, and including unramified quadratic twists)"<<endl;
- cout << "Field\tWeight\tLevel\tNorm\t";
- if (plusflag)
-   cout << "dim(SL2)" << endl;
- else
-   cout << "dim(SL2)\tdim(GL2)\tdim(SL2)-dim(GL2)" << endl;
+ cout<<"level N homology over Q(sqrt(-"<<d<<"))" << endl;
+ if (n2r)
+   {
+     cout<<"\n";
+     cout<<"   (The GL2 dimensions include all unramified quadratic character subspaces, while"<<endl;
+     cout<<"   the NGL2 dimensions are of just the trivial character subspace.)"<<endl;
+   }
+ cout << "\nField\tWeight\tLevel\tNorm\t";
+ if (!plusflag)
+   cout << "SL2" << "\t\t";
+ cout << "GL2";
+ if (n2r)
+   cout << "\t\tNGL2";
+ cout << "\n\t\t\t\t";
+ if (!plusflag)
+   cout<<"all cuspidal\t";
+ cout<<"all cuspidal";
+ if (n2r)
+   cout<<"\tall cuspidal";
+ cout << endl;
 
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
  while( loop.not_finished() )
@@ -41,21 +56,25 @@ int main ()
      Qideal N = loop.next();
      QUINT normn = N.norm();
      cout << d << "\t2\t";                  // field and weight
-     cout << ideal_label(N)<<"\t "<<normn<<"\t\t"; // level and norm
-     homspace hplus(N,1,1, verbose, ch);  //level, plusflag, cuspidal, verbose
-     int dimplus = hplus.bianchi_form_dimension(1);
+     cout << ideal_label(N)<<"\t "<<normn<<"\t"; // level and norm
      if (!plusflag)
        {
-         homspace hall(N,0,1, verbose, ch);  //level, plusflag, cuspidal, verbose
-         int dimall = hall.bianchi_form_dimension(1);
-         int dimminus = dimall-dimplus;
-         assert (dimminus>=0);
-         cout << dimall << "\t\t" << dimplus << "\t\t" << dimminus << endl;
+         homspace h1(N,0, 0, ch);  //level, plusflag, verbose, characteristic
+         dimall = h1.h1dim();
+         dimcusp = h1.h1cuspdim();
+         cout << dimall << "   " << dimcusp << "\t\t";
        }
-     else
+     homspace h1plus(N,1, 0, ch);  //level, plusflag, verbose, characteristic
+     dimall = h1plus.h1dim();
+     dimcusp = h1plus.h1cuspdim();
+     cout << dimall << "   " << dimcusp;
+     if (n2r)
        {
-         cout << dimplus << endl;
+         dimall = h1plus.trivial_character_subspace_dimension(0);
+         dimcusp = h1plus.trivial_character_subspace_dimension(1);
+         cout << "\t\t" << dimall << "   " << dimcusp;
        }
+     cout << endl;
    }
 
 }

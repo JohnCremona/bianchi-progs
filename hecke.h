@@ -123,17 +123,18 @@ inline string opname(const Quadprime& P, const Qideal& N)
   return ans.str();
 }
 
-inline string opname(const Qideal& N)
+inline string opname(Qideal& N)
 {
   ostringstream ans;
-  ans << "W(" << N << ")";
+  ans << "W(" << ideal_label(N) << ")";
   return ans.str();
 }
 
-inline string opnameAA(const Qideal& A)
+inline string opnameAA(Qideal& A)
 {
   ostringstream ans;
-  ans << "T(" << A << "," << A << ")";
+  string s = ideal_label(A);
+  ans << "T(" << s << "," << s << ")";
   return ans.str();
 }
 

@@ -3,7 +3,7 @@ Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 >>>> Level 9.1 = (3), norm = 9 <<<<
 Dimension = 7
-Computing nu_[2,a]...done. 
+Computing nu_2.1...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 2:	[1 1]	(degree 1)	 to power 5
@@ -112,7 +112,7 @@ Factors of characteristic polynomial are:
 >>>> Level 48.1 = (4a,-12), norm = 48 <<<<
 Dimension = 32
  denominator = 2
-Computing nu_[5,2+a]...done. 
+Computing nu_5.1...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 14
 2:	[1 1]	(degree 1)	 to power 18
@@ -224,7 +224,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 88.1 = (8+2a), norm = 88 <<<<
 Dimension = 15
-Computing nu_[3,a]...done. 
+Computing nu_3.1...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 7
 2:	[1 1]	(degree 1)	 to power 8

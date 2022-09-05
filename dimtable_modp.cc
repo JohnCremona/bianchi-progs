@@ -51,7 +51,7 @@ int main ()
          cout << ideal_label(N);
          for (vector<long>::const_iterator ch = charlist.begin(); ch!=charlist.end(); ch++)
            {
-             homspace h(N, plusflag, cuspidalflag, 0, *ch);  //level, plusflag, cuspidal, verbose, characteristic
+             homspace h(N, plusflag, 0, *ch);  //level, plusflag, verbose, characteristic
              long dim = (cuspidalflag? h.h1cuspdim(): h.h1dim());
              cout << " " << dim;
            }

@@ -45,7 +45,7 @@ int main ()
            cout<<endl;
          else
            cout << "\t";
-         homspace h(N,plusflag, 0, verbose, ch);  //level, plusflag, cuspidal, verbose
+         homspace h(N,plusflag, verbose, ch);  //level, plusflag, cuspidal, verbose
          cout << "Dimension";
 #ifdef MODP
          if (ch) cout << " (mod "<<ch<<")";

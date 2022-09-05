@@ -11,9 +11,7 @@ class homspace {
 friend class newforms;
 public:
   int verbose;
-  int cuspidal;  // if 1 then compute cuspidal homology
-  vector<int> needed, freegens;
-  long rk, denom1, denom2, dimension, denom3, ncusps;
+  long denom1, denom2, dimension, cuspidal_dimension, denom3, ncusps;
   edge_relations ER;
   face_relations FR;
   int plusflag;
@@ -24,12 +22,13 @@ public:
   ssubspace kern;
   smat tkernbas; // transpose of kernel(delta) basis
   vector<modsym> freemods;
+  vector<int> freegens;
   mat projcoord;
   long characteristic; // =0 or prime p
   long hmod; // if >0, did not lift from modular linear algebra
              // so coord is modulo this
 
-  homspace(const Qideal& I, int hp, int cuspid, int verb=0, long ch=0);
+  homspace(const Qideal& I, int hp, int verb=0, long ch=0);
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
@@ -45,7 +44,7 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
-  long h1cuspdim() const {return dim(kern);}
+  long h1cuspdim() const {return cuspidal_dimension;}
   long h1dim() const {return dimension;}  // No confusion with subspace::dim
   long h1denom() const {return denom1;}
   long h1cdenom() const {return denom3;}
@@ -63,11 +62,11 @@ public:
   vec applyop(const matop& T, const RatQuad& m, int proj=0);
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
-  mat calcop(const matop& T, int dual=1, int display=0);
+  mat calcop(const matop& T, int cuspidal=0, int dual=1, int display=0);
   vec calcop_col(const matop& T, int j, int verb=0)  {return applyop(T,freemods[j-1]);}
   mat calcop_cols(const matop& T, const vec& jlist, int verb=0);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
-  smat s_calcop(const matop& T, int dual, int display);
+  smat s_calcop(const matop& T, int cuspidal, int dual, int display);
   smat s_calcop_cols(const matop& T, const vec& jlist, int verb=0);
   smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
@@ -76,42 +75,76 @@ public:
   // no longer used, implementation commented out:
   // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
 
-  // The subspace cut out by the given eigenvalues for the basis of
-  // Quad::class_group_2_rank unramified characters.  If c==1 or if
-  // cuspidal==1 then the cuspidal subspace of this is returned.
-  ssubspace unramified_character_subspace(const vector<int>& eigs, int c, int dual);
+  // The (dual) subspace cut out by the given eigenvalues for the
+  // basis of Quad::class_group_2_rank unramified characters.
+  ssubspace unramified_character_subspace(const vector<int>& eigs);
 
-  // dimension of previous (for when we do not need the subspace itself):
-  int unramified_character_subspace_dimension(const vector<int>& eigs, int c)
+  // The dimension and cuspidal of the previous space (for when we do
+  // not need the subspace itself).
+  pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs)
   {
-    if (Quad::class_group_2_rank==0)
-      return (c? h1cuspdim(): h1dim());
-    return dim(unramified_character_subspace(eigs, c, 0));
+    ssubspace s = unramified_character_subspace(eigs);
+    return {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
   }
 
-  // Special cases of previous two, all eigenvalues +1:
-  ssubspace trivial_character_subspace(int c, int dual)
+  // The dimension or cuspidal dimension of the previous space (for
+  // when we do not need the subspace itself).
+  int unramified_character_subspace_dimension(const vector<int>& eigs, int cuspidal)
   {
-    return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1), c, dual);
-  }
-  // total (cuspidal) dimension of subspace on which all T(A,A) act trivially
-  int trivial_character_subspace_dimension(int c)
-  {
-    if (Quad::class_group_2_rank==0)
-      return (c? h1cuspdim(): h1dim());
-    return dim(trivial_character_subspace(c, 0));
+    pair<int,int> dims = unramified_character_subspace_dimensions(eigs);
+    return (cuspidal? dims.second: dims.first);
   }
 
-  // list of (cuspidal) dimensions of subspaces on which all T(A,A)
+  // The (dual) subspace with eigenvalue +1 for all quadratic
+  // unramified characters.
+  ssubspace trivial_character_subspace()
+  {
+    return unramified_character_subspace(vector<int>(Quad::class_group_2_rank, +1));
+  }
+
+  // total and cuspidal dimensions of subspace on which all T(A,A) act trivially
+  pair<int,int> trivial_character_subspace_dimensions()
+  {
+    return unramified_character_subspace_dimensions(vector<int>(Quad::class_group_2_rank, +1));
+  }
+
+  // total or cuspidal dimension of subspace on which all T(A,A) act trivially
+  int trivial_character_subspace_dimension(int cuspidal)
+  {
+    pair<int,int> dims = trivial_character_subspace_dimensions();
+    return (cuspidal? dims.second: dims.first);
+  }
+
+  // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<int> trivial_character_subspace_dimension_by_twist(int c);
+  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist();
 
-  // Dimension of the associated space of Bianchi modular forms (if
-  // c=0) or cusp forms (if c=1).  For odd class number this is the
-  // same as the dimension (resp. cuspidal dimension), but not for
-  // even class number, on account of unramified self-twist forms.
-  int bianchi_form_dimension(int c);
+  // list of total or cuspidal dimensions of subspaces on which all T(A,A)
+  // act trivially with self-twist by unramified quadratic char D for
+  // each D (including D=1, meaning no self-twist)
+  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal);
+
+  // Dimensions of the associated space of Bianchi modular forms
+  // (all,cuspidal). GL2 only.
+
+  // For odd class number these are the same as the homology dimension
+  // (resp. cuspidal dimension), and in general are generically these
+  // multiplied by the size of #(C/C^2) (which is the number of
+  // unramified quadratic characters), but for unramified self-twist
+  // forms the multiplicity is only half of this.
+
+  // Each 1-dimensional eigenspce in homology (of the principal
+  // component hyperbolic quotient) contributes, via twisting by
+  // unramified quadratic characters, 2**r forms, where r is the 2-rank
+  // of the class group, except for self-twist eigenspaces which only
+  // contribute 2**(r-1) forms.
+  pair<int,int> bianchi_form_dimensions();
+  int bianchi_form_dimension(int cuspidal)
+  {
+    pair<int,int> dims = bianchi_form_dimensions();
+    return (cuspidal? dims.second: dims.first);
+  }
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},
