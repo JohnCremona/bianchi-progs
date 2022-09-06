@@ -8,27 +8,3 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [4,2+a] ]
 Writing data to file nftmp/2.0.55.1/11.1...done.
 ===========================================
 
->>>> Level 16.1 = (-2+a), norm = 16 <<<<
-
-1 newform(s) at level 16.1 = (-2+a) (up to twist by unramified character):
-Writing data to file nftmp/2.0.55.1/16.1...done.
-===========================================
-
->>>> Level 16.5 = (1+a), norm = 16 <<<<
-
-1 newform(s) at level 16.5 = (1+a) (up to twist by unramified character):
-Writing data to file nftmp/2.0.55.1/16.5...done.
-===========================================
-
->>>> Level 28.2 = (6+a,-10+3a), norm = 28 <<<<
-
-1 newform(s) at level 28.2 = (6+a,-10+3a) (up to twist by unramified character):
-Writing data to file nftmp/2.0.55.1/28.2...done.
-===========================================
-
->>>> Level 28.5 = (-7+a,-7-3a), norm = 28 <<<<
-
-1 newform(s) at level 28.5 = (-7+a,-7-3a) (up to twist by unramified character):
-Writing data to file nftmp/2.0.55.1/28.5...done.
-===========================================
-
