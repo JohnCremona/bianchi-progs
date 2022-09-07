@@ -24,12 +24,12 @@ In even class number only, also:
 
 2. nap  : number of Fourier coefficients
 
-The next 11 lines (3--13) have n1ds (or 2*n1ds) entries each, one per
+The next 13 lines (3--15) have n1ds (or 2*n1ds) entries each, one per
 newform for integers and 2 per newform for quads.  Here, "newform"
 really refers to a set of unramified quadratic twists, of size 2^r
 (where r=Quad::class_group_2_rank), so just 1 for odd class number, or
 for unramified self-twist forms only 2^{r-1}.  The latter condition is
-stored in line 14, which is only present when the class number is odd.
+stored in line 16, which is only present when the class number is even.
 
 3.  sfe : sign of functional equation (= - product of aq)
 4.  pdot: projection of Manin vector
@@ -39,9 +39,11 @@ stored in line 14, which is only present when the class number is odd.
 8.  lambdadot : scaling factor for lambda
 9-12. a, b, c, d : entries of a matrix M=[a,b;N*c,d] in Gamma_0(N) s.t.
 13. matdot       : the integral of f over {0,M(0)} is matdot*x
+14. bc           : base-change code (see below for definition)
+15. cm           : CM discriminant (square-free part), or 0
 
 The next line is only present over field with even class number.
-14. CMD: 0, or for forms which are self-twist by an unramified quadratic character, its discriminant.
+16. CMD: 0, or for forms which are self-twist by an unramified quadratic character, its discriminant.
 
 The next lines contain the Atkin-Lehner eigenvalues for the bad primes
 (in standard order):

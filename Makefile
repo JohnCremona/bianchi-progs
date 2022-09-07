@@ -72,20 +72,21 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6
 ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: symb.cc testlf1.cc makenf.cc pmanin.cc tmquads.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc
+ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
-ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp
+ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc
+ccs6: rewrite_eigs.cc
 
-headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h mquads.h newforms.h oldforms.h quads.h ratquads.h symb.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -115,7 +116,7 @@ FIELDS=$(FIELDS_hom)
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = fieldinfo tquads tratquad looptest P1Ntest qidltest
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-NF_TESTS = makenf makenf_loop nftest nflist nflist_loop dimtabnew moreap moreap1
+NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 FULL_TESTS = modularity modularity_modp  #makenf_modp
 ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS)
 
@@ -259,6 +260,9 @@ roundtest: roundtest.o quads.o
 
 qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
 	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+
+rewrite_eigs: rewrite_eigs.o $(OBJS)
+	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
 # DEPENDENCIES
 #
