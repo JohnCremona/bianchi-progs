@@ -1,0 +1,37 @@
+#!/bin/bash
+d=$1
+LEVEL=$2
+NAP=100
+VERBOSE=0
+OUTPUT_EIGS=1
+
+# Make sure newforms directory exists!
+
+if [[ $((d % 4)) -ne 3 ]] ; then
+    D=$(( 4*d ))
+else
+    D=$d
+fi
+mkdir -p newforms/2.0.${D}.1
+
+PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${LEVEL} 0.0"
+
+PROG="./makenf_long_${d}_${LEVEL}"
+ln -s makenf_long "${PROG}"
+
+if ( echo "${PARAMS}" | "${PROG}" > "${PROG}".out );
+then
+  echo "${PROG} using long ints succeeded"
+  /bin/rm "${PROG}"
+else
+  echo "******************** ${PROG} using long ints FAILED, rerunning with ZZ *******************************"
+  /bin/rm "${PROG}"
+  PROG="./makenf_ZZ_${d}_${LEVEL}"
+  ln -s makenf_ZZ "${PROG}"
+  echo "${PARAMS}" | "${PROG}" > "${PROG}".out
+  /bin/rm "${PROG}"
+fi
+
+# To use in parallel runs, one level per run (e.g.: d=59, norms from 1 to 100):
+#
+# parallel -j 5 --progress ./makenf1_hybrid 59 {1} ::: `./qidl_labels 59 1 100`

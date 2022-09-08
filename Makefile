@@ -25,7 +25,7 @@ GCC=g++ -std=c++11 -fmax-errors=1
 CC = $(GCC)
 
 # to disable checking of assert() use the following:
-#OPTFLAG = -DNDEBUG -O3 -Wall -fPIC
+#OPTFLAG = -DNDEBUG -O3 -fPIC
 # to enable checking of assert() use the following:
 OPTFLAG = -O3 -Wall -fPIC
 
@@ -78,15 +78,15 @@ ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
-ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc
-ccs6: rewrite_eigs.cc
+ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
+ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
 
 headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -260,6 +260,9 @@ roundtest: roundtest.o quads.o
 
 qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
 	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+
+qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
+	$(CC) -o qidl_labels qidl_labels.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
 
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)

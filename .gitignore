@@ -48,7 +48,12 @@ nflist
 nflist_loop
 fieldinfo
 qidltest
+qidl_labels
+qidl_loop
 P1Ntest
+rewrite_eigs
+*_long
+*_ZZ
 
 # temporary test output files
 *.testout
