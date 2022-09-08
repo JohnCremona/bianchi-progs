@@ -11,6 +11,14 @@
 
 #define MAXDEPTH 20 // maximum depth for splitting off eigenspaces
 
+// This flag is only for use when updating the schema of the newforms
+// files to include the BC and CM fields, so we can read in data files
+// without these (but output files with them).  When the data format
+// conversion is complete, the flag can be removed and some lines
+// removed below in the two places it is used.
+
+//#define NO_BC_CM
+
 // Notes on scaling:
 //
 // For a newform F (however normalised), the periods of F are the
@@ -346,12 +354,22 @@ newform::newform(newforms* nfs, int ind,
       c = Quaddata[3];
       d = Quaddata[4];
       matdot = intdata[5];
+#ifndef NO_BC_CM
+      bc = intdata[6];
+      cm = intdata[7];
+      CMD = intdata[8];
+#else
+      bc = 4; // will be set by calling base_change_code() to 0, or a
+              // square-free integer if base-change or twist of b.c.
+      cm = 1; // will be set by calling is_CM() to 0, or a a negative
+              // square-free integer if CM
       CMD = intdata[6];
+#endif
       aqlist = aq;
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
       int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
       if (newsfe!=sfe)
-        cout<<"Problem in data on file for level "<<N<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
+        cout<<"Problem in data on file for level "<<ideal_label(N)<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
     }
 
   aplist = ap;
@@ -364,11 +382,6 @@ newform::newform(newforms* nfs, int ind,
   // recreate eigs list (used to recover basis vector, and for oldclasses at higher levels):
 
   eigs_from_data();
-
-  cm = 1; // will be set by calling is_CM() to 0, or a a negative
-          // square-free integer if CM
-  bc = 4; // will be set by calling base_change_code() to 0, or a
-          // square-free integer if base-change or twist of b.c.
 }
 
 // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
@@ -1653,7 +1666,7 @@ int newforms::read_from_file()
       if (characteristic==0)
         {
           aqs[i].resize(badprimes.size());
-          intdata[i].resize(7);
+          intdata[i].resize(9);
           Quaddata[i].resize(5);
         }
     }
@@ -1674,10 +1687,16 @@ int newforms::read_from_file()
       for (i=0; i<n1ds; i++) data>>Quaddata[i][3]; // c
       for (i=0; i<n1ds; i++) data>>Quaddata[i][4]; // d
       for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
+      int iCMD=6;
+#ifndef NO_BC_CM
+      for (i=0; i<n1ds; i++) data>>intdata[i][6];  // bc
+      for (i=0; i<n1ds; i++) data>>intdata[i][7];  // cm
+      iCMD=8;
+#endif
       if (n2r>0)
-        for (i=0; i<n1ds; i++) data>>intdata[i][6];  // CMD
+        for (i=0; i<n1ds; i++) data>>intdata[i][iCMD];  // CMD
       else
-        for (i=0; i<n1ds; i++) intdata[i][6]=0;  // not used
+        for (i=0; i<n1ds; i++) intdata[i][iCMD]=0;  // not used
 
       //  Read the W-eigenvalues at level M into aqs:
       for(i=0; i<(int)badprimes.size(); i++)
@@ -1969,11 +1988,15 @@ void newforms::getap(int first, int last, int verbose)
       fill_in_newform_data();
     }
 
-  // For even class number, test each newform for being unramified
-  // self-twist.  If so, then the number of genus_classes should be
-  // 2^{n2r-1} = nchi/2, else it should be 2^n2r = nchi.
+  // Test each newform for being base-change (or twist of) or CM.
+
+  // Also (only relevant for even class number), test each newform for
+  // being unramified self-twist.  If so, then the number of
+  // genus_classes should be 2^{n2r-1} = nchi/2, else it should be
+  // 2^n2r = nchi.
   for (int i=0; i<n1ds; i++)
     {
+      nflist[i].base_change_code();
       QUINT cmd(nflist[i].is_CM());
       int ngcl = nflist[i].genus_classes.size();
       if (posmod(cmd,4)!=1) cmd*=4;
@@ -2147,7 +2170,25 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
 
-  // Line 14: CMD
+  // Line 14: bc
+
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
+    {
+      out<<setw(5)<<(f->bc)<<" ";
+      if(echo) cout<<setw(5)<<(f->bc)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+
+  // Line 15: cm code
+
+  for(f=nflist.begin(); f!=nflist.end(); ++f)
+    {
+      out<<setw(5)<<(f->cm)<<" ";
+      if(echo) cout<<setw(5)<<(f->cm)<<" ";
+    }
+  out<<endl;  if(echo) cout<<endl;
+
+  // Line 16: self-twist code (only present when class number is even)
 
   if (n2r>0)
     {
@@ -2159,6 +2200,8 @@ void newforms::output_to_file(string eigfile) const
       out<<endl;  if(echo) cout<<endl;
     }
   out<<endl;  if(echo) cout<<endl;
+
+  // One line per bad prime: Atkin-Lehner eigenvalues
 
   for(int i=0; i<(int)badprimes.size(); i++)
     {
@@ -2172,6 +2215,9 @@ void newforms::output_to_file(string eigfile) const
     }
   out<<endl;  if(echo) cout<<endl;
     } // end of if (characteristic==0) block
+
+  // One line per prime: Fourier coefficients (=Hecke eigenvalues for good primes)
+
   for(int i=0; i<nap; i++)
     {
       for(f=nflist.begin(); f!=nflist.end(); ++f)
