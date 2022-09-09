@@ -35,3 +35,9 @@ fi
 # To use in parallel runs, one level per run (e.g.: d=59, norms from 1 to 100):
 #
 # parallel -j 5 --progress ./makenf1_hybrid 59 {1} ::: `./qidl_labels 59 1 100`
+#
+# or
+#
+# parallel -j 5 --progress ./makenf1_hybrid 59 {1} :::: missing_levels
+#
+# where the missing_levels file contains some level labels *one per line".
