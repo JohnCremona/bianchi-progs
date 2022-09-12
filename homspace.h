@@ -74,7 +74,6 @@ public:
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);
   // no longer used, implementation commented out:
   // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
-
   // The (dual) subspace cut out by the given eigenvalues for the
   // basis of Quad::class_group_2_rank unramified characters.
   ssubspace unramified_character_subspace(const vector<int>& eigs);
@@ -118,12 +117,12 @@ public:
   // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist();
+  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist(vector<int> cuspidal_lower_bounds);
 
   // list of total or cuspidal dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal);
+  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, vector<int> cuspidal_lower_bounds);
 
   // Dimensions of the associated space of Bianchi modular forms
   // (all,cuspidal). GL2 only.

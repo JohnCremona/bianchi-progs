@@ -58,17 +58,9 @@ int main(void)
       // nontrivial unramified quadratic character chi. The number of
       // these is 2^n2r-1.
 
-      // Here dimlist[0] is the dimension of the subspace with no
-      // self-twist (by an unramified quadratic character)
-
-      vector<int> dimlist = h.trivial_character_subspace_dimensions_by_twist(/*cuspidal*/ 1);
-
-      // full dimensions:
-      cout << dimlist<< "\t";
-
       // Compute old dimensions from proper divisors and subtract:
       vector<int> olddims(nchi,0);
-      vector<int> newdims = dimlist;
+      vector<int> newdims(nchi,0);
       vector<Qideal> DD = alldivs(N);
       for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
         {
@@ -83,11 +75,21 @@ int main(void)
             }
         }
 
+      // Here dimlist[0] is the dimension of the subspace with no
+      // self-twist (by an unramified quadratic character)
+
+      vector<int> dimlist = h.trivial_character_subspace_dimensions_by_twist(/*cuspidal*/ 1, olddims);
+      // full dimensions:
+      cout << dimlist<< "\t";
+
       // old dimensions:
       int olddim = std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>());
       cout << olddim << " " << olddims << "\t";
 
       // new dimensions:
+      for (int i=0; i<nchi; i++)
+        newdims[i] += dimlist[i];
+
       int newdim = std::accumulate(newdims.begin(), newdims.end(), 0, std::plus<int>());
       cout << newdim << " " << newdims << endl;
 

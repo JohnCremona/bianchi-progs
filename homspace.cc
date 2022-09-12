@@ -552,7 +552,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist()
+vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(vector<int> cuspidal_lower_bounds)
 { //verbose=2;
   long den = h1denom();
   pair<int,int> subdims = {dimension, cuspidal_dimension};
@@ -589,17 +589,19 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist()
 
   // In the loop, s does not change, but the subspace sD depends on D
 
-  for(auto Di = Quad::all_disc_factors.begin()+1; Di!=Quad::all_disc_factors.end(); ++Di)
+  auto Di = Quad::all_disc_factors.begin()+1;
+  auto bd=cuspidal_lower_bounds.begin()+1;
+  while(Di!=Quad::all_disc_factors.end())
     {
-      QUINT D = *Di;
+      QUINT D = *Di++;
       if(verbose>1)
         cout<<"D = "<<D<<":"<<endl;
       ssubspace sD = s;
-
+      int lower_bound = *bd++;
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
 
-      while (ip<np && dim(sD)>0 && Pi.ok())
+      while (ip<np && dim(sD)>lower_bound && Pi.ok())
         {
           Quadprime P = Pi;
           if (P.genus_character(D) == -1)
@@ -660,9 +662,9 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist()
 // list of total or cuspidal dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal)
+vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal, vector<int> cuspidal_lower_bounds)
 {
-  vector<pair<int,int>> dims = trivial_character_subspace_dimensions_by_twist();
+  vector<pair<int,int>> dims = trivial_character_subspace_dimensions_by_twist(cuspidal_lower_bounds);
   vector<int> dims1;
   for (auto di = dims.begin(); di!=dims.end(); ++di)
     dims1.push_back((cuspidal?di->second:di->first));
@@ -689,7 +691,8 @@ pair<int,int> homspace::bianchi_form_dimensions()
   int n2r = Quad::class_group_2_rank;
   if (n2r==0)
     return {dimension, cuspidal_dimension};
-  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist();
+  vector<int> bds(Quad::all_disc_factors.size(),0);
+  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist(bds);
   //cout<<"\ntdims = "<<tdims<<endl;
   pair<int,int> dims = {2*tdims[0].first, 2*tdims[0].second};
   for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)

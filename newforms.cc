@@ -970,16 +970,6 @@ void newforms::find()
       cout<<" - cuspidal dimension = "<<dimcusp<<endl;
     }
 
-  // find dimension of trivial character subspace and its split by characters:
-  alldims = h1->trivial_character_subspace_dimensions_by_twist(1);
-  dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
-  if(verbose && (n2r>0))
-    {
-      cout<<" - cuspidal trivial character subspace dimension = "<<dimtrivcusp;
-      cout<<" = "<<alldims<< " split by self-twist character"<<endl;
-    }
-  dimtrivcuspold=0;
-
   int mindepth, olddim1, olddim2;
 
   // find oldform dimensions (all, rational, non-rational) and their split by characters:
@@ -1003,8 +993,19 @@ void newforms::find()
     }
   else
     {
+      dimtrivcuspold=0;
       olddim1 = olddim2 = 0;
       mindepth = nap;
+    }
+
+  // find dimension of trivial character subspace and its split by characters:
+  alldims = h1->trivial_character_subspace_dimensions_by_twist(1, olddims);
+  dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
+
+  if(verbose && (n2r>0))
+    {
+      cout<<" - cuspidal trivial character subspace dimension = "<<dimtrivcusp;
+      cout<<" = "<<alldims<< " split by self-twist character"<<endl;
     }
 
   // deduce newform dimensions and their split by characters (but we not yet know how much is rational):
