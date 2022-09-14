@@ -999,7 +999,7 @@ void newforms::find()
     }
 
   // find dimension of trivial character subspace and its split by characters:
-  alldims = h1->trivial_character_subspace_dimensions_by_twist(1, olddims);
+  alldims = h1->trivial_character_subspace_dimensions_by_twist(1, 1, olddims);
   dimtrivcusp = std::accumulate(alldims.begin(), alldims.end(), 0, std::plus<int>());
 
   if(verbose && (n2r>0))

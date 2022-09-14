@@ -117,12 +117,12 @@ public:
   // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist(vector<int> cuspidal_lower_bounds);
+  vector<pair<int,int>> trivial_character_subspace_dimensions_by_twist(int use_lower_bounds, int use_cuspidal_lower_bounds, vector<int> lower_bounds, vector<int> cuspidal_lower_bounds);
 
   // list of total or cuspidal dimensions of subspaces on which all T(A,A)
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
-  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, vector<int> cuspidal_lower_bounds);
+  vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> lower_bounds={});
 
   // Dimensions of the associated space of Bianchi modular forms
   // (all,cuspidal). GL2 only.

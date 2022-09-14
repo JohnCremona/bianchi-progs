@@ -78,7 +78,7 @@ int main(void)
       // Here dimlist[0] is the dimension of the subspace with no
       // self-twist (by an unramified quadratic character)
 
-      vector<int> dimlist = h.trivial_character_subspace_dimensions_by_twist(/*cuspidal*/ 1, olddims);
+      vector<int> dimlist = h.trivial_character_subspace_dimensions_by_twist(/*cuspidal*/ 1, 1, olddims);
       // full dimensions:
       cout << dimlist<< "\t";
 

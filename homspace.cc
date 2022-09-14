@@ -552,7 +552,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(vector<int> cuspidal_lower_bounds)
+vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(int use_lower_bounds, int use_cuspidal_lower_bounds, vector<int> lower_bounds, vector<int> cuspidal_lower_bounds)
 { //verbose=2;
   long den = h1denom();
   pair<int,int> subdims = {dimension, cuspidal_dimension};
@@ -570,9 +570,10 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(v
     }
 
   ssubspace s = trivial_character_subspace();
+
   // we'll subtract dimensions of nontrivial self-twist spaces from this
-  subdims = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
-  dimlist.push_back(subdims);
+  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
+  dimlist.push_back(subdims0);
 
   if(verbose>1)
     {
@@ -590,19 +591,25 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(v
   // In the loop, s does not change, but the subspace sD depends on D
 
   auto Di = Quad::all_disc_factors.begin()+1;
-  auto bd=cuspidal_lower_bounds.begin()+1;
+  auto lbds = lower_bounds.begin()+1;
+  auto clbds = cuspidal_lower_bounds.begin()+1;
+  int lbd=0, clbd=0;
   while(Di!=Quad::all_disc_factors.end())
     {
       QUINT D = *Di++;
       if(verbose>1)
         cout<<"D = "<<D<<":"<<endl;
       ssubspace sD = s;
-      int lower_bound = *bd++;
+      if (use_lower_bounds) lbd = *lbds++;
+      if (use_cuspidal_lower_bounds) clbd = *clbds++;
+      subdims = subdims0;
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
 
-      while (ip<np && dim(sD)>lower_bound && Pi.ok())
+      while (ip<np && Pi.ok())
         {
+          if (use_lower_bounds && subdims.first<= lbd) break;
+          if (use_cuspidal_lower_bounds && subdims.second<= clbd) break;
           Quadprime P = Pi;
           if (P.genus_character(D) == -1)
             {
@@ -662,12 +669,22 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(v
 // list of total or cuspidal dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal, vector<int> cuspidal_lower_bounds)
+vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> cuspidal_lower_bounds)
 {
-  vector<pair<int,int>> dims = trivial_character_subspace_dimensions_by_twist(cuspidal_lower_bounds);
+  vector<pair<int,int>> dims;
   vector<int> dims1;
-  for (auto di = dims.begin(); di!=dims.end(); ++di)
-    dims1.push_back((cuspidal?di->second:di->first));
+  if (cuspidal)
+    {
+      dims = trivial_character_subspace_dimensions_by_twist(0, use_lower_bounds, {}, cuspidal_lower_bounds);
+      for (auto di = dims.begin(); di!=dims.end(); ++di)
+        dims1.push_back(di->second);
+    }
+  else
+    {
+      dims = trivial_character_subspace_dimensions_by_twist(use_lower_bounds, 0, cuspidal_lower_bounds, {});
+      for (auto di = dims.begin(); di!=dims.end(); ++di)
+        dims1.push_back(di->first);
+    }
   return dims1;
 }
 
@@ -691,8 +708,7 @@ pair<int,int> homspace::bianchi_form_dimensions()
   int n2r = Quad::class_group_2_rank;
   if (n2r==0)
     return {dimension, cuspidal_dimension};
-  vector<int> bds(Quad::all_disc_factors.size(),0);
-  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist(bds);
+  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist(0,0,{},{});
   //cout<<"\ntdims = "<<tdims<<endl;
   pair<int,int> dims = {2*tdims[0].first, 2*tdims[0].second};
   for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)
