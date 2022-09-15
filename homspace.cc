@@ -606,7 +606,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
 
-      while (ip<np && Pi.ok())
+      while (ip<np && subdims.first>0 && Pi.ok())
         {
           if (use_lower_bounds && subdims.first<= lbd) break;
           if (use_cuspidal_lower_bounds && subdims.second<= clbd) break;
