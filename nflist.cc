@@ -46,7 +46,12 @@ int main ()
      //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
      newforms nf(N,0);
      if(nf.read_from_file())
-       nf.list(nap);
+       {
+         nf.list(nap);
+         // Uncomment the next two lines if you want to rewrite the newforms files
+         // string efilename = eigfile(N);
+         // nf.output_to_file(efilename);
+       }
      else
        cout << "No data file for level " << ideal_label(N) << endl;
    }

@@ -593,7 +593,7 @@ int newform::base_change_twist_discriminant(void)
   int cmd = is_CM();
   if (cmd!=0)
     {
-      int bcd = -cmd/(Quad::d);
+      int bcd = -squarefree_part((Quad::d)/cmd);
 #ifdef DEBUG_BCTD
       cout << "base change twist and CM("<<cmd<<") so bcd = "<<bcd<<endl;
 #endif
@@ -1691,6 +1691,7 @@ int newforms::read_from_file()
       int iCMD=6;
 #ifndef NO_BC_CM
       for (i=0; i<n1ds; i++) data>>intdata[i][6];  // bc
+      //for (i=0; i<n1ds; i++) intdata[i][6]=4;  // temp fix to to recompute bc
       for (i=0; i<n1ds; i++) data>>intdata[i][7];  // cm
       iCMD=8;
 #endif
