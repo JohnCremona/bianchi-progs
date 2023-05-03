@@ -183,6 +183,8 @@ vector<Quadprime> pdivs(Qideal&);   // list of all prime divisors
 vector<Qideal> alldivs(Qideal&);    // list of all ideal divisors
 vector<Qideal> sqdivs(Qideal&);     // list of ideal divisors whose square divides
 vector<Qideal> sqfreedivs(Qideal&); // list of square-free ideal divisors
+int ndivs(Qideal&); // number of ideal divisors
+int npdivs(Qideal&);  // number of prime ideal divisors
 
 // Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
 pair<long,long> eigenvalue_range(Quadprime& P);

@@ -265,6 +265,19 @@ vector<Quadprime> pdivs(Qideal& I)  // list of prime divisors
   return I.factorization().sorted_primes();
 }
 
+int npdivs(Qideal& I)  // number of prime ideal divisors
+{
+  return I.factorization().size();
+}
+
+int ndivs(Qideal& I) // number of ideal divisors
+{
+  vector<int> e = I.factorization().exponents();
+  long nd = 1;
+  for (auto ei = e.begin(); ei != e.end(); ei++) {nd*=(1+*ei);}
+  return nd;
+}
+
 vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
 {
   Factorization F = a.factorization();
