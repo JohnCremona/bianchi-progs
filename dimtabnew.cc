@@ -1,3 +1,20 @@
+// DIMTABNEW.CC  -- Table of dimensions of Bianchi cusp forms at level N with trivial character
+
+// Columns:  Field Weight(2) Level dimcusp dimcuspnew
+
+//           where dimcusp = dimension of cusp forms (with trivial character)
+//           where dimcuspnew = dimension of new cusp forms (with trivial character)
+
+// Inputs (prompted for): d (field)
+//                        max_norm (upper bound on level norm)
+
+// This requires precomputed data for all levels of norm up to
+// max_norm.  The new (cuspidal, trivial character) homology
+// dimnesions are read from data files, converted to new Bianchi
+// dimensions and stored in a dict (with level labels as keys); the
+// old dimensions are computed from the new dimensions at lower
+// levels.
+
 #include "qidloop.h"
 #include "newforms.h"
 //#define MODP
@@ -16,15 +33,21 @@ int main ()
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
 
-  long firstn=1, lastn; Quad n;
+  long min_norm=1, max_norm; Quad n;
   int both_conj=1;
   //cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
 
   cerr<<"Enter max norm for Quad loop: ";
-  cin >> lastn;
+  cin >> max_norm;
   cerr<<endl;
 
   Quad::field(d,max);
+
+  // Each new eigensystem stored which is stored gives rise to either
+  // 2^r Bianchi newforms (if not self-twist) or 2^{r-1} Bianchi
+  // newforms (if self-twist by a quadratic genus character), which
+  // are all twists of eachother by the group of unramified quadratic
+  // twists.
   int nchi = 1<<(Quad::class_group_2_rank);
   int nchi2 = nchi/2; // only used when nchi is even
 
@@ -32,15 +55,14 @@ int main ()
   if (ch) cout<<"mod "<<ch<<" ";
   cout<<"weight 2 Bianchi cuspidal forms and newforms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
   if (Quad::class_group_2_rank>0)
-    cout<<"# (with trivial character, and including unramified quadratic twists)"<<endl;
+    cout<<"# (with trivial character)"<<endl;
   cout << "# Field\tWeight\tLevel\t";
-  cout << "dim(all)\tdim(cuspidal)\tdim(cuspidal, new)" << endl;
+  cout << "dim(cuspidal)\tdim(cuspidal, new)" << endl;
 
-  // dictionary with key-level label, value = list of new dimensions
-  // by self-twist character
-  map<string, vector<int>> dims;
+  // dictionary with key = level label, value = new dimension
+  map<string, int> dims;
 
-  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+  Qidealooper loop(min_norm, max_norm, both_conj, 1); // sorted within norm
   while( loop.not_finished() )
    {
      Qideal N = loop.next();
@@ -58,37 +80,33 @@ int main ()
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << level_label<<"\t\t"; // level
 
-     vector<int>& newdims = dims[level_label];
      newforms nfdata(N, 0, ch);
      if (nfdata.read_from_file())
        {
-         newdims.resize(nchi, 0);
+         int dimcuspnew, dimcuspold, dimcusp;
          if (nchi == 1)
            {
-             newdims[0] = nfdata.n1ds + nfdata.n2ds;
-             //cout<<"newdims="<<newdims<<endl;
+             dimcuspnew = nfdata.n1ds + nfdata.n2ds;
            }
          else
            {
-             newdims[0] = nchi*(nfdata.new1dims[0] + nfdata.new2dims[0]);
+             // multiplicity nchi for non-self-twist eigensystems
+             dimcuspnew = nchi*(nfdata.new1dims[0] + nfdata.new2dims[0]);
+             // multiplicity nchi/2 for self-twist eigensystems
              for (int i=1; i<nchi; i++)
-               newdims[i] = nchi2*(nfdata.new1dims[i] + nfdata.new2dims[i]);
-             //cout<<"newdims="<<newdims<<endl;
+               dimcuspnew += nchi2*(nfdata.new1dims[i] + nfdata.new2dims[i]);
            }
-         int dimcuspnew = std::accumulate(newdims.begin(), newdims.end(), 0, std::plus<int>());
-         int dimcuspold = 0;
+         dims[level_label] = dimcuspnew;
+         dimcuspold = 0;
          for (auto Di=Ndivisors.begin(); Di!=Ndivisors.end(); ++Di)
            {
              Qideal D = *Di;
              if (N==D)
                break;
-             vector<int> olddims = old_multiplicities(D, dims[ideal_label(D)], N);
-             int dimcuspold1 = std::accumulate(olddims.begin(), olddims.end(), 0, std::plus<int>());
-             // if (dimcuspold1)
-             //   cout<<"["<<ideal_label(D)<<":"<<dimcuspold1<<"]";
-             dimcuspold += dimcuspold1;
+             Qideal M = N/D;
+             dimcuspold += dims[ideal_label(D)] * ndivs(M);
            }
-         int dimcusp = dimcuspold + dimcuspnew;
+         dimcusp = dimcuspold + dimcuspnew;
          cout << dimcusp << "\t\t";
          cout << dimcuspnew << endl;
        }
