@@ -1,3 +1,16 @@
+// DIMTABEIS.CC  -- Table of dimensions of homology at level N with trivial character
+
+// Columns:  Field Weight(2) Level dimall dimcusp dimeis
+
+// where dimall  = dimension of homology subspace with trivial character
+//       dimcusp = dimension of cuspidal homology subspace with trivial character
+//       dimeis  = dimension of non-cuspidal homology subspace with trivial character
+
+// Inputs (prompted for): d (field)
+//                        both_conj (flag to include both conjugates in loop over levels)
+//                        min_norm (lower bound on level norm in loop over levels)
+//                        max_norm (upper bound on level norm in loop over levels)
+
 #include "qidloop.h"
 #include "homspace.h"
 //#define MODP
@@ -15,13 +28,13 @@ int main ()
 #ifdef MODP
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
-  long firstn, lastn; Quad n;
+  long min_norm, max_norm; Quad n;
   int both_conj;
   cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
   int verbose=0;
 
   cerr<<"Enter first and last norm for Quad loop: ";
-  cin >> firstn >> lastn;
+  cin >> min_norm >> max_norm;
   cerr<<endl;
   Quad::field(d,max);
 
@@ -30,18 +43,18 @@ int main ()
  if (ch) cout<<"mod "<<ch<<" ";
  cout<<"weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-"<<d<<"))" << endl;
  if (Quad::class_group_2_rank>0)
-   cout<<"# (with trivial character, and including unramified quadratic twists)"<<endl;
+   cout<<"# (with trivial character)"<<endl;
  cout << "# Field\tWeight\tLevel\t";
  cout << "dim(all)\tdim(cuspidal)\tdim(eisenstein)" << endl;
 
- Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ Qidealooper loop(min_norm, max_norm, both_conj, 1); // sorted within norm
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
      homspace hplus(N, 1, verbose, ch);  //level, plusflag, verbose, characteristic
-     pair<int,int> dims = hplus.bianchi_form_dimensions();
+     pair<int,int> dims = hplus.trivial_character_subspace_dimensions();
      int dimcusp = dims.second;
      int dimall = dims.first;
      int dimeis = dimall-dimcusp;

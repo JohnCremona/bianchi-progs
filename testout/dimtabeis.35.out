@@ -1,10 +1,10 @@
 # Table of dimensions of weight 2 Bianchi cuspidal and Eisenstein forms for GL2 over Q(sqrt(-35))
-# (with trivial character, and including unramified quadratic twists)
+# (with trivial character)
 # Field	Weight	Level	dim(all)	dim(cuspidal)	dim(eisenstein)
 	35	2	1.1	0		0		0
-	35	2	3.1	2		0		2
-	35	2	4.1	2		0		2
-	35	2	5.1	2		0		2
-	35	2	7.1	2		0		2
-	35	2	9.1	5		1		4
-	35	2	9.2	6		0		6
+	35	2	3.1	1		0		1
+	35	2	4.1	1		0		1
+	35	2	5.1	1		0		1
+	35	2	7.1	1		0		1
+	35	2	9.1	3		1		2
+	35	2	9.2	3		0		3

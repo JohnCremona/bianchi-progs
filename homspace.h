@@ -123,27 +123,6 @@ public:
   // act trivially with self-twist by unramified quadratic char D for
   // each D (including D=1, meaning no self-twist)
   vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> lower_bounds={});
-
-  // Dimensions of the associated space of Bianchi modular forms
-  // (all,cuspidal). GL2 only.
-
-  // For odd class number these are the same as the homology dimension
-  // (resp. cuspidal dimension), and in general are generically these
-  // multiplied by the size of #(C/C^2) (which is the number of
-  // unramified quadratic characters), but for unramified self-twist
-  // forms the multiplicity is only half of this.
-
-  // Each 1-dimensional eigenspce in homology (of the principal
-  // component hyperbolic quotient) contributes, via twisting by
-  // unramified quadratic characters, 2**r forms, where r is the 2-rank
-  // of the class group, except for self-twist eigenspaces which only
-  // contribute 2**(r-1) forms.
-  pair<int,int> bianchi_form_dimensions();
-  int bianchi_form_dimension(int cuspidal)
-  {
-    pair<int,int> dims = bianchi_form_dimensions();
-    return (cuspidal? dims.second: dims.first);
-  }
 };
 
 // Each relation is a signed sum of edges (M)_alpha = {M(alpha},

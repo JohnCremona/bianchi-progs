@@ -687,34 +687,3 @@ vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspida
     }
   return dims1;
 }
-
-// Dimension of the associated space of Bianchi modular forms (if
-// cuspidal=0) or cusp forms (if cuspidal=1).  For odd class number
-// this is the same as the dimension (resp. cuspidal dimension), and
-// in general it is generically this multiplied by the size of
-// #(C/C^2) (which is the number of unramified quadratic characters),
-// but for unramified self-twist forms the multiplicity is only half of this.
-
-// GL2 only (i.e. require plusflag=1).
-
-// Each 1-dimensional eigenspce in homology (of the principal
-// component hyperbolic quotient) contributes, via twisting by
-// unramified quadratic characters, 2**r forms, where r is the 2-rank
-// of the class group, except for self-twist eigenspaces which only
-// contribute 2**(r-1) forms.
-
-pair<int,int> homspace::bianchi_form_dimensions()
-{
-  int n2r = Quad::class_group_2_rank;
-  if (n2r==0)
-    return {dimension, cuspidal_dimension};
-  vector<pair<int,int>> tdims = trivial_character_subspace_dimensions_by_twist(0,0,{},{});
-  //cout<<"\ntdims = "<<tdims<<endl;
-  pair<int,int> dims = {2*tdims[0].first, 2*tdims[0].second};
-  for (auto tdim = tdims.begin()+1; tdim!=tdims.end(); tdim++)
-    {
-      dims.first += (tdim->first);
-      dims.second += (tdim->second);
-    }
-  return {dims.first << (n2r - 1), dims.second << (n2r - 1)};
-}

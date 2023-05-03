@@ -160,16 +160,20 @@ void oldforms::display(void) const
  cout<<"Total dimension of all oldclasses = "<<olddimall<<endl;
 }
 
+// Usually, in the principal homology, the old multiplicity (i.e. the
+// dimension of the oldspace) at level N from a new eigensystem at
+// level D is the number of divisors of N/D, but if the class number
+// is even and the eigensystem is self-twist by an unramified
+// quadratic character chi, the multiplicity is the number of divisors
+// in the kernel of chi.
 
-// Usually, the oldform multiplicity (i.e. the dimension of the
-// oldspace) at level N from a newform at level D is the number of
-// divisors of N/D, but if the class number is even and the form is
-// self-twist by an unramified quadratic character chi, we only count
-// the divisors in the kernel of chi.
+// NB The preceding observation only applies to old multiplicities in
+// the (principal) homology space.  In the Bianchi newform spaces the
+// usual formula always holds, i.e. the oldform multiplcity is the
+// total number of divisors, whether or not the form is self-twist.
 
-
-// Return the oldspace dimension at level N of a (rational) newform at
-// level D which is self-twist by discriminant d
+// Return the oldspace dimension at level N of a new eigensystem at
+// level D which is self-twist by genus character with discriminant d
 int old_multiplicity(Qideal D, QUINT d, Qideal N)
 {
   Qideal M = N/D;
@@ -177,6 +181,7 @@ int old_multiplicity(Qideal D, QUINT d, Qideal N)
   return old_multiplicity(d, divisors);
 }
 
+// The same with the list of divisors of N/D given
 int old_multiplicity(QUINT d, vector<Qideal>& divisors)
 {
   int mult = 0;
@@ -187,8 +192,9 @@ int old_multiplicity(QUINT d, vector<Qideal>& divisors)
   return mult;
 }
 
-// Given the new dimensions at level D and a multiple N of D, return
-// the oldspace dimensions at level N
+// Given a list of the new homology dimensions at level D (indexed by
+// self-twist genus character), and a multiple N of D, return the old
+// homology dimensions (similarly indexed) at level N.
 vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N)
 {
   Qideal M = N/D;
@@ -200,6 +206,11 @@ vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N)
 vector<int> old_multiplicities(vector<int> newdimsD, vector<Qideal>& divisors)
 {
   vector<int> ans(newdimsD.size());
+  // Here (d,D) runs over pairs where d is a dimension in the list
+  // newdimsD and D is a discriminant divisor.  Each d is multiplied
+  // by the appropriate old multiplicity depending on the self-twist
+  // genus character D: the number of Ds is the same as the size of
+  // newdimsD.
   std::transform(newdimsD.begin(), newdimsD.end(), Quad::all_disc_factors.begin(),
                  ans.begin(),
                  [&divisors](int d, QUINT D) {return d*old_multiplicity(D, divisors);}
