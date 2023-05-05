@@ -2,13 +2,13 @@
 
 // Columns:  Field Weight(2) Level dimcusp dimcuspnew
 
-//           where dimcusp = dimension of cusp forms (with trivial character)
-//           where dimcuspnew = dimension of new cusp forms (with trivial character)
+// where dimcusp = dimension of cusp forms (with trivial character)
+//       dimcuspnew = dimension of new cusp forms (with trivial character)
 
 // Inputs (prompted for): d (field)
 //                        max_norm (upper bound on level norm)
 
-// This requires precomputed data for all levels of norm up to
+// This program requires precomputed data for all levels of norm up to
 // max_norm.  The new (cuspidal, trivial character) homology
 // dimnesions are read from data files, converted to new Bianchi
 // dimensions and stored in a dict (with level labels as keys); the
