@@ -63,18 +63,15 @@ def frac(x):
     k = nf(a)
     return [k(a/c),k(b/c)]
 
-NFCusp._repr_ = lambda c: "[{}:{}]".format(c.numerator(),c.denominator()) if c.denominator() else "oo"
-
 #We need to label cusps with something hashable, to use graph
 #functionality, which can be converted back into cusps later.
 #Unfortunately the NFCusp class is not hashable.
 
 def cusp_label(a):
     n,d = a.numerator(), a.denominator()
-    if list(d)<[0,0]:
-        n=-n
-        d=-d
-    return (n,d)
+    return (-n,-d) if list(d)<[0,0] else (n,d)
+
+NFCusp._repr_ = lambda c: "[{}:{}]".format(*cusp_label(c)) if c.denominator() else "oo"
 
 @cached_function
 def smallest_ideal_class_representatives(k):
@@ -151,13 +148,19 @@ def polygon(xlist):
     """
     return [cusp(x) for x in xlist]
 
+def cusp_from_string(s, k):
+    if s == 'oo':
+        return cusp(oo, k)
+    a,b = [k(c) for c in s[1:-1].split(":")]
+    return cusp2(a,b, k)
+
 def make_poly_from_edges(F, k):
     """Use for F a face as returned by the graph function G.faces(), so is
     a list of ordered pairs such that the second element of each is
     the first of the next, cyclically, and each element of the pair is
     a pair (a,b) for the cusp [a:b].
     """
-    return [cusp2(e[0][0],e[0][1],k) for e in F]
+    return [cusp_from_string(e[0], k) for e in F]
 
 def edge(x,y):
     """

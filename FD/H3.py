@@ -1,6 +1,6 @@
 # Functions for working with H3 and hemispheres etc.
 
-from itertools import chain
+from itertools import chain, groupby
 
 from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
                       Graph, srange, Set, sign, var, implicit_plot3d, NFCusp, Integer, oo,
@@ -9,11 +9,49 @@ from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
 from utils import (nf, to_k, cusp, cusp_label, Imat, apply,
                    translate_cusp, negate_cusp, conj_cusp,
                    smallest_ideal_class_representatives,
-                   alpha_index_with_translation)
+                   alpha_index_with_translation,
+                   sigma_index_with_translation)
 
 from alphas import precomputed_alphas
 
 from polyhedra import all_poly_types, poly_type, poly_types
+
+# NB the method k.elements_of_norm(n) is not cached
+
+elts_of_norm_cache = {}
+
+def elts_of_norm(k,n):
+    """
+    Return list of elements of O_k of norm n, up to units, using cache.
+    """
+    if n not in ZZ or n<0:
+        return [k(0)]
+    global elts_of_norm_cache
+    if k not in elts_of_norm_cache:
+        elts_of_norm_cache[k] = {}
+    if n not in elts_of_norm_cache[k]:
+        elts_of_norm_cache[k][n] = k.elements_of_norm(n)
+    return elts_of_norm_cache[k][n]
+
+def elements_of_norm(k, n):
+    """
+    Return iterator through elements of O_k of norm n, up to units, using cache.
+    """
+    return iter(elts_of_norm(k, n))
+
+def elements_of_norm_upto(k, n, start=1):
+    """
+    Return iterator through elements of k of norm from 1 to n, up to units, using cache.
+    """
+    return chain(*(elements_of_norm(k,n) for n in range(start, n+1)))
+
+def next_norm(k, n):
+    """
+    Returns the smallest integer m>=n which is a norm from O_k
+    """
+    while not elements_of_norm(k, n):
+        n+=1
+    return n
 
 def make_k(dk):
     """Given a negative fundamental discriminant, or positive square-free
@@ -21,6 +59,7 @@ def make_k(dk):
     a dict containing this and useful other data
 
     """
+    global elts_of_norm_cache
     x = polygen(QQ)
     if dk>0:
         assert dk.is_squarefree()
@@ -32,6 +71,8 @@ def make_k(dk):
     assert k.discriminant() == dk
     w = k.gen()
     emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
+    if k not in elts_of_norm_cache:
+        elts_of_norm_cache[k] = {}
     return {'k': k, 'dk': dk, 'w': w, 'wbar': w.trace()-w, 'Ok': k.ring_of_integers(),
             'emb': emb, 'Ymax': emb(w).imag()/2,
             'Ireps': [c.ideal() for c in k.class_group()]}
@@ -123,7 +164,7 @@ def is_inside(a, b, strict=False):
     else:
         return d2 <= r2
 
-def covering_hemispheres1(P, option=None):
+def covering_hemispheres1(P, option=None, debug=False):
     """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
     on or under S_alpha.
 
@@ -131,33 +172,56 @@ def covering_hemispheres1(P, option=None):
     If option is 'strict' only returns alpha for which P is strictly under S_alpha.
     Otherwise (default), returns alpha for which P is under or on S_alpha.
 
+    Method: alpha=r/s with r,s coprime and |sz-r|^2 + |s|^2t^2 <=1 (or
+    <1 or =1).  Write z=a/b with a in O_K, b in Z and u=sa-rb.  Then
+    N(u) <= b^2 (1-N(s)T^2), so (1) N(s)<=1/t^2 and (2) given s, N(u)
+    <= b^2 (1-N(s)t^2), (3) r = (sa-u)/b if integral.  We loop over s
+    and then u (up to sign), testing both signs in (3).
+
+    If 'strict', all these inequalities are strict; if 'exact', they
+    are all equality, so in particular N(s) must satisfy b^2*t2*N(s)
+    integral. (Here t2 is rational.)
+
     """
+    if debug:
+        print(f"Finding covering hemispheres for {P = } with {option = }")
     alphas = []
     z, t2 = P
     k = z.parent()
     a = z.numerator()   # in O_K
     b = z.denominator() # in Z
     sbound = (1/t2).floor()
-    for snorm in range(1,1+sbound):
+    if debug:
+        print(f"{t2 = } so bound on N(s) is {sbound}")
+    for s in elements_of_norm_upto(k, sbound):
+        snorm = s.norm()
+        if debug:
+            print(f"{s = } with norm {snorm}")
         umax = b*b*(1-snorm*t2)
-        for s in k.elements_of_norm(snorm):
-            #print("s = {}".format(s))
-            if option=='exact':
-                urange = [umax] if umax in ZZ else []
+        sa = s*a
+        if option=='exact':
+            ulist = elements_of_norm(k, umax) # will give [] if umax not integral
+        else:
+            umax = umax.floor()
+            if option=='strict':
+                ulist = elements_of_norm_upto(k, umax-1, 0)
             else:
-                urange = srange(umax.floor()+1)
-            sa = s*a
-            #print("umax={}, urange={}".format(umax,list(urange)))
-            for unorm in urange:
-                if unorm<umax or option != 'strict':
-                    for u in k.elements_of_norm(unorm):
-                        #print("  u = {}".format(u))
-                        for rb in [sa+u, sa-u] if u else [sa]:
-                            r = rb/b
-                            #print("    r = {}".format(r))
-                            if r.is_integral() and k.ideal(r,s)==1:
-                                alphas.append(cusp(r/s, k))
+                ulist = elements_of_norm_upto(k, umax, 0)
+
+        for u in ulist:
+            if debug:
+                print(f"  {u = }")
+            for rb in [sa+u, sa-u] if u else [sa]:
+                r = rb/b
+                if debug:
+                    print(f"    {r = }")
+                if r.is_integral() and k.ideal(r,s)==1:
+                    alphas.append(cusp(r/s, k))
+    if debug:
+        print(f"Covering hemispheres are S_alpha for alpha = {alphas}")
     return alphas
+
+# The following function does the same as the preceding one but is slower for option 'exact'.
 
 def covering_hemispheres2(P, option=None, debug=False):
     """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
@@ -174,33 +238,31 @@ def covering_hemispheres2(P, option=None, debug=False):
     a = z.numerator()   # in O_K
     sbound = (1/t2).floor()
     if debug:
-        print("t2={} so bound on N(s) = {}".format(t2, sbound))
-    for snorm in srange(1,1+sbound):
-        for s in k.elements_of_norm(snorm):
-            sz = s*z
-            d1 = 1/snorm - t2
-            assert d1>=0
-            if debug:
-                print("s = {}, norm {}: d1 = {}".format(s, snorm, d1))
-            rbound = ((RR(sz.norm()).sqrt()+1)**2).floor()
-            if debug:
-                print("Bound on N(r) = {}".format(rbound))
-            for rnorm in srange(1+rbound):
-                for r in k.elements_of_norm(rnorm):
-                    if k.ideal(r,s)!=1:
-                        continue
-                    for pm in [-1,1] if r else [1]:
-                        a = pm*r/s
-                        d = d1 - (a-z).norm()
-                        if debug and d>=0:
-                            print("a = {}, d = {}".format(a, d))
-                        # we need d==0 for exact, d>0 for strict, else d>=0
-                        ok = (d>0) if option=='strict' else (d==0) if option=='exact' else (d>=0)
-                        if ok:
-                            a = cusp(a,k)
-                            if debug:
-                                print(" OK {}".format(a))
-                            alphas.append(a)
+        print(f"{t2 = } so bound on N(s) is {sbound}")
+    for s in elements_of_norm_upto(k, sbound):
+        snorm = s.norm()
+        sz = s*z
+        d1 = 1/snorm - t2
+        assert d1>=0
+        rbound = ((RR(sz.norm()).sqrt()+1)**2).floor()
+        if debug:
+            print(f"{s = }, {snorm = }: {d1 = }, bound on N(r) is {rbound}")
+        for r in elements_of_norm_upto(k, rbound):
+            rnorm = r.norm()
+            if snorm.gcd(rnorm)>1 and k.ideal(r,s)!=1:
+                continue
+            for pm in [-1,1] if r else [1]:
+                a = pm*r/s
+                d = d1 - (a-z).norm()
+                if debug and d>=0:
+                    print(f"{a = }, {d = }")
+                # we need d==0 for exact, d>0 for strict, else d>=0
+                ok = (d>0) if option=='strict' else (d==0) if option=='exact' else (d>=0)
+                if ok:
+                    a = cusp(a,k)
+                    if debug:
+                        print(f" OK {a}")
+                    alphas.append(a)
     return alphas
 
 def covering_hemispheres_test(P, option=None):
@@ -210,7 +272,7 @@ def covering_hemispheres_test(P, option=None):
         print("old and new disagree for P={}".format(P))
     return res1
 
-covering_hemispheres = covering_hemispheres2
+covering_hemispheres = covering_hemispheres1
 
 def hemispheres_through(P):
     return covering_hemispheres(P, 'exact')
@@ -518,7 +580,7 @@ def disc(c,r):
     return circle(c, r,
                   aspect_ratio=1, fill=True, rgbcolor='blue', alpha = 0.2)
 
-def plot_circles_and_points(cc, pp1, pp2=[], pp3=[], fill=False):
+def plot_circles_and_points(cc, pp1=[], pp2=[], pp3=[], fill=False):
     circles = [circ(c, r, fill) for c, r in cc]
     points1 = [point(P, rgbcolor='red', pointsize=30) for P in pp1]
     points2 = [point(P, rgbcolor='black', pointsize=30) for P in pp2]
@@ -642,18 +704,16 @@ def triple_intersections(alphas):
                     corners.append(P2)
     return corners
 
-def alpha_triples(alphas):
-    """Given a list of principal cusps
-    alpha (all reduced mod O_k)
-    return (1) a list of
-    [tsq,(a1,a2,a3),P] where each ai is
-    the translate of an alpha, P =
-    [z,tsq] is a "corner", the triple
-    intersection of the S_ai with P
-    in the fundamental rectangle and
-    tsq>0; (2) a list of the extra translates required
-
+def alpha_triples(alphas, debug=False):
     """
+    Given a list of principal cusps alpha (all reduced mod O_k) return
+    (1) a list of [tsq,(a1,a2,a3),P] where each ai is the translate of
+    an alpha, P = [z,tsq] is a "corner", the triple intersection of
+    the S_ai, with P in the fundamental rectangle and tsq>0; (2) a list
+    of the extra translates required.
+    """
+    if debug:
+        print(f"Finding triple intersection points of {len(alphas)} alphas")
     k = nf(alphas[0])
     corners = []
     triples = []
@@ -666,36 +726,47 @@ def alpha_triples(alphas):
     #xalphas = alphas + sum([[translate_cusp(a,t) for t in [-w-1,-w,1-w,-1,1,-1+w,w,1+w]] for a in alphas], [])
     xalphas = sum([translates(a) for a in alphas], [])
     n = len(xalphas)
+    if debug:
+        print(f"After adding translates number of alphas is {n}")
+
     # convert each cusp to a point
     # [a,tsq] with tsq the square
     # radius of S_a:
     Alist = [cusp_to_point(a) for a in xalphas]
 
-    # get a list of pairs {i,j} with
-    # i<j such that S_ai and S_aj
-    # intersect properly:
+    # For each i get a list of j>i for which S_ai and S_aj intersect properly
+    i2j = {}
+    n2 = 0
+    for i, ai in enumerate(Alist):
+        i2j[i] = j_list = [i+1+j for j,aj in enumerate(Alist[i+1:]) if  circles_intersect(ai, aj)]
+        n2 += len(j_list)
+    if debug:
+        print(f"{n2} ordered pairs intersect properly")
 
-    ij_list = [{i,j} for i,ai in
-               enumerate(Alist) for j,aj in
-               enumerate(Alist) if i<j and
-               circles_intersect(ai, aj)]
+    # Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
+    ijk_list = []
+    for i in range(n):
+        j_list = i2j[i]
+        ijk_list += [(i,j,k) for j in j_list for k in j_list if k in i2j[j]]
+    n3 = len(ijk_list)
+    if debug:
+        print(f"{n3} ordered triples have mutual 2-way intersections")
 
-    for i,j in ij_list:
+    for (i,j,k) in ijk_list:
         ai = xalphas[i]
         aj = xalphas[j]
-        #for k, ak in enumerate(alphas):
-        for k in range(max(i,j)+1, n):
-            if {i,k} in ij_list and {j,k} in ij_list:
-                ak = xalphas[k]
-                P = tri_inter(ai, aj, ak)
-                if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
-                    if P not in corners:
-                        trip = [P[1],(ai,aj,ak),P]
-                        triples.append(trip)
-                        corners.append(P)
-                        for a in trip[1]:
-                            if a not in alpha_translates and a not in alphas:
-                                alpha_translates.append(a)
+        ak = xalphas[k]
+        P = tri_inter(ai, aj, ak)
+        if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
+            if P not in corners:
+                if debug:
+                    print(f"triple ({i},{j},{k}) gives corner {P}")
+                trip = [P[1],(ai,aj,ak),P]
+                triples.append(trip)
+                corners.append(P)
+                for a in trip[1]:
+                    if a not in alpha_translates and a not in alphas:
+                        alpha_translates.append(a)
     triples.sort(key = lambda t:t[0])
     return triples, alpha_translates
 
@@ -744,58 +815,88 @@ def sigma_triples(alphas, sigmas):
 
     return triples
 
-def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
+def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=True):
     if debug:
-        print("Constructing orbit polyhedron {}".format(orb))
+        print(f"\nConstructing orbit polyhedron from {orb=}")
     i = orb[0]
     P = Plist[i]
     if debug:
-        print("Base point P = {}".format(P))
+        print(f"Base point {P = }")
     E = []
     for j in orb:
         Q = Plist[j]
         QV  = Pverts[j]
         if debug:
-            print(" Q = {} with vertices {} and matrices {}".format(Q, QV, Pmats[j]))
-            print(" which map Q to {}".format([apply3d(M,Q) for M in Pmats[j]]))
+            print(f" {Q = } with vertices {QV} and {len(Pmats[j])} matrices ")
+            print(f" which map Q to {[apply3d(M,Q) for M in Pmats[j]]}")
+        # matrices which map Q to P:
         MQP = [M for M in Pmats[j] if apply3d(M,Q)==P]
-        V = [[apply(M, a) for a in QV] for M in MQP]
         if debug:
-            print(" {} transfer matrices map these to {}".format(len(MQP), V))
-            print(" adding edges {}".format([[[t[0],t[i]] for i in range(1,len(QV))] for t in V]))
-        E += sum([[[t[0],t[i]] for i in range(1,len(QV))] for t in V], [])
-    G = Graph([[cusp_label(a),cusp_label(b)] for a,b in E])
+            print(f" of which {len(MQP)} map Q to P")
+        # images of Q's vertices under these:
+        V = [[apply(M, a) for a in QV] for M in MQP]
+        edges = sum([[[str(t[0]), str(t[i])] for i in range(1,len(QV))] for t in V], [])
+        if debug:
+            print(f" and map Q's vertices to {V}")
+            print(f" -- so adding {len(edges)} edges: {edges}")
+        E += edges
+    # check edge relation is symmetric:
+    if not all(list(reversed(e)) in E for e in E):
+        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(f"some edges not symmetric: {[e for e in E if list(reversed(e)) not in E]}")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+    G = Graph(E)
     Ptype = poly_type(G)
     if Ptype == 'unknown':
-        print("unrecognised polyhedron with faces {}".format(G.faces()))
+        print(f"unrecognised polyhedron from {orb=} with face sizes {[len(F) for F in G.faces()]} and {G.faces() = }")
+        print(f"Base point {P = } with vertices {Pverts[0]}")
         show(G)
     else:
         if debug:
-            print("Constructed a {}".format(Ptype))
+            print(f"Constructed a {Ptype}")
     return G
 
 def principal_polyhedra(alphas, debug=False):
-    print("Constructing principal polyhedra")
+    print("\nConstructing principal polyhedra")
     k = nf(alphas[0])
     triplets, extra_alphas = alpha_triples(alphas)
     # only used for the 3d plot:
     hemispheres = [cusp_to_point(a) for a in alphas+extra_alphas]
 
     if debug:
-        print("{} triplets:".format(len(triplets)))
+        print(f"{len(triplets)} triplets:")
         for t in triplets:
             print(t)
 
     Plist = [t[2] for t in triplets]
     if debug:
-        print("Plist: {}".format(Plist))
+        print(f"{Plist = }")
+        print(f" - now finding Psupps: hemispheres through each P...")
+
     Psupps = [hemispheres_through(P) for P in Plist]
     if debug:
-        print("Psupps: {}".format(Psupps))
-    Pmats = [[Imat] + [infinity_matrix(a, P, Plist) for a in Psupp] for P, Psupp in zip(Plist, Psupps)]
+        print(f"Hemispheres through each P: {Psupps}")
+        print(f" - now finding matrices for each P...")
+
+    # For each a with S_a through P find an inversion matrix M_a which
+    # maps P to another Q in Plist:
+    Pmats = [[Imat] +
+             [infinity_matrix(a, P, Plist) for a in Psupp]
+             for P, Psupp in zip(Plist, Psupps)]
+
+    # Each corner P defines a subset of a polyhedron with vertices oo
+    # and those translated alphas a which are in P's support, i.e. for
+    # which S_a pass through P:
     if debug:
-        print("Pmats: {}".format(Pmats))
-    Pverts = [[cusp(oo,k)] + [a for a in alphas+extra_alphas if a in Psupp] for P,Psupp in zip(Plist,Psupps)]
+        print(f" - now finding vertex set for each P...")
+    Pverts = [[cusp(oo,k)] +
+              [v for v in Psupp if alpha_index_with_translation(v, alphas)[0] >=0]
+              for P,Psupp in zip(Plist, Psupps)]
+    if debug:
+        print(f"{Pverts = }")
+        print(f" - now finding the orbits...")
+
+    # partition the P into orbits:
     orbits = set()
     used_Pi = Set()
     for i,P in enumerate(Plist):
@@ -804,78 +905,77 @@ def principal_polyhedra(alphas, debug=False):
         Qlist = [apply3d(M,P) for M in Pmats[i]]
         orb = Set([Plist.index(Q) for Q in Qlist])
         if debug:
-            print("New orbit from P_{}={}: {}".format(i,P,orb))
+            print(f" + new orbit from P_{i}={P}: {orb}")
         used_Pi = used_Pi.union(orb)
         orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
-    print("Found {} orbits".format(len(orbits)))
-    print("Orbits:")
-    for orb in orbits:
-        print(orb)
+    print(f"Found {len(orbits)} orbits")
+    if debug:
+        print(f"{orbits = }")
+        print(f" - now finding the polyhedron from each orbit...")
+
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats) for orb in orbits]
-    print("Constructed {} polyhedra".format(len(polyhedra)))
-    print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
+    npoly = len(polyhedra)
+    poly = "polyhedra" if npoly>1 else "polyhedron"
+    print(f"Constructed {npoly} {poly} with face sizes {[[len(F) for F in G.faces()] for G in polyhedra]}")
     return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
-    print("Constructing polyhedra from one ideal class, sigmas {}".format(sigmas))
+    print("\nConstructing polyhedra from one ideal class, sigmas {}".format(sigmas))
     k = nf(alphas[0])
-    triples = sigma_triples(alphas, sigmas)
+    triplets = sigma_triples(alphas, sigmas)
 
     if debug:
-        print("{} triples from sigmas {}:".format(len(triples), sigmas))
-        for t in triples:
+        print("{} triplets from sigmas {}:".format(len(triplets), sigmas))
+        for t in triplets:
             print(t)
 
-    Rlist = []
-    Rsupps = []
-    for t in triples:
-        R = t[1]
-        if R in Rlist:
-            continue
-        Rlist.append(R)
-        Rsupps.append(hemispheres_through(R))
+    # we cannot just do Rlist = [t[1] for t in triplets] since there are repeats
+    Rlist = list(k for k,_ in groupby(sorted([t[1] for t in triplets])))
+    if debug:
+        print(f"{Rlist = }")
+
+    Rsupps = [hemispheres_through(R) for R in Rlist]
+    if debug:
+        print(f"Hemispheres through each R: {Rsupps}")
+        print(f" - now finding matrices for each R...")
+
+    Rmats = [[Imat] +
+             [infinity_matrix(a, R, Rlist) for a in Rsupp]
+             for R, Rsupp in zip(Rlist, Rsupps)]
 
     if debug:
-        print("Rlist: {}".format(Rlist))
-        print("Rsupps: {}".format(Rsupps))
-
-    Rmats = []
-    Rverts = []
-    for R,Rsupp in zip(Rlist, Rsupps):
-        Rmats.append([Imat] + [infinity_matrix(a, R, Rlist) for a in Rsupp])
-        verts = [cusp(oo,k)]
-        for t in triples:
-            if t[1]==R:
-                for v in t[0]:
-                    if v not in verts:
-                        verts.append(v)
-        Rverts.append(verts)
-
+        print(f" - now finding vertex set for each P...")
+    Rverts = [[cusp(oo,k)] +
+              [v for v in Rsupp if alpha_index_with_translation(v, alphas)[0] >=0
+                                or sigma_index_with_translation(v, sigmas)[0] >=0]
+              for R,Rsupp in zip(Rlist, Rsupps)]
     if debug:
-        for R, mats, verts in zip(Rlist, Rmats, Rverts):
-            print("R = {}\nmats: {}\nverts: {}".format(R, mats, verts))
+        print(f"{Rverts = }")
+        print(f" - now finding the orbits...")
 
+    # partition the R into orbits:
     orbits = set()
     used_Ri = Set()
     for i,R in enumerate(Rlist):
         if i in used_Ri:
             continue
-        print("i={}, R={}, {} Rmats".format(i,R, len(Rmats[i])))
         Qlist = [apply3d(M,R) for M in Rmats[i]]
-        print("Qlist = {}".format(Qlist))
-        print("Qlist indices: {}".format([Rlist.index(Q) for Q in Qlist]))
         orb = Set([Rlist.index(Q) for Q in Qlist])
         if debug:
-            print("New orbit from R_{}={}: {}".format(i,R,orb))
+            print(f" + new orbit from R_{i}={R}: {orb}")
         used_Ri = used_Ri.union(orb)
         orbits.add(orb)
-    orbit_reps = [list(orb) for orb in orbits]
-    print("Found {} orbits with representative points {}:".format(len(orbits), orbit_reps))
-    polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbit_reps]
-    print("Constructed {} polyhedra".format(len(polyhedra)))
-    print("Faces: {}".format([[len(F) for F in G.faces()] for G in polyhedra]))
-    #faces = sum([G.faces() for G in polyhedra],[])
+    orbits = [list(orb) for orb in orbits]
+    print(f"Found {len(orbits)} orbits")
+    if debug:
+        print(f"{orbits = }")
+        print(f" - now finding the polyhedron from each orbit...")
+
+    polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbits]
+    npoly = len(polyhedra)
+    poly = "polyhedra" if npoly>1 else "polyhedron"
+    print(f"Constructed {npoly} {poly} with face sizes {[[len(F) for F in G.faces()] for G in polyhedra]}")
     return polyhedra
 
 def all_polyhedra(k, alphas=None, debug=False):
@@ -1307,20 +1407,6 @@ def are_alphas_surrounded(alist_ok, alist_open, slist, pairs_ok=[],
             new_alist_open.append(a)
     return all_ok, new_alist_ok, new_alist_open, pairs_ok
 
-def next_norm(k, n):
-    """
-    Returns the smallest integer m>=n which is a norm from O_k
-    """
-    while not k.elements_of_norm(n):
-        n+=1
-    return n
-
-def elements_of_norm(k, n):
-    return iter(k.elements_of_norm(n))
-
-def elements_of_norm_upto(k, n, start=1):
-    return chain(*(iter(k.elements_of_norm(n)) for n in range(start, n+1)))
-
 def reduced_numerators(s):
     k = s.parent()
     one = ZZ(1)
@@ -1340,7 +1426,7 @@ def principal_cusps_of_norm(k, norm_s):
     """
     Return iterator yielding all principal r/s with N(s)=maxnorm_s
     """
-    for s in k.elements_of_norm(norm_s):
+    for s in elements_of_norm(k, norm_s):
         for r in reduced_numerators(s):
             yield cusp(reduce_mod_Ok(r/s), k)
 
@@ -1393,10 +1479,17 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
     alphas_open = []
     pairs_ok = []
     Alist = []
+    first = False
     while not ok:
-        maxn = next_norm(k, maxn+1)
         nc = 0 # number of new alphas added to list
-        for a in principal_cusps_of_norm(k, maxn):
+        if first:
+            maxn = -k.discriminant()//4
+            new_cusps = principal_cusps_up_to(k, maxn)
+            first = False
+        else:
+            maxn = next_norm(k, maxn+1)
+            new_cusps = principal_cusps_of_norm(k, maxn)
+        for a in new_cusps: #principal_cusps_of_norm(k, maxn):
             A = cusp_to_point(a)
             if not any(circle_inside_circle(A, B, False) for B in Alist):
                 if cusp_in_quarter_rectangle(a):
@@ -1406,7 +1499,8 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                     alphas_ok.append(a)
                 Alist.append(A)
         if verbose:
-            print("Adding {} alphas of norm {} (plus symmetrics)".format(nc, maxn))
+            s = "up to " if first else ""
+            print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics)")
         if nc==0:
             continue
         ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=False)
@@ -1537,6 +1631,8 @@ def cong_mod(r1, r2, s):
 
 def denom_2_alphas(k):
     d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    if d in [1, 2, 3, 7, 11]:
+        return []
     w = k.gen()
     d8 = d%8
     alist = []
@@ -1550,6 +1646,8 @@ def denom_2_alphas(k):
 
 def denom_2_sigmas(k):
     d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    if d in [1, 2, 3, 7, 11, 19, 43, 67, 163]:
+        return []
     w = k.gen()
     d8 = d%8
     slist = []
@@ -1587,6 +1685,8 @@ def denom_3_alphas(k):
 
 def denom_3_sigmas(k):
     d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    if d in [1, 2, 3, 7, 11, 19, 43, 67, 163, 5]:
+        return []
     w = k.gen()
     d12 = d%12
     slist = []
@@ -1802,15 +1902,15 @@ def find_edge_pairs(alphas, sigmas, debug=False):
                 S.append(neg_s)
                 S.append(s)
 
-    print("alphas with denominator | 2: {}".format(A2))
-    print("alphas with denominator | 3: {}".format(A3))
-    print("plus pairs: {}".format(pluspairs))
-    print("minus pairs: {}".format(minuspairs))
-    print("fours: {}".format(fours))
+    print(f"alphas with denominator | 2: {A2}")
+    print(f"alphas with denominator | 3: {A3}")
+    print(f"plus pairs: {pluspairs}")
+    print(f"minus pairs: {minuspairs}")
+    print(f"fours: {fours}")
 
-    print("sigmas with denominator 2: {}".format(S2))
-    print("sigmas with denominator 3: {}".format(S3))
-    print("other (finite) sigmas (up to sign): {}".format(S_mod_neg))
+    print(f"sigmas with denominator 2: {S2}")
+    print(f"sigmas with denominator 3: {S3}")
+    print(f"other (finite) sigmas (up to sign): {S_mod_neg}")
     new_sigmas = [cusp(oo,k)] + S2 + S3 + S
 
     # # for pasting into C++:
@@ -1825,27 +1925,27 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     print("//////////////////////////////")
     print("// for copying into geodat.dat")
     print("0")
-    print("0 d={}".format(d))
+    print("0 {d=}")
     print("0")
     for r,s in pluspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = -r
-        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
+        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
     for r,s in minuspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = r
-        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
+        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
     for s, r1, r2 in long_fours:
         sr, si = s
         r1r, r1i = r1
         r2r, r2i = r2
-        print("{} A {} {} {} {} {} {}".format(d, sr,si, r1r,r1i, r2r,r2i))
+        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
     for s in S_mod_neg:
         sr, si = s.denominator()
         rr, ri = s.numerator()
-        print("{} S {} {} {} {}".format(d, rr,ri, sr,si))
+        print(f"{d} S {rr} {ri} {sr} {si}")
     print("//////////////////////////////")
     return A123, new_alphas, new_sigmas
 
@@ -1875,7 +1975,7 @@ def alpha_sigma_data(d, verbose=False):
     print(sigma_string)
     return alphas2, new_sigmas
 
-def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
+def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
                        make_poly_from_edges,
                        poly_equiv, tri0, tri1, tri2, cycle_poly, std_poly,
@@ -1904,7 +2004,7 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
     else:
         if verbose:
             print("computing alphas from scratch")
-        alphas, sigmas = alpha_sigma_data(d, verbose)
+        alphas, sigmas = alpha_sigma_data(d, verbose>1)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
     print("{} alphas".format(len(alphas)))
@@ -1915,8 +2015,10 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
         show(plot_FunDomain_projection(k, alphas, sigmas))
 
 
-    polys, hemis = all_polyhedra(k, alphas, verbose)
-    print("{} polyhedra constructed".format(len(polys)))
+    polys, hemis = all_polyhedra(k, alphas, verbose>1)
+    npoly = len(polys)
+    poly = "polyhedra" if npoly>1 else "polyhedron"
+    print(f"{npoly} {poly} constructed")
     if plot3D:
         print("plotting fundamental domain")
         from sage.misc.viewer import viewer
@@ -1924,8 +2026,10 @@ def tessellation(d, verbose=False, plot2D=False, plot3D=False, browser="/usr/bin
         show(plot_Bianchi_diagram(k,hemis))
 
     pt = poly_types(polys)
-    if pt['unknown']:
-        print("{} polyhedra have unknown type!".format(pt['unknown']))
+    nunk = pt['unknown']
+    if nunk:
+        poly = "polyhedra have" if nunk>1 else "polyhedron has"
+        print(f"{nunk} {poly} unknown type!")
         for G in polys:
             if poly_type(G) == 'unknown':
                 show(G)
