@@ -36,7 +36,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 Cuspidal dimension = 1
- denominator = 2
 Computing W(P2a)*T(A,A) for A=[5,1+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1

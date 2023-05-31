@@ -270,11 +270,10 @@ void alphas_sigmas_denom_3()
     }
   case 7:
     {
+      if (d>31)
+        add_alpha_orbit(three, w, Quad::one-w); // 4-some
       if (d>19) // e.g. 43, 67, 163
-        {
-          add_alpha_orbit(three, w, Quad::one-w); // 4-some
-          add_alpha_orbit(three, Quad::one+w, Quad::one+w); // + pair
-        }
+        add_alpha_orbit(three, Quad::one+w, Quad::one+w); // + pair
       // no sigmas (3 inert)
       break;
     }

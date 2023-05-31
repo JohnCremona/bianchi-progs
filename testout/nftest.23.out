@@ -23,7 +23,7 @@ Integration matrix = [-1+2a,1;-14+3a,1+a], factor   = 18
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ -1 1 0 -1 2 2 0 6 -2 2 8 8 -6 6 0 0 -2 -4 4 8 -8 -6 -6 -6 6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 48
-L/P ratio    = 1, cuspidal factor = 4
+L/P ratio    = 1, cuspidal factor = 2
 Integration matrix = [-1-a,1;-9,2-a], factor   = 2
 
 >>>> Level 32.3 = (8,4a), norm = 32 <<<<
