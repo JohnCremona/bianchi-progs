@@ -47,7 +47,7 @@ def posdet(M):
 def kgcd(a,b, k=None):
     if k is None:
         k = nf(a)
-    I = k.ideal(a,b)
+    I = k.fractional_ideal(a,b)
     return posgen(I) if I.is_principal() else k(1)
 
 def frac(x):
