@@ -73,6 +73,14 @@ void Quad::setup_geometry()
   alphas_sigmas_denom_3();
 
   int debug = 0;
+  if (debug)
+    {
+      cout << "alphas and sigmas with denominators 1,2,3:" << endl;
+      cout << "alphas:\n";
+      for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
+      cout << "sigmas:\n";
+      for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
+    }
   read_data(debug); // read remaining alphas and sigmas and all faces from geodat.dat
   if (debug)
     {
@@ -282,13 +290,9 @@ void alphas_sigmas_denom_3()
     }
   case 11:
     {
-      add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // - pair
-      if (0) //(d==35)
-        {
-          add_sigma_orbit(w,three);
-        }
       if (d>=35)
         {
+          add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // - pair
           add_sigma_orbit(w,three);
           add_sigma_orbit(w-Quad::one,three);
         }
