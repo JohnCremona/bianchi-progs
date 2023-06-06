@@ -620,8 +620,8 @@ def plot_circles(alist, fill=False, lines=False):
     if lines:
         from itertools import combinations
         ll1 = list(combinations(A,2))
-        #ll2 = [[list(z) for z in intersection_points_in_CC(*pq)] for pq in combinations(alist,2)]
-        ll = ll1
+        ll2 = [[list(z) for z in intersection_points_in_CC(*pq)] for pq in combinations(alist,2)]
+        ll = ll2
     else:
         ll = []
     return plot_circles_and_points(circles, lines=ll, fill=fill)
@@ -774,7 +774,7 @@ def alpha_triples(alphas, debug=False):
         n2 += len(j_list)
     if debug:
         print(f"{n2} ordered pairs intersect properly")
-        print(f"{i2j}")
+        #print(f"{i2j}")
 
     # Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
     ijk_list = []
@@ -784,7 +784,7 @@ def alpha_triples(alphas, debug=False):
     n3 = len(ijk_list)
     if debug:
         print(f"{n3} ordered triples have mutual 2-way intersections")
-        print(f"{ijk_list}")
+        #print(f"{ijk_list}")
 
     for (i,j,k) in ijk_list:
         ai = xalphas[i]
@@ -858,23 +858,25 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
     i = orb[0]
     P = Plist[i]
     if debug:
-        print(f"Base point {P = }")
+        print(f"Base point P{i} = {P}")
     E = []
     for j in orb:
         Q = Plist[j]
         QV  = Pverts[j]
         if debug:
-            print(f" {Q = } with vertices {QV} and {len(Pmats[j])} matrices ")
-            print(f" which map Q to {[apply3d(M,Q) for M in Pmats[j]]}")
+            print(f"\n P{j}={Q} with {len(QV)} vertices {QV} and {len(Pmats[j])} matrices ")
+            print(f" which map P{j} to {[apply3d(M,Q) for M in Pmats[j]]}")
         # matrices which map Q to P:
         MQP = [M for M in Pmats[j] if apply3d(M,Q)==P]
         if debug:
-            print(f" of which {len(MQP)} map Q to P: {MQP}")
+            print(f" of which {len(MQP)} map P{j} to P{i}")
         # images of Q's vertices under these:
         V = [[apply(M, a) for a in QV] for M in MQP]
         edges = sum([[[str(t[0]), str(t[i])] for i in range(1,len(QV))] for t in V], [])
         if debug:
-            print(f" and map Q's vertices to {V}")
+            print(f" and map P{j}'s vertices to")
+            for v in V:
+                print(v)
             print(f" -- so adding {len(edges)} edges: {edges}")
         E += edges
     # check edge relation is symmetric:
@@ -885,8 +887,19 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
     G = Graph(E)
     Ptype = poly_type(G)
     if Ptype == 'unknown':
-        print(f"unrecognised polyhedron from {orb=} with face sizes {[len(F) for F in G.faces()]} and {G.faces() = }")
-        print(f"Base point {P = } with vertices {Pverts[0]}")
+        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(f"unrecognised polyhedron from {orb=}")
+        print(f" - base point {P} with vertices {Pverts[i]}")
+        verts = G.vertices(sort=False)
+        print(f" - {len(verts)} vertices: {verts}")
+        print(f" - {len(E)} edges: {E}")
+        try:
+            faces = G.faces()
+            print(f" - faces {faces}")
+            print(f" - face sizes {[len(F) for F in faces]}")
+        except ValueError:
+            print(" - graph is not planar")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
         show(G)
     else:
         if debug:
@@ -930,7 +943,7 @@ def principal_polyhedra(alphas, debug=False):
     if debug:
         print(f" - now finding vertex set for each P...")
     Pverts = [[cusp(oo,k)] +
-              [v for v in Psupp if alpha_index_with_translation(v, alphas)[0] >=0 and to_k(v)!=P[0]]
+              [v for v in Psupp if alpha_index_with_translation(v, alphas)[0] >=0]
               for P,Psupp in zip(Plist, Psupps)]
     if debug:
         print(f"{Pverts = }")
@@ -959,7 +972,13 @@ def principal_polyhedra(alphas, debug=False):
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats, debug=debug) for orb in orbits]
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly} with face sizes {[[len(F) for F in G.faces()] for G in polyhedra]}")
+    print(f"Constructed {npoly} {poly} with face sizes")
+    for G in polyhedra:
+        try:
+            faces = G.faces()
+            print(f"  {[len(F) for F in faces]}")
+        except ValueError:
+            print("   (not planar)")
     return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
@@ -1017,7 +1036,13 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbits]
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly} with face sizes {[[len(F) for F in G.faces()] for G in polyhedra]}")
+    print(f"Constructed {npoly} {poly} with face sizes")
+    for G in polyhedra:
+        try:
+            faces = G.faces()
+            print(f"  {[len(F) for F in faces]}")
+        except ValueError:
+            print("   (not planar)")
     return polyhedra
 
 def all_polyhedra(k, alphas=None, debug=False):
@@ -1429,6 +1454,9 @@ def are_alphas_surrounded(alist_ok, alist_open, slist, pairs_ok=[],
     new_alist_open = []
     all_ok = True
     for i, a in enumerate(alist_open):
+        if not all_ok: # then return False so don't check remaining alphas
+            new_alist_open.append(a)
+            continue
         if cusp_in_quarter_rectangle(a):
             if verbose or debug:
                 print("Testing alpha #{}/{} = {}".format(i+1, len(alist_open), a))
@@ -1587,21 +1615,21 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
         m = next_norm(k, n+1)
         all_points = triple_intersections(alphas1)
         if debug:
-            print("Found {} potential vertices".format(len(all_points)))
+            print(f"Found {len(all_points)} potential vertices")
         points = [P for P in all_points if P[1]<=1/m]
         if debug:
-            print(" -- of which {} are low enough to be properly covered by a new alpha".format(len(points)))
+            print(f" -- of which {len(all_points)} are low enough to be properly covered by a new alpha")
         points = [P for P in points if in_quarter_rectangle(P[0])]
         if debug:
-            print(" -- of which {} lie in the first quadrant".format(len(points)))
+            print(f" -- of which {len(points)} lie in the first quadrant")
         points = [P for P in points if P not in checked_points]
         if debug:
-            print(" -- of which {} have not already been checked".format(len(points)))
+            print(f" -- of which {len(points)} have not already been checked")
         sat = True        # will be set to False if we find out that the alphas are not already saturated
         extra_alphas = [] # will be filled with any extra alphas needed
         for P in points:
             if debug:
-                print(" - checking P = {}".format(P))
+                print(f" - checking {P = }")
             extras = properly_covering_hemispheres(P)
             if extras:
                 sat = False
@@ -1610,8 +1638,8 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
                 extras0 = [a for a,h in zip(extras, hts) if h==m]
                 norms0 = [a.denominator().norm() for a in extras0]
                 if debug:
-                    print("   - found properly covering {} with norms {}".format(extras, [a.denominator().norm() for a in extras]))
-                    print("     max height above P (height {}) is {}, for {} with norms {}".format(P[1], m, extras0, norms0))
+                    print(f"   - found properly covering {extras} with norms {[a.denominator().norm() for a in extras]}")
+                    print(f"     max height above P (height {P[1]}) is {m}, for {extras0} with norms {norms0}")
                 for a in extras0:
                     ca = conj_cusp(a)
                     for b in [a, negate_cusp(a), ca, negate_cusp(ca)]:
@@ -1624,15 +1652,15 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
         if verbose:
             if sat:
                 m = max([a.denominator().norm() for a in alphas1])
-                print(" alphas are saturated! {} alphas with max norm {}".format(len(alphas1), m))
+                print(f" alphas are saturated! {len(alphas1)} alphas with max norm {m}")
             else:
                 m = max([a.denominator().norm() for a in extra_alphas])
-                print(" alphas not saturated, {} extras needed: {} (norms at most {})".format(len(extra_alphas), extra_alphas, m))
+                print(f" alphas not saturated, {len(extra_alphas)} extras needed: {extra_alphas} (with norms at most {m})")
         alphas1 += extra_alphas
 
     m = max([a.denominator().norm() for a in alphas1])
     if verbose:
-        print("After saturation we now have {} alphas with max norm {}".format(len(alphas1), m))
+        print(f"After saturation we now have {len(alphas1)} alphas with max norm {m}")
 
     # Now delete any alphas with <3 vertices, allowing for translates
     pointsx = []
@@ -1642,11 +1670,11 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
                 pointsx.append(Q)
     nv = [nverts(a, pointsx) for a in alphas1]
     if verbose:
-        print("# vertices for these alphas: {}".format(nv))
-    alphas1 = [a for a in alphas1 if nverts(a, pointsx)>=3]
+        print(f"# vertices for these alphas: {nv}")
+    alphas1 = [a for a,n in zip(alphas1,nv) if n>=3]
     m = max([a.denominator().norm() for a in alphas1])
     if verbose:
-        print("After removing alphas which go through <3 vertices, we now have {} alphas with max norm {}".format(len(alphas1), m))
+        print(f"After removing alphas which go through <3 vertices, we now have {len(alphas1)} alphas with max norm {m}")
     points1 = triple_intersections(alphas1)
     return alphas1, points1
 
@@ -1713,7 +1741,7 @@ def denom_3_alphas(k):
     if d12==3:
         alist = [w, w-1]
     if d12==7:
-        alist = [w, 1-w, 1+w]
+        alist = [w, 1-w, 1+w] if d>31 else [1+w]
     if d12==11:
         alist = [1+w]
     if d12 in [1,10]:
@@ -1996,24 +2024,25 @@ def find_edge_pairs(alphas, sigmas, debug=False):
 #
 def alpha_sigma_data(d, verbose=False):
     k = make_k(d)['k']
-    print("k = {}, class number {}".format(k,k.class_number()))
+    print(f"{k = }, class number {k.class_number()}")
     sigmas = singular_points(k)
-    print("{} singular points: {}".format(len(sigmas), sigmas))
+    print(f"{len(sigmas)} singular points: {sigmas}")
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
-    print("{} covering alphas, max denom norm {}: {}".format(len(alphas0), maxn, alphas0))
+    print(f"{len(alphas0)} covering alphas, max denom norm {maxn}: {alphas0}")
     alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, debug=verbose, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
-    print("{} fundamental domain alphas, max denom norm {}: {}".format(len(alphas1), maxn, alphas1))
-    print("{} fundamental vertices, min square height = {}".format(len(points), min(P[1] for P in points)))
+    print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}: {alphas1}")
+    print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
     data = find_edge_pairs(alphas1, sigmas)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
     # for adding to precomputed alphas in alphas.py:
-    alpha_string = "alphalist[{}] = [".format(d) + ", ".join(["({})/({})".format(a.numerator(), a.denominator()) for a in alphas2]) + "]\n"
+    alpha_string = "alphalist[{}] = [".format(d) + ", ".join([f"({a.numerator()})/({a.denominator()})" for a in alphas2]) + "]\n"
     alpha_string = alpha_string.replace(" ", "").replace('w','t').replace(",(",", (").replace("="," = ")
+    alpha_string = alpha_string.replace("(0)/(1)", "0")
     print(alpha_string)
-    sigma_string = "sigmas: [" + ", ".join(["({})/({})".format(s.numerator(), s.denominator()) for s in new_sigmas]) + "]\n"
+    sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
     print(sigma_string)
     return alphas2, new_sigmas
 
@@ -2079,9 +2108,12 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         if num:
             print("{}: {}".format(pol,num))
 
-    triangles = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==3] for G in polys],[])]
-    squares = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==4] for G in polys],[])]
-    hexagons = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==6] for G in polys],[])]
+    try:
+        triangles = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==3] for G in polys],[])]
+        squares = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==4] for G in polys],[])]
+        hexagons = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==6] for G in polys],[])]
+    except ValueError:
+        return
     aaa_triangles = [T for T in triangles if is_poly_principal(T)]
     aas_triangles = [T for T in triangles if not is_poly_principal(T)]
 
