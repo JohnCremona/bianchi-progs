@@ -163,9 +163,9 @@ def is_inside(a, b, strict=False):
     else:
         return d2 <= r2
 
-def covering_hemispheres1(P, option=None, debug=False):
-    """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
-    on or under S_alpha.
+def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
+    """For P=[z,t2] in H_3, returns a list of principal cusps alpha=r/s
+    such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
 
     If option is 'exact' only returns alpha for which P is on S_alpha
     exactly, i.e. is_under(P,alpha)==0.
@@ -197,7 +197,7 @@ def covering_hemispheres1(P, option=None, debug=False):
     sbound = (1/t2).floor()
     if debug:
         print(f"{t2 = } so bound on N(s) is {sbound}")
-    for s in elements_of_norm_upto(k, sbound):
+    for s in elements_of_norm_upto(k, sbound, norm_s_lb):
         snorm = s.norm()
         if debug:
             print(f"{s = } with norm {snorm}")
@@ -208,6 +208,8 @@ def covering_hemispheres1(P, option=None, debug=False):
         else:
             umax = umax.floor()
             if option=='strict':
+                if debug:
+                    print(f"{umax = }")
                 ulist = elements_of_norm_upto(k, umax-1, 0)
             else:
                 ulist = elements_of_norm_upto(k, umax, 0)
@@ -232,9 +234,9 @@ def covering_hemispheres1(P, option=None, debug=False):
 
 # The following function does the same as the preceding one but is slower for option 'exact'.
 
-def covering_hemispheres2(P, option=None, debug=False):
-    """For P=[z,t2] in H_3, returns a list of cusps alpha such that P lies
-    on or under S_alpha.
+def covering_hemispheres2(P, option=None, norm_s_lb=1, debug=False):
+    """For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
+    such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
 
     If option is 'exact' only returns alpha for which P is on S_alpha exactly.
     If option is 'strict' only returns alpha for which P is strictly under S_alpha.
@@ -248,7 +250,7 @@ def covering_hemispheres2(P, option=None, debug=False):
     sbound = (1/t2).floor()
     if debug:
         print(f"{t2 = } so bound on N(s) is {sbound}")
-    for s in elements_of_norm_upto(k, sbound):
+    for s in elements_of_norm_upto(k, sbound, norm_s_lb):
         snorm = s.norm()
         sz = s*z
         d1 = 1/snorm - t2
@@ -278,18 +280,18 @@ def covering_hemispheres2(P, option=None, debug=False):
     assert all(is_under(P,a) in covering_codes for a in alphas)
     return alphas
 
-def covering_hemispheres_test(P, option=None):
-    res1 = covering_hemispheres1(P, option)
-    res2 = covering_hemispheres2(P, option)
+def covering_hemispheres_test(P, option=None, norm_s_lb=1):
+    res1 = covering_hemispheres1(P, option, norm_s_lb)
+    res2 = covering_hemispheres2(P, option, norm_s_lb)
     if sorted(res1) != sorted(res2):
         print("old and new disagree for P={}".format(P))
     return res1
 
-def covering_hemispheres(P, option, debug=False):
-    L1 = sorted(covering_hemispheres1(P,option))
+def covering_hemispheres(P, option, norm_s_lb=1, debug=False):
+    L1 = sorted(covering_hemispheres1(P,option, norm_s_lb))
     if not debug:
         return L1
-    L2 = sorted(covering_hemispheres2(P,option))
+    L2 = sorted(covering_hemispheres2(P,option, norm_s_lb))
     if L1!=L2:
         print(f"Inconsistent results for covering_hemispheres({P},{option})!")
         print(f"Method 1 gives {L1}")
@@ -298,10 +300,10 @@ def covering_hemispheres(P, option, debug=False):
     return L2
 
 def hemispheres_through(P):
-    return covering_hemispheres(P, 'exact')
+    return covering_hemispheres1(P, 'exact')
 
-def properly_covering_hemispheres(P):
-    return covering_hemispheres(P, 'strict')
+def properly_covering_hemispheres(P, norm_s_lb=1):
+    return covering_hemispheres2(P, 'strict', norm_s_lb)
 
 def is_maximal(P):
     return len(properly_covering_hemispheres(P))==0
@@ -582,7 +584,7 @@ def plot1hemi(kdata, H):
     Xmax = 0.5
     x0, y0 = kdata['emb'](H[0])
     eq = (X - x0)**2 + (Y - y0)**2 + Z**2 - H[1]
-    return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1, color='lightgreen')
+    return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1, color='lightgreen', name=str(kdata['k'].discriminant()))
 
 def plot_Bianchi_diagram(k, Hlist):
     """
@@ -1459,16 +1461,16 @@ def are_alphas_surrounded(alist_ok, alist_open, slist, pairs_ok=[],
             continue
         if cusp_in_quarter_rectangle(a):
             if verbose or debug:
-                print("Testing alpha #{}/{} = {}".format(i+1, len(alist_open), a))
+                print(f"Testing alpha #{i+1}/{len(alist_open)} = {a}", end="...")
             ok, new_pairs_ok = is_alpha_surrounded(a, alist, slist, pairs_ok, debug)
             pairs_ok = new_pairs_ok
             if ok:
                 if verbose or debug:
-                    print(" ok, {} is surrounded".format(a))
+                    print(" ok! surrounded")
             else:
                 all_ok = False
                 if verbose or debug:
-                    print(" no, {} is not surrounded".format(a))
+                    print(" no, not surrounded")
         else:
             ok = True
         if ok:
@@ -1568,7 +1570,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                 else:
                     alphas_ok.append(a)
                 Alist.append(A)
-        if verbose:
+        if verbose and nc:
             s = "up to " if first else ""
             print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics)")
         if nc==0:
@@ -1583,8 +1585,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
             alphas_open = new_alphas_open
             pairs_ok = new_pairs_ok
             if verbose:
-                print("{} alphas out of {} with max norm {} are not surrounded, continuing...".format
-                      (len(alphas_open), len(alphas_open)+len(alphas_ok), maxn))
+                print("Some alphas are not surrounded, continuing...")
 
 def point_translates(P):
     w = P[0].parent().gen()
@@ -1609,7 +1610,12 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
     """
     sat = False
     checked_points = []
-    alphas1 = alphas.copy() # copy so original list unchanged
+    alphas1 = alphas.copy() # copy so original list unchanged We
+    # assume that the initial list of alphas contains all r/s with
+    # N(s) up to some bound:
+    max_denom_norm = max(a.denominator().norm() for a in alphas1)
+    # so when we look for more alphas, properly covering an
+    # intersection point, we can start with N(s) = this+1
     while not sat:
         n = max(a.denominator().norm() for a in alphas1)
         m = next_norm(k, n+1)
@@ -1629,8 +1635,9 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
         extra_alphas = [] # will be filled with any extra alphas needed
         for P in points:
             if debug:
-                print(f" - checking {P = }")
-            extras = properly_covering_hemispheres(P)
+                print(f" - checking {P = }", end="...")
+            extras = properly_covering_hemispheres(P, max_denom_norm+1)
+            #extras = covering_hemispheres2(P, 'strict', norm_s_lb=max_denom_norm+1)
             if extras:
                 sat = False
                 hts = [radius_squared(a) - (P[0]-to_k(a)).norm() for a in extras]
@@ -1638,7 +1645,7 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
                 extras0 = [a for a,h in zip(extras, hts) if h==m]
                 norms0 = [a.denominator().norm() for a in extras0]
                 if debug:
-                    print(f"   - found properly covering {extras} with norms {[a.denominator().norm() for a in extras]}")
+                    print(f"   - found {len(extras)} properly covering hemispheres, with norms {[a.denominator().norm() for a in extras]}")
                     print(f"     max height above P (height {P[1]}) is {m}, for {extras0} with norms {norms0}")
                 for a in extras0:
                     ca = conj_cusp(a)
@@ -2093,7 +2100,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print("plotting fundamental domain")
         from sage.misc.viewer import viewer
         viewer.browser(browser)
-        show(plot_Bianchi_diagram(k,hemis), title=f"FD{d}", caption=f"FD{d}", name=f"FD{d}")
+        show(plot_Bianchi_diagram(k,hemis))
 
     pt = poly_types(polys)
     nunk = pt['unknown']
@@ -2117,26 +2124,24 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     aaa_triangles = [T for T in triangles if is_poly_principal(T)]
     aas_triangles = [T for T in triangles if not is_poly_principal(T)]
 
-    if verbose:
-        print("All polyhedron faces:")
-        print("{} triangles, of which {} are aaa and {} are aas".format(len(triangles),len(aaa_triangles),len(aas_triangles)))
-        print("{} squares".format(len(squares)))
-        print("{} hexagons".format(len(hexagons)))
+    print("All polyhedron faces:")
+    print("{} triangles, of which {} are aaa and {} are aas".format(len(triangles),len(aaa_triangles),len(aas_triangles)))
+    print("{} squares".format(len(squares)))
+    print("{} hexagons".format(len(hexagons)))
 
-        print()
-        print("Finding GL2-orbits of faces...")
+    print()
+    print("Finding GL2-orbits of faces...")
 
     aaa_triangles0 = poly_gl2_orbit_reps(aaa_triangles, alphas)
     aas_triangles0 = aas_triangle_gl2_orbit_reps(aas_triangles, alphas)
     squares0 = poly_gl2_orbit_reps(squares, alphas)
     hexagons0 = poly_gl2_orbit_reps(hexagons, alphas)
 
-    if verbose:
-        print("GL2-orbits of faces:")
-        print("{} aaa-triangles".format(len(aaa_triangles0)))
-        print("{} aas-triangles".format(len(aas_triangles0)))
-        print("{} squares".format(len(squares0)))
-        print("{} hexagons".format(len(hexagons0)))
+    print("GL2-orbits of faces:")
+    print("{} aaa-triangles".format(len(aaa_triangles0)))
+    print("{} aas-triangles".format(len(aas_triangles0)))
+    print("{} squares".format(len(squares0)))
+    print("{} hexagons".format(len(hexagons0)))
 
     print("Face parameters")
     print("//////////////////////////////")
