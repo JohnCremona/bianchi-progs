@@ -13,8 +13,8 @@ Cube = Graph([(0, 1), (0, 3), (0, 7), (1, 2), (1, 6), (2, 4), (2, 7),
               (3, 5), (3, 6), (4, 5), (4, 6), (5, 7)],
              name="cube")
 
-SquarePrism = Graph([(0, 1), (0, 2), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (3, 4)],
-                    name = "square prism")
+SquarePyramid = Graph([(0, 1), (0, 2), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (3, 4)],
+                    name = "square pyramid")
 
 HexagonalPrism = Graph([(0, 1), (0, 5), (0, 9), (1, 2), (1, 10),
                         (2, 4), (2, 5), (3, 5), (3, 7), (3, 9),
@@ -62,7 +62,7 @@ Unknown = Graph(name="unknown")
 #
 
 all_polys = (Tetrahedron, Cube, Octahedron,
-             TriangularPrism, SquarePrism, HexagonalPrism,
+             TriangularPrism, SquarePyramid, HexagonalPrism,
              HexagonalCap, TruncatedTetrahedron, Cuboctahedron,
              Unknown)
 
