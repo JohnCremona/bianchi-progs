@@ -465,7 +465,7 @@ def reduce_triangles(Tlist, triangles):
             triangles0.append(tri)
     return Tlist0, triangles0
 
-def square_parameters(S, alphas, M_alphas, alpha_inv):
+def square_parameters(S, alphas, M_alphas, alpha_inv, geout=None):
     """
     For S a square, returns [[i,j,k,l],[x,y,z]] where
     """
@@ -495,10 +495,13 @@ def square_parameters(S, alphas, M_alphas, alpha_inv):
     xr,xi = x
     yr,yi = y
     zr,zi = z
-    print("{} Q {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, xr,xi, yr,yi, zr,zi))
+    st = f"{d} Q {i} {j} {kk} {l} {xr} {xi} {yr} {yi} {zr} {zi}"
+    print(st)
+    if geout:
+        geout.write(st+"\n")
     return [[i,j,kk,l],[x,y,z]]
 
-def aaa_triangle_parameters(T, alphas, M_alphas, strict=True):
+def aaa_triangle_parameters(T, alphas, M_alphas, strict=True, geout=None):
     """For T a triangle with all vertices principal cusps, returns
     [[i,j,k],u] where M_alphas[i](alpha[j]+u) = alpha[k] + x with x
     integral, where T has vertices [alpha_i, oo, alpha_j].
@@ -529,9 +532,12 @@ def aaa_triangle_parameters(T, alphas, M_alphas, strict=True):
                 assert translate_cusp(alphas[k],x) == apply(M_alphas[i], translate_cusp(alphas[j],u))
                 if u==0 or not strict:
                     ur, ui = u
-                    print("{} T {} {} {} {} {}".format(d, i, j, k, ur, ui))
+                    st = f"{d} T {i} {j} {k} {ur} {ui}"
+                    print(st)
+                    if geout:
+                        geout.write(st+"\n")
                     return [[i,j,k], u]
-    return aaa_triangle_parameters(T, alphas, M_alphas, False)
+    return aaa_triangle_parameters(T, alphas, M_alphas, False, geout)
 
 def symmetries(S):
     n = len(S)
@@ -573,7 +579,7 @@ def aas_symmetries(T):
     """
     return [Imat] + [U for U in [poly_equiv_exact(T, [T[1],T[0],T[2]], -1) ] if U]
 
-def aas_triangle_parameters(T, alphas, M_alphas, sigmas):
+def aas_triangle_parameters(T, alphas, M_alphas, sigmas, geout=None):
     """
     For T a triangle with two vertices principal cusps and one singular,
     returns [[i,j,k],u] where M_alphas[i](sigmas[j]+u) = sigmas[k] + x
@@ -591,10 +597,13 @@ def aas_triangle_parameters(T, alphas, M_alphas, sigmas):
     k, x = sigma_index_with_translation(apply(M_alphas[i], T[2]), sigmas)
     assert k!=-1
     ur, ui = u
-    print("{} U {} {} {} {} {}".format(d, i, j, k, ur, ui))
+    st = f"{d} U {i} {j} {k} {ur} {ui}"
+    print(st)
+    if geout:
+        geout.write(st+"\n")
     return [[i,j,k], u]
 
-def hexagon_parameters(H, alphas, M_alphas):
+def hexagon_parameters(H, alphas, M_alphas, geout=None):
     """
     For a principal hexagon [a_i, oo, a_j, b_2, gamma, b_1]
     """
@@ -619,5 +628,8 @@ def hexagon_parameters(H, alphas, M_alphas):
     y1r,y1i = y1
     x2r,x2i = x2
     y2r,y2i = y2
-    print("{} H {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".format(d, i, j, kk, l, m, n, ur,ui, x1r,x1i, y1r,y1i, x2r,x2i, y2r,y2i))
+    st = f"{d} H {i} {j} {kk} {l} {m} {n} {ur} {ui} {x1r} {x1i} {y1r} {y1i} {x2r} {x2i} {y2r} {y2i}"
+    print(st)
+    if geout:
+        geout.write(st+"\n")
     return [[i,j,kk,l,m,n],[u,x1,y1,x2,y2]]

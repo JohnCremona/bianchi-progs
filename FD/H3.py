@@ -621,7 +621,7 @@ def plot_circles(alist, fill=False, lines=False):
     circles = [(c,r) for c,r in zip(A,R)]
     if lines:
         from itertools import combinations
-        ll1 = list(combinations(A,2))
+        #ll1 = list(combinations(A,2))
         ll2 = [[list(z) for z in intersection_points_in_CC(*pq)] for pq in combinations(alist,2)]
         ll = ll2
     else:
@@ -714,27 +714,34 @@ def triple_intersections(alphas):
 
     Alist = [cusp_to_point(a) for a in xalphas4]
 
-    corners4 = []
-    for a, A in zip(alphas4, Alist):
-        bb = [(b,B) for b,B in zip(xalphas4, Alist) if circles_intersect(A,B)]
-        for b,B in bb:
-            cc = [c for c,C in bb if circles_intersect(B,C)]
-            # now each pair of {a,b,c} intersect
-            for c in cc:
-                P = tri_inter(a, b, c)
-                if P and P[1] and in_quarter_rectangle(P[0]) and not is_redundant(P, xalphas4) and P not in corners4:
-                    corners4.append(P)
+    # For each i get a list of j>i for which S_ai and S_aj intersect properly
+    i2j = {}
+    for i, Ai in enumerate(Alist):
+        i2j[i] = [i+1+j for j,Aj in enumerate(Alist[i+1:]) if  circles_intersect(Ai, Aj)]
+    # Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
+    ijk_list = []
+    for i, j_list in i2j.items():
+        ijk_list += [(i,j,k) for j in j_list for k in j_list if k in i2j[j]]
 
-    # These corners are in F4, so we apply symmetries to get all those in F:
     corners = []
-    for P in corners4:
-        z = P[0]
-        zbar = z.conjugate()
-        for z2 in [z, -z, zbar, -zbar]:
-            if in_rectangle(z2):
-                P2 = [z2, P[1]]
-                if P2 not in corners:
-                    corners.append(P2)
+
+    for (i,j,k) in ijk_list:
+        ai = xalphas4[i]
+        aj = xalphas4[j]
+        ak = xalphas4[k]
+        P = tri_inter(ai, aj, ak)
+        if P:
+            z = P[0]
+            t2 = P[1]
+            if t2 and in_quarter_rectangle(z) and not is_redundant(P, xalphas4) and P not in corners:
+                # These corners are in F4, so we apply symmetries to get all those in F:
+                zbar = z.conjugate()
+                for z2 in [z, -z, zbar, -zbar]:
+                    if in_rectangle(z2):
+                        P2 = [z2, t2]
+                        if P2 not in corners:
+                            corners.append(P2)
+
     return corners
 
 def alpha_triples(alphas, debug=False):
@@ -1354,11 +1361,11 @@ def are_intersection_points_covered(a0, a1, alist, sigmas, debug=False):
 def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False):
     """Given a principal cusp a0, a candidate list of principal cusps
     alist, tests whether the boundary of the disc S_a0 is contained in
-    the union of the translates S_{b+t} for b in alist, apart from any
-    singular points on the boundary.  It suffices to consider all b+t
-    such that S_{b+t} intersects S_a in two points and check that each
+    the union of the S_{b} for b in alist, apart from any
+    singular points on the boundary.  It suffices to consider all b
+    such that S_{b} intersects S_a in two points and check that each
     of the points is either singular or contained in some other
-    S_{b+t}.  This is simplest when the intersection points are in k;
+    S_{b}.  This is simplest when the intersection points are in k;
     if not then the method still uses exact arithmetic in k
     throughout.
 
@@ -1374,32 +1381,26 @@ def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False)
     A0 = cusp_to_point(a0)
     if debug:
         print("A0 = {}".format(A0))
-
-    # extend the candidate list by including offsets:
-
-    alist = sum([translates(b) for b in alist], [])
+    Alist = [cusp_to_point(b) for b in alist]
 
     # check if S_a0 is strictly entirely contained in one S_alpha:
-    if any(circle_inside_circle(A0, cusp_to_point(b), True) for b in alist):
+    if any(circle_inside_circle(A0, A, True) for A in Alist):
         if debug:
-            a1 = next(b for b in alist if circle_inside_circle(A0, cusp_to_point(b), True))
-            print(" ok: circle {} is entirely inside circle {}".format(A0, cusp_to_point(a1)))
+            A1 = next(A for A in Alist if circle_inside_circle(A0, A, True))
+            print(" ok: circle {} is entirely inside circle {}".format(A0, A1))
         return True, pairs_ok
 
     # extract the relevant alphas, if any, namely those for which
     # S_alpha and S_a0 properly intersect:
 
-    alist = [a for a in alist if circles_intersect(A0, cusp_to_point(a))]
-    # alist = [a for a in alist if not any(circle_inside_circle(cusp_to_point(a), cusp_to_point(b), False)
-    #                                      for b in alist if b!=a)]
-
+    alist = [a for a,A in zip(alist,Alist) if circles_intersect(A0, A)]
     if debug:
         print(" relevant alphas: {}".format(alist))
 
-    if debug and plot:
-        pic = plot_circles([a0], fill=False) + plot_circles(alist, fill=True)
-        pic.show(figsize=[30,30])
-        input("press Enter...")
+        if plot:
+            pic = plot_circles([a0], fill=False) + plot_circles(alist, fill=True)
+            pic.show(figsize=[30,30])
+            input("press Enter...")
 
     a0_pairs_ok = [pr for pr in pairs_ok if a0 in pr]
     new_pairs_ok = pairs_ok.copy()
@@ -1452,6 +1453,7 @@ def are_alphas_surrounded(alist_ok, alist_open, slist, pairs_ok=[],
 
     """
     alist = alist_ok + alist_open
+    alist = sum([translates(b) for b in alist], [])
     new_alist_ok = alist_ok.copy()
     new_alist_open = []
     all_ok = True
@@ -1594,7 +1596,7 @@ def point_translates(P):
 def nverts(a, plist):
     return sum([1 for P in plist if is_under(P,a)==0])
 
-def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
+def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=False):
     """Given a covering set of alphas as produced by
     find_covering_alphas(), add extras if necessary so that they are
     "saturated", i.e. define the extended fundamental domain.
@@ -1606,6 +1608,8 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
     alphas.  If none, then we have the fundamental region (and can go
     on to discard any redundant alphas).
 
+    We assume that we have already considered all alpha=r/s with N(s)<=maxn.
+
     At the end we discard any alphas with <3 vertices (including translates and singular points).
     """
     sat = False
@@ -1613,19 +1617,14 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
     alphas1 = alphas.copy() # copy so original list unchanged We
     # assume that the initial list of alphas contains all r/s with
     # N(s) up to some bound:
-    max_denom_norm = max(a.denominator().norm() for a in alphas1)
-    # so when we look for more alphas, properly covering an
-    # intersection point, we can start with N(s) = this+1
     while not sat:
-        n = max(a.denominator().norm() for a in alphas1)
-        m = next_norm(k, n+1)
         all_points = triple_intersections(alphas1)
         if debug:
             print(f"Found {len(all_points)} potential vertices")
-        points = [P for P in all_points if P[1]<=1/m]
+        points = [P for P in all_points if maxn*P[1]<1]
         if debug:
             print(f" -- of which {len(all_points)} are low enough to be properly covered by a new alpha")
-        points = [P for P in points if in_quarter_rectangle(P[0])]
+        points = [P for P in all_points if in_quarter_rectangle(P[0])]
         if debug:
             print(f" -- of which {len(points)} lie in the first quadrant")
         points = [P for P in points if P not in checked_points]
@@ -1633,11 +1632,17 @@ def saturate_covering_alphas(k, alphas, sigmas, debug=False, verbose=False):
             print(f" -- of which {len(points)} have not already been checked")
         sat = True        # will be set to False if we find out that the alphas are not already saturated
         extra_alphas = [] # will be filled with any extra alphas needed
+        points.sort(key=lambda P: -P[1]) # highest first
         for P in points:
+            # if not sat:
+            #     if debug:
+            #         print("Restarting...")
+            #     break
             if debug:
                 print(f" - checking {P = }", end="...")
-            extras = properly_covering_hemispheres(P, max_denom_norm+1)
-            #extras = covering_hemispheres2(P, 'strict', norm_s_lb=max_denom_norm+1)
+            extras = properly_covering_hemispheres(P)
+            #extras = properly_covering_hemispheres(P, maxn+1)
+            #extras = covering_hemispheres2(P, 'strict', norm_s_lb=maxn+1)
             if extras:
                 sat = False
                 hts = [radius_squared(a) - (P[0]-to_k(a)).norm() for a in extras]
@@ -1798,7 +1803,7 @@ def alpha_in_list(a, alist, up_to_translation=True):
 def compare_alpha_lists(alist1, alist2):
     return len(alist1)==len(alist2) and all(alpha_in_list(a,alist2) for a in alist1) and all(alpha_in_list(a,alist1) for a in alist2)
 
-def find_edge_pairs(alphas, sigmas, debug=False):
+def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
     from utils import nf, ispos, add_two_alphas, add_four_alphas
 
     k = nf(alphas[0])
@@ -1813,12 +1818,14 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     A2exp = denom_2_alphas(k)
     if not compare_alpha_lists(A2, A2exp):
         print("*******************denom 2 alphas are {}, expected {}".format(A2, A2exp))
+        raise ValueError
     A2 = A2exp # use the expected list for consistent normalisation and order
     A12 = A1 + A2
     A3 = [a for a in alphas if not alpha_in_list(a, A12) and (3*to_k(a,k)).is_integral()]
     A3exp = denom_3_alphas(k)
     if not compare_alpha_lists(A3, A3exp):
         print("*******************denom 3 alphas are {}, expected {}".format(A3, A3exp))
+        raise ValueError
     A3 = A3exp # use the expected list for consistent normalisation and order
     A123 = A12 + A3
 
@@ -1924,7 +1931,7 @@ def find_edge_pairs(alphas, sigmas, debug=False):
                         long_fours.append((s,-r,-rdash))
             except StopIteration:
                 print("no negative inverse found for {} mod {}".format(r, s))
-
+                raise ValueError
 
     for r,s in pluspairs:
         add_two_alphas(s, r, +1, new_alphas, M_alphas)
@@ -1999,55 +2006,75 @@ def find_edge_pairs(alphas, sigmas, debug=False):
     # for s, r1, r2 in long_fours:
     #     print("add_alpha_orbit({}, {}, {});".format(s,r1,r2))
     # for pasting into data file:
+
+    geodata_file = f"geodata_{d}.dat"
     print("//////////////////////////////")
-    print("// for copying into geodat.dat")
-    print("0")
-    print(f"0 {d=}")
-    print("0")
+    if geout:
+        print(f"// output to {geodata_file} for copying into geodata.dat")
+    st = f"0\n0 {d=}\n0"
+    print(st)
+    if geout:
+        geout.write(st+"\n")
     for r,s in pluspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = -r
-        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
+        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+        print(st)
+        if geout:
+            geout.write(st+"\n")
     for r,s in minuspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = r
-        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
+        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+        print(st)
+        if geout:
+            geout.write(st+"\n")
     for s, r1, r2 in long_fours:
         sr, si = s
         r1r, r1i = r1
         r2r, r2i = r2
-        print(f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}")
+        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+        print(st)
+        if geout:
+            geout.write(st+"\n")
     for s in S_mod_neg:
         sr, si = s.denominator()
         rr, ri = s.numerator()
-        print(f"{d} S {rr} {ri} {sr} {si}")
+        st = f"{d} S {rr} {ri} {sr} {si}"
+        print(st)
+        if geout:
+            geout.write(st+"\n")
     print("//////////////////////////////")
     return A123, new_alphas, new_sigmas
 
 #
 # From scratch:
 #
-def alpha_sigma_data(d, verbose=False):
+def alpha_sigma_data(d, verbose=False, geout=None):
     k = make_k(d)['k']
     print(f"{k = }, class number {k.class_number()}")
     sigmas = singular_points(k)
     print(f"{len(sigmas)} singular points: {sigmas}")
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
     print(f"{len(alphas0)} covering alphas, max denom norm {maxn}: {alphas0}")
-    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, debug=verbose, verbose=verbose)
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
     print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}: {alphas1}")
     print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
-    data = find_edge_pairs(alphas1, sigmas)
+    data = find_edge_pairs(alphas1, sigmas, geout=geout)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
     # for adding to precomputed alphas in alphas.py:
     alpha_string = "alphalist[{}] = [".format(d) + ", ".join([f"({a.numerator()})/({a.denominator()})" for a in alphas2]) + "]\n"
     alpha_string = alpha_string.replace(" ", "").replace('w','t').replace(",(",", (").replace("="," = ")
     alpha_string = alpha_string.replace("(0)/(1)", "0")
+    alpha_file = f"alphas_{d}.py"
+    with open(alpha_file, 'w') as aout:
+        aout.write(alpha_string+"\n")
+    print(f"Output to {alpha_file} for inserting into alphas.py:")
     print(alpha_string)
     sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
     print(sigma_string)
@@ -2070,18 +2097,21 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print("Discriminant: {}".format(k.discriminant()))
         print("Class number: {}".format(k.class_number()))
 
+    geodata_file = f"geodata_{d}.dat"
     alphas = precomputed_alphas(d)
     if alphas:
         if verbose:
             print("using precomputed alphas")
         sigmas = singular_points(k)
-        data = find_edge_pairs(alphas, sigmas)
+        with open(geodata_file, 'w') as geout:
+            data = find_edge_pairs(alphas, sigmas, geout=geout)
         alphas = data[0] + data[1]
         sigmas = data[2]
     else:
         if verbose:
             print("computing alphas from scratch")
-        alphas, sigmas = alpha_sigma_data(d, verbose>1)
+        with open(geodata_file, 'w') as geout:
+            alphas, sigmas = alpha_sigma_data(d, verbose>1, geout=geout)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
     print("{} alphas".format(len(alphas)))
@@ -2145,13 +2175,15 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     print("Face parameters")
     print("//////////////////////////////")
-    for T in aaa_triangles0:
-        aaa_triangle_parameters(T, alphas, M_alphas)
-    for T in aas_triangles0:
-        aas_triangle_parameters(T, alphas, M_alphas, sigmas)
-    for S in squares0:
-        square_parameters(S, alphas, M_alphas, alpha_inv)
-    for H in hexagons0:
-        hexagon_parameters(H, alphas, M_alphas)
+    geodata_file = f"geodata_{d}.dat"
+    with open(geodata_file, 'a') as geout:
+        for T in aaa_triangles0:
+            aaa_triangle_parameters(T, alphas, M_alphas, geout=geout)
+        for T in aas_triangles0:
+            aas_triangle_parameters(T, alphas, M_alphas, sigmas, geout=geout)
+        for S in squares0:
+            square_parameters(S, alphas, M_alphas, alpha_inv, geout=geout)
+        for H in hexagons0:
+            hexagon_parameters(H, alphas, M_alphas, geout=geout)
     print("//////////////////////////////")
 
