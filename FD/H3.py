@@ -1681,8 +1681,8 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
             if Q not in pointsx:
                 pointsx.append(Q)
     nv = [nverts(a, pointsx) for a in alphas1]
-    if verbose:
-        print(f"# vertices for these alphas: {nv}")
+    # if verbose:
+    #     print(f"# vertices for these alphas: {nv}")
     alphas1 = [a for a,n in zip(alphas1,nv) if n>=3]
     m = max([a.denominator().norm() for a in alphas1])
     if verbose:
@@ -2058,10 +2058,10 @@ def alpha_sigma_data(d, verbose=False, geout=None):
     sigmas = singular_points(k)
     print(f"{len(sigmas)} singular points: {sigmas}")
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
-    print(f"{len(alphas0)} covering alphas, max denom norm {maxn}: {alphas0}")
+    print(f"{len(alphas0)} covering alphas, max denom norm {maxn}")
     alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
-    print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}: {alphas1}")
+    print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
     print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
     data = find_edge_pairs(alphas1, sigmas, geout=geout)

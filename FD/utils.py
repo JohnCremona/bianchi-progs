@@ -300,12 +300,22 @@ def std_pol(poly, alphas):
 
 # The next two are only for polygons with all vertices principal
 
-def poly_gl2_orbit_reps(polys, alphas):
+def poly_gl2_orbit_reps(polys, alphas, debug=False):
     reps = []
-    for poly in polys:
+    if not polys:
+        return reps
+    if debug:
+        print(f"Finding GL2-orbit reps for {len(polys)} {len(polys[0])}-gons...")
+    for i, poly in enumerate(polys):
+        if debug:
+            print(f"{i}", end="", flush=True)
         poly = std_poly(poly, alphas)[1]
+        if debug:
+            print(".", end="", flush=True)
         if not check_poly_in_list(poly, reps):
             reps.append(poly)
+    if debug:
+        print(f"\n{len(reps)} inequivalent ones")
     return reps
 
 def poly_sl2_orbit_reps(polys, alphas):
@@ -360,18 +370,27 @@ def poly_equiv_exact(P1,P2, sign=1):
     if len(P2) != npts:
         return False
 
-    e1 = P1[:2] # first edge of P1
-    e2 = P2[:2] # first edge of P2
-    U = edge_equiv(e1,e2) # det(U)=1
-    if U and apply(U,P1)==P2:
-        return U
-    if sign != +1:
-        P3 = apply(Jmat,P2)
-        e3 = P3[:2]
-        U = edge_equiv(e1,e3) # det(U)=1
-        if U and apply(U,P1)==P3: # then JU(P1)=Jmat(P3)=P2
-            return Jmat*U
-    return False
+    M1 = edge_to_mat(P1[:2])
+    d1 = M1.det()
+    M2 = edge_to_mat(P2[:2])
+    d2 = M2.det()
+    if not (d1==d2 or (sign!=1 and d1==-d2)):
+        return False
+    U = M2*M1.inverse()
+    return all(c.is_integral() for c in U.list()) and apply(U,P1)==P2
+
+    # e1 = P1[:2] # first edge of P1
+    # e2 = P2[:2] # first edge of P2
+    # U = edge_equiv(e1,e2) # det(U)=1
+    # if U and apply(U,P1)==P2:
+    #     return U
+    # if sign != +1:
+    #     P3 = apply(Jmat,P2)
+    #     e3 = P3[:2]
+    #     U = edge_equiv(e1,e3) # det(U)=1
+    #     if U and apply(U,P1)==P3: # then JU(P1)=Jmat(P3)=P2
+    #         return Jmat*U
+    # return False
 
 def poly_equiv(P1,P2, cycle=True, reverse=True, sign=1):
     """Test whether the polygons P1, P2 are GL(2,O)-equivalent (or
