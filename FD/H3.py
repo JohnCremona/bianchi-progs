@@ -2010,42 +2010,47 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
     geodata_file = f"geodata_{d}.dat"
     print("//////////////////////////////")
     if geout:
-        print(f"// output to {geodata_file} for copying into geodata.dat")
+        print(f"// tessellation edge data will be output to {geodata_file}")
     st = f"0\n0 {d=}\n0"
-    print(st)
     if geout:
         geout.write(st+"\n")
+    else:
+        print(st)
     for r,s in pluspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = -r
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        print(st)
         if geout:
             geout.write(st+"\n")
+        else:
+            print(st)
     for r,s in minuspairs:
         sr, si = s
         r1r, r1i = r
         r2r, r2i = r
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        print(st)
         if geout:
             geout.write(st+"\n")
+        else:
+            print(st)
     for s, r1, r2 in long_fours:
         sr, si = s
         r1r, r1i = r1
         r2r, r2i = r2
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        print(st)
         if geout:
             geout.write(st+"\n")
+        else:
+            print(st)
     for s in S_mod_neg:
         sr, si = s.denominator()
         rr, ri = s.numerator()
         st = f"{d} S {rr} {ri} {sr} {si}"
-        print(st)
         if geout:
             geout.write(st+"\n")
+        else:
+            print(st)
     print("//////////////////////////////")
     return A123, new_alphas, new_sigmas
 
@@ -2143,7 +2148,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     for pol,num in pt.items():
         if num:
-            print("{}: {}".format(pol,num))
+            print(f"{pol}: {num}")
 
     try:
         triangles = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==3] for G in polys],[])]
@@ -2155,26 +2160,26 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     aas_triangles = [T for T in triangles if not is_poly_principal(T)]
 
     print("All polyhedron faces:")
-    print("{} triangles, of which {} are aaa and {} are aas".format(len(triangles),len(aaa_triangles),len(aas_triangles)))
-    print("{} squares".format(len(squares)))
-    print("{} hexagons".format(len(hexagons)))
+    print(f" {len(aaa_triangles)} aaa-triangles")
+    print(f" {len(aas_triangles)} aas-triangles")
+    print(f" {len(squares)} squares")
+    print(f" {len(hexagons)} hexagons")
 
     print()
     print("Finding GL2-orbits of faces...")
 
-    aaa_triangles0 = poly_gl2_orbit_reps(aaa_triangles, alphas)
+    aaa_triangles0 = poly_gl2_orbit_reps(aaa_triangles)
     aas_triangles0 = aas_triangle_gl2_orbit_reps(aas_triangles, alphas)
-    squares0 = poly_gl2_orbit_reps(squares, alphas)
-    hexagons0 = poly_gl2_orbit_reps(hexagons, alphas)
+    squares0 = poly_gl2_orbit_reps(squares)
+    hexagons0 = poly_gl2_orbit_reps(hexagons)
 
     print("GL2-orbits of faces:")
-    print("{} aaa-triangles".format(len(aaa_triangles0)))
-    print("{} aas-triangles".format(len(aas_triangles0)))
-    print("{} squares".format(len(squares0)))
-    print("{} hexagons".format(len(hexagons0)))
+    print(f" {len(aaa_triangles0)} aaa-triangles")
+    print(f" {len(aas_triangles0)} aas-triangles")
+    print(f" {len(squares0)} squares")
+    print(f" {len(hexagons0)} hexagons")
 
-    print("Face parameters")
-    print("//////////////////////////////")
+    print(f"// tessellation face data will be output to {geodata_file}")
     geodata_file = f"geodata_{d}.dat"
     with open(geodata_file, 'a') as geout:
         for T in aaa_triangles0:
@@ -2185,5 +2190,5 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             square_parameters(S, alphas, M_alphas, alpha_inv, geout=geout)
         for H in hexagons0:
             hexagon_parameters(H, alphas, M_alphas, geout=geout)
-    print("//////////////////////////////")
+
 

@@ -1,4 +1,4 @@
-from sage.all import (oo, NFCusp, Matrix, cached_function)
+from sage.all import (oo, NFCusp, Matrix, cached_function, Set)
 
 def nf(x):
     """
@@ -191,6 +191,12 @@ def edet(e, pos=False):
     det = a*d-b*c
     return makepos(det) if pos else det
 
+def poldet(P, pos=False):
+    """
+    Return list of det(M) where M(0)=e[i], M(oo)=e[i+1], with det(M) "positive" if pos.
+    """
+    return [edet([P[i-1],P[i]], pos) for i in range(len(P))]
+
 def apply(U, P):
     try:
         return P.apply(U.list())
@@ -300,23 +306,52 @@ def std_pol(poly, alphas):
 
 # The next two are only for polygons with all vertices principal
 
-def poly_gl2_orbit_reps(polys, alphas, debug=False):
+def poly_gl2_orbit_reps_old(polys, alphas=None):
     reps = []
     if not polys:
         return reps
-    if debug:
-        print(f"Finding GL2-orbit reps for {len(polys)} {len(polys[0])}-gons...")
-    for i, poly in enumerate(polys):
-        if debug:
-            print(f"{i}", end="", flush=True)
-        poly = std_poly(poly, alphas)[1]
-        if debug:
-            print(".", end="", flush=True)
+    for poly in polys:
+        if alphas:
+            poly = std_poly(poly, alphas)[1]
         if not check_poly_in_list(poly, reps):
             reps.append(poly)
+    return reps
+
+def poly_gl2_orbit_reps_new(polys, debug=False):
+    """Given a list of polygons (as lists of cusps) return a sublist of
+    GL2-inequivalent polygons containing one from each GL2-orbit,
+    where GL2-equivalence allows for rotations and reflections.
+    """
+    if not polys:
+        return []
+    if debug:
+        print(f"Finding GL2-orbit reps for {len(polys)} {len(polys[0])}-gons...")
+
+    poly_hash_tab = {}
+    for i, poly in enumerate(polys):
+        if debug:
+            print(f"{i=}: {poly=}, ", end="")
+        h = Set(poldet(poly, pos=True))
+        if debug:
+            print(f"{h=}")
+        if h in poly_hash_tab:
+            if not check_poly_in_list(poly, poly_hash_tab[h]):
+                poly_hash_tab[h].append(poly)
+                if debug:
+                    print(f" - h exists but poly is new (number {len(poly_hash_tab[h])} for this h)")
+            else:
+                if debug:
+                    print(f" - h exists and poly is a repeat of one of the {len(poly_hash_tab[h])} for this h")
+        else:
+            poly_hash_tab[h] = [poly]
+            if debug:
+                print(f" - h new, so poly is new")
+    reps = sum(poly_hash_tab.values(), [])
     if debug:
         print(f"\n{len(reps)} inequivalent ones")
     return reps
+
+poly_gl2_orbit_reps = poly_gl2_orbit_reps_new
 
 def poly_sl2_orbit_reps(polys, alphas):
     reps = []
@@ -376,8 +411,16 @@ def poly_equiv_exact(P1,P2, sign=1):
     d2 = M2.det()
     if not (d1==d2 or (sign!=1 and d1==-d2)):
         return False
-    U = M2*M1.inverse()
-    return all(c.is_integral() for c in U.list()) and apply(U,P1)==P2
+    M1inv = M1.inverse()
+    U = M2*M1inv
+    if all(c.is_integral() for c in U.list()) and apply(U,P1)==P2:
+        return U
+    if sign==1:
+        return False
+    U = M2*Jmat*M1inv
+    if all(c.is_integral() for c in U.list()) and apply(U,P1)==P2:
+        return U
+    return False
 
     # e1 = P1[:2] # first edge of P1
     # e2 = P2[:2] # first edge of P2
@@ -515,9 +558,10 @@ def square_parameters(S, alphas, M_alphas, alpha_inv, geout=None):
     yr,yi = y
     zr,zi = z
     st = f"{d} Q {i} {j} {kk} {l} {xr} {xi} {yr} {yi} {zr} {zi}"
-    print(st)
     if geout:
         geout.write(st+"\n")
+    else:
+        print(st)
     return [[i,j,kk,l],[x,y,z]]
 
 def aaa_triangle_parameters(T, alphas, M_alphas, strict=True, geout=None):
@@ -529,14 +573,28 @@ def aaa_triangle_parameters(T, alphas, M_alphas, strict=True, geout=None):
     """
     k = nf(T[0])
     d = -k.disc().squarefree_part()
-    if k.class_number()==1:
-        for T0 in [tri0(k), tri1(k), tri2(k)]:
-            if poly_equiv(T, T0, sign=0):
-                print("universal triangle")
-                return T0
     inf = cusp(oo, k)
     T = std_poly(T, alphas)[1]
     assert T[1] == inf
+
+    # test if T is equivalent to universal (0,oo,1), hard-coded into geometry.cc
+    T0 = tri0(k)
+    if poly_equiv(T, T0, sign=0):
+        if not geout:
+            print("universal triangle [0,oo,1] for all fields")
+        return T0
+    if d in [19, 43, 67, 163]: # non-Euclidean, class number 1, hard-coded into geometry.cc
+        T0 = tri1(k)
+        if poly_equiv(T, T0, sign=0):
+            if not geout:
+                print("universal triangle [oo,w/2,(w-1)/2] for all non-Euclidean class number 1 fields")
+            return T0
+        T0 = tri2(k)
+        if poly_equiv(T, T0, sign=0):
+            if not geout:
+                print("universal triangle [oo,w/2,(w+1)/2] for all non-Euclidean class number 1 fields")
+            return T0
+
     for Jloop in range(2):
         if Jloop:
             T = std_poly(apply(Jmat,T), alphas)[1]
@@ -552,9 +610,10 @@ def aaa_triangle_parameters(T, alphas, M_alphas, strict=True, geout=None):
                 if u==0 or not strict:
                     ur, ui = u
                     st = f"{d} T {i} {j} {k} {ur} {ui}"
-                    print(st)
                     if geout:
                         geout.write(st+"\n")
+                    else:
+                        print(st)
                     return [[i,j,k], u]
     return aaa_triangle_parameters(T, alphas, M_alphas, False, geout)
 
@@ -617,9 +676,10 @@ def aas_triangle_parameters(T, alphas, M_alphas, sigmas, geout=None):
     assert k!=-1
     ur, ui = u
     st = f"{d} U {i} {j} {k} {ur} {ui}"
-    print(st)
     if geout:
         geout.write(st+"\n")
+    else:
+        print(st)
     return [[i,j,k], u]
 
 def hexagon_parameters(H, alphas, M_alphas, geout=None):
@@ -648,7 +708,8 @@ def hexagon_parameters(H, alphas, M_alphas, geout=None):
     x2r,x2i = x2
     y2r,y2i = y2
     st = f"{d} H {i} {j} {kk} {l} {m} {n} {ur} {ui} {x1r} {x1i} {y1r} {y1i} {x2r} {x2i} {y2r} {y2i}"
-    print(st)
     if geout:
         geout.write(st+"\n")
+    else:
+        print(st)
     return [[i,j,kk,l,m,n],[u,x1,y1,x2,y2]]
