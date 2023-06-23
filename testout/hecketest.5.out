@@ -3,6 +3,7 @@ Class number 2
 Ideal class group representatives: [ [1,a] [2,1+a] ]
 >>>> Level 32.1 = (8,-4+4a), norm = 32 <<<<
 Dimension = 20
+ denominator = 2
 Computing nu_3.1...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 9

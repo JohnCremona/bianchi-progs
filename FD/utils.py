@@ -257,6 +257,9 @@ def make_M_alphas(alphas):
     t = [make_M_alpha(a, alphas) for a in alphas]
     return [t[0] for t in t], [t[1] for t in t]
 
+def is_poly_principal(T):
+    return all(a.ideal()==1 for a in T)
+
 def std_edge(e, alphas):
     """Return (i, U) where e=U(e0), U in SL(2,Ok) and
     e0={alpha[i],oo}, else return (-1, None). Note that U,u0 exist
@@ -518,6 +521,42 @@ def check_poly_in_list(T, polys, sign=0):
     #print("Testing whether {} is in list {}".format(T, polys))
     return any(poly_equiv(T,t, sign=sign) for t in polys)
 
+def oriented_faces(G, debug=True):
+    assert G.is_polyhedral()
+    faces = G.faces()
+    # if debug:
+    #     print(f"faces at start: {faces}")
+    edge_lists = [poly_edges(f) for f in faces]
+    oriented_faces = []
+    for edges1, face1 in zip(edge_lists, faces):
+        for edges2 in edge_lists:
+            if edges1==edges2:
+                continue
+            if any(e in edges2 for e in edges1):
+                if debug:
+                    print(f"reversing face {face1}")
+                face1.reverse()
+                break
+        oriented_faces.append(face1)
+    # if debug:
+    #     print(f"faces at end: {faces}")
+    return oriented_faces
+
+def face_index(f, faces):
+    for i,fa in enumerate(faces):
+        if poly_equiv(f, fa, cycle=True, reverse=False, sign=0):
+            return i, +1
+        if poly_equiv(f, reverse_poly(fa), cycle=True, reverse=False, sign=0):
+            return i, -1
+    return -1
+
+def polyhedron_relation(P, faces, k):
+    rel = [0 for _ in faces]
+    for f in oriented_faces(P):
+        i, ori = face_index(make_poly_from_edges(f,k), faces)
+        rel[i] += ori
+    return rel
+
 def reduce_triangles(Tlist, triangles):
     Tlist0 = []
     triangles0 = []
@@ -713,3 +752,16 @@ def hexagon_parameters(H, alphas, M_alphas, geout=None):
     else:
         print(st)
     return [[i,j,kk,l,m,n],[u,x1,y1,x2,y2]]
+
+def polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=None):
+    n = len(P)
+    assert n in [3,4,6]
+    if n==6:
+        return hexagon_parameters(P, alphas, M_alphas, geout=geout)
+    if n==4:
+        return square_parameters(P, alphas, M_alphas, alpha_inv, geout=geout)
+    if n==3:
+        if is_poly_principal(P):
+            return aaa_triangle_parameters(P, alphas, M_alphas, geout=geout)
+        else:
+            return aas_triangle_parameters(P, alphas, M_alphas, sigmas, geout=geout)

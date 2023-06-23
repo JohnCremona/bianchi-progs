@@ -3,7 +3,7 @@ Non-Euclidean, class number 1
 1238 primes initialised, max norm = 10000
 >>>> Level 17.1 = (a), norm = 17 <<<<
 Cuspidal dimension = 3
- denominator = 7
+ denominator = 4
 Computing W(P17a)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 3
@@ -32,7 +32,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
 Cuspidal dimension = 5
- denominator = 760
+ denominator = 788
 Computing W(P67)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2

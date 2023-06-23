@@ -45,7 +45,7 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclide
                              14, 17, 30, 34, 39, 46, 55, 155, 203, 219, // class number 4 cyclic (incomplete)
                              21, 33, 42, 195,                         // class number 4 noncyclic (incomplete)
                              47, 79, 103, 127, 131, 179,              // class number 5 (incomplete)
-                             26, 29, 38, 87,                          // class number 6 (incomplete)
+                             26, 29, 38, 53, 87,                      // class number 6 (incomplete)
                              71, 151,                                 // class number 7 (incomplete)
                              41, 95, 111, 183,                        // class number 8 cyclic (incomplete)
                              199,                                     // class number 9 cyclic (incomplete)

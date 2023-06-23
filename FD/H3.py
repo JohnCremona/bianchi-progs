@@ -1062,9 +1062,6 @@ def all_polyhedra(k, alphas=None, debug=False):
     polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
     return polys, hemis
 
-def is_poly_principal(T):
-    return all(a.ideal()==1 for a in T)
-
 half = Integer(1)/2
 
 def xy_in_rectangle(xy, f):
@@ -1574,7 +1571,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                 Alist.append(A)
         if verbose and nc:
             s = "up to " if first else ""
-            print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics)")
+            print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics); #alphas={len(alphas_ok)+len(alphas_open)} of which {len(alphas_ok)} are proved surrounded so far")
         if nc==0:
             continue
         ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=False)
@@ -2090,10 +2087,10 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
                        make_poly_from_edges,
                        poly_gl2_orbit_reps,
                        aas_triangle_gl2_orbit_reps,
-                       square_parameters,
-                       aaa_triangle_parameters,
-                       aas_triangle_parameters,
-                       hexagon_parameters)
+                       oriented_faces, face_index,
+                       polyhedron_relation,
+                       polygon_parameters,
+                       is_poly_principal)
 
     kdata = make_k(d)
     k = kdata['k']
@@ -2127,8 +2124,8 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         show(plot_FunDomain_projection(k, alphas, sigmas))
 
 
-    polys, hemis = all_polyhedra(k, alphas, verbose>1)
-    npoly = len(polys)
+    polyhedra, hemis = all_polyhedra(k, alphas, verbose>1)
+    npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
     print(f"{npoly} {poly} constructed")
     if plot3D:
@@ -2137,12 +2134,12 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         viewer.browser(browser)
         show(plot_Bianchi_diagram(k,hemis))
 
-    pt = poly_types(polys)
+    pt = poly_types(polyhedra)
     nunk = pt['unknown']
     if nunk:
         poly = "polyhedra have" if nunk>1 else "polyhedron has"
         print(f"{nunk} {poly} unknown type!")
-        for G in polys:
+        for G in polyhedra:
             if poly_type(G) == 'unknown':
                 show(G)
 
@@ -2150,12 +2147,11 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         if num:
             print(f"{pol}: {num}")
 
-    try:
-        triangles = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==3] for G in polys],[])]
-        squares = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==4] for G in polys],[])]
-        hexagons = [make_poly_from_edges(t,k) for t in sum([[F for F in G.faces() if len(F)==6] for G in polys],[])]
-    except ValueError:
-        return
+    all_faces = sum([[make_poly_from_edges(f,k) for f in oriented_faces(G)] for G in polyhedra], [])
+    triangles = [f for f in all_faces if len(f)==3]
+    squares = [f for f in all_faces if len(f)==4]
+    hexagons = [f for f in all_faces if len(f)==6]
+
     aaa_triangles = [T for T in triangles if is_poly_principal(T)]
     aas_triangles = [T for T in triangles if not is_poly_principal(T)]
 
@@ -2179,16 +2175,70 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     print(f" {len(squares0)} squares")
     print(f" {len(hexagons0)} hexagons")
 
+    print()
+    print("Finding redundant faces modulo polyhedron relations...")
+    all_faces = hexagons0 + squares0 + aaa_triangles0 + aas_triangles0
+    print("List of GL2-inequivalent faces:")
+    for F in all_faces:
+        print(F)
+    if True:
+        print(f"Face types: {[len(F) for F in all_faces]}")
+        for P in polyhedra:
+            print(f"Polyhedron {poly_type(P)} with oriented faces")
+            for F in oriented_faces(P):
+                print(f"{F = } with index {face_index(make_poly_from_edges(F,k), all_faces)}")
+            print("and relation")
+            print(polyhedron_relation(P, all_faces, k))
+    M = Matrix([polyhedron_relation(P, all_faces, k) for P in polyhedra])
+    print("polyhedron relation matrix:")
+    print(M)
+    redundant_faces = [] # [r.trailing_support() for r in H.rows() if r.trailing_coefficient()==1]
+
+    # delete square faces of square prisms
+    # delete hexagonal faces of hexagonal caps
+    # delete aaa-traingles from aaas tetrahedra
+    for poly in polyhedra:
+        if poly_type(poly) == "square pyramid":
+            squ = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==4)
+            ind, _ = face_index(squ, all_faces)
+            if ind not in redundant_faces:
+                print("omitting redundant square face from a square pyramid")
+                redundant_faces.append(ind)
+            continue
+        if poly_type(poly) == "hexagonal cap":
+            hexa = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==6)
+            ind, _ = face_index(hexa, all_faces)
+            if ind not in redundant_faces:
+                print("omitting redundant hexagonal face from a hexagonal cap")
+                redundant_faces.append(ind)
+            continue
+        if poly_type(poly) == "tetrahedron":
+            faces = [make_poly_from_edges(f,k) for f in oriented_faces(poly)]
+            if not all(is_poly_principal(t) for t in faces):
+                tri = next(t for t in faces if is_poly_principal(t))
+                ind, _ = face_index(tri, all_faces)
+                if ind not in redundant_faces:
+                    print("omitting redundant aaa-triangle face from an aaas-tetrahedron")
+                    redundant_faces.append(ind)
+    print(f"Redundant faces: {redundant_faces} ({len(redundant_faces)} out of {len(all_faces)})")
+    i0 = 0 # index offset into list of all faces
+    hexagons1 = [P for i,P in enumerate(hexagons0) if i+i0 not in redundant_faces]
+    i0 += len(hexagons0)
+    squares1 = [P for i,P in enumerate(squares0) if i+i0 not in redundant_faces]
+    i0 += len(squares0)
+    aaa_triangles1 = [P for i,P in enumerate(aaa_triangles0) if i+i0 not in redundant_faces]
+    i0 += len(aaa_triangles0)
+    aas_triangles1 = [P for i,P in enumerate(aas_triangles0) if i+i0 not in redundant_faces]
+
+    print("Independent faces modulo polyhedron relations:")
+    print(f" {len(aaa_triangles1)} aaa-triangles")
+    print(f" {len(aas_triangles1)} aas-triangles")
+    print(f" {len(squares1)} squares")
+    print(f" {len(hexagons1)} hexagons")
+
+    print()
     print(f"// tessellation face data will be output to {geodata_file}")
     geodata_file = f"geodata_{d}.dat"
     with open(geodata_file, 'a') as geout:
-        for T in aaa_triangles0:
-            aaa_triangle_parameters(T, alphas, M_alphas, geout=geout)
-        for T in aas_triangles0:
-            aas_triangle_parameters(T, alphas, M_alphas, sigmas, geout=geout)
-        for S in squares0:
-            square_parameters(S, alphas, M_alphas, alpha_inv, geout=geout)
-        for H in hexagons0:
-            hexagon_parameters(H, alphas, M_alphas, geout=geout)
-
-
+        for P in aaa_triangles1 + aas_triangles1 + squares1 + hexagons1:
+            polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
