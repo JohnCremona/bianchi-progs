@@ -70,6 +70,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 18.1 = (-2+a), norm = 18 <<<<
 Dimension = 26
+ denominator = 2
 Computing nu_7.1...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 12

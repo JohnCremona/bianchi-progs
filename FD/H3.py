@@ -2178,10 +2178,10 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     print()
     print("Finding redundant faces modulo polyhedron relations...")
     all_faces = hexagons0 + squares0 + aaa_triangles0 + aas_triangles0
-    print("List of GL2-inequivalent faces:")
-    for F in all_faces:
-        print(F)
-    if True:
+    if False:
+        print("List of GL2-inequivalent faces:")
+        for F in all_faces:
+            print(F)
         print(f"Face types: {[len(F) for F in all_faces]}")
         for P in polyhedra:
             print(f"Polyhedron {poly_type(P)} with oriented faces")
@@ -2189,9 +2189,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
                 print(f"{F = } with index {face_index(make_poly_from_edges(F,k), all_faces)}")
             print("and relation")
             print(polyhedron_relation(P, all_faces, k))
-    M = Matrix([polyhedron_relation(P, all_faces, k) for P in polyhedra])
-    print("polyhedron relation matrix:")
-    print(M)
+        M = Matrix([polyhedron_relation(P, all_faces, k) for P in polyhedra])
     redundant_faces = [] # [r.trailing_support() for r in H.rows() if r.trailing_coefficient()==1]
 
     # delete square faces of square prisms

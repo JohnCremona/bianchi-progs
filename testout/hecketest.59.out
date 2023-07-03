@@ -3,7 +3,6 @@ Class number 3
 Ideal class group representatives: [ [1,a] [3,a] [3,2+a] ]
 >>>> Level 9.1 = (3+a,-6+a), norm = 9 <<<<
 Cuspidal dimension = 1
- denominator = 2
 Computing W(P3a)*T(A,A) for A=[5,a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1

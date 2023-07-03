@@ -31,7 +31,7 @@ Integration matrix = [-25,-a;-3a,2], factor   = 16
 2:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 2 1 -1 2 -2 5 -5 1 1 8 1 -1 1 -10 10 -6 -6 0 0 4 -4 10 10 -12 -12 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 60
-L/P ratio    = 3, cuspidal factor = 5
+L/P ratio    = 3, cuspidal factor = 10
 Integration matrix = [-25,-a;-3a,2], factor   = 10
 Retrieving newform data for N = 17.1
 

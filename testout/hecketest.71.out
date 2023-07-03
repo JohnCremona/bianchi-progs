@@ -37,7 +37,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 Cuspidal dimension = 5
- denominator = 3
+ denominator = 66
 Computing W(P3a)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 5

@@ -6,5 +6,5 @@ Retrieving newform data for N = 11.1
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ 2 2 1 2 2 -5 1 -4 -4 2 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 390
-L/P ratio    = 13, cuspidal factor = 10
+L/P ratio    = 13, cuspidal factor = 5
 Integration matrix = [a,-1;1-2a,2], factor   = 10
