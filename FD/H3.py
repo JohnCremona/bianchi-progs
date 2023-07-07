@@ -909,7 +909,8 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
         except ValueError:
             print(" - graph is not planar")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-        show(G)
+        if debug:
+            show(G)
     else:
         if debug:
             print(f"Constructed a {Ptype}")
@@ -2139,9 +2140,10 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     if nunk:
         poly = "polyhedra have" if nunk>1 else "polyhedron has"
         print(f"{nunk} {poly} unknown type!")
-        for G in polyhedra:
-            if poly_type(G) == 'unknown':
-                show(G)
+        if verbose:
+            for G in polyhedra:
+                if poly_type(G) == 'unknown':
+                    show(G)
 
     for pol,num in pt.items():
         if num:
