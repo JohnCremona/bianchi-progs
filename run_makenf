@@ -1,14 +1,20 @@
 #!/bin/bash
 d=$1
+MINLEVEL=1
 MAXLEVEL=${2:-100}
 NJOBS=${3:-10}
-echo "field:" $d "maxlevel:" ${MAXLEVEL}
+echo "Starting field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL}
 if [[ $((d % 4)) -ne 3 ]] ; then
     D=$(( 4*d ))
 else
     D=$d
 fi
 
-parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} 1 ${MAXLEVEL} 1`
+parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} ${MINLEVEL} ${MAXLEVEL} 1`
 
+echo ${d} -1  ${MINLEVEL} ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
+
+grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
+
+echo "Finished field:" $d " level norms ${MINLEVEL} " to " ${MAXLEVEL}
 

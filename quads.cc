@@ -40,19 +40,21 @@ vector<long> euclidean_fields = {1,2,3,7,11};
 // (all with |disc|<150, and -42, -163)
 vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclidean
                              19, 43, 67, 163,                         // other class number 1
-                             5, 6, 10, 13, 15, 22, 35, 37, 51, 91, 115, 123, 187, // class number 2 (incomplete)
+                             5, 6, 10, 13, 15, 22, 35, 37, 51, 58, 91, 115, 123, 187, 235, // class number 2 (incomplete)
                              23, 31, 59, 83, 107, 139, 211,           // class number 3 (incomplete)
                              14, 17, 30, 34, 39, 46, 55, 155, 203, 219, // class number 4 cyclic (incomplete)
-                             21, 33, 42, 195,                         // class number 4 noncyclic (incomplete)
-                             47, 79, 103, 127, 131, 179,              // class number 5 (incomplete)
-                             26, 29, 38, 53, 87,                      // class number 6 (incomplete)
-                             71, 151,                                 // class number 7 (incomplete)
-                             41, 95, 111, 183,                        // class number 8 cyclic (incomplete)
+                             21, 33, 42, 57, 195,                     // class number 4 noncyclic (incomplete)
+                             47, 79, 103, 127, 131, 179, 227,         // class number 5 (incomplete)
+                             26, 29, 38, 53, 61, 87, 247,             // class number 6 (incomplete)
+                             71, 151, 223,                            // class number 7 (incomplete)
+                             41, 62, 95, 111, 183,                    // class number 8 cyclic (incomplete)
                              199,                                     // class number 9 cyclic (incomplete)
                              119, 143, 159,                           // class number 10 cyclic (incomplete)
                              167,                                     // class number 11 (incomplete)
+                             231,                                     // class number 12 noncyclic (incomplete)
                              191,                                     // class number 13 (incomplete)
-                             215};                                    // class number 14 (incomplete)
+                             215,                                     // class number 14 (incomplete)
+                             239};                                    // class number 15 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
