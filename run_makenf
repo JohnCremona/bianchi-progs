@@ -1,0 +1,14 @@
+#!/bin/bash
+d=$1
+MAXLEVEL=${2:-100}
+NJOBS=${3:-10}
+echo "field:" $d "maxlevel:" ${MAXLEVEL}
+if [[ $((d % 4)) -ne 3 ]] ; then
+    D=$(( 4*d ))
+else
+    D=$d
+fi
+
+parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} 1 ${MAXLEVEL} 1`
+
+
