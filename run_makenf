@@ -16,5 +16,5 @@ echo ${d} -1  ${MINLEVEL} ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/new
 
 grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 
-echo "Finished field:" $d " level norms ${MINLEVEL} " to " ${MAXLEVEL}
+echo "Finished field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL}
 
