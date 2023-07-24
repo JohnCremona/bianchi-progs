@@ -10,7 +10,32 @@ else
     D=$d
 fi
 
-parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} ${MINLEVEL} ${MAXLEVEL} 1`
+if [[ $((D % 8)) -ne 3 ]] ; then
+    m=2
+else
+ if [[ $((D % 3)) -ne 1 ]] ; then
+    m=3
+ else
+    m=4
+ fi
+fi
+
+echo "smallest norm (> 1) is " ${m}
+
+echo "norm 1"
+./makenf1_hybrid 1 1.1
+mk=$(( m ))
+mk1=$(( mk*m ))
+mk2=$(( mk1-1 ))
+while true; do
+echo "norms from " ${mk} " to " ${mk2}
+parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} ${mk} ${mk2} 1`
+mk=$(( mk1 ))
+mk1=$(( mk*m ))
+mk2=$(( mk1-1 ))
+if [[ $((mk2)) -gt $((MAXLEVEL)) ]] ; then mk2=$((MAXLEVEL)); fi;
+if [[ $((mk)) -gt $((MAXLEVEL)) ]] ; then break; fi;
+done
 
 echo ${d} -1  ${MINLEVEL} ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 

@@ -19,7 +19,7 @@ PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${LEVEL} 0.0"
 PROG="./makenf_long_${d}_${LEVEL}"
 ln -s makenf_long "${PROG}"
 
-if ( echo "${PARAMS}" | "${PROG}" > "${PROG}".out );
+if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
 then
   echo "${PROG} using long ints succeeded"
   /bin/rm "${PROG}"
@@ -28,7 +28,7 @@ else
   /bin/rm "${PROG}"
   PROG="./makenf_ZZ_${d}_${LEVEL}"
   ln -s makenf_ZZ "${PROG}"
-  echo "${PARAMS}" | "${PROG}" > "${PROG}".out
+  echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
   /bin/rm "${PROG}"
 fi
 
