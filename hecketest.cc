@@ -12,7 +12,7 @@ int main(void)
   long d, max(MAXPRIME);
   int np, ntp;
  Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal;
- cerr << "Enter field (one of "<<valid_fields<<"): " << flush;  cin >> d;
+ cerr << "Enter field: " << flush;  cin >> d;
  if (!check_field(d))
    {
      cerr<<"field must be one of: "<<valid_fields<<endl;
