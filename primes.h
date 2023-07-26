@@ -71,6 +71,15 @@ public:
   static vector<Quadprime> list;  // the list of primes
   static void init(long maxn=1000);     //  sets the list up
   static void display(ostream& s = cout, long maxn=0, int show_genus=0);
+  Quadprime operator[](int i) {return list[i];}
+  static int index(const Quadprime& P)
+  {
+    return std::find(list.begin(), list.end(), P) - list.begin();
+  }
+  static int conjugate_index(int i)
+  {
+    return std::find(list.begin(), list.end(), list[i].conj()) - list.begin();
+  }
 };
 
 class QuadprimeLooper {

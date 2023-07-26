@@ -159,6 +159,10 @@ public:
   int is_CM(void);
   // Return this twisted by the genus character associated to D
   newform twist(const QUINT& D);
+
+  // Conjugate data: NB this *only* conjugates data needed for
+  // output_to_file(), not everything!
+  void conjugate(int debug=0);
 };
 
 class newforms :public splitter_base {
@@ -210,6 +214,7 @@ public:
   Qideal N;  // the level
   vector<Quadprime> badprimes; // list of all bad primes Q (dividing the level N)
   vector<Quadprime> goodprimes;  // good primes in order
+  vector<int> bad_prime_conjugation_permutation;
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   int level_is_square;
   int verbose, nwq, nap, n2r, nchi;
@@ -237,9 +242,7 @@ public:
   int have_bases;
   vector<newform> nflist;
   explicit newforms(const Qideal& N, int disp=0, long ch=0);
-  ~newforms(void) {
-                   if(h1)delete h1;
-                  }
+  ~newforms(void) { if(h1)delete h1; }
   void display(int detail=1);
   // List newforms in a fixed format. NB In even class number, each
   // element from nflist gives rise to 2**n2r (or 2**(n2r-1) in case
@@ -289,6 +292,10 @@ private:
   void read_from_file_or_find();
   // if created from stored data but need bases and homspace
   void makebases();
+
+  // Conjugate data: NB this *only* conjugates data needed for
+  // output_to_file(), not everything!
+  void conjugate(int debug=0);
 };
 
 #endif

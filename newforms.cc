@@ -2622,4 +2622,87 @@ vector<long> newforms::eigrange(int i)
   return eigranges[i];
 }
 
+// Conjugate newforms data: NB this *only* conjugates data needed for
+// output_to_file(), not everything!
+void newforms::conjugate(int debug)
+{
+  h1=0;
+  of=0;
+  // Conjugate level (and do nothing more if level is self-conjugate):
+  Qideal Nbar = N.conj();
+  if (N==Nbar)
+    return;
+  if (debug)
+    cout<<"Conjugate level = "<<Nbar<<endl;
+  N = Nbar;
+
+  // Conjugate badprimes:
+
+  if (debug)
+    cout<<"Original bad primes = "<<badprimes<<endl;
+  vector<Quadprime> conj_badprimes = Nbar.factorization().sorted_primes();
+  for (int i=0; i<(int)badprimes.size(); i++)
+    {
+      bad_prime_conjugation_permutation.push_back(std::find(badprimes.begin(), badprimes.end(), conj_badprimes[i].conj()) - badprimes.begin());
+    }
+  if (debug)
+    cout<<"Conjugation permutation of bad primes = "<<bad_prime_conjugation_permutation<<endl;
+
+  if (debug)
+    {
+      cout<<"Before conjugating individual newforms:"<<endl;
+      display();
+    }
+
+  // Conjugate aq and ap for each newform:
+
+  for (auto f = nflist.begin(); f!=nflist.end(); f++)
+    {
+      f->nf=this;
+      f->conjugate(debug);
+    }
+  if (debug)
+    {
+      cout<<"After conjugating individual newforms:"<<endl;
+      display();
+    }
+}
+
+// Conjugate newform data: NB this *only* conjugates data needed for
+// output_to_file(), not everything!
+void newform::conjugate(int debug)
+{
+  if (debug)
+    cout<<"Conjugating data for newform "<<index<<" at level "<<nf->N<<endl;
+
+  // Conjugate AL eigs:
+
+  vector<long> conj_aqlist; // temporary for permuted values
+  for (int i=0; i<(int)aqlist.size(); i++)
+    {
+      conj_aqlist.push_back(aqlist[nf->bad_prime_conjugation_permutation[i]]);
+    }
+  if (debug)
+    cout<<"Conjugate aqlist =  "<<conj_aqlist<<endl;
+  aqlist = conj_aqlist;
+
+  // Conjugate aP coeffs (for all P, not just good P):
+
+  vector<long> conj_aplist; // temporary for permuted values
+  for (int i=0; i<(int)aplist.size(); i++)
+    {
+      conj_aplist.push_back(aplist[Quadprimes::conjugate_index(i)]);
+    }
+  if (debug)
+    cout<<"Conjugate aplist =  "<<conj_aplist<<endl;
+  aplist = conj_aplist;
+
+  // Conjugate integration matrix:
+
+  a = a.conj();
+  b = a.conj();
+  c = a.conj();
+  d = a.conj();
+}
+
 //end of newforms.cc

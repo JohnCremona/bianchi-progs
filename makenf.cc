@@ -29,9 +29,9 @@ int main ()
     }
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
+ int both_conj=0;
 #ifdef LOOPER
  long firstn, lastn;
- int both_conj;
  cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
@@ -47,7 +47,10 @@ int main ()
  // dimtabfilename << "/dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
  // ofstream dimtab(dimtabfilename.str().c_str());
 
- Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
+ // This loop only covers one of each conjugate pair.  For levels not
+ // Galois stable, if both_conj is true and output is true, we'll
+ // output the conjugate data too.
+ Qidealooper loop(firstn, lastn, 0, 1); // sorted within norm
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
@@ -101,6 +104,27 @@ int main ()
 	 cout << "Writing data to file "<<efilename<<"..."<<flush;
 	 nf.output_to_file(efilename);
 	 cout << "done." << endl;
+
+         if(both_conj)
+           {
+             Qideal Nbar = N.conj();
+             if (N!=Nbar)
+               {
+                 string conj_efilename = eigfile(Nbar);
+                 string conj_label = ideal_label(Nbar);
+                 cout << "Conjugating data for level "<<label
+                      <<" into data for conjugate level "<<conj_label
+                      <<" and resorting"<<endl;
+                 newforms nfbar(nf);
+                 nfbar.conjugate();
+                 nfbar.sort_lmfdb();
+                 cout << "Writing conjugate data to file "
+                      <<conj_efilename<<"..."<<flush;
+                 nfbar.output_to_file(conj_efilename);
+                 cout << "done." << endl;
+               }
+           }
+
        }
      cout<<"==========================================="<<endl;
    }
