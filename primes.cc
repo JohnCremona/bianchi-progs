@@ -71,12 +71,13 @@ int Quadprime::genus_character(const QUINT& D)
 {
   if (!div_disc(D, Quad::disc))
     return 0;
-  // cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
+  //cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
   vector<int> v1 = chardisc(D), v2 = genus_character();
-  // cout<<" with character values "<< v1 << " for P and "<< v2 << " for D"<<endl;
-  int dot = std::inner_product(v1.begin(), v1.end(), v2.begin(), 0);
-  // cout<<"dot product = "<<dot<<" --> "<<(dot? -1: +1)<<endl;
-  return (dot? -1: +1);
+  //cout<<" with character values "<< v1 << " for D and "<< v2 << " for P"<<endl;
+  int dot = std::inner_product(v1.begin(), v1.end(), v2.begin(), 0) % 2;
+  dot = (dot? -1: +1);
+  //cout<<"dot product (mod 2) = "<<dot<<" --> "<< dot <<endl;
+  return dot;
 }
 
 long Quadprime::genus_class(int contract)

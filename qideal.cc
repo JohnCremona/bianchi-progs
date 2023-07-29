@@ -902,12 +902,6 @@ ostream& operator<<(ostream& s, const Qideal& x)
   return s;
 }
 
-char* to_string(const Qideal& a)
-{
-  ostringstream ans;
-  ans << a;
-  return (char*)ans.str().c_str();
-}
 
 long val(const Qideal& factor, const Qideal& dividend)
 {
