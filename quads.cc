@@ -759,10 +759,10 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 // U holds the unimodular transform
 void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 {
-#ifdef test_reduce
   Quad alpha0=alpha, beta0=beta;
-  cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
   QUINT U11, U12, U21, U22;
+#ifdef test_reduce
+  cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
 #endif
   U.reset(); // to the identity
   int s=1;
@@ -778,11 +778,11 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
           U.y_shift(BIGINT(n));
 #ifdef test_reduce
           cout<<" -- shift by " << n <<": alpha="<<alpha<<", beta="<<beta<< endl;
+#endif
           U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
           U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
           assert (U11*alpha+U12*beta == alpha0);
           assert (U21*alpha+U22*beta == beta0);
-#endif
         }
       if (beta.nm < alpha.nm)
         {
