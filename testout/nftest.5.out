@@ -2,7 +2,7 @@
 >>>> Level 16.1 = (4), norm = 16 <<<<
 
 1 newform(s) at level 16.1 = (4) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 2 -2 2 2 -2 2 -2 -2 -2 -2 -2 -6 6 6 -6 10 10 14 -14 -2 2 -6 -6 6 ]
+1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 2 -2 2 2 -2 2 -2 -2 -2 -2 -2 -6 6 6 -6 10 10 14 -14 -2 2 -6 -6 6 6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1, cuspidal factor = 4
@@ -11,7 +11,7 @@ Integration matrix = [3a,2;-8,a], factor   = 4
 >>>> Level 20.1 = (2a), norm = 20 <<<<
 
 1 newform(s) at level 20.1 = (2a) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 2 2 -1 -2 -2 -6 -6 6 6 6 6 10 10 6 6 2 2 -2 -2 -6 -6 -6 -6 6 ]
+1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 2 2 -1 -2 -2 -6 -6 6 6 6 6 10 10 6 6 2 2 -2 -2 -6 -6 -6 -6 6 6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 48
 L/P ratio    = 1, cuspidal factor = 6
@@ -20,7 +20,7 @@ Integration matrix = [8+5a,2+a;10-4a,2-a], factor   = 6
 >>>> Level 40.1 = (4a,-10-2a), norm = 40 <<<<
 
 1 newform(s) at level 40.1 = (4a,-10-2a) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 0 1 4 4 -4 -4 -2 -2 -6 -6 8 8 -4 -4 -2 -2 -8 -8 16 16 -6 -6 6 ]
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 0 0 1 4 4 -4 -4 -2 -2 -6 -6 8 8 -4 -4 -2 -2 -8 -8 16 16 -6 -6 6 6 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 32
 L/P ratio    = 1/2, cuspidal factor = 2
@@ -29,7 +29,7 @@ Integration matrix = [-2-3a,2;-10-2a,2-a], factor   = 2
 >>>> Level 50.1 = (10,-5+5a), norm = 50 <<<<
 
 1 newform(s) at level 50.1 = (10,-5+5a) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 1 1 0 2 2 6 6 0 0 -3 -3 -4 -4 12 12 2 2 -13 -13 -9 -9 15 15 -18 ]
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 1 1 0 2 2 6 6 0 0 -3 -3 -4 -4 12 12 2 2 -13 -13 -9 -9 15 15 -18 -18 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 60
 L/P ratio    = 1, cuspidal factor = 3

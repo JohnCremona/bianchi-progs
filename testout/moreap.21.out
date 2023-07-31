@@ -6,14 +6,14 @@ Program moreap: for each level, assumes that the newforms file exists, and compu
 Retrieving newform data for N = 24.1
 
 1 newform(s) at level 24.1 = (-6+2a,-6-2a) (up to twist by unramified character):
-1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 1 2 2 0 4 4 -2 -2 4 4 -8 -8 -8 -8 6 6 6 6 8 ]
+1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ 0 1 2 2 0 4 4 -2 -2 4 4 -8 -8 -8 -8 6 6 6 6 8 8 ]
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 96
 L/P ratio    = 3/2, cuspidal factor = 2
 Integration matrix = [-10+a,3;4a,2-a], factor   = 2
 Making homspace and bases...
-About to recover 1 newform bases (nap=20)
-Recovering newform #1, eigs [ 1 1 -1 -1 -7 5 5 -13 -13 -3 -3 41 41 33 33 6 6 -5 -5 -7 ]...
+About to recover 1 newform bases (nap=21)
+Recovering newform #1, eigs [ 1 1 -1 -1 -7 5 5 -13 -13 -3 -3 41 41 33 33 6 6 -5 -5 -7 -7 ]...
 Entering form_finder, depth = 0, dimension 68
 restarting at depth = 0, dimension 68
 Computing nu...done.
@@ -25,7 +25,6 @@ Computing T(P5a^2)...done.
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()
 About to start computing ap...
-P = P71b = (-11+a,-5-6a)	N(P) = 71	    8 
 P = P89a = (-19+2a,-16-3a)	N(P) = 89	    6 
 P = P89b = (-16+3a,-19-2a)	N(P) = 89	    6 
 P = P101a = (22+a,-13+4a)	N(P) = 101	   18 

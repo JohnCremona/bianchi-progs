@@ -27,6 +27,14 @@ int main ()
       cerr<<"Reducing from "<<nap<<" to "<<nQP<<", the number of Quadprimes initialized"<<endl;
       nap=nQP;
     }
+  // Make sure the first nap primes are closed under conjugation:
+  Quadprime P=Quadprimes::list[nap-1];
+  if (P.norm() == Quadprimes::list[nap].norm())
+    {
+      cerr<<"Increasing nap from "<<nap<<" to "<<nap+1<<" to include the conjugate of "<<P<<endl;
+      nap+=1;
+    }
+
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
  int both_conj=0;

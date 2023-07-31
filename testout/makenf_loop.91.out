@@ -15,11 +15,8 @@ Writing data to file nftmp/2.0.91.1/4.1...done.
 >>>> Level 5.1 = (5,1+a), norm = 5 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/5.1...done.
-===========================================
-
->>>> Level 5.2 = (5,-2+a), norm = 5 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/5.2...done.
+Conjugating data for level 5.1 into data for conjugate level 5.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/5.2...done.
 ===========================================
 
 >>>> Level 7.1 = (3+a,-4+a), norm = 7 <<<<
@@ -45,46 +42,34 @@ Writing data to file nftmp/2.0.91.1/16.1...done.
 >>>> Level 19.1 = (8+a,-3+2a), norm = 19 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/19.1...done.
-===========================================
-
->>>> Level 19.2 = (-9+a,-1-2a), norm = 19 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/19.2...done.
+Conjugating data for level 19.1 into data for conjugate level 19.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/19.2...done.
 ===========================================
 
 >>>> Level 20.1 = (10,2+2a), norm = 20 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/20.1...done.
-===========================================
-
->>>> Level 20.2 = (10,-4+2a), norm = 20 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/20.2...done.
+Conjugating data for level 20.1 into data for conjugate level 20.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/20.2...done.
 ===========================================
 
 >>>> Level 23.1 = (a), norm = 23 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/23.1...done.
-===========================================
-
->>>> Level 23.2 = (-1+a), norm = 23 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/23.2...done.
+Conjugating data for level 23.1 into data for conjugate level 23.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/23.2...done.
 ===========================================
 
 >>>> Level 25.1 = (1+a), norm = 25 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/25.1...done.
+Conjugating data for level 25.1 into data for conjugate level 25.3 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/25.3...done.
 ===========================================
 
 >>>> Level 25.2 = (5), norm = 25 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/25.2...done.
-===========================================
-
->>>> Level 25.3 = (-2+a), norm = 25 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/25.3...done.
 ===========================================
 
 >>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
@@ -96,31 +81,22 @@ Writing data to file nftmp/2.0.91.1/28.1...done.
 >>>> Level 29.1 = (2+a), norm = 29 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/29.1...done.
-===========================================
-
->>>> Level 29.2 = (-3+a), norm = 29 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/29.2...done.
+Conjugating data for level 29.1 into data for conjugate level 29.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/29.2...done.
 ===========================================
 
 >>>> Level 31.1 = (11+a,-9+2a), norm = 31 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/31.1...done.
-===========================================
-
->>>> Level 31.2 = (-12+a,-7-2a), norm = 31 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/31.2...done.
+Conjugating data for level 31.1 into data for conjugate level 31.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/31.2...done.
 ===========================================
 
 >>>> Level 35.1 = (-4+a), norm = 35 <<<<
 No newforms.
 Writing data to file nftmp/2.0.91.1/35.1...done.
-===========================================
-
->>>> Level 35.2 = (3+a), norm = 35 <<<<
-No newforms.
-Writing data to file nftmp/2.0.91.1/35.2...done.
+Conjugating data for level 35.1 into data for conjugate level 35.2 and resorting
+Writing conjugate data to file nftmp/2.0.91.1/35.2...done.
 ===========================================
 
 >>>> Level 36.1 = (6), norm = 36 <<<<
