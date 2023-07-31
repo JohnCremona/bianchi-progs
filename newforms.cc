@@ -752,6 +752,10 @@ newform newform::twist(const QUINT& D)
   newform f = *this; //copy constructor
   if (D==ONE)
     return f;
+
+  //cout<<"Twisting newform by discriminant "<<D<<endl;
+  //cout<<"aP before: "<<f.aplist<<endl;
+
   // Twist the ap:
   auto Pi = Quadprimes::list.begin();
   auto aPi=f.aplist.begin();
@@ -759,6 +763,9 @@ newform newform::twist(const QUINT& D)
        aPi!=f.aplist.end();
        ++Pi, ++aPi)
     (*aPi) *= Pi->genus_character(D);
+
+  //cout<<"aP after: "<<f.aplist<<endl;
+
   // Twist the AL eigenvalues:
   auto Qi = nf->badprimes.begin();
   auto aQi=f.aqlist.begin();
