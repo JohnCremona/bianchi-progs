@@ -10,6 +10,8 @@ Writing data to file nftmp/2.0.51.1/9.1...done.
 >>>> Level 11.1 = (4+a,-3+2a), norm = 11 <<<<
 No newforms.
 Writing data to file nftmp/2.0.51.1/11.1...done.
+Conjugating data for level 11.1 into data for conjugate level 11.2 and resorting
+Writing conjugate data to file nftmp/2.0.51.1/11.2...done.
 ===========================================
 
 >>>> Level 17.1 = (-1+2a,-9+a), norm = 17 <<<<

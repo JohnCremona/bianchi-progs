@@ -18,5 +18,7 @@ Writing data to file nftmp/2.0.52.1/26.1...done.
 
 1 newform(s) at level 49.1 = (-6+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.52.1/49.1...done.
+Conjugating data for level 49.1 into data for conjugate level 49.3 and resorting
+Writing conjugate data to file nftmp/2.0.52.1/49.3...done.
 ===========================================
 

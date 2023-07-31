@@ -25,9 +25,9 @@ Retrieving newform data for N = 22.2
 1 newform(s) at level 22.2 = (-4+a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 0 -2 0 3 3 1 5 -3 -12 -1 8 -12 0 5 12 0 8 8 6 3 -1 8 6 9 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 180
+Twisting prime lambda = 1, factor = 144
 L/P ratio    = 2, cuspidal factor = 9
-Integration matrix = [-3-a,a;-4+a,3], factor   = 3
+Integration matrix = [-15+2a,-13-2a;-13-2a,-13-2a], factor   = 6
 Retrieving newform data for N = 22.3
 
 >>>> Level 22.3 = (3+a), norm = 22 <<<<

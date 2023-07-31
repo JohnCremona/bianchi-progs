@@ -6,24 +6,32 @@ Ideal class group representatives: [ [1,a] [3,a] ]
 
 1 newform(s) at level 9.1 = (a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/9.1...done.
+Conjugating data for level 9.1 into data for conjugate level 9.3 and resorting
+Writing conjugate data to file nftmp/2.0.35.1/9.3...done.
 ===========================================
 
 >>>> Level 9.3 = (-1+a), norm = 9 <<<<
 
 1 newform(s) at level 9.3 = (-1+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/9.3...done.
+Conjugating data for level 9.3 into data for conjugate level 9.1 and resorting
+Writing conjugate data to file nftmp/2.0.35.1/9.1...done.
 ===========================================
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 
 1 newform(s) at level 27.2 = (9,3a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/27.2...done.
+Conjugating data for level 27.2 into data for conjugate level 27.3 and resorting
+Writing conjugate data to file nftmp/2.0.35.1/27.3...done.
 ===========================================
 
 >>>> Level 27.3 = (9,-3+3a), norm = 27 <<<<
 
 1 newform(s) at level 27.3 = (9,-3+3a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.35.1/27.3...done.
+Conjugating data for level 27.3 into data for conjugate level 27.2 and resorting
+Writing conjugate data to file nftmp/2.0.35.1/27.2...done.
 ===========================================
 
 >>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<

@@ -6,7 +6,7 @@
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 110
 L/P ratio    = 5/2, cuspidal factor = 11
-Integration matrix = [-5-2a,5;-6+a,1-a], factor   = 11
+Integration matrix = [-5-2a,-7+2a;-7+2a,-7+2a], factor   = 11
 
 >>>> Level 6.4 = (-1+a,-6), norm = 6 <<<<
 
@@ -24,7 +24,7 @@ Integration matrix = [-7+2a,5;-5-a,a], factor   = 11
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 120
 L/P ratio    = 2, cuspidal factor = 3
-Integration matrix = [5+2a,a;12-2a,5], factor   = 3
+Integration matrix = [-19,-19;-19,-19], factor   = 12
 
 >>>> Level 12.4 = (6,-2+2a), norm = 12 <<<<
 
@@ -42,7 +42,7 @@ Integration matrix = [-19,2a;-4+4a,5], factor   = 12
 Sign of F.E. = -1
 Twisting prime lambda = 1, factor = 132
 L/P ratio    = 3, cuspidal factor = 11
-Integration matrix = [9-2a,-2+a;-7-a,3], factor   = 11
+Integration matrix = [2-3a,-1+3a;-1+3a,-1+3a], factor   = 11
 
 >>>> Level 17.2 = (1+2a,-8+a), norm = 17 <<<<
 

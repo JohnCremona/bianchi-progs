@@ -6,45 +6,61 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 
 1 newform(s) at level 10.1 = (-4+a,-2-2a):
 Writing data to file nftmp/2.0.31.1/10.1...done.
+Conjugating data for level 10.1 into data for conjugate level 10.4 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/10.4...done.
 ===========================================
 
 >>>> Level 10.4 = (3+a,-4+2a), norm = 10 <<<<
 
 1 newform(s) at level 10.4 = (3+a,-4+2a):
 Writing data to file nftmp/2.0.31.1/10.4...done.
+Conjugating data for level 10.4 into data for conjugate level 10.1 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/10.1...done.
 ===========================================
 
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 
 1 newform(s) at level 14.2 = (4+a,-6+2a):
 Writing data to file nftmp/2.0.31.1/14.2...done.
+Conjugating data for level 14.2 into data for conjugate level 14.3 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/14.3...done.
 ===========================================
 
 >>>> Level 14.3 = (-5+a,-4-2a), norm = 14 <<<<
 
 1 newform(s) at level 14.3 = (-5+a,-4-2a):
 Writing data to file nftmp/2.0.31.1/14.3...done.
+Conjugating data for level 14.3 into data for conjugate level 14.2 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/14.2...done.
 ===========================================
 
 >>>> Level 20.1 = (-4+a), norm = 20 <<<<
 No newforms.
 Writing data to file nftmp/2.0.31.1/20.1...done.
+Conjugating data for level 20.1 into data for conjugate level 20.6 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/20.6...done.
 ===========================================
 
 >>>> Level 20.3 = (2+2a,-8+2a), norm = 20 <<<<
 
 2 newform(s) at level 20.3 = (2+2a,-8+2a):
 Writing data to file nftmp/2.0.31.1/20.3...done.
+Conjugating data for level 20.3 into data for conjugate level 20.4 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/20.4...done.
 ===========================================
 
 >>>> Level 20.4 = (-4+2a,-6-2a), norm = 20 <<<<
 
 2 newform(s) at level 20.4 = (-4+2a,-6-2a):
 Writing data to file nftmp/2.0.31.1/20.4...done.
+Conjugating data for level 20.4 into data for conjugate level 20.3 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/20.3...done.
 ===========================================
 
 >>>> Level 20.6 = (3+a), norm = 20 <<<<
 No newforms.
 Writing data to file nftmp/2.0.31.1/20.6...done.
+Conjugating data for level 20.6 into data for conjugate level 20.1 and resorting
+Writing conjugate data to file nftmp/2.0.31.1/20.1...done.
 ===========================================
 

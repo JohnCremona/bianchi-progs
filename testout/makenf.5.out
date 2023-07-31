@@ -23,6 +23,8 @@ Writing data to file nftmp/2.0.20.1/40.1...done.
 >>>> Level 45.1 = (5+2a), norm = 45 <<<<
 No newforms.
 Writing data to file nftmp/2.0.20.1/45.1...done.
+Conjugating data for level 45.1 into data for conjugate level 45.3 and resorting
+Writing conjugate data to file nftmp/2.0.20.1/45.3...done.
 ===========================================
 
 >>>> Level 50.1 = (10,-5+5a), norm = 50 <<<<

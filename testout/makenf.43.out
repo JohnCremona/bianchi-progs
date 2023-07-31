@@ -43,12 +43,16 @@ Writing data to file nftmp/2.0.43.1/121.0.11...done.
 
 1 newform(s) at level 121.3 = (10+a):
 Writing data to file nftmp/2.0.43.1/121.10.1...done.
+Conjugating data for level 121.3 into data for conjugate level 121.1 and resorting
+Writing conjugate data to file nftmp/2.0.43.1/121.110.1...done.
 ===========================================
 
 >>>> Level 124.1 = (8+2a), norm = 124 <<<<
 
 1 newform(s) at level 124.1 = (8+2a):
 Writing data to file nftmp/2.0.43.1/124.8.2...done.
+Conjugating data for level 124.1 into data for conjugate level 124.2 and resorting
+Writing conjugate data to file nftmp/2.0.43.1/124.52.2...done.
 ===========================================
 
 >>>> Level 144.1 = (12), norm = 144 <<<<

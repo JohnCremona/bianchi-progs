@@ -6,6 +6,8 @@ Ideal class group representatives: [ [1,a] [2,1+a] [3,1+a] [3,2+a] ]
 
 1 newform(s) at level 7.1 = (2+a,-5+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.68.1/7.1...done.
+Conjugating data for level 7.1 into data for conjugate level 7.2 and resorting
+Writing conjugate data to file nftmp/2.0.68.1/7.2...done.
 ===========================================
 
 >>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<

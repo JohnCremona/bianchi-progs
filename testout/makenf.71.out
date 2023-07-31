@@ -6,17 +6,23 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [
 
 1 newform(s) at level 18.1 = (a):
 Writing data to file nftmp/2.0.71.1/18.1...done.
+Conjugating data for level 18.1 into data for conjugate level 18.6 and resorting
+Writing conjugate data to file nftmp/2.0.71.1/18.6...done.
 ===========================================
 
 >>>> Level 20.3 = (2+2a,-10), norm = 20 <<<<
 
 1 newform(s) at level 20.3 = (2+2a,-10):
 Writing data to file nftmp/2.0.71.1/20.3...done.
+Conjugating data for level 20.3 into data for conjugate level 20.4 and resorting
+Writing conjugate data to file nftmp/2.0.71.1/20.4...done.
 ===========================================
 
 >>>> Level 24.1 = (-6+a,-6-3a), norm = 24 <<<<
 
 2 newform(s) at level 24.1 = (-6+a,-6-3a):
 Writing data to file nftmp/2.0.71.1/24.1...done.
+Conjugating data for level 24.1 into data for conjugate level 24.8 and resorting
+Writing conjugate data to file nftmp/2.0.71.1/24.8...done.
 ===========================================
 

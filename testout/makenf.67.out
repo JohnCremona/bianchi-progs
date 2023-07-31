@@ -5,6 +5,8 @@ Non-Euclidean, class number 1
 >>>> Level 17.1 = (a), norm = 17 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/17.0.1...done.
+Conjugating data for level 17.1 into data for conjugate level 17.2 and resorting
+Writing conjugate data to file nftmp/2.0.67.1/17.16.1...done.
 ===========================================
 
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
@@ -16,6 +18,8 @@ Writing data to file nftmp/2.0.67.1/67.33.1...done.
 >>>> Level 68.1 = (2a), norm = 68 <<<<
 No newforms.
 Writing data to file nftmp/2.0.67.1/68.0.2...done.
+Conjugating data for level 68.1 into data for conjugate level 68.2 and resorting
+Writing conjugate data to file nftmp/2.0.67.1/68.32.2...done.
 ===========================================
 
 >>>> Level 81.1 = (9), norm = 81 <<<<
@@ -38,6 +42,8 @@ Writing data to file nftmp/2.0.67.1/144.0.12...done.
 
 1 newform(s) at level 153.1 = (3a):
 Writing data to file nftmp/2.0.67.1/153.0.3...done.
+Conjugating data for level 153.1 into data for conjugate level 153.2 and resorting
+Writing conjugate data to file nftmp/2.0.67.1/153.48.3...done.
 ===========================================
 
 >>>> Level 196.1 = (14), norm = 196 <<<<
@@ -56,5 +62,7 @@ Writing data to file nftmp/2.0.67.1/225.0.15...done.
 
 1 newform(s) at level 261.2 = (-12+3a):
 Writing data to file nftmp/2.0.67.1/261.75.3...done.
+Conjugating data for level 261.2 into data for conjugate level 261.1 and resorting
+Writing conjugate data to file nftmp/2.0.67.1/261.9.3...done.
 ===========================================
 

@@ -38,9 +38,9 @@ int main ()
   int output=1;
   cerr << "Output Hecke eigenvalues? (0/1) ";  cin >> output;
  int both_conj=0;
+ cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
 #ifdef LOOPER
  long firstn, lastn;
- cerr<<"Both conjugates? (0/1) "; cin >> both_conj;
  cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
 

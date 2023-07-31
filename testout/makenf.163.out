@@ -18,5 +18,7 @@ Writing data to file nftmp/2.0.163.1/163.81.1...done.
 
 1 newform(s) at level 244.1 = (8+2a):
 Writing data to file nftmp/2.0.163.1/244.8.2...done.
+Conjugating data for level 244.1 into data for conjugate level 244.2 and resorting
+Writing conjugate data to file nftmp/2.0.163.1/244.112.2...done.
 ===========================================
 

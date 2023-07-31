@@ -18,12 +18,16 @@ Writing data to file nftmp/2.0.39.1/12.2...done.
 
 1 newform(s) at level 22.2 = (-4+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.39.1/22.2...done.
+Conjugating data for level 22.2 into data for conjugate level 22.3 and resorting
+Writing conjugate data to file nftmp/2.0.39.1/22.3...done.
 ===========================================
 
 >>>> Level 22.3 = (3+a), norm = 22 <<<<
 
 1 newform(s) at level 22.3 = (3+a) (up to twist by unramified character):
 Writing data to file nftmp/2.0.39.1/22.3...done.
+Conjugating data for level 22.3 into data for conjugate level 22.2 and resorting
+Writing conjugate data to file nftmp/2.0.39.1/22.2...done.
 ===========================================
 
 >>>> Level 39.1 = (-1+2a), norm = 39 <<<<

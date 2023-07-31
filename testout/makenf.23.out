@@ -6,35 +6,47 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 
 1 newform(s) at level 6.1 = (a):
 Writing data to file nftmp/2.0.23.1/6.1...done.
+Conjugating data for level 6.1 into data for conjugate level 6.4 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/6.4...done.
 ===========================================
 
 >>>> Level 26.1 = (4+a), norm = 26 <<<<
 
 1 newform(s) at level 26.1 = (4+a):
 Writing data to file nftmp/2.0.23.1/26.1...done.
+Conjugating data for level 26.1 into data for conjugate level 26.4 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/26.4...done.
 ===========================================
 
 >>>> Level 27.2 = (3a,-9), norm = 27 <<<<
 
 1 newform(s) at level 27.2 = (3a,-9):
 Writing data to file nftmp/2.0.23.1/27.2...done.
+Conjugating data for level 27.2 into data for conjugate level 27.3 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/27.3...done.
 ===========================================
 
 >>>> Level 32.3 = (8,4a), norm = 32 <<<<
 
 1 newform(s) at level 32.3 = (8,4a):
 Writing data to file nftmp/2.0.23.1/32.3...done.
+Conjugating data for level 32.3 into data for conjugate level 32.4 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/32.4...done.
 ===========================================
 
 >>>> Level 36.4 = (6+2a,-6+4a), norm = 36 <<<<
 
 1 newform(s) at level 36.4 = (6+2a,-6+4a):
 Writing data to file nftmp/2.0.23.1/36.4...done.
+Conjugating data for level 36.4 into data for conjugate level 36.6 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/36.6...done.
 ===========================================
 
 >>>> Level 48.3 = (4a,-12+2a), norm = 48 <<<<
 
 1 newform(s) at level 48.3 = (4a,-12+2a):
 Writing data to file nftmp/2.0.23.1/48.3...done.
+Conjugating data for level 48.3 into data for conjugate level 48.8 and resorting
+Writing conjugate data to file nftmp/2.0.23.1/48.8...done.
 ===========================================
 
