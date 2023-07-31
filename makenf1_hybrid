@@ -14,10 +14,11 @@ else
 fi
 mkdir -p newforms/2.0.${D}.1
 
-PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${LEVEL} 0.0"
+PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} 1 ${LEVEL} 0.0"
 
 PROG="./makenf_long_${d}_${LEVEL}"
 ln -s makenf_long "${PROG}"
+echo "Running " ${PROG} " with parameters " ${PARAMS}
 
 if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
 then

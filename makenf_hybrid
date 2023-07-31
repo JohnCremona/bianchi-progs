@@ -21,8 +21,9 @@ PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${BOTH_CONJUGATES} ${FIRST_NORM} $
 
 PROG="./makenf_long_${d}_${N}"
 ln -s makenf_loop_long "${PROG}"
+echo "Running " ${PROG} " with parameters " ${PARAMS}
 
-if ( echo "${PARAMS}" | "${PROG}" > "${PROG}".out );
+if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
 then
   echo "${PROG} using long ints succeeded"
   /bin/rm "${PROG}"
@@ -31,7 +32,7 @@ else
   /bin/rm "${PROG}"
   PROG="./makenf_ZZ_${d}_${N}"
   ln -s makenf_loop_ZZ "${PROG}"
-  echo "${PARAMS}" | "${PROG}" > "${PROG}".out
+  echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
   /bin/rm "${PROG}"
 fi
 
