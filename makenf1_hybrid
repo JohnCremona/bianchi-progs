@@ -1,7 +1,7 @@
 #!/bin/bash
 d=$1
 LEVEL=$2
-NAP=100
+NAP=${3:-100}
 VERBOSE=0
 OUTPUT_EIGS=1
 

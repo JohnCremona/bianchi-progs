@@ -1,9 +1,10 @@
 #!/bin/bash
 d=$1
-MINLEVEL=1
-MAXLEVEL=${2:-100}
-NJOBS=${3:-10}
-echo "Starting field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL}
+MINLEVEL=${2:-1}
+MAXLEVEL=${3:-100}
+NJOBS=${4:-10}
+NAP=${5:-100}
+
 if [[ $((d % 4)) -ne 3 ]] ; then
     D=$(( 4*d ))
 else
@@ -20,27 +21,52 @@ else
  fi
 fi
 
-echo "smallest norm (> 1) is " ${m}
+echo "Starting field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL} ", smallest norm (> 1) is " ${m}
 
-echo "norm 1"
-./makenf1_hybrid 1 1.1
+if [[ $((MINLEVEL)) -lt 2 ]] ; then
+  echo "norm 1"
+  ./makenf1_hybrid 1 1.1
+fi
+
+# mk  = m^k for k=1,2,3,...
+# mk1 = m^{k+1} for k=1,2,3,...
+# mk1m1 = m^{k+1}-1  for k=1,2,3,...
+
+# initialise mk etc:
+
 mk=$(( m ))
 mk1=$(( mk*m ))
-mk2=$(( mk1-1 ))
+mk1m1=$(( mk1-1 ))
+
 while true; do
-echo "norms from " ${mk} " to " ${mk2}
-parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ::: `./qidl_labels ${d} ${mk} ${mk2} 1 0`
-mk=$(( mk1 ))
-mk1=$(( mk*m ))
-mk2=$(( mk1-1 ))
-if [[ $((mk2)) -gt $((MAXLEVEL)) ]] ; then mk2=$((MAXLEVEL)); fi;
-if [[ $((mk)) -gt $((MAXLEVEL)) ]] ; then break; fi;
+
+    first=$(( mk ))
+    if [[ $((mk)) -gt $((MAXLEVEL)) ]] ; then break; fi;
+    if [[ $((first)) -lt $((MINLEVEL)) ]] ; then first=$((MINLEVEL)); fi;
+    last=$(( mk1m1 ))
+    if [[ $((last)) -gt $((MAXLEVEL)) ]] ; then last=$((MAXLEVEL)); fi;
+
+    if [[ $((first)) -le $((last)) ]]; then
+        echo "============================================"
+        echo "running norms from " ${first} " to " ${last}
+        #./qidl_labels ${d} ${first} ${last}
+        parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ${NAP} ::: `./qidl_labels ${d} ${first} ${last} 1 0`
+    fi
+
+# update mk etc:
+
+    mk=$(( mk1 ))
+    mk1=$(( mk*m ))
+    mk1m1=$(( mk1-1 ))
+
 done
 
 echo ${d} -1  ${MINLEVEL} ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 echo $d $MAXLEVEL | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${MINLEVEL}-${MAXLEVEL}
 grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 
+echo "============================================"
 echo "Finished field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL}
-echo "--------------------------------------------------------------------------"
+echo "============================================"
+
 
