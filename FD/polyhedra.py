@@ -48,6 +48,34 @@ Octahedron = Graph( [(0, 1), (0, 2), (0, 4), (0, 5), (1, 2), (1, 3),
                      (1, 4), (2, 3), (2, 5), (3, 4), (3, 5), (4, 5)],
                     name = "octahedron")
 
+# Some compund polyhedra encountered:
+
+SlicedCube = Graph([(0, 1), (0, 2), (0, 3), (1, 0), (1, 4), (1, 5), (6, 3), (6, 2), (6, 7),
+                    (7, 5), (7, 4), (7, 6), (3, 6), (3, 0), (3, 2), (3, 4), (5, 7), (5, 1),
+                    (5, 4), (5, 2), (2, 6), (2, 0), (2, 3), (2, 5), (4, 7), (4, 1), (4, 5), (4, 3)],
+                   name = "sliced cube")
+
+# = cube with an inner diagonal face, also two triangular prisms glued along a square face
+
+DoubleHexagonalPrism = Graph([(0, 1), (0, 2), (0, 3), (4, 2), (4, 5), (4, 6), (7, 5), (7, 1), (7, 8),
+                              (1, 0), (1, 7), (1, 9), (2, 4), (2, 0), (2, 10), (5, 7), (5, 4), (5, 11),
+                              (3, 12), (3, 0), (3, 10), (3, 9), (8, 13), (8, 7), (8, 9), (8, 11),
+                              (6, 14), (6, 4), (6, 11), (6, 10), (10, 15), (10, 2), (10, 3), (10, 6),
+                              (9, 16), (9, 1), (9, 8), (9, 3), (11, 17), (11, 5), (11, 6), (11, 8),
+                              (12, 15), (12, 3), (12, 16), (13, 16), (13, 8), (13, 17), (14, 17),
+                              (14, 6), (14, 15), (15, 12), (15, 10), (15, 14), (16, 13), (16, 9),
+                              (16, 12), (17, 14), (17, 11), (17, 13)],
+                             name = "double hexagonal prism")
+# Two hexagonal prisms glued along a hexagon
+
+HalfStar = Graph( [(0, 1), (0, 2), (0, 3), (4, 5), (4, 6), (4, 3), (1, 0), (1, 2), (1, 5),
+                   (1, 3), (5, 4), (5, 6), (5, 1), (5, 3), (2, 6), (2, 0), (2, 1), (2, 3),
+                   (6, 2), (6, 4), (6, 5), (6, 3), (3, 4), (3, 0), (3, 2), (3, 5), (3, 1), (3, 6)],
+                  name = "half star")
+
+# Half a stella octangula, also a square prism with two tetrahedra glued on no-adjacent triangles
+
+
 Unknown = Graph(name="unknown")
 
 # To add a new type of polyhedron, given one G of the new type:
@@ -64,6 +92,7 @@ Unknown = Graph(name="unknown")
 all_polys = (Tetrahedron, Cube, Octahedron,
              TriangularPrism, SquarePyramid, HexagonalPrism,
              HexagonalCap, TruncatedTetrahedron, Cuboctahedron,
+             SlicedCube, DoubleHexagonalPrism, HalfStar,
              Unknown)
 
 def poly_type(pol):

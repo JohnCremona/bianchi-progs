@@ -899,9 +899,12 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
         print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(f"unrecognised polyhedron from {orb=}")
         print(f" - base point {P} with vertices {Pverts[i]}")
+        print(f"{G = }")
         verts = G.vertices(sort=False)
         print(f" - {len(verts)} vertices: {verts}")
+        edges = [(verts.index(v), verts.index(w)) for (v,w) in E]
         print(f" - {len(E)} edges: {E}")
+        print(f"{edges = }")
         try:
             faces = G.faces()
             print(f" - faces {faces}")
@@ -982,11 +985,11 @@ def principal_polyhedra(alphas, debug=False):
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats, debug=debug) for orb in orbits]
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly} with face sizes")
+    print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
             faces = G.faces()
-            print(f"  {[len(F) for F in faces]}")
+            #print(f"  {[len(F) for F in faces]}")
         except ValueError:
             print("   (not planar)")
     return polyhedra, hemispheres
@@ -1046,11 +1049,11 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbits]
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly} with face sizes")
+    print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
             faces = G.faces()
-            print(f"  {[len(F) for F in faces]}")
+            #print(f"  {[len(F) for F in faces]}")
         except ValueError:
             print("   (not planar)")
     return polyhedra
