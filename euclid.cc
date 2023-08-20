@@ -198,7 +198,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       sigma = *si;
       r=sigma.num(), s=sigma.den(); // sigma = r/s
 #ifdef DEBUG_PSEA
-      cout<<" - testing singular point "<<local_t<<": "<<sigma<<flush;
+      cout<<" - testing singular point "<<local_t<<": "<<sigma<<endl;
 #endif
       // a/b - r/s = (a*s-b*r)/(b*s) will be integral if we have the right sigma
       q = a*s-b*r;
