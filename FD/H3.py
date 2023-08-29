@@ -672,7 +672,7 @@ def is_redundant(P, alphas):
     """
     return any(is_under(P,a)==1 for a in alphas)
 
-def triple_intersections(alphas):
+def triple_intersections(alphas, debug=False):
     """Given a list of principal cusps alpha (all reduced mod O_k) return
     a list of "corners" P = [z,tsq] each the intersection of an S_a
     with at least two other S_{b+t} with z in the fundamental
@@ -692,7 +692,8 @@ def triple_intersections(alphas):
     """
     # Extract the alphas in F4:
     alphas4 = [a for a in alphas if cusp_in_quarter_rectangle(a)]
-
+    if debug:
+        print(f"{len(alphas4) = }")
     # Extend these by 8 translations:
     def nbrs(a):
         k = nf(a)
@@ -702,12 +703,15 @@ def triple_intersections(alphas):
         zlist = [-z, cz, 1-z, -cz, 1-cz, w-z, w+cz,
                  cz+w-1 if w.trace() else 1+w-z]
         alist = [cusp(z2, k) for z2 in zlist]
-        for b in alist:
-            if not b.ideal()==1:
-                print("cusp {} is a neighbour of principal cusp {} but is not principal".format(b,a))
+        if debug:
+            for b in alist:
+                if not b.ideal()==1:
+                    print("cusp {} is a neighbour of principal cusp {} but is not principal".format(b,a))
         return alist
 
     xalphas4 = sum([nbrs(a) for a in alphas4], alphas4)
+    if debug:
+        print(f"{len(xalphas4) = }")
 
     # convert each cusp to a point P = [z,tsq] with tsq the square
     # radius of S_a:
@@ -718,28 +722,32 @@ def triple_intersections(alphas):
     i2j = {}
     for i, Ai in enumerate(Alist):
         i2j[i] = [i+1+j for j,Aj in enumerate(Alist[i+1:]) if  circles_intersect(Ai, Aj)]
+    if debug:
+        print(f" finished making i2j")
+
     # Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
     ijk_list = []
     for i, j_list in i2j.items():
         ijk_list += [(i,j,k) for j in j_list for k in j_list if k in i2j[j]]
+    if debug:
+        print(f" finished making ijk_list")
 
     corners = []
 
     for (i,j,k) in ijk_list:
-        ai = xalphas4[i]
-        aj = xalphas4[j]
-        ak = xalphas4[k]
-        P = tri_inter(ai, aj, ak)
-        if P:
-            z = P[0]
-            t2 = P[1]
-            if t2 and in_quarter_rectangle(z) and not is_redundant(P, xalphas4) and P not in corners:
+        z, t2 = P = tri_inter(xalphas4[i], xalphas4[j], xalphas4[k])
+        if t2:
+            # if debug:
+            #     print(f" found {P = }")
+            if in_quarter_rectangle(z) and not is_redundant(P, xalphas4) and P not in corners:
                 # These corners are in F4, so we apply symmetries to get all those in F:
                 zbar = z.conjugate()
                 for z2 in [z, -z, zbar, -zbar]:
                     if in_rectangle(z2):
                         P2 = [z2, t2]
                         if P2 not in corners:
+                            if debug:
+                                print(f" adding {P2 = }")
                             corners.append(P2)
 
     return corners
@@ -1657,6 +1665,8 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
                     ca = conj_cusp(a)
                     for b in [a, negate_cusp(a), ca, negate_cusp(ca)]:
                         if cusp_in_rectangle(b) and b not in extra_alphas:
+                            if debug:
+                                print(f" - adding alpha {b}")
                             extra_alphas.append(b)
             else:
                 if debug:
@@ -2065,7 +2075,7 @@ def alpha_sigma_data(d, verbose=False, geout=None):
     print(f"{len(sigmas)} singular points: {sigmas}")
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
     print(f"{len(alphas0)} covering alphas, max denom norm {maxn}")
-    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, verbose=verbose)
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, debug=verbose, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
     print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
     print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
@@ -2117,7 +2127,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         if verbose:
             print("computing alphas from scratch")
         with open(geodata_file, 'w') as geout:
-            alphas, sigmas = alpha_sigma_data(d, verbose>1, geout=geout)
+            alphas, sigmas = alpha_sigma_data(d, verbose=verbose, geout=geout)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
     print("{} alphas".format(len(alphas)))
