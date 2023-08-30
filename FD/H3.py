@@ -97,18 +97,18 @@ def cusp_to_point(alpha):
     """
     return [to_k(alpha), radius_squared(alpha)]
 
-def tri_inter(a0, a1, a2):
+def tri_inter_points(a0, a1, a2):
     """Returns the triple intersection point of the hemispheres S_a_i,
     where a0, a1, a2 are principal cusps, if there is one, as a pair
     [z,t2] where z is in k and t2 in QQ is the square of the vertical
     coordinate.
+
+    In this version, each ai = [z,rsq] where z=r/s is principal and rsq=N(s)
     """
     alist = [a0,a1,a2]
-    # Check the cusps are principal, not infinity, and with unit ideal
-    assert all((not a.is_infinity()) and (a.ideal()==1) for a in alist)
     # Define the square radii and centres
-    rho0, rho1, rho2 = [radius_squared(a) for a in alist]
-    al0, al1, al2 = [to_k(a) for a in alist]
+    rho0, rho1, rho2 = [a[1] for a in alist]
+    al0, al1, al2 = [a[0] for a in alist]
     n0, n1, n2 = [a.norm() for a in [al0, al1, al2]]
     #
     delta = al1*(al0-al2).conjugate() + al2*(al1-al0).conjugate() + al0*(al2-al1).conjugate()
@@ -119,6 +119,15 @@ def tri_inter(a0, a1, a2):
     assert t2 == rho1 - n1 - z.norm() + 2*(al1*z.conjugate()).real()
     assert t2 == rho2 - n2 - z.norm() + 2*(al2*z.conjugate()).real()
     return None if t2<0 else [z,t2]
+
+def tri_inter_cusps(a0, a1, a2):
+    """Returns the triple intersection point of the hemispheres S_a_i,
+    where a0, a1, a2 are principal cusps, if there is one, as a pair
+    [z,t2] where z is in k and t2 in QQ is the square of the vertical
+    coordinate.
+    """
+    t = [[to_k(a), radius_squared(a)] for a in [a0,a1,a2]]
+    return tri_inter_points(*t)
 
 def bi_inter(a1, a2):
     """Returns the point on the intersection of the hemispheres S_a_i
@@ -572,7 +581,7 @@ def in_first_half(alpha1, alpha2, centre=0):
     """
     return slope_before(slope(alpha1, centre), slope(alpha2, centre))
 
-# plotting functions taken essentiall from MA
+# plotting functions taken essentially from MA's code
 
 def plot1hemi(kdata, H):
     """
@@ -686,37 +695,37 @@ def triple_intersections(alphas, debug=False):
 
     The 9 quarter-rectangles adjacent to F4 consist of
 
-    -z, zbar, 1-zbar; -zbar, z, 1-zbar; u-z, u_zbar, u+1-zbar
+    -z, zbar, 1-zbar; -zbar, z, 1-zbar; w-z, w+zbar, and either w+1-z or w+zbar-1
 
     for z in F4.
     """
+    K = nf(alphas[0])
+    w = K.gen()
+    t = w.trace()
+
     # Extract the alphas in F4:
-    alphas4 = [a for a in alphas if cusp_in_quarter_rectangle(a)]
+    A = [to_k(a, K) for a in alphas]
+    AlA4 = [(al,a) for al,a in zip(alphas,A) if in_quarter_rectangle(a)]
+    Al4 = [a[0] for a in AlA4] # as cusps
+    A4 = [a[1] for a in AlA4]  # as elements of K
     if debug:
-        print(f"{len(alphas4) = }")
+        print(f"{len(A4) = }")
+
     # Extend these by 8 translations:
-    def nbrs(a):
-        k = nf(a)
-        w = k.gen()
-        z = to_k(a, k)
+    def nbrs(z):
         cz = z.conjugate()
-        zlist = [-z, cz, 1-z, -cz, 1-cz, w-z, w+cz,
-                 cz+w-1 if w.trace() else 1+w-z]
-        alist = [cusp(z2, k) for z2 in zlist]
-        if debug:
-            for b in alist:
-                if not b.ideal()==1:
-                    print("cusp {} is a neighbour of principal cusp {} but is not principal".format(b,a))
-        return alist
+        return [z,-z, cz, 1-z, -cz, 1-cz, w-z, w+cz, w+cz-1 if t else w+1-z]
 
-    xalphas4 = sum([nbrs(a) for a in alphas4], alphas4)
+    XA4 = sum([nbrs(a) for a in A4], [])
+    XAl4 = [cusp(a,K) for a in XA4]
     if debug:
-        print(f"{len(xalphas4) = }")
+        print(f"{len(XA4) = }")
 
-    # convert each cusp to a point P = [z,tsq] with tsq the square
-    # radius of S_a:
+    # convert each cusp z to a point P = [z,tsq] with tsq the square
+    # radius of S_z:
 
-    Alist = [cusp_to_point(a) for a in xalphas4]
+    from utils import frac
+    Alist = [[a,1/frac(a)[1].norm()] for a in XA4]
 
     # For each i get a list of j>i for which S_ai and S_aj intersect properly
     i2j = {}
@@ -730,26 +739,37 @@ def triple_intersections(alphas, debug=False):
     for i, j_list in i2j.items():
         ijk_list += [(i,j,k) for j in j_list for k in j_list if k in i2j[j]]
     if debug:
-        print(f" finished making ijk_list")
+        print(f" finished making ijk_list: {len(ijk_list)} triples")
 
     corners = []
 
     for (i,j,k) in ijk_list:
-        z, t2 = P = tri_inter(xalphas4[i], xalphas4[j], xalphas4[k])
-        if t2:
-            # if debug:
-            #     print(f" found {P = }")
-            if in_quarter_rectangle(z) and not is_redundant(P, xalphas4) and P not in corners:
-                # These corners are in F4, so we apply symmetries to get all those in F:
-                zbar = z.conjugate()
-                for z2 in [z, -z, zbar, -zbar]:
-                    if in_rectangle(z2):
-                        P2 = [z2, t2]
-                        if P2 not in corners:
-                            if debug:
-                                print(f" adding {P2 = }")
-                            corners.append(P2)
+        P = tri_inter_points(Alist[i], Alist[j], Alist[k])
+        if not P:
+            continue
+        z, t2 = P
+        if not t2:
+            continue
+        # if debug:
+        #     print(f" found {P = }")
+        if not in_quarter_rectangle(z):
+            continue
+        if P in corners:
+            continue
+        if is_redundant(P, XAl4):
+            continue
+        # These corners are in F4, so we apply symmetries to get all those in F:
+        zbar = z.conjugate()
+        for z2 in [z, -z, zbar, -zbar]:
+            if in_rectangle(z2):
+                P2 = [z2, t2]
+                if P2 not in corners:
+                    if debug:
+                        print(f" adding {P2 = } from (i,j,k)={(i,j,k)}")
+                    corners.append(P2)
 
+    if debug:
+        print(f" returning {len(corners)} corners")
     return corners
 
 def alpha_triples(alphas, debug=False):
@@ -807,7 +827,7 @@ def alpha_triples(alphas, debug=False):
         ai = xalphas[i]
         aj = xalphas[j]
         ak = xalphas[k]
-        P = tri_inter(ai, aj, ak)
+        P = tri_inter_cusps(ai, aj, ak)
         if P and P[1] and in_rectangle(P[0]) and not is_redundant(P, xalphas):
             if P not in corners:
                 if debug:
@@ -1562,7 +1582,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
     alphas_open = []
     pairs_ok = []
     Alist = []
-    first = False
+    first = True #False
     while not ok:
         nc = 0 # number of new alphas added to list
         if first:
@@ -1620,14 +1640,16 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
     We assume that we have already considered all alpha=r/s with N(s)<=maxn.
 
     At the end we discard any alphas with <3 vertices (including translates and singular points).
+
+    NB We assume that the initial list of alphas contains all r/s with
+    N(s) up to some bound:
     """
     sat = False
     checked_points = []
-    alphas1 = alphas.copy() # copy so original list unchanged We
-    # assume that the initial list of alphas contains all r/s with
-    # N(s) up to some bound:
+    # copy so original list unchanged
+    alphas1 = alphas.copy()
     while not sat:
-        all_points = triple_intersections(alphas1)
+        all_points = triple_intersections(alphas1, debug=debug)
         if debug:
             print(f"Found {len(all_points)} potential vertices")
         points = [P for P in all_points if maxn*P[1]<1]
@@ -1650,6 +1672,8 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
             if debug:
                 print(f" - checking {P = }", end="...")
             extras = properly_covering_hemispheres(P)
+            if debug:
+                print(f" done", end="...")
             #extras = properly_covering_hemispheres(P, maxn+1)
             #extras = covering_hemispheres2(P, 'strict', norm_s_lb=maxn+1)
             if extras:
@@ -2255,3 +2279,5 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     with open(geodata_file, 'a') as geout:
         for P in aaa_triangles1 + aas_triangles1 + squares1 + hexagons1:
             polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
+
+    return polyhedra

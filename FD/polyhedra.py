@@ -108,3 +108,41 @@ def poly_types(pols):
     n_unknown = sum(1 for pol in pols if poly_type(pol)=='unknown')
     return dict([(std_pol.name(), sum(1 for pol in pols if pol.is_isomorphic(std_pol)))
                  for std_pol in all_polys] + [('unknown', n_unknown)])
+
+def vertical_halfline(x0,y0, h=1):
+    return parametric_plot3d([x0,y0,lambda x:x], (0,h))
+
+def vertical_semicircle(x1,y1,x2,y2):
+    x0 = (x1+x2)/2
+    y0 = (y1+y2)/2
+    r = ((x1-x2)**2 + (y1-y2)**2).sqrt() /2
+    return parametric_plot3d(
+        [lambda t: x0+(x1-x0)*cos(t),
+         lambda t: y0+(y1-y0)*cos(t),
+         lambda t: r*sin(t)],
+        (0,pi)
+    )
+
+def plot_edge(e, k, h=1):
+    emb = next(e for e in k.embeddings(CC) if e(k.gen()).imag()>0)
+    from utils import to_k
+    if e[0].is_infinity():
+        x0,y0 = emb(to_k(e[1],k))
+        return vertical_halfline(x0,y0,h)
+    if e[1].is_infinity():
+        x0,y0 = emb(to_k(e[0],k))
+        return vertical_halfline(x0,y0,h)
+    (x1,y1), (x2,y2) = (emb(to_k(c,k)) for c in e)
+    return vertical_semicircle(x1,y1,x2,y2)
+
+def poly_display(P, k, h=0):
+    from utils import cusp_from_string
+    print(poly_type(P))
+    V = [cusp_from_string(v, k) for v in P.vertices()]
+    print(f"  vertices: {V}")
+    E = [[cusp_from_string(v, k) for v in e[:2]] for e in P.edges()]
+    print(f"  edges: {E}")
+    F = [[[cusp_from_string(v, k) for v in e] for e in f] for f in P.faces()]
+    print(f"  faces: {F}")
+    if h:
+        return sum([plot_edge(e, k, h) for e in E])
