@@ -50,7 +50,7 @@ vector<POLYGON> hexagons;
 
 // Global functions to be used once during setting the field:
 
-// read from data file 'geodata.dat' into global variables alphas, sigmas,
+// read from data file 'geodata/geodata_{d}.dat' into global variables alphas, sigmas,
 // aaa_triangles, aas_triangles, cyclic_triangles, squares, hexagons
 void read_data(int verbose=0);
 

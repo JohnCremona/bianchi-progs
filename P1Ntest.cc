@@ -26,6 +26,8 @@ void multi_index_test(const vector<long>& nlist, int verbose=0)
     }
 }
 
+#define MAXN 50
+
 void P1N_test(Qideal N, int verbose=0)
 {
   P1N P1(N);
@@ -37,30 +39,38 @@ int main(void)
 {
   cout << endl << "P1N TEST PROGRAM" << endl;
 
-  long d;
-  cout << "Enter field: " << flush;  cin >> d;
-  Quad::field(d);
-  Quad::displayfield(cout);
+  long f;
+  vector<long> fields = valid_fields;
+  cout << "Enter field (0 for all): " << flush;  cin >> f;
+  if (f)
+    fields = {f};
+  for (auto di = fields.begin(); di!=fields.end(); ++di)
+    {
+      cout << "===============================================================\n";
+      long d = *di;
+      Quad::field(d);
+      Quad::displayfield(cout);
 
-  cout << "testing split/merge of multi-indices..." << endl;
-  multi_index_test({2,4,2});
-  multi_index_test({1,5,6});
-  int both=1, sorted=1;
-  long maxn(100);
-  cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
-  Qidealooper loop(1, maxn, both, sorted);
-  while( loop.not_finished() )
-    {
-      P1N_test(loop.next(), 0);
+      cout << "testing split/merge of multi-indices..." << endl;
+      multi_index_test({2,4,2});
+      multi_index_test({1,5,6});
+      int both=1, sorted=1;
+      long maxn(MAXN);
+      cout << "testing P1(N) symbol-index bijections for ideals of norm up to "<<maxn<<"..." << endl;
+      Qidealooper loop(1, maxn, both, sorted);
+      while( loop.not_finished() )
+        {
+          P1N_test(loop.next(), 0);
+        }
+      cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
+      Quadlooper alpha(1, maxn, both);
+      while( alpha.ok() )
+        {
+          P1N_test(Qideal(alpha), 0);
+          ++alpha;
+        }
+      cout<<"field " << d << " done"<<endl;
     }
-  cout << "testing P1(N) symbol-index bijections for Quads of norm up to "<<maxn<<"..." << endl;
-  Quadlooper alpha(1, maxn, both);
-  while( alpha.ok() )
-    {
-      P1N_test(Qideal(alpha), 0);
-      ++alpha;
-    }
-  cout<<"done"<<endl;
 }
 
 // END OF FILE P1Ntest.cc

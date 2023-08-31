@@ -76,7 +76,7 @@ ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6
 ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc
+ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
@@ -86,7 +86,7 @@ headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -114,10 +114,12 @@ FIELDS=$(FIELDS_hom)
 #FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
-BASIC_TESTS = fieldinfo tquads tratquad looptest P1Ntest qidltest
+BASIC_TESTS = tquads tratquad looptest qidltest
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
 FULL_TESTS = modularity modularity_modp  #makenf_modp
+# global tests are universal, not per field
+GLOBAL_TESTS = fieldinfo P1Ntest dimtable_all
 ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS)
 
 test_input_dir = testin
@@ -135,6 +137,10 @@ check: $(ALL_TESTS)
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
 	 for d in $(DISCS); do mkdir $(NF_DIR)/2.0.$$d.1; done
+	 @echo
+	 @echo running global tests...
+	 @echo
+	 @for d in all; do for prog in $(GLOBAL_TESTS); do $(check_run); done; echo; done
 	 @echo
 	 @echo running basic tests on fields $(FIELDS)...
 	 @echo
@@ -239,6 +245,9 @@ dimtable_modp: dimtable_modp.o $(OBJS)
 
 dimtable: dimtable.o $(OBJS)
 	$(CC) -o dimtable dimtable.o $(OBJS) $(LFLAGS)
+
+dimtable_all: dimtable_all.o $(OBJS)
+	$(CC) -o dimtable_all dimtable_all.o $(OBJS) $(LFLAGS)
 
 dimtabeis: dimtabeis.o $(OBJS)
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)

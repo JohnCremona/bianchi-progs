@@ -43,6 +43,12 @@ void Quad::fill_class_group()
 {
   // NB class_number may already be set correctly (if <=5 currently); if not, it will have been set to 0
 
+  class_group.clear();
+  class_group_2_torsion.clear();
+  class_group_2_cotorsion.clear();
+  class_group_2_torsion_gens.clear();
+  class_group_2_cotorsion_gens.clear();
+
   class_group.push_back(Qideal());
   class_group_2_torsion.push_back(Qideal());
   class_group_2_cotorsion.push_back(Qideal());
@@ -61,11 +67,14 @@ void Quad::fill_class_group()
       if (I.is_principal())
         continue;
       if (find_ideal_class(I, class_group) == -1)
-        { //          cout << I << " is in a new ideal class (#" << class_group.size() << ")" << endl;
+        {
+          // cout << I << " is in a new ideal class (#" << class_group.size() << ")" << endl;
           class_group.push_back(I);
-          Qideal I2 = I.conj();
-          if (I.is_equivalent(I2))
+          Qideal I2 = I*I;
+          // cout << " -- the square is " << I2 << endl;
+          if (I2.is_principal())
             {
+              // cout << " -- this class is 2-torsion" <<endl;
               // I is 2-torsion
               if (find_ideal_class(I, class_group_2_torsion)==-1)
                 {
@@ -80,8 +89,9 @@ void Quad::fill_class_group()
                 }
             }
           else
-            { // I has odd order>1, and we keep its conjugate (in the inverse class) too
-              class_group.push_back(I2);
+            { // I has order>1, and we keep its conjugate (in the inverse class) too
+              // cout << " -- this class has order > 2" <<endl;
+              class_group.push_back(I.conj());
             }
         }
       if (class_group.size()==(unsigned)class_number)
@@ -90,8 +100,8 @@ void Quad::fill_class_group()
   if (class_number==0) // then it wasn't preset
     {
       class_number = class_group.size();
-      //  cout << "Class number = " << class_number << " with representatives " << class_group << endl;
     }
+  // cout << "Class number = " << class_number << " with representatives " << class_group << endl;
 
   // replace the 2-torsion class representatives with the equivalent
   // ideals in the main class_group list

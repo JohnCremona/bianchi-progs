@@ -38,31 +38,39 @@ vector<long> euclidean_fields = {1,2,3,7,11};
 
 // fields for which geometry is defined
 // (all with |disc|<150, and -42, -163)
-vector<long> valid_fields = {1, 2, 3, 7, 11,                          // Euclidean
-                             19, 43, 67, 163,                         // other class number 1
-                             5, 6, 10, 13, 15, 22, 35, 37, 51, 58, 91, 115, 123, 187, 235, 267, // class number 2 (incomplete)
-                             23, 31, 59, 83, 107, 139, 211,           // class number 3 (incomplete)
-                             14, 17, 34, 39, 46, 55, 155, 203, 219, 259, // class group C4 (incomplete)
-                             21, 30, 33, 42, 57, 195, 70,             // class group C2xC2 noncyclic (incomplete)
-                             47, 79, 103, 127, 131, 179, 227,         // class number 5 (incomplete)
-                             26, 29, 38, 53, 61, 87, 247,             // class number 6 (incomplete)
-                             71, 151, 223, 251,                       // class number 7 (incomplete)
-                             41, 62, 95, 111, 183,                    // class group C8 (incomplete)
-                             65, 66, 69,                              // class group C2xC4 cyclic (incomplete)
+vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclidean
+                             19, 43, 67, 163,                          // other class number 1 (complete)
+
+                             5, 6, 10, 13, 15, 22, 35, 37, 51, 58, 91, //
+                             115, 123, 187, 235, 267, 403, 427,       // class group C2 (complete)
+
+                             23, 31, 59, 83, 107, 139, 211, 283, 307, //
+                             331, 379, 499, 547, 643, 883, 907,       // class group C3 (complete)
+
+                             14, 17, 34, 39, 46, 55, 73, 155, 203,    //
+                             219, 259, 291,                           // class group C4 (incomplete)
+
+                             21, 30, 33, 42, 57, 195,                 // class group C2xC2 noncyclic (incomplete)
+                             47, 79, 103, 127, 131, 179, 227,         // class group C5 (incomplete)
+                             26, 29, 38, 53, 61, 87, 247,             // class group C6 (incomplete)
+                             71, 151, 223, 251,                       // class group C7 (incomplete)
+                             41, 62, 95, 111, 183, 295, 299,          // class group C8 (incomplete)
+                             65, 66, 69,                              // class group C2xC4 (incomplete)
                              199,                                     // class group C9 (incomplete)
-                             119, 143, 159,                           // class number 10 cyclic (incomplete)
-                             167, 271,                                // class number 11 (incomplete)
-                             231, 255,                                // class group C2xC5 (incomplete)
-                             191, 263,                                // class number 13 (incomplete)
-                             215,                                     // class number 14 (incomplete)
-                             239};                                    // class number 15 (incomplete)
+                             119, 143, 159,                           // class group C10 (incomplete)
+                             167, 271,                                // class group C11 (incomplete)
+                             231, 255,                                // class group C2xC6 (incomplete)
+                             191, 263,                                // class group C13 (incomplete)
+                             215, 287,                                // class group C14 (incomplete)
+                             239};                                    // class group C15 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
 vector<long> class_number_three_fields = {23,31,59,83,107,139,211,283,307,331,379,499,547,643,883,907};
 vector<long> class_number_four_fields = {14,17,21,30,33,34,39,42,46,55,57,70,73,78,82,85,93,97,102,130,
                                          133,142,155,177,190,193,195,203,219,253,259,291,323,355,435,483,
-                                         555,595,627,667,715,723,763,795,955,1003,1027,1227,1243,1387,1411,1435,1507, 1555};
+                                         555,595,627,667,715,723,763,795,955,1003,1027,1227,1243,1387,1411,
+                                         1435,1507, 1555};
 vector<long> class_number_five_fields = {47,79,103,127,131,179,227,347,443,523,571,619,683,691,739,787,947,
                                          1051,1123,1723,1747,1867,2203,2347, 2683};
 
@@ -126,6 +134,21 @@ Quad qdivi1(const Quad& a, QUINT c) // used when t=1
 // static function (one for the class, not per instance)
 void Quad::field(long dd, long max)
 {
+
+  // Clear these in case this is not the first field run
+
+  quadunits.clear();
+  squareunits.clear();
+  quadprimes.clear();
+  prime_disc_factors.clear();
+  all_disc_factors.clear();
+  class_group.clear();
+  class_group_2_torsion.clear();
+  class_group_2_cotorsion.clear();
+  class_group_2_torsion_gens.clear();
+  class_group_2_cotorsion_gens.clear();
+  Qideal_lists::clear();
+
   d = squarefree_part(dd);
   if (d!=dd)
     cout << "Replacing d = " << dd << " with " << d << endl;
@@ -199,6 +222,7 @@ void Quad::field(long dd, long max)
   quadbezout=&quadbezout_psea;
 
   int i;
+
   quadunits.push_back(one);
   quadunits.push_back(fundunit);
   for(i=2; i<nunits; i++)

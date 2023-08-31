@@ -348,6 +348,7 @@ Quad Factorization::solve_CRT(const vector<Quad>& v) // solution to x=v[i] mod Q
 void Quadprimes::init(long maxn)
 {
   maxnorm = maxn;
+  list.clear();
   vector<Quadprime> list1, list2;
 
   // First fill up lists of degree 1 and degree 2 primes

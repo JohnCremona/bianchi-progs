@@ -248,6 +248,11 @@ class Qideal_lists {
 public:
   static vector<Qideal> ideals_with_norm(QUINT N, int both_conj=1);
   static vector<Qideal> ideals_with_bounded_norm(QUINT maxnorm, int both_conj=1);
+
+  static void clear() //  clear the static list
+  {
+    N_to_Ilist.clear();
+  }
 };
 
 // compute a list of ideals coprime to N whose classes generate the 2-torsion

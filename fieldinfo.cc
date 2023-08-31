@@ -4,42 +4,18 @@
 
 int main ()
 {
-  long d, max;
-  cerr << "Enter field: " << flush;  cin >> d;
+  long f, max;
+  vector<long> fields = valid_fields;
+  cerr << "Enter field (0 for all): " << flush;  cin >> f;
   cerr << "Enter max. norm for primes: " << flush;  cin >> max;
   cerr << endl;
-  Quad::field(d,max);
-  Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
-  if (Quad::class_number>1)
+  if (f)
+    fields = {f};
+  for (auto di = fields.begin(); di!=fields.end(); ++di)
     {
+      long d = *di;
+      Quad::field(d,max);
+      Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
       Quadprimes::display(cout, max, 1);
-      exit(0);
-    }
-  //  Quadprimes::display(cout, 0);
-  QUINT np, ip, f;
-  vector<Quad>::iterator pr = quadprimes.begin();
-  while((pr!=quadprimes.end()))
-    {
-      Quad p = *pr++;
-      vector<QUINT> hnf = HNF(p);
-      if (hnf[2]==1)
-        {
-          ip = np = hnf[0];
-          f = 1;
-        }
-      else
-        {
-          ip = hnf[2];
-          np = ip*ip;
-          f = 2;
-        }
-      int e = 1;
-      if (((d==1)&&(ip==2)) || (ip==d)) e=2;
-      cout << np << " "
-           << ideal_label(p)
-           << " (" << p << ") "
-           << ip << " "
-           << e << " "
-           << f << endl;
     }
 }
