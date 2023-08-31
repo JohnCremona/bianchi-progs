@@ -65,6 +65,24 @@ void Quad::setup_geometry()
 {
   n_alphas = n_sigmas = 0;
 
+  // Clear these in case this is not the first field run
+
+  alphas.clear();
+  sigmas.clear();
+  M_alphas.clear();
+  alpha_inv.clear();
+  alpha_flip.clear();
+  sigma_flip.clear();
+  edge_pairs_plus.clear();
+  edge_pairs_minus.clear();
+  edge_fours.clear();
+  cyclic_triangles.clear();
+  aaa_triangles.clear();
+  aas_triangles.clear();
+  squares.clear();
+  hexagons.clear();
+
+
   alphas_sigmas_universal();
 
   if (Quad::is_Euclidean) return;
@@ -507,7 +525,24 @@ void read_data(int verbose)
   char G;
   Quad s, r, r1, r2, u, x, y, z, x1, y1, x2, y2;
 
-  geodata.open("geodata.dat");
+  stringstream ss;
+  ss << "geodata/geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      geodata.open("geodata.dat");
+      if (verbose)
+        cout << "reading from geodata.dat" <<endl;
+      if (!geodata.is_open())
+        {
+          cout << "No geodata file!" <<endl;
+          exit(1);
+        }
+    }
+  else
+    if (verbose)
+      cout << "reading from " << ss.str() <<endl;
+
   getline(geodata, line);
   while (!geodata.eof())
     {
