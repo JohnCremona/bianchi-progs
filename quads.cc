@@ -48,7 +48,7 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              331, 379, 499, 547, 643, 883, 907,       // class group C3 (complete)
 
                              14, 17, 34, 39, 46, 55, 73, 155, 203,    //
-                             219, 259, 291, 78,                       // class group C4 (incomplete)
+                             219, 259, 291, 78, 323,                      // class group C4 (incomplete)
 
                              21, 30, 33, 42, 57, 195,                 // class group C2xC2 noncyclic (incomplete)
                              47, 79, 103, 127, 131, 179, 227,         // class group C5 (incomplete)

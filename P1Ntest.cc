@@ -7,6 +7,9 @@
 #include "primes.h"
 #include "P1N.h"
 
+// Run P1N_test() for all ideals up to this norm bound:
+#define MAXN 30
+
 void multi_index_test(const vector<long>& nlist, int verbose=0)
 {
   long i, n=1;
@@ -25,8 +28,6 @@ void multi_index_test(const vector<long>& nlist, int verbose=0)
         assert(i==j);
     }
 }
-
-#define MAXN 50
 
 void P1N_test(Qideal N, int verbose=0)
 {
