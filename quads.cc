@@ -48,7 +48,7 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              331, 379, 499, 547, 643, 883, 907,       // class group C3 (complete)
 
                              14, 17, 34, 39, 46, 55, 73, 155, 203,    //
-                             219, 259, 291,                           // class group C4 (incomplete)
+                             219, 259, 291, 78,                       // class group C4 (incomplete)
 
                              21, 30, 33, 42, 57, 195,                 // class group C2xC2 noncyclic (incomplete)
                              47, 79, 103, 127, 131, 179, 227,         // class group C5 (incomplete)
@@ -57,12 +57,13 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              41, 62, 95, 111, 183, 295, 299,          // class group C8 (incomplete)
                              65, 66, 69,                              // class group C2xC4 (incomplete)
                              199,                                     // class group C9 (incomplete)
-                             119, 143, 159,                           // class group C10 (incomplete)
+                             119, 143, 159, 303, 319,                 // class group C10 (incomplete)
                              167, 271,                                // class group C11 (incomplete)
                              231, 255,                                // class group C2xC6 (incomplete)
                              191, 263,                                // class group C13 (incomplete)
                              215, 287,                                // class group C14 (incomplete)
-                             239};                                    // class group C15 (incomplete)
+                             239,                                     // class group C15 (incomplete)
+                             311};                                    // class group C19 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};
