@@ -2114,11 +2114,12 @@ def alpha_sigma_data(d, verbose=False, geout=None):
     alpha_file = f"alphas_{d}.py"
     with open(alpha_file, 'w') as aout:
         aout.write(alpha_string+"\n")
-    print(f"Output to {alpha_file} for inserting into alphas.py:")
-    print(alpha_string)
-    sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
-    print(sigma_string)
-    return alphas2, new_sigmas
+    if verbose:
+        print(f"Output to {alpha_file} for inserting into alphas.py:")
+        print(alpha_string)
+        sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
+        print(sigma_string)
+        return alphas2, new_sigmas
 
 def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
@@ -2279,5 +2280,19 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     with open(geodata_file, 'a') as geout:
         for P in aaa_triangles1 + aas_triangles1 + squares1 + hexagons1:
             polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
+
+    with open(f"tessellation_{d}.txt", 'w') as tess_out:
+        for pol,num in pt.items():
+            if num:
+                tess_out.write(f"{pol}: {num}\n")
+        for P in polyhedra:
+            from utils import cusp_from_string
+            tess_out.write(poly_type(P)+"\n")
+            V = [cusp_from_string(v, k) for v in P.vertices()]
+            tess_out.write(f"  vertices: {V}\n")
+            E = [[cusp_from_string(v, k) for v in e[:2]] for e in P.edges()]
+            tess_out.write(f"  edges: {E}\n")
+            F = [[[cusp_from_string(v, k) for v in e] for e in f] for f in P.faces()]
+            tess_out.write(f"  faces: {F}\n")
 
     return polyhedra
