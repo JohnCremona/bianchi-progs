@@ -2119,7 +2119,7 @@ def alpha_sigma_data(d, verbose=False, geout=None):
         print(alpha_string)
         sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
         print(sigma_string)
-        return alphas2, new_sigmas
+    return alphas2, new_sigmas
 
 def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
