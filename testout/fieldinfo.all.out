@@ -1928,6 +1928,73 @@ P89a = 89.1 = [89,a] = (a,-89+a) = (a) (principal: ++)
 P89b = 89.2 = [89,88+a] = (-1+a,-89) = (-1+a) (principal: ++)
 P97a = 97.1 = [97,39+a] = (-19+2a,-20-3a) (not principal: --)
 P97b = 97.2 = [97,57+a] = (17+2a,-23+3a) (not principal: --)
+Q(sqrt(-93))	discriminant = -372	min poly(a) = a^2+93.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,1+a] [3,a] [6,3+a] ]
+2-rank of class group = 2
+ discriminant = (-4)*(-3)*(-31)
+ 2-torsion   generators [ [2,1+a] [3,a] ], 2-torsion   elements [ [1,a] [2,1+a] [3,a] [6,3+a] ]
+ 2-cotorsion generators [ [2,1+a] [3,a] ], 2-cotorsion elements [ [1,a] [2,1+a] [3,a] [6,3+a] ]
+25 prime ideals initialised, max norm = 100
+P2 = 2.1 = [2,1+a] = (2,-1+a) (not principal: --+)
+P3 = 3.1 = [3,a] = (3,a) (not principal: -+-)
+P17a = 17.1 = [17,3+a] = (3+a,-17) (not principal: +--)
+P17b = 17.2 = [17,14+a] = (-3+a,-14-a) (not principal: +--)
+P5 = 25.1 = 5[1,a] = (5,5a) = (5) (principal: +++)
+P29a = 29.1 = [29,9+a] = (9+a,-20+a) (not principal: +--)
+P29b = 29.2 = [29,20+a] = (-9+a,-11-2a) (not principal: +--)
+P31 = 31.1 = [31,a] = (a,-31) (not principal: -+-)
+P43a = 43.1 = [43,6+a] = (6+a,-31+2a) (not principal: -+-)
+P43b = 43.2 = [43,37+a] = (-6+a,-31-2a) (not principal: -+-)
+P47a = 47.1 = [47,1+a] = (1+a,-47) (not principal: --+)
+P47b = 47.2 = [47,46+a] = (-1+a,-46-a) (not principal: --+)
+P7 = 49.1 = 7[1,a] = (7,7a) = (7) (principal: +++)
+P53a = 53.1 = [53,15+a] = (15+a,-23+2a) (not principal: +--)
+P53b = 53.2 = [53,38+a] = (-15+a,-8-3a) (not principal: +--)
+P59a = 59.1 = [59,5+a] = (5+a,-49+2a) (not principal: --+)
+P59b = 59.2 = [59,54+a] = (-5+a,-44-3a) (not principal: --+)
+P71a = 71.1 = [71,7+a] = (7+a,-50+3a) (not principal: --+)
+P71b = 71.2 = [71,64+a] = (-7+a,-43-4a) (not principal: --+)
+P79a = 79.1 = [79,12+a] = (12+a,-31+4a) (not principal: -+-)
+P79b = 79.2 = [79,67+a] = (-12+a,-31-4a) (not principal: -+-)
+P89a = 89.1 = [89,21+a] = (21+a,-26+3a) (not principal: +--)
+P89b = 89.2 = [89,68+a] = (-21+a,-5-4a) (not principal: +--)
+P97a = 97.1 = [97,2+a] = (2+a,-93+2a) = (2+a) (principal: +++)
+P97b = 97.2 = [97,95+a] = (-2+a,-93-2a) = (-2+a) (principal: +++)
+Q(sqrt(-97))	discriminant = -388	min poly(a) = a^2+97.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,1+a] [7,1+a] [7,6+a] ]
+2-rank of class group = 1
+ discriminant = (-4)*(97)
+ 2-torsion   generators [ [2,1+a] ], 2-torsion   elements [ [1,a] [2,1+a] ]
+ 2-cotorsion generators [ [7,1+a] ], 2-cotorsion elements [ [1,a] [7,1+a] ]
+26 prime ideals initialised, max norm = 100
+P2 = 2.1 = [2,1+a] = (2,-1+a) (not principal: ++)
+P7a = 7.1 = [7,1+a] = (7,1+a) (not principal: --)
+P7b = 7.2 = [7,6+a] = (7,-1+a) (not principal: --)
+P3 = 9.1 = 3[1,a] = (3,3a) = (3) (principal: ++)
+P19a = 19.1 = [19,6+a] = (6+a,-13+a) (not principal: --)
+P19b = 19.2 = [19,13+a] = (-6+a,-13-a) (not principal: --)
+P23a = 23.1 = [23,8+a] = (8+a,-15+a) (not principal: --)
+P23b = 23.2 = [23,15+a] = (-8+a,-15-a) (not principal: --)
+P5 = 25.1 = 5[1,a] = (5,5a) = (5) (principal: ++)
+P53a = 53.1 = [53,3+a] = (3+a,-50+a) (not principal: ++)
+P53b = 53.2 = [53,50+a] = (-3+a,-47-2a) (not principal: ++)
+P59a = 59.1 = [59,27+a] = (-5+2a,-27-a) (not principal: --)
+P59b = 59.2 = [59,32+a] = (5+2a,-27+a) (not principal: --)
+P61a = 61.1 = [61,5+a] = (5+a,-51+2a) (not principal: ++)
+P61b = 61.2 = [61,56+a] = (-5+a,-46-3a) (not principal: ++)
+P67a = 67.1 = [67,29+a] = (-9+2a,-29-a) (not principal: --)
+P67b = 67.2 = [67,38+a] = (9+2a,-29+a) (not principal: --)
+P71a = 71.1 = [71,20+a] = (20+a,-11+3a) (not principal: --)
+P71b = 71.2 = [71,51+a] = (-20+a,-11-3a) (not principal: --)
+P73a = 73.1 = [73,7+a] = (7+a,-52+3a) (not principal: ++)
+P73b = 73.2 = [73,66+a] = (-7+a,-45-4a) (not principal: ++)
+P83a = 83.1 = [83,22+a] = (22+a,-17+3a) (not principal: --)
+P83b = 83.2 = [83,61+a] = (-22+a,-17-3a) (not principal: --)
+P89a = 89.1 = [89,9+a] = (9+a,-53+4a) (not principal: ++)
+P89b = 89.2 = [89,80+a] = (-9+a,-44-5a) (not principal: ++)
+P97 = 97.1 = [97,a] = (a,-97) = (a) (principal: ++)
 Q(sqrt(-21))	discriminant = -84	min poly(a) = a^2+21.
 Class number 4
 Ideal class group representatives: [ [1,a] [2,1+a] [3,a] [5,2+a] ]
@@ -3144,6 +3211,76 @@ P89a = 89.1 = [89,35+a] = (-19+2a,-16-3a) (not principal: --)
 P89b = 89.2 = [89,53+a] = (17+2a,-19+3a) (not principal: --)
 P97a = 97.1 = [97,31+a] = (-4+3a,-31-a) (not principal: --)
 P97b = 97.2 = [97,65+a] = (1+3a,-32+a) (not principal: --)
+Q(sqrt(-94))	discriminant = -376	min poly(a) = a^2+94.
+Class number 8
+Ideal class group representatives: [ [1,a] [2,a] [5,1+a] [5,4+a] [7,2+a] [7,5+a] [10,6+a] [10,4+a] ]
+2-rank of class group = 1
+ discriminant = (8)*(-47)
+ 2-torsion   generators [ [2,a] ], 2-torsion   elements [ [1,a] [2,a] ]
+ 2-cotorsion generators [ [5,1+a] ], 2-cotorsion elements [ [1,a] [5,1+a] ]
+29 prime ideals initialised, max norm = 100
+P2 = 2.1 = [2,a] = (2,a) (not principal: ++)
+P5a = 5.1 = [5,1+a] = (5,1+a) (not principal: --)
+P5b = 5.2 = [5,4+a] = (5,-1+a) (not principal: --)
+P7a = 7.1 = [7,2+a] = (7,2+a) (not principal: ++)
+P7b = 7.2 = [7,5+a] = (7,-2+a) (not principal: ++)
+P3 = 9.1 = 3[1,a] = (3,3a) = (3) (principal: ++)
+P11a = 11.1 = [11,4+a] = (4+a,-11) (not principal: --)
+P11b = 11.2 = [11,7+a] = (-4+a,-11) (not principal: --)
+P13a = 13.1 = [13,6+a] = (6+a,-7+a) (not principal: --)
+P13b = 13.2 = [13,7+a] = (-6+a,-7-a) (not principal: --)
+P17a = 17.1 = [17,5+a] = (5+a,-12+a) (not principal: ++)
+P17b = 17.2 = [17,12+a] = (-5+a,-12-a) (not principal: ++)
+P19a = 19.1 = [19,1+a] = (1+a,-19) (not principal: --)
+P19b = 19.2 = [19,18+a] = (-1+a,-19) (not principal: --)
+P29a = 29.1 = [29,14+a] = (14+a,-15+a) (not principal: --)
+P29b = 29.2 = [29,15+a] = (-14+a,-15-a) (not principal: --)
+P43a = 43.1 = [43,11+a] = (11+a,-21+2a) (not principal: --)
+P43b = 43.2 = [43,32+a] = (-11+a,-21-2a) (not principal: --)
+P47 = 47.1 = [47,a] = (a,-47) (not principal: ++)
+P67a = 67.1 = [67,24+a] = (24+a,-19+2a) (not principal: --)
+P67b = 67.2 = [67,43+a] = (-24+a,-19-2a) (not principal: --)
+P71a = 71.1 = [71,30+a] = (-11+2a,-30-a) (not principal: ++)
+P71b = 71.2 = [71,41+a] = (11+2a,-30+a) (not principal: ++)
+P79a = 79.1 = [79,8+a] = (8+a,-47+4a) (not principal: ++)
+P79b = 79.2 = [79,71+a] = (-8+a,-47-4a) (not principal: ++)
+P89a = 89.1 = [89,23+a] = (23+a,-20+3a) (not principal: ++)
+P89b = 89.2 = [89,66+a] = (-23+a,-20-3a) (not principal: ++)
+P97a = 97.1 = [97,10+a] = (10+a,-47+5a) (not principal: ++)
+P97b = 97.2 = [97,87+a] = (-10+a,-47-5a) (not principal: ++)
+Q(sqrt(-395))	discriminant = -395	min poly(a) = a^2-a+99.
+Class number 8
+Ideal class group representatives: [ [1,a] [3,a] [3,2+a] [5,2+a] [7,2+a] [7,4+a] [9,a] [9,8+a] ]
+2-rank of class group = 1
+ discriminant = (5)*(-79)
+ 2-torsion   generators [ [5,2+a] ], 2-torsion   elements [ [1,a] [5,2+a] ]
+ 2-cotorsion generators [ [3,a] ], 2-cotorsion elements [ [1,a] [3,a] ]
+25 prime ideals initialised, max norm = 100
+P3a = 3.1 = [3,a] = (3,a) (not principal: --)
+P3b = 3.2 = [3,2+a] = (3,-1+a) (not principal: --)
+P2 = 4.1 = 2[1,a] = (2,2a) = (2) (principal: ++)
+P5 = 5.1 = [5,2+a] = (5,2+a) (not principal: ++)
+P7a = 7.1 = [7,2+a] = (7,2+a) (not principal: --)
+P7b = 7.2 = [7,4+a] = (7,-3+a) (not principal: --)
+P11a = 11.1 = [11,a] = (a,-11) (not principal: ++)
+P11b = 11.2 = [11,10+a] = (-1+a,-11) (not principal: ++)
+P17a = 17.1 = [17,4+a] = (4+a,-13+a) (not principal: --)
+P17b = 17.2 = [17,12+a] = (-5+a,-12-a) (not principal: --)
+P19a = 19.1 = [19,8+a] = (8+a,-11+a) (not principal: ++)
+P19b = 19.2 = [19,10+a] = (-9+a,-10-a) (not principal: ++)
+P31a = 31.1 = [31,7+a] = (7+a,-17+2a) (not principal: ++)
+P31b = 31.2 = [31,23+a] = (-8+a,-23-a) (not principal: ++)
+P37a = 37.1 = [37,3+a] = (3+a,-34+a) (not principal: --)
+P37b = 37.2 = [37,33+a] = (-4+a,-33-a) (not principal: --)
+P43a = 43.1 = [43,5+a] = (5+a,-33+2a) (not principal: --)
+P43b = 43.2 = [43,37+a] = (-6+a,-31-2a) (not principal: --)
+P47a = 47.1 = [47,6+a] = (6+a,-35+2a) (not principal: --)
+P47b = 47.2 = [47,40+a] = (-7+a,-33-2a) (not principal: --)
+P53a = 53.1 = [53,16+a] = (16+a,-21+2a) (not principal: --)
+P53b = 53.2 = [53,36+a] = (-17+a,-19-2a) (not principal: --)
+P79 = 79.1 = [79,39+a] = (-1+2a,-40+a) (not principal: ++)
+P89a = 89.1 = [89,26+a] = (26+a,-11+3a) (not principal: ++)
+P89b = 89.2 = [89,62+a] = (-27+a,-8-3a) (not principal: ++)
 Q(sqrt(-65))	discriminant = -260	min poly(a) = a^2+65.
 Class number 8
 Ideal class group representatives: [ [1,a] [2,1+a] [3,1+a] [3,2+a] [5,a] [6,1+a] [6,5+a] [9,4+a] ]
@@ -3640,6 +3777,42 @@ P73a = 73.1 = [73,14+a] = (14+a,-17+4a) (not principal: ++)
 P73b = 73.2 = [73,58+a] = (-15+a,-13-4a) (not principal: ++)
 P97a = 97.1 = [97,17+a] = (17+a,-29+4a) (not principal: ++)
 P97b = 97.2 = [97,79+a] = (-18+a,-25-4a) (not principal: ++)
+Q(sqrt(-89))	discriminant = -356	min poly(a) = a^2+89.
+Class number 12
+Ideal class group representatives: [ [1,a] [2,1+a] [3,1+a] [3,2+a] [5,1+a] [5,4+a] [6,1+a] [6,5+a] [7,3+a] [7,4+a] [9,1+a] [9,8+a] ]
+2-rank of class group = 1
+ discriminant = (-4)*(89)
+ 2-torsion   generators [ [2,1+a] ], 2-torsion   elements [ [1,a] [2,1+a] ]
+ 2-cotorsion generators [ [3,1+a] ], 2-cotorsion elements [ [1,a] [3,1+a] ]
+28 prime ideals initialised, max norm = 100
+P2 = 2.1 = [2,1+a] = (2,-1+a) (not principal: ++)
+P3a = 3.1 = [3,1+a] = (3,1+a) (not principal: --)
+P3b = 3.2 = [3,2+a] = (3,-1+a) (not principal: --)
+P5a = 5.1 = [5,1+a] = (5,1+a) (not principal: ++)
+P5b = 5.2 = [5,4+a] = (5,-1+a) (not principal: ++)
+P7a = 7.1 = [7,3+a] = (7,3+a) (not principal: --)
+P7b = 7.2 = [7,4+a] = (7,-3+a) (not principal: --)
+P17a = 17.1 = [17,8+a] = (8+a,-9+a) (not principal: ++)
+P17b = 17.2 = [17,9+a] = (-8+a,-9-a) (not principal: ++)
+P19a = 19.1 = [19,5+a] = (5+a,-14+a) (not principal: --)
+P19b = 19.2 = [19,14+a] = (-5+a,-14-a) (not principal: --)
+P23a = 23.1 = [23,7+a] = (7+a,-16+a) (not principal: --)
+P23b = 23.2 = [23,16+a] = (-7+a,-16-a) (not principal: --)
+P31a = 31.1 = [31,2+a] = (2+a,-29+a) (not principal: --)
+P31b = 31.2 = [31,29+a] = (-2+a,-29-a) (not principal: --)
+P43a = 43.1 = [43,13+a] = (13+a,-17+2a) (not principal: --)
+P43b = 43.2 = [43,30+a] = (-13+a,-17-2a) (not principal: --)
+P53a = 53.1 = [53,21+a] = (-11+2a,-21-a) (not principal: ++)
+P53b = 53.2 = [53,32+a] = (11+2a,-21+a) (not principal: ++)
+P59a = 59.1 = [59,18+a] = (18+a,-5+3a) (not principal: --)
+P59b = 59.2 = [59,41+a] = (-18+a,-5-3a) (not principal: --)
+P73a = 73.1 = [73,35+a] = (-3+2a,-35-a) (not principal: ++)
+P73b = 73.2 = [73,38+a] = (3+2a,-35+a) (not principal: ++)
+P83a = 83.1 = [83,34+a] = (-15+2a,-19-3a) (not principal: --)
+P83b = 83.2 = [83,49+a] = (15+2a,-19+3a) (not principal: --)
+P89 = 89.1 = [89,a] = (a,-89) = (a) (principal: ++)
+P97a = 97.1 = [97,28+a] = (28+a,-13+3a) (not principal: ++)
+P97b = 97.2 = [97,69+a] = (-28+a,-13-3a) (not principal: ++)
 Q(sqrt(-231))	discriminant = -231	min poly(a) = a^2-a+58.
 Class number 12
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,1+a] [4,2+a] [4,1+a] [5,1+a] [5,3+a] [6,4+a] [6,1+a] [7,3+a] [8,2+a] ]
@@ -3834,6 +4007,39 @@ P89a = 89.1 = [89,21+a] = (21+a,-5+4a) (not principal: --)
 P89b = 89.2 = [89,67+a] = (-22+a,-1-4a) (not principal: --)
 P97a = 97.1 = [97,47+a] = (-3+2a,-47-a) (not principal: --)
 P97b = 97.2 = [97,49+a] = (1+2a,-48+a) (not principal: --)
+Q(sqrt(-391))	discriminant = -391	min poly(a) = a^2-a+98.
+Class number 14
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [4,2+a] [4,1+a] [5,1+a] [5,3+a] [7,a] [7,6+a] [8,2+a] [8,5+a] [10,6+a] [10,3+a] [10,8+a] ]
+2-rank of class group = 1
+ discriminant = (17)*(-23)
+ 2-torsion   generators [ [10,8+a] ], 2-torsion   elements [ [1,a] [10,8+a] ]
+ 2-cotorsion generators [ [5,1+a] ], 2-cotorsion elements [ [1,a] [5,1+a] ]
+25 prime ideals initialised, max norm = 100
+P2a = 2.1 = [2,a] = (2,a) (not principal: ++)
+P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal: ++)
+P5a = 5.1 = [5,1+a] = (5,1+a) (not principal: --)
+P5b = 5.2 = [5,3+a] = (5,-2+a) (not principal: --)
+P7a = 7.1 = [7,a] = (7,a) (not principal: --)
+P7b = 7.2 = [7,6+a] = (7,-1+a) (not principal: --)
+P3 = 9.1 = 3[1,a] = (3,3a) = (3) (principal: ++)
+P11a = 11.1 = [11,3+a] = (3+a,-11) (not principal: --)
+P11b = 11.2 = [11,7+a] = (-4+a,-11) (not principal: --)
+P13a = 13.1 = [13,2+a] = (2+a,-13) (not principal: ++)
+P13b = 13.2 = [13,10+a] = (-3+a,-13) (not principal: ++)
+P17 = 17.1 = [17,8+a] = (8+a,-9+a) (not principal: --)
+P23 = 23.1 = [23,11+a] = (11+a,-12+a) (not principal: --)
+P37a = 37.1 = [37,16+a] = (16+a,-5+2a) (not principal: --)
+P37b = 37.2 = [37,20+a] = (-17+a,-3-2a) (not principal: --)
+P47a = 47.1 = [47,9+a] = (9+a,-29+2a) (not principal: ++)
+P47b = 47.2 = [47,37+a] = (-10+a,-27-2a) (not principal: ++)
+P59a = 59.1 = [59,4+a] = (4+a,-51+2a) (not principal: ++)
+P59b = 59.2 = [59,54+a] = (-5+a,-49-2a) (not principal: ++)
+P61a = 61.1 = [61,27+a] = (-7+2a,-27-a) (not principal: --)
+P61b = 61.2 = [61,33+a] = (5+2a,-28+a) (not principal: --)
+P79a = 79.1 = [79,38+a] = (-3+2a,-38-a) (not principal: --)
+P79b = 79.2 = [79,40+a] = (1+2a,-39+a) (not principal: --)
+P97a = 97.1 = [97,35+a] = (8+3a,-27+2a) (not principal: --)
+P97b = 97.2 = [97,61+a] = (-11+3a,-25-2a) (not principal: --)
 Q(sqrt(-239))	discriminant = -239	min poly(a) = a^2-a+60.
 Class number 15
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [5,a] [5,4+a] [6,a] [6,5+a] [6,2+a] [6,3+a] [8,4+a] [8,3+a] ]
@@ -3862,6 +4068,71 @@ P71a = 71.1 = [71,25+a] = (4+3a,-21+2a) (not principal)
 P71b = 71.2 = [71,45+a] = (-7+3a,-19-2a) (not principal)
 P83a = 83.1 = [83,16+a] = (16+a,-19+4a) (not principal)
 P83b = 83.2 = [83,66+a] = (-17+a,-15-4a) (not principal)
+Q(sqrt(-399))	discriminant = -399	min poly(a) = a^2-a+100.
+Class number 16
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,1+a] [4,a] [4,3+a] [5,a] [5,4+a] [6,4+a] [6,1+a] [7,3+a] [8,4+a] [8,3+a] [10,a] [10,4+a] [10,5+a] ]
+2-rank of class group = 2
+ discriminant = (-3)*(-7)*(-19)
+ 2-torsion   generators [ [3,1+a] [7,3+a] ], 2-torsion   elements [ [1,a] [3,1+a] [7,3+a] [10,a] ]
+ 2-cotorsion generators [ [2,a] [3,1+a] ], 2-cotorsion elements [ [1,a] [2,a] [3,1+a] [6,4+a] ]
+27 prime ideals initialised, max norm = 100
+P2a = 2.1 = [2,a] = (2,a) (not principal: -+-)
+P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal: -+-)
+P3 = 3.1 = [3,1+a] = (3,1+a) (not principal: +--)
+P5a = 5.1 = [5,a] = (5,a) (not principal: --+)
+P5b = 5.2 = [5,4+a] = (5,-1+a) (not principal: --+)
+P7 = 7.1 = [7,3+a] = (7,3+a) (not principal: +++)
+P13a = 13.1 = [13,5+a] = (5+a,-8+a) (not principal: +--)
+P13b = 13.2 = [13,7+a] = (-6+a,-7-a) (not principal: +--)
+P17a = 17.1 = [17,1+a] = (1+a,-17) (not principal: --+)
+P17b = 17.2 = [17,15+a] = (-2+a,-17) (not principal: --+)
+P19 = 19.1 = [19,9+a] = (9+a,-10+a) (not principal: +--)
+P29a = 29.1 = [29,11+a] = (11+a,-18+a) (not principal: -+-)
+P29b = 29.2 = [29,17+a] = (-12+a,-17-a) (not principal: -+-)
+P31a = 31.1 = [31,14+a] = (14+a,-17+a) (not principal: +--)
+P31b = 31.2 = [31,16+a] = (-15+a,-16-a) (not principal: +--)
+P43a = 43.1 = [43,8+a] = (8+a,-27+2a) (not principal: +++)
+P43b = 43.2 = [43,34+a] = (-9+a,-25-2a) (not principal: +++)
+P47a = 47.1 = [47,13+a] = (13+a,-21+2a) (not principal: --+)
+P47b = 47.2 = [47,33+a] = (-14+a,-19-2a) (not principal: --+)
+P53a = 53.1 = [53,2+a] = (2+a,-51+a) (not principal: -+-)
+P53b = 53.2 = [53,50+a] = (-3+a,-50-a) (not principal: -+-)
+P71a = 71.1 = [71,6+a] = (6+a,-53+3a) (not principal: -+-)
+P71b = 71.2 = [71,64+a] = (-7+a,-50-3a) (not principal: -+-)
+P83a = 83.1 = [83,39+a] = (-5+2a,-39-a) (not principal: --+)
+P83b = 83.2 = [83,43+a] = (3+2a,-40+a) (not principal: --+)
+P97a = 97.1 = [97,29+a] = (29+a,-10+3a) (not principal: +--)
+P97b = 97.2 = [97,67+a] = (-30+a,-7-3a) (not principal: +--)
+Q(sqrt(-383))	discriminant = -383	min poly(a) = a^2-a+96.
+Class number 17
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [6,a] [6,5+a] [6,2+a] [6,3+a] [7,1+a] [7,5+a] [8,a] [8,7+a] [9,3+a] [9,5+a] ]
+2-rank of class group = 0
+25 prime ideals initialised, max norm = 100
+P2a = 2.1 = [2,a] = (2,a) (not principal)
+P2b = 2.2 = [2,1+a] = (2,-1+a) (not principal)
+P3a = 3.1 = [3,a] = (3,a) (not principal)
+P3b = 3.2 = [3,2+a] = (3,-1+a) (not principal)
+P7a = 7.1 = [7,1+a] = (7,1+a) (not principal)
+P7b = 7.2 = [7,5+a] = (7,-2+a) (not principal)
+P17a = 17.1 = [17,2+a] = (2+a,-17) (not principal)
+P17b = 17.2 = [17,14+a] = (-3+a,-17) (not principal)
+P19a = 19.1 = [19,7+a] = (7+a,-12+a) (not principal)
+P19b = 19.2 = [19,11+a] = (-8+a,-11-a) (not principal)
+P23a = 23.1 = [23,6+a] = (6+a,-17+a) (not principal)
+P23b = 23.2 = [23,16+a] = (-7+a,-16-a) (not principal)
+P5 = 25.1 = 5[1,a] = (5,5a) = (5) (principal)
+P29a = 29.1 = [29,4+a] = (4+a,-25+a) (not principal)
+P29b = 29.2 = [29,24+a] = (-5+a,-24-a) (not principal)
+P31a = 31.1 = [31,9+a] = (9+a,-13+2a) (not principal)
+P31b = 31.2 = [31,21+a] = (-10+a,-11-2a) (not principal)
+P43a = 43.1 = [43,20+a] = (-3+2a,-20-a) (not principal)
+P43b = 43.2 = [43,22+a] = (1+2a,-21+a) (not principal)
+P67a = 67.1 = [67,17+a] = (17+a,-16+3a) (not principal)
+P67b = 67.2 = [67,49+a] = (-18+a,-13-3a) (not principal)
+P71a = 71.1 = [71,27+a] = (-17+2a,-27-a) (not principal)
+P71b = 71.2 = [71,43+a] = (15+2a,-28+a) (not principal)
+P73a = 73.1 = [73,18+a] = (18+a,-19+3a) (not principal)
+P73b = 73.2 = [73,54+a] = (-19+a,-16-3a) (not principal)
 Q(sqrt(-335))	discriminant = -335	min poly(a) = a^2-a+84.
 Class number 18
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [5,2+a] [6,a] [6,5+a] [6,2+a] [6,3+a] [7,a] [7,6+a] [8,4+a] [8,3+a] [9,6+a] [9,2+a] ]
