@@ -2,14 +2,15 @@
 
 from itertools import chain, groupby
 
-from sage.all import (Infinity, Matrix, ZZ, QQ, RR, CC, NumberField,
+from sage.all import (Infinity, Matrix, vector, ZZ, QQ, RR, CC, NumberField,
                       Graph, srange, Set, sign, var, implicit_plot3d, NFCusp, Integer, oo,
                       infinity, polygen, point, line, circle, show)
 
 from utils import (nf, to_k, cusp, Imat, apply,
                    translate_cusp, negate_cusp, conj_cusp,
-                   smallest_ideal_class_representatives,
-                   alpha_index_with_translation)
+                   smallest_ideal_class_representatives, cusp_class_index,
+                   alpha_index_with_translation, sigma_index_with_translation
+)
 
 from alphas import precomputed_alphas
 
@@ -706,7 +707,7 @@ def triple_intersections(alphas, debug=False):
     # Extract the alphas in F4:
     A = [to_k(a, K) for a in alphas]
     AlA4 = [(al,a) for al,a in zip(alphas,A) if in_quarter_rectangle(a)]
-    Al4 = [a[0] for a in AlA4] # as cusps
+    #Al4 = [a[0] for a in AlA4] # as cusps
     A4 = [a[1] for a in AlA4]  # as elements of K
     if debug:
         print(f"{len(A4) = }")
@@ -732,7 +733,7 @@ def triple_intersections(alphas, debug=False):
     for i, Ai in enumerate(Alist):
         i2j[i] = [i+1+j for j,Aj in enumerate(Alist[i+1:]) if  circles_intersect(Ai, Aj)]
     if debug:
-        print(f" finished making i2j")
+        print(" finished making i2j")
 
     # Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
     ijk_list = []
@@ -948,7 +949,7 @@ def orbit_polyhedron(orb, Plist, Pverts, Pmats,  debug=False):
     return G
 
 def principal_polyhedra(alphas, debug=False):
-    print("\nConstructing principal polyhedra")
+    print("Constructing principal polyhedra")
     k = nf(alphas[0])
     triplets, extra_alphas = alpha_triples(alphas, debug)
 
@@ -965,12 +966,12 @@ def principal_polyhedra(alphas, debug=False):
     Plist = [t[2] for t in triplets]
     if debug:
         print(f"{Plist = }")
-        print(f" - now finding Psupps: hemispheres through each P...")
+        print(" - now finding Psupps: hemispheres through each P...")
 
     Psupps = [hemispheres_through(P) for P in Plist]
     if debug:
         print(f"Hemispheres through each P: {Psupps}")
-        print(f" - now finding matrices for each P...")
+        print(" - now finding matrices for each P...")
 
     # For each a with S_a through P find an inversion matrix M_a which
     # maps P to another Q in Plist:
@@ -982,7 +983,7 @@ def principal_polyhedra(alphas, debug=False):
     # and those translated alphas a which are in P's support, i.e. for
     # which S_a pass through P:
     if debug:
-        print(f" - now finding vertex set for each P...")
+        print(" - now finding vertex set for each P...")
     Pverts = [[cusp(oo,k)] +
               [v for v in Psupp if alpha_index_with_translation(v, alphas)[0] >=0]
               for P,Psupp in zip(Plist, Psupps)]
@@ -990,7 +991,7 @@ def principal_polyhedra(alphas, debug=False):
         print(f"{Pverts = }")
         for P, Pv in zip(Plist, Pverts):
             print(f"{P=}: {[alpha_index_with_translation(v, alphas) for v in Pv[1:]]}")
-        print(f" - now finding the orbits...")
+        print(" - now finding the orbits...")
 
     # partition the P into orbits:
     orbits = set()
@@ -1005,15 +1006,16 @@ def principal_polyhedra(alphas, debug=False):
         used_Pi = used_Pi.union(orb)
         orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
-    print(f"Found {len(orbits)} orbits")
     if debug:
+        print(f"Found {len(orbits)} orbits")
         print(f"{orbits = }")
-        print(f" - now finding the polyhedron from each orbit...")
+        print(" - now finding the polyhedron from each orbit...")
 
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats, debug=debug) for orb in orbits]
-    npoly = len(polyhedra)
-    poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly}")
+    if debug:
+        npoly = len(polyhedra)
+        poly = "polyhedra" if npoly>1 else "polyhedron"
+        print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
             faces = G.faces()
@@ -1023,7 +1025,7 @@ def principal_polyhedra(alphas, debug=False):
     return polyhedra, hemispheres
 
 def singular_polyhedra(alphas, sigmas, debug=False):
-    print("\nConstructing polyhedra from one ideal class, sigmas {}".format(sigmas))
+    print("Constructing polyhedra from one ideal class, sigmas {}".format(sigmas))
     k = nf(alphas[0])
     triplets = sigma_triples(alphas, sigmas)
 
@@ -1040,21 +1042,21 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     Rsupps = [hemispheres_through(R) for R in Rlist]
     if debug:
         print(f"Hemispheres through each R: {Rsupps}")
-        print(f" - now finding matrices for each R...")
+        print(" - now finding matrices for each R...")
 
     Rmats = [[Imat] +
              [infinity_matrix(a, R, Rlist) for a in Rsupp]
              for R, Rsupp in zip(Rlist, Rsupps)]
 
     if debug:
-        print(f" - now finding vertex set for each R...")
+        print(" - now finding vertex set for each R...")
     Rverts = [[cusp(oo,k)] +
               [v for v in Rsupp if alpha_index_with_translation(v, alphas)[0] >=0] +
               sum([[v for v in t[0]] for t in triplets if t[1]==R], [])
               for R,Rsupp in zip(Rlist, Rsupps)]
     if debug:
         print(f"{Rverts = }")
-        print(f" - now finding the orbits...")
+        print(" - now finding the orbits...")
 
     # partition the R into orbits:
     orbits = set()
@@ -1069,15 +1071,16 @@ def singular_polyhedra(alphas, sigmas, debug=False):
         used_Ri = used_Ri.union(orb)
         orbits.add(orb)
     orbits = [list(orb) for orb in orbits]
-    print(f"Found {len(orbits)} orbits")
     if debug:
+        print(f"Found {len(orbits)} orbits")
         print(f"{orbits = }")
-        print(f" - now finding the polyhedron from each orbit...")
+        print(" - now finding the polyhedron from each orbit...")
 
     polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbits]
-    npoly = len(polyhedra)
-    poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"Constructed {npoly} {poly}")
+    if debug:
+        npoly = len(polyhedra)
+        poly = "polyhedra" if npoly>1 else "polyhedron"
+        print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
             faces = G.faces()
@@ -1316,7 +1319,6 @@ def are_intersection_points_covered_by_one(a1, a2, a, plot=False):
     return 0
 
 def is_singular(s, sigmas):
-    from utils import sigma_index_with_translation
     return sigma_index_with_translation(s, sigmas)[0]!=-1
 
 def translates(a):
@@ -1673,7 +1675,7 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
                 print(f" - checking {P = }", end="...")
             extras = properly_covering_hemispheres(P)
             if debug:
-                print(f" done", end="...")
+                print(" done", end="...")
             #extras = properly_covering_hemispheres(P, maxn+1)
             #extras = covering_hemispheres2(P, 'strict', norm_s_lb=maxn+1)
             if extras:
@@ -1975,7 +1977,7 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
     for s, r1, r2 in long_fours:
         add_four_alphas(s, r1, r2, new_alphas, M_alphas)
 
-    # Process the sigmas, standardising those with denominator 2 and 3 and putting the rest inot +/- pairs
+    # Process the sigmas, standardising those with denominator 2 and 3 and putting the rest into +/- pairs
 
     # Extract the s with denominator 2 or 3, which we treat
     # separately:
@@ -2021,26 +2023,17 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
                 S.append(neg_s)
                 S.append(s)
 
-    print(f"alphas with denominator | 2: {A2}")
-    print(f"alphas with denominator | 3: {A3}")
-    print(f"plus pairs: {pluspairs}")
-    print(f"minus pairs: {minuspairs}")
-    print(f"fours: {fours}")
+    if debug:
+        print(f"alphas with denominator | 2: {A2}")
+        print(f"alphas with denominator | 3: {A3}")
+        print(f"plus pairs: {pluspairs}")
+        print(f"minus pairs: {minuspairs}")
+        print(f"fours: {fours}")
+        print(f"sigmas with denominator 2: {S2}")
+        print(f"sigmas with denominator 3: {S3}")
+        print(f"other (finite) sigmas (up to sign): {S_mod_neg}")
 
-    print(f"sigmas with denominator 2: {S2}")
-    print(f"sigmas with denominator 3: {S3}")
-    print(f"other (finite) sigmas (up to sign): {S_mod_neg}")
     new_sigmas = [cusp(oo,k)] + S2 + S3 + S
-
-    # # for pasting into C++:
-    # print("// C++ code")
-    # for r,s in pluspairs:
-    #     print("add_alpha_orbit({}, {}, {});".format(s,r,-r))
-    # for r,s in minuspairs:
-    #     print("add_alpha_orbit({}, {}, {});".format(s,r,r))
-    # for s, r1, r2 in long_fours:
-    #     print("add_alpha_orbit({}, {}, {});".format(s,r1,r2))
-    # for pasting into data file:
 
     geodata_file = f"geodata_{d}.dat"
     print("//////////////////////////////")
@@ -2087,22 +2080,64 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
         else:
             print(st)
     print("//////////////////////////////")
-    return A123, new_alphas, new_sigmas
+
+    # for homology edge relation computation include alphas with denom 1,2,3:
+    zero = k(0)
+    one = k(1)
+    two = k(2)
+    three = k(3)
+    minuspairs.append((zero,one))
+
+    if d%4 == 1:
+        minuspairs.append((w,two))     # w^2=-1 (mod 2)
+        # could also go into pluspairs
+    if d%4 == 2:
+        minuspairs.append((w+1,two))   # (w+1)^2=-1 (mod 2)
+        # could also go into pluspairs
+    if d%8 == 3:
+        long_fours.append((two,w,w+1)) # w(w+1)=-1 (mod 2)
+
+    d12 = d%12
+    if d12 in [1, 10]:
+        minuspairs.append((w, three))          # w^2=-1 (mod 3)
+        long_fours.append((three, 1+w, 1-w))   # (1+w)(1-w)=-1 (mod 3)
+    if d12 == 7 and d>19:
+        minuspairs.append((1+w, three))        # (1+w)^2=-1 (mod 3)
+        if d>31:
+            long_fours.append((three, w, 1-w)) # w(1-w)=-1 (mod 3)
+    if d12 in [2, 5] and d>5:
+        pluspairs.append((w, three))           # w^2=+1 (mod 3)
+    if d12 == 11 and d>23:
+        pluspairs.append((1+w, three))         # (1+w)^2=+1 (mod 3)
+    if d12 == 3 and d>15:
+        long_fours.append((three, w, w-1))     # w(w-1)=-1 (mod 3)
+    if d12 in [6, 9] and d>6:
+        long_fours.append((three, w+1, w-1))   # (w+1)(w-1)=-1 (mod 3)
+
+    assert all(s.divides(r*r-1) for r,s in pluspairs)
+    assert all(s.divides(r*r+1) for r,s in minuspairs)
+    assert all(s.divides(r1*r2+1) for s,r1,r2 in long_fours)
+
+    return A123, new_alphas, new_sigmas, pluspairs, minuspairs, long_fours
 
 #
 # From scratch:
 #
 def alpha_sigma_data(d, verbose=False, geout=None):
     k = make_k(d)['k']
-    print(f"{k = }, class number {k.class_number()}")
+    if verbose:
+        print(f"{k = }, class number {k.class_number()}")
     sigmas = singular_points(k)
-    print(f"{len(sigmas)} singular points: {sigmas}")
+    if verbose:
+        print(f"{len(sigmas)} singular points: {sigmas}")
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
-    print(f"{len(alphas0)} covering alphas, max denom norm {maxn}")
+    if verbose:
+        print(f"{len(alphas0)} covering alphas, max denom norm {maxn}")
     alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, debug=verbose, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
-    print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
-    print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
+    if verbose:
+        print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
+        print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
     data = find_edge_pairs(alphas1, sigmas, geout=geout)
     alphas2 = data[0] + data[1]
@@ -2119,7 +2154,196 @@ def alpha_sigma_data(d, verbose=False, geout=None):
         print(alpha_string)
         sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
         print(sigma_string)
-    return alphas2, new_sigmas
+    plus_pairs = data[3]
+    minus_pairs = data[4]
+    fours = data[5]
+    return alphas2, new_sigmas, plus_pairs, minus_pairs, fours
+
+def edge_boundary_vector(e):
+    v = vector(ZZ, e[0].number_field().class_number())
+    v[cusp_class_index(e[1])] +=1
+    v[cusp_class_index(e[0])] -=1
+    return v
+
+def edge_boundary_matrix(alphas, sigmas):
+    """Return matrix of the boundary map from edges to cusps (for H^3
+    modulo GL(2,O_k) or SL(2,O_k)).  The edge basis consists of first
+    the [a,oo] for a in alphas (whose boundary is trivial), then the
+    [s,oo] for s in sigmas[1:].  The cusp basis is indexed by ideal
+    classes.
+    """
+    n = len(alphas)
+    M = Matrix(ZZ, alphas[0].number_field().class_number(), n+len(sigmas)-1)
+    for j,s in enumerate(sigmas):
+        if j:
+            M[0,n+j-1] = -1
+            M[cusp_class_index(s), n+j-1] = 1
+    return M
+
+def edge_index(e, alphas, sigmas):
+    """For e=[a1,a2] with a1,a2 principal return i where [oo,alphas[i]]
+    is SL(2,Ok)-equivalent to e.
+
+    For e=[a,s] with a principal and s singular, return i+len(alphas)-1,
+    where [oo,sigmas[i]] is SL(2,Ok)-equivalent to e. Here i>=1.
+
+    For e=[s,a] with a principal and s singular, return
+    -(i+len(alphas)-1)<0, where [sigmas[i],oo] is SL(2,Ok)-equivalent to
+    e.
+
+    Raise an error if both e[0] amd e[1] are singular.
+
+    Note that we assume sigmas[0]=oo which is not a singular point;
+    the number of singular points is len(sigmas)-1.
+
+    """
+    a1, a2 = e
+    if a1.ideal().is_principal(): # cases {a1,a2}, {a,s}
+        U = Matrix(2,2, a1.ABmatrix())
+        a1, a2 = apply(U.inverse(), e)
+        assert a1.is_infinity()
+        if a2.ideal().is_principal():
+            i, x = alpha_index_with_translation(a2, alphas)
+            assert i>=0
+            return i
+        else:
+            i, x = sigma_index_with_translation(a2, sigmas)
+            assert i>0
+            return i+len(alphas)-1
+    if a2.ideal().is_principal(): # case {s,a} = -{a,s}
+        return - edge_index([e[1],e[0]], alphas, sigmas)
+    # case {s1,s2} not required
+    raise RuntimeError(f"edge {e} has neither end principal")
+
+def face_boundary_vector(F, alphas, sigmas):
+    v = vector(ZZ, len(alphas)+len(sigmas)-1)
+    for i in range(len(F)):
+        j = edge_index((F[i-1],F[i]), alphas, sigmas)
+        #print(f" index of edge {(F[i-1],F[i])} is {j}")
+        if j>=0:
+            v[j] +=1
+        else:
+            v[-j] -=1
+    return v
+
+def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group, debug=False):
+    nrows = len(alphas)+len(sigmas)-1
+    ncols = len(faces) + len(plus_pairs) + len(minus_pairs) + len(fours)
+    if group=="GL2":
+        ncols += nrows # {a,oo}={-a,oo} and {s,oo}={-s,oo}
+    else:
+        ncols += len(faces) # negating all faces
+        ncols += len(fours) # 2nd rel per four
+    if debug:
+        print(f"Face boundary matrix has {nrows=} and {ncols=}")
+    M = Matrix(ZZ, nrows, ncols)
+    n = 0 # = number of cols filled so far
+
+    if debug:
+        print("Edge identifications:")
+    # edge relations
+    # (0) relations {a,oo}={-a,oo} and {s,oo}={-s,oo} if GL2
+    if group=="GL2":
+        if debug:
+            print(" alpha negations:")
+        for i,a in enumerate(alphas):
+            ma = negate_cusp(a)
+            j = alpha_index_with_translation(ma, alphas)[0]
+            M[i, n+i] +=1
+            M[j, n+i] -=1
+            if debug:
+                print(f"alpha={a} --> column {n+i}: {M.column(n+i)}")
+        n += len(alphas)
+        if debug:
+            print(" sigma negations:")
+        m = len(alphas) ## offset into rows
+        for i,s in enumerate(sigmas[1:]):
+            ms = negate_cusp(s)
+            j = sigma_index_with_translation(ms, sigmas)[0] -1 # omit sigmas[0]=oo
+            M[m+i, n+i] +=1
+            M[m+j, n+i] -=1
+            if debug:
+                print(f"sigma={s} --> column {n+i}: {M.column(n+i)}")
+        n += len(sigmas)-1
+    if debug:
+        print(f" - after edge identifications (0), filled {n} columns out of {ncols} and rank is {M.rank()}")
+
+    k = alphas[0].number_field()
+
+    # (1) relations {a,oo}+{-a,oo}=0 for a=r/s, (r,s) in plus_pairs
+    if debug:
+        print(" + pairs:")
+    for i, (r1,s) in enumerate(plus_pairs):
+        for r in (r1,-r1):
+            a = cusp(r/s, k)
+            j = alpha_index_with_translation(a, alphas)[0]
+            M[j, n+i] +=1
+        if debug:
+            print(f"Column {n+i}: {M.column(n+i)}")
+    n += len(plus_pairs)
+    if debug:
+        print(f" - after edge identifications (1), filled {n} columns out of {ncols} and rank is {M.rank()}")
+
+    # (2) relations 2{a,oo}=0 for a=r/s, (r,s) in minus_pairs
+    if debug:
+        print(" - pairs:")
+    for i, (r,s) in enumerate(minus_pairs):
+        a = cusp(r/s, k)
+        j = alpha_index_with_translation(a, alphas)[0]
+        M[j, n+i] +=2
+        if debug:
+            print(f"Column {n+i}: {M.column(n+i)}")
+    n += len(minus_pairs)
+    if debug:
+        print(f" - after edge identifications (2), filled {n} columns out of {ncols} and rank is {M.rank()}")
+
+    # (3) relations {a1,oo}+{a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+    if debug:
+        print(" fours (1):")
+    for i, (s,r1,r2) in enumerate(fours):
+        for r in (r1,r2):
+            a = cusp(r/s, k)
+            j = alpha_index_with_translation(a, alphas)[0]
+            M[j, n+i] +=1
+        if debug:
+            print(f"Column {n+i}: {M.column(n+i)}")
+    n += len(fours)
+    if group!="GL2":
+        if debug:
+            print(" fours (2):")
+        for i, (s,r1,r2) in enumerate(fours):
+            for r in (r1,r2):
+                a = cusp(-r/s, k)
+                j = alpha_index_with_translation(a, alphas)[0]
+                M[j, n+i] +=1
+            if debug:
+                print(f"Column {n+i}: {M.column(n+i)}")
+        n += len(fours)
+    if debug:
+        print(f" - after edge identifications (3), filled {n} columns out of {ncols} and rank is {M.rank()}")
+
+    # face relations
+    for i,F in enumerate(faces):
+        M.set_column(n+i,face_boundary_vector(F, alphas, sigmas))
+        if debug:
+            #print(f"Face {i}: {F}")
+            print(f"Column {n+i}: {M.column(n+i)}")
+    n += len(faces) # = number of cols filled so far
+
+    # the faces are up to GL2-equivalence, so if SL2 we need to also negate them
+    if group!="GL2":
+        for i,F in enumerate(faces):
+            mF = [negate_cusp(a) for a in F]
+            M.set_column(n+i,face_boundary_vector(mF, alphas, sigmas))
+            if debug:
+                #print(f"Negated face {i}: {mF}")
+                print(f"Column {n+i}: {M.column(n+i)}")
+        n += len(faces) # update number of cols filled so far
+    if debug:
+        print(f" - after face relations, filled {n} columns out of {ncols} and rank is {M.rank()}")
+
+    assert n==M.ncols()
+    return M
 
 def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
@@ -2148,15 +2372,19 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             data = find_edge_pairs(alphas, sigmas, geout=geout)
         alphas = data[0] + data[1]
         sigmas = data[2]
+        plus_pairs = data[3]
+        minus_pairs = data[4]
+        fours = data[5]
     else:
         if verbose:
             print("computing alphas from scratch")
         with open(geodata_file, 'w') as geout:
-            alphas, sigmas = alpha_sigma_data(d, verbose=verbose, geout=geout)
+            alphas, sigmas, plus_pairs, minus_pairs, fours = alpha_sigma_data(d, verbose=verbose, geout=geout)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
-    print("{} alphas".format(len(alphas)))
-    print("{} sigmas".format(len(sigmas)))
+    if verbose:
+        print("{} alphas".format(len(alphas)))
+        print("{} sigmas".format(len(sigmas)))
 
     if plot2D:
         print("plotting projection of fundamental domain")
@@ -2185,38 +2413,41 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     for pol,num in pt.items():
         if num:
-            print(f"{pol}: {num}")
+            print(f" {pol}: {num}")
 
     all_faces = sum([[make_poly_from_edges(f,k) for f in oriented_faces(G)] for G in polyhedra], [])
     triangles = [f for f in all_faces if len(f)==3]
     squares = [f for f in all_faces if len(f)==4]
     hexagons = [f for f in all_faces if len(f)==6]
-
     aaa_triangles = [T for T in triangles if is_poly_principal(T)]
     aas_triangles = [T for T in triangles if not is_poly_principal(T)]
+    faces = aaa_triangles + aas_triangles + squares + hexagons
 
-    print("All polyhedron faces:")
-    print(f" {len(aaa_triangles)} aaa-triangles")
-    print(f" {len(aas_triangles)} aas-triangles")
-    print(f" {len(squares)} squares")
+    print(f"All {len(faces)} polyhedron faces:")
+    print(f" {len(aaa_triangles)} aaa-triangles,")
+    print(f" {len(aas_triangles)} aas-triangles,")
+    print(f" {len(squares)} squares,")
     print(f" {len(hexagons)} hexagons")
 
-    print()
-    print("Finding GL2-orbits of faces...")
+    if verbose:
+        print()
+        print("Finding GL2-orbits of faces...")
 
     aaa_triangles0 = poly_gl2_orbit_reps(aaa_triangles)
     aas_triangles0 = aas_triangle_gl2_orbit_reps(aas_triangles, alphas)
     squares0 = poly_gl2_orbit_reps(squares)
     hexagons0 = poly_gl2_orbit_reps(hexagons)
+    faces = aaa_triangles0 + aas_triangles0 + squares0 + hexagons0
 
-    print("GL2-orbits of faces:")
-    print(f" {len(aaa_triangles0)} aaa-triangles")
-    print(f" {len(aas_triangles0)} aas-triangles")
-    print(f" {len(squares0)} squares")
+    print(f"{len(faces)} GL2-orbits of faces:")
+    print(f" {len(aaa_triangles0)} aaa-triangles,")
+    print(f" {len(aas_triangles0)} aas-triangles,")
+    print(f" {len(squares0)} squares,")
     print(f" {len(hexagons0)} hexagons")
 
-    print()
-    print("Finding redundant faces modulo polyhedron relations...")
+    if verbose:
+        print()
+        print("Finding redundant faces modulo polyhedron relations...")
     all_faces = hexagons0 + squares0 + aaa_triangles0 + aas_triangles0
     if False:
         print("List of GL2-inequivalent faces:")
@@ -2240,14 +2471,16 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             squ = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==4)
             ind, _ = face_index(squ, all_faces)
             if ind not in redundant_faces:
-                print("omitting redundant square face from a square pyramid")
+                if verbose:
+                    print("omitting redundant square face from a square pyramid")
                 redundant_faces.append(ind)
             continue
         if poly_type(poly) == "hexagonal cap":
             hexa = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==6)
             ind, _ = face_index(hexa, all_faces)
             if ind not in redundant_faces:
-                print("omitting redundant hexagonal face from a hexagonal cap")
+                if verbose:
+                    print("omitting redundant hexagonal face from a hexagonal cap")
                 redundant_faces.append(ind)
             continue
         if poly_type(poly) == "tetrahedron":
@@ -2256,9 +2489,11 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
                 tri = next(t for t in faces if is_poly_principal(t))
                 ind, _ = face_index(tri, all_faces)
                 if ind not in redundant_faces:
-                    print("omitting redundant aaa-triangle face from an aaas-tetrahedron")
+                    if verbose:
+                        print("omitting redundant aaa-triangle face from an aaas-tetrahedron")
                     redundant_faces.append(ind)
-    print(f"Redundant faces: {redundant_faces} ({len(redundant_faces)} out of {len(all_faces)})")
+    if verbose:
+        print(f"Redundant faces: {redundant_faces} ({len(redundant_faces)} out of {len(all_faces)})")
     i0 = 0 # index offset into list of all faces
     hexagons1 = [P for i,P in enumerate(hexagons0) if i+i0 not in redundant_faces]
     i0 += len(hexagons0)
@@ -2267,18 +2502,19 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     aaa_triangles1 = [P for i,P in enumerate(aaa_triangles0) if i+i0 not in redundant_faces]
     i0 += len(aaa_triangles0)
     aas_triangles1 = [P for i,P in enumerate(aas_triangles0) if i+i0 not in redundant_faces]
+    faces = aaa_triangles1 + aas_triangles1 + squares1 + hexagons1
 
-    print("Independent faces modulo polyhedron relations:")
-    print(f" {len(aaa_triangles1)} aaa-triangles")
-    print(f" {len(aas_triangles1)} aas-triangles")
-    print(f" {len(squares1)} squares")
+    print(f"{len(faces)} independent faces modulo polyhedron relations:")
+    print(f" {len(aaa_triangles1)} aaa-triangles,")
+    print(f" {len(aas_triangles1)} aas-triangles,")
+    print(f" {len(squares1)} squares,")
     print(f" {len(hexagons1)} hexagons")
 
     print()
-    print(f"// tessellation face data will be output to {geodata_file}")
+
     geodata_file = f"geodata_{d}.dat"
     with open(geodata_file, 'a') as geout:
-        for P in aaa_triangles1 + aas_triangles1 + squares1 + hexagons1:
+        for P in faces:
             polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
 
     with open(f"tessellation_{d}.txt", 'w') as tess_out:
@@ -2295,4 +2531,29 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             F = [[[cusp_from_string(v, k) for v in e] for e in f] for f in P.faces()]
             tess_out.write(f"  faces: {F}\n")
 
-    return polyhedra
+    M10 = edge_boundary_matrix(alphas, sigmas)
+    #print(f"edge boundary matrix:\n{M10}")
+    D,U,V = M10.smith_form(transformation=True)
+    #print(f" - smith form:\n{D}")
+    assert U*M10*V == D
+    r = D.rank()
+    #print(f" - rank: {r}")
+    Vinv = V.inverse().change_ring(ZZ)
+    for group in ["GL2", "SL2"]:
+        print(f"{group} integral homology data:")
+        M21 = face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group=group, debug=False)
+        #print(f"face boundary matrix:\n{M21}")
+        assert M10*M21 == 0
+        M = Vinv*M21
+        assert D*M == 0
+        #print(f" - after edge basis change:\n{M}")
+        M = M.submatrix(r,0)
+        #print(f" - after trimming:\n{M}")
+        invariants = [d for d in M.elementary_divisors() if d!=1]
+        print(f" - invariants: {invariants}")
+        rank = invariants.count(0)
+        print(f" - rank: {rank}")
+        torsion_invariants = [d for d in invariants if d>1]
+        print(f" - torsion invariants: {torsion_invariants}")
+
+    return alphas, sigmas, faces, polyhedra

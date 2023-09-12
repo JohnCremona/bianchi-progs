@@ -121,6 +121,23 @@ def cusp2(a,b, k=None, Ireps=None):
     """
     return cusp(a/b if b else oo, k, Ireps)
 
+def cusp_class_index(a):
+    """
+    Return the index of the ideal class of this cusp in range(h) where h=classnumber.
+    """
+    invs = a.number_field().class_group().invariants()
+    n = len(invs)
+    if n==0: # class number 1
+        return 0
+    alog = a.ideal().ideal_class_log()
+    m=alog[0]
+    for i in range(1,n):
+        m = m*invs[i] + alog[i]
+    # if n>1:
+    #     print(f"Class group invariants: {invs}")
+    #     print(f" {alog = } --> {m = }")
+    return m
+
 def tri0(k):  # universal
     return [cusp(a, k) for a in [0, oo, 1]]
 def tri1(k):  # universal for non-Euclidean class#1
@@ -348,7 +365,7 @@ def poly_gl2_orbit_reps_new(polys, debug=False):
         else:
             poly_hash_tab[h] = [poly]
             if debug:
-                print(f" - h new, so poly is new")
+                print(" - h new, so poly is new")
     reps = sum(poly_hash_tab.values(), [])
     if debug:
         print(f"\n{len(reps)} inequivalent ones")

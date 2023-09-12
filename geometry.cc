@@ -133,14 +133,14 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 
 // If r1*r2 = -1 mod s with r1, r2 distinct we have r1/s, -r1/s, r2/s,
 // -r2/s with matrices [r2,t;s,-r1] and similar.  When r1==r2 we have
-// aa "minus pair" with r1^2=-1 (mod s), and when r1==-r2 we have a
+// a "minus pair" with r1^2=-1 (mod s), and when r1==-r2 we have a
 // "plus pair" with r1^2=+1 (mod s).
 
 void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
   assert(div(s,r1*r2+Quad::one));
   Quad t = -(r1*r2+Quad::one)/s;
-  if (r1==r2) // "-" pair, r1*r2=-1 (mod s)
+  if (r1==r2) // "-" pair, r1^2=-1 (mod s)
     {
       edge_pairs_minus.push_back(n_alphas);
       alpha_inv.push_back(n_alphas);   // identity
@@ -151,7 +151,7 @@ void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
       add_alpha(-r1, t, s,  r1); // alpha = -r1/s
       return;
     }
-  if (r1==-r2) // "+" pair, r1*r2=+1 (mod s)
+  if (r1==-r2) // "+" pair, r1^2=+1 (mod s)
     {
       edge_pairs_plus.push_back(n_alphas);
       alpha_inv.push_back(n_alphas+1); // transposition with next
@@ -281,7 +281,7 @@ void alphas_sigmas_denom_3()
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_orbit(three, w, w);  // + pair
+      add_alpha_orbit(three, w, w);  // - pair
       add_alpha_orbit(three, Quad::one+w, Quad::one-w); // 4-some
       // no sigmas (3 inert)
       break;
@@ -291,7 +291,7 @@ void alphas_sigmas_denom_3()
       if (d>31)
         add_alpha_orbit(three, w, Quad::one-w); // 4-some
       if (d>19) // e.g. 43, 67, 163
-        add_alpha_orbit(three, Quad::one+w, Quad::one+w); // + pair
+        add_alpha_orbit(three, Quad::one+w, Quad::one+w); // - pair
       // no sigmas (3 inert)
       break;
     }
@@ -299,7 +299,7 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_orbit(three, w, -w); // - pair
+          add_alpha_orbit(three, w, -w); // + pair
           add_sigma_orbit(Quad::one+w,three);
           add_sigma_orbit(Quad::one-w,three);
         }
@@ -309,7 +309,7 @@ void alphas_sigmas_denom_3()
     {
       if (d>=35)
         {
-          add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // - pair
+          add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // + pair
           add_sigma_orbit(w,three);
           add_sigma_orbit(w-Quad::one,three);
         }
