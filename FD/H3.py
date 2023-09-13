@@ -1,81 +1,25 @@
 # Functions for working with H3 and hemispheres etc.
 
-from itertools import chain, groupby
+from itertools import groupby
 
-from sage.all import (Infinity, Matrix, vector, ZZ, QQ, RR, CC, NumberField,
-                      Graph, srange, Set, sign, var, implicit_plot3d, NFCusp, Integer, oo,
-                      infinity, polygen, point, line, circle, show)
+from sage.all import (Infinity, Matrix, vector, ZZ, QQ, RR, CC,
+                      Graph, Set, sign, var, implicit_plot3d, oo,
+                      point, line, circle, show,
+                      Factorization)
 
-from utils import (nf, to_k, cusp, Imat, apply,
+from utils import (make_k, nf, to_k, cusp, Imat, apply,
                    translate_cusp, negate_cusp, conj_cusp,
                    smallest_ideal_class_representatives, cusp_class_index,
-                   alpha_index_with_translation, sigma_index_with_translation
+                   alpha_index_with_translation, sigma_index_with_translation,
+                   elements_of_norm, elements_of_norm_upto, next_norm,
+                   xy_coords, in_rectangle, cusp_in_rectangle,
+                   in_quarter_rectangle, cusp_in_quarter_rectangle,
+                   reduce_mod_Ok, singular_points, singular_points_by_class
 )
 
 from alphas import precomputed_alphas
 
 from polyhedra import poly_type, poly_types
-
-# NB the method k.elements_of_norm(n) is not cached
-
-elts_of_norm_cache = {}
-
-def elts_of_norm(k,n):
-    """
-    Return list of elements of O_k of norm n, up to units, using cache.
-    """
-    if n not in ZZ or n<0:
-        return [k(0)]
-    global elts_of_norm_cache
-    if k not in elts_of_norm_cache:
-        elts_of_norm_cache[k] = {}
-    if n not in elts_of_norm_cache[k]:
-        elts_of_norm_cache[k][n] = k.elements_of_norm(n)
-    return elts_of_norm_cache[k][n]
-
-def elements_of_norm(k, n):
-    """
-    Return iterator through elements of O_k of norm n, up to units, using cache.
-    """
-    return iter(elts_of_norm(k, n))
-
-def elements_of_norm_upto(k, n, start=1):
-    """
-    Return iterator through elements of k of norm from 1 to n, up to units, using cache.
-    """
-    return chain(*(elements_of_norm(k,n) for n in range(start, n+1)))
-
-def next_norm(k, n):
-    """
-    Returns the smallest integer m>=n which is a norm from O_k
-    """
-    while not elements_of_norm(k, n):
-        n+=1
-    return n
-
-def make_k(dk):
-    """Given a negative fundamental discriminant, or positive square-free
-    d, constructs the associated imaginary quadratic field and returns
-    a dict containing this and useful other data
-
-    """
-    global elts_of_norm_cache
-    x = polygen(QQ)
-    if dk>0:
-        assert dk.is_squarefree()
-        dk = -dk if dk%4==3 else -4*dk
-    if dk%4==1:
-        k = NumberField(x**2-x+(1-dk)//4, 'w')
-    else:
-        k = NumberField(x**2-dk//4, 'w')
-    assert k.discriminant() == dk
-    w = k.gen()
-    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
-    if k not in elts_of_norm_cache:
-        elts_of_norm_cache[k] = {}
-    return {'k': k, 'dk': dk, 'w': w, 'wbar': w.trace()-w, 'Ok': k.ring_of_integers(),
-            'emb': emb, 'Ymax': emb(w).imag()/2,
-            'Ireps': [c.ideal() for c in k.class_group()]}
 
 # Points of H_3 are represented as pairs [z,t2] where z is in k and t2
 # in QQ is the square of the height (so the actual point coordinates
@@ -361,139 +305,6 @@ def infinity_matrix(a, P=None, Plist=None):
                 return M
         raise RuntimeError("infinity_matrix failed with a={}, P={}, Plist={}".format(a,P,Plist))
 
-
-def singular_points_in_class(I, IC=None, verbose=False):
-    """Given an ideal I, return a list of singular points of class [I]
-    (one representative for each orbit under integral translations).
-
-    Uses the new characterization of singular points as a/b for b one
-    nonzero element of minimal norm in one non-principal ideal I in
-    each ideal class, where I=(a,b).
-
-    IC can be set to a list of ideal class representatives.
-
-    """
-    k = I.number_field()
-    if I.is_principal():
-        return [NFCusp(k, infinity)]
-    if IC is None:
-        IC = smallest_ideal_class_representatives(k)
-    sigmas = []
-    Inorm = I.norm()
-    Ibar = k.ideal(Inorm)/I
-    s = k(I.norm())
-    slist = [s]
-    if I!=Ibar:
-        I2 = I*I
-        if I2.is_principal():
-            s2 = I2.gens_reduced()[0]
-            assert s.norm()==s2.norm()
-            slist.append(s2)
-    if verbose:
-        print("Ideal class #{}: denominators {}".format(IC.index(I), slist))
-    for s in slist:
-        rlist = [r for r in k.ideal(s).residues() if k.ideal(r,s) == I]
-        ss = [cusp(reduce_mod_Ok(r/s), k, IC) for r in rlist]
-        if verbose:
-            print(" - denominator s = {}, numerators {}, sigmas {}".format(s, rlist, ss))
-        sigmas += ss
-    return sigmas
-
-def singular_points_by_class(IC, verbose=False):
-    """Return a list of lists of singular points, one sublist for each
-    nontrivial ideal class, representative for each orbit under
-    integral translations.
-
-    Uses the new characterization of singular points as a/b for b one
-    nonzero element of minimal norm in one non-principal ideal I in
-    each ideal class, where I=(a,b).
-
-    """
-    return [singular_points_in_class(I, IC=IC, verbose=verbose) for I in IC]
-
-def singular_points(k, verbose=False):
-    """Return a list of singular points, one representative for each
-    orbit under integral translations.
-
-    Uses the new characterization of singular points as a/b for b one
-    nonzero element of minimal norm in one non-principal ideal I in
-    each ideal class, where I=(a,b).
-    """
-    return sum(singular_points_by_class(smallest_ideal_class_representatives(k), verbose), [])
-
-def ab_to_k(k,ab):
-    """MA's code returns each singular point in the form (a,b) with a,b
-    rational, representing a+b*sqrt(-d) with d squarefree.  We convert
-    to an element of k, assuming that k's defining polynomial is
-    either X^2+d or X^2-X+(d+1)/4.
-    """
-    w = k.gen()
-    rootd = 2*w-1 if k.discriminant()%4 else w
-    a,b = ab
-    return a+b*rootd
-
-def singular_points_MA(k):
-    """
-    Singular points from MA's code
-    """
-    if k.class_number()==1:
-        return []
-    from FundDomains import singular_points as spMA, reduce_ab_mod_ok
-    S = spMA(k)
-    # include negatives:
-    S = S + [[-ab[0],-ab[1]] for ab in S]
-    # reduce mod O_k
-    S = [reduce_ab_mod_ok(k, ab) for ab in S]
-    # convert to field elements
-    S = [ab_to_k(k,ab) for ab in S]
-    # remove repeats
-    S = list(set(S))
-    # convert into cusps whose ideals are standardised, and prepend oo
-    IC = smallest_ideal_class_representatives(k)
-    return [cusp(oo,k)] + [cusp(s,k,IC) for s in S]
-
-def differ_by_integer(s,t):
-    """
-    If s,t are cusps, return True iff s-t is integral
-    """
-    if s.is_infinity():
-        return t.is_infinity()
-    if t.is_infinity():
-        return False
-    ks = s.numerator()/s.denominator()
-    kt = t.numerator()/t.denominator()
-    return (ks-kt).is_integral()
-
-def test_singular_points(dmin, dmax, verbose=False):
-    x = polygen(QQ)
-    for d in srange(dmin,dmax+1):
-        if not d.is_squarefree():
-            continue
-        k = NumberField(x**2-x+(d+1)//4 if d%4==3 else x**2+d, 'w')
-        h = k.class_number()
-        if h==1:
-            continue
-        if verbose:
-            print("d={}, {} has class number {}".format(d, k, h))
-        sigmas = singular_points(k)
-        if verbose:
-            print("New sigmas: {}".format(sigmas))
-        old_sigmas = singular_points_MA(k)
-        if verbose:
-            print("Old sigmas: {}".format(old_sigmas))
-        diff1 = [s for s in sigmas if not any(differ_by_integer(s,t) for t in old_sigmas)]
-        diff2 = [s for s in old_sigmas if not any(differ_by_integer(s,t) for t in sigmas)]
-        ok = True
-        if diff1:
-            ok = False
-            print("d={}: sigmas from new code not in old: {}".format(d,diff1))
-        if diff2:
-            ok = False
-            print("d={}: sigmas from old code not in new: {}".format(d,diff2))
-        if ok:
-            print("Old and new agree for d={}".format(d))
-
-
 def tau(P1, P2):
     """Given P_i=[alpha_i,rho_i^2] for i=1,2, where alpha_i=r_i/s_i are
     principal cusps defining hemispheres (or circles) with square
@@ -528,33 +339,6 @@ def circle_inside_circle(P1,P2, strict=True):
     t1 = (P1[1]<P2[1]) if strict else (P1[1]<=P2[1])
     t2 = tau(P1,P2) in ([-2] if strict else [-2,-1])
     return t1 and t2
-
-def xy_coords(alpha):
-    """
-    alpha = x+y*sqrt(-d) in k = Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2
-    """
-    x, y = list(alpha)
-    if alpha.parent().gen().trace():
-        y /=2
-        x +=y
-    return (x,y)
-
-def reduce_mod_Ok(alpha):
-    """
-    Return in integer translate of alpha whose xy-coords satisfy
-    -1/2 < x <= 1/2 and
-    -1/2 < y <= 1/2 (even discriminant, w=sqrt(-d))
-    -1/4 < y <= 1/4 (odd discriminant, w=(1+sqrt(-d))/2)
-    """
-    k = alpha.parent()
-    w = k.gen()
-    y = xy_coords(alpha)[1]
-    r = 2 if w.trace() else 1
-    alpha -= (r*y).round('down')*w
-    x = xy_coords(alpha)[0]
-    alpha -= x.round('down')
-    assert in_rectangle(alpha)
-    return alpha
 
 def slope2(x,y):
     """
@@ -596,11 +380,10 @@ def plot1hemi(kdata, H):
     eq = (X - x0)**2 + (Y - y0)**2 + Z**2 - H[1]
     return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1, color='lightgreen', name=str(kdata['k'].discriminant()))
 
-def plot_Bianchi_diagram(k, Hlist):
+def plot_Bianchi_diagram(kdata, Hlist):
     """
     Hlist is a list of hemispheres H = [z,rsq] with z in k and square radius rsq
     """
-    kdata = make_k(k.discriminant())
     return sum([plot1hemi(kdata, H) for H in Hlist])
 
 def circ(c,r, fill):
@@ -1018,7 +801,7 @@ def principal_polyhedra(alphas, debug=False):
         print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
-            faces = G.faces()
+            G.faces()
             #print(f"  {[len(F) for F in faces]}")
         except ValueError:
             print("   (not planar)")
@@ -1083,7 +866,7 @@ def singular_polyhedra(alphas, sigmas, debug=False):
         print(f"Constructed {npoly} {poly}")
     for G in polyhedra:
         try:
-            faces = G.faces()
+            G.faces()
             #print(f"  {[len(F) for F in faces]}")
         except ValueError:
             print("   (not planar)")
@@ -1096,38 +879,6 @@ def all_polyhedra(k, alphas=None, debug=False):
     polys, hemis = principal_polyhedra(alphas, debug)
     polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
     return polys, hemis
-
-half = Integer(1)/2
-
-def xy_in_rectangle(xy, f):
-    """
-    f = 1 or 2
-    """
-    x,y = xy
-    fy = f*y
-    return -half<x and x<= half and -half<fy and fy<=half
-
-def xy_in_quarter_rectangle(xy, f):
-    """
-    f = 1 or 2
-    """
-    x,y = xy
-    fy = f*y
-    return 0<=x and x<= half and 0<=fy and fy<=half
-
-def in_rectangle(a):
-    f = 1 + a.parent().disc()%2
-    return xy_in_rectangle(xy_coords(a), f)
-
-def in_quarter_rectangle(a):
-    f = 1 + nf(a).disc()%2
-    return xy_in_quarter_rectangle(xy_coords(a), f)
-
-def cusp_in_rectangle(a):
-    return in_rectangle(to_k(a))
-
-def cusp_in_quarter_rectangle(a):
-    return in_quarter_rectangle(to_k(a))
 
 def is_sigma_surrounded(sigma, alist, debug=False):
     """Given a singular point s and a candidate list of principal cusps
@@ -1841,7 +1592,7 @@ def compare_alpha_lists(alist1, alist2):
     return len(alist1)==len(alist2) and all(alpha_in_list(a,alist2) for a in alist1) and all(alpha_in_list(a,alist1) for a in alist2)
 
 def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
-    from utils import nf, ispos, add_two_alphas, add_four_alphas
+    from utils import nf, ispos, add_two_alphas, add_four_alphas, half
 
     k = nf(alphas[0])
     w = k.gen()
@@ -2036,14 +1787,14 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
     new_sigmas = [cusp(oo,k)] + S2 + S3 + S
 
     geodata_file = f"geodata_{d}.dat"
-    print("//////////////////////////////")
+    # print("//////////////////////////////")
     if geout:
         print(f"// tessellation edge data will be output to {geodata_file}")
     st = f"0\n0 {d=}\n0"
     if geout:
         geout.write(st+"\n")
-    else:
-        print(st)
+    # else:
+    #     print(st)
     for r,s in pluspairs:
         sr, si = s
         r1r, r1i = r
@@ -2051,8 +1802,8 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
         if geout:
             geout.write(st+"\n")
-        else:
-            print(st)
+        # else:
+        #     print(st)
     for r,s in minuspairs:
         sr, si = s
         r1r, r1i = r
@@ -2060,8 +1811,8 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
         if geout:
             geout.write(st+"\n")
-        else:
-            print(st)
+        # else:
+        #     print(st)
     for s, r1, r2 in long_fours:
         sr, si = s
         r1r, r1i = r1
@@ -2069,17 +1820,17 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
         st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
         if geout:
             geout.write(st+"\n")
-        else:
-            print(st)
+        # else:
+        #     print(st)
     for s in S_mod_neg:
         sr, si = s.denominator()
         rr, ri = s.numerator()
         st = f"{d} S {rr} {ri} {sr} {si}"
         if geout:
             geout.write(st+"\n")
-        else:
-            print(st)
-    print("//////////////////////////////")
+    #     else:
+    #         print(st)
+    # print("//////////////////////////////")
 
     # for homology edge relation computation include alphas with denom 1,2,3:
     zero = k(0)
@@ -2399,7 +2150,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print("plotting fundamental domain")
         from sage.misc.viewer import viewer
         viewer.browser(browser)
-        show(plot_Bianchi_diagram(k,hemis))
+        show(plot_Bianchi_diagram(kdata,hemis))
 
     pt = poly_types(polyhedra)
     nunk = pt['unknown']
@@ -2557,3 +2308,63 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print(f" - torsion invariants: {torsion_invariants}")
 
     return alphas, sigmas, faces, polyhedra
+
+def faces_from_file(kdata):
+    from alphas import precomputed_alphas
+    from utils import make_M_alphas, geodat_decoders
+
+    d = kdata['d']
+    k = kdata['k']
+    alphas = precomputed_alphas(d)
+    assert alphas
+    sigmas = singular_points(k)
+    alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(alphas, sigmas, geout=None)
+    alphas = alphas0 + alphas1
+    M_alphas, alpha_inv = make_M_alphas(alphas)
+    faces = []
+    with open(f"../geodata/geodata_{d}.dat") as gin:
+        for L in gin:
+            #print(L)
+            cols = L.split()
+            #print(cols)
+            if int(cols[0])!=d:
+                continue
+            face_type = cols[1]
+            params = [int(c) for c in cols[2:]]
+            if face_type in ['T', 'U', 'Q', 'H']:
+                face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
+                try:
+                    face_boundary_vector(face, alphas, sigmas)
+                    faces.append(face)
+                except:
+                    print(f"Invalid face {face} from {L}")
+    return alphas, sigmas, plus_pairs, minus_pairs, fours, faces
+
+def integral_homology(d):
+    kdata = make_k(d)
+    alphas, sigmas, plus_pairs, minus_pairs, fours, faces = faces_from_file(kdata)
+    M10 = edge_boundary_matrix(alphas, sigmas)
+    #print(f"edge boundary matrix:\n{M10}")
+    D,U,V = M10.smith_form(transformation=True)
+    #print(f" - smith form:\n{D}")
+    assert U*M10*V == D
+    r = D.rank()
+    #print(f" - rank: {r}")
+    Vinv = V.inverse().change_ring(ZZ)
+    for group in ["GL2", "SL2"]:
+        print(f"{group} integral homology data for D={kdata['dk']}:")
+        M21 = face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group=group, debug=False)
+        #print(f"face boundary matrix:\n{M21}")
+        assert M10*M21 == 0
+        M = Vinv*M21
+        assert D*M == 0
+        #print(f" - after edge basis change:\n{M}")
+        M = M.submatrix(r,0)
+        #print(f" - after trimming:\n{M}")
+        invariants = [d for d in M.elementary_divisors() if d!=1]
+        print(f" - invariants: {invariants}")
+        rank = invariants.count(0)
+        print(f" - rank: {rank}")
+        torsion_invariants = [d for d in invariants if d>1]
+        invs = Factorization((p,1) for p in torsion_invariants)
+        print(f" - torsion invariants: {invs}")

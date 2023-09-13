@@ -1,4 +1,72 @@
-from sage.all import (oo, NFCusp, Matrix, cached_function, Set)
+from sage.all import (oo, NFCusp, Matrix, cached_function, Set, ZZ, QQ, polygen, CC, NumberField, srange)
+
+
+# NB the method k.elements_of_norm(n) is not cached
+
+elts_of_norm_cache = {}
+
+def elts_of_norm(k,n):
+    """
+    Return list of elements of O_k of norm n, up to units, using cache.
+    """
+    if n not in ZZ or n<0:
+        return [k(0)]
+    global elts_of_norm_cache
+    if k not in elts_of_norm_cache:
+        elts_of_norm_cache[k] = {}
+    if n not in elts_of_norm_cache[k]:
+        elts_of_norm_cache[k][n] = k.elements_of_norm(n)
+    return elts_of_norm_cache[k][n]
+
+def elements_of_norm(k, n):
+    """
+    Return iterator through elements of O_k of norm n, up to units, using cache.
+    """
+    return iter(elts_of_norm(k, n))
+
+def elements_of_norm_upto(k, n, start=1):
+    """
+    Return iterator through elements of k of norm from 1 to n, up to units, using cache.
+    """
+    from itertools import chain
+    return chain(*(elements_of_norm(k,n) for n in range(start, n+1)))
+
+def next_norm(k, n):
+    """
+    Returns the smallest integer m>=n which is a norm from O_k
+    """
+    while not elements_of_norm(k, n):
+        n+=1
+    return n
+
+@cached_function
+def make_k(dk):
+    """Given a negative fundamental discriminant, or positive square-free
+    d, constructs the associated imaginary quadratic field and returns
+    a dict containing this and useful other data
+
+    """
+    global elts_of_norm_cache
+    x = polygen(QQ)
+    if dk>0:
+        assert dk.is_squarefree()
+        dk = -dk if dk%4==3 else -4*dk
+    if dk%4==1:
+        k = NumberField(x**2-x+(1-dk)//4, 'w')
+        d = -dk
+    else:
+        k = NumberField(x**2-dk//4, 'w')
+        d = -dk//4
+    assert k.discriminant() == dk
+    w = k.gen()
+    emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
+    if k not in elts_of_norm_cache:
+        elts_of_norm_cache[k] = {}
+    return {'k': k, 'dk': dk, 'd': d, 'w': w, 'wbar': w.trace()-w, 'Ok': k.ring_of_integers(),
+            'oo': cusp(oo,k),
+            'emb': emb, 'Ymax': emb(w).imag()/2,
+            'Ireps': [c.ideal() for c in k.class_group()]}
+
 
 def nf(x):
     """
@@ -8,6 +76,197 @@ def nf(x):
         return x.number_field()
     except AttributeError:
         return x.parent()
+
+def xy_coords(alpha):
+    """
+    alpha = x+y*sqrt(-d) in k = Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2
+    """
+    x, y = list(alpha)
+    if alpha.parent().gen().trace():
+        y /=2
+        x +=y
+    return (x,y)
+
+half = ZZ(1)/2
+
+def xy_in_rectangle(xy, f):
+    """
+    f = 1 or 2
+    """
+    x,y = xy
+    fy = f*y
+    return -half<x and x<= half and -half<fy and fy<=half
+
+def xy_in_quarter_rectangle(xy, f):
+    """
+    f = 1 or 2
+    """
+    x,y = xy
+    fy = f*y
+    return 0<=x and x<= half and 0<=fy and fy<=half
+
+def in_rectangle(a):
+    f = 1 + a.parent().disc()%2
+    return xy_in_rectangle(xy_coords(a), f)
+
+def in_quarter_rectangle(a):
+    f = 1 + nf(a).disc()%2
+    return xy_in_quarter_rectangle(xy_coords(a), f)
+
+def cusp_in_rectangle(a):
+    return in_rectangle(to_k(a))
+
+def cusp_in_quarter_rectangle(a):
+    return in_quarter_rectangle(to_k(a))
+
+def reduce_mod_Ok(alpha):
+    """
+    Return in integer translate of alpha whose xy-coords satisfy
+    -1/2 < x <= 1/2 and
+    -1/2 < y <= 1/2 (even discriminant, w=sqrt(-d))
+    -1/4 < y <= 1/4 (odd discriminant, w=(1+sqrt(-d))/2)
+    """
+    k = alpha.parent()
+    w = k.gen()
+    y = xy_coords(alpha)[1]
+    r = 2 if w.trace() else 1
+    alpha -= (r*y).round('down')*w
+    x = xy_coords(alpha)[0]
+    alpha -= x.round('down')
+    assert in_rectangle(alpha)
+    return alpha
+
+def singular_points_in_class(I, IC=None, verbose=False):
+    """Given an ideal I, return a list of singular points of class [I]
+    (one representative for each orbit under integral translations).
+
+    Uses the new characterization of singular points as a/b for b one
+    nonzero element of minimal norm in one non-principal ideal I in
+    each ideal class, where I=(a,b).
+
+    IC can be set to a list of ideal class representatives.
+
+    """
+    k = I.number_field()
+    if I.is_principal():
+        return [NFCusp(k, oo)]
+    if IC is None:
+        IC = smallest_ideal_class_representatives(k)
+    sigmas = []
+    Inorm = I.norm()
+    Ibar = k.ideal(Inorm)/I
+    s = k(I.norm())
+    slist = [s]
+    if I!=Ibar:
+        I2 = I*I
+        if I2.is_principal():
+            s2 = I2.gens_reduced()[0]
+            assert s.norm()==s2.norm()
+            slist.append(s2)
+    if verbose:
+        print("Ideal class #{}: denominators {}".format(IC.index(I), slist))
+    for s in slist:
+        rlist = [r for r in k.ideal(s).residues() if k.ideal(r,s) == I]
+        ss = [cusp(reduce_mod_Ok(r/s), k, IC) for r in rlist]
+        if verbose:
+            print(" - denominator s = {}, numerators {}, sigmas {}".format(s, rlist, ss))
+        sigmas += ss
+    return sigmas
+
+def singular_points_by_class(IC, verbose=False):
+    """Return a list of lists of singular points, one sublist for each
+    nontrivial ideal class, representative for each orbit under
+    integral translations.
+
+    Uses the new characterization of singular points as a/b for b one
+    nonzero element of minimal norm in one non-principal ideal I in
+    each ideal class, where I=(a,b).
+
+    """
+    return [singular_points_in_class(I, IC=IC, verbose=verbose) for I in IC]
+
+def singular_points(k, verbose=False):
+    """Return a list of singular points, one representative for each
+    orbit under integral translations.
+
+    Uses the new characterization of singular points as a/b for b one
+    nonzero element of minimal norm in one non-principal ideal I in
+    each ideal class, where I=(a,b).
+    """
+    return sum(singular_points_by_class(smallest_ideal_class_representatives(k), verbose), [])
+
+def ab_to_k(k,ab):
+    """MA's code returns each singular point in the form (a,b) with a,b
+    rational, representing a+b*sqrt(-d) with d squarefree.  We convert
+    to an element of k, assuming that k's defining polynomial is
+    either X^2+d or X^2-X+(d+1)/4.
+    """
+    w = k.gen()
+    rootd = 2*w-1 if k.discriminant()%4 else w
+    a,b = ab
+    return a+b*rootd
+
+def singular_points_MA(k):
+    """
+    Singular points from MA's code
+    """
+    if k.class_number()==1:
+        return []
+    from FundDomains import singular_points as spMA, reduce_ab_mod_ok
+    S = spMA(k)
+    # include negatives:
+    S = S + [[-ab[0],-ab[1]] for ab in S]
+    # reduce mod O_k
+    S = [reduce_ab_mod_ok(k, ab) for ab in S]
+    # convert to field elements
+    S = [ab_to_k(k,ab) for ab in S]
+    # remove repeats
+    S = list(set(S))
+    # convert into cusps whose ideals are standardised, and prepend oo
+    IC = smallest_ideal_class_representatives(k)
+    return [cusp(oo,k)] + [cusp(s,k,IC) for s in S]
+
+def differ_by_integer(s,t):
+    """
+    If s,t are cusps, return True iff s-t is integral
+    """
+    if s.is_infinity():
+        return t.is_infinity()
+    if t.is_infinity():
+        return False
+    ks = s.numerator()/s.denominator()
+    kt = t.numerator()/t.denominator()
+    return (ks-kt).is_integral()
+
+def test_singular_points(dmin, dmax, verbose=False):
+    x = polygen(QQ)
+    for d in srange(dmin,dmax+1):
+        if not d.is_squarefree():
+            continue
+        k = NumberField(x**2-x+(d+1)//4 if d%4==3 else x**2+d, 'w')
+        h = k.class_number()
+        if h==1:
+            continue
+        if verbose:
+            print("d={}, {} has class number {}".format(d, k, h))
+        sigmas = singular_points(k)
+        if verbose:
+            print("New sigmas: {}".format(sigmas))
+        old_sigmas = singular_points_MA(k)
+        if verbose:
+            print("Old sigmas: {}".format(old_sigmas))
+        diff1 = [s for s in sigmas if not any(differ_by_integer(s,t) for t in old_sigmas)]
+        diff2 = [s for s in old_sigmas if not any(differ_by_integer(s,t) for t in sigmas)]
+        ok = True
+        if diff1:
+            ok = False
+            print("d={}: sigmas from new code not in old: {}".format(d,diff1))
+        if diff2:
+            ok = False
+            print("d={}: sigmas from old code not in new: {}".format(d,diff2))
+        if ok:
+            print("Old and new agree for d={}".format(d))
+
 
 Imat = Matrix(2,2,[1,0,0,1])
 Jmat = Matrix(2,2,[-1,0,0,1])
@@ -623,7 +882,7 @@ def square_parameters(S, alphas, M_alphas, alpha_inv, geout=None):
 def aaa_triangle_parameters(T, alphas, M_alphas, strict=True, geout=None):
     """For T a triangle with all vertices principal cusps, returns
     [[i,j,k],u] where M_alphas[i](alpha[j]+u) = alpha[k] + x with x
-    integral, where T has vertices [alpha_i, oo, alpha_j].
+    integral, where T has vertices [alpha_i, oo, u+alpha_j].
 
     We consider rotations and reflections.
     """
@@ -782,3 +1041,70 @@ def polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=None):
             return aaa_triangle_parameters(P, alphas, M_alphas, geout=geout)
         else:
             return aas_triangle_parameters(P, alphas, M_alphas, sigmas, geout=geout)
+
+def decode_T(kdata, params, alphas, sigmas, M_alphas, alpha_inv):
+    """
+    params = [i, j, k, ur, ui] encodes triangle with  vertices
+    [alpha_i, oo, u+alpha_j].
+    """
+    i, j, k, ur, ui = params
+    w = kdata['w']
+    u = ur + w*ui
+    return [alphas[i], kdata['oo'], translate_cusp(alphas[j], u)]
+
+def decode_U(kdata, params, alphas, sigmas, M_alphas, alpha_inv):
+    """
+    params [i,j,k,ur,ui] encodes the aas-triangle with vertices
+    [alpha_i, oo, sigma_j+u].
+    """
+    i, j, k, ur, ui = params
+    w = kdata['w']
+    u = ur + w*ui
+    return [alphas[i], kdata['oo'], translate_cusp(sigmas[j], u)]
+
+def decode_Q(kdata, params, alphas, sigmas, M_alphas, alpha_inv):
+    """params = [i, j, k, l, xr, xi, yr, yi, zr, zi] encodes square with
+    vertices [alpha_i, oo, alpha_j'+z, beta].
+
+    Here alpha_j' is the alpha paired with alpha_j, and beta = z +
+    M_j(x+alpha[k']) = M_i'(y+alpha_l),
+
+    """
+    i, j, k, l, xr, xi, yr, yi, zr, zi = params
+    jd = alpha_inv[j]
+    kd = alpha_inv[k]
+    w = kdata['w']
+    x = xr + w*xi
+    z = zr + w*zi
+    beta = translate_cusp(apply(M_alphas[j],translate_cusp(alphas[kd],x)), z)
+    return [alphas[i], kdata['oo'], translate_cusp(alphas[jd],z), beta]
+
+def decode_H(kdata, params, alphas, sigmas, M_alphas, alpha_inv):
+    """
+    params = [i, j, k, l, m, n, ui, ur, x1r, x1i, y1r, y1i, x2r, x2i, y2r, y2i] encodes hexagon with  vertices
+    [beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma].
+
+    Here
+
+    beta1 = M_i'(x1+alpha[k]),
+    beta2 = M_j'(x2+alpha[l]),
+    gamma = M_i'*T^x1*M_k'*T^y1(alpha[m]) = T^u*M_j'*T^x2*M_l'*T^y2(alpha[n]).
+    """
+    i, j, k, l, m, n, ui, ur, x1i, x1r, y1r, y1i, x2i, x2r, y2r, y2i = params
+    id = alpha_inv[i]
+    jd = alpha_inv[j]
+    kd = alpha_inv[k]
+    w = kdata['w']
+    u = ur + w*ui
+    x1 = x1r + w*x1i
+    x2 = x2r + w*x2i
+    y1 = y1r + w*y1i
+    beta1 = apply(M_alphas[id]*Tmat(x1),alphas[k])
+    beta2 = apply(M_alphas[jd]*Tmat(x2),alphas[l])
+    gamma = apply(M_alphas[id]*Tmat(x1)*M_alphas[kd]*Tmat(y1), alphas[m])
+    return [beta1, alphas[i], kdata['oo'], translate_cusp(alphas[j],u), beta2, gamma]
+
+geodat_decoders = {'T': decode_T,
+                   'U': decode_U,
+                   'Q': decode_Q,
+                   'H': decode_H}
