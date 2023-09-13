@@ -63,6 +63,7 @@ def make_k(dk):
     if k not in elts_of_norm_cache:
         elts_of_norm_cache[k] = {}
     return {'k': k, 'dk': dk, 'd': d, 'w': w, 'wbar': w.trace()-w, 'Ok': k.ring_of_integers(),
+            'h': k.class_number(), 'Cl': k.class_group(), 'Cl_invs': k.class_group().invariants(),
             'oo': cusp(oo,k),
             'emb': emb, 'Ymax': emb(w).imag()/2,
             'Ireps': [c.ideal() for c in k.class_group()]}

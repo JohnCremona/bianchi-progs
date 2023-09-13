@@ -2096,6 +2096,39 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
     assert n==M.ncols()
     return M
 
+def compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces, debug=False):
+    M10 = edge_boundary_matrix(kdata, alphas, sigmas)
+    #print(f"edge boundary matrix:\n{M10}")
+    D,U,V = M10.smith_form(transformation=True)
+    #print(f" - smith form:\n{D}")
+    assert U*M10*V == D
+    r = D.rank()
+    #print(f" - rank: {r}")
+    Vinv = V.inverse().change_ring(ZZ)
+    hom = {}
+    for group in ["GL2", "SL2"]:
+        #print(f"{group} integral homology data for D={kdata['dk']}:")
+        M21 = face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group=group, debug=debug)
+        #print(f"face boundary matrix:\n{M21}")
+        assert M10*M21 == 0
+        M = Vinv*M21
+        assert D*M == 0
+        #print(f" - after edge basis change:\n{M}")
+        M = M.submatrix(r,0)
+        #print(f" - after trimming:\n{M}")
+        invariants = [d for d in M.elementary_divisors() if d!=1]
+        #print(f" - invariants: {invariants}")
+        rank = invariants.count(0)
+        #print(f" - rank: {rank}")
+        torsion_invariants = [d for d in invariants if d>1]
+        invs = Factorization((p,1) for p in torsion_invariants)
+        #print(f" - torsion invariants: {invs}")
+        hom[group] = {'invariants': invariants,
+                      'rank': rank,
+                      'torsion_invariants': torsion_invariants,
+                      'torsion_factors': invs}
+    return hom
+
 def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
     from utils import (make_M_alphas,
                        make_poly_from_edges,
@@ -2282,89 +2315,62 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             F = [[[cusp_from_string(v, k) for v in e] for e in f] for f in P.faces()]
             tess_out.write(f"  faces: {F}\n")
 
-    M10 = edge_boundary_matrix(kdata, alphas, sigmas)
-    #print(f"edge boundary matrix:\n{M10}")
-    D,U,V = M10.smith_form(transformation=True)
-    #print(f" - smith form:\n{D}")
-    assert U*M10*V == D
-    r = D.rank()
-    #print(f" - rank: {r}")
-    Vinv = V.inverse().change_ring(ZZ)
+    hom = compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces)
     for group in ["GL2", "SL2"]:
-        print(f"{group} integral homology data:")
-        M21 = face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group=group, debug=False)
-        #print(f"face boundary matrix:\n{M21}")
-        assert M10*M21 == 0
-        M = Vinv*M21
-        assert D*M == 0
-        #print(f" - after edge basis change:\n{M}")
-        M = M.submatrix(r,0)
-        #print(f" - after trimming:\n{M}")
-        invariants = [d for d in M.elementary_divisors() if d!=1]
-        print(f" - invariants: {invariants}")
-        rank = invariants.count(0)
-        print(f" - rank: {rank}")
-        torsion_invariants = [d for d in invariants if d>1]
-        print(f" - torsion invariants: {torsion_invariants}")
+        print(f"{group} integral homology data for D={kdata['dk']}:")
+        print(f" - rank: {hom[group]['rank']}")
+        print(f" - torsion invariants: {hom[group]['torsion_factors']}")
 
-    return alphas, sigmas, faces, polyhedra
+    return alphas, sigmas, faces, polyhedra, hom
 
 def faces_from_file(kdata):
     from alphas import precomputed_alphas
-    from utils import make_M_alphas, geodat_decoders
+    from utils import make_M_alphas, geodat_decoders, tri0, tri1, tri2
 
     d = kdata['d']
     k = kdata['k']
+    w = kdata['w']
     alphas = precomputed_alphas(d)
     assert alphas
     sigmas = singular_points(k)
     alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(kdata, alphas, sigmas, geout=None)
     alphas = alphas0 + alphas1
     M_alphas, alpha_inv = make_M_alphas(alphas)
-    faces = []
+
+    # Faces for class number 1 fields treated separately in C++ code so not output to geodata:
+
+    faces = [tri0(k)]          # triangle  [0,oo,1]
+    if d in [19, 43, 67, 163]: # triangles [oo, w/2, (w-1)/2], [oo, w/2, (w+1)/2]
+        faces.append(tri1(k))
+        faces.append(tri2(k))
+    if d in [2, 7]:
+        faces.append([cusp(c,k) for c in [w/2,0,oo,w]])
+    if d==11:
+        faces.append([cusp(c,k) for c in [2*w/3,w/2,w/3,0,oo,w]])
+
     with open(f"../geodata/geodata_{d}.dat") as gin:
         for L in gin:
-            #print(L)
             cols = L.split()
-            #print(cols)
             if int(cols[0])!=d:
                 continue
             face_type = cols[1]
             params = [int(c) for c in cols[2:]]
-            if face_type in ['T', 'U', 'Q', 'H']:
-                face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
-                try:
-                    face_boundary_vector(face, alphas, sigmas)
-                    faces.append(face)
-                except:
-                    print(f"Invalid face {face} from {L}")
+            if face_type not in ['T', 'U', 'Q', 'H']:
+                continue
+            face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
+            try:
+                face_boundary_vector(face, alphas, sigmas)
+                faces.append(face)
+            except:
+                print(f"Invalid face {face} from {L}")
     return alphas, sigmas, plus_pairs, minus_pairs, fours, faces
 
 def integral_homology(d):
     kdata = make_k(d)
     alphas, sigmas, plus_pairs, minus_pairs, fours, faces = faces_from_file(kdata)
-    M10 = edge_boundary_matrix(kdata, alphas, sigmas)
-    #print(f"edge boundary matrix:\n{M10}")
-    D,U,V = M10.smith_form(transformation=True)
-    #print(f" - smith form:\n{D}")
-    assert U*M10*V == D
-    r = D.rank()
-    #print(f" - rank: {r}")
-    Vinv = V.inverse().change_ring(ZZ)
+    hom = compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces)
     for group in ["GL2", "SL2"]:
         print(f"{group} integral homology data for D={kdata['dk']}:")
-        M21 = face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, group=group, debug=False)
-        #print(f"face boundary matrix:\n{M21}")
-        assert M10*M21 == 0
-        M = Vinv*M21
-        assert D*M == 0
-        #print(f" - after edge basis change:\n{M}")
-        M = M.submatrix(r,0)
-        #print(f" - after trimming:\n{M}")
-        invariants = [d for d in M.elementary_divisors() if d!=1]
-        print(f" - invariants: {invariants}")
-        rank = invariants.count(0)
-        print(f" - rank: {rank}")
-        torsion_invariants = [d for d in invariants if d>1]
-        invs = Factorization((p,1) for p in torsion_invariants)
-        print(f" - torsion invariants: {invs}")
+        print(f" - invariants: {hom[group]['invariants']}")
+        print(f" - rank: {hom[group]['rank']}")
+        print(f" - torsion invariants: {hom[group]['torsion_factors']}")
