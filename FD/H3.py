@@ -889,7 +889,6 @@ def is_sigma_surrounded(sigma, alist, debug=False):
     or (False, [])
 
     """
-
     k = nf(alist[0])
     w = k.gen()
 
@@ -1591,12 +1590,12 @@ def alpha_in_list(a, alist, up_to_translation=True):
 def compare_alpha_lists(alist1, alist2):
     return len(alist1)==len(alist2) and all(alpha_in_list(a,alist2) for a in alist1) and all(alpha_in_list(a,alist1) for a in alist2)
 
-def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
-    from utils import nf, ispos, add_two_alphas, add_four_alphas, half
+def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
+    from utils import ispos, add_two_alphas, add_four_alphas, half
 
-    k = nf(alphas[0])
-    w = k.gen()
-    d = -k.discriminant().squarefree_part() # for compatibility with C++'s d
+    k = kdata['k']
+    w = kdata['w']
+    d = kdata['d'] # for compatibility with C++'s d
 
     # Extract the a for which 2*a or 3*a is integral, which we treat
     # separately:
@@ -1874,8 +1873,9 @@ def find_edge_pairs(alphas, sigmas, debug=False, geout=None):
 #
 # From scratch:
 #
-def alpha_sigma_data(d, verbose=False, geout=None):
-    k = make_k(d)['k']
+def alpha_sigma_data(kdata, verbose=False, geout=None):
+    k = kdata['k']
+    d = kdata['d']
     if verbose:
         print(f"{k = }, class number {k.class_number()}")
     sigmas = singular_points(k)
@@ -1890,7 +1890,7 @@ def alpha_sigma_data(d, verbose=False, geout=None):
         print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
         print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
-    data = find_edge_pairs(alphas1, sigmas, geout=geout)
+    data = find_edge_pairs(kdata, alphas1, sigmas, geout=geout)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
     # for adding to precomputed alphas in alphas.py:
@@ -1916,7 +1916,7 @@ def edge_boundary_vector(e):
     v[cusp_class_index(e[0])] -=1
     return v
 
-def edge_boundary_matrix(alphas, sigmas):
+def edge_boundary_matrix(kdata, alphas, sigmas):
     """Return matrix of the boundary map from edges to cusps (for H^3
     modulo GL(2,O_k) or SL(2,O_k)).  The edge basis consists of first
     the [a,oo] for a in alphas (whose boundary is trivial), then the
@@ -1924,7 +1924,7 @@ def edge_boundary_matrix(alphas, sigmas):
     classes.
     """
     n = len(alphas)
-    M = Matrix(ZZ, alphas[0].number_field().class_number(), n+len(sigmas)-1)
+    M = Matrix(ZZ, kdata['h'], n+len(sigmas)-1)
     for j,s in enumerate(sigmas):
         if j:
             M[0,n+j-1] = -1
@@ -2120,7 +2120,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             print("using precomputed alphas")
         sigmas = singular_points(k)
         with open(geodata_file, 'w') as geout:
-            data = find_edge_pairs(alphas, sigmas, geout=geout)
+            data = find_edge_pairs(kdata, alphas, sigmas, geout=geout)
         alphas = data[0] + data[1]
         sigmas = data[2]
         plus_pairs = data[3]
@@ -2130,7 +2130,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         if verbose:
             print("computing alphas from scratch")
         with open(geodata_file, 'w') as geout:
-            alphas, sigmas, plus_pairs, minus_pairs, fours = alpha_sigma_data(d, verbose=verbose, geout=geout)
+            alphas, sigmas, plus_pairs, minus_pairs, fours = alpha_sigma_data(kdata, verbose=verbose, geout=geout)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
     if verbose:
@@ -2282,7 +2282,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             F = [[[cusp_from_string(v, k) for v in e] for e in f] for f in P.faces()]
             tess_out.write(f"  faces: {F}\n")
 
-    M10 = edge_boundary_matrix(alphas, sigmas)
+    M10 = edge_boundary_matrix(kdata, alphas, sigmas)
     #print(f"edge boundary matrix:\n{M10}")
     D,U,V = M10.smith_form(transformation=True)
     #print(f" - smith form:\n{D}")
@@ -2318,7 +2318,7 @@ def faces_from_file(kdata):
     alphas = precomputed_alphas(d)
     assert alphas
     sigmas = singular_points(k)
-    alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(alphas, sigmas, geout=None)
+    alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(kdata, alphas, sigmas, geout=None)
     alphas = alphas0 + alphas1
     M_alphas, alpha_inv = make_M_alphas(alphas)
     faces = []
@@ -2343,7 +2343,7 @@ def faces_from_file(kdata):
 def integral_homology(d):
     kdata = make_k(d)
     alphas, sigmas, plus_pairs, minus_pairs, fours, faces = faces_from_file(kdata)
-    M10 = edge_boundary_matrix(alphas, sigmas)
+    M10 = edge_boundary_matrix(kdata, alphas, sigmas)
     #print(f"edge boundary matrix:\n{M10}")
     D,U,V = M10.smith_form(transformation=True)
     #print(f" - smith form:\n{D}")
