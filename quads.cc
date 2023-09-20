@@ -50,14 +50,14 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              14, 17, 34, 39, 46, 55, 73, 155, 203,     // class group C4 (incomplete)
                              219, 259, 291, 78, 323, 82, 85, 355, 93, 97, // ""
 
-                             21, 30, 33, 42, 57, 70, 195, 435,        // class group C2xC2 (incomplete)
+                             21, 30, 33, 42, 57, 70, 195, 435, 483,      // class group C2xC2 (incomplete)
                              47, 79, 103, 127, 131, 179, 227, 347, 443,  // class group C5 (incomplete)
                              26, 29, 38, 53, 61, 87, 247, 339, 109, 411, 451, // class group C6 (incomplete)
-                             71, 151, 223, 251, 371, 463, 467,        // class group C7 (incomplete)
+                             71, 151, 223, 251, 371, 463, 467, 487,   // class group C7 (incomplete)
                              41, 62, 95, 111, 183, 295, 299, 94, 395, // class group C8 (incomplete)
                              65, 66, 69, 77,                          // class group C2xC4 (incomplete)
                              105,                                     // class group C2xC2xC2 (incomplete)
-                             199, 367, 419,                           // class group C9 (incomplete)
+                             199, 367, 419, 491,                      // class group C9 (incomplete)
                              119, 143, 159, 303, 319, 74, 86, 415,    // class group C10 (incomplete)
                              167, 271,                                // class group C11 (incomplete)
                              327, 89,                                 // class group C12 (incomplete)
