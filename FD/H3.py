@@ -1898,10 +1898,10 @@ def alpha_sigma_data(kdata, verbose=False, geout=None):
     alpha_string = alpha_string.replace(" ", "").replace('w','t').replace(",(",", (").replace("="," = ")
     alpha_string = alpha_string.replace("(0)/(1)", "0")
     alpha_file = f"alphas_{d}.py"
+    print(f"Writing to {alpha_file} for inserting into alphas.py")
     with open(alpha_file, 'w') as aout:
         aout.write(alpha_string+"\n")
-    if verbose:
-        print(f"Output to {alpha_file} for inserting into alphas.py:")
+    if False: #verbose:
         print(alpha_string)
         sigma_string = "sigmas: [" + ", ".join([f"({s.numerator()})/({s.denominator()})" for s in new_sigmas]) + "]\n"
         print(sigma_string)
