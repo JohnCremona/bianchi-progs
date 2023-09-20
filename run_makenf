@@ -48,7 +48,7 @@ while true; do
 
     if [[ $((first)) -le $((last)) ]]; then
         echo "============================================"
-        echo "running norms from " ${first} " to " ${last}
+        echo "running norms from " ${first} " to " ${last} " for d = " $d
         #./qidl_labels ${d} ${first} ${last}
         parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ${NAP} ::: `./qidl_labels ${d} ${first} ${last} 1 0`
     fi
@@ -66,7 +66,8 @@ echo $d $MAXLEVEL | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${MINLEVEL
 grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 
 echo "============================================"
-echo "Finished field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL}
+echo "Finished field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL} ": "
+wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
 echo "============================================"
 
 
