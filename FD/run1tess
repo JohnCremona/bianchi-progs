@@ -1,0 +1,19 @@
+#!/bin/bash
+d=$1
+
+echo "============================================"
+echo "Starting tessellation for field:" $d
+echo "============================================"
+
+echo "import H3; t=H3.tessellation(${d}, verbose=1);" | sage -q
+
+echo "============================================"
+echo "Finished tessellation for field:" $d
+echo "============================================"
+
+#
+# To run in parallel (e.g.):
+#
+#  parallel -j 5 --progress --results tess{}.out ./run1tess {1} ::: 109 439 110 443 447
+#
+
