@@ -1564,21 +1564,17 @@ def denom_3_sigmas(k):
         slist.append(cusp((-1-w)/3,k))
         slist.append(cusp((1-w)/3,k))
         slist.append(cusp((w-1)/3,k))
-    if d12 == 11:
-        # if d==35:
-        #     slist.append(cusp(w/3,k))
-        #     slist.append(cusp(-w/3,k))
-        if d>=35:
-            slist.append(cusp(w/3, k))
-            slist.append(cusp(-w/3, k))
-            slist.append(cusp((w-1)/3,k))
-            slist.append(cusp((1-w)/3,k))
     if d12 == 3 and d>15:
         slist.append(cusp((1+w)/3,k))
         slist.append(cusp((-1-w)/3,k))
     if d12 in [6,9] and d>6:
         slist.append(cusp(w/3,k))
         slist.append(cusp(-w/3,k))
+    if d12 == 11 and d>23:
+        slist.append(cusp(w/3, k))
+        slist.append(cusp(-w/3, k))
+        slist.append(cusp((w-1)/3,k))
+        slist.append(cusp((1-w)/3,k))
     return slist
 
 def alpha_in_list(a, alist, up_to_translation=True):
@@ -2003,7 +1999,7 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
             M[i, n+i] +=1
             M[j, n+i] -=1
             if debug:
-                print(f"alpha={a} --> column {n+i}: {M.column(n+i)}")
+                print(f"alpha={a} --> column {n+i}, rows {i}, {j}")
         n += len(alphas)
         if debug:
             print(" sigma negations:")
@@ -2014,7 +2010,7 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
             M[m+i, n+i] +=1
             M[m+j, n+i] -=1
             if debug:
-                print(f"sigma={s} --> column {n+i}: {M.column(n+i)}")
+                print(f"sigma={s} --> column {n+i}, rows {i}, {j}")
         n += len(sigmas)-1
     if debug:
         print(f" - after edge identifications (0), filled {n} columns out of {ncols} and rank is {M.rank()}")
@@ -2025,12 +2021,14 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
     if debug:
         print(" + pairs:")
     for i, (r1,s) in enumerate(plus_pairs):
+        js = []
         for r in (r1,-r1):
             a = cusp(r/s, k)
             j = alpha_index_with_translation(a, alphas)[0]
             M[j, n+i] +=1
+            js.append(j)
         if debug:
-            print(f"Column {n+i}: {M.column(n+i)}")
+            print(f"Column {n+i}, rows {js[0]}, {js[1]}")
     n += len(plus_pairs)
     if debug:
         print(f" - after edge identifications (1), filled {n} columns out of {ncols} and rank is {M.rank()}")
@@ -2043,7 +2041,7 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
         j = alpha_index_with_translation(a, alphas)[0]
         M[j, n+i] +=2
         if debug:
-            print(f"Column {n+i}: {M.column(n+i)}")
+            print(f"Column {n+i}, row {j}")
     n += len(minus_pairs)
     if debug:
         print(f" - after edge identifications (2), filled {n} columns out of {ncols} and rank is {M.rank()}")
@@ -2052,26 +2050,31 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
     if debug:
         print(" fours (1):")
     for i, (s,r1,r2) in enumerate(fours):
+        js = []
         for r in (r1,r2):
             a = cusp(r/s, k)
             j = alpha_index_with_translation(a, alphas)[0]
             M[j, n+i] +=1
+            js.append(j)
         if debug:
-            print(f"Column {n+i}: {M.column(n+i)}")
+            print(f"Column {n+i}, rows {js[0]}, {js[1]}")
     n += len(fours)
     if group!="GL2":
         if debug:
             print(" fours (2):")
         for i, (s,r1,r2) in enumerate(fours):
+            js = []
             for r in (r1,r2):
                 a = cusp(-r/s, k)
                 j = alpha_index_with_translation(a, alphas)[0]
                 M[j, n+i] +=1
+                js.append(j)
             if debug:
-                print(f"Column {n+i}: {M.column(n+i)}")
+                print(f"Column {n+i}, rows {js[0]}, {js[1]}")
         n += len(fours)
     if debug:
         print(f" - after edge identifications (3), filled {n} columns out of {ncols} and rank is {M.rank()}")
+        print(f"{M.elementary_divisors() = }")
 
     # face relations
     for i,F in enumerate(faces):
@@ -2092,6 +2095,7 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
         n += len(faces) # update number of cols filled so far
     if debug:
         print(f" - after face relations, filled {n} columns out of {ncols} and rank is {M.rank()}")
+        print(f"{M.elementary_divisors() = }")
 
     assert n==M.ncols()
     return M
