@@ -54,7 +54,7 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              47, 79, 103, 127, 131, 179, 227, 347, 443,  // class group C5 (incomplete)
                              26, 29, 38, 53, 61, 87, 247, 339, 109, 411, 451, // class group C6 (incomplete)
                              71, 151, 223, 251, 371, 463, 467, 487,   // class group C7 (incomplete)
-                             41, 62, 95, 111, 183, 295, 299, 94, 395, // class group C8 (incomplete)
+                             41, 62, 95, 111, 183, 295, 299, 94, 395, 113, // class group C8 (incomplete)
                              65, 66, 69, 77,                          // class group C2xC4 (incomplete)
                              105,                                     // class group C2xC2xC2 (incomplete)
                              199, 367, 419, 491,                      // class group C9 (incomplete)
@@ -65,12 +65,14 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              191, 263,                                // class group C13 (incomplete)
                              215, 287, 391, 101, 447,                 // class group C14 (incomplete)
                              239, 439,                                // class group C15 (incomplete)
-                             407,                                     // class group C16 (incomplete)
+                             407, 471,                                // class group C16 (incomplete)
                              399,                                     // class group C2xC8 (incomplete)
                              383,                                     // class group C17 (incomplete)
                              335,                                     // class group C18 (incomplete)
                              311, 359,                                // class group C19 (incomplete)
-                             431};                                    // class group C21 (incomplete)
+                             455,                                     // class group C2xC10 (incomplete)
+                             431,                                     // class group C21 (incomplete)
+                             479};                                    // class group C25 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};                                     // 9
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};  // 18
