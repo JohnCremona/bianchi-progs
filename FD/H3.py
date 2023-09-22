@@ -323,7 +323,7 @@ def covering_hemispheres(P, option, norm_s_lb=1, debug=False):
 def hemispheres_through(P):
     return covering_hemispheres1(P, 'exact')
 
-def properly_covering_hemispheres(P, norm_s_lb=1, debug=True):
+def properly_covering_hemispheres(P, norm_s_lb=1, debug=False):
     res_new =  covering_hemispheres3(P, 'strict', debug=False)
     res_new = sorted(res_new)
     if debug:
