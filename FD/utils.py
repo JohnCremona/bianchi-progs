@@ -35,7 +35,7 @@ def next_norm(k, n):
     """
     Returns the smallest integer m>=n which is a norm from O_k
     """
-    while not elements_of_norm(k, n):
+    while not elts_of_norm(k, n):
         n+=1
     return n
 

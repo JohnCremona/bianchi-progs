@@ -60,9 +60,10 @@ def tri_inter_points(a0, a1, a2):
     if delta==0:
         return None
     z = (al1*(n0-n2+rho2-rho0) + al2*(n1-n0+rho0-rho1) + al0*(n2-n1+rho1-rho2)) / delta
-    t2 = rho0 - n0 - z.norm() + 2*(al0*z.conjugate()).real()
-    assert t2 == rho1 - n1 - z.norm() + 2*(al1*z.conjugate()).real()
-    assert t2 == rho2 - n2 - z.norm() + 2*(al2*z.conjugate()).real()
+    zbar = z.conjugate()
+    t2 = rho0 - n0 - z.norm() + 2*(al0*zbar).real()
+    assert t2 == rho1 - n1 - z.norm() + 2*(al1*zbar).real()
+    assert t2 == rho2 - n2 - z.norm() + 2*(al2*zbar).real()
     return None if t2<0 else [z,t2]
 
 def tri_inter_cusps(a0, a1, a2):
@@ -234,6 +235,72 @@ def covering_hemispheres2(P, option=None, norm_s_lb=1, debug=False):
     assert all(is_under(P,a) in covering_codes for a in alphas)
     return alphas
 
+def covering_hemispheres3(P, option, debug=True):
+    if debug:
+        print(f"Finding covering hemispheres for {P = } with {option = }")
+    alphas = []
+    z, tsq = P
+    k = z.parent()
+    w = k.gen()
+    tr = w.trace()
+    n = w.norm()
+    a1, a2 = a = z.numerator()   # in O_K
+    b = z.denominator() # in Z
+    t1, t2 = tsq.numerator(), tsq.denominator()
+    v1 = vector([-b,0,a1,-n*a2])
+    v2 = vector([0,-b,a2,a1+tr*a2])
+    M1 = v1.column()*v1.row() + n*v2.column()*v2.row()
+    assert M1.is_symmetric()
+    # M1 is the matrix of N(a*s-b*r)
+    B = t2*b**2
+    if tr: ## make matrices integral
+        assert tr==1
+        B *= 2
+        M1 += v1.column()*v2.row() # not symmetric!
+        M1 += M1.transpose()
+        M2 = Matrix([[2,1],[1,2*n]])
+    else:
+        M2 = Matrix([[1,0],[0,n]])
+    if option=='strict':
+        B -= 1
+    M2 = Matrix([[0,0],[0,0]]).block_sum(M2)
+    assert M2.is_symmetric()
+    # M2 is the matrix of N(s)
+
+    M = t2*M1 + (b**2)*t1*M2
+    # M is the matrix of t2*N(a*s-b*r)+t1*N(b*s)
+    if debug:
+        print(f"{B = }")
+        print(f"{M = }")
+    assert M.is_symmetric()
+    assert M.is_positive_definite()
+    sols = pari(M).qfminim(B, flag=2)[2].sage().columns()
+    if debug:
+        print(f"Found {len(sols)} potential solutions")
+    for v in sols:
+        if debug:
+            print(f"{v = }")
+        r1, r2, s1, s2 = v
+        r = r1+w*r2
+        s = s1+w*s2
+        if s==0:
+            continue
+        if k.ideal(r,s) != 1:
+            continue
+        alpha = r/s
+        d = (s*z-r).norm()+tsq*s.norm()
+        # we need d==1 for exact, d<1 for strict, else d<=1
+        ok = (d<1) if option=='strict' else (d==1) if option=='exact' else (d<=1)
+        if ok:
+            if debug:
+                print(f" Solution {alpha = }")
+            alphas.append(cusp(alpha,k))
+    if debug:
+        print(f"Covering hemispheres are S_alpha for alpha = {alphas}")
+    covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
+    assert all(is_under(P,a) in covering_codes for a in alphas)
+    return alphas
+
 def covering_hemispheres_test(P, option=None, norm_s_lb=1):
     res1 = covering_hemispheres1(P, option, norm_s_lb)
     res2 = covering_hemispheres2(P, option, norm_s_lb)
@@ -256,8 +323,17 @@ def covering_hemispheres(P, option, norm_s_lb=1, debug=False):
 def hemispheres_through(P):
     return covering_hemispheres1(P, 'exact')
 
-def properly_covering_hemispheres(P, norm_s_lb=1):
-    return covering_hemispheres2(P, 'strict', norm_s_lb)
+def properly_covering_hemispheres(P, norm_s_lb=1, debug=True):
+    res_new =  covering_hemispheres3(P, 'strict', debug=False)
+    res_new = sorted(res_new)
+    if debug:
+        print(f"Properly covering hemispheres for {P = }:")
+        print(f"Method 3 gives: {res_new}")
+        res_old =  covering_hemispheres2(P, 'strict', norm_s_lb)
+        res_old = sorted(res_old)
+        print(f"Method 2 gives: {res_old}")
+        assert res_old==res_new
+    return res_new
 
 def is_maximal(P):
     return len(properly_covering_hemispheres(P))==0
@@ -1396,12 +1472,31 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
     NB We assume that the initial list of alphas contains all r/s with
     N(s) up to some bound:
     """
+
+    # First delete any alphas with <3 vertices, allowing for translates
+    all_points = triple_intersections(alphas, debug=debug)
+    pointsx = []
+    for P in all_points+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
+        for Q in point_translates(P):
+            if Q not in pointsx:
+                pointsx.append(Q)
+    nv = [nverts(a, pointsx) for a in alphas]
+    alphas1 = [a for a,n in zip(alphas,nv) if n>=3]
+    m = max([a.denominator().norm() for a in alphas1])
+    if verbose:
+        print(f"After removing alphas which go through <3 vertices, we now have {len(alphas1)} alphas with max norm {m}")
+
+
     sat = False
     checked_points = []
+    first_run = True
     # copy so original list unchanged
-    alphas1 = alphas.copy()
+    #alphas1 = alphas.copy()
     while not sat:
-        all_points = triple_intersections(alphas1, debug=debug)
+        if first_run:
+            first_run = False
+        else:
+            all_points = triple_intersections(alphas1, debug=debug)
         if debug:
             print(f"Found {len(all_points)} potential vertices")
         points = [P for P in all_points if maxn*P[1]<1]
@@ -1416,13 +1511,13 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
         sat = True        # will be set to False if we find out that the alphas are not already saturated
         extra_alphas = [] # will be filled with any extra alphas needed
         points.sort(key=lambda P: -P[1]) # highest first
-        for P in points:
+        for iP,P in enumerate(points):
             # if not sat:
             #     if debug:
             #         print("Restarting...")
             #     break
             if debug:
-                print(f" - checking {P = }", end="...")
+                print(f" - checking corner #{iP}/{len(points)}", end="...")
             extras = properly_covering_hemispheres(P)
             if debug:
                 print(" done", end="...")
@@ -1880,7 +1975,7 @@ def alpha_sigma_data(kdata, verbose=False, geout=None):
     maxn, alphas0, sigmas = find_covering_alphas(k, sigmas, verbose=verbose)
     if verbose:
         print(f"{len(alphas0)} covering alphas, max denom norm {maxn}")
-    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, debug=verbose, verbose=verbose)
+    alphas1, points = saturate_covering_alphas(k, alphas0, sigmas, maxn, debug=verbose>1, verbose=verbose)
     maxn = max(a.denominator().norm() for a in alphas1)
     if verbose:
         print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
