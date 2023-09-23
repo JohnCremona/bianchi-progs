@@ -5,7 +5,7 @@ from itertools import groupby
 from sage.all import (Infinity, Matrix, vector, ZZ, QQ, RR, CC,
                       Graph, Set, sign, var, implicit_plot3d, oo,
                       point, line, circle, show,
-                      Factorization)
+                      Factorization, pari)
 
 from utils import (make_k, nf, to_k, cusp, Imat, apply,
                    translate_cusp, negate_cusp, conj_cusp,
@@ -244,7 +244,7 @@ def covering_hemispheres3(P, option, debug=True):
     w = k.gen()
     tr = w.trace()
     n = w.norm()
-    a1, a2 = a = z.numerator()   # in O_K
+    a1, a2 = z.numerator()   # in O_K
     b = z.denominator() # in Z
     t1, t2 = tsq.numerator(), tsq.denominator()
     v1 = vector([-b,0,a1,-n*a2])
