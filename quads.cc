@@ -72,7 +72,8 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              311, 359,                                // class group C19 (incomplete)
                              455,                                     // class group C2xC10 (incomplete)
                              431,                                     // class group C21 (incomplete)
-                             479};                                    // class group C25 (incomplete)
+                             479,                                     // class group C25 (incomplete)
+                             887};                                    // class group C29 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};                                     // 9
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};  // 18
