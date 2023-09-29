@@ -10,12 +10,16 @@
 // GL(2,O_K) in GL(2,K), hence only relevant for even class number
 // (otherwise GL=NGL).
 
-
 #include "qidloop.h"
 #include "homspace.h"
 
+#define MAX_DISC 100
+
 int main ()
 {
+  long max_disc;
+  cerr << "Enter max abs disc (0 for all): " << flush;  cin >> max_disc;
+  vector<long> fields = valid_field_discs(max_disc);
   long max(1000);
   cout << "Table of dimensions of ";
   cout<<"level 1 homology over Q(sqrt(-d))" << endl;
@@ -27,9 +31,10 @@ int main ()
   cout << "SL2" << "\t\t" << "GL2" << "\t\tNGL2" << "\n\t\t\t\t";
   cout<<"all cuspidal\tall cuspidal\tall cuspidal" << endl;
 
-  for (auto di = valid_fields.begin(); di!=valid_fields.end(); ++di)
+  for (auto di = fields.begin(); di!=fields.end(); ++di)
     {
-      long d = *di;
+      long D = *di;
+      long d = (D%4==0? D/4: D);
       Quad::field(d,max);
       int n2r = Quad::class_group_2_rank>0;
       Qideal N(1);

@@ -15,6 +15,7 @@ class Qideal;
 
 // Valid fields
 extern vector<long> valid_fields;
+vector<long> valid_field_discs(long max_disc=0);
 int check_field(long d, vector<long> fields=valid_fields);
 
 //functions assigned by Quad::field initializer

@@ -48,31 +48,33 @@ vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclid
                              331, 379, 499, 547, 643, 883, 907,        // ""
 
                              14, 17, 34, 39, 46, 55, 73, 155, 203,     // class group C4 (incomplete)
-                             219, 259, 291, 78, 323, 82, 85, 355, 93, 97, // ""
+                             219, 259, 291, 78, 323, 82, 85, 355, 93, 97, 142, // ""
 
-                             21, 30, 33, 42, 57, 70, 195, 435, 483, 102,     // class group C2xC2 (incomplete)
-                             47, 79, 103, 127, 131, 179, 227, 347, 443, 947, // class group C5 (incomplete)
-                             26, 29, 38, 53, 61, 87, 247, 339, 109, 411, 451, 106, 118, // class group C6 (incomplete)
-                             71, 151, 223, 251, 371, 463, 467, 487,   // class group C7 (incomplete)
-                             41, 62, 95, 111, 183, 295, 299, 94, 395, 113, // class group C8 (incomplete)
-                             65, 66, 69, 77, 114,                     // class group C2xC4 (incomplete)
+                             21, 30, 33, 42, 57, 70, 195, 435, 483, 102, 130, 133, 555, 595, // class group C2xC2 (incomplete)
+                             47, 79, 103, 127, 131, 179, 227, 347, 443, 523, 571, 947, // class group C5 (incomplete)
+                             26, 29, 38, 53, 61, 87, 247, 339, 109, 411, 451, 106, 118, 515, // class group C6 (incomplete)
+                             71, 151, 223, 251, 371, 463, 467, 487, 587, // class group C7 (incomplete)
+                             41, 62, 95, 111, 183, 295, 299, 94, 395, 113, 137, 579, 583, // class group C8 (incomplete)
+                             65, 66, 69, 77, 114, 138, 141, 145,      // class group C2xC4 (incomplete)
                              105,                                     // class group C2xC2xC2 (incomplete)
-                             199, 367, 419, 491,                      // class group C9 (incomplete)
+                             199, 367, 419, 491, 563,                 // class group C9 (incomplete)
                              119, 143, 159, 303, 319, 74, 86, 415, 122,  // class group C10 (incomplete)
                              167, 271, 967,                           // class group C11 (incomplete)
-                             327, 89,                                 // class group C12 (incomplete)
-                             231, 255, 110,                           // class group C2xC6 (incomplete)
+                             327, 89, 543,                            // class group C12 (incomplete)
+                             231, 255, 110, 129,                      // class group C2xC6 (incomplete)
                              191, 263,                                // class group C13 (incomplete)
-                             215, 287, 391, 101, 447,                 // class group C14 (incomplete)
+                             215, 287, 391, 101, 447, 511, 535, 134, 149, // class group C14 (incomplete)
                              239, 439,                                // class group C15 (incomplete)
-                             407, 471,                                // class group C16 (incomplete)
+                             407, 471, 559, 146,                      // class group C16 (incomplete)
                              399,                                     // class group C2xC8 (incomplete)
                              383,                                     // class group C17 (incomplete)
-                             335,                                     // class group C18 (incomplete)
+                             335, 519, 527,                           // class group C18 (incomplete)
                              311, 359,                                // class group C19 (incomplete)
                              455,                                     // class group C2xC10 (incomplete)
-                             431,                                     // class group C21 (incomplete)
-                             479,                                     // class group C25 (incomplete)
+                             431, 503,                                // class group C21 (incomplete)
+                             591,                                     // class group C22 (incomplete)
+                             479, 599,                                // class group C25 (incomplete)
+                             551,                                     // class group C26 (incomplete)
                              887};                                    // class group C29 (incomplete)
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};                                     // 9
@@ -84,6 +86,20 @@ vector<long> class_number_four_fields  = {14,17,21,30,33,34,39,42,46,55,57,70,73
                                          1435,1507, 1555};                                                 // 54
 vector<long> class_number_five_fields = {47,79,103,127,131,179,227,347,443,523,571,619,683,691,739,787,947,
                                          1051,1123,1723,1747,1867,2203,2347, 2683};                        // 25
+
+vector<long> valid_field_discs(long max_disc)
+{
+  vector<long> discs;
+  for(auto di = valid_fields.begin(); di!=valid_fields.end(); ++di)
+    {
+      long d = *di; // positive, square-free
+      long D = (d%4==3? d : 4*d);
+      if ((max_disc==0) || (D<=max_disc))
+        discs.push_back(D);
+    }
+  ::sort(discs.begin(), discs.end());
+  return discs;
+}
 
 int check_field(long d, vector<long> fields)
 {
@@ -145,7 +161,6 @@ Quad qdivi1(const Quad& a, QUINT c) // used when t=1
 // static function (one for the class, not per instance)
 void Quad::field(long dd, long max)
 {
-
   // Clear these in case this is not the first field run
 
   quadunits.clear();

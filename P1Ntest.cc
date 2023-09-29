@@ -9,6 +9,8 @@
 
 // Run P1N_test() for all ideals up to this norm bound:
 #define MAXN 30
+// for fields of absolute discriminant up to this:
+#define MAX_DISC 50
 
 void multi_index_test(const vector<long>& nlist, int verbose=0)
 {
@@ -41,14 +43,17 @@ int main(void)
   cout << endl << "P1N TEST PROGRAM" << endl;
 
   long f;
-  vector<long> fields = valid_fields;
+  vector<long> fields = valid_field_discs();
   cout << "Enter field (0 for all): " << flush;  cin >> f;
   if (f)
     fields = {f};
   for (auto di = fields.begin(); di!=fields.end(); ++di)
     {
+      long D = *di;
+      if (D>MAX_DISC)
+        break;
       cout << "===============================================================\n";
-      long d = *di;
+      long d = (D%4==0? D/4: D);
       Quad::field(d);
       Quad::displayfield(cout);
 
