@@ -799,6 +799,10 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
       nulist = make_nulist(N);
       if (verbose>1)
         cout<<"nulist: "<<nulist<<endl;
+      possible_self_twists = N.possible_unramified_twists();
+      n_poss_self_twists = possible_self_twists.size();
+      if (verbose>1)
+        cout<<"possible unramified self twist discriminants: "<<possible_self_twists<<endl;
     }
 
   // badprimes is a list of all primes Q|N
@@ -1372,9 +1376,11 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           return aP;
         }
       else // we have a new genus class, compute a_{P}^2 unless we already have at least 5 zeros in this class
+           // and the level admits nontrivial self twists.
+           // NB 5 would not be enough for field 299, level 100.2, without checking for possible self twists.
         {
           //cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-          if (genus_class_trivial_counter[c] >= 5)
+          if ((nf->n_poss_self_twists>0) && (genus_class_trivial_counter[c] >= 5))
             {
               if (verbose>0)
                 cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
@@ -1382,7 +1388,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
               return 0;
             }
           if (verbose>1)
-            cout << "form "<<index<<", P = "<<P<<": computing T(P^2) to get a(P)^2" << endl;
+            cout << "form "<<index<<", P = "<<P<<": computing T(P^2) to get a(P^2) and hence a(P)^2" << endl;
           Qideal P2 = P*P;
           long aP, aP2;
           long normP = I2long(P.norm());
@@ -1399,7 +1405,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           aP2 += normP;
           // Now aP2 is the eigenvalue of T(P)^2
           if (verbose>1)
-            cout << " - a(P^2) = " << aP2 << endl;
+            cout << " - a(P)^2 = " << aP2 << endl;
           if (is_square(aP2, aP))
             {
               if (aP!=0) // else we cannot use this as a new genus pivot

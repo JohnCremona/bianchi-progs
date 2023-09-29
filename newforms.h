@@ -216,6 +216,8 @@ public:
   vector<Quadprime> goodprimes;  // good primes in order
   vector<int> bad_prime_conjugation_permutation;
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
+  vector<QUINT> possible_self_twists;
+  int n_poss_self_twists;
   int level_is_square;
   int verbose, nwq, nap, n2r, nchi;
 
