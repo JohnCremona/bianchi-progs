@@ -1,5 +1,10 @@
 # Precomputed alphas for some fields
 
+# Stopped updating this as it grew too big and the same information
+# can be revoered from the geodata files.
+
+# This file is hence now redundant.
+
 from sage.all import ZZ, QQ, polygen, NumberField, NFCusp
 from utils import smallest_ideal_class_representatives
 

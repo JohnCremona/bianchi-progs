@@ -17,8 +17,6 @@ from utils import (make_k, nf, to_k, cusp, Imat, apply,
                    reduce_mod_Ok, singular_points, singular_points_by_class
 )
 
-from alphas import precomputed_alphas
-
 from polyhedra import poly_type, poly_types
 
 # Points of H_3 are represented as pairs [z,t2] where z is in k and t2
@@ -949,8 +947,6 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     return polyhedra
 
 def all_polyhedra(k, alphas=None, debug=False):
-    if alphas is None:
-        alphas = precomputed_alphas(k)
     sigmas = singular_points_by_class(smallest_ideal_class_representatives(k))[1:]
     polys, hemis = principal_polyhedra(alphas, debug)
     polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
@@ -1984,12 +1980,11 @@ def alpha_sigma_data(kdata, verbose=False, geout=None):
     data = find_edge_pairs(kdata, alphas1, sigmas, geout=geout)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
-    # for adding to precomputed alphas in alphas.py:
     alpha_string = "alphalist[{}] = [".format(d) + ", ".join([f"({a.numerator()})/({a.denominator()})" for a in alphas2]) + "]\n"
     alpha_string = alpha_string.replace(" ", "").replace('w','t').replace(",(",", (").replace("="," = ")
     alpha_string = alpha_string.replace("(0)/(1)", "0")
     alpha_file = f"alphas_{d}.py"
-    print(f"Writing to {alpha_file} for inserting into alphas.py")
+    print(f"Writing to {alpha_file}")
     with open(alpha_file, 'w') as aout:
         aout.write(alpha_string+"\n")
     if False: #verbose:
@@ -2245,20 +2240,14 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print("Discriminant: {}".format(k.discriminant()))
         print("Class number: {}".format(k.class_number()))
 
+    # NB we may have precomputed alhas and sigmas and put the data
+    # into a geodata file but not yet computed the tessellation
     geodata_file = f"geodata_{d}.dat"
-    alphas = precomputed_alphas(d)
-    if alphas:
+    try:
+        alphas, sigmas, plus_pairs, minus_pairs, fours = alphas_sigmas_from_file(kdata)
         if verbose:
             print("using precomputed alphas")
-        sigmas = singular_points(k)
-        with open(geodata_file, 'w') as geout:
-            data = find_edge_pairs(kdata, alphas, sigmas, geout=geout)
-        alphas = data[0] + data[1]
-        sigmas = data[2]
-        plus_pairs = data[3]
-        minus_pairs = data[4]
-        fours = data[5]
-    else:
+    except ValueError:
         if verbose:
             print("computing alphas from scratch")
         with open(geodata_file, 'w') as geout:
@@ -2395,7 +2384,6 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     print()
 
-    geodata_file = f"geodata_{d}.dat"
     with open(geodata_file, 'a') as geout:
         for P in faces:
             polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
@@ -2422,21 +2410,170 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     return alphas, sigmas, faces, polyhedra, hom
 
+def alphas_sigmas_from_file(kdata, test=False):
+    d = kdata['d']
+    from os.path import exists
+    geodata_file = f"../geodata/geodata_{d}.dat"
+    if not exists(geodata_file):
+        raise ValueError(f"file {geodata_file} does not exist")
+
+    k = kdata['k']
+    w = kdata['w']
+    zero = k(0)
+    one = k(1)
+    two = k(2)
+    three = k(3)
+
+    # for testing, get alphas & sigmas from precomputed lists:
+    if test:
+        from alphas import precomputed_alphas
+        alphas = precomputed_alphas(d)
+        assert alphas
+        sigmas = singular_points(k)
+        alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(kdata, alphas, sigmas, geout=None)
+        alphas = alphas0 + alphas1
+
+        # print(f"{alphas = }")
+        # print(f"{sigmas = }")
+        # print(f"{plus_pairs = }")
+        # print(f"{minus_pairs = }")
+        # print(f"{fours = }")
+
+    # now them from geodata file
+
+    new_alphas = []
+    new_sigmas = []
+    new_plus_pairs = []
+    new_minus_pairs = []
+    new_fours = []
+
+    # First add alphas with denominator 1,2,3 (not in geodata file):
+
+    # (1) alpha = 0/1, sigma = 1/0
+    new_alphas.append(cusp(0, k))
+    new_sigmas.append(cusp(oo, k))
+
+    # (2) denom 2
+    new_alphas += denom_2_alphas(k)
+    new_sigmas += denom_2_sigmas(k)
+
+    # (3) denom 3
+    new_alphas += denom_3_alphas(k)
+    new_sigmas += denom_3_sigmas(k)
+
+    with open(f"../geodata/geodata_{d}.dat") as gin:
+        for L in gin:
+            cols = L.split()
+            if int(cols[0])!=d:
+                continue
+            data_type = cols[1]
+            params = [int(c) for c in cols[2:]]
+            #print(f"{data_type = }, {params = }")
+            if data_type == 'A':
+                sx, sy, r1x, r1y, r2x, r2y = params
+                s = sx + w*sy
+                r1 = r1x + w*r1y
+                r2 = r2x + w*r2y
+                new_alphas.append(cusp(r1/s,k))
+                new_alphas.append(cusp(-r1/s,k))
+                if r1==r2:
+                    new_minus_pairs.append((r1,s))
+                elif r1==-r2:
+                    new_plus_pairs.append((r1,s))
+                else:
+                    new_alphas.append(cusp(r2/s,k))
+                    new_alphas.append(cusp(-r2/s,k))
+                    new_fours.append((s,r1,r2))
+
+            elif data_type == 'S':
+                rx, ry, sx, sy = params
+                s = sx + w*sy
+                r = rx + w*ry
+                new_sigmas.append(cusp(r/s,k))
+                new_sigmas.append(cusp(-r/s,k))
+
+    new_minus_pairs.append((zero,one))
+    if d%4 == 1:
+        new_minus_pairs.append((w,two))     # w^2=-1 (mod 2)
+        # could also go into pluspairs
+    if d%4 == 2:
+        new_minus_pairs.append((w+1,two))   # (w+1)^2=-1 (mod 2)
+        # could also go into pluspairs
+    if d%8 == 3:
+        new_fours.append((two,w,w+1)) # w(w+1)=-1 (mod 2)
+    d12 = d%12
+    if d12 in [1, 10]:
+        new_minus_pairs.append((w, three))          # w^2=-1 (mod 3)
+        new_fours.append((three, 1+w, 1-w))   # (1+w)(1-w)=-1 (mod 3)
+    if d12 == 7 and d>19:
+        new_minus_pairs.append((1+w, three))        # (1+w)^2=-1 (mod 3)
+        if d>31:
+            new_fours.append((three, w, 1-w)) # w(1-w)=-1 (mod 3)
+    if d12 in [2, 5] and d>5:
+        new_plus_pairs.append((w, three))           # w^2=+1 (mod 3)
+    if d12 == 11 and d>23:
+        new_plus_pairs.append((1+w, three))         # (1+w)^2=+1 (mod 3)
+    if d12 == 3 and d>15:
+        new_fours.append((three, w, w-1))     # w(w-1)=-1 (mod 3)
+    if d12 in [6, 9] and d>6:
+        new_fours.append((three, w+1, w-1))   # (w+1)(w-1)=-1 (mod 3)
+
+    if test:
+        # print(f"{new_alphas = }")
+        # print(f"{new_sigmas = }")
+        # print(f"{new_plus_pairs = }")
+        # print(f"{new_minus_pairs = }")
+        # print(f"{new_fours = }")
+        agree = True
+        if alphas!=new_alphas:
+            agree = False
+            if len(alphas) == len(new_alphas):
+                for i,a in enumerate(alphas):
+                    if alphas[i]!=new_alphas[i]:
+                        print(f"{i=}: {alphas[i]=} but {new_alphas[i]=}")
+            else:
+                print(f"{len(alphas)=} but {len(new_alphas)=}")
+            if sorted(alphas)==sorted(new_alphas):
+                print("lists agree up to permutation")
+
+        # assert alphas == new_alphas
+        if sigmas != new_sigmas:
+            agree = False
+            print("sigmas disagree")
+            if sorted(sigmas) == sorted(new_sigmas):
+                print(" but agree up to permutation")
+        if plus_pairs != new_plus_pairs:
+            agree = False
+            print("plus_pairs disagree")
+        if minus_pairs != new_minus_pairs:
+            agree = False
+            print("minus_pairs disagree")
+        if fours != new_fours:
+            agree = False
+            print("fours disagree")
+        if agree:
+            print("old and new alpha/sigma data agrees")
+
+    return new_alphas, new_sigmas, new_plus_pairs, new_minus_pairs, new_fours
+
 def faces_from_file(kdata):
-    from alphas import precomputed_alphas
-    from utils import make_M_alphas, geodat_decoders, tri0, tri1, tri2
+    from utils import geodat_decoders, tri0, tri1, tri2
+    from utils import make_M_alphas
 
     d = kdata['d']
     k = kdata['k']
     w = kdata['w']
-    alphas = precomputed_alphas(d)
-    assert alphas
-    sigmas = singular_points(k)
-    alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(kdata, alphas, sigmas, geout=None)
-    alphas = alphas0 + alphas1
+
+    try:
+        alphas, sigmas, plus_pairs, minus_pairs, fours = alphas_sigmas_from_file(kdata)
+    except ValueError:
+        print(f" no geodata file exists for {d = }")
+        raise ValueError
+
     M_alphas, alpha_inv = make_M_alphas(alphas)
 
-    # Faces for class number 1 fields treated separately in C++ code so not output to geodata:
+    # Faces for class number 1 fields treated separately in C++ code
+    # so not output to geodata:
 
     faces = [tri0(k)]          # triangle  [0,oo,1]
     if d in [19, 43, 67, 163]: # triangles [oo, w/2, (w-1)/2], [oo, w/2, (w+1)/2]
@@ -2454,19 +2591,24 @@ def faces_from_file(kdata):
                 continue
             face_type = cols[1]
             params = [int(c) for c in cols[2:]]
-            if face_type not in ['T', 'U', 'Q', 'H']:
-                continue
-            face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
-            try:
-                face_boundary_vector(face, alphas, sigmas)
-                faces.append(face)
-            except:
-                print(f"Invalid face {face} from {L}")
+
+            if face_type in ['T', 'U', 'Q', 'H']:
+                face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
+                try:
+                    face_boundary_vector(face, alphas, sigmas)
+                    faces.append(face)
+                except:
+                    print(f"Invalid face {face} from {L}")
     return alphas, sigmas, plus_pairs, minus_pairs, fours, faces
 
 def integral_homology(d):
     kdata = make_k(d)
-    alphas, sigmas, plus_pairs, minus_pairs, fours, faces = faces_from_file(kdata)
+    try:
+        alphas, sigmas, plus_pairs, minus_pairs, fours, faces = faces_from_file(kdata)
+    except ValueError:
+        print(f" no geodata file exists for {d = }")
+        raise ValueError
+
     hom = compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces)
     for group in ["GL2", "SL2"]:
         print(f"{group} integral homology data for D={kdata['dk']}:")

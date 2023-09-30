@@ -4,7 +4,7 @@
 #
 ##############################################
 
-from sage.all import Graph
+from sage.all import Graph, parametric_plot3d, sin, cos, pi, CC
 
 Tetrahedron = Graph([(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)],
                     name="tetrahedron")
