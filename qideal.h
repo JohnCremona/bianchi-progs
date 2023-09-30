@@ -147,6 +147,9 @@ public:
                                     // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
 
+  vector<QUINT> possible_unramified_twists();  // sublist of Quad::all_disc_factors() consisting of those D not 1
+                                               // for which chi_D(Q)=+1 for all prime powers Q||N
+
   // return J such that J^2 is equivalent to this (or J^2*this is
   // principal if anti==1), or if no such J exists (i.e., if the ideal
   // class is not a square), return the zero ideal.  (implemented in

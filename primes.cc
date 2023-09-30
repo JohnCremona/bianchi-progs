@@ -730,6 +730,29 @@ vector<int> Qideal::genus_character()
   return bits(genus_class(), Quad::prime_disc_factors.size());
 }
 
+vector<QUINT> Qideal::possible_unramified_twists()  // sublist of Quad::all_disc_factors() consisting of those D not 1
+                                                    // for which chi_D(Q)=+1 for all prime powers Q||N
+{
+  vector<QUINT> discs;
+  if (Quad::class_group_2_rank == 0)
+    return discs;
+  vector<QuadprimePower> Qlist = Factorization(*this).prime_powers();
+  for(auto Di = Quad::all_disc_factors.begin(); Di != Quad::all_disc_factors.end(); ++Di)
+    {
+      QUINT D = *Di;
+      if (D==1)
+        continue;
+      int ok = 1;
+      for (auto Qi = Qlist.begin(); ok && Qi!=Qlist.end(); ++Qi)
+        {
+          ok = (Qi->second)%2==0 || (Qi->first).genus_character(D)==+1;
+        }
+      if (ok)
+        discs.push_back(D);
+    }
+  return discs;
+}
+
 // Test whether an ideal is a prime, or a prime power:
 int Qideal::is_prime() {return factorization().is_prime();}
 int Qideal::is_prime_power() {return factorization().is_prime_power();}
