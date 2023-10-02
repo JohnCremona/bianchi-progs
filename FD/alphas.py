@@ -17732,8 +17732,6 @@ alphalist[122] = [0, (t+1)/(2), (t)/(3), (-t)/(3), (2*t+3)/(6),
                   (14*t-18)/(37), (-14*t+18)/(37), (14*t+18)/(37), (-14*t-18)/(37),
                   (14*t+27)/(55), (-14*t-27)/(55), (14*t-27)/(55), (-14*t+27)/(55)]
 
-
-
 def precomputed_alphas(k_or_d):
 
     if k_or_d in ZZ:
@@ -17748,7 +17746,6 @@ def precomputed_alphas(k_or_d):
         k = k_or_d
         d = -k.discriminant().squarefree_part()
 
-    w = k.gen()
     IC = smallest_ideal_class_representatives(k)
     cusp = lambda a: NFCusp(k, k(a), lreps=IC)
 
