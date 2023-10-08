@@ -2018,7 +2018,7 @@ def edge_boundary_matrix(kdata, alphas, sigmas):
             M[cusp_class_index(s), n+j-1] = 1
     return M
 
-def edge_index(e, alphas, sigmas):
+def edge_index(e, alphas, sigmas, debug=True):
     """For e=[a1,a2] with a1,a2 principal return i where [oo,alphas[i]]
     is SL(2,Ok)-equivalent to e.
 
@@ -2035,13 +2035,19 @@ def edge_index(e, alphas, sigmas):
     the number of singular points is len(sigmas)-1.
 
     """
+    if debug:
+        print(f"Copmuting edge index for {e=}")
     a1, a2 = e
     if a1.ideal().is_principal(): # cases {a1,a2}, {a,s}
         U = Matrix(2,2, a1.ABmatrix())
         a1, a2 = apply(U.inverse(), e)
         assert a1.is_infinity()
+        if debug:
+            print(f"After applying U, {a1=} and {a2=}")
         if a2.ideal().is_principal():
             i, x = alpha_index_with_translation(a2, alphas)
+            if debug:
+                print(f"a2 has index {i=} in {alphas=}")
             assert i>=0
             return i
         else:
@@ -2053,10 +2059,12 @@ def edge_index(e, alphas, sigmas):
     # case {s1,s2} not required
     raise RuntimeError(f"edge {e} has neither end principal")
 
-def face_boundary_vector(F, alphas, sigmas):
+def face_boundary_vector(F, alphas, sigmas, debug=True):
     v = vector(ZZ, len(alphas)+len(sigmas)-1)
+    if debug:
+        print(f"Copmuting face boundary vector for face {F = }")
     for i in range(len(F)):
-        j = edge_index((F[i-1],F[i]), alphas, sigmas)
+        j = edge_index((F[i-1],F[i]), alphas, sigmas, debug)
         #print(f" index of edge {(F[i-1],F[i])} is {j}")
         if j>=0:
             v[j] +=1
@@ -2545,11 +2553,11 @@ def faces_from_file(kdata):
 
             if face_type in ['T', 'U', 'Q', 'H']:
                 face = geodat_decoders[face_type](kdata, params, alphas, sigmas, M_alphas, alpha_inv)
-                try:
-                    face_boundary_vector(face, alphas, sigmas)
-                    faces.append(face)
-                except:
-                    print(f"Invalid face {face} from {L}")
+                # try:
+                face_boundary_vector(face, alphas, sigmas)
+                faces.append(face)
+                # except:
+                #     print(f"Invalid face {face} from {L}")
     return alphas, sigmas, plus_pairs, minus_pairs, fours, faces
 
 def integral_homology(d):
