@@ -1872,52 +1872,6 @@ def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
 
     new_sigmas = [cusp(oo,k)] + S2 + S3 + S
 
-    geodata_file = f"geodata_{d}.dat"
-    # print("//////////////////////////////")
-    if geout:
-        print(f"// tessellation edge data will be output to {geodata_file}")
-    st = f"0\n0 {d=}\n0"
-    if geout:
-        geout.write(st+"\n")
-    # else:
-    #     print(st)
-    for r,s in pluspairs:
-        sr, si = s
-        r1r, r1i = r
-        r2r, r2i = -r
-        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        if geout:
-            geout.write(st+"\n")
-        # else:
-        #     print(st)
-    for r,s in minuspairs:
-        sr, si = s
-        r1r, r1i = r
-        r2r, r2i = r
-        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        if geout:
-            geout.write(st+"\n")
-        # else:
-        #     print(st)
-    for s, r1, r2 in long_fours:
-        sr, si = s
-        r1r, r1i = r1
-        r2r, r2i = r2
-        st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
-        if geout:
-            geout.write(st+"\n")
-        # else:
-        #     print(st)
-    for s in S_mod_neg:
-        sr, si = s.denominator()
-        rr, ri = s.numerator()
-        st = f"{d} S {rr} {ri} {sr} {si}"
-        if geout:
-            geout.write(st+"\n")
-    #     else:
-    #         print(st)
-    # print("//////////////////////////////")
-
     # for homology edge relation computation include alphas with denom 1,2,3:
     zero = k(0)
     one = k(1)
@@ -1955,7 +1909,54 @@ def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
     assert all(s.divides(r*r+1) for r,s in minuspairs)
     assert all(s.divides(r1*r2+1) for s,r1,r2 in long_fours)
 
+    if geout:
+        geodata_file = f"geodata_{d}.dat"
+        print(f"// tessellation edge data will be output to {geodata_file}")
+        output_alphas_sigmas(kdata, pluspairs, minuspairs, long_fours, new_sigmas, geout)
+
     return A123, new_alphas, new_sigmas, pluspairs, minuspairs, long_fours
+
+def output_alphas_sigmas(kdata, pluspairs, minuspairs, fours, sigmas, geout):
+    k = kdata['k']
+    d = kdata['d'] # for compatibility with C++'s d
+    zero = k(0)
+    one = k(1)
+    two = k(2)
+    three = k(3)
+    small_denoms = [zero, one, two, three]
+
+    st = f"0\n0 {d=}\n0"
+    geout.write(st+"\n")
+    for r,s in pluspairs:
+        if s not in small_denoms:
+            sr, si = s
+            r1r, r1i = r
+            r2r, r2i = -r
+            st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+            geout.write(st+"\n")
+    for r,s in minuspairs:
+        if s not in small_denoms:
+            sr, si = s
+            r1r, r1i = r
+            r2r, r2i = r
+            st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+            geout.write(st+"\n")
+    for s, r1, r2 in fours:
+        if s not in small_denoms:
+            sr, si = s
+            r1r, r1i = r1
+            r2r, r2i = r2
+            st = f"{d} A {sr} {si} {r1r} {r1i} {r2r} {r2i}"
+            geout.write(st+"\n")
+    for s in sigmas:
+        sden = s.denominator()
+        if sden not in small_denoms:
+            r,i = to_k(s,k)
+            if i>0:
+                sr, si = sden
+                rr, ri = s.numerator()
+                st = f"{d} S {rr} {ri} {sr} {si}"
+                geout.write(st+"\n")
 
 #
 # From scratch:
@@ -2241,7 +2242,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
         print("Discriminant: {}".format(k.discriminant()))
         print("Class number: {}".format(k.class_number()))
 
-    # NB we may have precomputed alhas and sigmas and put the data
+    # NB we may have precomputed alphas and sigmas and put the data
     # into a geodata file but not yet computed the tessellation
     geodata_file = f"geodata_{d}.dat"
     try:
@@ -2250,9 +2251,10 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             print("using precomputed alphas")
     except ValueError:
         if verbose:
-            print("computing alphas from scratch")
-        with open(geodata_file, 'w') as geout:
-            alphas, sigmas, plus_pairs, minus_pairs, fours = alpha_sigma_data(kdata, verbose=verbose, geout=geout)
+            print("no precomputed alphas, computing from scratch")
+        alphas, sigmas, plus_pairs, minus_pairs, fours = alpha_sigma_data(kdata, verbose=verbose)
+    with open(geodata_file, 'w') as geout:
+        output_alphas_sigmas(kdata, plus_pairs, minus_pairs, fours, sigmas, geout)
 
     M_alphas, alpha_inv = make_M_alphas(alphas)
     if verbose:
@@ -2333,7 +2335,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
                 print(f"{F = } with index {face_index(make_poly_from_edges(F,k), all_faces)}")
             print("and relation")
             print(polyhedron_relation(P, all_faces, k))
-        M = Matrix([polyhedron_relation(P, all_faces, k) for P in polyhedra])
+        #M = Matrix([polyhedron_relation(P, all_faces, k) for P in polyhedra])
     redundant_faces = [] # [r.trailing_support() for r in H.rows() if r.trailing_coefficient()==1]
 
     # delete square faces of square prisms
@@ -2411,7 +2413,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     return alphas, sigmas, faces, polyhedra, hom
 
-def alphas_sigmas_from_file(kdata, test=False):
+def alphas_sigmas_from_file(kdata):
     d = kdata['d']
     from os.path import exists
     geodata_file = f"../geodata/geodata_{d}.dat"
@@ -2425,42 +2427,27 @@ def alphas_sigmas_from_file(kdata, test=False):
     two = k(2)
     three = k(3)
 
-    # for testing, get alphas & sigmas from precomputed lists:
-    if test:
-        from alphas import precomputed_alphas
-        alphas = precomputed_alphas(d)
-        assert alphas
-        sigmas = singular_points(k)
-        alphas0, alphas1, sigmas, plus_pairs, minus_pairs, fours = find_edge_pairs(kdata, alphas, sigmas, geout=None)
-        alphas = alphas0 + alphas1
-
-        # print(f"{alphas = }")
-        # print(f"{sigmas = }")
-        # print(f"{plus_pairs = }")
-        # print(f"{minus_pairs = }")
-        # print(f"{fours = }")
-
     # now them from geodata file
 
-    new_alphas = []
-    new_sigmas = []
-    new_plus_pairs = []
-    new_minus_pairs = []
-    new_fours = []
+    alphas = []
+    sigmas = []
+    plus_pairs = []
+    minus_pairs = []
+    fours = []
 
     # First add alphas with denominator 1,2,3 (not in geodata file):
 
     # (1) alpha = 0/1, sigma = 1/0
-    new_alphas.append(cusp(0, k))
-    new_sigmas.append(cusp(oo, k))
+    alphas.append(cusp(0, k))
+    sigmas.append(cusp(oo, k))
 
     # (2) denom 2
-    new_alphas += denom_2_alphas(k)
-    new_sigmas += denom_2_sigmas(k)
+    alphas += denom_2_alphas(k)
+    sigmas += denom_2_sigmas(k)
 
     # (3) denom 3
-    new_alphas += denom_3_alphas(k)
-    new_sigmas += denom_3_sigmas(k)
+    alphas += denom_3_alphas(k)
+    sigmas += denom_3_sigmas(k)
 
     with open(f"../geodata/geodata_{d}.dat") as gin:
         for L in gin:
@@ -2475,87 +2462,51 @@ def alphas_sigmas_from_file(kdata, test=False):
                 s = sx + w*sy
                 r1 = r1x + w*r1y
                 r2 = r2x + w*r2y
-                new_alphas.append(cusp(r1/s,k))
-                new_alphas.append(cusp(-r1/s,k))
+                alphas.append(cusp(r1/s,k))
+                alphas.append(cusp(-r1/s,k))
                 if r1==r2:
-                    new_minus_pairs.append((r1,s))
+                    minus_pairs.append((r1,s))
                 elif r1==-r2:
-                    new_plus_pairs.append((r1,s))
+                    plus_pairs.append((r1,s))
                 else:
-                    new_alphas.append(cusp(r2/s,k))
-                    new_alphas.append(cusp(-r2/s,k))
-                    new_fours.append((s,r1,r2))
+                    alphas.append(cusp(r2/s,k))
+                    alphas.append(cusp(-r2/s,k))
+                    fours.append((s,r1,r2))
 
             elif data_type == 'S':
                 rx, ry, sx, sy = params
                 s = sx + w*sy
                 r = rx + w*ry
-                new_sigmas.append(cusp(r/s,k))
-                new_sigmas.append(cusp(-r/s,k))
+                sigmas.append(cusp(r/s,k))
+                sigmas.append(cusp(-r/s,k))
 
-    new_minus_pairs.append((zero,one))
+    minus_pairs.append((zero,one))
     if d%4 == 1:
-        new_minus_pairs.append((w,two))     # w^2=-1 (mod 2)
+        minus_pairs.append((w,two))     # w^2=-1 (mod 2)
         # could also go into pluspairs
     if d%4 == 2:
-        new_minus_pairs.append((w+1,two))   # (w+1)^2=-1 (mod 2)
+        minus_pairs.append((w+1,two))   # (w+1)^2=-1 (mod 2)
         # could also go into pluspairs
     if d%8 == 3:
-        new_fours.append((two,w,w+1)) # w(w+1)=-1 (mod 2)
+        fours.append((two,w,w+1)) # w(w+1)=-1 (mod 2)
     d12 = d%12
     if d12 in [1, 10]:
-        new_minus_pairs.append((w, three))          # w^2=-1 (mod 3)
-        new_fours.append((three, 1+w, 1-w))   # (1+w)(1-w)=-1 (mod 3)
+        minus_pairs.append((w, three))          # w^2=-1 (mod 3)
+        fours.append((three, 1+w, 1-w))   # (1+w)(1-w)=-1 (mod 3)
     if d12 == 7 and d>19:
-        new_minus_pairs.append((1+w, three))        # (1+w)^2=-1 (mod 3)
+        minus_pairs.append((1+w, three))        # (1+w)^2=-1 (mod 3)
         if d>31:
-            new_fours.append((three, w, 1-w)) # w(1-w)=-1 (mod 3)
+            fours.append((three, w, 1-w)) # w(1-w)=-1 (mod 3)
     if d12 in [2, 5] and d>5:
-        new_plus_pairs.append((w, three))           # w^2=+1 (mod 3)
+        plus_pairs.append((w, three))           # w^2=+1 (mod 3)
     if d12 == 11 and d>23:
-        new_plus_pairs.append((1+w, three))         # (1+w)^2=+1 (mod 3)
+        plus_pairs.append((1+w, three))         # (1+w)^2=+1 (mod 3)
     if d12 == 3 and d>15:
-        new_fours.append((three, w, w-1))     # w(w-1)=-1 (mod 3)
+        fours.append((three, w, w-1))     # w(w-1)=-1 (mod 3)
     if d12 in [6, 9] and d>6:
-        new_fours.append((three, w+1, w-1))   # (w+1)(w-1)=-1 (mod 3)
+        fours.append((three, w+1, w-1))   # (w+1)(w-1)=-1 (mod 3)
 
-    if test:
-        # print(f"{new_alphas = }")
-        # print(f"{new_sigmas = }")
-        # print(f"{new_plus_pairs = }")
-        # print(f"{new_minus_pairs = }")
-        # print(f"{new_fours = }")
-        agree = True
-        if alphas!=new_alphas:
-            agree = False
-            if len(alphas) == len(new_alphas):
-                for i,a in enumerate(alphas):
-                    if alphas[i]!=new_alphas[i]:
-                        print(f"{i=}: {alphas[i]=} but {new_alphas[i]=}")
-            else:
-                print(f"{len(alphas)=} but {len(new_alphas)=}")
-            if sorted(alphas)==sorted(new_alphas):
-                print("lists agree up to permutation")
-
-        # assert alphas == new_alphas
-        if sigmas != new_sigmas:
-            agree = False
-            print("sigmas disagree")
-            if sorted(sigmas) == sorted(new_sigmas):
-                print(" but agree up to permutation")
-        if plus_pairs != new_plus_pairs:
-            agree = False
-            print("plus_pairs disagree")
-        if minus_pairs != new_minus_pairs:
-            agree = False
-            print("minus_pairs disagree")
-        if fours != new_fours:
-            agree = False
-            print("fours disagree")
-        if agree:
-            print("old and new alpha/sigma data agrees")
-
-    return new_alphas, new_sigmas, new_plus_pairs, new_minus_pairs, new_fours
+    return alphas, sigmas, plus_pairs, minus_pairs, fours
 
 def faces_from_file(kdata):
     from utils import geodat_decoders, tri0, tri1, tri2
@@ -2613,6 +2564,6 @@ def integral_homology(d):
     hom = compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces)
     for group in ["GL2", "SL2"]:
         print(f"{group} integral homology data for D={kdata['dk']}:")
-        print(f" - invariants: {hom[group]['invariants']}")
+        #print(f" - invariants: {hom[group]['invariants']}")
         print(f" - rank: {hom[group]['rank']}")
         print(f" - torsion invariants: {hom[group]['torsion_factors']}")
