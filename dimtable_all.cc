@@ -13,8 +13,6 @@
 #include "qidloop.h"
 #include "homspace.h"
 
-#define MAX_DISC 100
-
 int main ()
 {
   long max_disc;

@@ -36,46 +36,22 @@ Quad fundunit;
 
 vector<long> euclidean_fields = {1,2,3,7,11};
 
-// fields for which geometry is defined (all with |disc|<325 except 77, plus all h=1,2,3)
+// fields for which geometry is defined (all with |disc|<800 except 170, plus all h=1,2,3)
 
-vector<long> valid_fields = {1, 2, 3, 7, 11,                           // Euclidean
-                             19, 43, 67, 163,                          // other class number 1 (complete)
-
-                             5, 6, 10, 13, 15, 22, 35, 37, 51, 58, 91, // class group C2 (complete)
-                             115, 123, 187, 235, 267, 403, 427,        // ""
-
-                             23, 31, 59, 83, 107, 139, 211, 283, 307,  // class group C3 (complete)
-                             331, 379, 499, 547, 643, 883, 907,        // ""
-
-                             14, 17, 34, 39, 46, 55, 73, 155, 203,     // class group C4 (incomplete)
-                             219, 259, 291, 78, 323, 82, 85, 355, 93, 97, 142, // ""
-
-                             21, 30, 33, 42, 57, 70, 195, 435, 483, 102, 130, 133, 555, 595, // class group C2xC2 (incomplete)
-                             47, 79, 103, 127, 131, 179, 227, 347, 443, 523, 571, 947, // class group C5 (incomplete)
-                             26, 29, 38, 53, 61, 87, 247, 339, 109, 411, 451, 106, 118, 515, // class group C6 (incomplete)
-                             71, 151, 223, 251, 371, 463, 467, 487, 587, // class group C7 (incomplete)
-                             41, 62, 95, 111, 183, 295, 299, 94, 395, 113, 137, 579, 583, // class group C8 (incomplete)
-                             65, 66, 69, 77, 114, 138, 141, 145,      // class group C2xC4 (incomplete)
-                             105,                                     // class group C2xC2xC2 (incomplete)
-                             199, 367, 419, 491, 563,                 // class group C9 (incomplete)
-                             119, 143, 159, 303, 319, 74, 86, 415, 122,  // class group C10 (incomplete)
-                             167, 271, 967,                           // class group C11 (incomplete)
-                             327, 89, 543,                            // class group C12 (incomplete)
-                             231, 255, 110, 129,                      // class group C2xC6 (incomplete)
-                             191, 263,                                // class group C13 (incomplete)
-                             215, 287, 391, 101, 447, 511, 535, 134, 149, // class group C14 (incomplete)
-                             239, 439,                                // class group C15 (incomplete)
-                             407, 471, 559, 146,                      // class group C16 (incomplete)
-                             399,                                     // class group C2xC8 (incomplete)
-                             383,                                     // class group C17 (incomplete)
-                             335, 519, 527,                           // class group C18 (incomplete)
-                             311, 359,                                // class group C19 (incomplete)
-                             455,                                     // class group C2xC10 (incomplete)
-                             431, 503,                                // class group C21 (incomplete)
-                             591,                                     // class group C22 (incomplete)
-                             479, 599,                                // class group C25 (incomplete)
-                             551,                                     // class group C26 (incomplete)
-                             887};                                    // class group C29 (incomplete)
+vector<long> valid_fields = {1, 2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 21, 22, 23, 26, 29, 30, 31, 33, 34, 35, 37, 38, 39, 41, 42, 43,
+                             46, 47, 51, 53, 55, 57, 58, 59, 61, 62, 65, 66, 67, 69, 70, 71, 73, 74, 77, 78, 79, 82, 83, 85, 86, 87, 89,
+                             91, 93, 94, 95, 97,
+                             101, 102, 103, 105, 106, 107, 109, 110, 111, 113, 114, 115, 118, 119, 122, 123, 127, 129, 130, 131, 133, 134,
+                             137, 138, 139, 141, 142, 143, 145, 146, 149, 151, 154, 155, 157, 158, 159, 161, 163, 165, 166, 167, 173, 174,
+                             177, 178, 179, 181, 182, 183, 185, 186, 187, 190, 191, 193, 194, 195, 197, 199,
+                             203, 211, 215, 219, 223, 227, 231, 235, 239, 247, 251, 255, 259, 263, 267, 271, 283, 287, 291, 295,299,
+                             303, 307, 311, 319, 323, 327, 331, 335, 339, 347, 355, 359, 367, 371, 379, 383, 391, 395, 399,
+                             403, 407, 411, 415, 419, 427, 431, 435, 439, 443, 447, 451, 455, 463, 467, 471, 479, 483, 487, 491, 499,
+                             503, 511, 515, 519, 523, 527, 535, 543, 547, 551, 555, 559, 563, 571, 579, 583, 587, 591, 595, 599,
+                             607, 611, 615, 619, 623, 627, 631, 635, 643, 647, 651, 655, 659, 663, 667, 671, 679, 683, 687, 691, 695, 699,
+                             703, 707, 715, 719, 723, 727, 731, 739, 743, 751, 755, 759, 763, 767, 771, 779, 787, 791, 795, 799,
+                             883, 887,
+                             907, 947, 967};
 
 vector<long> class_number_one_fields   = {1,2,3,7,11,19,43,67,163};                                     // 9
 vector<long> class_number_two_fields   = {5,6,10,13,15,22,35,37,51,58,91,115,123,187,235,267,403,427};  // 18

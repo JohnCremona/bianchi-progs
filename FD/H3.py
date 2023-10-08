@@ -2200,6 +2200,7 @@ def face_boundary_matrix(faces, alphas, sigmas, plus_pairs, minus_pairs, fours, 
     return M
 
 def compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, faces, debug=False):
+    pari.default('parisizemax', 2**33)
     M10 = edge_boundary_matrix(kdata, alphas, sigmas)
     #print(f"edge boundary matrix:\n{M10}")
     D,U,V = M10.smith_form(transformation=True)
