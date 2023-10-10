@@ -179,7 +179,7 @@ def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
     if debug:
         print(f"Covering hemispheres are S_alpha for alpha = {alphas}")
     covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
-    if not all(is_under(P,a)in covering_codes for a in alphas):
+    if not all(is_under(P,a) in covering_codes for a in alphas):
         print(f"Problem in covering_hemispheres1({P}, {option})")
         print(f" - returned cusp list includes {[a for a in alphas if is_under(P,a) not in covering_codes]}")
         print(f"   for which is_under(P,a) is {[is_under(P,a) for a in alphas if is_under(P,a) not in covering_codes]}")
@@ -233,7 +233,7 @@ def covering_hemispheres2(P, option=None, norm_s_lb=1, debug=False):
     assert all(is_under(P,a) in covering_codes for a in alphas)
     return alphas
 
-def covering_hemispheres3(P, option, debug=True):
+def covering_hemispheres3(P, option, debug=False):
     if debug:
         print(f"Finding covering hemispheres for {P = } with {option = }")
     alphas = []
@@ -351,17 +351,23 @@ def apply3d(M, P):
     new_t2 = t2 / n**2
     return [new_z, new_t2]
 
-def infinity_matrix(a, P=None, Plist=None):
+def infinity_matrix(a, P=None, Plist=None, debug=False):
     """For a principal cusp a, returns M_a in GL(2,O_K) with M_a(a)=oo.
     If P is given in H3 it should be an interior point on S_a and then
     the matrix will be adjusted by premultiplying by a translation so
     that M_a(P) is in Plist.
     """
+    if debug:
+        print(f"In infinity_matrix({a}) with {P=}")
     M0 = Matrix(2,2,a.ABmatrix()).inverse()
+    if debug:
+        print(f"Initial matrix {M0=}")
     if P is None:
         return M0
     else:
         Q = apply3d(M0,P)
+        if debug:
+            print(f"Q=M0(P)={Q}")
         assert P[1]==Q[1]
         if Q in Plist:
             return M0
@@ -728,8 +734,8 @@ def sigma_triples(alphas, sigmas):
         # sort these by slope:
         alist.sort(key=lambda a: slope(to_k(a,k), S[0]))
 
-        for i, ai in enumerate(alist):
-            aj = alist[i-1]
+        for j, aj in enumerate(alist):
+            ai = alist[j-1]
             R = bi_inter(ai, aj)
             assert R and R[1]
             # test whether this corner R is a translate of one we already have
@@ -869,10 +875,10 @@ def principal_polyhedra(alphas, debug=False):
         print(" - now finding the polyhedron from each orbit...")
 
     polyhedra = [orbit_polyhedron(orb, Plist, Pverts, Pmats, debug=debug) for orb in orbits]
-    if debug:
-        npoly = len(polyhedra)
-        poly = "polyhedra" if npoly>1 else "polyhedron"
-        print(f"Constructed {npoly} {poly}")
+    npoly = len(polyhedra)
+    poly = "polyhedra" if npoly>1 else "polyhedron"
+    print(f"Constructed {npoly} {poly}")
+
     for G in polyhedra:
         try:
             G.faces()
@@ -896,11 +902,16 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     if debug:
         print(f"{Rlist = }")
 
-    Rsupps = [hemispheres_through(R) for R in Rlist]
-    if debug:
-        print(f"Hemispheres through each R: {Rsupps}")
-        print(" - now finding matrices for each R...")
+    Rtrips = [[t[0] for t in triplets if t[1]==R] for R in Rlist]
+    Rsigmas = [[[to_k(t[0][0]),0] for t in triplets if t[1]==R] for R in Rlist]
+    Rsupps = [[a for a in hemispheres_through(R) if any(is_under(s,a)==0 for s in Rsigs)]
+              for R,Rsigs in zip(Rlist, Rsigmas)]
 
+    if debug:
+        print("Hemispheres through each R:")
+        for R, Rsupp in zip(Rlist, Rsupps):
+            print(f"{R=}: {len(Rsupp)}: {Rsupp}")
+        print(" - now finding matrices for each R...")
     Rmats = [[Imat] +
              [infinity_matrix(a, R, Rlist) for a in Rsupp]
              for R, Rsupp in zip(Rlist, Rsupps)]
@@ -909,8 +920,8 @@ def singular_polyhedra(alphas, sigmas, debug=False):
         print(" - now finding vertex set for each R...")
     Rverts = [[cusp(oo,k)] +
               [v for v in Rsupp if alpha_index_with_translation(v, alphas)[0] >=0] +
-              sum([[v for v in t[0]] for t in triplets if t[1]==R], [])
-              for R,Rsupp in zip(Rlist, Rsupps)]
+              [s[0] for s in Rtrip]
+              for R, Rsupp, Rtrip in zip(Rlist, Rsupps, Rtrips)]
     if debug:
         print(f"{Rverts = }")
         print(" - now finding the orbits...")
@@ -934,10 +945,10 @@ def singular_polyhedra(alphas, sigmas, debug=False):
         print(" - now finding the polyhedron from each orbit...")
 
     polyhedra = [orbit_polyhedron(orb, Rlist, Rverts, Rmats, debug=debug) for orb in orbits]
-    if debug:
-        npoly = len(polyhedra)
-        poly = "polyhedra" if npoly>1 else "polyhedron"
-        print(f"Constructed {npoly} {poly}")
+    npoly = len(polyhedra)
+    poly = "polyhedra" if npoly>1 else "polyhedron"
+    print(f"Constructed {npoly} {poly}")
+
     for G in polyhedra:
         try:
             G.faces()
