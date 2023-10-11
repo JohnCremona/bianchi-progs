@@ -22,7 +22,7 @@ int main ()
 
   cerr << "Enter min and max abs disc (0 0 for all): " << flush;  cin >> min_disc >> max_disc;
   fields = valid_field_discs(max_disc);
-  long max(1000);
+  long max(2000);
   cout << "Table of dimensions of ";
   cout<<"level 1 homology over Q(sqrt(-d))" << endl;
   cout<<"\n";

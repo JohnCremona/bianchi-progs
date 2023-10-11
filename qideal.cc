@@ -763,6 +763,7 @@ Quad Qideal::second_generator(const Quad& a)
   if (is_principal(b)) return b;
   // now a itself cannot be a generator, so (a)=I*J for some J
   Qideal J = Qideal(a)/(*this);
+  //cout<<"second_generator() called on "<<*this<<" with a="<<a<<", quotient "<<J<<endl;
   // find an ideal in inverse class to this, coprime to J
   equivalent_coprime_to(J, b, d, 1); // this*J=(b) (and d=1)
   // now (a,b) = (a)+(b) = I*(J+P) = I with I=this, P=ideal in previous line (discarded)

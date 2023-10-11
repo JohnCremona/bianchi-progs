@@ -630,12 +630,14 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
       return Qideal(Quad::one);
     }
   Quad g;
-  // cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
+  //cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
   for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
     {
       Quadprime P = *Pi;
+      //cout<<" -testing P="<<P<<endl;
       if (P.residue_degree()==2) continue;  // inert primes are principal so no use
       if (!P.is_coprime_to(N)) continue;    // skip P unless it is coprime to N
+      //cout<<" -passes first tests, now checking its class"<<endl;
       Qideal I = (anti? P: P.conj());
       I *= (*this);
       if (I.is_principal(g))
@@ -651,10 +653,17 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
               d = g;
               c = P.norm(); // c*this = d*P
             }
+          //cout<<" ++OK, returning "<<P<<endl;
           return P;
         }
+      else
+        {
+          //cout<<" --no good, continuing"<<endl;
+        }
     }
-  cerr << "Unable to find an ideal equivalent to "<<(*this)<<" coprime to "<<N<<endl;
+  cerr << "\nUnable to find an ideal equivalent to "<<(*this)<<" coprime to "<<N<<endl;
+  cerr << "More primes need to be initialised! Currently max norm is "<<Quad::maxnorm<<endl;
+  assert (0 && "failure in Qideal::equivalent_coprime_to()");
   return Qideal();
 }
 
