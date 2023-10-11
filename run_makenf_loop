@@ -1,0 +1,30 @@
+#!/bin/bash
+d=$1
+FIRST_NORM=${2:-1}
+LAST_NORM=${3:-100}
+NAP=${4:-25}
+VERBOSE=0
+OUTPUT_EIGS=1
+BOTH_CONJUGATES=1
+
+# Make sure newforms directory exists!
+
+if [[ $((d % 4)) -ne 3 ]] ; then
+    D=$(( 4*d ))
+else
+    D=$d
+fi
+mkdir -p newforms/2.0.${D}.1
+
+PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${BOTH_CONJUGATES} ${FIRST_NORM} ${LAST_NORM}"
+
+PROG="./makenf_${d}_${FIRST_NORM}-${LAST_NORM}"
+ln -s makenf_loop "${PROG}"
+echo "Running " ${PROG} " with parameters " ${PARAMS}
+
+echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
+/bin/rm "${PROG}"
+
+# To use in parallel runs, one level norm per run:
+#
+# parallel -j 10 --progress --results run_makenf_loop_{} ./run_makenf_loop {1} ::: 403 101 407 102 411 415 419 105 106 427
