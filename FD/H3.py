@@ -2029,7 +2029,7 @@ def edge_boundary_matrix(kdata, alphas, sigmas):
             M[cusp_class_index(s), n+j-1] = 1
     return M
 
-def edge_index(e, alphas, sigmas, debug=True):
+def edge_index(e, alphas, sigmas, debug=False):
     """For e=[a1,a2] with a1,a2 principal return i where [oo,alphas[i]]
     is SL(2,Ok)-equivalent to e.
 
@@ -2047,7 +2047,7 @@ def edge_index(e, alphas, sigmas, debug=True):
 
     """
     if debug:
-        print(f"Copmuting edge index for {e=}")
+        print(f"Computing edge index for {e=}")
     a1, a2 = e
     if a1.ideal().is_principal(): # cases {a1,a2}, {a,s}
         U = Matrix(2,2, a1.ABmatrix())
@@ -2070,7 +2070,7 @@ def edge_index(e, alphas, sigmas, debug=True):
     # case {s1,s2} not required
     raise RuntimeError(f"edge {e} has neither end principal")
 
-def face_boundary_vector(F, alphas, sigmas, debug=True):
+def face_boundary_vector(F, alphas, sigmas, debug=False):
     v = vector(ZZ, len(alphas)+len(sigmas)-1)
     if debug:
         print(f"Copmuting face boundary vector for face {F = }")
