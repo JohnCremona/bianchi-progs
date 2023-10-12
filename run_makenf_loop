@@ -25,6 +25,15 @@ echo "Running " ${PROG} " with parameters " ${PARAMS}
 echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
 /bin/rm "${PROG}"
 
+echo ${d} -1  ${FIRST_NORM} ${LAST_NORM} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
+echo $d $LAST_NORM | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${FIRST_NORM}-${LAST_NORM}
+grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
+
+echo "============================================"
+echo "Finished field:" $d " level norms " ${FIRST_NORM} " to " ${LAST_NORM} ": "
+wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
+echo "============================================"
+
 # To use in parallel runs, one level norm per run:
 #
 # parallel -j 10 --progress --results run_makenf_loop_{} ./run_makenf_loop {1} ::: 403 101 407 102 411 415 419 105 106 427
