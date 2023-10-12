@@ -76,7 +76,7 @@ int main(void)
               mat_ZZ nu = mat_to_mat_ZZ(m);
               cout << "done. " << endl;
               if (show_mats)
-                cout << "Matrix is \n" << nu << endl;
+                cout << "Matrix is \n" << m << endl;
 
               ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
               if (show_pols)
@@ -158,7 +158,7 @@ int main(void)
           mat_ZZ wq =  mat_to_mat_ZZ(m);
 	  cout << "done. " << endl;
           if (show_mats)
-            cout << "Matrix is \n" << m << "\n="<<wq << endl;
+            cout << "Matrix is \n" << m << "\n="<< m << endl;
 
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
           if (show_pols)
@@ -244,10 +244,11 @@ int main(void)
                 }
             }
 
-          tp = mat_to_mat_ZZ(h.calcop(op,cuspidal, 0, show_mats));
+          mat m = h.calcop(op,cuspidal, 0, show_mats);
+          tp = mat_to_mat_ZZ(m);
           cout << "done. " << endl;
           if (show_mats)
-            cout << "Matrix is \n" << tp <<endl;
+            cout << "Matrix is \n" << m <<endl;
 
           ntp++;
           tplist.push_back(tp);
@@ -300,10 +301,11 @@ int main(void)
             else
               continue;
 
-          tpq = mat_to_mat_ZZ(h.calcop(op,cuspidal, 0, 0));
+          m = h.calcop(op,cuspidal, 0, 0);
+          tpq = mat_to_mat_ZZ(m);
           cout << "done. " << endl;
           if (show_mats)
-            cout << "Matrix is \n" << tpq << endl;
+            cout << "Matrix is \n" << m << endl;
           tpqlist.push_back(tpq);
 
           charpol = scaled_charpoly(tpq, to_ZZ(den));
@@ -349,10 +351,11 @@ int main(void)
               if ((P*Qe).is_principal())
                 {
                   cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                  tpwq = mat_to_mat_ZZ(h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0));
+                  mat m = h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0);
+                  tpwq = mat_to_mat_ZZ(m);
                   cout << "done. " << endl;
                   if (show_mats)
-                    cout << "Matrix is \n" << tpwq << endl;
+                    cout << "Matrix is \n" << m << endl;
                   tpwqlist.push_back(tpwq);
                   charpol = scaled_charpoly(tpwq, to_ZZ(den));
                   if (show_pols)

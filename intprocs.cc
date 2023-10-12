@@ -313,7 +313,7 @@ int dotbits(long a, long b, int r)
 {
   int x=0;
   for (int i=0; i<r; i++)
-    x |= (bit(a,i)*bit(b,i));
+    x ^= (bit(a,i)*bit(b,i));
   return x;
 }
 
