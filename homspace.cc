@@ -624,7 +624,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                 op = HeckeP2Op(P, N);
               else   // compute T(P^2)*T(A,A)
                 {
-                  A = P.equivalent_coprime_to(N, 1);
+                  A = P.equivalent_mod_2_coprime_to(N, 1);
                   op = HeckeP2ChiOp(P,A,N);
                 }
               if(verbose>2)

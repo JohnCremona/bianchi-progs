@@ -139,6 +139,8 @@ public:
     Quad c, d;
     return equivalent_coprime_to(N, c, d, anti);
   }
+  // return J coprime to N such that (J/this)^2, or (J*this)^2 if anti, is principal
+  Qideal equivalent_mod_2_coprime_to(const Qideal& N, int anti=0);
 
   int genus_character(const QUINT& D); // one unram char value in {+1,-1}
   vector<int> genus_character(); // vector of values in {0,1} of length r = #prime factors of field disc
