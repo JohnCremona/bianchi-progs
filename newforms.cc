@@ -726,13 +726,14 @@ int newform::is_CM(void)
           Quadprime P = *pr++;
           if (ap==0) continue;
           long dp = ap*ap-4*I2long(P.norm());
-          //cout<<"p="<<p<<" has ap="<<ap<<", disc = "<<dp;
+          //cout<<"P="<<P<<" has aP="<<ap<<", disc = "<<dp;
           if (dp==0) continue;
           dp = squarefree_part(dp);
           //cout<<" with squarefree part "<<dp<<endl;
           if (cm==1) // first one
             {
               cm = dp;
+              //cout << "Setting cm to "<<cm<<endl;
               continue;
             }
           if (dp!=cm) // mismatch: not CM
@@ -743,6 +744,7 @@ int newform::is_CM(void)
             }
         }
     }
+  //cout << "Returning cm = "<<cm<<endl;
   return cm;
 }
 
@@ -1380,7 +1382,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
            // NB 5 would not be enough for field 299, level 100.2, without checking for possible self twists.
         {
           //cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-          if ((nf->n_poss_self_twists>0) && (genus_class_trivial_counter[c] >= 5))
+          if ((nf->n_poss_self_twists>0) && (genus_class_trivial_counter[c] >= 10))
             {
               if (verbose>0)
                 cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
@@ -2011,10 +2013,12 @@ void newforms::getap(int first, int last, int verbose)
   // 2^n2r = nchi.
   for (int i=0; i<n1ds; i++)
     {
+      //cout<<"Newform "<<i<<":"<<endl;
       nflist[i].base_change_code();
       QUINT cmd(nflist[i].is_CM());
       int ngcl = nflist[i].genus_classes.size();
       if (posmod(cmd,4)!=1) cmd*=4;
+      //cout<<"cmd = "<<cmd<<"; D = "<<Quad::disc<<"; div(cmd,D) = "<<div_disc(cmd, Quad::disc)<<endl;
       if (div_disc(cmd, Quad::disc)) // then we have an unramified self-twist
         {
           nflist[i].CMD = cmd;
