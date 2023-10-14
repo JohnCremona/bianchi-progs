@@ -104,13 +104,13 @@ Involution!
 nu-eigenspace +: 11
 nu-eigenspace -: 16
 
-Computing T(P2b^2)*T(A,A) for A=[11,10+a]...done. 
+Computing T(P2b^2)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-7 1]	(degree 1)	 to power 3
 2:	[-3 1]	(degree 1)	 to power 4
 3:	[3 1]	(degree 1)	 to power 4
 4:	[7 1 1]	(degree 2)	 to power 4
-5:	[27 -9 1]	(degree 2)	 to power 4
+5:	[27 9 1]	(degree 2)	 to power 4
 
 Computing T(P3^2)...done. 
 Factors of characteristic polynomial are:
@@ -134,11 +134,11 @@ Factors of characteristic polynomial are:
 4:	[43 -8 1]	(degree 2)	 to power 4
 5:	[43 8 1]	(degree 2)	 to power 4
 
-Computing T(P11a^2)*T(A,A) for A=[11,10+a]...done. 
+Computing T(P11a^2)*T(A,A) for A=[7,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-133 1]	(degree 1)	 to power 3
-2:	[6 1]	(degree 1)	 to power 4
-3:	[111 1]	(degree 1)	 to power 4
+2:	[-111 1]	(degree 1)	 to power 4
+3:	[-6 1]	(degree 1)	 to power 4
 4:	[13300 100 1]	(degree 2)	 to power 4
-5:	[15984 -144 1]	(degree 2)	 to power 4
+5:	[15984 144 1]	(degree 2)	 to power 4
 

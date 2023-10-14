@@ -667,6 +667,34 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
   return Qideal();
 }
 
+// return J coprime to N such that (J/this)^2, or (J*this)^2 if anti, is principal
+Qideal Qideal::equivalent_mod_2_coprime_to(const Qideal& N, int anti)
+{
+  Qideal I = (*this) * (*this);
+  if (I.is_principal())
+    {
+      return Qideal(Quad::one);
+    }
+  Quad g;
+  //cout<<"looking for a prime equivalent to "<<(*this)<<" mod 2-torsion which is coprime to "<<N<<endl;
+  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+    {
+      Quadprime P = *Pi;
+      //cout<<" -testing P="<<P<<endl;
+      if (P.residue_degree()==2) continue;  // inert primes are principal so no use
+      if (!P.is_coprime_to(N)) continue;    // skip P unless it is coprime to N
+      //cout<<" -passes first tests, now checking its class"<<endl;
+      Qideal J = (anti? P: P.conj());
+      J = I*J*J;
+      if (J.is_principal(g))
+        return P;
+    }
+  cerr << "\nUnable to find an ideal equivalent mod 2-torsion to "<<(*this)<<" coprime to "<<N<<endl;
+  cerr << "More primes need to be initialised! Currently max norm is "<<Quad::maxnorm<<endl;
+  assert (0 && "failure in Qideal::equivalent_mod_2_coprime_to()");
+  return Qideal();
+}
+
 // return J coprime to N such that J^2*this is principal; if no such
 // J exists (i.e., if the ideal class is not a square, return the
 // zero ideal.  (implemented in primes.cc)

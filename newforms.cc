@@ -1398,9 +1398,9 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
             {
               aP2 = eigenvalue(HeckeP2Op(P,N), eigenvalue_sq_range(P));
             }
-          else // T(P^2)*T(A,A) with A*P principal
+          else // T(P^2)*T(A,A) with (A*P)^2 principal
             {
-              Qideal A = P.equivalent_coprime_to(N, 1);
+              Qideal A = P.equivalent_mod_2_coprime_to(N, 1);
               aP2 = eigenvalue(HeckeP2ChiOp(P,A,N), eigenvalue_sq_range(P));
             }
           // Now aP2 is the eigenvalue of T(P^2)
@@ -2601,7 +2601,7 @@ matop newforms::h1matop(int i) // return the list of matrices defining the i'th 
       h1matops[i] = HeckeP2Op(P, N);
       return h1matops[i];
     }
-  Qideal A = P.equivalent_coprime_to(N,1);
+  Qideal A = P.equivalent_mod_2_coprime_to(N,1);
   h1matops[i] = HeckeP2ChiOp(P, A, N);
   return h1matops[i];
 }

@@ -12,10 +12,10 @@ Involution!
 nu-eigenspace +: 1
 nu-eigenspace -: 2
 
-Computing T(P2a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P2a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[3 1]	(degree 1)	 to power 1
-2:	[13 -4 1]	(degree 2)	 to power 1
+2:	[13 4 1]	(degree 2)	 to power 1
 
 Computing T(P2b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
@@ -32,15 +32,15 @@ Factors of characteristic polynomial are:
 1:	[21 1]	(degree 1)	 to power 1
 2:	[601 -10 1]	(degree 2)	 to power 1
 
-Computing T(P5b^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P5b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[21 1]	(degree 1)	 to power 1
-2:	[601 -10 1]	(degree 2)	 to power 1
+2:	[601 10 1]	(degree 2)	 to power 1
 
-Computing T(P11a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P11a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[111 1]	(degree 1)	 to power 1
-2:	[14521 -22 1]	(degree 2)	 to power 1
+2:	[14521 22 1]	(degree 2)	 to power 1
 
 >>>> Level 3.1 = (3,1+a), norm = 3 <<<<
 Dimension = 8
@@ -59,12 +59,12 @@ Factors of characteristic polynomial are:
 
 Involution!
 
-Computing T(P2a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P2a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[-7 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 1
 3:	[3 1]	(degree 1)	 to power 2
-4:	[13 -4 1]	(degree 2)	 to power 2
+4:	[13 4 1]	(degree 2)	 to power 2
 
 Computing T(P2b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
@@ -80,19 +80,19 @@ Factors of characteristic polynomial are:
 3:	[21 1]	(degree 1)	 to power 2
 4:	[601 -10 1]	(degree 2)	 to power 2
 
-Computing T(P5b^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P5b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[-31 1]	(degree 1)	 to power 1
 2:	[5 1]	(degree 1)	 to power 1
 3:	[21 1]	(degree 1)	 to power 2
-4:	[601 -10 1]	(degree 2)	 to power 2
+4:	[601 10 1]	(degree 2)	 to power 2
 
-Computing T(P11a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P11a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
 1:	[-133 1]	(degree 1)	 to power 1
 2:	[-1 1]	(degree 1)	 to power 1
 3:	[111 1]	(degree 1)	 to power 2
-4:	[14521 -22 1]	(degree 2)	 to power 2
+4:	[14521 22 1]	(degree 2)	 to power 2
 
 Computing T(P11b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
@@ -125,12 +125,12 @@ Factors of characteristic polynomial are:
 3:	[4 1]	(degree 1)	 to power 6
 4:	[4 0 1]	(degree 2)	 to power 6
 
-Computing T(P5a^2)*T(A,A) for A=[5,4+a]...done. 
+Computing T(P5a^2)*T(A,A) for A=[5,a]...done. 
 Factors of characteristic polynomial are:
 1:	[-4 1]	(degree 1)	 to power 2
 2:	[-31 1]	(degree 1)	 to power 5
 3:	[21 1]	(degree 1)	 to power 6
-4:	[601 -10 1]	(degree 2)	 to power 6
+4:	[601 10 1]	(degree 2)	 to power 6
 
 Computing T(P5b^2)*T(A,A) for A=[5,a]...done. 
 Factors of characteristic polynomial are:
@@ -146,12 +146,12 @@ Factors of characteristic polynomial are:
 3:	[111 1]	(degree 1)	 to power 6
 4:	[14521 -22 1]	(degree 2)	 to power 6
 
-Computing T(P11b^2)*T(A,A) for A=[5,4+a]...done. 
+Computing T(P11b^2)*T(A,A) for A=[5,a]...done. 
 Factors of characteristic polynomial are:
 1:	[11 1]	(degree 1)	 to power 2
 2:	[-133 1]	(degree 1)	 to power 5
 3:	[111 1]	(degree 1)	 to power 6
-4:	[14521 -22 1]	(degree 2)	 to power 6
+4:	[14521 22 1]	(degree 2)	 to power 6
 
 Computing T(P13)*T(A,A) for A=[11,3+a]...done. 
 Factors of characteristic polynomial are:
@@ -177,12 +177,16 @@ Factors of characteristic polynomial are:
 
 Involution!
 
-Computing T(P2a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P2a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 2
-2:	[-7 1]	(degree 1)	 to power 3
-3:	[3 1]	(degree 1)	 to power 4
-4:	[13 -4 1]	(degree 2)	 to power 4
+1:	[-3 1]	(degree 1)	 to power 1
+2:	[-1 1]	(degree 1)	 to power 1
+3:	[1 1]	(degree 1)	 to power 1
+4:	[7 1]	(degree 1)	 to power 1
+5:	[-7 1]	(degree 1)	 to power 2
+6:	[3 1]	(degree 1)	 to power 3
+7:	[13 -4 1]	(degree 2)	 to power 1
+8:	[13 4 1]	(degree 2)	 to power 3
 
 Computing T(P2b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
@@ -199,19 +203,27 @@ Factors of characteristic polynomial are:
 4:	[4 1]	(degree 1)	 to power 4
 5:	[4 0 1]	(degree 2)	 to power 4
 
-Computing T(P5b^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P5b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
-1:	[-7 1]	(degree 1)	 to power 2
-2:	[-31 1]	(degree 1)	 to power 3
-3:	[21 1]	(degree 1)	 to power 4
-4:	[601 -10 1]	(degree 2)	 to power 4
+1:	[-21 1]	(degree 1)	 to power 1
+2:	[-7 1]	(degree 1)	 to power 1
+3:	[7 1]	(degree 1)	 to power 1
+4:	[31 1]	(degree 1)	 to power 1
+5:	[-31 1]	(degree 1)	 to power 2
+6:	[21 1]	(degree 1)	 to power 3
+7:	[601 -10 1]	(degree 2)	 to power 1
+8:	[601 10 1]	(degree 2)	 to power 3
 
-Computing T(P11a^2)*T(A,A) for A=[2,1+a]...done. 
+Computing T(P11a^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 2
-2:	[-133 1]	(degree 1)	 to power 3
-3:	[111 1]	(degree 1)	 to power 4
-4:	[14521 -22 1]	(degree 2)	 to power 4
+1:	[-111 1]	(degree 1)	 to power 1
+2:	[-1 1]	(degree 1)	 to power 1
+3:	[1 1]	(degree 1)	 to power 1
+4:	[133 1]	(degree 1)	 to power 1
+5:	[-133 1]	(degree 1)	 to power 2
+6:	[111 1]	(degree 1)	 to power 3
+7:	[14521 -22 1]	(degree 2)	 to power 1
+8:	[14521 22 1]	(degree 2)	 to power 3
 
 Computing T(P11b^2)*T(A,A) for A=[2,a]...done. 
 Factors of characteristic polynomial are:

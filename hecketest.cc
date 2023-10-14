@@ -237,7 +237,7 @@ int main(void)
                     }
                   else
                     {
-                      Qideal A = P.equivalent_coprime_to(N,1);
+                      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
                       op = HeckeP2ChiOp(P, A, N);
                       cout << "Computing T(" << P << "^2)*T(A,A) for A="<<A<<"..."<<flush;
                     }
