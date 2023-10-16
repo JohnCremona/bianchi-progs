@@ -265,15 +265,18 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // Instead of just {return chain(beta, proj) - chain(alpha, proj);},
-// we apply a version of "Karim's trick" -- though only when alpha is
-// a principal cusp.
+// we could apply a version of "Karim's trick" when either alpha or
+// beta is principal.  But experiment showed that this is actually a
+// bit slower.
 {
-  Quad a(alpha.num()), b(alpha.den()), x, y;
-  Quad g = quadbezout(a,b, x,y);
-  //  cout<<"gcd("<<a<<","<<b<<") = " << g <<endl;
-  if (g==Quad::one)
+  if (0)//(alpha.is_principal())
     {
-      mat22 M(b,-a, x,y);    // det(M)=1 and M(alpha) = 0
+      Quad a(alpha.num()), b(alpha.den()), x, y;
+      Quad g(quadbezout(a,b, x,y)); // g=ax+by=1
+#ifdef DEBUG_CHAIN
+      cout<<"alpha = "<<alpha<<" = a/b with a="<<a<<", b="<<b<<", gcd="<<g<<endl;
+#endif
+      mat22 M(b,-a, x,y);    // det(M)=g=1 and M(alpha) = 0
       assert (M.is_unimodular());
       Quad c = N.reduce(x), d = N.reduce(-b);
 #ifdef DEBUG_CHAIN
@@ -282,13 +285,14 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 #endif
       return chain(M(beta), proj, c, d);
     }
-  else
+  if (0)//(beta.is_principal())
     {
-#ifdef DEBUG_CHAIN
-      cerr<<"chain(alpha,beta) with alpha="<<alpha<<" non-principal"<<endl;
-#endif
-      return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
+      return -chain(beta, alpha, proj);
     }
+#ifdef DEBUG_CHAIN
+  cerr<<"chain(alpha,beta) with alpha="<<alpha<<" and beta="<<beta<<" non-principal"<<endl;
+#endif
+  return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
 }
 
 vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd)
@@ -352,6 +356,9 @@ vec homspace::applyop(const matop& T, const modsym& m, int proj)
   for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
     {
       mat22 M = *mi;
+#ifdef DEBUG_CHAIN
+      cout<<"image of m="<<m<<" under matrix M="<<M<<" has alpha="<<M(m.alpha())<<", beta="<<M(m.beta())<<" -- now calling chain on {alpha,beta}"<<endl;
+#endif
       ans = reduce_modp(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);
     }
   return ans;

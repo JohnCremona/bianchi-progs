@@ -21,7 +21,7 @@
 vector<mat22> HeckeP(const Quad& p)  // P=(p) principal prime
 {
   vector<Quad> resmodp = residues(p);
-  vector<mat22> mats(1+resmodp.size());
+  vector<mat22> mats; mats.reserve(1+resmodp.size());
   for (vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
     mats.push_back(mat22(Quad::one,*r,Quad::zero,p));
   mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
