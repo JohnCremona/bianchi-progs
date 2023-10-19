@@ -138,6 +138,7 @@ Qideal::Qideal(const vector<QUINT>& rv, const vector<QUINT>& iv)  // ideal from 
 
 Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 {
+  // cout<<"Constructing an ideal with gens "<<gens <<endl;
   vector<QUINT> rv, iv;
   for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); ++g)
     {
