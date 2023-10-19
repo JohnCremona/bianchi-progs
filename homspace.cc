@@ -571,13 +571,13 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 
   ssubspace s = trivial_character_subspace();
 
-  // we'll subtract dimensions of nontrivial self-twist spaces from this
   pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
+  // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
   dimlist.push_back(subdims0);
 
   if(verbose>1)
     {
-      cout<<"...done.  Full dimension = "<<subdims.first<<", cuspidal dimension = "<<subdims.second<<endl;
+      cout<<"...done.  Dimension = "<<subdims0.first<<", cuspidal dimension = "<<subdims0.second<<endl;
       cout<<"Pushing these onto dimlist, which is now ";
       cout<<"[";
       for(auto di=dimlist.begin(); di!=dimlist.end(); ++di)
@@ -599,14 +599,27 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
       QUINT D = *Di++;
       if(verbose>1)
         cout<<"D = "<<D<<":"<<endl;
+      if (dimlist[0].first==0) // then previous D have exhausted the space
+        {
+          subdims = {0,0};
+          dimlist.push_back(subdims);
+          if(verbose>1)
+            {
+              cout << " whole space accounted for by previous D" << endl;
+            }
+          continue;
+        }
       ssubspace sD = s;
       if (use_lower_bounds) lbd = *lbds++;
       if (use_cuspidal_lower_bounds) clbd = *clbds++;
       subdims = subdims0;
+      int subdim = subdims.first;
+      int MAXNREPEATS = 4;
+      int nrepeats = 0;      // stop when dimension has not changed MAXNREPEATS times
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
 
-      while (ip<np && subdims.first>0 && Pi.ok())
+      while (ip<np && subdims.first>0 && Pi.ok() && nrepeats<MAXNREPEATS)
         {
           if (use_lower_bounds && subdims.first<= lbd) break;
           if (use_cuspidal_lower_bounds && subdims.second<= clbd) break;
@@ -614,7 +627,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
           if (P.genus_character(D) == -1)
             {
               if(verbose>1)
-                cout<<"Forcing aP=0 for P = "<<P<<", starting with dimension "<<dim(sD)<<endl;
+                cout<<"Forcing aP=0 for P = "<<P<<": current dimension is "<<dim(sD)<<endl;
               ip++;
               long Pnorm = I2long(P.norm());
               long eig = -den*Pnorm;
@@ -622,7 +635,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
               matop op;
               if (P2.is_principal())
                 op = HeckeP2Op(P, N);
-              else   // compute T(P^2)*T(A,A)
+              else   // compute T(P^2)*T(A,A) where (A*P)^2 is principal
                 {
                   A = P.equivalent_mod_2_coprime_to(N, 1);
                   op = HeckeP2ChiOp(P,A,N);
@@ -640,8 +653,28 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   cout << " - computed matrix of this op restricted to current subspace" << endl;
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
-              sD = combine(sD, eigenspace(m, eig));
-              subdims = {dim(sD),(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank()};
+              ssubspace newsD = combine(sD, eigenspace(m, eig));
+              int newsubdim = dim(newsD);
+              if(verbose>1)
+                {
+                  cout << " - subeigenspace has dimension " << newsubdim << ": ";
+                  if (newsubdim==subdim)
+                    cout << "repeat #"<<(nrepeats+1);
+                  else
+                    cout << "reduced by "<<(subdim-newsubdim);
+                  cout << endl;
+                }
+              if (newsubdim==subdim)
+                {
+                  nrepeats++;
+                }
+              else
+                {
+                  nrepeats=0;
+                  sD = newsD;
+                  subdim = newsubdim;
+                  subdims = {subdim,(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank()};
+                }
               ++Pi; // extra increment, so we don't use both conjugates
             }
           ++Pi; // increment prime
