@@ -26,7 +26,7 @@ echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
 /bin/rm "${PROG}"
 
 echo ${d} -1  ${FIRST_NORM} ${LAST_NORM} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
-echo $d $LAST_NORM | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${FIRST_NORM}-${LAST_NORM}
+echo $d ${LAST_NORM} | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${FIRST_NORM}-${LAST_NORM}
 grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
 
 echo "============================================"
