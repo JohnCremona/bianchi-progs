@@ -109,6 +109,20 @@ TetraPyramid = Graph( [(0, 1), (0, 2), (0, 3), (0, 4), (4, 1), (4, 2), (4, 5), (
                        (3, 2), (3, 0)],
                       name = "tetrahedron plus square pyramid")
 
+# Two cubes
+# eg d=209
+DoubleCube = Graph( [(1, 0), (0, 5), (6, 0), (2, 1), (3, 1), (4, 1), (2, 7), (2, 8), (3, 5), (7, 3),
+                     (9, 3), (6, 4), (8, 4), (9, 4), (10, 5), (10, 6), (11, 7), (11, 8), (10, 9), (9, 11)],
+                    name = "DoubleCube")
+
+# Cube and two tents
+# eg d=209
+DoubleTentedCube = Graph([(1, 0), (3, 0), (5, 0), (2, 1), (3, 1), (4, 1), (6, 2), (7, 2), (2, 8),
+                          (3, 8), (9, 3), (5, 4), (6, 4), (9, 4), (9, 5), (6, 10), (6, 11), (7, 8),
+                          (7, 10), (11, 8), (9, 11), (10, 11)],
+                         name = "DoubleTentedCube")
+
+
 # 10 triangles + 2 squares
 # (includes a vertex of degree 6)
 # eg d=101
@@ -117,6 +131,20 @@ Unnamed_1 = Graph( [(0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 5), (1, 6), (1, 
                     (2, 3), (2, 4), (2, 8), (2, 0), (7, 4), (7, 5), (7, 6), (7, 8), (4, 5), (4, 7),
                     (4, 8), (4, 2), (4, 0), (4, 1), (8, 2), (8, 4), (8, 3), (8, 7)],
                    name = "unnamed #1")
+
+# Two split cubes glued to a third cube in the middle
+# eg d=149
+Unnamed_2 = Graph([(1, 0), (4, 0), (5, 0), (2, 1), (3, 1), (3, 2), (2, 4), (2, 6), (5, 3), (3, 6),
+                   (7, 3), (5, 4), (4, 14), (11, 5), (5, 14), (14, 6), (15, 6), (7, 8), (7, 11),
+                   (7, 12), (7, 15), (9, 8), (8, 12), (9, 10), (9, 11), (11, 10), (12, 10), (13, 10),
+                   (11, 13), (12, 15), (14, 13), (13, 15)],
+                  name = "unnamed #2")
+
+# 4 squares, 2 triangles
+# eg d=471, 519, 615, 663, 759, 807, 903, 951
+
+Unnamed_3 = Graph( [(1, 0), (2, 0), (0, 4), (2, 1), (3, 1), (2, 5), (2, 6), (3, 4), (3, 5), (4, 6), (5, 6)],
+                  name = "unnamed #3")
 
 Unknown = Graph(name="unknown")
 
@@ -135,7 +163,8 @@ all_polys = (Tetrahedron, Cube, Octahedron,
              TriangularPrism, SquarePyramid, HexagonalPrism,
              HexagonalCap, TruncatedTetrahedron, Cuboctahedron,
              SlicedCube, DoubleHexagonalPrism, HalfStar, TentedHexPrism,
-             Dipyramid, PrismPyramid, TetraPyramid , Unnamed_1, Unknown)
+             Dipyramid, PrismPyramid, TetraPyramid, DoubleCube, DoubleTentedCube,
+             Unnamed_1, Unnamed_2, Unnamed_3, Unknown)
 
 def poly_type(pol):
     for G in all_polys:
