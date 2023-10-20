@@ -878,6 +878,10 @@ def principal_polyhedra(alphas, debug=False):
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
     print(f"Constructed {npoly} {poly}")
+    pt = poly_types(polyhedra)
+    for pol,num in pt.items():
+        if num:
+            print(f" {pol}: {num}")
 
     for G in polyhedra:
         try:
@@ -948,6 +952,10 @@ def singular_polyhedra(alphas, sigmas, debug=False):
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
     print(f"Constructed {npoly} {poly}")
+    pt = poly_types(polyhedra)
+    for pol,num in pt.items():
+        if num:
+            print(f" {pol}: {num}")
 
     for G in polyhedra:
         try:
@@ -2288,7 +2296,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
     polyhedra, hemis = all_polyhedra(k, alphas, verbose>1)
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
-    print(f"{npoly} {poly} constructed")
+    print(f"Tessellation has {npoly} {poly}:")
     if plot3D:
         print("plotting fundamental domain")
         from sage.misc.viewer import viewer
@@ -2297,7 +2305,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
 
     pt = poly_types(polyhedra)
     nunk = pt['unknown']
-    if nunk:
+    if nunk and verbose>1:
         poly = "polyhedra have" if nunk>1 else "polyhedron has"
         print(f"{nunk} {poly} unknown type!")
         if verbose:
@@ -2365,7 +2373,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             squ = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==4)
             ind, _ = face_index(squ, all_faces)
             if ind not in redundant_faces:
-                if verbose:
+                if verbose>1:
                     print("omitting redundant square face from a square pyramid")
                 redundant_faces.append(ind)
             continue
@@ -2373,7 +2381,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
             hexa = next(make_poly_from_edges(f,k) for f in oriented_faces(poly) if len(f)==6)
             ind, _ = face_index(hexa, all_faces)
             if ind not in redundant_faces:
-                if verbose:
+                if verbose>1:
                     print("omitting redundant hexagonal face from a hexagonal cap")
                 redundant_faces.append(ind)
             continue
@@ -2383,7 +2391,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/fir
                 tri = next(t for t in faces if is_poly_principal(t))
                 ind, _ = face_index(tri, all_faces)
                 if ind not in redundant_faces:
-                    if verbose:
+                    if verbose>1:
                         print("omitting redundant aaa-triangle face from an aaas-tetrahedron")
                     redundant_faces.append(ind)
     if verbose:
