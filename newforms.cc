@@ -71,6 +71,42 @@
 // NB in the newform constructor we cannot use projcoord since that is
 // only computed after all the newforms are found
 
+// Sorting functions
+
+// Compare two integers, using the natural order ...-2,-1,0,1,2,...
+int less_ap(long a, long b)
+{
+  return sign(a-b);
+}
+
+// Compare two integer vectors lexicographically, using less_ap():
+int less_apvec(const vector<long>& v, const vector<long>& w)
+{
+  vector<long>::const_iterator vi=v.begin(), wi=w.begin();
+  while(vi!=v.end())
+    {
+      int s = less_ap(*vi++,*wi++);
+      if(s) return s;
+    }
+  return 0;
+}
+
+struct newform_eigs_comparer {
+  bool operator()(const newform& f, const newform& g)
+  {
+    return less_apvec(f.eigs,g.eigs)==-1;
+  }
+}
+  less_newform_eigs;
+
+struct newform_aplist_comparer {
+  bool operator()(const newform& f, const newform& g)
+  {
+    return less_apvec(f.aplist,g.aplist)==-1;
+  }
+}
+  less_newform_lmfdb;
+
 newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   : eigs(eigs)
 {
@@ -1218,7 +1254,7 @@ void newforms::list(long nap)
       nflist[i].list(s1 + codeletter(i) + s2, nap);
   else
     {
-      int nform = 0;
+      vector<newform> twisted_newforms;
       for(int i=0; i<n1ds; i++)
         {
           QUINT D = nflist[i].CMD;
@@ -1227,8 +1263,12 @@ void newforms::list(long nap)
           // if(D!=0)
           //   cout<<i<<": "<<ntwists<<" twists (D="<<D<<"), by "<<twists<<endl;
           for (int j = 0; j<ntwists; j++)
-            nflist[i].twist(twists[j]).list(s1 + codeletter(nform++) + s2, nap);
+            twisted_newforms.push_back(nflist[i].twist(twists[j]));
         }
+      ::sort(twisted_newforms.begin(), twisted_newforms.end(), less_newform_lmfdb);
+      int nform = 0;
+      for (auto nf=twisted_newforms.begin(); nf!=twisted_newforms.end(); ++nf)
+        nf->list(s1 + codeletter(nform++) + s2, nap);
     }
 }
 
@@ -1528,42 +1568,6 @@ long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
        << "the eigenvalue of T(P)W(Q) is known and nonzero!  Returning A-L eigenvalue of 0"<<endl;
   return 0;
 }
-
-// Sorting functions
-
-// Compare two integers, using the natural order ...-2,-1.0,1,2,...
-int less_ap(long a, long b)
-{
-  return sign(a-b);
-}
-
-// Compare two integer vectors lexicographically, using less_ap():
-int less_apvec(const vector<long>& v, const vector<long>& w)
-{
-  vector<long>::const_iterator vi=v.begin(), wi=w.begin();
-  while(vi!=v.end())
-    {
-      int s = less_ap(*vi++,*wi++);
-      if(s) return s;
-    }
-  return 0;
-}
-
-struct newform_eigs_comparer {
-  bool operator()(const newform& f, const newform& g)
-  {
-    return less_apvec(f.eigs,g.eigs)==-1;
-  }
-}
-  less_newform_eigs;
-
-struct newform_aplist_comparer {
-  bool operator()(const newform& f, const newform& g)
-  {
-    return less_apvec(f.aplist,g.aplist)==-1;
-  }
-}
-  less_newform_lmfdb;
 
 void newforms::sort_eigs(void)
 {
