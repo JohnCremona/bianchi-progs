@@ -68,10 +68,9 @@ int main ()
        {
 #endif
      cout<<endl;
-     QUINT normN = N.norm();
      string efilename = eigfile(N);
      string label = ideal_label(N);
-     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
+     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N,verbose);
 #ifdef LOOPER // skip this level if we already have a newforms file
      if(nf.read_from_file())

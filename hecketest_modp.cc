@@ -30,7 +30,7 @@ int main(void)
  cerr << "Factor the char polys (0/1)? "; cin >> show_facs;
  Qideal N;
 #ifdef LOOPER
- QUINT firstn, lastn;
+ long firstn, lastn;
  cerr<<"Enter first and last norm for Quad loop: ";
  cin >> firstn >> lastn;
  cerr << "How many Hecke matrices T(P)? ";
@@ -43,8 +43,7 @@ int main(void)
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-  QUINT normn = N.norm();
-  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N,plusflag,0, ch);  //level, plusflag, verbose, characteristic
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;

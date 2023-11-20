@@ -1197,4 +1197,48 @@ vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist)
   return chi;
 }
 
+// test functions used in qidltest.cc
+
+void residuetest(Qideal& I)
+{
+  for (long i = 0; i<I.norm(); i++)
+    {
+      // assert (i==a.numres(a.resnum(i)));
+      Quad r = I.resnum(i);
+      long j = I.numres(r);
+      if (i!=j) cout<<i<<" --> "<<r<<" --> "<<j<<" ************"<<endl;
+    }
+  vector<Quad> res = I.residues();
+  assert ((long)res.size()==I.norm());
+  cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
+  if (I.norm()==1) return;
+
+  Factorization F = I.factorization();
+  QUINT phi(1);
+  for (int i=0; i<F.size(); i++)
+    {
+      QUINT np = F.prime(i).norm();
+      phi *= (np-1);
+      for (long e=1; e<F.exponent(i); e++)
+        phi *= np;
+    }
+
+  pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues();
+  cout << phi << " invertible residues mod "<<ideal_label(I)<<":\n";
+  cout<<invres.first<<endl;
+  cout << " with inverses:\n";
+  cout<<invres.second<<endl;
+  //assert ((QUINT)invres.first.size()==phi);
+  if ((QUINT)invres.first.size()!=phi)
+    {
+      cout<<"phi = "<<phi<<" but # invertible residues = "<<invres.first.size()<<endl;
+      cout<<"Factorization primes, norms and exponents:"<<endl;
+      for (int i=0; i<F.size(); i++)
+        {
+          QUINT np = F.prime(i).norm();
+          cout << "P = "<<F.prime(i)<<", norm="<<np<<", e="<<F.exponent(i)<<endl;
+        }
+    }
+}
+
 // END OF FILE qideal.cc

@@ -54,9 +54,8 @@ int main ()
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
-     QUINT normn = N.norm();
      cout << d << "\t2\t";                  // field and weight
-     cout << ideal_label(N)<<"\t "<<normn<<"\t"; // level and norm
+     cout << ideal_label(N)<<"\t "<<N.norm()<<"\t"; // level and norm
      if (!plusflag)
        {
          homspace h1(N,0, 0, ch);  //level, plusflag, verbose, characteristic

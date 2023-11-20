@@ -278,6 +278,11 @@ struct Qideal_comparison {
 
 extern Qideal_comparison Qideal_cmp;
 
+// test functions used in qidltest.cc
+
+void residuetest(Qideal& I);
+
+
 
 #endif
 

@@ -7,8 +7,7 @@
 
 void test1(Qideal& I)
 {
-  QUINT NI = I.norm();
-  cout << "Ideal " << ideal_label(I) << " = " << I << " (norm " << NI << ")";
+  cout << "Ideal " << ideal_label(I) << " = " << I << " (norm " << I.norm() << ")";
   if (I.is_principal())
     cout << " is principal, with generator " << I.gen();
   else
@@ -31,56 +30,13 @@ void test1(Qideal& I)
 
 void test2(Qideal& I)
 {
-  QUINT NI = I.norm();
   Qideal J = I.conj();
   if (I.is_principal()&& !J.is_principal())
     {
-      cout << "Qideal = " << I << " (norm " << NI <<")";
+      cout << "Qideal = " << I << " (norm " << I.norm() <<")";
       cout << ", principal generator " << I.gen() << endl;
       cout << "Qideal = " << J << " (norm " << J.norm() << ")"<<endl;
       cout << endl;
-    }
-}
-
-void residuetest(Qideal& I)
-{
-  for (long i = 0; i<I.norm(); i++)
-    {
-      // assert (i==a.numres(a.resnum(i)));
-      Quad r = I.resnum(i);
-      long j = I.numres(r);
-      if (i!=j) cout<<i<<" --> "<<r<<" --> "<<j<<" ************"<<endl;
-    }
-  vector<Quad> res = I.residues();
-  assert ((long)res.size()==I.norm());
-  cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
-  if (I.norm()==1) return;
-
-  Factorization F = I.factorization();
-  QUINT phi(1);
-  for (int i=0; i<F.size(); i++)
-    {
-      QUINT np = F.prime(i).norm();
-      phi *= (np-1);
-      for (long e=1; e<F.exponent(i); e++)
-        phi *= np;
-    }
-
-  pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues();
-  cout << phi << " invertible residues mod "<<ideal_label(I)<<":\n";
-  cout<<invres.first<<endl;
-  cout << " with inverses:\n";
-  cout<<invres.second<<endl;
-  //assert ((QUINT)invres.first.size()==phi);
-  if ((QUINT)invres.first.size()!=phi)
-    {
-      cout<<"phi = "<<phi<<" but # invertible residues = "<<invres.first.size()<<endl;
-      cout<<"Factorization primes, norms and exponents:"<<endl;
-      for (int i=0; i<F.size(); i++)
-        {
-          QUINT np = F.prime(i).norm();
-          cout << "P = "<<F.prime(i)<<", norm="<<np<<", e="<<F.exponent(i)<<endl;
-        }
     }
 }
 
@@ -168,8 +124,7 @@ void stringtest()
       cin >> s;
       if (s[0]=='0') return;
       Qideal I(s);
-      QUINT N = I.norm();
-      cout << "ideal is "<<I<<" with norm " << N <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
+      cout << "ideal is "<<I<<" with norm " << I.norm() <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
     }
 }
 

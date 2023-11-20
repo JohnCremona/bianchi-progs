@@ -14,8 +14,8 @@ int main(void)
 
   for(Quadlooper alpha(firstn,lastn,conj); alpha.ok(); ++alpha)
     {
-      Quad a = (Quad)alpha;  QUINT norma = quadnorm(a);
-      cout << "Quad = " << a << "\twith norm " << norma << endl;
+      Quad a = (Quad)alpha;
+      cout << "Quad = " << a << "\twith norm " << quadnorm(a) << endl;
       //cout << field_label() << " " << ideal_label(makepos(alpha)) << endl;
     }
 }

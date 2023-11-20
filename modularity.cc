@@ -32,9 +32,8 @@ int main(void)
 
   cerr<<"Enter level (ideal label or generator): \n";
   cin>>N;
-  QUINT normn = N.norm();
   if (verbose)
-    cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<normn<<" <<<<" << endl;
+    cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
 
   int nforms, nprimes;
   cerr<<"Enter number of newforms and number of primes to check: \n";
@@ -181,11 +180,9 @@ int main(void)
           int nform = 0;
           for (kform=0; (kform<nnf) &&not_found; kform++)
             {
-              QUINT D = nf.nflist[kform].CMD;
-              vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
-              int ntwists = twists.size();
+              auto twists = disc_factors_mod_D(nf.nflist[kform].CMD);
               vector<long> apvec = apvecs_comp[kform];
-              for (int jtwist = 0; jtwist<ntwists; jtwist++)
+              for (auto twist = twists.begin(); twist!=twists.end(); ++twist)
                 {
                   string code = codeletter(nform++);
                   vector<long> apvec_twist = apvec;
@@ -193,7 +190,7 @@ int main(void)
                   auto Pi = primes_needed.begin();
                   auto aPi = apvec_twist.begin();
                   for (; aPi!=apvec_twist.end(); ++Pi, ++aPi)
-                    (*aPi) *= Pi->genus_character(twists[jtwist]);
+                    (*aPi) *= Pi->genus_character(*twist);
 
                   if (verbose)
                     cout << "  - comparing with computed form "<<code<<", ap = " << apvec_twist << endl;

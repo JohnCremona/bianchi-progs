@@ -1078,7 +1078,7 @@ vector<int> chardisc(QUINT D)
 // unless D=1.
 vector<QUINT> disc_factors_mod_D(const QUINT& D)
 {
-  if (D==ONE)
+  if ((D==ONE)||(D==ZERO))
     return Quad::all_disc_factors;
   vector<int> Dv = chardisc(D);
   // cout<<"D="<<D<<" Dv="<<Dv<<endl;
