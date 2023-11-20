@@ -19,6 +19,7 @@ public:
   int reduce();
   // reduce, ensuring that resulting ideal is coprime to N
   void reduce(const Qideal& N);
+  void reduce(long n);
   int is_integral() const {return d.nm==1;} // assumes reduced
   Quad num() const {return n;}
   Quad den() const {return d;}

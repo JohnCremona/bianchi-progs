@@ -294,12 +294,10 @@ void Quad::displayfield(ostream& s, int info2)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
-#ifdef QUINT_IS_ZZ
 int Quad::chi(QUINT p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
 }
-#endif
 
 Quad makepos(const Quad& a)
 {Quad ans=a;
@@ -335,11 +333,6 @@ void Quad::operator/=(const Quad& b)
     *this=qdivi(mult(*this,quadconj(b)), b.nm);
   else
     *this=qdivi(*this,b.r);
-}
-
-int Quad::chi(long p)
-{
-  return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(-d,p));
 }
 
 // binary index i of [I] in C/C^2 (0 <= i < 2^{2-rank}).
@@ -477,7 +470,7 @@ vector<Quad> Quad::primes_above(long p, int& sig)
   int t=Quad::t;
   QUINT a,b;  Quad pi, piconj;
   vector<Quad> list;
-  sig = Quad::chi(p);
+  sig = Quad::chi(P);
   //  cout<<"disc = "<<Quad::disc<<", p="<<p<<", chi(p)="<<sig<<endl;
   QUINT i0(0), i1(1), i2(2), i3(3);
   switch (sig) {

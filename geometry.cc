@@ -184,7 +184,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
-  if (s.is_zero() || s==Quad(2)) // don't also include -sigma
+  if (s.is_zero() || s==TWO) // don't also include -sigma
     {
       sigma_flip.push_back(n_sigmas);     // identity
       n_sigmas+=1;
@@ -219,7 +219,7 @@ void alphas_sigmas_denom_2()
 {
   long d = Quad::d;
   QUINT D(d);
-  Quad w = Quad::w, two(2);
+  Quad w = Quad::w;
 
   // alpha = w/2, sigma = (w+1)/2 when d%4=1, 2 ramifies, (2)=(2,1+w)^2
   // alpha = (w+1)/2, sigma = w/2 when d%4=2, 2 ramifies, (2)=(2,w)^2
@@ -235,27 +235,27 @@ void alphas_sigmas_denom_2()
   case 5:
     {
       Quad u = (D-1)/2;
-      add_alpha(w,u,two,-w);  // alpha[1] = w/2
+      add_alpha(w,u,TWO,-w);  // alpha[1] = w/2
       alpha_inv.push_back(1); // 1-1
       alpha_flip.push_back(1); // 1-1
-      add_sigma_orbit(w+Quad::one,two);
+      add_sigma_orbit(w+Quad::one,TWO);
       break;
     }
   case 2: // (2) = (2,w)^2
   case 6:
     {
       Quad u = D/2 -1-w;
-      add_alpha(Quad::one+w,u,two,-Quad::one-w);  // alpha[1] = (1+w)/2
+      add_alpha(Quad::one+w,u,TWO,-Quad::one-w);  // alpha[1] = (1+w)/2
       alpha_inv.push_back(1);   // 1-1
       alpha_flip.push_back(1);  // 1-1
-      add_sigma_orbit(w,two);
+      add_sigma_orbit(w,TWO);
       break;
     }
   case 3:
     {
       Quad u = (D-3)/8;  // = 2, 5, 8, 20 for d=19,43,67,163 = 3 (mod 8) so 2 is inert
-      add_alpha(w-Quad::one,u,two,-w);  // alpha[1] = w/2
-      add_alpha(w,u,two,Quad::one-w);   // alpha[2] = (w-1)/2
+      add_alpha(w-Quad::one,u,TWO,-w);  // alpha[1] = w/2
+      add_alpha(w,u,TWO,Quad::one-w);   // alpha[2] = (w-1)/2
       alpha_inv.push_back(2); // 1-2
       alpha_inv.push_back(1); // 2-1
       alpha_flip.push_back(1); // 1-1
@@ -264,8 +264,8 @@ void alphas_sigmas_denom_2()
     }
   case 7: // (2) = (2,w)*(2,1-w)
     {
-      add_sigma_orbit(w,two);
-      add_sigma_orbit(Quad::one-w,two);
+      add_sigma_orbit(w,TWO);
+      add_sigma_orbit(Quad::one-w,TWO);
       break;
     }
   } // d%8
@@ -276,22 +276,22 @@ void alphas_sigmas_denom_2()
 void alphas_sigmas_denom_3()
 {
   int d = Quad::d;
-  Quad w = Quad::w, three(3);
+  Quad w = Quad::w;
 
   switch (d%12) {
   case 1: case 10:
     {
-      add_alpha_orbit(three, w, w);  // - pair
-      add_alpha_orbit(three, Quad::one+w, Quad::one-w); // 4-some
+      add_alpha_orbit(THREE, w, w);  // - pair
+      add_alpha_orbit(THREE, Quad::one+w, Quad::one-w); // 4-some
       // no sigmas (3 inert)
       break;
     }
   case 7:
     {
       if (d>31)
-        add_alpha_orbit(three, w, Quad::one-w); // 4-some
+        add_alpha_orbit(THREE, w, Quad::one-w); // 4-some
       if (d>19) // e.g. 43, 67, 163
-        add_alpha_orbit(three, Quad::one+w, Quad::one+w); // - pair
+        add_alpha_orbit(THREE, Quad::one+w, Quad::one+w); // - pair
       // no sigmas (3 inert)
       break;
     }
@@ -299,9 +299,9 @@ void alphas_sigmas_denom_3()
     {
       if (d!=5)
         {
-          add_alpha_orbit(three, w, -w); // + pair
-          add_sigma_orbit(Quad::one+w,three);
-          add_sigma_orbit(Quad::one-w,three);
+          add_alpha_orbit(THREE, w, -w); // + pair
+          add_sigma_orbit(Quad::one+w,THREE);
+          add_sigma_orbit(Quad::one-w,THREE);
         }
       break;
     }
@@ -309,9 +309,9 @@ void alphas_sigmas_denom_3()
     {
       if (d>=35)
         {
-          add_alpha_orbit(three, Quad::one+w, -Quad::one-w); // + pair
-          add_sigma_orbit(w,three);
-          add_sigma_orbit(w-Quad::one,three);
+          add_alpha_orbit(THREE, Quad::one+w, -Quad::one-w); // + pair
+          add_sigma_orbit(w,THREE);
+          add_sigma_orbit(w-Quad::one,THREE);
         }
       break;
     }
@@ -319,8 +319,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>15)
         {
-          add_alpha_orbit(three, w, w-Quad::one); // 4-some
-          add_sigma_orbit(Quad::one+w,three);
+          add_alpha_orbit(THREE, w, w-Quad::one); // 4-some
+          add_sigma_orbit(Quad::one+w,THREE);
         }
       break;
     }
@@ -328,8 +328,8 @@ void alphas_sigmas_denom_3()
     {
       if (d>6)
         {
-          add_alpha_orbit(three, w+Quad::one, w-Quad::one); // 4-some
-          add_sigma_orbit(w,three);
+          add_alpha_orbit(THREE, w+Quad::one, w-Quad::one); // 4-some
+          add_sigma_orbit(w,THREE);
           break;
         }
     }

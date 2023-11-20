@@ -219,7 +219,7 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
   assert (i && "P^2 must be principal in HeckePSq(P,N)");
   N.is_coprime_to(P2, u, v); // u+v=1, u in N, v in P2
 
-  mat22 M1 = mat22(g,0,0,1);                // a (P^2,O)-matrix of level N
+  mat22 M1 = mat22::diag(g,ONE);                // a (P^2,O)-matrix of level N
   mat22 M2 = P.AB_matrix_of_level(P, N, g); // a (P,P)-matrix of level N
 
   vector<mat22> mats;
@@ -305,7 +305,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   assert (i && "PQ must be principal in HeckePQ(P,Q,N)");
   vector<Quad> resmodpq = PQ.residues();
   vector<mat22> mats;
-  mat22 M = mat22(g,0,0,1);
+  mat22 M = mat22::diag(g,ONE);
   N.is_coprime_to(PQ, u, v); // u+v=1, u in N, v in PQ
 
   // (1) M*lift(1:a) for a mod PQ                (N(P)N(Q) matrices)
@@ -342,7 +342,7 @@ vector<mat22> HeckeB(Qideal& B, Qideal& N)
   Quad g, u, v, c, d;
   int i = B.is_principal(g);
   assert (i && "B must be principal in HeckePQ(B,N)");
-  mat22 M = mat22(g,0,0,1);
+  mat22 M = mat22::diag(g,ONE);
   N.is_coprime_to(B, u, v); // u+v=1, u in N, v in B
 
   // The matrices are
@@ -472,7 +472,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
   assert (i);
 
   // First handle (1:0) mod P*M1, finding a lift [a,b;c,d] with c in M2M3 so h|c
-  mat22 m = lift_to_Gamma_0(M2M3, PM1, 1, 0, s, r);
+  mat22 m = lift_to_Gamma_0(M2M3, PM1, ONE, ZERO, s, r);
 #ifdef DEBUG_HECKE
   cout<<" Lift of (1:0) mod "<<PM1<<" to Gamma_0("<<M2M3<<") is "<<m<<endl;
 #endif

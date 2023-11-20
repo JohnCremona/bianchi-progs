@@ -146,7 +146,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
   genus_classes.resize(1,0);
-  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,1);
   fake = 0;
   // to be set later
@@ -273,7 +273,7 @@ void newform::eigs_from_data()
 void newform::fill_in_genus_class_data()
 {
   genus_classes.resize(1,0);
-  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,1);
 
   // Now we fill the genus classes with known ideaqls and eigenvalues,
@@ -410,7 +410,7 @@ newform::newform(newforms* nfs, int ind,
 
   aplist = ap;
   genus_classes.resize(1,0);
-  genus_class_ideals.resize(1,Qideal(1));
+  genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,1);
   genus_class_trivial_counter.resize(nf->nchi, 0);
   fake = 0;
@@ -947,7 +947,7 @@ void newforms::find_lambdas()
   for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
     {
       Quadprime L = *Li;
-      if (L.divides(2)) continue;
+      if (L.divides(TWO)) continue;
       if (L.divides(N)) continue;
       if (!L.is_principal()) continue;
       Quad lam = L.gen();

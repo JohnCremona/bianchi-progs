@@ -885,11 +885,10 @@ istream& operator>>(istream& s, Qideal& y)
   s >> st;
   if (st.find(".")==string::npos) // string contains no "."
     {
-      long r = stoi(st);
+      QUINT r(stoi(st));
       s >> st;
-      long i = stoi(st);
-      Quad alpha(r,i);
-      y = Qideal(alpha);
+      QUINT i(stoi(st));
+      y = Qideal(Quad(r,i));
     }
   else
     y = Qideal(st);

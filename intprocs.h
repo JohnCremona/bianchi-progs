@@ -30,8 +30,6 @@ const QUINT TWO(2);
 const QUINT THREE(3);
 
 inline long I2long(long n) {return n;}
-inline int is_nonnegative(long a) {return a>=0;}
-inline int is_positive(long a) {return a>0;}
 void sqrt_mod_p(long & x, long a, long p);
 int divides(long a, long b, long& q, long& r);
 long squarefree_part(long d);
@@ -39,7 +37,6 @@ long squarefree_part(long d);
 // For b>0, rounded_division(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
 //
 #ifdef QUINT_IS_ZZ
-int is_nonnegative(QUINT a);
 QUINT rounded_division(QUINT aa, QUINT bb);
 int divides(const QUINT& aa, const QUINT& bb);
 #endif

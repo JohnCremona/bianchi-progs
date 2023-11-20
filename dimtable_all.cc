@@ -41,7 +41,7 @@ int main ()
       long d = (D%4==0? D/4: D);
       Quad::field(d,max);
       int n2r = Quad::class_group_2_rank>0;
-      Qideal N(1);
+      Qideal N(ONE);
       cout << Quad::disc << "\t\t";        // field discriminant
       cout << Quad::class_number << "\t\t"; // class number
 

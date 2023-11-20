@@ -41,10 +41,6 @@ long rounded_division(long a, long b)
 }
 
 #ifdef QUINT_IS_ZZ
-int is_nonnegative(QUINT a)
-{
-  return is_positive(a) || is_zero(a);
-}
 
 QUINT rounded_division(QUINT a, QUINT b)
 {

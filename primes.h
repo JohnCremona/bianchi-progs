@@ -26,7 +26,7 @@ class Quadprime : public Qideal {
 public:
   // constructor
   Quadprime(QUINT a, QUINT b, QUINT c, long pp, long ind=1)
-    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(p); fill();}
+    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(QUINT(p)); fill();}
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
   Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}

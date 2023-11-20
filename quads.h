@@ -78,7 +78,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static Quad w;
   static void field(long dd, long max=1000);
   static void displayfield(ostream& s = cout, int info2=0); // if info2, also output info about 2-part of class group
-  static int chi(long p); // quadratic character associated to the field
+  static int chi(QUINT p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
   static void fill_class_group();
@@ -91,18 +91,10 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 //constructors:
   void setnorm();
   Quad() :r((long)0), i((long)0), nm((long)0)  {}
-#ifdef QUINT_IS_ZZ
-  static int chi(QUINT p); // quadratic character associated to the field
-  Quad(QUINT x) :r(x), i((long)0), nm(x*x)  {}
-  Quad(QUINT x, QUINT y) :r(x),i(y), nm(x*x + n*y*y)
+  Quad(QUINT x) :r(QUINT(x)), i(QUINT(0)), nm(QUINT(x)*x)  {}
+  Quad(QUINT x, QUINT y) :r(QUINT(x)),i(QUINT(y))
   {
-    if (t) {nm += r*i;};
-    assert (nm>=0);
-  }
-#endif
-  Quad(long x) :r(x), i((long)0), nm(x*x)  {}
-  Quad(long x, long y) :r(x),i(y), nm(x*x + n*y*y)
-  {
+    nm = r*r + n*i*i;
     if (t) {nm += r*i;};
     assert (nm>=0);
   }
@@ -167,7 +159,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad operator/ (QUINT b) const {return qdivi(*this,b);}
   void operator/=(const Quad& b);
   void operator/=(QUINT b) {*this=qdivi(*this,b);}
-  Quad operator% (long b) { return Quad(r%b, i%b);}
+  Quad operator% (long b) { return Quad(QUINT(r%b), QUINT(i%b));}
   operator bigcomplex() const;
 
 // iostream functions
@@ -189,9 +181,9 @@ inline Quad operator% (const Quad& a, const Quad& b)
 inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
 inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
 inline int pos13(const Quad& a)
-{return ((is_nonnegative(a.i)&&is_positive(a.r))||((::is_zero(a.r))&&(::is_zero(a.i))));}
+{return ((sign(a.i)>=0&&sign(a.r)>0)||((sign(a.r)==0)&&(sign(a.i)==0)));}
 inline int pos2(const Quad& a)
-{return (is_positive(a.i)||(::is_zero(a.i)&&is_nonnegative(a.r)));}
+{return (sign(a.i)>0||(sign(a.i)==0&&sign(a.r)>=0));}
 inline Quad operator*(QUINT m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
 inline Quad operator+(QUINT m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(QUINT m, const Quad& a) {return Quad(m-a.r,-a.i);}

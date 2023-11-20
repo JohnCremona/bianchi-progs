@@ -39,7 +39,7 @@ int main ()
  Qideal J = q.denominator_ideal();
  cout << "denominator_ideal(q) = "<<J<<" = "<<J.factorization()<<endl;
  cout << "representation of q with ideal coprime to 2*3*5: ";
- q.reduce(Qideal(30));
+ q.reduce(30);
  I = q.ideal();
  cout << q << ", which has ideal "<<I<<" = "<<I.factorization();
  assert (J == q.denominator_ideal());

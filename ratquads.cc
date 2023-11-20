@@ -29,6 +29,11 @@ int RatQuad::reduce()
   return (ng>0);
 }
 
+void RatQuad::reduce(long n)
+{
+  reduce(Qideal(Quad(QUINT(n))));
+}
+
 void RatQuad::reduce(const Qideal& N)
 {
   if (reduce()) return; // if principal then after reduce() the ideal is (1), so nothing more to do

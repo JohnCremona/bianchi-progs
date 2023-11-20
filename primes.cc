@@ -307,7 +307,7 @@ void Factorization::init_CRT()              // compute the CRT vector
   CRT_vector.reserve(size());
   if (size()==1)
     {
-      CRT_vector.push_back(1);
+      CRT_vector.push_back(Quad::one);
       return;
     }
   Qideal Q, J;
@@ -329,14 +329,14 @@ void Factorization::init_CRT()              // compute the CRT vector
     {
       Q = prime_power(i);
       for (int j=0; j<size(); j++)
-        assert(Q.divides(CRT_vector[j]-int(i==j)));
+        assert(Q.divides(CRT_vector[j]-QUINT(i==j)));
     }
 }
 
 Quad Factorization::solve_CRT(const vector<Quad>& v) // solution to x=v[i] mod Qlist[i]
 {
   if (CRT_vector.size()==0) init_CRT();
-  Quad a(0);
+  Quad a = Quad::zero;
   int i;
   for (i=0; i<size(); i++)
     a = I.reduce(a + v[i]*CRT_vector[i]);
@@ -851,7 +851,7 @@ vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badpr
 vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p)
 {
   vector<Quadprime> goodprimes;
-  QuadprimeLooper L(p==0? N : p*N);
+  QuadprimeLooper L(p==0? N : QUINT(long(p))*N);
   iP0=-1;
   for (int i=0; (i<np) || (iP0<0); i++, ++L)
     {
