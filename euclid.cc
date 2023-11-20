@@ -94,9 +94,12 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 #ifdef DEBUG_PSEA
   cout<<" - translation = "<<q<<endl;
 #endif
-  a -= q*b;
-  if (compute_c1d1) d1 += q*c1;
-  if (compute_c2d2) d2 += q*c2;
+  if (!q.is_zero())
+    {
+      a -= q*b;
+      if (compute_c1d1) d1 += q*c1;
+      if (compute_c2d2) d2 += q*c2;
+    }
 #ifdef DEBUG_PSEA
   cout<<" - reduced a = "<<a<<endl;
 #endif
@@ -121,7 +124,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   // do it first; if this fails then a/b can be reduced using at least
   // one alpha.
 
-  Quad r,s;
+  Quad r,s,bs;
   int local_t=1;
   for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); ++si, ++local_t)
     {
@@ -131,9 +134,10 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       r=si->num(), s=si->den(); // sigma = r/s
       // a/b - r/s = (a*s-b*r)/(b*s) will be integral if we have the right sigma
       q = a*s-b*r;
-      if (div(b*s,q))  // success!
+      bs = b*s;
+      if (div(bs,q))  // success!
         {
-          q /= (b*s);
+          q /= bs; // rounded
           if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
             {
               a -= q*b;
