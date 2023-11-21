@@ -19,7 +19,7 @@ public:
 
 private:
   long d;
-  QUINT disc,n,a,b,bmin,bmax,nlim;
+  INT disc,n,a,b,bmin,bmax,nlim;
   int include_conjugates;
   int finda();
   void nstep();
@@ -27,6 +27,6 @@ private:
   void setblims();
 };
 
-int issquare(QUINT asq, QUINT& a);
+int issquare(INT asq, INT& a);
 
 #endif

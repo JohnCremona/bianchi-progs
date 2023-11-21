@@ -40,14 +40,14 @@ long rounded_division(long a, long b)
   return (r2<-b? q-1: (r2>=b? q+1: q));
 }
 
-#ifdef QUINT_IS_ZZ
+#ifdef INT_IS_ZZ
 
-QUINT rounded_division(QUINT a, QUINT b)
+INT rounded_division(INT a, INT b)
 {
-  QUINT q, r;
+  INT q, r;
   ::divides(a,b, q,r);
   assert (a==b*q+r);
-  QUINT r2 = 2*r;
+  INT r2 = 2*r;
   // We want -b <= r2 < +b
   if (r2<-b)
     q-=1;
@@ -57,9 +57,36 @@ QUINT rounded_division(QUINT a, QUINT b)
   return q;
 }
 
-int divides(const QUINT& aa, const QUINT& bb)
+int divides(const INT& aa, const INT& bb)
 {
   return div(aa,bb);
+}
+
+// This is the heart of vecbzout3; if we are not using multiprecision
+// integers we do things differently using bigfloats
+void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
+                   const INT& a1, const INT& b1, const INT& c1, const INT& h1,
+                   INT& lambda, INT& mu)
+{
+  INT x2y2 = x*x+y*y;
+  lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
+  mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
+}
+
+#endif
+
+#ifdef INT_IS_long
+// This is the heart of vecbzout3; if we are not using multiprecision
+// integers we do things differently using bigfloats
+void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
+                   const INT& a1, const INT& b1, const INT& c1, const INT& h1,
+                   INT& lambda, INT& mu)
+{
+  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
+  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
+  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
+  longify(rlambda, lambda);
+  longify(rmu, mu);
 }
 #endif
 
@@ -70,21 +97,21 @@ void sqrt_mod_p(long & x, long a, long p)
   x = I2long(rr);
 }
 
-QUINT vecgcd(const vector<QUINT>& a)
+INT vecgcd(const vector<INT>& a)
 {
-  QUINT g(0);
-  for(vector<QUINT>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
+  INT g(0);
+  for(vector<INT>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
     g = gcd(g, *ai);
   return g;
 }
 
 // returns content and sets c such that content(a) = a.c
-QUINT vecbezout2(const vector<QUINT>& a, vector<QUINT>& c)
+INT vecbezout2(const vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=2) return vecbezout(a, c);
-  QUINT x, y;
-  QUINT g = bezout(a[0], a[1], x, y);
+  INT x, y;
+  INT g = bezout(a[0], a[1], x, y);
   c = {-y, x};
   assert (a[0]*c[0]+a[1]*c[1]==g);
   return g;
@@ -93,12 +120,12 @@ QUINT vecbezout2(const vector<QUINT>& a, vector<QUINT>& c)
 //#define testbezout3
 
 // returns content and sets c such that content(a) = a.c
-QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
+INT vecbezout3(const vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=3) return vecbezout(a, c);
 
-  QUINT aa=a[0], bb=a[1], cc=a[2];
+  INT aa=a[0], bb=a[1], cc=a[2];
 #ifdef testbezout3
   cout<<"Computing vecbezout3("<<a<<")"<<endl;
 #endif
@@ -115,40 +142,28 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
           return cc;
         }
     }
-  QUINT x, y, z, w;
-  QUINT h = bezout(aa,bb, x, y);
-  QUINT a1 = aa/h, b1 = bb/h;
-  QUINT g = bezout(h,cc, z, w);
-  QUINT h1=h/g, c1=cc/g;
+  INT x, y, z, w;
+  INT h = bezout(aa,bb, x, y);
+  INT a1 = aa/h, b1 = bb/h;
+  INT g = bezout(h,cc, z, w);
+  INT h1=h/g, c1=cc/g;
   c = {x*z, y*z, w};
   assert (a[0]*c[0]+a[1]*c[1]+a[2]*c[2]==g);
 #ifdef testbezout3
   cout<<"   g="<<g<<", first solution is "<<c<<"; "<<flush;
-  vector<QUINT> perp1 = {-c1*x, -c1*y, h1};
-  vector<QUINT> perp2 = {-b1, a1, 0};
+  vector<INT> perp1 = {-c1*x, -c1*y, h1};
+  vector<INT> perp2 = {-b1, a1, 0};
   cout<<"   primitive basis of perp: "<<perp1<<", "<<perp2<<endl;
   assert (a[0]*perp1[0]+a[1]*perp1[1]+a[2]*perp1[2]==0);
   assert (a[0]*perp2[0]+a[1]*perp2[1]+a[2]*perp2[2]==0);
 #endif
   // now minimize
-  QUINT lambda, mu;
-#ifdef QUINT_IS_ZZ
-  QUINT x2y2 = x*x+y*y;
-  lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
-  mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
+  INT lambda, mu;
+  get_lambda_mu(x,y,z,w,a1,b1,c1,h1, lambda, mu);
 #ifdef testbezout3
   cout << " (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
 #endif
-#else
-  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
-  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
-  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
-  longify(rlambda, lambda);
-  longify(rmu, mu);
-#ifdef testbezout3
-   cout << "--using bigfloats, (lambda,mu)=("<<lambda<<","<<mu<<")"<<endl;
-#endif
-#endif
+
   c[0] -= lambda*c1*x+mu*b1;
   c[1] -= lambda*c1*y-mu*a1;
   c[2] += lambda*h1;
@@ -162,7 +177,7 @@ QUINT vecbezout3(const vector<QUINT>& a, vector<QUINT>& c)
 //#define testbezout
 
 // returns content and sets c such that content(a) = a.c
-QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
+INT vecbezout(const vector<INT>& a, vector<INT>& c)
 {
 #ifdef testbezout
   cout<<"Computing vecbezout("<<a<<")"<<endl;
@@ -170,14 +185,14 @@ QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
   int n=(int)a.size();
   if (n==2) return vecbezout2(a, c);
   if (n==3) return vecbezout3(a, c);
-  QUINT x(1), g = vecgcd(a);
-  vector<QUINT> a0=a;
+  INT x(1), g = vecgcd(a);
+  vector<INT> a0=a;
   if (g>1)
-    for(vector<QUINT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
+    for(vector<INT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
       (*ai) /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
-  c = vector<QUINT>(n, QUINT(0));
-  QUINT g1(0);
+  c = vector<INT>(n, INT(0));
+  INT g1(0);
   for(int i=0; i<n &&g1!=1; i++)
     {
       g1=bezout(g1,a0[i],x,c[i]);
@@ -189,43 +204,27 @@ QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c)
   return g;
 }
 
-// returns g = content(a) and c such that g = a.c, with c reduced mod s
-QUINT xmodvecbezout(QUINT s, const vector<QUINT>& a, vector<QUINT>& c)
-{
-  int n=(int)a.size();
-  int i, j;
-  QUINT x(1), ci(1), g(0);
-  for(i=0; i<n; i++)
-    {
-      g = bezout(g,a[i],x,ci);
-      c[i] = mod(ci,s);
-      for(j=0; j<i; j++)
-        c[j] = mod(c[j]*x,s);
-    }
-  return g;
-}
-
-QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c)
+INT dot(const vector<INT>& a, const vector<INT>& c)
 //returns g = a.c
 {
-  return std::inner_product(a.begin(), a.end(), c.begin(), QUINT(0));
+  return std::inner_product(a.begin(), a.end(), c.begin(), INT(0));
 }
 
 //#define testbezout
 
 // If (b,d)!=(0,0), return an HNF basis [(aa,bb), (cc,0)] for the
 // Z-module [[a,b],[c,d]]:
-vector<QUINT> hnf22(QUINT a, QUINT b, QUINT c, QUINT d)
+vector<INT> hnf22(INT a, INT b, INT c, INT d)
 {
 #ifdef testbezout
   cout<<"  - hnf22("<<a<<", "<<b<<", "<<c<<", "<<d<<") = "<<flush;
 #endif
-  QUINT x,y;
-  QUINT bb = bezout(b,d, x,y);
-  QUINT cc = abs(a*(d/bb)-(b/bb)*c);
-  QUINT aa = a*x+c*y;
+  INT x,y;
+  INT bb = bezout(b,d, x,y);
+  INT cc = abs(a*(d/bb)-(b/bb)*c);
+  INT aa = a*x+c*y;
   if (!is_zero(cc)) aa = posmod(aa,cc);
-  vector<QUINT> v = {aa, bb, cc};
+  vector<INT> v = {aa, bb, cc};
 #ifdef testbezout
   cout<<v<<endl;
 #endif
@@ -237,13 +236,13 @@ vector<QUINT> hnf22(QUINT a, QUINT b, QUINT c, QUINT d)
 //Sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for
 //the Z-module spanned by [first[i], second[i]]
 
-void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<QUINT>& basis)
+void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>& basis)
 {
 #ifdef testbezout
   cout<<"findzbasis("<<first<<", "<<second<<"): "<<endl;
 #endif
-  QUINT a, b, c, d;
-  vector<QUINT>::const_iterator ai, bi, aj, bj;
+  INT a, b, c, d;
+  vector<INT>::const_iterator ai, bi, aj, bj;
   // Find a nonsingular 2x2 block:
   int t=1;
   for (ai=first.begin(), bi=second.begin(); t && ai!=first.end(); ++ai, ++bi)
@@ -272,7 +271,7 @@ void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<
   // process all the rest
   for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ++ai, ++bi)
     {
-      QUINT e = *ai %c, f = *bi;
+      INT e = *ai %c, f = *bi;
       basis = hnf22(a,b, e, f);
 #ifdef testbezout
       cout<<" - sub-basis using ("<<(*ai)<<","<<(*bi)<<"), {a,b,c} = "<<basis<<endl;
@@ -386,11 +385,11 @@ vector<long> dotperp(vector<long> alist, int r)
   return ans;
 }
 
-int div_disc(QUINT D1, QUINT D)
+int div_disc(INT D1, INT D)
 {
   if (!divides(D1,D))
     return 0;
-  QUINT d = posmod(D/D1, QUINT(4));
+  INT d = posmod(D/D1, INT(4));
   return (d==0 || d==1);
 }
 

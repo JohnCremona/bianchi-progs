@@ -15,7 +15,7 @@ public:
   mat22(const Quad& ia, const Quad& ib, const Quad& ic, const Quad& id)
     :a(ia),b(ib),c(ic),d(id) {}
   mat22(long ia, long ib, long ic, long id)
-    :a(QUINT(ia)),b(QUINT(ib)),c(QUINT(ic)),d(QUINT(id)) {}
+    :a(INT(ia)),b(INT(ib)),c(INT(ic)),d(INT(id)) {}
   static mat22 identity;
   static mat22 J;
   static mat22 S;

@@ -74,7 +74,7 @@ public:
   int index;             // the index of this newform (from 1)
   int j0; modsym m0; int fac, facinv;
   long cuspidalfactor;
-  QUINT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
+  INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   vector<long> genus_classes;
   vector<Qideal> genus_class_ideals;
   vector<long> genus_class_aP;
@@ -158,7 +158,7 @@ public:
   // Test if form is CM, return 0 or the CM disc
   int is_CM(void);
   // Return this twisted by the genus character associated to D
-  newform twist(const QUINT& D);
+  newform twist(const INT& D);
 
   // Conjugate data: NB this *only* conjugates data needed for
   // output_to_file(), not everything!
@@ -216,7 +216,7 @@ public:
   vector<Quadprime> goodprimes;  // good primes in order
   vector<int> bad_prime_conjugation_permutation;
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
-  vector<QUINT> possible_self_twists;
+  vector<INT> possible_self_twists;
   int n_poss_self_twists;
   int level_is_square;
   int verbose, nwq, nap, n2r, nchi;

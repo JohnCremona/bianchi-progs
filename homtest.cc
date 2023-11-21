@@ -37,7 +37,7 @@ int main ()
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
 #endif
-         QUINT normn = N.norm();
+         INT normn = N.norm();
          cout << ">>>> Level " << ideal_label(N)
               << " = " << gens_string(N)
               <<", norm = "<<normn<<" <<<<";

@@ -78,7 +78,7 @@ void oldforms::getoldclasses(Qideal& D)
   vector<int>oldmults(old1ds, oldmult);   // list of multiplicities of each newform
   for(int i=0; i<old1ds; i++)
     {
-      QUINT CMD = olddata.nflist[i].CMD;
+      INT CMD = olddata.nflist[i].CMD;
       if (!is_zero(CMD))
         oldmults[i] = old_multiplicity(CMD, divisors);
     }
@@ -174,7 +174,7 @@ void oldforms::display(void) const
 
 // Return the oldspace dimension at level N of a new eigensystem at
 // level D which is self-twist by genus character with discriminant d
-int old_multiplicity(Qideal D, QUINT d, Qideal N)
+int old_multiplicity(Qideal D, INT d, Qideal N)
 {
   Qideal M = N/D;
   vector<Qideal> divisors = alldivs(M);
@@ -182,7 +182,7 @@ int old_multiplicity(Qideal D, QUINT d, Qideal N)
 }
 
 // The same with the list of divisors of N/D given
-int old_multiplicity(QUINT d, vector<Qideal>& divisors)
+int old_multiplicity(INT d, vector<Qideal>& divisors)
 {
   int mult = 0;
   for_each(divisors.begin(), divisors.end(),
@@ -213,7 +213,7 @@ vector<int> old_multiplicities(vector<int> newdimsD, vector<Qideal>& divisors)
   // newdimsD.
   std::transform(newdimsD.begin(), newdimsD.end(), Quad::all_disc_factors.begin(),
                  ans.begin(),
-                 [&divisors](int d, QUINT D) {return d*old_multiplicity(D, divisors);}
+                 [&divisors](int d, INT D) {return d*old_multiplicity(D, divisors);}
                  );
   return ans;
 }

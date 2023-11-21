@@ -603,7 +603,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
   int lbd=0, clbd=0;
   while(Di!=Quad::all_disc_factors.end())
     {
-      QUINT D = *Di++;
+      INT D = *Di++;
       if(verbose>1)
         cout<<"D = "<<D<<":"<<endl;
       if (dimlist[0].first==0) // then previous D have exhausted the space

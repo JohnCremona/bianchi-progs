@@ -30,7 +30,7 @@ public:
   int not_finished() const {return not I_norm_n.empty();}
 
 private:
-  QUINT n, maxn; // current norm, norm bound
+  INT n, maxn; // current norm, norm bound
   int both;     // flag for whether or not to include conjugates
   int sort;     // flag for whether or not to yield ideals of fixed norm into standard order
   std::list<Qideal> I_norm_n; // list of ideals of norm n (not a vector as we use pop_front())

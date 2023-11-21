@@ -12,22 +12,23 @@
 #include <eclib/timer.h>
 #include <eclib/curvesort.h> // for letter codes
 
-// define this in the Makefile (and make clean) to use ZZ as base integer type instead of long int
-//#define QUINT_IS_ZZ
+// define INT_IS_ZZ or INT_IS_long to use ZZ or long int as base integer type for Quads
 
-#ifndef QUINT_IS_ZZ
-#define QUINT_IS_long
-typedef long QUINT; // integer type for components of a Quad
-#else
+#ifdef INT_IS_long
+typedef long INT; // integer type for components of a Quad
+#endif
+#ifdef INT_IS_ZZ
 #include <eclib/marith.h>
-typedef bigint QUINT; // integer type for components of a Quad
+typedef bigint INT; // integer type for components of a Quad
 inline bigfloat to_bigfloat(const bigint& x) { return to_RR(x);}
+INT rounded_division(INT aa, INT bb);
+int divides(const INT& aa, const INT& bb);
 #endif
 
-const QUINT ZERO(0);
-const QUINT ONE(1);
-const QUINT TWO(2);
-const QUINT THREE(3);
+const INT ZERO(0);
+const INT ONE(1);
+const INT TWO(2);
+const INT THREE(3);
 
 inline long I2long(long n) {return n;}
 void sqrt_mod_p(long & x, long a, long p);
@@ -36,22 +37,18 @@ long squarefree_part(long d);
 
 // For b>0, rounded_division(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
 //
-#ifdef QUINT_IS_ZZ
-QUINT rounded_division(QUINT aa, QUINT bb);
-int divides(const QUINT& aa, const QUINT& bb);
-#endif
 long rounded_division(long aa, long bb);
 
 //functions needed for non-euclidean fields to compute bezout/quadgcd
 
 // content
-QUINT vecgcd(const vector<QUINT>& a);
+INT vecgcd(const vector<INT>& a);
 
 //returns g = content(a) = a.c
-QUINT vecbezout(const vector<QUINT>& a, vector<QUINT>& c);
+INT vecbezout(const vector<INT>& a, vector<INT>& c);
 
 // dot product
-QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c);
+INT dot(const vector<INT>& a, const vector<INT>& c);
 
 // Finds basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for the
 //Z-module spanned by [first[i], second[i]]
@@ -61,7 +58,7 @@ QUINT dot(const vector<QUINT>& a, const vector<QUINT>& c);
 // second.x = f1
 // second.y = 0
 
-void findzbasis(const vector<QUINT>& first, const vector<QUINT>& second, vector<QUINT>& basis);
+void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>& basis);
 
 // return the i'th bit of a (a>=0) (not needed, NTL has this)
 // inline int bit(long a, long i) {return (a& (1<<i));}
@@ -78,7 +75,7 @@ long from_bits(vector<int> aa, int r);
 inline long from_bits(vector<int> aa) {return from_bits(aa, aa.size());}
 
 // For D1, D fundamental discriminants, test if D=D1*D2 with D2 another discriminant
-int div_disc(QUINT D1, QUINT D);
+int div_disc(INT D1, INT D);
 
 // return list of integers from first to last inclusive
 vector<long> range(long first, long last);

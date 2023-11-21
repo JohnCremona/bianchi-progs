@@ -50,7 +50,7 @@ int main ()
        {
 #endif
 
-     QUINT normN = N.norm();
+     INT normN = N.norm();
      string efilename = eigfile(N, ch);
      string label = ideal_label(N);
      cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;

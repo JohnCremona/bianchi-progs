@@ -16,12 +16,12 @@ RatQuad RatQuad::zero(ZERO,ONE,ONE, 0);
 int RatQuad::reduce()
 {
   // first divide out by content
-  QUINT c = gcd(n.content(), d.content());
+  INT c = gcd(n.content(), d.content());
   if (c>1) {n/=c; d/=c;}
 
   // find gcd(n,d) when ideal (n,d) is principal (will return 0 if ideal not principal):
   Quad g = quadgcd(n,d);
-  QUINT ng = quadnorm(g);
+  INT ng = quadnorm(g);
   if (ng>1) {n/=g; d/=g;}
 
   // final adjustment by units:
@@ -31,7 +31,7 @@ int RatQuad::reduce()
 
 void RatQuad::reduce(long n)
 {
-  reduce(Qideal(Quad(QUINT(n))));
+  reduce(Qideal(Quad(INT(n))));
 }
 
 void RatQuad::reduce(const Qideal& N)
@@ -61,7 +61,7 @@ int RatQuad::is_principal() const
 {
   // NB we don't just
   // return ideal().is_principal();
-  // as that is more likely to overflow when QUINT=long
+  // as that is more likely to overflow when INT=long
   if (Quad::class_number==1)
     return 1;
   else

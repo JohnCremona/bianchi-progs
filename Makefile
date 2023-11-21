@@ -31,15 +31,18 @@ OPTFLAG = -O3 -Wall -fPIC
 
 
 # The type of integers used for components of Quad, Qideal, RatQuad
-# can be either long or bigint (=NTL's ZZ), and is typedef'd to QUINT
-# in the code.  By default the type is long and QUINT_IS_long is
+# can be either long or bigint (=NTL's ZZ), and is typedef'd to INT
+# in the code.  By default the type is long and INT_IS_long is
 # defined; this can result in overflow for large levels over larger
 # fields.  Change this to 1 (and make clean and rebuild) to compile
 # using ZZ as base integer type for Quads instead.  That results in
 # slower code, but it does not overflow!
-BASE_TYPE_ZZ=0
-ifeq ($(BASE_TYPE_ZZ), 1)
- BASE_TYPE_FLAG = -D QUINT_IS_ZZ
+INT_TYPE=long
+ifeq ($(INT_TYPE), ZZ)
+ BASE_TYPE_FLAG = -D INT_IS_ZZ
+endif
+ifeq ($(INT_TYPE), long)
+ BASE_TYPE_FLAG = -D INT_IS_long
 endif
 
 # NB If used with a multithreaded build of eclib then you MUST define

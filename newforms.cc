@@ -243,7 +243,7 @@ void newform::eigs_from_data()
   while (((int)eigs.size() < nf->nap+nf->n2r) && (api!=aplist.end()))
     {
       Quadprime P = *pr;
-      QUINT normP = P.norm();
+      INT normP = P.norm();
       while ((P.divides(nf->N)) || (ch>0 && (normP%ch==0)))
         {
           // cout<<" - P = "<<ideal_label(P)<<": bad prime, skipping"<<endl;
@@ -785,7 +785,7 @@ int newform::is_CM(void)
 }
 
 // Return this twisted by the genus character associated to D
-newform newform::twist(const QUINT& D)
+newform newform::twist(const INT& D)
 {
   newform f = *this; //copy constructor
   if (D==ONE)
@@ -1257,8 +1257,8 @@ void newforms::list(long nap)
       vector<newform> twisted_newforms;
       for(int i=0; i<n1ds; i++)
         {
-          QUINT D = nflist[i].CMD;
-          vector<QUINT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
+          INT D = nflist[i].CMD;
+          vector<INT> twists = disc_factors_mod_D((D==ZERO?ONE:D));
           int ntwists = twists.size();
           // if(D!=0)
           //   cout<<i<<": "<<ntwists<<" twists (D="<<D<<"), by "<<twists<<endl;
@@ -2019,7 +2019,7 @@ void newforms::getap(int first, int last, int verbose)
     {
       //cout<<"Newform "<<i<<":"<<endl;
       nflist[i].base_change_code();
-      QUINT cmd(nflist[i].is_CM());
+      INT cmd(nflist[i].is_CM());
       int ngcl = nflist[i].genus_classes.size();
       if (posmod(cmd,4)!=1) cmd*=4;
       //cout<<"cmd = "<<cmd<<"; D = "<<Quad::disc<<"; div(cmd,D) = "<<div_disc(cmd, Quad::disc)<<endl;
@@ -2046,7 +2046,7 @@ void newforms::getap(int first, int last, int verbose)
       for (int i=0; i<n1ds; i++)
         {
           // Test each newform for being unramified self-twist:
-          QUINT cmd = nflist[i].CMD;
+          INT cmd = nflist[i].CMD;
           // cout<<"form #"<<i<<": cmd="<<cmd<<endl;
           int j=0;
           if (cmd!=0) // then it is

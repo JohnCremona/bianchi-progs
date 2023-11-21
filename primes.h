@@ -25,8 +25,8 @@ class Quadprime : public Qideal {
   int character; // 0 (ramified), +1 (split), -1 (inert).
 public:
   // constructor
-  Quadprime(QUINT a, QUINT b, QUINT c, long pp, long ind=1)
-    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(QUINT(p)); fill();}
+  Quadprime(INT a, INT b, INT c, long pp, long ind=1)
+    : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(INT(p)); fill();}
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
   Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}
@@ -38,7 +38,7 @@ public:
   int ramification_degree() const {return (character==0? 2: 1);}
 
   vector<int> genus_character(); // vector of unram char values in {0,1}, one per prime discriminant
-  int genus_character(const QUINT& D); // one unram char value in {-1,1}
+  int genus_character(const INT& D); // one unram char value in {-1,1}
   long genus_class(int contract=0); // integer in [0,2^r-1] whose bits are genus_character() when contract=0
                                     // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
@@ -67,7 +67,7 @@ vector<Quadprime> Quadprimes_above(long p); // p should be an integer prime
 
 class Quadprimes {
 public:
-  static QUINT maxnorm;           // largest norm of primes
+  static INT maxnorm;           // largest norm of primes
   static vector<Quadprime> list;  // the list of primes
   static void init(long maxn=1000);     //  sets the list up
   static void display(ostream& s = cout, long maxn=0, int show_genus=0);

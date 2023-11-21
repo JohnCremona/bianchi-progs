@@ -170,7 +170,7 @@ void P1N::reduce(Quad& c, Quad& d)   // simplify c,d without changing (c:d)
     }
   else // at least divide out by the gcd of the contents
     {
-      QUINT g = gcd(c.content(), d.content());
+      INT g = gcd(c.content(), d.content());
       if (g>1)
         {
           c /= g;

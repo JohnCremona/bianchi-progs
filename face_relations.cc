@@ -501,7 +501,7 @@ void face_relations::triangle_relation_2()
   long field = Quad::d;
   Quad w=Quad::w;
   long j, k;
-  Quad u(QUINT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
+  Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
   action K(P1, M_alphas[1]);  assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
   action N(P1, ONE+w,u-w,TWO,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
@@ -869,7 +869,7 @@ void face_relations::solve_relations()
               << MODULUS << endl;
 #ifdef USE_CRT
        int mod2 = 1073741783; // 2^30-41
-       QUINT mmod(MODULUS); mmod*=mod2;
+       INT mmod(MODULUS); mmod*=mod2;
        if(verbose)
          cout << "repeating kernel computation, modulo " << mod2 << endl;
        smat_elim sme2(relmat,mod2);

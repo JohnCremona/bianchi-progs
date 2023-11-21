@@ -78,7 +78,7 @@ int main ()
  cout << "pos(a) = " << pos(a) << endl;
 
 //Test of residues
- vector<Quad> resmoda = residues(a);  QUINT norma=quadnorm(a);
+ vector<Quad> resmoda = residues(a);  INT norma=quadnorm(a);
  cout << norma << " residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions
