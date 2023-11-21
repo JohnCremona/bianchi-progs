@@ -76,7 +76,7 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6
-ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs0: arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
@@ -84,7 +84,7 @@ ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modu
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
 
-headers: intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+headers: arith_extras.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -170,7 +170,7 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-OBJS = quads.o intprocs.o matprocs.o euclid.o geometry.o looper.o homspace.o \
+OBJS = arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
 
@@ -234,11 +234,11 @@ modularity: modularity.o $(OBJS)
 modularity_modp: modularity_modp.o $(OBJS)
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
-looptest: looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
-	$(CC) -o looptest looptest.o looper.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
+looptest: looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
+	$(CC) -o looptest looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
 
-tratquad: tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o
-	$(CC) -o tratquad tratquad.o quads.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o $(LFLAGS)
+tratquad: tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o
+	$(CC) -o tratquad tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o $(LFLAGS)
 
 homtest: homtest.o $(OBJS)
 	$(CC) -o homtest homtest.o $(OBJS) $(LFLAGS)
@@ -270,11 +270,11 @@ hecketest_modp: hecketest_modp.o $(OBJS)
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
 
-qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
-	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
+	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
 
-qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
-	$(CC) -o qidl_labels qidl_labels.o qidloop.o primes.o qideal.o quads.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
+	$(CC) -o qidl_labels qidl_labels.o qidloop.o primes.o qideal.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
 
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
