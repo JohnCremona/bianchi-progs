@@ -39,6 +39,19 @@ void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
 
 #endif
 
+#ifdef FLINT
+void get_lambda_mu(INT x, INT y, INT z, INT w,
+                   INT a1, INT b1, INT c1, INT h1,
+                   INT& lambda, INT& mu)
+{
+  INT c1x2y2 = c1 * fmma(x,x,y,y); // c1 * (x*x+y*y)
+  INT p = fmms(c1x2y2, z, h1, w);
+  INT q = fmma(c1x2y2, c1, h1, h1);
+  lambda = rounded_division(p, q);
+  mu = rounded_division(fmms(b1,x,a1,y)*z, fmma(a1,a1,b1,b1));
+}
+#endif
+
 #ifdef INT_IS_long
 // This is the heart of vecbzout3; if we are not using multiprecision
 // integers we do things differently using bigfloats
@@ -63,7 +76,7 @@ INT vecgcd(const vector<INT>& a)
 }
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout2(const vector<INT>& a, vector<INT>& c)
+INT vecbezout2(vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=2) return vecbezout(a, c);
@@ -77,7 +90,7 @@ INT vecbezout2(const vector<INT>& a, vector<INT>& c)
 //#define testbezout3
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout3(const vector<INT>& a, vector<INT>& c)
+INT vecbezout3(vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=3) return vecbezout(a, c);
@@ -90,7 +103,7 @@ INT vecbezout3(const vector<INT>& a, vector<INT>& c)
     {
       if (cc<0)
         {
-          c = {ZERO,ZERO,-ONE};
+          c = {ZERO,ZERO,MONE};
           return -cc;
         }
       else
@@ -134,7 +147,7 @@ INT vecbezout3(const vector<INT>& a, vector<INT>& c)
 //#define testbezout
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout(const vector<INT>& a, vector<INT>& c)
+INT vecbezout(vector<INT>& a, vector<INT>& c)
 {
 #ifdef testbezout
   cout<<"Computing vecbezout("<<a<<")"<<endl;
@@ -161,7 +174,7 @@ INT vecbezout(const vector<INT>& a, vector<INT>& c)
   return g;
 }
 
-INT dot(const vector<INT>& a, const vector<INT>& c)
+INT dot(vector<INT>& a, vector<INT>& c)
 //returns g = a.c
 {
   return std::inner_product(a.begin(), a.end(), c.begin(), INT(0));

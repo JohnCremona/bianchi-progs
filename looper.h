@@ -27,6 +27,4 @@ private:
   void setblims();
 };
 
-int issquare(INT asq, INT& a);
-
 #endif

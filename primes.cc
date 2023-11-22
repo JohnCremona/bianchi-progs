@@ -354,7 +354,7 @@ void Quadprimes::init(long maxn)
   // First fill up lists of degree 1 and degree 2 primes
   //  cout<<"Computing list of prime ideals of norm up to "<<maxnorm<<endl;
 
-  for (primevar pr; pr.ok()&&pr<=maxnorm; ++pr)
+  for (primevar pr; pr.ok()&&pr<=maxn; ++pr)
     { long p=pr;
       //            cout<<"p = "<<p<<endl;
       vector<Quadprime> PP = Quadprimes_above(p);
@@ -604,7 +604,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
 vector<Qideal> Qideal_lists::ideals_with_bounded_norm(INT maxnorm, int both_conj)
 {
   vector<Qideal> ans;
-  for (INT N(1); N<=maxnorm; N++)
+  for (INT N(1); N<=maxnorm; N+=1)
     {
       vector<Qideal> I_N = ideals_with_norm(N);
       ans.insert(ans.end(), I_N.begin(), I_N.end());

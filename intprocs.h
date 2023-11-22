@@ -7,6 +7,10 @@
 
 // define INT_IS_ZZ or INT_IS_long to use ZZ or long int as base integer type for Quads
 
+#ifdef FLINT
+#include "flint.h"
+#else
+
 #ifdef INT_IS_long
 typedef long INT; // integer type for components of a Quad
 #endif
@@ -17,9 +21,11 @@ inline bigfloat to_bigfloat(const bigint& x) { return to_RR(x);}
 INT rounded_division(INT aa, INT bb);
 int divides(const INT& aa, const INT& bb);
 #endif
+#endif
 
 const INT ZERO(0);
 const INT ONE(1);
+const INT MONE(-1);
 const INT TWO(2);
 const INT THREE(3);
 
@@ -29,10 +35,10 @@ const INT THREE(3);
 INT vecgcd(const vector<INT>& a);
 
 //returns g = content(a) = a.c
-INT vecbezout(const vector<INT>& a, vector<INT>& c);
+INT vecbezout(vector<INT>& a, vector<INT>& c);
 
 // dot product
-INT dot(const vector<INT>& a, const vector<INT>& c);
+INT dot(vector<INT>& a, vector<INT>& c);
 
 // Finds basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for the
 //Z-module spanned by [first[i], second[i]]

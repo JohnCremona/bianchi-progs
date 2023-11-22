@@ -350,21 +350,21 @@ int Quad::unramified_character(int i, const Qideal& I)
   return (i & ideal_class_mod_squares(I) ? -1 : +1); // bitwise &
 }
 
-Quad::Quad(const bigcomplex& z)
-{bigfloat x=real(z), y=imag(z);
- if(d>1) y/=sqrt(to_bigfloat(d));
- if(d>2) {x-=y; y*=2.0;}
- Iasb(r,x); Iasb(i,y);    //Rounded
- //longify(x, r); longify(y, i);    //Rounded
- setnorm();
-}
+// Quad::Quad(const bigcomplex& z)
+// {bigfloat x=real(z), y=imag(z);
+//  if(d>1) y/=sqrt(to_bigfloat(d));
+//  if(d>2) {x-=y; y*=2.0;}
+//  Iasb(r,x); Iasb(i,y);    //Rounded
+//  //longify(x, r); longify(y, i);    //Rounded
+//  setnorm();
+// }
 
-Quad::operator bigcomplex() const
-{bigfloat x = to_bigfloat(r), y = to_bigfloat(i);
- if(d>2) {y/=2.0; x+=y;}
- if(d>1) y*=sqrt(to_bigfloat(d));
- return bigcomplex(x,y);
-}
+// Quad::operator bigcomplex() const
+// {bigfloat x = to_bigfloat(r), y = to_bigfloat(i);
+//  if(d>2) {y/=2.0; x+=y;}
+//  if(d>1) y*=sqrt(to_bigfloat(d));
+//  return bigcomplex(x,y);
+// }
 
 int div(const Quad& a, const Quad& b)
 {
@@ -443,24 +443,27 @@ ostream& operator<<(ostream& s, const Quad& a)
 void factorp0(long p, INT& a, INT& b, INT d)
 // finds a,b s.t. a^2+d*b^2=0 (mod p)
 { int found=0;
-  for (b=1; !found; b++)
+  for (int ib=1; !found; ib++)
   {
+    b = ib;
     INT a2 = p - d*b*b;
-    Iasb(a, sqrt(to_bigfloat(a2)));
+    a = a2.isqrt();
     found = (a*a == a2);
   }
-  b--;
+  b-=1;
 }
 
 void factorp1(long p, INT& a, INT& b, INT d)
 // finds a,b s.t. a^2+a*b+((d+1)/4)*b^2=0 (mod p)
 { int found=0; long fourp = 4*p;
-  for (b=1; !found; b++)
-  { INT a2 = fourp -d*b*b;
-    Iasb(a, sqrt(to_bigfloat(a2)));
+  for (int ib=1; !found; ib++)
+  {
+    b = ib;
+    INT a2 = fourp -d*b*b;
+    a = a2.isqrt();
     found = (a*a == a2);
   }
-  b--;
+  b-=1;
   a=(a-b)/2;
 }
 
@@ -490,7 +493,7 @@ vector<Quad> Quad::primes_above(long p, int& sig)
     pi = makepos(Quad(a,b, P));
     piconj = makepos(quadconj(pi));
     // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
-    long c = posmod(a*invmod(b,p),p);
+    long c = posmod((a%p)*invmod(b,p),p);
     if (2*c<p)
       {
         list.push_back(pi);
@@ -734,7 +737,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
 
 // returns n = round(true_real_part_of(alpha/beta)), so alpha-n*beta
 // is reduced mod Z<beta>
-INT nearest_long_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
+INT nearest_INT_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
 {
   return rounded_division((alpha*quadconj(beta)).re(), beta.norm());
 }
@@ -777,45 +780,31 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 
 // Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
 // The new alpha has the smallest norm.
-// U holds the unimodular transform
-void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
+void sl2z_reduce(Quad& alpha, Quad& beta)
 {
-  Quad alpha0=alpha, beta0=beta;
-  INT U11, U12, U21, U22;
 #ifdef test_reduce
   cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
 #endif
-  U.reset(); // to the identity
   int s=1;
   Quad t;
   while (s)
     {
       s = 0; // will be set to 1 if anything changes
-      INT n = nearest_long_to_Quad_quotient(beta,alpha);
+      INT n = nearest_INT_to_Quad_quotient(beta,alpha);
       if(n!=0)
         {
           s=1;
           beta -= n*alpha;
-          U.y_shift(BIGINT(n));
 #ifdef test_reduce
           cout<<" -- shift by " << n <<": alpha="<<alpha<<", beta="<<beta<< endl;
 #endif
-          U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
-          U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
-          assert (U11*alpha+U12*beta == alpha0);
-          assert (U21*alpha+U22*beta == beta0);
         }
       if (beta.nm < alpha.nm)
         {
           s=1;
           t = -alpha; alpha = beta; beta = t;
-          U.invert();
 #ifdef test_reduce
           cout<<" -- invert: alpha="<<alpha<<", beta="<<beta<< endl;
-          U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
-          U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
-          assert (U11*alpha+U12*beta == alpha0);
-          assert (U21*alpha+U22*beta == beta0);
 #endif
         }
     }
@@ -836,96 +825,83 @@ void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
 #ifdef test_reduce
   cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
       <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
-  U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
-  U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
-  assert (U11*alpha+U12*beta == alpha0);
-  assert (U21*alpha+U22*beta == beta0);
   assert (quadnorm(alpha)<=quadnorm(beta));
-  assert (nearest_long_to_Quad_quotient(alpha,beta)==0);
+  assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
   assert ((quadconj(alpha)*beta).im() > 0);
 #endif
 }
 
+// Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
+// The new alpha has the smallest norm.
+// U holds the unimodular transform (not implemented for FLINT INTs as the unimod class uses NTL ZZ)
+// void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U)
+// {
+//   Quad alpha0=alpha, beta0=beta;
+//   INT U11, U12, U21, U22;
+// #ifdef test_reduce
+//   cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
+// #endif
+//   U.reset(); // to the identity
+//   int s=1;
+//   Quad t;
+//   while (s)
+//     {
+//       s = 0; // will be set to 1 if anything changes
+//       INT n = nearest_INT_to_Quad_quotient(beta,alpha);
+//       if(n!=0)
+//         {
+//           s=1;
+//           beta -= n*alpha;
+//           U.y_shift(INT(n));
+// #ifdef test_reduce
+//           cout<<" -- shift by " << n <<": alpha="<<alpha<<", beta="<<beta<< endl;
+// #endif
+//           U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+//           U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+//           assert (U11*alpha+U12*beta == alpha0);
+//           assert (U21*alpha+U22*beta == beta0);
+//         }
+//       if (beta.nm < alpha.nm)
+//         {
+//           s=1;
+//           t = -alpha; alpha = beta; beta = t;
+//           U.invert();
+// #ifdef test_reduce
+//           cout<<" -- invert: alpha="<<alpha<<", beta="<<beta<< endl;
+//           U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+//           U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+//           assert (U11*alpha+U12*beta == alpha0);
+//           assert (U21*alpha+U22*beta == beta0);
+// #endif
+//         }
+//     }
+//   // alpha is now the non-zero Quad of least norm in the lattice [alpha,beta]
+//   // and beta/alpha is in the closed fundamental region
 
-// there follow 4 "flavours" of findminQuad returning different amounts of data
+//   // We want to orient so that beta/alpha has positive imaginary part
+//   // e.g. so that the basis [1,w] is reduced
+//   // NB im(x+y*w)>0 iff y>0 for both t=0 and t=1 cases
 
-vector<INT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
-{ alpha=al;
-  beta=be;
-  INT i0(0), i1(1);
-  vector<INT> c = {i1, i0}; // alpha = c[0]*al + c[1]*be  always
-  vector<INT> d = {i0, i1}; // beta  = d[0]*al + d[1]*be  always
+//   if ((quadconj(alpha)*beta).im() < 0)
+//     beta=-beta;
 
-  while (1)
-    {
-      INT n = nearest_long_to_Quad_quotient(alpha,beta);
-      alpha -= n*beta;
-      c[0]  -= n*d[0];
-      c[1]  -= n*d[1];
-      Quad temp = alpha; alpha = -beta; beta = temp;
-      INT t = c[0]; c[0] = -d[0]; d[0] = t;
-            t = c[1]; c[1] = -d[1]; d[1] = t;
-      if (quadnorm(beta) >= quadnorm(alpha))
-        {
-          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
-          // beta is another Quad such that [al,be]=[alpha,beta]
-#ifdef testbezout
-          if (alpha != c[0]*al + c[1]*be)
-            {
-              cerr << "Error in findminquadscoeffs!" << endl;
-              cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
-              cerr << "c0,c1 = "<<c[0]<<","<<c[1]<<endl;
-              cerr << "alpha = "<<alpha<< " not equal to "<<c[0]*al + c[1]*be<<endl;
-            }
-          exit(1);
-#endif
-          return c;
-        }
-    }
-}
+//   // If we wanted to make sure that beta/alpha is unambiguously defined when on the boundary:
+//   // if (2*(quadconj(alpha)*beta).re() == -quadnorm(alpha))
+//   //   beta+=alpha;
 
-vector<INT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
-{ Quad gen1;
-  return findminquadcoeffs(alpha,beta,gen0,gen1);
-}
+// #ifdef test_reduce
+//   cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
+//       <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
+//   U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
+//   U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
+//   assert (U11*alpha+U12*beta == alpha0);
+//   assert (U21*alpha+U22*beta == beta0);
+//   assert (quadnorm(alpha)<=quadnorm(beta));
+//   assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
+//   assert ((quadconj(alpha)*beta).im() > 0);
+// #endif
+// }
 
-//#define DEBUG_FINDMINQUAD
-
-void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
-// same as findminquadscoeffs but don't need coeffs
-{ alpha=al;
-  beta=be;
-#ifdef  DEBUG_FINDMINQUAD
-  unimod U; Quad alpha1=alpha, beta1=beta;
-  sl2z_reduce(alpha1, beta1, U);
-  cout<<"In findminquad with alpha="<<alpha<<" (norm "<<quadnorm(alpha) <<"), beta="
-     <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
-#endif
-  while (1)
-    {
-      alpha -= nearest_long_to_Quad_quotient(alpha,beta)*beta;
-      Quad temp = alpha; alpha = -beta; beta = temp;
-#ifdef  DEBUG_FINDMINQUAD
-      cout<<" ... alpha="<<alpha<<" (norm "<<quadnorm(alpha)<<"), beta="
-          <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
-#endif
-      if (quadnorm(beta) >= quadnorm(alpha))
-        {
-          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
-          // beta is another Quad such that [al,be]=[alpha,beta]
-#ifdef  DEBUG_FINDMINQUAD
-          cout<<" ... on return, alpha = "<<alpha<<" has minimal norm "<<quadnorm(alpha)<<endl;
-#endif
-          return;
-        }
-    }
-}
- 
-void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
-// same as findminquadcoeffs but don't need coeffs
-{ Quad gen1;
-  findminquad(alpha,beta,gen0,gen1);
-}
 
 // HNF of ideal (alpha) as a triple [a c d] where [a,c+d*w] is a Z-basis with
 //
@@ -1027,22 +1003,22 @@ int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
   return -1;
 }
 
-bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
-{
-//cout<<"Computing g(chi) for lambda = " << m << endl;
-  bigfloat ans1(0); //double ans2=0;
-  bigfloat rootdisc;
-  rootdisc = sqrt(to_bigfloat(Quad::absdisc));
-  bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0), rootdisc);
-  vector<Quad>::const_iterator r=reslist.begin();
-  while(r!=reslist.end())
-  {
-    Quad res = *r++;
-      bigfloat term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
-      ans1+=term1;      //    ans2+=term2;
-  }
-  return ans1;
-}
+// bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
+// {
+// //cout<<"Computing g(chi) for lambda = " << m << endl;
+//   bigfloat ans1(0); //double ans2=0;
+//   bigfloat rootdisc;
+//   rootdisc = sqrt(to_bigfloat(Quad::absdisc));
+//   bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0), rootdisc);
+//   vector<Quad>::const_iterator r=reslist.begin();
+//   while(r!=reslist.end())
+//   {
+//     Quad res = *r++;
+//       bigfloat term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
+//       ans1+=term1;      //    ans2+=term2;
+//   }
+//   return ans1;
+// }
 
 // convert a binary vector into a discriminant dividing Quad::disc
 INT discchar(vector<int> c)
@@ -1088,3 +1064,85 @@ vector<INT> disc_factors_mod_D(const INT& D)
   return ans;
 }
 
+#if 0
+// there follow 4 "flavours" of findminQuad returning different amounts of data
+
+vector<INT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
+{ alpha=al;
+  beta=be;
+  INT i0(0), i1(1);
+  vector<INT> c = {i1, i0}; // alpha = c[0]*al + c[1]*be  always
+  vector<INT> d = {i0, i1}; // beta  = d[0]*al + d[1]*be  always
+
+  while (1)
+    {
+      INT n = nearest_INT_to_Quad_quotient(alpha,beta);
+      alpha -= n*beta;
+      c[0]  -= n*d[0];
+      c[1]  -= n*d[1];
+      Quad temp = alpha; alpha = -beta; beta = temp;
+      INT t = c[0]; c[0] = -d[0]; d[0] = t;
+            t = c[1]; c[1] = -d[1]; d[1] = t;
+      if (quadnorm(beta) >= quadnorm(alpha))
+        {
+          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
+          // beta is another Quad such that [al,be]=[alpha,beta]
+#ifdef testbezout
+          if (alpha != c[0]*al + c[1]*be)
+            {
+              cerr << "Error in findminquadscoeffs!" << endl;
+              cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
+              cerr << "c0,c1 = "<<c[0]<<","<<c[1]<<endl;
+              cerr << "alpha = "<<alpha<< " not equal to "<<c[0]*al + c[1]*be<<endl;
+            }
+          exit(1);
+#endif
+          return c;
+        }
+    }
+}
+
+vector<INT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
+{ Quad gen1;
+  return findminquadcoeffs(alpha,beta,gen0,gen1);
+}
+
+//#define DEBUG_FINDMINQUAD
+
+void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
+// same as findminquadscoeffs but don't need coeffs
+{ alpha=al;
+  beta=be;
+#ifdef  DEBUG_FINDMINQUAD
+  unimod U; Quad alpha1=alpha, beta1=beta;
+  sl2z_reduce(alpha1, beta1, U);
+  cout<<"In findminquad with alpha="<<alpha<<" (norm "<<quadnorm(alpha) <<"), beta="
+     <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
+#endif
+  while (1)
+    {
+      alpha -= nearest_INT_to_Quad_quotient(alpha,beta)*beta;
+      Quad temp = alpha; alpha = -beta; beta = temp;
+#ifdef  DEBUG_FINDMINQUAD
+      cout<<" ... alpha="<<alpha<<" (norm "<<quadnorm(alpha)<<"), beta="
+          <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
+#endif
+      if (quadnorm(beta) >= quadnorm(alpha))
+        {
+          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
+          // beta is another Quad such that [al,be]=[alpha,beta]
+#ifdef  DEBUG_FINDMINQUAD
+          cout<<" ... on return, alpha = "<<alpha<<" has minimal norm "<<quadnorm(alpha)<<endl;
+#endif
+          return;
+        }
+    }
+}
+ 
+void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
+// same as findminquadcoeffs but don't need coeffs
+{ Quad gen1;
+  findminquad(alpha,beta,gen0,gen1);
+}
+
+#endif

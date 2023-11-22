@@ -24,7 +24,7 @@ void Qidealooper::advance()
   if (! I_norm_n.empty()) return;
   while (I_norm_n.empty() && n<maxn)
     {
-      n++;
+      n+=1;
       vector<Qideal> Ilist = (sort? Qideal_lists::ideals_with_norm(n, both): ideals_with_norm(n, both));
       //      cout<<" Qidealooper inserting "<<Ilist.size()<<" ideals of norm "<<n<<" into queue: "<<Ilist<<endl;
       I_norm_n.insert(I_norm_n.end(), Ilist.begin(), Ilist.end());

@@ -37,12 +37,15 @@ OPTFLAG = -O3 -Wall -fPIC
 # fields.  Change this to 1 (and make clean and rebuild) to compile
 # using ZZ as base integer type for Quads instead.  That results in
 # slower code, but it does not overflow!
-INT_TYPE=long
+#INT_TYPE=long
 ifeq ($(INT_TYPE), ZZ)
  BASE_TYPE_FLAG = -D INT_IS_ZZ
-endif
+else
 ifeq ($(INT_TYPE), long)
  BASE_TYPE_FLAG = -D INT_IS_long
+else
+ BASE_TYPE_FLAG = -D FLINT
+endif
 endif
 
 # NB If used with a multithreaded build of eclib then you MUST define
@@ -68,7 +71,7 @@ endif
 
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-LFLAGS = -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+LFLAGS = -lflint -lgmp -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
 
@@ -82,9 +85,9 @@ ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relation
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
-ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
+ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
 
-headers: arith_extras.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+headers: arith_extras.h flint.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -174,13 +177,13 @@ OBJS = arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
 
-tquads: tquads.o $(OBJS)
+tquads: tquads.o $(OBJS) flint.h
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
 
-P1Ntest: P1Ntest.o $(OBJS)
+P1Ntest: P1Ntest.o $(OBJS) flint.h
 	$(CC) -o P1Ntest P1Ntest.o $(OBJS) $(LFLAGS)
 
-fieldinfo: fieldinfo.o $(OBJS)
+fieldinfo: fieldinfo.o $(OBJS) flint.h
 	$(CC) -o fieldinfo fieldinfo.o $(OBJS) $(LFLAGS)
 
 tmquads: tmquads.o mquads.o
@@ -278,6 +281,12 @@ qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o arith_extras.o in
 
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
+
+flint_test.o: flint_test.cc flint.h
+	$(CC) $(CFLAGS) $<
+
+flint_test: flint_test.o flint.h
+	$(CC) -o flint_test flint_test.o $(LFLAGS)
 
 # DEPENDENCIES
 #

@@ -48,7 +48,7 @@ void Qideal::fill()
   // cout<<"Filling in data for ideal"<<(*this)<<" with a = "<<a<<", b = "<<b<<", c = "<<c<<endl;
   g0=Quad(a); g1=Quad(b,ONE);
   unimod U;
-  sl2z_reduce(g0,g1, U);
+  sl2z_reduce(g0,g1);
   // if ((quadconj(g0)*g1).i<0)
   //   cout<<"Badly oriented Z-basis in fill() 1"<<endl;
   // cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
@@ -527,10 +527,10 @@ void Qideal::make_residues() // fill the_residues, a sorted list of reduced resi
       INT quot, rem, i(0);
       while (i<nm)
         {
-          ::divides(i, ac, quot, rem);
+          divrem(i, ac, quot, rem);
           Quad res(rem,quot);
           the_residues.push_back(reduce(res));
-          i++;
+          i+=1;
         }
     }
 }
@@ -694,7 +694,8 @@ void Qideal::operator/=(const INT&n)
   if (na==1) return;
   // cout<<"applying operator/= to ideal "<<(*this)<<" and "<<n<<endl;
   INT quot, rem;
-  if (!::divides(c, na, quot, rem))
+  divrem(c, na, quot, rem);
+  if (rem.sign())
     {
       cerr<<"***inexact division of "<<*this<<" by integer "<<n<<" ***"<<endl;
       exit(1);
@@ -712,7 +713,8 @@ void Qideal::operator/=(const Quad&alpha)
   (*this) *= alpha.conj();
   INT na = alpha.norm();
   INT quot, rem;
-  if (!::divides(c, na, quot, rem))
+  divrem(c, na, quot, rem);
+  if (rem.sign())
     {
       cerr << "***inexact ideal division of "<<*this<<" by Quad "<<alpha<<" ***"<<endl;
       exit(1);
@@ -732,7 +734,8 @@ void Qideal::operator/=(const Qideal&f)
   (*this) *= fc;
   //cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
   INT quot, rem;
-  if (!::divides(c, nf, quot, rem))
+  divrem(c, nf, quot, rem);
+  if (rem.sign())
     {
       cerr << "***inexact division of "<<keep<<" by ideal "<<f<<" of norm "<<nf<<" ***"<<endl;
       exit(1);
@@ -938,7 +941,7 @@ vector<Qideal> primitive_ideals_with_norm(INT N, int both_conj)
   // Stupid implementation here: try all b mod N
   INT t(Quad::t), n(Quad::n), z1(1);
   INT b, maxb = (both_conj? N-1: (N-t)/2);  // rounded down
-  for (b=0; b<=maxb; b++)
+  for (b=0; b<=maxb; b+=1)
     if (::divides(N,(b*(b + t) + n)))
       ans.push_back(Qideal(N,b,z1));
   //cout<<" primitive ideals with norm "<<N<<" both_conj="<<both_conj<<"): "<<ans<<endl;
@@ -964,7 +967,7 @@ vector<Qideal> ideals_with_norm(INT N, int both_conj)
 vector<Qideal> ideals_with_bounded_norm(INT maxnorm, int both_conj)
 {
   vector<Qideal> ans;
-  for (INT N(1); N<=maxnorm; N++)
+  for (INT N(1); N<=maxnorm; N+=1)
     {
       vector<Qideal> IN = ideals_with_norm(N, both_conj);
       ans.insert(ans.end(), IN.begin(), IN.end());
@@ -1228,7 +1231,7 @@ void residuetest(Qideal& I)
   cout << " with inverses:\n";
   cout<<invres.second<<endl;
   //assert ((INT)invres.first.size()==phi);
-  if ((INT)invres.first.size()!=phi)
+  if (INT((int)invres.first.size())!=phi)
     {
       cout<<"phi = "<<phi<<" but # invertible residues = "<<invres.first.size()<<endl;
       cout<<"Factorization primes, norms and exponents:"<<endl;

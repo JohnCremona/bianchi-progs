@@ -132,13 +132,14 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
 // Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
 // The new alpha has the smallest norm.
-// U holds the unirmodular transform
+// In the first form (not used), U holds the unimodular transform
   friend void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U);
+  friend void sl2z_reduce(Quad& alpha, Quad& beta);
 
   int operator== (const Quad& b) const {return (r==b.r) && (i==b.i);}
-  int operator== (INT b) const {return (r==b) && (i==0);}
+  int operator== (const INT b) const {return (r==b) && (i==0);}
   int operator!= (const Quad& b) const {return (r!=b.r) || (i!=b.i);}
-  int operator!= (INT b) const {return (r!=b) || (i!=0);}
+  int operator!= (const INT b) const {return (r!=b) || (i!=0);}
   Quad operator* (const Quad& b) const {return mult(*this,b);}
   void operator*=(const Quad& b) {*this=mult(*this,b);}
   Quad operator* (INT m) const {return Quad(m*r,m*i, m*m*nm);}
@@ -188,17 +189,13 @@ inline Quad operator*(INT m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);
 inline Quad operator+(INT m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(INT m, const Quad& a) {return Quad(m-a.r,-a.i);}
 
-// Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
-// The new alpha has the smallest norm.
-// U holds the unirmodular transform
-void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U);
 // reduction of gamma modulo Z<alpha,beta>
 Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta);
 
-vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
-vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&);
-void findminquad(const Quad&, const Quad&, Quad&, Quad&);
-void findminquad(const Quad&, const Quad&, Quad&);
+// vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
+// vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&);
+// void findminquad(const Quad&, const Quad&, Quad&, Quad&);
+// void findminquad(const Quad&, const Quad&, Quad&);
 
 
 vector<INT> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
@@ -226,7 +223,7 @@ vector<int> chardisc(INT D);
 
 #include <values.h>
 
-inline bigfloat realnorm(const Quad& z) {  return sqrt(to_bigfloat(quadnorm(z)));}
+//inline bigfloat realnorm(const Quad& z) {  return sqrt(to_bigfloat(quadnorm(z)));}
 inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
 inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
 
