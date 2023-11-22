@@ -37,7 +37,7 @@ OPTFLAG = -O3 -Wall -fPIC
 # fields.  Change this to 1 (and make clean and rebuild) to compile
 # using ZZ as base integer type for Quads instead.  That results in
 # slower code, but it does not overflow!
-#INT_TYPE=long
+INT_TYPE=
 ifeq ($(INT_TYPE), ZZ)
  BASE_TYPE_FLAG = -D INT_IS_ZZ
 else

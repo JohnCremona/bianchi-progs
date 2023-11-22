@@ -13,7 +13,9 @@
 #include <eclib/curvesort.h> // for letter codes
 
 inline long I2long(long n) {return n;}
-int divides(long a, long b, long& q, long& r);
+int isqrt(long a, long& root);
+long isqrt(const long a);
+int divrem(long a, long b, long& q, long& r);
 long squarefree_part(long d);
 void sqrt_mod_p(long & x, long a, long p);
 

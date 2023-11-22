@@ -446,9 +446,7 @@ void factorp0(long p, INT& a, INT& b, INT d)
   for (int ib=1; !found; ib++)
   {
     b = ib;
-    INT a2 = p - d*b*b;
-    a = a2.isqrt();
-    found = (a*a == a2);
+    found = isqrt(p - d*b*b, a);
   }
 }
 
@@ -458,9 +456,7 @@ void factorp1(long p, INT& a, INT& b, INT d)
   for (int ib=1; !found; ib++)
   {
     b = ib;
-    INT a2 = fourp -d*b*b;
-    a = a2.isqrt();
-    found = (a*a == a2);
+    found = isqrt(fourp -d*b*b,a);
   }
   a=(a-b)/2;
 }

@@ -4,7 +4,16 @@
 #include <numeric>
 #include "arith_extras.h"
 
-int divides(long a, long b, long& q, long& r)
+int isqrt(long a, long& root)
+{
+  if (a<0) {return 0;}
+  root = round(sqrt(a));
+  return a==root*root;
+}
+
+long isqrt(const long a) {long r; isqrt(a,r); return r;}
+
+int divrem(long a, long b, long& q, long& r)
 {
   std::ldiv_t qr = ldiv(a, b);
   r = qr.rem;

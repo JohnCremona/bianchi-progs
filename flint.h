@@ -97,7 +97,7 @@ public:
   friend int compare(const INT& a, const INT& b);
   friend int compare(const INT& a, int b);
   friend int compare(const INT& a, long b);
-  friend void divrem(const INT& a, const INT& b, INT& quo, INT& rem);
+  friend int divrem(const INT& a, const INT& b, INT& quo, INT& rem);
   friend vector<INT> pdivs(const INT& a);
   friend vector<INT> sqdivs(const INT& a);
   friend int legendre(const INT& a, const INT& p) {return kronecker(a,p);}
@@ -139,7 +139,11 @@ inline int operator>(const INT& a, const INT& b) {return compare(a,b)>0;}
 inline int operator<=(const INT& a, const INT& b) {return compare(a,b)<=0;}
 inline int operator>=(const INT& a, const INT& b) {return compare(a,b)>=0;}
 
-inline void divrem(const INT& a, const INT& b, INT& quo, INT& rem) {fmpz_fdiv_qr(quo.z, rem.z, a.z, b.z);}
+inline int divrem(const INT& a, const INT& b, INT& quo, INT& rem)
+{
+  fmpz_fdiv_qr(quo.z, rem.z, a.z, b.z);
+  return is_zero(rem);
+}
 
 inline int divides(const INT& a, const INT& b) {return (b%a)==0;}
 inline int divides(int a, const INT& b) {return (b%a)==0;}
@@ -278,4 +282,6 @@ inline void swap(INT& a, INT& b)
 inline INT pow(const INT& a, int e) {return a^e;}
 inline INT pow(const INT& a, long e) {return a^e;}
 
+inline int isqrt(const INT& a, INT& root) {root=a.isqrt(); return root*root==a;}
+inline INT isqrt(const INT& a) {return a.isqrt();}
 #endif

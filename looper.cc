@@ -7,15 +7,15 @@ void Quadlooper::setblims()
     {
     case 1:
       bmin = zero;
-      bmax = include_conjugates? (n-1).isqrt() : (n/2).isqrt();
+      bmax = include_conjugates? isqrt(n-1) : isqrt(n/2);
       break;
     case 3:
       bmin = zero;
-      bmax = include_conjugates? (n-1).isqrt() : (n/3).isqrt();
+      bmax = include_conjugates? isqrt(n-1) : isqrt(n/3);
       break;
     default:
       INT m = (d%4==3? 4*n: n);
-      bmax = (m/d).isqrt();
+      bmax = isqrt(m/d);
       bmin = include_conjugates? -bmax : zero;
       if (d*bmin*bmin==m) bmin+=1;
     }
@@ -49,9 +49,9 @@ int Quadlooper::finda()
 {
   if (d%4==3)
     {
-      INT c, csq = 4*n-d*b*b;
-      if(csq.is_square(c)) {a=(c-b)/2; return 1;}
+      INT c;
+      if(isqrt(4*n-d*b*b, c)) {a=(c-b)/2; return 1;}
       return 0;
     }
-  return (n-d*b*b).is_square(a);
+  return isqrt(n-d*b*b, a);
 }

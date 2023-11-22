@@ -13,6 +13,7 @@
 #endif
 
 #ifdef INT_IS_long
+#include <eclib/marith.h>
 typedef long INT; // integer type for components of a Quad
 #endif
 
@@ -22,6 +23,8 @@ typedef bigint INT; // integer type for components of a Quad
 inline bigfloat to_bigfloat(const bigint& x) { return to_RR(x);}
 INT rounded_division(INT aa, INT bb);
 int divides(const INT& aa, const INT& bb);
+int divrem(const bigint& a, const bigint& b, bigint& q, bigint& r);
+INT isqrt(const INT& a);
 #endif
 
 const INT ZERO(0);

@@ -26,6 +26,16 @@ int divides(const INT& aa, const INT& bb)
   return div(aa,bb);
 }
 
+int divrem(const bigint& a, const bigint& b, bigint& q, bigint& r)
+{
+  return divides(a, b, q, r);
+}
+
+INT isqrt(const INT& a)
+{
+  INT r; isqrt(a,r); return r;
+}
+
 // This is the heart of vecbzout3; if we are not using multiprecision
 // integers we do things differently using bigfloats
 void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
@@ -53,6 +63,7 @@ void get_lambda_mu(INT x, INT y, INT z, INT w,
 #endif
 
 #ifdef INT_IS_long
+
 // This is the heart of vecbzout3; if we are not using multiprecision
 // integers we do things differently using bigfloats
 void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,

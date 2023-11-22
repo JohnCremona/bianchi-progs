@@ -695,7 +695,7 @@ void Qideal::operator/=(const INT&n)
   // cout<<"applying operator/= to ideal "<<(*this)<<" and "<<n<<endl;
   INT quot, rem;
   divrem(c, na, quot, rem);
-  if (rem.sign())
+  if (sign(rem))
     {
       cerr<<"***inexact division of "<<*this<<" by integer "<<n<<" ***"<<endl;
       exit(1);
@@ -714,7 +714,7 @@ void Qideal::operator/=(const Quad&alpha)
   INT na = alpha.norm();
   INT quot, rem;
   divrem(c, na, quot, rem);
-  if (rem.sign())
+  if (sign(rem))
     {
       cerr << "***inexact ideal division of "<<*this<<" by Quad "<<alpha<<" ***"<<endl;
       exit(1);
@@ -735,7 +735,7 @@ void Qideal::operator/=(const Qideal&f)
   //cout<<" - after multiplying by the conjugate: "<<(*this)<<endl;
   INT quot, rem;
   divrem(c, nf, quot, rem);
-  if (rem.sign())
+  if (sign(rem))
     {
       cerr << "***inexact division of "<<keep<<" by ideal "<<f<<" of norm "<<nf<<" ***"<<endl;
       exit(1);
