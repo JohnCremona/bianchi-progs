@@ -139,9 +139,7 @@ inline int operator>(const INT& a, const INT& b) {return compare(a,b)>0;}
 inline int operator<=(const INT& a, const INT& b) {return compare(a,b)<=0;}
 inline int operator>=(const INT& a, const INT& b) {return compare(a,b)>=0;}
 
-// ndiv rounds the quotient such that the remainder has the smallest
-// absolute value. In case of ties, it rounds the quotient towards zero.
-inline void divrem(const INT& a, const INT& b, INT& quo, INT& rem) {fmpz_ndiv_qr(quo.z, rem.z, a.z, b.z);}
+inline void divrem(const INT& a, const INT& b, INT& quo, INT& rem) {fmpz_fdiv_qr(quo.z, rem.z, a.z, b.z);}
 
 inline int divides(const INT& a, const INT& b) {return (b%a)==0;}
 inline int divides(int a, const INT& b) {return (b%a)==0;}

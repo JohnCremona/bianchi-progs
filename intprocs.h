@@ -5,22 +5,23 @@
 
 #include "arith_extras.h"
 
-// define INT_IS_ZZ or INT_IS_long to use ZZ or long int as base integer type for Quads
+// EITHER define INT_IS_ZZ or INT_IS_long to use ZZ or long int as base integer type for Quads
+// OR define FLINT to use FLINT's fmpz
 
 #ifdef FLINT
 #include "flint.h"
-#else
+#endif
 
 #ifdef INT_IS_long
 typedef long INT; // integer type for components of a Quad
 #endif
+
 #ifdef INT_IS_ZZ
 #include <eclib/marith.h>
 typedef bigint INT; // integer type for components of a Quad
 inline bigfloat to_bigfloat(const bigint& x) { return to_RR(x);}
 INT rounded_division(INT aa, INT bb);
 int divides(const INT& aa, const INT& bb);
-#endif
 #endif
 
 const INT ZERO(0);

@@ -450,7 +450,6 @@ void factorp0(long p, INT& a, INT& b, INT d)
     a = a2.isqrt();
     found = (a*a == a2);
   }
-  b-=1;
 }
 
 void factorp1(long p, INT& a, INT& b, INT d)
@@ -463,7 +462,6 @@ void factorp1(long p, INT& a, INT& b, INT d)
     a = a2.isqrt();
     found = (a*a == a2);
   }
-  b-=1;
   a=(a-b)/2;
 }
 

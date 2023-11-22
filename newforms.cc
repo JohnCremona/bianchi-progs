@@ -2019,18 +2019,22 @@ void newforms::getap(int first, int last, int verbose)
     {
       //cout<<"Newform "<<i<<":"<<endl;
       nflist[i].base_change_code();
-      INT cmd(nflist[i].is_CM());
-      int ngcl = nflist[i].genus_classes.size();
-      if (posmod(cmd,4)!=1) cmd*=4;
-      //cout<<"cmd = "<<cmd<<"; D = "<<Quad::disc<<"; div(cmd,D) = "<<div_disc(cmd, Quad::disc)<<endl;
-      if (div_disc(cmd, Quad::disc)) // then we have an unramified self-twist
+      int cmd = nflist[i].is_CM();
+      if (cmd)
         {
-          nflist[i].CMD = cmd;
-          assert (ngcl == nchi/2);
-        }
-      else // the usual case, not a self-twist
-        {
-          assert (ngcl == nchi);
+          int ngcl = nflist[i].genus_classes.size();
+          INT D1(cmd);
+          if (posmod(D1,4)!=1) D1*=4;
+          //cout<<"cmd = "<<D1<<"; D = "<<Quad::disc<<"; divcmd,D) = "<<div_disc(D1, Quad::disc)<<endl;
+          if (div_disc(D1, Quad::disc)) // then we have an unramified self-twist
+            {
+              nflist[i].CMD = D1;
+              assert (ngcl == nchi/2);
+            }
+          else // the usual case, not a self-twist
+            {
+              assert (ngcl == nchi);
+            }
         }
     }
 
