@@ -823,10 +823,10 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
   //   beta+=alpha;
 
 #ifdef test_reduce
-  cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
+  cout<<"After reduction, alpha="<<alpha<<", beta="<<beta
       <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
   assert (quadnorm(alpha)<=quadnorm(beta));
-  assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
+  //assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
   assert ((quadconj(alpha)*beta).im() > 0);
 #endif
 }

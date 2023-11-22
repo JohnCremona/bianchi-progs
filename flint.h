@@ -151,6 +151,13 @@ inline INT rounded_division(const INT& a, const INT& b)
 {
   INT q, r;
   divrem(a,b,q,r);
+  INT r2 = 2*r;
+  // We want -b <= r2 < +b
+  if (r2<-b)
+    q-=1;
+  else
+    if (r2>=b)
+      q+=1;
   return q;
 }
 

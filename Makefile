@@ -89,7 +89,7 @@ ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_e
 
 headers: arith_extras.h flint.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
-%.o:   %.cc
+%.o:   %.cc flint.h
 	$(CC) $(CFLAGS) $<
 
 TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
@@ -126,7 +126,7 @@ NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist mo
 FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo P1Ntest dimtable_all
-ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS)
+ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -177,64 +177,66 @@ OBJS = arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
 
-tquads: tquads.o $(OBJS) flint.h
+objs: $(OBJS) flint.h
+
+tquads: tquads.o objs
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
 
-P1Ntest: P1Ntest.o $(OBJS) flint.h
+P1Ntest: P1Ntest.o objs
 	$(CC) -o P1Ntest P1Ntest.o $(OBJS) $(LFLAGS)
 
-fieldinfo: fieldinfo.o $(OBJS) flint.h
+fieldinfo: fieldinfo.o objs
 	$(CC) -o fieldinfo fieldinfo.o $(OBJS) $(LFLAGS)
 
-tmquads: tmquads.o mquads.o
+tmquads: tmquads.o mquads.o flint.h
 	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
 
-makenf: makenf.o $(OBJS)
+makenf: makenf.o objs
 	$(CC) -g -o makenf makenf.o $(OBJS) $(LFLAGS)
 
-makenf_modp: makenf_modp.o $(OBJS)
+makenf_modp: makenf_modp.o objs
 	$(CC) -g -o makenf_modp makenf_modp.o $(OBJS) $(LFLAGS)
 
-makenf_loop.o: makenf.cc $(OBJS)
+makenf_loop.o: makenf.cc objs
 	$(CC) -DLOOPER $(CFLAGS) makenf.cc -o makenf_loop.o
 
-makenf_loop: makenf_loop.o $(OBJS)
+makenf_loop: makenf_loop.o objs
 	$(CC) -g -o makenf_loop makenf_loop.o $(OBJS) $(LFLAGS)
 
-pmanin: pmanin.o $(OBJS)
+pmanin: pmanin.o objs
 	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
 
-testlf1: testlf1.o lf1.o $(OBJS)
+testlf1: testlf1.o lf1.o objs
 	$(CC) -o testlf1 testlf1.o lf1.o $(OBJS) $(LFLAGS)
 
-nftest: nftest.o $(OBJS)
+nftest: nftest.o objs
 	$(CC) -o nftest nftest.o $(OBJS) $(LFLAGS)
 
-nflist: nflist.o $(OBJS)
+nflist: nflist.o objs
 	$(CC) -o nflist nflist.o $(OBJS) $(LFLAGS)
 
-nflist_loop.o: nflist.cc $(OBJS)
+nflist_loop.o: nflist.cc objs
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
-nflist_loop: nflist_loop.o $(OBJS)
+nflist_loop: nflist_loop.o objs
 	$(CC) -o nflist_loop nflist_loop.o $(OBJS) $(LFLAGS)
 
-nflist_modp: nflist_modp.o $(OBJS)
+nflist_modp: nflist_modp.o objs
 	$(CC) -o nflist_modp nflist_modp.o $(OBJS) $(LFLAGS)
 
-moreap: moreap.o $(OBJS)
+moreap: moreap.o objs
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)
 
-moreap1: moreap1.o $(OBJS)
+moreap1: moreap1.o objs
 	$(CC) -o moreap1 moreap1.o $(OBJS) $(LFLAGS)
 
-moreap_loop: moreap_loop.o $(OBJS)
+moreap_loop: moreap_loop.o objs
 	$(CC) -o moreap_loop moreap_loop.o $(OBJS) $(LFLAGS)
 
-modularity: modularity.o $(OBJS)
+modularity: modularity.o objs
 	$(CC) -o modularity modularity.o $(OBJS) $(LFLAGS)
 
-modularity_modp: modularity_modp.o $(OBJS)
+modularity_modp: modularity_modp.o objs
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
 looptest: looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
@@ -243,31 +245,31 @@ looptest: looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geomet
 tratquad: tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o
 	$(CC) -o tratquad tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o $(LFLAGS)
 
-homtest: homtest.o $(OBJS)
+homtest: homtest.o objs
 	$(CC) -o homtest homtest.o $(OBJS) $(LFLAGS)
 
-dimtable_modp: dimtable_modp.o $(OBJS)
+dimtable_modp: dimtable_modp.o objs
 	$(CC) -o dimtable_modp dimtable_modp.o $(OBJS) $(LFLAGS)
 
-dimtable: dimtable.o $(OBJS)
+dimtable: dimtable.o objs
 	$(CC) -o dimtable dimtable.o $(OBJS) $(LFLAGS)
 
-dimtable_all: dimtable_all.o $(OBJS)
+dimtable_all: dimtable_all.o objs
 	$(CC) -o dimtable_all dimtable_all.o $(OBJS) $(LFLAGS)
 
-dimtabeis: dimtabeis.o $(OBJS)
+dimtabeis: dimtabeis.o objs
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)
 
-dimtabnew: dimtabnew.o $(OBJS)
+dimtabnew: dimtabnew.o objs
 	$(CC) -o dimtabnew dimtabnew.o $(OBJS) $(LFLAGS)
 
-dimtabtwist: dimtabtwist.o $(OBJS)
+dimtabtwist: dimtabtwist.o objs
 	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
 
-hecketest: hecketest.o $(OBJS)
+hecketest: hecketest.o objs
 	$(CC) -o hecketest hecketest.o $(OBJS) $(LFLAGS)
 
-hecketest_modp: hecketest_modp.o $(OBJS)
+hecketest_modp: hecketest_modp.o objs
 	$(CC) -o hecketest_modp hecketest_modp.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o quads.o
@@ -279,7 +281,7 @@ qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs
 qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
 	$(CC) -o qidl_labels qidl_labels.o qidloop.o primes.o qideal.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
 
-rewrite_eigs: rewrite_eigs.o $(OBJS)
+rewrite_eigs: rewrite_eigs.o objs
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
 flint_test.o: flint_test.cc flint.h
