@@ -1,3 +1,4 @@
+
 # Makefile for bianchi-progs with test programs
 
 # eclib is a requirement.  If installed in the usual place /usr/local
@@ -45,6 +46,7 @@ ifeq ($(INT_TYPE), long)
  BASE_TYPE_FLAG = -D INT_IS_long
 else
  BASE_TYPE_FLAG = -D FLINT
+ FLINT_LDFLAGS = -lflint -lgmp
 endif
 endif
 
@@ -63,15 +65,15 @@ endif
 
 # for profiling:
 #CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-#LFLAGS = -pg -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+#LFLAGS = -pg $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for coverage:
 #CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-#LFLAGS = --coverage -fprofile-arcs -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+#LFLAGS = --coverage -fprofile-arcs $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-LFLAGS = -lflint -lgmp -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+LFLAGS = $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
 
@@ -79,7 +81,7 @@ sources: ccs headers
 	chmod a+r *.h *.cc
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6
-ccs0: arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs0: flint.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
@@ -89,10 +91,11 @@ ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_e
 
 headers: arith_extras.h flint.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
 
-%.o:   %.cc flint.h
+%.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
 TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
+
 tests: $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
@@ -173,122 +176,119 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-OBJS = arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
+OBJS = flint.o arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
 
-objs: $(OBJS) flint.h
+objs: $(OBJS)
 
-tquads: tquads.o objs
-	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
-
-P1Ntest: P1Ntest.o objs
-	$(CC) -o P1Ntest P1Ntest.o $(OBJS) $(LFLAGS)
-
-fieldinfo: fieldinfo.o objs
-	$(CC) -o fieldinfo fieldinfo.o $(OBJS) $(LFLAGS)
-
-tmquads: tmquads.o mquads.o flint.h
-	$(CC)  -o tmquads tmquads.o mquads.o $(LFLAGS)
-
-makenf: makenf.o objs
-	$(CC) -g -o makenf makenf.o $(OBJS) $(LFLAGS)
-
-makenf_modp: makenf_modp.o objs
-	$(CC) -g -o makenf_modp makenf_modp.o $(OBJS) $(LFLAGS)
-
-makenf_loop.o: makenf.cc objs
+makenf_loop.o: makenf.cc
 	$(CC) -DLOOPER $(CFLAGS) makenf.cc -o makenf_loop.o
 
-makenf_loop: makenf_loop.o objs
-	$(CC) -g -o makenf_loop makenf_loop.o $(OBJS) $(LFLAGS)
-
-pmanin: pmanin.o objs
-	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
-
-testlf1: testlf1.o lf1.o objs
-	$(CC) -o testlf1 testlf1.o lf1.o $(OBJS) $(LFLAGS)
-
-nftest: nftest.o objs
-	$(CC) -o nftest nftest.o $(OBJS) $(LFLAGS)
-
-nflist: nflist.o objs
-	$(CC) -o nflist nflist.o $(OBJS) $(LFLAGS)
-
-nflist_loop.o: nflist.cc objs
+nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
-nflist_loop: nflist_loop.o objs
+flint_test.o: flint_test.cc flint.o flint.h
+	$(CC) $(CFLAGS) $<
+
+tquads: tquads.o $(OBJS)
+	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
+
+P1Ntest: P1Ntest.o $(OBJS)
+	$(CC) -o P1Ntest P1Ntest.o $(OBJS) $(LFLAGS)
+
+fieldinfo: fieldinfo.o $(OBJS)
+	$(CC) -o fieldinfo fieldinfo.o $(OBJS) $(LFLAGS)
+
+makenf: makenf.o $(OBJS)
+	$(CC) -g -o makenf makenf.o $(OBJS) $(LFLAGS)
+
+makenf_modp: makenf_modp.o $(OBJS)
+	$(CC) -g -o makenf_modp makenf_modp.o $(OBJS) $(LFLAGS)
+
+makenf_loop: makenf_loop.o $(OBJS)
+	$(CC) -g -o makenf_loop makenf_loop.o $(OBJS) $(LFLAGS)
+
+pmanin: pmanin.o $(OBJS)
+	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
+
+testlf1: testlf1.o lf1.o $(OBJS)
+	$(CC) -o testlf1 testlf1.o lf1.o $(OBJS) $(LFLAGS)
+
+nftest: nftest.o $(OBJS)
+	$(CC) -o nftest nftest.o $(OBJS) $(LFLAGS)
+
+nflist: nflist.o $(OBJS)
+	$(CC) -o nflist nflist.o $(OBJS) $(LFLAGS)
+
+nflist_loop: nflist_loop.o $(OBJS)
 	$(CC) -o nflist_loop nflist_loop.o $(OBJS) $(LFLAGS)
 
-nflist_modp: nflist_modp.o objs
+nflist_modp: nflist_modp.o $(OBJS)
 	$(CC) -o nflist_modp nflist_modp.o $(OBJS) $(LFLAGS)
 
-moreap: moreap.o objs
+moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)
 
-moreap1: moreap1.o objs
+moreap1: moreap1.o $(OBJS)
 	$(CC) -o moreap1 moreap1.o $(OBJS) $(LFLAGS)
 
-moreap_loop: moreap_loop.o objs
+moreap_loop: moreap_loop.o $(OBJS)
 	$(CC) -o moreap_loop moreap_loop.o $(OBJS) $(LFLAGS)
 
-modularity: modularity.o objs
+modularity: modularity.o $(OBJS)
 	$(CC) -o modularity modularity.o $(OBJS) $(LFLAGS)
 
-modularity_modp: modularity_modp.o objs
+modularity_modp: modularity_modp.o $(OBJS)
 	$(CC) -o modularity_modp modularity_modp.o $(OBJS) $(LFLAGS)
 
-looptest: looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o
-	$(CC) -o looptest looptest.o looper.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o mat22.o ratquads.o $(LFLAGS)
+looptest: looptest.o $(OBJS)
+	$(CC) -o looptest looptest.o $(OBJS) $(LFLAGS)
 
-tratquad: tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o
-	$(CC) -o tratquad tratquad.o quads.o arith_extras.o intprocs.o  euclid.o geometry.o qideal.o qidloop.o primes.o ratquads.o cusp.o mat22.o $(LFLAGS)
+tratquad: tratquad.o $(OBJS)
+	$(CC) -o tratquad tratquad.o $(OBJS) $(LFLAGS)
 
-homtest: homtest.o objs
+homtest: homtest.o $(OBJS)
 	$(CC) -o homtest homtest.o $(OBJS) $(LFLAGS)
 
-dimtable_modp: dimtable_modp.o objs
+dimtable_modp: dimtable_modp.o $(OBJS)
 	$(CC) -o dimtable_modp dimtable_modp.o $(OBJS) $(LFLAGS)
 
-dimtable: dimtable.o objs
+dimtable: dimtable.o $(OBJS)
 	$(CC) -o dimtable dimtable.o $(OBJS) $(LFLAGS)
 
-dimtable_all: dimtable_all.o objs
+dimtable_all: dimtable_all.o $(OBJS)
 	$(CC) -o dimtable_all dimtable_all.o $(OBJS) $(LFLAGS)
 
-dimtabeis: dimtabeis.o objs
+dimtabeis: dimtabeis.o $(OBJS)
 	$(CC) -o dimtabeis dimtabeis.o $(OBJS) $(LFLAGS)
 
-dimtabnew: dimtabnew.o objs
+dimtabnew: dimtabnew.o $(OBJS)
 	$(CC) -o dimtabnew dimtabnew.o $(OBJS) $(LFLAGS)
 
-dimtabtwist: dimtabtwist.o objs
+dimtabtwist: dimtabtwist.o $(OBJS)
 	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
 
-hecketest: hecketest.o objs
+hecketest: hecketest.o $(OBJS)
 	$(CC) -o hecketest hecketest.o $(OBJS) $(LFLAGS)
 
-hecketest_modp: hecketest_modp.o objs
+hecketest_modp: hecketest_modp.o $(OBJS)
 	$(CC) -o hecketest_modp hecketest_modp.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)
 
-qidltest: qidltest.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
-	$(CC) -o qidltest qidltest.o qidloop.o primes.o qideal.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+qidltest: qidltest.o $(OBJS)
+	$(CC) -o qidltest qidltest.o $(OBJS) $(LFLAGS)
 
-qidl_labels: qidl_labels.o primes.o qideal.o qidloop.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o ratquads.o
-	$(CC) -o qidl_labels qidl_labels.o qidloop.o primes.o qideal.o quads.o arith_extras.o intprocs.o euclid.o geometry.o mat22.o  ratquads.o $(LFLAGS)
+qidl_labels: qidl_labels.o $(OBJS)
+	$(CC) -o qidl_labels qidl_labels.o $(OBJS) $(LFLAGS)
 
-rewrite_eigs: rewrite_eigs.o objs
+rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
-flint_test.o: flint_test.cc flint.h
-	$(CC) $(CFLAGS) $<
-
 flint_test: flint_test.o flint.h
-	$(CC) -o flint_test flint_test.o $(LFLAGS)
+	$(CC) -o flint_test flint_test.o flint.o $(LFLAGS)
 
 # DEPENDENCIES
 #
