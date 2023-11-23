@@ -32,12 +32,20 @@ OPTFLAG = -O3 -Wall -fPIC
 
 
 # The type of integers used for components of Quad, Qideal, RatQuad
-# can be either long or bigint (=NTL's ZZ), and is typedef'd to INT
-# in the code.  By default the type is long and INT_IS_long is
-# defined; this can result in overflow for large levels over larger
-# fields.  Change this to 1 (and make clean and rebuild) to compile
-# using ZZ as base integer type for Quads instead.  That results in
-# slower code, but it does not overflow!
+# can be either long or bigint (=NTL's ZZ), these being typedef'd to
+# INT, or the class INT (wrapper around FLINT's fmpz_t defined in
+# flint.h/cc).  Choose which by setting INT_TYPE here.  If the type is
+# long then INT_IS_long is defined; this is fastest but results in
+# overflow for large levels over larger fields.  If it is ZZ, there is
+# no overflow but the code is slower; otherwise the macro FLINT is
+# defined, there is no overflow and the code runs about 4 times slower
+# than using longs but about 5 times faster than using ZZ.
+
+# Timings for "make check" 22/11/23:
+# INT_TYPE=long:  4m 24s =  264s
+# INT_TYPE=ZZ:   78m 25s = 4705s (~ 17.8 times slower)
+# INT_TYPE=none: 15m 47s =  947s (~  3.6 times slower)
+
 INT_TYPE=
 ifeq ($(INT_TYPE), ZZ)
  BASE_TYPE_FLAG = -D INT_IS_ZZ

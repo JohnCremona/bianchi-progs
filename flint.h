@@ -13,10 +13,13 @@ class INT {
 private:
   fmpz_t z;
 public:
+  // Constructors:
   INT() {fmpz_init(z);} // sets to 0
   INT(int a) {fmpz_init_set_si(z, a);}
   INT(long a) {fmpz_init_set_si(z, a); }
   INT(const INT& a) {fmpz_init_set(z, a.z);}
+  // Destructor:
+  ~INT() {fmpz_clear(z);}
   INT& operator=(int a) {fmpz_set_si(z, a); return *this;}
   INT& operator=(long a) {fmpz_set_si(z, a); return *this;}
   INT& operator=(const INT& a) {fmpz_set(z, a.z); return *this;}
