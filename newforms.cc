@@ -1102,10 +1102,14 @@ void newforms::find()
       form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
      }
-  if(verbose>1) cout<<"n1ds = "<<n1ds<<endl;
+  if(verbose>1) cout<<"provisional n1ds = "<<n1ds<<endl;
   n2ds=dimtrivcuspnew-n1ds; // dimension of new, non-rational forms
-  if(verbose>1) cout<<"n2ds = "<<n2ds<<endl;
-  assert (n2ds>=0 && "found more newforms than the total new dimension!");
+  if(verbose>1) cout<<"provisional n2ds = "<<n2ds<<endl;
+  if (n2ds<0 && verbose)
+    {
+      cout << "found more possibly rational newforms than the total new dimension!\n";
+      cout << "This means that at least "<<(-n2ds)<< " must be fake rationals"<<endl;
+    }
 
   // We cannot yet split n1ds, and hence n2ds, by character since we
   // cannot detect self-twist until we have computed more ap -- unless
@@ -1177,15 +1181,16 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
 {
   if (use_nf_number==-1)
     {
-      //cout<<"Constructing newform with eigs "<<eigs<<endl;
+      cout<<"Constructing newform with eigs "<<eigs<<endl;
       nflist.push_back(newform(this,b1,eigs));
       n1ds++;
       if (n1ds>dimtrivcuspnew)
         {
           cout << "*** Warning: in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
-          cout << "1D newforms ("<< n1ds+1 <<") than the total new-dimension ("
+          cout << "1D rational newforms ("<< n1ds
+               <<", possibly including fake rationals) than the total new cuspidal dimension ("
                <<dimtrivcusp<<") ***"<<endl;
-          //cout<<"Extra newform has eigs "<<eigs<<endl;
+          cout<<"Extra newform has eigs "<<eigs<<endl;
         }
     }
   else // store eigs and basis
