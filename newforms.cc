@@ -1084,7 +1084,10 @@ void newforms::find()
             <<") split by self-twist character"<<endl;
       cout<<" - new dimension   = "<<dimtrivcuspnew;
       if (n2r>0)
-        cout<<" = "<<newdims<<" split by self-twist character";
+        {
+          cout<<" = "<<newdims<<" split by self-twist character";
+          cout<<"\n unramified character discriminants: " << Quad::all_disc_factors;
+        }
       cout<<endl;
       if(verbose>1)
         {

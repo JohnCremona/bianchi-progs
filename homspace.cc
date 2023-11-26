@@ -621,7 +621,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
       if (use_cuspidal_lower_bounds) clbd = *clbds++;
       subdims = subdims0;
       int subdim = subdims.first;
-      int MAXNREPEATS = 4;
+      int MAXNREPEATS = 5;   // 4 not enough for d=165, level 1.1, D=-4
       int nrepeats = 0;      // stop when dimension has not changed MAXNREPEATS times
       QuadprimeLooper Pi(N); // loop over primes not dividing N
       int ip = 0, np = 10;   // only use first few non-square-class primes
