@@ -96,6 +96,7 @@ public:
   // For each genus class c we count how many primes P in class c have
   // a(P)=0, to aid i detecting self-twist forms.
   vector<int> genus_class_trivial_counter;
+  vector<INT> possible_self_twists;
 
   newform(void) :basis(0), aplist(0) {;}
   // constructor to use just after finding the eigenspace: just sets
@@ -217,7 +218,6 @@ public:
   vector<int> bad_prime_conjugation_permutation;
   vector<Qideal> nulist; // list of ideals coprime to level generating 2-torsion in class group
   vector<INT> possible_self_twists;
-  int n_poss_self_twists;
   int level_is_square;
   int verbose, nwq, nap, n2r, nchi;
 

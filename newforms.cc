@@ -155,6 +155,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   bc = 4;   // will be set to 0 or a square-free integer if base-change or twist of b.c.
   sfe = pdot = dp0 = lambdadot = matdot = 0;
   genus_class_trivial_counter.resize(nf->nchi, 0);
+  possible_self_twists = nf->possible_self_twists; // may be cut down on computing aP later
 }
 
 // Fill in data for one newform. This assumes we have:
@@ -838,9 +839,8 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
       if (verbose>1)
         cout<<"nulist: "<<nulist<<endl;
       possible_self_twists = N.possible_unramified_twists();
-      n_poss_self_twists = possible_self_twists.size();
       if (verbose>1)
-        cout<<"possible unramified self twist discriminants: "<<possible_self_twists<<endl;
+        cout<<"possible unramified self twist discriminants at this level: "<<possible_self_twists<<endl;
     }
 
   // badprimes is a list of all primes Q|N
@@ -1184,7 +1184,7 @@ void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
 {
   if (use_nf_number==-1)
     {
-      cout<<"Constructing newform with eigs "<<eigs<<endl;
+      //cout<<"Constructing newform with eigs "<<eigs<<endl;
       nflist.push_back(newform(this,b1,eigs));
       n1ds++;
       if (n1ds>dimtrivcuspnew)
@@ -1430,7 +1430,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
            // NB 5 would not be enough for field 299, level 100.2, without checking for possible self twists.
         {
           //cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-          if ((nf->n_poss_self_twists>0) && (genus_class_trivial_counter[c] >= 10))
+          if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= 10))
             {
               if (verbose>0)
                 cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
@@ -1480,6 +1480,42 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                       genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
                       genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
                     }
+                  // we can possibly eliminate some of
+                  // possible_self_twists now, namely those whose
+                  // characters chi have chi(P)=-1, since such a
+                  // newform would have to have aP=0:
+                  int n_before = possible_self_twists.size();
+                  if (0)//(n_before)
+                    {
+                      possible_self_twists.erase(std::remove_if(possible_self_twists.begin(),
+                                                                possible_self_twists.end(),
+                                                                [&P](INT D) { return P.genus_character(D) == -1;}),
+                                                 possible_self_twists.end());
+                      int n_after = possible_self_twists.size();
+                      if ((n_before>n_after) && (verbose>1))
+                        cout<<" - after erasing "<<(n_before-n_after)
+                            <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
+                    }
+                  // We can now eliminate any self-twist discriminants
+                  // not matching the square-free part of aP^2-4*N(P):
+                  int d1 = squarefree_part(aP2-4*normP);
+                  possible_self_twists.erase(std::remove_if(possible_self_twists.begin(),
+                                                            possible_self_twists.end(),
+                                                            [&d1](INT D) { return D!=d1;}),
+                                             possible_self_twists.end());
+                  int n_after = possible_self_twists.size();
+                  if ((n_before>n_after) && (verbose>1))
+                    cout<<" - after erasing "<<(n_before-n_after)
+                        <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
+
+                  // vector<INT> discs;
+                  // for(auto Di = possible_self_twists.begin(); Di != possible_self_twists.end(); ++Di)
+                  //   {
+                  //     INT D = *Di;
+                  //     if (P.genus_character(D) == +1)
+                  //       discs.push_back(D);
+                  //   }
+                  // possible_self_twists = discs;
                 }
               else
                 {
@@ -1505,6 +1541,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
 
 long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
 {
+  if (fake) return 0;
   Qideal N = nf->N;
   int e = val(Q,N);
   if (e==0)
