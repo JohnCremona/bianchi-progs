@@ -1,4 +1,9 @@
 #!/bin/bash
+
+if [ $HOSTNAME == "lovelace" ]; then
+ export LD_LIBRARY_PATH=/home/jcremona/lib
+fi
+
 d=$1
 FIRST_NORM=${2:-1}
 LAST_NORM=${3:-100}
@@ -25,13 +30,13 @@ echo "Running " ${PROG} " with parameters " ${PARAMS}
 echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
 /bin/rm "${PROG}"
 
-echo ${d} -1  ${FIRST_NORM} ${LAST_NORM} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
-echo $d ${LAST_NORM} | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${FIRST_NORM}-${LAST_NORM}
-grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
+echo ${d} -1  1 ${LAST_NORM} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.1-${LAST_NORM}
+echo $d ${LAST_NORM} | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.1-${LAST_NORM}
+grep data ${HOME}/bianchi-data/newforms/newforms.${d}.1-${LAST_NORM}
 
 echo "============================================"
 echo "Finished field:" $d " level norms " ${FIRST_NORM} " to " ${LAST_NORM} ": "
-wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.${FIRST_NORM}-${LAST_NORM}
+wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.1-${LAST_NORM}
 echo "============================================"
 
 # To use in parallel runs, one level norm per run:
