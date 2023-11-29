@@ -232,6 +232,8 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 // principal, otherwise 0 is returned.  Can be used to test whether
 // (a,b) is principal and return a generator when it is.
 
+// NB using quadgcd_default (using ideals) is simpler and probably faster
+
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
   if (gcd(aa.nm,bb.nm)==1) return Quad::one;

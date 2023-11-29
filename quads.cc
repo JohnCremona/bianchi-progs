@@ -221,8 +221,8 @@ void Quad::field(long dd, long max)
   default: pos=&pos2;  name='a'; nunits=2; fundunit=-one;
   }
 
-  quadgcd=&quadgcd_psea;
-  quadbezout=&quadbezout_psea;
+  quadgcd=&quadgcd_default;
+  quadbezout=&quadbezout_default;
 
   int i;
 
@@ -716,12 +716,6 @@ Quad invmod(const Quad& a, const Quad& p)
       }
 }
 
-int coprime(const Quad& a, const Quad& b) 
-{
-  Quad g = quadgcd(a,b); 
-  return g==Quad::one;
-}
-
 int invertible(const Quad& a, const Quad& b, Quad& inverse)
 { Quad y; Quad g = quadbezout(a,b,inverse,y);
   return g==Quad::one;
@@ -1057,86 +1051,3 @@ vector<INT> disc_factors_mod_D(const INT& D)
   // cout<<"All discs "<<Quad::all_disc_factors<<" mod "<<D<<": "<<ans<<endl;
   return ans;
 }
-
-#if 0
-// there follow 4 "flavours" of findminQuad returning different amounts of data
-
-vector<INT> findminquadcoeffs(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
-{ alpha=al;
-  beta=be;
-  INT i0(0), i1(1);
-  vector<INT> c = {i1, i0}; // alpha = c[0]*al + c[1]*be  always
-  vector<INT> d = {i0, i1}; // beta  = d[0]*al + d[1]*be  always
-
-  while (1)
-    {
-      INT n = nearest_INT_to_Quad_quotient(alpha,beta);
-      alpha -= n*beta;
-      c[0]  -= n*d[0];
-      c[1]  -= n*d[1];
-      Quad temp = alpha; alpha = -beta; beta = temp;
-      INT t = c[0]; c[0] = -d[0]; d[0] = t;
-            t = c[1]; c[1] = -d[1]; d[1] = t;
-      if (quadnorm(beta) >= quadnorm(alpha))
-        {
-          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
-          // beta is another Quad such that [al,be]=[alpha,beta]
-#ifdef testbezout
-          if (alpha != c[0]*al + c[1]*be)
-            {
-              cerr << "Error in findminquadscoeffs!" << endl;
-              cerr << "[al,be] = ["<<al<<","<<be<<"]"<<endl;
-              cerr << "c0,c1 = "<<c[0]<<","<<c[1]<<endl;
-              cerr << "alpha = "<<alpha<< " not equal to "<<c[0]*al + c[1]*be<<endl;
-            }
-          exit(1);
-#endif
-          return c;
-        }
-    }
-}
-
-vector<INT> findminquadcoeffs(const Quad& alpha, const Quad& beta, Quad& gen0)
-{ Quad gen1;
-  return findminquadcoeffs(alpha,beta,gen0,gen1);
-}
-
-//#define DEBUG_FINDMINQUAD
-
-void findminquad(const Quad&al, const Quad&be, Quad& alpha, Quad& beta)
-// same as findminquadscoeffs but don't need coeffs
-{ alpha=al;
-  beta=be;
-#ifdef  DEBUG_FINDMINQUAD
-  unimod U; Quad alpha1=alpha, beta1=beta;
-  sl2z_reduce(alpha1, beta1, U);
-  cout<<"In findminquad with alpha="<<alpha<<" (norm "<<quadnorm(alpha) <<"), beta="
-     <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
-#endif
-  while (1)
-    {
-      alpha -= nearest_INT_to_Quad_quotient(alpha,beta)*beta;
-      Quad temp = alpha; alpha = -beta; beta = temp;
-#ifdef  DEBUG_FINDMINQUAD
-      cout<<" ... alpha="<<alpha<<" (norm "<<quadnorm(alpha)<<"), beta="
-          <<beta<<" (norm "<<quadnorm(beta)<<")"<<endl;
-#endif
-      if (quadnorm(beta) >= quadnorm(alpha))
-        {
-          // alpha is now the non-zero Quad of least norm in the lattice [al,be]
-          // beta is another Quad such that [al,be]=[alpha,beta]
-#ifdef  DEBUG_FINDMINQUAD
-          cout<<" ... on return, alpha = "<<alpha<<" has minimal norm "<<quadnorm(alpha)<<endl;
-#endif
-          return;
-        }
-    }
-}
- 
-void findminquad(const Quad& alpha, const Quad& beta, Quad& gen0)
-// same as findminquadcoeffs but don't need coeffs
-{ Quad gen1;
-  findminquad(alpha,beta,gen0,gen1);
-}
-
-#endif

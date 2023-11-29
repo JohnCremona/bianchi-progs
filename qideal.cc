@@ -435,14 +435,6 @@ int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
   s =   Quad::one - r;
   assert (contains(r));
   assert (J.contains(s));
-  if (r.nm<0 || s.nm<0) // could happen if there was overflow, except
-                        // that we compute norms of Quads on
-                        // construction and test there anyway
-    {
-      cout<<"I="<<(*this)<<", J="<<J<<": initial r="<<r<<" (norm "<<r.nm<<"), s=1-r="<<s<<" (norm "<<s.nm<<")"<<"; N(IJ) = "<<r.nm*J.nm<<endl;
-      cout<<"v = "<<v<<", w="<<w<<endl;
-      exit(1);
-    }
   Qideal IJ = (*this)*J;
   // cout << " I0*I1="<<IJ<<" with norm "<<IJ.norm()<<endl;
   Quad r1 =   IJ.reduce(r); // causes filling of IJ which leads to overflow
@@ -1241,6 +1233,67 @@ void residuetest(Qideal& I)
           cout << "P = "<<F.prime(i)<<", norm="<<np<<", e="<<F.exponent(i)<<endl;
         }
     }
+}
+
+int coprime(const Quad& a, const Quad& b) 
+{
+  return Qideal({a,b}) == Qideal(1);
+}
+
+int principal_gcd(const Quad& a, const Quad& b, Quad& g)
+{
+  return Qideal({a,b}).is_principal(g);
+}
+
+Quad quadgcd_default(const Quad& aa, const Quad& bb)
+{
+  Quad g;
+  if (principal_gcd(aa, bb, g))
+    {
+      while (!pos(g)) g*=fundunit;
+      return g;
+    }
+  return Quad::zero;
+}
+
+Quad quadbezout_default(const Quad& aa, const Quad& bb, Quad& x, Quad& y)
+{
+  Quad g;
+  if (aa.is_zero())
+    {
+      x = Quad::zero;
+      y = Quad::one;
+      g = bb;
+      while (!pos(g))
+        {
+          g *= fundunit;
+          y *= fundunit;
+        }
+      return g;
+    }
+  if (bb.is_zero())
+    {
+      y = Quad::zero;
+      x = Quad::one;
+      g = aa;
+      while (!pos(g))
+        {
+          g *= fundunit;
+          x *= fundunit;
+        }
+      return aa;
+    }
+  if (principal_gcd(aa, bb, g))
+    {
+      Quad a = aa/g, b = bb/g;
+      Qideal A(a), B(b);
+      A.is_coprime_to(B, x, y); // x+y=1 with x in A, y in B
+      x /= a;
+      y /= b;
+      assert (aa*x+bb*y==g);
+      return g;
+    }
+  return Quad::zero;
 }
 
 // END OF FILE qideal.cc

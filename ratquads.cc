@@ -59,14 +59,11 @@ Qideal RatQuad::denominator_ideal() const
 
 int RatQuad::is_principal() const
 {
-  // NB we don't just
-  // return ideal().is_principal();
-  // as that is more likely to overflow when INT=long
   if (Quad::class_number==1)
     return 1;
   else
-    // quadgcd(n,d) return 0 if n,d do not generate a principal ideal
-    return quadgcd(n,d) != Quad::zero;
+    // quadgcd(n,d) returns 0 if n,d do not generate a principal ideal
+    return coprime(n,d); //quadgcd(n,d) != Quad::zero;
 }
 
 //#define DEBUG_CUSP_EQ

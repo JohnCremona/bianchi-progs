@@ -27,12 +27,15 @@ extern int (*pos)(const Quad& a);
 //GCD-related functions.
 extern Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 extern Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
+Quad quadgcd_default(const Quad& aa, const Quad& bb);   // Using ideals
+Quad quadbezout_default(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);   // Using ideals
 Quad quadgcd_psea(const Quad& aa, const Quad& bb);   // Using (pseudo-)EA
 Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy); // Using (pseudo-)EA
 mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
 
 Quad invmod(const Quad& a, const Quad& p);
 int coprime(const Quad& a, const Quad& b);
+int principal_gcd(const Quad& a, const Quad& b, Quad& g);
 int invertible(const Quad& a, const Quad& b, Quad& inverse);
 
 //functions defined in quads.cc

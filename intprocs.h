@@ -33,8 +33,6 @@ const INT MONE(-1);
 const INT TWO(2);
 const INT THREE(3);
 
-//functions needed for non-euclidean fields to compute bezout/quadgcd
-
 // content
 INT vecgcd(const vector<INT>& a);
 
