@@ -63,6 +63,10 @@ void alphas_sigmas_denom_3();
 
 void Quad::setup_geometry()
 {
+  if (geometry_initialised)
+    return;
+
+  geometry_initialised = 1;
   n_alphas = n_sigmas = 0;
 
   // Clear these in case this is not the first field run

@@ -161,6 +161,7 @@ int main ()
    }
  else
    {
+     Quad::setup_geometry();
      long minn(1), maxn(10);
      int s;
      mat22 M;

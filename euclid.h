@@ -40,6 +40,8 @@
 // a/r=b/s=lambda, say, where lambda*r=a and lambda*b=s, but *lambda
 // is not integral* in general.
 
+// This function is crucial in reducing modular symbols, expressing
+// each as a linear combination of generalised M-symbols.
 
 void pseudo_euclidean_step(Quad& a, Quad& b, int& t,
                            Quad& c1=Quad::zero, Quad& d1=Quad::zero,

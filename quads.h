@@ -84,8 +84,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static int chi(INT p); // quadratic character associated to the field
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
-  static void fill_class_group();
-  static void setup_geometry();
+  static void fill_class_group(); // implemented in qidloop.cc
+  static int geometry_initialised; // set to 0 on init and to 1 when the following function has been called
+  static void setup_geometry();   // implemented in geometry.cc
 
 // Now the actual data elements:
  private:

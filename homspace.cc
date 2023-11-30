@@ -8,6 +8,7 @@
 homspace::homspace(const Qideal& I, int hp, int verb, long ch)
   :verbose(verb), plusflag(hp), N(I), characteristic(ch), hmod(0)
 {
+  Quad::setup_geometry(); // will do nothing after the first time called
   P1 = P1N(N);
   nsymb = P1.size();
 

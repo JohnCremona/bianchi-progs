@@ -53,6 +53,9 @@ continued fractions we need both.
 
 *********************************************************************/
 
+// This function is crucial in reducing modular symbols, expressing
+// each as a linear combination of generalised M-symbols.
+
 //#define DEBUG_PSEA
 
 void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
@@ -227,6 +230,10 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
   exit(1);
 }
+
+// The next two functions (declared in quads.h) are not used, as the
+// default versions quadgcd_default and quadbezout_default using
+// ideals are simpler and faster.
 
 // Declared in quads.h.  Only useful when the ideal (a,b) is
 // principal, otherwise 0 is returned.  Can be used to test whether

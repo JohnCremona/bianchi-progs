@@ -27,6 +27,7 @@ int Quad::class_group_2_rank;
 Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
+int Quad::geometry_initialised;
 
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below
@@ -140,6 +141,7 @@ void Quad::field(long dd, long max)
 {
   // Clear these in case this is not the first field run
 
+  geometry_initialised = 0;
   quadunits.clear();
   squareunits.clear();
   quadprimes.clear();
@@ -236,10 +238,6 @@ void Quad::field(long dd, long max)
   if(class_number==1)
     initquadprimes();
   Quadprimes::init(max);
-  if (check_field(d)) // test whether d is in the list of valid_fields
-                      // for which we have geometry set up
-    setup_geometry();
-
   fill_class_group();
 
   int n2r = class_group_2_rank; // which was set in fill_class_group()
