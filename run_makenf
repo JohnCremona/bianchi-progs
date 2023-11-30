@@ -50,7 +50,7 @@ while true; do
         echo "============================================"
         echo "running norms from " ${first} " to " ${last} " for d = " $d
         #./qidl_labels ${d} ${first} ${last}
-        parallel -j ${NJOBS} --progress ./makenf1_hybrid ${d} {1} ${NAP} ::: `./qidl_labels ${d} ${first} ${last} 1 0`
+        parallel -j ${NJOBS} --progress ./makenf1 ${d} {1} ${NAP} ::: `./qidl_labels ${d} ${first} ${last} 1 0`
     fi
 
 # update mk etc:
