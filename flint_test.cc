@@ -1,5 +1,22 @@
 #include "arith_extras.h"
-#include "flint.h"
+#include "rat.h"
+
+void testINT(INT a)
+{
+  cout<<"a = "<<a;
+  cout<<", -a = "<<-a;
+  cout<<", a+20 = "<<a+20;
+  cout<<", 20+a = "<<20+a;
+  cout<<", a-2 = "<<a-2;
+  cout<<", 2-a = "<<2-a;
+  cout<<", a.abs() = "<<a.abs();
+  cout<<", sign(a) = "<<sign(a);
+  cout<<endl;
+  INT b = (a^8) - 1;
+  cout<<"b = a^4-1 = "<<b;
+  cout<<", prime factors: "<<pdivs(b);
+  cout<<endl;
+}
 
 int main ()
 {
@@ -24,6 +41,8 @@ int main ()
   cout << "mod(a,b) = "<<mod(a,b)<<endl;
   cout << "posmod(a,b) = "<<posmod(a,b)<<endl;
   cout << "gcd(a,b) = "<<gcd(a,b)<<endl;
+  testINT(a);
+  testINT(b);
   INT x, y;
   INT g = bezout(a,b,x,y);
   cout << "bezout(a,b,x,y) = "<<g<<" with x="<<x<<", y="<<y<<endl;
@@ -60,4 +79,14 @@ int main ()
     {
       cout<<" does not fit in a long int!"<<endl;
     }
+
+  RAT half(1,2);
+  cout << "one half = " << half <<", rounds to "<<half.round()<<", floor="<<half.floor()<<", ceil="<<half.ceil()<<", recip="<<half.recip()<<endl;
+  RAT third(1,3);
+  cout << "one third = " << third <<", rounds to "<<third.round()<<", floor="<<third.floor()<<", ceil="<<third.ceil()<<", recip="<<third.recip()<<endl;
+
+  cout<<"Enter a rational: "<<flush;
+  RAT q;
+  cin >> q;
+  cout<<"   value entered: "<<q<<endl;
 }

@@ -357,7 +357,7 @@ void Qideal::operator*=(const Quad& alpha)
     }
 }
 
-void Qideal::operator*=(Qideal& f)
+void Qideal::operator*=(Qideal f)
 {
   if (c==0 || f.nm==1) return;    // unchanged
   if (f.c==0 || nm==1) { *this=f; return; }  // f unchanged
@@ -533,8 +533,26 @@ vector<Quad> Qideal::residues() // list of residues, sorted
   return the_residues;
 }
 
+// list of invertible residues
+vector<Quad> Qideal::invertible_residues()
+{
+  long i, n = I2long(nm);
+  vector<Quad> res;
+  res.reserve(n);
+  for (i=0; i<n; i++)
+    {
+      Quad r = resnum(i), s;
+      if (is_coprime_to(r, s))
+        {
+          assert (divides(r*s-Quad::one));
+          res.push_back(r);
+        }
+    }
+  return res;
+}
+
 // lists of invertible residues, and their inverses
-pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues()
+pair<vector<Quad>, vector<Quad>> Qideal::invertible_residues_and_inverses()
 {
   long i, n = I2long(nm);
   vector<Quad> res, inv;
@@ -1143,6 +1161,15 @@ int find_ideal_class(Qideal I, const vector<Qideal>& Jlist)
   return -1;
 }
 
+// return the equivalent ideal in Quad::class_group
+Qideal class_representative(Qideal I)
+{
+  for (vector<Qideal>::const_iterator J=Quad::class_group.begin(); J!=Quad::class_group.end(); J++)
+    if (I.is_equivalent(*J))
+      return *J;
+  return I; // should not happen!
+}
+
 // return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
 int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
 {
@@ -1217,7 +1244,7 @@ void residuetest(Qideal& I)
         phi *= np;
     }
 
-  pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues();
+  pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues_and_inverses();
   cout << phi << " invertible residues mod "<<ideal_label(I)<<":\n";
   cout<<invres.first<<endl;
   cout << " with inverses:\n";

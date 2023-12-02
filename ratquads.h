@@ -4,6 +4,7 @@
 #define _RATQUADS_H      1       //flags that this file has been included
 
 #include "quads.h"
+#include "rat.h"
 
 class RatQuad {
 
@@ -21,6 +22,8 @@ public:
   void reduce(const Qideal& N);
   void reduce(long n);
   int is_integral() const {return d.nm==1;} // assumes reduced
+  int is_infinity() const {return d.nm==0;}
+  int is_finite() const {return d.nm!=0;}
   Quad num() const {return n;}
   Quad den() const {return d;}
   RatQuad recip() const {return RatQuad(d, n);}  // no reduction needed
@@ -34,11 +37,14 @@ public:
   {
     return (d.is_zero()? RatQuad::oo: RatQuad(n%d,d));
   }
+  void normalise();                              // scale so ideal is a standard class rep
   Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
   Qideal ideal() const;                          // ideal (n,d)
   Qideal denominator_ideal() const;              // (d)/(n,d)
   int is_principal() const;
 
+  RAT real() {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
+  RAT imag() {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);

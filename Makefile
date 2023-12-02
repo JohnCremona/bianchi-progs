@@ -34,7 +34,7 @@ OPTFLAG = -O3 -Wall -fPIC
 # The type of integers used for components of Quad, Qideal, RatQuad
 # can be either long or bigint (=NTL's ZZ), these being typedef'd to
 # INT, or the class INT (wrapper around FLINT's fmpz_t defined in
-# flint.h/cc).  Choose which by setting INT_TYPE here.  If the type is
+# int.h/cc).  Choose which by setting INT_TYPE here.  If the type is
 # long then INT_IS_long is defined; this is fastest but results in
 # overflow for large levels over larger fields.  If it is ZZ, there is
 # no overflow but the code is slower; otherwise the macro FLINT is
@@ -88,21 +88,22 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6
-ccs0: flint.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7
+ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
+ccs7: swan.cc
 
-headers: arith_extras.h flint.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+headers: arith_extras.h int.h rat.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h swan.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test
 
 tests: $(TESTS)
 
@@ -184,9 +185,9 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-OBJS = flint.o arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
+OBJS = int.o arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o ratquads.o cusp.o P1N.o
+       primes.o mat22.o ratquads.o cusp.o P1N.o swan.o
 
 objs: $(OBJS)
 
@@ -196,7 +197,7 @@ makenf_loop.o: makenf.cc
 nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
-flint_test.o: flint_test.cc flint.o flint.h
+flint_test.o: flint_test.cc int.o int.h rat.h
 	$(CC) $(CFLAGS) $<
 
 tquads: tquads.o $(OBJS)
@@ -295,8 +296,8 @@ qidl_labels: qidl_labels.o $(OBJS)
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
-flint_test: flint_test.o flint.h
-	$(CC) -o flint_test flint_test.o flint.o $(LFLAGS)
+flint_test: flint_test.o int.h rat.h
+	$(CC) -o flint_test flint_test.o int.o $(LFLAGS)
 
 # DEPENDENCIES
 #

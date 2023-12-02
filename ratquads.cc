@@ -6,9 +6,9 @@
 #include "geometry.h"
 
 // Constants
-RatQuad RatQuad::oo(ONE,ZERO,ONE, 0);
-RatQuad RatQuad::one(ONE,ONE,ONE, 0);
-RatQuad RatQuad::zero(ZERO,ONE,ONE, 0);
+RatQuad RatQuad::oo(Quad::one, Quad::zero);
+RatQuad RatQuad::one(Quad::one, Quad::one);
+RatQuad RatQuad::zero(Quad::zero, Quad::one);
 
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
@@ -64,6 +64,18 @@ int RatQuad::is_principal() const
   else
     // quadgcd(n,d) returns 0 if n,d do not generate a principal ideal
     return coprime(n,d); //quadgcd(n,d) != Quad::zero;
+}
+
+void RatQuad::normalise()                              // scale so ideal is a standard class rep
+{
+  Qideal I({n,d});
+  Qideal J = class_representative(I);
+  I *= J.conj();
+  Quad g;
+  I.is_principal(g);
+  n *= J.norm(); n /= g;
+  d *= J.norm(); d /= g;
+  while (!pos(d)) {n*=fundunit; d*=fundunit;}
 }
 
 //#define DEBUG_CUSP_EQ

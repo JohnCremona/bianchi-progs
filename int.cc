@@ -1,7 +1,7 @@
-// FILE FLINT.CC -- implementation of some of the interface functions in flint.h
+// FILE INT.CC -- implementation of some of the interface functions in int.h
 
 #include <assert.h>
-#include "flint.h"
+#include "int.h"
 
 #ifdef FLINT // else none of these are needed
 

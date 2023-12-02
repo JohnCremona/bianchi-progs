@@ -1,4 +1,4 @@
-// FILE FLINT.H: wrapper for FLINT's fmpz type
+// FILE INT.H: wrapper for FLINT's fmpz type
 
 #if     !defined(_FLINT_H)
 #define _FLINT_H      1       //flags that this file has been included
@@ -88,7 +88,9 @@ public:
   friend long divide_out(const INT&a, const INT& f, INT& q);
   friend void sqrt_mod_p(INT& b, const INT& a, const INT& p);
   friend void swap(INT& a, INT& b);
-  };
+
+  friend class RAT;
+};
 
 inline int sign(const INT& a) {return a.sign();}
 inline INT operator+(int a, const INT& b) {return b+a;}

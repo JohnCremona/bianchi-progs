@@ -9,7 +9,7 @@
 // OR define FLINT to use FLINT's fmpz
 
 #ifdef FLINT
-#include "flint.h"
+#include "int.h"
 #endif
 
 #ifdef INT_IS_long
