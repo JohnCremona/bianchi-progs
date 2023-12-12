@@ -138,12 +138,25 @@ def reduce_mod_Ok(alpha):
     return alpha
 
 def singular_points_in_class(I, IC=None, verbose=False):
-    """Given an ideal I, return a list of singular points of class [I]
-    (one representative for each orbit under integral translations).
+    """Given an ideal I, which has minimal norm in its ideal class, return
+    a list of singular points of class [I] (one representative for
+    each orbit under integral translations).
 
-    Uses the new characterization of singular points as a/b for b one
-    nonzero element of minimal norm in one non-principal ideal I in
-    each ideal class, where I=(a,b).
+    Uses the characterization of singular points as r/s for s a
+    nonzero element of minimal norm in I, and r (mod s) such that I=(r,s).
+
+    One such s is N(I); up to sign this is either unique or there is
+    one other.  Proof: I is primitive so has a Z-basis [n,a+w] where
+    n=N(I), -n/2<a<=n/2 and n|N(a+w).  Now s in I iff (s)=IJ with J
+    minimal in the inverse class, which is the class of Ibar.  Ibar
+    itself is minimal in this class, giving s=n.  This Z-basis is
+    Gauss-reduced (i.e. (a+w)/n is the in the fundamental region of
+    the upper half-plane), so the next smallest element is a+w itself.
+    Hence a second solution (up to sign) is s=a+w, iff and only if
+    n=N(a+w).
+
+    Examples of ideal classes with 2 minimal elements: -15, -21, -35,
+    -55, -65, -77, -91.
 
     IC can be set to a list of ideal class representatives.
 
@@ -153,19 +166,13 @@ def singular_points_in_class(I, IC=None, verbose=False):
         return [NFCusp(k, oo)]
     if IC is None:
         IC = smallest_ideal_class_representatives(k)
-    sigmas = []
-    Inorm = I.norm()
-    Ibar = k.ideal(Inorm)/I
-    s = k(I.norm())
-    slist = [s]
-    if I!=Ibar:
-        I2 = I*I
-        if I2.is_principal():
-            s2 = I2.gens_reduced()[0]
-            assert s.norm()==s2.norm()
-            slist.append(s2)
-    if verbose:
+
+    n = I.norm()
+    slist = [s for s in k.elements_of_norm(n**2) if s in I]
+    if verbose or len(slist)>1:
         print("Ideal class #{}: denominators {}".format(IC.index(I), slist))
+    assert len(slist)==1 or ((I*I).is_principal() and k.discriminant().squarefree_part()%2==1)
+    sigmas = []
     for s in slist:
         rlist = [r for r in k.ideal(s).residues() if k.ideal(r,s) == I]
         ss = [cusp(reduce_mod_Ok(r/s), k, IC) for r in rlist]
@@ -213,7 +220,7 @@ def singular_points_MA(k):
     """
     if k.class_number()==1:
         return []
-    from FundDomains import singular_points as spMA, reduce_ab_mod_ok
+    from Aranes.FundDomains import singular_points as spMA, reduce_ab_mod_ok
     S = spMA(k)
     # include negatives:
     S = S + [[-ab[0],-ab[1]] for ab in S]
@@ -250,7 +257,7 @@ def test_singular_points(dmin, dmax, verbose=False):
             continue
         if verbose:
             print("d={}, {} has class number {}".format(d, k, h))
-        sigmas = singular_points(k)
+        sigmas = singular_points(k, verbose=verbose)
         if verbose:
             print("New sigmas: {}".format(sigmas))
         old_sigmas = singular_points_MA(k)
