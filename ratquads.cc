@@ -5,11 +5,6 @@
 #include "mat22.h"
 #include "geometry.h"
 
-// Constants
-RatQuad RatQuad::oo(Quad::one, Quad::zero);
-RatQuad RatQuad::one(Quad::one, Quad::one);
-RatQuad RatQuad::zero(Quad::zero, Quad::one);
-
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
 
@@ -76,6 +71,83 @@ void RatQuad::normalise()                              // scale so ideal is a st
   n *= J.norm(); n /= g;
   d *= J.norm(); d /= g;
   while (!pos(d)) {n*=fundunit; d*=fundunit;}
+}
+
+// return rational x,y s.t. this = x+y*sqrt(-d)
+vector<RAT> RatQuad::xy_coords() const
+{
+  vector<RAT> xy = real_imag();
+  if (Quad::t)
+    {
+      xy[1] /= 2;
+      xy[0] += xy[1];
+    }
+  return xy;
+}
+
+// True iff x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
+int RatQuad::in_rectangle() const
+{
+  vector<RAT> xy = xy_coords();
+  RAT x=xy[0], y=xy[1], half(1,2);
+  if (Quad::t)
+    y *=2;
+  return -half<x && x<=half && -half<y && y<=half;
+}
+
+// x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
+int RatQuad::in_quarter_rectangle() const
+{
+  vector<RAT> xy = xy_coords();
+  RAT x=xy[0], y=xy[1], half(1,2);
+  if (Quad::t) y *=2;
+  return 0<=x && x<=half && 0<=y && y<=half;
+}
+
+// subtract Quad to put into rectangle
+RatQuad reduce_to_rectangle(const RatQuad& a)
+{
+  // cout<<"Reducing "<<a<<" to rectangle..."<<endl;
+  RatQuad b(a);
+  // cout<<" - initial xy-coords "<<b.xy_coords();
+  RAT y = b.xy_coords()[1];
+  if (Quad::t) y *= 2;
+  // cout<<": "<<y<<" rounds to "<<y.round()<<endl;
+  b -= y.round()*Quad::w;
+  // cout<<" - after y-shift,  xy-coords "<<b.xy_coords();
+  RAT x = b.xy_coords()[0];
+  // cout<<": "<<x<<" rounds to "<<x.round()<<endl;
+  b -= x.round();
+  // cout<<" - after x-shift,  xy-coords "<<b.xy_coords()<<endl;
+  // cout<<"...returning "<<b<<endl;
+  return b;
+}
+
+
+// Finding cusp in list, with or without translation
+
+// Return index of c in clist, or -1 if not in list
+int cusp_index(const RatQuad& c, const vector<RatQuad>& clist)
+{
+  auto ci = std::find(clist.begin(), clist.end(), c);
+  if (ci==clist.end())
+    return -1;
+  return ci-clist.begin();
+}
+
+// Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
+int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t)
+{
+  for (auto ci = clist.begin(); ci!=clist.end(); ++ci)
+    {
+      RatQuad diff = c-*ci;
+      if (diff.is_integral())
+        {
+          t = diff.round();
+          return ci-clist.begin();
+        }
+    }
+  return -1;
 }
 
 //#define DEBUG_CUSP_EQ

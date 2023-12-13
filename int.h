@@ -134,9 +134,11 @@ inline INT pow(const INT& a, long e) {return a^e;}
 inline int isqrt(const INT& a, INT& root) {root=a.isqrt(); return root*root==a;}
 inline INT isqrt(const INT& a) {return a.isqrt();}
 
-// functions implemented in flint.cc:
+// functions implemented in int.cc:
 
-INT rounded_division(const INT& a, const INT& b);
+// Return q=round(a/b) with halves going down if round_down=1 (default) else up
+INT rounded_division(const INT& a, const INT& b, int round_down=1);
+
 std::vector<INT> pdivs(const INT& a);
 std::vector<INT> sqdivs(const INT& a);
 INT sqrt_mod_p(const INT& a, const INT& p);

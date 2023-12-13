@@ -111,27 +111,41 @@ public:
   friend inline int operator!=(long a, const RAT& b) {return b!=INT(a);}
 
   int operator<(const RAT& b) const {return fmpq_cmp(q, b.q)<0;}
+  int operator<=(const RAT& b) const {return fmpq_cmp(q, b.q)<=0;}
   int operator<(const INT& b) const {return fmpq_cmp_fmpz(q, b.z)<0;}
+  int operator<=(const INT& b) const {return fmpq_cmp_fmpz(q, b.z)<=0;}
   int operator<(long b) const {return fmpq_cmp_si(q, b)<0;}
+  int operator<=(long b) const {return fmpq_cmp_si(q, b)<=0;}
   int operator>(const RAT& b) const {return fmpq_cmp(q, b.q)>0;}
+  int operator>=(const RAT& b) const {return fmpq_cmp(q, b.q)>=0;}
   int operator>(const INT& b) const {return fmpq_cmp_fmpz(q, b.z)>0;}
+  int operator>=(const INT& b) const {return fmpq_cmp_fmpz(q, b.z)>=0;}
   int operator>(long b) const {return fmpq_cmp_si(q, b)>0;}
+  int operator>=(long b) const {return fmpq_cmp_si(q, b)>=0;}
   friend inline int operator<(const INT& a, const RAT& b) {return b>a;}
+  friend inline int operator<=(const INT& a, const RAT& b) {return b>=a;}
   friend inline int operator<(long a, const RAT& b) {return b>a;}
+  friend inline int operator<=(long a, const RAT& b) {return b>=a;}
   friend inline int operator>(const INT& a, const RAT& b) {return b<a;}
+  friend inline int operator>=(const INT& a, const RAT& b) {return b<=a;}
   friend inline int operator>(long a, const RAT& b) {return b<a;}
+  friend inline int operator>=(long a, const RAT& b) {return b<=a;}
 
   friend ostream& operator<< (ostream&, const RAT&);
   friend istream& operator>> (istream&, RAT&);
 
   void operator+=(const RAT& b) {fmpq_add(q, q, b.q);}
   void operator+=(const INT& b) {fmpq_add_fmpz(q, q, b.z);}
+  void operator+=(int b) {fmpq_add_si(q, q, b);}
   void operator-=(const RAT& b) {fmpq_sub(q, q, b.q);}
   void operator-=(const INT& b) {fmpq_sub_fmpz(q, q, b.z);}
+  void operator-=(int b) {fmpq_sub_si(q, q, b);}
   void operator*=(const RAT& b) {fmpq_mul(q, q, b.q);}
   void operator*=(const INT& b) {fmpq_mul_fmpz(q, q, b.z);}
+  void operator*=(int b) {fmpq_mul_si(q, q, b);}
   void operator/=(const RAT& b) {fmpq_div(q, q, b.q);}
   void operator/=(const INT& b) {fmpq_div_fmpz(q, q, b.z);}
+  void operator/=(int b) {fmpz_t bb; fmpz_set_si(bb,b); fmpq_div_fmpz(q, q, bb);}
 
   RAT operator+() const {
     RAT x(*this); return x;
@@ -151,7 +165,7 @@ public:
 
 
 inline INT RAT::round() const {
-  return rounded_division(num(), den());
+  return rounded_division(num(), den(), 0); // 0 means halves go up
 }
 
 inline ostream& operator<<(ostream& s, const RAT& q)

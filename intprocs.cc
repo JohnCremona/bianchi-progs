@@ -6,18 +6,30 @@
 
 #ifdef INT_IS_ZZ
 
-INT rounded_division(INT a, INT b)
+INT rounded_division(INT a, INT b, int round_down)
 {
   INT q, r;
   ::divides(a,b, q,r);
   assert (a==b*q+r);
   INT r2 = 2*r;
-  // We want -b <= r2 < +b
-  if (r2<-b)
-    q-=1;
+  if (round_down)
+    {
+      // We want -b <= r2 < +b
+      if (r2<-b)
+        q-=1;
+      else
+        if (r2>=b)
+          q+=1;
+    }
   else
-    if (r2>=b)
-      q+=1;
+    {
+      // We want -b < r2 <= +b
+      if (r2<=-b)
+        q-=1;
+      else
+        if (r2>b)
+          q+=1;
+    }
   return q;
 }
 

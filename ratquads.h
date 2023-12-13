@@ -33,9 +33,20 @@ public:
     while (!pos(dc)) {nc*=fundunit; dc*=fundunit;}
     return RatQuad(nc, dc);   // no reduction needed
   }
-  RatQuad translation_reduce() const             // reduce mod Quads
+  // reduce mod Quads; if rectangle==1
+  RatQuad translation_reduce(int rectangle=0) const
   {
-    return (d.is_zero()? RatQuad::oo: RatQuad(n%d,d));
+    if (d.is_zero()) return RatQuad(n,d);
+    if (!rectangle) return RatQuad(n%d,d);
+
+    Quad nn=n, nd = n*d.conj();
+    INT dd = d.norm();
+    INT a = RAT(nd.i,dd).floor();
+    nn -= a*Quad::w*d;
+    nd = nn*d.conj();
+    a = RAT(nd.r,dd).floor();
+    nn -= a*d;
+    return RatQuad(nn,d);
   }
   void normalise();                              // scale so ideal is a standard class rep
   Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
@@ -43,8 +54,15 @@ public:
   Qideal denominator_ideal() const;              // (d)/(n,d)
   int is_principal() const;
 
-  RAT real() {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
-  RAT imag() {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
+  RAT real() const {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
+  RAT imag() const {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
+  vector<RAT> real_imag() const {Quad a=n*d.conj(); INT b = d.norm(); return {RAT(a.r,b),RAT(a.i,b)};}
+
+  vector<RAT> xy_coords() const;       // rational x,y s.t. this = x+y*sqrt(-d)
+  int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
+  int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
+  friend RatQuad reduce_to_rectangle(const RatQuad&); // subtract Quad to put into rectangle
+
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);
@@ -61,24 +79,19 @@ public:
   friend int operator==(const RatQuad&, const RatQuad&);
   friend int operator!=(const RatQuad&, const RatQuad&);
   friend ostream& operator<< (ostream&s, const RatQuad&);
-  RatQuad& operator+=(const RatQuad&);
-  RatQuad& operator+=(const Quad&);
-  RatQuad& operator-=(const RatQuad&);
-  RatQuad& operator-=(const Quad&);
-  RatQuad& operator*=(const RatQuad&);
-  RatQuad& operator*=(const Quad&);
-  RatQuad& operator/=(const RatQuad&);
-  RatQuad& operator/=(const Quad&);
+  void operator+=(const RatQuad&);
+  void operator+=(const Quad&);
+  void operator-=(const RatQuad&);
+  void operator-=(const Quad&);
+  void operator*=(const RatQuad&);
+  void operator*=(const Quad&);
+  void operator/=(const RatQuad&);
+  void operator/=(const Quad&);
   RatQuad operator+();
   RatQuad operator-();
 
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
-
-  // Constants
-  static RatQuad oo;
-  static RatQuad one;
-  static RatQuad zero;
 
   // Implementation
 private:
@@ -89,7 +102,7 @@ class modsym {
  private:
     RatQuad a,b;
  public:
-  modsym() :a(RatQuad::zero), b(RatQuad::zero) {}
+  modsym() :a(), b() {}
     modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
     explicit modsym(const mat22& M, int type=0);              //conversion from (c:d)
     RatQuad alpha() const {return a;}
@@ -130,48 +143,42 @@ inline RatQuad RatQuad::operator-()
 
 // Definitions of compound-assignment operator member functions
 
-inline RatQuad& RatQuad::operator+=(const RatQuad& r)
+inline void RatQuad::operator+=(const RatQuad& r)
 {
   n = n*r.d + d*r.n;
   d *= r.d;
   (*this).reduce();
-  return *this;
 }
 
-inline RatQuad& RatQuad::operator+=(const Quad& q)
+inline void RatQuad::operator+=(const Quad& q)
 {
   n += d*q;
   (*this).reduce();
-  return *this;
 }
 
-inline RatQuad& RatQuad::operator-=(const RatQuad& r)
+inline void RatQuad::operator-=(const RatQuad& r)
 {
   n = n*r.d - d*r.n;
   d *= r.d;
   (*this).reduce();
-  return *this;
 }
 
-inline RatQuad& RatQuad::operator-=(const Quad& q)
+inline void RatQuad::operator-=(const Quad& q)
 {
   n -= d*q;
   (*this).reduce();
-  return *this;
 }
 
-inline RatQuad& RatQuad::operator*=(const Quad& q)
+inline void RatQuad::operator*=(const Quad& q)
 {
   n*=q;
   (*this).reduce();
-  return *this;
 }
 
-inline RatQuad& RatQuad::operator/=(const Quad& q)
+inline void RatQuad::operator/=(const Quad& q)
 {
   d*=q;
   (*this).reduce();
-  return *this;
 }
 
 // Definitions of non-member binary operator functions
@@ -277,5 +284,13 @@ inline ostream& operator<< (ostream& s, const modsym& m)
    s << "{" << (m.a) << "," << (m.b) << "}";
    return s;
 }
+
+// Finding cusp in list, with or without translation
+
+// Return index of c in clist, or -1 if not in list
+int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
+
+// Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
+int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
 
 #endif

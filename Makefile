@@ -96,14 +96,14 @@ ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan.cc
+ccs7: swan.cc swan_test.cc
 
 headers: arith_extras.h int.h rat.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h swan.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test
 
 tests: $(TESTS)
 
@@ -197,7 +197,10 @@ makenf_loop.o: makenf.cc
 nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
-flint_test.o: flint_test.cc int.o int.h rat.h
+flint_test.o: flint_test.cc int.cc int.h rat.h
+	$(CC) $(CFLAGS) $<
+
+swan_test.o: swan_test.cc int.cc int.h rat.h swan.o
 	$(CC) $(CFLAGS) $<
 
 tquads: tquads.o $(OBJS)
@@ -298,6 +301,9 @@ rewrite_eigs: rewrite_eigs.o $(OBJS)
 
 flint_test: flint_test.o int.h rat.h
 	$(CC) -o flint_test flint_test.o int.o $(LFLAGS)
+
+swan_test: swan_test.o $(OBJS) rat.h
+	$(CC) -o swan_test swan_test.o $(OBJS) $(LFLAGS)
 
 # DEPENDENCIES
 #
