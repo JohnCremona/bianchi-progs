@@ -7,20 +7,16 @@
 int main ()
 {
   long f, max;
-  int one_field = 0;
   vector<long> fields = valid_field_discs();
-  cerr << "Enter field (0 for all): " << flush;  cin >> f;
+  cerr << "Enter field (0 for all up to "<<MAX_DISC<<", -1 for all): " << flush;  cin >> f;
   cerr << "Enter max. norm for primes: " << flush;  cin >> max;
   cerr << endl;
-  if (f)
-    {
-      fields = {f};
-      one_field = 1;
-    }
+  if (f>0)
+    fields = {f};
   for (auto di = fields.begin(); di!=fields.end(); ++di)
     {
       long D = *di;
-      if ((!one_field) && D>MAX_DISC)
+      if ((f==0) && (D>MAX_DISC))
         break;
       long d = (D%4==0? D/4: D);
       Quad::field(d,max);

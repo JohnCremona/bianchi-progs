@@ -222,7 +222,7 @@ void output_singular_points(const vector<RatQuad> S, int to_file, int to_screen)
   stringstream ss;
   if (to_file)
     {
-      ss << "geodata/geodata_" << Quad::d << ".dat";
+      ss << "geodata_" << Quad::d << ".dat";
       geodata.open(ss.str().c_str(), ios_base::app);
     }
   int nlines=0;
