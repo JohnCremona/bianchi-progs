@@ -15,6 +15,7 @@ public:
     }
   void operator++();
   operator Quad() const {return val;}
+  vector<Quad> values_with_current_norm();
   int ok() const {return n<=nmax;}
 
 private:

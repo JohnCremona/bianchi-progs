@@ -404,6 +404,15 @@ vector<Quad> residues(const Quad& a)
   return ans;
 }
 
+vector<Quad> invertible_residues(const Quad& a)
+{
+  vector<Quad> res = residues(a), ires;
+  for (auto r=res.begin(); r!=res.end(); ++r)
+    if (coprime(a,*r))
+      ires.push_back(*r);
+  return ires;
+}
+
 Quad::operator string() const
 {
   ostringstream s;

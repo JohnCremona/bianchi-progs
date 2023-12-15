@@ -41,6 +41,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse);
 //functions defined in quads.cc
 int ndiv(const Quad& a, const Quad& b);
 vector<Quad> residues(const Quad& a);
+vector<Quad> invertible_residues(const Quad& a);
 
 //Primes
 extern vector<Quad> quadprimes;

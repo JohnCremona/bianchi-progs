@@ -1,4 +1,5 @@
-Enter field: Include conjugates? Enter first and last norm for Quad loop: Quad = 1	with norm 1
+Quads in order of norm:
+Quad = 1	with norm 1
 Quad = t	with norm 2
 Quad = 1+t	with norm 3
 Quad = 2	with norm 4
@@ -31,35 +32,36 @@ Quad = 6+2t	with norm 44
 Quad = 4+4t	with norm 48
 Quad = 7	with norm 49
 Quad = 5t	with norm 50
-Quad = 7+t	with norm 51
-Quad = 1+5t	with norm 51
-Quad = 6+3t	with norm 54
-Quad = 2+5t	with norm 54
-Quad = 7+2t	with norm 57
-Quad = 5+4t	with norm 57
-Quad = 3+5t	with norm 59
-Quad = 8	with norm 64
-Quad = 8+t	with norm 66
-Quad = 4+5t	with norm 66
-Quad = 7+3t	with norm 67
-Quad = 6+4t	with norm 68
-Quad = 8+2t	with norm 72
-Quad = 6t	with norm 72
-Quad = 1+6t	with norm 73
-Quad = 5+5t	with norm 75
-Quad = 2+6t	with norm 76
-Quad = 9	with norm 81
-Quad = 7+4t	with norm 81
-Quad = 3+6t	with norm 81
-Quad = 8+3t	with norm 82
-Quad = 9+t	with norm 83
-Quad = 6+5t	with norm 86
-Quad = 4+6t	with norm 88
-Quad = 9+2t	with norm 89
-Quad = 8+4t	with norm 96
-Quad = 5+6t	with norm 97
-Quad = 7t	with norm 98
-Quad = 9+3t	with norm 99
-Quad = 7+5t	with norm 99
-Quad = 1+7t	with norm 99
-Quad = 10	with norm 100
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 2:	[ t ]
+Norm 3:	[ 1+t ]
+Norm 4:	[ 2 ]
+Norm 6:	[ 2+t ]
+Norm 8:	[ 2t ]
+Norm 9:	[ 3 1+2t ]
+Norm 11:	[ 3+t ]
+Norm 12:	[ 2+2t ]
+Norm 16:	[ 4 ]
+Norm 17:	[ 3+2t ]
+Norm 18:	[ 4+t 3t ]
+Norm 19:	[ 1+3t ]
+Norm 22:	[ 2+3t ]
+Norm 24:	[ 4+2t ]
+Norm 25:	[ 5 ]
+Norm 27:	[ 5+t 3+3t ]
+Norm 32:	[ 4t ]
+Norm 33:	[ 5+2t 1+4t ]
+Norm 34:	[ 4+3t ]
+Norm 36:	[ 6 2+4t ]
+Norm 38:	[ 6+t ]
+Norm 41:	[ 3+4t ]
+Norm 43:	[ 5+3t ]
+Norm 44:	[ 6+2t ]
+Norm 48:	[ 4+4t ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 5t ]
+-------------------------------------------
+

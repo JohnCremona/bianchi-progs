@@ -1,4 +1,5 @@
-Enter field: Include conjugates? Enter first and last norm for Quad loop: Quad = 1	with norm 1
+Quads in order of norm:
+Quad = 1	with norm 1
 Quad = 1+i	with norm 2
 Quad = 2	with norm 4
 Quad = 2+i	with norm 5
@@ -24,25 +25,32 @@ Quad = 6+3i	with norm 45
 Quad = 7	with norm 49
 Quad = 7+i	with norm 50
 Quad = 5+5i	with norm 50
-Quad = 6+4i	with norm 52
-Quad = 7+2i	with norm 53
-Quad = 7+3i	with norm 58
-Quad = 6+5i	with norm 61
-Quad = 8	with norm 64
-Quad = 8+i	with norm 65
-Quad = 7+4i	with norm 65
-Quad = 8+2i	with norm 68
-Quad = 6+6i	with norm 72
-Quad = 8+3i	with norm 73
-Quad = 7+5i	with norm 74
-Quad = 8+4i	with norm 80
-Quad = 9	with norm 81
-Quad = 9+i	with norm 82
-Quad = 9+2i	with norm 85
-Quad = 7+6i	with norm 85
-Quad = 8+5i	with norm 89
-Quad = 9+3i	with norm 90
-Quad = 9+4i	with norm 97
-Quad = 7+7i	with norm 98
-Quad = 10	with norm 100
-Quad = 8+6i	with norm 100
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 2:	[ 1+i ]
+Norm 4:	[ 2 ]
+Norm 5:	[ 2+i ]
+Norm 8:	[ 2+2i ]
+Norm 9:	[ 3 ]
+Norm 10:	[ 3+i ]
+Norm 13:	[ 3+2i ]
+Norm 16:	[ 4 ]
+Norm 17:	[ 4+i ]
+Norm 18:	[ 3+3i ]
+Norm 20:	[ 4+2i ]
+Norm 25:	[ 5 4+3i ]
+Norm 26:	[ 5+i ]
+Norm 29:	[ 5+2i ]
+Norm 32:	[ 4+4i ]
+Norm 34:	[ 5+3i ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 6+i ]
+Norm 40:	[ 6+2i ]
+Norm 41:	[ 5+4i ]
+Norm 45:	[ 6+3i ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 7+i 5+5i ]
+-------------------------------------------
+

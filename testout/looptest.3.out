@@ -1,4 +1,5 @@
-Enter field: Include conjugates? Enter first and last norm for Quad loop: Quad = 1	with norm 1
+Quads in order of norm:
+Quad = 1	with norm 1
 Quad = 1+w	with norm 3
 Quad = 2	with norm 4
 Quad = 2+w	with norm 7
@@ -19,20 +20,28 @@ Quad = 6+w	with norm 43
 Quad = 4+4w	with norm 48
 Quad = 7	with norm 49
 Quad = 5+3w	with norm 49
-Quad = 6+2w	with norm 52
-Quad = 7+w	with norm 57
-Quad = 5+4w	with norm 61
-Quad = 6+3w	with norm 63
-Quad = 8	with norm 64
-Quad = 7+2w	with norm 67
-Quad = 8+w	with norm 73
-Quad = 5+5w	with norm 75
-Quad = 6+4w	with norm 76
-Quad = 7+3w	with norm 79
-Quad = 9	with norm 81
-Quad = 8+2w	with norm 84
-Quad = 9+w	with norm 91
-Quad = 6+5w	with norm 91
-Quad = 7+4w	with norm 93
-Quad = 8+3w	with norm 97
-Quad = 10	with norm 100
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 3:	[ 1+w ]
+Norm 4:	[ 2 ]
+Norm 7:	[ 2+w ]
+Norm 9:	[ 3 ]
+Norm 12:	[ 2+2w ]
+Norm 13:	[ 3+w ]
+Norm 16:	[ 4 ]
+Norm 19:	[ 3+2w ]
+Norm 21:	[ 4+w ]
+Norm 25:	[ 5 ]
+Norm 27:	[ 3+3w ]
+Norm 28:	[ 4+2w ]
+Norm 31:	[ 5+w ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 4+3w ]
+Norm 39:	[ 5+2w ]
+Norm 43:	[ 6+w ]
+Norm 48:	[ 4+4w ]
+Norm 49:	[ 7 5+3w ]
+-------------------------------------------
+

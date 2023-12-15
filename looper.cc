@@ -75,6 +75,22 @@ void Quadlooper::operator++()
     bstep();
 }
 
+
+vector<Quad> Quadlooper::values_with_current_norm()
+{
+  INT the_norm = n;
+  vector<Quad> values;
+  values.push_back(val);
+  operator++();
+  while (n == the_norm)
+    {
+      values.push_back(val);
+      operator++();
+    }
+  return values;
+}
+
+
 // Lists of elements of norm in ranges (up to units, excluding 0)
 vector<Quad> elements_of_norm_between(const INT& n1, const INT& n2)
 {

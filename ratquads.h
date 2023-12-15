@@ -12,6 +12,7 @@ public:
   // constructors
   RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int reduce=0);
   RatQuad(INT a, INT b, INT dd, int reduce=0); // (a+b*w)/dd
+  RatQuad(const RAT& a);
 
   // RatQuad manipulations
 
@@ -33,20 +34,13 @@ public:
     while (!pos(dc)) {nc*=fundunit; dc*=fundunit;}
     return RatQuad(nc, dc);   // no reduction needed
   }
-  // reduce mod Quads; if rectangle==1
-  RatQuad translation_reduce(int rectangle=0) const
+  // reduce mod Quads -- see also reduce_to_rectangle()
+  RatQuad translation_reduce() const
   {
-    if (d.is_zero()) return RatQuad(n,d);
-    if (!rectangle) return RatQuad(n%d,d);
-
-    Quad nn=n, nd = n*d.conj();
-    INT dd = d.norm();
-    INT a = RAT(nd.i,dd).floor();
-    nn -= a*Quad::w*d;
-    nd = nn*d.conj();
-    a = RAT(nd.r,dd).floor();
-    nn -= a*d;
-    return RatQuad(nn,d);
+    if (d.is_zero())
+      return RatQuad(n,d);
+    else
+      return RatQuad(n%d,d);
   }
   void normalise();                              // scale so ideal is a standard class rep
   Quad round() const {return n/d;}               // nearest Quad, using rounded division of Quads
@@ -54,6 +48,7 @@ public:
   Qideal denominator_ideal() const;              // (d)/(n,d)
   int is_principal() const;
 
+  RAT norm() const {return RAT(n.norm(), d.norm());}
   RAT real() const {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
   RAT imag() const {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
   vector<RAT> real_imag() const {Quad a=n*d.conj(); INT b = d.norm(); return {RAT(a.r,b),RAT(a.i,b)};}
@@ -129,6 +124,11 @@ inline RatQuad::RatQuad(INT a, INT b, INT dd, int reduce) // (a+b*w)/dd
   if (reduce)
     (*this).reduce();
 }
+
+inline RatQuad::RatQuad(const RAT& a)
+  :d(a.den()), n(a.num())
+{};
+
 
 inline RatQuad RatQuad::operator+()
 {
@@ -211,6 +211,11 @@ inline RatQuad operator-(const Quad& q, const RatQuad& r)
 inline RatQuad operator-(const RatQuad& r, const Quad& q)
 {
   return RatQuad(r.n - q*r.d, r.d, 1);
+}
+
+inline RatQuad operator*(const RatQuad& q, const RatQuad& r)
+{
+  return RatQuad(q.n*r.n, q.d*r.d, 1);
 }
 
 inline RatQuad operator*(const RatQuad& r, const Quad& q)
