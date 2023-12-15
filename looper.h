@@ -8,23 +8,29 @@
 class Quadlooper {
 
 public:
-  Quadlooper(long nn, long nmax, int conj=0)
-    :d(Quad::d), disc(Quad::disc), n(nn), nlim(nmax), include_conjugates(conj)
-    { setblims();
-      b=bmin; while(!finda()) bstep();
+  Quadlooper(long nn, long nm, int conj=0)
+    :d(Quad::d), disc(Quad::disc), n(nn), nmax(nm), include_conjugates(conj)
+    {
+      setblims();
     }
   void operator++();
-  operator Quad() const {return Quad(a,b);}
-  int ok() const {return n<=nlim;}
+  operator Quad() const {return val;}
+  int ok() const {return n<=nmax;}
 
 private:
   long d;
-  INT disc,n,a,b,bmin,bmax,nlim;
+  INT disc,n,n4,b,db2,bmin,bmax,nmax;
+  Quad val;
   int include_conjugates;
-  int finda();
+  int testb();
   void nstep();
   void bstep();
   void setblims();
 };
+
+// Lists of elements of norm in ranges (up to units, excluding 0)
+vector<Quad> elements_of_norm_between(const INT& n1, const INT& n2);
+inline vector<Quad> elements_of_norm(const INT& n) {return elements_of_norm_between(n,n);}
+inline vector<Quad> elements_of_norm_up_to(const INT& n) {return elements_of_norm_between(1,n);}
 
 #endif
