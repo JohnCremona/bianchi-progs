@@ -64,7 +64,7 @@ public:
   void operator /=(long a) {fmpz_divexact_si(z,z,a);}
   int is_square() const {return fmpz_is_square(z);}
   int is_square(INT& a) const {if (!fmpz_is_square(z)) return 0; else {fmpz_sqrt(a.z,z); return 1;}}
-  INT isqrt() const {INT b; fmpz_sqrt(b.z,z); return b;}
+  INT isqrt() const {INT b; if (fmpz_sgn(z)>0) fmpz_sqrt(b.z,z); return b;}
   long valuation(const INT& p) {INT q;   return fmpz_remove(q.z, z, p.z);}
   friend std::ostream& operator<<(std::ostream& s, const INT& a);
   friend std::istream& operator>>(std::istream& s, INT& x);

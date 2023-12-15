@@ -60,6 +60,11 @@ public:
     RAT x;  fmpq_inv(x.q, q); return x;
   }
 
+  int sign() const
+  {
+    return fmpq_sgn(q);
+  }
+
   INT round() const;      // nearest integer
 
   // Binary Operator Functions
@@ -158,6 +163,13 @@ public:
   }
   INT floor() const;
   INT ceil() const;
+  int is_square() const {return (num()*den()).is_square();}
+  int is_square(RAT& a) const {
+    INT nd = num()*den(), rnd;
+    int b=nd.is_square(rnd);
+    if (b) a = RAT(rnd, den());
+    return b;
+  }
 };
 
 
