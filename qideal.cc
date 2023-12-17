@@ -140,14 +140,13 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 {
   // cout<<"Constructing an ideal with gens "<<gens <<endl;
   vector<INT> rv, iv;
-  for(vector<Quad>::const_iterator g = gens.begin(); g!=gens.end(); ++g)
+  for( const auto& a : gens)
     {
-      Quad a = *g;
       rv.push_back(a.r);
       iv.push_back(a.i);
-      a *=Quad::w;
-      rv.push_back(a.r);
-      iv.push_back(a.i);
+      Quad b = a*Quad::w;
+      rv.push_back(b.r);
+      iv.push_back(b.i);
     }
   // cout<<"rv = "<<rv<<", iv = "<<iv<<endl;
   *this = Qideal(rv, iv);

@@ -346,17 +346,16 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
 { vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
-  for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
-    ans = reduce_modp(ans + chain((*mi)(alpha), proj), hmod);
+  for ( const auto& m : T.mats)
+    ans = reduce_modp(ans + chain(m(alpha), proj), hmod);
   return ans;
 }
 
 vec homspace::applyop(const matop& T, const modsym& m, int proj)
 { vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
-  for (vector<mat22>::const_iterator mi = T.mats.begin(); mi!=T.mats.end(); ++mi)
+  for ( const auto& M : T.mats)
     {
-      mat22 M = *mi;
 #ifdef DEBUG_CHAIN
       cout<<"image of m="<<m<<" under matrix M="<<M<<" has alpha="<<M(m.alpha())<<", beta="<<M(m.beta())<<" -- now calling chain on {alpha,beta}"<<endl;
 #endif
@@ -717,14 +716,14 @@ vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspida
   if (cuspidal)
     {
       dims = trivial_character_subspace_dimensions_by_twist(0, use_lower_bounds, {}, cuspidal_lower_bounds);
-      for (auto di = dims.begin(); di!=dims.end(); ++di)
-        dims1.push_back(di->second);
+      for ( const auto& di : dims)
+        dims1.push_back(di.second);
     }
   else
     {
       dims = trivial_character_subspace_dimensions_by_twist(use_lower_bounds, 0, cuspidal_lower_bounds, {});
-      for (auto di = dims.begin(); di!=dims.end(); ++di)
-        dims1.push_back(di->first);
+      for ( const auto& di : dims)
+        dims1.push_back(di.first);
     }
   return dims1;
 }

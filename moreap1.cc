@@ -39,10 +39,8 @@ int main(void)
          cin >> p;
          if(p<2) break;
          vector<Quadprime> Plist = Quadprimes_above(p);
-         vector<Quadprime>::const_iterator Pi;
-         for(Pi=Plist.begin(); Pi!=Plist.end(); ++Pi)
+         for ( auto& P : Plist)
            {
-             Quadprime P = *Pi;
              vector<long> apv = nf.apvec(P);
              cout << "ap for "<<P<<": "<<apv<<endl;
            }

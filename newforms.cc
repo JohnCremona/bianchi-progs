@@ -437,10 +437,9 @@ void newform::find_matrix()
       if (N.is_coprime_to(D))
         {
           vector<Quad> reslist = residues(d);
-          vector<Quad>::const_iterator res;
-          for(res=reslist.begin(); res!=reslist.end() && !matdot; ++res)
+          for( const auto& bi : reslist)
             {
-              b=*res;
+              b = bi;
               Qideal bN = b*N;
               if (D.is_coprime_to(bN, a, c))
                 // found a candidate q=b/d: a+c=1 with d|a and b|c and c/b in N
@@ -449,6 +448,8 @@ void newform::find_matrix()
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
                   matdot = abs((nf->h1->chain(b,d, 1))[index]);
+                  if (matdot)
+                    break;
                 } // b coprime to d test
             } // loop over b
         } // d coprime to N test
@@ -943,8 +944,7 @@ void newforms::find_lambdas()
       return;
     }
 
-  vector<Quadprime>::const_iterator Li;
-  for(Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
+  for( auto Li=Quadprimes::list.begin(); Li!=Quadprimes::list.end() && (nfound<n1ds); ++Li)
     {
       Quadprime L = *Li;
       if (L.divides(TWO)) continue;

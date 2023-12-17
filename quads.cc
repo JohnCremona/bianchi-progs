@@ -68,9 +68,8 @@ vector<long> class_number_five_fields = {47,79,103,127,131,179,227,347,443,523,5
 vector<long> valid_field_discs(long max_disc)
 {
   vector<long> discs;
-  for(auto di = valid_fields.begin(); di!=valid_fields.end(); ++di)
+  for(auto d : valid_fields)
     {
-      long d = *di; // positive, square-free
       long D = (d%4==3? d : 4*d);
       if ((max_disc==0) || (D<=max_disc))
         discs.push_back(D);
@@ -205,11 +204,8 @@ void Quad::field(long dd, long max)
       }
     }
   vector<INT> pp = pdivs(odd);
-  for (auto pi=pp.begin(); pi!=pp.end(); ++pi)
-    {
-      INT p = *pi;
-      prime_disc_factors.push_back((p%4==1?p:-p));
-    }
+  for ( const auto& p : pp)
+    prime_disc_factors.push_back((p%4==1?p:-p));
 
   INT i0(0), i1(1);
   w = Quad(i0, i1, n);
@@ -407,9 +403,9 @@ vector<Quad> residues(const Quad& a)
 vector<Quad> invertible_residues(const Quad& a)
 {
   vector<Quad> res = residues(a), ires;
-  for (auto r=res.begin(); r!=res.end(); ++r)
-    if (coprime(a,*r))
-      ires.push_back(*r);
+  for ( const auto& r : res)
+    if (coprime(a,r))
+      ires.push_back(r);
   return ires;
 }
 
@@ -518,22 +514,13 @@ void Quad::initquadprimes()
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
     { long p=pr;
       list = Quad::primes_above(p, sig);
-      for (pi = list.begin(); pi!=list.end(); )
-        switch (sig) {
-        case  0:
-          list1.push_back(*pi++);
-          break;
-        case -1:
-          if(p*p<=maxnorm)
-            list2.push_back(*pi);
-          ++pi;
-          break;
-        case 1:
-          {
-            list1.push_back(*pi++);
-            list1.push_back(*pi++);
-          }
+      if (sig==-1)
+        {
+          if (p*p<=maxnorm)
+            list2.push_back(list[0]);
         }
+      else
+        list1.insert(list1.end(), list.begin(), list.end());
     }
 
   // Now list1 contains the degree 1 primes and list2 the degree 2
@@ -559,10 +546,8 @@ Quad primdiv(const Quad& a)
 {
   INT na=quadnorm(a);
   if (na<2) return Quad::zero;   // must return something!
-  vector<Quad>::const_iterator pr;
-  for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
+  for ( const auto& p : quadprimes)
     {
-      Quad p=*pr;
       if (div(p,a)) return p;
       INT np=quadnorm(p);
       if (np*np>na) return makepos(a);
@@ -575,20 +560,19 @@ vector<Quad> pdivs(const Quad& aa)
 { Quad a=aa; INT norma=quadnorm(a);
   vector<Quad> plist; // will hold prime factors
   if (norma<2) return plist;
-  vector<Quad>::const_iterator pr;
-  for (pr=quadprimes.begin(); pr!=quadprimes.end(); ++pr)
-     { Quad p = *pr;
-       if (div(p,a)) 
+  for ( const auto& p : quadprimes)
+     {
+       if (div(p,a))
 	 {
 	   plist.push_back(p);
-	   while (div(p,a)) a/=p; 
-	   norma=quadnorm(a);	 
+	   while (div(p,a)) a/=p;
+	   norma=quadnorm(a);
 	   if (norma==1) return plist;
 	 }
-       else 
+       else
 	 {
 	   INT normp=quadnorm(p);
-	   if (normp*normp>norma) 
+	   if (normp*normp>norma)
 	     {
 	       plist.push_back(makepos(a));
 	       return plist;
@@ -597,119 +581,113 @@ vector<Quad> pdivs(const Quad& aa)
      }
   //In case of p-factors outside range, assume the cofactor is prime:
   if (quadnorm(a)>1)
-    plist.push_back(makepos(a));  
+    plist.push_back(makepos(a));
   return plist;
 }
 
 vector<Quad> posdivs(const Quad& a)   // all "positive" divisors (up to units)
 {
-  vector<Quad> plist=pdivs(a); Quad p; 
-  int e, nu = 1; int nd=nu;
+  vector<Quad> plist=pdivs(a);
+  int nu = 1; int nd=nu;
   vector<int> elist;
-  vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); ++pr)
+  for ( const auto& p : plist)
     {
-      e=val(*pr,a); 
+      int e=val(p,a);
       elist.push_back(e);
       nd*=(1+e);
     }
   vector<Quad> dlist(nd);
   dlist[0]=Quad::one;
   nd=nu;
-  vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
+  auto pr=plist.begin();
+  auto ei=elist.begin();
+  for ( ; pr!=plist.end(); ++pr, ++ei)
    {
-     p = *pr;
-     e = *ei;
+     Quad p = *pr;
+     int e = *ei;
      for (int j=0; j<e; j++)
        for (int k=0; k<nd; k++)
          dlist[nd*(j+1)+k] = makepos(p*dlist[nd*j+k]);
      nd*=(e+1);
-   } 
+   }
  return dlist;
 }
 
 vector<Quad> alldivs(const Quad& a)       // all divisors
 {
-  vector<Quad> plist=pdivs(a); Quad p; 
-  int e, nu = Quad::nunits; int nd=nu;
+  vector<Quad> plist=pdivs(a);
+  int nu = Quad::nunits; int nd=nu;
   vector<int> elist;
-  vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); ++pr)
+  for ( const auto& p :plist)
    {
-     e=val(*pr,a); 
+     int e=val(p,a);
      elist.push_back(e);
      nd*=(1+e);
    }
   vector<Quad> dlist(nd);
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
-  vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
+  auto pr=plist.begin();
+  auto ei=elist.begin();
+  for ( ; pr!=plist.end(); ++pr, ++ei)
    {
-     p = *pr; 
-     e = *ei;
+     Quad p = *pr;
+     int e = *ei;
      for (int j=0; j<e; j++)
        for (int k=0; k<nd; k++)
          dlist[nd*(j+1)+k] = p*dlist[nd*j+k];
      nd*=(e+1);
-   } 
+   }
  return dlist;
 }
 
 vector<Quad> sqdivs(const Quad& a) // all divisors whose square divides a, up to +/-
 {
-  vector<Quad> plist=pdivs(a); Quad p;
-  int e, nu = Quad::nunits/2; int nd=nu;
+  vector<Quad> plist=pdivs(a);
+  int nu = Quad::nunits/2; int nd=nu;
   vector<int> elist;
-  vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); ++pr)
+  for ( const auto& p : plist)
    {
-     e=val(*pr,a)/2; 
+     int e=val(p,a)/2;
      elist.push_back(e);
      nd*=(1+e);
    }
   vector<Quad> dlist(nd);
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
-  vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
+  auto pr=plist.begin();
+  auto ei=elist.begin();
+  for ( ; pr!=plist.end(); ++pr, ++ei)
    {
-     p = *pr; 
-     e = *ei;
+     Quad p = *pr;
+     int e = *ei;
      for (int j=0; j<e; j++)
        for (int k=0; k<nd; k++)
          dlist[nd*(j+1)+k] = p*dlist[nd*j+k];
      nd*=(e+1);
-   } 
+   }
  return dlist;
 }
 
 vector<Quad> sqfreedivs(const Quad& a)       // all square-free divisors
 {
-  vector<Quad> plist=pdivs(a); Quad p;
-  int e, nu = 2; int nd=nu;
-  vector<int> elist;
-  vector<Quad>::iterator pr;
-  for (pr=plist.begin(); pr!=plist.end(); ++pr)
-   {
-     e=1; 
-     elist.push_back(e);
-     nd*=(1+e);
-   }
+  vector<Quad> plist=pdivs(a);
+  int nu = 2; int nd=pow(2,plist.size()+1);
+  vector<int> elist(plist.size(), 1);
   vector<Quad> dlist(nd);
   for(int i=0; i<nu; i++) dlist[i]=quadunits[i];
   nd=nu;
-  vector<int>::iterator ei;
-  for (pr=plist.begin(), ei=elist.begin(); pr!=plist.end(); ++pr, ++ei)
+  auto pr=plist.begin();
+  auto ei=elist.begin();
+  for ( ; pr!=plist.end(); ++pr, ++ei)
    {
-     p = *pr; 
-     e = *ei;
+     Quad p = *pr;
+     int e = *ei;
      for (int j=0; j<e; j++)
        for (int k=0; k<nd; k++)
          dlist[nd*(j+1)+k] = p*dlist[nd*j+k];
      nd*=(e+1);
-   } 
+   }
  return dlist;
 }
 
@@ -757,15 +735,15 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
   INT gn = quadnorm(ans);
   vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,
                         ans-alpha-beta, ans-alpha+beta, ans+alpha-beta, ans+alpha+beta};
-  for (vector<Quad>::const_iterator t=tests.begin(); t!=tests.end(); ++t)
+  for ( const auto& t : tests)
     {
-      if (gn>quadnorm(*t))
+      if (gn>quadnorm(t))
         {
 #ifdef test_reduce
-          cout<<"reduction "<<ans<<" has larger norm than shift "<<*t<<", switching"<<endl;
+          cout<<"reduction "<<ans<<" has larger norm than shift "<<t<<", switching"<<endl;
 #endif
-          ans = *t;
-          gn = quadnorm(*t);
+          ans = t;
+          gn = quadnorm(t);
         }
     }
   return ans;
@@ -950,9 +928,8 @@ int are_associate(const Quad& a, const Quad& b)
 {
   if(a.is_zero()) return (b.is_zero());
   if(a.norm() != b.norm()) return 0;
-  vector<Quad>::const_iterator eps;
-  for(eps=quadunits.begin(); eps!=quadunits.end(); ++eps)
-    if(a*(*eps)==b) return 1;
+  for( const auto& eps : quadunits)
+    if(a*eps==b) return 1;
   return 0;
 }
 
@@ -1030,8 +1007,8 @@ INT discchar(vector<int> c)
 vector<int> chardisc(INT D)
 {
   vector<int> ans;
-  for(auto di=Quad::prime_disc_factors.begin(); di!=Quad::prime_disc_factors.end(); ++di)
-    ans.push_back(div_disc(*di,D));
+  for( const auto& d : Quad::prime_disc_factors)
+    ans.push_back(div_disc(d,D));
   // cout<<"prime_disc_factors: "<< Quad::prime_disc_factors << endl;
   // cout<<"chardisc("<<D<<") = "<<ans<<endl;
   return ans;
@@ -1049,11 +1026,11 @@ vector<INT> disc_factors_mod_D(const INT& D)
   int i = std::find(Dv.begin(), Dv.end(), 0) - Dv.begin();
   int j = std::find(Dv.begin(), Dv.end(), 1) - Dv.begin();
   vector<INT> ans;
-  for( auto Di=Quad::all_disc_factors.begin(); Di!=Quad::all_disc_factors.end(); ++Di)
+  for( const auto& Di : Quad::all_disc_factors)
     {
-      // cout<<"Di="<<(*Di)<<":"<<chardisc(*Di)<<endl;
-      if((chardisc(*Di)[i]==0) && (chardisc(*Di)[j]==0))
-        ans.push_back(*Di);
+      // cout<<"Di="<<(Di)<<":"<<chardisc(Di)<<endl;
+      if((chardisc(Di)[i]==0) && (chardisc(Di)[j]==0))
+        ans.push_back(Di);
     }
   // cout<<"All discs "<<Quad::all_disc_factors<<" mod "<<D<<": "<<ans<<endl;
   return ans;

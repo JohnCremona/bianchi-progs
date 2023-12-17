@@ -22,8 +22,8 @@ vector<mat22> HeckeP(const Quad& p)  // P=(p) principal prime
 {
   vector<Quad> resmodp = residues(p);
   vector<mat22> mats; mats.reserve(1+resmodp.size());
-  for (vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
-    mats.push_back(mat22(Quad::one,*r,Quad::zero,p));
+  for ( const auto& r : resmodp)
+    mats.push_back(mat22(Quad::one,r,Quad::zero,p));
   mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
   return mats;
 }
@@ -190,11 +190,8 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
   vector<Quad> resmodp = P.residues();
   long normP = I2long(P.norm());
   mats.reserve(1+normP);
-  for(vector<Quad>::const_iterator r=resmodp.begin(); r!=resmodp.end(); ++r)
-    {
-      Quad a = *r;
-      mats.push_back(M*mat22(Quad::one,a,nu,Quad::one+a*nu));
-    }
+  for( const auto& a : resmodp)
+    mats.push_back(M*mat22(Quad::one,a,nu,Quad::one+a*nu));
   mats.push_back(M);
 #ifdef DEBUG_HECKE
   cout<<" Hecke matrices are "<<mats<<endl;
@@ -228,9 +225,8 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
   // (1) M1 * lift(1:a) for a mod P^2                (N(P)^2 matrices)
   // (2) M1 * lift(a:1) for a mod P^2 non-invertible (N(P) matrices)
   // with the second factor a lift from P^1(O/P^2) to Gamma_0(N)
-  for(vector<Quad>::const_iterator r=resmodp2.begin(); r!=resmodp2.end(); ++r)
+  for( const auto& a : resmodp2)
     {
-      a = *r;
       mats.push_back(M1*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
       if (P.contains(a))
         mats.push_back(M1*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
@@ -270,9 +266,8 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
   // (1) M1 * lift(1:a) for a mod P^2                (N(P)^2 matrices)
   // (2) M1 * lift(a:1) for a mod P^2 non-invertible (N(P) matrices)
   // with the second factor a lift from P^1(P^2) to Gamma_0(N)
-  for(vector<Quad>::const_iterator r=resmodp2.begin(); r!=resmodp2.end(); ++r)
+  for( const auto& a : resmodp2)
     {
-      a = *r;
       mats.push_back(M1*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
       if (P.contains(a))
         mats.push_back(M1*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
@@ -310,9 +305,8 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 
   // (1) M*lift(1:a) for a mod PQ                (N(P)N(Q) matrices)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
-  for(vector<Quad>::const_iterator r=resmodpq.begin(); r!=resmodpq.end(); ++r)
+  for( const auto& a : resmodpq)
     {
-      a = *r;
       mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
         mats.push_back(M*lift_to_Gamma_0(N, PQ, a, Quad::one, u, v));
@@ -383,9 +377,8 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
 
   // (1) M*lift(1:a) for a mod PQ                (N(P)N(Q) matrices)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
-  for(vector<Quad>::const_iterator r=resmodpq.begin(); r!=resmodpq.end(); ++r)
+  for( const auto& a : resmodpq)
     {
-      a = *r;
       mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
         mats.push_back(M*lift_to_Gamma_0(N, PQ, a, Quad::one, u, v));
@@ -487,9 +480,9 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
   assert (m.det()==g);
   mats.push_back(m);
   vector<Quad> resmodp = P.residues();
-  for(vector<Quad>::const_iterator x=resmodp.begin(); x!=resmodp.end(); ++x)
+  for( const auto& x : resmodp)
     {
-      c = v*(*x)+u;
+      c = v*x+u;
       d = v;
 #ifdef DEBUG_HECKE
       cout<<"lifting (c:d)=("<<c<<":"<<d<<") from "<<PM1<<" to Gamma_0("<<M2M3<<")"<<endl;

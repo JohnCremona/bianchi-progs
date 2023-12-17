@@ -175,9 +175,10 @@ inline ostream& operator<<(ostream& s, const Factorization& F)
 {
   if(F.size())
     {
-      for (vector<QuadprimePower>::const_iterator Qi=F.Qlist.begin(); Qi!=F.Qlist.end(); ++Qi)
+      for (auto Qi=F.Qlist.begin(); Qi!=F.Qlist.end(); ++Qi)
         {
-          if (Qi!=F.Qlist.begin()) s<<"*";
+          if (Qi!=F.Qlist.begin())
+            s<<"*";
           s << (*Qi);
         }
     }

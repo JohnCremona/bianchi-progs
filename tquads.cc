@@ -41,7 +41,7 @@ int main ()
      cout << "---------------------------------------------------------------" << endl;
      Quadprimes::display();
      cout << "Here are the first 20 prime ideals:"<<endl;
-     for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin();
+     for (auto Pi = Quadprimes::list.begin();
           (Pi-Quadprimes::list.begin())<20 && (Pi != Quadprimes::list.end()); ++Pi)
        {
          Quadprime P = *Pi;
@@ -150,9 +150,8 @@ int main ()
  cout << "Systematic testing of bezout..."<<flush;
  if (Quad::class_number==1)
    {
-     vector<Quad>::const_iterator ap,bp;
-     for (ap=quadprimes.begin(); ap-quadprimes.begin()<10 && ap!=quadprimes.end(); ++ap)
-       for (bp=quadprimes.begin(); bp-quadprimes.begin()<10 && bp!=quadprimes.end(); ++bp)
+     for (auto ap=quadprimes.begin(); ap-quadprimes.begin()<10 && ap!=quadprimes.end(); ++ap)
+       for (auto bp=quadprimes.begin(); bp-quadprimes.begin()<10 && bp!=quadprimes.end(); ++bp)
          {
            a = *ap;
            b = *bp;

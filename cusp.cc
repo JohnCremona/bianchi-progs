@@ -5,9 +5,9 @@
 void cusplist::display() const
 {
   vector<RatQuad>::const_iterator ci;
-  int i;
-  for(ci = cusps.begin(), i=0; ci !=cusps.end(); ++ci, ++i)
-    cout<<i<<"\t"<< *ci <<endl;
+  int i=0;
+  for(const auto& c : cusps)
+    cout<<i++<<"\t"<< c <<endl;
 }
 
 //#define DEBUG_CUSPS
@@ -19,39 +19,40 @@ int cusplist::index(const RatQuad& c)
 #endif
   // add c to list if not there already, and return index
   Quad n = N.gen();
-  for(vector<RatQuad>::iterator ci = cusps.begin(); ci != cusps.end(); ++ci)
+  int ic = 0;
+  for(const auto& ci : cusps)
     {
 #ifdef DEBUG_CUSPS
-      cout<<" comparing cusp "<<c<<" with cusp "<<(*ci)<<endl;
-      int t = cuspeq_conj(*ci, c, N, plusflag);
+      cout<<" comparing cusp "<<c<<" with cusp "<<ci<<endl;
+      int t = cuspeq_conj(ci, c, N, plusflag);
 #else
-      int t = cuspeq(*ci, c, N, plusflag);
+      int t = cuspeq(ci, c, N, plusflag);
 #endif
       if (Quad::class_number==1)
         {
-          int t1 = cuspeq(*ci, c, n, plusflag);
+          int t1 = cuspeq(ci, c, n, plusflag);
           if (t1!=t)
             {
               cout<<"*********************************************************************************************************"<<endl;
-              cout<<"cuspeq("<<(*ci)<<","<<c<<") should be "<<t1<<" but ideal version gives "<<t<<endl;
+              cout<<"cuspeq("<<ci<<","<<c<<") should be "<<t1<<" but ideal version gives "<<t<<endl;
               cout<<"*********************************************************************************************************"<<endl;
             }
         }
       if (t)
         {
-          int nc = ci-cusps.begin();
 #ifdef DEBUG_CUSPS
-          cout << "cusp "<<c<<" equivalent to cusp #"<<nc<<" ("<<cusps[nc]<<")"<<endl;
+          cout << "cusp "<<c<<" equivalent to cusp #"<<ic<<" ("<<cusps[ic]<<")"<<endl;
 #endif
-          return nc;
+          return ic;
         }
+      ic++;
     }
   // not found:
   cusps.push_back(c);
-  int nc = cusps.size()-1;
+  ic = cusps.size()-1;
 #ifdef DEBUG_CUSPS
-  cout << "cusp "<<c<<" is new #"<<nc<<endl;
+  cout << "cusp "<<c<<" is new #"<<ic<<endl;
 #endif
-  return nc;
+  return ic;
 }
 

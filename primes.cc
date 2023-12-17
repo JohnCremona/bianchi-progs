@@ -38,11 +38,10 @@ vector<int> Quadprime::genus_character()
   if (r==0 || is_inert() || is_principal())
     return ans;
   // cout<<" -- not principal, even class number..."<<endl;
-  int i=0, i0=-1, tot=0;
-  for (auto di = Quad::prime_disc_factors.begin(); di!=Quad::prime_disc_factors.end(); ++di, ++i)
+  int i=0, i0=-1, tot=0, k;
+  for (const auto& di : Quad::prime_disc_factors)
     {
-      int k;
-      long d = I2long(*di);
+      long d = I2long(di);
       if (p==2)
         k = (d%2? (posmod(d,8)==1? +1 : -1) : 0);
       else
@@ -56,6 +55,7 @@ vector<int> Quadprime::genus_character()
         {
           i0 = i;
         }
+      i++;
     }
   if (i0!=-1) // then we have a ramified prime
     {
@@ -101,9 +101,8 @@ void Quadprimes::display(ostream& s, long maxn, int show_genus)
   s << list.size() << " prime ideals initialised, ";
   s << "max norm = " << maxnorm << endl;
   if (maxn==0) return;
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+  for ( auto& P : Quadprimes::list)
     {
-      Quadprime P = *Pi;
       if (P.norm()>maxn) break;
       vector<Quad> gg = P.gens();
       Quad pi;
@@ -114,10 +113,10 @@ void Quadprimes::display(ostream& s, long maxn, int show_genus)
         cout << " (not principal";
       if (show_genus && Quad::class_group_2_rank>0)
         {
-          vector<int> c = P.genus_character();
+          vector<int> cc = P.genus_character();
           cout << ": ";
-          for (auto ci = c.begin(); ci!=c.end(); ++ci)
-            cout << (*ci? "-": "+");
+          for (const auto& c : cc)
+            cout << (c? "-": "+");
         }
       cout<<")"<<endl;
     }
@@ -206,14 +205,13 @@ Factorization::Factorization(const Qideal& II)
   Qideal Q; int e;
   vector<INT> pdivs_norm = pdivs(I.norm());
   //  cout<<"Finding prime factors of "<<I<<" with norm "<<I.norm()<<", primes dividing norm are "<<pdivs_norm<<endl;
-  for(vector<INT>::const_iterator pi = pdivs_norm.begin(); pi!=pdivs_norm.end(); ++pi)
+  for( const auto& p : pdivs_norm)
     {
-      vector<Quadprime> PP = Quadprimes_above(I2long(*pi));
-      //      cout<<"primes above "<<(*pi)<<" are "<<PP<<endl;
+      vector<Quadprime> PP = Quadprimes_above(I2long(p));
+      //      cout<<"primes above "<<p<<" are "<<PP<<endl;
       // at least one, but possibly not both when p splits, divides I
-      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); ++Pi)
+      for( const auto& P : PP)
         {
-          Quadprime P = *Pi;
           if (P.divides(J))
             {
               e = 1;
@@ -240,8 +238,8 @@ vector<Quadprime> Factorization::primes() const
 {
   vector<Quadprime> plist;
   plist.reserve(size());
-  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); ++Qi)
-    plist.push_back(Qi->first);
+  for (const auto& Qi : Qlist)
+    plist.push_back(Qi.first);
   return plist;
 }
 
@@ -256,8 +254,8 @@ vector<int> Factorization::exponents() const
 {
   vector<int> elist;
   elist.reserve(size());
-  for (vector<QuadprimePower>::const_iterator Qi = Qlist.begin(); Qi!=Qlist.end(); ++Qi)
-    elist.push_back(Qi->second);
+  for (const auto& Qi : Qlist)
+    elist.push_back(Qi.second);
   return elist;
 }
 
@@ -273,9 +271,10 @@ int npdivs(Qideal& I)  // number of prime ideal divisors
 
 int ndivs(Qideal& I) // number of ideal divisors
 {
-  vector<int> e = I.factorization().exponents();
+  vector<int> ee = I.factorization().exponents();
   long nd = 1;
-  for (auto ei = e.begin(); ei != e.end(); ei++) {nd*=(1+*ei);}
+  for (auto e : ee)
+    nd*=(1+e);
   return nd;
 }
 
@@ -288,11 +287,10 @@ vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
   vector<Qideal> dlist(nd);
   dlist[0]=Qideal(Quad::one);
   nd=nu;
-  vector<QuadprimePower>::const_iterator Qi;
-  for(Qi = F.Qlist.begin();  Qi != F.Qlist.end();  ++Qi)
+  for(const auto& Q: F.Qlist)
     {
-      Qideal P = Qi->first;
-      int e = Qi->second;
+      Qideal P = Q.first;
+      int e = Q.second;
       for (int j=0; j<e; j++)
 	for (int k=0; k<nd; k++)
 	  dlist[nd*(j+1)+k] = (P*dlist[nd*j+k]);
@@ -359,9 +357,8 @@ void Quadprimes::init(long maxn)
       //            cout<<"p = "<<p<<endl;
       vector<Quadprime> PP = Quadprimes_above(p);
       //            cout<<" primes above: "<< PP<<endl;
-      for(vector<Quadprime>::iterator Pi = PP.begin(); Pi!=PP.end(); ++Pi)
+      for(const auto& P : PP)
         {
-          Quadprime P = *Pi;
           INT q = P.norm();
           //                    cout<<"P = "<<P<<" with norm "<<q<<endl;
           if(q==p) // degree 1 prime
@@ -433,9 +430,8 @@ vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
   vector<Qideal> dlist(nd);
   dlist[0]=Qideal(Quad::one);
   nd=1;
-  for(vector<Quadprime>::const_iterator pr = plist.begin(); pr != plist.end(); ++pr)
+  for(const auto& p : plist)
     {
-      p = *pr;
       for (long k=0; k<nd; k++)
 	dlist[nd+k] = p*dlist[k];
       nd*=2;
@@ -538,16 +534,14 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
           for (long i=1; i<e; i++)
             {
               I = Q*ans[i]; // = Q^(i+1)
-              for (vector<Qideal>::iterator PQ=ans.begin(); PQ!=ans.end(); PQ++)
-                (*PQ) *= P;
+              for ( auto& PQ : ans)
+                PQ *= P;
               ans.push_back(I);
             }
 #ifdef DEBUG_SORT
             {
               cerr<<"**********************Constructed list of "<<ans.size()<<" ideals: ";
-              for (vector<Qideal>::iterator J=ans.begin(); J!=ans.end(); ++ans)
-                cerr<<*J<<" ";
-              cerr<<endl;
+              cerr<<ans<<endl;
             }
 #endif
           for (long i=0; i<=e; i++)
@@ -568,8 +562,8 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
   // outer list sorted by size of the underlying prime (not the prime
   // power):
   vector<vector<Qideal>> II;
-  for (vector<INT>::const_iterator pi=pp.begin(); pi!=pp.end(); ++pi)
-    II.push_back(ideals_with_norm(pow(*pi, val(*pi, N))));
+  for ( const auto& p : pp)
+    II.push_back(ideals_with_norm(pow(p, val(p, N))));
 
   ans = {Qideal()}; // unit ideal
 
@@ -577,20 +571,14 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
   for (vector<vector<Qideal> >::const_reverse_iterator QQ = II.crbegin(); QQ!=II.crend(); ++QQ)
     {
       vector<Qideal> ans2;
-      for (vector<Qideal>::const_iterator Qi = QQ->begin(); Qi!=QQ->end(); ++Qi)
-        {
-          Qideal Q = *Qi;
-          for (vector<Qideal>::const_iterator I0 = ans.begin(); I0!=ans.end(); ++I0)
-            {
-              I = *I0;
-              ans2.push_back(I*Q);
-            }
-        }
+      for ( auto Q : *QQ)
+        for ( const auto& I : ans)
+          ans2.push_back(I*Q);
       ans = ans2;
     }
   long i=1;
-  for (vector<Qideal>::iterator Ii=ans.begin(); Ii!=ans.end(); ++Ii, ++i)
-    Ii->set_index(i);
+  for ( auto& I : ans)
+    I.set_index(i++);
 
 #ifdef DEBUG_SORT
   cout<<"Sorted list of ideals with norm "<<N<<": "<<ans<<endl;
@@ -631,9 +619,8 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
     }
   Quad g;
   //cout<<"looking for a prime equivalent to "<<(*this)<<" which is coprime to "<<N<<endl;
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+  for ( auto& P : Quadprimes::list)
     {
-      Quadprime P = *Pi;
       //cout<<" -testing P="<<P<<endl;
       if (P.residue_degree()==2) continue;  // inert primes are principal so no use
       if (!P.is_coprime_to(N)) continue;    // skip P unless it is coprime to N
@@ -677,9 +664,8 @@ Qideal Qideal::equivalent_mod_2_coprime_to(const Qideal& N, int anti)
     }
   Quad g;
   //cout<<"looking for a prime equivalent to "<<(*this)<<" mod 2-torsion which is coprime to "<<N<<endl;
-  for (vector<Quadprime>::iterator Pi = Quadprimes::list.begin(); Pi != Quadprimes::list.end(); ++Pi)
+  for ( auto& P : Quadprimes::list)
     {
-      Quadprime P = *Pi;
       //cout<<" -testing P="<<P<<endl;
       if (P.residue_degree()==2) continue;  // inert primes are principal so no use
       if (!P.is_coprime_to(N)) continue;    // skip P unless it is coprime to N
@@ -735,8 +721,8 @@ Factorization Qideal::factorization() // sets F if necessary then returns F
 int Qideal::is_square()
 {
   vector<int>ee = factorization().exponents();
-  for (vector<int>::const_iterator ei = ee.begin(); ei!=ee.end(); ++ei)
-    if ((*ei)%2==1) return 0;
+  for (auto e : ee)
+    if (e%2==1) return 0;
   return 1;
 }
 
@@ -744,10 +730,10 @@ long Qideal::genus_class(int contract)
 {
   long c = 0;
   vector<QuadprimePower> PP = factorization().prime_powers();
-  for (auto PPi = PP.begin(); PPi!=PP.end(); ++PPi)
+  for ( auto& P : PP)
     {
-      if ((PPi->second)%2==1)
-        c ^= (PPi->first).genus_class(); // binary + (exclusive or)
+      if ((P.second)%2==1)
+        c ^= (P.first).genus_class(); // binary + (exclusive or)
     }
   if (contract) c %= (1<<Quad::class_group_2_rank);
   return c;
@@ -774,16 +760,13 @@ vector<INT> Qideal::possible_unramified_twists()  // sublist of Quad::all_disc_f
   if (Quad::class_group_2_rank == 0)
     return discs;
   vector<QuadprimePower> Qlist = Factorization(*this).prime_powers();
-  for(auto Di = Quad::all_disc_factors.begin(); Di != Quad::all_disc_factors.end(); ++Di)
+  for( const auto& D : Quad::all_disc_factors)
     {
-      INT D = *Di;
       if (D==1)
         continue;
       int ok = 1;
-      for (auto Qi = Qlist.begin(); ok && Qi!=Qlist.end(); ++Qi)
-        {
-          ok = (Qi->second)%2==0 || (Qi->first).genus_character(D)==+1;
-        }
+      for ( auto& Q : Qlist)
+        ok = ok && (((Q.second)%2==0) || ((Q.first).genus_character(D)==+1));
       if (ok)
         discs.push_back(D);
     }
@@ -836,9 +819,8 @@ vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badpr
   if (Quad::class_group_2_rank==0)
     return badprimes;
   vector<Quadprime> squarebadprimes;
-  for (vector<Quadprime>::const_iterator Qi = badprimes.begin(); Qi!=badprimes.end(); ++Qi)
+  for ( auto Q : badprimes)
     {
-      Quadprime Q = *Qi;
       if (val(Q,N)%2==0 || Q.has_square_class()) // then [Q^e] is a square
         squarebadprimes.push_back(Q);
     }

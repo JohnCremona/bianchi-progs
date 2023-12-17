@@ -16,9 +16,9 @@ oldforms::oldforms(const newforms* nfs)
 
   N = nf->N;
   vector<Qideal> DD = alldivs(N);
-  for(auto Di = DD.begin(); Di!=DD.end(); ++Di)
-    if (*Di!=N)
-      getoldclasses(*Di);
+  for( auto& D : DD)
+    if (D!=N)
+      getoldclasses(D);
 
   assert(olddim1   == std::accumulate(old1dims.begin(), old1dims.end(), 0, std::plus<int>()));
   assert(olddim2   == std::accumulate(old2dims.begin(), old2dims.end(), 0, std::plus<int>()));

@@ -62,9 +62,9 @@ int check_involution(const mat_ZZ& A, long den, int verbose)
 // check that a matrix commutes with all those in a list:
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
 {
-  for(vector<mat_ZZ>::const_iterator B = Blist.begin(); B!=Blist.end(); B++)
+  for( const auto& B : Blist)
     {
-      if ((A*(*B))!=((*B)*A))
+      if ( (A*B) != (B*A) )
         return 0;
     }
   return 1;
