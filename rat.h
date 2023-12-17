@@ -18,18 +18,25 @@ public:
     fmpq_init(q); // sets to 0
   }
   RAT(const INT& n) {
-    fmpz_t den; fmpz_init(den); fmpq_set_fmpz_frac(q, n.z, den);
-  }
-  RAT(long n) {
-    fmpz_t num, den; fmpz_init(den); fmpz_set_si(num, n); fmpq_set_fmpz_frac(q, num, den);
+    fmpq_init(q); // sets to 0
+    if (n.sign())
+      {
+        fmpz_t d;
+        fmpz_init_set_si(d, 1);
+        fmpq_set_fmpz_frac(q, n.z, d);
+        fmpz_clear(d);
+      }
   }
   RAT(const INT& n, const INT& d) {
+    fmpq_init(q); // sets to 0
     fmpq_set_fmpz_frac(q, n.z, d.z);
   }
-  RAT(long n, long d) {
-    fmpz_t num, den; fmpz_set_si(den, d); fmpz_set_si(num, n); fmpq_set_fmpz_frac(q, num, den);
+  RAT(long nu, long de=1) {
+    fmpq_init(q); // sets to 0
+    fmpq_set_si(q, nu, de);
   }
   RAT(const RAT& x) {
+    fmpq_init(q); // sets to 0
     fmpq_set(q, x.q);
   }
   ~RAT() {
@@ -37,10 +44,13 @@ public:
   }
 
   RAT& operator=(const RAT& x) {
-    fmpq_set(q, x.q); return *this;
+    fmpq_init(q); // sets to 0
+    fmpq_set(q, x.q);
+    return *this;
   }
   RAT operator=(long n) {
-    RAT x(n); return x;
+    RAT x(n);
+    return x;
   }
 
   // RAT manipulations
@@ -49,15 +59,21 @@ public:
   }
   INT num() const       // the numerator
   {
-    INT n; fmpz_init_set(n.z, fmpq_numref(q)); return n;
+    INT n;
+    fmpz_init_set(n.z, fmpq_numref(q));
+    return n;
   }
   INT den() const        // the denominator
   {
-    INT n; fmpz_init_set(n.z, fmpq_denref(q)); return n;
+    INT n;
+    fmpz_init_set(n.z, fmpq_denref(q));
+    return n;
   }
   RAT recip() const  // the reciprocal
   {
-    RAT x;  fmpq_inv(x.q, q); return x;
+    RAT x;
+    fmpq_inv(x.q, q);
+    return x;
   }
 
   int sign() const
@@ -69,33 +85,49 @@ public:
 
   // Binary Operator Functions
   RAT operator+(const RAT& b) const {
-    RAT c; fmpq_add(c.q, q, b.q); return c;
+    RAT c;
+    fmpq_add(c.q, q, b.q);
+    return c;
   }
   RAT operator+(const INT& b) const {
-    RAT c; fmpq_add_fmpz(c.q, q, b.z); return c;
+    RAT c;
+    fmpq_add_fmpz(c.q, q, b.z);
+    return c;
   }
   friend inline RAT operator+(const INT& a, const RAT& b) {return b+a;}
   RAT operator-(const RAT& b) const {
-    RAT c; fmpq_sub(c.q, q, b.q); return c;
+    RAT c;
+    fmpq_sub(c.q, q, b.q);
+    return c;
   }
   RAT operator-(INT b) const {
-    RAT c; fmpq_sub_fmpz(c.q, q, b.z); return c;
+    RAT c;
+    fmpq_sub_fmpz(c.q, q, b.z);
+    return c;
   }
   friend inline RAT operator-(const INT& a, const RAT& b) {return -(b-a);}
 
   RAT operator*(const RAT& b) const {
-    RAT c; fmpq_mul(c.q, q, b.q); return c;
+    RAT c;
+    fmpq_mul(c.q, q, b.q);
+    return c;
   }
   RAT operator*(const INT& b) const {
-    RAT c; fmpq_mul_fmpz(c.q, q, b.z); return c;
+    RAT c;
+    fmpq_mul_fmpz(c.q, q, b.z);
+    return c;
   }
   friend inline RAT operator*(const INT& a, const RAT& b) {return b*a;}
 
   RAT operator/(const RAT& b) const {
-    RAT c; fmpq_div(c.q, q, b.q); return c;
+    RAT c;
+    fmpq_div(c.q, q, b.q);
+    return c;
   }
   RAT operator/(const INT& b) const {
-    RAT c; fmpq_div_fmpz(c.q, q, b.z); return c;
+    RAT c;
+    fmpq_div_fmpz(c.q, q, b.z);
+    return c;
   }
   friend inline RAT operator/(const INT& a, const RAT& b) {RAT c = b/a; return c.recip();}
 
@@ -153,17 +185,24 @@ public:
   void operator/=(int b) {fmpz_t bb; fmpz_set_si(bb,b); fmpq_div_fmpz(q, q, bb);}
 
   RAT operator+() const {
-    RAT x(*this); return x;
+    RAT x(*this);
+    return x;
   }
   RAT operator-() const {
-    RAT x(*this); fmpq_neg(x.q, x.q); return x;
+    RAT x(*this);
+    fmpq_neg(x.q, x.q);
+    return x;
   }
   RAT abs() const {
-    RAT x(*this); fmpq_abs(x.q, x.q); return x;
+    RAT x(*this);
+    fmpq_abs(x.q, x.q);
+    return x;
   }
   INT floor() const;
   INT ceil() const;
-  int is_square() const {return (num()*den()).is_square();}
+  int is_square() const {
+    return (num()*den()).is_square();
+  }
   int is_square(RAT& a) const {
     INT nd = num()*den(), rnd;
     int b=nd.is_square(rnd);

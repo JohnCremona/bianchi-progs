@@ -104,22 +104,36 @@ int RatQuad::in_quarter_rectangle() const
   return 0<=x && x<=half && 0<=y && y<=half;
 }
 
+//#define DEBUG_REDUCE_TO_RECTANGLE
+
 // subtract Quad to put into rectangle
 RatQuad reduce_to_rectangle(const RatQuad& a)
 {
-  // cout<<"Reducing "<<a<<" to rectangle..."<<endl;
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<"Reducing "<<a<<" to rectangle..."<<endl;
+#endif
   RatQuad b(a);
-  // cout<<" - initial xy-coords "<<b.xy_coords();
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<" - initial xy-coords "<<b.xy_coords();
+#endif
   RAT y = b.xy_coords()[1];
   if (Quad::t) y *= 2;
-  // cout<<": "<<y<<" rounds to "<<y.round()<<endl;
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<": "<<y<<" rounds to "<<y.round()<<endl;
+#endif
   b -= y.round()*Quad::w;
-  // cout<<" - after y-shift,  xy-coords "<<b.xy_coords();
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<" - after y-shift,  xy-coords "<<b.xy_coords();
+#endif
   RAT x = b.xy_coords()[0];
-  // cout<<": "<<x<<" rounds to "<<x.round()<<endl;
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<": "<<x<<" rounds to "<<x.round()<<endl;
+#endif
   b -= x.round();
-  // cout<<" - after x-shift,  xy-coords "<<b.xy_coords()<<endl;
-  // cout<<"...returning "<<b<<endl;
+#ifdef DEBUG_REDUCE_TO_RECTANGLE
+  cout<<" - after x-shift,  xy-coords "<<b.xy_coords()<<endl;
+  cout<<"...returning "<<b<<endl;
+#endif
   return b;
 }
 

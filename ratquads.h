@@ -115,14 +115,14 @@ inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int reduce)
   :d(dd), n(nn)
 {
   if (reduce)
-    (*this).reduce();
+    this->reduce();
 }
 
 inline RatQuad::RatQuad(INT a, INT b, INT dd, int reduce) // (a+b*w)/dd
-  :d(a,b), n(a,b)
+  :d(a,b), n(dd,1)
 {
   if (reduce)
-    (*this).reduce();
+    this->reduce();
 }
 
 inline RatQuad::RatQuad(const RAT& a)
@@ -147,38 +147,38 @@ inline void RatQuad::operator+=(const RatQuad& r)
 {
   n = n*r.d + d*r.n;
   d *= r.d;
-  (*this).reduce();
+  this->reduce();
 }
 
 inline void RatQuad::operator+=(const Quad& q)
 {
   n += d*q;
-  (*this).reduce();
+  this->reduce();
 }
 
 inline void RatQuad::operator-=(const RatQuad& r)
 {
   n = n*r.d - d*r.n;
   d *= r.d;
-  (*this).reduce();
+  this->reduce();
 }
 
 inline void RatQuad::operator-=(const Quad& q)
 {
   n -= d*q;
-  (*this).reduce();
+  this->reduce();
 }
 
 inline void RatQuad::operator*=(const Quad& q)
 {
   n*=q;
-  (*this).reduce();
+  this->reduce();
 }
 
 inline void RatQuad::operator/=(const Quad& q)
 {
   d*=q;
-  (*this).reduce();
+  this->reduce();
 }
 
 // Definitions of non-member binary operator functions

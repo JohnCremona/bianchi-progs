@@ -256,7 +256,8 @@ void output_singular_points(const vector<RatQuad> S, int to_file, int to_screen)
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a)
 {
-  return RAT(1, a.den().norm());
+  RAT rsq(a.den().norm());
+  return rsq.recip();
 }
 
 // For a1, a2 normalised principal cusps with circles S_ai,
@@ -305,7 +306,7 @@ vector<RatQuad> sqrts(const RAT& r)
     {
       // now root^2 = -d*r, so (rt/sqrt(-d))^2 = r
       Quad root_minus_d = (Quad::t ? 2*Quad::w-1 : Quad::w);
-      RatQuad rt(rd);
+      RatQuad rt(root);
       rt /= root_minus_d;
       assert (rt*rt==RatQuad(r));
       return {rt, -rt};
@@ -359,14 +360,14 @@ int is_inside_one(const RatQuad& a, const vector<RatQuad>& blist, int strict)
 vector<RatQuad> principal_cusps_of_norm(const INT& n)
 {
   vector<RatQuad> alist;
-  vector<Quad> slist = elements_of_norm(n);
-  for (auto s = slist.begin(); s!=slist.end(); ++s)
+  auto slist = elements_of_norm(n);
+  // cout << "Elements of norm "<<n<<": "<<slist<<endl;
+  for ( const auto& s : slist)
     {
-      vector<Quad> rlist = invertible_residues(*s);
-      for (auto r = rlist.begin(); r!=slist.end(); ++r)
-        {
-          alist.push_back(reduce_to_rectangle(RatQuad((*r, *s))));
-        }
+      auto rlist = invertible_residues(s);
+      // cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
+      for ( const auto& r : rlist)
+        alist.push_back(reduce_to_rectangle(RatQuad(r, s)));
     }
   return alist;
 }
@@ -376,13 +377,15 @@ vector<RatQuad> principal_cusps_of_norm(const INT& n)
 vector<RatQuad> principal_cusps_up_to(const INT& maxn)
 {
   vector<RatQuad> alist;
-  vector<Quad> slist = elements_of_norm_up_to(maxn);
-  for (auto s = slist.begin(); s!=slist.end(); ++s)
+  auto slist = elements_of_norm_up_to(maxn);
+  // cout << "Elements of norm up to "<<maxn<<": "<<slist<<endl;
+  for ( const auto& s : slist)
     {
-      vector<Quad> rlist = invertible_residues(*s);
-      for (auto r = rlist.begin(); r!=slist.end(); ++r)
+      auto rlist = invertible_residues(s);
+      // cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
+      for ( const auto& r : rlist)
         {
-          RatQuad a = reduce_to_rectangle(RatQuad((*r, *s)));
+          RatQuad a = reduce_to_rectangle(RatQuad(r, s));
           if (!is_inside_one(a, alist))
             alist.push_back(a);
         }
@@ -404,8 +407,14 @@ RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
 // are consistent so that if a returns +1 and a' returns -1 then each
 // intersection point is covered by either S_a or S_a'.
 
+//#define DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
+
 int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2, const RatQuad& a)
 {
+#ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
+  cout << "Testing if intersection points of "<<a1<<" and "<<a2<<" are covered by "<<a<<endl;
+#endif
+
   // Check the cusps are principal, not infinity, and with unit ideal
   assert (a.is_finite() && a.is_principal());
   assert (a1.is_finite() && a1.is_principal());
@@ -435,17 +444,21 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 
   // the covering condition is \pm sqrt(d2)*D < T
 
+  int code = 0;
   if (d2D2 < T2)
     {
-      return (T>0 ? 2 : (T<0? 0: 99));
+      code = (T>0 ? 2 : (T<0? 0: 99));
     }
   if (d2D2 > T2)
     {
       Quad w = Quad::w;
       RAT u = (D*(w-w.conj())).real();
-      return u.sign();
+      code = u.sign();
     }
-  return 0;
+#ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
+  cout << " - test returns code "<<code<<endl;
+#endif
+  return code;
 }
 
 // Given principal cusps a0, a1 whose circles S_a0, S_a1 intersect,
@@ -570,32 +583,37 @@ int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const v
 int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open,
                           const vector<RatQuad>& slist, vector< pair<RatQuad,RatQuad> >& pairs_ok)
 {
+  cout << "alist_ok = "<<alist_ok<<endl;
+  cout << "alist_open = "<<alist_open<<endl;
   // concatenate the two alists
   vector<RatQuad> alist;
   alist.insert(alist.end(), alist_ok.begin(), alist_ok.end());
   alist.insert(alist.end(), alist_open.begin(), alist_open.end());
 
   // add translates
-  RatQuad w(Quad::w);
-  vector<RatQuad> translates = { {1,0,1}, {0,1,1}, {1,1,1}, {1,-1,1} };
-  vector<RatQuad>& alistx = alist;
-  for (auto a=alist.begin(); a!=alist.end(); ++a)
-    for (auto t=translates.begin(); t!=translates.end(); ++t)
+  RatQuad one(Quad::one), w(Quad::w);
+  vector<RatQuad> translates = { one, w, one+w, one-w };
+  cout << "translates = "<<translates<<endl;
+  vector<RatQuad> alistx = alist;
+  for ( auto& a : alist)
+    for (auto& t : translates)
       {
-        alistx.push_back(*a + *t);
-        alistx.push_back(*a - *t);
+        alistx.push_back(a+t);
+        alistx.push_back(a-t);
       }
-  int ok, i=1, all_ok = 1;
+  cout << "alistx = "<<alistx<<endl;
+  int ok, i=0, all_ok = 1;
   // We make a copy of this to loop over, so we can delete elements from the original as we go
   vector<RatQuad>& new_alist_open = alist_open;
-  for (auto a = new_alist_open.begin(); a != new_alist_open.end(); ++a, ++i)
+  for ( const auto& a : new_alist_open)
     {
+      i++;
       if (!all_ok) // then return False so don't check remaining alphas
         continue;
-      if (a->in_quarter_rectangle())
+      if (a.in_quarter_rectangle())
         {
-          cout <<"Testing alpha #"<<i<<"/"<<alist_open.size()<<" = "<<(*a)<<"...";
-          ok = is_alpha_surrounded(*a, alistx, slist, pairs_ok);
+          cout <<"Testing alpha #"<<i<<"/"<<alist_open.size()<<" = "<<a<<"...";
+          ok = is_alpha_surrounded(a, alistx, slist, pairs_ok);
           if (ok)
             cout << " ok! surrounded" << endl;
           else
@@ -610,8 +628,8 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
         }
       if (ok) // add this alpha to the ok list end remove from the open list
         {
-          alist_ok.push_back(*a);
-          alist_open.erase(std::find(alist_open.begin(), alist_open.end(), *a));
+          alist_ok.push_back(a);
+          alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
         }
     }
   return all_ok;
@@ -655,26 +673,33 @@ vector<RatQuad> covering_alphas(const vector<RatQuad>& sigmas, int verbose)
             }
         }
       if (verbose)
-        cout << "Added "<<new_cusps.size()<<" extra principal cusps alpha"<<endl;
-      for (auto a = new_cusps.begin(); a!=new_cusps.end(); ++a)
+        cout << "Added "<<new_cusps.size()<<" extra principal cusps alpha, norms up to "<<maxn<<endl;
+      for (auto a : new_cusps)
         {
+          cout << "Working on a="<<a<<endl;
           // test if a is redundant
           int red=0;
-          for (auto b=alist.begin(); b!=alist.end() && !red; ++b)
+          for (auto b : alist)
             {
-              red = circle_inside_circle(*a, *b, 0);
+              red = circle_inside_circle(a, b, 0);
+              if (red) break;
             }
           if (red) // skip a
-            continue;
-          alist.push_back(*a);
-          if (a->in_quarter_rectangle())
             {
-              alphas_open.push_back(*a);
+              cout << " - redundant, skipping"<<endl;
+              continue;
+            }
+          alist.push_back(a);
+          if (a.in_quarter_rectangle())
+            {
+              cout << " - in quarter rectangle, using"<<endl;
+              alphas_open.push_back(a);
               nc += 1;
             }
           else
             {
-              alphas_ok.push_back(*a);
+              cout << " - not in quarter rectangle, not checking"<<endl;
+              alphas_ok.push_back(a);
             }
         }
       if (verbose && nc)
