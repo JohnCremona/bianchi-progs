@@ -54,3 +54,19 @@ Norm 49:	[ 7 ]
 Norm 50:	[ 7+i 5+5i ]
 -------------------------------------------
 
+Quads with norms up to 25 in one list: 
+[ 1 1+i 2 2+i 2+2i 3 3+i 3+2i 4 4+i 3+3i 4+2i 5 4+3i ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 26:	[ 5+i ]
+Norm 29:	[ 5+2i ]
+Norm 32:	[ 4+4i ]
+Norm 34:	[ 5+3i ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 6+i ]
+Norm 40:	[ 6+2i ]
+Norm 41:	[ 5+4i ]
+Norm 45:	[ 6+3i ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 7+i 5+5i ]
+-------------------------------------------
+

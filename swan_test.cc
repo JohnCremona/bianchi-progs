@@ -27,10 +27,10 @@ void test_principal_cusps(int n1=20, int n2=100)
 {
   for (int n=1; n<=n1; n++)
     {
-      auto alphas = principal_cusps_of_norm(n);
+      auto alphas = principal_cusps_of_dnorm(n);
       cout << "Principal cusps of denominator norm "<<n<<": "<<alphas<<endl;
     }
-  auto alphas = principal_cusps_up_to(n2);
+  auto alphas = principal_cusps_of_dnorm_up_to(n2);
   cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alphas<<endl;
 }
 
@@ -51,7 +51,7 @@ int main ()
       d = (D%4==0? D/4: D);
       Quad::field(d,max);
 
-      if (D!=fields[0])
+      if (D!=fields.front())
         cout << "-------------------------------------" <<endl;
       cout << "The field is ";
       Quad::displayfield(cout);

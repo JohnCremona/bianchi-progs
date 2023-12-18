@@ -82,8 +82,8 @@ public:
   void operator*=(const Quad&);
   void operator/=(const RatQuad&);
   void operator/=(const Quad&);
-  RatQuad operator+();
-  RatQuad operator-();
+  RatQuad operator+() const;
+  RatQuad operator-() const;
 
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
@@ -130,12 +130,12 @@ inline RatQuad::RatQuad(const RAT& a)
 {};
 
 
-inline RatQuad RatQuad::operator+()
+inline RatQuad RatQuad::operator+() const
 {
   return *this;
 }
 
-inline RatQuad RatQuad::operator-()
+inline RatQuad RatQuad::operator-() const
 {
   return RatQuad(-n, d);
 }
@@ -297,5 +297,11 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 
 // Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
+
+// Comparison function so we can form sets of cusps
+struct CuspCmp {
+  bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
+  {return lhs.den().norm()<rhs.den().norm();}
+};
 
 #endif

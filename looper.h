@@ -8,6 +8,7 @@
 class Quadlooper {
 
 public:
+  // Iterator through Quads (up to units) with norms from nn to nm (or indefinite if nm==0)
   Quadlooper(long nn, long nm, int conj=0)
     :d(Quad::d), disc(Quad::disc), n(nn), nmax(nm), include_conjugates(conj)
     {
@@ -16,7 +17,8 @@ public:
   void operator++();
   operator Quad() const {return val;}
   vector<Quad> values_with_current_norm();
-  int ok() const {return n<=nmax;}
+  vector<Quad> values_with_norm_up_to(const INT& m);
+  int ok() const {return nmax==0 || n<=nmax;}
 
 private:
   long d;

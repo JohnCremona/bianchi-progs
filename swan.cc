@@ -9,7 +9,7 @@
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
 
-vector<RatQuad> singular_points_in_class(Qideal I, int verbose)
+CuspList singular_points_in_class(Qideal I, int verbose)
 {
   if (I.is_principal())
     return {RatQuad(Quad::one, Quad::zero)};
@@ -27,21 +27,18 @@ vector<RatQuad> singular_points_in_class(Qideal I, int verbose)
     }
   if (verbose)
     cout<<" I = "<<I<<" has minimal elememts "<<slist<<endl;
-  vector<RatQuad> S;
-  for (auto si=slist.begin(); si!=slist.end(); si++)
+  CuspList S;
+  for ( const auto& s : slist)
     {
-      s = *si;
       if (verbose)
         cout<<" - using s = "<<s<<endl;
       vector<Quad> rlist = Qideal(s).residues();
       if (verbose)
         cout<<"Residues modulo "<<s<<" are "<<rlist<<endl;
-      for (auto ri=rlist.begin(); ri!=rlist.end(); ri++)
+      for ( auto r : rlist)
         {
-          r = (*ri)%s;
-          Qideal J = Qideal({r,s});
-          //cout<<" @ r = "<<r<<" gives (r,s) = "<<J<<endl;
-          if (I==J)
+          r = r%s;
+          if (I==Qideal({r,s}))
             {
               RatQuad sig = reduce_to_rectangle(RatQuad(r,s));
               if (verbose)
@@ -55,22 +52,22 @@ vector<RatQuad> singular_points_in_class(Qideal I, int verbose)
 
 // Return a list of lists of singular points in each ideal class.
 
-vector<vector<RatQuad>> singular_points_by_class()
+vector<CuspList> singular_points_by_class()
 {
-  vector<vector<RatQuad>> sigma_lists;
-  for (auto I = Quad::class_group.begin(); I != Quad::class_group.end(); ++I)
-    sigma_lists.push_back(singular_points_in_class(*I));
+  vector<CuspList> sigma_lists;
+  for ( const auto& I : Quad::class_group)
+    sigma_lists.push_back(singular_points_in_class(I));
   return sigma_lists;
 }
 
 // Return one list of all singular points.
 
-vector<RatQuad> singular_points()
+CuspList singular_points()
 {
-  vector<RatQuad> sigma_list;
-  for (auto I = Quad::class_group.begin(); I != Quad::class_group.end(); ++I)
+  CuspList sigma_list;
+  for ( const auto& I : Quad::class_group)
     {
-      vector<RatQuad> S = singular_points_in_class(*I);
+      CuspList S = singular_points_in_class(I);
       sigma_list.insert(sigma_list.end(), S.begin(), S.end());
     }
   return sigma_list;
@@ -78,9 +75,9 @@ vector<RatQuad> singular_points()
 
 // Return sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-vector<RatQuad> sort_singular_points(const vector<RatQuad> S, int verbose)
+CuspList sort_singular_points(const CuspList S, int verbose)
 {
-  vector<RatQuad> sorted_S;
+  CuspList sorted_S;
   sorted_S.push_back(RatQuad(Quad::one, Quad::zero));
   if (Quad::class_number==1)
     return sorted_S;
@@ -146,9 +143,9 @@ vector<RatQuad> sort_singular_points(const vector<RatQuad> S, int verbose)
     cout<<"Sigmas with small denominators: "<<sorted_S<<endl;
 
   // Now process the other sigmas (if any)
-  for (auto si=S.begin(); si!=S.end(); ++si)
+  RAT half(1,2);
+  for ( auto s : S) // not const or reference as we may change it
     {
-      RatQuad s = *si;
       if (verbose)
         cout <<"sigma = "<<s<<endl;
 
@@ -170,7 +167,7 @@ vector<RatQuad> sort_singular_points(const vector<RatQuad> S, int verbose)
         }
 
       // Standardise if real or imaginary parts are +-1/2:
-      RAT r(s.real()), i(s.imag()), half(1,2);
+      RAT r(s.real()), i(s.imag());
       if (Quad::t==0)
         {
           if (r<0 && i==half)
@@ -216,7 +213,7 @@ vector<RatQuad> sort_singular_points(const vector<RatQuad> S, int verbose)
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-void output_singular_points(const vector<RatQuad> S, int to_file, int to_screen)
+void output_singular_points(const CuspList S, int to_file, int to_screen)
 {
   vector<Quad> small_denoms = {Quad::zero, Quad::one, 2*Quad::one, 3*Quad::one};
   ofstream geodata;
@@ -227,10 +224,10 @@ void output_singular_points(const vector<RatQuad> S, int to_file, int to_screen)
       geodata.open(ss.str().c_str(), ios_base::app);
     }
   int nlines=0;
-  for (auto s = S.begin(); s!= S.end(); ++s)
+  for ( const auto& s : S)
     {
-      Quad sden = s->den(), snum = s->num();
-      if ((s->imag()>0) && (std::find(small_denoms.begin(), small_denoms.end(), sden) == small_denoms.end()))
+      Quad sden = s.den(), snum = s.num();
+      if ((s.imag()>0) && (std::find(small_denoms.begin(), small_denoms.end(), sden) == small_denoms.end()))
         {
           nlines++;
           if (to_file)
@@ -287,7 +284,7 @@ int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict)
 }
 
 // return 1 iff the circle S_a is inside S_b for any b in blist
-int circle_inside_any_circle(const RatQuad& a, const vector<RatQuad>& blist, int strict)
+int circle_inside_any_circle(const RatQuad& a, const CuspList& blist, int strict)
 {
   return std::any_of(blist.begin(), blist.end(),
                      [a, strict](RatQuad b) {return circle_inside_circle(a,b,strict);});
@@ -325,7 +322,7 @@ vector<RatQuad> sqrts(const RAT& r)
 }
 
 // return a list of up to 2 k-rational cusps where the S_ai intersect
-vector<RatQuad> intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
+CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
 {
   RAT r1sq = radius_squared(a1), r2sq = radius_squared(a2);
   RatQuad delta = a2-a1;
@@ -333,15 +330,15 @@ vector<RatQuad> intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   RAT d1 = n - (r1sq + r2sq);
   RAT d2 = d1*d1 - 4*r1sq*r2sq;
 
-  vector<RatQuad> ans;
+  CuspList ans;
   if (d2 > 0)
     return ans;
   delta = delta.conj();
   RatQuad z = a1 + a2 + (r1sq-r2sq)/delta;
   // find sqrts of d2 in k, if any
   vector<RatQuad> d2sqrts = sqrts(d2);
-  for (auto sqrtd2 = d2sqrts.begin(); sqrtd2!=d2sqrts.end(); ++sqrtd2)
-    ans.push_back(z/TWO + (*sqrtd2)/(TWO*delta));
+  for ( const auto& sqrtd2 : d2sqrts)
+    ans.push_back(z/TWO + sqrtd2/(TWO*delta));
   return ans;
 }
 
@@ -354,64 +351,50 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 }
 
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
-int is_inside_one(const RatQuad& a, const vector<RatQuad>& blist, int strict)
+int is_inside_one(const RatQuad& a, const CuspList& blist, int strict)
 {
-  for ( auto& b : blist)
-    if (is_inside(a, b, strict))
-      return 1;
-  return 0;
+  return std::any_of(blist.begin(), blist.end(),
+                     [a, strict](RatQuad b) {return is_inside(a,b,strict);});
 }
 
 
 // list of principal cusps with given denominator norm
-vector<RatQuad> principal_cusps_of_norm(const INT& n)
+CuspList principal_cusps_of_dnorm(const INT& n)
 {
-  vector<RatQuad> alist;
-  auto slist = elements_of_norm(n);
-  // cout << "Elements of norm "<<n<<": "<<slist<<endl;
-  for ( const auto& s : slist)
-    {
-      auto rlist = invertible_residues(s);
-      // cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
-      for ( const auto& r : rlist)
-        alist.push_back(reduce_to_rectangle(RatQuad(r, s)));
-    }
-  return alist;
+  return principal_cusps_with_denominators(elements_of_norm(n));
 }
 
 // list of principal cusps with denominator norm up to given bound,
 // omitting any whose circles are contained in an earlier one.
-//#define DEBUG_PRINCIPAL_CUSPS_UP_TO
-vector<RatQuad> principal_cusps_up_to(const INT& maxn)
+
+CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 {
-#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
-  cout<<"Finding principal cusps up to "<<maxn<<endl;
-#endif
-  vector<RatQuad> alist;
-  auto slist = elements_of_norm_up_to(maxn);
-#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
-  cout << "Elements of norm up to "<<maxn<<": "<<slist<<endl;
-#endif
+  return principal_cusps_with_denominators(elements_of_norm_up_to(maxn));
+}
+
+// list of principal cusps with given denominator
+CuspList principal_cusps_with_denominator(const Quad& s)
+{
+  CuspList alist;
+  auto rlist = invertible_residues(s);
+  for ( const auto& r : rlist)
+    {
+      RatQuad a = reduce_to_rectangle(RatQuad(r, s));
+      if (!circle_inside_any_circle(a, alist))
+        alist.push_back(a);
+    }
+  return alist;
+}
+
+// list of principal cusps with denominator in given list
+CuspList principal_cusps_with_denominators(const vector<Quad>& slist)
+{
+  CuspList alist;
   for ( const auto& s : slist)
     {
-      auto rlist = invertible_residues(s);
-#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
-      cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
-#endif
-      for ( const auto& r : rlist)
-        {
-          RatQuad a = reduce_to_rectangle(RatQuad(r, s));
-          if (!circle_inside_any_circle(a, alist))
-            alist.push_back(a);
-#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
-          else
-            cout<<"a="<<a<<" is redundant"<<endl;
-#endif
-        }
+      auto alist1 = principal_cusps_with_denominator(s);
+      alist.insert(alist.end(), alist1.begin(), alist1.end());
     }
-#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
-  cout<<" - returning "<<alist<<endl;
-#endif
   return alist;
 }
 
@@ -450,14 +433,12 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
     rsq = radius_squared(a),
     n1 = a1.norm(),
     n2 = a2.norm(),
-    n = delta.norm();
-  RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/TWO;
-  RAT
+    n = delta.norm(),
     d1 = n - (r1sq + r2sq),
     d2 = d1*d1 - 4*r1sq*r2sq;
-
   assert (d2 < 0);
 
+  RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/TWO;
   RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/TWO;
   RAT T2 = T*T;
   RatQuad D = tri_det(a, a2, a1); // pure imaginary
@@ -490,10 +471,10 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 // S_a.  We treat as a special case when the two intersection points
 // are in k.  If not, the code still uses exact arithmetic.
 
-int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const vector<RatQuad>& alist,
-                                    const vector<RatQuad>& sigmas, int debug)
+int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const CuspList& alist,
+                                    const CuspList& sigmas, int debug)
 {
-  vector<RatQuad> zlist = intersection_points_in_k(a0,a1);
+  CuspList zlist = intersection_points_in_k(a0,a1);
   if (!zlist.empty())
     {
       for (auto z = zlist.begin(); z!=zlist.end(); ++z)
@@ -511,19 +492,19 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
   // S_a covers both, or two cover one each:
 
   int t = 0; // will hold +1 or -1 if we have covered only one of the two
-  for (auto a2=alist.begin(); a2!=alist.end(); ++a2)
+  for ( const auto& a2 : alist)
     {
-      if (*a2 == a1)
+      if (a2 == a1)
         continue;
-      int t2 = are_intersection_points_covered_by_one(a0, a1, *a2);
-      if (t2==2)
+      int t2 = are_intersection_points_covered_by_one(a0, a1, a2);
+      if (t2==2) // both are covered by a2
         return 1;
-      if (t2!=0) // then it is +1 or -1
-        {
-          if (t==-t2) // then they are (1,-1) or (-1,1) so we have covered both points
-            return 1;
-          t = t2;     // = +1 or -1: we have covered one of the points, so remember which
-        }
+      if (t2==0) // neither is covered by a2
+        continue;
+      // Now t2 is +1 or -1; we win if t is its negative
+      if (t==-t2) // then they are (1,-1) or (-1,1) so we have covered both points
+        return 1;
+      t = t2;     // = +1 or -1: we have covered one of the points, so remember which
     }
   // If we reach here then none of the S_a covers both points
   return 0;
@@ -538,48 +519,44 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
 // is simplest when the intersection points are in k; if not then the
 // method still uses exact arithmetic in k throughout.
 
-// pairs_ok is a list of pairs (a1,a2) whose intersection points are
-// known to be covered, so can be skipped.
+// pairs_ok is list of pairs {a1,a2} whose intersection points are
+// known to be covered, which will be added to.
 
 // Returns 0 or 1, and pairs_ok is updated to a list of pairs
 // whose intersections have now been shown to be covered.
 
-int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const vector<RatQuad>& sigmas,
-                        vector< pair<RatQuad,RatQuad> >& pairs_ok)
+int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& sigmas,
+                        vector<CuspPair>& pairs_ok)
 {
   // check if S_a0 is strictly entirely contained in one S_alpha:
-  for (auto a = alist.begin(); a!=alist.end(); ++a)
-    if (circle_inside_circle(a0, *a, 1))
-      return 1;
+  if (circle_inside_any_circle(a0, alist, 1))
+    return 1;
 
   // extract the relevant alphas, if any, namely those for which
   // S_alpha and S_a0 properly intersect:
 
-  vector<RatQuad> a0list;
-  for (auto a = alist.begin(); a!=alist.end(); ++a)
-    if (circles_intersect(a0, *a))
-      a0list.push_back(*a);
+  CuspList a0list(alist.size()); // upper bound on size
+  auto it1 = std::copy_if(alist.begin(), alist.end(), a0list.begin(),
+                         [a0](RatQuad a){return circles_intersect(a0, a);});
+  a0list.resize(std::distance(a0list.begin(),it1));  // shrink to new size
 
   // extract the pairs in pairs_ok which contain a0:
-  vector< pair<RatQuad,RatQuad> > a0_pairs_ok;
-  for (auto pr=pairs_ok.begin(); pr!=pairs_ok.end(); ++pr)
-    {
-      if (a0==pr->second)
-        a0_pairs_ok.push_back({a0, pr->first});
-      if (a0==pr->first)
-        a0_pairs_ok.push_back(*pr);
-    }
+
+  vector<CuspPair> a0_pairs_ok(pairs_ok.size());
+  auto it2 = std::copy_if(pairs_ok.begin(), pairs_ok.end(), a0_pairs_ok.begin(),
+                         [a0](CuspPair pr){return (pr.find(a0)!=pr.end());});
+  a0_pairs_ok.resize(std::distance(a0_pairs_ok.begin(),it2));  // shrink to new size
 
   int all_ok = 1;
-  for (auto a1=a0list.begin(); a1!=a0list.end(); ++a1)
+  for ( const auto& a1 : a0list)
     {
-      pair<RatQuad,RatQuad> pr = {a0,*a1};
+      CuspPair pr = {a0,a1};
       if (std::find(a0_pairs_ok.begin(), a0_pairs_ok.end(), pr) != a0_pairs_ok.end())
-        continue;
-      if (are_intersection_points_covered(a0, *a1, alist, sigmas))
-        pairs_ok.push_back(pr);
+        continue; // this pair is already ok
+      if (are_intersection_points_covered(a0, a1, alist, sigmas))
+        pairs_ok.push_back(pr); // record that this pair is ok
       else
-        all_ok = 0;
+        all_ok = 0; // but continue checking the other a1s
     }
   return all_ok;
 }
@@ -597,67 +574,57 @@ int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const v
 // pairs_ok is list of pairs {a1,a2} whose intersection points are
 // known to be covered, which will be added to.
 
+// We assume that all a in alist_open are in the quarter rectangle
+
 // Returns 0/1
 
 // NB All a in alist_open will be tested, i.e. we carry on after a
 // failure.
 
-int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open,
-                          const vector<RatQuad>& slist, vector< pair<RatQuad,RatQuad> >& pairs_ok)
+int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
+                          const CuspList& slist, vector<CuspPair>& pairs_ok)
 {
   // cout << "At start of are_alphas_surrounded()" << endl;
   // cout << "alist_ok = "<<alist_ok<<endl;
   // cout << "alist_open = "<<alist_open<<endl;
+
   // concatenate the two alists
-  vector<RatQuad> alist;
+  CuspList alist;
   alist.insert(alist.end(), alist_ok.begin(), alist_ok.end());
   alist.insert(alist.end(), alist_open.begin(), alist_open.end());
 
   // add translates
-  RatQuad one(Quad::one), w(Quad::w);
-  vector<RatQuad> translates = { one, w, one+w, one-w };
-  vector<RatQuad> alistx = alist;
+  vector<Quad> translates = { Quad::one, Quad::w, Quad::one+Quad::w, Quad::one-Quad::w };
+  CuspList alistx = alist;
   for ( auto& a : alist)
     for (auto& t : translates)
       {
         alistx.push_back(a+t);
         alistx.push_back(a-t);
       }
-  int ok, i=0, all_ok = 1, n_open = alist_open.size();
-  // We make a copy of this to loop over, so we can delete elements from the original as we go
-  vector<RatQuad> new_alist_open = alist_open;
+  int i=0, n_open = alist_open.size();
+
+  // We make a copy of alist_open to loop over, so we can delete elements from the original as we go
+  CuspList new_alist_open = alist_open;
   for ( const auto& a : new_alist_open)
     {
+      assert (a.in_quarter_rectangle());
       i++;
-      if (!all_ok) // then return False so don't check remaining alphas
-        continue;
-      if (a.in_quarter_rectangle())
+      cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
+      if (is_alpha_surrounded(a, alistx, slist, pairs_ok))
         {
-          cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
-          ok = is_alpha_surrounded(a, alistx, slist, pairs_ok);
-          if (ok)
-            cout << " ok! surrounded" << endl;
-          else
-            {
-              all_ok = 0;
-              cout << " no, not surrounded" << endl;
-            }
-        }
-      else // alphas not in quarter rectangle are ignored by putting straight into the ok list
-        {
-          ok = 1;
-        }
-      if (ok) // add this alpha to the ok list end remove from the open list
-        {
-          cout<<"Moving "<<a<<" from alist_open to alist_ok"<<endl;
+          cout << " ok! surrounded\n";
+          // add this alpha to the ok list end remove from the open list
           alist_ok.push_back(a);
           alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
         }
+      else
+        {
+          cout << " no, not surrounded" << endl;
+          return 0;
+        }
     }
-  // cout << "At end of are_alphas_surrounded()" << endl;
-  // cout << "alist_ok = "<<alist_ok<<endl;
-  // cout << "alist_open = "<<alist_open<<endl;
-  return all_ok;
+  return 1;
 }
 
 // Returns a finite list of principal cusps a such that the S_{a+t}
@@ -672,45 +639,41 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
 
 // Other functions will then (1) saturate the set, (2) discard redundancies.
 
-vector<RatQuad> covering_alphas(const vector<RatQuad>& sigmas, int verbose)
+CuspList covering_alphas(const CuspList& sigmas, int verbose)
 {
-  vector<RatQuad> alphas_ok;  // list that will be returned
+  CuspList alphas_ok;  // list that will be returned
   INT maxn = Quad::absdisc/4; // we first consider all alphas with dnorm up to this
   int first = 1;
   string s = "of norm up to ";
-  vector<RatQuad> alist, alphas_open;
-  vector< pair<RatQuad,RatQuad> > pairs_ok;
+  CuspList alist, alphas_open;
+  vector<CuspPair>pairs_ok;
+  Quadlooper looper(1, 0, 1);  // norms from 1 to oo, both conjugates (up to units)
   while (1)
     {
-      vector<RatQuad> new_alphas, new_alphas_open;
-
       // Get the next batch new_alphas, either of all dnorms up to maxn, or those with the next dnorm
 
-      if (first)
-        {
-          new_alphas = principal_cusps_up_to(maxn);
-          first = 0;
-          s = "of norm ";
-        }
-      else
-        {
-          maxn += 1;
-          new_alphas = principal_cusps_of_norm(maxn);
-          while (new_alphas.empty())
-            {
-              maxn += 1;
-              new_alphas = principal_cusps_of_norm(maxn);
-            }
-        }
+      CuspList new_alphas = (first
+                             ?
+                             principal_cusps_with_denominators(looper.values_with_norm_up_to(maxn))
+                             :
+                             principal_cusps_with_denominators(looper.values_with_current_norm())
+                             );
+      maxn = new_alphas.back().den().norm();
+
       if (verbose)
         cout << "----------------------------------------------------------\n"
              << "Considering "<<new_alphas.size()<<" extra principal cusps " << s << maxn
-             << ": "<<new_alphas<<endl;
+             // << ": "<<new_alphas
+             << endl;
+      first = 0;
+      s = "of norm ";
 
       // Of these, check for redundancy; if not redundant, put into
       // alist and also either into new_alphas_open (if in quarter
       // rectangle) or into alphas_ok.  We only use new_alphas_open
       // for ease of reporting output.
+
+      CuspList new_alphas_open;
 
       for (auto a : new_alphas)
         {
@@ -757,7 +720,7 @@ vector<RatQuad> covering_alphas(const vector<RatQuad>& sigmas, int verbose)
       if (are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok))
         {
           if (verbose)
-            cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"!\n";
+            cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"\n";
           return alphas_ok;
         }
       else

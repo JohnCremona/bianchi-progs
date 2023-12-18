@@ -4,30 +4,34 @@
 #define _SWAN_H      1       //flags that this file has been included
 
 #include <iostream>
+#include <set>
 
-#include "quads.h"
-#include "rat.h"
+#include "ratquads.h"
+
+typedef vector<RatQuad> CuspList;  // may refactor using sets later
+typedef std::set<RatQuad, CuspCmp> CuspPair;
+typedef pair<RatQuad,RAT> H3point;
 
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
 
-vector<RatQuad> singular_points_in_class(Qideal I, int verbose=0);
+CuspList singular_points_in_class(Qideal I, int verbose=0);
 
 // Return a list of lists of singular points in each ideal class.
 
-vector<vector<RatQuad>> singular_points_by_class();
+vector<CuspList> singular_points_by_class();
 
 // Return one list of all singular points.
 
-vector<RatQuad> singular_points();
+CuspList singular_points();
 
 // Return sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-vector<RatQuad> sort_singular_points(const vector<RatQuad> S, int verbose=0);
+CuspList sort_singular_points(const CuspList S, int verbose=0);
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-void output_singular_points(const vector<RatQuad> S, int to_file=1, int to_screen=0);
+void output_singular_points(const CuspList S, int to_file=1, int to_screen=0);
 
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a);
@@ -48,23 +52,29 @@ inline int circles_intersect(const RatQuad& a1, const RatQuad& a2) {return tau(a
 int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict=1);
 
 // return 1 iff the circle S_a is inside S_b for any b in blist
-int circle_inside_any_circle(const RatQuad& a, const vector<RatQuad>& blist, int strict=1);
+int circle_inside_any_circle(const RatQuad& a, const CuspList& blist, int strict=1);
 
 // return a list of up to 2 k-rational cusps where the S_ai intersect
-vector<RatQuad> intersection_points_in_k(const RatQuad& a1, const RatQuad& a2);
+CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2);
 
 // return 1 iff a is [strictly] inside S_b
 int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
-int is_inside_one(const RatQuad& a, const vector<RatQuad>& blist, int strict=0);
+int is_inside_one(const RatQuad& a, const CuspList& blist, int strict=0);
 
 // list of principal cusps with given denominator norm
-vector<RatQuad> principal_cusps_of_norm(const INT& n);
+CuspList principal_cusps_of_dnorm(const INT& n);
 
 // list of principal cusps with denominator norm up to given bound,
 // omitting any whose circles are contained in an earlier one.
-vector<RatQuad> principal_cusps_up_to(const INT& maxn);
+CuspList principal_cusps_of_dnorm_up_to(const INT& maxn);
+
+// list of principal cusps with given denominator
+CuspList principal_cusps_with_denominator(const Quad& s);
+
+// list of principal cusps with denominator in given list
+CuspList principal_cusps_with_denominators(const vector<Quad>& slist);
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and
 // S_a2 intersect in distinct points, test whether S_a covers either
@@ -83,8 +93,8 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 // S_a.  We treat as a special case when the two intersection points
 // are in k.  If not, the code still uses exact arithmetic.
 
-int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const vector<RatQuad>& alist,
-                                    const vector<RatQuad>& sigmas, int debug=0);
+int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const CuspList& alist,
+                                    const CuspList& sigmas, int debug=0);
 
 
 // Given a principal cusp a0, a candidate list of principal cusps
@@ -96,14 +106,14 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
 // is simplest when the intersection points are in k; if not then the
 // method still uses exact arithmetic in k throughout.
 
-// pairs_ok is a list of pairs (a1,a2) whose intersection points are
+// pairs_ok is a list of {a1,a2} whose intersection points are
 // known to be covered, so can be skipped.
 
 // Returns 0 or 1, and pairs_ok is updated to a list of pairs
 // whose intersections have now been shown to be covered.
 
-int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const vector<RatQuad>& sigmas,
-                        vector< pair<RatQuad,RatQuad> >& pairs_ok);
+int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& sigmas,
+                        vector<CuspPair>& pairs_ok);
 
 
 // Given alist_ok and alist_open, lists of principal cusps, and slist,
@@ -124,8 +134,8 @@ int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const v
 // NB All a in alist_open will be tested, i.e. we carry on after a
 // failure.
 
-int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open,
-                          const vector<RatQuad>& slist, vector< pair<RatQuad,RatQuad> >& pairs_ok);
+int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
+                          const CuspList& slist, vector<CuspPair>& pairs_ok);
 // Returns a finite list of principal cusps a such that the S_{a+t}
 // for all integral t cover CC apart from singular points.
 
@@ -138,6 +148,6 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
 
 // Other functions will then (1) saturate the set, (2) discard redundancies.
 
-vector<RatQuad> covering_alphas(const vector<RatQuad>& sigmas, int verbose=0);
+CuspList covering_alphas(const CuspList& sigmas, int verbose=0);
 
 #endif

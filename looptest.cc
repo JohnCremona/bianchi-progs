@@ -6,7 +6,7 @@ int main(void)
   int conj;
   cerr << "Enter field: " << flush;  cin >> d;
   Quad::field(d,max);
-  long firstn, lastn; Quad n;
+  long firstn, lastn; Quad a, n;
 
   cerr << "Include conjugates? " << flush;  cin >> conj;
   cerr <<"Enter first and last norm for Quad loop: ";
@@ -14,21 +14,33 @@ int main(void)
   cerr <<endl;
 
   cout << "Quads in order of norm:" << endl;
-  for(Quadlooper alpha(firstn,lastn,conj); alpha.ok(); ++alpha)
+  for(Quadlooper looper(firstn,lastn,conj); looper.ok(); ++looper)
     {
-      Quad a = (Quad)alpha;
+      a = (Quad)looper;
       cout << "Quad = " << a << "\twith norm " << quadnorm(a) << endl;
-      //cout << field_label() << " " << ideal_label(makepos(alpha)) << endl;
     }
   cout << "-------------------------------------------\n\n";
 
   cout << "Quads with each possible norm from "<<firstn<<" to "<<lastn<<":" << endl;
-  Quadlooper alpha(firstn,lastn,conj);
-  while(alpha.ok())
+  Quadlooper looper(firstn,lastn,conj);
+  while(looper.ok())
     {
-      vector<Quad> values = alpha.values_with_current_norm();
-      INT n = values[0].norm();
-      cout << "Norm " << n << ":\t" << values << endl;
+      vector<Quad> values = looper.values_with_current_norm();
+      cout << "Norm " << values[0].norm() << ":\t" << values << endl;
+    }
+  cout << "-------------------------------------------\n\n";
+
+  INT n1=25, n2=50;
+  looper = Quadlooper(1,0,conj); // 0 means no upper bound set
+  cout << "Quads with norms up to "<<n1<<" in one list: " << endl;
+  cout << looper.values_with_norm_up_to(n1) << endl;
+
+  cout << "Quads with norms from "<<n1+1<<" to "<<n2<<" in separate lists: " << endl;
+  while(n1<n2)
+    {
+      vector<Quad> values = looper.values_with_current_norm();
+      n1 = values.front().norm();
+      cout << "Norm " << n1 << ":\t" << values << endl;
     }
   cout << "-------------------------------------------\n\n";
 }

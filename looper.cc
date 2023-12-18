@@ -60,7 +60,7 @@ void Quadlooper::bstep()
 void Quadlooper::nstep()
 {
   n+=1;
-  if (n>nmax)
+  if (!ok())
     return;
   while(kronecker(disc,n)==-1)
     n+=1;
@@ -78,11 +78,19 @@ void Quadlooper::operator++()
 
 vector<Quad> Quadlooper::values_with_current_norm()
 {
-  INT the_norm = n;
+  // must make a copy
+  INT m = n;
+  return values_with_norm_up_to(m);
+}
+
+vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m)
+{
   vector<Quad> values;
+  if (n>m)
+    return values;
   values.push_back(val);
   operator++();
-  while (n == the_norm)
+  while (n <= m)
     {
       values.push_back(val);
       operator++();

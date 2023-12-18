@@ -62,3 +62,18 @@ Norm 49:	[ 7 ]
 Norm 50:	[ 5a ]
 -------------------------------------------
 
+Quads with norms up to 25 in one list: 
+[ 1 a 2 1+a -1+2a 2+a 2a 3 1+2a 3+a 4 2+2a -1+3a 3a 4+a 1+3a 3+2a 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 28:	[ 2+3a -2+4a ]
+Norm 29:	[ -1+4a ]
+Norm 32:	[ 5+a 4+2a 4a ]
+Norm 36:	[ 6 3+3a ]
+Norm 37:	[ 1+4a ]
+Norm 43:	[ 5+2a ]
+Norm 44:	[ 6+a 2+4a -2+5a ]
+Norm 46:	[ 4+3a -1+5a ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 5a ]
+-------------------------------------------
+

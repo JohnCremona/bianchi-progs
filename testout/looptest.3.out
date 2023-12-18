@@ -45,3 +45,18 @@ Norm 48:	[ 4+4w ]
 Norm 49:	[ 7 5+3w ]
 -------------------------------------------
 
+Quads with norms up to 25 in one list: 
+[ 1 1+w 2 2+w 3 2+2w 3+w 4 3+2w 4+w 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 27:	[ 3+3w ]
+Norm 28:	[ 4+2w ]
+Norm 31:	[ 5+w ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 4+3w ]
+Norm 39:	[ 5+2w ]
+Norm 43:	[ 6+w ]
+Norm 48:	[ 4+4w ]
+Norm 49:	[ 7 5+3w ]
+Norm 52:	[ 6+2w ]
+-------------------------------------------
+
