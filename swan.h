@@ -47,6 +47,9 @@ inline int circles_intersect(const RatQuad& a1, const RatQuad& a2) {return tau(a
 // return 1 iff the circle S_A1 is inside S_a2
 int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict=1);
 
+// return 1 iff the circle S_a is inside S_b for any b in blist
+int circle_inside_any_circle(const RatQuad& a, const vector<RatQuad>& blist, int strict=1);
+
 // return a list of up to 2 k-rational cusps where the S_ai intersect
 vector<RatQuad> intersection_points_in_k(const RatQuad& a1, const RatQuad& a2);
 

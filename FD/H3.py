@@ -1376,7 +1376,7 @@ def principal_cusps_of_norm(k, norm_s):
         for r in reduced_numerators(s):
             yield cusp(reduce_mod_Ok(r/s), k)
 
-def principal_cusps_up_to(k, maxn, fussy=True):
+def principal_cusps_up_to(k, maxn, fussy=False):
     """List of all principal r/s with N(s)<=maxn, omitting any whose
     circles are contained in an earlier circle.  Since we loop through
     circles in decreasing order of radius, no circle can be contained
@@ -1447,6 +1447,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
         if verbose and nc:
             s = "up to " if first else ""
             print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics); #alphas={len(alphas_ok)+len(alphas_open)} of which {len(alphas_ok)} are proved surrounded so far")
+            print(f"New open alphas: {alphas_open[-nc:]}")
         if nc==0:
             continue
         ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=False)

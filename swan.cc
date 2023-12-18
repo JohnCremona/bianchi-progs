@@ -286,6 +286,13 @@ int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict)
   return (strict? t==-2: t<0);
 }
 
+// return 1 iff the circle S_a is inside S_b for any b in blist
+int circle_inside_any_circle(const RatQuad& a, const vector<RatQuad>& blist, int strict)
+{
+  return std::any_of(blist.begin(), blist.end(),
+                     [a, strict](RatQuad b) {return circle_inside_circle(a,b,strict);});
+}
+
 // Return list of 0, 1 or 2 sqrts of a rational r in k
 vector<RatQuad> sqrts(const RAT& r)
 {
@@ -349,8 +356,8 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
 int is_inside_one(const RatQuad& a, const vector<RatQuad>& blist, int strict)
 {
-  for (auto b = blist.begin(); b!=blist.end(); ++b)
-    if (is_inside(a, *b, strict))
+  for ( auto& b : blist)
+    if (is_inside(a, b, strict))
       return 1;
   return 0;
 }
@@ -374,22 +381,37 @@ vector<RatQuad> principal_cusps_of_norm(const INT& n)
 
 // list of principal cusps with denominator norm up to given bound,
 // omitting any whose circles are contained in an earlier one.
+//#define DEBUG_PRINCIPAL_CUSPS_UP_TO
 vector<RatQuad> principal_cusps_up_to(const INT& maxn)
 {
+#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
+  cout<<"Finding principal cusps up to "<<maxn<<endl;
+#endif
   vector<RatQuad> alist;
   auto slist = elements_of_norm_up_to(maxn);
-  // cout << "Elements of norm up to "<<maxn<<": "<<slist<<endl;
+#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
+  cout << "Elements of norm up to "<<maxn<<": "<<slist<<endl;
+#endif
   for ( const auto& s : slist)
     {
       auto rlist = invertible_residues(s);
-      // cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
+#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
+      cout << "s="<<s<<": invertible residues: "<<rlist<<endl;
+#endif
       for ( const auto& r : rlist)
         {
           RatQuad a = reduce_to_rectangle(RatQuad(r, s));
-          if (!is_inside_one(a, alist))
+          if (!circle_inside_any_circle(a, alist))
             alist.push_back(a);
+#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
+          else
+            cout<<"a="<<a<<" is redundant"<<endl;
+#endif
         }
     }
+#ifdef DEBUG_PRINCIPAL_CUSPS_UP_TO
+  cout<<" - returning "<<alist<<endl;
+#endif
   return alist;
 }
 
@@ -583,8 +605,9 @@ int is_alpha_surrounded(const RatQuad& a0, const vector<RatQuad>& alist, const v
 int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open,
                           const vector<RatQuad>& slist, vector< pair<RatQuad,RatQuad> >& pairs_ok)
 {
-  cout << "alist_ok = "<<alist_ok<<endl;
-  cout << "alist_open = "<<alist_open<<endl;
+  // cout << "At start of are_alphas_surrounded()" << endl;
+  // cout << "alist_ok = "<<alist_ok<<endl;
+  // cout << "alist_open = "<<alist_open<<endl;
   // concatenate the two alists
   vector<RatQuad> alist;
   alist.insert(alist.end(), alist_ok.begin(), alist_ok.end());
@@ -593,7 +616,6 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
   // add translates
   RatQuad one(Quad::one), w(Quad::w);
   vector<RatQuad> translates = { one, w, one+w, one-w };
-  cout << "translates = "<<translates<<endl;
   vector<RatQuad> alistx = alist;
   for ( auto& a : alist)
     for (auto& t : translates)
@@ -601,10 +623,9 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
         alistx.push_back(a+t);
         alistx.push_back(a-t);
       }
-  cout << "alistx = "<<alistx<<endl;
-  int ok, i=0, all_ok = 1;
+  int ok, i=0, all_ok = 1, n_open = alist_open.size();
   // We make a copy of this to loop over, so we can delete elements from the original as we go
-  vector<RatQuad>& new_alist_open = alist_open;
+  vector<RatQuad> new_alist_open = alist_open;
   for ( const auto& a : new_alist_open)
     {
       i++;
@@ -612,7 +633,7 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
         continue;
       if (a.in_quarter_rectangle())
         {
-          cout <<"Testing alpha #"<<i<<"/"<<alist_open.size()<<" = "<<a<<"...";
+          cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
           ok = is_alpha_surrounded(a, alistx, slist, pairs_ok);
           if (ok)
             cout << " ok! surrounded" << endl;
@@ -628,10 +649,14 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
         }
       if (ok) // add this alpha to the ok list end remove from the open list
         {
+          cout<<"Moving "<<a<<" from alist_open to alist_ok"<<endl;
           alist_ok.push_back(a);
           alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
         }
     }
+  // cout << "At end of are_alphas_surrounded()" << endl;
+  // cout << "alist_ok = "<<alist_ok<<endl;
+  // cout << "alist_open = "<<alist_open<<endl;
   return all_ok;
 }
 
@@ -649,78 +674,96 @@ int are_alphas_surrounded(vector<RatQuad>& alist_ok, vector<RatQuad>& alist_open
 
 vector<RatQuad> covering_alphas(const vector<RatQuad>& sigmas, int verbose)
 {
-  INT maxn = 0;
-  vector<RatQuad> alphas_ok, alphas_open, new_cusps, alist;
-  vector< pair<RatQuad,RatQuad> > pairs_ok;
+  vector<RatQuad> alphas_ok;  // list that will be returned
+  INT maxn = Quad::absdisc/4; // we first consider all alphas with dnorm up to this
   int first = 1;
+  string s = "of norm up to ";
+  vector<RatQuad> alist, alphas_open;
+  vector< pair<RatQuad,RatQuad> > pairs_ok;
   while (1)
     {
-      int nc = 0; // number of new alphas added to list
+      vector<RatQuad> new_alphas, new_alphas_open;
+
+      // Get the next batch new_alphas, either of all dnorms up to maxn, or those with the next dnorm
+
       if (first)
         {
-          maxn = Quad::absdisc/4;
-          new_cusps = principal_cusps_up_to(maxn);
+          new_alphas = principal_cusps_up_to(maxn);
           first = 0;
+          s = "of norm ";
         }
       else
         {
           maxn += 1;
-          new_cusps = principal_cusps_of_norm(maxn);
-          while (new_cusps.empty())
+          new_alphas = principal_cusps_of_norm(maxn);
+          while (new_alphas.empty())
             {
               maxn += 1;
-              new_cusps = principal_cusps_of_norm(maxn);
+              new_alphas = principal_cusps_of_norm(maxn);
             }
         }
       if (verbose)
-        cout << "Added "<<new_cusps.size()<<" extra principal cusps alpha, norms up to "<<maxn<<endl;
-      for (auto a : new_cusps)
+        cout << "----------------------------------------------------------\n"
+             << "Considering "<<new_alphas.size()<<" extra principal cusps " << s << maxn
+             << ": "<<new_alphas<<endl;
+
+      // Of these, check for redundancy; if not redundant, put into
+      // alist and also either into new_alphas_open (if in quarter
+      // rectangle) or into alphas_ok.  We only use new_alphas_open
+      // for ease of reporting output.
+
+      for (auto a : new_alphas)
         {
-          cout << "Working on a="<<a<<endl;
-          // test if a is redundant
-          int red=0;
-          for (auto b : alist)
-            {
-              red = circle_inside_circle(a, b, 0);
-              if (red) break;
-            }
-          if (red) // skip a
-            {
-              cout << " - redundant, skipping"<<endl;
+          if (circle_inside_any_circle(a, alist, 0)) // strict=0
               continue;
-            }
           alist.push_back(a);
           if (a.in_quarter_rectangle())
+            new_alphas_open.push_back(a);
+          else
+            alphas_ok.push_back(a);
+        }
+      int nc = new_alphas_open.size();
+
+      // report on which new alphas we will be testing, if any:
+
+      if (verbose)
+        {
+          if (nc)
             {
-              cout << " - in quarter rectangle, using"<<endl;
-              alphas_open.push_back(a);
-              nc += 1;
+              cout << "Adding "<<nc<<" alphas " << s << maxn << ": " << new_alphas_open;
+              cout << " (plus symmetrics); ";
+              cout << "#alphas="<<alphas_ok.size()+alphas_open.size()+new_alphas_open.size();
+              // cout << " of which "<<alphas_ok.size()<<" are proved surrounded so far";
+              cout << endl;
             }
           else
             {
-              cout << " - not in quarter rectangle, not checking"<<endl;
-              alphas_ok.push_back(a);
+              cout << "All are redundant\n";
             }
-        }
-      if (verbose && nc)
-        {
-          cout << "Adding "<<nc<<" alphas of norm ";
-          cout << (first? "up to " : "") << maxn;
-          cout <<" (plus symmetrics); #alphas="<<alphas_ok.size()+alphas_open.size();
-          cout <<" of which "<<alphas_ok.size()<<" are proved surrounded so far";
         }
       if (nc==0)
         continue;
+
+      // Append new_alphas_open to alphas_open:
+
+      alphas_open.insert(alphas_open.end(), new_alphas_open.begin(), new_alphas_open.end());
+
+      // Test whether all alphas_open are now surrounded (by
+      // translates of alphas_ok+alphas_open).  As a side effect, some
+      // alphas will be moved from alphas_open to alphas_ok, and
+      // pairs_ok (which holds a list of pairs of alphas whose
+      // intersections are known to be covered) will be updated.
+
       if (are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok))
         {
           if (verbose)
-            cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"!";
+            cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"!\n";
           return alphas_ok;
         }
       else
         {
           if (verbose)
-            cout << "Some alphas are not surrounded, continuing...";
+            cout << "Some alphas are not surrounded, continuing...\n";
         }
     }
 }

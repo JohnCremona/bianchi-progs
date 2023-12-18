@@ -57,8 +57,9 @@ int main ()
       Quad::displayfield(cout);
       cout << endl;
 
-      auto sigmas = test_singular_points(1);
-      test_principal_cusps(20, 100);
+      auto sigmas = test_singular_points(0);
+      //test_principal_cusps(20, 30);
       auto alphas = covering_alphas(sigmas, 1);
+      cout << alphas << endl;
     }
 }
