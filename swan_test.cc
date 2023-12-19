@@ -61,5 +61,7 @@ int main ()
       //test_principal_cusps(20, 30);
       auto alphas = covering_alphas(sigmas, 1);
       cout << alphas << endl;
+      auto corners = triple_intersections(alphas, 1);
+      cout << corners << endl;
     }
 }

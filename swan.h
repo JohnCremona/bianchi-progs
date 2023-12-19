@@ -11,6 +11,7 @@
 typedef vector<RatQuad> CuspList;  // may refactor using sets later
 typedef std::set<RatQuad, CuspCmp> CuspPair;
 typedef pair<RatQuad,RAT> H3point;
+ostream& operator<<(ostream& s, const H3point& P);
 
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
@@ -62,6 +63,18 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
 int is_inside_one(const RatQuad& a, const CuspList& blist, int strict=0);
+
+// return -1,0,+1 according as P is over, on, under S_a (a principal)
+int is_under(const H3point& P, const RatQuad& a);
+
+// return +1 iff P is under at least one S_a for a in sliat
+int is_under_any(const H3point& P, const CuspList& alist);
+
+// Return [P] where P is the triple intersection point of the
+// hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
+// is one, else [].
+
+vector<H3point> tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2);
 
 // list of principal cusps with given denominator norm
 CuspList principal_cusps_of_dnorm(const INT& n);
@@ -149,5 +162,8 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
 // Other functions will then (1) saturate the set, (2) discard redundancies.
 
 CuspList covering_alphas(const CuspList& sigmas, int verbose=0);
+
+vector<H3point> triple_intersections(const CuspList& alphas, int debug);
+
 
 #endif

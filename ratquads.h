@@ -25,6 +25,7 @@ public:
   int is_integral() const {return d.nm==1;} // assumes reduced
   int is_infinity() const {return d.nm==0;}
   int is_finite() const {return d.nm!=0;}
+  int is_zero() const {return n.nm==0;}
   Quad num() const {return n;}
   Quad den() const {return d;}
   RatQuad recip() const {return RatQuad(d, n);}  // no reduction needed

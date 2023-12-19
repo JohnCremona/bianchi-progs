@@ -256,4 +256,9 @@ inline INT RAT::ceil() const
   return (is_zero(r)? q : q+1);
 }
 
+inline int sign(const RAT& r)
+{
+  return r.sign();
+}
+
 #endif

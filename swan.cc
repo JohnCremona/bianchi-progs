@@ -404,6 +404,47 @@ RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
   return (a2b - a3b)*a1 + (a3b - a1b)*a2 + (a1b - a2b)*a3;
 }
 
+// Return [P] where P is the triple intersection point of the
+// hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
+// is one, else [].
+
+vector<H3point> tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2)
+{
+  vector<H3point> Plist;
+  RAT
+    rho0(radius_squared(a0)),
+    rho1(radius_squared(a1)),
+    rho2(radius_squared(a2));
+    //
+  RatQuad delta = tri_det(a0,a1,a2);
+  if (delta.is_zero())
+    return Plist; // empty
+  delta = delta.conj(); // to match Sage code
+  RAT
+    n0(a0.norm()),
+    n1(a1.norm()),
+    n2(a2.norm());
+  RatQuad z = (a1*(n0-n2+rho2-rho0) + a2*(n1-n0+rho0-rho1) + a0*(n2-n1+rho1-rho2)) / delta;
+  RatQuad zbar = z.conj();
+  RAT znorm = z.norm();
+  RAT t2 =  rho0 - n0 - znorm + 2*(a0*zbar).real();
+  RAT t2a = rho1 - n1 - znorm + 2*(a1*zbar).real();
+  RAT t2b = rho2 - n2 - znorm + 2*(a2*zbar).real();
+  if ((t2!=t2a)||(t2!=t2b))
+    {
+      cout << "a0="<<a0<<", a1="<<a1<<", a2="<<a2<<"\n";
+      cout << "delta = "<<delta<<endl;
+      cout << "z = "<<z<<endl;
+      cout << "t2="<<t2<<"\nt2a="<<t2a<<"\nt2b="<<t2b<<"\n";
+    }
+  assert (t2==t2a);
+  assert (t2==t2b);
+  if (t2<0)
+    return Plist; //empty
+  Plist.push_back({z,t2});
+  return Plist;
+}
+
 // Given principal cusps a1, a2, a such that the circles S_a1 and
 // S_a2 intersect in distinct points, test whether S_a covers either
 // or both these points.
@@ -729,4 +770,146 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
             cout << "Some alphas are not surrounded, continuing...\n";
         }
     }
+}
+
+// return -1,0,+1 according as P is over, on, under S_a (a principal)
+int is_under(const H3point& P, const RatQuad& a)
+{
+  return sign(radius_squared(a) - (P.first-a).norm() - P.second);
+}
+
+// return +1 iff P is under at least one S_a for a in sliat
+int is_under_any(const H3point& P, const CuspList& alist)
+{
+  return std::any_of(alist.begin(), alist.end(),
+                     [P](RatQuad a) {return is_under(P,a)==1;});
+}
+
+// Given a list of principal cusps alpha (all reduced mod O_k) return
+// a list of "corners" P = [z,tsq] each the intersection of an S_a
+// with at least two other S_{b+t} with z in the fundamental
+// rectangle and tsq>0.
+
+// Let u = (w-wbar)/2.  The fundamental rectangle F has TR corner at
+// (u+1)/2 and BL corner minus this.  Using symmetries (negation and
+// conjugation) we can work with the quarter-rectangle F4 with the
+// same TR and BL=0.  To recover F from F4 take the union of
+// z,-z,zbar,-zbar for z in F4.
+
+// The 9 quarter-rectangles adjacent to F4 consist of
+//  -z, zbar, 1-zbar; -zbar, z, 1-zbar; w-z, w+zbar, and either w+1-z or w+zbar-1
+// for z in F4.
+
+CuspList nbrs(const RatQuad& z)
+{
+  RatQuad cz = z.conj();
+  int t = Quad::t;
+  Quad w = Quad::w;
+  return {z,-z, cz, ONE-z, -cz, ONE-cz, w-z, w+cz, (t? w+cz-ONE : w+ONE-z)};
+}
+
+ostream& operator<<(ostream& s, const H3point& P)
+{
+  s << "[" << P.first<<","<<P.second<<"]";
+  return s;
+}
+
+vector<H3point> triple_intersections(const CuspList& alphas, int debug)
+{
+    if (debug)
+      cout << "Finding triple intersections..."<<endl;
+
+    // Extract the alphas in F4:
+    CuspList alphasF4(alphas.size());
+    auto it1 = std::copy_if(alphas.begin(), alphas.end(), alphasF4.begin(),
+                            [](RatQuad a){return a.in_quarter_rectangle();});
+    alphasF4.resize(std::distance(alphasF4.begin(),it1));  // shrink to new size
+    if (debug)
+      cout << alphasF4.size() <<" alphas are in the quarter rectangle" << endl;
+
+    // Extend these by 8 translations:
+    CuspList alphasF4X;
+    for ( auto& z : alphasF4)
+      {
+        CuspList z_nbrs = nbrs(z);
+        alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());
+      }
+    if (debug)
+      cout << alphasF4X.size() <<" neighbours of these" << endl;
+
+    // convert each cusp z to a point P = [z,tsq] with tsq the square
+    // radius of S_z:
+
+    // from utils import frac
+    // Alist = [[a,1/frac(a)[1].norm()] for a in XA4]
+
+    // For each i get a list of j>i for which S_ai and S_aj intersect properly
+    map <int, vector<int> > i2j;
+    int i=0, n=alphasF4X.size();
+    for ( const auto& a : alphasF4X)
+      {
+        vector<int> i2j_i;
+        for (int j = i+1; j<n; j++)
+          if (circles_intersect(a, alphasF4X[j]))
+            i2j_i.push_back(j);
+        i2j[i] = i2j_i;
+        i++;
+      }
+    if (debug)
+      cout << " finished making i2j" <<endl;
+
+    // Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
+
+    vector<vector<int>> ijk_list;
+    for (const auto& i_j_list : i2j)
+      {
+        int i = i_j_list.first;
+        vector<int> j_list = i_j_list.second;
+        for (const auto& j : j_list)
+          for (const auto& k : j_list)
+            if (std::find(i2j[j].begin(), i2j[j].end(), k) != i2j[j].end()) // k is in i2j[j]
+              ijk_list.push_back({i,j,k});
+      }
+
+    if (debug)
+      cout <<" finished making ijk_list: "<<ijk_list.size()<<" triples\n";
+
+    vector<H3point> corners;
+
+    for ( const auto& ijk : ijk_list)
+      {
+        int i=ijk[0], j=ijk[1], k=ijk[2];
+        vector<H3point> Plist = tri_inter_points(alphasF4X[i], alphasF4X[j], alphasF4X[k]);
+        if (Plist.empty())
+          continue;
+        H3point P = Plist.front();
+        RatQuad z = P.first;
+        RAT t2 = P.second;
+        if (t2.sign()==0)
+          continue;
+        if (debug>1)
+          cout << " found P = "<<P<<"\n";
+        if (!z.in_quarter_rectangle())
+          continue;
+        if (std::find(corners.begin(), corners.end(), P) != corners.end())
+          continue;
+        if (is_under_any(P, alphasF4X))
+          continue;
+        // These corners are in F4, so we apply symmetries to get all those in F:
+        RatQuad zbar = z.conj();
+        for (const auto& z2 : {z, -z, zbar, -zbar})
+          {
+            if (!z2.in_rectangle())
+              continue;
+            H3point P2 = {z2, t2};
+            if (std::find(corners.begin(), corners.end(), P2) != corners.end())
+              continue;
+            if (debug)
+              cout << " adding P2 = "<<P2<<" from (i,j,k) = "<< ijk <<endl;
+            corners.push_back(P2);
+          }
+      }
+    if (debug)
+      cout << " returning "<<corners.size() <<" corners" <<endl;
+    return corners;
 }

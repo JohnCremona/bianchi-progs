@@ -179,7 +179,7 @@ def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
     if debug:
         print(f"Covering hemispheres are S_alpha for alpha = {alphas}")
     covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
-    if not all(is_under(P,a) in covering_codes for a in alphas):
+    if not all(is_under(P,a)==1 in covering_codes for a in alphas):
         print(f"Problem in covering_hemispheres1({P}, {option})")
         print(f" - returned cusp list includes {[a for a in alphas if is_under(P,a) not in covering_codes]}")
         print(f"   for which is_under(P,a) is {[is_under(P,a) for a in alphas if is_under(P,a) not in covering_codes]}")
