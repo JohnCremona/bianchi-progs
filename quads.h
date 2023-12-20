@@ -242,6 +242,22 @@ string ideal_code(const Quad& N); // string code for a (principal)  ideal
 // unless D=1.
 vector<INT> disc_factors_mod_D(const INT& D);
 
+// Comparison function (based on norm, then imag then real part)
+struct Quad_comparison {
+  bool operator() (const Quad& lhs, const Quad& rhs)
+  {
+    int s = sign(rhs.norm()-lhs.norm());
+    if (s)           // norms are different
+      return (s==1); // true if lhs norm < rhs norm
+    s = sign(rhs.im()-lhs.im());
+    if (s)           // imag parts are different
+      return (s==1); // true if lhs imag < rhs imag
+    return lhs.re() <= rhs.re();
+  }
+};
+
+extern Quad_comparison Quad_cmp;
+
 #endif
 
 // END OF FILE QUADS.H

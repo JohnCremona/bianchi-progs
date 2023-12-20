@@ -299,7 +299,7 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 // Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
 
-// Comparison function so we can form sets of cusps
+// Comparison function (based only on norm of denominator)
 struct CuspCmp {
   bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
   {return lhs.den().norm()<rhs.den().norm();}

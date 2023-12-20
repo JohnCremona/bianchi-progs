@@ -38,7 +38,7 @@ int Quadlooper::testb()
   INT a, a2 = (Quad::t? 4*n-db2 : n-db2);
   if(!isqrt(a2, a))
     return 0;
-  if(Quad::t)
+  if(Quad::t) // then d is odd so a=b(mod 2)
     a = (a-b)/2;
   val = Quad(a,b);
   return 1;
@@ -98,12 +98,84 @@ vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m)
   return values;
 }
 
+// Lists of quads of one norm or a range (up to units)
 
-// Lists of elements of norm in ranges (up to units, excluding 0)
-vector<Quad> elements_of_norm_between(const INT& n1, const INT& n2)
+// return 1 iff a is *not* the chosen one of a conjugate pair
+int other_conj(const Quad& a)
+{
+  if (Quad::nunits >2)
+    return a.re()<a.im();
+  else
+    return a.im()<0;
+}
+
+vector<Quad> quads_of_norm(const INT& n, int conj)
 {
   vector<Quad> ans;
-  for(Quadlooper alpha(I2long(n1), I2long(n2), 1); alpha.ok(); ++alpha)
-    ans.push_back(alpha);
+  long d=Quad::d, t=Quad::t;
+
+  INT n4 = (t? 4*n: n);
+  INT bmax = isqrt(n4/d), a, b;
+  for ( b=0; b<=bmax; b+=1)
+    {
+      if(isqrt(n4-d*b*b, a))
+        {
+          if (d==1 && a==0)
+            continue;
+          if(t) // then d is odd so a=b(mod 2)
+            a = (a-b)/2;
+          ans.push_back(Quad(a,b));
+        }
+    }
+  if (!conj)
+    ans.erase(std::remove_if(ans.begin(), ans.end(), [](Quad val) { return other_conj(val); }),
+              ans.end());
+  return ans;
+}
+
+vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int sorted)
+{
+  vector<Quad> ans;
+  long d=Quad::d, t=Quad::t;
+  int extra_units = (d==1 || d==3);
+
+  INT n1x = (t ? 4*n1 : n1), n2x = (t ? 4*n2 : n2);
+  INT b, bmax = isqrt(n2x/d);
+  for (b=0; b<=bmax; b+=1)
+    {
+      INT db2 = d*b*b;
+      INT aminsq = n1x-db2, amax = isqrt(n2x-db2);
+      INT amin = (aminsq.sign()<0? 0 : isqrt(aminsq));
+      if (extra_units && amin<b)
+        {
+          amin = b;
+        }
+      if (t)
+        {
+          if ((amin-b)%2) // ensure a=b (mod 2)
+            amin +=1;
+          amin = (amin-b)/2; // so this is rounded up
+          amax = (amax-b)/2; // rounded down
+        }
+
+      for (INT a = amin; a<=amax; a+=1)
+        {
+          if (extra_units && a==0)
+            continue;
+          Quad val = Quad(a, b);
+          assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
+          ans.push_back(val);
+        }
+    }
+  if (!conj)
+    ans.erase(std::remove_if(ans.begin(), ans.end(), [](Quad val) { return other_conj(val); }),
+              ans.end());
+  if (sorted)
+    std::sort(ans.begin(), ans.end(), Quad_cmp);
+
+  // This works but is inefficient unless n1==n2
+  // for(Quadlooper alpha(I2long(n1), I2long(n2), 1); alpha.ok(); ++alpha)
+  //   ans.push_back(alpha);
+
   return ans;
 }

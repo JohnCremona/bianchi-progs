@@ -361,7 +361,7 @@ int is_inside_one(const RatQuad& a, const CuspList& blist, int strict)
 // list of principal cusps with given denominator norm
 CuspList principal_cusps_of_dnorm(const INT& n)
 {
-  return principal_cusps_with_denominators(elements_of_norm(n));
+  return principal_cusps_with_denominators(quads_of_norm(n));
 }
 
 // list of principal cusps with denominator norm up to given bound,
@@ -369,7 +369,7 @@ CuspList principal_cusps_of_dnorm(const INT& n)
 
 CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 {
-  return principal_cusps_with_denominators(elements_of_norm_up_to(maxn));
+  return principal_cusps_with_denominators(quads_of_norm_up_to(maxn));
 }
 
 // list of principal cusps with given denominator
@@ -913,3 +913,78 @@ vector<H3point> triple_intersections(const CuspList& alphas, int debug)
       cout << " returning "<<corners.size() <<" corners" <<endl;
     return corners;
 }
+
+
+// count how many a have P under S_a
+int nverts(const RatQuad& a, const vector<H3point>& Plist)
+{
+  return std::count_if(Plist.begin(), Plist.end(),
+                       [a](H3point P) {return is_under(P,a)==1;});
+}
+
+
+// return sublist of a in alist which have t least 3 vertices in Plist
+CuspList remove_redundants(const CuspList& alist, const vector<H3point>& Plist)
+{
+  CuspList new_alist;
+  std::copy_if(alist.begin(), alist.end(), std::back_inserter(new_alist),
+               [Plist](RatQuad a) {return nverts(a, Plist) >= 3;});
+  return new_alist;
+}
+
+// The following function is slower for option 'exact'.
+
+// For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
+// such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
+
+// If option is +1 ('exact') only returns alpha for which P is on S_alpha exactly.
+// If option is -1 ('strict') only returns alpha for which P is strictly under S_alpha.
+// Otherwise (default), returns alpha for which P is under or on S_alpha.
+
+CuspList covering_hemispheres2(const H3point& P, int option, long norm_s_lb, int debug)
+{
+  CuspList alphas;
+  RatQuad z = P.first;
+  RAT t2 = P.second;
+  Quad a = z.num(), b=z.den();   // in O_K
+  long norm_s_ub = I2long((1/t2).floor());
+  if (debug)
+    cout << "t2 = "<<t2<<" so bound on N(s) is "<<norm_s_ub<<"\n";
+  Quadlooper sloop(norm_s_lb, norm_s_ub, 1);
+  while (sloop.ok())
+    {
+      Quad s(sloop);
+      ++sloop;
+      INT snorm = s.norm();
+      RatQuad sz = s*z;
+      RAT d1 = RAT(1,snorm) - t2;
+      assert (sign(d1)>=0);
+#ifdef jhdfgasjdfgskahjfgshkj
+      rbound = ((RR(sz.norm()).sqrt()+1)**2).floor()
+        if debug:
+            cout << "{s = }, {snorm = }: {d1 = }, bound on N(r) is {rbound}")
+        for r in quads_of_norm_upto(k, rbound, 0):
+            rnorm = r.norm()
+            if snorm.gcd(rnorm)>1 and k.ideal(r,s)!=1:
+                continue
+            for pm in [-1,1] if r else [1]:
+                a = pm*r/s
+                d = d1 - (a-z).norm()
+                if debug and d>=0:
+                    cout << "{a = }, {d = }")
+                // we need d==0 for exact, d>0 for strict, else d>=0
+                ok = (d>0) if option=='strict' else (d==0) if option=='exact' else (d>=0)
+                if ok:
+                    a = cusp(a,k)
+                    if debug:
+                        cout << " OK {a}")
+                    alphas.append(a)
+    if debug:
+        cout << "Covering hemispheres are S_alpha for alpha = {alphas}")
+    covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
+    assert all(is_under(P,a) in covering_codes for a in alphas)
+#endif
+                                                                                }
+    return alphas;
+}
+

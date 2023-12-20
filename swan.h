@@ -160,10 +160,27 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
 // otherwise these will be computed.
 
 // Other functions will then (1) saturate the set, (2) discard redundancies.
-
 CuspList covering_alphas(const CuspList& sigmas, int verbose=0);
 
+// Given a list of principal cusps alpha (all reduced mod O_k) return
+// a list of "corners" P = [z,tsq] each the intersection of an S_a
+// with at least two other S_{b+t} with z in the fundamental
+// rectangle and tsq>0.
 vector<H3point> triple_intersections(const CuspList& alphas, int debug);
 
+// count how many a have P under S_a
+int nverts(const RatQuad& a, const vector<H3point>& Plist);
+
+// return sublist of a in alist which have t least 3 vertices in Plist
+CuspList remove_redundants(const CuspList& alist, const vector<H3point>& Plist);
+
+// For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
+// such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
+
+// If option is +1 ('exact') only returns alpha for which P is on S_alpha exactly.
+// If option is -1 ('strict') only returns alpha for which P is strictly under S_alpha.
+// Otherwise (default), returns alpha for which P is under or on S_alpha.
+
+CuspList covering_hemispheres2(const H3point& P, int option=0, long norm_s_lb=1, int debug=0);
 
 #endif

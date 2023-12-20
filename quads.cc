@@ -28,6 +28,7 @@ Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
 int Quad::geometry_initialised;
+Quad_comparison Quad_cmp;
 
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below

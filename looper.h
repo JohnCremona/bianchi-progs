@@ -31,9 +31,12 @@ private:
   void setblims();
 };
 
-// Lists of elements of norm in ranges (up to units, excluding 0)
-vector<Quad> elements_of_norm_between(const INT& n1, const INT& n2);
-inline vector<Quad> elements_of_norm(const INT& n) {return elements_of_norm_between(n,n);}
-inline vector<Quad> elements_of_norm_up_to(const INT& n) {return elements_of_norm_between(1,n);}
+// Lists of quads of norm in ranges (up to units, omitting conjugates if conj==0)
+vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj=1, int sorted=0);
+vector<Quad> quads_of_norm(const INT& n, int conj=1);
+inline vector<Quad> quads_of_norm_up_to(const INT& n, int conj=1, int sorted=0)
+{
+  return quads_of_norm_between(1,n,conj,sorted);
+}
 
 #endif

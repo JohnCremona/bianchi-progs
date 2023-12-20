@@ -7,6 +7,7 @@ int main(void)
   cerr << "Enter field: " << flush;  cin >> d;
   Quad::field(d,max);
   long firstn, lastn; Quad a, n;
+  vector<Quad> values, values2;
 
   cerr << "Include conjugates? " << flush;  cin >> conj;
   cerr <<"Enter first and last norm for Quad loop: ";
@@ -25,22 +26,33 @@ int main(void)
   Quadlooper looper(firstn,lastn,conj);
   while(looper.ok())
     {
-      vector<Quad> values = looper.values_with_current_norm();
-      cout << "Norm " << values[0].norm() << ":\t" << values << endl;
+      values = looper.values_with_current_norm();
+      INT n = values.front().norm();
+      cout << "Norm " << n << ":\t" << values << endl;
+      values2 = quads_of_norm(n, conj);
+      // cout << "Norm " << n << ":\t" << values2 << endl;
+      assert (values==values2);
     }
   cout << "-------------------------------------------\n\n";
 
   INT n1=25, n2=50;
   looper = Quadlooper(1,0,conj); // 0 means no upper bound set
   cout << "Quads with norms up to "<<n1<<" in one list: " << endl;
-  cout << looper.values_with_norm_up_to(n1) << endl;
+  values = looper.values_with_norm_up_to(n1);
+  cout << values << endl;
+  values2 = quads_of_norm_up_to(n1, conj, 1);
+  //cout << values2 << endl;
+  assert (values == values2);
 
   cout << "Quads with norms from "<<n1+1<<" to "<<n2<<" in separate lists: " << endl;
   while(n1<n2)
     {
-      vector<Quad> values = looper.values_with_current_norm();
+      values = looper.values_with_current_norm();
       n1 = values.front().norm();
       cout << "Norm " << n1 << ":\t" << values << endl;
+      values2 = quads_of_norm(n1, conj);
+      // cout << "Norm " << n1 << ":\t" << values2 << endl;
+      assert (values == values2);
     }
   cout << "-------------------------------------------\n\n";
 }
