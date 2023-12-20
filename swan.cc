@@ -14,7 +14,7 @@ CuspList singular_points_in_class(Qideal I, int verbose)
   if (I.is_principal())
     return {RatQuad(Quad::one, Quad::zero)};
   INT n = I.norm();
-  Quad r, s(n);
+  Quad temp, r, s(n);
   vector<Quad> slist = {s};
   Quad s2 = I.zgen(1);
   if (s2.norm()==n*n)
@@ -32,7 +32,7 @@ CuspList singular_points_in_class(Qideal I, int verbose)
     {
       if (verbose)
         cout<<" - using s = "<<s<<endl;
-      vector<Quad> rlist = Qideal(s).residues();
+      auto rlist = Qideal(s).residues();
       if (verbose)
         cout<<"Residues modulo "<<s<<" are "<<rlist<<endl;
       for ( auto r : rlist)
@@ -40,7 +40,7 @@ CuspList singular_points_in_class(Qideal I, int verbose)
           r = r%s;
           if (I==Qideal({r,s}))
             {
-              RatQuad sig = reduce_to_rectangle(RatQuad(r,s));
+              RatQuad sig = reduce_to_rectangle(RatQuad(r,s), temp);
               if (verbose)
                 cout<<" - using r = "<<r<<" to give "<<sig<<endl;
               S.push_back(sig);
@@ -376,10 +376,11 @@ CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 CuspList principal_cusps_with_denominator(const Quad& s)
 {
   CuspList alist;
+  Quad temp;
   auto rlist = invertible_residues(s);
   for ( const auto& r : rlist)
     {
-      RatQuad a = reduce_to_rectangle(RatQuad(r, s));
+      auto a = reduce_to_rectangle(RatQuad(r, s), temp);
       if (!circle_inside_any_circle(a, alist))
         alist.push_back(a);
     }

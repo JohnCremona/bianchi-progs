@@ -57,8 +57,8 @@ public:
   vector<RAT> xy_coords() const;       // rational x,y s.t. this = x+y*sqrt(-d)
   int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
   int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
-  friend RatQuad reduce_to_rectangle(const RatQuad&); // subtract Quad to put into rectangle
-
+  friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
+  friend vector<Quad> nearest_quads(const RatQuad&);    // list of Quads a s.t. N(a-z)<1
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);

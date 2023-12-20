@@ -107,7 +107,7 @@ int RatQuad::in_quarter_rectangle() const
 //#define DEBUG_REDUCE_TO_RECTANGLE
 
 // subtract Quad to put into rectangle
-RatQuad reduce_to_rectangle(const RatQuad& a)
+RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
 #ifdef DEBUG_REDUCE_TO_RECTANGLE
   cout<<"Reducing "<<a<<" to rectangle..."<<endl;
@@ -130,11 +130,38 @@ RatQuad reduce_to_rectangle(const RatQuad& a)
   cout<<": "<<x<<" rounds to "<<x.round()<<endl;
 #endif
   b -= x.round();
+  shift = Quad(x.round(), y.round());
+  assert (a+shift==b);
 #ifdef DEBUG_REDUCE_TO_RECTANGLE
   cout<<" - after x-shift,  xy-coords "<<b.xy_coords()<<endl;
   cout<<"...returning "<<b<<endl;
 #endif
   return b;
+}
+
+// list of Quads a s.t. N(z-a)<1
+vector<Quad> nearest_quads(const RatQuad& z)
+{
+  vector<Quad> ans, shifts = {Quad::one}; // adjustments up to sign
+  Quad r;
+  RatQuad z0 = reduce_to_rectangle(z, r);
+  assert (z+r==z0);
+  if (z0.norm()<1)
+    ans.push_back(-r);
+  if (Quad::is_Euclidean)
+    {
+      shifts.push_back(Quad::w);
+      shifts.push_back(1+Quad::w);
+      shifts.push_back(-1+Quad::w);
+    }
+  for ( const auto& s : shifts)
+    {
+      if ((z0-s).norm()<1)
+        ans.push_back(s-r);
+      if ((z0+s).norm()<1)
+        ans.push_back(-s-r);
+    }
+  return ans;
 }
 
 
