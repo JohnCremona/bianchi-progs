@@ -135,17 +135,21 @@ vector<Quad> quads_of_norm(const INT& n, int conj)
 
 vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int sorted)
 {
+  // cout<<"Finding quads with norm between "<<n1<<" and "<<n2<<endl;
   vector<Quad> ans;
   long d=Quad::d, t=Quad::t;
   int extra_units = (d==1 || d==3);
 
   INT n1x = (t ? 4*n1 : n1), n2x = (t ? 4*n2 : n2);
   INT b, bmax = isqrt(n2x/d);
+  // cout<<"bmax = "<<bmax<<endl;
   for (b=0; b<=bmax; b+=1)
     {
       INT db2 = d*b*b;
       INT aminsq = n1x-db2, amax = isqrt(n2x-db2);
       INT amin = (aminsq.sign()<0? 0 : isqrt(aminsq));
+      if (amin*amin!=aminsq) // isqrt rounds down but we want to round up
+        amin+=1;
       if (extra_units && amin<b)
         {
           amin = b;
@@ -158,11 +162,13 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
           amax = (amax-b)/2; // rounded down
         }
 
+      // cout<<"b="<<b<<", amin = "<<amin<<", amax = "<<amax<<endl;
       for (INT a = amin; a<=amax; a+=1)
         {
           if (extra_units && a==0)
             continue;
           Quad val = Quad(a, b);
+          // cout<<" val = "<<val<<" with norm "<<val.norm()<<endl;
           assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
           ans.push_back(val);
         }

@@ -60,8 +60,16 @@ int main ()
       auto sigmas = test_singular_points(0);
       //test_principal_cusps(20, 30);
       auto alphas = covering_alphas(sigmas, 1);
-      cout << alphas << endl;
-      auto corners = triple_intersections(alphas, 1);
-      cout << corners << endl;
+      INT maxn = max_dnorm(alphas);
+      cout << alphas.size() << " covering alphas: " << alphas << endl;
+      cout << "max dnorm = " << maxn <<endl;
+
+      // auto corners = triple_intersections(alphas, 1);
+      // cout << corners << endl;
+
+      alphas = saturate_covering_alphas(alphas, sigmas, maxn, 1, 1);
+      cout << alphas.size() << " saturated alphas: " << alphas << endl;
+      maxn = max_dnorm(alphas);
+      cout << "max dnorm = " << maxn <<endl;
     }
 }

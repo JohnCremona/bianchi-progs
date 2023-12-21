@@ -6,6 +6,8 @@
 #include "geometry.h"
 #include "looper.h"
 
+H3_comparison H3_cmp;
+
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
 
@@ -167,7 +169,7 @@ CuspList sort_singular_points(const CuspList S, int verbose)
         }
 
       // Standardise if real or imaginary parts are +-1/2:
-      RAT r(s.real()), i(s.imag());
+      RAT r = s.x_coord(),  i = s.y_coord();
       if (Quad::t==0)
         {
           if (r<0 && i==half)
@@ -190,8 +192,8 @@ CuspList sort_singular_points(const CuspList S, int verbose)
             if (2*r+i==1 && i<0)
               s -= ONE;
         }
-      r = s.real();
-      i = s.imag();
+      r = s.x_coord();
+      i = s.y_coord();
       if (verbose)
         cout <<"sigma = "<<s<<", -sigma = "<<-s<<endl;
       if (i>0)
@@ -409,17 +411,16 @@ RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
 // hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
 // is one, else [].
 
-vector<H3point> tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2)
+H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2)
 {
-  vector<H3point> Plist;
+  H3pointList points;
   RAT
     rho0(radius_squared(a0)),
     rho1(radius_squared(a1)),
     rho2(radius_squared(a2));
-    //
   RatQuad delta = tri_det(a0,a1,a2);
   if (delta.is_zero())
-    return Plist; // empty
+    return points; // empty
   delta = delta.conj(); // to match Sage code
   RAT
     n0(a0.norm()),
@@ -428,22 +429,18 @@ vector<H3point> tri_inter_points(const RatQuad& a0, const RatQuad& a1, const Rat
   RatQuad z = (a1*(n0-n2+rho2-rho0) + a2*(n1-n0+rho0-rho1) + a0*(n2-n1+rho1-rho2)) / delta;
   RatQuad zbar = z.conj();
   RAT znorm = z.norm();
-  RAT t2 =  rho0 - n0 - znorm + 2*(a0*zbar).real();
-  RAT t2a = rho1 - n1 - znorm + 2*(a1*zbar).real();
-  RAT t2b = rho2 - n2 - znorm + 2*(a2*zbar).real();
-  if ((t2!=t2a)||(t2!=t2b))
-    {
-      cout << "a0="<<a0<<", a1="<<a1<<", a2="<<a2<<"\n";
-      cout << "delta = "<<delta<<endl;
-      cout << "z = "<<z<<endl;
-      cout << "t2="<<t2<<"\nt2a="<<t2a<<"\nt2b="<<t2b<<"\n";
-    }
+  RAT t2 =  (rho0 - n0 - znorm) + 2*(a0*zbar).x_coord();
+  RAT t2a = (rho1 - n1 - znorm) + 2*(a1*zbar).x_coord();
+  RAT t2b = (rho2 - n2 - znorm) + 2*(a2*zbar).x_coord();
   assert (t2==t2a);
   assert (t2==t2b);
-  if (t2<0)
-    return Plist; //empty
-  Plist.push_back({z,t2});
-  return Plist;
+  H3point P = {z,t2};
+  assert (is_under(P,a0)==0);
+  assert (is_under(P,a1)==0);
+  assert (is_under(P,a2)==0);
+  if (t2>=0)
+    points.push_back(P);
+  return points;
 }
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and
@@ -484,7 +481,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
   RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/TWO;
   RAT T2 = T*T;
   RatQuad D = tri_det(a, a2, a1); // pure imaginary
-  RAT D2 = (D*D).real();          // negative rational
+  RAT D2 = (D*D).x_coord();       // negative rational
   RAT d2D2 = d2*D2;               // positive rational
 
   // the covering condition is \pm sqrt(d2)*D < T
@@ -497,7 +494,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
   if (d2D2 > T2)
     {
       Quad w = Quad::w;
-      RAT u = (D*(w-w.conj())).real();
+      RAT u = (D*(w-w.conj())).x_coord();
       code = u.sign();
     }
 #ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
@@ -685,6 +682,7 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
 {
   CuspList alphas_ok;  // list that will be returned
   INT maxn = Quad::absdisc/4; // we first consider all alphas with dnorm up to this
+  if (maxn==0) maxn=1; // just for discriminant -3
   int first = 1;
   string s = "of norm up to ";
   CuspList alist, alphas_open;
@@ -700,6 +698,7 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
                              :
                              principal_cusps_with_denominators(looper.values_with_current_norm())
                              );
+      cout << "new_alphas = " << new_alphas << endl;
       maxn = new_alphas.back().den().norm();
 
       if (verbose)
@@ -773,10 +772,16 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
     }
 }
 
+// Return the height of S_a above P, or 0 if S_a does not cover P
+RAT height_above(const RatQuad& a, const RatQuad& z)
+{
+  return radius_squared(a)-(z-a).norm(); // positive iff S_a covers z
+}
+
 // return -1,0,+1 according as P is over, on, under S_a (a principal)
 int is_under(const H3point& P, const RatQuad& a)
 {
-  return sign(radius_squared(a) - (P.first-a).norm() - P.second);
+  return sign(height_above(a, P.first) - P.second);
 }
 
 // return +1 iff P is under at least one S_a for a in sliat
@@ -815,7 +820,7 @@ ostream& operator<<(ostream& s, const H3point& P)
   return s;
 }
 
-vector<H3point> triple_intersections(const CuspList& alphas, int debug)
+H3pointList triple_intersections(const CuspList& alphas, int debug)
 {
     if (debug)
       cout << "Finding triple intersections..."<<endl;
@@ -875,15 +880,15 @@ vector<H3point> triple_intersections(const CuspList& alphas, int debug)
     if (debug)
       cout <<" finished making ijk_list: "<<ijk_list.size()<<" triples\n";
 
-    vector<H3point> corners;
+    H3pointList points;
 
     for ( const auto& ijk : ijk_list)
       {
         int i=ijk[0], j=ijk[1], k=ijk[2];
-        vector<H3point> Plist = tri_inter_points(alphasF4X[i], alphasF4X[j], alphasF4X[k]);
-        if (Plist.empty())
+        H3pointList points1 = tri_inter_points(alphasF4X[i], alphasF4X[j], alphasF4X[k]);
+        if (points1.empty())
           continue;
-        H3point P = Plist.front();
+        H3point P = *points1.begin();
         RatQuad z = P.first;
         RAT t2 = P.second;
         if (t2.sign()==0)
@@ -892,7 +897,7 @@ vector<H3point> triple_intersections(const CuspList& alphas, int debug)
           cout << " found P = "<<P<<"\n";
         if (!z.in_quarter_rectangle())
           continue;
-        if (std::find(corners.begin(), corners.end(), P) != corners.end())
+        if (std::find(points.begin(), points.end(), P) != points.end())
           continue;
         if (is_under_any(P, alphasF4X))
           continue;
@@ -903,89 +908,301 @@ vector<H3point> triple_intersections(const CuspList& alphas, int debug)
             if (!z2.in_rectangle())
               continue;
             H3point P2 = {z2, t2};
-            if (std::find(corners.begin(), corners.end(), P2) != corners.end())
+            if (std::find(points.begin(), points.end(), P2) != points.end())
               continue;
             if (debug)
               cout << " adding P2 = "<<P2<<" from (i,j,k) = "<< ijk <<endl;
-            corners.push_back(P2);
+            points.push_back(P2);
           }
       }
     if (debug)
-      cout << " returning "<<corners.size() <<" corners" <<endl;
-    return corners;
+      cout << " returning "<<points.size() <<" corners" <<endl;
+    return points;
 }
 
 
-// count how many a have P under S_a
-int nverts(const RatQuad& a, const vector<H3point>& Plist)
+// count how many P in points are on S_a
+int nverts(const RatQuad& a, const H3pointList& points)
 {
-  return std::count_if(Plist.begin(), Plist.end(),
-                       [a](H3point P) {return is_under(P,a)==1;});
+  return std::count_if(points.begin(), points.end(),
+                       [a](H3point P) {return is_under(P,a)==0;});
 }
 
 
-// return sublist of a in alist which have t least 3 vertices in Plist
-CuspList remove_redundants(const CuspList& alist, const vector<H3point>& Plist)
+// return sublist of a in alist which have t least 3 vertices in points
+CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 {
   CuspList new_alist;
   std::copy_if(alist.begin(), alist.end(), std::back_inserter(new_alist),
-               [Plist](RatQuad a) {return nverts(a, Plist) >= 3;});
+               [points](RatQuad a) {return nverts(a, points) >= 3;});
   return new_alist;
 }
 
-// The following function is slower for option 'exact'.
-
 // For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
-// such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
+// such that P lies on or under S_alpha, and N(s)>=norm_s_lb.  For
+// each s with norm_s_lb <= N(s) <= 1/t2 the only candidate(s) is r
+// such that N(s*z-r)<1, since the inequality to be satisfied is
+// N(s*z-r)+t2*N(s)<=1.
 
 // If option is +1 ('exact') only returns alpha for which P is on S_alpha exactly.
 // If option is -1 ('strict') only returns alpha for which P is strictly under S_alpha.
 // Otherwise (default), returns alpha for which P is under or on S_alpha.
 
-CuspList covering_hemispheres2(const H3point& P, int option, long norm_s_lb, int debug)
+CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int debug)
 {
-  CuspList alphas;
-  RatQuad z = P.first;
+  if (debug)
+    cout << "Finding a for which S_a covers "<<P<<endl;
+  CuspList ans;
+  RatQuad z = P.first, sz;
   RAT t2 = P.second;
-  Quad a = z.num(), b=z.den();   // in O_K
+  Quad r, temp;
+  int ok, test;
   long norm_s_ub = I2long((1/t2).floor());
   if (debug)
-    cout << "t2 = "<<t2<<" so bound on N(s) is "<<norm_s_ub<<"\n";
-  Quadlooper sloop(norm_s_lb, norm_s_ub, 1);
-  while (sloop.ok())
+    cout << "t2 = "<<t2<<" so bounds on N(s) are ["<<norm_s_lb<<","<<norm_s_ub<<"]\n";
+
+  // We could do Quadlooper sloop(norm_s_lb, norm_s_ub, 1); but it's
+  // more efficient to construct all possible s at once, though that
+  // takes more memory
+  auto slist = quads_of_norm_between(norm_s_lb, norm_s_ub, 1, 0); // not sorted
+  for (const auto& s : slist)
     {
-      Quad s(sloop);
-      ++sloop;
-      INT snorm = s.norm();
-      RatQuad sz = s*z;
-      RAT d1 = RAT(1,snorm) - t2;
-      assert (sign(d1)>=0);
-#ifdef jhdfgasjdfgskahjfgshkj
-      rbound = ((RR(sz.norm()).sqrt()+1)**2).floor()
-        if debug:
-            cout << "{s = }, {snorm = }: {d1 = }, bound on N(r) is {rbound}")
-        for r in quads_of_norm_upto(k, rbound, 0):
-            rnorm = r.norm()
-            if snorm.gcd(rnorm)>1 and k.ideal(r,s)!=1:
-                continue
-            for pm in [-1,1] if r else [1]:
-                a = pm*r/s
-                d = d1 - (a-z).norm()
-                if debug and d>=0:
-                    cout << "{a = }, {d = }")
-                // we need d==0 for exact, d>0 for strict, else d>=0
-                ok = (d>0) if option=='strict' else (d==0) if option=='exact' else (d>=0)
-                if ok:
-                    a = cusp(a,k)
-                    if debug:
-                        cout << " OK {a}")
-                    alphas.append(a)
-    if debug:
-        cout << "Covering hemispheres are S_alpha for alpha = {alphas}")
-    covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
-    assert all(is_under(P,a) in covering_codes for a in alphas)
-#endif
-                                                                                }
-    return alphas;
+      sz = s*z;
+      auto rlist = nearest_quads(sz, 1); // 1 means at most one
+      if (rlist.empty())
+        continue;
+      r = rlist.front();
+      test = sign((sz-r).norm() + t2*s.norm() - ONE); // should be 0 or -1 or 0,-1
+      ok = (option==1? test==0: (option=-1? test==-1 : test<1));
+      if (!ok || !coprime(r,s))
+        continue;
+      ans.push_back(reduce_to_rectangle(RatQuad(r,s), temp));
+    }
+  if (debug)
+    cout << "Covering hemispheres are S_a for a in "<<alphas<<endl;
+    // covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
+    // assert all(is_under(P,a) in covering_codes for a in alphas)
+  return alphas;
 }
 
+CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
+{
+  return covering_hemispheres(P, -1, norm_s_lb, debug);
+}
+
+H3point translate(const H3point& P, const Quad& t)
+{
+  return {P.first + t, P.second};
+}
+
+// return max denomaintor norm of a list of principal cusps
+INT max_dnorm(const CuspList& alphas)
+{
+  INT m;
+  std::for_each(alphas.begin(), alphas.end(),
+                [&m](RatQuad a) {INT n = a.den().norm(); if (n>m) m=n;});
+  return m;
+}
+
+// Of the properly_covering_hemispheres(P) extract the subset for which the covering height is maximal
+CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
+{
+  // Find all covering hemispheres
+  CuspList alphas = properly_covering_hemispheres(P, norm_s_lb, debug);
+  if (alphas.empty())
+    return alphas;
+
+  // Find the max height of all S_a above P
+  RAT m;
+  std::for_each(alphas.begin(), alphas.end(),
+                [P,&m](RatQuad a) {m = max(m, height_above(a,P.first));});
+
+  // Discard those a whose height above P is not maximal
+  alphas.erase(std::remove_if(alphas.begin(), alphas.end(),
+                              [P,m](RatQuad a) { return height_above(a,P.first) < m;}),
+               alphas.end());
+  return alphas;
+}
+
+// Given a covering set of alphas as produced by
+// find_covering_alphas(), add extras if necessary so that they are
+// "saturated", i.e. define the extended fundamental domain.
+
+// By Swan, we need to find the points P in H^3 with positive height
+// where at least 3 hemispheres S_a intersect, and for each P check
+// whether P is properly covered by an S_a for a not in the set of
+// alphas (up to translation).  If so, we need to add a to the set of
+// alphas.  If none, then we have the fundamental region (and can go
+// on to discard any redundant alphas).
+
+// We assume that we have already considered all alpha=r/s with N(s)<=maxn.
+
+// At the end we discard any alphas with <3 vertices (including
+// translates and singular points), and return the new set of alphas
+
+CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas, INT maxn, int debug, int verbose)
+{
+  INT m;
+  if (verbose)
+    {
+      m = max_dnorm(alphas);
+      cout << "Saturating "<<alphas.size()<<" alphas with max dnorm "<< m <<endl;
+    }
+  // First delete any alphas with <3 vertices, allowing for translates
+  H3pointList points = triple_intersections(alphas, debug);
+  if (verbose)
+    cout << "Found "<<points.size() << " triple intersection points" <<endl;
+
+  // add translates of these and singular points
+  vector<Quad> translates = { Quad::one, Quad::w, Quad::one+Quad::w, Quad::one-Quad::w };
+  H3pointList pointsx;
+  for ( const auto& P : points)
+    {
+      pointsx.push_back(P);
+      for ( const auto& t : translates)
+        {
+          pointsx.push_back(translate(P,t));
+          pointsx.push_back(translate(P,-t));
+        }
+    }
+  for ( const auto& s : sigmas)
+    {
+      H3point P = {s, ZERO};
+      pointsx.push_back(P);
+      for ( const auto& t : translates)
+        {
+          pointsx.push_back(translate(P,t));
+          pointsx.push_back(translate(P,-t));
+        }
+    }
+  CuspList new_alphas = remove_redundants(alphas, pointsx);
+  m = max_dnorm(new_alphas);
+  if (verbose)
+    cout << "After removing alphas which go through <3 vertices, we now have "
+         <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
+
+  int sat = 0, first_run=1;
+  H3pointList checked_points;
+  while (!sat)
+    {
+      if (!first_run)
+        points = triple_intersections(new_alphas, debug);
+      first_run = 0;
+      if (verbose)
+        cout << "Found "<<points.size()<<" potential vertices"<<endl;
+      if(debug)
+        cout << "Extracting those of square height less than 1/"<<maxn<<endl;
+      // Remove points which cannot be better covered by an alpha with dnorm>maxn
+      points.erase(std::remove_if(points.begin(), points.end(),
+                                  [maxn](H3point P) { return maxn*P.second>=ONE;}),
+                   points.end());
+      if (debug)
+        cout << " -- of which "<<points.size()<<" are low enough to be properly covered by a new alpha"<<endl;
+      points.erase(std::remove_if(points.begin(), points.end(),
+                                  [](H3point P) { return P.first.in_quarter_rectangle();}),
+                   points.end());
+      if (debug)
+        cout << " -- of which "<<points.size()<<" lie in the first quadrant" << endl;
+
+      points.erase(std::remove_if(points.begin(), points.end(),
+                                  [checked_points](H3point P)
+                                  {return std::find(checked_points.begin(), checked_points.end(), P) != checked_points.end();}),
+                   points.end());
+      if (debug)
+        cout << " -- of which "<<points.size()<<" have not already been checked" << endl;
+
+      sat = 1;        // will be set to 0 if we find out that the alphas are not already saturated
+      CuspList extra_alphas; // will be filled with any extra alphas needed on this pass
+      int iP = 0, nP = points.size();
+      for (const auto& P : points)
+        {
+          iP++;
+          if (debug)
+            cout << " - checking corner #"<<iP<<"/"<<nP<<": "<<P<<"...";
+          CuspList extras = best_covering_hemispheres(P, I2long(m)+1, debug);
+          if (debug)
+            cout << " done...";
+          if (extras.empty())
+            {
+              if (debug)
+                cout << "   - OK, no properly covering alphas found" <<endl;
+              checked_points.push_back(P);
+              continue; // on to the next P
+            }
+          sat = 0; // we now know the alphas are not saturated
+          if (debug)
+            {
+              cout << "   - found " <<extras.size()<<" maximally properly covering hemispheres";
+              vector<INT> norms;
+              norms.resize(extras.size());
+              std::transform(extras.begin(), extras.end(), norms.begin(),
+                             [](RatQuad a) {return a.den().norm();});
+              cout << " with norms " << norms;
+              cout << ";  max height above P (height "<<P.second<<") is "<<m<<endl;
+            }
+          for ( const auto& a : extras)
+            {
+              RatQuad ca = a.conj();
+              CuspList blist = {a,-a,ca,-ca};
+              for ( const auto& b : blist)
+                {
+                  if (b.in_rectangle() &&
+                      std::find(extra_alphas.begin(), extra_alphas.end(), b) == extra_alphas.end())
+                    {
+                      if (debug)
+                        cout << " - adding alpha " << b << endl;
+                      extra_alphas.push_back(b);
+                    }
+                } // loop over 4 flips of a
+            } // loop over a in extras
+        } // checked all P in points
+      if (verbose)
+        {
+          if (sat)
+            {
+              m = max_dnorm(new_alphas);
+              cout << " alphas are saturated! "<<new_alphas.size()<<" alphas with max norm "<<m<<endl;
+            }
+          else
+            {
+              m = max_dnorm(extra_alphas);
+              cout << " alphas not saturated, "<<extra_alphas.size()<<" extras needed: "<<extra_alphas<<" (with norms at most "<<m<<")"<<endl;
+            }
+        }
+      new_alphas.insert(new_alphas.end(), extra_alphas.begin(), extra_alphas.end());
+    } // ends while(!sat)
+
+  m = max_dnorm(new_alphas);
+  if (verbose)
+    cout << "After saturation we now have "<<new_alphas.size()<<" alphas with max norm "<<m<<endl;
+
+  // Now again delete any alphas with <3 vertices, allowing for translates
+  points = triple_intersections(new_alphas, debug);
+  pointsx.clear();
+  for ( const auto& P : points)
+    {
+      pointsx.push_back(P);
+      for ( const auto& t : translates)
+        {
+          pointsx.push_back(translate(P,t));
+          pointsx.push_back(translate(P,-t));
+        }
+    }
+  for ( const auto& s : sigmas)
+    {
+      H3point P = {s, ZERO};
+      pointsx.push_back(P);
+      for ( const auto& t : translates)
+        {
+          pointsx.push_back(translate(P,t));
+          pointsx.push_back(translate(P,-t));
+        }
+    }
+  new_alphas = remove_redundants(new_alphas, pointsx);
+  m = max_dnorm(new_alphas);
+  if (verbose)
+    cout << "After removing alphas which go through <3 vertices, we now have "
+         <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
+  std::sort(new_alphas.begin(), new_alphas.end(), Cusp_cmp);
+  return new_alphas;
+}

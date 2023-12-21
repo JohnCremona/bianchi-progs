@@ -50,15 +50,20 @@ public:
   int is_principal() const;
 
   RAT norm() const {return RAT(n.norm(), d.norm());}
+  // NB The following functions do NOT give the literal real and
+  // imaginary parts when Quad::t=1, but instead the coefficients with
+  // respect to the basis 1,w.  See xy_coords().
   RAT real() const {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
   RAT imag() const {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
   vector<RAT> real_imag() const {Quad a=n*d.conj(); INT b = d.norm(); return {RAT(a.r,b),RAT(a.i,b)};}
 
   vector<RAT> xy_coords() const;       // rational x,y s.t. this = x+y*sqrt(-d)
+  RAT x_coord() const {return xy_coords()[0];}
+  RAT y_coord() const {return xy_coords()[1];}
   int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
   int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
   friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
-  friend vector<Quad> nearest_quads(const RatQuad&);    // list of Quads a s.t. N(a-z)<1
+  friend vector<Quad> nearest_quads(const RatQuad&, int just_one);    // list of Quad(s) a s.t. N(a-z)<1
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);
@@ -300,9 +305,11 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
 
 // Comparison function (based only on norm of denominator)
-struct CuspCmp {
+struct Cusp_comparison {
   bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
   {return lhs.den().norm()<rhs.den().norm();}
 };
+
+extern Cusp_comparison Cusp_cmp;
 
 #endif

@@ -5,6 +5,8 @@
 #include "mat22.h"
 #include "geometry.h"
 
+Cusp_comparison Cusp_cmp;
+
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
 
@@ -104,62 +106,56 @@ int RatQuad::in_quarter_rectangle() const
   return 0<=x && x<=half && 0<=y && y<=half;
 }
 
-//#define DEBUG_REDUCE_TO_RECTANGLE
-
 // subtract Quad to put into rectangle
 RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<"Reducing "<<a<<" to rectangle..."<<endl;
-#endif
   RatQuad b(a);
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<" - initial xy-coords "<<b.xy_coords();
-#endif
   RAT y = b.xy_coords()[1];
   if (Quad::t) y *= 2;
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<": "<<y<<" rounds to "<<y.round()<<endl;
-#endif
-  b -= y.round()*Quad::w;
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<" - after y-shift,  xy-coords "<<b.xy_coords();
-#endif
+  INT yround = y.round();
+  b -= yround*Quad::w;
   RAT x = b.xy_coords()[0];
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<": "<<x<<" rounds to "<<x.round()<<endl;
-#endif
-  b -= x.round();
-  shift = Quad(x.round(), y.round());
-  assert (a+shift==b);
-#ifdef DEBUG_REDUCE_TO_RECTANGLE
-  cout<<" - after x-shift,  xy-coords "<<b.xy_coords()<<endl;
-  cout<<"...returning "<<b<<endl;
-#endif
+  INT xround = x.round();
+  b -= xround;
+  shift = Quad(xround, yround);
+  // cout<<"a = "<<a<<endl;
+  // cout<<"xround = "<<xround<<endl;
+  // cout<<"yround = "<<yround<<endl;
+  // cout<<"b = "<<b<<endl;
+  // cout<<"shift = "<<shift<<endl;
+  assert (a-shift==b);
   return b;
 }
 
-// list of Quads a s.t. N(z-a)<1
-vector<Quad> nearest_quads(const RatQuad& z)
+// list of Quad(s) a s.t. N(z-a)<1; at most 1 if just_one, otherwise
+// we return all
+
+// NB if a1 and a2 work then N(a1-a2)<4; only the Euclidean fields have
+// elements of norm 2 or 3.
+vector<Quad> nearest_quads(const RatQuad& z, int just_one)
 {
-  vector<Quad> ans, shifts = {Quad::one}; // adjustments up to sign
+  vector<Quad> ans;
   Quad r;
   RatQuad z0 = reduce_to_rectangle(z, r);
-  assert (z+r==z0);
+  assert (z-r==z0);
   if (z0.norm()<1)
-    ans.push_back(-r);
+    ans.push_back(r);
+  if (just_one)
+    return ans;
+  vector<Quad> shifts = {Quad::one}; // adjustments up to sign
   if (Quad::is_Euclidean)
     {
-      shifts.push_back(Quad::w);
-      shifts.push_back(1+Quad::w);
-      shifts.push_back(-1+Quad::w);
+      if (Quad::d < 7) shifts.push_back(Quad(1,1)); // norms 2, 3, 3 for d=1,2,3
+      if (Quad::nunits == 2) shifts.push_back(Quad::w); // norms 2, 2, 3 for d=2,7,11
     }
   for ( const auto& s : shifts)
     {
-      if ((z0-s).norm()<1)
-        ans.push_back(s-r);
-      if ((z0+s).norm()<1)
-        ans.push_back(-s-r);
+      for ( const auto& u : quadunits)
+        {
+          Quad us = u*s;
+          if ((z0-us).norm()<1)
+            ans.push_back(us+r);
+        }
     }
   return ans;
 }

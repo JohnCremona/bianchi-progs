@@ -59,9 +59,12 @@ def tri_inter_points(a0, a1, a2):
         return None
     z = (al1*(n0-n2+rho2-rho0) + al2*(n1-n0+rho0-rho1) + al0*(n2-n1+rho1-rho2)) / delta
     zbar = z.conjugate()
-    t2 = rho0 - n0 - z.norm() + 2*(al0*zbar).real()
-    assert t2 == rho1 - n1 - z.norm() + 2*(al1*zbar).real()
-    assert t2 == rho2 - n2 - z.norm() + 2*(al2*zbar).real()
+    znorm = z.norm()
+    t2  = rho0 - n0 - znorm + 2*(al0*zbar).real()
+    t2a = rho1 - n1 - znorm + 2*(al1*zbar).real()
+    t2b = rho2 - n2 - znorm + 2*(al2*zbar).real()
+    assert t2 == t2a
+    assert t2 == t2b
     return None if t2<0 else [z,t2]
 
 def tri_inter_cusps(a0, a1, a2):

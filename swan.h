@@ -9,8 +9,16 @@
 #include "ratquads.h"
 
 typedef vector<RatQuad> CuspList;  // may refactor using sets later
-typedef std::set<RatQuad, CuspCmp> CuspPair;
+typedef std::set<RatQuad, Cusp_comparison> CuspPair;
 typedef pair<RatQuad,RAT> H3point;
+// Comparison function (based only height, highest first)
+struct H3_comparison {
+  bool operator() (const H3point& lhs, const H3point& rhs) const
+  {return lhs.second > rhs.second;}
+};
+extern H3_comparison H3_cmp;
+typedef vector<H3point> H3pointList;
+
 ostream& operator<<(ostream& s, const H3point& P);
 
 // Given an ideal I, return a list of singular points of class [I]
@@ -64,6 +72,9 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
 int is_inside_one(const RatQuad& a, const CuspList& blist, int strict=0);
 
+// Return the height of S_a above z, or 0 if S_a does not cover z
+RAT height_above(const RatQuad& a, const RatQuad& z);
+
 // return -1,0,+1 according as P is over, on, under S_a (a principal)
 int is_under(const H3point& P, const RatQuad& a);
 
@@ -74,7 +85,7 @@ int is_under_any(const H3point& P, const CuspList& alist);
 // hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
 // is one, else [].
 
-vector<H3point> tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2);
+H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2);
 
 // list of principal cusps with given denominator norm
 CuspList principal_cusps_of_dnorm(const INT& n);
@@ -166,13 +177,13 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose=0);
 // a list of "corners" P = [z,tsq] each the intersection of an S_a
 // with at least two other S_{b+t} with z in the fundamental
 // rectangle and tsq>0.
-vector<H3point> triple_intersections(const CuspList& alphas, int debug);
+H3pointList triple_intersections(const CuspList& alphas, int debug=0);
 
-// count how many a have P under S_a
-int nverts(const RatQuad& a, const vector<H3point>& Plist);
+// count how many P in points are on S_a
+int nverts(const RatQuad& a, const H3pointList& points);
 
-// return sublist of a in alist which have t least 3 vertices in Plist
-CuspList remove_redundants(const CuspList& alist, const vector<H3point>& Plist);
+// return sublist of a in alist which have at least 3 vertices in points
+CuspList remove_redundants(const CuspList& alist, const H3pointList& points);
 
 // For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
 // such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
@@ -181,6 +192,17 @@ CuspList remove_redundants(const CuspList& alist, const vector<H3point>& Plist);
 // If option is -1 ('strict') only returns alpha for which P is strictly under S_alpha.
 // Otherwise (default), returns alpha for which P is under or on S_alpha.
 
-CuspList covering_hemispheres2(const H3point& P, int option=0, long norm_s_lb=1, int debug=0);
+CuspList covering_hemispheres(const H3point& P, int option=0, long norm_s_lb=1, int debug=0);
+
+CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug=0);
+
+// Of the properly_covering_hemispheres(P) extract the subset for which the covering height is maximal
+CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug=0);
+
+// return max denominator norm of a list of principal cusps
+INT max_dnorm(const CuspList& alphas);
+
+CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas, INT maxn, int debug=0, int verbose=0);
+
 
 #endif
