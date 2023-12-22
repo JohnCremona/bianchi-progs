@@ -93,8 +93,12 @@ void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
 INT vecgcd(const vector<INT>& a)
 {
   INT g(0);
-  for(vector<INT>::const_iterator ai=a.begin(); ai!=a.end() && (g!=1); ++ai)
-    g = gcd(g, *ai);
+  for( const auto& ai : a)
+    {
+      g = gcd(g, ai);
+      if (g==1)
+        return g;
+    }
   return g;
 }
 
@@ -181,8 +185,8 @@ INT vecbezout(vector<INT>& a, vector<INT>& c)
   INT x(1), g = vecgcd(a);
   vector<INT> a0=a;
   if (g>1)
-    for(vector<INT>::iterator ai=a0.begin(); ai!=a0.end(); ++ai)
-      (*ai) /= g;
+    for( auto ai : a0)
+      ai /= g;
   // Now a0 is primitive: we do this to make numbers smaller in what follows
   c = vector<INT>(n, INT(0));
   INT g1(0);

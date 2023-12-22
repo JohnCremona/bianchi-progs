@@ -7,7 +7,7 @@ int main ()
 {
   long d, max(1000);
   cerr << "Enter field: " << flush;  cin >> d;
- if (!check_field(d))
+  if (!check_field(d))
    {
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
@@ -35,8 +35,8 @@ int main ()
  cin >> firstn >> lastn;
  cerr<<endl;
  cout<<"Level";
- for (vector<long>::const_iterator ch = charlist.begin(); ch!=charlist.end(); ch++)
-   cout<<" "<<(*ch);
+ for ( const auto& ch : charlist)
+   cout<<" "<<ch;
  cout<<endl;
 
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
@@ -49,9 +49,9 @@ int main ()
        {
 #endif
          cout << ideal_label(N);
-         for (vector<long>::const_iterator ch = charlist.begin(); ch!=charlist.end(); ch++)
+         for ( const auto& ch : charlist)
            {
-             homspace h(N, plusflag, 0, *ch);  //level, plusflag, verbose, characteristic
+             homspace h(N, plusflag, 0, ch);  //level, plusflag, verbose, characteristic
              long dim = (cuspidalflag? h.h1cuspdim(): h.h1dim());
              cout << " " << dim;
            }

@@ -70,11 +70,11 @@ int main ()
      vector<Qideal> Ndivisors = alldivs(N);
      // cout<<"Genus characters of divisors of "<<level_label<<":"<<endl;
      // cout << "\t\t"<<Quad::all_disc_factors <<endl;
-     // for (auto I=Ndivisors.begin(); I!=Ndivisors.end(); ++I)
+     // for ( const auto& I : Ndivisors)
      //   {
-     //     cout<<ideal_label(*I)<<" --> \t";
-     //     for (auto d = Quad::all_disc_factors.begin(); d!=Quad::all_disc_factors.end(); ++d)
-     //       cout<<I->genus_character(*d)<<" ";
+     //     cout<<ideal_label(I)<<" --> \t";
+     //     for (const auto& d : Quad::all_disc_factors)
+     //       cout<<I.genus_character(d)<<" ";
      //     cout<<endl;
      //   }
      cout << "\t"<< d << "\t2\t";                  // field and weight
@@ -98,9 +98,8 @@ int main ()
            }
          dims[level_label] = dimcuspnew;
          dimcuspold = 0;
-         for (auto Di=Ndivisors.begin(); Di!=Ndivisors.end(); ++Di)
+         for ( auto D: Ndivisors)
            {
-             Qideal D = *Di;
              if (N==D)
                break;
              Qideal M = N/D;

@@ -33,9 +33,8 @@ int main ()
   cout << "SL2" << "\t\t" << "GL2" << "\t\tNGL2" << "\n\t\t\t\t";
   cout<<"all cuspidal\tall cuspidal\tall cuspidal" << endl;
 
-  for (auto di = fields.begin(); di!=fields.end(); ++di)
+  for (auto D : fields)
     {
-      long D = *di;
       if (D<min_disc)
         continue;
       long d = (D%4==0? D/4: D);
