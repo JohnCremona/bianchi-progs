@@ -19,7 +19,7 @@ mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
 mat22 mat22::R(0,1,1,0);
 
 // Definitions of alphas and associated matrices M_alpha such that
-// det(M_alpha)=1 and M_alpha(alpha)=oo.
+// det(M_alpha)=1 and M_alpha(alpha)=oo and M_alpha(oo)=alpha' in alphas.
 //
 // alpha_inv is a permutation of range(n_alphas) such that
 // alpha_inv[i]=j where M_alpha[i](oo) = alpha[j].
@@ -35,6 +35,8 @@ mat22 mat22::R(0,1,1,0);
 int n_alphas, n_sigmas;
 vector<RatQuad> alphas;
 vector<RatQuad> sigmas;
+std::set<Quad, Quad_comparison> alpha_denoms;
+std::set<Quad, Quad_comparison> sigma_denoms;
 vector<mat22> M_alphas;
 vector<int> alpha_inv;
 vector<int> alpha_flip;
@@ -86,7 +88,6 @@ void Quad::setup_geometry()
   squares.clear();
   hexagons.clear();
 
-
   alphas_sigmas_universal();
 
   if (Quad::is_Euclidean) return;
@@ -106,8 +107,10 @@ void Quad::setup_geometry()
   read_data(debug); // read remaining alphas and sigmas and all faces from geodat.dat
   if (debug)
     {
+      cout << "alpha_denoms: " <<alpha_denoms << endl;
       cout << "alphas:\n";
       for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
+      cout << "sigma_denoms: " <<sigma_denoms << endl;
       cout << "sigmas:\n";
       for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
     }
@@ -131,6 +134,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   //cout<<"M_alpha = "<<M<<" with determinant "<<M.det()<<endl;
   assert (M.is_unimodular());
   alphas.push_back(alpha);
+  alpha_denoms.insert(c);
   M_alphas.push_back(M);
   n_alphas++;
 }
@@ -188,6 +192,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s);
   sigmas.push_back(sigma);
+  if (!s.is_zero()) sigma_denoms.insert(s);
   if (s.is_zero() || s==TWO) // don't also include -sigma
     {
       sigma_flip.push_back(n_sigmas);     // identity

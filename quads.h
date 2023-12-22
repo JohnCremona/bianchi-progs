@@ -131,7 +131,6 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend int pos2(const Quad& a);
   friend int div(const Quad& a, const Quad& b);           // implemented in quads.cc
   friend int val(const Quad& factor, const Quad& number); // implemented in quads.cc
-  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
   friend Quad quadgcd_psea(const Quad&, const Quad&);   // Using (pseudo-)EA
   friend Quad quadbezout_psea(const Quad&, const Quad&, Quad&, Quad&);   // Using (pseudo-)EA
   friend mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
@@ -252,7 +251,7 @@ struct Quad_comparison {
     s = sign(rhs.im()-lhs.im());
     if (s)           // imag parts are different
       return (s==1); // true if lhs imag < rhs imag
-    return lhs.re() <= rhs.re();
+    return lhs.re() < rhs.re();
   }
 };
 

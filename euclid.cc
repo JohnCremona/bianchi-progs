@@ -58,6 +58,8 @@ continued fractions we need both.
 
 //#define DEBUG_PSEA
 
+void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
+
 void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
 {
   // We update c1,d1 unless they are both 0 and similarly c2,d2.
@@ -65,37 +67,21 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   // For simple gcd, we need none of these;  for bezout (extended EA) we need c1,d1 and c2,d2
   // For convergents we need c1,d1 and t
 #ifdef DEBUG_PSEA
-  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.nm<<", b="<<b<<", N(b)="<<b.nm<<endl;
+  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.norm()<<", b="<<b<<", N(b)="<<b.norm()<<endl;
 #endif
-  if (b.nm==0)
-    {
-      t=0;
-      return;
-    }
+  t = 0;
+  if (b.is_zero())
+    return;
 
   int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
   int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
-  Quad u, q = Quad::zero;  // common simple special case where N(a)<N(b), q = 0 with no work
+  Quad original_a = a, original_b = b;
 
-  if (a.nm<b.nm) // just swap over
-    {
-      u = a; a=-b; b=u;
-      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
-      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+  // (0) common easy special case where N(a)<N(b) after a translation (type 0)
+
+  Quad q = a/b;  // rounded quotient, so N(a/b -q) is minimal
 #ifdef DEBUG_PSEA
-      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
-      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
-      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
-      cout <<" type=0" << endl;
-#endif
-      t = 0;
-      return;
-    }
-
-  q = a/b;  // rounded, so N(a/b -q) is minimal
-
-#ifdef DEBUG_PSEA
-  cout<<" - translation = "<<q<<endl;
+  cout<<" - initial translation = "<<q<<endl;
 #endif
   if (!q.is_zero())
     {
@@ -106,7 +92,145 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 #ifdef DEBUG_PSEA
   cout<<" - reduced a = "<<a<<endl;
 #endif
-  if (a.nm < b.nm) // always true in Euclidean case; invert using S (N.B. S^{-1}=-S)
+
+  if (a.norm() < b.norm()) // always true in Euclidean case; invert using S (N.B. S^{-1}=-S)
+    {
+      Quad u = a; a=-b; b=u;
+      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
+      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+#ifdef DEBUG_PSEA
+      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
+      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
+      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      cout <<" type=0" << endl;
+#endif
+      return;
+    }
+
+  // Now the real work begins.
+
+  // (1) If a/b is a translate of a singular point sigma, we apply an
+  // extra translation if necessary and set t=-i where the translate
+  // of a/b is the i'th singular point.  This is quick to check so we
+  // do it first; if this fails then a/b can be reduced using at least
+  // one alpha.
+
+  RatQuad z(a,b);
+  t = cusp_index_with_translation(z, sigmas, q);
+  if (t!=-1)
+    {
+      if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
+        {
+          a -= q*b;
+          if (compute_c1d1) d1 += q*c1;
+          if (compute_c2d2) d2 += q*c2;
+        }
+#ifdef DEBUG_PSEA
+      cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = " << sigmas[t]
+          <<" = singular point #"<<t<<endl;
+#endif
+      t = -t;
+      return;
+    }
+
+#ifdef DEBUG_PSEA
+  cout<<" - a/b is not singular, looking for an alpha which reduces"<<endl;
+#endif
+
+  // (2) Now look for a suitable alpha = r/s: loop over s in alpha_denoms
+  // and see if there exists r such that N((a/b)*s-r)<1, with (r,s)
+  // principal.  If so, r/s will be a translate of an alpha which works.
+
+#ifdef DEBUG_PSEA
+  cout<<" - denominators of alphas: "<<alpha_denoms<<endl;
+  cout<<" - alphas: "<<alphas<<endl;
+#endif
+
+  for ( const auto& s : alpha_denoms)
+    {
+#ifdef DEBUG_PSEA
+      cout<<"Testing denominator "<<s<<endl;
+#endif
+      auto rlist = nearest_quads(s*z, 0); // 0 means all, not just one
+#ifdef DEBUG_PSEA
+      cout<<" - nearest Quads to "<<s*z<<" : "<<rlist<<endl;
+#endif
+      for (const auto& r : rlist) // will usually be empty but that doesn't matter
+        {
+          if (!coprime(r,s))
+            {
+#ifdef DEBUG_PSEA
+              cout<<r<<" and "<<s<<" are not coprime"<<endl;
+#endif
+              continue;
+            }
+#ifdef DEBUG_PSEA
+          cout<<r<<" and "<<s<<" are coprime"<<endl;
+#endif
+          RatQuad alpha(r,s);
+          t = cusp_index_with_translation(alpha, alphas, q);
+#ifdef DEBUG_PSEA
+          cout<<"index of "<<alpha<<" in alphas is "<<t;
+          if (t!=-1) cout<<" with translation "<<q;
+          cout<<endl;
+#endif
+          if (t==-1)
+            continue;
+          assert (alpha-q==alphas[t]);
+          mat22 M = M_alphas[t];
+#ifdef DEBUG_PSEA
+          cout<<" - alpha = "<<alpha<<" = "<<alphas[t]<<" + "<<q<<"; type "<<t<<", M="<<M<<endl;
+#endif
+          // Apply the translation
+          if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
+            {
+              a -= q*b;
+              if (compute_c1d1) d1 += q*c1;
+              if (compute_c2d2) d2 += q*c2;
+            }
+
+      // Check that M does now reduce (a,b)
+
+          M.apply_left(a,b);
+          if (compute_c1d1) M.apply_right_inverse(c1,d1);
+          if (compute_c2d2) M.apply_right_inverse(c2,d2);
+          //assert (b.norm() < original_b.norm());
+
+#ifdef DEBUG_PSEA
+          cout<<" - success (q="<<q<<" and alpha="<<alphas[t]<<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
+#endif
+          return;
+        } // end of r = alpha num loop
+    } // end of s = alpha denom loop
+
+  // We should never arrive here, as it means that all alphas have
+  // failed and a/b is not singular.
+  cerr<<"Pseudo-Euclidean step fails for ("<<original_a<<", "<<original_b<<")"<<endl;
+  // cerr<<"running old algorithm instead..."<<endl;
+  // pseudo_euclidean_step_old(original_a, original_b, t, c1, d1, c2,  d2);
+  exit(1);
+}
+
+void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
+{
+  // We update c1,d1 unless they are both 0 and similarly c2,d2.
+  // We record the type of the transformation in t unless it is initialised to -1.
+  // For simple gcd, we need none of these;  for bezout (extended EA) we need c1,d1 and c2,d2
+  // For convergents we need c1,d1 and t
+#ifdef DEBUG_PSEA
+  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.norm()<<", b="<<b<<", N(b)="<<b.norm()<<endl;
+#endif
+  if (b.norm()==0)
+    {
+      t=0;
+      return;
+    }
+
+  int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
+  int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
+  Quad u, q = Quad::zero;  // common simple special case where N(a)<N(b), q = 0 with no work
+
+  if (a.norm()<b.norm()) // just swap over
     {
       u = a; a=-b; b=u;
       if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
@@ -162,6 +286,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
         }
     } // end of loop over singular points sigma
 
+
 #ifdef DEBUG_PSEA
   cout<<" - a/b is not singular, looking for an alpha which reduces"<<endl;
 #endif
@@ -174,7 +299,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
   for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); ++Mi, ++local_t)
     {
       M = *Mi;
-      r=-M.d, s=M.c; // alpha = r/s
+      r=-M.entry(1,1); s=M.entry(1,0); // alpha = r/s
 #ifdef DEBUG_PSEA
       //cout<<" - testing type "<<local_t<<", M="<<M<<": ";
 #endif
@@ -187,7 +312,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       // quotient q will usually be 0 anyway).
 
       M.apply_left(a1,b1);
-      if (b1.nm >= b.nm) // not successful yet
+      if (b1.norm() >= b.norm()) // not successful yet
         {
           // Find the shift taking a/b closest to alpha
           q = (a*s-b*r)/(b*s); // closest integer to (a/b)-(r/s)
@@ -197,7 +322,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
               M.apply_left(a1,b1);
             }
         }
-      if (b1.nm < b.nm) // success!
+      if (b1.norm() < b.norm()) // success!
         {
           a = a1;
           b = b1;
@@ -211,10 +336,10 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
               if (!q.is_zero()) d2 += q*c2;
               M.apply_right_inverse(c2,d2);
             }
-#ifdef DEBUG_PSEA
-          cout<<" - success (q="<<q<<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<local_t<<endl;
-#endif
           t = local_t;
+#ifdef DEBUG_PSEA
+          cout<<" - success (q="<<q<<" and alpha="<<alphas[t]<<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
+#endif
           return;
         }
 #ifdef DEBUG_PSEA
@@ -243,7 +368,7 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
 
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
-  if (gcd(aa.nm,bb.nm)==1) return Quad::one;
+  if (gcd(aa.norm(),bb.norm())==1) return Quad::one;
   Quad a(aa), b(bb); int t=0;
   while (!b.is_zero() && t>=0) pseudo_euclidean_step(a, b, t);
   if (!b.is_zero())
@@ -268,7 +393,7 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   // cout<<"quadbezout("<<aa<<","<<bb<<")"<<endl;
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
   int t=0;
-  while (b.nm>0 && t>=0)
+  while (b.norm()>0 && t>=0)
     {
       pseudo_euclidean_step(a, b, t, c1, d1, c2, d2);
       assert (c2*d1-c1*d2 == Quad::one);
@@ -338,7 +463,7 @@ mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s)
 {
   Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
   int t=0;
-  while (b.nm>0 && t>=0)
+  while (b.norm()>0 && t>=0)
     {
       pseudo_euclidean_step(a, b, t, c1, d1, c2, d2);
       assert (c2*d1-c1*d2 == Quad::one);
@@ -356,7 +481,7 @@ mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s)
   // [c2,d2;c1,d1]*[a,b] = [aa,bb], so
   // [d1,-d2;-c1,c2]*[aa,bb] = [a,b]
 
-  s = (b.nm==0? 0 : -t);
+  s = (b.norm()==0? 0 : -t);
 
   mat22 M(d1,-d2,-c1,c2); // maps aa/bb to a/b
   assert (d1*aa-d2*bb == a);

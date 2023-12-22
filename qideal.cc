@@ -1263,7 +1263,9 @@ void residuetest(Qideal& I)
 
 int coprime(const Quad& a, const Quad& b) 
 {
-  return Qideal({a,b}) == Qideal(1);
+  if (gcd(a.norm(),b.norm())==1)
+    return 1;
+  return Qideal({a,b}).norm()==1;
 }
 
 int principal_gcd(const Quad& a, const Quad& b, Quad& g)

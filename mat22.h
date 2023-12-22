@@ -88,7 +88,6 @@ public:
   int is_unimodular(int strict=1) const {Quad dt=det(); return ((dt==Quad::one) || ((!strict) && (dt.norm()==1)));}
 
   friend ostream& operator<< (ostream&, const mat22&); // inline below
-  friend void pseudo_euclidean_step(Quad&, Quad&, int&, Quad&, Quad&, Quad&, Quad&);
   friend class modsym;
 };
 

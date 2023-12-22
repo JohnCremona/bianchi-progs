@@ -173,15 +173,14 @@ int main ()
            cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M << "; ";
            g = a; h = b;
            M.apply_left(g,h);
+           RatQuad z(g,h);
+           while (!pos(h)) {g*=fundunit; h*=fundunit;}
            cout<<"("<<a<<","<<b<<") is ";
            if (s!=0)
-             cout << "not principal, maps to singular point ";
+             cout << "not principal, maps to singular point " << z << " = "<<sigmas[s] << endl;
            else
-             cout << "principal, maps to ";
-           cout << "(" << g << ")/(" << h << ")"
-               <<" = "<<sigmas[s];
-           assert (sigmas[s]==RatQuad(g,h));
-           cout << endl;
+             cout << "principal, maps to ("<<g<<")/("<<h<<") = " <<z<<endl;
+           assert (sigmas[s]==z);
          }
    }
  cout<<"done.\n";

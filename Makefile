@@ -137,7 +137,7 @@ HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp n
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
 FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
-GLOBAL_TESTS = fieldinfo P1Ntest dimtable_all
+GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
 ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
 
 test_input_dir = testin
