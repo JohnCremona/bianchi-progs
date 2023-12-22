@@ -145,11 +145,18 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
   // cout<<"bmax = "<<bmax<<endl;
   for (b=0; b<=bmax; b+=1)
     {
+      // cout<<"b="<<b<<endl;
       INT db2 = d*b*b;
       INT aminsq = n1x-db2, amax = isqrt(n2x-db2);
-      INT amin = (aminsq.sign()<0? 0 : isqrt(aminsq));
-      if (amin*amin!=aminsq) // isqrt rounds down but we want to round up
-        amin+=1;
+      // cout << "aminsq = "<<aminsq<<endl;
+      INT amin = 0;
+      if (aminsq.sign()>0)
+        {
+          amin = isqrt(aminsq);
+          if (amin*amin!=aminsq) // isqrt rounds down but we want to round up
+            amin+=1;
+        }
+      // cout << " then amin = "<<amin<<endl;
       if (extra_units && amin<b)
         {
           amin = b;
@@ -162,7 +169,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
           amax = (amax-b)/2; // rounded down
         }
 
-      // cout<<"b="<<b<<", amin = "<<amin<<", amax = "<<amax<<endl;
+      // cout<<"amin = "<<amin<<", amax = "<<amax<<endl;
       for (INT a = amin; a<=amax; a+=1)
         {
           if (extra_units && a==0)
