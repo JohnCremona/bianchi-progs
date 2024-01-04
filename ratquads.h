@@ -151,24 +151,24 @@ inline RatQuad RatQuad::operator-() const
 
 inline void RatQuad::operator+=(const RatQuad& r)
 {
-  n = n*r.d + d*r.n;
+  n = mma(n,r.d,d,r.n); // n*r.d + d*r.n
   d *= r.d;
 }
 
 inline void RatQuad::operator+=(const Quad& q)
 {
-  n += d*q;
+  n.addprod(d,q);
 }
 
 inline void RatQuad::operator-=(const RatQuad& r)
 {
-  n = n*r.d - d*r.n;
+  n = mms(n,r.d,d,r.n); // n*r.d - d*r.n
   d *= r.d;
 }
 
 inline void RatQuad::operator-=(const Quad& q)
 {
-  n -= d*q;
+  n.subprod(d,q);
 }
 
 inline void RatQuad::operator*=(const Quad& q)
@@ -185,42 +185,54 @@ inline void RatQuad::operator/=(const Quad& q)
 
 inline RatQuad operator+(const RatQuad& r1, const RatQuad& r2)
 {
-  return RatQuad(r1.n*r2.d + r2.n*r1.d, r1.d*r2.d, 1);
+  return RatQuad(mma(r1.n,r2.d,r2.n,r1.d), r1.d*r2.d, 1);
 }
 
 inline RatQuad operator+(const Quad& q, const RatQuad& r)
 {
-  return RatQuad(r.n + q*r.d, r.d, 1);
+  Quad n = r.n;
+  n.addprod(q,r.d); // r.n + q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator+(const RatQuad& r, const Quad& q)
 {
-  return RatQuad(r.n + q*r.d, r.d, 1);
+  Quad n = r.n;
+  n.addprod(q,r.d); // r.n + q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator+(const RatQuad& r, long q)
 {
-  return RatQuad(r.n + q*r.d, r.d, 1);
+  Quad n = r.n;
+  n.addprod(q,r.d); // r.n + q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator-(const RatQuad& r1, const RatQuad& r2)
 {
-  return RatQuad(r1.n*r2.d - r2.n*r1.d, r1.d*r2.d, 1);
+  return RatQuad(mms(r1.n,r2.d, r2.n,r1.d), r1.d*r2.d, 1);
 }
 
 inline RatQuad operator-(const Quad& q, const RatQuad& r)
 {
-  return RatQuad(q*r.d - r.n, r.d, 1);
+  Quad n = -(r.n);
+  n.addprod(q,r.d); // -r.n + q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator-(const RatQuad& r, const Quad& q)
 {
-  return RatQuad(r.n - q*r.d, r.d, 1);
+  Quad n = r.n;
+  n.subprod(q,r.d); // r.n - q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator-(const RatQuad& r, long q)
 {
-  return RatQuad(r.n - q*r.d, r.d, 1);
+  Quad n = r.n;
+  n.subprod(q,r.d); // r.n - q*r.d
+  return RatQuad(n, r.d, 1);
 }
 
 inline RatQuad operator*(const RatQuad& q, const RatQuad& r)

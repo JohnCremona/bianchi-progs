@@ -169,8 +169,16 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad operator/ (INT b) const {return qdivi(*this,b);}
   void operator/=(const Quad& b);
   void operator/=(INT b) {*this=qdivi(*this,b);}
+  void addprod(const Quad& a, const Quad& b); // this +=a*b
+  void addprod(long a, const Quad& b); // this +=a*b
+  void subprod(const Quad& a, const Quad& b); // this -=a*b
+  void subprod(long a, const Quad& b); // this -=a*b
   Quad operator% (long b) { return Quad(INT(r%b), INT(i%b));}
   operator bigcomplex() const;
+  // compute a*b+c*d
+  friend Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
+  // compute a*b-c*d
+  friend Quad mms(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
 
 // iostream functions
 

@@ -55,12 +55,12 @@ All ideals whose square divides A: 	[ [1,a] [2,a] ]
 All squarefree ideal divisors of A:	[ [1,a] [2,a] [13,8+a] [26,8+a] [157,65+a] [314,222+a] [2041,1321+a] [4082,3362+a] ]
 Testing gcd and bezout.
 Enter Quads a and b (a=0 to stop): Enter Quads a and b (a=0 to stop): Systematic testing of bezout...generalised_extended_euclid(1,1) = [0,-1; 1,-1]; (1,1) is principal, maps to (1)/(0) = oo
-generalised_extended_euclid(1,2) = [-1,0; 2,-1]; (1,2) is principal, maps to (1)/(0) = oo
+generalised_extended_euclid(1,2) = [-1,1; -2,1]; (1,2) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(1,3) = [-1,0; 3,-1]; (1,3) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(2,1) = [0,-1; 1,-2]; (2,1) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(2,2) = [0,-1; 1,-1]; (2,2) is principal, maps to (2)/(0) = oo
 generalised_extended_euclid(2,3) = [-1,1; -3,2]; (2,3) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(3,1) = [0,-1; 1,-3]; (3,1) is principal, maps to (1)/(0) = oo
-generalised_extended_euclid(3,2) = [-1,1; 2,-3]; (3,2) is principal, maps to (1)/(0) = oo
+generalised_extended_euclid(3,2) = [-1,2; -2,3]; (3,2) is principal, maps to (1)/(0) = oo
 generalised_extended_euclid(3,3) = [0,-1; 1,-1]; (3,3) is principal, maps to (3)/(0) = oo
 done.

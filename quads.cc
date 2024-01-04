@@ -99,7 +99,68 @@ Quad mult0(const Quad& a, const Quad& b)
 
 Quad mult1(const Quad& a, const Quad& b)
 {
-  return Quad(a.r*b.r-Quad::n*a.i*b.i, a.r*b.i+a.i*b.r+a.i*b.i, a.nm*b.nm);
+  INT x = a.i*b.i;
+  return Quad(a.r*b.r-Quad::n*x, a.r*b.i+a.i*b.r+x, a.nm*b.nm);
+}
+
+// compute a*b+c*d
+Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+{
+  INT x = a.i*b.i + c.i*d.i;
+  INT r = a.r*b.r + c.r*d.r - Quad::n*x;
+  INT i = a.r*b.i + a.i*b.r + c.r*d.i + c.i*d.r;
+  if (Quad::t)
+    i += x;
+  return Quad(r,i);
+}
+
+// compute a*b-c*d
+Quad mms(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+{
+  INT x = a.i*b.i - c.i*d.i;
+  INT r = a.r*b.r - c.r*d.r - Quad::n*x;
+  INT i = a.r*b.i + a.i*b.r - (c.r*d.i + c.i*d.r);
+  if (Quad::t)
+    i += x;
+  return Quad(r,i);
+}
+
+void Quad::addprod(const Quad& a, const Quad& b) // this +=a*b
+{
+  if (a.nm==0 || b.nm==0) return;
+  INT t = a.i*b.i;
+  r += (a.r*b.r - Quad::n * t);
+  i += (a.r*b.i + a.i*b.r);
+  if (Quad::t)
+    i += t;
+  setnorm();
+}
+
+void Quad::addprod(long a, const Quad& b) // this +=a*b
+{
+  if (a==0 || b.nm==0) return;
+  r += a*b.r;
+  i += a*b.i;
+  setnorm();
+}
+
+void Quad::subprod(const Quad& a, const Quad& b) // this -=a*b
+{
+  if (a.nm==0 || b.nm==0) return;
+  INT t = a.i*b.i;
+  r -= (a.r*b.r - Quad::n * t);
+  i -= (a.r*b.i + a.i*b.r);
+  if (Quad::t)
+    i -= t;
+  setnorm();
+}
+
+void Quad::subprod(long a, const Quad& b) // this -=a*b
+{
+  if (a==0 || b.nm==0) return;
+  r -= a*b.r;
+  i -= a*b.i;
+  setnorm();
 }
 
 Quad qdivi0(const Quad& a, INT c) // c>0,    // used when t=0

@@ -132,8 +132,8 @@ FIELDS=$(FIELDS_hom)
 #FIELDS=
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
-#BASIC_TESTS = tquads tratquad looptest qidltest
-BASIC_TESTS = tratquad looptest qidltest
+BASIC_TESTS = tquads tratquad looptest qidltest
+#BASIC_TESTS = tratquad looptest qidltest
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
 FULL_TESTS = modularity modularity_modp  #makenf_modp

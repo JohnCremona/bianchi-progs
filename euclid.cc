@@ -58,13 +58,14 @@ continued fractions we need both.
 
 //#define DEBUG_PSEA
 
+void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
 void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
 void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
+#ifdef DEBUG_PSEA
 void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
 {
   Quad a1(a), b1(b), a2(a), b2(b), c1a(c1), c1b(c1), d1a(d1), d1b(d1), c2a(c2), c2b(c2), d2a(d2), d2b(d2);
   pseudo_euclidean_step_old(a1, b1, t, c1a, d1a, c2a,  d2a);
-#ifdef DEBUG_PSEA
   int t2;
   pseudo_euclidean_step_new(a2, b2, t2, c1b, d1b, c2b,  d2b);
   if (!(a1==a2 && b1==b2 && t==t2))
@@ -73,11 +74,16 @@ void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c
       cout << " -old code gives a'="<<a1<<", b'="<<b1<<" (norm "<<b1.norm()<<") and t="<<t<<endl;
       cout << " -new code gives a'="<<a2<<", b'="<<b2<<" (norm "<<b2.norm()<<") and t="<<t2<<endl;
     }
-#endif
   a=a1; b=b1;
   c1=c1a; d1=d1a; c2=c2a; d2=d2a;
   return;
 }
+#else
+void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
+{
+  pseudo_euclidean_step_old(a, b, t, c1, d1, c2,  d2);
+}
+#endif
 
 //return type t if translation by -q followed by M_alphas[t] reduces
 //(a,b) to (a',b') with N(b')<N(b), or -1 if none exists, which will
@@ -90,23 +96,25 @@ int find_best_alpha(const Quad& a, const Quad& b, Quad& shift, int lucky=1)
   return find_best_alpha_old(a, b, shift, lucky);
 }
 
+// This assumes that a is reduced mod b and that N(a)>N(b) so alpha=0 will not work
 int find_best_alpha_old(const Quad& a, const Quad& b, Quad& shift, int lucky)
 {
-  // First reduce a/b to rectangle
-  Quad first_shift;
-  RatQuad z = reduce_to_rectangle(RatQuad(a,b), first_shift);
-
-  Quad a0 = a-first_shift*b, b0=b, b1, s, best_shift(0);
-  INT best_bnorm = b.norm(); // will be updated
+  Quad a0 = a, b0=b, b1, s, best_shift(0);
+  INT best_bnorm = b.norm(), b0norm=b0.norm();
   int t=0, best_t=-1;
   // Look for a suitable alpha, trying all in turn, returning the type
   // of the one which gives best reduction
   for (const auto& M: M_alphas)
     {
+      if (t==0) // skpping alpha=0
+        {
+          t++;
+          continue;
+        }
       // First see if we can reduce without a further shift
       shift = 0;
       b1 = M.apply_left_den(a0,b0);
-      if (b1.norm() >= b0.norm()) // not successful yet
+      if (b1.norm() >= b0norm) // not successful yet
         {
           // Find the shift taking a/b closest to alpha
           s = M.entry(1,0);
@@ -124,7 +132,7 @@ int find_best_alpha_old(const Quad& a, const Quad& b, Quad& shift, int lucky)
         }
       t++;
     }
-  shift = best_shift + first_shift;
+  shift = best_shift;
   return best_t;
 }
 
@@ -194,12 +202,9 @@ void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
 #ifdef DEBUG_PSEA
   cout<<" - initial translation = "<<q<<endl;
 #endif
-  if (!q.is_zero())
-    {
-      a -= q*b;
-      if (compute_c1d1) d1 += q*c1;
-      if (compute_c2d2) d2 += q*c2;
-    }
+  a.subprod(q,b);
+  if (compute_c1d1) d1.addprod(q,c1);
+  if (compute_c2d2) d2.addprod(q,c2);
 #ifdef DEBUG_PSEA
   assert (b*z==a);
   cout<<" - reduced a = "<<a<<", z=a/b="<<z<<endl;
@@ -227,16 +232,16 @@ void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
   if (t!=-1) // none found
     {
       mat22 M = M_alphas[t];
-      a -= q*b;
+      a.subprod(q,b);
       M.apply_left(a,b);
       if (compute_c1d1)
         {
-          if (!q.is_zero()) d1 += q*c1;
+          d1.addprod(q,c1);
           M.apply_right_inverse(c1,d1);
         }
       if (compute_c2d2)
         {
-          if (!q.is_zero()) d2 += q*c2;
+          d2.addprod(q,c2);
           M.apply_right_inverse(c2,d2);
         }
 #ifdef DEBUG_PSEA
@@ -259,12 +264,9 @@ void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
   t = sigma_index_with_translation(z, q);
   if (t!=-1)
     {
-      if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
-        {
-          a -= q*b;
-          if (compute_c1d1) d1 += q*c1;
-          if (compute_c2d2) d2 += q*c2;
-        }
+      a.subprod(q,b);
+      if (compute_c1d1) d1.addprod(q,c1);
+      if (compute_c2d2) d2.addprod(q,c2);
 #ifdef DEBUG_PSEA
       cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = " << sigmas[t]
           <<" = singular point #"<<t<<endl;
@@ -294,7 +296,101 @@ void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
 
   int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
   int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
-  Quad u, shift = Quad::zero;  // common simple special case where N(a)<N(b), shift = 0 with no work
+  Quad u, shift = a/b;  // rounded, so N(a/b - shift) is minimal
+
+  a.subprod(shift,b);
+  if (compute_c1d1) d1.addprod(shift,c1);
+  if (compute_c2d2) d2.addprod(shift,c2);
+#ifdef DEBUG_PSEA
+  cout<<" - translation = "<<shift<<endl;
+#endif
+
+  if (a.norm()<b.norm()) // standard Euclidean M works
+    {
+      u = a; a=-b; b=u;
+      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
+      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+#ifdef DEBUG_PSEA
+      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
+      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
+      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      cout <<" type=0" << endl;
+#endif
+      t = 0;
+      return;
+    }
+
+  // If a/b is a translate of a singular point sigma, we apply an
+  // extra translation if necessary and set t=-i where the translate
+  // of a/b is the i'th singular point.  This is quick to check so we
+  // do it first; if this fails then a/b can be reduced using at least
+  // one alpha.
+
+  t = sigma_index_with_translation(a,b, shift);
+  if (t!=-1)
+    {
+      a.subprod(shift,b);
+      if (compute_c1d1) d1.addprod(shift,c1);
+      if (compute_c2d2) d2.addprod(shift,c2);
+#ifdef DEBUG_PSEA
+      cout<<" - a/b is singular, a translate of sigma["<<t<<"]"<<endl;
+#endif
+      t = -t;
+      return;
+    }
+
+  // Now look for a suitable alpha (skipping 0/1 which we already tested)
+
+  t = find_best_alpha_old(a, b, shift, 1); // 1 means use the first one found
+  if (t==-1)
+    {
+#ifdef DEBUG_PSEA
+      cout<<" - all alphas failed thoough a/b is not singular"<<endl;
+#endif
+      // We should never arrive here, as it means that all alphas have
+      // failed and a/b is not singular.
+      cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
+      exit(1);
+    }
+
+  a.subprod(shift,b);
+  mat22 M = M_alphas[t];
+  M.apply_left(a,b);
+  if (compute_c1d1)
+    {
+      d1.addprod(shift,c1);
+      M.apply_right_inverse(c1,d1);
+    }
+  if (compute_c2d2)
+    {
+      d2.addprod(shift,c2);
+      M.apply_right_inverse(c2,d2);
+    }
+#ifdef DEBUG_PSEA
+  cout<<" - reduction success (with shift="<<shift<<" and alpha="<<alphas[t]
+      <<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
+#endif
+  return;
+}
+
+void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
+{
+  // We update c1,d1 unless they are both 0 and similarly c2,d2.
+  // We record the type of the transformation in t unless it is initialised to -1.
+  // For simple gcd, we need none of these;  for bezout (extended EA) we need c1,d1 and c2,d2
+  // For convergents we need c1,d1 and t
+#ifdef DEBUG_PSEA
+  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.norm()<<", b="<<b<<", N(b)="<<b.norm()<<endl;
+#endif
+  if (b.norm()==0)
+    {
+      t=0;
+      return;
+    }
+
+  int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
+  int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
+  Quad u, q = Quad::zero;  // common simple special case where N(a)<N(b), q = 0 with no work
 
   if (a.norm()<b.norm()) // just swap over
     {
@@ -311,34 +407,34 @@ void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
       return;
     }
 
-  // Now look for a suitable alpha
+  q = a/b;  // rounded, so N(a/b -q) is minimal
 
-  t = find_best_alpha_old(a, b, shift, 1); // 1 means use the first one found
-  if (t!=-1)
-    {
-      mat22 M = M_alphas[t];
-      a -= shift*b;
-      M.apply_left(a,b);
-      if (compute_c1d1)
-        {
-          d1 += shift*c1;
-          M.apply_right_inverse(c1,d1);
-        }
-      if (compute_c2d2)
-        {
-          d2 += shift*c2;
-          M.apply_right_inverse(c2,d2);
-        }
 #ifdef DEBUG_PSEA
-      cout<<" - reduction success (with shift="<<shift<<" and alpha="<<alphas[t]
-          <<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
+  cout<<" - translation = "<<q<<endl;
 #endif
+  if (!q.is_zero())
+    {
+      a -= q*b;
+      if (compute_c1d1) d1 += q*c1;
+      if (compute_c2d2) d2 += q*c2;
+    }
+#ifdef DEBUG_PSEA
+  cout<<" - reduced a = "<<a<<endl;
+#endif
+  if (a.norm() < b.norm()) // always true in Euclidean case; invert using S (N.B. S^{-1}=-S)
+    {
+      u = a; a=-b; b=u;
+      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
+      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+#ifdef DEBUG_PSEA
+      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
+      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
+      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      cout <<" type=0" << endl;
+#endif
+      t = 0;
       return;
     }
-
-#ifdef DEBUG_PSEA
-  cout<<" - all alphas failed, a/b must be singular"<<endl;
-#endif
 
   // If a/b is a translate of a singular point sigma, we apply an
   // extra translation if necessary and set t=-i where the translate
@@ -346,17 +442,102 @@ void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
   // do it first; if this fails then a/b can be reduced using at least
   // one alpha.
 
-  t = sigma_index_with_translation(RatQuad(a,b), shift);
-  if (t!=-1)
+  Quad r,s,bs;
+  int local_t=1;
+  for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); ++si, ++local_t)
     {
-      if (!shift.is_zero()) // else nothing more needs doing since the translation is trivial
+#ifdef DEBUG_PSEA
+      cout<<" - testing singular point "<<local_t<<": "<<(*si)<<endl;
+#endif
+      r=si->num(), s=si->den(); // sigma = r/s
+      // a/b - r/s = (a*s-b*r)/(b*s) will be integral if we have the right sigma
+      q = a*s-b*r;
+      bs = b*s;
+      if (div(bs,q))  // success!
         {
-          a -= shift*b;
-          if (compute_c1d1) d1 += shift*c1;
-          if (compute_c2d2) d2 += shift*c2;
+          q /= bs; // rounded
+          if (!q.is_zero()) // else nothing more needs doing since the translation is trivial
+            {
+              a -= q*b;
+              if (compute_c1d1)
+                {
+                  d1 += q*c1;
+                }
+              if (compute_c2d2)
+                {
+                  d2 += q*c2;
+                }
+            }
+#ifdef DEBUG_PSEA
+          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = "<<(*si)
+              <<" = singular point #"<<local_t<<endl;
+#endif
+          t = -local_t;
+          return;
         }
-      t = -t;
-      return;
+    } // end of loop over singular points sigma
+
+#ifdef DEBUG_PSEA
+  cout<<" - a/b is not singular, looking for an alpha which reduces"<<endl;
+#endif
+
+  // Now look for a suitable alpha, trying all in turn (skipping alpha=0 which we checked already)
+
+  Quad a1,b1;
+  mat22 M;
+  local_t = 1;
+  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); ++Mi, ++local_t)
+    {
+      M = *Mi;
+      r=-M.entry(1,1), s=M.entry(1,0); // alpha = r/s
+#ifdef DEBUG_PSEA
+      //cout<<" - testing type "<<local_t<<", M="<<M<<": ";
+#endif
+
+      // We need to use temporary copies of a,b in case this alpha fails
+      a1 = a; b1 = b; q = Quad::zero;
+
+      // First see if we can reduce without a further shift (since
+      // rounded division is relatively expensive, and here the new
+      // quotient q will usually be 0 anyway).
+
+      M.apply_left(a1,b1);
+      if (b1.norm() >= b.norm()) // not successful yet
+        {
+          // Find the shift taking a/b closest to alpha
+          q = (a*s-b*r)/(b*s); // closest integer to (a/b)-(r/s)
+          if (!q.is_zero())            // do the extra translation by q
+            {
+              a1 = a-q*b, b1 = b;
+              M.apply_left(a1,b1);
+            }
+        }
+      if (b1.norm() < b.norm()) // success!
+        {
+          a = a1;
+          b = b1;
+          if (compute_c1d1)
+            {
+              if (!q.is_zero()) d1 += q*c1;
+              M.apply_right_inverse(c1,d1);
+            }
+          if (compute_c2d2)
+            {
+              if (!q.is_zero()) d2 += q*c2;
+              M.apply_right_inverse(c2,d2);
+            }
+#ifdef DEBUG_PSEA
+          cout<<" - success (q="<<q<<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<local_t<<endl;
+#endif
+          t = local_t;
+          return;
+        }
+#ifdef DEBUG_PSEA
+      else
+        {
+          //cout<<" - failure (q="<<q<<"), new b would have had norm "<<quadnorm(b1)<<endl;
+        }
+#endif
     }
 
   // We should never arrive here, as it means that all alphas have
@@ -364,6 +545,7 @@ void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
   cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
   exit(1);
 }
+
 
 // The next two functions (declared in quads.h) are not used, as the
 // default versions quadgcd_default and quadbezout_default using

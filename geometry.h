@@ -64,9 +64,11 @@ int alpha_index(const RatQuad& a);
 // Return i and set t such that alphas[i]+t=a, else -1
 int alpha_index_with_translation(const RatQuad& a, Quad& t);
 
-// Return i such that sigmas[i]=a, else -1
-int sigma_index(const RatQuad& a);
-// Return i and set t such that sigmas[i]+t=a, else -1
-int sigma_index_with_translation(const RatQuad& a, Quad& t);
+// Return i such that sigmas[i]=z, else -1
+int sigma_index(const RatQuad& z);
+// Return i and set t such that sigmas[i]+t=z, else -1
+int sigma_index_with_translation(const RatQuad& z, Quad& t);
+// Return i and set t such that sigmas[i]+t=a/b, else -1
+int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& t);
 
 #endif

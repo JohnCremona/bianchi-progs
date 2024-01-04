@@ -35,8 +35,8 @@ public:
   // matrix multiplcation
   mat22 operator*(const mat22& M) const
   {
-    Quad a1 = a*M.a+b*M.c, b1 = a*M.b+b*M.d, c1 = c*M.a+d*M.c, d1 = c*M.b+d*M.d;
-    return mat22(a1, b1, c1, d1);
+    //Quad a1 = a*M.a+b*M.c, b1 = a*M.b+b*M.d, c1 = c*M.a+d*M.c, d1 = c*M.b+d*M.d;
+    return mat22(mma(a,M.a,b,M.c), mma(a,M.b,b,M.d), mma(c,M.a,d,M.c), mma(c,M.b,d,M.d));
   }
 
   void operator*=(const mat22& M)
@@ -57,19 +57,19 @@ public:
   // left action on r/s as column vector, changing in place:
   void apply_left(Quad& r, Quad& s) const
   {
-    Quad t = a*r+b*s;
-    s = c*r+d*s;
+    Quad t = mma(a,r,b,s); //a*r+b*s
+    s = mma(c,r,d,s);      //c*r+d*s
     r = t;
   }
   // numerator of left action on r/s as column vector:
   Quad apply_left_num(const Quad& r, const Quad& s) const
   {
-    return a*r+b*s;
+    return mma(a,r,b,s); //a*r+b*s
   }
   // denominator of left action on r/s as column vector:
   Quad apply_left_den(const Quad& r, const Quad& s) const
   {
-    return c*r+d*s;
+    return mma(c,r,d,s); //c*r+d*s
   }
   RatQuad operator()(const RatQuad& q) const;
   RatQuad image_oo() const;
@@ -80,18 +80,18 @@ public:
   // right action on (c:d) symbols as row vectors, changing in place
   void apply_right(Quad& sc, Quad& sd) const
   {
-    Quad t = a*sc + c*sd;
-    sd = b*sc + d*sd;
+    Quad t = mma(a,sc,c,sd); // a*sc + c*sd
+    sd = mma(b,sc,d,sd);     // b*sc + d*sd
     sc = t;
   }
   // right action on (c:d) symbols as row vectors, changing in place
   void apply_right_inverse(Quad& sc, Quad& sd) const
   {
-    Quad t = d*sc - c*sd;
-    sd = -b*sc + a*sd;
+    Quad t = mms(d,sc,c,sd); //  d*sc - c*sd
+    sd = mms(a,sd,b,sc);     // -b*sc + a*sd
     sc = t;
   }
-  Quad det() const {return a*d-b*c;}
+  Quad det() const {return mms(a,d,b,c);} // a*d-b*c;
   Quad trace() const {return a+d;}
 
   int is_scalar() const {return (b.is_zero() && c.is_zero() && (a==d));}

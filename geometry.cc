@@ -158,8 +158,9 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 
 void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
-  assert(div(s,r1*r2+Quad::one));
-  Quad t = -(r1*r2+Quad::one)/s;
+  Quad t = -(r1*r2+Quad::one);
+  assert(div(s,t));
+  t /= s;
   if (r1==r2) // "-" pair, r1^2=-1 (mod s)
     {
       edge_pairs_minus.push_back(n_alphas);
@@ -697,27 +698,33 @@ int sigma_index(const RatQuad& a)
 }
 
 // Return i and set t such that sigmas[i]+t=a, else -1
-int sigma_index_with_translation_old(const RatQuad& z, Quad& shift);
 int sigma_index_with_translation_new(const RatQuad& z, Quad& shift);
+int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift);
 
 int sigma_index_with_translation(const RatQuad& z, Quad& shift)
 {
-  return sigma_index_with_translation_old(z, shift);
+  return sigma_index_with_translation_old(z.num(), z.den(), shift);
 }
 
-int sigma_index_with_translation_old(const RatQuad& z, Quad& shift)
+// Return i and set t such that sigmas[i]+t=a/b, else -1
+int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& shift)
+{
+  return sigma_index_with_translation_old(a, b, shift);
+}
+
+int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift)
 {
   int t = 0;
-  Quad a = z.num(), b = z.den(), r, s;
+  Quad r, s;
   for ( const auto& sigma : sigmas )
     {
-      if (t==0) // ignore sigma=1/0
+      if (sigma.is_infinity()) // ignore sigma=1/0
         {
-          t=1;
+          t++;
           continue;
         }
       r=sigma.num(), s=sigma.den(); // sigma = r/s
-      shift = a*s-b*r;
+      shift = mms(a,s,b,r); //a*s-b*r
       if (div(b*s,shift,shift))  // success! NB shift is divided by b*s before returning
         return t;
       t++;
