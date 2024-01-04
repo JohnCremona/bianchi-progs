@@ -462,7 +462,8 @@ void edge_relations::edge_relations_2_d7mod8()
 
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
-      Quad x = (TWO*sigmas[t]).num();
+      Quad x;
+      (TWO*sigmas[t]).is_integral(x);
       action L(P1, -ONE, x, ZERO,ONE); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);

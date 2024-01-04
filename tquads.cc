@@ -62,9 +62,9 @@ int main ()
  cout << "div(a,b) = " << div(a,b) << endl;
  cout << "div(b,a) = " << div(b,a) << endl;
  c=b/a;
- cout << "b/a (=a?) = " << c;  
- if (c==a) {cout<<" \t--OK!";} 
- else      {cout<<" \t--NO!";} 
+ cout << "b/a (=a?) = " << c;
+ if (c==a) {cout<<" \t--OK!";}
+ else      {cout<<" \t--NO!";}
  cout<<endl;
  c=a/THREE;
  cout << "a/3 = " << c << endl;
@@ -72,8 +72,8 @@ int main ()
  cout << "c = a+b = " << c << endl;
  c=c-b;
  cout << "c-b (=a?)  = " << c;
- if (c==a) {cout<<" \t--OK!";} 
- else      {cout<<" \t--NO!";} 
+ if (c==a) {cout<<" \t--OK!";}
+ else      {cout<<" \t--NO!";}
  cout<<endl;
  cout << "pos(a) = " << pos(a) << endl;
 
@@ -173,11 +173,20 @@ int main ()
            cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M << "; ";
            g = a; h = b;
            M.apply_left(g,h);
+           while (!pos(h))
+             {
+               g*=fundunit;
+               h*=fundunit;
+             }
+           if (h==0)
+             while (!pos(g))
+               {
+                 g*=fundunit;
+               }
            RatQuad z(g,h);
-           while (!pos(h)) {g*=fundunit; h*=fundunit;}
            cout<<"("<<a<<","<<b<<") is ";
            if (s!=0)
-             cout << "not principal, maps to singular point " << z << " = "<<sigmas[s] << endl;
+             cout << "not principal, maps to singular point " << sigmas[s] << endl;
            else
              cout << "principal, maps to ("<<g<<")/("<<h<<") = " <<z<<endl;
            assert (sigmas[s]==z);

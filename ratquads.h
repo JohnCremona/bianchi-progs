@@ -22,10 +22,11 @@ public:
   // reduce, ensuring that resulting ideal is coprime to N
   void reduce(const Qideal& N);
   void reduce(long n);
-  int is_integral() const {return d.nm==1;} // assumes reduced
-  int is_infinity() const {return d.nm==0;}
-  int is_finite() const {return d.nm!=0;}
-  int is_zero() const {return n.nm==0;}
+  int is_integral() const {return div(d,n);}
+  int is_integral(Quad& a) const {return div(d,n,a);}
+  int is_infinity() const {return d.is_zero();}
+  int is_finite() const {return !d.is_zero();}
+  int is_zero() const {return n.is_zero();}
   Quad num() const {return n;}
   Quad den() const {return d;}
   RatQuad recip() const {return RatQuad(d, n);}  // no reduction needed
@@ -50,16 +51,11 @@ public:
   int is_principal() const;
 
   RAT norm() const {return RAT(n.norm(), d.norm());}
-  // NB The following functions do NOT give the literal real and
-  // imaginary parts when Quad::t=1, but instead the coefficients with
-  // respect to the basis 1,w.  See xy_coords().
-  RAT real() const {INT a = (n*d.conj()).r, b=d.norm(); return RAT(a,b);}
-  RAT imag() const {INT a = (n*d.conj()).i, b=d.norm(); return RAT(a,b);}
-  vector<RAT> real_imag() const {Quad a=n*d.conj(); INT b = d.norm(); return {RAT(a.r,b),RAT(a.i,b)};}
 
-  vector<RAT> xy_coords() const;       // rational x,y s.t. this = x+y*sqrt(-d)
-  RAT x_coord() const {return xy_coords()[0];}
-  RAT y_coord() const {return xy_coords()[1];}
+  // Rational {x,y} such that this=x+y*w (or x+y*sqrt(-d) if rectangle=1)
+  vector<RAT> coords(int rectangle=0) const;
+  RAT x_coord(int rectangle=0) const {return coords(rectangle)[0];}
+  RAT y_coord(int rectangle=0) const {return coords(rectangle)[1];}
   int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
   int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
   friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
@@ -68,15 +64,19 @@ public:
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);
   friend RatQuad operator+(const RatQuad&, const Quad&);
+  friend RatQuad operator+(const RatQuad&, long);
   friend RatQuad operator-(const RatQuad&, const RatQuad&);
   friend RatQuad operator-(const Quad&, const RatQuad&);
   friend RatQuad operator-(const RatQuad&, const Quad&);
+  friend RatQuad operator-(const RatQuad&, long);
   friend RatQuad operator*(const RatQuad&, const RatQuad&);
   friend RatQuad operator*(const RatQuad&, const Quad&);
   friend RatQuad operator*(const Quad&, const RatQuad&);
+  friend RatQuad operator*(const RatQuad&, long);
   friend RatQuad operator/(const RatQuad&, const RatQuad&);
   friend RatQuad operator/(const RatQuad&, const Quad&);
   friend RatQuad operator/(const Quad&, const RatQuad&);
+  friend RatQuad operator/(const RatQuad&, long);
   friend int operator==(const RatQuad&, const RatQuad&);
   friend int operator!=(const RatQuad&, const RatQuad&);
   friend ostream& operator<< (ostream&s, const RatQuad&);
@@ -153,38 +153,32 @@ inline void RatQuad::operator+=(const RatQuad& r)
 {
   n = n*r.d + d*r.n;
   d *= r.d;
-  this->reduce();
 }
 
 inline void RatQuad::operator+=(const Quad& q)
 {
   n += d*q;
-  this->reduce();
 }
 
 inline void RatQuad::operator-=(const RatQuad& r)
 {
   n = n*r.d - d*r.n;
   d *= r.d;
-  this->reduce();
 }
 
 inline void RatQuad::operator-=(const Quad& q)
 {
   n -= d*q;
-  this->reduce();
 }
 
 inline void RatQuad::operator*=(const Quad& q)
 {
   n*=q;
-  this->reduce();
 }
 
 inline void RatQuad::operator/=(const Quad& q)
 {
   d*=q;
-  this->reduce();
 }
 
 // Definitions of non-member binary operator functions
@@ -204,6 +198,11 @@ inline RatQuad operator+(const RatQuad& r, const Quad& q)
   return RatQuad(r.n + q*r.d, r.d, 1);
 }
 
+inline RatQuad operator+(const RatQuad& r, long q)
+{
+  return RatQuad(r.n + q*r.d, r.d, 1);
+}
+
 inline RatQuad operator-(const RatQuad& r1, const RatQuad& r2)
 {
   return RatQuad(r1.n*r2.d - r2.n*r1.d, r1.d*r2.d, 1);
@@ -219,6 +218,11 @@ inline RatQuad operator-(const RatQuad& r, const Quad& q)
   return RatQuad(r.n - q*r.d, r.d, 1);
 }
 
+inline RatQuad operator-(const RatQuad& r, long q)
+{
+  return RatQuad(r.n - q*r.d, r.d, 1);
+}
+
 inline RatQuad operator*(const RatQuad& q, const RatQuad& r)
 {
   return RatQuad(q.n*r.n, q.d*r.d, 1);
@@ -229,12 +233,22 @@ inline RatQuad operator*(const RatQuad& r, const Quad& q)
   return RatQuad(q*r.n, r.d, 1);
 }
 
+inline RatQuad operator*(const RatQuad& r, long q)
+{
+  return RatQuad(q*r.n, r.d, 1);
+}
+
 inline RatQuad operator*(const Quad& q, const RatQuad& r)
 {
   return RatQuad(q*r.n, r.d, 1);
 }
 
 inline RatQuad operator/(const RatQuad& r, const Quad& q)
+{
+  return RatQuad(r.n, q*r.d, 1);
+}
+
+inline RatQuad operator/(const RatQuad& r, long q)
 {
   return RatQuad(r.n, q*r.d, 1);
 }
@@ -301,7 +315,7 @@ inline ostream& operator<< (ostream& s, const modsym& m)
 // Return index of c in clist, or -1 if not in list
 int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 
-// Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
+// Return index i of c mod O_K in clist, with t=c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
 
 // Comparison function (based only on norm of denominator)

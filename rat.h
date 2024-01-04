@@ -94,6 +94,16 @@ public:
     fmpq_add_fmpz(c.q, q, b.z);
     return c;
   }
+  RAT operator+(long b) const {
+    RAT c;
+    fmpq_add_si(c.q, q, b);
+    return c;
+  }
+  RAT operator+(int b) const {
+    RAT c;
+    fmpq_add_si(c.q, q, b);
+    return c;
+  }
   friend inline RAT operator+(const INT& a, const RAT& b) {return b+a;}
   RAT operator-(const RAT& b) const {
     RAT c;
@@ -103,6 +113,16 @@ public:
   RAT operator-(INT b) const {
     RAT c;
     fmpq_sub_fmpz(c.q, q, b.z);
+    return c;
+  }
+  RAT operator-(long b) const {
+    RAT c;
+    fmpq_sub_si(c.q, q, b);
+    return c;
+  }
+  RAT operator-(int b) const {
+    RAT c;
+    fmpq_sub_si(c.q, q, b);
     return c;
   }
   friend inline RAT operator-(const INT& a, const RAT& b) {return -(b-a);}
@@ -117,6 +137,16 @@ public:
     fmpq_mul_fmpz(c.q, q, b.z);
     return c;
   }
+  RAT operator*(long b) const {
+    RAT c;
+    fmpq_mul_si(c.q, q, b);
+    return c;
+  }
+  RAT operator*(int b) const {
+    RAT c;
+    fmpq_mul_si(c.q, q, b);
+    return c;
+  }
   friend inline RAT operator*(const INT& a, const RAT& b) {return b*a;}
 
   RAT operator/(const RAT& b) const {
@@ -127,6 +157,18 @@ public:
   RAT operator/(const INT& b) const {
     RAT c;
     fmpq_div_fmpz(c.q, q, b.z);
+    return c;
+  }
+  RAT operator/(long b) const {
+    RAT c;
+    fmpz_t z; fmpz_init_set_si(z, b);
+    fmpq_div_fmpz(c.q, q, z);
+    return c;
+  }
+  RAT operator/(int b) const {
+    RAT c;
+    fmpz_t z; fmpz_init_set_si(z, b);
+    fmpq_div_fmpz(c.q, q, z);
     return c;
   }
   friend inline RAT operator/(const INT& a, const RAT& b) {RAT c = b/a; return c.recip();}

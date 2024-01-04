@@ -7,7 +7,7 @@ RatQuad mat22::operator()(const RatQuad& q)const
 {
   Quad r = q.num(), s = q.den();
   apply_left(r, s);
-  return RatQuad(r,s, 1);
+  return RatQuad(r,s);
 }
 
 RatQuad mat22::image_oo() const {return RatQuad(a,c);}

@@ -76,31 +76,32 @@ void RatQuad::normalise()                              // scale so ideal is a st
 }
 
 // return rational x,y s.t. this = x+y*sqrt(-d)
-vector<RAT> RatQuad::xy_coords() const
+vector<RAT> RatQuad::coords(int rectangle) const
 {
-  vector<RAT> xy = real_imag();
-  if (Quad::t)
+  Quad a = n*d.conj();
+  INT b = d.norm();
+  RAT x(a.r, b), y(a.i, b);
+  if (rectangle && Quad::t)
     {
-      xy[1] /= 2;
-      xy[0] += xy[1];
+      y /= 2;
+      x += y;
     }
-  return xy;
+  return {x,y};
 }
 
-// True iff x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
+// True iff x in (-1/2,1/2] and y in (-1/2,1/2] or (-1/4,1/4]
 int RatQuad::in_rectangle() const
 {
-  vector<RAT> xy = xy_coords();
+  vector<RAT> xy = coords(1);
   RAT x=xy[0], y=xy[1], half(1,2);
-  if (Quad::t)
-    y *=2;
+  if (Quad::t) y *=2;
   return -half<x && x<=half && -half<y && y<=half;
 }
 
-// x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
+// x in [0,1/2] and y in [0,1/2] or [0,1/4]
 int RatQuad::in_quarter_rectangle() const
 {
-  vector<RAT> xy = xy_coords();
+  vector<RAT> xy = coords(); // so this = x+y*w
   RAT x=xy[0], y=xy[1], half(1,2);
   if (Quad::t) y *=2;
   return 0<=x && x<=half && 0<=y && y<=half;
@@ -109,29 +110,24 @@ int RatQuad::in_quarter_rectangle() const
 // subtract Quad to put into rectangle
 RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
-  RatQuad b(a);
-  RAT y = b.xy_coords()[1];
-  if (Quad::t) y *= 2;
-  INT yround = y.round();
-  b -= yround*Quad::w;
-  RAT x = b.xy_coords()[0];
-  INT xround = x.round();
-  b -= xround;
-  shift = Quad(xround, yround);
-  // cout<<"a = "<<a<<endl;
-  // cout<<"xround = "<<xround<<endl;
-  // cout<<"yround = "<<yround<<endl;
-  // cout<<"b = "<<b<<endl;
-  // cout<<"shift = "<<shift<<endl;
-  assert (a-shift==b);
-  return b;
+  vector<RAT> xy = a.coords(); // so a = x+y*w
+  RAT x = xy[0], y=xy[1];
+  INT yshift = y.round();
+  INT xshift = (Quad::t? (x+(y-yshift)/2).round() : x.round());
+  shift = Quad(xshift, yshift);
+  // cout << " a = " << a <<endl;
+  // cout << " shift = "<<shift<<" with norm "<<shift.norm()<<endl;
+  // cout << " a-shift = " << a-shift << " with rect coords "<<(a-shift).coords(1)<<endl;
+  assert ((a-shift).in_rectangle());
+  return a-shift;
 }
 
 // list of Quad(s) a s.t. N(z-a)<1; at most 1 if just_one, otherwise
 // we return all
 
-// NB if a1 and a2 work then N(a1-a2)<4; only the Euclidean fields have
-// elements of norm 2 or 3.
+// NB if a1 and a2 work then N(a1-a2)<4; only the Euclidean fields
+// have elements of norm 2 or 3; our main use of this is in the
+// non-Euclidean case.
 vector<Quad> nearest_quads(const RatQuad& z, int just_one)
 {
   vector<Quad> ans;
@@ -140,14 +136,27 @@ vector<Quad> nearest_quads(const RatQuad& z, int just_one)
   assert (z-r==z0);
   if (z0.norm()<1)
     ans.push_back(r);
+  else
+    return ans; // empty
   if (just_one)
     return ans;
-  vector<Quad> shifts = {Quad::one}; // adjustments up to sign
-  if (Quad::is_Euclidean)
+  if (!Quad::is_Euclidean) // only possible shifts are by +-1
     {
-      if (Quad::d < 7) shifts.push_back(Quad(1,1)); // norms 2, 3, 3 for d=1,2,3
-      if (Quad::nunits == 2) shifts.push_back(Quad::w); // norms 2, 2, 3 for d=2,7,11
+      if ((z0-Quad::one).norm()<1)
+        {
+          ans.push_back(r+Quad::one);
+          return ans;
+        }
+      if ((z0+Quad::one).norm()<1)
+        {
+          ans.push_back(r-Quad::one);
+          return ans;
+        }
+      return ans;
     }
+  vector<Quad> shifts = {Quad::one}; // adjustments up to sign
+  if (Quad::d < 7) shifts.push_back(Quad(1,1)); // norms 2, 3, 3 for d=1,2,3
+  if (Quad::nunits == 2) shifts.push_back(Quad(0,1)); // norms 2, 2, 3 for d=2,7,11
   for ( const auto& s : shifts)
     {
       for ( const auto& u : quadunits)
@@ -181,7 +190,7 @@ int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, 
       RatQuad diff = c-ci;
       if (diff.is_integral())
         {
-          t = diff.num();
+          diff.is_integral(t);
           assert (clist[i]+t==c);
           return i;
         }

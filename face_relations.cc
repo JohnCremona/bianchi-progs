@@ -579,6 +579,7 @@ void face_relations::general_relation(const vector<action>& Mops,
             Jmats.push_back(J*Mats[s]*J);
           int t = types[s];
           RatQuad a;
+          Quad x;
           if (t>=0)
             {
               Jtypes[s] = alpha_flip[t];
@@ -589,9 +590,9 @@ void face_relations::general_relation(const vector<action>& Mops,
               Jtypes[s] = -sigma_flip[-t];
               a = TWO*sigmas[-t];
             }
-          if (a.is_integral())
+          if (a.is_integral(x))
             {
-              mat22 T = mat22::Tmat(-a.num());
+              mat22 T = mat22::Tmat(-x);
               Jops[s] = action(P1, J*T);
               if (check)
                 Jmats[s] *= T;
@@ -684,12 +685,13 @@ void face_relations::aaa_triangle_relation(const pair<vector<int>, Quad>& tri, i
   RatQuad beta = M_alphas[j].preimage_oo();
   RatQuad gamma = M_alphas[k].preimage_oo();
   RatQuad x = M_alphas[i](beta+u) - gamma;
-  assert (x.is_integral());
+  Quad xnum;
+  x.is_integral(xnum);
 
   vector<int> types = {i,alpha_inv[j],k}, signs(3, 1);
   vector<action> Mops = {action(P1, mat22::identity),
                          action(P1, mat22::Tmat(u) * M_alphas[alpha_inv[j]]),
-                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()))};
+                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
 
   general_relation(Mops, types, signs, 0, check);
 
@@ -706,12 +708,13 @@ void face_relations::aas_triangle_relation(const pair<vector<int>, Quad>& tri, i
     cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
 
   RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
-  assert (x.is_integral());
+  Quad xnum;
+  x.is_integral(xnum);
 
   vector<int> types = {i,-j,-k}, signs = {+1,-1,+1};
   vector<action> Mops = {action(P1, mat22::identity),
                          action(P1, mat22::Tmat(u)),
-                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(x.num()))};
+                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
 
   general_relation(Mops, types, signs, 0, check);
 

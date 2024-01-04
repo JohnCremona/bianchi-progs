@@ -52,7 +52,7 @@ void Qideal::fill()
   // if ((quadconj(g0)*g1).i<0)
   //   cout<<"Badly oriented Z-basis in fill() 1"<<endl;
   // cout<<"sl2z_reduce for the primitive part returns g0="<<g0<<", g1="<<g1<<endl;
-  iclass = (div(g0,g1)? 0: 1); // 0 means principal
+  iclass = !div(g0,g1); // 0 for principal, 1 for non
   // scale by content:
   g1 *= c;
   g0 *= c;

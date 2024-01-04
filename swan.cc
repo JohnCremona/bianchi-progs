@@ -229,7 +229,7 @@ void output_singular_points(const CuspList S, int to_file, int to_screen)
   for ( const auto& s : S)
     {
       Quad sden = s.den(), snum = s.num();
-      if ((s.imag()>0) && (std::find(small_denoms.begin(), small_denoms.end(), sden) == small_denoms.end()))
+      if ((s.y_coord()>0) && (std::find(small_denoms.begin(), small_denoms.end(), sden) == small_denoms.end()))
         {
           nlines++;
           if (to_file)
@@ -311,7 +311,7 @@ vector<RatQuad> sqrts(const RAT& r)
   if (rd.is_square(root))      // -d * rational square
     {
       // now root^2 = -d*r, so (rt/sqrt(-d))^2 = r
-      Quad root_minus_d = (Quad::t ? 2*Quad::w-1 : Quad::w);
+      Quad root_minus_d = (Quad::t ? Quad(-1,2) : Quad::w);
       RatQuad rt(root);
       rt /= root_minus_d;
       assert (rt*rt==RatQuad(r));

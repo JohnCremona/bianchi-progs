@@ -35,6 +35,8 @@ mat22 mat22::R(0,1,1,0);
 int n_alphas, n_sigmas;
 vector<RatQuad> alphas;
 vector<RatQuad> sigmas;
+map<vector<RAT>, int> alpha_ind;
+map<vector<RAT>, int> sigma_ind;
 std::set<Quad, Quad_comparison> alpha_denoms;
 std::set<Quad, Quad_comparison> sigma_denoms;
 vector<mat22> M_alphas;
@@ -75,8 +77,12 @@ void Quad::setup_geometry()
 
   alphas.clear();
   sigmas.clear();
+  alpha_denoms.clear();
+  sigma_denoms.clear();
   M_alphas.clear();
   alpha_inv.clear();
+  alpha_ind.clear();
+  sigma_ind.clear();
   alpha_flip.clear();
   sigma_flip.clear();
   edge_pairs_plus.clear();
@@ -107,9 +113,12 @@ void Quad::setup_geometry()
   read_data(debug); // read remaining alphas and sigmas and all faces from geodat.dat
   if (debug)
     {
-      cout << "alpha_denoms: " <<alpha_denoms << endl;
+      cout << "alpha_denoms:\n";
+      for (auto s : alpha_denoms)
+        cout << s << " with norm "<<s.norm()<<endl;
       cout << "alphas:\n";
-      for(int i=0; i<n_alphas; i++) cout<<i<<": "<<alphas[i]<<endl;
+      for(int i=0; i<n_alphas; i++)
+        cout<<i<<": "<<alphas[i]<<" with denom norm "<<alphas[i].den().norm()<<endl;
       cout << "sigma_denoms: " <<sigma_denoms << endl;
       cout << "sigmas:\n";
       for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
@@ -136,6 +145,9 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   alphas.push_back(alpha);
   alpha_denoms.insert(c);
   M_alphas.push_back(M);
+  alpha_ind[alpha.coords()] = n_alphas;
+  Quad t;
+  alpha_ind[reduce_to_rectangle(alpha, t).coords()] = n_alphas;
   n_alphas++;
 }
 
@@ -190,8 +202,14 @@ void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 
 void add_sigma_orbit(const Quad& r, const Quad& s)
 {
-  RatQuad sigma(r,s);
+  RatQuad sigma(r,s), msigma(-r,s);
+  Quad t;
   sigmas.push_back(sigma);
+  if (!sigma.is_infinity())
+    {
+      sigma_ind[sigma.coords()] = n_sigmas;
+      sigma_ind[reduce_to_rectangle(sigma, t).coords()] = n_sigmas;
+    }
   if (!s.is_zero()) sigma_denoms.insert(s);
   if (s.is_zero() || s==TWO) // don't also include -sigma
     {
@@ -200,7 +218,9 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
     }
   else
     {
-      sigmas.push_back(-sigma);
+      sigmas.push_back(msigma);
+      sigma_ind[msigma.coords()] = n_sigmas+1;
+      sigma_ind[reduce_to_rectangle(msigma, t).coords()] = n_sigmas+1;
       sigma_flip.push_back(n_sigmas+1);   // transposition with next
       sigma_flip.push_back(n_sigmas);     // transposition with previous
       n_sigmas+=2;
@@ -644,3 +664,78 @@ void read_data(int verbose)
   geodata.close();
 }
 
+// Return i such that alphas[i]=a, else -1
+int alpha_index(const RatQuad& a)
+{
+  auto s = alpha_ind.find(a.coords());
+  if (s==alpha_ind.end())
+    return -1;
+  return s->second;
+}
+
+// Return i and set t such that alphas[i]+t=a, else -1
+int alpha_index_with_translation(const RatQuad& a, Quad& t)
+{
+  auto s = alpha_ind.find(a.coords());
+  if (s==alpha_ind.end())
+    s = alpha_ind.find(reduce_to_rectangle(a,t).coords());
+  if (s==alpha_ind.end())
+    return -1;
+  int i = s->second;
+  (a-alphas[i]).is_integral(t);
+  assert (t+alphas[i]==a);
+  return i;
+}
+
+// Return i such that sigmas[i]=a, else -1
+int sigma_index(const RatQuad& a)
+{
+  auto s = sigma_ind.find(a.coords());
+  if (s==sigma_ind.end())
+    return -1;
+  return s->second;
+}
+
+// Return i and set t such that sigmas[i]+t=a, else -1
+int sigma_index_with_translation_old(const RatQuad& z, Quad& shift);
+int sigma_index_with_translation_new(const RatQuad& z, Quad& shift);
+
+int sigma_index_with_translation(const RatQuad& z, Quad& shift)
+{
+  return sigma_index_with_translation_old(z, shift);
+}
+
+int sigma_index_with_translation_old(const RatQuad& z, Quad& shift)
+{
+  int t = 0;
+  Quad a = z.num(), b = z.den(), r, s;
+  for ( const auto& sigma : sigmas )
+    {
+      if (t==0) // ignore sigma=1/0
+        {
+          t=1;
+          continue;
+        }
+      r=sigma.num(), s=sigma.den(); // sigma = r/s
+      shift = a*s-b*r;
+      if (div(b*s,shift,shift))  // success! NB shift is divided by b*s before returning
+        return t;
+      t++;
+    } // end of loop over singular points sigma
+  return -1;
+}
+
+int sigma_index_with_translation_new(const RatQuad& z, Quad& shift)
+{
+  // cout << "Looking up sigma = " << z << endl;
+  auto s = sigma_ind.find(z.coords());
+  if (s==sigma_ind.end())
+    s = sigma_ind.find(reduce_to_rectangle(z,shift).coords());
+  if (s==sigma_ind.end())
+    return -1;
+  int i = s->second;
+  (z-sigmas[i]).is_integral(shift);
+  assert (shift+sigmas[i]==z);
+  // cout << " sigma is sigmas["<<i<<"] + "<<shift<< endl;
+  return i;
+}

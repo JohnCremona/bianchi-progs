@@ -61,6 +61,16 @@ public:
     s = c*r+d*s;
     r = t;
   }
+  // numerator of left action on r/s as column vector:
+  Quad apply_left_num(const Quad& r, const Quad& s) const
+  {
+    return a*r+b*s;
+  }
+  // denominator of left action on r/s as column vector:
+  Quad apply_left_den(const Quad& r, const Quad& s) const
+  {
+    return c*r+d*s;
+  }
   RatQuad operator()(const RatQuad& q) const;
   RatQuad image_oo() const;
   RatQuad preimage_oo() const;

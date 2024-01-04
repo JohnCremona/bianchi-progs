@@ -32,7 +32,7 @@ vector<mat22> HeckeP(const Quad& p)  // P=(p) principal prime
 mat22 AtkinLehner(const Quad& p, const Quad& n)
 {
   Quad u,v,a,b;
-  for (u=Quad::one, v=n; div(p,v); v/=p, u*=p) ;
+  for (u=Quad::one, v=n; div(p,v,v); u*=p) ;
   quadbezout(u,v,a,b);
   return mat22(u*a,-b,n,u);
 }

@@ -95,9 +95,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
  public:
 //constructors:
   void setnorm();
-  Quad() :r((long)0), i((long)0), nm((long)0)  {}
-  Quad(INT x) :r(INT(x)), i(INT(0)), nm(INT(x)*x)  {}
-  Quad(INT x, INT y) :r(INT(x)),i(INT(y))
+  Quad() :r(0), i(0), nm(0)  {}
+  Quad(INT x) :r(x), i(0), nm(x*x)  {}
+  Quad(INT x, INT y) :r(x),i(y)
   {
     nm = r*r + n*i*i;
     if (t) {nm += r*i;};
@@ -117,6 +117,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 //operators and related functions (friends are inlined below):
 
   Quad& operator=(const Quad& a) {r=a.r; i=a.i; nm=a.nm; return *this;}
+  Quad& operator=(const INT& a) {r=a; i=0; nm=a*a; return *this;}
+  Quad& operator=(long a) {r=a; i=0; nm=a*a; return *this;}
+  Quad& operator=(int a) {r=a; i=0; nm=a*a; return *this;}
   friend INT real(const Quad& a) {return a.r;}
   friend INT imag(const Quad& a) {return a.i;}
   friend Quad makepos(const Quad& a);
@@ -129,14 +132,16 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend Quad qdivi1(const Quad& a, INT c);      // used when t=1
   friend int pos13(const Quad& a);
   friend int pos2(const Quad& a);
-  friend int div(const Quad& a, const Quad& b);           // implemented in quads.cc
-  friend int val(const Quad& factor, const Quad& number); // implemented in quads.cc
+  friend int div(const Quad& a, const Quad& b);
+  friend int div(const Quad& a, const Quad& b, Quad& quo);
+  friend int val(const Quad& factor, const Quad& number);
   friend Quad quadgcd_psea(const Quad&, const Quad&);   // Using (pseudo-)EA
   friend Quad quadbezout_psea(const Quad&, const Quad&, Quad&, Quad&);   // Using (pseudo-)EA
   friend mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s);
-// Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
-// The new alpha has the smallest norm.
-// In the first form (not used), U holds the unimodular transform
+
+  // Replace alpha, beta by an SL2Z-equivalent pair with the same Z-span.
+  // The new alpha has the smallest norm.
+  // In the first form (not used), U holds the unimodular transform
   friend void sl2z_reduce(Quad& alpha, Quad& beta, unimod&U);
   friend void sl2z_reduce(Quad& alpha, Quad& beta);
 
@@ -147,13 +152,13 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   Quad operator* (const Quad& b) const {return mult(*this,b);}
   void operator*=(const Quad& b) {*this=mult(*this,b);}
   Quad operator* (INT m) const {return Quad(m*r,m*i, m*m*nm);}
-  void operator*=(INT m) {r*=m;i*=m; nm*=(m*m);}
+  void operator*=(INT m) {r*=m; i*=m; nm*=(m*m);}
   friend Quad operator*(INT m, const Quad& a);
   Quad operator+ (const Quad& b) const {return Quad(r+b.r,i+b.i);}
   Quad operator+ (INT b) const {return Quad(r+b,i);}
   friend Quad operator+(INT m, const Quad& a);
   void operator+=(const Quad& b) {r+=b.r; i+=b.i; setnorm();}
-  void operator+=(INT b) {r+=b;}
+  void operator+=(INT b) {r+=b; setnorm();}
   Quad operator- (const Quad& b) const {return Quad(r-b.r,i-b.i);}
   Quad operator- (INT b) const {return Quad(r-b,i);}
   friend Quad operator-(INT m, const Quad& a);
@@ -181,26 +186,22 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 // Inline definitions of friend functions of class Quad (those not
 // here are not inline, and are in quads.cc):
 
-inline Quad operator% (const Quad& a, const Quad& b)
-{ return a-(b*(a/b));}
+inline Quad operator% (const Quad& a, const Quad& b) { return a-(b*(a/b));}
 inline Quad quadconj0(const Quad& a)  {return Quad(a.r , -a.i, a.nm);}
 inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
-inline int pos13(const Quad& a)
-{return ((sign(a.i)>=0&&sign(a.r)>0)||((sign(a.r)==0)&&(sign(a.i)==0)));}
-inline int pos2(const Quad& a)
-{return (sign(a.i)>0||(sign(a.i)==0&&sign(a.r)>=0));}
+inline int pos13(const Quad& a) {return ((sign(a.i)>=0&&sign(a.r)>0)||((sign(a.r)==0)&&(sign(a.i)==0)));}
+inline int pos2(const Quad& a) {return (sign(a.i)>0||(sign(a.i)==0&&sign(a.r)>=0));}
 inline Quad operator*(INT m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
 inline Quad operator+(INT m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(INT m, const Quad& a) {return Quad(m-a.r,-a.i);}
 
-// reduction of gamma modulo Z<alpha,beta>
+// reduction modulo Z<alpha,beta>
 Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta);
 
 // vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&, Quad&);
 // vector<INT> findminquadcoeffs(const Quad&, const Quad&, Quad&);
 // void findminquad(const Quad&, const Quad&, Quad&, Quad&);
 // void findminquad(const Quad&, const Quad&, Quad&);
-
 
 vector<INT> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
 string old_ideal_label(const Quad& alpha);  // returns old HNF label of ideal (alpha)
