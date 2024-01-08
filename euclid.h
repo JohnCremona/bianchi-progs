@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "quads.h"
+#include "ratquads.h"
 
 // pseudo-Euclidean step: applies a translation and *if possible* an
 // M_alpha inversion to a/b (or column vector [a;b]) reducing b, also
