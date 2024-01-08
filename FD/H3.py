@@ -633,6 +633,7 @@ def triple_intersections(alphas, debug=False):
                 if P2 not in corners:
                     if debug:
                         print(f" adding {P2 = } from (i,j,k)={(i,j,k)}")
+                        print(f"cusps {cusp(XA4[i])}, {cusp(XA4[j])}, {cusp(XA4[k])}")
                     corners.append(P2)
 
     if debug:
@@ -1070,7 +1071,11 @@ def intersection_points_in_k(a1,a2):
     if d2 > 0:
         return []
     z = ((al1+al2) + (r1sq-r2sq)/delta.conjugate())/2
-    return [z + r/(2*delta.conjugate()) for r in k(d2).sqrt(all=True, extend=False)]
+    pts = [z + r/(2*delta.conjugate()) for r in k(d2).sqrt(all=True, extend=False)]
+    for pt in pts:
+        assert (pt-al1).norm()==r1sq
+        assert (pt-al2).norm()==r2sq
+    return pts
 
 def intersection_points_in_CC(a1,a2):
     """Given principal cusps a1,a2 returns a list of 0, 1 or 2 points (in
@@ -1213,22 +1218,27 @@ def are_intersection_points_covered(a0, a1, alist, sigmas, debug=False):
     # Now the intersection points are not in k. Check that either one
     # S_a covers both, or two cover one each:
     t = 0 # will hold +1 or -1 if we have covered only one of the two
+    A0 = cusp_to_point(a0)
+    A1 = cusp_to_point(a1)
     for a2 in alist:
-        if a2 == a1:
+        if a2 == a1 or a2 == a0:
+            continue
+        A2 = cusp_to_point(a2)
+        if tau(A0,A2)>0 or tau(A1,A2)>0:
             continue
         t2 = are_intersection_points_covered_by_one(a0, a1, a2, plot=False)
         if debug:
             print("a0={}, a1={}, a2={}:  t2={}, t={}".format(a0, a1,a2,t2,t))
         if t2: # it is 2, +1 or -1
             assert t2 in [-1,1,2]
-            if debug:
-                are_intersection_points_covered_by_one(a0, a1, a2, plot=True)
+            # if debug:
+            #     are_intersection_points_covered_by_one(a0, a1, a2, plot=True)
             if t2==2 or ([t,t2] in [[1,-1],[-1,1]]):
                 if debug:
                     print("t={}, t2={}, about to return True".format(t,t2))
                 return True
             assert t2 in [-1,1] and t in [0,t2]
-            if debug:
+            if debug and t!=t2:
                 print("t={}, t2={}, setting t to {}".format(t,t2,t2))
             t = t2
     return False
@@ -1285,7 +1295,7 @@ def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False)
         pair.sort()
         if pair in a0_pairs_ok:
             if debug:
-                print("\nSkipping pair {}".format(pair))
+                print("Skipping pair {}".format(pair))
             continue
         if debug:
             print("\nTesting intersection points of {}".format(pair))
@@ -1447,6 +1457,10 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
                 else:
                     alphas_ok.append(a)
                 Alist.append(A)
+        for A in Alist:
+            for B in Alist:
+                if A!=B and circle_inside_circle(A, B, False):
+                    print(f"S_{A} is inside S_{B}")
         if verbose and nc:
             s = "up to " if first else ""
             print(f"Adding {nc} alphas of norm {s}{maxn} (plus symmetrics); #alphas={len(alphas_ok)+len(alphas_open)} of which {len(alphas_ok)} are proved surrounded so far")
@@ -1493,9 +1507,9 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
     """
 
     # First delete any alphas with <3 vertices, allowing for translates
-    all_points = triple_intersections(alphas, debug=debug)
+    points = triple_intersections(alphas, debug=debug)
     pointsx = []
-    for P in all_points+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
+    for P in points+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
         for Q in point_translates(P):
             if Q not in pointsx:
                 pointsx.append(Q)
@@ -1504,24 +1518,19 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
     m = max([a.denominator().norm() for a in alphas1])
     if verbose:
         print(f"After removing alphas which go through <3 vertices, we now have {len(alphas1)} alphas with max norm {m}")
-
-
     sat = False
     checked_points = []
-    first_run = True
-    # copy so original list unchanged
-    #alphas1 = alphas.copy()
+    first_run = True # so we don't recompute triple_intersections
     while not sat:
-        if first_run:
-            first_run = False
-        else:
-            all_points = triple_intersections(alphas1, debug=debug)
+        if not first_run:
+            points = triple_intersections(alphas1, debug=debug)
+        first_run = False
         if debug:
-            print(f"Found {len(all_points)} potential vertices")
-        points = [P for P in all_points if maxn*P[1]<1]
+            print(f"Found {len(points)} potential vertices")
+        points = [P for P in points if maxn*P[1]<1]
         if debug:
-            print(f" -- of which {len(all_points)} are low enough to be properly covered by a new alpha")
-        points = [P for P in all_points if in_quarter_rectangle(P[0])]
+            print(f" -- of which {len(points)} are low enough (ht^2<1/{(maxn)}) to be properly covered by a new alpha")
+        points = [P for P in points if in_quarter_rectangle(P[0])]
         if debug:
             print(f" -- of which {len(points)} lie in the first quadrant")
         points = [P for P in points if P not in checked_points]
@@ -1549,7 +1558,7 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
                 extras0 = [a for a,h in zip(extras, hts) if h==m]
                 norms0 = [a.denominator().norm() for a in extras0]
                 if debug:
-                    print(f"   - found {len(extras)} properly covering hemispheres, with norms {[a.denominator().norm() for a in extras]}")
+                    print(f"   - found {len(extras)} properly covering hemispheres for {P=}, with norms {[a.denominator().norm() for a in extras]}")
                     print(f"     max height above P (height {P[1]}) is {m}, for {extras0} with norms {norms0}")
                 for a in extras0:
                     ca = conj_cusp(a)
@@ -1576,8 +1585,9 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
         print(f"After saturation we now have {len(alphas1)} alphas with max norm {m}")
 
     # Now delete any alphas with <3 vertices, allowing for translates
+    points1 = triple_intersections(alphas1)
     pointsx = []
-    for P in all_points+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
+    for P in points1+[[to_k(s,k),0] for s in sigmas if not s.is_infinity()]:
         for Q in point_translates(P):
             if Q not in pointsx:
                 pointsx.append(Q)
