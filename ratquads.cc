@@ -92,7 +92,7 @@ vector<RAT> RatQuad::coords(int rectangle) const
 // True iff x in (-1/2,1/2] and y in (-1/2,1/2] or (-1/4,1/4]
 int RatQuad::in_rectangle() const
 {
-  vector<RAT> xy = coords(1);
+  vector<RAT> xy = coords(1); // so this = x+y*sqrt(-d)
   RAT x=xy[0], y=xy[1], half(1,2);
   if (Quad::t) y *=2;
   return -half<x && x<=half && -half<y && y<=half;
@@ -101,7 +101,7 @@ int RatQuad::in_rectangle() const
 // x in [0,1/2] and y in [0,1/2] or [0,1/4]
 int RatQuad::in_quarter_rectangle() const
 {
-  vector<RAT> xy = coords(); // so this = x+y*w
+  vector<RAT> xy = coords(1); // so this = x+y*sqrt(-d)
   RAT x=xy[0], y=xy[1], half(1,2);
   if (Quad::t) y *=2;
   return 0<=x && x<=half && 0<=y && y<=half;
@@ -110,10 +110,12 @@ int RatQuad::in_quarter_rectangle() const
 // subtract Quad to put into rectangle
 RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
-  vector<RAT> xy = a.coords(); // so a = x+y*w
+  vector<RAT> xy = a.coords(1);  // so a = x+y*sqrt(-d)
   RAT x = xy[0], y=xy[1];
-  INT yshift = y.round();
-  INT xshift = (Quad::t? (x+(y-yshift)/2).round() : x.round());
+  INT xshift, yshift;
+  if (Quad::t) y *= 2;
+  yshift = y.round();
+  xshift = (Quad::t? ((2*x-yshift)/2).round() : x.round());
   shift = Quad(xshift, yshift);
   // cout << " a = " << a <<endl;
   // cout << " shift = "<<shift<<" with norm "<<shift.norm()<<endl;
@@ -169,6 +171,48 @@ vector<Quad> nearest_quads(const RatQuad& z, int just_one)
   return ans;
 }
 
+vector<Quad> nearest_quads_to_quotient(const Quad& a, const Quad& b, int just_one)
+{
+  vector<Quad> ans;
+  Quad q = a/b; // rounded
+  Quad r=a; r.subprod(q,b); // a=q*b+r
+  INT bnorm=b.norm();
+  if (r.norm()<bnorm)
+    ans.push_back(q);
+  else
+    return ans; // empty
+  if (just_one)
+    return ans;
+  if (!Quad::is_Euclidean) // only possible shifts are by +-1
+    {
+      if ((r-b).norm()<bnorm)
+        {
+          q +=1;
+          ans.push_back(q);
+          return ans;
+        }
+      if ((r+b).norm()<bnorm)
+        {
+          q -=1;
+          ans.push_back(q);
+          return ans;
+        }
+      return ans;
+    }
+  vector<Quad> shifts = {Quad::one}; // adjustments up to sign
+  if (Quad::d < 7) shifts.push_back(Quad(1,1)); // norms 2, 3, 3 for d=1,2,3
+  if (Quad::nunits == 2) shifts.push_back(Quad(0,1)); // norms 2, 2, 3 for d=2,7,11
+  for ( const auto& s : shifts)
+    {
+      for ( const auto& u : quadunits)
+        {
+          Quad us = u*s;
+          if ((r-b*us).norm()<bnorm)
+            ans.push_back(us+q);
+        }
+    }
+  return ans;
+}
 
 // Finding cusp in list, with or without translation
 

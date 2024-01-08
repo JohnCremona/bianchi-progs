@@ -133,6 +133,8 @@ inline INT pow(const INT& a, int e) {return a^e;}
 inline INT pow(const INT& a, long e) {return a^e;}
 inline int isqrt(const INT& a, INT& root) {root=a.isqrt(); return root*root==a;}
 inline INT isqrt(const INT& a) {return a.isqrt();}
+inline INT max(const INT& a, const INT& b) {return (a>=b? a : b);}
+inline INT min(const INT& a, const INT& b) {return (a<=b? a : b);}
 
 // functions implemented in int.cc:
 

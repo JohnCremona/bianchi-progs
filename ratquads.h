@@ -59,7 +59,10 @@ public:
   int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
   int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
   friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
-  friend vector<Quad> nearest_quads(const RatQuad&, int just_one);    // list of Quad(s) a s.t. N(a-z)<1
+  // list of Quad(s) q s.t. N(q-z)<1:
+  friend vector<Quad> nearest_quads(const RatQuad&, int just_one);
+  // list of Quad(s) q s.t. N(q-a/b)<1, i.e. N(a-b*q)<N(b):
+  friend vector<Quad> nearest_quads_to_quotient(const Quad&, const Quad&, int just_one);
   // Binary Operator Functions
   friend RatQuad operator+(const RatQuad&, const RatQuad&);
   friend RatQuad operator+(const Quad&, const RatQuad&);
@@ -337,5 +340,10 @@ struct Cusp_comparison {
 };
 
 extern Cusp_comparison Cusp_cmp;
+
+// list of Quad(s) q s.t. N(q-z)<1:
+vector<Quad> nearest_quads(const RatQuad&, int just_one);
+// list of Quad(s) q s.t. N(q-a/b)<1, i.e. N(a-b*q)<N(b):
+vector<Quad> nearest_quads_to_quotient(const Quad&, const Quad&, int just_one);
 
 #endif

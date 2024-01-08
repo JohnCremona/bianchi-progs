@@ -23,23 +23,18 @@ ostream& operator<<(ostream& s, const H3point& P);
 
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
-
 CuspList singular_points_in_class(Qideal I, int verbose=0);
 
 // Return a list of lists of singular points in each ideal class.
-
 vector<CuspList> singular_points_by_class();
 
 // Return one list of all singular points.
-
 CuspList singular_points();
 
 // Return sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
-
 CuspList sort_singular_points(const CuspList S, int verbose=0);
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
-
 void output_singular_points(const CuspList S, int to_file=1, int to_screen=0);
 
 // Square radius for principal cusp
@@ -108,7 +103,8 @@ CuspList principal_cusps_with_denominators(const vector<Quad>& slist);
 // are consistent so that if a returns +1 and a' returns -1 then each
 // intersection point is covered by either S_a or S_a'.
 
-int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2, const RatQuad& a);
+int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2, const RatQuad& a,
+                                           int debug=0);
 
 // Given principal cusps a0, a1 whose circles S_a0, S_a1 intersect,
 // and a list of principal cusps alist each of whose circles S_a also
@@ -137,7 +133,7 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
 // whose intersections have now been shown to be covered.
 
 int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& sigmas,
-                        vector<CuspPair>& pairs_ok);
+                        vector<CuspPair>& pairs_ok, int debug=0);
 
 
 // Given alist_ok and alist_open, lists of principal cusps, and slist,
@@ -159,7 +155,7 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
 // failure.
 
 int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
-                          const CuspList& slist, vector<CuspPair>& pairs_ok);
+                          const CuspList& slist, vector<CuspPair>& pairs_ok, int debug=0);
 // Returns a finite list of principal cusps a such that the S_{a+t}
 // for all integral t cover CC apart from singular points.
 
@@ -202,7 +198,12 @@ CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug
 // return max denominator norm of a list of principal cusps
 INT max_dnorm(const CuspList& alphas);
 
+// Given a list of covering alphas with max denom norm maxn, return a saturated irredundant list
 CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas, INT maxn, int debug=0, int verbose=0);
 
+// return  a saturated irredundant list of alphas in the fundamental rectangle
+CuspList find_alphas(const CuspList& sigmas, int debug=0, int verbose=0);
 
+// return  a saturated irredundant list of alphas, and list of sigmas, in the fundamental rectangle
+pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
 #endif

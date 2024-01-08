@@ -210,6 +210,9 @@ public:
   friend inline int operator>(long a, const RAT& b) {return b<a;}
   friend inline int operator>=(long a, const RAT& b) {return b<=a;}
 
+  friend inline RAT max(const RAT& a, const RAT& b);
+  friend inline RAT min(const RAT& a, const RAT& b);
+
   friend ostream& operator<< (ostream&, const RAT&);
   friend istream& operator>> (istream&, RAT&);
 
@@ -302,5 +305,9 @@ inline int sign(const RAT& r)
 {
   return r.sign();
 }
+
+inline RAT max(const RAT& a, const RAT& b) {return (a>=b? a : b);}
+inline RAT min(const RAT& a, const RAT& b) {return (a<=b? a : b);}
+
 
 #endif

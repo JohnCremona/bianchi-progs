@@ -252,6 +252,8 @@ void output_singular_points(const CuspList S, int to_file, int to_screen)
     cout << nlines << " S lines output" <<endl;
 }
 
+
+
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a)
 {
@@ -280,9 +282,14 @@ int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict)
 {
   RAT r1sq = radius_squared(a1), r2sq = radius_squared(a2);
   if (! (strict? r1sq<r2sq: r1sq<=r2sq))
-    return 0;
+    {
+      // cout<<"is "<<a1<<" inside "<<a2<<"? no (radius test)\n";
+      return 0;
+    }
   int t  = tau(a1,a2);
-  return (strict? t==-2: t<0);
+  int ans = (strict? t==-2: t<0);
+  // cout<<"is "<<a1<<" inside "<<a2<<"? no (tau="<<t<<")\n";
+  return ans;
 }
 
 // return 1 iff the circle S_a is inside S_b for any b in blist
@@ -340,7 +347,12 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   // find sqrts of d2 in k, if any
   vector<RatQuad> d2sqrts = sqrts(d2);
   for ( const auto& sqrtd2 : d2sqrts)
-    ans.push_back(z/TWO + sqrtd2/(TWO*delta));
+    {
+      RatQuad pt = z/TWO + sqrtd2/(TWO*delta);
+      assert ((pt-a1).norm() == r1sq);
+      assert ((pt-a2).norm() == r2sq);
+      ans.push_back(pt);
+    }
   return ans;
 }
 
@@ -349,6 +361,13 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
 int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 {
   RAT t = radius_squared(b) - (a-b).norm();
+  if (0)
+    {
+      cout<<"Testing whether "<<a<<" is strictly inside S_{"<<b<<"}\n";
+      cout<<" square radius = "<<radius_squared(b);
+      cout<<" square distance = "<<(a-b).norm();
+      cout<<" result: "<<(t>0)<<endl;
+    }
   return (strict ? 0<t : 0<=t);
 }
 
@@ -429,9 +448,9 @@ H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad
   RatQuad z = (a1*(n0-n2+rho2-rho0) + a2*(n1-n0+rho0-rho1) + a0*(n2-n1+rho1-rho2)) / delta;
   RatQuad zbar = z.conj();
   RAT znorm = z.norm();
-  RAT t2 =  (rho0 - n0 - znorm) + 2*(a0*zbar).x_coord();
-  RAT t2a = (rho1 - n1 - znorm) + 2*(a1*zbar).x_coord();
-  RAT t2b = (rho2 - n2 - znorm) + 2*(a2*zbar).x_coord();
+  RAT t2 =  (rho0 - n0 - znorm) + 2*(a0*zbar).x_coord(1);
+  RAT t2a = (rho1 - n1 - znorm) + 2*(a1*zbar).x_coord(1);
+  RAT t2b = (rho2 - n2 - znorm) + 2*(a2*zbar).x_coord(1);
   assert (t2==t2a);
   assert (t2==t2b);
   H3point P = {z,t2};
@@ -453,11 +472,13 @@ H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad
 
 //#define DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
 
-int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2, const RatQuad& a)
+int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2, const RatQuad& a, int debug)
 {
 #ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
-  cout << "Testing if intersection points of "<<a1<<" and "<<a2<<" are covered by "<<a<<endl;
+  debug=1;
 #endif
+  if (debug)
+    cout << "\tTesting if intersection points of "<<a1<<" and "<<a2<<" are covered by "<<a;
 
   // Check the cusps are principal, not infinity, and with unit ideal
   assert (a.is_finite() && a.is_principal());
@@ -481,7 +502,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
   RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/TWO;
   RAT T2 = T*T;
   RatQuad D = tri_det(a, a2, a1); // pure imaginary
-  RAT D2 = (D*D).x_coord();       // negative rational
+  RAT D2 = (D*D).x_coord(1);      // negative rational
   RAT d2D2 = d2*D2;               // positive rational
 
   // the covering condition is \pm sqrt(d2)*D < T
@@ -494,12 +515,11 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
   if (d2D2 > T2)
     {
       Quad w = Quad::w;
-      RAT u = (D*(w-w.conj())).x_coord();
+      RAT u = (D*(w-w.conj())).x_coord(1);
       code = u.sign();
     }
-#ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
-  cout << " - test returns code "<<code<<endl;
-#endif
+  if (debug)
+    cout << " - test returns code "<<code<<endl;
   return code;
 }
 
@@ -513,17 +533,36 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const CuspList& alist,
                                     const CuspList& sigmas, int debug)
 {
+#ifdef DEBUG_ARE_INTERSECTION_POINTS_COVERED_BY_ONE
+  debug = 1;
+#endif
+  if (debug)
+    cout << "Testing if intersection points of "<<a0<<" and "<<a1<<" are covered"<<endl;// by "<<alist<<endl;
+
   CuspList zlist = intersection_points_in_k(a0,a1);
   if (!zlist.empty())
     {
-      for (auto z = zlist.begin(); z!=zlist.end(); ++z)
+      if (debug)
+        cout << " intersection points are k-rational: "<<zlist<<endl;
+      for ( const auto& z : zlist)
         {
-          if (cusp_index(*z, sigmas)!=-1) // z is singular: OK
-            continue;
-          if (!is_inside_one(*z, alist))  // z is not covered: not OK
-            return 0;
+          Quad t;
+          if (cusp_index_with_translation(z, sigmas, t)!=-1) // z is singular: OK
+            {
+              if (debug)
+                cout << " ok, "<<z<<" is singular"<<endl;
+              continue;
+            }
+          if (!is_inside_one(z, alist, 1))  // z is not covered: not OK
+            {
+              if (debug)
+                cout << " returning no, "<<z<<" is not covered"<<endl;
+              return 0;
+            }
         }
       // we reach here if every z is either singular or covered: OK
+      if (debug)
+        cout << "+++returning yes, both are covered"<<endl;
       return 1;
     }
 
@@ -533,19 +572,33 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
   int t = 0; // will hold +1 or -1 if we have covered only one of the two
   for ( const auto& a2 : alist)
     {
-      if (a2 == a1)
+      if ((a2 == a1) || (a2==a0))
+        continue;
+      if (tau(a0,a2)>0 || tau(a1,a2)>0)
         continue;
       int t2 = are_intersection_points_covered_by_one(a0, a1, a2);
       if (t2==2) // both are covered by a2
-        return 1;
+        {
+      if (debug)
+        cout << "+++returning yes, both are covered"<<endl;
+      return 1;
+        }
       if (t2==0) // neither is covered by a2
         continue;
       // Now t2 is +1 or -1; we win if t is its negative
       if (t==-t2) // then they are (1,-1) or (-1,1) so we have covered both points
-        return 1;
+        {
+          if (debug)
+            cout << " returning yes, both are now covered"<<endl;
+          return 1;
+        }
+      if (debug)
+        cout << "   not yet, only one is covered so far"<<endl;
       t = t2;     // = +1 or -1: we have covered one of the points, so remember which
     }
   // If we reach here then none of the S_a covers both points
+  if (debug)
+    cout << "---returning no"<<endl;
   return 0;
 }
 
@@ -565,12 +618,17 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
 // whose intersections have now been shown to be covered.
 
 int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& sigmas,
-                        vector<CuspPair>& pairs_ok)
+                        vector<CuspPair>& pairs_ok, int debug)
 {
+  if (debug)
+    cout<<"Testing if S_{"<<a0<<"} is surrounded"<<endl;
   // check if S_a0 is strictly entirely contained in one S_alpha:
   if (circle_inside_any_circle(a0, alist, 1))
-    return 1;
-
+    {
+      if (debug)
+        cout<<" - yes, S_{"<<a0<<"} is contained within another S_a"<<endl;
+      return 1;
+    }
   // extract the relevant alphas, if any, namely those for which
   // S_alpha and S_a0 properly intersect:
 
@@ -578,6 +636,8 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
   auto it1 = std::copy_if(alist.begin(), alist.end(), a0list.begin(),
                          [a0](RatQuad a){return circles_intersect(a0, a);});
   a0list.resize(std::distance(a0list.begin(),it1));  // shrink to new size
+  if (debug)
+    cout<<" - intersecting neighbours: "<<a0list<<endl;
 
   // extract the pairs in pairs_ok which contain a0:
 
@@ -593,9 +653,24 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
       if (std::find(a0_pairs_ok.begin(), a0_pairs_ok.end(), pr) != a0_pairs_ok.end())
         continue; // this pair is already ok
       if (are_intersection_points_covered(a0, a1, alist, sigmas))
-        pairs_ok.push_back(pr); // record that this pair is ok
+        {
+          pairs_ok.push_back(pr); // record that this pair is ok
+          if (debug)
+            cout<<" - intersection points of S_{"<<a0<<"} and S_{"<<a1<<"} are surrounded"<<endl;
+        }
       else
-        all_ok = 0; // but continue checking the other a1s
+        {
+          if (debug)
+            cout<<" - intersection points of S_{"<<a0<<"} and S_{"<<a1<<"} are NOT surrounded"<<endl;
+          all_ok = 0; // but continue checking the other a1s
+        }
+    }
+  if (debug)
+    {
+      if (all_ok)
+        cout << " S_{"<<a0<<"} IS surrounded"<<endl;
+      else
+        cout << " S_{"<<a0<<"} is NOT surrounded"<<endl;
     }
   return all_ok;
 }
@@ -621,12 +696,14 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
 // failure.
 
 int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
-                          const CuspList& slist, vector<CuspPair>& pairs_ok)
+                          const CuspList& slist, vector<CuspPair>& pairs_ok, int debug)
 {
-  // cout << "At start of are_alphas_surrounded()" << endl;
-  // cout << "alist_ok = "<<alist_ok<<endl;
-  // cout << "alist_open = "<<alist_open<<endl;
-
+  if (debug)
+    {
+      cout << "At start of are_alphas_surrounded()" << endl;
+      cout << "alist_ok = "<<alist_ok<<endl;
+      cout << "alist_open = "<<alist_open<<endl;
+    }
   // concatenate the two alists
   CuspList alist;
   alist.insert(alist.end(), alist_ok.begin(), alist_ok.end());
@@ -698,13 +775,13 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
                              :
                              principal_cusps_with_denominators(looper.values_with_current_norm())
                              );
-      cout << "new_alphas = " << new_alphas << endl;
+      //cout << "new_alphas = " << new_alphas << endl;
       maxn = new_alphas.back().den().norm();
 
       if (verbose)
         cout << "----------------------------------------------------------\n"
              << "Considering "<<new_alphas.size()<<" extra principal cusps " << s << maxn
-             // << ": "<<new_alphas
+          //<< ": "<<new_alphas
              << endl;
       first = 0;
       s = "of norm ";
@@ -719,7 +796,12 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
       for (auto a : new_alphas)
         {
           if (circle_inside_any_circle(a, alist, 0)) // strict=0
+            {
+              //cout<<"alpha = "<<a<<" is weakly inside one of "<<alist<<endl;
               continue;
+            }
+          // cout<<"alpha = "<<a<<" is useful and "
+          //     <<(a.in_quarter_rectangle()?"is":"is not")<<" in the quarter rectangle"<<endl;
           alist.push_back(a);
           if (a.in_quarter_rectangle())
             new_alphas_open.push_back(a);
@@ -951,7 +1033,17 @@ CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int debug)
 {
   if (debug)
-    cout << "Finding a for which S_a covers "<<P<<endl;
+    {
+      cout << "Finding a for which S_a covers P = "<<P<<endl;
+      cout << " option = "<<option;
+      if (option==1)
+        cout<<" (exact, i.e. P is on S_a)";
+      else
+        if (option==-1)
+          cout<<" (strict, i.e. P is strictly under S_a)";
+        else cout<<" (feault, i.e. P is on or under S_a)";
+      cout <<endl;
+    }
   CuspList ans;
   RatQuad z = P.first, sz;
   RAT t2 = P.second;
@@ -967,22 +1059,44 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
   auto slist = quads_of_norm_between(norm_s_lb, norm_s_ub, 1, 0); // not sorted
   for (const auto& s : slist)
     {
+      if (debug)
+        cout << " s = "<<s<<" ";
       sz = s*z;
       auto rlist = nearest_quads(sz, 1); // 1 means at most one
+      if (debug)
+        cout << " possible r: "<<rlist<<endl;
       if (rlist.empty())
         continue;
       r = rlist.front();
-      test = sign((sz-r).norm() + t2*s.norm() - ONE); // should be 0 or -1 or 0,-1
-      ok = (option==1? test==0: (option=-1? test==-1 : test<1));
-      if (!ok || !coprime(r,s))
+      test = sign((sz-r).norm() + t2*s.norm() - ONE);
+      //  0 for on, -1 for strictly under, +1 for over
+      if (debug)
+        cout << " r = "<<r<<"\n test = "<<test<< endl;
+      switch (option) {
+      case 1:
+        ok = (test==0); break;
+      case -1:
+        ok = (test==-1); break;
+      default:
+        ok = (test<1);
+      }
+      // ok = (option==1? test==0: (option=-1? test==-1 : test<1));
+      if (debug)
+        cout << " ok = "<<ok<< endl;
+      if (!ok)
         continue;
+      ok = coprime(r,s);
+      if (debug)
+        cout << " coprime(r,s)? "<< ok << endl;
+      if (!ok)
+        continue;
+      if (debug)
+        cout << " +++ Success with a = "<<RatQuad(r,s)<<endl;
       ans.push_back(reduce_to_rectangle(RatQuad(r,s), temp));
     }
   if (debug)
-    cout << "Covering hemispheres are S_a for a in "<<alphas<<endl;
-    // covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
-    // assert all(is_under(P,a) in covering_codes for a in alphas)
-  return alphas;
+    cout << "Covering hemispheres are S_a for a in "<<ans<<endl;
+  return ans;
 }
 
 CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
@@ -1008,20 +1122,30 @@ INT max_dnorm(const CuspList& alphas)
 CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
 {
   // Find all covering hemispheres
-  CuspList alphas = properly_covering_hemispheres(P, norm_s_lb, debug);
-  if (alphas.empty())
-    return alphas;
+  CuspList alist = properly_covering_hemispheres(P, norm_s_lb, debug);
+  if (alist.empty())
+    return alist;
+
+  if(debug)
+    cout<<"S_a covering P="<<P<<":"<<endl;
 
   // Find the max height of all S_a above P
-  RAT m;
-  std::for_each(alphas.begin(), alphas.end(),
+  RAT m(0);
+  std::for_each(alist.begin(), alist.end(),
                 [P,&m](RatQuad a) {m = max(m, height_above(a,P.first));});
-
+  if(debug)
+    cout<<"max height is "<<m<<endl;
   // Discard those a whose height above P is not maximal
-  alphas.erase(std::remove_if(alphas.begin(), alphas.end(),
+  alist.erase(std::remove_if(alist.begin(), alist.end(),
                               [P,m](RatQuad a) { return height_above(a,P.first) < m;}),
-               alphas.end());
-  return alphas;
+               alist.end());
+  if(debug)
+    {
+      cout<<"S_a maximally covering P="<<P<<": "<<alist<<" (ht "<<m<<" above P)"<<endl;
+      // for (const auto& a: alist)
+      //   cout<<a<<" with height "<<height_above(a,P.first)<<endl;
+    }
+  return alist;
 }
 
 // Given a covering set of alphas as produced by
@@ -1089,7 +1213,10 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
         points = triple_intersections(new_alphas, debug);
       first_run = 0;
       if (verbose)
-        cout << "Found "<<points.size()<<" potential vertices"<<endl;
+        {
+          cout << "Found "<<points.size()<<" potential vertices"<<endl;
+          // cout << points <<endl;
+        }
       if(debug)
         cout << "Extracting those of square height less than 1/"<<maxn<<endl;
       // Remove points which cannot be better covered by an alpha with dnorm>maxn
@@ -1097,19 +1224,29 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
                                   [maxn](H3point P) { return maxn*P.second>=ONE;}),
                    points.end());
       if (debug)
-        cout << " -- of which "<<points.size()<<" are low enough to be properly covered by a new alpha"<<endl;
+        {
+          cout << " -- of which "<<points.size()<<" are low enough to be properly covered by a new alpha"<<endl;
+          // for (const auto& P : points)
+          //   cout << "P = " << P << " is in first quadrant? "<< P.first.in_quarter_rectangle() << endl;
+        }
       points.erase(std::remove_if(points.begin(), points.end(),
-                                  [](H3point P) { return P.first.in_quarter_rectangle();}),
+                                  [](H3point P) { return !P.first.in_quarter_rectangle();}),
                    points.end());
       if (debug)
-        cout << " -- of which "<<points.size()<<" lie in the first quadrant" << endl;
+        {
+          cout << " -- of which "<<points.size()<<" lie in the first quadrant" << endl;
+          // cout << points <<endl;
+        }
 
       points.erase(std::remove_if(points.begin(), points.end(),
                                   [checked_points](H3point P)
                                   {return std::find(checked_points.begin(), checked_points.end(), P) != checked_points.end();}),
                    points.end());
       if (debug)
-        cout << " -- of which "<<points.size()<<" have not already been checked" << endl;
+        {
+          cout << " -- of which "<<points.size()<<" have not already been checked" << endl;
+          // cout << points <<endl;
+        }
 
       sat = 1;        // will be set to 0 if we find out that the alphas are not already saturated
       CuspList extra_alphas; // will be filled with any extra alphas needed on this pass
@@ -1119,13 +1256,13 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
           iP++;
           if (debug)
             cout << " - checking corner #"<<iP<<"/"<<nP<<": "<<P<<"...";
-          CuspList extras = best_covering_hemispheres(P, I2long(m)+1, debug);
+          CuspList extras = best_covering_hemispheres(P, I2long(m)+1, debug>1);
           if (debug)
             cout << " done...";
           if (extras.empty())
             {
               if (debug)
-                cout << "   - OK, no properly covering alphas found" <<endl;
+                cout << "   - no properly covering alphas found" <<endl;
               checked_points.push_back(P);
               continue; // on to the next P
             }
@@ -1137,8 +1274,13 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
               norms.resize(extras.size());
               std::transform(extras.begin(), extras.end(), norms.begin(),
                              [](RatQuad a) {return a.den().norm();});
-              cout << " with norms " << norms;
-              cout << ";  max height above P (height "<<P.second<<") is "<<m<<endl;
+              cout << " with denominator norms " << norms;
+              cout << ";  heights above P (height "<<P.second<<") are ";
+              vector<RAT> hts;
+              hts.resize(extras.size());
+              std::transform(extras.begin(), extras.end(), hts.begin(),
+                             [P](RatQuad a) {return height_above(a,P.first);});
+              cout <<hts <<endl;
             }
           for ( const auto& a : extras)
             {
@@ -1205,4 +1347,20 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
          <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
   std::sort(new_alphas.begin(), new_alphas.end(), Cusp_cmp);
   return new_alphas;
+}
+
+// return  a saturated irredundant list of alphas in the fundamental rectangle
+CuspList find_alphas(const CuspList& sigmas, int debug, int verbose)
+{
+  auto alphas = covering_alphas(sigmas, verbose);
+  INT maxn = max_dnorm(alphas);
+  return saturate_covering_alphas(alphas, sigmas, maxn, debug, verbose);
+}
+
+// return  a saturated irredundant list of alphas, and list of sigmas, in the fundamental rectangle
+pair<CuspList,CuspList> find_alphas_and_sigmas(int debug, int verbose)
+{
+  auto sigmas = singular_points();
+  auto alphas = find_alphas(sigmas, debug, verbose);
+  return {alphas, sigmas};
 }

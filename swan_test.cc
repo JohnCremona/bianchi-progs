@@ -19,7 +19,9 @@ vector<RatQuad> test_singular_points(int output_level=0)
   sigmas = sort_singular_points(sigmas);
   if (output_level>=1)
     cout << "Sorted singular points: "<<sigmas<<endl;
-  output_singular_points(sigmas, 1, 1);
+  int to_file=(output_level>=1);
+  int to_screen=(output_level>=2);
+  output_singular_points(sigmas, to_file, to_screen);
   return sigmas;
 }
 
@@ -59,7 +61,8 @@ int main ()
 
       auto sigmas = test_singular_points(0);
       //test_principal_cusps(20, 30);
-      auto alphas = covering_alphas(sigmas, 1);
+      int verbose = 1;
+      auto alphas = covering_alphas(sigmas, verbose);
       INT maxn = max_dnorm(alphas);
       cout << alphas.size() << " covering alphas: " << alphas << endl;
       cout << "max dnorm = " << maxn <<endl;
@@ -67,7 +70,8 @@ int main ()
       // auto corners = triple_intersections(alphas, 1);
       // cout << corners << endl;
 
-      alphas = saturate_covering_alphas(alphas, sigmas, maxn, 1, 1);
+      int debug = 0;
+      alphas = saturate_covering_alphas(alphas, sigmas, maxn, debug, verbose);
       cout << alphas.size() << " saturated alphas: " << alphas << endl;
       maxn = max_dnorm(alphas);
       cout << "max dnorm = " << maxn <<endl;
