@@ -1,0 +1,45 @@
+#!/bin/bash
+d=$1
+LEVEL=$2
+NAP=${3:-100}
+VERBOSE=1
+OUTPUT_EIGS=1
+
+# Make sure newforms directory exists!
+
+if [[ $((d % 4)) -ne 3 ]] ; then
+    D=$(( 4*d ))
+else
+    D=$d
+fi
+mkdir -p newforms/2.0.${D}.1
+
+PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} 1 ${LEVEL} 0.0"
+
+PROG="./makenf_${d}_${LEVEL}"
+ln -s makenf "${PROG}"
+echo "Running " ${PROG} " with parameters " ${PARAMS}
+
+if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
+then
+  echo "${PROG} succeeded"
+else
+  echo "******************** ${PROG} FAILED *******************************"
+fi
+/bin/rm "${PROG}"
+
+# To use in parallel runs, one level per run (e.g.: d=59, norms from 1 to 100):
+#
+# parallel -j 5 --progress ./makenf1_hybrid 59 {1} ::: `./qidl_labels 59 1 100`
+#
+# or
+#
+# parallel -j 5 --progress ./makenf1_hybrid 59 {1} :::: missing_levels
+#
+# where the missing_levels file contains some level labels *one per line".
+#
+# or
+#
+# parallel -j 10 --progress ./makenf1_hybrid 103 {1} ::: `./qidl_labels 103 1 100 1`
+#
+# (replace '103' with d and '1 100' with the first and last level norm).
