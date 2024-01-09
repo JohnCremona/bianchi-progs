@@ -975,7 +975,7 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
         RAT t2 = P.second;
         if (t2.sign()==0)
           continue;
-        if (debug>1)
+        if (debug>2)
           cout << " found P = "<<P<<"\n";
         if (!z.in_quarter_rectangle())
           continue;
@@ -1062,37 +1062,36 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
       if (debug)
         cout << " s = "<<s<<" ";
       sz = s*z;
-      auto rlist = nearest_quads(sz, 1); // 1 means at most one
+      auto rlist = nearest_quads(sz, 0); // 0 means all (there can be 2), 1 means at most one
       if (debug)
         cout << " possible r: "<<rlist<<endl;
-      if (rlist.empty())
-        continue;
-      r = rlist.front();
-      test = sign((sz-r).norm() + t2*s.norm() - ONE);
-      //  0 for on, -1 for strictly under, +1 for over
-      if (debug)
-        cout << " r = "<<r<<"\n test = "<<test<< endl;
-      switch (option) {
-      case 1:
-        ok = (test==0); break;
-      case -1:
-        ok = (test==-1); break;
-      default:
-        ok = (test<1);
-      }
-      // ok = (option==1? test==0: (option=-1? test==-1 : test<1));
-      if (debug)
-        cout << " ok = "<<ok<< endl;
-      if (!ok)
-        continue;
-      ok = coprime(r,s);
-      if (debug)
-        cout << " coprime(r,s)? "<< ok << endl;
-      if (!ok)
-        continue;
-      if (debug)
-        cout << " +++ Success with a = "<<RatQuad(r,s)<<endl;
-      ans.push_back(reduce_to_rectangle(RatQuad(r,s), temp));
+      for (const auto& r : rlist)
+        {
+          test = sign((sz-r).norm() + t2*s.norm() - ONE);
+          //  0 for on, -1 for strictly under, +1 for over
+          if (debug)
+            cout << " r = "<<r<<"\n test = "<<test<< endl;
+          switch (option) {
+          case 1:
+            ok = (test==0); break;
+          case -1:
+            ok = (test==-1); break;
+          default:
+            ok = (test<1);
+          }
+          if (debug)
+            cout << " ok = "<<ok<< endl;
+          if (!ok)
+            continue;
+          ok = coprime(r,s);
+          if (debug)
+            cout << " coprime(r,s)? "<< ok << endl;
+          if (!ok)
+            continue;
+          if (debug)
+            cout << " +++ Success with a = "<<RatQuad(r,s)<<endl;
+          ans.push_back(RatQuad(r,s));
+        }
     }
   if (debug)
     cout << "Covering hemispheres are S_a for a in "<<ans<<endl;
@@ -1131,6 +1130,9 @@ CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
 
   // Find the max height of all S_a above P
   RAT m(0);
+  if(debug)
+    std::for_each(alist.begin(), alist.end(),
+                  [P](RatQuad a) {cout<<"a="<<a<<": height above P is "<<height_above(a,P.first)<<endl;});
   std::for_each(alist.begin(), alist.end(),
                 [P,&m](RatQuad a) {m = max(m, height_above(a,P.first));});
   if(debug)
@@ -1256,7 +1258,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
           iP++;
           if (debug)
             cout << " - checking corner #"<<iP<<"/"<<nP<<": "<<P<<"...";
-          CuspList extras = best_covering_hemispheres(P, I2long(m)+1, debug>1);
+          CuspList extras = best_covering_hemispheres(P, I2long(maxn)+1, debug>1);
           if (debug)
             cout << " done...";
           if (extras.empty())
@@ -1282,12 +1284,16 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
                              [P](RatQuad a) {return height_above(a,P.first);});
               cout <<hts <<endl;
             }
-          for ( const auto& a : extras)
+          for ( auto& a : extras)
             {
+              Quad temp;
+              a = reduce_to_rectangle(a, temp);
               RatQuad ca = a.conj();
               CuspList blist = {a,-a,ca,-ca};
               for ( const auto& b : blist)
                 {
+                  if (debug)
+                    cout << " - testing potential new alpha " << b << endl;
                   if (b.in_rectangle() &&
                       std::find(extra_alphas.begin(), extra_alphas.end(), b) == extra_alphas.end())
                     {
@@ -1295,6 +1301,15 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
                         cout << " - adding alpha " << b << endl;
                       extra_alphas.push_back(b);
                     }
+                  else
+                      if (debug)
+                        {
+                          cout << " - not adding it: ";
+                          if (b.in_rectangle())
+                            cout << "it's a repeat" <<endl;
+                          else
+                            cout << "it's not in the rectangle" <<endl;
+                        }
                 } // loop over 4 flips of a
             } // loop over a in extras
         } // checked all P in points

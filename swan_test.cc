@@ -72,8 +72,14 @@ int main ()
 
       int debug = 0;
       alphas = saturate_covering_alphas(alphas, sigmas, maxn, debug, verbose);
-      cout << alphas.size() << " saturated alphas: " << alphas << endl;
       maxn = max_dnorm(alphas);
-      cout << "max dnorm = " << maxn <<endl;
+      cout << alphas.size() << " saturated alphas, max denom norm = " << maxn <<endl;
+      if (debug)
+        cout << alphas << endl;
+      auto points = triple_intersections(alphas);
+      RAT minht = points[0].second;
+      std::for_each(points.begin(), points.end(),
+                    [&minht](H3point P) {minht = min(minht, P.second);});
+      cout << points.size() << " vertices, min square height = " << minht <<endl;
     }
 }

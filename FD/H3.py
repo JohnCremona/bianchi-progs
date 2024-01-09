@@ -1467,7 +1467,7 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
             print(f"New open alphas: {alphas_open[-nc:]}")
         if nc==0:
             continue
-        ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=False)
+        ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=(verbose>1))
         if ok:
             if verbose:
                 print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
