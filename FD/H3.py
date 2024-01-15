@@ -423,32 +423,6 @@ def circle_inside_circle(P1,P2, strict=True):
     t2 = tau(P1,P2) in ([-2] if strict else [-2,-1])
     return t1 and t2
 
-def slope2(x,y):
-    """
-    Function used to order nonzero (x,y) in R^2 via their argument, going clockwise around the origin:
-
-    (+,-) < (0,-) < (-,-) < (-,0) < (-,+) < (0,+) < (+,+) < (+,0)
-    """
-    return (sign(y), x/y) if y else (sign(x), Infinity)
-
-def slope(alpha, centre=0):
-    """
-    As above for elements of an imaginary quadratic field k, assuming
-    k=Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2.
-    """
-    return slope2(*xy_coords(alpha-centre))
-
-def slope_before(es1, es2):
-    e1, s1 = es1
-    e2, s2 = es2
-    return (e1==e2 and s1<=s2) or (e1!=e2 and s1>s2)
-
-def in_first_half(alpha1, alpha2, centre=0):
-    """
-    Return True if the clockwise angle from alpha1 round to alpha2 is < pi.
-    """
-    return slope_before(slope(alpha1, centre), slope(alpha2, centre))
-
 # plotting functions taken essentially from MA's code
 
 def plot1hemi(kdata, H):
@@ -975,6 +949,38 @@ def all_polyhedra(k, alphas=None, debug=False):
     polys += sum([singular_polyhedra(alphas, sigs, debug) for sigs in sigmas], [])
     return polys, hemis
 
+# old over-complicated way of comparing slopes
+#
+# def slope2(x,y):
+#     """
+#     Function used to order nonzero (x,y) in R^2 via their argument, going clockwise around the origin:
+
+#     (+,-) < (0,-) < (-,-) < (-,0) < (-,+) < (0,+) < (+,+) < (+,0)
+#     """
+#     return (sign(y), x/y) if y else (sign(x), Infinity)
+
+# def slope(alpha, centre=0):
+#     """
+#     As above for elements of an imaginary quadratic field k, assuming
+#     k=Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2.
+#     """
+#     return slope2(*xy_coords(alpha-centre))
+
+# def slope_before(es1, es2):
+#     e1, s1 = es1
+#     e2, s2 = es2
+#     return (e1==e2 and s1<=s2) or (e1!=e2 and s1>s2)
+
+# def in_first_half(alpha1, alpha2, centre=0):
+#     """
+#     Return True if the clockwise angle from alpha1 round to alpha2 is < pi.
+#     """
+#     return slope_before(slope(alpha1, centre), slope(alpha2, centre))
+
+// returns true of the direction s-->a2 is less that 180 degrees round from s-->a1
+def angle_under_pi(s, a1, a2):
+    return ((s-a1)*(s-a2).conj()).imag() > 0;
+
 def is_sigma_surrounded(sigma, alist, debug=False):
     """Given a singular point s and a candidate list of principal cusps
     alist, tests whether the discs S_{a+t} for a in alist and t in Ok
@@ -1007,20 +1013,27 @@ def is_sigma_surrounded(sigma, alist, debug=False):
         print(" relevant alphas: {}".format(alist))
 
     Alist = [cusp_to_point(a) for a in alist]
-    # sort these by slope:
-    Alist.sort(key=lambda a: slope(a[0], s))
-    Aslopes = [slope(a[0], s) for a in Alist]
-    if debug:
-        print(" Alist (sorted) = {}".format(Alist))
-        print(" Relative slopes: {}".format(Aslopes))
 
-    for i, t2 in enumerate(Aslopes):
-        t1 = Aslopes[i-1]
-        if not slope_before(t1, t2):
-            if debug:
-                print(" !Failure around {} between {} and {}".format(s, alist[i-1], alist[i]))
+    // Check that for each of these there is another less than 180 degrees round:
+    if all(any(angle_under_pi(sigma, a1, a2) for a2 in Alist) for a1 in Alist):
+        return True, alist
+    else:
             return False, []
-    return True, alist
+
+    # # sort these by slope:
+    # Alist.sort(key=lambda a: slope(a[0], s))
+    # Aslopes = [slope(a[0], s) for a in Alist]
+    # if debug:
+    #     print(" Alist (sorted) = {}".format(Alist))
+    #     print(" Relative slopes: {}".format(Aslopes))
+
+    # for i, t2 in enumerate(Aslopes):
+    #     t1 = Aslopes[i-1]
+    #     if not slope_before(t1, t2):
+    #         if debug:
+    #             print(" !Failure around {} between {} and {}".format(s, alist[i-1], alist[i]))
+    #         return False, []
+    # return True, alist
 
 def are_sigmas_surrounded(sigmas, alist, debug=False):
     """Given a list of singular points s and a candidate list of principal
@@ -1469,15 +1482,19 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
             continue
         ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=(verbose>1))
         if ok:
+            ok = are_sigmas_surrounded(sigmas, new_alphas_ok)
             if verbose:
-                print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
-            return maxn, new_alphas_ok, sigmas
-        else:
-            alphas_ok = new_alphas_ok
-            alphas_open = new_alphas_open
-            pairs_ok = new_pairs_ok
-            if verbose:
-                print("Some alphas are not surrounded, continuing...")
+                if ok:
+                    print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
+                else:
+                    print(" - not all singular points yet surrounded using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
+            if ok:
+                return maxn, new_alphas_ok, sigmas
+        alphas_ok = new_alphas_ok
+        alphas_open = new_alphas_open
+        pairs_ok = new_pairs_ok
+        if verbose:
+            print("Some alphas or sigmas are not surrounded, continuing...")
 
 def point_translates(P):
     w = P[0].parent().gen()
