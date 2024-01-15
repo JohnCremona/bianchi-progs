@@ -206,4 +206,13 @@ CuspList find_alphas(const CuspList& sigmas, int debug=0, int verbose=0);
 
 // return  a saturated irredundant list of alphas, and list of sigmas, in the fundamental rectangle
 pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
+
+// return list of alphas (or translates) which pass through a singular point
+CuspList neighbours(const CuspList& sigmas, const CuspList& alphas);
+
+// test if all singular points (sigmas) are surrounded by alpha circles:
+int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas);
+// test if one singular point (sigma) is surrounded by alpha circles:
+int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug=0);
+
 #endif

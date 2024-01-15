@@ -710,14 +710,13 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
   alist.insert(alist.end(), alist_open.begin(), alist_open.end());
 
   // add translates
-  vector<Quad> translates = { Quad::one, Quad::w, Quad::one+Quad::w, Quad::one-Quad::w };
-  CuspList alistx = alist;
+  CuspList alistx;
   for ( auto& a : alist)
-    for (auto& t : translates)
-      {
-        alistx.push_back(a+t);
-        alistx.push_back(a-t);
-      }
+    for (auto x : {-1,0,1})
+      for (auto y : {-1,0,1})
+        {
+          alistx.push_back(a+Quad(x,y));
+        }
   int i=0, n_open = alist_open.size();
 
   // We make a copy of alist_open to loop over, so we can delete elements from the original as we go
@@ -740,7 +739,14 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
           return 0;
         }
     }
-  return 1;
+
+  // Test that the singular points are surrounded:
+  int ok = are_sigmas_surrounded(slist, alist);
+  if (ok)
+    cout << " and singular points are surrounded!" <<endl;
+  else
+    cout << " but singular points are not yet surrounded" <<endl;
+  return ok;
 }
 
 // Returns a finite list of principal cusps a such that the S_{a+t}
@@ -1379,3 +1385,51 @@ pair<CuspList,CuspList> find_alphas_and_sigmas(int debug, int verbose)
   auto alphas = find_alphas(sigmas, debug, verbose);
   return {alphas, sigmas};
 }
+
+
+// test whether angle between s-->a1 and s-->a2 is <180 degrees
+int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2)
+{
+  return ((s-a1)*(s-a2).conj()).y_coord() > 0;
+}
+
+// return list of alphas (or translates) which pass through a finite singular point
+CuspList neighbours(const RatQuad& s, const CuspList& alphas)
+{
+  CuspList nbrs;
+  for ( const auto& a : alphas)
+    {
+      RAT rsq = radius_squared(a); // same for integral translates
+      for (auto x : {-1,0,1})
+        for (auto y : {-1,0,1})
+          {
+            RatQuad b = a + Quad(x,y);
+            if ((s-b).norm()==rsq)
+              nbrs.push_back(b);
+          }
+    }
+  return nbrs;
+}
+
+// test if one singular point (sigma) is surrounded by alpha circles:
+int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug)
+{
+  if (sigma.is_infinity())
+    return 1;
+  CuspList nbrs = neighbours(sigma, alphas);
+  if (debug)
+    cout<<"Neighbours of "<<sigma<<" are "<<nbrs<<endl;
+
+  return std::all_of(nbrs.begin(), nbrs.end(),
+                     [sigma, nbrs](const RatQuad& a1)
+                     {return std::any_of(nbrs.begin(), nbrs.end(),
+                                         [sigma,a1](const RatQuad& a2) {return angle_under_pi(sigma,a1,a2);});});
+}
+
+// test if all singular points (sigmas) are surrounded by alpha circles:
+int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas)
+{
+  return std::all_of(sigmas.begin(), sigmas.end(),
+                     [alphas](const RatQuad& s) {return is_sigma_surrounded(s, alphas);});
+}
+
