@@ -977,9 +977,9 @@ def all_polyhedra(k, alphas=None, debug=False):
 #     """
 #     return slope_before(slope(alpha1, centre), slope(alpha2, centre))
 
-// returns true of the direction s-->a2 is less that 180 degrees round from s-->a1
+# returns true of the direction s-->a2 is less that 180 degrees round from s-->a1
 def angle_under_pi(s, a1, a2):
-    return ((s-a1)*(s-a2).conj()).imag() > 0;
+    return ((s-a1)*(s-a2).conjugate()).imag() > 0
 
 def is_sigma_surrounded(sigma, alist, debug=False):
     """Given a singular point s and a candidate list of principal cusps
@@ -1012,10 +1012,10 @@ def is_sigma_surrounded(sigma, alist, debug=False):
     if debug:
         print(" relevant alphas: {}".format(alist))
 
-    Alist = [cusp_to_point(a) for a in alist]
+    Alist = [to_k(a, k) for a in alist]
 
-    // Check that for each of these there is another less than 180 degrees round:
-    if all(any(angle_under_pi(sigma, a1, a2) for a2 in Alist) for a1 in Alist):
+    # Check that for each of these there is another less than 180 degrees round:
+    if all(any(angle_under_pi(s, a1, a2) for a2 in Alist) for a1 in Alist):
         return True, alist
     else:
             return False, []
@@ -1482,10 +1482,12 @@ def find_covering_alphas(k, sigmas=None, verbose=False):
             continue
         ok, new_alphas_ok, new_alphas_open, new_pairs_ok = are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose=verbose, debug=(verbose>1))
         if ok:
-            ok = are_sigmas_surrounded(sigmas, new_alphas_ok)
+            if verbose:
+                print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
+            ok = are_sigmas_surrounded(sigmas, new_alphas_ok, verbose)
             if verbose:
                 if ok:
-                    print("Success using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
+                    print(" - singular points are surrounded")
                 else:
                     print(" - not all singular points yet surrounded using {} alphas of with max norm {}!".format(len(new_alphas_ok), maxn))
             if ok:
@@ -1535,6 +1537,7 @@ def saturate_covering_alphas(k, alphas, sigmas, maxn=1, debug=False, verbose=Fal
     m = max([a.denominator().norm() for a in alphas1])
     if verbose:
         print(f"After removing alphas which go through <3 vertices, we now have {len(alphas1)} alphas with max norm {m}")
+        print(f"Removed alphas were {[a for a,n in zip(alphas,nv) if n<3]}")
     sat = False
     checked_points = []
     first_run = True # so we don't recompute triple_intersections
@@ -1734,6 +1737,8 @@ def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
     w = kdata['w']
     d = kdata['d'] # for compatibility with C++'s d
 
+    if debug:
+        print(f"In find_edge_pairs() with {alphas =}")
     # Extract the a for which 2*a or 3*a is integral, which we treat
     # separately:
     A1 = [a for a in alphas if to_k(a,k).is_integral()]
@@ -1758,11 +1763,17 @@ def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
 
     A = []
     for a in alphas:
+        if debug:
+            print(f"looking at {a=}")
         da = a.denominator()
         if not ispos(da):
             a = cusp(to_k(a))
+            if debug:
+                print(f"adjusted to {a=}")
         ma = negate_cusp(a)
-        if not alpha_in_list(a, A123) and not alpha_in_list(ma, A):
+        if not alpha_in_list(a, A123) and not alpha_in_list(ma, A, 1):
+            if debug:
+                print("denom not 1,2,3 and -a not seen")
             r,i = to_k(a,k)
             if w.trace()==0:
                 if r<0 and i==half:
@@ -1777,13 +1788,20 @@ def find_edge_pairs(kdata, alphas, sigmas, debug=False, geout=None):
                         a = cusp(k([r+1,i-1]), k)
                 elif 2*r+i==1 and i<0:
                     a = cusp(k([r-1,i]), k)
+            if debug:
+                print(f"adjusted to {a=}")
             r,i = to_k(a,k)
-            if i>0:
+            ma = negate_cusp(a)
+            if (i<=0):
+                a, ma = ma, a
+            if not alpha_in_list(a, A, 1):
+                if debug:
+                    print(f"adding {a}")
                 A.append(a)
-                A.append(negate_cusp(a))
-            else:
-                A.append(negate_cusp(a))
-                A.append(a)
+            if not alpha_in_list(ma, A, 1):
+                if debug:
+                    print(f"adding {ma}")
+                A.append(ma)
 
     S = list(set(k(a.denominator()) for a in A))
     S.sort(key = lambda z: z.norm())
@@ -2026,9 +2044,10 @@ def alpha_sigma_data(kdata, verbose=False, geout=None):
     maxn = max(a.denominator().norm() for a in alphas1)
     if verbose:
         print(f"{len(alphas1)} fundamental domain alphas, max denom norm {maxn}")
+        print(alphas1)
         print(f"{len(points)} fundamental vertices, min square height = {min(P[1] for P in points)}")
     # A2, new_alphas, M_alphas, pluspairs, minuspairs, long_fours
-    data = find_edge_pairs(kdata, alphas1, sigmas, geout=geout)
+    data = find_edge_pairs(kdata, alphas1, sigmas, verbose, geout=geout)
     alphas2 = data[0] + data[1]
     new_sigmas = data[2]
     alpha_string = "alphalist[{}] = [".format(d) + ", ".join([f"({a.numerator()})/({a.denominator()})" for a in alphas2]) + "]\n"
