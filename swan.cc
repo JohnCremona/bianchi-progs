@@ -1131,7 +1131,7 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
   // We could do Quadlooper sloop(norm_s_lb, norm_s_ub, 1); but it's
   // more efficient to construct all possible s at once, though that
   // takes more memory
-  auto slist = quads_of_norm_between(norm_s_lb, norm_s_ub, 1, 0); // not sorted
+  auto slist = quads_of_norm_between(norm_s_lb, norm_s_ub, 1, 0); // including conjugates, not sorted
   for (const auto& s : slist)
     {
       if (debug)
@@ -1620,7 +1620,9 @@ CuspList sort_alphas(const CuspList& A,
               continue;
             }
           // look for a four, i.e. r*r' = -1 (mod s) with r!=+-r'
-          Quad rd = *find_if(rlist.begin(), rlist.end(), [s,r](const Quad& rd) {return div(s, r*rd+1);});
+          auto p = find_if(rlist.begin(), rlist.end(), [s,r](const Quad& rd) {return div(s, r*rd+1);});
+          assert (p!=rlist.end());
+          Quad rd = *p;
           assert (rd==rectify(rd,s));
           assert (div(s,r*rd+1));
           Quad mrd = rectify(-rd,s);

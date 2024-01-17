@@ -106,6 +106,7 @@ int main ()
 
       // Sort and output alphas:
       vector<vector<Quad>> pluspairs, minuspairs, fours;
+      verbose = 0;
       debug = 0;
       auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
       output_alphas(pluspairs, minuspairs, fours, 1, verbose);
