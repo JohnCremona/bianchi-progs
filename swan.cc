@@ -39,10 +39,10 @@ CuspList singular_points_in_class(Qideal I, int verbose)
         cout<<"Residues modulo "<<s<<" are "<<rlist<<endl;
       for ( auto r : rlist)
         {
-          r = r%s;
           if (I==Qideal({r,s}))
             {
               RatQuad sig = reduce_to_rectangle(RatQuad(r,s), temp);
+              assert (sig.in_rectangle());
               if (verbose)
                 cout<<" - using r = "<<r<<" to give "<<sig<<endl;
               S.push_back(sig);
@@ -77,12 +77,12 @@ CuspList singular_points()
 
 // Return sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-CuspList sort_singular_points(const CuspList S, int verbose)
+CuspList sort_singular_points(const CuspList& slist, int verbose)
 {
-  CuspList sorted_S;
-  sorted_S.push_back(RatQuad(Quad::one, Quad::zero));
+  CuspList sorted_slist;
+  sorted_slist.push_back(RatQuad(Quad::one, Quad::zero));
   if (Quad::class_number==1)
-    return sorted_S;
+    return sorted_slist;
 
   // denom 2 sigmas we construct directly
   Quad w = Quad::w;
@@ -90,14 +90,14 @@ CuspList sort_singular_points(const CuspList S, int verbose)
 
   switch (d%8) {
   case 1: case 5:
-    sorted_S.push_back(RatQuad(1+w,TWO));
+    sorted_slist.push_back(RatQuad(1+w,TWO));
     break;
   case 2: case 6:
-    sorted_S.push_back(RatQuad(w,TWO));
+    sorted_slist.push_back(RatQuad(w,TWO));
     break;
   case 7:
-    sorted_S.push_back(RatQuad(w,TWO));
-    sorted_S.push_back(RatQuad(1-w,TWO));
+    sorted_slist.push_back(RatQuad(w,TWO));
+    sorted_slist.push_back(RatQuad(1-w,TWO)); // NB not in rectangle: (w-1)/2 is
     break;
   default:
     ;
@@ -108,33 +108,33 @@ CuspList sort_singular_points(const CuspList S, int verbose)
   case 2: case 5:
     if (d>5)
       {
-        sorted_S.push_back(RatQuad(1+w,THREE));
-        sorted_S.push_back(RatQuad(-1-w,THREE));
-        sorted_S.push_back(RatQuad(1-w,THREE));
-        sorted_S.push_back(RatQuad(-1+w,THREE));
+        sorted_slist.push_back(RatQuad(1+w,THREE));
+        sorted_slist.push_back(RatQuad(-1-w,THREE));
+        sorted_slist.push_back(RatQuad(1-w,THREE));
+        sorted_slist.push_back(RatQuad(-1+w,THREE));
       }
     break;
   case 3:
     if (d>15)
       {
-        sorted_S.push_back(RatQuad(1+w,THREE));
-        sorted_S.push_back(RatQuad(-1-w,THREE));
+        sorted_slist.push_back(RatQuad(1+w,THREE));
+        sorted_slist.push_back(RatQuad(-1-w,THREE)); // NB not in rectangle: (2-w)/3 is
       }
     break;
   case 6: case 9:
     if (d>6)
       {
-        sorted_S.push_back(RatQuad(w,THREE));
-        sorted_S.push_back(RatQuad(-w,THREE));
+        sorted_slist.push_back(RatQuad(w,THREE));
+        sorted_slist.push_back(RatQuad(-w,THREE));
       }
     break;
   case 11:
     if (d>23)
       {
-        sorted_S.push_back(RatQuad(w,THREE));
-        sorted_S.push_back(RatQuad(-w,THREE));
-        sorted_S.push_back(RatQuad(1-w,THREE));
-        sorted_S.push_back(RatQuad(-1+w,THREE));
+        sorted_slist.push_back(RatQuad(w,THREE));
+        sorted_slist.push_back(RatQuad(-w,THREE));
+        sorted_slist.push_back(RatQuad(1-w,THREE));
+        sorted_slist.push_back(RatQuad(-1+w,THREE));
       }
     break;
   default:
@@ -142,14 +142,15 @@ CuspList sort_singular_points(const CuspList S, int verbose)
   }
 
   if (verbose)
-    cout<<"Sigmas with small denominators: "<<sorted_S<<endl;
+    cout<<"Sigmas with small denominators: "<<sorted_slist<<endl;
 
   // Now process the other sigmas (if any)
-  RAT half(1,2);
-  for ( auto s : S) // not const or reference as we may change it
+  Quad temp;
+  for ( auto s : slist) // not const or reference as we may change it
     {
       if (verbose)
         cout <<"sigma = "<<s<<endl;
+      assert (s.in_rectangle());
 
       // skip oo and denom 2 or 3 sigmas:
       if (s.is_infinity() or (TWO*s).is_integral() or (THREE*s).is_integral())
@@ -159,63 +160,38 @@ CuspList sort_singular_points(const CuspList S, int verbose)
           continue;
         }
 
+      RatQuad ms = reduce_to_rectangle(-s, temp);
+      assert (ms.in_rectangle());
+
       // skip sigmas if we have seen its negative:
-      Quad t;
-      if (cusp_index_with_translation(-s, sorted_S, t) != -1)
+      if (std::find(sorted_slist.begin(), sorted_slist.end(), ms) != sorted_slist.end())
         {
           if (verbose)
             cout <<" - skipping (negative seen already)";
           continue;
         }
 
-      // Standardise if real or imaginary parts are +-1/2:
-      RAT r = s.x_coord(),  i = s.y_coord();
-      if (Quad::t==0)
+      if (s.y_coord()<0)
         {
-          if (r<0 && i==half)
-            s -= w;
-          else
-            if (i<0 && r==half)
-              s -= ONE;
+          sorted_slist.push_back(ms);
+          sorted_slist.push_back(s);
         }
       else
         {
-          if (i==half)
-            {
-              if (r>0)
-                s -= w;
-              else
-                if (r<-half)
-                  s += 1-w;
-            }
-          else
-            if (2*r+i==1 && i<0)
-              s -= ONE;
-        }
-      r = s.x_coord();
-      i = s.y_coord();
-      if (verbose)
-        cout <<"sigma = "<<s<<", -sigma = "<<-s<<endl;
-      if (i>0)
-        {
-          sorted_S.push_back(s);
-          sorted_S.push_back(-s);
-        }
-      else
-        {
-          sorted_S.push_back(-s);
-          sorted_S.push_back(s);
+          sorted_slist.push_back(s);
+          sorted_slist.push_back(ms);
         }
     }
   if (verbose)
-    cout<<"All sigmas: "<<sorted_S<<endl;
-  return sorted_S;
+    cout<<"All sigmas: "<<sorted_slist<<endl;
+
+  return sorted_slist;
 }
 
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-void output_singular_points(const CuspList S, int to_file, int to_screen)
+void output_singular_points(const CuspList& S, int to_file, int to_screen)
 {
   vector<Quad> small_denoms = {Quad::zero, Quad::one, 2*Quad::one, 3*Quad::one};
   ofstream geodata;
@@ -252,7 +228,94 @@ void output_singular_points(const CuspList S, int to_file, int to_screen)
     cout << nlines << " S lines output" <<endl;
 }
 
+// direct lists of alphas and sigmas of denominator 2 or 3:
+CuspList denom_2_alphas()
+{
+  CuspList alist;
+  if (Quad::is_Euclidean) return alist;
+  Quad w = Quad::w;
+  vector<Quad> numlist;
+  int d8 = (Quad::d)%8;
+  if (d8==1 || d8==5) numlist = {w};
+  if (d8==2 || d8==6) numlist = {1+w};
+  if (d8==3) numlist = {w,w-1};
+  for (const auto& n : numlist) alist.push_back(RatQuad(n,TWO));
+  return alist;
+}
 
+CuspList denom_2_sigmas()
+{
+  CuspList slist;
+  if (Quad::class_number == 1) return slist;
+  Quad w = Quad::w;
+  vector<Quad> numlist;
+  int d8 = (Quad::d)%8;
+  if (d8==1 || d8==5) numlist = {1+w};
+  if (d8==2 || d8==6) numlist = {w};
+  if (d8==7) numlist = {w,1-w};
+  for (const auto& n : numlist) slist.push_back(RatQuad(n,TWO));
+  return slist;
+}
+
+CuspList denom_3_alphas()
+{
+  CuspList alist;
+  if (Quad::is_Euclidean) return alist;
+  int d = Quad::d, d12 = (Quad::d)%12;
+  if (d==5 || d==6 || d==15 || d==19 || d==23) return alist;
+  Quad w = Quad::w;
+  vector<Quad> numlist;
+  switch (d12) {
+  case 3:
+    numlist = {w, w-1}; break;
+  case 7:
+    if (d>31)
+      numlist = {w, 1-w, 1+w};
+    else
+      numlist = {1+w};
+    break;
+  case 11:
+    numlist = {w+1}; break;
+  case 1: case 10:
+    numlist = {w, 1+w, 1-w}; break;
+  case 2: case 5:
+    numlist = {w}; break;
+  case 6: case 9:
+    numlist = {w+1, w-1}; break;
+  }
+  for (const auto& n : numlist)
+    {
+      alist.push_back(RatQuad(n,THREE));
+      alist.push_back(RatQuad(-n,THREE));
+    }
+  return alist;
+}
+
+CuspList denom_3_sigmas()
+{
+  CuspList slist;
+  if (Quad::class_number == 1) return slist;
+  int d = Quad::d, d12 = (Quad::d)%12;
+  if (d==5 || d==6 || d==23 || d==15) return slist;
+  Quad w = Quad::w;
+  vector<Quad> numlist;
+  switch (d12) {
+  case 2: case 5:
+    numlist = {1+w, 1-w}; break;
+  case 3:
+    numlist = {w+1}; break;
+  case 6: case 9:
+    numlist = {w}; break;
+  case 11:
+    numlist = {w, w-1}; break;
+  }
+  for (const auto& n : numlist)
+    {
+      slist.push_back(RatQuad(n,THREE));
+      slist.push_back(RatQuad(-n,THREE));
+    }
+  return slist;
+}
 
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a)
@@ -622,6 +685,7 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
 {
   if (debug)
     cout<<"Testing if S_{"<<a0<<"} is surrounded"<<endl;
+  assert (a0.in_rectangle());
   // check if S_a0 is strictly entirely contained in one S_alpha:
   if (circle_inside_any_circle(a0, alist, 1))
     {
@@ -696,7 +760,8 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
 // failure.
 
 int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
-                          const CuspList& slist, vector<CuspPair>& pairs_ok, int debug)
+                          const CuspList& slist, vector<CuspPair>& pairs_ok,
+                          int verbose, int debug)
 {
   if (debug)
     {
@@ -725,27 +790,30 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
     {
       assert (a.in_quarter_rectangle());
       i++;
-      cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
+      if (verbose) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
       if (is_alpha_surrounded(a, alistx, slist, pairs_ok))
         {
-          cout << " ok! surrounded\n";
+          if (verbose) cout << " ok! surrounded\n";
           // add this alpha to the ok list end remove from the open list
           alist_ok.push_back(a);
           alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
         }
       else
         {
-          cout << " no, not surrounded" << endl;
+          if (verbose) cout << " no, not surrounded" << endl;
           return 0;
         }
     }
 
   // Test that the singular points are surrounded:
-  int ok = are_sigmas_surrounded(slist, alist);
-  if (ok)
-    cout << " and singular points are surrounded!" <<endl;
-  else
-    cout << " but singular points are not yet surrounded" <<endl;
+  int ok = are_sigmas_surrounded(slist, alist, debug);
+  if (verbose)
+    {
+      if (ok)
+        cout << " and singular points are surrounded!" <<endl;
+      else
+        cout << " but singular points are not yet surrounded" <<endl;
+    }
   return ok;
 }
 
@@ -801,6 +869,7 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
 
       for (auto a : new_alphas)
         {
+          assert (a.in_rectangle());
           if (circle_inside_any_circle(a, alist, 0)) // strict=0
             {
               //cout<<"alpha = "<<a<<" is weakly inside one of "<<alist<<endl;
@@ -846,7 +915,7 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
       // pairs_ok (which holds a list of pairs of alphas whose
       // intersections are known to be covered) will be updated.
 
-      if (are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok))
+      if (are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose, verbose>1))
         {
           if (verbose)
             cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"\n";
@@ -1293,11 +1362,11 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
           for ( auto& a : extras)
             {
               Quad temp;
-              a = reduce_to_rectangle(a, temp);
               RatQuad ca = a.conj();
               CuspList blist = {a,-a,ca,-ca};
-              for ( const auto& b : blist)
+              for ( auto& b : blist)
                 {
+                  b = reduce_to_rectangle(b, temp);
                   if (debug)
                     cout << " - testing potential new alpha " << b << endl;
                   if (b.in_rectangle() &&
@@ -1420,16 +1489,321 @@ int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug)
   if (debug)
     cout<<"Neighbours of "<<sigma<<" are "<<nbrs<<endl;
 
-  return std::all_of(nbrs.begin(), nbrs.end(),
+  int ok = std::all_of(nbrs.begin(), nbrs.end(),
                      [sigma, nbrs](const RatQuad& a1)
                      {return std::any_of(nbrs.begin(), nbrs.end(),
                                          [sigma,a1](const RatQuad& a2) {return angle_under_pi(sigma,a1,a2);});});
+  if (debug)
+    {
+      if (ok)
+        cout<<" + "<<sigma<<" IS surrounded"<<endl;
+      else
+        cout<<" - "<<sigma<<" is NOT surrounded"<<endl;
+    }
+  return ok;
 }
 
 // test if all singular points (sigmas) are surrounded by alpha circles:
-int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas)
+int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas, int debug)
 {
   return std::all_of(sigmas.begin(), sigmas.end(),
-                     [alphas](const RatQuad& s) {return is_sigma_surrounded(s, alphas);});
+                     [alphas,debug](const RatQuad& s) {return is_sigma_surrounded(s, alphas, debug);});
 }
 
+int compare_CuspLists_as_sets(const CuspList& A, const CuspList& B)
+{
+  return (A.size()==B.size()) &&
+    std::all_of(A.begin(), A.end(), [B](const RatQuad& a) {return std::count(B.begin(), B.end(), a)==1;});
+}
+
+int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList& B)
+{
+  Quad t;
+  return (A.size()==B.size()) &&
+    std::all_of(A.begin(), A.end(),
+                [B,&t](const RatQuad& a) {return cusp_index_with_translation(a, B, t) !=-1;});
+}
+
+// reduce r mod s so that r/s is in the rectangle
+Quad rectify(const Quad& r, const Quad& s)
+{
+  Quad q;
+  RatQuad a = reduce_to_rectangle(RatQuad(r,s), q);
+  return r - q*s;
+}
+
+// Return sorted list of (saturated covering) alphas (denom 1, denom 2, denom 3, larger denoms in pairs or fours)
+// + pluspairs, minuspairs, fours
+CuspList sort_alphas(const CuspList& A,
+                     vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+                     int verbose, int debug)
+{
+  CuspList alist, a1list, a2list, a3list;
+  map<Quad, vector<Quad>, Quad_comparison> alist_by_denom; // list of numerators for each denominator
+  for (const auto& a : A)
+    {
+      assert (a.in_rectangle());
+      Quad r = a.num(), s = a.den();
+      if (div(s,r)) // a is integral
+        {
+          a1list.push_back(a);
+          continue;
+        }
+      if (div(s,2*r)) // 2a is integral
+        {
+          a2list.push_back(a);
+          continue;
+        }
+      if (div(s,3*r)) // 3a is integral
+        {
+          a3list.push_back(a);
+          continue;
+        }
+      // Now s (where a=r/s) is not 1,2,3; add s:r to alist_by_denom:
+      if (alist_by_denom.find(s) == alist_by_denom.end())
+        alist_by_denom[s] = {r};
+      else
+        alist_by_denom[s].push_back(r);
+    }
+  if (debug)
+    {
+      cout << " alphas with denominator 1: " <<a1list <<endl;
+      cout << " alphas with denominator 2: " <<a2list <<endl;
+      cout << " alphas with denominator 3: " <<a3list <<endl;
+    }
+  assert (a1list.size()==1 && a1list[0]==RatQuad(0));
+  assert (compare_CuspLists_as_sets_mod_translation(a2list, denom_2_alphas()));
+  if (!compare_CuspLists_as_sets_mod_translation(a3list, denom_3_alphas()))
+    {
+      cout <<"!!!\n";
+      cout << "alphas with denom 3 (from full list):    " << a3list <<endl;
+      cout << "alphas with denom 3 (from special list): " << denom_3_alphas() <<endl;
+    }
+  vector<vector<Quad>> rsfours; // {r,s} pairs in a foursome
+
+  for (const auto& rlists : alist_by_denom)
+    {
+      Quad s = rlists.first;
+      Quad sbar = s.conj();
+      auto rlist = rlists.second;
+      if (debug)
+        cout << "s = " << s << ": rlist = " << rlist << endl;
+      for (const auto& r : rlist)
+        {
+          assert (r==rectify(r,s));
+          Quad mr = rectify(-r,s);
+          vector<Quad> rs = {r,s}, mrs = {mr,s};
+          if (debug) cout << "(r,s) = " << rs <<"; (-r,s) = "<< mrs << endl;
+          if (std::find(pluspairs.begin(), pluspairs.end(), rs) != pluspairs.end())
+            continue;
+          if (std::find(pluspairs.begin(), pluspairs.end(), mrs) != pluspairs.end())
+            continue;
+          if (std::find(minuspairs.begin(), minuspairs.end(), rs) != minuspairs.end())
+            continue;
+          if (std::find(minuspairs.begin(), minuspairs.end(), mrs) != minuspairs.end())
+            continue;
+          if (std::find(rsfours.begin(), rsfours.end(), rs) != rsfours.end())
+            continue;
+          if (std::find(rsfours.begin(), rsfours.end(), mrs) != rsfours.end())
+            continue;
+          Quad r2=r*r;
+          if (div(s, r2-1)) // r^2 = +1 (mod s) : "plus pair"
+            {
+              pluspairs.push_back(rs);
+              if (verbose) cout << "+ pair "<<rs<<endl;
+              continue;
+            }
+          if (div(s, r2+1)) // r^2 = -1 (mod s) : "minus pair"
+            {
+              minuspairs.push_back(rs);
+              if (verbose) cout << "- pair "<<rs<<endl;
+              continue;
+            }
+          // look for a four, i.e. r*r' = -1 (mod s) with r!=+-r'
+          Quad rd = *find_if(rlist.begin(), rlist.end(), [s,r](const Quad& rd) {return div(s, r*rd+1);});
+          assert (rd==rectify(rd,s));
+          assert (div(s,r*rd+1));
+          Quad mrd = rectify(-rd,s);
+          vector<Quad> rds = {rd,s}, mrds = {mrd,s};
+          if (debug) cout << "(r',s) = " << rds <<"; (-r',s) = "<< mrds << endl;
+          if (std::find(rsfours.begin(), rsfours.end(), rds) == rsfours.end()
+              &&
+              std::find(rsfours.begin(), rsfours.end(), mrds) == rsfours.end()
+              )
+            {
+              rsfours.push_back(rs);
+              rsfours.push_back(rds);
+              vector<Quad> sr1r2 = {s,r,rd};
+              fours.push_back(sr1r2);
+              if (verbose)
+                cout << " foursome " << s << " " << r << " " << rd << endl;
+            }
+          else
+            {
+              if (verbose)
+                cout<<" - skipping, seen before"<<endl;
+            }
+        }
+    }
+
+  // for homology edge relation computation include alphas with denom 1,2,3:
+  Quad w = Quad::w;
+  int d = Quad::d;
+  // denom 1:
+  minuspairs.push_back({ZERO,ONE});
+  // denom 2:
+  switch (d%4) {
+  case 1:
+    minuspairs.push_back({w,TWO});  // w^2=-1 (mod 2)
+                                    // could also go into pluspairs
+    break;
+  case 2:
+    minuspairs.push_back({w+1,TWO}); // (w+1)^2=-1 (mod 2)
+                                     // could also go into pluspairs
+    break;
+  case 3:
+    fours.push_back({TWO,w,w+1}); // w(w+1)=-1 (mod 2)
+      };
+  // denom 3:
+  switch (d%12) {
+  case 1: case 10:
+    minuspairs.push_back({w, THREE});          // w^2=-1 (mod 3)
+    fours.push_back({THREE, 1+w, 1-w});   // (1+w)(1-w)=-1 (mod 3)
+    break;
+  case 7:
+    if (Quad::d>19)
+      minuspairs.push_back({1+w, THREE});        // (1+w)^2=-1 (mod 3)
+    if (Quad::d>31)
+      fours.push_back({THREE, w, 1-w}); // w(1-w)=-1 (mod 3)
+    break;
+  case 2: case 5:
+    if (d>5)
+      pluspairs.push_back({w, THREE});           // w^2=+1 (mod 3)
+    break;
+  case 11:
+    if (d>23)
+      pluspairs.push_back({1+w, THREE});         // (1+w)^2=+1 (mod 3)
+    break;
+  case 3:
+    if (d>15)
+      fours.push_back({THREE, w, w-1});     // w(w-1)=-1 (mod 3)
+    break;
+  case 6: case 9:
+    if (d>6)
+      fours.push_back({THREE, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
+    break;
+  }
+  alist.insert(alist.end(), a1list.begin(), a1list.end());
+  alist.insert(alist.end(), a2list.begin(), a2list.end());
+  alist.insert(alist.end(), a3list.begin(), a3list.end());
+  for (const auto& rs : pluspairs)
+    {
+      Quad r = rs[0], s=rs[1];
+      RatQuad a(r,s);
+      alist.push_back(a);
+      alist.push_back(-a);
+    }
+  for (const auto& rs : minuspairs)
+    {
+      Quad r = rs[0], s=rs[1];
+      RatQuad a(r,s);
+      alist.push_back(a);
+      alist.push_back(-a);
+    }
+  for (const auto& sr1r2 : fours)
+    {
+      Quad s = sr1r2[0], r1=sr1r2[1], r2=sr1r2[2];
+      RatQuad a1(r1,s), a2(r2,s);
+      alist.push_back(a1);
+      alist.push_back(-a1);
+      alist.push_back(a2);
+      alist.push_back(-a2);
+    }
+  return alist;
+}
+
+// Output sorted list of alphas (denom > 3 in pairs or fours)
+
+void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+                   int to_file, int to_screen)
+{
+  vector<Quad> small_denoms = {Quad::zero, Quad::one, 2*Quad::one, 3*Quad::one};
+  ofstream geodata;
+  stringstream ss;
+  if (to_file)
+    {
+      ss << "geodata_" << Quad::d << ".dat";
+      geodata.open(ss.str().c_str(), ios_base::app);
+    }
+  int nlines=0;
+  for ( const auto& rs : pluspairs)
+    {
+      Quad s = rs[1];
+      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
+        continue;
+      Quad r = rectify(rs[0], s);
+      if (!pos(r)) r = rectify(-r,s);
+      nlines++;
+      if (to_file) // output s, r, -r
+        {
+          geodata << Quad::d << " A ";
+          geodata << s.re() << " " << s.im() << " ";
+          geodata << r.re() << " " << r.im() << " ";
+          geodata << -r.re() << " " << -r.im() << endl;
+        }
+      if (to_screen)
+        {
+          cout << Quad::d << " A ";
+          cout << s.re() << " " << s.im() << " ";
+          cout << r.re() << " " << r.im() << " ";
+          cout << -r.re() << " " << -r.im() << endl;
+        }
+    }
+  for ( const auto& rs : minuspairs)
+    {
+      Quad s = rs[1];
+      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
+        continue;
+      Quad r = rectify(rs[0], s);
+      if (!pos(r)) r = rectify(-r,s);
+      nlines++;
+      if (to_file) // output s, r, r
+        {
+          geodata << Quad::d << " A ";
+          geodata << s.re() << " " << s.im() << " ";
+          geodata << r.re() << " " << r.im() << " ";
+          geodata << r.re() << " " << r.im() << endl;
+        }
+      if (to_screen)
+        {
+          cout << Quad::d << " A ";
+          cout << s.re() << " " << s.im() << " ";
+          cout << r.re() << " " << r.im() << " ";
+          cout << r.re() << " " << r.im() << endl;
+        }
+    }
+  for ( const auto& sr1r2 : fours)
+    {
+      Quad s = sr1r2[0];
+      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
+        continue;
+      Quad r1 = rectify(sr1r2[1],s);
+      Quad r2 = rectify(sr1r2[2],s);
+      if (!pos(r1)) {r1 = rectify(-r1,s); r2 = rectify(-r2,s);}
+      nlines++;
+      if (to_file) // output s, r1, r2
+        {
+          geodata << Quad::d << " A ";
+          geodata << s.re() << " " << s.im() << " ";
+          geodata << r1.re() << " " << r1.im() << " ";
+          geodata << r2.re() << " " << r2.im() << endl;
+        }
+      if (to_screen)
+        {
+          cout << Quad::d << " A ";
+          cout << s.re() << " " << s.im() << " ";
+          cout << r1.re() << " " << r1.im() << " ";
+          cout << r2.re() << " " << r2.im() << endl;
+        }
+    }
+}

@@ -156,11 +156,15 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend Quad operator*(INT m, const Quad& a);
   Quad operator+ (const Quad& b) const {return Quad(r+b.r,i+b.i);}
   Quad operator+ (INT b) const {return Quad(r+b,i);}
+  Quad operator+ (long b) const {return Quad(r+b,i);}
+  Quad operator+ (int b) const {return Quad(r+b,i);}
   friend Quad operator+(INT m, const Quad& a);
   void operator+=(const Quad& b) {r+=b.r; i+=b.i; setnorm();}
   void operator+=(INT b) {r+=b; setnorm();}
   Quad operator- (const Quad& b) const {return Quad(r-b.r,i-b.i);}
   Quad operator- (INT b) const {return Quad(r-b,i);}
+  Quad operator- (long b) const {return Quad(r-b,i);}
+  Quad operator- (int b) const {return Quad(r-b,i);}
   friend Quad operator-(INT m, const Quad& a);
   void operator-=(const Quad& b) {r-=b.r; i-=b.i; setnorm();}
   void operator-=(INT b) {r-=b; setnorm();}

@@ -228,17 +228,13 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist)
 // Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t)
 {
-  int i=0;
+  int i=0; t=0;
   for ( const auto& ci : clist)
     {
-      RatQuad diff = c-ci;
-      if (diff.is_integral())
-        {
-          diff.is_integral(t);
-          assert (clist[i]+t==c);
-          return i;
-        }
-      i++;
+      if ((c==ci) || (c-ci).is_integral(t))
+        return i;
+      else
+        i++;
     }
   return -1;
 }

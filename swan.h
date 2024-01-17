@@ -32,10 +32,24 @@ vector<CuspList> singular_points_by_class();
 CuspList singular_points();
 
 // Return sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
-CuspList sort_singular_points(const CuspList S, int verbose=0);
+CuspList sort_singular_points(const CuspList& S, int verbose=0);
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
-void output_singular_points(const CuspList S, int to_file=1, int to_screen=0);
+void output_singular_points(const CuspList& S, int to_file=1, int to_screen=0);
+
+// Return sorted list of (saturated covering) alphas (denom 1, denom 2, denom 3, larger denoms in pairs or fours)
+// + pluspairs, minuspairs, fours
+CuspList sort_alphas(const CuspList& A,
+                     vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+                     int verbose=0, int debug=0);
+
+// Output sorted list of alphas (denom > 3 in pairs or fours)
+void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+                   int to_file=1, int to_screen=0);
+
+// direct lists of alphas of denominator 2 or 3:
+CuspList denom_2_alphas();
+CuspList denom_3_alphas();
 
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a);
@@ -155,7 +169,8 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
 // failure.
 
 int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
-                          const CuspList& slist, vector<CuspPair>& pairs_ok, int debug=0);
+                          const CuspList& slist, vector<CuspPair>& pairs_ok,
+                          int verbose=0, int debug=0);
 // Returns a finite list of principal cusps a such that the S_{a+t}
 // for all integral t cover CC apart from singular points.
 
@@ -211,8 +226,10 @@ pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
 CuspList neighbours(const CuspList& sigmas, const CuspList& alphas);
 
 // test if all singular points (sigmas) are surrounded by alpha circles:
-int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas);
+int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas, int debug=0);
 // test if one singular point (sigma) is surrounded by alpha circles:
 int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug=0);
 
+int compare_CuspLists_as_sets(const CuspList& A, const CuspList& B);
+int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList& B);
 #endif

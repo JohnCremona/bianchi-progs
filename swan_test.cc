@@ -1,6 +1,7 @@
 #include "swan.h"
-#include "ratquads.h"
-#include "qideal.h"
+//#include "ratquads.h"
+//#include "qideal.h"
+#include "geometry.h"
 
 #define MAX_DISC 100
 
@@ -13,14 +14,15 @@ vector<RatQuad> test_singular_points(int output_level=0)
         cout<<"singular points "<<singular_points_in_class(I,(output_level>3))<<endl;
       }
   auto sigmas = singular_points();
-  cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
+  if (output_level>=1)
+    cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
   if (output_level>=2)
     cout << "Unsorted singular points: "<<sigmas<<endl;
   sigmas = sort_singular_points(sigmas);
   if (output_level>=1)
     cout << "Sorted singular points: "<<sigmas<<endl;
-  int to_file=(output_level>=1);
-  int to_screen=(output_level>=2);
+  int to_file=0; //(output_level>=1);
+  int to_screen=0; //(output_level>=2);
   output_singular_points(sigmas, to_file, to_screen);
   return sigmas;
 }
@@ -57,29 +59,115 @@ int main ()
         cout << "-------------------------------------" <<endl;
       cout << "The field is ";
       Quad::displayfield(cout);
-      cout << endl;
 
-      auto sigmas = test_singular_points(0);
-      //test_principal_cusps(20, 30);
-      int verbose = 1;
-      auto alphas = covering_alphas(sigmas, verbose);
-      INT maxn = max_dnorm(alphas);
-      cout << alphas.size() << " covering alphas: " << alphas << endl;
-      cout << "max dnorm = " << maxn <<endl;
+      //test_principal_cusps(20,20);
 
-      // auto corners = triple_intersections(alphas, 1);
-      // cout << corners << endl;
+      cout << "Finding sigmas and alphas..."<<flush;
 
+      int verbose = 0;
       int debug = 0;
-      alphas = saturate_covering_alphas(alphas, sigmas, maxn, debug, verbose);
-      maxn = max_dnorm(alphas);
-      cout << alphas.size() << " saturated alphas, max denom norm = " << maxn <<endl;
-      if (debug)
-        cout << alphas << endl;
-      auto points = triple_intersections(alphas);
+      auto new_sigmas = test_singular_points(0);
+      output_singular_points(new_sigmas, 1, verbose);
+      //test_principal_cusps(20, 30);
+      verbose=0;
+      debug=0;
+      auto new_alphas = covering_alphas(new_sigmas, verbose);
+      INT maxn = max_dnorm(new_alphas);
+      if (verbose)
+        {
+          cout << new_alphas.size() << " covering alphas";
+          if (debug) cout << ": " << new_alphas || "\n";
+          cout << " with max dnorm = " << maxn <<endl;
+        }
+
+      // auto corners = triple_intersections(new_alphas, 1);
+      // cout << corners << endl;
+      verbose=0;
+      debug=0;
+      new_alphas = saturate_covering_alphas(new_alphas, new_sigmas, maxn, debug, verbose);
+      maxn = max_dnorm(new_alphas);
+      if (verbose)
+        cout << new_alphas.size() << " saturated alphas, max denom norm = " << maxn <<endl;
+      if (debug || (verbose && new_alphas.size()<20))
+        cout << new_alphas << endl;
+      auto points = triple_intersections(new_alphas);
       RAT minht = points[0].second;
       std::for_each(points.begin(), points.end(),
                     [&minht](H3point P) {minht = min(minht, P.second);});
-      cout << points.size() << " vertices, min square height = " << minht <<endl;
+      if (verbose)
+        cout << points.size() << " vertices, min square height = " << minht <<endl;
+
+      // Check that all alphas are in the rectangle:
+      assert (std::all_of(new_alphas.begin(), new_alphas.end(), [](const RatQuad& a) {return a.in_rectangle();}));
+      // NB sigmas not in rectangle in the following cases (not changed, for consistency with old code):
+      // d=7(8), we use (1-w)/2 though (w-1)/2 is in rectangle
+      // d=3(12), we use (-1-w)/3 though (2-w)/3 is in rectangle
+      // assert (std::all_of(new_sigmas.begin(), new_sigmas.end(), [](const RatQuad& a) {return a.in_rectangle();}));
+
+      // Sort and output alphas:
+      vector<vector<Quad>> pluspairs, minuspairs, fours;
+      debug = 0;
+      auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
+      output_alphas(pluspairs, minuspairs, fours, 1, verbose);
+
+      cout<<"...done"<<endl;
+
+      // Compare with precomputed alphas and sigmas
+      cout << "Testing newly computed sigmas and alphas with old..." <<flush;
+      Quad::setup_geometry();
+      cout << "read in old data..."<<flush;
+      Quad t;
+      if (compare_CuspLists_as_sets(sigmas, new_sigmas))
+        cout << "sigmas agree..." <<flush;
+      else
+        {
+          if (compare_CuspLists_as_sets_mod_translation(sigmas, new_sigmas))
+            cout << "sigmas agree (up to translation)..." <<endl;
+          else
+            {
+              cout << "sigmas DO NOT agree:\n";
+              cout << sigmas.size() << " old sigmas";
+              if (verbose) cout << ": " <<sigmas;
+              cout << endl;
+              cout << new_sigmas.size() << " new sigmas";
+              if (verbose) cout << ": " <<new_sigmas;
+              cout << endl;
+              cout << "old not in new:\n";
+              for (const auto& a : sigmas)
+                if (cusp_index_with_translation(a,new_sigmas,t)==-1)
+                  cout << a << " " << a.coords(1) << endl;
+              cout << "new not in old:\n";
+              for (const auto& a : new_sigmas)
+                if (cusp_index_with_translation(a,sigmas,t)==-1)
+                  cout << a << " " << a.coords(1) << endl;
+              exit(1);
+            }
+        }
+      if (compare_CuspLists_as_sets(alphas, new_alphas))
+        cout << "alphas agree!" <<endl;
+      else
+        {
+          if (compare_CuspLists_as_sets_mod_translation(alphas, new_alphas))
+            cout << "alphas agree (up to translation)!" <<endl;
+          else
+            {
+              cout << "alphas DO NOT agree:\n";
+              cout << alphas.size() << " old alphas";
+              if (verbose) cout << ": " <<alphas;
+              cout << endl;
+              cout << new_alphas.size() << " new alphas";
+              if (verbose) cout << ": " <<new_alphas;
+              cout << endl;
+              cout << "old not in new:\n";
+              for (const auto& a : alphas)
+                if (cusp_index_with_translation(a,new_alphas,t)==-1)
+                  cout << a << " " << a.coords(1) << endl;
+              cout << "new not in old:\n";
+              for (const auto& a : new_alphas)
+                if (cusp_index_with_translation(a,alphas,t)==-1)
+                  cout << a << " " << a.coords(1) << endl;
+              exit(1);
+            }
+        }
     }
 }
