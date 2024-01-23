@@ -69,8 +69,8 @@ int main ()
       auto new_sigmas = test_singular_points(0);
       output_singular_points(new_sigmas, 1, verbose);
       //test_principal_cusps(20, 30);
-      verbose=0;
-      debug=0;
+      verbose=1;
+      debug=1;
       auto new_alphas = covering_alphas(new_sigmas, verbose);
       INT maxn = max_dnorm(new_alphas);
       if (verbose)
@@ -82,8 +82,8 @@ int main ()
 
       // auto corners = triple_intersections(new_alphas, 1);
       // cout << corners << endl;
-      verbose=0;
-      debug=0;
+      verbose=1;
+      debug=1;
       new_alphas = saturate_covering_alphas(new_alphas, new_sigmas, maxn, debug, verbose);
       maxn = max_dnorm(new_alphas);
       if (verbose)
@@ -123,7 +123,7 @@ int main ()
       else
         {
           if (compare_CuspLists_as_sets_mod_translation(sigmas, new_sigmas))
-            cout << "sigmas agree (up to translation)..." <<endl;
+            cout << "sigmas agree (up to translation)..." <<flush;
           else
             {
               cout << "sigmas DO NOT agree:\n";

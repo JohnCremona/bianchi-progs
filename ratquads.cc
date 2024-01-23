@@ -10,21 +10,26 @@ Cusp_comparison Cusp_cmp;
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
 
-int RatQuad::reduce()
-{
-  // first divide out by content
-  INT c = gcd(n.content(), d.content());
-  if (c>1) {n/=c; d/=c;}
+void RatQuad::reduce()
+ {
+   normalise();
+ }
 
-  // find gcd(n,d) when ideal (n,d) is principal (will return 0 if ideal not principal):
-  Quad g = quadgcd(n,d);
-  INT ng = quadnorm(g);
-  if (ng>1) {n/=g; d/=g;}
+// void RatQuad::reduce()
+// {
+//   // first divide out by content
+//   INT c = gcd(n.content(), d.content());
+//   if (c>1) {n/=c; d/=c;}
 
-  // final adjustment by units:
-  while (!pos(d)) {n*=fundunit; d*=fundunit;}
-  return (ng>0);
-}
+//   // find gcd(n,d) when ideal (n,d) is principal (will return 0 if ideal not principal):
+//   Quad g = quadgcd(n,d);
+//   INT ng = g.norm();
+//   if (ng==0) return; // not principal, no further reduction
+
+//   if (ng>1) {n/=g; d/=g;}
+//   // final adjustment by units:
+//   while (!pos(d)) {n*=fundunit; d*=fundunit;}
+// }
 
 void RatQuad::reduce(long n)
 {
@@ -33,12 +38,19 @@ void RatQuad::reduce(long n)
 
 void RatQuad::reduce(const Qideal& N)
 {
-  if (reduce()) return; // if principal then after reduce() the ideal is (1), so nothing more to do
   Qideal I = ideal();
-  Quad a,b;
-  I.equivalent_coprime_to(N, a, b); // (a/b)*(n,d) is coprime to N
-  n *= a; n /= b;
-  d *= a; d /= b;
+  Quad a,b,g;
+  if (I.is_principal(g))
+    {
+      n /= g;
+      d /= g;
+    }
+  else
+    {
+      I.equivalent_coprime_to(N, a, b); // (a/b)*(n,d) is coprime to N
+      n *= a; n /= b;
+      d *= a; d /= b;
+    }
   while (!pos(d)) {n*=fundunit; d*=fundunit;}
 }
 
@@ -58,18 +70,13 @@ int RatQuad::is_principal() const
 {
   if (Quad::class_number==1)
     return 1;
-  else
-    // quadgcd(n,d) returns 0 if n,d do not generate a principal ideal
-    return coprime(n,d); //quadgcd(n,d) != Quad::zero;
+  return ideal().is_principal();
 }
 
 void RatQuad::normalise()                              // scale so ideal is a standard class rep
 {
-  Qideal I({n,d});
-  Qideal J = class_representative(I);
-  I *= J.conj();
   Quad g;
-  I.is_principal(g);
+  Qideal J = class_anti_representative(ideal(), g); // I*J=<g>
   n *= J.norm(); n /= g;
   d *= J.norm(); d /= g;
   while (!pos(d)) {n*=fundunit; d*=fundunit;}
@@ -237,6 +244,34 @@ int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, 
         i++;
     }
   return -1;
+}
+
+// Return list of 0, 1 or 2 sqrts of a rational r in k
+vector<RatQuad> sqrts_in_k(const RAT& r)
+{
+  if (r.sign()==0)
+    return {RatQuad()};       // 0
+  RAT root;
+  if (r.is_square(root))      // rational square
+    {
+      RatQuad rt(root);
+      assert (rt*rt==RatQuad(r));
+      return {rt, -rt};
+    }
+  RAT rd = -r*INT(Quad::d);
+  if (rd.is_square(root))      // -d * rational square
+    {
+      // now root^2 = -d*r, so (rt/sqrt(-d))^2 = r
+      Quad root_minus_d = (Quad::t ? Quad(-1,2) : Quad::w);
+      RatQuad rt(root);
+      rt /= root_minus_d;
+      assert (rt*rt==RatQuad(r));
+      return {rt, -rt};
+    }
+  else
+    {
+      return vector<RatQuad>(); // empty
+    }
 }
 
 //#define DEBUG_CUSP_EQ

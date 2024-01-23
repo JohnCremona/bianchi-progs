@@ -1010,7 +1010,7 @@ def is_sigma_surrounded(sigma, alist, debug=False):
                                          for b in alist if b!=a)]
 
     if debug:
-        print(" relevant alphas: {}".format(alist))
+        print(f" {len(alist)} relevant alphas: {alist}")
 
     Alist = [to_k(a, k) for a in alist]
 
@@ -1293,7 +1293,7 @@ def is_alpha_surrounded(a0, alist, sigmas, pairs_ok=[], debug=False, plot=False)
 
     alist = [a for a,A in zip(alist,Alist) if circles_intersect(A0, A)]
     if debug:
-        print(" relevant alphas: {}".format(alist))
+        print(f" {len(alist)} relevant alphas: {alist}")
 
         if plot:
             pic = plot_circles([a0], fill=False) + plot_circles(alist, fill=True)

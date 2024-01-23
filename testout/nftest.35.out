@@ -49,4 +49,4 @@ Retrieving newform data for N = 28.1
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 36
 L/P ratio    = 3/2, cuspidal factor = 3
-Integration matrix = [-3a,2;-14,1-a], factor   = 6
+Integration matrix = [3a,2;-14,-1+a], factor   = 6

@@ -1,4 +1,86 @@
-Quads in order of norm:
+Q(sqrt(-3))	discriminant = -3	min poly(w) = w^2-w+1.
+Euclidean
+167 primes initialised, max norm = 1000
+
+all including conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
+Quad = 1	with norm 1
+Quad = 1+w	with norm 3
+Quad = 2	with norm 4
+Quad = 2+w	with norm 7
+Quad = 1+2w	with norm 7
+Quad = 3	with norm 9
+Quad = 2+2w	with norm 12
+Quad = 3+w	with norm 13
+Quad = 1+3w	with norm 13
+Quad = 4	with norm 16
+Quad = 3+2w	with norm 19
+Quad = 2+3w	with norm 19
+Quad = 4+w	with norm 21
+Quad = 1+4w	with norm 21
+Quad = 5	with norm 25
+Quad = 3+3w	with norm 27
+Quad = 4+2w	with norm 28
+Quad = 2+4w	with norm 28
+Quad = 5+w	with norm 31
+Quad = 1+5w	with norm 31
+Quad = 6	with norm 36
+Quad = 4+3w	with norm 37
+Quad = 3+4w	with norm 37
+Quad = 5+2w	with norm 39
+Quad = 2+5w	with norm 39
+Quad = 6+w	with norm 43
+Quad = 1+6w	with norm 43
+Quad = 4+4w	with norm 48
+Quad = 7	with norm 49
+Quad = 5+3w	with norm 49
+Quad = 3+5w	with norm 49
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 3:	[ 1+w ]
+Norm 4:	[ 2 ]
+Norm 7:	[ 2+w 1+2w ]
+Norm 9:	[ 3 ]
+Norm 12:	[ 2+2w ]
+Norm 13:	[ 3+w 1+3w ]
+Norm 16:	[ 4 ]
+Norm 19:	[ 3+2w 2+3w ]
+Norm 21:	[ 4+w 1+4w ]
+Norm 25:	[ 5 ]
+Norm 27:	[ 3+3w ]
+Norm 28:	[ 4+2w 2+4w ]
+Norm 31:	[ 5+w 1+5w ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 4+3w 3+4w ]
+Norm 39:	[ 5+2w 2+5w ]
+Norm 43:	[ 6+w 1+6w ]
+Norm 48:	[ 4+4w ]
+Norm 49:	[ 7 5+3w 3+5w ]
+-------------------------------------------
+
+Quads with norms up to 25 in one list: 
+[ 1 1+w 2 2+w 1+2w 3 2+2w 3+w 1+3w 4 3+2w 2+3w 4+w 1+4w 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 27:	[ 3+3w ]
+Norm 28:	[ 4+2w 2+4w ]
+Norm 31:	[ 5+w 1+5w ]
+Norm 36:	[ 6 ]
+Norm 37:	[ 4+3w 3+4w ]
+Norm 39:	[ 5+2w 2+5w ]
+Norm 43:	[ 6+w 1+6w ]
+Norm 48:	[ 4+4w ]
+Norm 49:	[ 7 5+3w 3+5w ]
+Norm 52:	[ 6+2w 2+6w ]
+-------------------------------------------
+
+all excluding conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
 Quad = 1	with norm 1
 Quad = 1+w	with norm 3
 Quad = 2	with norm 4

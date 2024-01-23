@@ -15,7 +15,7 @@ Integration matrix = [3a,2;-8,a], factor   = 4
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 48
 L/P ratio    = 1, cuspidal factor = 6
-Integration matrix = [8+5a,2+a;10-4a,2-a], factor   = 6
+Integration matrix = [-8-5a,2+a;10-4a,-2+a], factor   = 6
 
 >>>> Level 40.1 = (4a,-10-2a), norm = 40 <<<<
 
@@ -24,7 +24,7 @@ Integration matrix = [8+5a,2+a;10-4a,2-a], factor   = 6
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 32
 L/P ratio    = 1/2, cuspidal factor = 2
-Integration matrix = [-2-3a,2;-10-2a,2-a], factor   = 2
+Integration matrix = [2+3a,2;-10-2a,-2+a], factor   = 2
 
 >>>> Level 50.1 = (10,-5+5a), norm = 50 <<<<
 
@@ -33,4 +33,4 @@ Integration matrix = [-2-3a,2;-10-2a,2-a], factor   = 2
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 60
 L/P ratio    = 1, cuspidal factor = 3
-Integration matrix = [8-a,2;5-5a,2-a], factor   = 6
+Integration matrix = [-8+a,2;5-5a,-2+a], factor   = 6

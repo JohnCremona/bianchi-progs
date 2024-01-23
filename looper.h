@@ -16,8 +16,8 @@ public:
     }
   void operator++();
   operator Quad() const {return val;}
-  vector<Quad> values_with_current_norm();
-  vector<Quad> values_with_norm_up_to(const INT& m);
+  vector<Quad> values_with_current_norm(int sorted=0);
+  vector<Quad> values_with_norm_up_to(const INT& m, int sorted=0);
   int ok() const {return nmax==0 || n<=nmax;}
 
 private:
@@ -33,7 +33,7 @@ private:
 
 // Lists of quads of norm in ranges (up to units, omitting conjugates if conj==0)
 vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj=1, int sorted=0);
-vector<Quad> quads_of_norm(const INT& n, int conj=1);
+vector<Quad> quads_of_norm(const INT& n, int conj=1, int sorted=0);
 inline vector<Quad> quads_of_norm_up_to(const INT& n, int conj=1, int sorted=0)
 {
   return quads_of_norm_between(1,n,conj,sorted);

@@ -37,7 +37,7 @@ Retrieving newform data for N = 30.2
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 72
 L/P ratio    = 3/2, cuspidal factor = 1
-Integration matrix = [5-2a,1;-14-11a,3-a], factor   = 1
+Integration matrix = [-5+2a,1;-14-11a,-3+a], factor   = 1
 Retrieving newform data for N = 32.1
 
 >>>> Level 32.1 = (8,4a), norm = 32 <<<<

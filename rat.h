@@ -171,22 +171,24 @@ public:
     fmpq_div_fmpz(c.q, q, z);
     return c;
   }
-  friend inline RAT operator/(const INT& a, const RAT& b) {RAT c = b/a; return c.recip();}
-
-  int operator==(const RAT& b) const {
+  friend inline RAT operator/(const INT& a, const RAT& b) {
+    RAT c = b/a;
+    return c.recip();
+  }
+  int operator==(const RAT& b) {
     return fmpq_equal(q, b.q);
   }
-  int operator==(const INT& b) const {
-    return fmpq_cmp_fmpz(q, b.z);
+  int operator==(INT b) {
+    return fmpq_equal_fmpz(q, b.z);
   }
-  int operator==(long b) const {
-    return fmpq_cmp_si(q, b);
+  int operator==(long b) {
+    return fmpq_equal_si(q, b);
   }
-  friend inline int operator==(const INT& a, const RAT& b) {return b==a;}
-  friend inline int operator==(long a, const RAT& b) {return b==a;}
-  friend inline int operator!=(const RAT& a, const RAT& b) {return !(a==b);}
-  friend inline int operator!=(const RAT& a, const INT& b) {return !(a==b);}
-  friend inline int operator!=(const INT& a, const RAT& b) {return b!=a;}
+  friend inline int operator==(INT a, RAT b) {return b==a;}
+  friend inline int operator==(long a, RAT b) {return b==a;}
+  friend inline int operator!=(RAT a, RAT b) {return !(a==b);}
+  friend inline int operator!=(RAT a, INT b) {return !(a==b);}
+  friend inline int operator!=(INT a, RAT b) {return b!=a;}
   friend inline int operator!=(long a, const RAT& b) {return b!=INT(a);}
 
   int operator<(const RAT& b) const {return fmpq_cmp(q, b.q)<0;}

@@ -1,4 +1,119 @@
-Quads in order of norm:
+Q(sqrt(-7))	discriminant = -7	min poly(a) = a^2-a+2.
+Euclidean
+169 primes initialised, max norm = 1000
+
+all including conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
+Quad = 1	with norm 1
+Quad = -1+a	with norm 2
+Quad = a	with norm 2
+Quad = -2+a	with norm 4
+Quad = 2	with norm 4
+Quad = 1+a	with norm 4
+Quad = -1+2a	with norm 7
+Quad = -2+2a	with norm 8
+Quad = -3+a	with norm 8
+Quad = 2+a	with norm 8
+Quad = 2a	with norm 8
+Quad = 3	with norm 9
+Quad = -3+2a	with norm 11
+Quad = 1+2a	with norm 11
+Quad = -4+a	with norm 14
+Quad = 3+a	with norm 14
+Quad = -2+3a	with norm 16
+Quad = -4+2a	with norm 16
+Quad = 4	with norm 16
+Quad = 2+2a	with norm 16
+Quad = -1+3a	with norm 16
+Quad = -3+3a	with norm 18
+Quad = 3a	with norm 18
+Quad = -4+3a	with norm 22
+Quad = -5+a	with norm 22
+Quad = 4+a	with norm 22
+Quad = 1+3a	with norm 22
+Quad = -5+2a	with norm 23
+Quad = 3+2a	with norm 23
+Quad = 5	with norm 25
+Quad = -5+3a	with norm 28
+Quad = 2+3a	with norm 28
+Quad = -2+4a	with norm 28
+Quad = -3+4a	with norm 29
+Quad = -1+4a	with norm 29
+Quad = -4+4a	with norm 32
+Quad = -6+2a	with norm 32
+Quad = -6+a	with norm 32
+Quad = 5+a	with norm 32
+Quad = 4+2a	with norm 32
+Quad = 4a	with norm 32
+Quad = -6+3a	with norm 36
+Quad = 6	with norm 36
+Quad = 3+3a	with norm 36
+Quad = -5+4a	with norm 37
+Quad = 1+4a	with norm 37
+Quad = -7+2a	with norm 43
+Quad = 5+2a	with norm 43
+Quad = -3+5a	with norm 44
+Quad = -6+4a	with norm 44
+Quad = -7+a	with norm 44
+Quad = 6+a	with norm 44
+Quad = 2+4a	with norm 44
+Quad = -2+5a	with norm 44
+Quad = -4+5a	with norm 46
+Quad = -7+3a	with norm 46
+Quad = 4+3a	with norm 46
+Quad = -1+5a	with norm 46
+Quad = 7	with norm 49
+Quad = -5+5a	with norm 50
+Quad = 5a	with norm 50
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 2:	[ -1+a a ]
+Norm 4:	[ 2 -2+a 1+a ]
+Norm 7:	[ -1+2a ]
+Norm 8:	[ -3+a 2+a -2+2a 2a ]
+Norm 9:	[ 3 ]
+Norm 11:	[ -3+2a 1+2a ]
+Norm 14:	[ -4+a 3+a ]
+Norm 16:	[ 4 -4+2a 2+2a -2+3a -1+3a ]
+Norm 18:	[ -3+3a 3a ]
+Norm 22:	[ -5+a 4+a -4+3a 1+3a ]
+Norm 23:	[ -5+2a 3+2a ]
+Norm 25:	[ 5 ]
+Norm 28:	[ -5+3a 2+3a -2+4a ]
+Norm 29:	[ -3+4a -1+4a ]
+Norm 32:	[ -6+a 5+a -6+2a 4+2a -4+4a 4a ]
+Norm 36:	[ 6 -6+3a 3+3a ]
+Norm 37:	[ -5+4a 1+4a ]
+Norm 43:	[ -7+2a 5+2a ]
+Norm 44:	[ -7+a 6+a -6+4a 2+4a -3+5a -2+5a ]
+Norm 46:	[ -7+3a 4+3a -4+5a -1+5a ]
+Norm 49:	[ 7 ]
+Norm 50:	[ -5+5a 5a ]
+-------------------------------------------
+
+Quads with norms up to 25 in one list: 
+[ 1 -1+a a 2 -2+a 1+a -1+2a -3+a 2+a -2+2a 2a 3 -3+2a 1+2a -4+a 3+a 4 -4+2a 2+2a -2+3a -1+3a -3+3a 3a -5+a 4+a -4+3a 1+3a -5+2a 3+2a 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 28:	[ -5+3a 2+3a -2+4a ]
+Norm 29:	[ -3+4a -1+4a ]
+Norm 32:	[ -6+a 5+a -6+2a 4+2a -4+4a 4a ]
+Norm 36:	[ 6 -6+3a 3+3a ]
+Norm 37:	[ -5+4a 1+4a ]
+Norm 43:	[ -7+2a 5+2a ]
+Norm 44:	[ -7+a 6+a -6+4a 2+4a -3+5a -2+5a ]
+Norm 46:	[ -7+3a 4+3a -4+5a -1+5a ]
+Norm 49:	[ 7 ]
+Norm 50:	[ -5+5a 5a ]
+-------------------------------------------
+
+all excluding conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
 Quad = 1	with norm 1
 Quad = a	with norm 2
 Quad = 2	with norm 4

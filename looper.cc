@@ -40,7 +40,7 @@ int Quadlooper::testb()
     return 0;
   if(Quad::t) // then d is odd so a=b(mod 2)
     a = (a-b)/2;
-  val = Quad(a,b);
+  val = makepos(Quad(a,b));
   return 1;
 }
 
@@ -76,14 +76,17 @@ void Quadlooper::operator++()
 }
 
 
-vector<Quad> Quadlooper::values_with_current_norm()
+vector<Quad> Quadlooper::values_with_current_norm(int sorted)
 {
   // must make a copy
   INT m = n;
-  return values_with_norm_up_to(m);
+  auto values = values_with_norm_up_to(m);
+  if (sorted)
+    std::sort(values.begin(), values.end(), Quad_cmp);
+  return values;
 }
 
-vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m)
+vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m, int sorted)
 {
   vector<Quad> values;
   if (n>m)
@@ -95,44 +98,48 @@ vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m)
       values.push_back(val);
       operator++();
     }
+  if (sorted)
+    std::sort(values.begin(), values.end(), Quad_cmp);
   return values;
 }
 
 // Lists of quads of one norm or a range (up to units)
 
-// return 1 iff a is *not* the chosen one of a conjugate pair
-int other_conj(const Quad& a)
-{
-  if (Quad::nunits >2)
-    return a.re()<a.im();
-  else
-    return a.im()<0;
-}
+// we solve a^2+db^2=n4 where n4=n (t=0),  or =4n (t=1), t=Quad::t
+// with 0<=b<=sqrt(n4/d) and a>=0 with additional restrictions
+// d=1: a>0 if conj, a>=b if not conj;
+// d=3: a>b if conj, a>=3b if not conj.
+// Then use a+b*w (t=0) or (a-b)/2 + b*w (t=1).
+// if d not 1,3, a>0, and conj, use also (-a,b) --> -a+b*w or -(a+b)/2+b*w
 
-vector<Quad> quads_of_norm(const INT& n, int conj)
+vector<Quad> quads_of_norm(const INT& n, int conj, int sorted)
 {
   vector<Quad> ans;
   long d=Quad::d, t=Quad::t;
 
   INT n4 = (t? 4*n: n);
-  INT bmax = isqrt(n4/d), a, b;
+  INT bmax = isqrt(n4/d), a, b, a1;
   for ( b=0; b<=bmax; b+=1)
     {
       if(isqrt(n4-d*b*b, a))
         {
-          if (d==1 && a==0)
+          // now we have a^2+db^2=n4 with a,b>=0
+          if ((d==1) && (a < (conj? 1 : b)))
             continue;
-          if(t) // then d is odd so a=b(mod 2)
-            a = (a-b)/2;
-          Quad z(a,b);
-          // Keep this unless conj==0 and other_conj(z), i.e. this is not the chosen conjugate
-          if (conj || !other_conj(z))
-            ans.push_back(z);
+          if ((d==3) && (a < (conj? b+1 : 3*b)))
+            continue;
+          a1 = (t? (a-b)/2 : a);
+          ans.push_back(Quad(a1,b));
+          if ((d!=1)&&(d!=3)&&(a>0)&&(b>0)&&conj)
+            {
+              a1 = (t? (-a-b)/2 : -a);
+              ans.push_back(Quad(a1,b));
+            }
         }
     }
-  if (!conj)
-    ans.erase(std::remove_if(ans.begin(), ans.end(), [](Quad val) { return other_conj(val); }),
-              ans.end());
+  if (sorted)
+    std::sort(ans.begin(), ans.end(), Quad_cmp);
+
   return ans;
 }
 
@@ -145,10 +152,9 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #endif
   vector<Quad> ans;
   long d=Quad::d, t=Quad::t;
-  int extra_units = (d==1 || d==3);
 
   INT n1x = (t ? 4*n1 : n1), n2x = (t ? 4*n2 : n2);
-  INT b, bmax = isqrt(n2x/d);
+  INT a1, b, bmax = isqrt(n2x/d), db2, aminsq, amax, amin;
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
   cout<<"bmax = "<<bmax<<endl;
 #endif
@@ -157,28 +163,32 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
       cout<<"b="<<b<<endl;
 #endif
-      INT db2 = d*b*b;
-      INT aminsq = n1x-db2, amax = isqrt(n2x-db2);
+      db2 = d*b*b;
+      aminsq = n1x-db2;
+      amax = isqrt(n2x-db2);
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
       cout << "aminsq = "<<aminsq<<endl;
 #endif
-      INT amin = 0;
+      amin = 0;
       if (aminsq.sign()>0)
         {
           amin = isqrt(aminsq);
           if (amin*amin!=aminsq) // isqrt rounds down but we want to round up
             amin+=1;
         }
+      // special cases d=1,3
+      // d=1: a>0 if conj, a>=b if not conj;
+      // d=3: a>b if conj, a>=3b if not conj.
+      if (d==1)
+        amin = max(amin, (conj? 1 : b));
+      if (d==3)
+        amin = max(amin, (conj? b+1 : 3*b));
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
       cout << " then amin = "<<amin<<", amax = "<<amax<<endl;
 #endif
-      if (extra_units && amin<b)
-        {
-          amin = b;
-        }
       if (t)
         {
-          if ((amin-b)%2) // ensure a=b (mod 2)
+          if ((amin-b)%2)  // ensure a=b (mod 2)
             amin +=1;
           amin = (amin-b)/2; // so this is rounded up
           amax = (amax-b)/2; // rounded down
@@ -189,17 +199,16 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #endif
       for (INT a = amin; a<=amax; a+=1)
         {
-          if (extra_units && a==0)
-            continue;
-          Quad val = Quad(a, b);
+          Quad val(a, b);
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
           cout<<" val = "<<val<<" with norm "<<val.norm()<<endl;
 #endif
           assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
           ans.push_back(val);
-          if (b!=0 && conj)
+          INT a1 = (t? 2*a+b : a);
+          if ((d!=1)&&(d!=3)&&(a1>0)&&(b>0)&&conj)
             {
-              val = makepos(val.conj());
+              val = -val.conj();
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
               cout<<" conj val = "<<val<<" with norm "<<val.norm()<<endl;
 #endif
@@ -209,7 +218,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
         }
     }
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
-  cout<<"initial list: "<<ans<<endl;
+  cout<<"unsorted list: "<<ans<<endl;
 #endif
 
   if (sorted)
@@ -220,7 +229,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
   //   ans.push_back(alpha);
 
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
-  cout<<"final list:   "<<ans<<endl;
+  if (sorted) cout<<"sorted list:   "<<ans<<endl;
 #endif
 
   return ans;

@@ -1,4 +1,119 @@
-Quads in order of norm:
+Q(sqrt(-2))	discriminant = -8	min poly(t) = t^2+2.
+Euclidean
+169 primes initialised, max norm = 1000
+
+all including conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
+Quad = 1	with norm 1
+Quad = t	with norm 2
+Quad = -1+t	with norm 3
+Quad = 1+t	with norm 3
+Quad = 2	with norm 4
+Quad = -2+t	with norm 6
+Quad = 2+t	with norm 6
+Quad = 2t	with norm 8
+Quad = -1+2t	with norm 9
+Quad = 3	with norm 9
+Quad = 1+2t	with norm 9
+Quad = -3+t	with norm 11
+Quad = 3+t	with norm 11
+Quad = -2+2t	with norm 12
+Quad = 2+2t	with norm 12
+Quad = 4	with norm 16
+Quad = -3+2t	with norm 17
+Quad = 3+2t	with norm 17
+Quad = -4+t	with norm 18
+Quad = 4+t	with norm 18
+Quad = 3t	with norm 18
+Quad = -1+3t	with norm 19
+Quad = 1+3t	with norm 19
+Quad = -2+3t	with norm 22
+Quad = 2+3t	with norm 22
+Quad = -4+2t	with norm 24
+Quad = 4+2t	with norm 24
+Quad = 5	with norm 25
+Quad = -3+3t	with norm 27
+Quad = -5+t	with norm 27
+Quad = 5+t	with norm 27
+Quad = 3+3t	with norm 27
+Quad = 4t	with norm 32
+Quad = -1+4t	with norm 33
+Quad = -5+2t	with norm 33
+Quad = 5+2t	with norm 33
+Quad = 1+4t	with norm 33
+Quad = -4+3t	with norm 34
+Quad = 4+3t	with norm 34
+Quad = -2+4t	with norm 36
+Quad = 6	with norm 36
+Quad = 2+4t	with norm 36
+Quad = -6+t	with norm 38
+Quad = 6+t	with norm 38
+Quad = -3+4t	with norm 41
+Quad = 3+4t	with norm 41
+Quad = -5+3t	with norm 43
+Quad = 5+3t	with norm 43
+Quad = -6+2t	with norm 44
+Quad = 6+2t	with norm 44
+Quad = -4+4t	with norm 48
+Quad = 4+4t	with norm 48
+Quad = 7	with norm 49
+Quad = 5t	with norm 50
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 2:	[ t ]
+Norm 3:	[ -1+t 1+t ]
+Norm 4:	[ 2 ]
+Norm 6:	[ -2+t 2+t ]
+Norm 8:	[ 2t ]
+Norm 9:	[ 3 -1+2t 1+2t ]
+Norm 11:	[ -3+t 3+t ]
+Norm 12:	[ -2+2t 2+2t ]
+Norm 16:	[ 4 ]
+Norm 17:	[ -3+2t 3+2t ]
+Norm 18:	[ -4+t 4+t 3t ]
+Norm 19:	[ -1+3t 1+3t ]
+Norm 22:	[ -2+3t 2+3t ]
+Norm 24:	[ -4+2t 4+2t ]
+Norm 25:	[ 5 ]
+Norm 27:	[ -5+t 5+t -3+3t 3+3t ]
+Norm 32:	[ 4t ]
+Norm 33:	[ -5+2t 5+2t -1+4t 1+4t ]
+Norm 34:	[ -4+3t 4+3t ]
+Norm 36:	[ 6 -2+4t 2+4t ]
+Norm 38:	[ -6+t 6+t ]
+Norm 41:	[ -3+4t 3+4t ]
+Norm 43:	[ -5+3t 5+3t ]
+Norm 44:	[ -6+2t 6+2t ]
+Norm 48:	[ -4+4t 4+4t ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 5t ]
+-------------------------------------------
+
+Quads with norms up to 25 in one list: 
+[ 1 t -1+t 1+t 2 -2+t 2+t 2t 3 -1+2t 1+2t -3+t 3+t -2+2t 2+2t 4 -3+2t 3+2t -4+t 4+t 3t -1+3t 1+3t -2+3t 2+3t -4+2t 4+2t 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 27:	[ -5+t 5+t -3+3t 3+3t ]
+Norm 32:	[ 4t ]
+Norm 33:	[ -5+2t 5+2t -1+4t 1+4t ]
+Norm 34:	[ -4+3t 4+3t ]
+Norm 36:	[ 6 -2+4t 2+4t ]
+Norm 38:	[ -6+t 6+t ]
+Norm 41:	[ -3+4t 3+4t ]
+Norm 43:	[ -5+3t 5+3t ]
+Norm 44:	[ -6+2t 6+2t ]
+Norm 48:	[ -4+4t 4+4t ]
+Norm 49:	[ 7 ]
+Norm 50:	[ 5t ]
+-------------------------------------------
+
+all excluding conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
 Quad = 1	with norm 1
 Quad = t	with norm 2
 Quad = 1+t	with norm 3

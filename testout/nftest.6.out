@@ -7,7 +7,7 @@ Retrieving newform data for N = 24.1
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 24
 L/P ratio    = 3/2, cuspidal factor = 4
-Integration matrix = [-5-a,1;-12+4a,1-a], factor   = 4
+Integration matrix = [5+a,1;-12+4a,-1+a], factor   = 4
 Retrieving newform data for N = 32.1
 
 >>>> Level 32.1 = (8,4a), norm = 32 <<<<
@@ -17,7 +17,7 @@ Retrieving newform data for N = 32.1
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 8
 L/P ratio    = 1/2, cuspidal factor = 2
-Integration matrix = [7-a,2;-4a,1-a], factor   = 2
+Integration matrix = [-7+a,2;-4a,-1+a], factor   = 2
 Retrieving newform data for N = 36.1
 
 >>>> Level 36.1 = (6), norm = 36 <<<<
@@ -27,7 +27,7 @@ Retrieving newform data for N = 36.1
 Sign of F.E. = -1
 Twisting prime lambda = 0, factor = 0
 L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [-5-5a,2;-18,1-a], factor   = 1
+Integration matrix = [5+5a,2;-18,-1+a], factor   = 1
 Unramified self-twist by discriminant -3
 Retrieving newform data for N = 48.1
 
@@ -38,4 +38,4 @@ Retrieving newform data for N = 48.1
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 16
 L/P ratio    = 1, cuspidal factor = 4
-Integration matrix = [7-a,2;-4a,1-a], factor   = 4
+Integration matrix = [-7+a,2;-4a,-1+a], factor   = 4

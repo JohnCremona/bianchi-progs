@@ -10,15 +10,14 @@ class RatQuad {
 
 public:
   // constructors
-  RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int reduce=0);
-  RatQuad(INT a, INT b, INT dd, int reduce=0); // (a+b*w)/dd
+  RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
+  RatQuad(INT a, INT b, INT dd, int red=0); // (a+b*w)/dd
   RatQuad(const RAT& a);
 
   // RatQuad manipulations
 
-  // reduce to lowest terms: when non-principal this method only divides
-  // n and d by the gcd of the content:
-  int reduce();
+  // reduce to "lowest terms", so the ideal is one of the class representatives
+  void reduce();
   // reduce, ensuring that resulting ideal is coprime to N
   void reduce(const Qideal& N);
   void reduce(long n);
@@ -120,24 +119,23 @@ class modsym {
 
 // Inline RatQuad functions
 
-inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int reduce)
+inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int red)
   :d(dd), n(nn)
 {
-  if (reduce)
-    this->reduce();
+  if (red)
+    reduce();
 }
 
-inline RatQuad::RatQuad(INT a, INT b, INT dd, int reduce) // (a+b*w)/dd
-  :d(a,b), n(dd,1)
+inline RatQuad::RatQuad(INT a, INT b, INT dd, int red) // (a+b*w)/dd
+  :d(dd,0), n(a,b)
 {
-  if (reduce)
-    this->reduce();
+  if (red)
+    reduce();
 }
 
 inline RatQuad::RatQuad(const RAT& a)
   :d(a.den()), n(a.num())
 {};
-
 
 inline RatQuad RatQuad::operator+() const
 {
@@ -148,7 +146,6 @@ inline RatQuad RatQuad::operator-() const
 {
   return RatQuad(-n, d);
 }
-
 
 // Definitions of compound-assignment operator member functions
 
@@ -345,5 +342,9 @@ extern Cusp_comparison Cusp_cmp;
 vector<Quad> nearest_quads(const RatQuad&, int just_one);
 // list of Quad(s) q s.t. N(q-a/b)<1, i.e. N(a-b*q)<N(b):
 vector<Quad> nearest_quads_to_quotient(const Quad&, const Quad&, int just_one);
+
+// Return list of 0, 1 or 2 sqrts of a rational r in k
+vector<RatQuad> sqrts_in_k(const RAT& r);
+
 
 #endif

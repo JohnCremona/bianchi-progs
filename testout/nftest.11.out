@@ -6,7 +6,7 @@
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 20
 L/P ratio    = 2, cuspidal factor = 5
-Integration matrix = [2,1;1-2a,1-a], factor   = 10
+Integration matrix = [-2,1;1-2a,-1+a], factor   = 10
 
 >>>> Level 27.2 = (3a), norm = 27 <<<<
 

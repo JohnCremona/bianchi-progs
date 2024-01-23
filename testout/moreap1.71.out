@@ -8,7 +8,7 @@ Program moreap1: for given field and level, assumes that the newforms file exist
 Sign of F.E. = 1
 Twisting prime lambda = 1, factor = 184
 L/P ratio    = 2, cuspidal factor = 6
-Integration matrix = [-35+2a,5;7a,1-a], factor   = 5
+Integration matrix = [35-2a,5;7a,-1+a], factor   = 5
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for P101a: [ -3 ]

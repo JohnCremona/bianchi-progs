@@ -1,4 +1,63 @@
-Quads in order of norm:
+Q(sqrt(-13))	discriminant = -52	min poly(a) = a^2+13.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,1+a] ]
+
+all including conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
+Quad = 1	with norm 1
+Quad = 2	with norm 4
+Quad = 3	with norm 9
+Quad = a	with norm 13
+Quad = -1+a	with norm 14
+Quad = 1+a	with norm 14
+Quad = 4	with norm 16
+Quad = -2+a	with norm 17
+Quad = 2+a	with norm 17
+Quad = -3+a	with norm 22
+Quad = 3+a	with norm 22
+Quad = 5	with norm 25
+Quad = -4+a	with norm 29
+Quad = 4+a	with norm 29
+Quad = 6	with norm 36
+Quad = -5+a	with norm 38
+Quad = 5+a	with norm 38
+Quad = -6+a	with norm 49
+Quad = 7	with norm 49
+Quad = 6+a	with norm 49
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 4:	[ 2 ]
+Norm 9:	[ 3 ]
+Norm 13:	[ a ]
+Norm 14:	[ -1+a 1+a ]
+Norm 16:	[ 4 ]
+Norm 17:	[ -2+a 2+a ]
+Norm 22:	[ -3+a 3+a ]
+Norm 25:	[ 5 ]
+Norm 29:	[ -4+a 4+a ]
+Norm 36:	[ 6 ]
+Norm 38:	[ -5+a 5+a ]
+Norm 49:	[ 7 -6+a 6+a ]
+-------------------------------------------
+
+Quads with norms up to 25 in one list: 
+[ 1 2 3 a -1+a 1+a 4 -2+a 2+a -3+a 3+a 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 29:	[ -4+a 4+a ]
+Norm 36:	[ 6 ]
+Norm 38:	[ -5+a 5+a ]
+Norm 49:	[ 7 -6+a 6+a ]
+Norm 52:	[ 2a ]
+-------------------------------------------
+
+all excluding conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
 Quad = 1	with norm 1
 Quad = 2	with norm 4
 Quad = 3	with norm 9

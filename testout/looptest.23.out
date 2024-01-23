@@ -1,4 +1,83 @@
-Quads in order of norm:
+Q(sqrt(-23))	discriminant = -23	min poly(a) = a^2-a+6.
+Class number 3
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
+
+all including conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
+Quad = 1	with norm 1
+Quad = 2	with norm 4
+Quad = -1+a	with norm 6
+Quad = a	with norm 6
+Quad = -2+a	with norm 8
+Quad = 1+a	with norm 8
+Quad = 3	with norm 9
+Quad = -3+a	with norm 12
+Quad = 2+a	with norm 12
+Quad = 4	with norm 16
+Quad = -4+a	with norm 18
+Quad = 3+a	with norm 18
+Quad = -1+2a	with norm 23
+Quad = -2+2a	with norm 24
+Quad = 2a	with norm 24
+Quad = 5	with norm 25
+Quad = -5+a	with norm 26
+Quad = 4+a	with norm 26
+Quad = -3+2a	with norm 27
+Quad = 1+2a	with norm 27
+Quad = -4+2a	with norm 32
+Quad = 2+2a	with norm 32
+Quad = -6+a	with norm 36
+Quad = 6	with norm 36
+Quad = 5+a	with norm 36
+Quad = -5+2a	with norm 39
+Quad = 3+2a	with norm 39
+Quad = -6+2a	with norm 48
+Quad = -7+a	with norm 48
+Quad = 6+a	with norm 48
+Quad = 4+2a	with norm 48
+Quad = 7	with norm 49
+-------------------------------------------
+
+Quads with each possible norm from 1 to 50:
+Norm 1:	[ 1 ]
+Norm 4:	[ 2 ]
+Norm 6:	[ -1+a a ]
+Norm 8:	[ -2+a 1+a ]
+Norm 9:	[ 3 ]
+Norm 12:	[ -3+a 2+a ]
+Norm 16:	[ 4 ]
+Norm 18:	[ -4+a 3+a ]
+Norm 23:	[ -1+2a ]
+Norm 24:	[ -2+2a 2a ]
+Norm 25:	[ 5 ]
+Norm 26:	[ -5+a 4+a ]
+Norm 27:	[ -3+2a 1+2a ]
+Norm 32:	[ -4+2a 2+2a ]
+Norm 36:	[ 6 -6+a 5+a ]
+Norm 39:	[ -5+2a 3+2a ]
+Norm 48:	[ -7+a 6+a -6+2a 4+2a ]
+Norm 49:	[ 7 ]
+-------------------------------------------
+
+Quads with norms up to 25 in one list: 
+[ 1 2 -1+a a -2+a 1+a 3 -3+a 2+a 4 -4+a 3+a -1+2a -2+2a 2a 5 ]
+Quads with norms from 26 to 50 in separate lists: 
+Norm 26:	[ -5+a 4+a ]
+Norm 27:	[ -3+2a 1+2a ]
+Norm 32:	[ -4+2a 2+2a ]
+Norm 36:	[ 6 -6+a 5+a ]
+Norm 39:	[ -5+2a 3+2a ]
+Norm 48:	[ -7+a 6+a -6+2a 4+2a ]
+Norm 49:	[ 7 ]
+Norm 52:	[ -2+3a -1+3a ]
+-------------------------------------------
+
+all excluding conjugates, up to units
+-------------------------------------
+
+Quads in order of norm (using Quadlooper):
 Quad = 1	with norm 1
 Quad = 2	with norm 4
 Quad = a	with norm 6

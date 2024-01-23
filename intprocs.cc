@@ -209,8 +209,8 @@ INT dot(vector<INT>& a, vector<INT>& c)
 
 //#define testbezout
 
-// If (b,d)!=(0,0), return an HNF basis [(aa,bb), (cc,0)] for the
-// Z-module [[a,b],[c,d]]:
+// If (b,d)!=(0,0), return {aa,bb,cc} where [(aa,bb), (cc,0)] is an HNF basis
+// for the Z-module [[a,b],[c,d]]:
 vector<INT> hnf22(INT a, INT b, INT c, INT d)
 {
 #ifdef testbezout
@@ -230,23 +230,40 @@ vector<INT> hnf22(INT a, INT b, INT c, INT d)
 
 //#define testbezout
 
+// Test if the Z-module spanned by [coords[0][i], coords[1][i]] is all of Z^2 (for coprimality testing)
+int span_Z2(const pair< vector<INT>, vector<INT>> & coords)
+{
+  if (coords.first.size()!=coords.second.size()) return 0;
+  if (coords.first.size()<2) return 0;
+  INT g(0);
+  vector<INT>::const_iterator ai, bi, aj, bj;
+  for (ai=coords.first.begin(), bi=coords.second.begin(); g!=1 && ai!=coords.first.end(); ++ai, ++bi)
+    for (aj=ai+1, bj=bi+1; g!=1 && aj!=coords.first.end(); ++aj, ++bj)
+      g = gcd(g, ((*ai)*(*bj)-(*aj)*(*bi)));
+  return g==1;
+}
+
 //Sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for
 //the Z-module spanned by [first[i], second[i]]
 
-void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>& basis)
+// Returns {a,b,c} where [(a,b), (c,0)] is an HNF basis for the
+// Z-module spanned by [coords.first[i], coords.second[i]]
+
+vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords)
 {
 #ifdef testbezout
-  cout<<"findzbasis("<<first<<", "<<second<<"): "<<endl;
+  cout<<"findzbasis("<<coords.first<<", "<<coords.second<<"): "<<endl;
 #endif
   INT a, b, c, d;
   vector<INT>::const_iterator ai, bi, aj, bj;
+  vector<INT> basis;
   // Find a nonsingular 2x2 block:
   int t=1;
-  for (ai=first.begin(), bi=second.begin(); t && ai!=first.end(); ++ai, ++bi)
+  for (ai=coords.first.begin(), bi=coords.second.begin(); t && ai!=coords.first.end(); ++ai, ++bi)
     {
       a = *ai;
       b = *bi;
-      for (aj=ai+1, bj=bi+1; t && aj!=first.end(); ++aj, ++bj)
+      for (aj=ai+1, bj=bi+1; t && aj!=coords.first.end(); ++aj, ++bj)
         {
           c = *aj;
           d = *bj;
@@ -266,7 +283,7 @@ void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>
   cout<<" - after step 0, {a,b,c} = "<<basis<<endl;
 #endif
   // process all the rest
-  for (ai=first.begin(), bi=second.begin(); ai!=first.end(); ++ai, ++bi)
+  for (ai=coords.first.begin(), bi=coords.second.begin(); ai!=coords.first.end(); ++ai, ++bi)
     {
       INT e = *ai %c, f = *bi;
       basis = hnf22(a,b, e, f);
@@ -281,6 +298,7 @@ void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>
       cout<<" - after one step using ("<<(*ai)<<","<<(*bi)<<"), {a,b,c} = "<<basis<<endl;
 #endif
     }
+  return basis;
 }
 
 int div_disc(INT D1, INT D)

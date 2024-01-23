@@ -320,8 +320,7 @@ CuspList denom_3_sigmas()
 // Square radius for principal cusp
 RAT radius_squared(const RatQuad& a)
 {
-  RAT rsq(a.den().norm());
-  return rsq.recip();
+  return RAT(INT(1), a.den().norm());
 }
 
 // For a1, a2 normalised principal cusps with circles S_ai,
@@ -334,10 +333,13 @@ RAT radius_squared(const RatQuad& a)
 
 int tau(const RatQuad& a1, const RatQuad& a2)
 {
-  RAT r1sq = radius_squared(a1), r2sq = radius_squared(a2);
-  RAT d1 = (a1-a2).norm() - (r1sq + r2sq);
-  RAT d2 = d1*d1 - 4*r1sq*r2sq;
-  return (d2 < 0? 0: d1.sign() * (d2==0? 1: 2));
+  Quad r1=a1.num(), s1=a1.den(), r2=a2.num(), s2=a2.den();
+  INT n1 = s1.norm(), n2 = s2.norm(), n3 = (r1*s2-r2*s1).norm();
+  INT x = n3-n1-n2;
+  int sd1 = sign(x);
+  int sd2 = sign(x*x-4*n1*n2);
+  int ans = (sd2 < 0? 0: sd1 * (sd2==0? 1: 2));
+  return ans;
 }
 
 // return 1 iff the circle S_A1 is inside S_a2
@@ -362,37 +364,6 @@ int circle_inside_any_circle(const RatQuad& a, const CuspList& blist, int strict
                      [a, strict](RatQuad b) {return circle_inside_circle(a,b,strict);});
 }
 
-// Return list of 0, 1 or 2 sqrts of a rational r in k
-vector<RatQuad> sqrts(const RAT& r)
-{
-  int s = r.sign();
-  if (s>0)
-    return vector<RatQuad>(); // empty
-  if (s==0)
-    return {RatQuad()};       // 0
-  RAT root;
-  if (r.is_square(root))      // rational square
-    {
-      RatQuad rt(root);
-      assert (rt*rt==RatQuad(r));
-      return {rt, -rt};
-    }
-  RAT rd = -r*INT(Quad::d);
-  if (rd.is_square(root))      // -d * rational square
-    {
-      // now root^2 = -d*r, so (rt/sqrt(-d))^2 = r
-      Quad root_minus_d = (Quad::t ? Quad(-1,2) : Quad::w);
-      RatQuad rt(root);
-      rt /= root_minus_d;
-      assert (rt*rt==RatQuad(r));
-      return {rt, -rt};
-    }
-  else
-    {
-      return vector<RatQuad>(); // empty
-    }
-}
-
 // return a list of up to 2 k-rational cusps where the S_ai intersect
 CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
 {
@@ -408,8 +379,7 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   delta = delta.conj();
   RatQuad z = a1 + a2 + (r1sq-r2sq)/delta;
   // find sqrts of d2 in k, if any
-  vector<RatQuad> d2sqrts = sqrts(d2);
-  for ( const auto& sqrtd2 : d2sqrts)
+  for ( const auto& sqrtd2 : sqrts_in_k(d2))
     {
       RatQuad pt = z/TWO + sqrtd2/(TWO*delta);
       assert ((pt-a1).norm() == r1sq);
@@ -419,18 +389,10 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   return ans;
 }
 
-
-// return 1 iff a is [strictly] inside S_b
+// return 1 iff a is [strictly] inside S_b (b principal, a arbitrary)
 int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 {
-  RAT t = radius_squared(b) - (a-b).norm();
-  if (0)
-    {
-      cout<<"Testing whether "<<a<<" is strictly inside S_{"<<b<<"}\n";
-      cout<<" square radius = "<<radius_squared(b);
-      cout<<" square distance = "<<(a-b).norm();
-      cout<<" result: "<<(t>0)<<endl;
-    }
+  int t = sign(a.den().norm() - (a.num()*b.den()-a.den()*b.num()).norm());
   return (strict ? 0<t : 0<=t);
 }
 
@@ -453,7 +415,7 @@ CuspList principal_cusps_of_dnorm(const INT& n)
 
 CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 {
-  return principal_cusps_with_denominators(quads_of_norm_up_to(maxn));
+  return principal_cusps_with_denominators(quads_of_norm_up_to(maxn, 1, 1));
 }
 
 // list of principal cusps with given denominator
@@ -461,13 +423,8 @@ CuspList principal_cusps_with_denominator(const Quad& s)
 {
   CuspList alist;
   Quad temp;
-  auto rlist = invertible_residues(s);
-  for ( const auto& r : rlist)
-    {
-      auto a = reduce_to_rectangle(RatQuad(r, s), temp);
-      if (!circle_inside_any_circle(a, alist))
-        alist.push_back(a);
-    }
+  for ( const auto& r : invertible_residues(s))
+    alist.push_back(reduce_to_rectangle(RatQuad(r, s), temp));
   return alist;
 }
 
@@ -477,7 +434,9 @@ CuspList principal_cusps_with_denominators(const vector<Quad>& slist)
   CuspList alist;
   for ( const auto& s : slist)
     {
+      // cout << "denominator "<<s<<" (norm "<<s.norm()<<"): "<<flush;
       auto alist1 = principal_cusps_with_denominator(s);
+      // cout << alist1 << endl;
       alist.insert(alist.end(), alist1.begin(), alist1.end());
     }
   return alist;
@@ -716,7 +675,7 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
       CuspPair pr = {a0,a1};
       if (std::find(a0_pairs_ok.begin(), a0_pairs_ok.end(), pr) != a0_pairs_ok.end())
         continue; // this pair is already ok
-      if (are_intersection_points_covered(a0, a1, alist, sigmas))
+      if (are_intersection_points_covered(a0, a1, alist, sigmas, debug))
         {
           pairs_ok.push_back(pr); // record that this pair is ok
           if (debug)

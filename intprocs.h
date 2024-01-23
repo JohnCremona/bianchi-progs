@@ -43,6 +43,9 @@ INT vecbezout(vector<INT>& a, vector<INT>& c);
 // dot product
 INT dot(vector<INT>& a, vector<INT>& c);
 
+// Test if the Z-module spanned by [coords[0][i], coords[1][i]] is all of Z^2 (for coprimality testing)
+int span_Z2( const pair< vector<INT>, vector<INT>> & coords);
+
 // Finds basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for the
 //Z-module spanned by [first[i], second[i]]
 //
@@ -51,7 +54,7 @@ INT dot(vector<INT>& a, vector<INT>& c);
 // second.x = f1
 // second.y = 0
 
-void findzbasis(const vector<INT>& first, const vector<INT>& second, vector<INT>& basis);
+vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords);
 
 // For D1, D fundamental discriminants, test if D=D1*D2 with D2 another discriminant
 int div_disc(INT D1, INT D);
