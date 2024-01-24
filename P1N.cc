@@ -236,18 +236,15 @@ mat22 P1N::lift_to_SL2(long ind)
   return M;
 }
 
-// return a matrix [a, b; c, d] with det=1, c in M and (c:d) equal
-// to the i'th symbol (requires M,N coprime). If (u,v)!=(0,0) they
-// should satisfy u+v=1 with u in N, v in M, otherwise such u,v will
-// be computed and returned.
+// return a matrix [a, b; c, d] with det=1, c in M and (c:d) equal to
+// the i'th symbol (requires M,N coprime). (u,v) should satisfy u+v=1
+// with u in N, v in M.
 mat22 P1N::lift_to_Gamma_0(long i, Qideal M, const Quad& u, const Quad& v)
 {
-  Quad uu(u), vv(v);
-  if (uu.is_zero() && vv.is_zero())
-    M.is_coprime_to(N, uu, vv); // u+v=1, u in M, v in N
   Quad c, d;
   make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
-  mat22 G = ::lift_to_Gamma_0(M, N, c, d, uu, vv);
+  Qideal MN = M*N;
+  mat22 G = ::lift_to_Gamma_0(MN, c, d, u, v);
   assert (G.is_unimodular());
   assert (index(G.entry(1,0), G.entry(1,1))==i);
   assert (M.contains(G.entry(1,0)));
@@ -295,7 +292,7 @@ void P1N::check_lifts(int verbose) // checks lifts to SL2 and Gamma_0(P) for a P
       if (!P.divides(N))
         break;
     }
-
+  i = P.is_coprime_to(N, u, v);
   if (verbose)
     {
       cout << "Testing lifts from P1(N) to SL(2,O_K) and to Gamma_0(P) for N = " << N << " and P= "<<P<<":\n";

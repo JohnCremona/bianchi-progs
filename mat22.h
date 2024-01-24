@@ -112,9 +112,15 @@ inline ostream& operator<< (ostream& s, const mat22& m)
 mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd);
 
 // return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
-// If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
-// otherwise such u,v will be computed.
-mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, const Quad& u = Quad::zero, const Quad& v = Quad::zero);
+// (u,v) should satisfy u+v=1 with u in N, v in M.
+
+// Use CRT: lift (cc:dd) in P^1(N) to (c:d) in P^1(MN) which also lifts (0:1) in P^1(M), then lift that
+
+// NB The values of M and N are not used, so are not parameters, though it seems strange not to mention them
+inline mat22 lift_to_Gamma_0(Qideal& MN, const Quad& cc, const Quad& dd, const Quad& u, const Quad& v)
+{
+  return lift_to_SL2(MN, cc*u, dd*u+v);
+}
 
 #endif
 

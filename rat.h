@@ -161,14 +161,18 @@ public:
   }
   RAT operator/(long b) const {
     RAT c;
-    fmpz_t z; fmpz_init_set_si(z, b);
+    fmpz_t z;
+    fmpz_init_set_si(z, b);
     fmpq_div_fmpz(c.q, q, z);
+    fmpz_clear(z);
     return c;
   }
   RAT operator/(int b) const {
     RAT c;
-    fmpz_t z; fmpz_init_set_si(z, b);
+    fmpz_t z;
+    fmpz_init_set_si(z, b);
     fmpq_div_fmpz(c.q, q, z);
+    fmpz_clear(z);
     return c;
   }
   friend inline RAT operator/(const INT& a, const RAT& b) {
@@ -229,7 +233,12 @@ public:
   void operator*=(int b) {fmpq_mul_si(q, q, b);}
   void operator/=(const RAT& b) {fmpq_div(q, q, b.q);}
   void operator/=(const INT& b) {fmpq_div_fmpz(q, q, b.z);}
-  void operator/=(int b) {fmpz_t bb; fmpz_set_si(bb,b); fmpq_div_fmpz(q, q, bb);}
+  void operator/=(int b) {
+    fmpz_t bb;
+    fmpz_init_set_si(bb,b);
+    fmpq_div_fmpz(q, q, bb);
+    fmpz_clear(bb);
+  }
 
   RAT operator+() const {
     RAT x(*this);

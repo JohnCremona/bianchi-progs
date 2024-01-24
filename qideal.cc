@@ -313,6 +313,7 @@ Qideal Qideal::operator*(const Quad& alpha) const
 
 Qideal Qideal::operator*(Qideal& f) const
 {
+  //cout << "Multiplying ideal "<<(*this)<<" by "<<f<<endl;
   Qideal ans(*this);
   ans*=f;
   return ans;

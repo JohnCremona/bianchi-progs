@@ -154,7 +154,7 @@ mat22 AtkinLehnerQ_Chi(Quadprime& Q, Qideal& A, const Qideal& N)
 vector<mat22> HeckeP(Quadprime& P)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckeP("<<P<<"), level "<<N<<endl;
+  cout<<"In HeckeP("<<P<<")"<<endl;
 #endif
   Quad g;
   int i = P.is_principal(g);
@@ -211,6 +211,7 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
   cout<<"In HeckePSq(P,N) with P="<<P<<", N="<<N<<endl;
 #endif
   Qideal P2 = P*P;
+  Qideal NP2 = N*P2;
   Quad g, u,v,a;
   int i = P2.is_principal(g);
   assert (i && "P^2 must be principal in HeckePSq(P,N)");
@@ -227,9 +228,9 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
   // with the second factor a lift from P^1(O/P^2) to Gamma_0(N)
   for( const auto& a : resmodp2)
     {
-      mats.push_back(M1*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
+      mats.push_back(M1*lift_to_Gamma_0(NP2, Quad::one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M1*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
+        mats.push_back(M1*lift_to_Gamma_0(NP2, a, Quad::one, u, v));
     }
 
   // (3) M2, a (P,P) matrix of level N  (1 matrix, so N(P)^2_N(P)+1 in all):
@@ -251,6 +252,7 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
   cout<<"In HeckePSq_Chi(P,N) with P="<<P<<", A="<<A<<", N="<<N<<endl;
 #endif
   Qideal P2 = P*P;
+  Qideal NP2 = N*P2;
   Qideal AP = A*P, AP2 = A*P2;
   Qideal A2P2 = A*AP2;
   Quad g, u, v, a;
@@ -268,9 +270,9 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
   // with the second factor a lift from P^1(P^2) to Gamma_0(N)
   for( const auto& a : resmodp2)
     {
-      mats.push_back(M1*lift_to_Gamma_0(N, P2, Quad::one, a, u, v));
+      mats.push_back(M1*lift_to_Gamma_0(NP2, Quad::one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M1*lift_to_Gamma_0(N, P2, a, Quad::one, u, v));
+        mats.push_back(M1*lift_to_Gamma_0(NP2, a, Quad::one, u, v));
     }
 
   // (3) M2, an (AP,AP) matrix of level N  (1 matrix, so N(P)^2_N(P)+1 in all):
@@ -296,6 +298,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 #endif
   Quad g, u, v, a;
   Qideal PQ = P*Q;
+  Qideal NPQ = N*PQ;
   int i = PQ.is_principal(g);
   assert (i && "PQ must be principal in HeckePQ(P,Q,N)");
   vector<Quad> resmodpq = PQ.residues();
@@ -307,9 +310,9 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
   for( const auto& a : resmodpq)
     {
-      mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NPQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(N, PQ, a, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(NPQ, a, Quad::one, u, v));
     }
 
   // (3) (P,Q) and (Q,P) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
@@ -331,7 +334,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 vector<mat22> HeckeB(Qideal& B, Qideal& N)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckeB(B,N) with B="<<B<<" = "<<B.factorization()<", N="<<N<<endl;
+  cout<<"In HeckeB(B,N) with B="<<B<<" = "<<B.factorization()<<", N="<<N<<endl;
 #endif
   Quad g, u, v, c, d;
   int i = B.is_principal(g);
@@ -341,13 +344,14 @@ vector<mat22> HeckeB(Qideal& B, Qideal& N)
 
   // The matrices are
   // M*lift(c:d) for all (c:d) in P1(O/B), lifted to Gamma_0(N)    (psi(B) matrices)
+  Qideal NB = N*B;
   P1N P1B(B);
   vector<mat22> mats;
   mats.reserve(P1B.size());
   for(i=0; i<P1B.size(); i++)
     {
       P1B.make_symb(i,c,d);
-      mats.push_back(M*lift_to_Gamma_0(N, B, c, d, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NB, c, d, u, v));
     }
 
 #ifdef DEBUG_HECKE
@@ -367,6 +371,7 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
   Quad g, u, v, a;
   Qideal PQ = P*Q, AP=A*P, AQ=A*Q;
   Qideal APQ = A*PQ, A2PQ=AP*AQ;
+  Qideal NPQ = N*PQ;
   int i = A2PQ.is_principal(g);
   assert (i && "A^2PQ must be principal in HeckePQ(P,Q,A,N)");
   vector<mat22> mats;
@@ -379,9 +384,9 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
   for( const auto& a : resmodpq)
     {
-      mats.push_back(M*lift_to_Gamma_0(N, PQ, Quad::one, a, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NPQ, Quad::one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(N, PQ, a, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(NPQ, a, Quad::one, u, v));
     }
 
   // (3) (AP,AQ) and (AQ,AP) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
@@ -406,6 +411,7 @@ vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
 #endif
   Quad g, u, v, c,d;
   Qideal AB = A*B;
+  Qideal NB = N*B;
   Qideal A2B = A*AB;
   int i = A2B.is_principal(g);
   assert (i && "A^2B must be principal in HeckePQ(B,A,N)");
@@ -421,7 +427,7 @@ vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
   for(i=0; i<P1B.size(); i++)
     {
       P1B.make_symb(i,c,d);
-      mats.push_back(M*lift_to_Gamma_0(N, B, c, d, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NB, c, d, u, v));
     }
 
 #ifdef DEBUG_HECKE
@@ -463,9 +469,10 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
   Quad a, b, c, d, r, s;
   i = PM1.is_coprime_to(M2M3, r, s); // r+s=1, r in PM1, s in M2M3
   assert (i);
+  Qideal PM1M2M3 = PM1*M2M3;
 
   // First handle (1:0) mod P*M1, finding a lift [a,b;c,d] with c in M2M3 so h|c
-  mat22 m = lift_to_Gamma_0(M2M3, PM1, ONE, ZERO, s, r);
+  mat22 m = lift_to_Gamma_0(PM1M2M3, ONE, ZERO, s, r);
 #ifdef DEBUG_HECKE
   cout<<" Lift of (1:0) mod "<<PM1<<" to Gamma_0("<<M2M3<<") is "<<m<<endl;
 #endif
@@ -487,7 +494,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 #ifdef DEBUG_HECKE
       cout<<"lifting (c:d)=("<<c<<":"<<d<<") from "<<PM1<<" to Gamma_0("<<M2M3<<")"<<endl;
 #endif
-      m = lift_to_Gamma_0(M2M3, PM1, c, d, s, r);
+      m = lift_to_Gamma_0(PM1M2M3, c, d, s, r);
 #ifdef DEBUG_HECKE
       cout<<" --> "<<m<<endl;
 #endif

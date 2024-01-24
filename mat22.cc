@@ -79,19 +79,3 @@ mat22 lift_to_SL2(Qideal& N, const Quad& cc, const Quad& dd)
 #endif
   return M;
 }
-
-// return a matrix [a, b; c, d] with det=1 and c in M and (c:d)=(cc:dd) in P^1(N)
-// If (u,v)!=(0,0) they should satisfy u+v=1 with u in N, v in M,
-// otherwise such u,v will be computed and returned.
-mat22 lift_to_Gamma_0(Qideal& M, Qideal& N, const Quad& cc, const Quad& dd, const Quad& u, const Quad& v)
-{
-  // CRT: lift (cc:dd) in P^1(N) to (c:d) in P^1(MN) which also lifts (0:1) in P^1(M), then lift that
-  Quad uu(u), vv(v);
-  if (uu.is_zero() && vv.is_zero())
-    M.is_coprime_to(N, uu, vv); // u+v=1, u in M, v in N
-  assert (M.contains(uu));
-  assert (N.contains(vv));
-  assert (uu+vv==Quad::one);
-  Qideal MN = M*N;
-  return lift_to_SL2(MN, cc*uu, dd*uu+vv);
-}

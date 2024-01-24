@@ -1005,10 +1005,13 @@ string field_label() // returns field label, e.g. '2.0.4.1'
 
 int are_associate(const Quad& a, const Quad& b)
 {
-  if(a.is_zero()) return (b.is_zero());
+  if (a==b) return 1;
+  if (a.is_zero() ||b.is_zero()) return 0;
+  if (a==-b) return 1;
+  if (Quad::nunits !=2) return 0;
   if(a.norm() != b.norm()) return 0;
   for( const auto& eps : quadunits)
-    if(a*eps==b) return 1;
+    if (a*eps==b) return 1;
   return 0;
 }
 
