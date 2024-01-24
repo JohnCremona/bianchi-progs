@@ -25,7 +25,7 @@ int main ()
  while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
 #endif
    {
-     n = makepos((Quad)alpha);  long normn = quadnorm(n);
+     n = makepos((Quad)alpha);  long normn = n.norm();
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
      nf.read_from_file();

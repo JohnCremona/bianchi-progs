@@ -356,9 +356,10 @@ int Quad::chi(INT p)
 }
 
 Quad makepos(const Quad& a)
-{Quad ans=a;
+{
+  Quad ans=a;
   while(!pos(ans)) {ans*=fundunit; }
- return ans;
+  return ans;
 }
 
 istream& operator>>(istream& s, Quad& x)
@@ -378,7 +379,7 @@ void Quad::setnorm()
 Quad Quad::operator/ (const Quad& b) const
 {
   if (!::is_zero(b.i))
-    return qdivi(mult(*this,quadconj(b)), b.nm);
+    return qdivi(mult_conj(*this,b), b.nm);
   else
     return qdivi(*this,b.r);
 }
@@ -386,7 +387,7 @@ Quad Quad::operator/ (const Quad& b) const
 void Quad::operator/=(const Quad& b)
 {
   if (!::is_zero(b.i))
-    *this=qdivi(mult(*this,quadconj(b)), b.nm);
+    *this=qdivi(mult_conj(*this,b), b.nm);
   else
     *this=qdivi(*this,b.r);
 }
@@ -427,7 +428,7 @@ int div(const Quad& a, const Quad& b)
  if (a.nm==0) return (b.nm==0);
  if (b.nm==0) return 1;
  if (b.nm%a.nm!=0) return 0;
- Quad c = b*quadconj(a);
+ Quad c = mult_conj(b,a);
  return (((c.r)%a.nm)==0) && (((c.i)%a.nm)==0);
 }
 
@@ -437,7 +438,7 @@ int div(const Quad& a, const Quad& b, Quad& quo)
  if (a.nm==0) return (b.nm==0);
  if (b.nm==0) {quo=0; return 1;}
  if (b.nm%a.nm!=0) return 0;
- Quad c = b*quadconj(a);
+ Quad c = mult_conj(b,a);
  INT qr, qi, rr, ri;
  if ( divrem(c.r, a.nm, qr, rr) && divrem(c.i, a.nm, qi, ri) )
    {
@@ -622,12 +623,12 @@ void Quad::initquadprimes()
 
 Quad primdiv(const Quad& a)
 {
-  INT na=quadnorm(a);
+  INT na = a.norm();
   if (na<2) return Quad::zero;   // must return something!
   for ( const auto& p : quadprimes)
     {
       if (div(p,a)) return p;
-      INT np=quadnorm(p);
+      INT np = p.norm();
       if (np*np>na) return makepos(a);
     }
   cout<<"No prime divisor found for "<<a<<" so assuming prime!\n";
@@ -635,7 +636,7 @@ Quad primdiv(const Quad& a)
 }
 
 vector<Quad> pdivs(const Quad& aa)
-{ Quad a=aa; INT norma=quadnorm(a);
+{ Quad a=aa; INT norma = a.norm();
   vector<Quad> plist; // will hold prime factors
   if (norma<2) return plist;
   for ( const auto& p : quadprimes)
@@ -644,12 +645,12 @@ vector<Quad> pdivs(const Quad& aa)
 	 {
 	   plist.push_back(p);
 	   while (div(p,a, a));
-	   norma=quadnorm(a);
+	   norma = a.norm();
 	   if (norma==1) return plist;
 	 }
        else
 	 {
-	   INT normp=quadnorm(p);
+	   INT normp = p.norm();
 	   if (normp*normp>norma)
 	     {
 	       plist.push_back(makepos(a));
@@ -658,7 +659,7 @@ vector<Quad> pdivs(const Quad& aa)
 	 }
      }
   //In case of p-factors outside range, assume the cofactor is prime:
-  if (quadnorm(a)>1)
+  if (a.norm()>1)
     plist.push_back(makepos(a));
   return plist;
 }
@@ -781,7 +782,7 @@ Quad invmod(const Quad& a, const Quad& p)
 
 int invertible(const Quad& a, const Quad& b, Quad& inverse)
 { Quad y; Quad g = quadbezout(a,b,inverse,y);
-  return g==Quad::one;
+  return g.is_one();
 }
 
 //#define test_reduce
@@ -790,7 +791,7 @@ int invertible(const Quad& a, const Quad& b, Quad& inverse)
 // is reduced mod Z<beta>
 INT nearest_INT_to_Quad_quotient ( const Quad& alpha, const Quad& beta)
 {
-  return rounded_division((alpha*quadconj(beta)).re(), beta.norm());
+  return rounded_division(racb(alpha,beta), beta.norm());
 }
 
 // reduction of gamma modulo Z<alpha,beta>
@@ -799,10 +800,10 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
 #ifdef test_reduce
   cout << "reduction of "<<gamma<<" mod <"<<alpha<<","<<beta<<">"<< flush;
 #endif
-  INT d = (quadconj(alpha)*beta).im();
+  INT d = iacb(beta, alpha); // = (beta*quadconj(alpha)).im();
   assert (d>0);
-  INT x = rounded_division((-gamma*quadconj(beta)).im(), d);
-  INT y = rounded_division(( gamma*quadconj(alpha)).im(), d);
+  INT x = rounded_division(-iacb(gamma, beta), d);
+  INT y = rounded_division( iacb(gamma, alpha), d);
   Quad ans = gamma - (x*alpha + y*beta);
 #ifdef test_reduce
   cout << " is "<< ans << " (d="<<d<<", x="<<x<<", y="<<y<<")"<<endl;
@@ -810,18 +811,18 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta)
   cout << " y*beta =  "<< y*beta << endl;
   cout << " x*alpha+y*beta =  "<< x*alpha+y*beta << endl;
 #endif
-  INT gn = quadnorm(ans);
+  INT gn = ans.norm();
   vector<Quad> tests = {ans+alpha, ans-alpha, ans+beta, ans-beta,
                         ans-alpha-beta, ans-alpha+beta, ans+alpha-beta, ans+alpha+beta};
   for ( const auto& t : tests)
     {
-      if (gn>quadnorm(t))
+      if (gn > t.norm())
         {
 #ifdef test_reduce
           cout<<"reduction "<<ans<<" has larger norm than shift "<<t<<", switching"<<endl;
 #endif
           ans = t;
-          gn = quadnorm(t);
+          gn = t.norm();
         }
     }
   return ans;
@@ -866,19 +867,19 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
   // e.g. so that the basis [1,w] is reduced
   // NB im(x+y*w)>0 iff y>0 for both t=0 and t=1 cases
 
-  if ((quadconj(alpha)*beta).im() < 0)
+  if (iacb(beta, alpha) < 0)
     beta=-beta;
 
   // If we wanted to make sure that beta/alpha is unambiguously defined when on the boundary:
-  // if (2*(quadconj(alpha)*beta).re() == -quadnorm(alpha))
+  // if (2*racm(beta, alpha) == -alpha.norm())
   //   beta+=alpha;
 
 #ifdef test_reduce
   cout<<"After reduction, alpha="<<alpha<<", beta="<<beta
-      <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
-  assert (quadnorm(alpha)<=quadnorm(beta));
+      <<" with norms "<<alpha.norm()<<", "<<beta.norm()<<endl;
+  assert (alpha.norm()<=beta.norm());
   //assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
-  assert ((quadconj(alpha)*beta).im() > 0);
+  assert (iacb(beta, alpha) > 0);
 #endif
 }
 
@@ -933,23 +934,23 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
 //   // e.g. so that the basis [1,w] is reduced
 //   // NB im(x+y*w)>0 iff y>0 for both t=0 and t=1 cases
 
-//   if ((quadconj(alpha)*beta).im() < 0)
+//   if (iacb(beta,alpha) < 0)
 //     beta=-beta;
 
 //   // If we wanted to make sure that beta/alpha is unambiguously defined when on the boundary:
-//   // if (2*(quadconj(alpha)*beta).re() == -quadnorm(alpha))
+//   // if (2*tacm(beta, alpha) == -alpha.norm())
 //   //   beta+=alpha;
 
 // #ifdef test_reduce
 //   cout<<"After reduction by U="<<U<<", alpha="<<alpha<<", beta="<<beta
-//       <<" with norms "<<quadnorm(alpha)<<", "<<quadnorm(beta)<<endl;
+//       <<" with norms "<<alpha.norm()<<", "<<beta.norm()<<endl;
 //   U11 = I2long(U(1,1)); U12 = I2long(U(1,2));
 //   U21 = I2long(U(2,1)); U22 = I2long(U(2,2));
 //   assert (U11*alpha+U12*beta == alpha0);
 //   assert (U21*alpha+U22*beta == beta0);
-//   assert (quadnorm(alpha)<=quadnorm(beta));
+//   assert (alpha.norm()<=beta.norm());
 //   assert (nearest_INT_to_Quad_quotient(alpha,beta)==0);
-//   assert ((quadconj(alpha)*beta).im() > 0);
+//   assert (iacb(beta, alpha) > 0);
 // #endif
 // }
 
@@ -1013,15 +1014,14 @@ int are_associate(const Quad& a, const Quad& b)
 
 int is_ideal_Galois_stable(const Quad& a)
 {
-  Quad b(quadconj(a));
-  return are_associate(a, b);
+  return are_associate(a, a.conj());
 }
 
 string ideal_code(const Quad& N) // string code for a (principal) ideal N
 {
   vector<INT>H = HNF(N);
   stringstream s;
-  s << quadnorm(N) << "." << H[1] << "." << H[2];
+  s << N.norm() << "." << H[1] << "." << H[2];
   return s.str();
 }
 

@@ -63,8 +63,8 @@ public:
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
   mat calcop(const matop& T, int cuspidal=0, int dual=1, int display=0);
-  vec calcop_col(const matop& T, int j, int verb=0)  {return applyop(T,freemods[j-1]);}
-  mat calcop_cols(const matop& T, const vec& jlist, int verb=0);
+  vec calcop_col(const matop& T, int j, int)  {return applyop(T,freemods[j-1]);}
+  mat calcop_cols(const matop& T, const vec& jlist, int);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
   smat s_calcop(const matop& T, int cuspidal, int dual, int display);
   smat s_calcop_cols(const matop& T, const vec& jlist, int verb=0);

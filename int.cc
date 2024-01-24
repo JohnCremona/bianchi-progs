@@ -7,7 +7,9 @@
 
 std::ostream& operator<<(std::ostream& s, const INT& a)
 {
-  s << std::string(fmpz_get_str(NULL, 10, a.z));
+  char* st = fmpz_get_str(NULL, 10, a.z);
+  s << std::string(st);
+  flint_free(st);
   return s;
 }
 
@@ -59,10 +61,11 @@ std::vector<INT> pdivs(const INT& a)
   std::vector<INT> ans;
   for (int i =0; i< f->num; i++)
     {
-      INT p;
-      fmpz_init_set(p.z, f->p + i);
+      INT p(f->p + i);
+      //fmpz_set(p.z, f->p + i);
       ans.push_back(p);
     }
+  fmpz_factor_clear(f);
   return ans;
 }
 

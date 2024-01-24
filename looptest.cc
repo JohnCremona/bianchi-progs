@@ -32,7 +32,7 @@ int main(void)
       for(Quadlooper looper(firstn,lastn,conj); looper.ok(); ++looper)
         {
           a = (Quad)looper;
-          cout << "Quad = " << a << "\twith norm " << quadnorm(a) << endl;
+          cout << "Quad = " << a << "\twith norm " << a.norm() << endl;
         }
       cout << "-------------------------------------------\n\n";
 #endif

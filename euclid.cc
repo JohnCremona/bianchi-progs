@@ -525,7 +525,7 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
 #ifdef DEBUG_PSEA
       else
         {
-          //cout<<" - failure (q="<<q<<"), new b would have had norm "<<quadnorm(b1)<<endl;
+          //cout<<" - failure (q="<<q<<"), new b would have had norm "<<b1.norm()<<endl;
         }
 #endif
     }

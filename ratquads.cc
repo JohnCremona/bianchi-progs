@@ -85,8 +85,8 @@ void RatQuad::normalise()                              // scale so ideal is a st
 // return rational x,y s.t. this = x+y*sqrt(-d)
 vector<RAT> RatQuad::coords(int rectangle) const
 {
-  Quad a = n*d.conj();
   INT b = d.norm();
+  Quad a = mult_conj(n,d);
   RAT x(a.r, b), y(a.i, b);
   if (rectangle && Quad::t)
     {

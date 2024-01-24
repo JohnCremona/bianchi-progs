@@ -896,17 +896,17 @@ mat newforms::opmat_restricted(int i, const subspace& s, int dual, int verb)
   return h1->calcop_restricted(h1matop(i),s,dual,verb);
 }
 
-smat newforms::s_opmat(int i, int dual, int verb)
+smat newforms::s_opmat(int i, int dual, int)
 {
   return h1->s_calcop(h1matop(i),0, dual, verbose);
 }
 
-smat newforms::s_opmat_cols(int i, const vec& jlist, int verb)
+smat newforms::s_opmat_cols(int i, const vec& jlist, int)
 {
   return h1->s_calcop_cols(h1matop(i),jlist, verbose);
 }
 
-smat newforms::s_opmat_restricted(int i, const ssubspace& s, int dual, int verb)
+smat newforms::s_opmat_restricted(int i, const ssubspace& s, int dual, int)
 {
   return h1->s_calcop_restricted(h1matop(i),s,dual,0);
 }
@@ -1180,7 +1180,7 @@ void newforms::fill_in_newform_data(int everything)
     find_lambdas();
 }
 
-void newforms::use(const vec& b1, const vec& b2, const vector<long> eigs)
+void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
 {
   if (use_nf_number==-1)
     {

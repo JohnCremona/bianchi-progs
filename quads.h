@@ -97,15 +97,30 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void setnorm();
   Quad() :r(0), i(0), nm(0)  {}
   Quad(INT x) :r(x), i(0), nm(x*x)  {}
-  Quad(INT x, INT y) :r(x),i(y)
-  {
-    nm = r*r + n*i*i;
-    if (t) {nm += r*i;};
-    assert (nm>=0);
-  }
+  Quad(INT x, INT y) :r(x),i(y)  {setnorm();}
   Quad(INT x, INT y, INT nrm) :r(x), i(y), nm(nrm)  {}
   explicit Quad(const bigcomplex& z);   //rounds to nearest
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {}
+  // racb = real_part_of_first_times_conjugate_of_second
+  friend INT racb(const Quad& a, const Quad& b)
+  {
+    INT c = fmma(a.r, b.r , a.i, b.i*n); // a.r*b.r + a.i*b.i*n;
+    if (t) c += a.r*b.i;
+    return c;
+  }
+  // iacb = imag_part_of_first_times_conjugate_of_second
+  friend INT iacb(const Quad& a, const Quad& b)
+  {
+    return fmms(a.i, b.r, b.i, a.r); // a.i*b.r - b.i*a.r
+  }
+  // a * conj(b)
+  friend Quad mult_conj(const Quad& a, const Quad& b)
+  {
+    INT x = fmma(a.r, b.r , a.i, b.i*n), y = a.r*b.i;
+    if (Quad::t) x += y;
+    y = a.i*b.r - y;
+    return Quad(x, y, a.nm*b.nm);
+  }
   Quad conj() const {return quadconj(*this);}
   INT re() const {return r;}
   INT im() const {return i;}
@@ -113,6 +128,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   INT content() const {return gcd(r,i);}
   Quad pos_assoc() const {return makepos(*this);}
   int is_zero() const {return ::is_zero(nm);}
+  int is_unit() const {return nm==1;}
+  int is_one() const {return (r==1)&&(i==0);}
 
 //operators and related functions (friends are inlined below):
 

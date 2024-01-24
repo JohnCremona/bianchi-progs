@@ -27,7 +27,7 @@ int main(void)
  for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
    {
      n = makepos((Quad)alpha);
-     long normn = quadnorm(n);
+     long normn = n.norm();
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);

@@ -33,7 +33,7 @@ int main ()
      while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
        {
          p = *pr++;
-         cout << "("<<p << ") has norm "<<quadnorm(p)<<" and label "<<ideal_label(p)<<endl;
+         cout << "("<<p << ") has norm "<<p.norm()<<" and label "<<ideal_label(p)<<endl;
        }
    }
  else
@@ -78,7 +78,7 @@ int main ()
  cout << "pos(a) = " << pos(a) << endl;
 
 //Test of residues
- vector<Quad> resmoda = residues(a);  INT norma=quadnorm(a);
+ vector<Quad> resmoda = residues(a);  INT norma=a.norm();
  cout << norma << " residues modulo a: "<<resmoda<<endl;
 
 //Test of primes and divisor functions

@@ -18,6 +18,7 @@ public:
   INT(int a) {fmpz_init_set_si(z, a);}
   INT(long a) {fmpz_init_set_si(z, a); }
   INT(const INT& a) {fmpz_init_set(z, a.z);}
+  INT(fmpz_t a) {fmpz_init_set(z, a);}
   // Destructor:
   ~INT() {fmpz_clear(z);}
   INT& operator=(int a) {fmpz_set_si(z, a); return *this;}
@@ -30,21 +31,21 @@ public:
   int operator!=(int a) const {return !fmpz_equal_si(z, a);}
   int operator!=(long a) const {return !fmpz_equal_si(z, a);}
   int sign() const {return fmpz_sgn(z);}
-  INT operator-() const {INT b; fmpz_set(b.z,z); fmpz_neg(b.z,b.z); return b;}
+  INT operator-() const {INT b; fmpz_neg(b.z,z); return b;}
   INT abs() const {INT b; fmpz_abs(b.z,z); return b;}
   int is_long() const {return fmpz_fits_si(z);}
-  INT operator+(int a) const {INT b; fmpz_set(b.z,z); fmpz_add_si(b.z,b.z,a); return b;}
-  INT operator+(long a) const {INT b; fmpz_set(b.z,z); fmpz_add_si(b.z,b.z,a); return b;}
-  INT operator+(const INT& a) const {INT b; fmpz_set(b.z,z); fmpz_add(b.z,b.z,a.z); return b;}
-  INT operator-(int a) const {INT b; fmpz_set(b.z,z); fmpz_sub_si(b.z,b.z,a); return b;}
-  INT operator-(long a) const {INT b; fmpz_set(b.z,z); fmpz_sub_si(b.z,b.z,a); return b;}
-  INT operator-(const INT& a) const {INT b; fmpz_set(b.z,z); fmpz_sub(b.z,b.z,a.z); return b;}
-  INT operator*(int a) const {INT b; fmpz_set(b.z,z); fmpz_mul_si(b.z,b.z,a); return b;}
-  INT operator*(long a) const {INT b; fmpz_set(b.z,z); fmpz_mul_si(b.z,b.z,a); return b;}
-  INT operator*(const INT& a) const {INT b; fmpz_set(b.z,z); fmpz_mul(b.z,b.z,a.z); return b;}
-  INT operator/(const INT& a) const {INT b; fmpz_set(b.z,z); fmpz_divexact(b.z,b.z,a.z); return b;}
-  INT operator/(int a) const {INT b; fmpz_set(b.z,z); fmpz_divexact_si(b.z,b.z,a); return b;}
-  INT operator/(long a) const {INT b; fmpz_set(b.z,z); fmpz_divexact_si(b.z,b.z,a); return b;}
+  INT operator+(int a) const {INT b; fmpz_add_si(b.z,z,a); return b;}
+  INT operator+(long a) const {INT b; fmpz_add_si(b.z,z,a); return b;}
+  INT operator+(const INT& a) const {INT b; fmpz_add(b.z,z,a.z); return b;}
+  INT operator-(int a) const {INT b; fmpz_sub_si(b.z,z,a); return b;}
+  INT operator-(long a) const {INT b; fmpz_sub_si(b.z,z,a); return b;}
+  INT operator-(const INT& a) const {INT b; fmpz_sub(b.z,z,a.z); return b;}
+  INT operator*(int a) const {INT b; fmpz_mul_si(b.z,z,a); return b;}
+  INT operator*(long a) const {INT b; fmpz_mul_si(b.z,z,a); return b;}
+  INT operator*(const INT& a) const {INT b; fmpz_mul(b.z,z,a.z); return b;}
+  INT operator/(const INT& a) const {INT b; fmpz_divexact(b.z,z,a.z); return b;}
+  INT operator/(int a) const {INT b; fmpz_divexact_si(b.z,z,a); return b;}
+  INT operator/(long a) const {INT b; fmpz_divexact_si(b.z,z,a); return b;}
   INT operator%(const INT& a) const {INT b; fmpz_mod(b.z,z,a.z); return b;}
   int operator%(int a) const {INT b; fmpz_mod_ui(b.z,z,a); return (int)I2long(b);}  // a must be >0
   long operator%(long a) const {INT b; fmpz_mod_ui(b.z,z,a); return I2long(b);} // a must be >0

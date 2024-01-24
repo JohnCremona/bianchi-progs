@@ -30,6 +30,12 @@ public:
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
   Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}
+  Quadprime& operator=(const Quadprime& x) {
+    Qideal::operator=(x);
+    p=x.p;
+    character=x.character;
+    return *this;
+  }
   int is_ramified() const {return character==0;}
   int is_split() const {return character==1;}
   int is_inert() const {return character==-1;}
@@ -85,51 +91,15 @@ public:
 class QuadprimeLooper {
 public:
   // Constructor: the iterator will skip primes dividing N
-  QuadprimeLooper(Qideal level=Qideal())
-    :Pi(Quadprimes::list.begin()), N(level)
-  {
-    P = *Pi;
-    while (P.divides(N) && ok())
-      {
-        ++Pi;
-        P = *Pi;
-      }
-  }
+  QuadprimeLooper(Qideal level=Qideal());
   // increment, if possible, skipping primes dividing N
-  void operator++()
-  {
-    ++Pi;
-    if (ok())
-      {
-        P = *Pi;
-        while (P.divides(N) && ok())
-          {
-            ++Pi;
-            if (ok())
-              P = *Pi;
-          }
-      }
-  }
+  void operator++();
   // return the current P
-  operator Quadprime()
-  {
-    return P;
-  }
+  operator Quadprime() {return P;}
   // test whether we have reached the end of Quadprimes::list
-  int ok()
-  {
-    return Pi!=Quadprimes::list.end();
-  }
-  int at_end()
-  {
-    return Pi==Quadprimes::list.end();
-  }
-  void reset()
-  {
-    Pi = Quadprimes::list.begin();
-    P = *Pi;
-    while (P.divides(N)) P = *Pi++;
-  }
+  int ok() {return Pi!=Quadprimes::list.end();}
+  int at_end() {return Pi==Quadprimes::list.end();}
+  void reset();
 private:
   vector<Quadprime>::iterator Pi;
   Qideal N;

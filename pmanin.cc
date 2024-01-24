@@ -44,7 +44,7 @@ int main ()
      //cout<<endl;
      n = makepos((Quad)alpha);  // makepos normalizes w.r.t. units
      vector<Quad> plist=pdivs(n); if(plist.size()>1) continue;
-     long normn = quadnorm(n);
+     long normn = n.norm();
      string efilename = eigfile(n);
      cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);

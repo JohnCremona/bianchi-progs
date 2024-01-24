@@ -15,21 +15,21 @@ void period_via_lf1chi::use(const Quad& n, int an)
   { cout << "\nUsing term n = " << n << ", a_n = " << an;
     cout << ", chi(n)="<<chi(n)<<endl;
   }
-  if (quadnorm(n)<limitnorm) sum += chi(n) * double(an) * K1(factor*rn) /rn;
+  if (n.norm()<limitnorm) sum += chi(n) * double(an) * K1(factor*rn) /rn;
 }
   
 void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
 { 
   int ip,istart=pindex; 
   Quad p, pn; 
-  long maxnorm=limitnorm/quadnorm(n);
+  long maxnorm=limitnorm/n.norm();
   if ( y!=0 ) {use (n,y); istart=0;}
   for(p=quadprimes[ip=istart]; 
-      (ip<=pindex) && (quadnorm(p)<=maxnorm); 
+      (ip<=pindex) && (p.norm()<=maxnorm); 
       p=quadprimes[++ip])
   {
    int x = y * aplist[ip];
-   if ( (ip==pindex)  && ndiv(p,N)) { x -=  quadnorm(p)*z; }
+   if ( (ip==pindex)  && ndiv(p,N)) { x -=  p.norm()*z; }
    add(p*n,ip,x,y);
   }
 }
@@ -69,7 +69,7 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
         aplist[i] = (f->aplist)[ip++];
     }
 
-  long maxnormp = quadnorm(quadprimes(nap));
+  long maxnormp = quadprimes(nap).norm();
   limitnorm=500;  // for debugging only
   if(debug)
   {

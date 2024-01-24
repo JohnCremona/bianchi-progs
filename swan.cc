@@ -345,16 +345,11 @@ int tau(const RatQuad& a1, const RatQuad& a2)
 // return 1 iff the circle S_A1 is inside S_a2
 int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict)
 {
-  RAT r1sq = radius_squared(a1), r2sq = radius_squared(a2);
-  if (! (strict? r1sq<r2sq: r1sq<=r2sq))
-    {
-      // cout<<"is "<<a1<<" inside "<<a2<<"? no (radius test)\n";
-      return 0;
-    }
+  int s = sign(a1.den().norm() - a2.den().norm());
+  if ((strict? s<0: s<=0))
+    return 0;
   int t  = tau(a1,a2);
-  int ans = (strict? t==-2: t<0);
-  // cout<<"is "<<a1<<" inside "<<a2<<"? no (tau="<<t<<")\n";
-  return ans;
+  return (strict? t==-2: t<0);
 }
 
 // return 1 iff the circle S_a is inside S_b for any b in blist
@@ -442,6 +437,7 @@ CuspList principal_cusps_with_denominators(const vector<Quad>& slist)
   return alist;
 }
 
+// det([[a1,a2,a3],[a1bar,a2bar,a3bar],[1,1,1]])
 RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
 {
   RatQuad a1b=a1.conj(), a2b=a2.conj(), a3b=a3.conj();
@@ -455,15 +451,14 @@ RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
 H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2)
 {
   H3pointList points;
-  RAT
-    rho0(radius_squared(a0)),
-    rho1(radius_squared(a1)),
-    rho2(radius_squared(a2));
   RatQuad delta = tri_det(a0,a1,a2);
   if (delta.is_zero())
     return points; // empty
   delta = delta.conj(); // to match Sage code
   RAT
+    rho0(radius_squared(a0)),
+    rho1(radius_squared(a1)),
+    rho2(radius_squared(a2)),
     n0(a0.norm()),
     n1(a1.norm()),
     n2(a2.norm());

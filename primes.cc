@@ -594,7 +594,7 @@ vector<Qideal> Qideal_lists::ideals_with_bounded_norm(INT maxnorm, int both_conj
   vector<Qideal> ans;
   for (INT N(1); N<=maxnorm; N+=1)
     {
-      vector<Qideal> I_N = ideals_with_norm(N);
+      vector<Qideal> I_N = ideals_with_norm(N, both_conj);
       ans.insert(ans.end(), I_N.begin(), I_N.end());
     }
   return ans;
@@ -707,6 +707,39 @@ Qideal Qideal::sqrt_coprime_to(const Qideal& N)
     }
   cerr << "Unable to find an ideal I such that I^2 * "<<(*this)<<" is principal and coprime to "<<N<<endl;
   return Qideal();
+}
+
+QuadprimeLooper::QuadprimeLooper(Qideal level)
+  :Pi(Quadprimes::list.begin()), N(level)
+{
+  P = *Pi;
+  while (P.divides(N) && ok())
+    {
+      ++Pi;
+      P = *Pi;
+    }
+}
+
+void QuadprimeLooper::operator++()
+{
+  ++Pi;
+  if (ok())
+    {
+      P = *Pi;
+      while (P.divides(N) && ok())
+        {
+          ++Pi;
+          if (ok())
+            P = *Pi;
+        }
+    }
+}
+
+void QuadprimeLooper::reset()
+{
+  Pi = Quadprimes::list.begin();
+  P = *Pi;
+  while (P.divides(N)) P = *Pi++;
 }
 
 Factorization Qideal::factorization() // sets F if necessary then returns F

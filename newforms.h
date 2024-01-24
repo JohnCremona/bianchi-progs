@@ -170,14 +170,14 @@ class newforms :public splitter_base {
 friend class newform;
 private:
   // instantiations of virtual functions required by the splitter_base class:
-  mat opmat(int i, int d, int v=0);
-  vec opmat_col(int i, int j, int v=0);
-  mat opmat_cols(int i, const vec& jlist, int v=0);
-  mat opmat_restricted(int i, const subspace& s, int d, int v=0);
-  smat s_opmat(int i, int d, int v=0);
-  svec s_opmat_col(int i, int j, int v=0);
-  smat s_opmat_cols(int i, const vec& jlist, int v=0);
-  smat s_opmat_restricted(int i, const ssubspace& s, int d, int v=0);
+  mat opmat(int i, int d, int);
+  vec opmat_col(int i, int j, int);
+  mat opmat_cols(int i, const vec& jlist, int);
+  mat opmat_restricted(int i, const subspace& s, int d, int);
+  smat s_opmat(int i, int d, int);
+  svec s_opmat_col(int i, int j, int);
+  smat s_opmat_cols(int i, const vec& jlist, int);
+  smat s_opmat_restricted(int i, const ssubspace& s, int d, int);
   long matdim(void)
   {return h1->dimension;}
   long matden(void)

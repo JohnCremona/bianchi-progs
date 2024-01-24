@@ -88,11 +88,11 @@ Qideal::Qideal(const Qideal& i)   // the copy constructor
 
 Qideal::~Qideal()
 {
-  // if (F!=0)
-  //   {
-  //     delete F;
-  //     F = 0;
-  //   }
+  if (F!=0)
+    {
+      delete F;
+      F = 0;
+    }
 }
 
 
@@ -624,12 +624,12 @@ mat22 AB_matrix(const Quad& a, const Quad& c)
   assert (a*d == r0*g);
   if (Qideal({b,d}) != I.conj())
     {
-      cerr<<"a = "<<a<<", Norm(a) = "<<quadnorm(a)<<endl;
-      cerr<<"c = "<<c<<", Norm(c) = "<<quadnorm(c)<<endl;
+      cerr<<"a = "<<a<<", Norm(a) = "<<a.norm()<<endl;
+      cerr<<"c = "<<c<<", Norm(c) = "<<c.norm()<<endl;
       cerr<<"I = (a,c) = "<<I<<", g = Norm(I) = "<<g<<endl;
       cerr<<"a/I = "<<I0<<endl;
       cerr<<"c/I = "<<I1<<endl;
-      cerr<<"r0 = "<<r0<<" (norm "<<quadnorm(r0)<<"), r1 = 1-r0 = "<<r1<<" (norm "<<quadnorm(r1)<<")"<<endl;
+      cerr<<"r0 = "<<r0<<" (norm "<<r0.norm()<<"), r1 = 1-r0 = "<<r1<<" (norm "<<r1.norm()<<")"<<endl;
       cerr<<"b = -r1*g/c = "<<b<<endl;
       cerr<<"d =  r0*g/a = "<<d<<endl;
       cerr<<"conj(I) = "<<I.conj()<<endl;
