@@ -80,8 +80,6 @@ int main ()
           cout << " with max dnorm = " << maxn <<endl;
         }
 
-      // auto corners = triple_intersections(new_alphas, 1);
-      // cout << corners << endl;
       verbose=0;
       debug=0;
       new_alphas = saturate_covering_alphas(new_alphas, new_sigmas, maxn, debug, verbose);
@@ -170,5 +168,28 @@ int main ()
               exit(1);
             }
         }
+      // Look at neighbours of each finite singular point
+      cout << "Neighbours of each finite singular point:" << endl;
+      for (const auto& sigma: new_sigmas)
+        {
+          if (sigma.is_infinity()) continue;
+          auto nbrs = sorted_neighbours(sigma, new_alphas);
+          auto n = nbrs.size();
+          cout << sigma << " has " << n << " neighbours (sorted): " << nbrs << endl;
+          assert ((4<=n)&&(n<=6));
+          // cout << sigma << "\t has coords\t " << sigma.coords(1) <<endl;
+          // for (auto a : nbrs)
+          //   {
+          //     RatQuad b = a-sigma;
+          //     cout <<a<<" - "<<sigma<<" = "<<b<< "\t has coords\t " << b.coords(1) <<endl;
+          //   }
+        }
+      // Find all singular tetrahedra:
+      verbose = 1;
+      vector<CuspList> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
+
+      // Find all principal polyhedra:
+      verbose = 1;
+      vector<vector<EDGE>> princ_polys = principal_polyhedra(new_alphas, verbose);
     }
 }

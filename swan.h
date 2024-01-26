@@ -18,6 +18,7 @@ struct H3_comparison {
 };
 extern H3_comparison H3_cmp;
 typedef vector<H3point> H3pointList;
+typedef modsym EDGE;
 
 ostream& operator<<(ostream& s, const H3point& P);
 
@@ -89,6 +90,12 @@ int is_under(const H3point& P, const RatQuad& a);
 
 // return +1 iff P is under at least one S_a for a in sliat
 int is_under_any(const H3point& P, const CuspList& alist);
+
+// return 1 iff P is an integer translate of Q, with t=P-Q
+int is_translate(const H3point& P, const H3point& Q, Quad& t);
+
+// Return index i of P mod O_K in Plist, with t=P-Plist[i], or -1 if not in list
+int point_index_with_translation(const H3point& P, const vector<H3point>& Plist, Quad& t);
 
 // Return [P] where P is the triple intersection point of the
 // hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
@@ -222,8 +229,19 @@ CuspList find_alphas(const CuspList& sigmas, int debug=0, int verbose=0);
 // return  a saturated irredundant list of alphas, and list of sigmas, in the fundamental rectangle
 pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
 
-// return list of alphas (or translates) which pass through a singular point
-CuspList neighbours(const CuspList& sigmas, const CuspList& alphas);
+// test whether angle between s-->a1 and s-->a2 is <180 degrees
+int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2);
+
+// return list of alphas (or translates) which pass through a finite cusp
+CuspList neighbours(const RatQuad& sigma, const CuspList& alphas);
+
+// Given a base cusp s and a list of cusps alist, return a sorted
+// alist with respect to the circular ordering around s
+CuspList circular_sort(const RatQuad& s, const CuspList& alist);
+
+// return sorted list of alphas (or translates) which pass through a finite cusp,
+// i.e. angle_under_pi(sigma, a[i-1], a[i]) for all 0<=i<n and angle_under_pi(sigma, a[n-1], a[0]).
+CuspList sorted_neighbours(const RatQuad& sigma, const CuspList& alphas);
 
 // test if all singular points (sigmas) are surrounded by alpha circles:
 int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas, int debug=0);
@@ -232,4 +250,36 @@ int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug=
 
 int compare_CuspLists_as_sets(const CuspList& A, const CuspList& B);
 int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList& B);
+
+// Functions which for a principal cusp alpha return a matrix M with M(alpha)=oo
+
+// Basic version, for principal alpha: returns any matrix with M(alpha)=oo
+mat22 Malpha(const RatQuad& alpha);
+// Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
+mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j);
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j);
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
+
+// return a list of tetrahedra (i.e. lists of 4 cusps (oo, sigmas[j],
+// a1, a2) with a1,a2 fundamental); as a side-effect set flags[j]=1
+// and flags[j']=1 where M_a_i(sigma[j])=sigma[j'] for i=1,2, for
+// each.
+vector<CuspList>
+singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose=0);
+
+// return a list of all singular tetrahedra
+vector<CuspList>
+singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose=0);
+
+// return a polyhedron (as a list of EDGEs), from the j'th corner Plist[j]
+vector<EDGE>
+principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
+                     vector<int>& flags, int verbose=0);
+
+// return a list of all principal polyhedra
+vector<vector<EDGE>>
+principal_polyhedra(const CuspList& alphas, int verbose=0);
+
 #endif

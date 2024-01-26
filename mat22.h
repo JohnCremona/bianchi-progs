@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "ratquads.h"
 #include "primes.h"
+#include "swan.h" // for the typedef of H3point
 
 class mat22 {
 private:
@@ -71,7 +72,8 @@ public:
   {
     return mma(c,r,d,s); //c*r+d*s
   }
-  RatQuad operator()(const RatQuad& q) const;
+  RatQuad operator()(const RatQuad&) const;
+  H3point operator()(const H3point&) const; // defined in swan.cc
   RatQuad image_oo() const;
   RatQuad preimage_oo() const;
   RatQuad image_0() const;

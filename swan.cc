@@ -1409,29 +1409,72 @@ pair<CuspList,CuspList> find_alphas_and_sigmas(int debug, int verbose)
   return {alphas, sigmas};
 }
 
-
 // test whether angle between s-->a1 and s-->a2 is <180 degrees
 int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2)
 {
   return ((s-a1)*(s-a2).conj()).y_coord() > 0;
 }
 
-// return list of alphas (or translates) which pass through a finite singular point
-CuspList neighbours(const RatQuad& s, const CuspList& alphas)
+// return list of alphas (or translates) which pass through a finite cusp
+CuspList neighbours(const RatQuad& sigma, const CuspList& alphas)
 {
+  Quad r = sigma.num(), s=sigma.den();
+  INT ns = s.norm();
   CuspList nbrs;
-  for ( const auto& a : alphas)
+  const std::array<int,3> t = {-1,0,1};
+  for ( const auto& alpha : alphas)
     {
-      RAT rsq = radius_squared(a); // same for integral translates
-      for (auto x : {-1,0,1})
-        for (auto y : {-1,0,1})
+      Quad c = alpha.num(), d=alpha.den();
+      Quad f = r*d-s*c, g=s*d;
+      // S_alpha goes through sigma iff N(rd-sc)=N(s)
+      for (auto x : t)
+        for (auto y : t)
           {
-            RatQuad b = a + Quad(x,y);
-            if ((s-b).norm()==rsq)
-              nbrs.push_back(b);
+            Quad t(x,y);    // test alpha+t = RatQuad(c+dt,d)
+            Quad b = f-g*t; // = rd-s(c+dt)
+            if (b.norm()==ns)
+              nbrs.push_back(RatQuad(c+d*t,d, 0)); // 0 means do not reduce
           }
     }
   return nbrs;
+}
+
+// Given a base cusp s and a list of cusps alist, return a sorted
+// alist with respect to the circular ordering around b
+CuspList circular_sort(const RatQuad& s, const CuspList& alist)
+{
+  int n = alist.size();
+  assert (n>=3);
+  if (n==0) return alist;
+  CuspList sorted_alist;
+  RatQuad a = alist[0];
+  // can start with any a for circular sort:
+  sorted_alist.push_back(a);
+  // Now append any b with a before b:
+  RatQuad b = *std::find_if(alist.begin()+1, alist.end(),
+                            [s,a](RatQuad b){return angle_under_pi(s,a,b);});
+  sorted_alist.push_back(b);
+  // Now consider all the rest, inserting in the right place
+  for (const auto& c : alist)
+    {
+      if ((c==a)||(c==b)) continue;
+      auto place = std::lower_bound(sorted_alist.begin(), sorted_alist.end(), c,
+                                    [s](RatQuad d1, RatQuad d2){return angle_under_pi(s,d1,d2);});
+      sorted_alist.insert(place, c);
+    }
+  // Check:
+  assert(angle_under_pi(s, sorted_alist[n-1], sorted_alist[0]));
+  for (int i=1; i<n; i++)
+    assert(angle_under_pi(s, sorted_alist[i-1], sorted_alist[i]));
+
+  return sorted_alist;
+}
+
+// return sorted list of alphas (or translates) which pass through a finite cusp,
+// i.e. angle_under_pi(sigma, a[i-1], a[i]) for all 0<=i<n and angle_under_pi(sigma, a[n-1], a[0]).
+CuspList sorted_neighbours(const RatQuad& sigma, const CuspList& alphas)
+{
+  return circular_sort(sigma, neighbours(sigma, alphas));
 }
 
 // test if one singular point (sigma) is surrounded by alpha circles:
@@ -1762,4 +1805,236 @@ void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minusp
           cout << r2.re() << " " << r2.im() << endl;
         }
     }
+}
+
+H3point mat22::operator()(const H3point& P) const
+{
+  RatQuad z = P.first;
+  RAT t2 = P.second;
+  RAT  n = (c*z+d).norm() + c.norm()*t2;
+  RatQuad new_z = ((a*z+b)*(c*z+d).conj() + a*c.conj()*t2) / n;
+  RAT new_t2 = t2 / (n*n);
+  return {new_z, new_t2};
+}
+
+// return 1 iff P is an integer translate of Q, with t=P-Q
+int is_translate(const H3point& P, const H3point& Q, Quad& t)
+{
+  t = Quad::zero;
+  return ( (P.second == Q.second) &&
+           ((Q.first==P.first) || (P.first-Q.first).is_integral(t)) );
+}
+
+// Return index i of P mod O_K in Plist, with t=P-Plist[i], or -1 if not in list
+int point_index_with_translation(const H3point& P, const vector<H3point>& Plist, Quad& t)
+{
+  int j = 0;
+  t = Quad::zero;
+  for ( const auto& Q : Plist)
+    {
+      if (is_translate(P, Q, t))
+        return j;
+      j++;
+    }
+  if (j!=-1) // check correctness
+    {
+      assert (P.second == Plist[j].second);
+      assert (P.first  == Plist[j].first + t);
+    }
+  return -1;
+}
+
+
+// Functions which for a principal cusp alpha return a matrix M with M(alpha)=oo
+
+// Basic version, for principal alpha: returns any matrix with M(alpha)=oo
+mat22 Malpha(const RatQuad& alpha)
+{
+  Quad a, b, c = alpha.den(), d = alpha.num();
+  Quad g = quadbezout(c, d, b, a); // a*d+b*c=g=1
+  mat22 M(-a,-b,c,-d);
+  assert (M.is_unimodular()); // strict by default, i.e. det=1 not just a unit
+  assert (M(alpha)==RatQuad::infinity());
+  return M;
+}
+
+// Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
+mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j)
+{
+  return Malpha(alpha, RatQuad::infinity(), alist, j);
+}
+
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j)
+{
+  mat22 M = Malpha(alpha);
+  Quad x;
+  j = cusp_index_with_translation(M(s), slist, x);
+  assert (j>=0);
+  M = mat22::Tmat(-x)*M;
+  assert (M(alpha).is_infinity());
+  assert (M(s) == slist[j]);
+  return M;
+}
+
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j)
+{
+  mat22 M = Malpha(alpha);
+  Quad x(0);
+  j = point_index_with_translation(M(P), Plist, x);
+  assert (j>=0);
+  M = mat22::Tmat(-x)*M;
+  assert (M(alpha).is_infinity());
+  assert (M(P) == Plist[j]);
+  return M;
+}
+
+// return a list of tetrahedra (i.e. lists of 4 cusps (oo, sigmas[j],
+// a1, a2) with a1,a2 fundamental); as a side-effect set flags[j]=1
+// and flags[j']=1 where M_a_i(sigma[j])=sigma[j'] for i=1,2, for
+// each.
+vector<CuspList>
+singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose)
+{
+  flags[j] = 1;
+  RatQuad sigma = sigmas[j], infty = RatQuad::infinity();
+  if (verbose)
+    cout << " - finding singular tetrahedra for sigmas["<<j<<"]="<<sigma<<"..."<<flush;
+  auto alist = sorted_neighbours(sigma, alphas);
+  int n = alist.size();
+  if (verbose) cout<<" constructing "<<n<<endl;
+  vector<CuspList> polys;
+  polys.reserve(n);
+
+  int i;
+  for (i=1; i<n; i++)
+    polys.push_back({infty, sigma, alist[i-1], alist[i]});
+  polys.push_back({infty, sigma, alist[n-1], alist[0]});
+
+  for ( const auto& a : alist)
+    {
+      Malpha(a, sigma, sigmas, i);
+      if ((i!=j) && (flags[i]==0))
+        {
+          flags[i] = 1;
+          if (verbose)
+            cout << " - checking off sigmas["<<i<<"]="<<sigmas[i]<<endl;
+        }
+    }
+  return polys;
+}
+
+// return a list of all singular tetrahedra
+vector<CuspList>
+singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
+{
+  int n = sigmas.size();
+  if (verbose)
+    cout << "Finding singular tetrahedra for "<<n-1<<" finite singular points" << endl;
+  vector<int> flags(n, 0); // will set to 1 as each sigma is accounted for
+  flags[0] = 1; // since sigmas[0]=oo
+  vector<CuspList> polys;
+  for (int j=0; j<n; j++)
+    {
+      if (flags[j]) continue;
+      vector<CuspList> polys1 = singular_tetrahedra(j, sigmas, alphas, flags, verbose);
+      if (verbose)
+        {
+          cout << "sigma = "<<sigmas[j]<<":\n";
+          for ( const auto& poly: polys1 )
+            cout << " "<<poly << endl;
+        }
+      polys.insert(polys.end(), polys1.begin(), polys1.end());
+    }
+  return polys;
+}
+
+// return a polyhedron (as a list of EDGEs), from the j'th corner Plist[j]
+vector<EDGE>
+principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
+                     vector<int>& flags, int verbose)
+{
+  if (verbose)
+    cout << " - using corner #"<<j<<" = "<<Plist[j]<<"...\n";
+  H3point P = Plist[j];
+  flags[j] = 1;
+
+  // Find all a with P on S_a:
+  CuspList alist = covering_hemispheres(P);
+  int nverts = alist.size()+1; // to include oo
+  if (verbose)
+    cout << " - polyhedron has "<< nverts << " vertices ("<<alist.size()
+         <<" S_a go through P: "<<alist<<")"<<endl;
+
+  // local function to test for being fundamental or oo:
+  Quad x;
+  auto is_fund = [alphas, &x](const RatQuad& a) {
+    return a.is_infinity() || cusp_index_with_translation(a, alphas, x)>=0;
+  };
+  vector<EDGE> poly;
+  RatQuad infty = RatQuad::infinity();
+
+  int i;
+  for ( const auto& a : alist)
+    {
+      // First add edges {oo,a} and {a,oo} for a fundamental:
+      if (is_fund(a))
+        {
+          poly.push_back({infty,a});
+          poly.push_back({a,infty});
+        }
+      // Then add edges {a,b} for finite a,b, when M_a(b) is fundamental.
+      // NB this is equivalent to M_b(a) fundamental, so {b,a} will also be added.
+      mat22 M = Malpha(a, P, Plist, i);
+      for ( const auto& b : alist)
+        {
+          if ((a!=b) && is_fund(M(b)))
+            poly.push_back({a,b});
+        }
+      // check off flag i where M(P) = Plist[i]:
+      if ((i!=j) && (flags[i]==0))
+        {
+          flags[i] = 1;
+          if (verbose)
+            cout << " - checking off corner #"<<i<<endl;
+        }
+    }
+  int nedges = poly.size()/2;
+  int nfaces = 2+nedges-nverts; // Euler's formula!
+  if (verbose)
+    cout << " - polyhedron has "<< nedges<<" edges and "<<nfaces<<" faces"
+         << " (V,E,F)=("<<nverts<<","<<nedges<<","<<nfaces<<"):\n"<<poly << endl;
+  return poly;
+}
+
+
+// return a list of all principal polyhedra
+vector<vector<EDGE>>
+principal_polyhedra(const CuspList& alphas, int verbose)
+{
+  if (verbose)
+    cout<<"Finding principal polyhedra..."<<flush;
+  auto Plist = triple_intersections(alphas);
+  int n = Plist.size();
+  if (verbose)
+    cout<<" number of corners is "<<n<<endl;
+  vector<int>flags(n, 0);
+
+  vector<vector<EDGE>> polys;
+  for (int j=0; j<n; j++)
+    {
+      if (flags[j]) continue;
+      vector<EDGE> poly = principal_polyhedron(j, alphas, Plist, flags, verbose);
+      if (verbose)
+        {
+          cout << "Polyhedron from P = "<<Plist[j]<<" has "<<poly.size()/2<<" edges\n";
+          // for ( const auto& e: poly )
+          //   cout << " "<< e << endl;
+        }
+      polys.push_back(poly);
+    }
+  if (verbose)
+    cout<<polys.size()<<" principal polyhedra constructed"<<endl;
+  return polys;
 }

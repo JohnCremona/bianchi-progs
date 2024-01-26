@@ -13,7 +13,7 @@ public:
   RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
   RatQuad(INT a, INT b, INT dd, int red=0); // (a+b*w)/dd
   RatQuad(const RAT& a);
-
+  static RatQuad infinity() {return RatQuad(Quad::one, Quad::zero, 0);}
   // RatQuad manipulations
 
   // reduce to "lowest terms", so the ideal is one of the class representatives

@@ -182,7 +182,7 @@ def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
     if debug:
         print(f"Covering hemispheres are S_alpha for alpha = {alphas}")
     covering_codes = [0] if option=='exact' else [1] if option=='strict' else [0,1]
-    if not all(is_under(P,a)==1 in covering_codes for a in alphas):
+    if not all(is_under(P,a) in covering_codes for a in alphas):
         print(f"Problem in covering_hemispheres1({P}, {option})")
         print(f" - returned cusp list includes {[a for a in alphas if is_under(P,a) not in covering_codes]}")
         print(f"   for which is_under(P,a) is {[is_under(P,a) for a in alphas if is_under(P,a) not in covering_codes]}")
@@ -950,21 +950,21 @@ def all_polyhedra(k, alphas=None, debug=False):
     return polys, hemis
 
 # old over-complicated way of comparing slopes
-#
-# def slope2(x,y):
-#     """
-#     Function used to order nonzero (x,y) in R^2 via their argument, going clockwise around the origin:
 
-#     (+,-) < (0,-) < (-,-) < (-,0) < (-,+) < (0,+) < (+,+) < (+,0)
-#     """
-#     return (sign(y), x/y) if y else (sign(x), Infinity)
+def slope2(x,y):
+    """
+    Function used to order nonzero (x,y) in R^2 via their argument, going clockwise around the origin:
 
-# def slope(alpha, centre=0):
-#     """
-#     As above for elements of an imaginary quadratic field k, assuming
-#     k=Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2.
-#     """
-#     return slope2(*xy_coords(alpha-centre))
+    (+,-) < (0,-) < (-,-) < (-,0) < (-,+) < (0,+) < (+,+) < (+,0)
+    """
+    return (sign(y), x/y) if y else (sign(x), Infinity)
+
+def slope(alpha, centre=0):
+    """
+    As above for elements of an imaginary quadratic field k, assuming
+    k=Q(w) with either w=sqrt(-d) or w=(1+sqrt(-d))/2.
+    """
+    return slope2(*xy_coords(alpha-centre))
 
 # def slope_before(es1, es2):
 #     e1, s1 = es1
@@ -2302,7 +2302,9 @@ def compute_homology(kdata, alphas, sigmas, plus_pairs, minus_pairs, fours, face
                       'torsion_factors': invs}
     return hom
 
-def tessellation(d, verbose=0, plot2D=False, plot3D=False, browser="/usr/bin/firefox"):
+def tessellation(d, verbose=0, plot2D=False, plot3D=False,
+                 #browser="/usr/bin/firefox"):
+                 browser="/opt/google/chrome/chrome"):
     from utils import (make_M_alphas,
                        make_poly_from_edges,
                        poly_gl2_orbit_reps,
