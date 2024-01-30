@@ -17,9 +17,10 @@ int main(void)
   cerr <<"Enter first and last norm for Quad loop: ";
   cin >> firstn >> lastn;
   cerr <<endl;
-
   for ( int conj : {1, 0})
     {
+      values.clear();
+      values2.clear();
       if(conj)
         cout << "all including conjugates, up to units" <<endl;
       else
@@ -27,13 +28,17 @@ int main(void)
       cout << "-------------------------------------" <<endl<<endl;
 
 #if(1)
+      values = quads_of_norm_between(firstn, lastn, conj, 1);
       cout << "Quads in order of norm (using Quadlooper):" << endl;
 
       for(Quadlooper looper(firstn,lastn,conj); looper.ok(); ++looper)
         {
           a = (Quad)looper;
           cout << "Quad = " << a << "\twith norm " << a.norm() << endl;
+          values2.push_back(a);
         }
+      std::sort(values2.begin(), values2.end(), Quad_cmp);
+      assert (values==values2);
       cout << "-------------------------------------------\n\n";
 #endif
 #if(1)

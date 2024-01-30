@@ -190,8 +190,10 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
         {
           if ((amin-b)%2)  // ensure a=b (mod 2)
             amin +=1;
+          if ((amax-b)%2)  // ensure a=b (mod 2)
+            amax -=1;
           amin = (amin-b)/2; // so this is rounded up
-          amax = (amax-b)/2; // rounded down
+          amax = (amax-b)/2; // and this rounded down
         }
 
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
@@ -203,7 +205,14 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
           cout<<" val = "<<val<<" with norm "<<val.norm()<<endl;
 #endif
-          assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
+          if (!(val.norm()>=n1 && val.norm()<=n2 && pos(val)))
+            {
+              cout<<"In quads_of_norm_between() with n1="<<n1<<", n2="<<n2<<", conj="<<conj<<", sorted="<<sorted<<endl;
+              cout<<"bmax="<<bmax<<", amin="<<amin<<", amax="<<amax<<endl;
+              cout<<"a="<<a<<", b="<<b<<endl;
+              cout << "val = "<<val<<" has norm "<<val.norm()<<endl;
+              assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
+            }
           ans.push_back(val);
           INT a1 = (t? 2*a+b : a);
           if ((d!=1)&&(d!=3)&&(a1>0)&&(b>0)&&conj)
