@@ -334,7 +334,7 @@ RAT radius_squared(const RatQuad& a)
 int tau(const RatQuad& a1, const RatQuad& a2)
 {
   Quad r1=a1.num(), s1=a1.den(), r2=a2.num(), s2=a2.den();
-  INT n1 = s1.norm(), n2 = s2.norm(), n3 = (r1*s2-r2*s1).norm();
+  INT n1 = s1.norm(), n2 = s2.norm(), n3 = mms(r1,s2,r2,s1).norm();
   INT x = n3-n1-n2;
   int sd1 = sign(x);
   int sd2 = sign(x*x-4*n1*n2);
@@ -1412,7 +1412,13 @@ pair<CuspList,CuspList> find_alphas_and_sigmas(int debug, int verbose)
 // test whether angle between s-->a1 and s-->a2 is <180 degrees
 int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2)
 {
-  return ((s-a1)*(s-a2).conj()).y_coord() > 0;
+  return sign_im_cr(a2,s,a1)>0;
+}
+
+// test whether a,b,c,d are coplanar
+int coplanar(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d)
+{
+  return sign_im_cr(a,b,c,d)==0;
 }
 
 // return list of alphas (or translates) which pass through a finite cusp
@@ -1445,7 +1451,7 @@ CuspList circular_sort(const RatQuad& s, const CuspList& alist)
 {
   int n = alist.size();
   assert (n>=3);
-  if (n==0) return alist;
+  if (n==3) return alist;
   CuspList sorted_alist;
   RatQuad a = alist[0];
   // can start with any a for circular sort:
@@ -1890,11 +1896,39 @@ mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, i
   return M;
 }
 
+ostream& operator<<(ostream& s, const POLYHEDRON& P)
+{
+  s << "[V:" << P.vertices<<", E:"<<P.edges<<", F:"<<P.faces<<"]";
+  return s;
+}
+
+// return a tetrahedron (list of triangles) from a list of 4 vertices,
+// arranged so that each is the first vertex of one triangle
+POLYHEDRON tetrahedron(const CuspList& V)
+{
+  assert (V.size()==4);
+  POLYHEDRON P;
+  P.vertices = V;
+  P.edges = {
+    {V[0],V[1]}, {V[1],V[2]}, {V[2],V[0]},
+    {V[1],V[3]}, {V[3],V[2]}, {V[2],V[1]},
+    {V[2],V[3]}, {V[3],V[0]}, {V[0],V[2]},
+    {V[3],V[1]}, {V[1],V[0]}, {V[0],V[3]}
+  };
+  P.faces = {
+    {V[0], V[1], V[2]},
+    {V[1], V[3], V[2]},
+    {V[2], V[3], V[0]},
+    {V[3], V[1], V[0]}
+  };
+  return P;
+}
+
 // return a list of tetrahedra (i.e. lists of 4 cusps (oo, sigmas[j],
 // a1, a2) with a1,a2 fundamental); as a side-effect set flags[j]=1
 // and flags[j']=1 where M_a_i(sigma[j])=sigma[j'] for i=1,2, for
 // each.
-vector<CuspList>
+vector<POLYHEDRON>
 singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose)
 {
   flags[j] = 1;
@@ -1904,13 +1938,15 @@ singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vecto
   auto alist = sorted_neighbours(sigma, alphas);
   int n = alist.size();
   if (verbose) cout<<" constructing "<<n<<endl;
-  vector<CuspList> polys;
-  polys.reserve(n);
+  vector<POLYHEDRON> tetras;
+  tetras.reserve(n);
 
   int i;
-  for (i=1; i<n; i++)
-    polys.push_back({infty, sigma, alist[i-1], alist[i]});
-  polys.push_back({infty, sigma, alist[n-1], alist[0]});
+  for (i=0; i<n; i++)
+    {
+      CuspList V = {infty, sigma, alist[(i==0? n-1 : i-1)], alist[i]};
+      tetras.push_back(tetrahedron(V));
+    }
 
   for ( const auto& a : alist)
     {
@@ -1922,11 +1958,11 @@ singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vecto
             cout << " - checking off sigmas["<<i<<"]="<<sigmas[i]<<endl;
         }
     }
-  return polys;
+  return tetras;
 }
 
 // return a list of all singular tetrahedra
-vector<CuspList>
+vector<POLYHEDRON>
 singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
 {
   int n = sigmas.size();
@@ -1934,24 +1970,133 @@ singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
     cout << "Finding singular tetrahedra for "<<n-1<<" finite singular points" << endl;
   vector<int> flags(n, 0); // will set to 1 as each sigma is accounted for
   flags[0] = 1; // since sigmas[0]=oo
-  vector<CuspList> polys;
+  vector<POLYHEDRON> tetras;
   for (int j=0; j<n; j++)
     {
       if (flags[j]) continue;
-      vector<CuspList> polys1 = singular_tetrahedra(j, sigmas, alphas, flags, verbose);
+      vector<POLYHEDRON> tetras1 = singular_tetrahedra(j, sigmas, alphas, flags, verbose);
       if (verbose)
         {
           cout << "sigma = "<<sigmas[j]<<":\n";
-          for ( const auto& poly: polys1 )
-            cout << " "<<poly << endl;
+          for ( const auto& tetra: tetras1 )
+            cout << " "<<tetra << endl;
         }
-      polys.insert(polys.end(), polys1.begin(), polys1.end());
+      tetras.insert(tetras.end(), tetras1.begin(), tetras1.end());
     }
-  return polys;
+  return tetras;
 }
 
-// return a polyhedron (as a list of EDGEs), from the j'th corner Plist[j]
-vector<EDGE>
+// given vertices and edges, fill in faces:
+void fill_faces(POLYHEDRON& P, int verbose)
+{
+  // create ends: map from v to list of w with vw an edge
+  map<RatQuad, CuspList, RatQuad_comparison> ends;
+  for (const auto& e : P.edges)
+    ends[e.alpha()].push_back(e.beta());
+  int nde=P.edges.size(); // number of directed edges; will decrease to 0
+  if (verbose)
+    {
+      cout << "filling in faces of a polyhedron with "<<nde<<" directed edges" << endl;
+      for (const auto& v : P.vertices)
+        cout << v <<" --> " << ends[v] << endl;
+    }
+  vector<CuspList> starters; // store the {v,w,x} to be considered
+  // find edges v->w->x
+  RatQuad v, w, x, y;
+  for ( const auto& vi: P.vertices)
+    {
+      for ( const auto& wi: ends[vi])
+        {
+          for ( const auto& xi: ends[wi])
+            {
+              if (xi!=vi)
+                starters.push_back({vi,wi,xi});
+            }
+        }
+    }
+  if (verbose)
+    {
+      cout << " - found "<<starters.size()<<" v->w->x triples" << endl;
+      // cout << starters <<endl;
+    }
+  for (const auto& vwx : starters)
+    {
+      v = vwx[0]; w = vwx[1]; x = vwx[2];
+      // Make sure v->w and w->x are still in play
+      if (std::find(ends[v].begin(), ends[v].end(), w) == ends[v].end())
+        continue;
+      if (std::find(ends[w].begin(), ends[w].end(), x) == ends[w].end())
+        continue;
+      if (verbose)
+        cout << " - using "<<v<<"-->"<<w<<"-->"<<x<<endl;
+      CuspList face = {v, w, x}, unders, overs;
+      for ( const auto& yi : P.vertices )
+        {
+          if ((yi==v)||(yi==w)||(yi==x))
+            continue;
+          int side = sign_im_cr(v, w, x, yi);
+          if (side>0) overs.push_back(yi);
+          else if (side<0) unders.push_back(yi);
+          else face.push_back(yi);
+        }
+      if (unders.empty() || overs.empty()) // we have a genuine (external) face
+        {
+          if (verbose)
+            cout << " - found a face with "<<face.size()<<" sides :"<<face<<endl;
+          std::sort(face.begin(), face.end(), RatQuad_cmp);
+          if (std::find(P.faces.begin(), P.faces.end(), face) != P.faces.end())
+            {
+              if (verbose>1)
+                cout << " - duplicate, ignoring"<<endl;
+            }
+          else
+            {
+              P.faces.push_back(face);
+              // delete the relevant directed edges, starting with v->w->x
+              if (verbose>1)
+                cout<<" removing directed edge from "<<v<<" to "<<w<<endl;
+              ends[v].erase(std::remove(ends[v].begin(), ends[v].end(), w), ends[v].end());
+              nde--;
+              if (verbose>1)
+                cout<<" removing directed edge from "<<w<<" to "<<x<<endl;
+              ends[w].erase(std::remove(ends[w].begin(), ends[w].end(), x), ends[w].end());
+              nde--;
+              for (const auto& a : face)
+                {
+                  if ((a==v)||(a==w))
+                    continue;
+                  // there should be exactly one b in face which is also in ends[a]
+                  auto ends_a = ends[a]; // copy as we'll be deleting an element of ends[a]
+                  for ( const auto& b : ends[a])
+                    {
+                      if ((b==w)||(b==x))
+                        continue;
+                      if (std::find(face.begin(), face.end(), b) != face.end())
+                        {
+                          // delete b from ends[a]
+                          if (verbose>1)
+                            cout<<" removing directed edge from "<<a<<" to "<<b<<endl;
+                          ends[a].erase(std::remove(ends[a].begin(), ends[a].end(), b), ends[a].end());
+                          nde--;
+                          break;
+                        }
+                    }
+                }
+              if (verbose)
+                {
+                  cout << nde << " directed edges remain" <<endl;
+                  // for (const auto& v : P.vertices)
+                  //   cout << v <<" --> " << ends[v] << endl;
+                }
+            }
+        }
+    }
+}
+
+
+
+// return a polyhedron from the j'th corner Plist[j]
+POLYHEDRON
 principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
                      vector<int>& flags, int verbose)
 {
@@ -1960,9 +2105,15 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   H3point P = Plist[j];
   flags[j] = 1;
 
-  // Find all a with P on S_a:
+  POLYHEDRON poly;
+  RatQuad infty = RatQuad::infinity();
+
+  // Find all a with P on S_a; these & oo are the vertices of the polyhedron
   CuspList alist = covering_hemispheres(P);
-  int nverts = alist.size()+1; // to include oo
+  poly.vertices = alist;
+  poly.vertices.insert(poly.vertices.begin(), infty);
+
+  int nverts = poly.vertices.size();
   if (verbose)
     cout << " - polyhedron has "<< nverts << " vertices ("<<alist.size()
          <<" S_a go through P: "<<alist<<")"<<endl;
@@ -1972,8 +2123,6 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   auto is_fund = [alphas, &x](const RatQuad& a) {
     return a.is_infinity() || cusp_index_with_translation(a, alphas, x)>=0;
   };
-  vector<EDGE> poly;
-  RatQuad infty = RatQuad::infinity();
 
   int i;
   for ( const auto& a : alist)
@@ -1981,8 +2130,8 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
       // First add edges {oo,a} and {a,oo} for a fundamental:
       if (is_fund(a))
         {
-          poly.push_back({infty,a});
-          poly.push_back({a,infty});
+          poly.edges.push_back({infty,a});
+          poly.edges.push_back({a,infty});
         }
       // Then add edges {a,b} for finite a,b, when M_a(b) is fundamental.
       // NB this is equivalent to M_b(a) fundamental, so {b,a} will also be added.
@@ -1990,7 +2139,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
       for ( const auto& b : alist)
         {
           if ((a!=b) && is_fund(M(b)))
-            poly.push_back({a,b});
+            poly.edges.push_back({a,b});
         }
       // check off flag i where M(P) = Plist[i]:
       if ((i!=j) && (flags[i]==0))
@@ -2000,17 +2149,22 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
             cout << " - checking off corner #"<<i<<endl;
         }
     }
-  int nedges = poly.size()/2;
+  int nedges = poly.edges.size()/2;
   int nfaces = 2+nedges-nverts; // Euler's formula!
   if (verbose)
-    cout << " - polyhedron has "<< nedges<<" edges and "<<nfaces<<" faces"
-         << " (V,E,F)=("<<nverts<<","<<nedges<<","<<nfaces<<"):\n"<<poly << endl;
+    {
+      cout << " - polyhedron has (V,E,F)=("<<nverts<<","<<nedges<<","<<nfaces<<"):\n"; //<<poly << endl;
+      cout << " - now filling in face data..."<<endl;
+    }
+  fill_faces(poly, verbose);
+  if (verbose)
+    cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
   return poly;
 }
 
 
 // return a list of all principal polyhedra
-vector<vector<EDGE>>
+vector<POLYHEDRON>
 principal_polyhedra(const CuspList& alphas, int verbose)
 {
   if (verbose)
@@ -2021,17 +2175,11 @@ principal_polyhedra(const CuspList& alphas, int verbose)
     cout<<" number of corners is "<<n<<endl;
   vector<int>flags(n, 0);
 
-  vector<vector<EDGE>> polys;
+  vector<POLYHEDRON> polys;
   for (int j=0; j<n; j++)
     {
       if (flags[j]) continue;
-      vector<EDGE> poly = principal_polyhedron(j, alphas, Plist, flags, verbose);
-      if (verbose)
-        {
-          cout << "Polyhedron from P = "<<Plist[j]<<" has "<<poly.size()/2<<" edges\n";
-          // for ( const auto& e: poly )
-          //   cout << " "<< e << endl;
-        }
+      POLYHEDRON poly = principal_polyhedron(j, alphas, Plist, flags, verbose);
       polys.push_back(poly);
     }
   if (verbose)

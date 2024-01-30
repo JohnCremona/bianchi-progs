@@ -19,8 +19,14 @@ struct H3_comparison {
 extern H3_comparison H3_cmp;
 typedef vector<H3point> H3pointList;
 typedef modsym EDGE;
+struct POLYHEDRON {
+  CuspList vertices;
+  vector<EDGE> edges;
+  vector<CuspList> faces;
+};
 
 ostream& operator<<(ostream& s, const H3point& P);
+ostream& operator<<(ostream& s, const POLYHEDRON& P);
 
 // Given an ideal I, return a list of singular points of class [I]
 // (one representative for each orbit under integral translations).
@@ -232,6 +238,9 @@ pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
 // test whether angle between s-->a1 and s-->a2 is <180 degrees
 int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2);
 
+// test whether a,b,c,d are coplanar
+int coplanar(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d);
+
 // return list of alphas (or translates) which pass through a finite cusp
 CuspList neighbours(const RatQuad& sigma, const CuspList& alphas);
 
@@ -262,24 +271,30 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
 // Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
 
+// given vertices and edges, fill in faces:
+void fill_faces(POLYHEDRON& P, int verbose=0);
+
+// return a tetrahedron from a list of its vertices
+POLYHEDRON tetrahedron(const CuspList& V);
+
 // return a list of tetrahedra (i.e. lists of 4 cusps (oo, sigmas[j],
 // a1, a2) with a1,a2 fundamental); as a side-effect set flags[j]=1
 // and flags[j']=1 where M_a_i(sigma[j])=sigma[j'] for i=1,2, for
 // each.
-vector<CuspList>
+vector<POLYHEDRON>
 singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose=0);
 
 // return a list of all singular tetrahedra
-vector<CuspList>
+vector<POLYHEDRON>
 singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose=0);
 
 // return a polyhedron (as a list of EDGEs), from the j'th corner Plist[j]
-vector<EDGE>
+POLYHEDRON
 principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
                      vector<int>& flags, int verbose=0);
 
 // return a list of all principal polyhedra
-vector<vector<EDGE>>
+vector<POLYHEDRON>
 principal_polyhedra(const CuspList& alphas, int verbose=0);
 
 #endif

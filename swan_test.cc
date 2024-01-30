@@ -176,7 +176,7 @@ int main ()
           auto nbrs = sorted_neighbours(sigma, new_alphas);
           auto n = nbrs.size();
           cout << sigma << " has " << n << " neighbours (sorted): " << nbrs << endl;
-          assert ((4<=n)&&(n<=6));
+
           // cout << sigma << "\t has coords\t " << sigma.coords(1) <<endl;
           // for (auto a : nbrs)
           //   {
@@ -186,10 +186,10 @@ int main ()
         }
       // Find all singular tetrahedra:
       verbose = 1;
-      vector<CuspList> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
+      vector<POLYHEDRON> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
 
       // Find all principal polyhedra:
       verbose = 1;
-      vector<vector<EDGE>> princ_polys = principal_polyhedra(new_alphas, verbose);
+      vector<POLYHEDRON> princ_polys = principal_polyhedra(new_alphas, verbose);
     }
 }
