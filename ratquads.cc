@@ -6,6 +6,7 @@
 #include "geometry.h"
 
 Cusp_comparison Cusp_cmp;
+RatQuad_comparison RatQuad_cmp;
 
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
@@ -83,6 +84,7 @@ void RatQuad::normalise()                              // scale so ideal is a st
 }
 
 // return rational x,y s.t. this = x+y*sqrt(-d)
+// NB Both 0/1 and 1/0 return {0,0}
 vector<RAT> RatQuad::coords(int rectangle) const
 {
   INT b = d.norm();
@@ -273,6 +275,39 @@ vector<RatQuad> sqrts_in_k(const RAT& r)
       return vector<RatQuad>(); // empty
     }
 }
+
+// [a,b,c,d]=(a-b)(c-d)/(a-d)(c-b)
+RatQuad crossratio(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d)
+{
+  return RatQuad(
+                 mms(a.n,b.d,b.n,a.d) * mms(c.n,d.d,d.n,c.d),
+                 mms(a.n,d.d,d.n,a.d) * mms(c.n,b.d,b.n,c.d)
+                 );
+}
+// [oo,b,c,d]=(c-d)/(c-b)
+RatQuad crossratio3(const RatQuad& b, const RatQuad& c, const RatQuad& d)
+{
+  return RatQuad(
+                 b.d * mms(c.n,d.d,d.n,c.d),
+                 d.d * mms(c.n,b.d,b.n,c.d)
+                 );
+}
+// Sign of imagainary part of c.r.:
+int sign_im_cr(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d)
+{
+  return iacb(
+              mms(a.n,b.d,b.n,a.d) * mms(c.n,d.d,d.n,c.d),
+              mms(a.n,d.d,d.n,a.d) * mms(c.n,b.d,b.n,c.d)
+              ).sign();
+}
+int sign_im_cr(const RatQuad& b, const RatQuad& c, const RatQuad& d)
+{
+  return iacb(
+              b.d * mms(c.n,d.d,d.n,c.d),
+              d.d * mms(c.n,b.d,b.n,c.d)
+              ).sign();
+}
+
 
 //#define DEBUG_CUSP_EQ
 

@@ -93,6 +93,14 @@ public:
   RatQuad operator+() const;
   RatQuad operator-() const;
 
+  // [a,b,c,d]=(a-b)(c-d)/(a-d)(c-b)
+  friend RatQuad crossratio(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d);
+  // [oo,b,c,d]=(c-d)/(c-b)
+  friend RatQuad crossratio3(const RatQuad& b, const RatQuad& c, const RatQuad& d);
+  // Sign of imagainary part of c.r.:
+  friend int sign_im_cr(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d);
+  friend int sign_im_cr(const RatQuad& b, const RatQuad& c, const RatQuad& d);
+
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
 
@@ -336,7 +344,17 @@ struct Cusp_comparison {
   {return lhs.den().norm()<rhs.den().norm();}
 };
 
+// Comparison function (based on coords)
+struct RatQuad_comparison {
+  bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
+  {
+    if (lhs.is_infinity()) return 0;  // oo < x always false
+    if (rhs.is_infinity()) return 1;  // x < oo always true for x!=oo
+    return lhs.coords()<rhs.coords();} // lex ordering by coords if both finite
+};
+
 extern Cusp_comparison Cusp_cmp;
+extern RatQuad_comparison RatQuad_cmp;
 
 // list of Quad(s) q s.t. N(q-z)<1:
 vector<Quad> nearest_quads(const RatQuad&, int just_one);
