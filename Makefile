@@ -28,7 +28,8 @@ CC = $(GCC)
 # to disable checking of assert() use the following:
 #OPTFLAG = -DNDEBUG -O3 -fPIC
 # to enable checking of assert() use the following:
-OPTFLAG = -O3 -Wall -fPIC
+OPTFLAG = -O3 -Wall -Wextra -fPIC
+#OPTFLAG = -O0 -Wall -Wextra -fPIC
 
 
 # The type of integers used for components of Quad, Qideal, RatQuad
@@ -96,9 +97,13 @@ ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan.cc swan_test.cc
+ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan.cc swan_test.cc
 
-headers: arith_extras.h int.h rat.h intprocs.h matprocs.h cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h swan.h
+Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
+quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
+ euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan.h
+headers: Q_headers quad_headers swan_headers
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -133,12 +138,14 @@ FIELDS=$(FIELDS_hom)
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = tquads tratquad looptest qidltest
-#BASIC_TESTS = tratquad looptest qidltest
+#BASIC_TESTS =
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
+#HOM_TESTS =
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
 FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
+#GLOBAL_TESTS =
 ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
 
 test_input_dir = testin
@@ -147,7 +154,6 @@ test_output_dir = testout
 TIMES := $(shell mktemp)
 
 check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o $(TIMES) -f "%Us" ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully in " `cat $(TIMES)`;  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
-
 
 export NF_DIR:=nftmp
 check: $(ALL_TESTS)
@@ -186,10 +192,13 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-OBJS = int.o arith_extras.o intprocs.o quads.o matprocs.o euclid.o geometry.o looper.o homspace.o \
+Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
+QUAD_OBJS = quads.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o ratquads.o cusp.o P1N.o swan.o
+       primes.o mat22.o ratquads.o cusp.o P1N.o
+SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan.o
 
+OBJS = $(Q_OBJS) $(QUAD_OBJS) $(SWAN_OBJS)
 objs: $(OBJS)
 
 makenf_loop.o: makenf.cc
@@ -197,12 +206,6 @@ makenf_loop.o: makenf.cc
 
 nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
-
-flint_test.o: flint_test.cc int.cc int.h rat.h
-	$(CC) $(CFLAGS) $<
-
-swan_test.o: swan_test.cc int.cc int.h rat.h swan.o
-	$(CC) $(CFLAGS) $<
 
 tquads: tquads.o $(OBJS)
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
@@ -306,7 +309,10 @@ flint_test: flint_test.o int.h rat.h
 swan_test: swan_test.o $(OBJS) rat.h
 	$(CC) -o swan_test swan_test.o $(OBJS) $(LFLAGS)
 
-# DEPENDENCIES
+tbug: tbug.o $(OBJS) rat.h
+	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
+
+# DEPENDENCIES (of *.o files)
 #
 # recreate with
 # for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
