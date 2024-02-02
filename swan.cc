@@ -1986,6 +1986,52 @@ singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
   return tetras;
 }
 
+// return triple (V,E,F3,F4,F6) for a polyhedron
+vector<int> VEFx(const POLYHEDRON& P)
+{
+  vector<int> ans = {nverts(P), nedges(P), 0, 0, 0};
+  for (const auto& f : P.faces)
+    {
+      int n = f.size();
+      int i = (n==3? 2 : (n==4? 3 : (n==6? 4 : -1)));
+      if (i>0)
+        ans[i]++;
+      else
+        cout << "Polyhedron has a face "<<f<<" with "<<n<<" faces!"<<endl;
+    }
+  return ans;
+}
+
+static const map<vector<int>, string> poly_names =
+  {
+    {{4,6,4,0,0}, "tetrahedron"},
+    {{8,12,0,6,0}, "cube"},
+    {{6,12,8,0,0}, "octahedron"},
+    {{6,9,2,3,0}, "triangular prism"},
+    {{5,8,4,1,0}, "square pyramid"},
+    {{12,18,0,6,2}, "hexagonal prism"},
+    {{9,15,4,3,1}, "hexagonal cap"},
+    {{12,18,4,0,4}, "truncated tetrahedron"},
+    {{12,24,8,6,0}, "cuboctahedron"},
+    {{8,14,4,4,0}, "sliced cube"},
+    {{18,30,0,12,2}, "double hexagonal prism"},
+    {{7,14,8,1,0}, "half star"},
+    {{18,33,6,9,2}, "tented hexagonal prism"},
+    {{5,9,6,0,0}, "dipyramid"},
+    {{7,13,6,2,0}, "triangular prism plus square pyramid"},
+    {{6,11,6,1,0}, "tetrahedron plus square pyramid"},
+    {{12,20,0,10,0}, "DoubleCube"},
+    {{12,22,4,8,0}, "DoubleTentedCube"},
+    {{9,19,10,2,0}, "unnamed #1"},
+    {{16,32,8,10,0}, "unnamed #2"},
+    {{7,11,2,4,0}, "unnamed #3"}
+  };
+
+string poly_name(const POLYHEDRON& P)
+{
+  return poly_names.at(VEFx(P));
+}
+
 // given vertices and edges, fill in faces:
 void fill_faces(POLYHEDRON& P, int verbose)
 {
@@ -2019,8 +2065,12 @@ void fill_faces(POLYHEDRON& P, int verbose)
       cout << " - found "<<starters.size()<<" v->w->x triples" << endl;
       // cout << starters <<endl;
     }
+  vector<CuspList> sorted_faces;
   for (const auto& vwx : starters)
     {
+      if (nde==0)
+        break;
+
       v = vwx[0]; w = vwx[1]; x = vwx[2];
       // Make sure v->w and w->x are still in play
       if (std::find(ends[v].begin(), ends[v].end(), w) == ends[v].end())
@@ -2028,72 +2078,84 @@ void fill_faces(POLYHEDRON& P, int verbose)
       if (std::find(ends[w].begin(), ends[w].end(), x) == ends[w].end())
         continue;
       if (verbose)
-        cout << " - using "<<v<<"-->"<<w<<"-->"<<x<<endl;
-      CuspList face = {v, w, x}, unders, overs;
+        cout << " - trying "<<v<<"-->"<<w<<"-->"<<x<<endl;
+      CuspList face = vwx, unders, overs;
       for ( const auto& yi : P.vertices )
         {
           if ((yi==v)||(yi==w)||(yi==x))
             continue;
           int side = sign_im_cr(v, w, x, yi);
-          if (side>0) overs.push_back(yi);
-          else if (side<0) unders.push_back(yi);
-          else face.push_back(yi);
-        }
-      if (unders.empty() || overs.empty()) // we have a genuine (external) face
-        {
-          if (verbose)
-            cout << " - found a face with "<<face.size()<<" sides :"<<face<<endl;
-          std::sort(face.begin(), face.end(), RatQuad_cmp);
-          if (std::find(P.faces.begin(), P.faces.end(), face) != P.faces.end())
-            {
-              if (verbose>1)
-                cout << " - duplicate, ignoring"<<endl;
-            }
+          if (side>0)
+            overs.push_back(yi);
           else
             {
-              P.faces.push_back(face);
-              // delete the relevant directed edges, starting with v->w->x
-              if (verbose>1)
-                cout<<" removing directed edge from "<<v<<" to "<<w<<endl;
-              ends[v].erase(std::remove(ends[v].begin(), ends[v].end(), w), ends[v].end());
-              nde--;
-              if (verbose>1)
-                cout<<" removing directed edge from "<<w<<" to "<<x<<endl;
-              ends[w].erase(std::remove(ends[w].begin(), ends[w].end(), x), ends[w].end());
-              nde--;
-              for (const auto& a : face)
-                {
-                  if ((a==v)||(a==w))
-                    continue;
-                  // there should be exactly one b in face which is also in ends[a]
-                  auto ends_a = ends[a]; // copy as we'll be deleting an element of ends[a]
-                  for ( const auto& b : ends[a])
-                    {
-                      if ((b==w)||(b==x))
-                        continue;
-                      if (std::find(face.begin(), face.end(), b) != face.end())
-                        {
-                          // delete b from ends[a]
-                          if (verbose>1)
-                            cout<<" removing directed edge from "<<a<<" to "<<b<<endl;
-                          ends[a].erase(std::remove(ends[a].begin(), ends[a].end(), b), ends[a].end());
-                          nde--;
-                          break;
-                        }
-                    }
-                }
-              if (verbose)
-                {
-                  cout << nde << " directed edges remain" <<endl;
-                  // for (const auto& v : P.vertices)
-                  //   cout << v <<" --> " << ends[v] << endl;
-                }
+              if (side<0)
+                unders.push_back(yi);
+              else
+                face.push_back(yi);
             }
         }
+      if (!(unders.empty() || overs.empty()))
+        continue;
+      // now we have a genuine (external) face
+      int nface = face.size();
+      CuspList sface = face;
+      std::sort(sface.begin(), sface.end(), RatQuad_cmp);
+      if (std::find(sorted_faces.begin(), sorted_faces.end(), sface) != sorted_faces.end())
+        continue; // duplicate
+
+      sorted_faces.push_back(sface);
+      P.faces.push_back(face);
+      if (verbose)
+        cout << " - found a new face with "<<nface<<" sides :"<<face<<endl;
+
+      // delete the relevant directed edges, starting with v->w->x
+      if (verbose>1)
+        cout<<" removing directed edge from "<<v<<" to "<<w<<endl;
+      ends[v].erase(std::remove(ends[v].begin(), ends[v].end(), w), ends[v].end());
+      nde--;
+      if (verbose>1)
+        cout<<" removing directed edge from "<<w<<" to "<<x<<endl;
+      ends[w].erase(std::remove(ends[w].begin(), ends[w].end(), x), ends[w].end());
+      nde--;
+      // now face[2] is x; for j>=2 we reorder the face[k] for k>j if
+      // necessary so that the edge from face[j] to face[j+1] is one
+      // of the directed edges from face[j]:
+      for (int j=2; j<nface; j++)
+        {
+          RatQuad x = face[j], y;
+          if (j==nface-1)
+            {
+              y = face[0]; // wrap around
+              if (verbose>1)
+                cout<<" removing directed edge from "<<x<<" to "<<y<<endl;
+              ends[x].erase(std::remove(ends[x].begin(), ends[x].end(), y), ends[x].end());
+              nde--;
+              break;
+            }
+          for (int k=j+1; k<nface; k++)
+            {
+              y = face[k];
+              if (std::find(ends[x].begin(), ends[x].end(), y) != ends[x].end())
+                {
+                  // delete y from ends[x]
+                  if (verbose>1)
+                    cout<<" removing directed edge from "<<x<<" to "<<y<<endl;
+                  ends[x].erase(std::remove(ends[x].begin(), ends[x].end(), y), ends[x].end());
+                  nde--;
+                  // swap face[j+1] and face[k] if k>j+1
+                  if (k!=j+1)
+                    std::swap(face[k], face[j+1]);
+                  break;
+                }
+            }
+          if (verbose>1)
+            cout<<"Now the face is "<<face<<endl;
+        }
+      if (verbose)
+        cout << " we now have "<<P.faces.size()<<" faces; "<<nde << " directed edges remain" <<endl;
     }
 }
-
-
 
 // return a polyhedron from the j'th corner Plist[j]
 POLYHEDRON
@@ -2158,7 +2220,12 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
     }
   fill_faces(poly, verbose);
   if (verbose)
-    cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
+    {
+      cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
+      cout << "VEF(poly) = " << VEF(poly) <<endl;
+      cout << "VEFx(poly) = " << VEFx(poly) <<endl;
+      cout << " -- it is a "<<poly_name(poly)<<endl;
+    }
   return poly;
 }
 
@@ -2183,6 +2250,10 @@ principal_polyhedra(const CuspList& alphas, int verbose)
       polys.push_back(poly);
     }
   if (verbose)
-    cout<<polys.size()<<" principal polyhedra constructed"<<endl;
+    {
+      cout<<polys.size()<<" principal polyhedra constructed"<<endl;
+      for (const auto& P: polys)
+        cout << poly_name(P) <<endl;
+    }
   return polys;
 }

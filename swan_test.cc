@@ -168,6 +168,8 @@ int main ()
               exit(1);
             }
         }
+
+# if(0)
       // Look at neighbours of each finite singular point
       cout << "Neighbours of each finite singular point:" << endl;
       for (const auto& sigma: new_sigmas)
@@ -184,12 +186,21 @@ int main ()
           //     cout <<a<<" - "<<sigma<<" = "<<b<< "\t has coords\t " << b.coords(1) <<endl;
           //   }
         }
-      // Find all singular tetrahedra:
-      verbose = 1;
-      vector<POLYHEDRON> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
-
+#endif
       // Find all principal polyhedra:
-      verbose = 1;
+      verbose = 0;
+      cout << "Constructing principal polyhedra..."<<flush;
       vector<POLYHEDRON> princ_polys = principal_polyhedra(new_alphas, verbose);
+      cout << "done: " << princ_polys.size()<<" principal polyhedra constructed:"<<endl;
+      map<string,int> poly_counts;
+      for (const auto& P: princ_polys)
+        poly_counts[poly_name(P)]++;
+      for (const auto& pc : poly_counts)
+        cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
+      // Find all singular tetrahedra:
+      verbose = 0;
+      cout << "Constructing singular tetrahedra..."<<flush;
+      vector<POLYHEDRON> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
+      cout << "done: " << sing_tets.size() << " singular tetrahedra" <<endl;
     }
 }

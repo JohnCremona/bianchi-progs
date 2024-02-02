@@ -159,6 +159,37 @@ Unknown = Graph(name="unknown")
 # NewPoly = Graph(..., name="new name")
 #
 
+"""(V,E,F) for all polyhedra encountered so far (fields of abs disc to 1000):
+
+(4, 6, 4) tetrahedron
+(8, 12, 6) cube
+(6, 12, 8) octahedron
+(6, 9, 5) triangular prism
+(5, 8, 5) square pyramid
+(12, 18, 8) hexagonal prism (*)
+(9, 15, 8) hexagonal cap
+(12, 18, 8) truncated tetrahedron (*)
+(12, 24, 14) cuboctahedron
+(8, 14, 8) sliced cube
+(18, 30, 14) double hexagonal prism
+(7, 14, 9) half star
+(18, 33, 17) tented hexagonal prism
+(5, 9, 6) dipyramid
+(7, 13, 8) triangular prism plus square pyramid
+(6, 11, 7) tetrahedron plus square pyramid
+(12, 20, 10) DoubleCube
+(12, 22, 12) DoubleTentedCube
+(9, 19, 12) unnamed #1
+(16, 32, 18) unnamed #2
+(7, 11, 6) unnamed #3
+
+Note that all are unique *except* that both the hexagonal cap and
+truncated tetrahedron are (12,18,8), but if F is replaced by (F3, F4,
+F6) where Fn is the number of n-sided faces, then the hexagonal cap
+has F=(0,6,2) while the truncated tetrahedron has F=(4,0,4).
+
+"""
+
 all_polys = (Tetrahedron, Cube, Octahedron,
              TriangularPrism, SquarePyramid, HexagonalPrism,
              HexagonalCap, TruncatedTetrahedron, Cuboctahedron,
@@ -179,6 +210,14 @@ def poly_types(pols):
     n_unknown = sum(1 for pol in pols if poly_type(pol)=='unknown')
     return dict([(std_pol.name(), sum(1 for pol in pols if pol.is_isomorphic(std_pol)))
                  for std_pol in all_polys] + [('unknown', n_unknown)])
+
+def VEF(pol, separate_faces=0):
+    f = pol.faces()
+    if separate_faces:
+        F = tuple(len([f1 for f1 in f if len(f1)==i]) for i in (3,4,6))
+    else:
+        F = len(f)
+    return (len(pol.vertices()), len(pol.edges()), F)
 
 def vertical_halfline(x0,y0, h=1):
     return parametric_plot3d([x0,y0,lambda x:x], (0,h))
