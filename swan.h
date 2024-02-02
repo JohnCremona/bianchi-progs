@@ -194,6 +194,19 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
 // Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
 
+inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}
+inline int nedges(const POLYHEDRON& P) {int n = P.edges.size(); return n/2;}
+inline int nfaces(const POLYHEDRON& P) {return P.faces.size();}
+// return triple (V,E,F) for a polyhedron
+inline vector<int> VEF(const POLYHEDRON& P)
+{
+  return {nverts(P), nedges(P), nfaces(P)};
+}
+// return triple (V,E,F3,F4,F6) for a polyhedron
+vector<int> VEFx(const POLYHEDRON& P);
+// return name (e.g. "tetrahedron") of a polyhedron
+string poly_name(const POLYHEDRON& P);
+
 // given vertices and edges, fill in faces:
 void fill_faces(POLYHEDRON& P, int verbose=0);
 
