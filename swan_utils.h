@@ -6,6 +6,7 @@
 #include <iostream>
 #include <set>
 
+#include "mat22.h"
 #include "ratquads.h"
 
 typedef vector<RatQuad> CuspList;  // may refactor using sets later
@@ -67,6 +68,9 @@ int is_under(const H3point& P, const RatQuad& a);
 // return +1 iff P is under at least one S_a for a in sliat
 int is_under_any(const H3point& P, const CuspList& alist);
 
+// translate a point
+H3point translate(const H3point& P, const Quad& t);
+
 // return 1 iff P is an integer translate of Q, with t=P-Q
 int is_translate(const H3point& P, const H3point& Q, Quad& t);
 
@@ -86,7 +90,78 @@ CuspList principal_cusps_with_denominator(const Quad& s);
 // list of principal cusps with denominator in given list
 CuspList principal_cusps_with_denominators(const vector<Quad>& slist);
 
+// det([[a1,a2,a3],[a1bar,a2bar,a3bar],[1,1,1]])
+RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3);
+
 // return max denominator norm of a list of principal cusps
 INT max_dnorm(const CuspList& alphas);
+
+// test whether angle between s-->a1 and s-->a2 is <180 degrees
+int angle_under_pi(const RatQuad& s, const RatQuad& a1, const RatQuad& a2);
+
+// test whether a,b,c,d are coplanar
+int coplanar(const RatQuad& a, const RatQuad& b, const RatQuad& c, const RatQuad& d);
+
+int compare_CuspLists_as_sets(const CuspList& A, const CuspList& B);
+int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList& B);
+
+// Functions which for a principal cusp alpha return a matrix M with M(alpha)=oo
+
+// Basic version, for principal alpha: returns any matrix with M(alpha)=oo
+mat22 Malpha(const RatQuad& alpha);
+// Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
+mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j);
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j);
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
+
+// polyhedron utilities
+inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}
+inline int nedges(const POLYHEDRON& P) {int n = P.edges.size(); return n/2;}
+inline int nfaces(const POLYHEDRON& P) {return P.faces.size();}
+// return triple (V,E,F) for a polyhedron
+inline vector<int> VEF(const POLYHEDRON& P)
+{
+  return {nverts(P), nedges(P), nfaces(P)};
+}
+// return triple (V,E,F3,F4,F6) for a polyhedron
+vector<int> VEFx(const POLYHEDRON& P);
+// return name (e.g. "tetrahedron") of a polyhedron
+string poly_name(const POLYHEDRON& P);
+
+// Return [P] where P is the triple intersection point of the
+// hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there
+// is one, else [].
+
+H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad& a2);
+
+// Given a base cusp s and a list of cusps alist, return a sorted
+// alist with respect to the circular ordering around s
+CuspList circular_sort(const RatQuad& s, const CuspList& alist);
+
+// Return the height of S_a above P, or 0 if S_a does not cover P
+RAT height_above(const RatQuad& a, const RatQuad& z);
+// return -1,0,+1 according as P is over, on, under S_a (a principal)
+int is_under(const H3point& P, const RatQuad& a);
+// return +1 iff P is under at least one S_a for a in alist
+int is_under_any(const H3point& P, const CuspList& alist);
+//
+CuspList nbrs(const RatQuad& z);
+
+// For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
+// such that P lies on or under S_alpha, and N(s)>=norm_s_lb.
+
+// If option is +1 ('exact') only returns alpha for which P is on S_alpha exactly.
+// If option is -1 ('strict') only returns alpha for which P is strictly under S_alpha.
+// Otherwise (default), returns alpha for which P is under or on S_alpha.
+
+CuspList covering_hemispheres(const H3point& P, int option=0, long norm_s_lb=1, int debug=0);
+
+CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug=0);
+
+// Of the properly_covering_hemispheres(P) extract the subset for which the covering height is maximal
+CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug=0);
+
 
 #endif

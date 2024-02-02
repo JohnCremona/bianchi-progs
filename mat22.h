@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "ratquads.h"
 #include "primes.h"
-#include "swan.h" // for the typedef of H3point
+typedef pair<RatQuad,RAT> H3point;
 
 class mat22 {
 private:

@@ -133,6 +133,14 @@ RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
   return a-shift;
 }
 
+// reduce r mod s so that r/s is in the rectangle
+Quad rectify(const Quad& r, const Quad& s)
+{
+  Quad q;
+  RatQuad a = reduce_to_rectangle(RatQuad(r,s), q);
+  return r - q*s;
+}
+
 // list of Quad(s) a s.t. N(z-a)<1; at most 1 if just_one, otherwise
 // we return all
 

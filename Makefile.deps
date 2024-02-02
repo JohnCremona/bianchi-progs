@@ -134,10 +134,23 @@ rewrite_eigs.o: rewrite_eigs.cc qidloop.h qideal.h quads.h intprocs.h \
  homspace.h cusp.h mat22.h face_relations.h edge_relations.h geometry.h \
  P1N.h hecke.h
 roundtest.o: roundtest.cc intprocs.h arith_extras.h
-swan.o: swan.cc swan.h ratquads.h quads.h intprocs.h arith_extras.h rat.h \
- int.h geometry.h mat22.h primes.h qideal.h looper.h
-swan_test.o: swan_test.cc swan.h ratquads.h quads.h intprocs.h \
- arith_extras.h rat.h int.h geometry.h mat22.h primes.h qideal.h
+swan_alphas.o: swan_alphas.cc swan_alphas.h swan_utils.h mat22.h \
+ ratquads.h quads.h intprocs.h arith_extras.h rat.h int.h primes.h \
+ qideal.h looper.h
+swan.o: swan.cc swan.h swan_utils.h mat22.h ratquads.h quads.h intprocs.h \
+ arith_extras.h rat.h int.h primes.h qideal.h swan_sigmas.h swan_alphas.h
+swan_sigmas.o: swan_sigmas.cc qideal.h quads.h intprocs.h arith_extras.h \
+ swan_sigmas.h swan_utils.h mat22.h ratquads.h rat.h int.h primes.h
+swan_tess.o: swan_tess.cc swan_utils.h mat22.h ratquads.h quads.h \
+ intprocs.h arith_extras.h rat.h int.h primes.h qideal.h swan_alphas.h \
+ swan_tess.h
+swan_test.o: swan_test.cc swan_sigmas.h swan_utils.h mat22.h ratquads.h \
+ quads.h intprocs.h arith_extras.h rat.h int.h primes.h qideal.h \
+ swan_alphas.h swan_tess.h swan.h geometry.h
+swan_utils.o: swan_utils.cc swan_utils.h mat22.h ratquads.h quads.h \
+ intprocs.h arith_extras.h rat.h int.h primes.h qideal.h looper.h
+tbug.o: tbug.cc swan.h swan_utils.h mat22.h ratquads.h quads.h intprocs.h \
+ arith_extras.h rat.h int.h primes.h qideal.h geometry.h looper.h
 testlf1.o: testlf1.cc newforms.h ratquads.h quads.h intprocs.h \
  arith_extras.h rat.h int.h oldforms.h primes.h qideal.h homspace.h \
  cusp.h mat22.h face_relations.h edge_relations.h geometry.h P1N.h \

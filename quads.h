@@ -288,6 +288,9 @@ struct Quad_comparison {
 
 extern Quad_comparison Quad_cmp;
 
+// reduce r mod s so that r/s is in the rectangle
+Quad rectify(const Quad& r, const Quad& s);
+
 #endif
 
 // END OF FILE QUADS.H

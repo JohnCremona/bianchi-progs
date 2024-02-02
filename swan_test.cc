@@ -1,6 +1,7 @@
+#include "swan_sigmas.h"
+#include "swan_alphas.h"
+#include "swan_tess.h"
 #include "swan.h"
-//#include "ratquads.h"
-//#include "qideal.h"
 #include "geometry.h"
 
 #define MAX_DISC 100
