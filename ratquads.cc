@@ -4,6 +4,7 @@
 #include "qideal.h"
 #include "mat22.h"
 #include "geometry.h"
+#include "looper.h"
 
 Cusp_comparison Cusp_cmp;
 RatQuad_comparison RatQuad_cmp;
@@ -149,6 +150,7 @@ Quad rectify(const Quad& r, const Quad& s)
 // non-Euclidean case.
 vector<Quad> nearest_quads(const RatQuad& z, int just_one)
 {
+  // cout<<"nearest_quads to z="<<z<<"..."<<flush;
   vector<Quad> ans;
   Quad r;
   RatQuad z0 = reduce_to_rectangle(z, r);
@@ -173,9 +175,9 @@ vector<Quad> nearest_quads(const RatQuad& z, int just_one)
         }
       return ans;
     }
-  vector<Quad> shifts = {Quad::one}; // adjustments up to sign
-  if (Quad::d < 7) shifts.push_back(Quad(1,1)); // norms 2, 3, 3 for d=1,2,3
-  if (Quad::nunits == 2) shifts.push_back(Quad(0,1)); // norms 2, 2, 3 for d=2,7,11
+  vector<Quad> shifts = quads_of_norm_up_to(3, 1, 1); // adjustments up to sign, must have norm 1, 2 or 3
+  // cout<<"base z0="<<z0<<" gives r = "<<r<<endl;
+  // cout<<"shifts are "<<shifts<<" up to multiplication by units in "<<quadunits<<endl;
   for ( const auto& s : shifts)
     {
       for ( const auto& u : quadunits)

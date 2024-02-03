@@ -250,15 +250,20 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
 }
 
 // Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
-mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j)
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k)
 {
   mat22 M = Malpha(alpha);
   Quad x(0);
-  j = point_index_with_translation(M(P), Plist, x);
+  H3point Q = M(P);
+  j = point_index_with_translation(Q, Plist, x);
   assert (j>=0);
   M = mat22::Tmat(-x)*M;
   assert (M(alpha).is_infinity());
-  assert (M(P) == Plist[j]);
+  Q = M(P);
+  assert (Q == Plist[j]);
+  Q = {fundunit*Q.first, Q.second};
+  k = point_index_with_translation(Q, Plist, x);
+  assert (k>=0);
   return M;
 }
 
@@ -372,7 +377,11 @@ CuspList nbrs(const RatQuad& z)
   RatQuad cz = z.conj();
   int t = Quad::t;
   Quad w = Quad::w;
-  return {z,-z, cz, ONE-z, -cz, ONE-cz, w-z, w+cz, (t? w+cz-ONE : w+ONE-z)};
+  CuspList ans = {z};
+  for ( RatQuad a : {-z, cz, ONE-z, -cz, ONE-cz, w-z, w+cz, (t? w+cz-ONE : w+ONE-z)})
+    if (std::find(ans.begin(), ans.end(), a) == ans.end())
+      ans.push_back(a);
+  return ans;
 }
 
 // For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
@@ -396,7 +405,7 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
       else
         if (option==-1)
           cout<<" (strict, i.e. P is strictly under S_a)";
-        else cout<<" (feault, i.e. P is on or under S_a)";
+        else cout<<" (default, i.e. P is on or under S_a)";
       cout <<endl;
     }
   CuspList ans;

@@ -770,7 +770,7 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
         alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());
       }
     if (debug)
-      cout << alphasF4X.size() <<" neighbours of these" << endl;
+      cout << alphasF4X.size() <<" neighbours of these: " << alphasF4X << endl;
 
     // convert each cusp z to a point P = [z,tsq] with tsq the square
     // radius of S_z:

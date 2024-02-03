@@ -128,11 +128,11 @@ Quad mms(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 void Quad::addprod(const Quad& a, const Quad& b) // this +=a*b
 {
   if (a.nm==0 || b.nm==0) return;
-  INT t = a.i*b.i;
-  r += (a.r*b.r - Quad::n * t);
+  INT c = a.i*b.i;
+  r += (a.r*b.r - n * c);
   i += (a.r*b.i + a.i*b.r);
-  if (Quad::t)
-    i += t;
+  if (t)
+    i += c;
   setnorm();
 }
 
@@ -147,11 +147,11 @@ void Quad::addprod(long a, const Quad& b) // this +=a*b
 void Quad::subprod(const Quad& a, const Quad& b) // this -=a*b
 {
   if (a.nm==0 || b.nm==0) return;
-  INT t = a.i*b.i;
-  r -= (a.r*b.r - Quad::n * t);
+  INT c = a.i*b.i;
+  r -= (a.r*b.r - n * c);
   i -= (a.r*b.i + a.i*b.r);
-  if (Quad::t)
-    i -= t;
+  if (t)
+    i -= c;
   setnorm();
 }
 

@@ -113,8 +113,8 @@ mat22 Malpha(const RatQuad& alpha);
 mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j);
 // Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
 mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j);
-// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
-mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j], and k so that u*M(P)=Plist[k]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k);
 
 // polyhedron utilities
 inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}

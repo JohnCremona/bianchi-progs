@@ -242,7 +242,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
     return a.is_infinity() || cusp_index_with_translation(a, alphas, x)>=0;
   };
 
-  int i;
+  int i, k;
   for ( const auto& a : alist)
     {
       // First add edges {oo,a} and {a,oo} for a fundamental:
@@ -253,18 +253,24 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
         }
       // Then add edges {a,b} for finite a,b, when M_a(b) is fundamental.
       // NB this is equivalent to M_b(a) fundamental, so {b,a} will also be added.
-      mat22 M = Malpha(a, P, Plist, i);
+      mat22 M = Malpha(a, P, Plist, i, k);
       for ( const auto& b : alist)
         {
           if ((a!=b) && is_fund(M(b)))
             poly.edges.push_back({a,b});
         }
-      // check off flag i where M(P) = Plist[i]:
+      // check off flags i, j where M(P)=Plist[i], u*M(P)=Plist[k]
       if ((i!=j) && (flags[i]==0))
         {
           flags[i] = 1;
           if (verbose)
             cout << " - checking off corner #"<<i<<endl;
+        }
+      if ((k!=j) && (k!=i) && (flags[k]==0))
+        {
+          flags[k] = 1;
+          if (verbose)
+            cout << " - checking off corner #"<<k<<endl;
         }
     }
   int nedges = poly.edges.size()/2;
@@ -292,7 +298,7 @@ principal_polyhedra(const CuspList& alphas, int verbose)
 {
   if (verbose)
     cout<<"Finding principal polyhedra..."<<flush;
-  auto Plist = triple_intersections(alphas);
+  auto Plist = triple_intersections(alphas, verbose);
   int n = Plist.size();
   if (verbose)
     cout<<" number of corners is "<<n<<endl;
