@@ -87,6 +87,25 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   return ans;
 }
 
+// return the point on the intersection of the hemispheres S_a_i
+// (where a1, a2 are principal cusps) which is on the line from a1 to
+// a2.  Used when both S_a_i pass through a singular point.
+H3point bi_inter(const RatQuad& a1, const RatQuad& a2)
+{
+  RAT r1sq = radius_squared(a1), r2sq = radius_squared(a2);
+  RatQuad delta = a2-a1;
+  RAT n = delta.norm();
+  RAT la = (1+(r2sq-r1sq)/n)/2;
+  RAT mu = 1 - la;
+  RatQuad z = la*a1 + mu*a2;
+  RAT t1 = r1sq-mu*mu*n;
+  RAT t2 = r2sq-la*la*n;
+  assert (t1==t2);
+  assert (t2>0);
+  H3point P = {z,t2};
+  return P;
+}
+
 // return 1 iff a is [strictly] inside S_b (b principal, a arbitrary)
 int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 {
@@ -223,7 +242,13 @@ int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList&
 mat22 Malpha(const RatQuad& alpha)
 {
   Quad a, b, c = alpha.den(), d = alpha.num();
+  if (c==Quad::zero)
+    return mat22::identity;
+  if (d==Quad::zero)
+    return mat22::S;
   Quad g = quadbezout(c, d, b, a); // a*d+b*c=g=1
+  if (g==Quad::zero)
+    cerr<<"Error in Malpha(): cusp "<<alpha<<" is not principal"<<endl;
   mat22 M(-a,-b,c,-d);
   assert (M.is_unimodular()); // strict by default, i.e. det=1 not just a unit
   assert (M(alpha)==RatQuad::infinity());
@@ -233,23 +258,39 @@ mat22 Malpha(const RatQuad& alpha)
 // Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
 mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j)
 {
-  return Malpha(alpha, RatQuad::infinity(), alist, j);
+  int k;
+  return Malpha(alpha, RatQuad::infinity(), alist, j, k);
 }
 
-// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
-mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j)
+//#define DEBUG_M_ALPHA
+
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j] and k so that u*M(s)=slist[k]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j, int& k)
 {
+#ifdef DEBUG_M_ALPHA
+  cout << "In Malpha("<<alpha<<") with s="<<s<<" and slist="<<slist<<endl;
+#endif
   mat22 M = Malpha(alpha);
   Quad x;
-  j = cusp_index_with_translation(M(s), slist, x);
+  RatQuad sd = M(s);
+#ifdef DEBUG_M_ALPHA
+  cout << " - first M = "<<M<<" with M(s)="<<sd<<endl;
+  cout<<"Differences of this and elements of slist:\n";
+  for (const auto& a : slist) cout<<(sd-a)<<endl;
+#endif
+  j = cusp_index_with_translation(sd, slist, x);
   assert (j>=0);
   M = mat22::Tmat(-x)*M;
   assert (M(alpha).is_infinity());
-  assert (M(s) == slist[j]);
+  sd = M(s);
+  assert (sd == slist[j]);
+  sd = fundunit*sd;
+  k = cusp_index_with_translation(sd, slist, x);
+  assert (k>=0);
   return M;
 }
 
-// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k)
 {
   mat22 M = Malpha(alpha);
@@ -258,6 +299,10 @@ mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, i
   j = point_index_with_translation(Q, Plist, x);
   assert (j>=0);
   M = mat22::Tmat(-x)*M;
+  if (!(M(alpha).is_infinity()))
+    {
+      cout<<"alpha = "<<alpha<<", M="<<M<<": M(alpha)="<<M(alpha)<<endl;
+    }
   assert (M(alpha).is_infinity());
   Q = M(P);
   assert (Q == Plist[j]);
@@ -307,7 +352,9 @@ static const map<vector<int>, string> poly_names =
     {{18,30,0,12,2}, "double hexagonal prism"},
     {{7,14,8,1,0}, "half star"},
     {{18,33,6,9,2}, "tented hexagonal prism"},
-    {{5,9,6,0,0}, "dipyramid"},
+    {{5,9,6,0,0}, "3-dipyramid"},
+    {{7,15,10,0,0}, "5-dipyramid"},
+    {{8,18,12,0,0}, "6-dipyramid"},
     {{7,13,6,2,0}, "triangular prism plus square pyramid"},
     {{6,11,6,1,0}, "tetrahedron plus square pyramid"},
     {{12,20,0,10,0}, "DoubleCube"},
@@ -319,7 +366,18 @@ static const map<vector<int>, string> poly_names =
 
 string poly_name(const POLYHEDRON& P)
 {
-  return poly_names.at(VEFx(P));
+  auto vef = VEFx(P);
+  return poly_names.at(vef);
+  auto search = poly_names.find(vef);
+  if ( search!=poly_names.end() )
+    return search->second;
+  cout << "Polyhedron with (V,E,F3,F4,F6) = " << vef << " not recognised";
+  int nv = vef[0];
+  int n = nv-2;
+  if (vef[1]==3*n && vef[2]==2*n && vef[3]==0 && vef[4]==0)
+    cout << " -- looks like a "<<n<<"-dipyramid";
+  cout <<endl;
+  return "unknown";
 }
 
 // Given a base cusp s and a list of cusps alist, return a sorted

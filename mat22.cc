@@ -7,6 +7,7 @@ RatQuad mat22::operator()(const RatQuad& q)const
 {
   Quad r = q.num(), s = q.den();
   apply_left(r, s);
+  while (!pos(s)) {r*=fundunit; s*=fundunit;}
   return RatQuad(r,s);
 }
 

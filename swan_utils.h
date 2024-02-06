@@ -53,6 +53,11 @@ int circle_inside_any_circle(const RatQuad& a, const CuspList& blist, int strict
 // return a list of up to 2 k-rational cusps where the S_ai intersect
 CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2);
 
+// return the point on the intersection of the hemispheres S_a_i
+// (where a1, a2 are principal cusps) which is on the line from a1 to
+// a2.  Used when both S_a_i pass through a singular point.
+H3point bi_inter(const RatQuad& a1, const RatQuad& a2);
+
 // return 1 iff a is [strictly] inside S_b
 int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 
@@ -109,11 +114,14 @@ int compare_CuspLists_as_sets_mod_translation(const CuspList& A, const CuspList&
 
 // Basic version, for principal alpha: returns any matrix with M(alpha)=oo
 mat22 Malpha(const RatQuad& alpha);
+
 // Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
 mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j);
-// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
-mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j);
-// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j], and k so that u*M(P)=Plist[k]
+
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j] and k so that u*M(s)=slist[k]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j, int& k);
+
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k);
 
 // polyhedron utilities

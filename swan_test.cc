@@ -169,14 +169,16 @@ int main ()
               exit(1);
             }
         }
+      alphas = new_alphas;
+      sigmas = new_sigmas;
 
 # if(0)
       // Look at neighbours of each finite singular point
       cout << "Neighbours of each finite singular point:" << endl;
-      for (const auto& sigma: new_sigmas)
+      for (const auto& sigma: sigmas)
         {
           if (sigma.is_infinity()) continue;
-          auto nbrs = sorted_neighbours(sigma, new_alphas);
+          auto nbrs = sorted_neighbours(sigma, alphas);
           auto n = nbrs.size();
           cout << sigma << " has " << n << " neighbours (sorted): " << nbrs << endl;
 
@@ -190,18 +192,50 @@ int main ()
 #endif
       // Find all principal polyhedra:
       verbose = 0;
+      int n;
       cout << "Constructing principal polyhedra..."<<flush;
-      vector<POLYHEDRON> princ_polys = principal_polyhedra(new_alphas, verbose);
-      cout << "done: " << princ_polys.size()<<" principal polyhedra constructed:"<<endl;
+      vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
+      n = princ_polys.size();
+      if (n==1)
+        cout << "done: 1 principal polyhedron constructed:"<<endl;
+      else
+        cout << "done: " << n << " principal polyhedra constructed:"<<endl;
       map<string,int> poly_counts;
       for (const auto& P: princ_polys)
         poly_counts[poly_name(P)]++;
       for (const auto& pc : poly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
-      // Find all singular tetrahedra:
+      // Find all singular polyhedra:
       verbose = 0;
-      cout << "Constructing singular tetrahedra..."<<flush;
-      vector<POLYHEDRON> sing_tets = singular_tetrahedra(new_sigmas, new_alphas, verbose);
-      cout << "done: " << sing_tets.size() << " singular tetrahedra" <<endl;
+      cout << "Constructing singular polyhedra..."<<flush;
+      vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
+      n = sing_polys.size();
+      if (n==1)
+        cout << "done: 1 singular polyhedron" <<endl;
+      else
+        cout << "done: " << n << " singular polyhedra" <<endl;
+      map<string,int> spoly_counts;
+      for (const auto& P: sing_polys)
+        spoly_counts[poly_name(P)]++;
+      for (const auto& pc : spoly_counts)
+        cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
+
+
+      vector<POLYHEDRON> all_polys = princ_polys;
+      all_polys.insert(all_polys.end(), sing_polys.begin(), sing_polys.end());
+
+      cout << "\nFinding all oriented faces up to GL2-equivalence" << endl;
+      verbose = 0;
+      auto aaa_squ_hex_aas = get_faces(all_polys, alphas, sigmas, verbose);
+      auto aaa_triangles = aaa_squ_hex_aas[0];
+      auto squares = aaa_squ_hex_aas[1];
+      auto hexagons = aaa_squ_hex_aas[2];
+      auto aas_triangles = aaa_squ_hex_aas[3];
+      cout<<aaa_triangles.size()<<" aaa-triangles\n";
+      cout<<aas_triangles.size()<<" aas-triangles\n";
+      cout<<squares.size()<<" squares\n";
+      cout<<hexagons.size()<<" hexagons\n";
+
+      cout<<"----------------------------------------------------------------------------------\n";
     }
 }

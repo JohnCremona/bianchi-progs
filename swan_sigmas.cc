@@ -49,7 +49,7 @@ CuspList denom_3_sigmas()
 CuspList singular_points_in_class(Qideal I, int verbose)
 {
   if (I.is_principal())
-    return {RatQuad(Quad::one, Quad::zero)};
+    return {RatQuad::infinity()};
   INT n = I.norm();
   Quad temp, r, s(n);
   vector<Quad> slist = {s};
