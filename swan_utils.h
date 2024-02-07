@@ -7,6 +7,7 @@
 #include <set>
 
 #include "mat22.h"
+#include "geometry.h"
 #include "ratquads.h"
 
 typedef vector<RatQuad> CuspList;  // may refactor using sets later
@@ -123,6 +124,9 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
 
 // Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k);
+
+// // Return alpha' in alphas such that M_alpha(oo) = alpha'
+// RatQuad alpha_flip(const RatQuad& alpha, const CuspList& alphas);
 
 // polyhedron utilities
 inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}

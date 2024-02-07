@@ -49,5 +49,34 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
                                     const CuspList& alphas, const CuspList& sigmas,
                                     int verbose=0);
 
+// Return complete string encoding one face
+string encode_int_list(char type, const vector<INT> data);
+
+// Return string for POLYGON representing an aaa-triangle, aas-triangle, quadrilateral or hexagon
+string polygon_string(const POLYGON& P, int sing);
+
+// For any face, return the string which encodes it in the geodata files
+string face_encode(const CuspList& face, const CuspList& alphas, const CuspList& sigmas);
+
+// Convert an actual polygon (aaa- or aas-triangle, quadrilateral or
+// hexagon) as list of vertices to the POLYGON {{i,j,k},{u}}, setting
+// sing to 1 for an aas-triangle, else to 0
+POLYGON make_polygon(const CuspList& face, const CuspList& alphas, const CuspList& sigmas, int& sing);
+
+// Convert an actual aaa- or aas-triangle as list of vertices [a,oo,b]
+// or [a,oo,s] to a POLYGON {{i,j,k},{u}}, setting sing to 1 for an
+// aas-triangle, else to 0
+POLYGON make_triangle(const CuspList& T, const CuspList& alphas, const CuspList& sigmas, int& sing);
+
+// Convert an actual quadrilateral as list of vertices [a,oo,b,c] to
+// the POLYGON {{i,j,k},{x,y,z}}
+POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas);
+
+// Convert an actual hexagon as list of vertices [a_i, oo, a_j, b_2,
+// gamma, b_1] to the POLYGON {{i,j,k,l,m,n},{u,x1,y1,x2,y2}}
+POLYGON make_hexagon(const CuspList& H, const CuspList& alphas);
+
+
+void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas, const CuspList& alphas, const CuspList& sigmas, int to_file, int to_screen);
 
 #endif

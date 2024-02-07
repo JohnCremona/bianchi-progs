@@ -131,65 +131,65 @@ void fill_faces(POLYHEDRON& P, int verbose)
       for (const auto& v : P.vertices)
         cout << v <<" --> " << ends[v] << endl;
     }
-  vector<CuspList> starters; // store the {v,w,x} to be considered
-  // find edges v->w->x
+
   RatQuad v, w, x, y;
-  for ( const auto& vi: P.vertices)
+  vector<CuspList> badstarts; // will hold any invalid v->w->x found
+  CuspList face;
+
+  while (nde) // continue until no directed edges are left
     {
-      for ( const auto& wi: ends[vi])
+      // find directed path v->w->x
+      int found = 0;
+      for ( const auto& vi: P.vertices)
         {
-          for ( const auto& xi: ends[wi])
+          if (found) break;
+          for ( const auto& wi: ends[vi])
             {
-              if (xi!=vi)
-                starters.push_back({vi,wi,xi});
+              if (found) break;
+              for ( const auto& xi: ends[wi])
+                {
+                  if (found) break;
+                  if (xi!=vi)
+                    {
+                      v = vi; w = wi; x = xi;
+                      face = {v,w,x};
+                      found = std::find(badstarts.begin(), badstarts.end(), face) == badstarts.end();
+                      if (found)
+                        badstarts.push_back(face);
+                    }
+                }
             }
         }
-    }
-  if (verbose)
-    {
-      cout << " - found "<<starters.size()<<" v->w->x triples" << endl;
-      // cout << starters <<endl;
-    }
-  vector<CuspList> sorted_faces;
-  for (const auto& vwx : starters)
-    {
-      if (nde==0)
-        break;
-
-      v = vwx[0]; w = vwx[1]; x = vwx[2];
-      // Make sure v->w and w->x are still in play
-      if (std::find(ends[v].begin(), ends[v].end(), w) == ends[v].end())
-        continue;
-      if (std::find(ends[w].begin(), ends[w].end(), x) == ends[w].end())
-        continue;
       if (verbose)
         cout << " - trying "<<v<<"-->"<<w<<"-->"<<x<<endl;
-      CuspList face = vwx, unders, overs;
+
+      // Check that no vertices y are on the "wrong" side,
+      // i.e. sign_im_cr(v, w, x, yi), and collect those with
+      // sign_im_cr(v, w, x, yi)=0 as a new face:
+      int good = 1;
       for ( const auto& yi : P.vertices )
         {
+          if (!good)
+            break;
           if ((yi==v)||(yi==w)||(yi==x))
             continue;
           int side = sign_im_cr(v, w, x, yi);
-          if (side>0)
-            overs.push_back(yi);
-          else
-            {
-              if (side<0)
-                unders.push_back(yi);
-              else
-                face.push_back(yi);
-            }
+          if (side==0)
+            face.push_back(yi);
+          good = (side>=0);
         }
-      if (!(unders.empty())) // || overs.empty()))
+      if (!good)
         continue;
-      // now we have a genuine (external) face
-      int nface = face.size();
-      CuspList sface = face;
-      std::sort(sface.begin(), sface.end(), RatQuad_cmp);
-      if (std::find(sorted_faces.begin(), sorted_faces.end(), sface) != sorted_faces.end())
-        continue; // duplicate
 
-      sorted_faces.push_back(sface);
+      // now we have a genuine oriented face
+
+      // CuspList sface = face;
+      // std::sort(sface.begin(), sface.end(), RatQuad_cmp);
+      // if (std::find(sorted_faces.begin(), sorted_faces.end(), sface) != sorted_faces.end())
+      //   continue; // duplicate
+      // sorted_faces.push_back(sface);
+
+      int nface = face.size();
       if (verbose)
         cout << " - found a new face with "<<nface<<" sides (unsorted):"<<face<<endl;
 
@@ -369,8 +369,9 @@ all_polyhedra(const CuspList& alphas, const CuspList& sigmas, int verbose)
 
 // Given a polygon with either all vertices principal or just one
 // singular; if there's a singular vertex, rotate to put it at the
-// end; then apply M in SL(2,OK) taking the first two vertices to oo
-// and a in alist (reduced fundamental alphas).  Set sing to 1 iff singular.
+// end; then apply M in SL(2,OK) taking the first two vertices to [a,oo]
+// with a in alist (reduced fundamental alphas).  Set sing to 1 iff singular.
+
 //#define DEBUG_NORMALISE
 CuspList normalise_polygon( const CuspList& face, const CuspList& alphas, const CuspList& sigmas, int& sing)
 {
@@ -408,14 +409,14 @@ CuspList normalise_polygon( const CuspList& face, const CuspList& alphas, const 
     }
 
   int j, k; // not used here
-  mat22 M = Malpha(newface[0], newface[1], alphas, j, k);
+  mat22 M = Malpha(newface[1], newface[0], alphas, j, k);
 #ifdef DEBUG_NORMALISE
   cout<<"Applying matrix M = "<<M<<endl;
 #endif
   std::transform(newface.begin(), newface.end(), newface.begin(),
                  [M](RatQuad a) {return M(a);});
-  assert (newface[0]==RatQuad::infinity());
-  assert (std::find(alphas.begin(), alphas.end(), newface[1]) != alphas.end());
+  assert (newface[1]==RatQuad::infinity());
+  assert (std::find(alphas.begin(), alphas.end(), newface[0]) != alphas.end());
 #ifdef DEBUG_NORMALISE
   cout<<"after applying M, face is "<<newface<<endl;
 #endif
@@ -439,10 +440,10 @@ CuspList reverse_polygon( const CuspList& face)
 }
 
 // extract all oriented faces up to SL2-equivalence, returning lists of
-// (0) principal triangles {oo, a1, a2} with a1 reduced fundamental
-// (1) principal squares   {oo, a1, a2, a3} with a1 reduced fundamental
-// (2) principal hexagons  {oo, a1, a2, a3, a4, a5, a6} with a1 reduced fundamental
-// (3) singular triangles  {oo, a, s} with a reduced fundamental, s singular
+// (0) principal triangles {a1, oo, a2} with a1 reduced fundamental
+// (1) principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
+// (2) principal hexagons  {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
+// (3) singular triangles  {a, oo, s} with a reduced fundamental, s singular
 vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
                                     const CuspList& alphas, const CuspList& sigmas,
                                     int verbose)
@@ -500,154 +501,182 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
   return {aaa_triangles, squares, hexagons, aas_triangles};
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-#if(0) // obsolete functions giving singular polyhedra decomposed into tetrahedra
-
-// return a tetrahedron (list of triangles) from a list of 4 vertices,
-// arranged so that each is the first vertex of one triangle
-POLYHEDRON tetrahedron(const CuspList& V)
+// Return j' so that M_a(a)=alphas[j'] where a=alphas[j]
+int alpha_index_flip(int j, const CuspList& alphas)
 {
-  assert (V.size()==4);
-  POLYHEDRON P;
-  P.vertices = V;
-  P.edges = {
-    {V[0],V[1]}, {V[1],V[2]}, {V[2],V[0]},
-    {V[1],V[3]}, {V[3],V[2]}, {V[2],V[1]},
-    {V[2],V[3]}, {V[3],V[0]}, {V[0],V[2]},
-    {V[3],V[1]}, {V[1],V[0]}, {V[0],V[3]}
-  };
-  P.faces = {
-    {V[0], V[1], V[2]},
-    {V[1], V[3], V[2]},
-    {V[2], V[3], V[0]},
-    {V[3], V[1], V[0]}
-  };
-  return P;
+  int jd;
+  mat22 M = Malpha(alphas[j], alphas, jd);
+  return jd;
 }
 
-// return a list of tetrahedra (i.e. lists of 4 cusps (oo, sigmas[j],
-// a1, a2) with a1,a2 fundamental); as a side-effect set flags[j]=1
-// and flags[j']=1 where M_a_i(sigma[j])=sigma[j'] for i=1,2, for
-// each.
-vector<POLYHEDRON>
-singular_tetrahedra(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose)
+string encode_int_list(char type, const vector<INT> data)
 {
-  flags[j] = 1;
-  RatQuad sigma = sigmas[j], infty = RatQuad::infinity();
-  if (verbose)
-    cout << " - finding singular tetrahedra for sigmas["<<j<<"]="<<sigma<<"..."<<flush;
-  auto alist = sorted_neighbours(sigma, alphas);
-  int n = alist.size();
-  if (verbose) cout<<" constructing "<<n<<endl;
-  vector<POLYHEDRON> tetras;
-  tetras.reserve(n);
-
-  int i;
-  for (i=0; i<n; i++)
-    {
-      CuspList V = {infty, sigma, alist[(i==0? n-1 : i-1)], alist[i]};
-      tetras.push_back(tetrahedron(V));
-    }
-
-  for ( const auto& a : alist)
-    {
-      Malpha(a, sigma, sigmas, i);
-      if ((i!=j) && (flags[i]==0))
-        {
-          flags[i] = 1;
-          if (verbose)
-            cout << " - checking off sigmas["<<i<<"]="<<sigmas[i]<<endl;
-        }
-    }
-  return tetras;
+  ostringstream s;
+  s << Quad::d << " " << type;
+  for (const INT& a : data) s << " " << a;
+  return s.str();
 }
 
-// return a list of all singular tetrahedra
-vector<POLYHEDRON>
-singular_tetrahedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
+// NB POLYGON is typedef'd to pair<vector<int>, vector<Quad>> but
+// TRIANGLE is pair<vector<int>, Quad> instead of being a special case
+// where the second vector has length 1, so we do not use the TRIANGLE
+// type here.
+
+// Return string for POLYGON representing an aaa-triangle, aas-triangle, quadrilateral or hexagon
+string polygon_string(const POLYGON& P, int sing)
 {
-  int n = sigmas.size();
-  if (verbose)
-    cout << "Finding singular tetrahedra for "<<n-1<<" finite singular points" << endl;
-  vector<int> flags(n, 0); // will set to 1 as each sigma is accounted for
-  flags[0] = 1; // since sigmas[0]=oo
-  vector<POLYHEDRON> tetras;
-  for (int j=0; j<n; j++)
+  vector<INT> data;
+  for ( const int i : P.first)
+    data.push_back(INT(i));
+  for ( const Quad& u : P.second)
     {
-      if (flags[j]) continue;
-      vector<POLYHEDRON> tetras1 = singular_tetrahedra(j, sigmas, alphas, flags, verbose);
-      if (verbose)
-        {
-          cout << "sigma = "<<sigmas[j]<<":\n";
-          for ( const auto& tetra: tetras1 )
-            cout << " "<<tetra << endl;
-        }
-      tetras.insert(tetras.end(), tetras1.begin(), tetras1.end());
+      data.push_back(u.re());
+      data.push_back(u.im());
     }
-  return tetras;
+  int n = P.first.size(); // = 3, 4 or 6
+  char type = (n==3? (sing? 'U' : 'T') : (n==4? 'Q' : 'H'));
+  return encode_int_list(type, data);
 }
 
-// Return the polyhedron with vertices oo, s=sigmas[j], a1, a2, ...,
-// an with ai fundamental such that s is on S_ai.
-
-// As a side-effect set flags[j]=1 and flags[j']=1 where
-// M_a_i(sigma[j])=sigma[j'] for each i.
-
-// The polyhedron is an n-dipyramid with poles at oo and sigmas[j]; it
-// could be decomposed into n tetrahedra with vertices oo,s,ai,a{i+1}.
-
-POLYHEDRON
-singular_polyhedron(int j, const CuspList& sigmas, const CuspList& alphas, vector<int>& flags, int verbose)
+// For any face, return the string which encodes it in the geodata files
+string face_encode(const CuspList& face, const CuspList& alphas, const CuspList& sigmas)
 {
-  flags[j] = 1;
-  RatQuad sigma = sigmas[j], infty = RatQuad::infinity();
-  if (verbose)
-    cout << " - finding singular polyhedron for sigmas["<<j<<"]="<<sigma<<"..."<<flush;
-  auto alist = sorted_neighbours(sigma, alphas);
-  int n = alist.size();
-
-  POLYHEDRON P;
-
-  // set vertices
-  P.vertices = {infty, sigma};
-  P.vertices.insert(P.vertices.end(), alist.begin(), alist.end());
-
-  // set edges and faces
-  int i, k;
-  for (i=0; i<n; i++)
-    {
-      RatQuad a = alist[i], b = alist[(i+1)%n];
-      P.edges.push_back({infty,a});
-      P.edges.push_back({a,infty});
-      P.edges.push_back({sigma,a});
-      P.edges.push_back({a,sigma});
-      P.edges.push_back({a,b});
-      P.edges.push_back({b,a});
-      P.faces.push_back({infty, a, b});
-      P.faces.push_back({b, a, sigma});
-    }
-
-  // check off this sigma and others in its orbit
-  for ( const auto& a : alist)
-    {
-      Malpha(a, sigma, sigmas, i, k);
-      if ((i!=j) && (flags[i]==0))
-        {
-          flags[i] = 1;
-          if (verbose)
-            cout << " - checking off sigmas["<<i<<"]="<<sigmas[i]<<endl;
-        }
-      if ((k!=j) && (k!=i) && (flags[k]==0))
-        {
-          flags[k] = 1;
-          if (verbose)
-            cout << " - checking off sigmas["<<k<<"]="<<sigmas[k]<<endl;
-        }
-    }
-  assert ((int)P.vertices.size()==n+2);
-  assert ((int)P.edges.size()==6*n);
-  assert ((int)P.faces.size()==2*n);
-  return P;
+  int sing;
+  POLYGON P = make_polygon(face, alphas, sigmas, sing);
+  return polygon_string(P, sing);
 }
 
-#endif
+// Convert an actual polygon (aaa- or aas-triangle, quadrilateral or
+// hexagon) as list of vertices to the POLYGON {{i,j,k},{u}}, setting
+// sing to 1 for an aas-triangle, else to 0
+POLYGON make_polygon(const CuspList& face, const CuspList& alphas, const CuspList& sigmas, int& sing)
+{
+  int n = face.size();
+  sing = 0; // will be set to 1 if n==3 and it's an aas-triangle
+  if (n==3) return make_triangle(face, alphas, sigmas, sing);
+  if (n==4) return make_quadrilateral(face, alphas);
+  if (n==6) return make_hexagon(face, alphas);
+  assert ( 0 && "invalid face in make_polygon");
+  return {{},{}};
+}
+
+// Convert an actual aaa- or aas-triangle as list of vertices [a,oo,b]
+// or [a,oo,s] to a POLYGON {{i,j,k},{u}}, setting sing to 1 for an
+// aas-triangle, else to 0
+POLYGON make_triangle(const CuspList& T, const CuspList& alphas, const CuspList& sigmas, int& sing)
+{
+  assert (T[1]==RatQuad::infinity());
+  Quad u, x;
+  int i, j, k;
+  i = cusp_index(T[0], alphas);
+  assert (i>=0);
+  mat22 M = Malpha(T[0]);
+  j = cusp_index_with_translation(T[2], alphas, u);
+  sing = (j<0);
+  if (sing) // must be an aas-triangle
+    {
+      j = cusp_index_with_translation(T[2], sigmas, u);
+      k = cusp_index_with_translation(M(T[2]), sigmas, x);
+    }
+  else
+    {
+      k = cusp_index_with_translation(M(T[2]), alphas, x);
+    }
+  assert (j>=0);
+  assert (k>=0);
+  return {{i,j,k}, {u}};
+}
+
+// Convert an actual quadrilateral as list of vertices [a,oo,b,c] to
+// the POLYGON {{i,j,k},{x,y,z}}
+POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
+{
+  assert (Q[1]==RatQuad::infinity());
+  int i,id,j,jd,k,kd,l;
+  Quad x, y, z;
+  i = cusp_index(Q[0], alphas);
+  assert (i>=0);
+  mat22 M = Malpha(Q[0], alphas, id); // id not used
+  jd = cusp_index_with_translation(Q[2], alphas, z);
+  assert (j>=0);
+  j = alpha_index_flip(jd, alphas);
+  l = cusp_index_with_translation(M(Q[2]), alphas, y);
+  M = Malpha(alphas[jd], alphas, id); // id not used
+  kd = cusp_index_with_translation(M(Q[3]-z), alphas, x);
+  k = alpha_index_flip(kd, alphas);
+  return {{i,j,k,l}, {x,y,z}};
+}
+
+// Convert an actual hexagon as list of vertices [a_i, oo, a_j, b_2,
+// gamma, b_1] to the POLYGON {{i,j,k,l,m,n},{u,x1,y1,x2,y2}}
+POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
+{
+  assert (H[1]==RatQuad::infinity());
+  int i,id,j,k,l,m,n;
+  Quad u,x1,y1,x2,y2;
+  i = cusp_index(H[0], alphas);
+  assert (i>=0);
+  mat22 Mi = Malpha(alphas[i], alphas, id); // id not used
+  k = cusp_index_with_translation(Mi(H[5]), alphas, x1);
+  assert (k>=0);
+  mat22 Mk = Malpha(alphas[k], alphas, id); // id not used
+  mat22 M = Mk*mat22::Tmat(-x1)*Mi;
+  m = cusp_index_with_translation(M(H[4]), alphas, y1);
+  j = cusp_index_with_translation(H[2], alphas, u);
+  assert (j>=0);
+  mat22 Mj = Malpha(alphas[j], alphas, id); // id not used
+  M = Mj*mat22::Tmat(-u);
+  l = cusp_index_with_translation(M(H[3]), alphas, x2);
+  assert (l>=0);
+  mat22 Ml = Malpha(alphas[l], alphas, id); // id not used
+  M = Ml*mat22::Tmat(-x2)*Mj*mat22::Tmat(-u);
+  n = cusp_index_with_translation(M(H[4]), alphas, y2);
+
+  // check for consistency
+  mat22
+    M1 = Mi.inverse()*mat22::Tmat(x1)*Mk.inverse()*mat22::Tmat(y1),
+    M2 = mat22::Tmat(u)*Mj.inverse()*mat22::Tmat(x2)*Ml.inverse()*mat22::Tmat(y2);
+  RatQuad
+    gamma1 = M1(alphas[m]),
+    gamma2 = M2(alphas[n]);
+  assert (gamma1==gamma2);
+
+  return {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
+}
+
+void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas, const CuspList& alphas, const CuspList& sigmas, int to_file, int to_screen)
+{
+  auto faces = aaa_squ_hex_aas[0];
+  auto squares = aaa_squ_hex_aas[1];
+  auto hexagons = aaa_squ_hex_aas[2];
+  auto aas_triangles = aaa_squ_hex_aas[3];
+  faces.insert(faces.end(), aas_triangles.begin(), aas_triangles.end());
+  faces.insert(faces.end(), squares.begin(), squares.end());
+  faces.insert(faces.end(), hexagons.begin(), hexagons.end());
+
+  ofstream geodata;
+  stringstream ss;
+  if (to_file)
+    {
+      ss << "geodata_" << Quad::d << ".dat";
+      geodata.open(ss.str().c_str(), ios_base::app);
+    }
+  int nlines=0;
+  for (const auto& face: faces)
+    {
+      string s = face_encode(face, alphas, sigmas);
+      nlines++;
+      if (to_file)
+        {
+          geodata << s << endl;
+        }
+      if (to_screen)
+        {
+          cout << s << endl;
+        }
+    }
+  if (to_file)
+    geodata.close();
+  if (to_screen)
+    cout << nlines << " lines output" <<endl;
+}

@@ -61,14 +61,16 @@ int main ()
       cout << "The field is ";
       Quad::displayfield(cout);
 
+      int to_file=1;
+      int to_screen=1;
+
       //test_principal_cusps(20,20);
 
       cout << "Finding sigmas and alphas..."<<flush;
 
       int verbose = 0;
       int debug = 0;
-      auto new_sigmas = test_singular_points(0);
-      output_singular_points(new_sigmas, 1, verbose);
+      auto new_sigmas = singular_points();
       //test_principal_cusps(20, 30);
       verbose=0;
       debug=0;
@@ -108,9 +110,10 @@ int main ()
       verbose = 0;
       debug = 0;
       auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
-      output_alphas(pluspairs, minuspairs, fours, 1, verbose);
+      cout<<"...done, now outputting"<<endl;
+      output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
+      output_singular_points(new_sigmas, to_file, to_screen);
 
-      cout<<"...done"<<endl;
 
       // Compare with precomputed alphas and sigmas
       cout << "Testing newly computed sigmas and alphas with old..." <<flush;
@@ -235,6 +238,9 @@ int main ()
       cout<<aas_triangles.size()<<" aas-triangles\n";
       cout<<squares.size()<<" squares\n";
       cout<<hexagons.size()<<" hexagons\n";
+
+      cout << "geodata encodings of faces:\n";
+      output_faces(aaa_squ_hex_aas, alphas, sigmas, to_file, to_screen);
 
       cout<<"----------------------------------------------------------------------------------\n";
     }
