@@ -434,12 +434,13 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
 
   Quad r,s,bs;
   int local_t=1;
-  for (vector<RatQuad>::iterator si=sigmas.begin()+1; si!=sigmas.end(); ++si, ++local_t)
+  for (const auto& sig : sigmas)
     {
+      if (sig.is_infinity()) continue;
 #ifdef DEBUG_PSEA
-      cout<<" - testing singular point "<<local_t<<": "<<(*si)<<endl;
+      cout<<" - testing singular point "<<local_t<<": "<< sig <<endl;
 #endif
-      r=si->num(), s=si->den(); // sigma = r/s
+      r=sig.num(), s=sig.den(); // sigma = r/s
       // a/b - r/s = (a*s-b*r)/(b*s) will be integral if we have the right sigma
       q = a*s-b*r;
       bs = b*s;
@@ -459,12 +460,13 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
                 }
             }
 #ifdef DEBUG_PSEA
-          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = "<<(*si)
+          cout<<" - success, returning (a,b) = ("<<a<<","<<b<<") with a/b = "<< sig
               <<" = singular point #"<<local_t<<endl;
 #endif
           t = -local_t;
           return;
         }
+      local_t++;
     } // end of loop over singular points sigma
 
 #ifdef DEBUG_PSEA
@@ -476,9 +478,10 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
   Quad a1,b1;
   mat22 M;
   local_t = 1;
-  for (vector<mat22>::iterator Mi=M_alphas.begin()+1; Mi!=M_alphas.end(); ++Mi, ++local_t)
+  int first = 1;
+  for ( const auto& M : M_alphas)
     {
-      M = *Mi;
+      if (first) {first=0;continue;} // so we skip M_alphas[0]
       r=-M.entry(1,1), s=M.entry(1,0); // alpha = r/s
 #ifdef DEBUG_PSEA
       //cout<<" - testing type "<<local_t<<", M="<<M<<": ";
@@ -528,6 +531,7 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
           //cout<<" - failure (q="<<q<<"), new b would have had norm "<<b1.norm()<<endl;
         }
 #endif
+      local_t++;
     }
 
   // We should never arrive here, as it means that all alphas have

@@ -340,19 +340,24 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 #ifdef DEBUG_CUSP_EQ
   cout<<" - s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
 #endif
-  int equiv=0;
   vector<Quad>& units = (plusflag? quadunits: squareunits);
-  for (vector<Quad>::const_iterator u = units.begin(); u!= units.end() && !equiv; ++u)
+  for ( const auto& u : units)
     {
 #ifdef DEBUG_CUSP_EQ
-      cout<<" - testing unit "<<(*u)<<endl;
+      cout<<" - testing unit "<< u <<endl;
 #endif
-      equiv = div(q3,(s1-(*u)*s2));
+      if (div(q3,(s1-u*s2)))
+        {
+#ifdef DEBUG_CUSP_EQ
+          cout<<" - equivalent, returning 1"<<endl;
+#endif
+          return 1;
+        }
     }
 #ifdef DEBUG_CUSP_EQ
-  cout<<"Returning "<<equiv<<endl;
+  cout<<" - not equivalent, returning 0"<<endl;
 #endif
-  return equiv;
+  return 0;
 }
 
 // General cusp equivalence modulo Gamma_0(N) where N is an ideal:
@@ -444,9 +449,10 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
       return 1;
     }
   vector<Quad>& units = (plusflag? quadunits: squareunits);
-  for (vector<Quad>::const_iterator ui = units.begin()+1; ui!= units.end(); ++ui)
+  int first = 1;
+  for (const auto& u : units)
     {
-      Quad u = *ui;
+      if (first) { first=0; continue;} // skip the unit 1, already tested
 #ifdef DEBUG_CUSP_EQ
       cout<<" - testing unit "<<u<<flush;
 #endif

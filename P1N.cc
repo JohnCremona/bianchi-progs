@@ -12,7 +12,7 @@ long merge_indices(const vector<long>& nlist, const vector<long>& klist)
 // NB n1 is not used except implicitly
 {
   long tot=0;
-  vector<long>::const_iterator n=nlist.begin()+1, k=klist.begin();
+  auto n=nlist.begin()+1, k=klist.begin();
   while (n!=nlist.end())
     {
       tot += *k++;
@@ -25,7 +25,7 @@ long merge_indices(const vector<long>& nlist, const vector<long>& klist)
 vector<long> split_indices(const vector<long>& nlist, long k)
 {
   long tot=k;
-  vector<long>::const_reverse_iterator n=nlist.rbegin();
+  auto n=nlist.rbegin();
   vector<long> klist;
   while (n!=nlist.rend())
     {
@@ -286,11 +286,13 @@ void P1N::check_lifts(int verbose) // checks lifts to SL2 and Gamma_0(P) for a P
   Quad c, d, u, v;
 
   Quadprime P; // the first prime not dividing the level
-  for (vector<Quadprime>::const_iterator pr = Quadprimes::list.begin(); pr!=Quadprimes::list.end(); ++pr)
+  for ( const auto& Pi : Quadprimes::list)
     {
-      P = *pr;
-      if (!P.divides(N))
-        break;
+      if (!Pi.divides(N))
+        {
+          P = Pi;
+          break;
+        }
     }
   i = P.is_coprime_to(N, u, v);
   if (verbose)

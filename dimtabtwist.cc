@@ -118,9 +118,8 @@ int main(void)
 
       vector<int> olddims(nchi,0);
       vector<Qideal> DD = alldivs(N);
-      for(vector<Qideal>::iterator Di = DD.begin(); Di!=DD.end(); ++Di)
+      for( auto& D : DD)
         {
-          Qideal D = *Di;
           if (D==N)
             continue;
           Qideal M = N/D;

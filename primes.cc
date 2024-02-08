@@ -374,7 +374,7 @@ void Quadprimes::init(long maxn)
   // Now merge these into a single list sorted by norm
 
   //    cout<<" - merging into a single list" <<endl;
-  vector<Quadprime>::iterator Pi = list1.begin(), Qi = list2.begin();
+  auto Pi = list1.begin(), Qi = list2.begin();
   while(Pi!=list1.end() && Qi!=list2.end())
     {
       Quadprime P = *Pi, Q = *Qi;
@@ -472,7 +472,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
   if (N<1) return {};
   if (N==1) return {Qideal(Quad::one)};
   //  cout<<" looking for ideals of norm "<<N<<endl;
-  map<INT, vector<Qideal>>::iterator I_N = N_to_Ilist.find(N);
+  auto I_N = N_to_Ilist.find(N);
   if (I_N!=N_to_Ilist.end())
     {
       vector<Qideal> Ilist = I_N->second;
@@ -568,7 +568,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
   ans = {Qideal()}; // unit ideal
 
   // "merge" lexicographically
-  for (vector<vector<Qideal> >::const_reverse_iterator QQ = II.crbegin(); QQ!=II.crend(); ++QQ)
+  for ( auto QQ = II.crbegin(); QQ!=II.crend(); ++QQ)
     {
       vector<Qideal> ans2;
       for ( auto Q : *QQ)

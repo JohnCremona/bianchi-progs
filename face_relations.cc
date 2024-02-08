@@ -41,19 +41,17 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
   cout<<"    types: "<<types<<endl;
   cout<<"    signs: "<<signs<<endl;
 #endif
-  vector<mat22>::const_iterator mi;
-  vector<int>::const_iterator ti, si;
+  auto mi = mats.begin();
+  auto ti = types.begin(), si = signs.begin();
   vector<RatQuad> as, bs;
-  RatQuad a, b;
-  mat22 M, M_alpha;
-  for (mi=mats.begin(), ti=types.begin(), si=signs.begin(); ti!=types.end(); ++mi, ++ti, ++si)
+  while (ti!=types.end())
     {
-      M = *mi;
+      mat22 M = *mi++;
 #ifdef DEBUG_FACE_RELATION
       cout<<"    M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
 #endif
-      a = M(base_point(*ti));
-      b = M.image_oo();
+      RatQuad a = M(base_point(*ti++));
+      RatQuad b = M.image_oo();
 #ifdef DEBUG_FACE_RELATION
       cout<<"{"<<a<<","<<b<<"}"<<endl;
 #endif
@@ -63,18 +61,19 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
           bs.push_back(b);
         }
       else // use {b,a} when sign is -1
-      {
-        as.push_back(b);
-        bs.push_back(a);
-      }
+        {
+          as.push_back(b);
+          bs.push_back(a);
+        }
+      si++;
     }
 
-  vector<RatQuad>::const_iterator ai, bi;
+  auto ai = as.begin()+1, bi = bs.begin();
   int ok=1;
-  for (ai=as.begin()+1, bi=bs.begin(); bi!=bs.end() &&ok; ++ai, ++bi)
+  while ( bi!=bs.end() &&ok)
     {
-      RatQuad next_alpha = (ai==as.end()? as[0]: *ai);
-      ok = ok && (*bi==next_alpha);
+      RatQuad next_alpha = (ai==as.end()? as[0]: *ai++);
+      ok = ok && (*bi++==next_alpha);
     }
   if (!ok)
     {
@@ -196,30 +195,34 @@ void face_relations::make_relations()
 
   if (!cyclic_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
-      for (vector<int>::const_iterator T = cyclic_triangles.begin(); T!=cyclic_triangles.end(); ++T)
-        cyclic_triangle_relation(*T);
+      if(verbose)
+        cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
+      for ( const auto& T : cyclic_triangles)
+        cyclic_triangle_relation(T);
     }
 
   if (!aaa_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<aaa_triangles.size()<<" general aaa-triangle relations"<<endl;
-      for (vector<TRIANGLE>::const_iterator T = aaa_triangles.begin(); T!=aaa_triangles.end(); ++T)
-        aaa_triangle_relation(*T);
+      if(verbose)
+        cout<<"\nApplying "<<aaa_triangles.size()<<" general aaa-triangle relations"<<endl;
+      for ( const auto& T : aaa_triangles)
+        aaa_triangle_relation(T);
     }
 
   if (!squares.empty())
     {
-      if(verbose) cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
-      for (vector<POLYGON>::const_iterator S = squares.begin(); S!=squares.end(); ++S)
-        general_square_relation(*S);
+      if(verbose)
+        cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
+      for ( const auto& S : squares)
+        general_square_relation(S);
     }
 
   if (!hexagons.empty())
     {
-      if(verbose) cout<<"\nApplying "<<hexagons.size()<<" general hexgaon relations"<<endl;
-      for (vector<POLYGON>::const_iterator H = hexagons.begin(); H!=hexagons.end(); ++H)
-        general_hexagon_relation(*H);
+      if(verbose)
+        cout<<"\nApplying "<<hexagons.size()<<" general hexgaon relations"<<endl;
+      for ( const auto& H : hexagons)
+        general_hexagon_relation(H);
     }
 
   if (Quad::class_number==1)
@@ -227,9 +230,10 @@ void face_relations::make_relations()
 
   if (!aas_triangles.empty())
     {
-      if(verbose) cout<<"\nApplying "<<aas_triangles.size()<<" general aas-triangle relations"<<endl;
-      for (vector<TRIANGLE>::const_iterator T = aas_triangles.begin(); T!=aas_triangles.end(); ++T)
-        aas_triangle_relation(*T);
+      if(verbose)
+        cout<<"\nApplying "<<aas_triangles.size()<<" general aas-triangle relations"<<endl;
+      for ( const auto& T : aas_triangles)
+        aas_triangle_relation(T);
     }
 }
 
@@ -255,18 +259,19 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
 // General case:
 void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs)
 {
-  vector<long>::const_iterator r;
-  vector<int>::const_iterator t, s;
   if (verbose)
     {
       cout<<"Relation: ";
       Quad c, d;
-      for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); ++r, ++t, ++s)
+      auto r = rel.begin();
+      auto t = types.begin(), s=signs.begin();
+      while (r!=rel.end())
         {
           P1->make_symb(*r, c, d);
           cout<< ((*s)>0? " +": " -");
           //cout<<"("<<c<<":"<<d<<")";
           cout<<"["<<(*r)<<";"<<(*t)<<"]";
+          ++r, ++t, ++s;
         }
       cout <<" --> ";
     }
@@ -275,17 +280,22 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
 #else
   vec relation(ngens);
 #endif
-  for (r = rel.begin(), t = types.begin(), s=signs.begin(); r!=rel.end(); ++r, ++t, ++s)
+  auto r = rel.begin();
+  auto t = types.begin(), s=signs.begin();
+  while (r!=rel.end())
     {
       //      cout<<"Looking up edge coord of symbol "<<(*r)<<", type "<<(*t)<<"...";
       long c = (*s) * ER->coords(*r, *t);
       //      cout<<"c = "<<c<<endl;
       if(c)
+        {
 #ifdef USE_SMATS
-        relation.add(abs(c), sign(c));
+          relation.add(abs(c), sign(c));
 #else
-        relation[abs(c)] += sign(c);
+          relation[abs(c)] += sign(c);
 #endif
+        }
+      ++r, ++t, ++s;
     }
 #ifdef USE_SMATS
   if(relation.size()==0)

@@ -82,7 +82,7 @@ int less_ap(long a, long b)
 // Compare two integer vectors lexicographically, using less_ap():
 int less_apvec(const vector<long>& v, const vector<long>& w)
 {
-  vector<long>::const_iterator vi=v.begin(), wi=w.begin();
+  auto vi=v.begin(), wi=w.begin();
   while(vi!=v.end())
     {
       int s = less_ap(*vi++,*wi++);
@@ -175,11 +175,8 @@ void newform::data_from_eigs()
 
   if (Quad::class_group_2_rank==0)
     {
-      for (vector<Quadprime>::iterator Qi = nf->badprimes.begin(); Qi!=nf->badprimes.end(); ++Qi)
-        {
-          Quadprime Q = *Qi;
-          aqlist.push_back(eigenvalueAtkinLehner(Q));
-        }
+      for ( auto& Q : nf->badprimes)
+        aqlist.push_back(eigenvalueAtkinLehner(Q));
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
 
@@ -239,8 +236,8 @@ void newform::eigs_from_data()
     eigs.resize(0, +1);
 
   // Get a(P) or a(P^2) from the a(P) in aplist, for good P
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
-  vector<long>::const_iterator api=aplist.begin();
+  auto pr=Quadprimes::list.begin();
+  auto api=aplist.begin();
   while (((int)eigs.size() < nf->nap+nf->n2r) && (api!=aplist.end()))
     {
       Quadprime P = *pr;
@@ -282,7 +279,7 @@ void newform::fill_in_genus_class_data()
   int m2r = 0; // 2-rank of genus classes so far filled
   int iP = -1;  // index of old prime P begin looked at
   int nap = aplist.size();
-  vector<Quadprime>::iterator pr = Quadprimes::list.begin();
+  auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (m2r<nf->n2r) && (iP<nap-1))
     {
       Quadprime P = *pr++;
@@ -298,7 +295,7 @@ void newform::fill_in_genus_class_data()
       // if (nf->verbose)
       //   cout<<"form #"<<i<<" has eigenvalue "<<aP<<" and genus class "<<c<<endl;
       // See if we already have an eigenvalue for this genus class
-      vector<long>::iterator ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
       if (ci == genus_classes.end()) // then we do not
         {
           long oldsize = genus_classes.size();
@@ -344,11 +341,10 @@ vector<long> newform::oldform_eigs(Qideal& M)
   if (nf->characteristic == 0)  // the first n2r eigs are all +1
     M_eigs.resize(nf->n2r, +1);
 
-  vector<long>::const_iterator ei = eigs.begin() + (nf->n2r);
-  for (auto Pi = Quadprimes::list.begin();
-       Pi != Quadprimes::list.end() && ei!=eigs.end(); ++Pi)
+  auto ei = eigs.begin() + (nf->n2r);
+  for ( const auto& P : Quadprimes::list)
     {
-      Quadprime P = *Pi;
+      if (ei==eigs.end()) break;
       if (!P.divides(nf->N))
         {
           if (!P.divides(M)) // else this T(P) eigenvalue is ignored
@@ -502,8 +498,8 @@ int newform::is_base_change(void)
 {
   if(!(nf->N.is_Galois_stable()))
     return 0;
-  vector<long>::const_iterator ap = aplist.begin();
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+  auto ap = aplist.begin();
+  auto pr=Quadprimes::list.begin();
   Qideal N(nf->N);
   while(ap!=aplist.end() && pr!=Quadprimes::list.end())
     {
@@ -543,8 +539,8 @@ int newform::is_base_change(void)
 
 int newform::is_base_change_twist(void)
 {
-  vector<long>::const_iterator ap = aplist.begin();
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+  auto ap = aplist.begin();
+  auto pr=Quadprimes::list.begin();
   Qideal N(nf->N);
   while(ap!=aplist.end() && pr!=Quadprimes::list.end())
     {
@@ -584,8 +580,8 @@ int newform::base_change_discriminant(void)
   if (is_base_change()==0) return 0;
   int bcd = 1;
   Qideal N(nf->N);
-  vector<long>::const_iterator api = aplist.begin();
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+  auto api = aplist.begin();
+  auto pr=Quadprimes::list.begin();
   while(api!=aplist.end() && pr!=Quadprimes::list.end())
     {
       long ap = *api++;
@@ -640,8 +636,8 @@ int newform::base_change_twist_discriminant(void)
   int bcd1 = 0, bcd2 = 0; // flags that they have not yet been set
   int n_candidates = 0;
   Qideal N(nf->N);
-  vector<long>::const_iterator api = aplist.begin();
-  vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+  auto api = aplist.begin();
+  auto pr=Quadprimes::list.begin();
   Quadprime P;
   long ap;
   while(pr!=Quadprimes::list.end() && n_candidates !=1)
@@ -756,8 +752,8 @@ int newform::is_CM(void)
 {
   if (cm==1) // not already set
     {
-      vector<long>::const_iterator api = aplist.begin();
-      vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+      auto api = aplist.begin();
+      auto pr=Quadprimes::list.begin();
       while(api!=aplist.end() && pr!=Quadprimes::list.end())
         {
           long ap = *api++;
@@ -1283,7 +1279,6 @@ void newforms::list(long nap)
 void newform::list(string prefix, long nap)
 {
   if(nap==-1) nap=aplist.size();
-  vector<long>::const_iterator ai;
 
   cout << prefix;
 
@@ -1299,10 +1294,12 @@ void newform::list(string prefix, long nap)
     {
       cout << sfe << " " << loverp << " ";
       cout << "[";
-      for(ai=aqlist.begin(); ai!=aqlist.end(); ++ai)
+      int first = 1;
+      for( const auto& aq : aqlist)
         {
-          if(ai!=aqlist.begin()) cout<<",";
-          cout<<(*ai);
+          if (!first) cout<<",";
+          cout<<aq;
+          first = 0;
         }
       cout << "] ";
     }
@@ -1311,14 +1308,16 @@ void newform::list(string prefix, long nap)
   // consistent with newforms whose Hecke field has degree >1
   cout << "x ";
   cout << "[";
-  for(ai=aplist.begin(); ai!=aplist.begin()+nap && ai!=aplist.end(); ++ai)
+  int n = 0;
+  for ( const auto& ap : aplist)
     {
-      if(ai!=aplist.begin()) cout<<",";
-      long ap = *ai;
+      if (n==nap) break;
+      if (n>0) cout<<",";
       if ((nf->characteristic>0) && (ap<0)) // we use -999 for omitted eigs
         cout << "*";
       else
         cout << ap;
+      n++;
     }
   cout <<"]" <<endl;
 }
@@ -1398,7 +1397,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
     {
       // See if we already have an eigenvalue for this genus class
       //cout<<"P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
-      vector<long>::iterator ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
       if (ci != genus_classes.end()) // then we do
         {
           int i = ci - genus_classes.begin();
@@ -1727,8 +1726,6 @@ int newforms::read_from_file()
         }
     }
 
-  vector<vector<long> >::iterator f; long eig;
-
   if (characteristic==0)
     {
       // Read the auxiliary data (unless in positive characteristic):
@@ -1757,20 +1754,14 @@ int newforms::read_from_file()
 
       //  Read the W-eigenvalues at level M into aqs:
       for(i=0; i<(int)badprimes.size(); i++)
-        for(f=aqs.begin(); f!=aqs.end(); ++f)
-          {
-            data>>eig;
-            (*f)[i]=eig;
-          }
+        for( auto& f : aqs)
+          data >> f[i];
     }
 
   // Next read the coefficients at level M into aps:
   for(i=0; i<nap; i++)
     for( auto& f : aps)
-      {
-        data>>eig;
-        f[i]=eig;
-      }
+      data >> f[i];
 
   data.close();
 
@@ -1909,7 +1900,7 @@ void newforms::getap(int first, int last, int verbose)
         cout << "We have "<<nap<<" eigenvalues out of "<<last<<" already, so we need to compute "<<(last-nap)<<" more."<<endl;
     }
 
-  vector<Quadprime>::iterator pr = Quadprimes::list.begin()+first-1;
+  auto pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
     {
       Quadprime P = *pr++;
@@ -2130,12 +2121,8 @@ void newforms::output_to_file(string eigfile) const
   // Line 2
   out<<nap<<endl;  if(echo) cout<<nap<<endl;
 
-  vector<newform>::const_iterator f;
-
   if (characteristic==0)
     {
-
-  vector<long>::const_iterator ap;
 
   // Line 3: SFE
 
@@ -2447,10 +2434,9 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
 
   // Compute the image of the necessary M-symbols (hopefully only one)
 
-  for(std::set<long>::const_iterator jj=jlist.begin(); jj!=jlist.end(); ++jj)
+  for( const auto& j : jlist)
     {
       vec imagej=vec(n1ds); // initialised to 0
-      long j=*jj; // from 1
       // Since this code is only used in the Euclidean case,
       // all symbols have type 0
       long s_number = h1->ER.gen(j);  // (c:d) symbol number
@@ -2479,10 +2465,8 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
 
       // Other matrices, several for each nonzero residue b mod p
       vector<Quad> resmodp = P.residues();
-      vector<Quad>::const_iterator res=resmodp.begin();
-      while(res!=resmodp.end())
+      for ( auto& b : resmodp)
         {
-          b = *res++;
           if(b.is_zero()) continue; // handled above as special case
           a = -p;
           u1=u*p; u2=v-u*b;

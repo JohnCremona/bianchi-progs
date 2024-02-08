@@ -589,7 +589,6 @@ void Quad::initquadprimes()
 {
   int sig;
   vector<Quad> list, list1, list2;
-  vector<Quad>::iterator pi, alpha, beta;
   for (primevar pr; pr.ok()&&pr<maxnorm; pr++)
     { long p=pr;
       list = Quad::primes_above(p, sig);
@@ -606,7 +605,7 @@ void Quad::initquadprimes()
   // primes, each ordered by norm; we merge these lists so that they
   // are still sorted by norm:
 
-  alpha=list1.begin(); beta=list2.begin();
+  auto alpha=list1.begin(), beta=list2.begin();
   while ((alpha!=list1.end()) && (beta!=list2.end()))
     if (quadnorm(*alpha)<quadnorm(*beta))
       quadprimes.push_back(*alpha++);
@@ -1035,9 +1034,8 @@ vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
     chi.push_back(1);
   else
     {
-      vector<Quad>::const_iterator r=reslist.begin();
-      while(r!=reslist.end())
-	chi.push_back(squaremod(*r++,lambda,reslist));
+      for (const auto& r : reslist)
+	chi.push_back(squaremod(r,lambda,reslist));
     }
   return chi;
 }
@@ -1046,32 +1044,12 @@ vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
 
 int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
 {
-  if (div(m,a)) return 0;
-  vector<Quad>::const_iterator r=reslist.begin();
-  while(r!=reslist.end())
-    {
-      Quad res=*r++;
-      if(div(m,res*res-a)) return +1;
-    }
+  if (div(m,a))
+    return 0;
+  for (const auto& r : reslist)
+    if(div(m,r*r-a)) return +1;
   return -1;
 }
-
-// bigfloat gauss(const Quad& m, const vector<Quad>& reslist)
-// {
-// //cout<<"Computing g(chi) for lambda = " << m << endl;
-//   bigfloat ans1(0); //double ans2=0;
-//   bigfloat rootdisc;
-//   rootdisc = sqrt(to_bigfloat(Quad::absdisc));
-//   bigcomplex lrd = bigcomplex(m)*bigcomplex(to_bigfloat(0), rootdisc);
-//   vector<Quad>::const_iterator r=reslist.begin();
-//   while(r!=reslist.end())
-//   {
-//     Quad res = *r++;
-//       bigfloat term1 = squaremod(res,m,reslist)*psif(bigcomplex(Quad(res))/lrd);
-//       ans1+=term1;      //    ans2+=term2;
-//   }
-//   return ans1;
-// }
 
 // convert a binary vector into a discriminant dividing Quad::disc
 INT discchar(vector<int> c)

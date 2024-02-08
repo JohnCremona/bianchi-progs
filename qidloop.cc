@@ -82,10 +82,11 @@ void Quad::fill_class_group()
                   class_group_2_torsion_gens.push_back(I);
                   // compute the new coset
                   vector<Qideal> new_2_torsion;
-                  for (vector<Qideal>::iterator J=class_group_2_torsion.begin(); J!=class_group_2_torsion.end(); J++)
-                    new_2_torsion.push_back(I*(*J));
+                  for ( auto& J : class_group_2_torsion)
+                    new_2_torsion.push_back(I*J);
                   // append the new coset
-                  class_group_2_torsion.insert(class_group_2_torsion.end(), new_2_torsion.begin(), new_2_torsion.end());
+                  class_group_2_torsion.insert(class_group_2_torsion.end(),
+                                               new_2_torsion.begin(), new_2_torsion.end());
                 }
             }
           else
@@ -105,17 +106,15 @@ void Quad::fill_class_group()
 
   // replace the 2-torsion class representatives with the equivalent
   // ideals in the main class_group list
-  for (vector<Qideal>::iterator J=class_group_2_torsion.begin(); J!=class_group_2_torsion.end(); J++)
-    {
-      *J = class_group[find_ideal_class(*J, class_group)];
-    }
+  for ( auto& J : class_group_2_torsion)
+    J = class_group[find_ideal_class(J, class_group)];
+
   assert (class_group_2_torsion_gens.size()+1 == prime_disc_factors.size());
   class_group_2_rank = class_group_2_torsion_gens.size();
 
   // find ideals generating and representing Cl/Cl^2
-  for (vector<Qideal>::iterator Ii=class_group.begin()+1; Ii!=class_group.end(); ++Ii)
+  for ( auto& I : class_group)
     {
-      Qideal I = *Ii;
       if (!I.has_square_class()) // then I is not a square
         {
           if (find_ideal_class_mod_squares(I, class_group_2_cotorsion)==-1)
@@ -124,13 +123,11 @@ void Quad::fill_class_group()
               class_group_2_cotorsion_gens.push_back(I);
               // compute the new coset
               vector<Qideal> new_2_cotorsion;
-              for (vector<Qideal>::iterator Ji=class_group_2_cotorsion.begin(); Ji!=class_group_2_cotorsion.end(); ++Ji)
-                {
-                  Qideal J = *Ji;
-                  new_2_cotorsion.push_back(class_group[find_ideal_class(I*J, class_group)]);
-                }
+              for ( auto& J : class_group_2_cotorsion)
+                new_2_cotorsion.push_back(class_group[find_ideal_class(I*J, class_group)]);
               // append the new coset
-              class_group_2_cotorsion.insert(class_group_2_cotorsion.end(), new_2_cotorsion.begin(), new_2_cotorsion.end());
+              class_group_2_cotorsion.insert(class_group_2_cotorsion.end(),
+                                             new_2_cotorsion.begin(), new_2_cotorsion.end());
             }
         }
     }

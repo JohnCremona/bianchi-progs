@@ -4,7 +4,6 @@
 
 void cusplist::display() const
 {
-  vector<RatQuad>::const_iterator ci;
   int i=0;
   for(const auto& c : cusps)
     cout<<i++<<"\t"<< c <<endl;

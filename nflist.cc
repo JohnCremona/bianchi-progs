@@ -28,7 +28,7 @@ int main ()
 #else
  if (Quad::class_number==1)
    {
-     vector<Quadprime>::const_iterator pr=Quadprimes::list.begin();
+     auto pr=Quadprimes::list.begin();
      long np=0;
      cout << "Primes: "<<endl;
      while(np<(nap<0?25:nap))

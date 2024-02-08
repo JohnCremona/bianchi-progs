@@ -33,7 +33,19 @@ public:
     return (i==0? (j==0?a:b): (j==0?c:d));
   }
 
-  // matrix multiplcation
+  // equality test
+  int operator==(const mat22& M) const
+  {
+    return (a==M.a) && (b==M.b) && (c==M.c) && (d==M.d);
+  }
+
+  // inequality test
+  int operator!=(const mat22& M) const
+  {
+    return (a!=M.a) || (b!=M.b) || (c!=M.c) || (d!=M.d);
+  }
+
+  // matrix multiplication
   mat22 operator*(const mat22& M) const
   {
     //Quad a1 = a*M.a+b*M.c, b1 = a*M.b+b*M.d, c1 = c*M.a+d*M.c, d1 = c*M.b+d*M.d;

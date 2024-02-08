@@ -49,15 +49,13 @@ int main(void)
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;
 
   vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
-  vector<Quadprime>::const_iterator pr;
   int nq = badprimes.size();
   if (dim>0)
     {
       ZZ_pX charpol;
       vector<mat_ZZ_p> tplist, wqlist;
-      for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
+      for ( auto& Q : badprimes)
         {
-          Quadprime Q = *pr;
           cout << "Computing W("<<Q<<")..." << flush;
           mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.calcop(AtkinLehnerQOp(Q,N),cuspidal,0,show_mats));
 	  cout << "done. " << flush;
@@ -100,12 +98,11 @@ int main(void)
       cout<<endl;
 #endif
       ip=0;
-      for (pr=Quadprimes::list.begin();
-	   pr!=Quadprimes::list.end() && ((pr-Quadprimes::list.begin())<np);
-	   ++pr)
+      int ntp = 0;
+      for ( auto& P : Quadprimes::list)
 	{
-          Quadprime P = *pr;
-	  while (P.divides(N)) {++pr; P=*pr; np++;}
+          if (ntp>=np) break;
+	  if (P.divides(N)) continue;
 	  cout << "Computing T(" << P << ")..."<<flush;
 	  mat_ZZ_p tp = mat_to_mat_ZZ_p(h.calcop(HeckePOp(P,N),cuspidal, 0, show_mats));
 	  cout << "done. " << flush;
@@ -153,6 +150,7 @@ int main(void)
                   exit(1);
 		}
 	    }
+          ntp++;
 	}
     }      // end of if(dim>0)
 

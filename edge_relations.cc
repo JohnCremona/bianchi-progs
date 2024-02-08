@@ -68,10 +68,9 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
       if (n_sigmas>1)
         {
           cout<<"sigmas: ";
-          for (vector<RatQuad>::const_iterator si = sigmas.begin()+1; si!=sigmas.end(); ++si)
-            {
-              cout<<(*si)<<" ";
-            }
+          for ( const auto& s : sigmas)
+            if (!s.is_infinity())
+              cout<<s<<" ";
           cout<<endl;
         }
       cout<<"Edge relations (denominator 1)\n";
@@ -100,10 +99,10 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
     {
       if(verbose)
         cout<<"General edge pair relations (-)\n";
-      for (vector<int>::const_iterator i=edge_pairs_minus.begin(); i!=edge_pairs_minus.end(); ++i)
+      for ( const auto& e : edge_pairs_minus)
         {
-          if(verbose) cout<<" pair "<< (*i)<<flush;
-          edge_pairing_minus(*i);
+          if(verbose) cout<<" pair "<< e <<flush;
+          edge_pairing_minus(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
       if(verbose)
@@ -114,10 +113,10 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
     {
       if(verbose)
         cout<<"General edge pair relations (+)\n";
-      for (vector<int>::const_iterator i=edge_pairs_plus.begin(); i!=edge_pairs_plus.end(); ++i)
+      for ( const auto& e : edge_pairs_plus)
         {
-          if(verbose) cout<<" pair "<< (*i)<<flush;
-          edge_pairing_plus(*i);
+          if(verbose) cout<<" pair "<< e <<flush;
+          edge_pairing_plus(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
       if(verbose)
@@ -128,10 +127,10 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
     {
       if(verbose)
         cout<<"General edge quadruple relations\n";
-      for (vector<int>::const_iterator i=edge_fours.begin(); i!=edge_fours.end(); ++i)
+      for ( const auto& e : edge_fours)
         {
-          if(verbose) cout<<" quadruple "<< (*i)<<flush;
-          edge_pairing_double(*i);
+          if(verbose) cout<<" quadruple "<< e <<flush;
+          edge_pairing_double(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
         }
     }

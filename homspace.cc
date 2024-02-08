@@ -507,17 +507,20 @@ vec homspace::maninvector(Quadprime& P, int proj)
   vector<Quad> resmodp=P.residues();
   Quad p = P.gen();
   vec ans = chain(Quad::zero,p, proj), part;             // =0, but sets the right length.
-  vector<Quad>::const_iterator res=resmodp.begin()+1;
-  while(res!=resmodp.end())
-    ans = reduce_modp(ans + chain(*res++,p, proj), hmod);
+  int first = 1;
+  for (const auto& r : resmodp)
+    {
+      if (first) {first=0; continue;} // skip resmodp[0]
+      ans = reduce_modp(ans + chain(r,p, proj), hmod);
+    }
   return ans;
 }
 
 vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj)
 {
   vec ans = chain(Quad::zero,lambda, proj), part;          // =0, but sets the right length.
-  vector<int>::const_iterator chi=chitable.begin();
-  vector<Quad>::const_iterator r=res.begin();
+  auto chi=chitable.begin();
+  auto r=res.begin();
   while(r!=res.end())
     ans = reduce_modp(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
  return ans;
@@ -534,8 +537,8 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
     return ssubspace(subdim);
 
   vector<Qideal> nulist = make_nulist(N);
-  vector<Qideal>::iterator nui = nulist.begin();
-  vector<int>::const_iterator ei = eigs.begin();
+  auto nui = nulist.begin();
+  auto ei = eigs.begin();
 
   // Compute eigenspace for first character, then compute successive
   // dual subspaces.

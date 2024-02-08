@@ -236,9 +236,8 @@ int span_Z2(const pair< vector<INT>, vector<INT>> & coords)
   if (coords.first.size()!=coords.second.size()) return 0;
   if (coords.first.size()<2) return 0;
   INT g(0);
-  vector<INT>::const_iterator ai, bi, aj, bj;
-  for (ai=coords.first.begin(), bi=coords.second.begin(); g!=1 && ai!=coords.first.end(); ++ai, ++bi)
-    for (aj=ai+1, bj=bi+1; g!=1 && aj!=coords.first.end(); ++aj, ++bj)
+  for (auto ai=coords.first.begin(), bi=coords.second.begin(); g!=1 && ai!=coords.first.end(); ++ai, ++bi)
+    for (auto aj=ai+1, bj=bi+1; g!=1 && aj!=coords.first.end(); ++aj, ++bj)
       g = gcd(g, ((*ai)*(*bj)-(*aj)*(*bi)));
   return g==1;
 }
@@ -255,15 +254,14 @@ vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords)
   cout<<"findzbasis("<<coords.first<<", "<<coords.second<<"): "<<endl;
 #endif
   INT a, b, c, d;
-  vector<INT>::const_iterator ai, bi, aj, bj;
   vector<INT> basis;
   // Find a nonsingular 2x2 block:
   int t=1;
-  for (ai=coords.first.begin(), bi=coords.second.begin(); t && ai!=coords.first.end(); ++ai, ++bi)
+  for (auto ai=coords.first.begin(), bi=coords.second.begin(); t && ai!=coords.first.end(); ++ai, ++bi)
     {
       a = *ai;
       b = *bi;
-      for (aj=ai+1, bj=bi+1; t && aj!=coords.first.end(); ++aj, ++bj)
+      for (auto aj=ai+1, bj=bi+1; t && aj!=coords.first.end(); ++aj, ++bj)
         {
           c = *aj;
           d = *bj;
@@ -283,7 +281,7 @@ vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords)
   cout<<" - after step 0, {a,b,c} = "<<basis<<endl;
 #endif
   // process all the rest
-  for (ai=coords.first.begin(), bi=coords.second.begin(); ai!=coords.first.end(); ++ai, ++bi)
+  for (auto ai=coords.first.begin(), bi=coords.second.begin(); ai!=coords.first.end(); ++ai, ++bi)
     {
       INT e = *ai %c, f = *bi;
       basis = hnf22(a,b, e, f);

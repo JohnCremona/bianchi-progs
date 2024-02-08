@@ -24,12 +24,11 @@ int main ()
  cout << "HNF(a) = " << HNF(a) << endl;
  cout << "ideal_label(a) = " << ideal_label(a) << endl;
 
- vector<Quad>::iterator pr;
   if (Quad::class_number==1)
    {
      cout << "Here are the first 20 primes out of "<<quadprimes.size()
           << " (one per line):\n";
-     pr = quadprimes.begin();
+     auto pr = quadprimes.begin();
      while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
        {
          p = *pr++;
@@ -91,8 +90,8 @@ int main ()
      vector<Quad> plist = pdivs(a);
      cout << "The list of all prime divisors of a: " << plist << endl;
      vector<int> elist;
-     pr=plist.begin();
-     while(pr!=plist.end()) elist.push_back(val(*pr++,a));
+     for (const auto& p : plist)
+       elist.push_back(val(p,a));
      cout << "Exponents: " << elist << endl;
      vector<Quad> dlist = posdivs(a);
      cout << "The list of "<<dlist.size()<<" divisors of a (up to units): \n";

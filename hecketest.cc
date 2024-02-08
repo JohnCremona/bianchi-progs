@@ -55,7 +55,6 @@ int main(void)
            <<" and their factorizations are not useful."<<endl;
     }
 
-  vector<Quadprime>::const_iterator pr;
   if (dim>0)
     {
       vector<mat_ZZ> tplist, tpqlist, wqlist, nulist, tpwqlist;
@@ -67,9 +66,8 @@ int main(void)
           vector<Qideal> t2ideals = make_nulist(N);
           mat_ZZ I = ident_mat_ZZ(dim);
 
-          for (vector<Qideal>::iterator t2i=t2ideals.begin(); t2i!=t2ideals.end(); ++t2i)
+          for ( auto& A : t2ideals)
             {
-              Qideal A = *t2i;
               cout << "Computing nu_"<< ideal_label(A) <<"..." << flush;
               mat m = h.calcop(CharOp(A, N), cuspidal, 0, 0);
               mat_ZZ nu = mat_to_mat_ZZ(m);
@@ -123,18 +121,16 @@ int main(void)
       vector<Quadprime> badprimes = N.factorization().sorted_primes();
       vector<Quadprime> squarebadprimes = make_squarebadprimes(N, badprimes);
       vector<Qideal> badprimepowers;
-      for (pr=badprimes.begin(); pr!=badprimes.end(); ++pr)
+      for ( const auto& Q : badprimes)
         {
-          Quadprime Q = *pr;
           Qideal Qe = Q;
           int e = val(Q, N);
           while(--e) Qe*=Q;
           badprimepowers.push_back(Qe);
         }
 
-      for (pr=squarebadprimes.begin(); pr!=squarebadprimes.end(); ++pr)
+      for ( auto& Q : squarebadprimes)
         {
-          Quadprime Q = *pr;
           int e = val(Q,N);
           Qideal Qe = Q;
           matop op;
@@ -197,11 +193,10 @@ int main(void)
 #endif
       Quadprime P0; // when h=2 this will be the first good nonprincipal prime.
       int P0_set=0;
-      for (pr=Quadprimes::list.begin(), ntp=0;
-	   pr!=Quadprimes::list.end() && (ntp<np);
-	   ++pr)
+      ntp = 0;
+      for ( auto& P : Quadprimes::list)
 	{
-          Quadprime P = *pr;
+          if (ntp>=np) break;
           mat_ZZ tp, tpq, tpwq;
 	  if (P.divides(N))
             continue;
@@ -341,8 +336,8 @@ int main(void)
 
           // Computing T(P)W(Q) for suitable Q^e||N
 
-          vector<Qideal>::iterator qe=badprimepowers.begin();
-          vector<Quadprime>::iterator q=badprimes.begin();
+          auto qe=badprimepowers.begin();
+          auto q=badprimes.begin();
           for (; q!=badprimes.end(); ++q,++qe)
             {
               Quadprime Q = *q;
