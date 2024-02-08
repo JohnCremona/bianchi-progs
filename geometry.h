@@ -42,17 +42,15 @@ extern vector<int> cyclic_triangles;
 
 // typedefs for readability.
 
-typedef pair<vector<int>, vector<Quad>> TRIANGLE;
 typedef pair<vector<int>, vector<Quad>> POLYGON;
 
 // aaa triangles: [[i,j,k],[u]] such that M_i(alpha_j+u)=alpha_k +translation
 // aas triangles: [[i,j,k],[u]] such that M_i(sigma_j+u)=sigma_k +translation
-
 // squares:  [[i,j,k,l],[x,y,z]] such that M_j(x+alpha_k') =  z + M_i'(y+alpha_l)
 // hexagons: [[i,j,k,l,m,n], [u,x1,y1,x2,y2]]
 
-extern vector<TRIANGLE> aaa_triangles;
-extern vector<TRIANGLE> aas_triangles;
+extern vector<POLYGON> aaa_triangles;
+extern vector<POLYGON> aas_triangles;
 extern vector<POLYGON> squares;
 extern vector<POLYGON> hexagons;
 

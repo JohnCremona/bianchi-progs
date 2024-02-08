@@ -47,8 +47,8 @@ vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
 vector<int> cyclic_triangles;
-vector<TRIANGLE> aaa_triangles;
-vector<TRIANGLE> aas_triangles;
+vector<POLYGON> aaa_triangles;
+vector<POLYGON> aas_triangles;
 vector<POLYGON> squares;
 vector<POLYGON> hexagons;
 
@@ -373,7 +373,7 @@ void alphas_sigmas_denom_3()
 
 ***************************************************************/
 
-int check_aaa_triangle(const TRIANGLE& T, int verbose)
+int check_aaa_triangle(const POLYGON& T, int verbose)
 {
   const vector<int>& tri = T.first;
   const Quad& u = T.second[0];
@@ -394,7 +394,7 @@ int check_cyclic_triangle(int i, int verbose)
   return (t*t==Quad::one);
 }
 
-int check_aas_triangle(const TRIANGLE& T, int verbose)
+int check_aas_triangle(const POLYGON& T, int verbose)
 {
   const vector<int>& tri = T.first;
   const Quad& u = T.second[0];

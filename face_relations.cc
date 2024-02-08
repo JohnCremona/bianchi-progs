@@ -684,7 +684,7 @@ void face_relations::cyclic_triangle_relation(int i, int check)
 // also have {0,19,24} and {1,22,17} with alpha_0=0 amd alpha_1=w/2.
 // The first is OK since alpha_flip[0]=0, but not the second.
 
-void face_relations::aaa_triangle_relation(const TRIANGLE& tri, int check)
+void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
 {
   vector<int> T = tri.first;
   Quad u = tri.second[0];
@@ -709,7 +709,7 @@ void face_relations::aaa_triangle_relation(const TRIANGLE& tri, int check)
     cout << "After aaa-triangle relation ["<<T<<"; "<<u<<"], number of relations = " << numrel <<"\n\n";
 }
 
-void face_relations::aas_triangle_relation(const TRIANGLE& tri, int check)
+void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
 {
   vector<int> T = tri.first;
   Quad u = tri.second[0];
