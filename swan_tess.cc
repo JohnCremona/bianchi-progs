@@ -517,10 +517,7 @@ string encode_int_list(char type, const vector<INT> data)
   return s.str();
 }
 
-// NB POLYGON is typedef'd to pair<vector<int>, vector<Quad>> but
-// TRIANGLE is pair<vector<int>, Quad> instead of being a special case
-// where the second vector has length 1, so we do not use the TRIANGLE
-// type here.
+// NB POLYGON is typedef'd to pair<vector<int>, vector<Quad>>
 
 // Return string for POLYGON representing an aaa-triangle, aas-triangle, quadrilateral or hexagon
 string polygon_string(const POLYGON& P, int sing)

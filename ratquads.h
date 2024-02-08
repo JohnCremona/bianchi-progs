@@ -364,5 +364,7 @@ vector<Quad> nearest_quads_to_quotient(const Quad&, const Quad&, int just_one);
 // Return list of 0, 1 or 2 sqrts of a rational r in k
 vector<RatQuad> sqrts_in_k(const RAT& r);
 
+typedef vector<RatQuad> CuspList;  // may refactor using sets later
+typedef std::set<RatQuad, Cusp_comparison> CuspPair;
 
 #endif

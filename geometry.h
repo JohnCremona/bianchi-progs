@@ -7,13 +7,13 @@
 
 #include "mat22.h"
 
-extern vector<RatQuad> sigmas; // Singular points: the 0'th is oo, the rest are indexed from 1.
+extern CuspList sigmas; // Singular points: the 0'th is oo, the rest are indexed from 1.
 extern int n_sigmas;           // Number of sigmas
 extern map<vector<RAT>, int> sigma_ind; // Index of a sigma in the list (from coords as key)
 extern std::set<Quad, Quad_comparison> sigma_denoms; // Denominators of finite singular points
 
 // Base points for principal adges {alpha,oo}
-extern vector<RatQuad> alphas;
+extern CuspList alphas;
 extern int n_alphas;                // Number of alphas
 extern map<vector<RAT>, int> alpha_ind; // Index of an alpha in the list (from coords as key)
 extern std::set<Quad, Quad_comparison> alpha_denoms; // Denominators of alphas
@@ -42,12 +42,11 @@ extern vector<int> cyclic_triangles;
 
 // typedefs for readability.
 
-typedef pair<vector<int>, Quad> TRIANGLE;
+typedef pair<vector<int>, vector<Quad>> TRIANGLE;
 typedef pair<vector<int>, vector<Quad>> POLYGON;
 
-// aaa triangles: [[i,j,k],u] such that M_i(alpha_j+u)=alpha_k +translation
-// aas triangles: [[i,j,k],u] such that M_i(sigma_j+u)=sigma_k +translation
-// (We could make TRIANGLE a special case of POLYGON where the second component is a vector of length 1.)
+// aaa triangles: [[i,j,k],[u]] such that M_i(alpha_j+u)=alpha_k +translation
+// aas triangles: [[i,j,k],[u]] such that M_i(sigma_j+u)=sigma_k +translation
 
 // squares:  [[i,j,k,l],[x,y,z]] such that M_j(x+alpha_k') =  z + M_i'(y+alpha_l)
 // hexagons: [[i,j,k,l,m,n], [u,x1,y1,x2,y2]]

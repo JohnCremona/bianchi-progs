@@ -376,7 +376,7 @@ void alphas_sigmas_denom_3()
 int check_aaa_triangle(const TRIANGLE& T, int verbose)
 {
   const vector<int>& tri = T.first;
-  const Quad& u = T.second;
+  const Quad& u = T.second[0];
   if (verbose)
     cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[tri[0]], Mj=M_alphas[tri[1]], Mk=M_alphas[tri[2]];
@@ -397,7 +397,7 @@ int check_cyclic_triangle(int i, int verbose)
 int check_aas_triangle(const TRIANGLE& T, int verbose)
 {
   const vector<int>& tri = T.first;
-  const Quad& u = T.second;
+  const Quad& u = T.second[0];
   if (verbose)
     cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<endl;
   int i=tri[0], j=tri[1], k=tri[2];
@@ -425,19 +425,19 @@ int check_aas_triangle(const TRIANGLE& T, int verbose)
 
 void check_triangles(int verbose)
 {
-  for (vector<int>::const_iterator Ti = cyclic_triangles.begin(); Ti!=cyclic_triangles.end(); ++Ti)
-    assert(check_cyclic_triangle(*Ti, verbose));
-  for (vector<TRIANGLE>::const_iterator Ti = aaa_triangles.begin(); Ti!=aaa_triangles.end(); ++Ti)
+  for ( const auto& T : cyclic_triangles)
+    assert(check_cyclic_triangle(T, verbose));
+  for ( const auto& T : aaa_triangles)
     {
       if(verbose)
-        cout<<"Checking aaa-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aaa_triangle(*Ti, verbose));
+        cout<<"Checking aaa-triangle, ijk="<<T.first<<", u="<<T.second[0]<<endl;
+      assert(check_aaa_triangle(T, verbose));
     }
-  for (vector<TRIANGLE>::const_iterator Ti = aas_triangles.begin(); Ti!=aas_triangles.end(); ++Ti)
+  for ( const auto& T : aas_triangles)
     {
       if(verbose)
-        cout<<"Checking aas-triangle, ijk="<<Ti->first<<", u="<<Ti->second<<endl;
-      assert(check_aas_triangle(*Ti, verbose));
+        cout<<"Checking aas-triangle, ijk="<<T.first<<", u="<<T.second[0]<<endl;
+      assert(check_aas_triangle(T, verbose));
     }
 }
 
@@ -472,11 +472,11 @@ int check_square(const POLYGON& squ)
 
 void check_squares(int verbose)
 {
-  for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Si = squares.begin(); Si!=squares.end(); ++Si)
+  for ( const auto& S : squares)
     {
       if (verbose)
-        cout<<"Checking square "<<Si->first<<", "<<Si->second<<endl;
-      assert(check_square(*Si));
+        cout<<"Checking square "<<S.first<<", "<<S.second<<endl;
+      assert(check_square(S));
     }
 }
 
@@ -515,11 +515,11 @@ int check_hexagon(const POLYGON& hex)
 
 void check_hexagons(int verbose)
 {
-  for (vector<pair<vector<int>, vector<Quad>> >::const_iterator Hi = hexagons.begin(); Hi!=hexagons.end(); ++Hi)
+  for ( const auto& H : hexagons)
     {
       if (verbose)
-        cout<<"Checking hexagon "<<Hi->first<<", "<<Hi->second<<endl;
-      assert(check_hexagon(*Hi));
+        cout<<"Checking hexagon "<<H.first<<", "<<H.second<<endl;
+      assert(check_hexagon(H));
     }
 }
 
@@ -630,9 +630,9 @@ void read_data(int verbose)
           if (verbose)
             cout << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
           if (G=='T')
-            aaa_triangles.push_back({{i,j,k}, u});
+            aaa_triangles.push_back({{i,j,k}, {u}});
           else
-            aas_triangles.push_back({{i,j,k}, u});
+            aas_triangles.push_back({{i,j,k}, {u}});
           break;
         }
       case 'Q': // square

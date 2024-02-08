@@ -10,8 +10,6 @@
 #include "geometry.h"
 #include "ratquads.h"
 
-typedef vector<RatQuad> CuspList;  // may refactor using sets later
-typedef std::set<RatQuad, Cusp_comparison> CuspPair;
 typedef pair<RatQuad,RAT> H3point;
 // Comparison function (based only height, highest first)
 struct H3_comparison {
