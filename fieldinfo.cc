@@ -22,6 +22,7 @@ int main ()
       Quad::field(d,max);
       Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
       Quadprimes::display(cout, max, 1);
+      Quad::setup_geometry();
       cout << "------------------------------------------------------------" << endl;
     }
 }

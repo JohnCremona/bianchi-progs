@@ -65,7 +65,7 @@ void alphas_sigmas_universal();
 void alphas_sigmas_denom_2();
 void alphas_sigmas_denom_3();
 
-void Quad::setup_geometry()
+void Quad::setup_geometry(int debug)
 {
   if (geometry_initialised)
     return;
@@ -101,7 +101,6 @@ void Quad::setup_geometry()
   alphas_sigmas_denom_2();
   alphas_sigmas_denom_3();
 
-  int debug = 0;
   if (debug)
     {
       cout << "alphas and sigmas with denominators 1,2,3:" << endl;
