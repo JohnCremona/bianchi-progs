@@ -36,7 +36,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 96.4 = (-8+2a), norm = 96 <<<<
 Cuspidal dimension = 15
- denominator = 80
 Computing W(P2a)*T(A,A) for A=[3,a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 7

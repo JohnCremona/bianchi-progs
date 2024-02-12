@@ -80,10 +80,7 @@ CuspList sort_alphas(const CuspList& A,
           continue;
         }
       // Now s (where a=r/s) is not 1,2,3; add s:r to alist_by_denom:
-      if (alist_by_denom.find(s) == alist_by_denom.end())
-        alist_by_denom[s] = {r};
-      else
-        alist_by_denom[s].push_back(r);
+      alist_by_denom[s].push_back(r);
     }
   if (debug)
     {
@@ -92,13 +89,22 @@ CuspList sort_alphas(const CuspList& A,
       cout << " alphas with denominator 3: " <<a3list <<endl;
     }
   assert (a1list.size()==1 && a1list[0]==RatQuad(0));
-  assert (compare_CuspLists_as_sets_mod_translation(a2list, denom_2_alphas()));
-  if (!compare_CuspLists_as_sets_mod_translation(a3list, denom_3_alphas()))
+  auto d2s_expected = denom_2_alphas(), d3s_expected = denom_3_alphas();
+  assert (compare_CuspLists_as_sets_mod_translation(a2list, d2s_expected));
+  assert (compare_CuspLists_as_sets_mod_translation(a3list, d3s_expected));
+  // We rely on the alphas of denom 1, 2, 3 begin in an exact order:
+  if (a2list != d2s_expected)
     {
-      cout <<"!!!\n";
-      cout << "alphas with denom 3 (from full list):    " << a3list <<endl;
-      cout << "alphas with denom 3 (from special list): " << denom_3_alphas() <<endl;
+      if (verbose||debug) cout << "replacing denom 2 alphas by standard list "<<d2s_expected << endl;
+      a2list = d2s_expected;
     }
+  if (a3list != d3s_expected)
+    {
+      if (verbose||debug) cout << "replacing denom 3 alphas by standard list "<<d3s_expected << endl;
+      a3list = d3s_expected;
+    }
+
+
   vector<vector<Quad>> rsfours; // {r,s} pairs in a foursome
 
   for (const auto& rlists : alist_by_denom)
@@ -168,7 +174,44 @@ CuspList sort_alphas(const CuspList& A,
         }
     }
 
-  // for homology edge relation computation include alphas with denom 1,2,3:
+  // Make a new sorted list of all alphas:
+
+  alist.insert(alist.end(), a1list.begin(), a1list.end());
+  alist.insert(alist.end(), a2list.begin(), a2list.end());
+  alist.insert(alist.end(), a3list.begin(), a3list.end());
+  if (debug)
+    cout << "After inserting alphas of denom 1,2,3, alist = "<<alist<<endl;
+  // NB the code in geometry.cc relies on these being exact a, -a pairs
+  for (const auto& rs : pluspairs)
+    {
+      Quad r = rs[0], s=rs[1];
+      alist.push_back(RatQuad(r,s));
+      alist.push_back(RatQuad(-r,s));
+    }
+  if (debug)
+    cout << "After inserting pluspairs, alist = "<<alist<<endl;
+  for (const auto& rs : minuspairs)
+    {
+      Quad r = rs[0], s=rs[1];
+      alist.push_back(RatQuad(r,s));
+      alist.push_back(RatQuad(-r,s));
+    }
+  if (debug)
+    cout << "After inserting minuspairs, alist = "<<alist<<endl;
+  for (const auto& sr1r2 : fours)
+    {
+      Quad r = sr1r2[1], s=sr1r2[0];
+      alist.push_back(RatQuad(r,s));
+      alist.push_back(RatQuad(-r,s));
+      r = sr1r2[2];
+      alist.push_back(RatQuad(r,s));
+      alist.push_back(RatQuad(-r,s));
+    }
+  if (debug)
+    cout << "After inserting fours, alist = "<<alist<<endl;
+
+  // for homology edge relation computation include alphas with denom
+  // 1,2,3 in pluspairs, minuspairs and fours:
   Quad w = Quad::w;
   int d = Quad::d;
   // denom 1:
@@ -215,36 +258,21 @@ CuspList sort_alphas(const CuspList& A,
       fours.push_back({THREE, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
     break;
   }
-  alist.insert(alist.end(), a1list.begin(), a1list.end());
-  alist.insert(alist.end(), a2list.begin(), a2list.end());
-  alist.insert(alist.end(), a3list.begin(), a3list.end());
-  for (const auto& rs : pluspairs)
-    {
-      Quad r = rs[0], s=rs[1];
-      RatQuad a(r,s);
-      alist.push_back(a);
-      alist.push_back(-a);
-    }
-  for (const auto& rs : minuspairs)
-    {
-      Quad r = rs[0], s=rs[1];
-      RatQuad a(r,s);
-      alist.push_back(a);
-      alist.push_back(-a);
-    }
-  for (const auto& sr1r2 : fours)
-    {
-      Quad s = sr1r2[0], r1=sr1r2[1], r2=sr1r2[2];
-      RatQuad a1(r1,s), a2(r2,s);
-      alist.push_back(a1);
-      alist.push_back(-a1);
-      alist.push_back(a2);
-      alist.push_back(-a2);
-    }
+
   return alist;
 }
 
 // Output sorted list of alphas (denom > 3 in pairs or fours)
+
+string make_A_line(const Quad& s, const Quad& r1, const Quad& r2)
+{
+  ostringstream ost;
+  ost << Quad::d << " A ";
+  ost << s.re() << " " << s.im() << " ";
+  ost << r1.re() << " " << r1.im() << " ";
+  ost << r2.re() << " " << r2.im();
+  return ost.str();
+}
 
 void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
                    int to_file, int to_screen)
@@ -258,76 +286,26 @@ void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minusp
       geodata.open(ss.str().c_str(), ios_base::app);
     }
   int nlines=0;
+
+  auto output3 = [small_denoms, to_file, to_screen, &geodata](const Quad& s, const Quad& r1, const Quad& r2)
+    {
+      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
+        return 0;
+      string st = make_A_line(s, r1, r2);
+      if (to_file)
+        geodata << st <<endl;
+      if (to_screen)
+        cout << st << endl;
+      return 1;
+    };
   for ( const auto& rs : pluspairs)
-    {
-      Quad s = rs[1];
-      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
-        continue;
-      Quad r = rectify(rs[0], s);
-      if (!pos(r)) r = rectify(-r,s);
-      nlines++;
-      if (to_file) // output s, r, -r
-        {
-          geodata << Quad::d << " A ";
-          geodata << s.re() << " " << s.im() << " ";
-          geodata << r.re() << " " << r.im() << " ";
-          geodata << -r.re() << " " << -r.im() << endl;
-        }
-      if (to_screen)
-        {
-          cout << Quad::d << " A ";
-          cout << s.re() << " " << s.im() << " ";
-          cout << r.re() << " " << r.im() << " ";
-          cout << -r.re() << " " << -r.im() << endl;
-        }
-    }
+    nlines += output3(rs[1], rs[0], -rs[0]);
   for ( const auto& rs : minuspairs)
-    {
-      Quad s = rs[1];
-      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
-        continue;
-      Quad r = rectify(rs[0], s);
-      if (!pos(r)) r = rectify(-r,s);
-      nlines++;
-      if (to_file) // output s, r, r
-        {
-          geodata << Quad::d << " A ";
-          geodata << s.re() << " " << s.im() << " ";
-          geodata << r.re() << " " << r.im() << " ";
-          geodata << r.re() << " " << r.im() << endl;
-        }
-      if (to_screen)
-        {
-          cout << Quad::d << " A ";
-          cout << s.re() << " " << s.im() << " ";
-          cout << r.re() << " " << r.im() << " ";
-          cout << r.re() << " " << r.im() << endl;
-        }
-    }
+    nlines += output3(rs[1], rs[0], rs[0]);
   for ( const auto& sr1r2 : fours)
-    {
-      Quad s = sr1r2[0];
-      if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
-        continue;
-      Quad r1 = rectify(sr1r2[1],s);
-      Quad r2 = rectify(sr1r2[2],s);
-      if (!pos(r1)) {r1 = rectify(-r1,s); r2 = rectify(-r2,s);}
-      nlines++;
-      if (to_file) // output s, r1, r2
-        {
-          geodata << Quad::d << " A ";
-          geodata << s.re() << " " << s.im() << " ";
-          geodata << r1.re() << " " << r1.im() << " ";
-          geodata << r2.re() << " " << r2.im() << endl;
-        }
-      if (to_screen)
-        {
-          cout << Quad::d << " A ";
-          cout << s.re() << " " << s.im() << " ";
-          cout << r1.re() << " " << r1.im() << " ";
-          cout << r2.re() << " " << r2.im() << endl;
-        }
-    }
+    nlines += output3(sr1r2[0], sr1r2[1], sr1r2[2]);
+  if (to_file || to_screen)
+    cout << nlines << " A-lines output"<<endl;
 }
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and
@@ -634,7 +612,7 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
 
 // Other functions will then (1) saturate the set, (2) discard redundancies.
 
-CuspList covering_alphas(const CuspList& sigmas, int verbose)
+CuspList covering_alphas(const CuspList& slist, int verbose)
 {
   CuspList alphas_ok;  // list that will be returned
   INT maxn = Quad::absdisc/4; // we first consider all alphas with dnorm up to this
@@ -720,7 +698,7 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
       // pairs_ok (which holds a list of pairs of alphas whose
       // intersections are known to be covered) will be updated.
 
-      if (are_alphas_surrounded(alphas_ok, alphas_open, sigmas, pairs_ok, verbose, verbose>1))
+      if (are_alphas_surrounded(alphas_ok, alphas_open, slist, pairs_ok, verbose, verbose>1))
         {
           if (verbose)
             cout << "Success using "<<alphas_ok.size()<<" alphas of with max norm "<<maxn<<"\n";
@@ -752,15 +730,28 @@ CuspList covering_alphas(const CuspList& sigmas, int verbose)
 H3pointList triple_intersections(const CuspList& alphas, int debug)
 {
     if (debug)
-      cout << "Finding triple intersections..."<<endl;
+      cout << "Finding triple intersections for " <<alphas.size()<<" alphas..."<<endl;
 
-    // Extract the alphas in F4:
-    CuspList alphasF4(alphas.size());
-    auto it1 = std::copy_if(alphas.begin(), alphas.end(), alphasF4.begin(),
-                            [](RatQuad a){return a.in_quarter_rectangle();});
-    alphasF4.resize(std::distance(alphasF4.begin(),it1));  // shrink to new size
+    // Extract the alphas in F4.  NB the standard list of alphas has
+    // the property that, after those of denom 1, 2, 3, they come in
+    // pairs a, -a; the second of the pair is not always in the
+    // rectangle (because of the rounding of 1/2) which causes a
+    // problem here:
+
+    // CuspList alphasF4(alphas.size());
+    // auto it1 = std::copy_if(alphas.begin(), alphas.end(), alphasF4.begin(),
+    //                         [](RatQuad a){return a.in_quarter_rectangle();});
+    // alphasF4.resize(std::distance(alphasF4.begin(),it1));  // shrink to new size
+    CuspList alphasF4;
+    Quad t;
+    for ( auto a : alphas)
+      {
+        a = reduce_to_rectangle(a, t);
+        if (a.in_quarter_rectangle())
+          alphasF4.push_back(a);
+      }
     if (debug)
-      cout << alphasF4.size() <<" alphas are in the quarter rectangle" << endl;
+      cout << alphasF4.size() <<" alphas are in the quarter rectangle: " << alphasF4 << endl;
 
     // Extend these by 8 translations:
     CuspList alphasF4X;
@@ -771,12 +762,6 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
       }
     if (debug)
       cout << alphasF4X.size() <<" neighbours of these: " << alphasF4X << endl;
-
-    // convert each cusp z to a point P = [z,tsq] with tsq the square
-    // radius of S_z:
-
-    // from utils import frac
-    // Alist = [[a,1/frac(a)[1].norm()] for a in XA4]
 
     // For each i get a list of j>i for which S_ai and S_aj intersect properly
     map <int, vector<int> > i2j;
@@ -875,7 +860,7 @@ CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 // At the end we discard any alphas with <3 vertices (including
 // translates and singular points), and return the new set of alphas
 
-CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas, INT maxn, int debug, int verbose)
+CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist, INT maxn, int debug, int verbose)
 {
   INT m;
   if (verbose)
@@ -900,7 +885,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
           pointsx.push_back(translate(P,-t));
         }
     }
-  for ( const auto& s : sigmas)
+  for ( const auto& s : slist)
     {
       H3point P = {s, ZERO};
       pointsx.push_back(P);
@@ -1054,7 +1039,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
           pointsx.push_back(translate(P,-t));
         }
     }
-  for ( const auto& s : sigmas)
+  for ( const auto& s : slist)
     {
       H3point P = {s, ZERO};
       pointsx.push_back(P);
@@ -1074,11 +1059,11 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas
 }
 
 // return  a saturated irredundant list of alphas in the fundamental rectangle
-CuspList find_alphas(const CuspList& sigmas, int debug, int verbose)
+CuspList find_alphas(const CuspList& slist, int debug, int verbose)
 {
-  auto alphas = covering_alphas(sigmas, verbose);
+  auto alphas = covering_alphas(slist, verbose);
   INT maxn = max_dnorm(alphas);
-  return saturate_covering_alphas(alphas, sigmas, maxn, debug, verbose);
+  return saturate_covering_alphas(alphas, slist, maxn, debug, verbose);
 }
 
 // return list of alphas (or translates) which pass through a finite cusp
@@ -1136,9 +1121,9 @@ int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug)
 }
 
 // test if all singular points (sigmas) are surrounded by alpha circles:
-int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas, int debug)
+int are_sigmas_surrounded(const CuspList& slist, const CuspList& alphas, int debug)
 {
-  return std::all_of(sigmas.begin(), sigmas.end(),
+  return std::all_of(slist.begin(), slist.end(),
                      [alphas,debug](const RatQuad& s) {return is_sigma_surrounded(s, alphas, debug);});
 }
 

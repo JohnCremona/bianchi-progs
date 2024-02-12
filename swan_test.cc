@@ -32,11 +32,11 @@ void test_principal_cusps(int n1=20, int n2=100)
 {
   for (int n=1; n<=n1; n++)
     {
-      auto alphas = principal_cusps_of_dnorm(n);
-      cout << "Principal cusps of denominator norm "<<n<<": "<<alphas<<endl;
+      auto alist = principal_cusps_of_dnorm(n);
+      cout << "Principal cusps of denominator norm "<<n<<": "<<alist<<endl;
     }
-  auto alphas = principal_cusps_of_dnorm_up_to(n2);
-  cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alphas<<endl;
+  auto alist = principal_cusps_of_dnorm_up_to(n2);
+  cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alist<<endl;
 }
 
 int main ()
@@ -71,6 +71,11 @@ int main ()
       int verbose = 0;
       int debug = 0;
       auto new_sigmas = singular_points();
+      auto sorted_sigmas = sort_singular_points(new_sigmas);
+      cout<<"Before sorting, "<<new_sigmas.size()<<" sigmas:\n"<<new_sigmas<<endl;
+      cout<<"After  sorting, "<<sorted_sigmas.size()<<" sigmas:\n"<<sorted_sigmas<<endl;
+      new_sigmas = sorted_sigmas;
+
       //test_principal_cusps(20, 30);
       verbose=0;
       debug=0;
@@ -110,6 +115,9 @@ int main ()
       verbose = 0;
       debug = 0;
       auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
+      cout<<"Before sorting, alphas:\n"<<new_alphas<<endl;
+      cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
+      new_alphas = sorted_alphas;
       cout<<"...done, now outputting"<<endl;
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
@@ -117,7 +125,7 @@ int main ()
 
       // Compare with precomputed alphas and sigmas
       cout << "Testing newly computed sigmas and alphas with old..." <<flush;
-      Quad::setup_geometry();
+      Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
       cout << "read in old data..."<<flush;
       Quad t;
       if (compare_CuspLists_as_sets(sigmas, new_sigmas))
@@ -130,10 +138,12 @@ int main ()
             {
               cout << "sigmas DO NOT agree:\n";
               cout << sigmas.size() << " old sigmas";
-              if (verbose) cout << ": " <<sigmas;
+              // if (verbose)
+                cout << ": " <<sigmas;
               cout << endl;
               cout << new_sigmas.size() << " new sigmas";
-              if (verbose) cout << ": " <<new_sigmas;
+              // if (verbose)
+                cout << ": " <<new_sigmas;
               cout << endl;
               cout << "old not in new:\n";
               for (const auto& a : sigmas)
@@ -172,8 +182,11 @@ int main ()
               exit(1);
             }
         }
-      alphas = new_alphas;
-      sigmas = new_sigmas;
+      alphas = new_alphas; // overwrite the globals with our lists
+      sigmas = new_sigmas; //
+
+      // compute the M_alphas and alpha_inv from our lists:
+      M_alphas = all_M_alphas(alphas, alpha_inv);
 
 # if(0)
       // Look at neighbours of each finite singular point
@@ -196,7 +209,7 @@ int main ()
       // Find all principal polyhedra:
       verbose = 0;
       int n;
-      cout << "Constructing principal polyhedra..."<<flush;
+      cout << "Constructing principal polyhedra from alphas: "<<alphas<<"..."<<flush;
       vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
       n = princ_polys.size();
       if (n==1)
@@ -223,7 +236,6 @@ int main ()
       for (const auto& pc : spoly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
 
-
       vector<POLYHEDRON> all_polys = princ_polys;
       all_polys.insert(all_polys.end(), sing_polys.begin(), sing_polys.end());
 
@@ -234,12 +246,57 @@ int main ()
       auto squares = aaa_squ_hex_aas[1];
       auto hexagons = aaa_squ_hex_aas[2];
       auto aas_triangles = aaa_squ_hex_aas[3];
+      verbose = 1;
+      int sing;
+      int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
+      for ( const auto& face : aaa_triangles)
+        {
+          if (verbose) cout <<face << " --> ";
+          POLYGON P = make_polygon(face, alphas, sigmas, sing);
+          if (verbose) cout <<face << " -->  ["<<P.first<<","<<P.second<<"]"<<endl;
+          int ok = check_aaa_triangle(P, verbose);
+          if (!ok)
+            cout<<"aaa-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+          all_ok = ok &&all_ok;
+        }
       cout<<aas_triangles.size()<<" aas-triangles\n";
+      for ( const auto& face : aas_triangles)
+        {
+          POLYGON P = make_polygon(face, alphas, sigmas, sing);
+          int ok = check_aas_triangle(P, verbose);
+          if (!ok)
+            cout<<"aas-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+          all_ok = ok &&all_ok;
+        }
       cout<<squares.size()<<" squares\n";
+      for ( const auto& face : squares)
+        {
+          POLYGON P = make_polygon(face, alphas, sigmas, sing);
+          int ok = check_square(P);
+          if (!ok)
+            cout<<"square "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+          all_ok = ok &&all_ok;
+        }
       cout<<hexagons.size()<<" hexagons\n";
-
-      cout << "geodata encodings of faces:\n";
+      for ( const auto& face : hexagons)
+        {
+          POLYGON P = make_polygon(face, alphas, sigmas, sing);
+          int ok = check_hexagon(P);
+          if (!ok)
+            cout<<"hexagon "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+          all_ok = ok &&all_ok;
+        }
+      if (all_ok)
+        cout<<"all encodings check out OK" << endl;
+      else
+        {
+          cout<<"*****************not all encodings check out OK" << endl;
+          exit(1);
+        }
+      cout << "geodata encodings of faces";
+      if (to_file) cout << " (output to geodata file)";
+      cout << ":\n";
       output_faces(aaa_squ_hex_aas, alphas, sigmas, to_file, to_screen);
 
       cout<<"----------------------------------------------------------------------------------\n";

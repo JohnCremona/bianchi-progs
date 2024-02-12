@@ -31,7 +31,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 36.1 = (6+2a,-12+2a), norm = 36 <<<<
 Cuspidal dimension = 5
- denominator = 3
 Computing W(P3a)*T(A,A) for A=[5,a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 5

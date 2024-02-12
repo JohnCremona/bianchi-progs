@@ -31,7 +31,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 Cuspidal dimension = 11
- denominator = 6
 Computing W(P3a)*T(A,A) for A=[7,a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 11
@@ -81,7 +80,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 36.1 = (-6+2a,-12-2a), norm = 36 <<<<
 Cuspidal dimension = 7
- denominator = 3
 Computing W(P3a)*T(A,A) for A=[7,a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 7

@@ -312,6 +312,24 @@ mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, i
   return M;
 }
 
+// Given a full list of alphas, return the list of all M_alphas (such
+// that M_alpha(alpha)=oo and M_alpha(oo)=alpha' is in the list).
+// Also sets inv s.t. M_alpha[i](oo) = alpha[inv[i]].
+vector<mat22> all_M_alphas(const CuspList& alist, vector<int>& inv)
+{
+  vector<mat22> Mlist; Mlist.reserve(alist.size());
+  inv.clear();  inv.reserve(alist.size());
+  for (const auto& a : alist)
+    {
+      int j;
+      mat22 M = Malpha(a, alist, j); // i.e. M(a)=oo and M(oo)=alist[j]
+      assert (j>=0);
+      Mlist.push_back(M);
+      inv.push_back(j);
+    }
+  return Mlist;
+}
+
 // count how many P in points are on S_a
 int nverts(const RatQuad& a, const H3pointList& points)
 {

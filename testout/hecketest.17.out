@@ -106,7 +106,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 21.1 = (-5+a,-6-3a), norm = 21 <<<<
 Dimension = 18
- denominator = 2
 Computing nu_2.1...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 8

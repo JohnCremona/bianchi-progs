@@ -168,8 +168,8 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
       {
         sorted_slist.push_back(RatQuad(w,THREE));
         sorted_slist.push_back(RatQuad(-w,THREE));
-        sorted_slist.push_back(RatQuad(1-w,THREE));
         sorted_slist.push_back(RatQuad(-1+w,THREE));
+        sorted_slist.push_back(RatQuad(1-w,THREE));
       }
     break;
   default:
@@ -195,27 +195,16 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
           continue;
         }
 
-      RatQuad ms = reduce_to_rectangle(-s, temp);
-      assert (ms.in_rectangle());
+      RatQuad ms = -s; // do not reduce to rectangle!
 
       // skip sigmas if we have seen its negative:
-      if (std::find(sorted_slist.begin(), sorted_slist.end(), ms) != sorted_slist.end())
+      if (cusp_index_with_translation(ms, sorted_slist, temp)>=0)
         {
-          if (verbose)
-            cout <<" - skipping (negative seen already)";
+          if (verbose) cout <<" - skipping (negative seen already)";
           continue;
         }
-
-      if (s.y_coord()<0)
-        {
-          sorted_slist.push_back(ms);
-          sorted_slist.push_back(s);
-        }
-      else
-        {
-          sorted_slist.push_back(s);
-          sorted_slist.push_back(ms);
-        }
+      sorted_slist.push_back(s);
+      sorted_slist.push_back(ms);
     }
   if (verbose)
     cout<<"All sigmas: "<<sorted_slist<<endl;
@@ -225,6 +214,16 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
 
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
+
+string make_S_line(const RatQuad& sig)
+{
+  ostringstream ost;
+  ost << Quad::d << " S ";
+  ost << sig.num().re() << " " << sig.num().im() << " ";
+  ost << sig.den().re() << " " << sig.den().im();
+  return ost.str();
+}
+
 
 void output_singular_points(const CuspList& S, int to_file, int to_screen)
 {
@@ -237,25 +236,23 @@ void output_singular_points(const CuspList& S, int to_file, int to_screen)
       geodata.open(ss.str().c_str(), ios_base::app);
     }
   int nlines=0;
+  CuspList sigmas_output; // record when s is output so -s is not also output
   for ( const auto& s : S)
     {
-      Quad sden = s.den(), snum = s.num();
-      if ((s.y_coord()>0) && (std::find(small_denoms.begin(), small_denoms.end(), sden) == small_denoms.end()))
-        {
-          nlines++;
-          if (to_file)
-            {
-              geodata << Quad::d << " S ";
-              geodata << snum.re() << " " << snum.im() << " ";
-              geodata << sden.re() << " " << sden.im() << endl;
-            }
-          if (to_screen)
-            {
-              cout << Quad::d << " S ";
-              cout << snum.re() << " " << snum.im() << " ";
-              cout << sden.re() << " " << sden.im() << endl;
-            }
-        }
+      // do not output oo or sigmas with denom <=3
+      if (std::find(small_denoms.begin(), small_denoms.end(), s.den()) != small_denoms.end())
+        continue;
+      // do not output s if s or -s already output
+      if (std::find(sigmas_output.begin(), sigmas_output.end(), s) != sigmas_output.end())
+        continue;
+      nlines++;
+      sigmas_output.push_back(s);
+      sigmas_output.push_back(-s);
+      string st = make_S_line(s);
+      if (to_file)
+        geodata << st << endl;
+      if (to_screen)
+        cout << st << endl;
     }
   if (to_file)
     geodata.close();

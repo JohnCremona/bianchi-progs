@@ -4,29 +4,17 @@
 1 newform(s) at level 18.1 = (a):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 -2 0 -1 -2 -3 -1 -6 -4 -1 -8 2 -6 -11 4 -5 -4 -4 -14 16 11 -11 0 -15 -3 -12 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 184
-L/P ratio    = 2, cuspidal factor = 6
-Integration matrix = [35-2a,5;7a,-1+a], factor   = 5
 
 >>>> Level 20.3 = (2+2a,-10), norm = 20 <<<<
 
 1 newform(s) at level 20.3 = (2+2a,-10):
 1:	basis = [];	aqlist = [ -1 -1 1 ];	aplist = [ 1 1 -3 1 -1 -2 3 -5 -8 0 -8 0 -9 11 -1 12 -7 5 -12 -16 4 -12 -7 9 -10 -6 ]
 Sign of F.E. = -1
-Twisting prime lambda = 1, factor = 102
-L/P ratio    = 1, cuspidal factor = 4
-Integration matrix = [-13,-2+a;2+2a,3], factor   = 6
 
 >>>> Level 24.1 = (-6+a,-6-3a), norm = 24 <<<<
 
 2 newform(s) at level 24.1 = (-6+a,-6-3a):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -2 -1 3 -2 1 7 2 0 7 4 6 -10 1 8 15 -4 0 -10 -16 -5 9 -4 -11 -3 12 ]
 Sign of F.E. = 1
-Twisting prime lambda = 0, factor = 0
-L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [-7-2a,7;6-a,-1+a], factor   = 10
 2:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 1 -1 0 -2 -2 4 -4 -6 -2 -2 -6 -4 -8 2 12 14 6 8 -4 4 0 14 10 6 -6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 144
-L/P ratio    = 3/2, cuspidal factor = 2
-Integration matrix = [5+8a,5;-30+a,-1+a], factor   = 6

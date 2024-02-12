@@ -8,9 +8,6 @@ Retrieving newform data for N = 6.1
 1 newform(s) at level 6.1 = (a,-6):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 1 1 2 0 2 0 -6 4 -6 8 4 -2 -12 -4 -14 4 6 12 8 0 -12 -4 -4 14 -8 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 110
-L/P ratio    = 5/2, cuspidal factor = 11
-Integration matrix = [-5-2a,-7+2a;-7+2a,-7+2a], factor   = 11
 Making homspace and bases...
 About to recover 1 newform bases (nap=26)
 Recovering newform #1, eigs [ 1 2 0 2 0 -6 4 -6 8 4 -2 -12 -4 -14 4 6 12 8 0 -12 -4 -4 14 -8 ]...

@@ -1233,9 +1233,10 @@ void newform::display(void) const
   if (nf->characteristic==0)
     {
       cout << "Sign of F.E. = " << sfe << endl;
-      cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
-      cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
-      cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
+      // stop outputting these as we do not use them
+      // cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
+      // cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+      // cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
       if (CMD!=0)
         cout << "Unramified self-twist by discriminant "<<CMD<<endl;
     }

@@ -5,9 +5,6 @@ Retrieving newform data for N = 7.1
 1 newform(s) at level 7.1 = (2+a,-5+a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -1 2 2 1 0 -2 6 6 -2 -2 -8 0 -2 -4 4 6 6 8 0 -4 4 10 -6 -18 -10 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 40
-L/P ratio    = 1, cuspidal factor = 4
-Integration matrix = [-8+a,-a;-2-a,2], factor   = 4
 Retrieving newform data for N = 8.1
 
 >>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
@@ -15,9 +12,6 @@ Retrieving newform data for N = 8.1
 1 newform(s) at level 8.1 = (4,-2+2a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 2 -2 2 -2 -2 2 2 2 2 6 -6 10 -6 6 6 6 -6 6 -2 2 14 14 10 10 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 16
-L/P ratio    = 1/2, cuspidal factor = 2
-Integration matrix = [-11-2a,a;-6+2a,3], factor   = 2
 Retrieving newform data for N = 9.2
 
 >>>> Level 9.2 = (3), norm = 9 <<<<
@@ -25,14 +19,8 @@ Retrieving newform data for N = 9.2
 2 newform(s) at level 9.2 = (3) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ 1 -1 ];	aplist = [ -1 -1 1 4 -4 4 -4 -2 -2 2 -4 4 10 4 -4 6 6 -12 12 -4 4 10 10 6 6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 96
-L/P ratio    = 3, cuspidal factor = 4
-Integration matrix = [-25,-a;-3a,2], factor   = 16
 2:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 2 1 -1 2 -2 5 -5 1 1 8 1 -1 1 -10 10 -6 -6 0 0 4 -4 10 10 -12 -12 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 60
-L/P ratio    = 3, cuspidal factor = 10
-Integration matrix = [-25,-a;-3a,2], factor   = 10
 Retrieving newform data for N = 17.1
 
 >>>> Level 17.1 = (a), norm = 17 <<<<
@@ -40,6 +28,3 @@ Retrieving newform data for N = 17.1
 1 newform(s) at level 17.1 = (a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ -1 0 0 4 4 0 0 -2 -2 1 4 4 -6 4 4 6 6 -4 -4 12 12 10 10 -10 -10 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 160
-L/P ratio    = 5/2, cuspidal factor = 8
-Integration matrix = [-8,-a;-a,2], factor   = 8

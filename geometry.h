@@ -68,4 +68,11 @@ int sigma_index_with_translation(const RatQuad& z, Quad& t);
 // Return i and set t such that sigmas[i]+t=a/b, else -1
 int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& t);
 
+// The following require M_alphas to be defined properly, and for aas triangles also that sigmas is defined.
+int check_aaa_triangle(const POLYGON& T, int verbose=0);
+int check_cyclic_triangle(int i, int verbose=0);
+int check_aas_triangle(const POLYGON& T, int verbose=0);
+int check_square(const POLYGON& squ);
+int check_hexagon(const POLYGON& hex);
+
 #endif

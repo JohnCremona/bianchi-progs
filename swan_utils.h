@@ -123,8 +123,10 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
 // Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
 mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k);
 
-// // Return alpha' in alphas such that M_alpha(oo) = alpha'
-// RatQuad alpha_flip(const RatQuad& alpha, const CuspList& alphas);
+// Given a full list of alphas, return the list of all M_alphas (such
+// that M_alpha(alpha)=oo and M_alpha(oo)=alpha' is in the list).
+// Also sets inv s.t. M_alpha[i](oo) = alpha[inv[i]].
+vector<mat22> all_M_alphas(const CuspList& alist, vector<int>& inv);
 
 // polyhedron utilities
 inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}

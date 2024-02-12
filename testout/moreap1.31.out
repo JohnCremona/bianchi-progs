@@ -6,9 +6,6 @@ Program moreap1: for given field and level, assumes that the newforms file exist
 1 newform(s) at level 10.1 = (-4+a,-2-2a):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 1 1 -1 0 4 2 -4 -6 0 4 -2 2 6 -8 -4 0 12 -2 -8 -8 16 -2 10 0 0 8 -4 -6 12 -10 -8 6 10 6 -8 10 10 -14 10 24 -20 16 6 6 8 24 -10 -2 20 6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 42
-L/P ratio    = 3/2, cuspidal factor = 7
-Integration matrix = [-3-a,-4+a;-4+a,-4+a], factor   = 7
 Making homspace and bases...done.
 Enter a rational prime p (0 to finish): 
 ap for P101a: [ 10 ]

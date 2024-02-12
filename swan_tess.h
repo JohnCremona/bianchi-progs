@@ -76,7 +76,8 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas);
 // gamma, b_1] to the POLYGON {{i,j,k,l,m,n},{u,x1,y1,x2,y2}}
 POLYGON make_hexagon(const CuspList& H, const CuspList& alphas);
 
-
-void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas, const CuspList& alphas, const CuspList& sigmas, int to_file, int to_screen);
+void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
+                   const CuspList& alphas, const CuspList& sigmas,
+                   int to_file, int to_screen);
 
 #endif

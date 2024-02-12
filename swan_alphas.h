@@ -38,7 +38,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 // are in k.  If not, the code still uses exact arithmetic.
 
 int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const CuspList& alist,
-                                    const CuspList& sigmas, int debug=0);
+                                    const CuspList& slist, int debug=0);
 
 
 // Given a principal cusp a0, a candidate list of principal cusps
@@ -56,7 +56,7 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
 // Returns 0 or 1, and pairs_ok is updated to a list of pairs
 // whose intersections have now been shown to be covered.
 
-int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& sigmas,
+int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList& slist,
                         vector<CuspPair>& pairs_ok, int debug=0);
 
 
@@ -88,17 +88,17 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
 // r,s coprime, r reduced mod s, N(s)<=n (omitting any for which S_a
 // is contained in any earlier S_a') until we succeed.
 
-// sigmas can be set to a list of singular points (up to translation),
+// slist can be set to a list of singular points (up to translation),
 // otherwise these will be computed.
 
 // Other functions will then (1) saturate the set, (2) discard redundancies.
-CuspList covering_alphas(const CuspList& sigmas, int verbose=0);
+CuspList covering_alphas(const CuspList& slist, int verbose=0);
 
 // Given a list of principal cusps alpha (all reduced mod O_k) return
 // a list of "corners" P = [z,tsq] each the intersection of an S_a
 // with at least two other S_{b+t} with z in the fundamental
 // rectangle and tsq>0.
-H3pointList triple_intersections(const CuspList& alphas, int debug=0);
+H3pointList triple_intersections(const CuspList& alist, int debug=0);
 
 // count how many P in points are on S_a
 int nverts(const RatQuad& a, const H3pointList& points);
@@ -107,21 +107,21 @@ int nverts(const RatQuad& a, const H3pointList& points);
 CuspList remove_redundants(const CuspList& alist, const H3pointList& points);
 
 // Given a list of covering alphas with max denom norm maxn, return a saturated irredundant list
-CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& sigmas, INT maxn, int debug=0, int verbose=0);
+CuspList saturate_covering_alphas(const CuspList& alist, const CuspList& slist, INT maxn, int debug=0, int verbose=0);
 
 // return  a saturated irredundant list of alphas in the fundamental rectangle
-CuspList find_alphas(const CuspList& sigmas, int debug=0, int verbose=0);
+CuspList find_alphas(const CuspList& slist, int debug=0, int verbose=0);
 
 // return list of alphas (or translates) which pass through a finite cusp
-CuspList neighbours(const RatQuad& sigma, const CuspList& alphas);
+CuspList neighbours(const RatQuad& sigma, const CuspList& alist);
 
 // return sorted list of alphas (or translates) which pass through a finite cusp,
 // i.e. angle_under_pi(sigma, a[i-1], a[i]) for all 0<=i<n and angle_under_pi(sigma, a[n-1], a[0]).
-CuspList sorted_neighbours(const RatQuad& sigma, const CuspList& alphas);
+CuspList sorted_neighbours(const RatQuad& sigma, const CuspList& alist);
 
-// test if all singular points (sigmas) are surrounded by alpha circles:
-int are_sigmas_surrounded(const CuspList& sigmas, const CuspList& alphas, int debug=0);
+// test if all singular points (slist) are surrounded by alpha circles:
+int are_sigmas_surrounded(const CuspList& slist, const CuspList& alist, int debug=0);
 // test if one singular point (sigma) is surrounded by alpha circles:
-int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug=0);
+int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alist, int debug=0);
 
 #endif

@@ -3,7 +3,6 @@ Non-Euclidean, class number 1
 1212 primes initialised, max norm = 10000
 >>>> Level 121.1 = (11), norm = 121 <<<<
 Cuspidal dimension = 1
- denominator = 14
 Computing W(P11)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1

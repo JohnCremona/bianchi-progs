@@ -5,9 +5,6 @@ Retrieving newform data for N = 20.1
 1 newform(s) at level 20.1 = (2a,-10) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -1 2 2 -2 0 0 2 2 -4 -4 6 6 2 2 6 6 -6 -6 -6 -6 12 12 -6 -6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 24
-L/P ratio    = 1, cuspidal factor = 6
-Integration matrix = [7,a;-2a,3], factor   = 6
 Retrieving newform data for N = 32.1
 
 >>>> Level 32.1 = (8,4a), norm = 32 <<<<
@@ -15,9 +12,6 @@ Retrieving newform data for N = 32.1
 1 newform(s) at level 32.1 = (8,4a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ 1 ];	aplist = [ 0 2 0 0 -6 0 0 -6 -6 0 0 0 0 2 2 10 10 0 0 -14 -14 0 0 10 10 ]
 Sign of F.E. = -1
-Twisting prime lambda = 1, factor = 16
-L/P ratio    = 1/2, cuspidal factor = 2
-Integration matrix = [-13,a;4a,3], factor   = 4
 Retrieving newform data for N = 40.1
 
 >>>> Level 40.1 = (2a), norm = 40 <<<<
@@ -25,6 +19,3 @@ Retrieving newform data for N = 40.1
 1 newform(s) at level 40.1 = (2a) (up to twist by unramified character):
 1:	basis = [];	aqlist = [ -1 1 ];	aplist = [ 0 -1 4 4 -6 4 4 2 2 4 4 -4 -4 -6 -6 -6 -6 -4 -4 -6 -6 -4 -4 -6 -6 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 48
-L/P ratio    = 3/2, cuspidal factor = 2
-Integration matrix = [7,a;-2a,3], factor   = 4

@@ -4,15 +4,9 @@
 1 newform(s) at level 121.1 = (11):
 1:	basis = [];	aqlist = [ -1 ];	aplist = [ 0 -5 -9 -8 -8 -6 -6 8 8 -10 -6 -6 12 12 -3 -3 -6 -6 -7 -7 9 9 1 -18 -18 ]
 Sign of F.E. = 1
-Twisting prime lambda = 1, factor = 40
-L/P ratio    = 4, cuspidal factor = 35
-Integration matrix = [-225,-a;11-11a,2], factor   = 30
 
 >>>> Level 163.1 = (-1+2a), norm = 163 <<<<
 
 1 newform(s) at level 163.1 = (-1+2a):
 1:	basis = [];	aqlist = [ 1 ];	aplist = [ -4 -6 6 3 3 7 7 1 1 -10 -9 -9 3 3 -5 -5 5 5 -11 -11 -3 -3 14 7 7 ]
 Sign of F.E. = -1
-Twisting prime lambda = 8+a, factor = 64
-L/P ratio    = 0, cuspidal factor = 1
-Integration matrix = [28-a,1;83-3a,3], factor   = 2

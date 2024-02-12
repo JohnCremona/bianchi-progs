@@ -46,7 +46,7 @@ int main(void)
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   int den = (cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << dim << endl;
-  if(den!=1) cout << " denominator = " << den << endl;
+  //if(den!=1) cout << " denominator = " << den << endl;
   long hmod = h.h1hmod();
   if(hmod)
     {

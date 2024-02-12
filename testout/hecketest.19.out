@@ -3,7 +3,6 @@ Non-Euclidean, class number 1
 1223 primes initialised, max norm = 10000
 >>>> Level 76.1 = (-2+4a), norm = 76 <<<<
 Cuspidal dimension = 4
- denominator = 6
 Computing W(P2)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1

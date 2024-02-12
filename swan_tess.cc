@@ -335,7 +335,7 @@ vector<POLYHEDRON>
 principal_polyhedra(const CuspList& alphas, int verbose)
 {
   if (verbose)
-    cout<<"Finding principal polyhedra..."<<flush;
+    cout<<"Finding principal polyhedra from "<<alphas.size()<<" alphas..."<<flush;
   auto Plist = triple_intersections(alphas, verbose);
   int n = Plist.size();
   if (verbose)
@@ -444,6 +444,11 @@ CuspList reverse_polygon( const CuspList& face)
 // (1) principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
 // (2) principal hexagons  {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
 // (3) singular triangles  {a, oo, s} with a reduced fundamental, s singular
+
+// Omit the following:
+// hexagon in a hexagonal cap (9,15,4,3,1)
+// square in square pyramid (5,8,4,1,0), half-star (7,14,8,1,0), tetra+square pyr (6,11,6,1,0)
+// as are redundant for 1-homology
 vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
                                     const CuspList& alphas, const CuspList& sigmas,
                                     int verbose)
@@ -453,10 +458,25 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
   // extended list, including rotations and reflections
   vector<CuspList> aaa_triangle_copies, aas_triangle_copies, square_copies, hexagon_copies;
   for ( const auto& P : all_polys )
+    {
+      auto vefx = VEFx(P);
     for ( const auto& F : P.faces )
       {
+        int n = F.size();
         if (verbose)
           cout<<"\nprocessing face "<<F<<endl;
+        if ((n==4) && (vefx[3]==1))
+          {
+            // if (verbose)
+              cout << " - ignoring the square face of a " << poly_name(P) << endl;
+            continue;
+          }
+        if ((n==6) && (vefx[4]==1))
+          {
+            // if (verbose)
+              cout << " - ignoring the hexagon face of a " << poly_name(P) << endl;
+            continue;
+          }
         int sing;
         auto face = normalise_polygon(F, alphas, sigmas, sing);
         if (verbose)
@@ -465,7 +485,6 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
             if (sing) cout<<" (singular)";
             cout<<endl;
           }
-        int n = face.size();
         vector<CuspList>& face_copies = (n==3? (sing? aas_triangle_copies: aaa_triangle_copies) :
                                          (n==4? square_copies :
                                           hexagon_copies));
@@ -490,6 +509,7 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
               }
           }
       }
+    }
   if (verbose)
     {
       cout<<"After processing "<<all_polys.size()<<" polyhedra, we have\n";
@@ -544,7 +564,7 @@ string face_encode(const CuspList& face, const CuspList& alphas, const CuspList&
 }
 
 // Convert an actual polygon (aaa- or aas-triangle, quadrilateral or
-// hexagon) as list of vertices to the POLYGON {{i,j,k},{u}}, setting
+// hexagon) as list of vertices to the POLYGON {{i,j,k},{u,...}}, setting
 // sing to 1 for an aas-triangle, else to 0
 POLYGON make_polygon(const CuspList& face, const CuspList& alphas, const CuspList& sigmas, int& sing)
 {
@@ -593,14 +613,23 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
   Quad x, y, z;
   i = cusp_index(Q[0], alphas);
   assert (i>=0);
-  mat22 M = Malpha(Q[0], alphas, id); // id not used
+  mat22 Mi = Malpha(Q[0], alphas, id); // id not used
   jd = cusp_index_with_translation(Q[2], alphas, z);
   assert (j>=0);
   j = alpha_index_flip(jd, alphas);
-  l = cusp_index_with_translation(M(Q[2]), alphas, y);
-  M = Malpha(alphas[jd], alphas, id); // id not used
-  kd = cusp_index_with_translation(M(Q[3]-z), alphas, x);
+  l = cusp_index_with_translation(Mi(Q[3]), alphas, y);
+  assert (l>=0);
+  mat22 Mjd = Malpha(alphas[jd], alphas, id); // id not used
+  kd = cusp_index_with_translation(Mjd(Q[3]-z), alphas, x);
   k = alpha_index_flip(kd, alphas);
+
+  mat22 Mj = Malpha(alphas[j], alphas, id); // id not used
+  mat22 Mk = Malpha(alphas[k], alphas, id); // id not used
+  mat22 Ml = Malpha(alphas[l], alphas, id); // id not used
+  RatQuad alpha1 = x + Mk.image_oo();
+  RatQuad alpha2 = y + Ml.preimage_oo();
+  mat22 M = Mi*mat22::Tmat(z)*Mj;
+  assert (M(alpha1) == alpha2);
   return {{i,j,k,l}, {x,y,z}};
 }
 
@@ -641,15 +670,51 @@ POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
   return {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
 }
 
-void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas, const CuspList& alphas, const CuspList& sigmas, int to_file, int to_screen)
+void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
+                   const CuspList& alphas, const CuspList& sigmas,
+                   int to_file, int to_screen)
 {
-  auto faces = aaa_squ_hex_aas[0];
-  auto squares = aaa_squ_hex_aas[1];
-  auto hexagons = aaa_squ_hex_aas[2];
-  auto aas_triangles = aaa_squ_hex_aas[3];
+  if (Quad::is_Euclidean)
+    {
+      if (to_screen)
+        cout << "No face output as field is Euclidean" << endl;
+      return;
+    }
+  const auto& aaa_triangles = aaa_squ_hex_aas[0];
+  const auto& squares       = aaa_squ_hex_aas[1];
+  const auto& hexagons      = aaa_squ_hex_aas[2];
+  const auto& aas_triangles = aaa_squ_hex_aas[3];
+  vector<CuspList> faces;
+  // We do not output the triangle {0,oo,1},
+  // and for the fields 19, 43, 67, 163 also not
+  // the triangles {oo,w/2,(w-1)/2} or {oo,w/2,(w+1)/2}
+  CuspList tri0 = {RatQuad(0), RatQuad::infinity(), RatQuad(1)};
+  CuspList tri1 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w-1,TWO)};
+  CuspList tri2 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w+1,TWO)};
+  long d = Quad::d;
+  for (const auto& T : aaa_triangles)
+    {
+      CuspList T2 = reverse_polygon(T);
+      if ((T==tri0) || (T2==tri0))
+        {
+          // if (to_screen) cout << "No T line for " << T << " as it is a universal one" << endl;
+          continue;
+        }
+      if ((d==19)||(d==43)||(d==67)||(d==163))
+        {
+          if ((T==tri1) || (T==tri2) || (T2==tri1) || (T2==tri2))
+            {
+              // if (to_screen) cout << "No T line for " << T << " as it is a standard one for d=16,43,67,163" << endl;
+              continue;
+            }
+        }
+      faces.push_back(T);
+    }
+  // if (to_screen) cout<<"aaa-triangles to be output as T lines: "<<faces<<endl;
   faces.insert(faces.end(), aas_triangles.begin(), aas_triangles.end());
   faces.insert(faces.end(), squares.begin(), squares.end());
   faces.insert(faces.end(), hexagons.begin(), hexagons.end());
+  if (to_screen) cout<<"all faces to be output: "<<faces<<endl;
 
   ofstream geodata;
   stringstream ss;

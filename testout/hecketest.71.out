@@ -3,7 +3,6 @@ Class number 7
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [4,1+a] ]
 >>>> Level 18.1 = (a), norm = 18 <<<<
 Cuspidal dimension = 1
- denominator = 6
 Computing W(P2a)*T(A,A) for A=[16,5+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
@@ -37,7 +36,6 @@ Factors of characteristic polynomial are:
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 Cuspidal dimension = 5
- denominator = 66
 Computing W(P3a)*T(A,A) for A=[10,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 5
