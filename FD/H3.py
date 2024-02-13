@@ -2468,7 +2468,8 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False,
 
     with open(geodata_file, 'a') as geout:
         for P in faces:
-            polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
+            params = polygon_parameters(P, alphas, M_alphas, alpha_inv, sigmas, geout=geout)
+            print(std_poly(P,alphas)[1], params)
 
     with open(f"tessellation_{d}.txt", 'w') as tess_out:
         for pol,num in pt.items():

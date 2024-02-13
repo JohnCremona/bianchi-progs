@@ -48,6 +48,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
     {
       if (flags[j]) {j++; continue;}
       flags[j] = 1;
+      vector<int> orbit = {j};
       RatQuad s = sR.first;
       H3point R = sR.second;
       if (verbose)
@@ -90,17 +91,16 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
           if ((k!=j) && (flags[k]==0))
             {
               flags[k] = 1;
-              if (verbose)
-                cout << " - checking off (s,R) pair #"<<k<<endl;
+              orbit.push_back(k);
             }
         }
       // add s to the vertices
       P.vertices.push_back(s);
       // fill in the faces
-      fill_faces(P, verbose);
+      fill_faces(P, verbose>1);
       // finished
       if (verbose)
-        cout << "Constructed one singular polyhedron: "<<poly_name(P) << endl;
+        cout << "Constructed one singular " << poly_name(P)<<" from orbit "<<orbit<<endl;
       polys.push_back(P);
       j++;
     }
@@ -111,8 +111,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
         cout<<" 1 singular polyhedron constructed"<<endl;
       else
         cout<<n<<" singular polyhedra constructed"<<endl;
-      for (const auto& P: polys)
-        cout << poly_name(P) <<endl;
+      // for (const auto& P: polys)
+      //   cout << poly_name(P) <<endl;
     }
   return polys;
 }
@@ -261,6 +261,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
     cout << " - using corner #"<<j<<" = "<<Plist[j]<<"...\n";
   H3point P = Plist[j];
   flags[j] = 1;
+  vector<int> orbit = {j};
 
   POLYHEDRON poly;
   RatQuad infty = RatQuad::infinity();
@@ -302,24 +303,23 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
       if ((i!=j) && (flags[i]==0))
         {
           flags[i] = 1;
-          if (verbose)
-            cout << " - checking off corner #"<<i<<endl;
+          orbit.push_back(i);
         }
-      if ((k!=j) && (k!=i) && (flags[k]==0))
-        {
-          flags[k] = 1;
-          if (verbose)
-            cout << " - checking off corner #"<<k<<endl;
-        }
+      // if ((k!=j) && (k!=i) && (flags[k]==0))
+      //   {
+      //     flags[k] = 1;
+      //     orbit.push_back(k);
+      //   }
     }
   int nedges = poly.edges.size()/2;
   int nfaces = 2+nedges-nverts; // Euler's formula!
   if (verbose)
     {
+      cout << " - orbit " << orbit << " of size " << orbit.size() << endl;
       cout << " - polyhedron has (V,E,F)=("<<nverts<<","<<nedges<<","<<nfaces<<"):\n"; //<<poly << endl;
       cout << " - now filling in face data..."<<endl;
     }
-  fill_faces(poly, verbose);
+  fill_faces(poly, verbose>1);
   if (verbose)
     {
       cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
@@ -351,8 +351,6 @@ principal_polyhedra(const CuspList& alphas, int verbose)
   if (verbose)
     {
       cout<<polys.size()<<" principal polyhedra constructed"<<endl;
-      for (const auto& P: polys)
-        cout << poly_name(P) <<endl;
     }
   return polys;
 }
@@ -439,6 +437,16 @@ CuspList reverse_polygon( const CuspList& face)
   return newface;
 }
 
+// Given a polygon, negate its vertices (i.e. apply a transformation in GL2 not SL2):
+CuspList negate_polygon( const CuspList& face)
+{
+  CuspList newface = face; // assignment just to set the size
+  std::transform(face.begin(), face.end(),
+                 newface.begin(),
+                 [](const RatQuad& v){return fundunit*v;});
+  return newface;
+}
+
 // extract all oriented faces up to SL2-equivalence, returning lists of
 // (0) principal triangles {a1, oo, a2} with a1 reduced fundamental
 // (1) principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
@@ -448,7 +456,8 @@ CuspList reverse_polygon( const CuspList& face)
 // Omit the following:
 // hexagon in a hexagonal cap (9,15,4,3,1)
 // square in square pyramid (5,8,4,1,0), half-star (7,14,8,1,0), tetra+square pyr (6,11,6,1,0)
-// as are redundant for 1-homology
+// as are redundant for 1-homology.
+// Ditto the aaa-triangle in an aaas tetrahedron
 vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
                                     const CuspList& alphas, const CuspList& sigmas,
                                     int verbose)
@@ -457,66 +466,109 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
   vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
   // extended list, including rotations and reflections
   vector<CuspList> aaa_triangle_copies, aas_triangle_copies, square_copies, hexagon_copies;
+  int nTignored=0, nQignored=0, nHignored=0; // count faces ignored as redundant
+
+  // local function to test for being finite singular:
+  Quad x;
+  auto is_sing = [sigmas, &x](const RatQuad& a) {
+    return (!a.is_infinity()) && cusp_index_with_translation(a, sigmas, x)>=0;
+  };
+
   for ( const auto& P : all_polys )
     {
+      // count the number of singular vertices:
+      int Psing = std::count_if(P.vertices.begin(), P.vertices.end(), is_sing);
+      if (verbose)
+        {
+          cout<<"\nprocessing a "<<poly_name(P);
+          if (Psing) cout<<" (an aaas tetrahedron)";
+          cout<<endl;
+        }
+
       auto vefx = VEFx(P);
-    for ( const auto& F : P.faces )
+      for ( const auto& F : P.faces )
       {
+        int redundant = 0;
         int n = F.size();
         if (verbose)
           cout<<"\nprocessing face "<<F<<endl;
         if ((n==4) && (vefx[3]==1))
           {
-            // if (verbose)
+            if (verbose)
               cout << " - ignoring the square face of a " << poly_name(P) << endl;
-            continue;
+            nQignored++;
+            redundant = 1;
           }
         if ((n==6) && (vefx[4]==1))
           {
-            // if (verbose)
+            if (verbose)
               cout << " - ignoring the hexagon face of a " << poly_name(P) << endl;
-            continue;
+            nHignored++;
+            redundant = 1;
           }
-        int sing;
-        auto face = normalise_polygon(F, alphas, sigmas, sing);
+        int Fsing;
+        auto face = normalise_polygon(F, alphas, sigmas, Fsing);
         if (verbose)
           {
             cout<<" - after normalising, face "<< face;
-            if (sing) cout<<" (singular)";
+            if (Fsing) cout<<" (singular)";
             cout<<endl;
           }
-        vector<CuspList>& face_copies = (n==3? (sing? aas_triangle_copies: aaa_triangle_copies) :
+        if (Psing && !Fsing)
+          {
+            if (verbose)
+              cout << " - ignoring the aaa face of an aaas " << poly_name(P) << endl;
+            nTignored++;
+            redundant = 1;
+          }
+        vector<CuspList>& face_copies = (n==3? (Fsing? aas_triangle_copies: aaa_triangle_copies) :
                                          (n==4? square_copies :
                                           hexagon_copies));
-        vector<CuspList>& faces = (n==3? (sing? aas_triangles : aaa_triangles) :
+        vector<CuspList>& faces = (n==3? (Fsing? aas_triangles : aaa_triangles) :
                                    (n==4? squares :
                                     hexagons));
         if (std::find(face_copies.begin(), face_copies.end(), face) == face_copies.end())
           { // new face
-            faces.push_back(face);
+            if (!redundant)
+              {
+                faces.push_back(face);
+                if (verbose) cout << "Keeping face "<<face<<endl;
+              }
             face_copies.push_back(face);
-            auto rface = normalise_polygon(reverse_polygon(face), alphas, sigmas, sing);
+            auto rface = normalise_polygon(reverse_polygon(face), alphas, sigmas, Fsing);
+            auto mface = normalise_polygon(negate_polygon(face), alphas, sigmas, Fsing);
+            auto mrface = normalise_polygon(negate_polygon(rface), alphas, sigmas, Fsing);
             face_copies.push_back(rface);
-            if (!sing)  // apply (n-1) rotations to face and rface
+            face_copies.push_back(mface);
+            face_copies.push_back(mrface);
+            if (!Fsing)  // apply (n-1) rotations to face and rface
               {
                 for (int i=1; i<n; i++)
                   {
                     face = rotate_polygon(face);
-                    face_copies.push_back(normalise_polygon(face, alphas, sigmas, sing));
+                    face_copies.push_back(normalise_polygon(face, alphas, sigmas, Fsing));
                     rface = rotate_polygon(rface);
-                    face_copies.push_back(normalise_polygon(rface, alphas, sigmas, sing));
+                    face_copies.push_back(normalise_polygon(rface, alphas, sigmas, Fsing));
+                    mface = rotate_polygon(mface);
+                    face_copies.push_back(normalise_polygon(mface, alphas, sigmas, Fsing));
+                    mrface = rotate_polygon(mrface);
+                    face_copies.push_back(normalise_polygon(mrface, alphas, sigmas, Fsing));
                   }
               }
           }
+        else
+          {
+            if (verbose) cout <<"Ignoring face "<<face<<" as we already have a congruent one"<<endl;
+          }
       }
     }
-  if (verbose)
+  // if (verbose)
     {
       cout<<"After processing "<<all_polys.size()<<" polyhedra, we have\n";
-      cout<<aaa_triangles.size()<<" aaa-triangles\n";
+      cout<<aaa_triangles.size()<<" aaa-triangles ("<<nTignored<<" were ignored as redundant)\n";
       cout<<aas_triangles.size()<<" aas-triangles\n";
-      cout<<squares.size()<<" squares\n";
-      cout<<hexagons.size()<<" hexagons\n";
+      cout<<squares.size()<<" squares ("<<nQignored<<" were ignored as redundant)\n";
+      cout<<hexagons.size()<<" hexagons ("<<nHignored<<" were ignored as redundant)\n";
     }
   return {aaa_triangles, squares, hexagons, aas_triangles};
 }

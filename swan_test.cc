@@ -236,17 +236,17 @@ int main ()
       for (const auto& pc : spoly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
 
-      vector<POLYHEDRON> all_polys = princ_polys;
-      all_polys.insert(all_polys.end(), sing_polys.begin(), sing_polys.end());
+      vector<POLYHEDRON> all_polys = sing_polys;
+      all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
-      cout << "\nFinding all oriented faces up to GL2-equivalence" << endl;
+      cout << "\nFinding all faces up to GL2-equivalence" << endl;
       verbose = 0;
       auto aaa_squ_hex_aas = get_faces(all_polys, alphas, sigmas, verbose);
       auto aaa_triangles = aaa_squ_hex_aas[0];
       auto squares = aaa_squ_hex_aas[1];
       auto hexagons = aaa_squ_hex_aas[2];
       auto aas_triangles = aaa_squ_hex_aas[3];
-      verbose = 1;
+      verbose = 0;
       int sing;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
