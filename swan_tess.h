@@ -40,6 +40,9 @@ CuspList rotate_polygon( const CuspList& face, int n=1);
 // Given a polygon, reverse the order of its vertices:
 CuspList reverse_polygon( const CuspList& face);
 
+// Given a polygon, negate its vertices (i.e. apply a transformation in GL2 not SL2):
+CuspList negate_polygon( const CuspList& face);
+
 // extract all oriented faces up to SL2-equivalence, returning lists of
 // (0) principal triangles {oo, a1, a2} with a1 reduced fundamental
 // (1) principal squares   {oo, a1, a2, a3} with a1 reduced fundamental

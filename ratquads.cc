@@ -75,6 +75,13 @@ int RatQuad::is_principal() const
   return ideal().is_principal();
 }
 
+int RatQuad::ideal_class() const
+{
+  if (Quad::class_number==1)
+    return 0;
+  return find_ideal_class(ideal(), Quad::class_group);
+}
+
 void RatQuad::normalise()                              // scale so ideal is a standard class rep
 {
   Quad g;

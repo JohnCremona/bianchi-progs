@@ -140,6 +140,9 @@ swan_alphas.o: swan_alphas.cc swan_alphas.h swan_utils.h mat22.h \
 swan.o: swan.cc swan.h swan_utils.h mat22.h ratquads.h quads.h intprocs.h \
  arith_extras.h rat.h int.h primes.h qideal.h geometry.h swan_sigmas.h \
  swan_alphas.h
+swan_hom.o: swan_hom.cc swan_utils.h mat22.h ratquads.h quads.h \
+ intprocs.h arith_extras.h rat.h int.h primes.h qideal.h geometry.h \
+ swan_tess.h swan_hom.h
 swan_sigmas.o: swan_sigmas.cc qideal.h quads.h intprocs.h arith_extras.h \
  swan_sigmas.h swan_utils.h mat22.h ratquads.h rat.h int.h primes.h \
  geometry.h
@@ -148,7 +151,7 @@ swan_tess.o: swan_tess.cc swan_utils.h mat22.h ratquads.h quads.h \
  swan_alphas.h swan_tess.h
 swan_test.o: swan_test.cc swan_sigmas.h swan_utils.h mat22.h ratquads.h \
  quads.h intprocs.h arith_extras.h rat.h int.h primes.h qideal.h \
- geometry.h swan_alphas.h swan_tess.h swan.h
+ geometry.h swan_alphas.h swan_tess.h swan_hom.h swan.h
 swan_utils.o: swan_utils.cc swan_utils.h mat22.h ratquads.h quads.h \
  intprocs.h arith_extras.h rat.h int.h primes.h qideal.h geometry.h \
  looper.h

@@ -118,6 +118,7 @@ void Quadprimes::display(ostream& s, long maxn, int show_genus)
           for (const auto& c : cc)
             cout << (c? "-": "+");
         }
+      cout << ", ideal class #" << P.ideal_class();
       cout<<")"<<endl;
     }
 }

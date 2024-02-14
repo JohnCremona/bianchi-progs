@@ -1,6 +1,7 @@
 #include "swan_sigmas.h"
 #include "swan_alphas.h"
 #include "swan_tess.h"
+#include "swan_hom.h"
 #include "swan.h"
 #include "geometry.h"
 
@@ -298,6 +299,23 @@ int main ()
       if (to_file) cout << " (output to geodata file)";
       cout << ":\n";
       output_faces(aaa_squ_hex_aas, alphas, sigmas, to_file, to_screen);
+
+      // Compute integral homology
+
+      auto faces = aaa_triangles;
+      faces.insert(faces.end(), aas_triangles.begin(), aas_triangles.end());
+      faces.insert(faces.end(), squares.begin(), squares.end());
+      faces.insert(faces.end(), hexagons.begin(), hexagons.end());
+
+      for ( int GL2 : {0,1} )
+        {
+          vector<int> invariants = integral_homology(faces,
+                                                     alphas, sigmas,
+                                                     pluspairs, minuspairs, fours,
+                                                     GL2);
+          string group =  (GL2? "GL2" : "SL2");
+          cout << group << " integral homology invariants: " << invariants << endl;
+        }
 
       cout<<"----------------------------------------------------------------------------------\n";
     }

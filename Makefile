@@ -97,12 +97,12 @@ ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan.cc swan_test.cc
+ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 
 Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
-swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan.h
+swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
 headers: Q_headers quad_headers swan_headers
 
 %.o:   %.cc
@@ -196,7 +196,7 @@ Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
 QUAD_OBJS = quads.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
-SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan.o
+SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o
 
 OBJS = $(Q_OBJS) $(QUAD_OBJS) $(SWAN_OBJS)
 objs: $(OBJS)

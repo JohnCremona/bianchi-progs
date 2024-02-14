@@ -48,6 +48,7 @@ public:
   Qideal ideal() const;                          // ideal (n,d)
   Qideal denominator_ideal() const;              // (d)/(n,d)
   int is_principal() const;
+  int ideal_class() const;                       // in {0,1,...,h-1}
 
   RAT norm() const {return RAT(n.norm(), d.norm());}
 

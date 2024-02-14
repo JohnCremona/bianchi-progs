@@ -2131,7 +2131,7 @@ def edge_index(e, alphas, sigmas, debug=False):
 def face_boundary_vector(F, alphas, sigmas, debug=False):
     v = vector(ZZ, len(alphas)+len(sigmas)-1)
     if debug:
-        print(f"Copmuting face boundary vector for face {F = }")
+        print(f"Computing face boundary vector for face {F = }")
     for i in range(len(F)):
         j = edge_index((F[i-1],F[i]), alphas, sigmas, debug)
         #print(f" index of edge {(F[i-1],F[i])} is {j}")

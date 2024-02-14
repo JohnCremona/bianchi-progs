@@ -176,6 +176,7 @@ public:
   int is_zero() const {return c==0;}
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
+  int ideal_class();           // i s.t. this is equivalent to the i'th ideal in the class group
   int is_primitive() const {return c==ONE;}
   int is_square();
   int is_Galois_stable() const {return ::divides(a, (2*b+Quad::t));}
@@ -228,6 +229,8 @@ private:
 int find_ideal_class(Qideal I, const vector<Qideal>& Jlist);
 // return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
 int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist);
+// return i where I is equivalent to the i'th ideal in Quad::class_group
+inline int find_ideal_class(Qideal I) {return find_ideal_class(I, Quad::class_group);}
 // return the equivalent ideal in Quad::class_group
 Qideal class_representative(Qideal I);
 // return the ideal J in Quad::class_group for which I*J = <g> is principal and set g

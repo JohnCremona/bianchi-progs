@@ -881,6 +881,13 @@ int Qideal::is_principal()
   return (iclass==0);
 }
 
+int Qideal::ideal_class()
+{
+  if ((Quad::class_number==1) || (iclass==0))
+    return 0;
+  return find_ideal_class(*this);
+}
+
 int Qideal::is_principal(Quad& g)
 {
   if (iclass==-1) fill();
