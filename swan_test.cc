@@ -7,6 +7,9 @@
 
 #define MAX_DISC 100
 
+#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define DEBUG 0 // verbose setting to use if not overridden locally
+
 vector<RatQuad> test_singular_points(int output_level=0)
 {
   if (output_level>=3)
@@ -42,6 +45,11 @@ void test_principal_cusps(int n1=20, int n2=100)
 
 int main ()
 {
+  int verbose = VERBOSE;
+  int debug = DEBUG;
+  int to_file=1;
+  int to_screen=0;
+
   long d, f, max=100;
   vector<long> fields = valid_field_discs();
   cerr << "Enter field (0 for all up to "<<MAX_DISC<<", -1 for all): " << flush;  cin >> f;
@@ -59,18 +67,20 @@ int main ()
 
       if (D!=fields.front())
         cout << "-------------------------------------" <<endl;
-      cout << "The field is ";
-      Quad::displayfield(cout);
 
-      int to_file=1;
-      int to_screen=0;
+      if (verbose)
+        {
+          Quad::displayfield(cout);
+        }
+      else
+        cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = "<<D<<endl;
 
       //test_principal_cusps(20,20);
 
       cout << "Finding sigmas and alphas..."<<flush;
 
-      int verbose = 0;
-      int debug = 0;
+      verbose = VERBOSE;
+      debug = DEBUG;
       auto new_sigmas = singular_points();
       auto sorted_sigmas = sort_singular_points(new_sigmas);
       if (debug)
@@ -80,8 +90,8 @@ int main ()
       new_sigmas = sorted_sigmas;
 
       //test_principal_cusps(20, 30);
-      verbose=0;
-      debug=0;
+      verbose = VERBOSE;
+      debug = DEBUG;
       auto new_alphas = covering_alphas(new_sigmas, verbose);
       INT maxn = max_dnorm(new_alphas);
       if (verbose)
@@ -91,8 +101,8 @@ int main ()
           cout << " with max dnorm = " << maxn <<endl;
         }
 
-      verbose=0;
-      debug=0;
+      verbose = VERBOSE;
+      debug = DEBUG;
       new_alphas = saturate_covering_alphas(new_alphas, new_sigmas, maxn, debug, verbose);
       maxn = max_dnorm(new_alphas);
       if (verbose)
@@ -115,8 +125,8 @@ int main ()
 
       // Sort and output alphas:
       vector<vector<Quad>> pluspairs, minuspairs, fours;
-      verbose = 0;
-      debug = 0;
+      verbose = VERBOSE;
+      debug = DEBUG;
       auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
       if (debug)
         cout<<"Before sorting, alphas:\n"<<new_alphas<<endl;
@@ -212,7 +222,7 @@ int main ()
         }
 #endif
       // Find all principal polyhedra:
-      verbose = 0;
+      verbose = VERBOSE;
       int n;
       cout << "Constructing principal polyhedra from alphas";
       if (debug) cout << ": "<<alphas;
@@ -230,7 +240,7 @@ int main ()
       for (const auto& pc : poly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
       // Find all singular polyhedra:
-      verbose = 0;
+      verbose = VERBOSE;
       cout << "Constructing singular polyhedra..."<<flush;
       vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
       n = sing_polys.size();
@@ -248,13 +258,13 @@ int main ()
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
-      verbose = 0;
+      verbose = VERBOSE;
       auto aaa_squ_hex_aas = get_faces(all_polys, alphas, sigmas, verbose);
       auto aaa_triangles = aaa_squ_hex_aas[0];
       auto squares = aaa_squ_hex_aas[1];
       auto hexagons = aaa_squ_hex_aas[2];
       auto aas_triangles = aaa_squ_hex_aas[3];
-      verbose = 0;
+      verbose = VERBOSE;
       int sing;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
@@ -314,7 +324,16 @@ int main ()
       faces.insert(faces.end(), squares.begin(), squares.end());
       faces.insert(faces.end(), hexagons.begin(), hexagons.end());
 
-      debug = 0;
+      debug = DEBUG;
+      if (debug)
+        {
+          cout<<"alphas: "<<alphas<<endl;
+          cout<<"sigmas: "<<sigmas<<endl;
+          cout<<"pluspairs: "<<pluspairs<<endl;
+          cout<<"minuspairs: "<<minuspairs<<endl;
+          cout<<"fours: "<<fours<<endl;
+          cout<<"faces: "<<faces<<endl;
+        }
       for ( int GL2 : {0,1} )
         {
           vector<int> invariants = integral_homology(faces,
