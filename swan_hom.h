@@ -17,7 +17,7 @@ vector<int> integral_homology(const vector<CuspList>& faces,
                               const vector<vector<Quad>>& pluspairs,
                               const vector<vector<Quad>>& minuspairs,
                               const vector<vector<Quad>>& fours,
-                              int GL2);
+                              int GL2, int debug=0);
 
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
 int edge_index(const EDGE& e, const CuspList& alphas, const CuspList& sigmas);
@@ -34,7 +34,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          const vector<vector<Quad>>& pluspairs,
                                          const vector<vector<Quad>>& minuspairs,
                                          const vector<vector<Quad>>& fours,
-                                         int GL2);
+                                         int GL2, int debug=0);
 
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
 // M10: 1-chains -> 0-chains (as from edge_boundary_matrix())
@@ -43,7 +43,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 
 
 // NB Both matrices are formed by rows, and act on row-vectors on the right
-vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21);
+vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
 
 #endif

@@ -217,12 +217,12 @@ CuspList sort_alphas(const CuspList& A,
   // denom 1:
   minuspairs.push_back({ZERO,ONE});
   // denom 2:
-  switch (d%4) {
-  case 1:
+  switch (d%8) {
+  case 1: case 5:
     minuspairs.push_back({w,TWO});  // w^2=-1 (mod 2)
                                     // could also go into pluspairs
     break;
-  case 2:
+  case 2: case 6:
     minuspairs.push_back({w+1,TWO}); // (w+1)^2=-1 (mod 2)
                                      // could also go into pluspairs
     break;
@@ -283,7 +283,7 @@ void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minusp
   if (to_file)
     {
       ss << "geodata_" << Quad::d << ".dat";
-      geodata.open(ss.str().c_str(), ios_base::app);
+      geodata.open(ss.str().c_str()); //  , ios_base::app);
     }
   int nlines=0;
 

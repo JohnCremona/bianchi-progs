@@ -562,7 +562,7 @@ vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
           }
       }
     }
-  // if (verbose)
+  if (verbose)
     {
       cout<<"After processing "<<all_polys.size()<<" polyhedra, we have\n";
       cout<<aaa_triangles.size()<<" aaa-triangles ("<<nTignored<<" were ignored as redundant)\n";

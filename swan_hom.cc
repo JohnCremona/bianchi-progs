@@ -15,17 +15,28 @@ vector<int> integral_homology(const vector<CuspList>& faces,
                               const vector<vector<Quad>>& pluspairs,
                               const vector<vector<Quad>>& minuspairs,
                               const vector<vector<Quad>>& fours,
-                              int GL2)
+                              int GL2, int debug)
 {
+  if (debug)
+    {
+      cout<<"alphas: "<<alphas<<endl;
+      cout<<"sigmas: "<<sigmas<<endl;
+    }
   vector<vector<int>> M10 = edge_boundary_matrix(alphas, sigmas);
-  cout<<"Computed M10 = \n";
-  for (const auto& row: M10)
-    cout << row <<endl;
-  vector<vector<int>> M21 = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, GL2);
-  cout<<"Computed M21 = \n";
-  for (const auto& row: M21)
-    cout << row <<endl;
-  return homology_invariants(M10, M21);
+  if (debug)
+    {
+      cout<<"Computed M10 = \n";
+      for (const auto& row: M10)
+        cout << row <<endl;
+    }
+  vector<vector<int>> M21 = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, GL2, debug);
+  if (debug)
+    {
+      cout<<"Computed M21 = \n";
+      for (const auto& row: M21)
+        cout << row <<endl;
+    }
+  return homology_invariants(M10, M21, debug>1);
 }
 
 
@@ -132,7 +143,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          const vector<vector<Quad>>& pluspairs,
                                          const vector<vector<Quad>>& minuspairs,
                                          const vector<vector<Quad>>& fours,
-                                         int GL2)
+                                         int GL2, int debug)
 {
   int nalphas = alphas.size(), nsigmas = sigmas.size()-1,
     nplus = pluspairs.size(), nminus = minuspairs.size(), nfours = fours.size(),
@@ -142,14 +153,16 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
   vector<vector<int>> M;
   M.reserve(nrows);
 
-  cout<<"nalphas="<<nalphas<<endl;
-  cout<<"nsigmas="<<nsigmas<<endl;
-  cout<<"nplus="<<nplus<<endl;
-  cout<<"nminus="<<nminus<<endl;
-  cout<<"nfours="<<nfours<<endl;
-  cout<<"nfaces="<<nfaces<<endl;
-
-  cout<<"M should have "<<nrows<<" rows"<<endl;
+  if (debug)
+    {
+      cout<<"nalphas="<<nalphas<<endl;
+      cout<<"nsigmas="<<nsigmas<<endl;
+      cout<<"nplus="<<nplus<<endl;
+      cout<<"nminus="<<nminus<<endl;
+      cout<<"nfours="<<nfours<<endl;
+      cout<<"nfaces="<<nfaces<<endl;
+      cout<<"M should have "<<nrows<<" rows"<<endl;
+    }
 
   int i, j;
   int n = 0; // will count number of rows pushed onto M
@@ -168,6 +181,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
         {
           vector<int> row(ncols, 0);
           j = cusp_index_with_translation(-alphas[i], alphas, temp);
+          assert ((j>=0)&&(j<nalphas));
           row[i] +=1;
           row[j] -=1;
           M.push_back(row);
@@ -177,6 +191,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
         {
           vector<int> row(ncols, 0);
           j = cusp_index_with_translation(-sigmas[i+1], sigmas, temp) -1;
+          assert ((j>=0)&&(j<nsigmas));
           row[nalphas+i] +=1;
           row[nalphas+j] -=1;
           M.push_back(row);
@@ -189,8 +204,10 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
       vector<int> row(ncols, 0);
       Quad r = pluspairs[i][0], s = pluspairs[i][1];
       j = cusp_index_with_translation(RatQuad(r,s), alphas, temp);
+      assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       j = cusp_index_with_translation(RatQuad(-r,s), alphas, temp);
+      assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       M.push_back(row);
       n++;
@@ -201,6 +218,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
       vector<int> row(ncols, 0);
       Quad r = minuspairs[i][0], s = minuspairs[i][1];
       j = cusp_index_with_translation(RatQuad(r,s), alphas, temp);
+      assert ((j>=0)&&(j<nalphas));
       row[j] +=2;
       M.push_back(row);
       n++;
@@ -211,8 +229,10 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
       vector<int> row(ncols, 0);
       Quad s = fours[i][0], r1 = fours[i][1], r2 = fours[i][2];
       j = cusp_index_with_translation(RatQuad(r1,s), alphas, temp);
+      assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       j = cusp_index_with_translation(RatQuad(r2,s), alphas, temp);
+      assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       M.push_back(row);
       n++;
@@ -220,8 +240,10 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
         {
           vector<int> row2(ncols, 0);
           j = cusp_index_with_translation(RatQuad(-r1,s), alphas, temp);
+          assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
           j = cusp_index_with_translation(RatQuad(-r2,s), alphas, temp);
+          assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
           M.push_back(row2);
           n++;
@@ -269,7 +291,7 @@ void make_mat( fmpz_mat_t A, const vector<vector<int>>& M)
 
 // NB Both matrices are formed by rows, and act on row-vectors on the right
 
-vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21)
+vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug)
 {
   // M10 represents a n1xn0 matrix and M21 a n2xn1, with M21*M10=0
   long n0 = M10[0].size(), n1 = M10.size(), n2 = M21.size();
@@ -281,12 +303,15 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   fmpz_mat_init(A21, n2, n1);
   make_mat(A10, M10); // size n1xn0
   make_mat(A21, M21); // size n2xn1
-  cout << "M10 as a FLINT matrix:\n";
-  fmpz_mat_print_pretty(A10);
-  cout<<endl;
-  cout << "M21 as a FLINT matrix:\n";
-  fmpz_mat_print_pretty(A21);
-  cout<<endl;
+  if (debug)
+    {
+      cout << "M10 as a FLINT matrix:\n";
+      fmpz_mat_print_pretty(A10);
+      cout<<endl;
+      cout << "M21 as a FLINT matrix:\n";
+      fmpz_mat_print_pretty(A21);
+      cout<<endl;
+    }
 
   // Check that A21*A10=0:
   fmpz_mat_init(Z, n2, n0);
@@ -304,36 +329,66 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   fmpz_init(den);
   int ok = fmpz_mat_inv(U, den, U);
   assert (ok); // means U was invertible over Q, i.e. det(U) nonzero
-  cout<<"After inverting U, denom is ";
-  fmpz_print(den);
-  cout<<endl;
+  if (debug)
+    {
+      cout<<"After inverting U, denom is ";
+      fmpz_print(den);
+      cout<<endl;
+    }
   assert (fmpz_equal_si(den, 1) || fmpz_equal_si(den, -1)); // denominator is +-1
 
   // multiply A21 by U^-1:
   fmpz_mat_mul(A21, A21, U);
 
   // drop first r rows of this:
-  cout<<"A21 has size "<<n2<<" x "<<n1<<", and r="<<r<<endl;
+  if (debug)
+    {
+      cout<<"A21*U^{-1} has size "<<n2<<" x "<<n1<<", and r="<<r<<endl;
+      fmpz_mat_print_pretty(A21);
+      cout<<endl;
+    }
   fmpz_mat_window_init(M, A21, 0, r, n2, n1);
-  cout<<"The window has size "<<fmpz_mat_nrows(M)<<" x "<<fmpz_mat_ncols(M)<<endl;
+  int homrank = n1 - r - fmpz_mat_rank(M); // ==nullity(M)
+  if (debug)
+    {
+      cout<<"The window has size "<<fmpz_mat_nrows(M)<<" x "<<fmpz_mat_ncols(M)<<endl;
+      fmpz_mat_print_pretty(M);
+      cout<<endl;
+    }
+  cout << "Homology rank = " << homrank << endl;
   assert (fmpz_mat_nrows(M)==n2);
   assert (fmpz_mat_ncols(M)==n1-r);
 
   // Compute Smith Normal Form of that:
   fmpz_mat_init_set(S, M); // to set to the right size
   fmpz_mat_snf(S, M);
+  if (debug)
+    {
+      cout<<"S = \n";
+      fmpz_mat_print_pretty(S);
+      cout<<endl;
+      cout<< "("<<fmpz_mat_nrows(S)<<" rows, "<<fmpz_mat_ncols(S)<<" columns)" <<endl;
+    }
 
-  // Extract the diagonal entries of S:
-  long n = min(n1, n2-r);
-  vector<int> v(n);
+  // Extract the diagonal entries of S (omitting any 1s):
+  long n = min(n2, n1-r);
+  vector<int> v;
   for (long i=0; i<n; i++)
-    v[i] = fmpz_get_si(fmpz_mat_entry(S, i, i));
+    {
+      int m = fmpz_get_si(fmpz_mat_entry(S, i, i));
+      if (debug)
+        {
+          cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
+        }
+      if (m!=1)
+        v.push_back(m);
+    }
 
+  fmpz_mat_window_clear(M);
   fmpz_mat_clear(A10);
   fmpz_mat_clear(A21);
   fmpz_mat_clear(Z);
   fmpz_mat_clear(H);
-  fmpz_mat_clear(M);
   fmpz_mat_clear(S);
   fmpz_mat_clear(U);
 

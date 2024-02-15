@@ -63,7 +63,7 @@ int main ()
       Quad::displayfield(cout);
 
       int to_file=1;
-      int to_screen=1;
+      int to_screen=0;
 
       //test_principal_cusps(20,20);
 
@@ -73,8 +73,10 @@ int main ()
       int debug = 0;
       auto new_sigmas = singular_points();
       auto sorted_sigmas = sort_singular_points(new_sigmas);
-      cout<<"Before sorting, "<<new_sigmas.size()<<" sigmas:\n"<<new_sigmas<<endl;
-      cout<<"After  sorting, "<<sorted_sigmas.size()<<" sigmas:\n"<<sorted_sigmas<<endl;
+      if (debug)
+        cout<<"Before sorting, "<<new_sigmas.size()<<" sigmas:\n"<<new_sigmas<<endl;
+      if (debug||verbose)
+        cout<<"After  sorting, "<<sorted_sigmas.size()<<" sigmas:\n"<<sorted_sigmas<<endl;
       new_sigmas = sorted_sigmas;
 
       //test_principal_cusps(20, 30);
@@ -116,8 +118,10 @@ int main ()
       verbose = 0;
       debug = 0;
       auto sorted_alphas = sort_alphas(new_alphas, pluspairs, minuspairs, fours, verbose, debug);
-      cout<<"Before sorting, alphas:\n"<<new_alphas<<endl;
-      cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
+      if (debug)
+        cout<<"Before sorting, alphas:\n"<<new_alphas<<endl;
+      if (debug||verbose)
+        cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
       new_alphas = sorted_alphas;
       cout<<"...done, now outputting"<<endl;
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
@@ -210,7 +214,10 @@ int main ()
       // Find all principal polyhedra:
       verbose = 0;
       int n;
-      cout << "Constructing principal polyhedra from alphas: "<<alphas<<"..."<<flush;
+      cout << "Constructing principal polyhedra from alphas";
+      if (debug) cout << ": "<<alphas;
+      cout << "..." << flush;
+      if (verbose) cout<<endl;
       vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
       n = princ_polys.size();
       if (n==1)
@@ -228,9 +235,9 @@ int main ()
       vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
       n = sing_polys.size();
       if (n==1)
-        cout << "done: 1 singular polyhedron" <<endl;
+        cout << "done: 1 singular polyhedron constructed" <<endl;
       else
-        cout << "done: " << n << " singular polyhedra" <<endl;
+        cout << "done: " << n << " singular polyhedra constructed" <<endl;
       map<string,int> spoly_counts;
       for (const auto& P: sing_polys)
         spoly_counts[poly_name(P)]++;
@@ -295,9 +302,9 @@ int main ()
           cout<<"*****************not all encodings check out OK" << endl;
           exit(1);
         }
-      cout << "geodata encodings of faces";
-      if (to_file) cout << " (output to geodata file)";
-      cout << ":\n";
+      if (to_file||to_screen) cout << "geodata encodings of faces";
+      if (to_file) cout << " output to geodata file";
+      if (to_file||to_screen) cout << "\n";
       output_faces(aaa_squ_hex_aas, alphas, sigmas, to_file, to_screen);
 
       // Compute integral homology
@@ -307,12 +314,13 @@ int main ()
       faces.insert(faces.end(), squares.begin(), squares.end());
       faces.insert(faces.end(), hexagons.begin(), hexagons.end());
 
+      debug = 0;
       for ( int GL2 : {0,1} )
         {
           vector<int> invariants = integral_homology(faces,
                                                      alphas, sigmas,
                                                      pluspairs, minuspairs, fours,
-                                                     GL2);
+                                                     GL2, debug);
           string group =  (GL2? "GL2" : "SL2");
           cout << group << " integral homology invariants: " << invariants << endl;
         }
