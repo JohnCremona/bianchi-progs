@@ -217,6 +217,8 @@ CuspList sort_alphas(const CuspList& A,
   // denom 1:
   minuspairs.push_back({ZERO,ONE});
   // denom 2:
+  if (!Quad::is_Euclidean)
+    {
   switch (d%8) {
   case 1: case 5:
     minuspairs.push_back({w,TWO});  // w^2=-1 (mod 2)
@@ -229,7 +231,10 @@ CuspList sort_alphas(const CuspList& A,
   case 3:
     fours.push_back({TWO,w,w+1}); // w(w+1)=-1 (mod 2)
       };
+    }
   // denom 3:
+  if (!Quad::is_Euclidean && !( (d==5 || d==6 || d==15 || d==19 || d==23) ))
+    {
   switch (d%12) {
   case 1: case 10:
     minuspairs.push_back({w, THREE});          // w^2=-1 (mod 3)
@@ -258,7 +263,7 @@ CuspList sort_alphas(const CuspList& A,
       fours.push_back({THREE, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
     break;
   }
-
+    }
   return alist;
 }
 
