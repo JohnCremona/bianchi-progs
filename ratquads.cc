@@ -251,14 +251,26 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist)
   return ci-clist.begin();
 }
 
-// Return index i of c mod O_K in clist, with a=c-clist[i], or -1 if not in list
+// return 1 if a-b=t is integral, else 0, assuming a, b reduced
+int integral_difference(const RatQuad& a, const RatQuad& b, Quad& t)
+{
+  if (a==b) {t=0; return 1;}
+  Quad d = a.den();
+  if (d != b.den()) return 0;
+  return div(a.num()-b.num(), d, t);
+}
+
+// Return index i of c mod O_K in clist, with t = c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t)
 {
   int i=0; t=0;
   for ( const auto& ci : clist)
     {
-      if ((c==ci) || (c-ci).is_integral(t))
-        return i;
+      if (integral_difference(c,ci, t))
+        {
+          assert (c == clist[i]+t);
+          return i;
+        }
       else
         i++;
     }

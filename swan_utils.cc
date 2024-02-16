@@ -258,14 +258,13 @@ mat22 Malpha(const RatQuad& alpha)
 // Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
 mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j)
 {
-  int k;
-  return Malpha(alpha, RatQuad::infinity(), alist, j, k);
+  return Malpha(alpha, RatQuad::infinity(), alist, j);
 }
 
 //#define DEBUG_M_ALPHA
 
-// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j] and k so that u*M(s)=slist[k]
-mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j, int& k)
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j)
 {
 #ifdef DEBUG_M_ALPHA
   cout << "In Malpha("<<alpha<<") with s="<<s<<" and slist="<<slist<<endl;
@@ -282,16 +281,12 @@ mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int&
   assert (j>=0);
   M = mat22::Tmat(-x)*M;
   assert (M(alpha).is_infinity());
-  sd = M(s);
-  assert (sd == slist[j]);
-  sd = fundunit*sd;
-  k = cusp_index_with_translation(sd, slist, x);
-  assert (k>=0);
+  assert (M(s) == slist[j]);
   return M;
 }
 
-// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
-mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k)
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j)
 {
   mat22 M = Malpha(alpha);
   Quad x(0);
@@ -306,9 +301,6 @@ mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, i
   assert (M(alpha).is_infinity());
   Q = M(P);
   assert (Q == Plist[j]);
-  Q = {fundunit*Q.first, Q.second};
-  k = point_index_with_translation(Q, Plist, x);
-  assert (k>=0);
   return M;
 }
 

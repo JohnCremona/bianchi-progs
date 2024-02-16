@@ -7,8 +7,8 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 0 // verbose setting to use if not overridden locally
-#define DEBUG 0 // verbose setting to use if not overridden locally
+#define VERBOSE 1 // verbose setting to use if not overridden locally
+#define DEBUG 1   // verbose setting to use if not overridden locally
 
 vector<RatQuad> test_singular_points(int output_level=0)
 {
@@ -263,13 +263,41 @@ int main ()
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
       verbose = VERBOSE;
-      auto aaa_squ_hex_aas = get_faces(all_polys, alphas, sigmas, verbose);
-      auto aaa_triangles = aaa_squ_hex_aas[0];
-      auto squares = aaa_squ_hex_aas[1];
-      auto hexagons = aaa_squ_hex_aas[2];
-      auto aas_triangles = aaa_squ_hex_aas[3];
-      verbose = VERBOSE;
+      auto all_faces = get_faces(all_polys, alphas, sigmas, verbose);
+      // split up faces into 4 types for reporting and output:
+      vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
       int sing;
+      for (const auto& face: all_faces)
+        {
+          int n = face.size();
+          if (n==4)
+            {
+              squares.push_back(face);
+              continue;
+            }
+          if (n==6)
+            {
+              hexagons.push_back(face);
+              continue;
+            }
+          assert (n==3);
+          sing = 0;
+          Quad temp;
+          for (const auto& v : face)
+            {
+              cout << "v = "<<v<<", sigmas = "<<sigmas<<endl;
+              if (v.is_finite() && cusp_index_with_translation(v, sigmas, temp)>0) // not oo
+                {
+                  sing = 1;
+                  break;
+                }
+            }
+          if (sing)
+            aas_triangles.push_back(face);
+          else
+            aaa_triangles.push_back(face);
+        }
+      verbose = VERBOSE;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
       for ( const auto& face : aaa_triangles)
@@ -319,14 +347,10 @@ int main ()
       if (to_file||to_screen) cout << "geodata encodings of faces";
       if (to_file) cout << " output to geodata file";
       if (to_file||to_screen) cout << "\n";
-      output_faces(aaa_squ_hex_aas, alphas, sigmas, to_file, to_screen);
+      output_faces({aaa_triangles, squares, hexagons, aas_triangles},
+                   alphas, sigmas, to_file, to_screen);
 
       // Compute integral homology
-
-      auto faces = aaa_triangles;
-      faces.insert(faces.end(), aas_triangles.begin(), aas_triangles.end());
-      faces.insert(faces.end(), squares.begin(), squares.end());
-      faces.insert(faces.end(), hexagons.begin(), hexagons.end());
 
       debug = DEBUG;
       if (debug)

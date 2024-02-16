@@ -117,11 +117,11 @@ mat22 Malpha(const RatQuad& alpha);
 // Version which also ensures M(oo) is in the list alist; sets j so that M(oo)=alist[j]
 mat22 Malpha(const RatQuad& alpha, const CuspList& alist, int& j);
 
-// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j] and k so that u*M(s)=slist[k]
-mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j, int& k);
+// Version which also ensures M(s) is in the list slist; sets j so that M(s)=slist[j]
+mat22 Malpha(const RatQuad& alpha, const RatQuad& s, const CuspList& slist, int& j);
 
-// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j] and k so that u*M(P)=Plist[k]
-mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j, int& k);
+// Version which also ensures M(P) is in the list Plist; sets j so that M(P)=Plist[j]
+mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, int& j);
 
 // Given a full list of alphas, return the list of all M_alphas (such
 // that M_alpha(alpha)=oo and M_alpha(oo)=alpha' is in the list).

@@ -14,7 +14,8 @@ CuspList denom_2_alphas()
   if (d8==1 || d8==5) numlist = {w};
   if (d8==2 || d8==6) numlist = {1+w};
   if (d8==3) numlist = {w,w-1};
-  for (const auto& n : numlist) alist.push_back(RatQuad(n,TWO));
+  for (const auto& n : numlist)
+    alist.push_back(RatQuad(n,TWO));
   return alist;
 }
 

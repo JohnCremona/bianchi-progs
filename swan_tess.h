@@ -48,9 +48,9 @@ CuspList negate_polygon( const CuspList& face);
 // (1) principal squares   {oo, a1, a2, a3} with a1 reduced fundamental
 // (2) principal hexagons  {oo, a1, a2, a3, a4, a5, a6} with a1 reduced fundamental
 // (3) singular triangles  {oo, a, s} with a reduced fundamental, s singular
-vector<vector<CuspList>> get_faces( const vector<POLYHEDRON>& all_polys,
-                                    const CuspList& alphas, const CuspList& sigmas,
-                                    int verbose=0);
+vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
+                            const CuspList& alphas, const CuspList& sigmas,
+                            int verbose=0);
 
 // Return complete string encoding one face
 string encode_int_list(char type, const vector<INT> data);
