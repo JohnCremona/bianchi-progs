@@ -8,14 +8,16 @@
 
 // Given alphas (and pluspairs, minuspairs, fours), sigmas, faces,
 // return the invariants of H_1 as a Z-module in either the SL2 or GL2
-// cases
+// cases or both
 
-vector<int> integral_homology(const vector<CuspList>& faces,
-                              const CuspList& alphas, const CuspList& sigmas,
-                              const vector<vector<Quad>>& pluspairs,
-                              const vector<vector<Quad>>& minuspairs,
-                              const vector<vector<Quad>>& fours,
-                              int GL2, int debug)
+// group=1 for GL2 only, 2 for SL2 only, 3 for both
+
+vector<vector<int>> integral_homology(const vector<CuspList>& faces,
+                                      const CuspList& alphas, const CuspList& sigmas,
+                                      const vector<vector<Quad>>& pluspairs,
+                                      const vector<vector<Quad>>& minuspairs,
+                                      const vector<vector<Quad>>& fours,
+                                      int group, int debug)
 {
   if (debug)
     {
@@ -23,20 +25,24 @@ vector<int> integral_homology(const vector<CuspList>& faces,
       cout<<"sigmas: "<<sigmas<<endl;
     }
   vector<vector<int>> M10 = edge_boundary_matrix(alphas, sigmas);
-  if (debug)
+  cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
+  vector<vector<int>> M21G, M21S;
+  if (group&1)
     {
-      cout<<"Computed M10 = \n";
-      for (const auto& row: M10)
-        cout << row <<endl;
+      M21G = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 1, debug);
+      cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
     }
-  vector<vector<int>> M21 = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, GL2, debug);
-  if (debug)
+  if (group&2)
     {
-      cout<<"Computed M21 = \n";
-      for (const auto& row: M21)
-        cout << row <<endl;
+      M21S = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 0, debug);
+      cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
     }
-  return homology_invariants(M10, M21, debug>1);
+  vector<vector<int>> invs;
+  if (group&1)
+    invs.push_back(homology_invariants(M10, M21G, debug>1));
+  if (group&2)
+    invs.push_back(homology_invariants(M10, M21S, debug>1));
+  return invs;
 }
 
 
@@ -361,7 +367,11 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
 
   // Compute Smith Normal Form of that:
   fmpz_mat_init_set(S, M); // to set to the right size
+  if (1) //debug)
+    cout<<" (about to compute SNF of M with "<<fmpz_mat_nrows(M)<<" rows, "<<fmpz_mat_ncols(M)<<" columns)" <<endl;
+
   fmpz_mat_snf(S, M);
+
   if (debug)
     {
       cout<<"S = \n";
@@ -376,10 +386,7 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   for (long i=0; i<n; i++)
     {
       int m = fmpz_get_si(fmpz_mat_entry(S, i, i));
-      if (debug)
-        {
-          cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
-        }
+      if (debug) cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
       if (m!=1)
         v.push_back(m);
     }

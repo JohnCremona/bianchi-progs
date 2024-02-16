@@ -10,14 +10,16 @@
 
 // Given alphas (and pluspairs, minuspairs, fours), sigmas, faces,
 // return the invariants of H_1 as a Z-module in either the SL2 or GL2
-// cases
+// cases or both.
 
-vector<int> integral_homology(const vector<CuspList>& faces,
-                              const CuspList& alphas, const CuspList& sigmas,
-                              const vector<vector<Quad>>& pluspairs,
-                              const vector<vector<Quad>>& minuspairs,
-                              const vector<vector<Quad>>& fours,
-                              int GL2, int debug=0);
+// group=1 for GL2 only, 2 for SL2 only, 3 for both
+
+vector<vector<int>> integral_homology(const vector<CuspList>& faces,
+                                      const CuspList& alphas, const CuspList& sigmas,
+                                      const vector<vector<Quad>>& pluspairs,
+                                      const vector<vector<Quad>>& minuspairs,
+                                      const vector<vector<Quad>>& fours,
+                                      int group, int debug=0);
 
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
 int edge_index(const EDGE& e, const CuspList& alphas, const CuspList& sigmas);

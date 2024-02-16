@@ -138,6 +138,8 @@ int main ()
       output_singular_points(new_sigmas, to_file, to_screen);
 
 
+      if (D<1000)
+        {
       // Compare with precomputed alphas and sigmas
       cout << "Testing newly computed sigmas and alphas with old..." <<flush;
       Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
@@ -197,6 +199,8 @@ int main ()
               exit(1);
             }
         }
+        } // end of code to compare new and old
+
       alphas = new_alphas; // overwrite the globals with our lists
       sigmas = new_sigmas; //
 
@@ -332,17 +336,15 @@ int main ()
           cout<<"pluspairs: "<<pluspairs<<endl;
           cout<<"minuspairs: "<<minuspairs<<endl;
           cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<faces<<endl;
+          cout<<"faces: "<<all_faces<<endl;
         }
-      for ( int GL2 : {0,1} )
-        {
-          vector<int> invariants = integral_homology(faces,
-                                                     alphas, sigmas,
-                                                     pluspairs, minuspairs, fours,
-                                                     GL2, debug);
-          string group =  (GL2? "GL2" : "SL2");
-          cout << group << " integral homology invariants: " << invariants << endl;
-        }
+      vector<vector<int>> invariants = integral_homology(all_faces,
+                                                         alphas, sigmas,
+                                                         pluspairs, minuspairs, fours,
+                                                         3, debug);
+      cout << "GL2 integral homology invariants: " << invariants[0] << endl;
+      cout << "SL2 integral homology invariants: " << invariants[1] << endl;
+
 
       cout<<"----------------------------------------------------------------------------------\n";
     }
