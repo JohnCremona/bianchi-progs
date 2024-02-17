@@ -547,13 +547,19 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
         auto search = std::find(face_copies.begin(), face_copies.end(), face);
         if (search != face_copies.end())
           {
-            Pfaces.push_back(search - face_copies.begin());
+            int i = face_copy_index[search - face_copies.begin()];
+            Pfaces.push_back(i);
+            if (verbose)
+              cout << " - face is a repeat (same orientation): index " << i <<endl;
             continue;
           }
         search = std::find(reverse_face_copies.begin(), reverse_face_copies.end(), face);
         if ( search != reverse_face_copies.end())
           {
-            Pfaces.push_back(-1 - (search - reverse_face_copies.begin()));
+            int i = -1 - face_copy_index[(search - reverse_face_copies.begin())];
+            Pfaces.push_back(i);
+            if (verbose)
+              cout << " - face is a repeat (opposite orientation): index " << i <<endl;
             continue;
           }
         // now we have a new face
@@ -593,6 +599,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
           }
         Pfaces.push_back(nfaces);
         nfaces++;
+        if (verbose) cout<<" nfaces incremented to "<<nfaces<<endl;
         if (n==3)
           {
             if (Fsing) nU++; else nT++;
@@ -618,6 +625,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
     }
 
   // convert the all_poly_faces from sparse to dense vector<int>s of length nfaces
+  cout << "Converting polyhedron face data into a face vector of length "<<nfaces<<endl;
   for ( auto& P_faces : all_poly_faces)
     {
       vector<int> face_vector(nfaces,0);

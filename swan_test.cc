@@ -7,8 +7,8 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 1 // verbose setting to use if not overridden locally
-#define DEBUG 1   // verbose setting to use if not overridden locally
+#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define DEBUG 0   // verbose setting to use if not overridden locally
 
 vector<RatQuad> test_singular_points(int output_level=0)
 {
@@ -262,7 +262,7 @@ int main ()
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
-      verbose = VERBOSE;
+      verbose = 0;
       auto all_faces = get_faces(all_polys, alphas, sigmas, verbose);
       // split up faces into 4 types for reporting and output:
       vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
@@ -285,7 +285,6 @@ int main ()
           Quad temp;
           for (const auto& v : face)
             {
-              cout << "v = "<<v<<", sigmas = "<<sigmas<<endl;
               if (v.is_finite() && cusp_index_with_translation(v, sigmas, temp)>0) // not oo
                 {
                   sing = 1;
@@ -360,9 +359,9 @@ int main ()
           cout<<"pluspairs: "<<pluspairs<<endl;
           cout<<"minuspairs: "<<minuspairs<<endl;
           cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<faces<<endl;
+          cout<<"faces: "<<all_faces<<endl;
         }
-      vector<vector<int>> invariants = integral_homology(faces,
+      vector<vector<int>> invariants = integral_homology(all_faces,
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);
