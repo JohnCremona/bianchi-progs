@@ -360,9 +360,9 @@ int main ()
           cout<<"pluspairs: "<<pluspairs<<endl;
           cout<<"minuspairs: "<<minuspairs<<endl;
           cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<all_faces<<endl;
+          cout<<"faces: "<<faces<<endl;
         }
-      vector<vector<int>> invariants = integral_homology(all_faces,
+      vector<vector<int>> invariants = integral_homology(faces,
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);

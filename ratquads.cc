@@ -254,10 +254,9 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist)
 // return 1 if a-b=t is integral, else 0, assuming a, b reduced
 int integral_difference(const RatQuad& a, const RatQuad& b, Quad& t)
 {
-  if (a==b) {t=0; return 1;}
-  Quad d = a.den();
-  if (d != b.den()) return 0;
-  return div(a.num()-b.num(), d, t);
+  t = mms(a.n,b.d,a.d,b.n); // = numerator of a-b
+  if (t.is_zero()) return 1;
+  return div(a.d*b.d, t, t);
 }
 
 // Return index i of c mod O_K in clist, with t = c-clist[i], or -1 if not in list

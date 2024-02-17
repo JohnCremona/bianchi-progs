@@ -436,17 +436,26 @@ int div(const Quad& a, const Quad& b)
 // as above but return quotient b/a when a|b
 int div(const Quad& a, const Quad& b, Quad& quo)
 {
- if (a.nm==0) return (b.nm==0);
- if (b.nm==0) {quo=0; return 1;}
- if (b.nm%a.nm!=0) return 0;
- Quad c = mult_conj(b,a);
- INT qr, qi, rr, ri;
- if ( divrem(c.r, a.nm, qr, rr) && divrem(c.i, a.nm, qi, ri) )
-   {
-     quo = Quad(qr,qi);
-     return 1;
-   }
- return 0;
+  if (a.nm==0)
+    {
+      quo=0;
+      return (b.nm==0);
+    }
+  if (b.nm==0)
+    {
+      quo=0;
+      return 1;
+    }
+  if (b.nm%a.nm!=0)
+    return 0;
+  Quad c = mult_conj(b,a);
+  INT qr, qi, rr, ri;
+  if ( divrem(c.r, a.nm, qr, rr) && divrem(c.i, a.nm, qi, ri) )
+    {
+      quo = Quad(qr,qi);
+      return 1;
+    }
+  return 0;
 }
 
 int ndiv(const Quad& a, const Quad& b)
