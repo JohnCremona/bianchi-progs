@@ -104,6 +104,7 @@ public:
 
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag);
   friend int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
+  friend int integral_difference(const RatQuad& a, const RatQuad& b, Quad& t);
 
   // Implementation
 private:

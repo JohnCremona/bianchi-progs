@@ -368,7 +368,12 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   // Compute Smith Normal Form of that:
   fmpz_mat_init_set(S, M); // to set to the right size
   if (1) //debug)
-    cout<<" (about to compute SNF of M with "<<fmpz_mat_nrows(M)<<" rows, "<<fmpz_mat_ncols(M)<<" columns)" <<endl;
+    {
+      cout<<" (about to compute SNF of M with "<<fmpz_mat_nrows(M)<<" rows, "<<fmpz_mat_ncols(M)<<" columns)" <<endl;
+      cout<<"=============="<<endl;
+      fmpz_mat_print(S);
+      cout<<"\n=============="<<endl;
+    }
 
   fmpz_mat_snf(S, M);
 
