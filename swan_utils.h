@@ -69,8 +69,11 @@ RAT height_above(const RatQuad& a, const RatQuad& z);
 // return -1,0,+1 according as P is over, on, under S_a (a principal)
 int is_under(const H3point& P, const RatQuad& a);
 
-// return +1 iff P is under at least one S_a for a in sliat
+// return +1 iff P is under at least one S_a for a in slist
 int is_under_any(const H3point& P, const CuspList& alist);
+
+// multiply a point by fundamental unit (usually -1, hence the name here)
+H3point negate(const H3point& P);
 
 // translate a point
 H3point translate(const H3point& P, const Quad& t);
@@ -175,5 +178,10 @@ CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb=1, int d
 // Of the properly_covering_hemispheres(P) extract the subset for which the covering height is maximal
 CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb=1, int debug=0);
 
+// return whether the cusp is finite singular
+int is_cusp_singular(const RatQuad& a, const CuspList& sigmas);
+
+// return number of vertices which are finite singular
+int is_face_singular(const CuspList& face, const CuspList& sigmas);
 
 #endif

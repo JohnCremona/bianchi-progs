@@ -47,5 +47,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 // NB Both matrices are formed by rows, and act on row-vectors on the right
 vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
+long rank(const vector<vector<int>>& M);
+
 
 #endif

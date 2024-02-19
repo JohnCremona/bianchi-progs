@@ -262,40 +262,75 @@ int main ()
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
-      verbose = 0;
-      auto all_faces = get_faces(all_polys, alphas, sigmas, verbose);
+      vector<vector<int>> M32;
+      verbose = VERBOSE;
+      auto all_faces = get_faces(all_polys, alphas, sigmas, M32, verbose);
+      //int nfaces = all_faces.size();
       // split up faces into 4 types for reporting and output:
       vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
-      int sing;
+      cout << "Faces up to GL2-action and reflection:\n";
+      int sing, i=0;
       for (const auto& face: all_faces)
         {
+          sing = is_face_singular(face, sigmas);
           int n = face.size();
+          string s;
           if (n==4)
             {
               squares.push_back(face);
-              continue;
+              s = "square";
             }
-          if (n==6)
+          else
             {
-              hexagons.push_back(face);
-              continue;
-            }
-          assert (n==3);
-          sing = 0;
-          Quad temp;
-          for (const auto& v : face)
-            {
-              if (v.is_finite() && cusp_index_with_translation(v, sigmas, temp)>0) // not oo
+              if (n==6)
                 {
-                  sing = 1;
-                  break;
+                  hexagons.push_back(face);
+                  s = "hexagon";
+                }
+              else
+                {
+                  if (sing)
+                    {
+                      aas_triangles.push_back(face);
+                      s = "aas triangle";
+                    }
+                  else
+                    {
+                      aaa_triangles.push_back(face);
+                      s = "aaa triangle";
+                    }
                 }
             }
-          if (sing)
-            aas_triangles.push_back(face);
-          else
-            aaa_triangles.push_back(face);
+          if (verbose)
+            cout<<i<<" ("<<s<<"): "<<face<<endl;
+          i++;
         }
+      int npolys = all_polys.size();
+      cout<<"Face boundaries:\n";
+      for (int i=0; i<npolys; i++)
+        {
+          auto P = all_polys[i];
+          cout<<i<<" ("<<poly_name(P)<<"): "<<M32[i]<<endl;//" from "<<P<<endl;
+        }
+      // Check for duplicates:
+      int ndups = 0;
+      for (int i=0; i<npolys; i++)
+        for (int k=i+1; k<npolys; k++)
+          {
+            if (M32[i]==M32[k])
+              {
+                cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
+                ndups++;
+              }
+          }
+      if (ndups)
+        cout << ndups << " pairs of congruent faces found" << endl;
+      else
+        cout << "No pairs of congruent faces found" << endl;
+      long r = rank(M32);
+      cout << "After processing "<< npolys
+           << " polyhedra, the boundary matrix has "<<M32.size()
+           << " rows, and rank "<<r<<endl;
       verbose = VERBOSE;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";

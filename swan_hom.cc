@@ -290,6 +290,16 @@ void make_mat( fmpz_mat_t A, const vector<vector<int>>& M)
     }
 }
 
+long rank(const vector<vector<int>>& M)
+{
+  fmpz_mat_t A;
+  fmpz_mat_init(A, M.size(), M[0].size());
+  make_mat(A, M);
+  long r = fmpz_mat_rank(A);
+  fmpz_mat_clear(A);
+  return r;
+}
+
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
 // M10: 1-chains -> 0-chains (as from edge_boundary_matrix())
 // M21: 2-chains -> 1-chains (as from face_boundary_matrix())

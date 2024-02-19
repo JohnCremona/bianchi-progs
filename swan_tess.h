@@ -43,13 +43,20 @@ CuspList reverse_polygon( const CuspList& face);
 // Given a polygon, negate its vertices (i.e. apply a transformation in GL2 not SL2):
 CuspList negate_polygon( const CuspList& face);
 
-// extract all oriented faces up to SL2-equivalence, returning lists of
-// (0) principal triangles {oo, a1, a2} with a1 reduced fundamental
-// (1) principal squares   {oo, a1, a2, a3} with a1 reduced fundamental
-// (2) principal hexagons  {oo, a1, a2, a3, a4, a5, a6} with a1 reduced fundamental
-// (3) singular triangles  {oo, a, s} with a reduced fundamental, s singular
+// extract all oriented faces up to GL2-equivalence, rotation and reflection,
+// returning a single mixed list of:
+// - principal triangles {a1, oo, a2} with a1 reduced fundamental
+// - principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
+// - principal hexagons  {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
+// - singular triangles  {a, oo, s} with a reduced fundamental, s singular
+
+// M32 returns a matrix (encoded as vector<vector<int>>) with one row
+// per polyhedron giving its boundary as a Z-linear combination of
+// oriented faces
+
 vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                             const CuspList& alphas, const CuspList& sigmas,
+                            vector<vector<int>>& M32,
                             int verbose=0);
 
 // Return complete string encoding one face

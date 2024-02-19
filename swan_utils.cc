@@ -535,6 +535,12 @@ CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb, int deb
   return covering_hemispheres(P, -1, norm_s_lb, debug);
 }
 
+// multiply a point by fundamental unit (usually -1, hence the name here)
+H3point negate(const H3point& P)
+{
+  return {fundunit * P.first, P.second};
+}
+
 H3point translate(const H3point& P, const Quad& t)
 {
   return {P.first + t, P.second};
@@ -586,26 +592,35 @@ H3point mat22::operator()(const H3point& P) const
 // return 1 iff P is an integer translate of Q, with t=P-Q
 int is_translate(const H3point& P, const H3point& Q, Quad& t)
 {
-  t = Quad::zero;
   return ( (P.second == Q.second) &&
-           ((Q.first==P.first) || (P.first-Q.first).is_integral(t)) );
+           integral_difference(P.first, Q.first, t) );
 }
 
 // Return index i of P mod O_K in Plist, with t=P-Plist[i], or -1 if not in list
 int point_index_with_translation(const H3point& P, const vector<H3point>& Plist, Quad& t)
 {
   int j = 0;
-  t = Quad::zero;
   for ( const auto& Q : Plist)
     {
       if (is_translate(P, Q, t))
         return j;
       j++;
     }
-  if (j!=-1) // check correctness
-    {
-      assert (P.second == Plist[j].second);
-      assert (P.first  == Plist[j].first + t);
-    }
   return -1;
+}
+
+// return whether the cusp is finite singular
+int is_cusp_singular(const RatQuad& a, const CuspList& sigmas)
+{
+  Quad x;
+  return (a.is_finite()) && cusp_index_with_translation(a, sigmas, x)>=0;
+}
+
+// return number of vertices which are finite singular
+int is_face_singular(const CuspList& face, const CuspList& sigmas)
+{
+  return std::count_if(face.begin(), face.end(),
+                       [sigmas](const RatQuad& a) {
+                         return is_cusp_singular(a, sigmas);
+                       });
 }

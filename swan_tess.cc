@@ -3,6 +3,7 @@
 #include "swan_utils.h"
 #include "swan_alphas.h"
 #include "swan_tess.h"
+#include "swan_hom.h"
 
 // Return all singular polyhedra
 vector<POLYHEDRON>
@@ -21,6 +22,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
       if (s.is_infinity())
         continue;
       auto alist = sorted_neighbours(s, alphas);
+      if (verbose)
+        cout<<"sigma = "<<s<<" has alpha-neighbours "<<alist<<endl;
       sigma_nbrs[s] = alist;
       n = alist.size();
       for (i=0; i<n; i++)
@@ -28,6 +31,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
           RatQuad a = alist[i], b = alist[(i+1)%n];
           H3point R = bi_inter(a, b);
           sRlist.push_back({s,R});
+          if (verbose)
+            cout<<" alphas "<<a<<" and "<<b<<" give R = ["<<R.first.coords(1)<<","<<R.second<<"]\n";
         }
     }
   if (verbose)
@@ -83,9 +88,25 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
               if ((a!=b) && is_fund(M(b)))
                 P.edges.push_back({a,b});
             }
-          // check off flags k where {M(s), M(R)}=sRlist[k], given that M(s)=sigmas[i]
-          pair<RatQuad,H3point> sR2 = {sigmas[i], M(R)};
+          // check off flag k where {M(s), M(R)}=sRlist[k], given that M(s)=sigmas[i]
+          RatQuad s2 = sigmas[i];
+          H3point R2 = M(R);
+          pair<RatQuad,H3point> sR2 = {s2, R2};
           auto search = std::find(sRlist.begin(), sRlist.end(), sR2);
+          assert (search!=sRlist.end());
+          k = std::distance(sRlist.begin(), search);
+          if ((k!=j) && (flags[k]==0))
+            {
+              flags[k] = 1;
+              orbit.push_back(k);
+            }
+          // check off flag k where {-M(s), -M(R)}=sRlist[k] (up to translation)
+          k = cusp_index_with_translation(-s2, sigmas, x);
+          s2 = sigmas[k];
+          assert (-sigmas[i]-x == s2);
+          R2 = translate(negate(R2), -x);
+          sR2 = {s2, R2};
+          search = std::find(sRlist.begin(), sRlist.end(), sR2);
           assert (search!=sRlist.end());
           k = std::distance(sRlist.begin(), search);
           if ((k!=j) && (flags[k]==0))
@@ -257,11 +278,11 @@ POLYHEDRON
 principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
                      vector<int>& flags, int verbose)
 {
+  int nPlist = Plist.size();
   if (verbose)
-    cout << " - using corner #"<<j<<" = "<<Plist[j]<<"...\n";
+    cout << " - using corner #"<<j<<"/"<<nPlist<<" = "<<Plist[j]<<"...\n";
   H3point P = Plist[j];
-  flags[j] = 1;
-  vector<int> orbit = {j};
+  vector<int> orbit;
 
   POLYHEDRON poly;
   RatQuad infty = RatQuad::infinity();
@@ -283,6 +304,23 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   };
 
   int i;
+  // check off flags j and k where u*P=Plist[k] (mod translation)
+  flags[j] = 1;
+  orbit.push_back(j);
+  if (verbose)
+    cout<<"Checking off corner #"<<j<<" ("<<Plist[j]<<")\n";
+  H3point Q = {fundunit*P.first, P.second};
+  if (verbose)
+    cout<<" Looking for corner "<<Q<<endl;
+  int k = point_index_with_translation(Q, Plist, x);
+  if (flags[k]==0)
+    {
+      flags[k] = 1;
+      orbit.push_back(k);
+      if (verbose)
+        cout<<" Q = corner #"<<k<<" ("<<Plist[k]<<")"<<endl;
+    }
+
   for ( const auto& a : alist)
     {
       // First add edges {oo,a} and {a,oo} for a fundamental:
@@ -299,11 +337,25 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
           if ((a!=b) && is_fund(M(b)))
             poly.edges.push_back({a,b});
         }
-      // check off flags i, j where M(P)=Plist[i], u*M(P)=Plist[k]
-      if ((i!=j) && (flags[i]==0))
+      // check off flag i where M(P)=Plist[i]
+      if (flags[i]==0)
         {
           flags[i] = 1;
           orbit.push_back(i);
+          if (verbose)
+            cout<<"Checking off corner #"<<i<<" ("<<Plist[i]<<")\n";
+        }
+      // check off flag k where u*Plist[i]=Plist[k] (mod translation)
+      H3point Q = {fundunit*Plist[i].first, P.second};
+      if (verbose)
+        cout<<" Looking for corner "<<Q<<endl;
+      int k = point_index_with_translation(Q, Plist, x);
+      if (flags[k]==0)
+        {
+          flags[k] = 1;
+          orbit.push_back(k);
+          if (verbose)
+            cout<<" Q = corner #"<<k<<" ("<<Plist[k]<<")"<<endl;
         }
     }
   int nedges = poly.edges.size()/2;
@@ -373,15 +425,8 @@ CuspList normalise_polygon( const CuspList& face, const CuspList& alphas, const 
 #endif
   int n = face.size();
   CuspList newface = face;
-
-  // local function to test for being finite singular:
-  Quad x;
-  auto is_sing = [sigmas, &x](const RatQuad& a) {
-    return (a.is_finite()) && cusp_index_with_translation(a, sigmas, x)>=0;
-  };
-
   // count the number of singular vertices:
-  sing = std::count_if(face.begin(), face.end(), is_sing);
+  sing = is_face_singular(face, sigmas);
 
   // all vertices should be principal, expect for triangles where at most one can be singular:
   assert ((sing==0) || ((sing==1)&&(n==3)));
@@ -390,12 +435,12 @@ CuspList normalise_polygon( const CuspList& face, const CuspList& alphas, const 
 #endif
   if (sing) // rotate until the (3rd and last) vertex is the singular one
     {
-      if (is_sing(face[0])) // move 1st to end
+      if (is_cusp_singular(face[0], sigmas)) // move 1st to end
         std::rotate(newface.begin(), newface.begin() + 1, newface.end());
       else
-        if (is_sing(face[1])) // move 1st two to end
+        if (is_cusp_singular(face[1], sigmas)) // move 1st two to end
           std::rotate(newface.begin(), newface.begin() + 2, newface.end());
-      assert (is_sing(newface[2]));
+      assert (is_cusp_singular(newface[2], sigmas));
 #ifdef DEBUG_NORMALISE
       cout<<"after moving singular vertex to the end, face is "<<newface<<endl;
 #endif
@@ -442,11 +487,16 @@ CuspList negate_polygon( const CuspList& face)
   return newface;
 }
 
-// extract all oriented faces up to SL2-equivalence, returning lists of
-// (0) principal triangles {a1, oo, a2} with a1 reduced fundamental
-// (1) principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
-// (2) principal hexagons  {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
-// (3) singular triangles  {a, oo, s} with a reduced fundamental, s singular
+// extract all oriented faces up to GL2-equivalence, rotation and reflection,
+// returning a single mixed list of:
+// - principal triangles {a1, oo, a2} with a1 reduced fundamental
+// - principal squares   {a1, oo, a2, a3} with a1 reduced fundamental
+// - principal hexagons  {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
+// - singular triangles  {a, oo, s} with a reduced fundamental, s singular
+
+// M32 returns a matrix (encoded as vector<vector<int>>) with one row
+// per polyhedron giving its boundary as a Z-linear combination of
+// oriented faces
 
 // (We no longer) Omit the following:
 // hexagon in a hexagonal cap (9,15,4,3,1)
@@ -455,6 +505,7 @@ CuspList negate_polygon( const CuspList& face)
 // Ditto the aaa-triangle in an aaas tetrahedron
 vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                             const CuspList& alphas, const CuspList& sigmas,
+                            vector<vector<int>>& M32,
                             int verbose)
 {
   // list of reduced polygons, up to GL2-equivalence, rotation and reflection
@@ -473,11 +524,6 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // numbers faces ignored as redundant
   //int nTignored=0, nQignored=0, nHignored=0;
 
-  // local function to test for being finite singular:
-  Quad x;
-  auto is_sing = [sigmas, &x](const RatQuad& a) {
-    return (!a.is_infinity()) && cusp_index_with_translation(a, sigmas, x)>=0;
-  };
 
   // For each polyhedron we keep a list of its oriented faces, indexed
   // by which it is GL2-equivalent to in the faces list; to encode the
@@ -487,15 +533,14 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // incongruent faces, we will convert these into simple vector<int>s
   // of length nfaces.
 
-  vector<vector<int>> all_poly_faces;
   int nfaces = 0; // will track faces.size();
 
   for ( const auto& P : all_polys )
     {
-      vector<int> Pfaces; // will be pushed onto all_poly_faces
+      vector<int> Pfaces; // will be pushed onto M32
 
       // count the number of singular vertices:
-      int Psing = std::count_if(P.vertices.begin(), P.vertices.end(), is_sing);
+      int Psing = is_face_singular(P.vertices, sigmas);
       if (verbose)
         {
           cout<<"\nprocessing a "<<poly_name(P);
@@ -612,29 +657,35 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       // We gave now processed all of P's faces; Pfaces contains
       if (verbose)
         cout << "indexes of faces of P: "<<Pfaces<<endl;
-      all_poly_faces.push_back(Pfaces);
+      M32.push_back(Pfaces);
     } // end of loop over polyhedra
 
   if (verbose)
     {
-      cout<<"After processing "<<all_polys.size()<<" polyhedra, we have\n";
+      cout<<"After processing "<<all_polys.size()<<" polyhedra, we have "<<nfaces<<" faces:\n";
       cout<<nT<<" aaa-triangles\n";
       cout<<nU<<" aas-triangles\n";
       cout<<nQ<<" squares\n";
       cout<<nH<<" hexagons\n";
     }
 
-  // convert the all_poly_faces from sparse to dense vector<int>s of length nfaces
-  cout << "Converting polyhedron face data into a face vector of length "<<nfaces<<endl;
-  for ( auto& P_faces : all_poly_faces)
+  // convert the M32 from sparse to dense vector<int>s of length nfaces
+  if (verbose)
+    cout << "Converting polyhedron face data into face vectors of length "<<nfaces<<endl;
+
+  for ( auto& P_faces : M32)
     {
       vector<int> face_vector(nfaces,0);
       for ( const auto& f : P_faces)
         {
           if (f>=0)
-            face_vector[f]++;
+            {
+              face_vector[f]++;
+            }
           else
-            face_vector[-1-f]--;
+            {
+              face_vector[-1-f]--;
+            }
         }
       P_faces = face_vector;
     }
