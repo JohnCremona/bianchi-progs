@@ -264,11 +264,11 @@ int main ()
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
       vector<vector<int>> M32;
       vector<int> redundant_faces;
-      verbose = 1; //VERBOSE;
+      verbose = VERBOSE;
       auto all_faces = get_faces(all_polys, alphas, sigmas, M32, redundant_faces, verbose);
       //int nfaces = all_faces.size();
 
-      verbose = 1; // VERBOSE;
+      verbose = VERBOSE;
 
       // split up faces into 4 types for reporting and output:
       vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
@@ -315,7 +315,7 @@ int main ()
           i++;
         }
 
-      verbose = 1; //VERBOSE;
+      verbose = VERBOSE;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
       for ( const auto& face : aaa_triangles)
