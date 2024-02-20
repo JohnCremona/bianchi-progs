@@ -263,41 +263,50 @@ int main ()
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
       vector<vector<int>> M32;
-      verbose = VERBOSE;
-      auto all_faces = get_faces(all_polys, alphas, sigmas, M32, verbose);
+      vector<int> redundant_faces;
+      verbose = 1; //VERBOSE;
+      auto all_faces = get_faces(all_polys, alphas, sigmas, M32, redundant_faces, verbose);
       //int nfaces = all_faces.size();
+
+      verbose = 1; // VERBOSE;
+
       // split up faces into 4 types for reporting and output:
       vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
       cout << "Faces up to GL2-action and reflection:\n";
-      int sing, i=0;
+      int sing, red, i=0;
       for (const auto& face: all_faces)
         {
           sing = is_face_singular(face, sigmas);
+          red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
           int n = face.size();
           string s;
           if (n==4)
             {
-              squares.push_back(face);
+              if (!red) squares.push_back(face);
               s = "square";
+              if (red) s+= " (redundant)";
             }
           else
             {
               if (n==6)
                 {
-                  hexagons.push_back(face);
+                  if (!red) hexagons.push_back(face);
                   s = "hexagon";
+                  if (red) s+= " (redundant)";
                 }
               else
                 {
                   if (sing)
                     {
-                      aas_triangles.push_back(face);
+                      if (!red) aas_triangles.push_back(face);
                       s = "aas triangle";
+                      if (red) s+= " (redundant)";
                     }
                   else
                     {
-                      aaa_triangles.push_back(face);
+                      if (!red) aaa_triangles.push_back(face);
                       s = "aaa triangle";
+                      if (red) s+= " (redundant)";
                     }
                 }
             }
@@ -305,33 +314,8 @@ int main ()
             cout<<i<<" ("<<s<<"): "<<face<<endl;
           i++;
         }
-      int npolys = all_polys.size();
-      cout<<"Face boundaries:\n";
-      for (int i=0; i<npolys; i++)
-        {
-          auto P = all_polys[i];
-          cout<<i<<" ("<<poly_name(P)<<"): "<<M32[i]<<endl;//" from "<<P<<endl;
-        }
-      // Check for duplicates:
-      int ndups = 0;
-      for (int i=0; i<npolys; i++)
-        for (int k=i+1; k<npolys; k++)
-          {
-            if (M32[i]==M32[k])
-              {
-                cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
-                ndups++;
-              }
-          }
-      if (ndups)
-        cout << ndups << " pairs of congruent faces found" << endl;
-      else
-        cout << "No pairs of congruent faces found" << endl;
-      long r = rank(M32);
-      cout << "After processing "<< npolys
-           << " polyhedra, the boundary matrix has "<<M32.size()
-           << " rows, and rank "<<r<<endl;
-      verbose = VERBOSE;
+
+      verbose = 1; //VERBOSE;
       int all_ok = 1;
       cout<<aaa_triangles.size()<<" aaa-triangles\n";
       for ( const auto& face : aaa_triangles)

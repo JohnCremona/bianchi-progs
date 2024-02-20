@@ -506,6 +506,7 @@ CuspList negate_polygon( const CuspList& face)
 vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                             const CuspList& alphas, const CuspList& sigmas,
                             vector<vector<int>>& M32,
+                            vector<int>& redundant_faces,
                             int verbose)
 {
   // list of reduced polygons, up to GL2-equivalence, rotation and reflection
@@ -519,11 +520,8 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // orientation.
   vector<int> face_copy_index, reverse_face_copy_index;
 
-  // numbers of incongruent faces of each type (up to rotation and reflection)
-  int nT=0, nU=0, nQ=0, nH=0;
-  // numbers faces ignored as redundant
-  //int nTignored=0, nQignored=0, nHignored=0;
-
+  // indices of faces of each type (for ease of sorting later)
+  vector<int> iT, iU, iQ, iH;
 
   // For each polyhedron we keep a list of its oriented faces, indexed
   // by which it is GL2-equivalent to in the faces list; to encode the
@@ -533,6 +531,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // incongruent faces, we will convert these into simple vector<int>s
   // of length nfaces.
 
+  int npolys = all_polys.size();
   int nfaces = 0; // will track faces.size();
 
   for ( const auto& P : all_polys )
@@ -548,27 +547,11 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
           cout<<endl;
         }
 
-      auto vefx = VEFx(P);
       for ( const auto& F : P.faces )
-      {
-        // int redundant = 0;
+       {
         int n = F.size();
         if (verbose)
           cout<<"\nprocessing face "<<F<<endl;
-        // if ((n==4) && (vefx[3]==1))
-        //   {
-        //     if (verbose)
-        //       cout << " - ignoring the square face of a " << poly_name(P) << endl;
-        //     nQignored++;
-        //     redundant = 1;
-        //   }
-        // if ((n==6) && (vefx[4]==1))
-        //   {
-        //     if (verbose)
-        //       cout << " - ignoring the hexagon face of a " << poly_name(P) << endl;
-        //     nHignored++;
-        //     redundant = 1;
-        //   }
         int Fsing;
         auto face = normalise_polygon(F, alphas, sigmas, Fsing);
         if (verbose)
@@ -577,13 +560,6 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
             if (Fsing) cout<<" (singular)";
             cout<<endl;
           }
-        // if (Psing && !Fsing)
-        //   {
-        //     if (verbose)
-        //       cout << " - ignoring the aaa face of an aaas " << poly_name(P) << endl;
-        //     nTignored++;
-        //     redundant = 1;
-        //   }
 
         // See if this face is already known, up to orientation; if so
         // we record this in Pfaces; otherwise we add a new face to
@@ -642,17 +618,13 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                 reverse_face_copy_index.push_back(nfaces);
               }
           }
+        // update index per type
+        vector<int>& ind = (n==3? (Fsing? iU : iT) : (n==4? iQ : iH));
+        ind.push_back(nfaces);
+
         Pfaces.push_back(nfaces);
         nfaces++;
         if (verbose) cout<<" nfaces incremented to "<<nfaces<<endl;
-        if (n==3)
-          {
-            if (Fsing) nU++; else nT++;
-          }
-        if (n==4)
-          nQ++;
-        if (n==6)
-          nH++;
       } // end of loop over faces of one polyhedron P
       // We gave now processed all of P's faces; Pfaces contains
       if (verbose)
@@ -662,12 +634,21 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
 
   if (verbose)
     {
-      cout<<"After processing "<<all_polys.size()<<" polyhedra, we have "<<nfaces<<" faces:\n";
-      cout<<nT<<" aaa-triangles\n";
-      cout<<nU<<" aas-triangles\n";
-      cout<<nQ<<" squares\n";
-      cout<<nH<<" hexagons\n";
+      cout<<"After processing "<<npolys<<" polyhedra, we have "<<nfaces<<" faces:\n";
+      cout<<iT.size()<<" aaa-triangles\n";
+      cout<<iU.size()<<" aas-triangles\n";
+      cout<<iQ.size()<<" squares\n";
+      cout<<iH.size()<<" hexagons\n";
     }
+
+  // We will reorder the faces as H, Q, T, U: when we use the HNF to
+  // eliminate redundant faces we are more likely to eliminate those
+  // near the beginning
+  vector<int> perm;
+  perm.insert(perm.end(), iH.begin(), iH.end());
+  perm.insert(perm.end(), iQ.begin(), iQ.end());
+  perm.insert(perm.end(), iT.begin(), iT.end());
+  perm.insert(perm.end(), iU.begin(), iU.end());
 
   // convert the M32 from sparse to dense vector<int>s of length nfaces
   if (verbose)
@@ -687,9 +668,53 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
               face_vector[-1-f]--;
             }
         }
-      P_faces = face_vector;
+      // Now apply the permutation:
+      P_faces.resize(nfaces);
+      for (int i=0; i<nfaces; i++)
+        P_faces[i] = face_vector[perm[i]];
     }
-  return faces;
+
+  // permute the list of faces too
+  vector<CuspList> sorted_faces(nfaces);
+  for (int i=0; i<nfaces; i++)
+    sorted_faces[i] = faces[perm[i]];
+
+  long r = rank(M32);
+  if (verbose)
+    {
+      cout << "After processing "<< npolys
+           << " polyhedra, the boundary matrix has "<<M32.size()
+           << " rows, and rank "<<r<<endl;
+
+      cout<<"Polyhedron face boundaries:\n";
+      for (int i=0; i<npolys; i++)
+        {
+          auto P = all_polys[i];
+          cout<<i<<" ("<<poly_name(P)<<"): "<<M32[i]<<endl;//" from "<<P<<endl;
+        }
+    }
+  // Check for duplicates:
+  int ndups = 0;
+  for (int i=0; i<npolys; i++)
+    for (int k=i+1; k<npolys; k++)
+      {
+        if (M32[i]==M32[k])
+          {
+            cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
+            ndups++;
+          }
+      }
+
+  if (ndups)
+    cout << ndups << " pairs of congruent faces found" << endl;
+  else
+    cout << "No pairs of congruent faces found" << endl;
+
+  // Find redundant faces: these have a pivot=1 in the HNF of the face
+  // boundary natrix@
+
+  redundant_faces = HNF_pivots(M32);
+  return sorted_faces;
 }
 
 // Return j' so that M_a(a)=alphas[j'] where a=alphas[j]

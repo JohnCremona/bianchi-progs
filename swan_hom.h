@@ -47,7 +47,12 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 // NB Both matrices are formed by rows, and act on row-vectors on the right
 vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
+// Return the rank of a matrix (encoded as vector<vector<int>>)
 long rank(const vector<vector<int>>& M);
-
+// Return the HNF of a matrix (input and output encoded as vector<vector<int>>)
+vector<vector<int>> HNF(const vector<vector<int>>& M);
+// Return a list of the pivotal columns of the HNF of a matrix
+// (encoded as vector<vector<int>>) for which the pivots are =1
+vector<int> HNF_pivots(const vector<vector<int>>& M);
 
 #endif

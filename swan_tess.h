@@ -57,6 +57,7 @@ CuspList negate_polygon( const CuspList& face);
 vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                             const CuspList& alphas, const CuspList& sigmas,
                             vector<vector<int>>& M32,
+                            vector<int>& redundant_faces,
                             int verbose=0);
 
 // Return complete string encoding one face

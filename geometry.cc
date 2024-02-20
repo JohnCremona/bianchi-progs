@@ -380,8 +380,6 @@ int check_aaa_triangle(const POLYGON& T, int verbose)
     cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[tri[0]], Mj=M_alphas[tri[1]], Mk=M_alphas[tri[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
-  if (verbose)
-    cout<<"x = "<<x<<endl;
   return (x.is_integral());
 }
 

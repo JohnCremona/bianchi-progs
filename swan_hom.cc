@@ -284,9 +284,21 @@ void make_mat( fmpz_mat_t A, const vector<vector<int>>& M)
     {
       const vector<int>& row = M[i];
       for (long j=0; j<ncols; j++)
-        {
-          fmpz_set_si(fmpz_mat_entry(A, i, j), row[j]);
-        }
+        fmpz_set_si(fmpz_mat_entry(A, i, j), row[j]);
+    }
+}
+
+// Inversele, given a FLINT fmpz_mat, construct a matrix as vector<vector<int>>
+
+void unmake_mat( fmpz_mat_t A, vector<vector<int>>& M)
+{
+  long nrows = fmpz_mat_nrows(A), ncols = fmpz_mat_ncols(A);
+  for (long i=0; i<nrows; i++)
+    {
+      vector<int> row(ncols);
+      for (long j=0; j<ncols; j++)
+        row[j] = fmpz_get_si(fmpz_mat_entry(A, i, j));
+      M.push_back(row);
     }
 }
 
@@ -298,6 +310,49 @@ long rank(const vector<vector<int>>& M)
   long r = fmpz_mat_rank(A);
   fmpz_mat_clear(A);
   return r;
+}
+
+vector<vector<int>> HNF(const vector<vector<int>>& M)
+{
+  fmpz_mat_t A;
+  fmpz_mat_init(A, M.size(), M[0].size());
+  make_mat(A, M);
+
+  cout << "Before HNF:\n";
+  fmpz_mat_print_pretty(A);
+  cout<<endl;
+
+  fmpz_mat_hnf(A, A);
+
+  cout << "After HNF:\n";
+  fmpz_mat_print_pretty(A);
+  cout<<endl;
+
+  vector<vector<int>> H;
+  unmake_mat(A, H);
+  fmpz_mat_clear(A);
+  return H;
+}
+
+// Return a list of the pivotal columns of the HNF of a matrix
+// (encoded as vector<vector<int>>) for which the pivots are =1
+vector<int> HNF_pivots(const vector<vector<int>>& M)
+{
+  vector<int> ans;
+  auto H = HNF(M);
+  for (const auto& row : H)
+    {
+      // find first nonzero entry (if any)
+      auto search = std::find_if(row.begin(), row.end(), [](int x){return (x!=0);});
+      if (search==row.end())
+        continue;
+      if (*search >1)
+        continue;
+      int j = search-row.begin();
+      // cout << "pivot=1 in column "<<j<<" in row "<<row<<endl;
+      ans.push_back(j);
+    }
+  return ans;
 }
 
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
