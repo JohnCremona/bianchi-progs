@@ -935,9 +935,10 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
   CuspList tri1 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w-1,TWO)};
   CuspList tri2 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w+1,TWO)};
   long d = Quad::d;
+  int temp;
   for (const auto& T : aaa_triangles)
     {
-      CuspList T2 = reverse_polygon(T);
+      CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
       if ((T==tri0) || (T2==tri0))
         {
           // if (to_screen) cout << "No T line for " << T << " as it is a universal one" << endl;

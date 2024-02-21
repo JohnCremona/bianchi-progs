@@ -2312,6 +2312,7 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False,
                        oriented_faces, face_index,
                        polyhedron_relation,
                        polygon_parameters,
+                       std_poly,
                        is_poly_principal)
 
     kdata = make_k(d)
