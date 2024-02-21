@@ -520,6 +520,12 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // orientation.
   vector<int> face_copy_index, reverse_face_copy_index;
 
+  int npoly=0, npolys = all_polys.size();
+  int nfaces = 0; // will track faces.size();
+
+  // check if poly used for a face redundancy
+  vector<int> used_polys(all_polys.size(), 0);
+
   // indices of faces of each type (for ease of sorting later)
   vector<int> iT, iU, iQ, iH;
 
@@ -530,9 +536,6 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // orientation.  At the end, when we know the total number nfaces of
   // incongruent faces, we will convert these into simple vector<int>s
   // of length nfaces.
-
-  int npolys = all_polys.size();
-  int nfaces = 0; // will track faces.size();
 
   for ( const auto& P : all_polys )
     {
@@ -546,7 +549,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       if (verbose)
         {
           cout<<"\nprocessing a "<<poly_name(P);
-          if (Psing) cout<<" (an aaas tetrahedron)";
+          if (Psing && P.faces.size()==4) cout<<" (an aaas tetrahedron)";
           if (redn==4)  cout<<" (square face will be redundant)";
           if (redn==6)  cout<<" (hexagonal face will be redundant)";
           cout<<endl;
@@ -554,9 +557,9 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
 
       for ( const auto& F : P.faces )
        {
-        if (verbose)
-          cout<<"\nprocessing face "<<F<<endl;
         int n = F.size(), Fsing;
+        if (verbose)
+          cout<<"\nprocessing "<<n<<"-face "<<F<<endl;
 
         auto face = normalise_polygon(F, alphas, sigmas, Fsing);
         int redundant = (n==redn) || (Psing&&!Fsing);
@@ -585,11 +588,13 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                     if (verbose)
                       cout << " - marking face "<<i<<" as redundant" << endl;
                     redundant_faces.push_back(i);
+                    used_polys[npoly] = 1;
                   }
                 else
                   {
                     if (verbose)
                       cout << " - face "<<i<<" already marked as redundant" << endl;
+                    used_polys[npoly] = 1;
                   }
               }
             continue;
@@ -608,11 +613,13 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
                     if (verbose)
                       cout << " - marking face "<<i<<" as redundant" << endl;
                     redundant_faces.push_back(i);
+                    used_polys[npoly] = 1;
                   }
                 else
                   {
                     if (verbose)
                       cout << " - face "<<i<<" already marked as redundant" << endl;
+                    used_polys[npoly] = 1;
                   }
               }
             continue;
@@ -655,6 +662,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
         if (redundant)
           {
             redundant_faces.push_back(nfaces);
+            used_polys[npoly] = 1;
           }
         // update index per type
         vector<int>& ind = (n==3? (Fsing? iU : iT) : (n==4? iQ : iH));
@@ -671,6 +679,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       if (verbose)
         cout << " - indices of faces of P: "<<Pfaces<<endl;
       M32.push_back(Pfaces);
+      npoly++;
     } // end of loop over polyhedra
 
   if (verbose)
@@ -684,16 +693,6 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       cout<<iQ.size()<<" squares\n";
       cout<<iH.size()<<" hexagons\n";
     }
-
-  // We will reorder the faces as H, Q, T, U: when we use the HNF to
-  // eliminate redundant faces we are more likely to eliminate those
-  // near the beginning
-  vector<int> perm(nfaces);
-  std::iota(perm.begin(), perm.end(), 0); // identity now!
-  // perm.insert(perm.end(), iH.begin(), iH.end());
-  // perm.insert(perm.end(), iQ.begin(), iQ.end());
-  // perm.insert(perm.end(), iT.begin(), iT.end());
-  // perm.insert(perm.end(), iU.begin(), iU.end());
 
   // convert the M32 from sparse to dense vector<int>s of length nfaces
   if (verbose)
@@ -713,17 +712,8 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
               face_vector[-1-f]--;
             }
         }
-      // Now apply the permutation:
-      P_faces.resize(nfaces);
-      for (int i=0; i<nfaces; i++)
-        P_faces[i] = face_vector[perm[i]];
-      // P_faces = face_vector;
+      P_faces = face_vector;
     }
-
-  // permute the list of faces too
-  vector<CuspList> sorted_faces(nfaces);
-  for (int i=0; i<nfaces; i++)
-    sorted_faces[i] = faces[perm[i]];
 
   long r = rank(M32);
   if (verbose)
@@ -756,12 +746,29 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   else
     cout << "No pairs of congruent faces found" << endl;
 
-  // Find redundant faces: these have a pivot=1 in the HNF of the face
-  // boundary matrix: NO this doesn't wotk pproperly (e.g. d=5, it
-  // omits a square it should not)
-  // redundant_faces = HNF_pivots(M32);
+  // Look for any other redundant faces (appearing with coefficient +1 or -1 in a polyhedron)
+  cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
+  for (int i=0; i<nfaces; i++)
+    {
+      if (std::find(redundant_faces.begin(), redundant_faces.end(), i) != redundant_faces.end())
+        continue;
+      for (int j=0; j<npolys; j++)
+        {
+          if (used_polys[j])
+            continue;
+          if (abs(M32[j][i])==1)
+            {
+              cout << "Extra redundant "<<faces[i].size()<<"-face #"<<i
+                   <<" from polyhedron #"<<j<<" with faces "<<M32[j]<<endl;
+              redundant_faces.push_back(i);
+              used_polys[j]=1;
+              break;
+            }
+        }
+    }
+  cout << " - after final test, redundant faces are "<<redundant_faces<<endl;
 
-  return sorted_faces;
+  return faces;
 }
 
 // Return j' so that M_a(a)=alphas[j'] where a=alphas[j]
