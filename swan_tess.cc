@@ -747,7 +747,8 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
     cout << "No pairs of congruent faces found" << endl;
 
   // Look for any other redundant faces (appearing with coefficient +1 or -1 in a polyhedron)
-  cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
+  if (verbose)
+    cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
   for (int i=0; i<nfaces; i++)
     {
       if (std::find(redundant_faces.begin(), redundant_faces.end(), i) != redundant_faces.end())
@@ -758,15 +759,17 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
             continue;
           if (abs(M32[j][i])==1)
             {
-              cout << "Extra redundant "<<faces[i].size()<<"-face #"<<i
-                   <<" from polyhedron #"<<j<<" with faces "<<M32[j]<<endl;
+              if (verbose)
+                cout << "Extra redundant "<<faces[i].size()<<"-face #"<<i
+                     <<" from polyhedron #"<<j<<" with faces "<<M32[j]<<endl;
               redundant_faces.push_back(i);
               used_polys[j]=1;
               break;
             }
         }
     }
-  cout << " - after final test, redundant faces are "<<redundant_faces<<endl;
+  if (verbose)
+    cout << " - after final test, redundant faces are "<<redundant_faces<<endl;
 
   return faces;
 }

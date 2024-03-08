@@ -61,9 +61,13 @@ CuspList sort_alphas(const CuspList& A,
 {
   CuspList alist, a1list, a2list, a3list;
   map<Quad, vector<Quad>, Quad_comparison> alist_by_denom; // list of numerators for each denominator
-  for (const auto& a : A)
+  Quad temp;
+  for (const auto& a0 : A)
     {
-      assert (a.in_rectangle());
+      RatQuad a = reduce_to_rectangle(a0, temp);
+      if (!temp.is_zero() && debug)
+        cout<<"sort_alphas replacing "<<a0<<" by "<<a<<", its translate by "<<temp<<endl;
+      //assert (a.in_rectangle());
       Quad r = a.num(), s = a.den();
       if (div(s,r)) // a is integral
         {
@@ -869,6 +873,7 @@ CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist, INT maxn, int debug, int verbose)
 {
   INT m;
+  Quad temp;
   if (verbose)
     {
       m = max_dnorm(alphas);
@@ -986,7 +991,6 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
             }
           for ( auto& a : extras)
             {
-              Quad temp;
               RatQuad ca = a.conj();
               CuspList blist = {a,-a,ca,-ca};
               for ( auto& b : blist)

@@ -181,8 +181,12 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
 
   // Now process the other sigmas (if any)
   Quad temp;
-  for ( auto s : slist) // not const or reference as we may change it
+  for ( auto s0 : slist) // not const or reference as we may change it
     {
+      RatQuad s = reduce_to_rectangle(s0, temp);
+      if (!temp.is_zero() && verbose)
+        cout<<"sort_singular_points replacing "<<s0<<" by "<<s<<", its translate by "<<temp<<endl;
+
       if (verbose)
         cout <<"sigma = "<<s<<endl;
       assert (s.in_rectangle());

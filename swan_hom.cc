@@ -1,9 +1,13 @@
 // FILE SWAN_HOM.CC: implementation of functions for computing integral 1-homology
 
+#define PARI_SNF
+
 #include "swan_utils.h"
 #include "swan_tess.h"
 #include "swan_hom.h"
-
+#ifdef PARI_SNF
+#include "pari_snf.h"
+#endif
 #include <flint/fmpz_mat.h>
 
 // Given alphas (and pluspairs, minuspairs, fours), sigmas, faces,
@@ -288,7 +292,7 @@ void make_mat( fmpz_mat_t A, const vector<vector<int>>& M)
     }
 }
 
-// Inversele, given a FLINT fmpz_mat, construct a matrix as vector<vector<int>>
+// Inversely, given a FLINT fmpz_mat, construct a matrix as vector<vector<int>>
 
 void unmake_mat( fmpz_mat_t A, vector<vector<int>>& M)
 {
@@ -355,6 +359,38 @@ vector<int> HNF_pivots(const vector<vector<int>>& M)
   return ans;
 }
 
+void SNF(fmpz_mat_t& S, fmpz_mat_t& A)
+{
+  long nrows = fmpz_mat_nrows(A), ncols = fmpz_mat_ncols(A);
+  // cout<<"In SNF(A) with "<<nrows<<" rows and "<<ncols<<" columns"<<endl;
+  fmpz_mat_t H, H0, Ht;
+  fmpz_mat_init(H, nrows, ncols);
+  fmpz_mat_init(H0, nrows, ncols);
+  fmpz_mat_init(Ht, ncols, nrows);
+  fmpz_mat_set(H, A);
+  // fmpz_mat_hnf(H, H);
+  // cout<<" - initial HNF step done"<<endl;
+  int ok = 0;
+  int nsteps = 0;
+  while (!ok)
+    {
+      nsteps++;
+      fmpz_mat_set(H0, H);  // keep current H in H0
+      fmpz_mat_transpose(Ht, H);
+      fmpz_mat_hnf(Ht, Ht); // transpose and hnf
+      fmpz_mat_transpose(H, Ht);
+      fmpz_mat_hnf(H, H);   // transpose back and hnf again
+      ok = fmpz_mat_equal(H, H0); // see if anything changed
+      // cout<<" - step "<<nsteps<<" done"<<endl;
+    }
+  // cout<<"stabilised after "<<nsteps<<" steps. Now doing final snf.\n";
+  fmpz_mat_snf(S, H);
+  // cout<<"SNF finished"<<endl;
+  fmpz_mat_clear(H);
+  fmpz_mat_clear(H0);
+  fmpz_mat_clear(Ht);
+}
+
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
 // M10: 1-chains -> 0-chains (as from edge_boundary_matrix())
 // M21: 2-chains -> 1-chains (as from face_boundary_matrix())
@@ -369,12 +405,12 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   assert (n1==(long)M21[0].size());
 
   // convert from vector<vector<int>> to fmpz_mats:
-  fmpz_mat_t A10, A21, Z, U, H, M, S;
+  fmpz_mat_t A10, A21, Z, U, H, M;
   fmpz_mat_init(A10, n1, n0);
   fmpz_mat_init(A21, n2, n1);
   make_mat(A10, M10); // size n1xn0
   make_mat(A21, M21); // size n2xn1
-  if (debug)
+  if (debug>2)
     {
       cout << "M10 as a FLINT matrix:\n";
       fmpz_mat_print_pretty(A10);
@@ -415,7 +451,7 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   if (debug)
     {
       cout<<"A21*U^{-1} has size "<<n2<<" x "<<n1<<", and r="<<r<<endl;
-      fmpz_mat_print_pretty(A21);
+      // fmpz_mat_print_pretty(A21);
       cout<<endl;
     }
   fmpz_mat_window_init(M, A21, 0, r, n2, n1);
@@ -423,50 +459,52 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   if (debug)
     {
       cout<<"The window has size "<<fmpz_mat_nrows(M)<<" x "<<fmpz_mat_ncols(M)<<endl;
-      fmpz_mat_print_pretty(M);
+      // fmpz_mat_print_pretty(M);
       cout<<endl;
     }
   cout << "Homology rank = " << homrank << endl;
   assert (fmpz_mat_nrows(M)==n2);
   assert (fmpz_mat_ncols(M)==n1-r);
 
+#ifdef PARI_SNF
+  vector<vector<int>> M21a;
+  unmake_mat(M, M21a);
+  vector<int> v = invariants(M21a);
+  cout << "invariants from pari: "<<v<<endl;
+#else
+  fmpz_mat_t S;
   // Compute Smith Normal Form of that:
   fmpz_mat_init_set(S, M); // to set to the right size
   if (debug)
     {
       cout<<" (about to compute SNF of M with "<<fmpz_mat_nrows(M)<<" rows, "<<fmpz_mat_ncols(M)<<" columns)" <<endl;
       cout<<"=============="<<endl;
-      fmpz_mat_print(S);
-      cout<<"\n=============="<<endl;
+      // fmpz_mat_print(S);
+      // cout<<"\n=============="<<endl;
     }
 
-  fmpz_mat_snf(S, M);
-
-  if (debug)
-    {
-      cout<<"S = \n";
-      fmpz_mat_print_pretty(S);
-      cout<<endl;
-      cout<< "("<<fmpz_mat_nrows(S)<<" rows, "<<fmpz_mat_ncols(S)<<" columns)" <<endl;
-    }
+  SNF(S, M);
 
   // Extract the diagonal entries of S (omitting any 1s):
   long n = min(n2, n1-r);
-  vector<int> v;
+  vector<int> vv;
   for (long i=0; i<n; i++)
     {
       int m = fmpz_get_si(fmpz_mat_entry(S, i, i));
       if (debug) cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
       if (m!=1)
-        v.push_back(m);
+        vv.push_back(m);
     }
-
+  cout << "invariants from flint: "<<vv<<endl;
+  fmpz_mat_clear(S);
+  if (v!=vv)
+    cout<<"pari and flint do not agree"<<endl;
+#endif
   fmpz_mat_window_clear(M);
   fmpz_mat_clear(A10);
   fmpz_mat_clear(A21);
   fmpz_mat_clear(Z);
   fmpz_mat_clear(H);
-  fmpz_mat_clear(S);
   fmpz_mat_clear(U);
 
   return v;

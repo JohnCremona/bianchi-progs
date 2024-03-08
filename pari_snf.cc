@@ -1,0 +1,51 @@
+// FILE PARI_SNF.CC: implementation of functions for computing invariants of an integer matrix
+
+#include "pari_snf.h"
+#include <eclib/interface.h> // for getenv_with_default
+#include <pari/pari.h>
+
+#define DEFAULT_PARI_SIZE 100000000
+#define DEFAULT_PARI_MAX_PRIME 1000000
+
+void eclib_pari_init(long max_prime=DEFAULT_PARI_MAX_PRIME)
+{
+  if (!avma) {
+    long pari_size = strtol(getenv_with_default("PARI_SIZE", "DEFAULT_PARI_SIZE").c_str(), NULL, 0);
+    if (pari_size==0) // e.g. syntax error in the environment variable PARI_SIZE
+      pari_size = DEFAULT_PARI_SIZE;
+#ifdef DEBUG_GPFACT
+    std::cout<<"calling pari_init with pari_size = "<<pari_size<<endl;
+#endif
+    // the first parameter is the maximum stack size in bytes
+    // the second parameter is the maximum precomputed prime
+    pari_init(pari_size, max_prime);
+  }
+}
+
+vector<int> invariants(const vector<vector<int>>& M)
+{
+  eclib_pari_init();
+  pari_sp av=avma;  // store pari stack pointer
+
+  long nrows = M.size(), ncols = M[0].size();
+  // cout << "\nnrows="<<nrows<<", ncols="<<ncols<<endl;
+  GEN A = zeromatcopy(ncols, nrows);
+  // cout << "created A"<<endl;
+  for (int i=0; i<nrows; i++)
+    for (int j=0; j<ncols; j++)
+      gcoeff(A, j+1, i+1) = stoi(M[i][j]);
+  // cout << "filled A"<<endl;
+  GEN S = ZM_snf(A);
+  // cout << "computed S"<<endl;
+  long s = itos(gel(matsize(S), 2));
+  // cout << "computed size of S = "<<s<<endl;
+  vector<int> invs;
+  for (int i=0; i<s; i++)
+    {
+      int d = itos(gel(S,s-i)); // reversing order
+      if (d!=1)
+        invs.push_back(d);
+    }
+  avma=av;
+  return invs;
+}
