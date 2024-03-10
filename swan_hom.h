@@ -55,4 +55,6 @@ vector<vector<int>> HNF(const vector<vector<int>>& M);
 // (encoded as vector<vector<int>>) for which the pivots are =1
 vector<int> HNF_pivots(const vector<vector<int>>& M);
 
+void show_invariants(const vector<int>& v);
+
 #endif

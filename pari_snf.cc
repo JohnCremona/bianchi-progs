@@ -4,7 +4,8 @@
 #include <eclib/interface.h> // for getenv_with_default
 #include <pari/pari.h>
 
-#define DEFAULT_PARI_SIZE 100000000
+// This is only the default of the environmant variable PARI_SIZE is not set
+#define DEFAULT_PARI_SIZE 1000000000 // 10^9 = 1GB approx
 #define DEFAULT_PARI_MAX_PRIME 1000000
 
 void eclib_pari_init(long max_prime=DEFAULT_PARI_MAX_PRIME)
@@ -37,7 +38,7 @@ vector<int> invariants(const vector<vector<int>>& M)
   // cout << "filled A"<<endl;
   GEN S = ZM_snf(A);
   // cout << "computed S"<<endl;
-  long s = itos(gel(matsize(S), 2));
+  long s = lg(S)-1; // itos(gel(matsize(S), 2));
   // cout << "computed size of S = "<<s<<endl;
   vector<int> invs;
   for (int i=0; i<s; i++)

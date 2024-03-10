@@ -43,9 +43,11 @@ int main ()
         cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = "<<D<<endl;
 
       // Read precomputed alphas and sigmas
-      cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".at..." <<flush;
+      if (verbose)
+        cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".at..." <<flush;
       Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
-      cout << "done..."<<endl;
+      if (verbose)
+        cout << "done..."<<endl;
 
       // Sort alphas:
       vector<vector<Quad>> pluspairs, minuspairs, fours;
@@ -58,40 +60,53 @@ int main ()
       // Find all principal polyhedra:
       verbose = VERBOSE;
       int n;
-      cout << "Constructing principal polyhedra from alphas";
-      if (debug) cout << ": "<<alphas;
-      cout << "..." << flush;
-      if (verbose) cout<<endl;
+      if (verbose)
+        {
+          cout << "Constructing principal polyhedra from alphas";
+          if (debug) cout << ": "<<alphas;
+          cout << "..." << flush;
+          cout<<endl;
+        }
       vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
       n = princ_polys.size();
-      if (n==1)
-        cout << "done: 1 principal polyhedron constructed:"<<endl;
-      else
-        cout << "done: " << n << " principal polyhedra constructed:"<<endl;
+      if (verbose)
+        {
+          if (n==1)
+            cout << "done: 1 principal polyhedron constructed:"<<endl;
+          else
+            cout << "done: " << n << " principal polyhedra constructed:"<<endl;
+        }
       map<string,int> poly_counts;
       for (const auto& P: princ_polys)
         poly_counts[poly_name(P)]++;
-      for (const auto& pc : poly_counts)
-        cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
+      if (verbose)
+        for (const auto& pc : poly_counts)
+          cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
       // Find all singular polyhedra:
       verbose = VERBOSE;
-      cout << "Constructing singular polyhedra..."<<flush;
+      if (verbose)
+        cout << "Constructing singular polyhedra..."<<flush;
       vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
       n = sing_polys.size();
-      if (n==1)
-        cout << "done: 1 singular polyhedron constructed" <<endl;
-      else
-        cout << "done: " << n << " singular polyhedra constructed" <<endl;
+      if (verbose)
+        {
+          if (n==1)
+            cout << "done: 1 singular polyhedron constructed" <<endl;
+          else
+            cout << "done: " << n << " singular polyhedra constructed" <<endl;
+        }
       map<string,int> spoly_counts;
       for (const auto& P: sing_polys)
         spoly_counts[poly_name(P)]++;
-      for (const auto& pc : spoly_counts)
-        cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
+      if (verbose)
+        for (const auto& pc : spoly_counts)
+          cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
 
       vector<POLYHEDRON> all_polys = sing_polys;
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
-      cout << "\nFinding all faces up to GL2-equivalence" << endl;
+      if (verbose)
+        cout << "\nFinding all faces up to GL2-equivalence" << endl;
       vector<vector<int>> M32;
       vector<int> redundant_faces;
       verbose = VERBOSE;
@@ -102,7 +117,8 @@ int main ()
 
       // split up faces into 4 types for reporting and output:
       vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
-      cout << "Faces up to GL2-action and reflection:\n";
+      if (verbose)
+        cout << "Faces up to GL2-action and reflection:\n";
       int sing, red, i=0;
       for (const auto& face: all_faces)
         {
@@ -113,30 +129,42 @@ int main ()
           if (n==4)
             {
               if (!red) squares.push_back(face);
-              s = "square";
-              if (red) s+= " (redundant)";
+              if (verbose)
+                {
+                  s = "square";
+                  if (red) s+= " (redundant)";
+                }
             }
           else
             {
               if (n==6)
                 {
                   if (!red) hexagons.push_back(face);
-                  s = "hexagon";
-                  if (red) s+= " (redundant)";
+                  if (verbose)
+                    {
+                      s = "hexagon";
+                      if (red) s+= " (redundant)";
+                    }
                 }
               else
                 {
                   if (sing)
                     {
                       if (!red) aas_triangles.push_back(face);
-                      s = "aas triangle";
-                      if (red) s+= " (redundant)";
+                      if (verbose)
+                        {
+                          s = "aas triangle";
+                          if (red) s+= " (redundant)";
+                        }
                     }
                   else
                     {
                       if (!red) aaa_triangles.push_back(face);
-                      s = "aaa triangle";
-                      if (red) s+= " (redundant)";
+                      if (verbose)
+                        {
+                          s = "aaa triangle";
+                          if (red) s+= " (redundant)";
+                        }
                     }
                 }
             }
@@ -147,7 +175,8 @@ int main ()
 
       verbose = VERBOSE;
       int all_ok = 1;
-      cout<<aaa_triangles.size()<<" aaa-triangles\n";
+      if (verbose)
+        cout<<aaa_triangles.size()<<" aaa-triangles\n";
       for ( const auto& face : aaa_triangles)
         {
           if (verbose) cout <<face << " --> ";
@@ -158,7 +187,8 @@ int main ()
             cout<<"aaa-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<aas_triangles.size()<<" aas-triangles\n";
+      if (verbose)
+        cout<<aas_triangles.size()<<" aas-triangles\n";
       for ( const auto& face : aas_triangles)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
@@ -167,7 +197,8 @@ int main ()
             cout<<"aas-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<squares.size()<<" squares\n";
+      if (verbose)
+        cout<<squares.size()<<" squares\n";
       for ( const auto& face : squares)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
@@ -176,7 +207,8 @@ int main ()
             cout<<"square "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<hexagons.size()<<" hexagons\n";
+      if (verbose)
+        cout<<hexagons.size()<<" hexagons\n";
       for ( const auto& face : hexagons)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
@@ -186,7 +218,10 @@ int main ()
           all_ok = ok &&all_ok;
         }
       if (all_ok)
-        cout<<"all encodings check out OK" << endl;
+        {
+          if (verbose)
+            cout<<"all encodings check out OK" << endl;
+        }
       else
         {
           cout<<"*****************not all encodings check out OK" << endl;
@@ -201,7 +236,7 @@ int main ()
       // Compute integral homology
 
       debug = DEBUG;
-      if (debug)
+      if (verbose||debug)
         {
           cout<<"alphas: "<<alphas<<endl;
           cout<<"sigmas: "<<sigmas<<endl;
@@ -214,8 +249,9 @@ int main ()
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);
-      cout << "GL2 integral homology invariants: " << invariants[0] << endl;
-      cout << "SL2 integral homology invariants: " << invariants[1] << endl;
+
+      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
+      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
 
 
       cout<<"----------------------------------------------------------------------------------\n";

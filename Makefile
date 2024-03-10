@@ -82,7 +82,7 @@ endif
 
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-LFLAGS = $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
 
@@ -97,18 +97,18 @@ ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
+ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc swan_hom_test.cc pari_snf.cc
 
 Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
-swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
+swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h
 headers: Q_headers quad_headers swan_headers
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test
 
 tests: $(TESTS)
 
@@ -196,7 +196,7 @@ Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
 QUAD_OBJS = quads.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
-SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o
+SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o pari_snf.o
 
 OBJS = $(Q_OBJS) $(QUAD_OBJS) $(SWAN_OBJS)
 objs: $(OBJS)
@@ -308,6 +308,9 @@ flint_test: flint_test.o int.h rat.h
 
 swan_test: swan_test.o $(OBJS) rat.h
 	$(CC) -o swan_test swan_test.o $(OBJS) $(LFLAGS)
+
+swan_hom_test: swan_hom_test.o $(OBJS) rat.h
+	$(CC) -o swan_hom_test swan_hom_test.o $(OBJS) $(LFLAGS)
 
 tbug: tbug.o $(OBJS) rat.h
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)

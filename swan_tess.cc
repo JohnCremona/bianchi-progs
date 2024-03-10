@@ -741,11 +741,13 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
           }
       }
 
-  if (ndups)
-    cout << ndups << " pairs of congruent faces found" << endl;
-  else
-    cout << "No pairs of congruent faces found" << endl;
-
+  if (verbose)
+    {
+      if (ndups)
+        cout << ndups << " pairs of congruent faces found" << endl;
+      else
+        cout << "No pairs of congruent faces found" << endl;
+    }
   // Look for any other redundant faces (appearing with coefficient +1 or -1 in a polyhedron)
   if (verbose)
     cout << " - before final test, redundant faces are "<<redundant_faces<<endl;

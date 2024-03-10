@@ -29,17 +29,20 @@ vector<vector<int>> integral_homology(const vector<CuspList>& faces,
       cout<<"sigmas: "<<sigmas<<endl;
     }
   vector<vector<int>> M10 = edge_boundary_matrix(alphas, sigmas);
-  cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
+  if (debug)
+    cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
   vector<vector<int>> M21G, M21S;
   if (group&1)
     {
       M21G = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 1, debug);
-      cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
+      if (debug)
+        cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
     }
   if (group&2)
     {
       M21S = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 0, debug);
-      cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
+      if (debug)
+        cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
     }
   vector<vector<int>> invs;
   if (group&1)
@@ -462,7 +465,7 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
       // fmpz_mat_print_pretty(M);
       cout<<endl;
     }
-  cout << "Homology rank = " << homrank << endl;
+  cout << "Homology rank = " << homrank << "; ";
   assert (fmpz_mat_nrows(M)==n2);
   assert (fmpz_mat_ncols(M)==n1-r);
 
@@ -470,7 +473,7 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   vector<vector<int>> M21a;
   unmake_mat(M, M21a);
   vector<int> v = invariants(M21a);
-  cout << "invariants from pari: "<<v<<endl;
+  cout << "non-trivial invariants: "<<v<<endl;
 #else
   fmpz_mat_t S;
   // Compute Smith Normal Form of that:
@@ -495,10 +498,10 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
       if (m!=1)
         vv.push_back(m);
     }
-  cout << "invariants from flint: "<<vv<<endl;
+  cout << "non-trivial invariants: "<<vv<<endl;
   fmpz_mat_clear(S);
   if (v!=vv)
-    cout<<"pari and flint do not agree"<<endl;
+    cout<<"*****************pari and flint do not agree**********************"<<endl;
 #endif
   fmpz_mat_window_clear(M);
   fmpz_mat_clear(A10);
@@ -510,3 +513,29 @@ vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   return v;
 }
 
+void show_invariants(const vector<int>& v)
+{
+  map<int,int> mults;
+  for (const auto& vi : v)
+    mults[vi]++;
+  int i=0;
+  for (const auto& mi : mults)
+    {
+      int d=mi.first, e=mi.second;
+      if (i)
+        cout<<" x ";
+      if (e>1 && d>0) cout << "(";
+      if (d>0)
+        cout << "Z/"<<d<<"Z";
+      else
+        cout << "Z";
+      if (e>1)
+        {
+          if (d>0) cout << ")";
+          cout << "^" << e;
+        }
+      i++;
+    }
+  if (i==0)
+    cout << "trivial";
+}

@@ -384,8 +384,8 @@ int main ()
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);
-      cout << "GL2 integral homology invariants: " << invariants[0] << endl;
-      cout << "SL2 integral homology invariants: " << invariants[1] << endl;
+      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
+      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
 
 
       cout<<"----------------------------------------------------------------------------------\n";
