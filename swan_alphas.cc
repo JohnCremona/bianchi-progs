@@ -813,8 +813,8 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
         if (points1.empty())
           continue;
         H3point P = *points1.begin();
-        RatQuad z = P.first;
-        RAT t2 = P.second;
+        RatQuad z = P.z;
+        RAT t2 = P.t2;
         if (t2.sign()==0)
           continue;
         if (debug>2)
@@ -928,16 +928,16 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
         cout << "Extracting those of square height less than 1/"<<maxn<<endl;
       // Remove points which cannot be better covered by an alpha with dnorm>maxn
       points.erase(std::remove_if(points.begin(), points.end(),
-                                  [maxn](H3point P) { return maxn*P.second>=ONE;}),
+                                  [maxn](H3point P) { return maxn*P.t2>=ONE;}),
                    points.end());
       if (debug)
         {
           cout << " -- of which "<<points.size()<<" are low enough to be properly covered by a new alpha"<<endl;
           // for (const auto& P : points)
-          //   cout << "P = " << P << " is in first quadrant? "<< P.first.in_quarter_rectangle() << endl;
+          //   cout << "P = " << P << " is in first quadrant? "<< P.z.in_quarter_rectangle() << endl;
         }
       points.erase(std::remove_if(points.begin(), points.end(),
-                                  [](H3point P) { return !P.first.in_quarter_rectangle();}),
+                                  [](H3point P) { return !P.z.in_quarter_rectangle();}),
                    points.end());
       if (debug)
         {
@@ -982,11 +982,11 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
               std::transform(extras.begin(), extras.end(), norms.begin(),
                              [](RatQuad a) {return a.den().norm();});
               cout << " with denominator norms " << norms;
-              cout << ";  heights above P (height "<<P.second<<") are ";
+              cout << ";  heights above P (height "<<P.t2<<") are ";
               vector<RAT> hts;
               hts.resize(extras.size());
               std::transform(extras.begin(), extras.end(), hts.begin(),
-                             [P](RatQuad a) {return height_above(a,P.first);});
+                             [P](RatQuad a) {return height_above(a,P.z);});
               cout <<hts <<endl;
             }
           for ( auto& a : extras)

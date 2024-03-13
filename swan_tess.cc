@@ -32,7 +32,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
           H3point R = bi_inter(a, b);
           sRlist.push_back({s,R});
           if (verbose)
-            cout<<" alphas "<<a<<" and "<<b<<" give R = ["<<R.first.coords(1)<<","<<R.second<<"]\n";
+            cout<<" alphas "<<a<<" and "<<b<<" give R = ["<<R.z.coords(1)<<","<<R.t2<<"]\n";
         }
     }
   if (verbose)
@@ -309,7 +309,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   orbit.push_back(j);
   if (verbose)
     cout<<"Checking off corner #"<<j<<" ("<<Plist[j]<<")\n";
-  H3point Q = {fundunit*P.first, P.second};
+  H3point Q = negate(P);
   if (verbose)
     cout<<" Looking for corner "<<Q<<endl;
   int k = point_index_with_translation(Q, Plist, x);
@@ -346,7 +346,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
             cout<<"Checking off corner #"<<i<<" ("<<Plist[i]<<")\n";
         }
       // check off flag k where u*Plist[i]=Plist[k] (mod translation)
-      H3point Q = {fundunit*Plist[i].first, P.second};
+      H3point Q = negate(P);
       if (verbose)
         cout<<" Looking for corner "<<Q<<endl;
       int k = point_index_with_translation(Q, Plist, x);
@@ -798,14 +798,14 @@ string encode_int_list(char type, const vector<INT> data)
 string polygon_string(const POLYGON& P, int sing)
 {
   vector<INT> data;
-  for ( const int i : P.first)
+  for ( const int i : P.indices)
     data.push_back(INT(i));
-  for ( const Quad& u : P.second)
+  for ( const Quad& u : P.shifts)
     {
       data.push_back(u.re());
       data.push_back(u.im());
     }
-  int n = P.first.size(); // = 3, 4 or 6
+  int n = P.indices.size(); // = 3, 4 or 6
   char type = (n==3? (sing? 'U' : 'T') : (n==4? 'Q' : 'H'));
   return encode_int_list(type, data);
 }
@@ -864,11 +864,12 @@ POLYGON make_triangle(const CuspList& T, const CuspList& alphas, const CuspList&
 // an aaa-triangle) or sing=1 (for an aas-triangle)
 CuspList remake_triangle(const POLYGON& T, const CuspList& alphas, const CuspList& sigmas, int sing)
 {
-  int i = T.first[0], j=T.first[1];
-  Quad u = T.second[0];
+  int i = T.indices[0], j=T.indices[1];
+  Quad u = T.shifts[0];
   CuspList triangle = {alphas[i], RatQuad::infinity(), u + (sing? sigmas[j] : alphas[j])};
   int sing1;
-  assert (make_triangle(triangle, alphas, sigmas, sing1)==T && sing==sing1);
+  POLYGON T2 = make_triangle(triangle, alphas, sigmas, sing1);
+  assert (sing==sing1 && T2==T);
   return triangle;
 }
 
@@ -907,8 +908,8 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
 
 CuspList remake_quadrilateral(const POLYGON& Q, const CuspList& alphas)
 {
-  int i=Q.first[0],j=Q.first[1],k=Q.first[2], temp;
-  Quad x=Q.second[0], y=Q.second[1], z=Q.second[2];
+  int i=Q.indices[0],j=Q.indices[1],k=Q.indices[2], temp;
+  Quad x=Q.shifts[0], y=Q.shifts[1], z=Q.shifts[2];
 
   int jd = alpha_index_flip(j, alphas);
   int kd = alpha_index_flip(k, alphas);
@@ -917,7 +918,8 @@ CuspList remake_quadrilateral(const POLYGON& Q, const CuspList& alphas)
 
   CuspList square = {alphas[i], RatQuad::infinity(), z+alphas[jd], z+Mj(x+alphas[kd])};
 
-  assert (make_quadrilateral(square, alphas)==Q);
+  POLYGON Q2 = make_quadrilateral(square, alphas);
+  assert (Q2==Q);
 
   return square;
 }
@@ -970,8 +972,8 @@ POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
 // vertices [a_i, oo, a_j, b_2, gamma, b_1]
 CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas)
 {
-  int i=H.first[0],j=H.first[1],k=H.first[2],l=H.first[3],m=H.first[4],temp;
-  Quad u=H.second[0], x1=H.second[1], y1=H.second[2], x2=H.second[3], y2=H.second[4];
+  int i=H.indices[0],j=H.indices[1],k=H.indices[2],l=H.indices[3],m=H.indices[4],temp;
+  Quad u=H.shifts[0], x1=H.shifts[1], y1=H.shifts[2], x2=H.shifts[3], y2=H.shifts[4];
 
   int id = alpha_index_flip(i, alphas);
   int jd = alpha_index_flip(j, alphas);
@@ -999,11 +1001,11 @@ CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas)
   //       cout<<"remade hexagon edge #"<<i<<" = {"<<a<<","<<b<<"} is not valid!"<<endl;
   //   }
 
-  // cout<<"hexagon encoding "<<H.first<<" "<<H.second<<endl;
+  // cout<<"hexagon encoding "<<H.indices<<" "<<H.shifts<<endl;
   // cout<<"remakes to "<<hexagon<<endl;
   // cout<<"(using alphas: "<<alphas<<")"<<endl;
   POLYGON H2 = make_hexagon(hexagon, alphas);
-  // cout<<" which re-encodes as "<<H2.first<<" "<<H2.second<<endl;
+  // cout<<" which re-encodes as "<<H2.indices<<" "<<H2.shifts<<endl;
   assert (H2==H);
   return hexagon;
 }

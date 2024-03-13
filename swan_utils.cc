@@ -6,14 +6,6 @@
 #include "looper.h"
 #include "mat22.h"
 
-H3_comparison H3_cmp;
-
-ostream& operator<<(ostream& s, const H3point& P)
-{
-  s << "[" << P.first<<","<<P.second<<"]";
-  return s;
-}
-
 ostream& operator<<(ostream& s, const POLYHEDRON& P)
 {
   s << "[V:" << P.vertices<<", E:"<<P.edges<<", F:"<<P.faces<<"]";
@@ -446,7 +438,7 @@ RAT height_above(const RatQuad& a, const RatQuad& z)
 // return -1,0,+1 according as P is over, on, under S_a (a principal)
 int is_under(const H3point& P, const RatQuad& a)
 {
-  return sign(height_above(a, P.first) - P.second);
+  return sign(height_above(a, P.z) - P.t2);
 }
 
 // return +1 iff P is under at least one S_a for a in alist
@@ -493,8 +485,8 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
       cout <<endl;
     }
   CuspList ans;
-  RatQuad z = P.first, sz;
-  RAT t2 = P.second;
+  RatQuad z = P.z, sz;
+  RAT t2 = P.t2;
   Quad r, temp;
   int ok, test;
   long norm_s_ub = I2long((1/t2).floor());
@@ -554,12 +546,12 @@ CuspList properly_covering_hemispheres(const H3point& P, long norm_s_lb, int deb
 // multiply a point by fundamental unit (usually -1, hence the name here)
 H3point negate(const H3point& P)
 {
-  return {fundunit * P.first, P.second};
+  return {fundunit * P.z, P.t2};
 }
 
 H3point translate(const H3point& P, const Quad& t)
 {
-  return {P.first + t, P.second};
+  return {P.z + t, P.t2};
 }
 
 // Of the properly_covering_hemispheres(P) extract the subset for which the covering height is maximal
@@ -577,28 +569,28 @@ CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
   RAT m(0);
   if(debug)
     std::for_each(alist.begin(), alist.end(),
-                  [P](RatQuad a) {cout<<"a="<<a<<": height above P is "<<height_above(a,P.first)<<endl;});
+                  [P](RatQuad a) {cout<<"a="<<a<<": height above P is "<<height_above(a,P.z)<<endl;});
   std::for_each(alist.begin(), alist.end(),
-                [P,&m](RatQuad a) {m = max(m, height_above(a,P.first));});
+                [P,&m](RatQuad a) {m = max(m, height_above(a,P.z));});
   if(debug)
     cout<<"max height is "<<m<<endl;
   // Discard those a whose height above P is not maximal
   alist.erase(std::remove_if(alist.begin(), alist.end(),
-                              [P,m](RatQuad a) { return height_above(a,P.first) < m;}),
+                              [P,m](RatQuad a) { return height_above(a,P.z) < m;}),
                alist.end());
   if(debug)
     {
       cout<<"S_a maximally covering P="<<P<<": "<<alist<<" (ht "<<m<<" above P)"<<endl;
       // for (const auto& a: alist)
-      //   cout<<a<<" with height "<<height_above(a,P.first)<<endl;
+      //   cout<<a<<" with height "<<height_above(a,P.z)<<endl;
     }
   return alist;
 }
 
 H3point mat22::operator()(const H3point& P) const
 {
-  RatQuad z = P.first;
-  RAT t2 = P.second;
+  RatQuad z = P.z;
+  RAT t2 = P.t2;
   RAT  n = (c*z+d).norm() + c.norm()*t2;
   RatQuad new_z = ((a*z+b)*(c*z+d).conj() + a*c.conj()*t2) / n;
   RAT new_t2 = t2 / (n*n);
@@ -608,8 +600,8 @@ H3point mat22::operator()(const H3point& P) const
 // return 1 iff P is an integer translate of Q, with t=P-Q
 int is_translate(const H3point& P, const H3point& Q, Quad& t)
 {
-  return ( (P.second == Q.second) &&
-           integral_difference(P.first, Q.first, t) );
+  return ( (P.t2 == Q.t2) &&
+           integral_difference(P.z, Q.z, t) );
 }
 
 // Return index i of P mod O_K in Plist, with t=P-Plist[i], or -1 if not in list

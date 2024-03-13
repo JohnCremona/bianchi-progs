@@ -686,8 +686,8 @@ void face_relations::cyclic_triangle_relation(int i, int check)
 
 void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
 {
-  vector<int> T = tri.first;
-  Quad u = tri.second[0];
+  vector<int> T = tri.indices;
+  Quad u = tri.shifts[0];
   int i=T[0], j=T[1], k=T[2];
   if(verbose)
     cout << "Applying aaa-triangle relation ["<<T<<"; "<<u<<"]\n";
@@ -711,8 +711,8 @@ void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
 
 void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
 {
-  vector<int> T = tri.first;
-  Quad u = tri.second[0];
+  vector<int> T = tri.indices;
+  Quad u = tri.shifts[0];
   int i=T[0], j=T[1], k=T[2];
   if(verbose)
     cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
@@ -744,8 +744,8 @@ void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
 
 void face_relations::general_square_relation(const POLYGON& S, int check)
 {
-  const vector<int>& squ = S.first;
-  const vector<Quad>& xyz = S.second;
+  const vector<int>& squ = S.indices;
+  const vector<Quad>& xyz = S.shifts;
   int i=squ[0], j=squ[1], k=squ[2], l=squ[3];
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   int symmetry = (((i==k)&&(j==l))? 2: 0);
@@ -789,8 +789,8 @@ void face_relations::general_square_relation(const POLYGON& S, int check)
 
 void face_relations::general_hexagon_relation(const POLYGON& H, int check)
 {
-  const vector<int>& hex = H.first;
-  const vector<Quad>& ux1y1x2y2 = H.second;
+  const vector<int>& hex = H.indices;
+  const vector<Quad>& ux1y1x2y2 = H.shifts;
   int i=hex[0], j=hex[1], k=hex[2], l=hex[3], m=hex[4], n=hex[5];
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int symmetry = 0; // work this out later

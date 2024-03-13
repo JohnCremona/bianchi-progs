@@ -40,9 +40,14 @@ inline ostream& operator<<(ostream& os, const std::set<Quad, Quad_comparison>& v
 // indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
 extern vector<int> cyclic_triangles;
 
-// typedefs for readability.
+struct POLYGON {
+  vector<int> indices; // length n for an n-gon
+  vector<Quad> shifts; // length n for an n-gon
+};
 
-typedef pair<vector<int>, vector<Quad>> POLYGON;
+inline int operator==(const POLYGON& P1, const POLYGON& P2) {
+  return P1.indices==P2.indices && P1.shifts==P2.shifts;
+}
 
 // aaa triangles: [[i,j,k],[u]] such that M_i(alpha_j+u)=alpha_k +translation
 // aas triangles: [[i,j,k],[u]] such that M_i(sigma_j+u)=sigma_k +translation

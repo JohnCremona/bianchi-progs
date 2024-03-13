@@ -10,14 +10,6 @@
 #include "geometry.h"
 #include "ratquads.h"
 
-typedef pair<RatQuad,RAT> H3point;
-// Comparison function (based only height, highest first)
-struct H3_comparison {
-  bool operator() (const H3point& lhs, const H3point& rhs) const
-  {return lhs.second > rhs.second;}
-};
-extern H3_comparison H3_cmp;
-typedef vector<H3point> H3pointList;
 typedef modsym EDGE;
 struct POLYHEDRON {
   CuspList vertices;
@@ -25,7 +17,6 @@ struct POLYHEDRON {
   vector<CuspList> faces;
 };
 
-ostream& operator<<(ostream& s, const H3point& P);
 ostream& operator<<(ostream& s, const POLYHEDRON& P);
 
 // Square radius for principal cusp

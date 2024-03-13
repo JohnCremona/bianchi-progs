@@ -6,7 +6,25 @@
 #include <assert.h>
 #include "ratquads.h"
 #include "primes.h"
-typedef pair<RatQuad,RAT> H3point;
+
+struct H3point { // point in hyperbolic 3-space
+  RatQuad z;     // horizontal coordinate
+  RAT t2;        // square of vertival coordinate
+};
+
+inline int operator==(const H3point& P, const H3point& Q) {
+  return P.t2==Q.t2 && P.z==Q.z;
+}
+
+ostream& operator<<(ostream& s, const H3point& P);
+
+// Comparison function (based only height, highest first)
+struct H3_comparison {
+  bool operator() (const H3point& lhs, const H3point& rhs) const
+  {return lhs.t2 > rhs.t2;}
+};
+extern H3_comparison H3_cmp;
+typedef vector<H3point> H3pointList;
 
 class mat22 {
 private:

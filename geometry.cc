@@ -374,8 +374,8 @@ void alphas_sigmas_denom_3()
 
 int check_aaa_triangle(const POLYGON& T, int verbose)
 {
-  const vector<int>& tri = T.first;
-  const Quad& u = T.second[0];
+  const vector<int>& tri = T.indices;
+  const Quad& u = T.shifts[0];
   if (verbose)
     cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
   mat22 Mi=M_alphas[tri[0]], Mj=M_alphas[tri[1]], Mk=M_alphas[tri[2]];
@@ -393,8 +393,8 @@ int check_cyclic_triangle(int i, int verbose)
 
 int check_aas_triangle(const POLYGON& T, int verbose)
 {
-  const vector<int>& tri = T.first;
-  const Quad& u = T.second[0];
+  const vector<int>& tri = T.indices;
+  const Quad& u = T.shifts[0];
   if (verbose)
     cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<endl;
   int i=tri[0], j=tri[1], k=tri[2];
@@ -427,13 +427,13 @@ void check_triangles(int verbose)
   for ( const auto& T : aaa_triangles)
     {
       if(verbose)
-        cout<<"Checking aaa-triangle, ijk="<<T.first<<", u="<<T.second[0]<<endl;
+        cout<<"Checking aaa-triangle, ijk="<<T.indices<<", u="<<T.shifts[0]<<endl;
       assert(check_aaa_triangle(T, verbose));
     }
   for ( const auto& T : aas_triangles)
     {
       if(verbose)
-        cout<<"Checking aas-triangle, ijk="<<T.first<<", u="<<T.second[0]<<endl;
+        cout<<"Checking aas-triangle, ijk="<<T.indices<<", u="<<T.shifts[0]<<endl;
       assert(check_aas_triangle(T, verbose));
     }
 }
@@ -457,8 +457,8 @@ int check_square(const POLYGON& squ)
   // {alpha_j'+z, beta} = (T^z*M_j*T^x*M_k)_k
   // {beta, alpha_i} = (M_i'*T^y)_l
 
-  const vector<int>& S = squ.first;  // int i=S[0], j=S[1], k=S[2], l=S[3];
-  const vector<Quad>& xyz = squ.second;
+  const vector<int>& S = squ.indices;  // int i=S[0], j=S[1], k=S[2], l=S[3];
+  const vector<Quad>& xyz = squ.shifts;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   mat22 Mi=M_alphas[S[0]], Mj=M_alphas[S[1]], Mk=M_alphas[S[2]], Ml=M_alphas[S[3]];
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
@@ -472,7 +472,7 @@ void check_squares(int verbose)
   for ( const auto& S : squares)
     {
       if (verbose)
-        cout<<"Checking square "<<S.first<<", "<<S.second<<endl;
+        cout<<"Checking square "<<S.indices<<", "<<S.shifts<<endl;
       assert(check_square(S));
     }
 }
@@ -501,8 +501,8 @@ int check_hexagon(const POLYGON& hex)
   // -{beta2, alpha_j} = - (T^u*M_j'*T^x2)_l
   // -{gamma, beta2} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
 
-  const vector<int>& ijklmn = hex.first;
-  const vector<Quad>& ux1y1x2y2 = hex.second;
+  const vector<int>& ijklmn = hex.indices;
+  const vector<Quad>& ux1y1x2y2 = hex.shifts;
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
   RatQuad gamma1 = (M_alphas[alpha_inv[i]]*mat22::Tmat(x1)*M_alphas[alpha_inv[k]])(y1+alphas[m]);
@@ -515,7 +515,7 @@ void check_hexagons(int verbose)
   for ( const auto& H : hexagons)
     {
       if (verbose)
-        cout<<"Checking hexagon "<<H.first<<", "<<H.second<<endl;
+        cout<<"Checking hexagon "<<H.indices<<", "<<H.shifts<<endl;
       assert(check_hexagon(H));
     }
 }
@@ -672,17 +672,17 @@ void read_data(int verbose)
         }
       case 'A': // alpha orbit
         {
-          add_alpha_orbit(poly.second[0], poly.second[1], poly.second[2]);
+          add_alpha_orbit(poly.shifts[0], poly.shifts[1], poly.shifts[2]);
           break;
         }
       case 'S': // sigma orbit
         {
-          add_sigma_orbit(poly.second[0], poly.second[1]);
+          add_sigma_orbit(poly.shifts[0], poly.shifts[1]);
           break;
         }
       case 'C': // cyclic triangle
         {
-          cyclic_triangles.push_back(poly.first[0]);
+          cyclic_triangles.push_back(poly.indices[0]);
           break;
         }
       case 'T': // aaa-triangle

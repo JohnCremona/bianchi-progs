@@ -114,9 +114,9 @@ int main ()
       if (debug || (verbose && new_alphas.size()<20))
         cout << new_alphas << endl;
       auto points = triple_intersections(new_alphas);
-      RAT minht = points[0].second;
+      RAT minht = points[0].t2;
       std::for_each(points.begin(), points.end(),
-                    [&minht](H3point P) {minht = min(minht, P.second);});
+                    [&minht](H3point P) {minht = min(minht, P.t2);});
       if (verbose)
         cout << points.size() << " vertices, min square height = " << minht <<endl;
 
@@ -326,10 +326,10 @@ int main ()
         {
           if (verbose) cout <<face << " --> ";
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          if (verbose) cout <<face << " -->  ["<<P.first<<","<<P.second<<"]"<<endl;
+          if (verbose) cout <<face << " -->  ["<<P.indices<<","<<P.shifts<<"]"<<endl;
           int ok = check_aaa_triangle(P, verbose);
           if (!ok)
-            cout<<"aaa-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+            cout<<"aaa-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
       cout<<aas_triangles.size()<<" aas-triangles\n";
@@ -338,7 +338,7 @@ int main ()
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_aas_triangle(P, verbose);
           if (!ok)
-            cout<<"aas-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+            cout<<"aas-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
       cout<<squares.size()<<" squares\n";
@@ -347,7 +347,7 @@ int main ()
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_square(P);
           if (!ok)
-            cout<<"square "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+            cout<<"square "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
       cout<<hexagons.size()<<" hexagons\n";
@@ -356,7 +356,7 @@ int main ()
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_hexagon(P);
           if (!ok)
-            cout<<"hexagon "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
+            cout<<"hexagon "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
       if (all_ok)

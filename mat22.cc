@@ -3,6 +3,14 @@
 #include "primes.h"
 #include "mat22.h"
 
+H3_comparison H3_cmp;
+
+ostream& operator<<(ostream& s, const H3point& P)
+{
+  s << "[" << P.z<<","<<P.t2<<"]";
+  return s;
+}
+
 RatQuad mat22::operator()(const RatQuad& q)const
 {
   Quad r = q.num(), s = q.den();
