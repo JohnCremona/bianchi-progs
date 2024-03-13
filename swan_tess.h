@@ -79,13 +79,28 @@ POLYGON make_polygon(const CuspList& face, const CuspList& alphas, const CuspLis
 // aas-triangle, else to 0
 POLYGON make_triangle(const CuspList& T, const CuspList& alphas, const CuspList& sigmas, int& sing);
 
+// Reverse of the above: convert a POLYGON {{i,j,k},{u}} to an actual aaa- or aas-triangle
+// as list of vertices [a,oo,b] or [a,oo,s] according as sing=0 (for
+// an aaa-triangle) or sing=1 (for an aas-triangle)
+CuspList remake_triangle(const POLYGON& T, const CuspList& alphas, const CuspList& sigmas, int sing);
+
 // Convert an actual quadrilateral as list of vertices [a,oo,b,c] to
 // the POLYGON {{i,j,k},{x,y,z}}
 POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas);
 
+// Reverse of the above: convert the POLYGON {{i,j,k},{x,y,z}} to an
+// actual quadrilateral as list of vertices [a,oo,b,c] where
+// a=alphas[i], b=z+alphas[j'], c=z+M_j(x+alphas[k'])
+CuspList remake_quadrilateral(const POLYGON& Q, const CuspList& alphas);
+
 // Convert an actual hexagon as list of vertices [a_i, oo, a_j, b_2,
 // gamma, b_1] to the POLYGON {{i,j,k,l,m,n},{u,x1,y1,x2,y2}}
 POLYGON make_hexagon(const CuspList& H, const CuspList& alphas);
+
+// Reverse of the above: convert a POLYGON
+// {{i,j,k,l,m,n},{u,x1,y1,x2,y2}} to an actual hexagon as list of
+// vertices [a_i, oo, a_j, b_2, gamma, b_1]
+CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas);
 
 void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
                    const CuspList& alphas, const CuspList& sigmas,

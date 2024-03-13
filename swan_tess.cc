@@ -859,6 +859,19 @@ POLYGON make_triangle(const CuspList& T, const CuspList& alphas, const CuspList&
   return {{i,j,k}, {u}};
 }
 
+// Convert a POLYGON {{i,j,k},{u}} to an actual aaa- or aas-triangle
+// as list of vertices [a,oo,b] or [a,oo,s] according as sing=0 (for
+// an aaa-triangle) or sing=1 (for an aas-triangle)
+CuspList remake_triangle(const POLYGON& T, const CuspList& alphas, const CuspList& sigmas, int sing)
+{
+  int i = T.first[0], j=T.first[1];
+  Quad u = T.second[0];
+  CuspList triangle = {alphas[i], RatQuad::infinity(), u + (sing? sigmas[j] : alphas[j])};
+  int sing1;
+  assert (make_triangle(triangle, alphas, sigmas, sing1)==T && sing==sing1);
+  return triangle;
+}
+
 // Convert an actual quadrilateral as list of vertices [a,oo,b,c] to
 // the POLYGON {{i,j,k},{x,y,z}}
 POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
@@ -888,10 +901,32 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
   return {{i,j,k,l}, {x,y,z}};
 }
 
+// Reverse of the above: Convert the POLYGON {{i,j,k},{x,y,z}} to an
+// actual quadrilateral as list of vertices [a,oo,b,c] where
+// a=alphas[i], b=z+alphas[j'], c=z+M_j(x+alphas[k'])
+
+CuspList remake_quadrilateral(const POLYGON& Q, const CuspList& alphas)
+{
+  int i=Q.first[0],j=Q.first[1],k=Q.first[2], temp;
+  Quad x=Q.second[0], y=Q.second[1], z=Q.second[2];
+
+  int jd = alpha_index_flip(j, alphas);
+  int kd = alpha_index_flip(k, alphas);
+
+  mat22 Mj = Malpha(alphas[j], alphas, temp);
+
+  CuspList square = {alphas[i], RatQuad::infinity(), z+alphas[jd], z+Mj(x+alphas[kd])};
+
+  assert (make_quadrilateral(square, alphas)==Q);
+
+  return square;
+}
+
 // Convert an actual hexagon as list of vertices [a_i, oo, a_j, b_2,
 // gamma, b_1] to the POLYGON {{i,j,k,l,m,n},{u,x1,y1,x2,y2}}
 POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
 {
+  // cout<<"encoding hexagon "<<H<<endl;
   assert (H[1]==RatQuad::infinity());
   int i,id,j,k,l,m,n;
   Quad u,x1,y1,x2,y2;
@@ -922,7 +957,55 @@ POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
     gamma2 = M2(alphas[n]);
   assert (gamma1==gamma2);
 
-  return {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
+  vector<int> indices = {i,j,k,l,m,n};
+  vector<Quad> shifts = {u,x1,y1,x2,y2};
+  // cout<<"hexagon "<<H<<endl;
+  // cout<<"converts to "<<indices<<" "<< shifts <<endl;
+  // cout<<"(using alphas: "<<alphas<<")"<<endl;
+  return {indices, shifts};
+}
+
+// Reverse of the above: convert a POLYGON
+// {{i,j,k,l,m,n},{u,x1,y1,x2,y2}} to an actual hexagon as list of
+// vertices [a_i, oo, a_j, b_2, gamma, b_1]
+CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas)
+{
+  int i=H.first[0],j=H.first[1],k=H.first[2],l=H.first[3],m=H.first[4],temp;
+  Quad u=H.second[0], x1=H.second[1], y1=H.second[2], x2=H.second[3], y2=H.second[4];
+
+  int id = alpha_index_flip(i, alphas);
+  int jd = alpha_index_flip(j, alphas);
+  int kd = alpha_index_flip(k, alphas);
+
+  mat22 Mid = Malpha(alphas[id], alphas, temp);
+  mat22 Mjd = Malpha(alphas[jd], alphas, temp);
+  mat22 Mkd = Malpha(alphas[kd], alphas, temp);
+
+  CuspList hexagon = {
+    alphas[i],
+    RatQuad::infinity(),
+    u + alphas[j],
+    u + Mjd(x2+alphas[l]),     // beta2 in face_relations.cc
+    Mid(x1+Mkd(y1+alphas[m])), // gamma
+    Mid(x1+alphas[k])};        // beta1
+
+  // for (int i=0; i<6; i++)
+  //   {
+  //     RatQuad a = hexagon[i], b=hexagon[(i+1)%6];
+  //     mat22 M; int j;
+  //     if (valid_edge(a,b,alphas, M, j))
+  //       cout<<"remade hexagon edge #"<<i<<" = {"<<a<<","<<b<<"} is M{alphas[j],pp} with j="<<j<<", M="<<M<<endl;
+  //     else
+  //       cout<<"remade hexagon edge #"<<i<<" = {"<<a<<","<<b<<"} is not valid!"<<endl;
+  //   }
+
+  // cout<<"hexagon encoding "<<H.first<<" "<<H.second<<endl;
+  // cout<<"remakes to "<<hexagon<<endl;
+  // cout<<"(using alphas: "<<alphas<<")"<<endl;
+  POLYGON H2 = make_hexagon(hexagon, alphas);
+  // cout<<" which re-encodes as "<<H2.first<<" "<<H2.second<<endl;
+  assert (H2==H);
+  return hexagon;
 }
 
 void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,

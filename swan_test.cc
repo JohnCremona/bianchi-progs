@@ -57,7 +57,11 @@ int main ()
   cerr << endl;
 
   if (f>0)
-    fields = {f};
+    {
+      // convert to an absolute discriminant if necessary
+      if (f%4 !=3) f*=4;
+      fields = {f};
+    }
   for (auto D: fields)
     {
       if ((f==0) && (D>MAX_DISC))

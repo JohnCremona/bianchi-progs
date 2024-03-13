@@ -75,4 +75,8 @@ int check_aas_triangle(const POLYGON& T, int verbose=0);
 int check_square(const POLYGON& squ);
 int check_hexagon(const POLYGON& hex);
 
+// reads the polygons (T,U,Q,H) from geodata file: returns 4 lists, of
+// aaa-triangles, aas-triangles, squares, hexagons
+vector<vector<POLYGON>> read_polygons(int verbose=0);
+
 #endif

@@ -34,13 +34,13 @@ vector<vector<int>> integral_homology(const vector<CuspList>& faces,
   vector<vector<int>> M21G, M21S;
   if (group&1)
     {
-      M21G = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 1, debug);
+      M21G = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 1);
       if (debug)
         cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
     }
   if (group&2)
     {
-      M21S = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 0, debug);
+      M21S = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 0);
       if (debug)
         cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
     }
@@ -52,6 +52,25 @@ vector<vector<int>> integral_homology(const vector<CuspList>& faces,
   return invs;
 }
 
+// As above but using global alphas, sigmas, and recovering pluspairs,
+// minuspairs, fours from global edge_pairs_plus, edge_pairs_minus,
+// edge_fours:
+vector<vector<int>> integral_homology(const vector<CuspList>& faces, int group, int debug)
+{
+  vector<vector<int>> M10 = edge_boundary_matrix();
+  vector<vector<int>> invs;
+  if (group&1)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(faces, 1);
+      invs.push_back(homology_invariants(M10, M21, debug>1));
+    }
+  if (group&2)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(faces, 0);
+      invs.push_back(homology_invariants(M10, M21, debug>1));
+    }
+  return invs;
+}
 
 // Return the edge boundary matrix M10 (matrix of delta: 1-chains -> 0-chains)
 
@@ -78,6 +97,12 @@ vector<vector<int>> edge_boundary_matrix(const CuspList& alphas, const CuspList&
       M.push_back(row);
     }
   return M;
+}
+
+// Same using globals
+vector<vector<int>> edge_boundary_matrix()
+{
+  return edge_boundary_matrix(alphas, sigmas);
 }
 
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
@@ -140,45 +165,46 @@ vector<int> face_boundary_vector(const CuspList& face, const CuspList& alphas, c
   return v;
 }
 
-// Return the face boundary matrix M21 (matrix of delta: 2-chains ->
-// 1-chains).  This depends on whether we want to GL2 or SL2 homology,
-// as the edge identifications change.  For the edge identifications
-// we need to pairing data in plus_pairs, minus_pairs and fours.
-
-// The first block of rows encodes edge identifications, the second
-// block face boundaries.  The number of columns is #alphas+#sigmas-1.
-// For both GL2 and SL2 we have #faces+#plus_pairs+#minus_pairs+#fours
-// rows; then for GL2 we have an extra #alphas+#sigmas-1 rows, while
-// for SL2 we have an extra #faces+#fours rows.
-
-vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
-                                         const CuspList& alphas, const CuspList& sigmas,
-                                         const vector<vector<Quad>>& pluspairs,
-                                         const vector<vector<Quad>>& minuspairs,
-                                         const vector<vector<Quad>>& fours,
-                                         int GL2, int debug)
+// Same using globals
+vector<int> face_boundary_vector(const CuspList& face)
 {
-  int nalphas = alphas.size(), nsigmas = sigmas.size()-1,
-    nplus = pluspairs.size(), nminus = minuspairs.size(), nfours = fours.size(),
-    nfaces = faces.size();
-  int ncols = nalphas + nsigmas; // size of edge basis
-  int nrows = nfaces + nplus + nminus + nfours + (GL2? nalphas + nsigmas : nfaces + nfours);
+  vector<int> v(alphas.size()+sigmas.size()-1,0);
+  int i, j, n=face.size();
+  for (i=0; i<n; i++)
+    {
+      j = edge_index(EDGE(face[i], face[(i+1)%n]), alphas, sigmas);
+      if (j<0) v[-j]-=1; else v[j]+=1;
+    }
+  return v;
+}
+
+// Return the first half of the face boundary matrix M21 (matrix of
+// delta: 2-chains -> 1-chains), giving the edge identifications.
+// This depends on whether we want to GL2 or SL2 homology, as the edge
+// identifications change.  For the edge identifications we need
+// either (first version) the pairing data in plus_pairs, minus_pairs
+// and fours, or the same encoded in globals edge_pairs_plus,
+// edge_pairs_minus, edge_fours
+
+// This block of rows encodes edge identifications.  The number of
+// columns is #alphas+#sigmas-1.
+
+vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas,
+                                        const vector<vector<Quad>>& pluspairs,
+                                        const vector<vector<Quad>>& minuspairs,
+                                        const vector<vector<Quad>>& fours,
+                                        int GL2)
+{
+  int
+    nalphas = alphas.size(), nsigmas = sigmas.size()-1,
+    nplus = pluspairs.size(), nminus = minuspairs.size(), nfours = fours.size();
+  int
+    ncols = nalphas + nsigmas, // size of edge basis
+    nrows = nplus + nminus + nfours + (GL2? nalphas + nsigmas : nfours);
   vector<vector<int>> M;
   M.reserve(nrows);
 
-  if (debug)
-    {
-      cout<<"nalphas="<<nalphas<<endl;
-      cout<<"nsigmas="<<nsigmas<<endl;
-      cout<<"nplus="<<nplus<<endl;
-      cout<<"nminus="<<nminus<<endl;
-      cout<<"nfours="<<nfours<<endl;
-      cout<<"nfaces="<<nfaces<<endl;
-      cout<<"M should have "<<nrows<<" rows"<<endl;
-    }
-
-  int i, j;
-  int n = 0; // will count number of rows pushed onto M
+  int i, j, n = 0; // will count number of rows pushed onto M
   Quad temp, s, r, r1, r2;
 
   // edge identifications
@@ -186,7 +212,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
   // (1) {a,oo}+{-a,oo}=0     for a=r/s, (r,s) in pluspairs
   // (2) 2{a,oo}=0            for a=r/s, (r,s) in minuspairs
   // (3) {a1,oo}+{a2,oo}=0    for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
-  //   and if not GP2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+  //   and if not GL2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
 
   if (GL2) // type (0)
     {
@@ -262,9 +288,116 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
           n++;
         }
     }
+  assert (n==nrows && n==(int)M.size());
+  return M;
+}
 
-  // face boundary relations
+vector<vector<int>> edge_pairings(int GL2)
+{
+  int nalphas = alphas.size(), nsigmas = sigmas.size()-1;
+  vector<int> denom_2_alphas = {0};
+  if (Quad::d!=7)
+    denom_2_alphas.push_back(1);
+  if (Quad::d%8==3)
+    denom_2_alphas.push_back(2);
+  int n2das = denom_2_alphas.size();
+  int nplus = edge_pairs_plus.size(), nminus = edge_pairs_minus.size(), nfours = edge_fours.size();
+  int ncols = nalphas + nsigmas; // size of edge basis
+  int nrows = n2das + nplus + nminus + nfours + (GL2? nalphas + nsigmas : nfours);
+  vector<vector<int>> M;
+  M.reserve(nrows);
 
+  int i, j;
+  int n = 0; // will count number of rows pushed onto M
+  Quad temp, s, r, r1, r2;
+
+  // edge identifications
+  // (0) GL2 only: {a,oo}={-a,oo} for a in alphas and {s,oo}={-s,oo} for s in sigmas
+  // (1) {a,oo}+{-a,oo}=0     for a=r/s, (r,s) in pluspairs
+  // (2) 2{a,oo}=0            for a=r/s, (r,s) in minuspairs
+  // (3) {a1,oo}+{a2,oo}=0    for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+  //   and if not GL2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+
+  if (GL2) // type (0)
+    {
+      for (i=0; i<nalphas; i++)
+        {
+          vector<int> row(ncols, 0);
+          j = cusp_index_with_translation(-alphas[i], alphas, temp);
+          assert ((j>=0)&&(j<nalphas));
+          row[i] +=1;
+          row[j] -=1;
+          M.push_back(row);
+          n++;
+        }
+      for (i=0; i<nsigmas; i++)
+        {
+          vector<int> row(ncols, 0);
+          j = cusp_index_with_translation(-sigmas[i+1], sigmas, temp) -1;
+          assert ((j>=0)&&(j<nsigmas));
+          row[nalphas+i] +=1;
+          row[nalphas+j] -=1;
+          M.push_back(row);
+          n++;
+        }
+    }
+  // type (1)
+  for (i=0; i<n2das; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = denom_2_alphas[i];
+      row[j]+=2;
+      M.push_back(row);
+      n++;
+    }
+  for (i=0; i<nplus; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_pairs_plus[i];
+      row[j] +=1;
+      row[j+1] +=1;
+      M.push_back(row);
+      n++;
+    }
+  // type (2)
+  for (i=0; i<nminus; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_pairs_minus[i];
+      row[j] +=2;
+      M.push_back(row);
+      n++;
+    }
+  // types (3) and (3')
+  for (i=0; i<nfours; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_fours[i];
+      row[j] +=1;
+      row[j+2] +=1;
+      M.push_back(row);
+      n++;
+      if (!GL2)
+        {
+          vector<int> row2(ncols, 0);
+          row2[j+1] +=1;
+          row2[j+3] +=1;
+          M.push_back(row2);
+          n++;
+        }
+    }
+  assert (n==nrows && n==(int)M.size());
+  return M;
+}
+
+vector<vector<int>> face_boundaries(const vector<CuspList>& faces,
+                                    const CuspList& alphas, const CuspList& sigmas,
+                                    int GL2)
+{
+  int nrows = faces.size() * (GL2? 1 : 2);
+  vector<vector<int>> M;
+  M.reserve(nrows);
+  int n=0;
   for (const auto& face : faces)
     {
       M.push_back(face_boundary_vector(face, alphas, sigmas));
@@ -276,6 +409,60 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
         }
     }
   assert (n==nrows);
+  return M;
+}
+
+// same using globals
+vector<vector<int>> face_boundaries(const vector<CuspList>& faces, int GL2)
+{
+  int nrows = faces.size() * (GL2? 1 : 2);
+  vector<vector<int>> M;
+  M.reserve(nrows);
+  int n=0;
+  for (const auto& face : faces)
+    {
+      M.push_back(face_boundary_vector(face));
+      n++;
+      if (!GL2)
+        {
+          M.push_back(face_boundary_vector(negate_polygon(face)));
+          n++;
+        }
+    }
+  assert (n==nrows);
+  return M;
+}
+
+// Return the face boundary matrix M21 (matrix of delta: 2-chains ->
+// 1-chains).  This depends on whether we want to GL2 or SL2 homology,
+// as the edge identifications change.  For the edge identifications
+// we need to pairing data in plus_pairs, minus_pairs and fours.
+
+// The first block of rows encodes edge identifications, the second
+// block face boundaries.  The number of columns is #alphas+#sigmas-1.
+// For both GL2 and SL2 we have #faces+#plus_pairs+#minus_pairs+#fours
+// rows; then for GL2 we have an extra #alphas+#sigmas-1 rows, while
+// for SL2 we have an extra #faces+#fours rows.
+
+vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
+                                         const CuspList& alphas, const CuspList& sigmas,
+                                         const vector<vector<Quad>>& pluspairs,
+                                         const vector<vector<Quad>>& minuspairs,
+                                         const vector<vector<Quad>>& fours,
+                                         int GL2)
+{
+  vector<vector<int>> M = edge_pairings(alphas, sigmas, pluspairs, minuspairs, fours, GL2);
+  vector<vector<int>> M2 = face_boundaries(faces, alphas, sigmas, GL2);
+  M.insert(M.end(), M2.begin(), M2.end());
+  return M;
+}
+
+vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
+                                         int GL2)
+{
+  vector<vector<int>> M = edge_pairings(GL2);
+  vector<vector<int>> M2 = face_boundaries(faces, GL2);
+  M.insert(M.end(), M2.begin(), M2.end());
   return M;
 }
 

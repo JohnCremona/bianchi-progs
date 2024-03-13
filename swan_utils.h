@@ -131,6 +131,10 @@ mat22 Malpha(const RatQuad& alpha, const H3point& P, const H3pointList& Plist, i
 // Also sets inv s.t. M_alpha[i](oo) = alpha[inv[i]].
 vector<mat22> all_M_alphas(const CuspList& alist, vector<int>& inv);
 
+// test for being a valid edge M{alphas[j],oo}
+int valid_edge(const RatQuad& a, const RatQuad& b, const CuspList& alphas,
+               mat22& M, int& j);
+
 // polyhedron utilities
 inline int nverts(const POLYHEDRON& P) {return P.vertices.size();}
 inline int nedges(const POLYHEDRON& P) {int n = P.edges.size(); return n/2;}

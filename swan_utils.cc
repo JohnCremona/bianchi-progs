@@ -322,6 +322,22 @@ vector<mat22> all_M_alphas(const CuspList& alist, vector<int>& inv)
   return Mlist;
 }
 
+// test for being a valid edge M{alpha,oo} with alpha=alphas[j]
+int valid_edge(const RatQuad& a, const RatQuad& b, const CuspList& alphas,
+               mat22& M, int& j)
+{
+  if (!b.is_principal()) return 0;
+  M = Malpha(b);
+  Quad u;
+  j = cusp_index_with_translation(M(a), alphas, u);
+  if (j<0)
+    return 0;
+  // Now M(a) = u+alphas[j],
+  // so {a,b} = M^(-1){u+alphas[j],oo} = M^(-1)*T^u{alphas[j],oo}
+  M = M.inverse() * mat22::Tmat(u);
+  return 1;
+}
+
 // count how many P in points are on S_a
 int nverts(const RatQuad& a, const H3pointList& points)
 {

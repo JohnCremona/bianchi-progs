@@ -544,13 +544,95 @@ void check_hexagons(int verbose)
 // Q 'square' followed by 10 integers: i,j,k,l; x,y,z
 // H 'hexagon' followed by 16 integers: i,j,k,l,m,n; u,x1,y1,x2,y2
 
+void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose)
+{
+  int i,j,k,l,m,n;
+  Quad s,r,r1,r2, u, x, y, z, x1, x2, y1, y2;
+  istringstream input_line(line);
+  input_line >> file_d;
+  if (file_d==-1 || file_d > Quad::d)
+    {
+      G = 'X'; // code for "quit reading"
+      return;
+    }
+  if (file_d != Quad::d)
+    {
+      G = '%'; // code for "skip line"
+      return;
+    }
+  if (verbose)
+    cout<<"Processing line "<<line<<endl;
+  input_line >> G;
+  switch(G) {
+  case 'A': // alpha orbit
+    {
+      input_line >> s >> r1 >> r2;
+      if (verbose)
+        cout << " reading alpha orbit data"<<endl
+             << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
+      poly = {{},{s,r1,r2}};
+      return;
+    }
+  case 'S': // sigma orbit
+    {
+      input_line >> r >> s;
+      if (verbose)
+        cout << " reading sigma orbit data"<<endl
+             << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
+      poly = {{},{r,s}};
+      return;
+    }
+  case 'C': // cyclic triangle
+    {
+      input_line >> j;
+      if (verbose)
+        cout << " reading cyclic triangle data"<<endl
+             << " - j = "<< j <<endl;
+      poly = {{j},{}};
+      return;
+    }
+  case 'T': // aaa-triangle
+  case 'U': // aas-triangle
+    {
+      input_line >> i >> j >> k >> u;
+      if (verbose)
+        cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl
+             << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
+      poly = {{i,j,k}, {u}};
+      return;
+    }
+  case 'Q': // square
+    {
+      input_line >> i >> j >> k >> l >> x >> y >> z;
+      if (verbose)
+        cout << " reading square data"<<endl
+             << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
+             << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
+      poly = {{i,j,k,l}, {x,y,z}};
+      return;
+    }
+  case 'H': // hexagon
+    {
+      input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
+      if (verbose)
+        cout << " reading hexagon data"<<endl
+             << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
+             << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
+      poly = {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
+      return;
+    }
+  default:
+    return;
+  }
+}
+
 void read_data(int verbose)
 {
   ifstream geodata;
   string line;
-  int file_d, i, j, k, l, m, n;
+  int file_d;
   char G;
-  Quad s, r, r1, r2, u, x, y, z, x1, y1, x2, y2;
+  POLYGON poly;
 
   stringstream ss;
   ss << "geodata/geodata_" << Quad::d << ".dat";
@@ -573,93 +655,145 @@ void read_data(int verbose)
   getline(geodata, line);
   while (!geodata.eof())
     {
+      parse_geodata_line(line, file_d, G, poly, verbose);
       istringstream input_line(line);
-      input_line >> file_d;
-      if (file_d==-1 || file_d > Quad::d)
-        break;
-      if (file_d != Quad::d)
+      switch(G) {
+      case 'X':
+        {
+          if (verbose>1)
+            cout<<"Skipping rest of file"<<endl;
+          break;
+        }
+      case '%':
         {
           if (verbose>1)
             cout<<"Skipping line: "<<line<<endl;
-          getline(geodata, line);
-          continue;
+          break;
         }
-      if (verbose)
-        cout<<"Processing line "<<line<<endl;
-      input_line >> G;
-      switch(G) {
       case 'A': // alpha orbit
         {
-          if (verbose)
-            cout << " reading alpha orbit data"<<endl;
-          input_line >> s >> r1 >> r2;
-          if (verbose)
-            cout << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
-          add_alpha_orbit(s, r1, r2);
+          add_alpha_orbit(poly.second[0], poly.second[1], poly.second[2]);
           break;
         }
       case 'S': // sigma orbit
         {
-          if (verbose)
-            cout << " reading sigma orbit data"<<endl;
-          input_line >> r >> s;
-          if (verbose)
-            cout << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
-          add_sigma_orbit(r, s);
+          add_sigma_orbit(poly.second[0], poly.second[1]);
           break;
         }
       case 'C': // cyclic triangle
         {
-          if (verbose)
-            cout << " reading cyclic triangle data"<<endl;
-          input_line >> j;
-          if (verbose)
-            cout << " - j = "<< j <<endl;
-          cyclic_triangles.push_back(j);
+          cyclic_triangles.push_back(poly.first[0]);
           break;
         }
       case 'T': // aaa-triangle
+        {
+          aaa_triangles.push_back(poly);
+          break;
+        }
       case 'U': // aas-triangle
         {
-          if (verbose)
-            cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl;
-          input_line >> i >> j >> k >> u;
-          if (verbose)
-            cout << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
-          if (G=='T')
-            aaa_triangles.push_back({{i,j,k}, {u}});
-          else
-            aas_triangles.push_back({{i,j,k}, {u}});
+          aas_triangles.push_back(poly);
           break;
         }
       case 'Q': // square
         {
-          if (verbose)
-            cout << " reading square data"<<endl;
-          input_line >> i >> j >> k >> l >> x >> y >> z;
-          if (verbose)
-            cout << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
-                 << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
-          squares.push_back({{i,j,k,l}, {x,y,z}});
+          squares.push_back(poly);
           break;
         }
       case 'H': // hexagon
         {
-          if (verbose)
-            cout << " reading hexagon data"<<endl;
-          input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
-          if (verbose)
-            cout << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
-                 << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
-          hexagons.push_back({{i,j,k,l,m,n}, {u,x1,y1,x2,y2}});
+          hexagons.push_back(poly);
           break;
         }
       default:
         break;
       }
-      getline(geodata, line);
+      if (G=='X')
+        break; // don't read any more lines
+      else
+        getline(geodata, line);
     }
   geodata.close();
+}
+
+// same as above but only reads the polygons (T,U,Q,H):
+// returns 4 lists, of aaa-triangles, aas-triangles, squares, hexagons
+vector<vector<POLYGON>> read_polygons(int verbose)
+{
+  ifstream geodata;
+  string line;
+  int file_d;
+  char G;
+  vector<POLYGON> Ts, Us, Qs, Hs;
+  POLYGON poly;
+
+  stringstream ss;
+  ss << "geodata/geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      ss.clear();
+      ss << "geodata_" << Quad::d << ".dat";
+      geodata.open(ss.str().c_str());
+      if (!geodata.is_open())
+        {
+          cout << "No geodata file!" <<endl;
+          return {};
+        }
+    }
+  if (verbose)
+    cout << "reading from " << ss.str() <<endl;
+
+  getline(geodata, line);
+  while (!geodata.eof())
+    {
+      parse_geodata_line(line, file_d, G, poly, verbose);
+      istringstream input_line(line);
+      switch(G) {
+      case 'X':
+        {
+          if (verbose>1)
+            cout<<"Skipping rest of file"<<endl;
+          break;
+        }
+      case '%':
+      case 'A': // alpha orbit
+      case 'S': // sigma orbit
+      case 'C': // cyclic triangle
+      default:
+        {
+          if (verbose>1)
+            cout<<"Skipping line: "<<line<<endl;
+          break;
+        }
+      case 'T': // aaa-triangle
+        {
+          Ts.push_back(poly);
+          break;
+        }
+      case 'U': // aas-triangle
+        {
+          Us.push_back(poly);
+          break;
+        }
+      case 'Q': // square
+        {
+          Qs.push_back(poly);
+          break;
+        }
+      case 'H': // hexagon
+        {
+          Hs.push_back(poly);
+          break;
+        }
+      } // end of switch
+      if (G=='X')
+        break; // don't read any more lines
+      else
+        getline(geodata, line);
+    }
+  geodata.close();
+  return {Ts, Us, Qs, Hs};
 }
 
 // Return i such that alphas[i]=a, else -1

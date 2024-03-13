@@ -6,6 +6,7 @@
 #include "geometry.h"
 
 #define MAX_DISC 100
+#define MIN_DISC 910
 
 #define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
@@ -14,8 +15,6 @@ int main ()
 {
   int verbose = VERBOSE;
   int debug = DEBUG;
-  int to_file=1;
-  int to_screen=0;
 
   long d, f, max=100;
   vector<long> fields = valid_field_discs();
@@ -29,6 +28,7 @@ int main ()
     {
       if ((f==0) && (D>MAX_DISC))
         break;
+      if (D<MIN_DISC) continue;
       d = (D%4==0? D/4: D);
       Quad::field(d,max);
 
@@ -44,211 +44,51 @@ int main ()
 
       // Read precomputed alphas and sigmas
       if (verbose)
-        cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".at..." <<flush;
+        cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".dat..." <<flush;
       Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
       if (verbose)
         cout << "done..."<<endl;
 
-      // Sort alphas:
-      vector<vector<Quad>> pluspairs, minuspairs, fours;
-      alphas = sort_alphas(alphas, pluspairs, minuspairs, fours, verbose, debug);
-      sigmas = sort_singular_points(sigmas);
-
-      // compute the M_alphas and alpha_inv from our lists:
-      M_alphas = all_M_alphas(alphas, alpha_inv);
-
-      // Find all principal polyhedra:
-      verbose = VERBOSE;
-      int n;
-      if (verbose)
-        {
-          cout << "Constructing principal polyhedra from alphas";
-          if (debug) cout << ": "<<alphas;
-          cout << "..." << flush;
-          cout<<endl;
-        }
-      vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
-      n = princ_polys.size();
-      if (verbose)
-        {
-          if (n==1)
-            cout << "done: 1 principal polyhedron constructed:"<<endl;
-          else
-            cout << "done: " << n << " principal polyhedra constructed:"<<endl;
-        }
-      map<string,int> poly_counts;
-      for (const auto& P: princ_polys)
-        poly_counts[poly_name(P)]++;
-      if (verbose)
-        for (const auto& pc : poly_counts)
-          cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
-      // Find all singular polyhedra:
       verbose = VERBOSE;
       if (verbose)
-        cout << "Constructing singular polyhedra..."<<flush;
-      vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
-      n = sing_polys.size();
+        cout << "Reading encoded faces from geodata/geodata_"<<d<<".dat..." <<flush;
+      vector<vector<POLYGON>> all_polys = read_polygons(verbose);
       if (verbose)
-        {
-          if (n==1)
-            cout << "done: 1 singular polyhedron constructed" <<endl;
-          else
-            cout << "done: " << n << " singular polyhedra constructed" <<endl;
-        }
-      map<string,int> spoly_counts;
-      for (const auto& P: sing_polys)
-        spoly_counts[poly_name(P)]++;
-      if (verbose)
-        for (const auto& pc : spoly_counts)
-          cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
-
-      vector<POLYHEDRON> all_polys = sing_polys;
-      all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
-
-      if (verbose)
-        cout << "\nFinding all faces up to GL2-equivalence" << endl;
-      vector<vector<int>> M32;
-      vector<int> redundant_faces;
-      verbose = VERBOSE;
-      auto all_faces = get_faces(all_polys, alphas, sigmas, M32, redundant_faces, verbose);
-      //int nfaces = all_faces.size();
+        cout << "done..."<<endl;
 
       verbose = VERBOSE;
+      if (verbose)
+        cout << "Converting encoded faces to vertex lists..." <<flush;
+      vector<CuspList> all_faces;
 
-      // split up faces into 4 types for reporting and output:
-      vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
-      if (verbose)
-        cout << "Faces up to GL2-action and reflection:\n";
-      int sing, red, i=0;
-      for (const auto& face: all_faces)
+      // convert POLYGON encodings to actual faces, by type:
+      for (const auto& P : all_polys[0]) // T triangles
         {
-          sing = is_face_singular(face, sigmas);
-          red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
-          int n = face.size();
-          string s;
-          if (n==4)
-            {
-              if (!red) squares.push_back(face);
-              if (verbose)
-                {
-                  s = "square";
-                  if (red) s+= " (redundant)";
-                }
-            }
-          else
-            {
-              if (n==6)
-                {
-                  if (!red) hexagons.push_back(face);
-                  if (verbose)
-                    {
-                      s = "hexagon";
-                      if (red) s+= " (redundant)";
-                    }
-                }
-              else
-                {
-                  if (sing)
-                    {
-                      if (!red) aas_triangles.push_back(face);
-                      if (verbose)
-                        {
-                          s = "aas triangle";
-                          if (red) s+= " (redundant)";
-                        }
-                    }
-                  else
-                    {
-                      if (!red) aaa_triangles.push_back(face);
-                      if (verbose)
-                        {
-                          s = "aaa triangle";
-                          if (red) s+= " (redundant)";
-                        }
-                    }
-                }
-            }
-          if (verbose)
-            cout<<i<<" ("<<s<<"): "<<face<<endl;
-          i++;
+          all_faces.push_back(remake_triangle(P, alphas, sigmas, 0));
         }
-
-      verbose = VERBOSE;
-      int all_ok = 1;
-      if (verbose)
-        cout<<aaa_triangles.size()<<" aaa-triangles\n";
-      for ( const auto& face : aaa_triangles)
+      for (const auto& P : all_polys[1]) // U triangles
         {
-          if (verbose) cout <<face << " --> ";
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          if (verbose) cout <<face << " -->  ["<<P.first<<","<<P.second<<"]"<<endl;
-          int ok = check_aaa_triangle(P, verbose);
-          if (!ok)
-            cout<<"aaa-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
+          all_faces.push_back(remake_triangle(P, alphas, sigmas, 1));
+        }
+      for (const auto& P : all_polys[2]) // Q squares
+        {
+          all_faces.push_back(remake_quadrilateral(P, alphas));
+        }
+      for (const auto& P : all_polys[3]) // H hexagons
+        {
+          all_faces.push_back(remake_hexagon(P, alphas));
         }
       if (verbose)
-        cout<<aas_triangles.size()<<" aas-triangles\n";
-      for ( const auto& face : aas_triangles)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_aas_triangle(P, verbose);
-          if (!ok)
-            cout<<"aas-triangle "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      if (verbose)
-        cout<<squares.size()<<" squares\n";
-      for ( const auto& face : squares)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_square(P);
-          if (!ok)
-            cout<<"square "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      if (verbose)
-        cout<<hexagons.size()<<" hexagons\n";
-      for ( const auto& face : hexagons)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_hexagon(P);
-          if (!ok)
-            cout<<"hexagon "<<face<<" --> ["<<P.first<<","<<P.second<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      if (all_ok)
-        {
-          if (verbose)
-            cout<<"all encodings check out OK" << endl;
-        }
-      else
-        {
-          cout<<"*****************not all encodings check out OK" << endl;
-          exit(1);
-        }
-      if (to_file||to_screen) cout << "geodata encodings of faces";
-      if (to_file) cout << " output to geodata file";
-      if (to_file||to_screen) cout << "\n";
-      output_faces({aaa_triangles, squares, hexagons, aas_triangles},
-                   alphas, sigmas, to_file, to_screen);
+        cout << "done..."<<endl;
 
       // Compute integral homology
 
       debug = DEBUG;
-      if (verbose||debug)
-        {
-          cout<<"alphas: "<<alphas<<endl;
-          cout<<"sigmas: "<<sigmas<<endl;
-          cout<<"pluspairs: "<<pluspairs<<endl;
-          cout<<"minuspairs: "<<minuspairs<<endl;
-          cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<all_faces<<endl;
-        }
-      vector<vector<int>> invariants = integral_homology(all_faces,
-                                                         alphas, sigmas,
-                                                         pluspairs, minuspairs, fours,
-                                                         3, debug);
+      verbose = VERBOSE;
+      if (verbose)
+        cout << "Computing integral homology..." <<endl;
+
+      vector<vector<int>> invariants = integral_homology(all_faces, 3, debug);
 
       cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
       cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
