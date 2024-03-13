@@ -6,7 +6,7 @@
 #include "geometry.h"
 
 #define MAX_DISC 100
-#define MIN_DISC 910
+#define MIN_DISC 0
 
 #define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
