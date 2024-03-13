@@ -792,7 +792,7 @@ string encode_int_list(char type, const vector<INT> data)
   return s.str();
 }
 
-// NB POLYGON is typedef'd to pair<vector<int>, vector<Quad>>
+// NB POLYGON is a struct  {vector<int> indices, vector<Quad> shifts}
 
 // Return string for POLYGON representing an aaa-triangle, aas-triangle, quadrilateral or hexagon
 string polygon_string(const POLYGON& P, int sing)
