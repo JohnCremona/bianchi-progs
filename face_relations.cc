@@ -109,13 +109,14 @@ face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
     {
       if (verbose)
         {
-          cout<<cyclic_triangles.size()<<" extra cyclic triangle relation types"<<endl;
+          // cout<<cyclic_triangles.size()<<" extra cyclic triangle relation types"<<endl;
           cout<<aaa_triangles.size()<<" extra aaa triangle relation types"<<endl;
           cout<<aas_triangles.size()<<" aas triangle relation types"<<endl;
           cout<<squares.size()<<" square relation types"<<endl;
           cout<<hexagons.size()<<" hexagon relation types"<<endl;
         }
-      maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + aaa_triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
+      maxnumrel += (plusflag?1:2)*nsymb*(aaa_triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
+      // maxnumrel += (plusflag?1:2)*nsymb*(cyclic_triangles.size() + aaa_triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
       if (verbose)
         cout<<"final bound on #relations = "<<maxnumrel<<endl;
     }
@@ -193,13 +194,13 @@ void face_relations::make_relations()
   if (Quad::class_number==1)
     triangle_relation_2();
 
-  if (!cyclic_triangles.empty())
-    {
-      if(verbose)
-        cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
-      for ( const auto& T : cyclic_triangles)
-        cyclic_triangle_relation(T);
-    }
+  // if (!cyclic_triangles.empty())
+  //   {
+  //     if(verbose)
+  //       cout<<"\nApplying "<<cyclic_triangles.size()<<" cyclic triangle relations"<<endl;
+  //     for ( const auto& T : cyclic_triangles)
+  //       cyclic_triangle_relation(T);
+  //   }
 
   if (!aaa_triangles.empty())
     {
@@ -644,20 +645,20 @@ void face_relations::general_relation(const vector<action>& Mops,
 // (M^2)_i = {M(oo), M(alpha_i')} = {alpha_i', alpha_i}
 //
 
-void face_relations::cyclic_triangle_relation(int i, int check)
-{
-  if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
+// void face_relations::cyclic_triangle_relation(int i, int check)
+// {
+//   if(verbose) cout << "Applying cyclic triangle relation "<<i<<"\n";
 
-  mat22 M = M_alphas[i];
-  vector<int> types(3, i), signs(3, 1);
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, M),
-                         action(P1, M*M)};
+//   mat22 M = M_alphas[i];
+//   vector<int> types(3, i), signs(3, 1);
+//   vector<action> Mops = {action(P1, mat22::identity),
+//                          action(P1, M),
+//                          action(P1, M*M)};
 
-  general_relation(Mops, types, signs, 1, check);
+//   general_relation(Mops, types, signs, 1, check);
 
-  if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
-}
+//   if(verbose) cout << "After cyclic triangle relation "<<i<<", number of relations = " << numrel <<"\n";
+// }
 
 // Template for other aaa-triangle relations, given M_alphas[i](alphas[j]+u) = x + alphas[k] with x integral
 

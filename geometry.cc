@@ -46,7 +46,7 @@ vector<int> sigma_flip;
 vector<int> edge_pairs_minus;
 vector<int> edge_pairs_plus;
 vector<int> edge_fours;
-vector<int> cyclic_triangles;
+// vector<int> cyclic_triangles;
 vector<POLYGON> aaa_triangles;
 vector<POLYGON> aas_triangles;
 vector<POLYGON> squares;
@@ -88,7 +88,7 @@ void Quad::setup_geometry(int debug)
   edge_pairs_plus.clear();
   edge_pairs_minus.clear();
   edge_fours.clear();
-  cyclic_triangles.clear();
+  // cyclic_triangles.clear();
   aaa_triangles.clear();
   aas_triangles.clear();
   squares.clear();
@@ -383,13 +383,13 @@ int check_aaa_triangle(const POLYGON& T, int verbose)
   return (x.is_integral());
 }
 
-int check_cyclic_triangle(int i, int verbose)
-{
-  if (verbose)
-     cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
-  Quad t=M_alphas[i].trace();
-  return (t*t==Quad::one);
-}
+// int check_cyclic_triangle(int i, int verbose)
+// {
+//   if (verbose)
+//      cout<<"Checking cyclic triangle {"<<i<<"}"<<endl;
+//   Quad t=M_alphas[i].trace();
+//   return (t*t==Quad::one);
+// }
 
 int check_aas_triangle(const POLYGON& T, int verbose)
 {
@@ -422,8 +422,8 @@ int check_aas_triangle(const POLYGON& T, int verbose)
 
 void check_triangles(int verbose)
 {
-  for ( const auto& T : cyclic_triangles)
-    assert(check_cyclic_triangle(T, verbose));
+  // for ( const auto& T : cyclic_triangles)
+  //   assert(check_cyclic_triangle(T, verbose));
   for ( const auto& T : aaa_triangles)
     {
       if(verbose)
@@ -582,15 +582,15 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
       poly = {{},{r,s}};
       return;
     }
-  case 'C': // cyclic triangle
-    {
-      input_line >> j;
-      if (verbose)
-        cout << " reading cyclic triangle data"<<endl
-             << " - j = "<< j <<endl;
-      poly = {{j},{}};
-      return;
-    }
+  // case 'C': // cyclic triangle
+  //   {
+  //     input_line >> j;
+  //     if (verbose)
+  //       cout << " reading cyclic triangle data"<<endl
+  //            << " - j = "<< j <<endl;
+  //     poly = {{j},{}};
+  //     return;
+  //   }
   case 'T': // aaa-triangle
   case 'U': // aas-triangle
     {
@@ -680,11 +680,11 @@ void read_data(int verbose)
           add_sigma_orbit(poly.shifts[0], poly.shifts[1]);
           break;
         }
-      case 'C': // cyclic triangle
-        {
-          cyclic_triangles.push_back(poly.indices[0]);
-          break;
-        }
+      // case 'C': // cyclic triangle
+      //   {
+      //     cyclic_triangles.push_back(poly.indices[0]);
+      //     break;
+      //   }
       case 'T': // aaa-triangle
         {
           aaa_triangles.push_back(poly);
@@ -759,7 +759,7 @@ vector<vector<POLYGON>> read_polygons(int verbose)
       case '%':
       case 'A': // alpha orbit
       case 'S': // sigma orbit
-      case 'C': // cyclic triangle
+      // case 'C': // cyclic triangle
       default:
         {
           if (verbose>1)
