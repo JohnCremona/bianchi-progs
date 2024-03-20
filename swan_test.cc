@@ -7,7 +7,7 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define VERBOSE 1 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
 vector<RatQuad> test_singular_points(int output_level=0)
@@ -217,16 +217,9 @@ int main ()
       for (const auto& sigma: sigmas)
         {
           if (sigma.is_infinity()) continue;
-          auto nbrs = sorted_neighbours(sigma, alphas);
-          auto n = nbrs.size();
-          cout << sigma << " has " << n << " neighbours (sorted): " << nbrs << endl;
-
-          // cout << sigma << "\t has coords\t " << sigma.coords(1) <<endl;
-          // for (auto a : nbrs)
-          //   {
-          //     RatQuad b = a-sigma;
-          //     cout <<a<<" - "<<sigma<<" = "<<b<< "\t has coords\t " << b.coords(1) <<endl;
-          //   }
+          auto sigma_nbrs = sorted_neighbours(sigma, alphas);
+          auto n = sigma_nbrs.size();
+          cout << sigma << " has " << n << " neighbours (sorted): " << sigma_nbrs << endl;
         }
 #endif
       // Find all principal polyhedra:

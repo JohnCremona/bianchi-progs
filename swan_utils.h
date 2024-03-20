@@ -156,8 +156,11 @@ RAT height_above(const RatQuad& a, const RatQuad& z);
 int is_under(const H3point& P, const RatQuad& a);
 // return +1 iff P is under at least one S_a for a in alist
 int is_under_any(const H3point& P, const CuspList& alist);
-//
-CuspList nbrs(const RatQuad& z);
+
+// For z in F4 (quarter rectangle) return list of z and the 8
+// neighbours of z, -z, zbar, -zbar in the 8 surrounding
+// quarter-rectangles
+CuspList F4nbrs(const RatQuad& z);
 
 // For P=[z,t2] in H_3, returns a list of principal cusps alpha =r/s
 // such that P lies on or under S_alpha, and N(s)>=norm_s_lb.

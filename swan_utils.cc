@@ -448,7 +448,13 @@ int is_under_any(const H3point& P, const CuspList& alist)
                      [P](RatQuad a) {return is_under(P,a)==1;});
 }
 
-CuspList nbrs(const RatQuad& z)
+// For z in F4 (quarter rectangle) return list of z and the 8
+// neighbours of z, -z, zbar, -zbar in the 8 surrounding
+// quarter-rectangles.  These are (with cz=z.conj()): {z, -z, cz, 1-z,
+// -cz, 1-cz, w-z, w+cz} and either w+cz-1 or w+1-cz depending on
+// Trace(w).
+
+CuspList F4nbrs(const RatQuad& z)
 {
   RatQuad cz = z.conj();
   int t = Quad::t;

@@ -318,6 +318,22 @@ void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minusp
     cout << nlines << " A-lines output"<<endl;
 }
 
+// Given a principal cusp a0, and a list of others, alist, return the
+// list of b in alist which intersect a0 in 2 distinct points.
+CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist)
+{
+  CuspList blist;
+  for (const auto& b : alist)
+    if (circles_intersect(a0,b))
+      blist.push_back(b);
+  // CuspList blist(alist.size());
+  // auto it = std::copy_if(alist.begin(), alist.end(), blist.begin(),
+  //                        [a0](RatQuad b){return circles_intersect(a0, b);});
+  // blist.resize(std::distance(blist.begin(),it));  // shrink to new size
+  // cout << blist.size() << " alphas intersect "<<a0<< endl;
+  return blist;
+}
+
 // Given principal cusps a1, a2, a such that the circles S_a1 and
 // S_a2 intersect in distinct points, test whether S_a covers either
 // or both these points.
@@ -488,11 +504,7 @@ int is_alpha_surrounded(const RatQuad& a0, const CuspList& alist, const CuspList
     }
   // extract the relevant alphas, if any, namely those for which
   // S_alpha and S_a0 properly intersect:
-
-  CuspList a0list(alist.size()); // upper bound on size
-  auto it1 = std::copy_if(alist.begin(), alist.end(), a0list.begin(),
-                         [a0](RatQuad a){return circles_intersect(a0, a);});
-  a0list.resize(std::distance(a0list.begin(),it1));  // shrink to new size
+  CuspList a0list = intersecting_alphas(a0,alist);
   if (debug)
     cout<<" - intersecting neighbours: "<<a0list<<endl;
 
@@ -625,7 +637,7 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
 CuspList covering_alphas(const CuspList& slist, int verbose)
 {
   CuspList alphas_ok;  // list that will be returned
-  INT maxn = Quad::absdisc/4; // we first consider all alphas with dnorm up to this
+  INT maxn = Quad::absdisc; ///4; // we first consider all alphas with dnorm up to this
   if (maxn==0) maxn=1; // just for discriminant -3
   int first = 1;
   string s = "of norm up to ";
@@ -739,8 +751,23 @@ CuspList covering_alphas(const CuspList& slist, int verbose)
 
 H3pointList triple_intersections(const CuspList& alphas, int debug)
 {
+  H3pointList old_points = old_triple_intersections(alphas, debug);
+  if (0)
+    {
+      H3pointList new_points = new_triple_intersections(alphas, debug);
+      cout << "Old list of corners (size "<<old_points.size()<<") : "<<old_points<<endl;
+      cout << "New list of corners (size "<<new_points.size()<<") : "<<new_points<<endl;
+      if (old_points.size()!=new_points.size())
+        cout << "Numbers differ!" <<endl;
+    }
+  // return new_points;
+  return old_points;
+}
+
+H3pointList old_triple_intersections(const CuspList& alphas, int debug)
+{
     if (debug)
-      cout << "Finding triple intersections for " <<alphas.size()<<" alphas..."<<endl;
+      cout << "Finding triple intersections for " <<alphas.size()<<" alphas (old code)..."<<endl;
 
     // Extract the alphas in F4.  NB the standard list of alphas has
     // the property that, after those of denom 1, 2, 3, they come in
@@ -767,7 +794,7 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
     CuspList alphasF4X;
     for ( auto& z : alphasF4)
       {
-        CuspList z_nbrs = nbrs(z);
+        CuspList z_nbrs = F4nbrs(z);
         alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());
       }
     if (debug)
@@ -839,6 +866,93 @@ H3pointList triple_intersections(const CuspList& alphas, int debug)
             points.push_back(P2);
           }
       }
+    if (debug)
+      cout << " returning "<<points.size() <<" corners" <<endl;
+    return points;
+}
+
+H3pointList new_triple_intersections(const CuspList& alphas, int debug)
+{
+    if (debug)
+      cout << "Finding triple intersections for " <<alphas.size()<<" alphas (new code)..."<<endl;
+
+    // Extract the alphas in F4.  NB the standard list of alphas has
+    // the property that, after those of denom 1, 2, 3, they come in
+    // pairs a, -a; the second of the pair is not always in the
+    // rectangle (because of the rounding of 1/2).
+    CuspList alphasF4;
+    Quad t;
+    for ( auto a : alphas)
+      {
+        a = reduce_to_rectangle(a, t);
+        if (a.in_quarter_rectangle())
+          alphasF4.push_back(a);
+      }
+    if (debug)
+      cout << alphasF4.size() <<" alphas are in the quarter rectangle: " << alphasF4 << endl;
+
+    // Extend these by 8 translations:
+    CuspList alphasF4X;
+    for ( auto& z : alphasF4)
+      {
+        CuspList z_nbrs = F4nbrs(z);
+        alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());
+      }
+    if (debug)
+      cout << alphasF4X.size() <<" neighbours of these: " << alphasF4X << endl;
+
+    H3pointList points;
+
+    // Loop through all a0 in alphasF4:
+    for (const auto& a0 : alphasF4)
+      {
+        // find its neighbours
+        CuspList blist = intersecting_alphas(a0, alphasF4X);
+        // For each intersecting pair of these we may have a triple
+        // intersection point:
+        int n = blist.size();
+        if (n<3)
+          return points; // empty list
+        for (auto bi = blist.begin(); bi!=blist.end(); ++bi)
+          for (auto bj = bi+1; bj!=blist.end(); ++bj)
+            {
+              RatQuad b1 = *bi, b2 = *bj;
+              if (!circles_intersect(b1,b2))
+                continue;
+              H3pointList points1 = tri_inter_points(a0, b1, b2);
+              if (points1.empty())
+                continue;
+              H3point P = points1.front();
+              RatQuad z = P.z;
+              RAT t2 = P.t2;
+              if (t2.sign()==0)
+                continue;
+              if (!z.in_quarter_rectangle())
+                continue;
+              if (std::find(points.begin(), points.end(), P) != points.end())
+                continue;
+              if (is_under_any(P, alphasF4X))
+                continue;
+              if (debug)
+                cout << " found P = "<<P<<", tri-intersection of "<<a0<<", "<<b1<<", "<<b2<<"\n";
+              points.push_back(P);
+              // These corners are in F4, so we apply symmetries to get all those in F:
+              RatQuad zbar = z.conj();
+              for (const auto& z2 : {-z, zbar, -zbar})
+                {
+                  if (!z2.in_rectangle())
+                    continue;
+                  H3point P2 = {z2, t2};
+                  if (std::find(points.begin(), points.end(), P2) != points.end())
+                    continue;
+                  if (is_under_any(P, alphasF4X))
+                    continue;
+                  if (debug)
+                    cout << " adding P2 = "<<P2<<" from ("<<a0<<","<<b1<<","<<b2<<")" <<endl;
+                  points.push_back(P2);
+                }
+            } // end of double loop over b's
+      } // end of loop over alphasF4
     if (debug)
       cout << " returning "<<points.size() <<" corners" <<endl;
     return points;
@@ -1077,27 +1191,27 @@ CuspList find_alphas(const CuspList& slist, int debug, int verbose)
 }
 
 // return list of alphas (or translates) which pass through a finite cusp
-CuspList neighbours(const RatQuad& sigma, const CuspList& alphas)
+CuspList neighbours(const RatQuad& a, const CuspList& alist)
 {
-  Quad r = sigma.num(), s=sigma.den();
+  Quad r = a.num(), s=a.den();
   INT ns = s.norm();
-  CuspList nbrs;
+  CuspList ans;
   const std::array<int,3> t = {-1,0,1};
-  for ( const auto& alpha : alphas)
+  for ( const auto& alpha : alist)
     {
       Quad c = alpha.num(), d=alpha.den();
       Quad f = r*d-s*c, g=s*d;
-      // S_alpha goes through sigma iff N(rd-sc)=N(s)
+      // S_alpha goes through a iff N(r*d-s*c)=N(s)
       for (auto x : t)
         for (auto y : t)
           {
             Quad t(x,y);    // test alpha+t = RatQuad(c+dt,d)
             Quad b = f-g*t; // = rd-s(c+dt)
             if (b.norm()==ns)
-              nbrs.push_back(RatQuad(c+d*t,d, 0)); // 0 means do not reduce
+              ans.push_back(RatQuad(c+d*t,d, 0)); // 0 means do not reduce
           }
     }
-  return nbrs;
+  return ans;
 }
 
 // return sorted list of alphas (or translates) which pass through a finite cusp,
@@ -1112,13 +1226,13 @@ int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alphas, int debug)
 {
   if (sigma.is_infinity())
     return 1;
-  CuspList nbrs = neighbours(sigma, alphas);
+  CuspList ans = neighbours(sigma, alphas);
   if (debug)
-    cout<<"Neighbours of "<<sigma<<" are "<<nbrs<<endl;
+    cout<<"Neighbours of "<<sigma<<" are "<<ans<<endl;
 
-  int ok = std::all_of(nbrs.begin(), nbrs.end(),
-                     [sigma, nbrs](const RatQuad& a1)
-                     {return std::any_of(nbrs.begin(), nbrs.end(),
+  int ok = std::all_of(ans.begin(), ans.end(),
+                     [sigma, ans](const RatQuad& a1)
+                     {return std::any_of(ans.begin(), ans.end(),
                                          [sigma,a1](const RatQuad& a2) {return angle_under_pi(sigma,a1,a2);});});
   if (debug)
     {
