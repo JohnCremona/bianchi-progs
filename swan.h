@@ -8,7 +8,49 @@
 
 #include "swan_utils.h"
 
-// return  a saturated irredundant list of alphas, and list of sigmas, in the fundamental rectangle
-pair<CuspList,CuspList> find_alphas_and_sigmas(int debug=0, int verbose=0);
+class SwanData {
+public:
+  CuspList alist;
+  CuspList slist;
+  H3pointList corners;
+
+  SwanData();
+  void make_sigmas();
+  CuspList get_sigmas() {
+    make_sigmas();
+    return slist;
+  }
+  void make_alphas(int verbose=0);
+  CuspList get_alphas(int verbose=0) {
+    make_alphas(verbose);
+    return alist;
+  }
+  H3pointList get_corners() const {
+    return corners;
+  }
+  vector<Quad> shifts; // x+yw with x,y in {-1,0,1}
+private:
+  Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
+  CuspList alistx; // list of alphas + 8 integer translates
+  CuspList alistF4; // sublist of those in quarter rectangle
+  CuspList alistF4X; // previous + 8 conj/neg/translates
+  INT maxn; // max denom norm of alphas considered systematically
+  CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
+  map<RatQuad, CuspList, RatQuad_comparison> nbrs_ok, nbrs_open;
+  H3pointList cornersx;
+
+  // add next batch of alphas from denom_looper, return number added
+  int add_new_alphas(int verbose=0);
+
+  void find_covering_alphas(int verbose=0);
+  void find_corners(int verbose=0);
+  void saturate_alphas(int verbose=0);
+
+  int is_sigma_surrounded(const RatQuad& s, int verbose=0);
+  int are_sigmas_surrounded(int verbose=0);
+
+  int is_alpha_surrounded(const RatQuad& a, int verbose=0);
+  int are_alphas_surrounded(int verbose=0);
+};
 
 #endif

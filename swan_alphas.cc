@@ -353,9 +353,12 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
     cout << "\tTesting if intersection points of "<<a1<<" and "<<a2<<" are covered by "<<a;
 
   // Check the cusps are principal, not infinity, and with unit ideal
-  assert (a.is_finite() && a.is_principal());
-  assert (a1.is_finite() && a1.is_principal());
-  assert (a2.is_finite() && a2.is_principal());
+  if (debug)
+    {
+      assert (a.is_finite() && a.is_principal());
+      assert (a1.is_finite() && a1.is_principal());
+      assert (a2.is_finite() && a2.is_principal());
+    }
 
   // Define the square radii and centres
   RatQuad delta = (a2-a1).conj();
@@ -372,6 +375,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 
   RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/TWO;
   RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/TWO;
+  int Tsign = T.sign();
   RAT T2 = T*T;
   RatQuad D = tri_det(a, a2, a1); // pure imaginary
   RAT D2 = (D*D).x_coord(1);      // negative rational
@@ -379,17 +383,19 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 
   // the covering condition is \pm sqrt(d2)*D < T
 
-  int code = 0;
-  if (d2D2 < T2)
-    {
-      code = (T>0 ? 2 : (T<0? 0: 99));
-    }
-  if (d2D2 > T2)
-    {
-      Quad w = Quad::w;
-      RAT u = (D*(w-w.conj())).x_coord(1);
-      code = u.sign();
-    }
+  int code;
+  switch ((T2-d2D2).sign()) {
+  case 0:
+  default:
+    code = 0;
+    break;
+  case 1:
+    code = 1+Tsign; // =0 or 2, never 1
+    break;
+  case -1:
+    Quad w = Quad::w;
+    code = ((D*(w-w.conj())).x_coord(1)).sign();
+  }
   if (debug)
     cout << " - test returns code "<<code<<endl;
   return code;
@@ -451,9 +457,9 @@ int are_intersection_points_covered(const RatQuad& a0, const RatQuad& a1, const 
       int t2 = are_intersection_points_covered_by_one(a0, a1, a2);
       if (t2==2) // both are covered by a2
         {
-      if (debug)
-        cout << "+++returning yes, both are covered"<<endl;
-      return 1;
+          if (debug)
+            cout << "+++returning yes, both are covered"<<endl;
+          return 1;
         }
       if (t2==0) // neither is covered by a2
         continue;
@@ -650,16 +656,16 @@ CuspList covering_alphas(const CuspList& slist, int verbose)
 
       CuspList new_alphas = (first
                              ?
-                             principal_cusps_with_denominators(looper.values_with_norm_up_to(maxn))
+                             principal_cusps_with_denominators(looper.values_with_norm_up_to(maxn, 1))
                              :
                              principal_cusps_with_denominators(looper.values_with_current_norm())
                              );
-      //cout << "new_alphas = " << new_alphas << endl;
+      // cout << "new_alphas = " << new_alphas << endl;
       maxn = new_alphas.back().den().norm();
 
       if (verbose)
         cout << "----------------------------------------------------------\n"
-             << "Considering "<<new_alphas.size()<<" extra principal cusps " << s << maxn
+             << "Considering "<<new_alphas.size()<<(first?"":" extra") << " principal cusps " << s << maxn
           //<< ": "<<new_alphas
              << endl;
       first = 0;
@@ -1196,16 +1202,16 @@ CuspList neighbours(const RatQuad& a, const CuspList& alist)
   Quad r = a.num(), s=a.den();
   INT ns = s.norm();
   CuspList ans;
-  const std::array<int,3> t = {-1,0,1};
+  const std::array<int,3> txy = {-1,0,1};
   for ( const auto& alpha : alist)
     {
       Quad c = alpha.num(), d=alpha.den();
       Quad f = r*d-s*c, g=s*d;
       // S_alpha goes through a iff N(r*d-s*c)=N(s)
-      for (auto x : t)
-        for (auto y : t)
+      for (auto tx : txy)
+        for (auto ty : txy)
           {
-            Quad t(x,y);    // test alpha+t = RatQuad(c+dt,d)
+            Quad t(tx,ty);    // test alpha+t = RatQuad(c+dt,d)
             Quad b = f-g*t; // = rd-s(c+dt)
             if (b.norm()==ns)
               ans.push_back(RatQuad(c+d*t,d, 0)); // 0 means do not reduce

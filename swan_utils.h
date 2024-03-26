@@ -9,6 +9,7 @@
 #include "mat22.h"
 #include "geometry.h"
 #include "ratquads.h"
+#include "looper.h"
 
 typedef modsym EDGE;
 struct POLYHEDRON {

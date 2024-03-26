@@ -97,7 +97,7 @@ vector<CuspList> singular_points_by_class()
   return sigma_lists;
 }
 
-// Return one list of all singular points.
+// Return one list of all singular points (excluding oo).
 
 CuspList singular_points()
 {

@@ -141,7 +141,29 @@ int main ()
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
 
+      // Create SwanData object
+      verbose = VERBOSE;
+      debug = DEBUG;
+      cout<<"----------------------------------------------------------------------------------\n";
+      if (verbose)
+        cout << "Creating SwanData object"<<endl;
+      SwanData SD;
+      if (verbose)
+        cout << "Using SwanData object to create sigmas:"<<endl;
+      auto SDsigmas = SD.get_sigmas();
+      if (verbose)
+        cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
+      if (verbose)
+        cout << "Using SwanData object to create (covering, saturated) alphas:"<<endl;
+      auto SDalphas = SD.get_alphas(verbose);
+      if (verbose)
+        cout << SDalphas.size() << " alphas found by SwanData"<<endl;
+      auto SDcorners = SD.get_corners();
+      if (verbose)
+        cout << SDcorners.size() << " corners found by SwanData"<<endl;
 
+      new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
+      new_sigmas = SDsigmas; //
       if (D<1000)
         {
       // Compare with precomputed alphas and sigmas
@@ -204,6 +226,8 @@ int main ()
             }
         }
         } // end of code to compare new and old
+
+      continue; // while testing SwanData only
 
       alphas = new_alphas; // overwrite the globals with our lists
       sigmas = new_sigmas; //
