@@ -7,7 +7,7 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 1 // verbose setting to use if not overridden locally
+#define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
 vector<RatQuad> test_singular_points(int output_level=0)
@@ -81,7 +81,11 @@ int main ()
 
       //test_principal_cusps(20,20);
 
-      cout << "Finding sigmas and alphas..."<<flush;
+      cout << "Finding sigmas and alphas (old method)"<<endl;
+
+      timer t;
+      string method = "old-alpha-sigma-finder";
+      t.start(method);
 
       verbose = VERBOSE;
       debug = DEBUG;
@@ -137,7 +141,8 @@ int main ()
       if (debug||verbose)
         cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
       new_alphas = sorted_alphas;
-      cout<<"...done, now outputting"<<endl;
+      t.stop(method);
+      cout<<"...done: "; t.show(0, method); cout<<endl;
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
 
@@ -145,25 +150,24 @@ int main ()
       verbose = VERBOSE;
       debug = DEBUG;
       cout<<"----------------------------------------------------------------------------------\n";
-      if (verbose)
-        cout << "Creating SwanData object"<<endl;
+      cout << "Creating SwanData object"<<endl;
+      method = "SwanData";
+      t.start(method);
       SwanData SD;
-      if (verbose)
-        cout << "Using SwanData object to create sigmas:"<<endl;
+      cout << "Using SwanData object to create sigmas:"<<endl;
       auto SDsigmas = SD.get_sigmas();
-      if (verbose)
-        cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
-      if (verbose)
-        cout << "Using SwanData object to create (covering, saturated) alphas:"<<endl;
+      cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
+      cout << "Using SwanData object to create (covering, saturated) alphas:"<<endl;
       auto SDalphas = SD.get_alphas(verbose);
-      if (verbose)
-        cout << SDalphas.size() << " alphas found by SwanData"<<endl;
+      cout << SDalphas.size() << " alphas found by SwanData"<<endl;
       auto SDcorners = SD.get_corners();
-      if (verbose)
-        cout << SDcorners.size() << " corners found by SwanData"<<endl;
+      cout << SDcorners.size() << " corners found by SwanData"<<endl;
+      t.stopAll();
+      cout<<"...done: "; t.show(0, method); cout<<endl;
 
       new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
       new_sigmas = SDsigmas; //
+
       if (D<1000)
         {
       // Compare with precomputed alphas and sigmas

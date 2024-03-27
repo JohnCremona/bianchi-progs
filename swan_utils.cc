@@ -98,6 +98,13 @@ H3point bi_inter(const RatQuad& a1, const RatQuad& a2)
   return P;
 }
 
+// return 1 iff a is on (the boundary of) S_b  (b principal, a arbitrary)
+int is_on(const RatQuad& a, const RatQuad& b)
+{
+  int t = sign(a.den().norm() - (a.num()*b.den()-a.den()*b.num()).norm());
+  return t==0;
+}
+
 // return 1 iff a is [strictly] inside S_b (b principal, a arbitrary)
 int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 {

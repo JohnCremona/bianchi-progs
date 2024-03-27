@@ -102,7 +102,7 @@ CuspList covering_alphas(const CuspList& slist, int verbose=0);
 // a list of "corners" P = [z,tsq] each the intersection of an S_a
 // with at least two other S_{b+t} with z in the fundamental
 // rectangle and tsq>0.
-H3pointList triple_intersections(const CuspList& alist, int debug=1);
+H3pointList triple_intersections(const CuspList& alist, int debug=0);
 
 H3pointList new_triple_intersections(const CuspList& alist, int debug=0);
 H3pointList old_triple_intersections(const CuspList& alist, int debug=0);

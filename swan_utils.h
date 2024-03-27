@@ -49,7 +49,10 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2);
 // a2.  Used when both S_a_i pass through a singular point.
 H3point bi_inter(const RatQuad& a1, const RatQuad& a2);
 
-// return 1 iff a is [strictly] inside S_b
+// return 1 iff a is on (the boundary of) S_b  (b principal, a arbitrary)
+int is_on(const RatQuad& a, const RatQuad& b);
+
+// return 1 iff a is [strictly] inside S_b  (b principal, a arbitrary)
 int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 
 // return 1 iff a is [strictly] inside S_b for at least one b in blist

@@ -33,16 +33,24 @@ private:
   Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   CuspList alistx; // list of alphas + 8 integer translates
   CuspList alistF4; // sublist of those in quarter rectangle
-  CuspList alistF4X; // previous + 8 conj/neg/translates
   INT maxn; // max denom norm of alphas considered systematically
   CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
   map<RatQuad, CuspList, RatQuad_comparison> nbrs_ok, nbrs_open;
+  CuspList slistx; // list of sigmas + 8 integer translates
   H3pointList cornersx;
 
+  // add one alpha; use covered=1 after fiding covering alohas and
+  // saturating with more
+  int add_one_alpha(const RatQuad& a, int covered=0, int verbose=0);
   // add next batch of alphas from denom_looper, return number added
   int add_new_alphas(int verbose=0);
 
   void find_covering_alphas(int verbose=0);
+
+  // list of singular corners [s,0] on S_a (s in slist or a translate)
+  H3pointList singular_corners(const RatQuad& a);
+
+  // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
   void find_corners(int verbose=0);
   void saturate_alphas(int verbose=0);
 

@@ -314,8 +314,8 @@ void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minusp
     nlines += output3(rs[1], rs[0], rs[0]);
   for ( const auto& sr1r2 : fours)
     nlines += output3(sr1r2[0], sr1r2[1], sr1r2[2]);
-  if (to_file || to_screen)
-    cout << nlines << " A-lines output"<<endl;
+  // if (to_file || to_screen)
+  //   cout << nlines << " A-lines output"<<endl;
 }
 
 // Given a principal cusp a0, and a list of others, alist, return the
