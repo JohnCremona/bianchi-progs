@@ -453,7 +453,124 @@ H3pointList SwanData::singular_corners(const RatQuad& a)
   return ans;
 }
 
-// Find and fill corners list, replacing alistF4 with sublist of alphas in F4 on >=3 corners
+// Find corners from one alpha.  The new corners are not added to the
+// class's points list, but are returned.  The parameter redundant is
+// set to 1 if a has <3 corners (including singular ones).
+H3pointList SwanData::find_corners_from_one(const RatQuad& a, int& redundant, int verbose)
+{
+  int debug = verbose;
+  Quad t;
+  H3pointList new_corners; // list of corners to be returned (and then added to class global corners)
+  H3pointList a_corners = singular_corners(a); // list of all corners of a found
+
+  // these two are different: new_corners includes symmetrics and are
+  // all in the rectangle (suitable for merging onto the class's
+  // corners list), while a_corners will be a list of all corners of
+  // a, without symmetrics and not all necessarily in the
+  // rectangle. We only need to know the size of a_corners as the
+  // condition for a to be redundant is that it has <3 corners.
+
+  // get its intersecting neighbours
+  if (!nbrs_open[a].empty())
+    {
+      cout<<"Problem: "<<a<<" has open neighbours "<<nbrs_open[a]<<endl;
+      cout<<"find_corners_from_one() is only to be used after finding a covering set of alphas"<<endl;
+      return new_corners; // empty
+    }
+  CuspList a_nbrs = nbrs_ok[a]; // which = nbrs[a]
+  int n = a_nbrs.size();
+
+  if (debug)
+    cout<<"-------------------------\n"
+        <<"Finding corners of "<<a<<" from its "<<n<<" neighbours "<<a_nbrs
+        <<"\n it has "<<a_corners.size()<<" singular corners: "<<a_corners<<endl;
+
+  // For each intersecting pair of these we may have a triple intersection point:
+  if (n<3)
+    return new_corners;
+  for (auto bi = a_nbrs.begin(); bi!=a_nbrs.end(); ++bi)
+    for (auto bj = bi+1; bj!=a_nbrs.end(); ++bj)
+      {
+        RatQuad b1 = *bi, b2 = *bj;
+        if (!circles_intersect(b1,b2))
+          continue;
+        H3pointList corners1 = tri_inter_points(a, b1, b2);
+        if (corners1.empty())
+          continue;
+        H3point P = corners1.front();
+        RatQuad z = P.z;
+        RAT t2 = P.t2;
+        if (t2.sign()==0)
+          continue;
+        if (debug)
+          cout << " ----------found P = "<<P<<", tri-intersection of "<<a<<", "<<b1<<", "<<b2<<"\n";
+        if (is_under_any(P, alistx))
+          {
+            if (debug)
+              cout << " ignoring P as it is under some hemisphere"<<endl;
+            continue;
+          }
+        if (debug)
+          cout << " P is not under any hemisphere"<<endl;
+        if (std::find(a_corners.begin(), a_corners.end(), P) == a_corners.end())
+          {
+            a_corners.push_back(P);
+            if (debug)
+              cout<<" adding P to list of corners of "<<a
+                  <<" (which now contains "<<a_corners.size()<<" corners)"<<endl;
+          }
+        else
+          if (debug)
+                cout<<" P is already in list of corners of "<<a<<endl;
+        // Now see if we want to add P (and its symmetrics) to the new_corners list.
+        // Not if it is there already:
+        if (std::find(new_corners.begin(), new_corners.end(), P) != new_corners.end())
+          {
+            if (debug)
+              cout << " P is already in new_corners list"<<endl;
+            continue;
+          }
+        if (debug)
+          cout << " P is not in new_corners list"<<endl;
+
+        // Store this if it is in F4 (then store up to 3 symmetrics):
+        if (!z.in_quarter_rectangle())
+          {
+            if (debug)
+              cout << " P is not in F4, not adding to new_corners list"<<endl;
+            continue;
+          }
+        if (debug)
+          cout << " P is in F4, adding to corners list"<<endl;
+        new_corners.push_back(P);
+
+        // These corners are in F4, so we apply symmetries to get all those in F:
+        RatQuad zbar = z.conj();
+        for (auto z2 : {-z, zbar, -zbar})
+          {
+            z2 = reduce_to_rectangle(z2, t);
+            H3point P2 = {z2, t2};
+            if (std::find(new_corners.begin(), new_corners.end(), P2) != new_corners.end())
+              continue;
+            if (is_under_any(P, alistx))
+              continue;
+            if (debug)
+              cout << " adding symmetric "<<P2<<" from ("<<a<<","<<b1<<","<<b2<<") to new_corners list" <<endl;
+            new_corners.push_back(P2);
+          }
+      } // end of double loop over b's
+  n = a_corners.size(); // re-using variable n
+  redundant = n<3;
+  if (debug)
+    {
+      cout<<"  "<<a<<" has "<<n<<" corners (including singular corners) so ";
+      cout<<(redundant?"IS":"is NOT")<<" redundant\n\n";
+    }
+  return new_corners;
+}
+
+// Find potential corners, store in class's corners list, replacing
+// alistF4 with sublist of alphas in F4 on >=3 corners
 void SwanData::find_corners(int verbose)
 {
   int debug = verbose>1;
@@ -464,109 +581,24 @@ void SwanData::find_corners(int verbose)
   // the property that, after those of denom 1, 2, 3, they come in
   // pairs a, -a; the second of the pair is not always in the
   // rectangle (because of the rounding of 1/2).
-  Quad t;
   if (verbose)
     cout << alistF4.size() <<" alphas are in the quarter rectangle"<<endl;
 
   CuspList not_redundants; // list of a in alistF4 which are on >=3 corners
+  Quad t;
 
-  // Loop through all a0 in alistF4:
-  for (const auto& a0 : alistF4)
+  // Loop through all a in alistF4 finding corners from each:
+  for (const auto& a : alistF4)
     {
-      // get its intersecting neighbours
-      if (!nbrs_open[a0].empty())
-        {
-          cout<<"Problem: "<<a0<<" has open neighbours "<<nbrs_open[a0]<<endl;
-          exit(1);
-        }
-      CuspList a_nbrs = nbrs_ok[a0];
-      H3pointList a0_corners = singular_corners(a0); // list of all corners of a0 found
+      int red;
+      H3pointList a_corners = find_corners_from_one(a, red, debug);
+      if (!red)
+        not_redundants.push_back(a);
+      for (const auto& P : a_corners)
+        if (std::find(corners.begin(), corners.end(), P) == corners.end())
+          corners.push_back(P);
+    }
 
-      if (debug)
-        cout<<"-------------------------\n"
-            <<"Finding corners of "<<a0<<" from its "<<a_nbrs.size()<<" neighbours "<<a_nbrs
-            <<"\n it has "<<a0_corners.size()<<" singular corners: "<<a0_corners<<endl;
-
-      // For each intersecting pair of these we may have a triple
-      // intersection point:
-      int n = a_nbrs.size();
-      if (n<3)
-        return; // empty list
-      for (auto bi = a_nbrs.begin(); bi!=a_nbrs.end(); ++bi)
-        for (auto bj = bi+1; bj!=a_nbrs.end(); ++bj)
-          {
-            RatQuad b1 = *bi, b2 = *bj;
-            if (!circles_intersect(b1,b2))
-              continue;
-            H3pointList corners1 = tri_inter_points(a0, b1, b2);
-            if (corners1.empty())
-              continue;
-            H3point P = corners1.front();
-            RatQuad z = P.z;
-            RAT t2 = P.t2;
-            if (t2.sign()==0)
-              continue;
-            if (debug)
-              cout << " ----------found P = "<<P<<", tri-intersection of "<<a0<<", "<<b1<<", "<<b2<<"\n";
-            if (is_under_any(P, alistx))
-              {
-                if (debug)
-                  cout << " ignoring P as it is under some hemisphere"<<endl;
-                continue;
-              }
-            if (debug)
-              cout << " P is not under any hemisphere"<<endl;
-            if (std::find(a0_corners.begin(), a0_corners.end(), P) == a0_corners.end())
-              {
-                a0_corners.push_back(P);
-                if (debug)
-                  cout<<" adding P to list of corners of "<<a0
-                      <<" (which now contains "<<a0_corners.size()<<" corners)"<<endl;
-              }
-            else
-              if (debug)
-                cout<<" P is already in list of corners of "<<a0<<endl;
-            // Now see if we want to add P (and its symmetrics) to the main corners list.
-            // Not if it is there already:
-            if (std::find(corners.begin(), corners.end(), P) != corners.end())
-              {
-                if (debug)
-                  cout << " P is already in corners list"<<endl;
-                continue;
-              }
-            if (debug)
-              cout << " P is not in corners list"<<endl;
-
-            // Store this if it is in F4 (then store up to 3 symmetrics):
-            if (!z.in_quarter_rectangle())
-              {
-                if (debug)
-                  cout << " P is not in F4, not adding to corners list"<<endl;
-                continue;
-              }
-            if (debug)
-              cout << " P is in F4, adding to corners list"<<endl;
-            corners.push_back(P);
-            // These corners are in F4, so we apply symmetries to get all those in F:
-            RatQuad zbar = z.conj();
-            for (auto z2 : {-z, zbar, -zbar})
-              {
-                z2 = reduce_to_rectangle(z2, t);
-                H3point P2 = {z2, t2};
-                if (std::find(corners.begin(), corners.end(), P2) != corners.end())
-                  continue;
-                if (is_under_any(P, alistx))
-                  continue;
-                if (debug)
-                  cout << " adding symmetric "<<P2<<" from ("<<a0<<","<<b1<<","<<b2<<") to corners list" <<endl;
-                corners.push_back(P2);
-              }
-          } // end of double loop over b's
-      if (debug)
-        cout<<"  "<<a0<<" has "<<a0_corners.size()<<" corners\n\n";
-      if (a0_corners.size()>2)
-        not_redundants.push_back(a0);
-    } // end of loop over alistF4
   if (verbose)
     {
       cout << " SwanData.find_corners() found "<<corners.size() <<" corners: " << corners<<endl;
@@ -576,7 +608,9 @@ void SwanData::find_corners(int verbose)
            <<nred<<" are redundant and " <<nnotred<<" are not"<<endl;
       cout<<"New alistF4: "<<not_redundants<<endl;
     }
+
   alistF4 = not_redundants;
+
   // re-expand to full alist excluding redundants
   // NB We will not need alistx again; if that changes, need to update it here
   auto nalist = alist.size();
@@ -608,6 +642,26 @@ void SwanData::find_corners(int verbose)
     }
 }
 
+// After an unsuccessful saturation loop which produces extra alphas a
+// such that S_a properly covers an old corners (which was then
+// deleted), use these to compute more corners.  These will (up to
+// symmetry) come from a triple intersection involving at least one of
+// the new alphas.  This function just merges the output of
+// find_corners_from_one(a).
+H3pointList SwanData::find_extra_corners(const CuspList& extra_alphas)
+{
+  H3pointList extra_corners;
+  for (const auto& a : extra_alphas)
+    {
+      int red;
+      H3pointList a_corners = find_corners_from_one(a, red);
+      for (const auto& P : a_corners)
+        if (std::find(extra_corners.begin(), extra_corners.end(), P) == extra_corners.end())
+          extra_corners.push_back(P);
+    }
+  return extra_corners;
+}
+
 void SwanData::saturate_alphas(int verbose)
 {
   int debug = verbose>0;
@@ -616,9 +670,7 @@ void SwanData::saturate_alphas(int verbose)
   INT m = max_dnorm(alist);
   Quad temp;
   if (verbose)
-    {
-      cout << "Saturating "<<nalist<<" alphas with max dnorm "<< m <<endl;
-    }
+    cout << "Saturating "<<nalist<<" alphas with max dnorm "<< m <<endl;
 
   // Find triple intersections, reducing alist and alistF4 to exclude
   // any redundants (on <3 corners):
@@ -627,62 +679,55 @@ void SwanData::saturate_alphas(int verbose)
   m = max_dnorm(alist);
   if (verbose)
     {
-      cout << "Found "<<corners.size() << " triple intersection points" <<endl;
+      cout << "Found "<<corners.size() << " corners (triple intersection points)" <<endl;
       if (alist.size()<nalist)
         cout << " (number of alphas reduced from "<<nalist<<" to "<<alist.size() << " with max dnorm " <<m<<")"<<endl;
       else
         cout << " (number of alphas remains "<<nalist<<")"<<endl;
     }
 
-  // add translates of these corners and singular points:
-
-  // cornersx.clear();
-  // for ( const auto& P : corners)
-  //   for ( const auto& t : shifts)
-  //     cornersx.push_back(translate(P,t));
-  // for ( const auto& s : slist)
-  //   {
-  //     H3point P = {s, ZERO};
-  //     for ( const auto& t : shifts)
-  //       cornersx.push_back(translate(P,t));
-  //   }
-
   int sat = 0, first_run=1;
-  H3pointList corners_open = corners, corners_ok;
+  H3pointList corners_open = corners;
+  CuspList extra_alphas; // will be filled with any extra alphas needed on each pass
   while (!sat)
     {
       if (!first_run)
         {
-          find_corners(debug);
-          corners_open = corners;
+          corners_open = find_extra_corners(extra_alphas);
           if (verbose)
-            cout << "Found "<<corners_open.size()<<" potential vertices"<<endl;
+            cout << "Found "<<corners_open.size()<<" new potential corners"<<endl;
+          if (verbose)
+            cout << " - number of corners was "<<corners_open.size()<<endl;
+          for (const auto& P : corners_open)
+            if (std::find(corners.begin(), corners.end(), P) == corners.end())
+              corners.push_back(P);
+          if (verbose)
+            cout << " - number of corners is now "<<corners_open.size()<<endl;
         }
-      first_run = 0;
-      if(debug)
-        cout << "Extracting those of square height less than 1/"<<maxn<<endl;
-      // Remove corners which cannot be better covered by an alpha with dnorm>maxn
-      corners_open.erase(std::remove_if(corners_open.begin(), corners_open.end(),
-                                        [this](H3point P) { return maxn*P.t2>=ONE;}),
-                         corners_open.end());
-      if (debug)
-        cout << " -- of which "<<corners_open.size()<<" are low enough to be properly covered by a new alpha"<<endl;
+      if (first_run)
+        {
+          if(debug)
+            cout << "Extracting those of square height less than 1/"<<maxn<<endl;
+          // Remove corners which cannot be better covered by an alpha with dnorm>maxn
+          corners_open.erase(std::remove_if(corners_open.begin(), corners_open.end(),
+                                            [this](H3point P) { return maxn*P.t2>=ONE;}),
+                             corners_open.end());
+          if (debug)
+            cout << " -- of which "<<corners_open.size()
+                 <<" are low enough to be properly covered by a new alpha"<<endl;
+        }
 
+      // only check corners in F4 (if we find new alphas we'll add
+      // their symmetrics too):
       corners_open.erase(std::remove_if(corners_open.begin(), corners_open.end(),
                                         [](H3point P) { return !P.z.in_quarter_rectangle();}),
                          corners_open.end());
       if (debug)
         cout << " -- of which "<<corners_open.size()<<" lie in the first quadrant" << endl;
 
-      corners_open.erase(std::remove_if(corners_open.begin(), corners_open.end(),
-                                        [corners_ok](H3point P)
-                                        {return std::find(corners_ok.begin(), corners_ok.end(), P) != corners_ok.end();}),
-                         corners_open.end());
-      if (debug)
-        cout << " -- of which "<<corners_open.size()<<" have not already been checked" << endl;
-
+      first_run = 0;
+      extra_alphas.clear();
       sat = 1;        // will be set to 0 if we find out that the alphas are not already saturated
-      CuspList extra_alphas; // will be filled with any extra alphas needed on this pass
       int iP = 0, nP = corners_open.size();
       for (const auto& P : corners_open)
         {
@@ -696,7 +741,6 @@ void SwanData::saturate_alphas(int verbose)
             {
               if (debug)
                 cout << "   - no properly covering alphas found" <<endl;
-              corners_ok.push_back(P);
               continue; // on to the next P
             }
           sat = 0; // we now know the alphas are not saturated
@@ -708,6 +752,7 @@ void SwanData::saturate_alphas(int verbose)
                    << " with denominator norm " << a.den().norm()
                    << ", height " << height_above(a,P.z) << " above P (height "<<P.t2<<")" << endl;
             }
+          // for each a in extras, add it and its 4 symmetrics to extra_alphas
           for ( auto& a : extras)
             {
               RatQuad ca = a.conj();
@@ -717,31 +762,42 @@ void SwanData::saturate_alphas(int verbose)
                   b = reduce_to_rectangle(b, temp);
                   if (debug)
                     cout << " - testing potential new alpha " << b << endl;
-                  if (b.in_rectangle() &&
-                      std::find(extra_alphas.begin(), extra_alphas.end(), b) == extra_alphas.end())
+                  if (std::find(extra_alphas.begin(), extra_alphas.end(), b) == extra_alphas.end())
                     {
                       if (debug)
                         cout << " - adding alpha " << b << endl;
                       extra_alphas.push_back(b);
                     }
                   else
-                      if (debug)
-                        {
-                          cout << " - not adding it: ";
-                          if (b.in_rectangle())
-                            cout << "it's a repeat" <<endl;
-                          else
-                            cout << "it's not in the rectangle" <<endl;
-                        }
+                    if (debug)
+                      cout << " - not adding it, it's a repeat" <<endl;
                 } // loop over 4 flips of a
             } // loop over a in extras
-          // Now delete this P from corners and corners_open (in the
-          // next loop we'll run find_corners but this adds to the
-          // existing list
+
+          //  Delete this P (and symmetrics) from corners:
           if (verbose)
             cout<<"Deleting "<<P<<" from corners list"<<endl;
-          corners.erase(std::find(corners.begin(), corners.end(), P));
+
+          Quad t;
+          RAT t2 = P.t2;
+          RatQuad z = P.z;
+          RatQuad zbar = z.conj();
+          for (auto z2 : {z, -z, zbar, -zbar})
+            {
+              H3point Q = {reduce_to_rectangle(z2, t), t2};
+              auto it = std::find(corners.begin(), corners.end(), Q);
+              if ( it != corners.end())
+                corners.erase(it);
+            }
+
         } // checked all P in corners_open
+
+      // Now we have finished checking all potential corners; any
+      // which could be properly covered have been deleted and some
+      // new alphas collected in extra_alphas; if there were any such,
+      // sat has been set to 0. ALSO some of the original alphas not
+      // thought to be redundant may now be so, since we have deleted
+      // some corners. Deal with this after finishing saturation.
       if (verbose)
         {
           if (sat)
@@ -756,39 +812,46 @@ void SwanData::saturate_alphas(int verbose)
                    <<extra_alphas<<" with norms at most "<<m<<endl;
             }
         }
+      if (sat)
+        break; // out of the while(!sat) loop
+      // add the extra alphas to alist and alist4, updating the nbrs
+      // lists:
       for (const auto& a : extra_alphas)
         add_one_alpha(a, 1, verbose>1);
       if (verbose)
         cout<<"alist now has size "<<alist.size()<<endl;
     } // ends while(!sat)
 
-  if (already_saturated)
+  if (already_saturated) // the the original alist was saturated
     {
       if (verbose)
-        cout<<"Already saturated"<<endl;
-      std::sort(alist.begin(), alist.end(), Cusp_cmp);
-      return;
+        cout<<"Already saturated: we have "<< alist.size()<<" alphas with max norm "<<m<<endl;
+    }
+  else
+    {
+      if (verbose)
+        cout<<"Final check for alphas now redundant..."<<endl;
+      // recheck that all remaining alphas are not redundant, which
+      // they might have become on deleting some potential corners:
+      H3pointList cornersx;
+      for ( const auto& P : corners)
+        for ( const auto& t : shifts)
+          cornersx.push_back(translate(P,t));
+      for ( const auto& s : slistx)
+        cornersx.push_back({s, ZERO});
+
+      CuspList alist0 = remove_redundants(alist, cornersx);
+      if (alist.size() > alist0.size())
+        {
+          if (verbose)
+            cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
+          alist = alist0;
+        }
+      else
+        if (verbose)
+          cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
     }
 
-  if (verbose)
-    cout << "After saturation we now have "<< alist.size()<<" alphas with max norm "<<m<<endl;
-
-  // Now again delete any alphas with <3 vertices, allowing for translates
-  // cornersx.clear();
-  // for ( const auto& P : corners)
-  //   for ( const auto& t : shifts)
-  //     cornersx.push_back(translate(P,t));
-  // for ( const auto& s : slist)
-  //   {
-  //     H3point P = {s, ZERO};
-  //     for ( const auto& t : shifts)
-  //       cornersx.push_back(translate(P,t));
-  //   }
-  // alist = remove_redundants(alist, cornersx);
-  // m = max_dnorm(alist);
-  // if (verbose)
-  //   cout << "After removing alphas which go through <3 vertices, we now have "
-  //        <<alist.size()<<" alphas with max norm "<< m <<endl;
-
+  // (re)sort alist before returning:
   std::sort(alist.begin(), alist.end(), Cusp_cmp);
 }

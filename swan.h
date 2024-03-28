@@ -37,7 +37,6 @@ private:
   CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
   map<RatQuad, CuspList, RatQuad_comparison> nbrs, nbrs_ok, nbrs_open;
   CuspList slistx; // list of sigmas + 8 integer translates
-  H3pointList cornersx;
 
   // add one alpha; use covered=1 after fiding covering alohas and
   // saturating with more
@@ -52,6 +51,13 @@ private:
 
   // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
   void find_corners(int verbose=0);
+  // Find corners from one alpha.  The new corners are not added to the class list points, but are returned.
+  // The parameter redundant is set to 1 if a has <3 corners (including singular ones).
+  H3pointList find_corners_from_one(const RatQuad& a, int& redundant, int verbose=0);
+  // After an unsuccessful saturation loop which produces extra alphas
+  // properly covering some old corners, use these to compute more
+  // corners
+  H3pointList find_extra_corners(const CuspList& extra_alphas);
   void saturate_alphas(int verbose=0);
 
   int is_sigma_surrounded(const RatQuad& s, int verbose=0);
