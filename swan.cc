@@ -212,9 +212,9 @@ int SwanData::is_singular(const RatQuad& a)
   // annoying special cases for historical back-compatibility.
   long d = Quad::d;
   // When d%8==7, we use s=(1-w)/2 but (w-1)/2 is in the rectangle
-  if (d%8==7 && a0==RatQuad(Quad(-1,1),TWO)) return 1;
+  if (d%8==7 && a0==RatQuad(Quad(-1,1),Quad(2))) return 1;
   // When d%12==15 and d>15, we use s=(-1-w)/3 but (2-w)/3 is in the rectangle
-  if (d%12==3 && d>15 && a0==RatQuad(Quad(2,-1),THREE)) return 1;
+  if (d%12==3 && d>15 && a0==RatQuad(Quad(2,-1),Quad(3))) return 1;
   return 0;
 }
 
@@ -448,7 +448,7 @@ H3pointList SwanData::singular_corners(const RatQuad& a)
   for (const auto& s : slistx)
     {
       if (is_on(s, a))
-        ans.push_back({s,0});
+        ans.push_back({s,RAT(0)});
     }
   return ans;
 }
@@ -838,7 +838,7 @@ void SwanData::saturate_alphas(int verbose)
         for ( const auto& t : shifts)
           cornersx.push_back(translate(P,t));
       for ( const auto& s : slistx)
-        cornersx.push_back({s, ZERO});
+        cornersx.push_back({s, RAT(0)});
 
       CuspList alist0 = remove_redundants(alist, cornersx);
       if (alist.size() > alist0.size())

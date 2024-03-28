@@ -17,7 +17,7 @@ public:
   RAT() {
     fmpq_init(q); // sets to 0
   }
-  RAT(const INT& n) {
+  explicit RAT(const INT& n) {
     fmpq_init(q); // sets to 0
     if (n.sign())
       {
@@ -31,7 +31,7 @@ public:
     fmpq_init(q); // sets to 0
     fmpq_set_fmpz_frac(q, n.z, d.z);
   }
-  RAT(long nu, long de=1) {
+  explicit RAT(long nu, long de=1) {
     fmpq_init(q); // sets to 0
     fmpq_set_si(q, nu, de);
   }
@@ -105,6 +105,8 @@ public:
     return c;
   }
   friend inline RAT operator+(const INT& a, const RAT& b) {return b+a;}
+  friend inline RAT operator+(long a, const RAT& b) {return b+a;}
+  friend inline RAT operator+( int a, const RAT& b) {return b+a;}
   RAT operator-(const RAT& b) const {
     RAT c;
     fmpq_sub(c.q, q, b.q);
@@ -126,6 +128,8 @@ public:
     return c;
   }
   friend inline RAT operator-(const INT& a, const RAT& b) {return -(b-a);}
+  friend inline RAT operator-(long a, const RAT& b) {return -(b-a);}
+  friend inline RAT operator-(int a, const RAT& b) {return -(b-a);}
 
   RAT operator*(const RAT& b) const {
     RAT c;
@@ -148,6 +152,8 @@ public:
     return c;
   }
   friend inline RAT operator*(const INT& a, const RAT& b) {return b*a;}
+  friend inline RAT operator*(const long a, const RAT& b) {return b*a;}
+  friend inline RAT operator*(const int a, const RAT& b) {return b*a;}
 
   RAT operator/(const RAT& b) const {
     RAT c;

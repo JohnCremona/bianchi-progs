@@ -36,10 +36,10 @@ void test_principal_cusps(int n1=20, int n2=100)
 {
   for (int n=1; n<=n1; n++)
     {
-      auto alist = principal_cusps_of_dnorm(n);
+      auto alist = principal_cusps_of_dnorm(INT(n));
       cout << "Principal cusps of denominator norm "<<n<<": "<<alist<<endl;
     }
-  auto alist = principal_cusps_of_dnorm_up_to(n2);
+  auto alist = principal_cusps_of_dnorm_up_to(INT(n2));
   cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alist<<endl;
 }
 

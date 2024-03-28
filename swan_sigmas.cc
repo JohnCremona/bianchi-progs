@@ -7,13 +7,13 @@ CuspList denom_2_sigmas()
 {
   CuspList slist;
   if (Quad::class_number == 1) return slist;
-  Quad w = Quad::w;
+  Quad w = Quad::w, two(2);
   vector<Quad> numlist;
   int d8 = (Quad::d)%8;
   if (d8==1 || d8==5) numlist = {1+w};
   if (d8==2 || d8==6) numlist = {w};
   if (d8==7) numlist = {w,1-w};
-  for (const auto& n : numlist) slist.push_back(RatQuad(n,TWO));
+  for (const auto& n : numlist) slist.push_back(RatQuad(n,two));
   return slist;
 }
 
@@ -23,7 +23,7 @@ CuspList denom_3_sigmas()
   if (Quad::class_number == 1) return slist;
   int d = Quad::d, d12 = (Quad::d)%12;
   if (d==5 || d==6 || d==23 || d==15) return slist;
-  Quad w = Quad::w;
+  Quad w = Quad::w, three(3);
   vector<Quad> numlist;
   switch (d12) {
   case 2: case 5:
@@ -37,8 +37,8 @@ CuspList denom_3_sigmas()
   }
   for (const auto& n : numlist)
     {
-      slist.push_back(RatQuad(n,THREE));
-      slist.push_back(RatQuad(-n,THREE));
+      slist.push_back(RatQuad(n,three));
+      slist.push_back(RatQuad(-n,three));
     }
   return slist;
 }
@@ -120,19 +120,19 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
     return sorted_slist;
 
   // denom 2 sigmas we construct directly
-  Quad w = Quad::w;
+  Quad w = Quad::w, two(2), three(3);
   long d = Quad::d;
 
   switch (d%8) {
   case 1: case 5:
-    sorted_slist.push_back(RatQuad(1+w,TWO));
+    sorted_slist.push_back(RatQuad(1+w,two));
     break;
   case 2: case 6:
-    sorted_slist.push_back(RatQuad(w,TWO));
+    sorted_slist.push_back(RatQuad(w,two));
     break;
   case 7:
-    sorted_slist.push_back(RatQuad(w,TWO));
-    sorted_slist.push_back(RatQuad(1-w,TWO)); // NB not in rectangle: (w-1)/2 is
+    sorted_slist.push_back(RatQuad(w,two));
+    sorted_slist.push_back(RatQuad(1-w,two)); // NB not in rectangle: (w-1)/2 is
     break;
   default:
     ;
@@ -143,33 +143,33 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
   case 2: case 5:
     if (d>5)
       {
-        sorted_slist.push_back(RatQuad(1+w,THREE));
-        sorted_slist.push_back(RatQuad(-1-w,THREE));
-        sorted_slist.push_back(RatQuad(1-w,THREE));
-        sorted_slist.push_back(RatQuad(-1+w,THREE));
+        sorted_slist.push_back(RatQuad(1+w,three));
+        sorted_slist.push_back(RatQuad(-1-w,three));
+        sorted_slist.push_back(RatQuad(1-w,three));
+        sorted_slist.push_back(RatQuad(-1+w,three));
       }
     break;
   case 3:
     if (d>15)
       {
-        sorted_slist.push_back(RatQuad(1+w,THREE));
-        sorted_slist.push_back(RatQuad(-1-w,THREE)); // NB not in rectangle: (2-w)/3 is
+        sorted_slist.push_back(RatQuad(1+w,three));
+        sorted_slist.push_back(RatQuad(-1-w,three)); // NB not in rectangle: (2-w)/3 is
       }
     break;
   case 6: case 9:
     if (d>6)
       {
-        sorted_slist.push_back(RatQuad(w,THREE));
-        sorted_slist.push_back(RatQuad(-w,THREE));
+        sorted_slist.push_back(RatQuad(w,three));
+        sorted_slist.push_back(RatQuad(-w,three));
       }
     break;
   case 11:
     if (d>23)
       {
-        sorted_slist.push_back(RatQuad(w,THREE));
-        sorted_slist.push_back(RatQuad(-w,THREE));
-        sorted_slist.push_back(RatQuad(-1+w,THREE));
-        sorted_slist.push_back(RatQuad(1-w,THREE));
+        sorted_slist.push_back(RatQuad(w,three));
+        sorted_slist.push_back(RatQuad(-w,three));
+        sorted_slist.push_back(RatQuad(-1+w,three));
+        sorted_slist.push_back(RatQuad(1-w,three));
       }
     break;
   default:
@@ -192,7 +192,7 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
       assert (s.in_rectangle());
 
       // skip oo and denom 2 or 3 sigmas:
-      if (s.is_infinity() or (TWO*s).is_integral() or (THREE*s).is_integral())
+      if (s.is_infinity() or (two*s).is_integral() or (three*s).is_integral())
         {
           if (verbose)
             cout <<" - skipping (small denominator)"<<endl;

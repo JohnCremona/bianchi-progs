@@ -124,7 +124,7 @@ vector<Quad> quads_of_norm(const INT& n, int conj, int sorted)
       if(isqrt(n4-d*b*b, a))
         {
           // now we have a^2+db^2=n4 with a,b>=0
-          if ((d==1) && (a < (conj? 1 : b)))
+          if ((d==1) && (a < (conj? ONE : b)))
             continue;
           if ((d==3) && (a < (conj? b+1 : 3*b)))
             continue;
@@ -180,7 +180,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
       // d=1: a>0 if conj, a>=b if not conj;
       // d=3: a>b if conj, a>=3b if not conj.
       if (d==1)
-        amin = max(amin, (conj? 1 : b));
+        amin = max(amin, (conj? ONE : b));
       if (d==3)
         amin = max(amin, (conj? b+1 : 3*b));
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN

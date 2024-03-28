@@ -96,10 +96,12 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
 //constructors:
   void setnorm();
   Quad() :r(0), i(0), nm(0)  {}
-  Quad(INT x) :r(x), i(0), nm(x*x)  {}
-  Quad(INT x, INT y) :r(x),i(y)  {setnorm();}
-  Quad(INT x, INT y, INT nrm) :r(x), i(y), nm(nrm)  {}
+  explicit Quad(INT x) :r(x), i(0), nm(x*x)  {}
+  explicit Quad(INT x, INT y) :r(x),i(y)  {setnorm();}
+  explicit Quad(INT x, INT y, INT nrm) :r(x), i(y), nm(nrm)  {}
   explicit Quad(const bigcomplex& z);   //rounds to nearest
+  explicit Quad(int x, int y=0) :r(INT(x)), i(INT(y))  {setnorm();}
+  explicit Quad(long x, long y=0) :r(INT(x)), i(INT(y))  {setnorm();}
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {}
   // racb = real_part_of_first_times_conjugate_of_second
   friend INT racb(const Quad& a, const Quad& b)
@@ -172,20 +174,27 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void operator*=(INT m) {r*=m; i*=m; nm*=(m*m);}
   void times_w() {INT u = -i*Quad::n; i = (Quad::t? r+i: r); r = u;}
   friend Quad operator*(INT m, const Quad& a);
+  friend Quad operator*(long m, const Quad& a);
   Quad operator+ (const Quad& b) const {return Quad(r+b.r,i+b.i);}
   Quad operator+ (INT b) const {return Quad(r+b,i);}
   Quad operator+ (long b) const {return Quad(r+b,i);}
   Quad operator+ (int b) const {return Quad(r+b,i);}
   friend Quad operator+(INT m, const Quad& a);
+  friend Quad operator+(long m, const Quad& a);
   void operator+=(const Quad& b) {r+=b.r; i+=b.i; setnorm();}
   void operator+=(INT b) {r+=b; setnorm();}
+  void operator+=(long b) {r+=b; setnorm();}
+  void operator+=(int b) {r+=b; setnorm();}
   Quad operator- (const Quad& b) const {return Quad(r-b.r,i-b.i);}
   Quad operator- (INT b) const {return Quad(r-b,i);}
   Quad operator- (long b) const {return Quad(r-b,i);}
   Quad operator- (int b) const {return Quad(r-b,i);}
   friend Quad operator-(INT m, const Quad& a);
+  friend Quad operator-(long m, const Quad& a);
   void operator-=(const Quad& b) {r-=b.r; i-=b.i; setnorm();}
   void operator-=(INT b) {r-=b; setnorm();}
+  void operator-=(long b) {r-=b; setnorm();}
+  void operator-=(int b) {r-=b; setnorm();}
   Quad operator- () const {return Quad(-r,-i);}
   Quad operator/ (const Quad& b) const;
   Quad operator/ (INT b) const {return qdivi(*this,b);}
@@ -195,7 +204,8 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void addprod(long a, const Quad& b); // this +=a*b
   void subprod(const Quad& a, const Quad& b); // this -=a*b
   void subprod(long a, const Quad& b); // this -=a*b
-  Quad operator% (long b) { return Quad(INT(r%b), INT(i%b));}
+  Quad operator% (long b) const { return Quad(INT(r%b), INT(i%b));}
+  Quad operator% (const INT& b) const { return Quad(r%b, i%b);}
   operator bigcomplex() const;
   // compute a*b+c*d
   friend Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
@@ -222,8 +232,11 @@ inline Quad quadconj1(const Quad& a)  {return Quad(a.r + a.i, -a.i, a.nm);}
 inline int pos13(const Quad& a) {return ((sign(a.i)>=0&&sign(a.r)>0)||((sign(a.r)==0)&&(sign(a.i)==0)));}
 inline int pos2(const Quad& a) {return (sign(a.i)>0||(sign(a.i)==0&&sign(a.r)>=0));}
 inline Quad operator*(INT m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
+inline Quad operator*(long m, const Quad& a) {return Quad(m*a.r,m*a.i, m*m*a.nm);}
 inline Quad operator+(INT m, const Quad& a) {return Quad(m+a.r,a.i);}
+inline Quad operator+(long m, const Quad& a) {return Quad(m+a.r,a.i);}
 inline Quad operator-(INT m, const Quad& a) {return Quad(m-a.r,-a.i);}
+inline Quad operator-(long m, const Quad& a) {return Quad(m-a.r,-a.i);}
 
 // reduction modulo Z<alpha,beta>
 Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta);

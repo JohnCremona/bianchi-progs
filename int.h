@@ -15,10 +15,10 @@ private:
 public:
   // Constructors:
   INT() {fmpz_init(z);} // sets to 0
-  INT(int a) {fmpz_init_set_si(z, a);}
-  INT(long a) {fmpz_init_set_si(z, a); }
+  explicit INT(int a) {fmpz_init_set_si(z, a);}
+  explicit INT(long a) {fmpz_init_set_si(z, a); }
   INT(const INT& a) {fmpz_init_set(z, a.z);}
-  INT(fmpz_t a) {fmpz_init_set(z, a);}
+  explicit INT(fmpz_t a) {fmpz_init_set(z, a);}
   // Destructor:
   ~INT() {fmpz_clear(z);}
   INT& operator=(int a) {fmpz_set_si(z, a); return *this;}
@@ -104,7 +104,7 @@ inline INT fmma(const INT& a, const INT& b, const INT& c, const INT& d) {INT e; 
 inline INT fmms(const INT& a, const INT& b, const INT& c, const INT& d) {INT e; fmpz_fmms(e.z, a.z, b.z, c.z, d.z); return e;}
 inline INT abs(const INT& a) {return a.abs();}
 inline INT posmod(const INT& a, const INT& b) {return a%b;} // in range [0,|b|)
-inline INT posmod(const INT& a, long b) {return a%b;} // in range [0,|b|)
+inline INT posmod(const INT& a, long b) {return INT(a%b);} // in range [0,|b|)
 inline INT mod(const INT& a, const INT& b) {INT c; fmpz_smod(c.z,a.z,b.z); return c;} // in range (-|b|/2,|b|/2-1]
 inline INT gcd(const INT& a, const INT& b) {INT c; fmpz_gcd(c.z,a.z,b.z); return c;}
 inline INT bezout(const INT& a, const INT& b, INT& x, INT& y) {INT c; fmpz_xgcd_canonical_bezout(c.z, x.z, y.z, a.z, b.z); return c;}
@@ -115,9 +115,17 @@ inline int operator==(int a, const INT& b) {return b==a;}
 inline int operator==(long a, const INT& b) {return b==a;}
 inline int is_zero(const INT& a) {return a.sign()==0;}
 inline int operator<(const INT& a, const INT& b) {return compare(a,b)<0;}
+inline int operator<(const INT& a, long b) {return compare(a,b)<0;}
 inline int operator>(const INT& a, const INT& b) {return compare(a,b)>0;}
+inline int operator>(const INT& a, long b) {return compare(a,b)>0;}
+inline int operator<(long b, const INT& a) {return compare(a,b)>0;}
+inline int operator<=(long b, const INT& a) {return compare(a,b)>=0;}
+inline int operator>(long b, const INT& a) {return compare(a,b)<0;}
+inline int operator>=(long b, const INT& a) {return compare(a,b)<=0;}
 inline int operator<=(const INT& a, const INT& b) {return compare(a,b)<=0;}
+inline int operator<=(const INT& a, long b) {return compare(a,b)<=0;}
 inline int operator>=(const INT& a, const INT& b) {return compare(a,b)>=0;}
+inline int operator>=(const INT& a, long b) {return compare(a,b)>=0;}
 inline int divides(const INT& a, const INT& b) {return (b%a)==0;}
 inline int divides(int a, const INT& b) {return (b%a)==0;}
 inline int divides(long a, const INT& b) {return (b%a)==0;}

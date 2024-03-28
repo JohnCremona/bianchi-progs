@@ -28,7 +28,7 @@ int main(void)
       cout << "-------------------------------------" <<endl<<endl;
 
 #if(1)
-      values = quads_of_norm_between(firstn, lastn, conj, 1);
+      values = quads_of_norm_between(INT(firstn), INT(lastn), conj, 1);
       cout << "Quads in order of norm (using Quadlooper):" << endl;
 
       for(Quadlooper looper(firstn,lastn,conj); looper.ok(); ++looper)
@@ -62,7 +62,7 @@ int main(void)
 
 #endif
 #if(1)
-  INT n1=25, n2=50;
+  INT n1(25), n2(50);
   looper = Quadlooper(1,0,conj); // 0 means no upper bound set
   cout << "Quads with norms up to "<<n1<<" in one list: " << endl;
   values = looper.values_with_norm_up_to(n1, 1); // sorted

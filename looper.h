@@ -36,7 +36,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj=1, int
 vector<Quad> quads_of_norm(const INT& n, int conj=1, int sorted=0);
 inline vector<Quad> quads_of_norm_up_to(const INT& n, int conj=1, int sorted=0)
 {
-  return quads_of_norm_between(1,n,conj,sorted);
+  return quads_of_norm_between(ONE,n,conj,sorted);
 }
 
 #endif

@@ -884,7 +884,7 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
   assert (i>=0);
   mat22 Mi = Malpha(Q[0], alphas, id); // id not used
   jd = cusp_index_with_translation(Q[2], alphas, z);
-  assert (j>=0);
+  assert (jd>=0);
   j = alpha_index_flip(jd, alphas);
   l = cusp_index_with_translation(Mi(Q[3]), alphas, y);
   assert (l>=0);
@@ -1028,9 +1028,10 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
   // We do not output the triangle {0,oo,1},
   // and for the fields 19, 43, 67, 163 also not
   // the triangles {oo,w/2,(w-1)/2} or {oo,w/2,(w+1)/2}
+  Quad two(2);
   CuspList tri0 = {RatQuad(0), RatQuad::infinity(), RatQuad(1)};
-  CuspList tri1 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w-1,TWO)};
-  CuspList tri2 = {RatQuad(Quad::w,TWO), RatQuad::infinity(), RatQuad(Quad::w+1,TWO)};
+  CuspList tri1 = {RatQuad(Quad::w,two), RatQuad::infinity(), RatQuad(Quad::w-1,two)};
+  CuspList tri2 = {RatQuad(Quad::w,two), RatQuad::infinity(), RatQuad(Quad::w+1,two)};
   long d = Quad::d;
   int temp;
   for (const auto& T : aaa_triangles)

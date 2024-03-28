@@ -12,6 +12,7 @@ public:
   // constructors
   RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
   RatQuad(INT a, INT b, INT dd, int red=0); // (a+b*w)/dd
+  RatQuad(long a);
   RatQuad(const RAT& a);
   static RatQuad infinity() {return RatQuad(Quad::one, Quad::zero, 0);}
   // RatQuad manipulations
@@ -76,10 +77,13 @@ public:
   friend RatQuad operator*(const RatQuad&, const Quad&);
   friend RatQuad operator*(const Quad&, const RatQuad&);
   friend RatQuad operator*(const RatQuad&, long);
+  friend RatQuad operator*(const RatQuad&, int);
   friend RatQuad operator/(const RatQuad&, const RatQuad&);
   friend RatQuad operator/(const RatQuad&, const Quad&);
   friend RatQuad operator/(const Quad&, const RatQuad&);
+  friend RatQuad operator/(const RatQuad&, const INT&);
   friend RatQuad operator/(const RatQuad&, long);
+  friend RatQuad operator/(const RatQuad&, int);
   friend int operator==(const RatQuad&, const RatQuad&);
   friend int operator!=(const RatQuad&, const RatQuad&);
   friend ostream& operator<< (ostream&s, const RatQuad&);
@@ -137,11 +141,15 @@ inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int red)
 }
 
 inline RatQuad::RatQuad(INT a, INT b, INT dd, int red) // (a+b*w)/dd
-  :d(dd,0), n(a,b)
+  :d(dd,INT(0)), n(a,b)
 {
   if (red)
     reduce();
 }
+
+inline RatQuad::RatQuad(long a)
+  :d(1), n(a)
+{};
 
 inline RatQuad::RatQuad(const RAT& a)
   :d(a.den()), n(a.num())
@@ -260,6 +268,11 @@ inline RatQuad operator*(const RatQuad& r, long q)
   return RatQuad(q*r.n, r.d, 1);
 }
 
+inline RatQuad operator*(const RatQuad& r, int q)
+{
+  return RatQuad(q*r.n, r.d, 1);
+}
+
 inline RatQuad operator*(const Quad& q, const RatQuad& r)
 {
   return RatQuad(q*r.n, r.d, 1);
@@ -270,7 +283,17 @@ inline RatQuad operator/(const RatQuad& r, const Quad& q)
   return RatQuad(r.n, q*r.d, 1);
 }
 
+inline RatQuad operator/(const RatQuad& r, const INT& q)
+{
+  return RatQuad(r.n, q*r.d, 1);
+}
+
 inline RatQuad operator/(const RatQuad& r, long q)
+{
+  return RatQuad(r.n, q*r.d, 1);
+}
+
+inline RatQuad operator/(const RatQuad& r, int q)
 {
   return RatQuad(r.n, q*r.d, 1);
 }

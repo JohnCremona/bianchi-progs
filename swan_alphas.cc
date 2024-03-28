@@ -8,14 +8,14 @@ CuspList denom_2_alphas()
 {
   CuspList alist;
   if (Quad::is_Euclidean) return alist;
-  Quad w = Quad::w;
+  Quad w = Quad::w, two(2);
   vector<Quad> numlist;
   int d8 = (Quad::d)%8;
   if (d8==1 || d8==5) numlist = {w};
   if (d8==2 || d8==6) numlist = {1+w};
   if (d8==3) numlist = {w,w-1};
   for (const auto& n : numlist)
-    alist.push_back(RatQuad(n,TWO));
+    alist.push_back(RatQuad(n,two));
   return alist;
 }
 
@@ -25,7 +25,7 @@ CuspList denom_3_alphas()
   if (Quad::is_Euclidean) return alist;
   int d = Quad::d, d12 = (Quad::d)%12;
   if (d==5 || d==6 || d==15 || d==19 || d==23) return alist;
-  Quad w = Quad::w;
+  Quad w = Quad::w, three(3);
   vector<Quad> numlist;
   switch (d12) {
   case 3:
@@ -47,8 +47,8 @@ CuspList denom_3_alphas()
   }
   for (const auto& n : numlist)
     {
-      alist.push_back(RatQuad(n,THREE));
-      alist.push_back(RatQuad(-n,THREE));
+      alist.push_back(RatQuad(n,three));
+      alist.push_back(RatQuad(-n,three));
     }
   return alist;
 }
@@ -93,7 +93,7 @@ CuspList sort_alphas(const CuspList& A,
       cout << " alphas with denominator 2: " <<a2list <<endl;
       cout << " alphas with denominator 3: " <<a3list <<endl;
     }
-  assert (a1list.size()==1 && a1list[0]==RatQuad(0));
+  assert (a1list.size()==1 && a1list[0]==RatQuad(Quad(0)));
   auto d2s_expected = denom_2_alphas(), d3s_expected = denom_3_alphas();
   assert (compare_CuspLists_as_sets_mod_translation(a2list, d2s_expected));
   assert (compare_CuspLists_as_sets_mod_translation(a3list, d3s_expected));
@@ -217,24 +217,24 @@ CuspList sort_alphas(const CuspList& A,
 
   // for homology edge relation computation include alphas with denom
   // 1,2,3 in pluspairs, minuspairs and fours:
-  Quad w = Quad::w;
+  Quad w = Quad::w, zero(0), one(1), two(2), three(3);
   int d = Quad::d;
   // denom 1:
-  minuspairs.push_back({ZERO,ONE});
+  minuspairs.push_back({zero,one});
   // denom 2:
   if (!Quad::is_Euclidean)
     {
   switch (d%8) {
   case 1: case 5:
-    minuspairs.push_back({w,TWO});  // w^2=-1 (mod 2)
+    minuspairs.push_back({w,two});  // w^2=-1 (mod 2)
                                     // could also go into pluspairs
     break;
   case 2: case 6:
-    minuspairs.push_back({w+1,TWO}); // (w+1)^2=-1 (mod 2)
+    minuspairs.push_back({w+1,two}); // (w+1)^2=-1 (mod 2)
                                      // could also go into pluspairs
     break;
   case 3:
-    fours.push_back({TWO,w,w+1}); // w(w+1)=-1 (mod 2)
+    fours.push_back({two,w,w+1}); // w(w+1)=-1 (mod 2)
       };
     }
   // denom 3:
@@ -242,30 +242,30 @@ CuspList sort_alphas(const CuspList& A,
     {
   switch (d%12) {
   case 1: case 10:
-    minuspairs.push_back({w, THREE});          // w^2=-1 (mod 3)
-    fours.push_back({THREE, 1+w, 1-w});   // (1+w)(1-w)=-1 (mod 3)
+    minuspairs.push_back({w, three});          // w^2=-1 (mod 3)
+    fours.push_back({three, 1+w, 1-w});   // (1+w)(1-w)=-1 (mod 3)
     break;
   case 7:
     if (Quad::d>19)
-      minuspairs.push_back({1+w, THREE});        // (1+w)^2=-1 (mod 3)
+      minuspairs.push_back({1+w, three});        // (1+w)^2=-1 (mod 3)
     if (Quad::d>31)
-      fours.push_back({THREE, w, 1-w}); // w(1-w)=-1 (mod 3)
+      fours.push_back({three, w, 1-w}); // w(1-w)=-1 (mod 3)
     break;
   case 2: case 5:
     if (d>5)
-      pluspairs.push_back({w, THREE});           // w^2=+1 (mod 3)
+      pluspairs.push_back({w, three});           // w^2=+1 (mod 3)
     break;
   case 11:
     if (d>23)
-      pluspairs.push_back({1+w, THREE});         // (1+w)^2=+1 (mod 3)
+      pluspairs.push_back({1+w, three});         // (1+w)^2=+1 (mod 3)
     break;
   case 3:
     if (d>15)
-      fours.push_back({THREE, w, w-1});     // w(w-1)=-1 (mod 3)
+      fours.push_back({three, w, w-1});     // w(w-1)=-1 (mod 3)
     break;
   case 6: case 9:
     if (d>6)
-      fours.push_back({THREE, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
+      fours.push_back({three, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
     break;
   }
     }
@@ -373,8 +373,8 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
     d2 = d1*d1 - 4*r1sq*r2sq;
   assert (d2 < 0);
 
-  RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/TWO;
-  RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/TWO;
+  RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/2;
+  RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/2;
   int Tsign = T.sign();
   RAT T2 = T*T;
   RatQuad D = tri_det(a, a2, a1); // pure imaginary
@@ -1018,7 +1018,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
     }
   for ( const auto& s : slist)
     {
-      H3point P = {s, ZERO};
+      H3point P = {s, RAT(0)};
       pointsx.push_back(P);
       for ( const auto& t : translates)
         {
@@ -1171,7 +1171,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
     }
   for ( const auto& s : slist)
     {
-      H3point P = {s, ZERO};
+      H3point P = {s, RAT(0)};
       pointsx.push_back(P);
       for ( const auto& t : translates)
         {

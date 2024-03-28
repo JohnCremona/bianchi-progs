@@ -182,7 +182,7 @@ vector<Quad> nearest_quads(const RatQuad& z, int just_one)
         }
       return ans;
     }
-  vector<Quad> shifts = quads_of_norm_up_to(3, 1, 1); // adjustments up to sign, must have norm 1, 2 or 3
+  vector<Quad> shifts = quads_of_norm_up_to(INT(3), 1, 1); // adjustments up to sign, must have norm 1, 2 or 3
   // cout<<"base z0="<<z0<<" gives r = "<<r<<endl;
   // cout<<"shifts are "<<shifts<<" up to multiplication by units in "<<quadunits<<endl;
   for ( const auto& s : shifts)

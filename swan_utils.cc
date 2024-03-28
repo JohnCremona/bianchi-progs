@@ -71,7 +71,7 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   // find sqrts of d2 in k, if any
   for ( const auto& sqrtd2 : sqrts_in_k(d2))
     {
-      RatQuad pt = z/TWO + sqrtd2/(TWO*delta);
+      RatQuad pt = (z + sqrtd2/delta)/2;
       assert ((pt-a1).norm() == r1sq);
       assert ((pt-a2).norm() == r2sq);
       ans.push_back(pt);
@@ -465,9 +465,9 @@ CuspList F4nbrs(const RatQuad& z)
 {
   RatQuad cz = z.conj();
   int t = Quad::t;
-  Quad w = Quad::w;
+  Quad w = Quad::w, one(1);
   CuspList ans = {z};
-  for ( RatQuad a : {-z, cz, ONE-z, -cz, ONE-cz, w-z, w+cz, (t? w+cz-ONE : w+ONE-z)})
+  for ( RatQuad a : {-z, cz, one-z, -cz, one-cz, w-z, w+cz, (t? w+cz-one : w+one-z)})
     if (std::find(ans.begin(), ans.end(), a) == ans.end())
       ans.push_back(a);
   return ans;
@@ -502,14 +502,14 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
   RAT t2 = P.t2;
   Quad r, temp;
   int ok, test;
-  long norm_s_ub = I2long((1/t2).floor());
+  INT norm_s_ub = t2.recip().floor();
   if (debug)
     cout << "t2 = "<<t2<<" so bounds on N(s) are ["<<norm_s_lb<<","<<norm_s_ub<<"]\n";
 
   // We could do Quadlooper sloop(norm_s_lb, norm_s_ub, 1); but it's
   // more efficient to construct all possible s at once, though that
   // takes more memory
-  auto slist = quads_of_norm_between(norm_s_lb, norm_s_ub, 1, 0); // including conjugates, not sorted
+  auto slist = quads_of_norm_between(INT(norm_s_lb), norm_s_ub, 1, 0); // including conjugates, not sorted
   for (const auto& s : slist)
     {
       if (debug)

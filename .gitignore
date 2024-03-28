@@ -52,12 +52,19 @@ qidl_labels
 qidl_loop
 P1Ntest
 rewrite_eigs
+flint_test
+swan_test
+snf_test
+swan_hom_test
+dimtab
+dimtable_all
 *_long
 *_ZZ
 
 # temporary test output files
 *.testout
 nftmp/*
+*out*
 
 # symlink to magma/sorting.m
 magma/*
