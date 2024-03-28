@@ -35,7 +35,7 @@ private:
   CuspList alistF4; // sublist of those in quarter rectangle
   INT maxn; // max denom norm of alphas considered systematically
   CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
-  map<RatQuad, CuspList, RatQuad_comparison> nbrs_ok, nbrs_open;
+  map<RatQuad, CuspList, RatQuad_comparison> nbrs, nbrs_ok, nbrs_open;
   CuspList slistx; // list of sigmas + 8 integer translates
   H3pointList cornersx;
 
@@ -56,8 +56,11 @@ private:
 
   int is_sigma_surrounded(const RatQuad& s, int verbose=0);
   int are_sigmas_surrounded(int verbose=0);
+  // test if a is singular by reducing to recatngle and comparing with slist
+  int is_singular(const RatQuad& a);
 
   int is_alpha_surrounded(const RatQuad& a, int verbose=0);
+  int are_intersection_points_covered(const RatQuad& a, const RatQuad& b, int verbose=0);
   int are_alphas_surrounded(int verbose=0);
 };
 

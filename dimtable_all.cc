@@ -18,7 +18,7 @@ int main ()
   vector<long> fields = valid_field_discs(0); // all
   long nfields = fields.size();
   long min_disc, max_disc = *std::max_element(fields.begin(), fields.end());
-  cerr << nfields << " fields available, discriminants >= " << max_disc << endl;
+  cerr << nfields << " fields available, discriminants <= " << max_disc << endl;
 
   cerr << "Enter min and max abs disc (0 0 for all): " << flush;  cin >> min_disc >> max_disc;
   fields = valid_field_discs(max_disc);

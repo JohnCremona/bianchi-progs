@@ -47,9 +47,9 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
   Quad u; RatQuad b0, at;
   if (verbose)
     cout<<"appending a="<<a<<" to alist and its translates to alistx"<<endl;
-  CuspList a_nbrs = intersecting_alphas(a,alistx);
+  nbrs[a] = intersecting_alphas(a,alistx);
   if (verbose)
-    cout<<" - nbrs of "<<a<<" initially "<<a_nbrs<<endl;
+    cout<<" - nbrs of "<<a<<" initially "<<nbrs[a]<<endl;
   if (a.in_quarter_rectangle())
     {
       alist_open.push_back(a);
@@ -58,12 +58,12 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
         cout<<"appending a="<<a<<" to alistF4"<<endl;
       if (covered)
         {
-          nbrs_ok[a] = a_nbrs;
+          nbrs_ok[a] = nbrs[a];
           nbrs_open[a] = CuspList();
         }
       else
         {
-          nbrs_open[a] = a_nbrs;
+          nbrs_open[a] = nbrs[a];
           nbrs_ok[a] = CuspList();
         }
     }
@@ -73,15 +73,17 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
     }
   // Update nbr lists of earlier alphas (in F4) if they intersect
   // one of the new translates:
-  for (const auto& b : a_nbrs) // NB these may have been translated
+  for (const auto& b : nbrs[a]) // NB these may have been translated
     {
       b0 = reduce_to_rectangle(b, u);
       // now b0+u intersects a, so a-u intersects b0
       if (b0.in_quarter_rectangle())
         {
-          // if nbrs_open[b0] is empty here, that means it is already
-          // surrounded so we don't want to add to it
           at = a-u;
+          nbrs[b0].push_back(at);
+          // Add at to nbrs_open[b0], unless nbrs_open[b0] is empty,
+          // meaning that b0 is already surrounded, in which case we
+          // add at to nbrs_ok[b0]:
           if (nbrs_open[b0].empty())
             {
               if (std::find(nbrs_ok[b0].begin(), nbrs_ok[b0].end(), at) == nbrs_ok[b0].end())
@@ -198,14 +200,110 @@ void SwanData::find_covering_alphas(int verbose)
     cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<"\n";
 }
 
+// test if a is singular by reducing to rectangle and comparing with
+// slist (but there are two special cases)
+int SwanData::is_singular(const RatQuad& a)
+{
+  Quad t;
+  RatQuad a0 = reduce_to_rectangle(a,t);
+  if (std::find(slist.begin(), slist.end(), a0) != slist.end())
+    return 1;
+
+  // annoying special cases for historical back-compatibility.
+  long d = Quad::d;
+  // When d%8==7, we use s=(1-w)/2 but (w-1)/2 is in the rectangle
+  if (d%8==7 && a0==RatQuad(Quad(-1,1),TWO)) return 1;
+  // When d%12==15 and d>15, we use s=(-1-w)/3 but (2-w)/3 is in the rectangle
+  if (d%12==3 && d>15 && a0==RatQuad(Quad(2,-1),THREE)) return 1;
+  return 0;
+}
+
+// Test if intersection points of S_a and S_b are covered by some S_c.
+// Assume that a is in F4 so we know its list of intersecting
+// neighbours, that b is in that list and any covering S_c is also in
+// that list
+int SwanData::are_intersection_points_covered(const RatQuad& a, const RatQuad& b, int verbose)
+{
+  int debug=verbose;
+  if (debug)
+    cout << "Testing if intersection points of "<<a<<" and "<<b<<" are covered"<<endl;
+
+  const CuspList& a_nbrs = nbrs[a];
+
+  // First see if the intersection points are in k, in which case we
+  // test whether they are singular and otherwise have an easy test:
+  CuspList zlist = intersection_points_in_k(a,b);
+  if (!zlist.empty())
+    {
+      if (debug)
+        cout << " intersection points are k-rational: "<<zlist<<endl;
+      for ( const auto& z : zlist)
+        {
+          if (is_singular(z)) // OK
+            {
+              if (debug)
+                cout << " ok, "<<z<<" is singular"<<endl;
+              continue;
+            }
+          if (!is_inside_one(z, a_nbrs, 1 /*strict*/))  // z is not covered: not OK
+            {
+              if (debug)
+                cout << " returning no, "<<z<<" is not covered"<<endl;
+              return 0;
+            }
+        }
+      // we reach here if both z values are either singular or covered: OK
+      if (debug)
+        cout << "+++returning yes, both are covered"<<endl;
+      return 1;
+    }
+
+  // Now the intersection points are not in k. Check that either one
+  // S_a covers both, or two cover one each:
+
+  int t = 0; // will hold +1 or -1 if we have covered only one of the two
+  for ( const auto& c : a_nbrs)
+    {
+      if (c == b)
+        continue;
+      if (!circles_intersect(b,c))
+        continue;
+      // call the global function: it returns 0 for neither, 2 for
+      // both and +1,-1 consistently for just one
+      int t2 = are_intersection_points_covered_by_one(a, b, c);
+      if (t2==2) // both are covered by c
+        {
+          if (debug)
+            cout << "+++returning yes, both are covered"<<endl;
+          return 1;
+        }
+      if (t2==0) // neither is covered by c
+        continue;
+      // Now t2 is +1 or -1; we win if t is its negative
+      if (t==-t2) // then they are (1,-1) or (-1,1) so we have covered both points
+        {
+          if (debug)
+            cout << " returning yes, both are now covered"<<endl;
+          return 1;
+        }
+      if (debug)
+        cout << "   not yet, only one is covered so far"<<endl;
+      t = t2;     // = +1 or -1: we have covered one of the points, so remember which
+    }
+  // If we reach here then none of the S_a covers both points
+  if (debug)
+    cout << "---returning no"<<endl;
+  return 0;
+}
+
 int SwanData::is_alpha_surrounded(const RatQuad& a, int verbose)
 {
   int debug = verbose>1;
   if (debug)
     cout<<"Testing if "<<a<<" is surrounded..."<<flush;
 
-  CuspList& a0list_open = nbrs_open[a]; // a reference, so changes are kept
-  CuspList& a0list_ok = nbrs_ok[a];     // a reference, so changes are kept
+  CuspList& a_nbrs_open = nbrs_open[a]; // a reference, so changes are kept
+  CuspList& a_nbrs_ok = nbrs_ok[a];     // a reference, so changes are kept
   if (nbrs_open[a].empty())
     {
       if (debug)
@@ -214,27 +312,28 @@ int SwanData::is_alpha_surrounded(const RatQuad& a, int verbose)
     }
 
   int all_ok = 1;
-  for ( auto it = a0list_open.begin(); it!=a0list_open.end(); )
+  for ( auto it = a_nbrs_open.begin(); it!=a_nbrs_open.end(); )
     {
-      RatQuad a1 = *it;
-      if (are_intersection_points_covered(a, a1, alistx, slist, debug))
+      RatQuad b = *it;
+      //if (::are_intersection_points_covered(a, b, alistx, slist, debug))
+      if (are_intersection_points_covered(a, b, debug))
         {
           // record that this pair is ok
-          a0list_ok.push_back(a1);
-          it = a0list_open.erase(it);
+          a_nbrs_ok.push_back(b);
+          it = a_nbrs_open.erase(it);
           if (debug)
             {
-              cout<<" - intersection points of S_{"<<a<<"} and S_{"<<a1<<"} are surrounded"<<endl;
-              // cout<<" - alist_open["<<a<<"] = "<<a0list_open<<endl;
-              // cout<<" - alist_ok["<<a<<"] = "<<a0list_ok<<endl;
+              cout<<" - intersection points of S_{"<<a<<"} and S_{"<<b<<"} are surrounded"<<endl;
+              // cout<<" - alist_open["<<a<<"] = "<<a_nbrs_open<<endl;
+              // cout<<" - alist_ok["<<a<<"] = "<<a_nbrs_ok<<endl;
             }
         }
       else
         {
           it++;
           if (debug)
-            cout<<" - intersection points of S_{"<<a<<"} and S_{"<<a1<<"} are NOT surrounded"<<endl;
-          all_ok = 0; // but continue checking the other a1s
+            cout<<" - intersection points of S_{"<<a<<"} and S_{"<<b<<"} are NOT surrounded"<<endl;
+          all_ok = 0; // but continue checking the other bs
         }
     }
   if (debug)
