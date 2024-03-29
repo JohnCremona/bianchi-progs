@@ -118,7 +118,7 @@ Factors of characteristic polynomial are:
 2:	[-13 1]	(degree 1)	 to power 11
 3:	[-7 1]	(degree 1)	 to power 12
 
-Computing T(P7a)*T(A,A) for A=[17,3+a]...done. 
+Computing T(P7a)*T(A,A) for A=[12,1+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-8 1]	(degree 1)	 to power 3
 2:	[2 1]	(degree 1)	 to power 4

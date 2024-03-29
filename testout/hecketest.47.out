@@ -3,7 +3,7 @@ Class number 5
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] ]
 >>>> Level 6.1 = (a,-6), norm = 6 <<<<
 Cuspidal dimension = 1
-Computing W(P2a)*T(A,A) for A=[17,7+a]...done. 
+Computing W(P2a)*T(A,A) for A=[8,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
@@ -18,11 +18,11 @@ Computing T(P2b)*T(A,A) for A=[14,5+a]...done.
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
-Computing T(P3b)*T(A,A) for A=[53,17+a]...done. 
+Computing T(P3b)*T(A,A) for A=[9,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 
-Computing T(P7a)*T(A,A) for A=[17,7+a]...done. 
+Computing T(P7a)*T(A,A) for A=[8,3+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
@@ -30,7 +30,7 @@ Computing T(P7b)*T(A,A) for A=[14,5+a]...done.
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 
-Computing T(P17a)*T(A,A) for A=[53,17+a]...done. 
+Computing T(P17a)*T(A,A) for A=[9,2+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
@@ -48,7 +48,7 @@ Factors of characteristic polynomial are:
 2:	[-1 1]	(degree 1)	 to power 12
 
 Involution!
-Computing W(P3b)*T(A,A) for A=[53,17+a]...done. 
+Computing W(P3b)*T(A,A) for A=[27,6+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 2:	[1 1]	(degree 1)	 to power 13
@@ -76,7 +76,7 @@ Factors of characteristic polynomial are:
 4:	[0 1]	(degree 1)	 to power 5
 5:	[4 1]	(degree 1)	 to power 5
 
-Computing T(P17a)*T(A,A) for A=[53,17+a]...done. 
+Computing T(P17a)*T(A,A) for A=[27,6+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 2:	[2 1]	(degree 1)	 to power 1

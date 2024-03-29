@@ -988,9 +988,8 @@ vector<Qideal> ideals_with_norm(INT N, int both_conj)
   for ( const auto& c : clist)
     {
       vector<Qideal> primitives = primitive_ideals_with_norm((N/c)/c, both_conj);
-      ans.resize(primitives.size());
-      std::transform(primitives.begin(), primitives.end(), ans.begin(),
-                     [c](const Qideal& J) {return c*J;});
+      std::for_each(primitives.begin(), primitives.end(), [c](const Qideal& J) {return c*J;});
+      ans.insert(ans.end(), primitives.begin(), primitives.end());
     }
   //cout<<" ideals with norm "<<N<<" both_conj="<<both_conj<<"): "<<ans<<endl;
   return ans;
