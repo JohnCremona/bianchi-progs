@@ -266,9 +266,11 @@ void Quad::field(long dd, long max)
         mult=&mult1; qdivi=&qdivi1;
       }
     }
+
+  // append odd primes divisors of d with sign to be 1 mod 4:
   vector<INT> pp = pdivs(odd);
-  for ( const auto& p : pp)
-    prime_disc_factors.push_back((p%4==1?p:-p));
+  std::for_each(pp.begin(), pp.end(), [] (INT& p) { if (p%4==3) p=-p;});
+  prime_disc_factors.insert(prime_disc_factors.end(), pp.begin(), pp.end());
 
   INT i0(0), i1(1);
   w = Quad(i0, i1, n);
@@ -285,13 +287,11 @@ void Quad::field(long dd, long max)
   quadgcd=&quadgcd_default;
   quadbezout=&quadbezout_default;
 
-  int i;
-
   quadunits.push_back(one);
   quadunits.push_back(fundunit);
-  for(i=2; i<nunits; i++)
+  for(int i=2; i<nunits; i++)
     quadunits.push_back(fundunit*quadunits[i-1]);
-  for(i=0; 2*i<nunits; i++)
+  for(int i=0; 2*i<nunits; i++)
     squareunits.push_back(quadunits[2*i]);
   maxnorm=max;
   if(class_number==1)
@@ -405,7 +405,7 @@ int Quad::ideal_class_mod_squares(const Qideal& I)
 // image (+1/-1) of I under i'th quadratic character (0 <= i < 2^{2-rank})
 int Quad::unramified_character(int i, const Qideal& I)
 {
-  return (i & ideal_class_mod_squares(I) ? -1 : +1); // bitwise &
+  return ((i & ideal_class_mod_squares(I)) ? -1 : +1); // bitwise &
 }
 
 // Quad::Quad(const bigcomplex& z)
@@ -491,10 +491,11 @@ vector<Quad> residues(const Quad& a)
 
 vector<Quad> invertible_residues(const Quad& a)
 {
-  vector<Quad> res = residues(a), ires;
-  for ( const auto& r : res)
-    if (coprime(a,r))
-      ires.push_back(r);
+  vector<Quad> res = residues(a);
+  vector<Quad> ires(res.size()); // will be shrunk later
+  auto it = std::copy_if(res.begin(), res.end(), ires.begin(),
+                         [a] (const Quad& r) {return coprime(a,r);});
+  ires.resize(std::distance(ires.begin(), it));
   return ires;
 }
 
@@ -783,10 +784,10 @@ Quad invmod(const Quad& a, const Quad& p)
 {Quad x,y;
  Quad g=quadbezout(a,p,x,y);
  if (g==Quad::one) return x;
- else {cerr<<"invmod called with "<<a<<" and "<<p<<" -- not coprime!"<<endl;
+ else {
+   cerr<<"invmod called with "<<a<<" and "<<p<<" -- not coprime!"<<endl;
    return Quad::zero;
-   exit(1);
-      }
+ }
 }
 
 int invertible(const Quad& a, const Quad& b, Quad& inverse)
@@ -1014,14 +1015,12 @@ string field_label() // returns field label, e.g. '2.0.4.1'
 
 int are_associate(const Quad& a, const Quad& b)
 {
-  if (a==b) return 1;
-  if (a.is_zero() ||b.is_zero()) return 0;
-  if (a==-b) return 1;
+  if (a.is_zero() || b.is_zero()) return 0;
+  if ((a==b) || (a==-b)) return 1;
   if (Quad::nunits !=2) return 0;
   if(a.norm() != b.norm()) return 0;
-  for( const auto& eps : quadunits)
-    if (a*eps==b) return 1;
-  return 0;
+  return std::any_of(quadunits.begin(), quadunits.end(),
+                     [a,b] (const Quad& eps) {return a*eps==b;});
 }
 
 int is_ideal_Galois_stable(const Quad& a)
@@ -1039,14 +1038,9 @@ string ideal_code(const Quad& N) // string code for a (principal) ideal N
 
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
 {
-  vector<int> chi;
-  if(reslist.size()==1)
-    chi.push_back(1);
-  else
-    {
-      for (const auto& r : reslist)
-	chi.push_back(squaremod(r,lambda,reslist));
-    }
+  vector<int> chi(reslist.size());
+  std::transform(reslist.begin(), reslist.end(), chi.begin(),
+                 [lambda, reslist] (const Quad& r) {return squaremod(r,lambda,reslist);});
   return chi;
 }
 
@@ -1056,9 +1050,10 @@ int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist)
 {
   if (div(m,a))
     return 0;
-  for (const auto& r : reslist)
-    if(div(m,r*r-a)) return +1;
-  return -1;
+  if (std::any_of(reslist.begin(), reslist.end(), [a,m] (const Quad& r) {return div(m,r*r-a);}))
+    return +1;
+  else
+    return -1;
 }
 
 // convert a binary vector into a discriminant dividing Quad::disc
@@ -1075,11 +1070,10 @@ INT discchar(vector<int> c)
 
 vector<int> chardisc(INT D)
 {
-  vector<int> ans;
-  for( const auto& d : Quad::prime_disc_factors)
-    ans.push_back(div_disc(d,D));
-  // cout<<"prime_disc_factors: "<< Quad::prime_disc_factors << endl;
-  // cout<<"chardisc("<<D<<") = "<<ans<<endl;
+  vector<int> ans(Quad::prime_disc_factors.size());
+  std::transform(Quad::prime_disc_factors.begin(), Quad::prime_disc_factors.end(),
+                 ans.begin(),
+                 [D] (const INT& d) {return div_disc(d,D);});
   return ans;
 }
 
@@ -1094,13 +1088,10 @@ vector<INT> disc_factors_mod_D(const INT& D)
   // cout<<"D="<<D<<" Dv="<<Dv<<endl;
   int i = std::find(Dv.begin(), Dv.end(), 0) - Dv.begin();
   int j = std::find(Dv.begin(), Dv.end(), 1) - Dv.begin();
-  vector<INT> ans;
-  for( const auto& Di : Quad::all_disc_factors)
-    {
-      // cout<<"Di="<<(Di)<<":"<<chardisc(Di)<<endl;
-      if((chardisc(Di)[i]==0) && (chardisc(Di)[j]==0))
-        ans.push_back(Di);
-    }
+  vector<INT> ans(Quad::all_disc_factors.size());
+  auto it = std::copy_if(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(), ans.begin(),
+               [i,j] (const INT& Di) {return ((chardisc(Di)[i]==0) && (chardisc(Di)[j]==0));});
+  ans.resize(std::distance(ans.begin(), it));
   // cout<<"All discs "<<Quad::all_disc_factors<<" mod "<<D<<": "<<ans<<endl;
   return ans;
 }
