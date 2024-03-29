@@ -38,7 +38,7 @@
 
 int main(void)
 {
-  long d, max(MAXPRIME);
+  long d, maxpnorm(MAXPRIME);
   //  Quad n;
   int plusflag=1;
   Qideal N;
@@ -53,7 +53,7 @@ int main(void)
   cerr<<"Enter max norm for Quad loop: ";
   cin >> max_norm;
 
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
 
   // Each new eigensystem stored which is stored gives rise to either
   // 2^r Bianchi newforms (if not self-twist) or 2^{r-1} Bianchi
@@ -123,11 +123,11 @@ int main(void)
           if (D==N)
             continue;
           Qideal M = N/D;
-          int mult = ndivs(M);
+          int m = ndivs(M);
           vector<int> dimsD = newdimlists[ideal_label(D)];
           for (int i=0; i<nchi; i++)
             {
-              olddims[i] += mult*dimsD[i];
+              olddims[i] += m*dimsD[i];
             }
         }
 

@@ -22,7 +22,7 @@ int main ()
 
   cerr << "Enter min and max abs disc (0 0 for all): " << flush;  cin >> min_disc >> max_disc;
   fields = valid_field_discs(max_disc);
-  long max(2000);
+  long maxpnorm(2000);
   cout << "Table of dimensions of ";
   cout<<"level 1 homology over Q(sqrt(-d))" << endl;
   cout<<"\n";
@@ -38,7 +38,7 @@ int main ()
       if (D<min_disc)
         continue;
       long d = (D%4==0? D/4: D);
-      Quad::field(d,max);
+      Quad::field(d,maxpnorm);
       int n2r = Quad::class_group_2_rank>0;
       Qideal N(ONE);
       cout << Quad::disc << "\t\t";        // field discriminant

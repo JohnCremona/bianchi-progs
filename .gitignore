@@ -64,7 +64,7 @@ dimtable_all
 # temporary test output files
 *.testout
 nftmp/*
-*out*
+out*
 
 # symlink to magma/sorting.m
 magma/*

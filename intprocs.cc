@@ -185,8 +185,7 @@ INT vecbezout(vector<INT>& a, vector<INT>& c)
   INT x(1), g = vecgcd(a);
   vector<INT> a0=a;
   if (g>1)
-    for( auto ai : a0)
-      ai /= g;
+    std::for_each(a0.begin(), a0.end(), [g](INT& ai) {ai/=g;});
   // Now a0 is primitive: we do this to make numbers smaller in what follows
   c = vector<INT>(n, INT(0));
   INT g1(0);

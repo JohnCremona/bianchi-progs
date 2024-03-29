@@ -5,7 +5,7 @@
 
 int main ()
 {
-  long d, max(1000);
+  long d, maxpnorm(1000);
   cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
    {
@@ -23,7 +23,7 @@ int main ()
      if (ch) charlist.push_back(ch);
    }
 
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  int plusflag=1, cuspidalflag=1;
  cerr << "Plus space? "; cin>>plusflag;
  cerr << "cuspidal subspace? "; cin>>cuspidalflag;
@@ -35,8 +35,8 @@ int main ()
  cin >> firstn >> lastn;
  cerr<<endl;
  cout<<"Level";
- for ( const auto& ch : charlist)
-   cout<<" "<<ch;
+ for ( const auto& c : charlist)
+   cout<<" "<<c;
  cout<<endl;
 
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
@@ -49,9 +49,9 @@ int main ()
        {
 #endif
          cout << ideal_label(N);
-         for ( const auto& ch : charlist)
+         for ( const auto& c : charlist)
            {
-             homspace h(N, plusflag, 0, ch);  //level, plusflag, verbose, characteristic
+             homspace h(N, plusflag, 0, c);  //level, plusflag, verbose, characteristic
              long dim = (cuspidalflag? h.h1cuspdim(): h.h1dim());
              cout << " " << dim;
            }

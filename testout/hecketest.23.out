@@ -3,30 +3,30 @@ Class number 3
 Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 >>>> Level 6.1 = (a), norm = 6 <<<<
 Cuspidal dimension = 1
-Computing W(P2a)*T(A,A) for A=[4,1+a]...done. 
+Computing W(P2a)*T(A,A) for A=[29,10+a]...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W(P3a)*T(A,A) for A=[12,5+a]...done. 
+Computing W(P3a)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
 Involution!
 
-Computing T(P2b)*T(A,A) for A=[12,5+a]...done. 
+Computing T(P2b)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 
-Computing T(P3b)*T(A,A) for A=[4,1+a]...done. 
+Computing T(P3b)*T(A,A) for A=[29,10+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 1
 
-Computing T(P13a)*T(A,A) for A=[12,5+a]...done. 
+Computing T(P13a)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 1
 
-Computing T(P13b)*T(A,A) for A=[4,1+a]...done. 
+Computing T(P13b)*T(A,A) for A=[29,10+a]...done. 
 Factors of characteristic polynomial are:
 1:	[2 1]	(degree 1)	 to power 1
 
@@ -36,31 +36,31 @@ Factors of characteristic polynomial are:
 
 >>>> Level 12.1 = (2a,-6+a), norm = 12 <<<<
 Cuspidal dimension = 2
-Computing W(P2a)*T(A,A) for A=[12,5+a]...done. 
+Computing W(P2a)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 1
 
 Involution!
-Computing W(P3a)*T(A,A) for A=[12,5+a]...done. 
+Computing W(P3a)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 
 Involution!
 
-Computing T(P2b)*T(A,A) for A=[12,5+a]...done. 
+Computing T(P2b)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 2
 
-Computing T(P3b)*T(A,A) for A=[4,1+a]...done. 
+Computing T(P3b)*T(A,A) for A=[29,10+a]...done. 
 Factors of characteristic polynomial are:
 1:	[0 1]	(degree 1)	 to power 2
 
-Computing T(P13a)*T(A,A) for A=[12,5+a]...done. 
+Computing T(P13a)*T(A,A) for A=[13,4+a]...done. 
 Factors of characteristic polynomial are:
 1:	[-2 1]	(degree 1)	 to power 2
 
-Computing T(P13b)*T(A,A) for A=[4,1+a]...done. 
+Computing T(P13b)*T(A,A) for A=[29,10+a]...done. 
 Factors of characteristic polynomial are:
 1:	[2 1]	(degree 1)	 to power 2
 

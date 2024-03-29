@@ -239,7 +239,7 @@ mat22 P1N::lift_to_SL2(long ind)
 // return a matrix [a, b; c, d] with det=1, c in M and (c:d) equal to
 // the i'th symbol (requires M,N coprime). (u,v) should satisfy u+v=1
 // with u in N, v in M.
-mat22 P1N::lift_to_Gamma_0(long i, Qideal M, const Quad& u, const Quad& v)
+mat22 P1N::lift_to_Gamma_0(long i, const Qideal& M, const Quad& u, const Quad& v)
 {
   Quad c, d;
   make_symb(i, c, d); // this is reduced, in particular is (c:1) or (1:d) if possible
@@ -285,16 +285,10 @@ void P1N::check_lifts(int verbose) // checks lifts to SL2 and Gamma_0(P) for a P
   long i;
   Quad c, d, u, v;
 
-  Quadprime P; // the first prime not dividing the level
-  for ( const auto& Pi : Quadprimes::list)
-    {
-      if (!Pi.divides(N))
-        {
-          P = Pi;
-          break;
-        }
-    }
-  i = P.is_coprime_to(N, u, v);
+  Quadprime P = *std::find_if(Quadprimes::list.begin(), Quadprimes::list.end(),
+                             [this](const Quadprime& Q) {return !Q.divides(N);});
+  // the first prime not dividing the level
+  P.is_coprime_to(N, u, v); // ignore return value (which is 1)
   if (verbose)
     {
       cout << "Testing lifts from P1(N) to SL(2,O_K) and to Gamma_0(P) for N = " << N << " and P= "<<P<<":\n";

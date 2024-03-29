@@ -17,7 +17,7 @@
 
 int main ()
 {
-  long d, max(1000);
+  long d, maxpnorm(1000);
   cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
     {
@@ -36,7 +36,7 @@ int main ()
   cerr<<"Enter first and last norm for Quad loop: ";
   cin >> min_norm >> max_norm;
   cerr<<endl;
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
 
 
  cout << "# Table of dimensions of ";

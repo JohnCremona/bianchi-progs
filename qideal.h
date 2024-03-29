@@ -86,7 +86,7 @@ public:
 //
   Qideal operator*(const INT&) const;
   Qideal operator*(const Quad&) const;
-  Qideal operator*(Qideal&) const;
+  Qideal operator*(const Qideal&) const;
   friend Qideal operator*(const INT&, const Qideal&);
   friend Qideal operator*(const Quad&, const Qideal&);
   void operator*=(const INT&);
@@ -132,6 +132,7 @@ public:
 
   // return J = (c/d)*this coprime to N, or (if anti=1) J such that J*this=(c) and d=1
   // (implemented in primes.cc)
+  // These are not const since they call is_principal() which may fill data
   Qideal equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti=0);
   // Same again if you don't need c,d
   Qideal equivalent_coprime_to(const Qideal& N, int anti=0)
@@ -183,7 +184,7 @@ public:
   int is_prime();
   int is_prime_power();
   int is_equivalent(const Qideal& I) const;
-  int is_anti_equivalent(Qideal& I);
+  int is_anti_equivalent(const Qideal& I) const;
   int contains(const INT& n) const  {return ::divides(ac, n);}
   int contains(const Quad& alpha) const;
   int contains(const Qideal& I) const  {return ::divides(c,I.c) && ::divides(ac,I.ac) && contains(I.zgen(1));}
@@ -228,7 +229,7 @@ private:
 // return i if I is equivalent to the i'th ideal in Jlist, else -1
 int find_ideal_class(const Qideal& I, const vector<Qideal>& Jlist);
 // return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
-int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist);
+int find_ideal_class_mod_squares(const Qideal& I, const vector<Qideal>& Jlist);
 // return i where I is equivalent to the i'th ideal in Quad::class_group
 inline int find_ideal_class(const Qideal& I) {return find_ideal_class(I, Quad::class_group);}
 // return the equivalent ideal in Quad::class_group

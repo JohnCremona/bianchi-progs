@@ -311,7 +311,7 @@ Qideal Qideal::operator*(const Quad& alpha) const
   return ans;
 }
 
-Qideal Qideal::operator*(Qideal& f) const
+Qideal Qideal::operator*(const Qideal& f) const
 {
   //cout << "Multiplying ideal "<<(*this)<<" by "<<f<<endl;
   Qideal ans(*this);
@@ -424,7 +424,7 @@ int Qideal::is_equivalent(const Qideal& I) const
   return (I1==J1) || (I1.conj()*J1).is_principal();
 }
 
-int Qideal::is_anti_equivalent(Qideal& I)
+int Qideal::is_anti_equivalent(const Qideal& I) const
 {
   // return (I*(*this)).is_principal();
   Qideal I1 = I.primitive_part(), J1 = primitive_part();
@@ -988,8 +988,9 @@ vector<Qideal> ideals_with_norm(INT N, int both_conj)
   for ( const auto& c : clist)
     {
       vector<Qideal> primitives = primitive_ideals_with_norm((N/c)/c, both_conj);
-      for ( const auto& J : primitives)
-        ans.push_back(c*J);
+      ans.resize(primitives.size());
+      std::transform(primitives.begin(), primitives.end(), ans.begin(),
+                     [c](const Qideal& J) {return c*J;});
     }
   //cout<<" ideals with norm "<<N<<" both_conj="<<both_conj<<"): "<<ans<<endl;
   return ans;
@@ -1189,23 +1190,19 @@ int find_ideal_class(const Qideal& I, const vector<Qideal>& Jlist)
 // return the equivalent ideal in Quad::class_group
 Qideal class_representative(Qideal I)
 {
-  for ( const auto& J : Quad::class_group)
-    if (I.is_equivalent(J))
-      return J;
-  return I; // should not happen!
+  return *std::find_if(Quad::class_group.begin(), Quad::class_group.end(),
+                      [I] ( const Qideal& J) {return I.is_equivalent(J);});
 }
 
 // return the ideal J in Quad::class_group for which I*J = <g> is principal and set g
 Qideal class_anti_representative(Qideal I, Quad& g)
 {
-  for ( auto& J : Quad::class_group)
-    if ((I*J).is_principal(g))
-      return J;
-  return I; // should not happen!
+  return *std::find_if(Quad::class_group.begin(), Quad::class_group.end(),
+                       [I, &g] ( const Qideal& J) {return (I*J).is_principal(g);});
 }
 
 // return i if I is equivalent mod squares to the i'th ideal in Jlist, else -1
-int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
+int find_ideal_class_mod_squares(const Qideal& I, const vector<Qideal>& Jlist)
 {
   Qideal Ibar = I.conj();
   int i = 0;
@@ -1221,9 +1218,10 @@ int find_ideal_class_mod_squares(Qideal I, const vector<Qideal>& Jlist)
 // compute a list of ideals coprime to N whose classes generate the 2-torsion
 vector<Qideal> make_nulist(Qideal& N)
 {
-  vector<Qideal> nulist;
-  for ( auto& A : Quad::class_group_2_torsion_gens)
-    nulist.push_back(A.equivalent_coprime_to(N));
+  vector<Qideal> nulist(Quad::class_group_2_torsion_gens.size());
+  std::transform(Quad::class_group_2_torsion_gens.begin(), Quad::class_group_2_torsion_gens.end(),
+                 nulist.begin(),
+                 [N]( Qideal& A) {return A.equivalent_coprime_to(N);});
   return nulist;
 }
 
@@ -1233,20 +1231,16 @@ int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist)
 {
   if (M.contains(a))
     return 0;
-  for (const auto& r :reslist)
-    if (M.contains(r*r-a))
-      return +1;
-  return -1;
+  int res = std::any_of(reslist.begin(), reslist.end(),
+                        [a,M](const Quad& r) {return M.contains(r*r-a);});
+  return (res? +1: -1);
 }
 
 vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist)
 {
-  vector<int> chi;
-  if(reslist.size()==1)
-    chi.push_back(1);
-  else
-    for (const auto& r : reslist)
-      chi.push_back(squaremod(r,L,reslist));
+  vector<int> chi(reslist.size());
+  std::transform(reslist.begin(), reslist.end(), chi.begin(),
+                 [L, reslist] (const Quad& r) {return squaremod(r,L,reslist);});
   return chi;
 }
 

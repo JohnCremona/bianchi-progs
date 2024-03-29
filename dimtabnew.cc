@@ -21,7 +21,7 @@
 
 int main ()
 {
-  long d, max(2000);
+  long d, maxpnorm(2000);
   cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
     {
@@ -41,7 +41,7 @@ int main ()
   cin >> max_norm;
   cerr<<endl;
 
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
 
   // Each new eigensystem stored which is stored gives rise to either
   // 2^r Bianchi newforms (if not self-twist) or 2^{r-1} Bianchi
