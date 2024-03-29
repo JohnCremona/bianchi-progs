@@ -67,7 +67,7 @@ CuspList intersection_points_in_k(const RatQuad& a1, const RatQuad& a2)
   if (d2 > 0)
     return ans;
   delta = delta.conj();
-  RatQuad z = a1 + a2 + (r1sq-r2sq)/delta;
+  RatQuad z = a1 + a2 + RatQuad(r1sq-r2sq)/delta;
   // find sqrts of d2 in k, if any
   for ( const auto& sqrtd2 : sqrts_in_k(d2))
     {

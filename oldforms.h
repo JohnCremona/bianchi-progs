@@ -21,7 +21,7 @@ private:
   vector<Qideal> oldlevels;
   void getoldclasses(Qideal& D);
  public:
-  oldforms(const newforms* nfs);
+  explicit oldforms(const newforms* nfs);
   long dimoldpart(const vector<long> aplist);
   void display(void) const;
 };

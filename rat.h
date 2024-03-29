@@ -185,7 +185,7 @@ public:
     RAT c = b/a;
     return c.recip();
   }
-  int operator==(const RAT& b) {
+  int operator==(const RAT& b) const {
     return fmpq_equal(q, b.q);
   }
   int operator==(INT b) {

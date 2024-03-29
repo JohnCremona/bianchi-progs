@@ -287,7 +287,7 @@ string make_A_line(const Quad& s, const Quad& r1, const Quad& r2)
 void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
                    int to_file, int to_screen)
 {
-  vector<Quad> small_denoms = {Quad::zero, Quad::one, 2*Quad::one, 3*Quad::one};
+  vector<Quad> small_denoms = {Quad(0), Quad(1), Quad(2), Quad(3)};
   ofstream geodata;
   stringstream ss;
   if (to_file)
@@ -373,7 +373,7 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
     d2 = d1*d1 - 4*r1sq*r2sq;
   assert (d2 < 0);
 
-  RatQuad z0 = ((a1+a2) + (r1sq-r2sq)/delta)/2;
+  RatQuad z0 = ((a1+a2) + RatQuad(r1sq-r2sq)/delta)/2;
   RAT T = 2 * n * (rsq - (z0-a).norm()) + d2/2;
   int Tsign = T.sign();
   RAT T2 = T*T;

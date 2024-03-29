@@ -28,7 +28,7 @@ public:
   Quadprime(INT a, INT b, INT c, long pp, long ind=1)
     : Qideal(a,b,c) { p=pp; index=ind; character=Quad::chi(INT(p)); fill();}
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
-  Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
+  explicit Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}
   Quadprime& operator=(const Quadprime& x) {
     Qideal::operator=(x);

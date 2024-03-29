@@ -226,7 +226,7 @@ inline matop AtkinLehnerQChiOp(Quadprime& Q, Qideal& A, const Qideal& N)
 
 // The operator T(P) at level N
 
-inline matop HeckePOp(Quadprime& P, Qideal& N)
+inline matop HeckePOp(Quadprime& P, const Qideal& N)
 {
   return matop(HeckeP(P), opname(P,N));
 }

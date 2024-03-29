@@ -177,7 +177,7 @@ int main ()
                g*=fundunit;
                h*=fundunit;
              }
-           if (h==0)
+           if (h.is_zero())
              while (!pos(g))
                {
                  g*=fundunit;

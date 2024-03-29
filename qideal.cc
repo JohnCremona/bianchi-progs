@@ -417,7 +417,7 @@ void Qideal::operator*=(Qideal f)
   iclass=index=-1;
 }
 
-int Qideal::is_equivalent(const Qideal& I)
+int Qideal::is_equivalent(const Qideal& I) const
 {
   // return (I.conj()*(*this)).is_principal();
   Qideal I1 = I.primitive_part(), J1 = primitive_part();
@@ -1174,7 +1174,7 @@ int Qideal::is_coprime_to(const Quad& c, const Quad& d, Quad& x, Quad& y, int fi
 }
 
 // return i if I is equivalent to the i'th ideal in Jlist, else -1
-int find_ideal_class(Qideal I, const vector<Qideal>& Jlist)
+int find_ideal_class(const Qideal& I, const vector<Qideal>& Jlist)
 {
   int i=0;
   for ( const auto& J : Jlist)

@@ -231,7 +231,7 @@ string make_S_line(const RatQuad& sig)
 
 void output_singular_points(const CuspList& S, int to_file, int to_screen)
 {
-  vector<Quad> small_denoms = {Quad::zero, Quad::one, 2*Quad::one, 3*Quad::one};
+  vector<Quad> small_denoms = {Quad(0), Quad(1), Quad(2), Quad(3)};
   ofstream geodata;
   stringstream ss;
   if (to_file)
