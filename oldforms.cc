@@ -174,7 +174,7 @@ void oldforms::display(void) const
 
 // Return the oldspace dimension at level N of a new eigensystem at
 // level D which is self-twist by genus character with discriminant d
-int old_multiplicity(Qideal D, INT d, Qideal N)
+int old_multiplicity(const Qideal& D, INT d, const Qideal& N)
 {
   Qideal M = N/D;
   vector<Qideal> divisors = alldivs(M);
@@ -184,18 +184,18 @@ int old_multiplicity(Qideal D, INT d, Qideal N)
 // The same with the list of divisors of N/D given
 int old_multiplicity(INT d, vector<Qideal>& divisors)
 {
-  int mult = 0;
+  int m = 0;
   for_each(divisors.begin(), divisors.end(),
-           [d, &mult](Qideal D)
-           {mult += int(D.genus_character(d)==+1);}
+           [d, &m](Qideal D)
+           {m += int(D.genus_character(d)==+1);}
            );
-  return mult;
+  return m;
 }
 
 // Given a list of the new homology dimensions at level D (indexed by
 // self-twist genus character), and a multiple N of D, return the old
 // homology dimensions (similarly indexed) at level N.
-vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N)
+vector<int> old_multiplicities(const Qideal& D, vector<int> newdimsD, const Qideal& N)
 {
   Qideal M = N/D;
   vector<Qideal> divisors = alldivs(M);

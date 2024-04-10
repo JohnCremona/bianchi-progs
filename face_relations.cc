@@ -510,11 +510,11 @@ void face_relations::hexagon_relation_11()
 void face_relations::triangle_relation_2()
 {
   long field = Quad::d;
-  Quad w=Quad::w, zero(0), one(1), two(2);
+  Quad w=Quad::w, one(1), two(2);
   long j, k;
   Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
-  action K(P1, M_alphas[1]);  assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
+  action K(P1, M_alphas[1]);      assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
   action N(P1, one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first

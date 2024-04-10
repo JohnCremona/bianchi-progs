@@ -126,20 +126,19 @@ void homspace::kernel_delta()
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(N, plusflag);
   mat deltamat(2*dimension,dimension);
-  int i, ia, ib;
-  for (i=0; i<dimension; i++)
+  for (int i=0; i<dimension; i++)
     {
       modsym m = freemods[i];
       RatQuad a = m.alpha(), b = m.beta();
       if (verbose>1)
         cout<<"Finding index of cusp "<<b<<"..."<<flush;
-      ib = cusps.index(b);
+      int ib = cusps.index(b);
       if (verbose>1)
         cout<<" index is "<<ib<<endl;
       deltamat(ib+1, i+1) += 1;  // N.B. offset of 1
       if (verbose>1)
         cout<<"Finding index of cusp "<<a<<"..."<<flush;
-      ia = cusps.index(a);
+      int ia = cusps.index(a);
       if (verbose>1)
         cout<<" index is "<<ia<<endl;
       deltamat(ia+1, i+1) -= 1;
@@ -157,11 +156,10 @@ void homspace::kernel_delta()
   vec pivs, npivs;
   int d2;
   kern = kernel(smat(deltamat), modulus);
-  int ok = 1;
   if (characteristic==0)
     {
       smat sk;
-      ok = liftmat(smat_elim(deltamat, modulus).kernel(npivs,pivs),MODULUS,sk,d2);
+      int ok = liftmat(smat_elim(deltamat, modulus).kernel(npivs,pivs),MODULUS,sk,d2);
       if (!ok)
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
     }
@@ -184,7 +182,7 @@ void homspace::kernel_delta()
       cout << "Basis of ker(delta):\n";
       cout << basiskern.as_mat();
       cout << "pivots: " << pivots(kern) << endl;
-      for (i=0; i<dimension; i++)
+      for (int i=0; i<dimension; i++)
         cout << "generator "<< i << ": " << freemods[i] << endl;
     }
 }
@@ -270,7 +268,11 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // beta is principal.  But experiment showed that this is actually a
 // bit slower.
 {
-  if (0)//(alpha.is_principal())
+  return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
+}
+#if(0)
+{
+  if (alpha.is_principal())
     {
       Quad a(alpha.num()), b(alpha.den()), x, y;
       Quad g(quadbezout(a,b, x,y)); // g=ax+by=1
@@ -286,15 +288,15 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 #endif
       return chain(M(beta), proj, c, d);
     }
-  if (0)//(beta.is_principal())
+  if (beta.is_principal())
     {
       return -chain(beta, alpha, proj);
     }
 #ifdef DEBUG_CHAIN
   cerr<<"chain(alpha,beta) with alpha="<<alpha<<" and beta="<<beta<<" non-principal"<<endl;
 #endif
-  return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
 }
+#endif
 
 vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, const Quad& dd)
 {
@@ -346,21 +348,18 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
 { vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
-  for ( const auto& m : T.mats)
-    ans = reduce_modp(ans + chain(m(alpha), proj), hmod);
+  std::for_each(T.mats.begin(), T.mats.end(),
+                [this, alpha, proj, &ans] (const mat22& M)
+                {ans = reduce_modp(ans + chain(M(alpha), proj), hmod);});
   return ans;
 }
 
 vec homspace::applyop(const matop& T, const modsym& m, int proj)
 { vec ans(dimension);
   if (proj) ans.init(projcoord.ncols());
-  for ( const auto& M : T.mats)
-    {
-#ifdef DEBUG_CHAIN
-      cout<<"image of m="<<m<<" under matrix M="<<M<<" has alpha="<<M(m.alpha())<<", beta="<<M(m.beta())<<" -- now calling chain on {alpha,beta}"<<endl;
-#endif
-      ans = reduce_modp(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);
-    }
+  std::for_each(T.mats.begin(), T.mats.end(),
+                [this, m, proj, &ans] (const mat22& M)
+                {ans = reduce_modp(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);});
   return ans;
 }
 
@@ -712,21 +711,23 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 // list of total or cuspidal dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
 // each D (including D=1, meaning no self-twist)
-vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> cuspidal_lower_bounds)
+vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds,
+                                                                     vector<int> cuspidal_lower_bounds)
 {
-  vector<pair<int,int>> dims;
-  vector<int> dims1;
   if (cuspidal)
     {
-      dims = trivial_character_subspace_dimensions_by_twist(0, use_lower_bounds, {}, cuspidal_lower_bounds);
-      for ( const auto& di : dims)
-        dims1.push_back(di.second);
+      auto dims = trivial_character_subspace_dimensions_by_twist(0, use_lower_bounds, {}, cuspidal_lower_bounds);
+      vector<int> dims1(dims.size());
+      std::transform(dims.begin(), dims.end(), dims1.begin(),
+                     [] (const pair<int,int>& di) {return di.second;});
+      return dims1;
     }
   else
     {
-      dims = trivial_character_subspace_dimensions_by_twist(use_lower_bounds, 0, cuspidal_lower_bounds, {});
-      for ( const auto& di : dims)
-        dims1.push_back(di.first);
+      auto dims = trivial_character_subspace_dimensions_by_twist(use_lower_bounds, 0, cuspidal_lower_bounds, {});
+      vector<int> dims1(dims.size());
+      std::transform(dims.begin(), dims.end(), dims1.begin(),
+                     [] (const pair<int,int>& di) {return di.first;});
+      return dims1;
     }
-  return dims1;
 }

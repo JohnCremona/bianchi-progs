@@ -12,6 +12,7 @@ public:
   // constructors
   RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
   RatQuad(INT a, INT b, INT dd, int red=0); // (a+b*w)/dd
+  RatQuad(long a, long b, long dd, int red=0); // (a+b*w)/dd
   explicit RatQuad(long a);
   explicit RatQuad(const RAT& a);
   static RatQuad infinity() {return RatQuad(Quad::one, Quad::zero, 0);}
@@ -145,6 +146,13 @@ inline RatQuad::RatQuad(const Quad& nn, const Quad& dd, int red)
 
 inline RatQuad::RatQuad(INT a, INT b, INT dd, int red) // (a+b*w)/dd
   :d(dd,INT(0)), n(a,b)
+{
+  if (red)
+    reduce();
+}
+
+inline RatQuad::RatQuad(long a, long b, long dd, int red) // (a+b*w)/dd
+  :d(dd), n(a,b)
 {
   if (red)
     reduce();

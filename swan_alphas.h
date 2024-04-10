@@ -12,7 +12,9 @@ CuspList sort_alphas(const CuspList& A,
                      int verbose=0, int debug=0);
 
 // Output sorted list of alphas (denom > 3 in pairs or fours)
-void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+void output_alphas(const vector<vector<Quad>>& pluspairs,
+                   const vector<vector<Quad>>& minuspairs,
+                   const vector<vector<Quad>>& fours,
                    int to_file=1, int to_screen=0);
 
 // direct lists of alphas of denominator 2 or 3:

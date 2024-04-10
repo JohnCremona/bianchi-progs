@@ -9,7 +9,7 @@
 
 int main(void)
 {
-  long d, max(MAXPRIME);
+  long d, maxpnorm(MAXPRIME);
  int np,ip,jp;
  Quad n; int show_mats, show_pols, show_facs, plusflag, cuspidal=1;
  cerr << "Enter field: " << flush;  cin >> d;
@@ -21,7 +21,7 @@ int main(void)
   long ch=0;
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
   ZZ_p::init(ZZ(ch));
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  cerr << "Plus space (0/1)? "; cin>>plusflag;
  cerr << "Cuspidal subspace (0/1)? "; cin>>cuspidal;

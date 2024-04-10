@@ -80,13 +80,12 @@ void Quad::fill_class_group()
                 {
                   // add a new 2-torsion generator
                   class_group_2_torsion_gens.push_back(I);
-                  // compute the new coset
-                  vector<Qideal> new_2_torsion(class_group_2_torsion.size());
-                  std::transform(class_group_2_torsion.begin(), class_group_2_torsion.end(), new_2_torsion.begin(),
-                                 [I] ( const Qideal& J ) {return I*J;});
-                  // append the new coset
-                  class_group_2_torsion.insert(class_group_2_torsion.end(),
-                                               new_2_torsion.begin(), new_2_torsion.end());
+                  // compute the new coset: copy the subgroup:
+                  auto coset = class_group_2_torsion;
+                  // multiply its elements by I:
+                  std::for_each(coset.begin(), coset.end(), [I] ( Qideal& J ) { J*=I;});
+                  // append the new coset to the subgroup:
+                  class_group_2_torsion.insert(class_group_2_torsion.end(), coset.begin(), coset.end());
                 }
             }
           else
@@ -120,14 +119,13 @@ void Quad::fill_class_group()
             {
               // add a new 2-cotorsion generator
               class_group_2_cotorsion_gens.push_back(I);
-              // compute the new coset
-              vector<Qideal> new_2_cotorsion(class_group_2_cotorsion.size());
-              std::transform(class_group_2_cotorsion.begin(), class_group_2_cotorsion.end(),
-                             new_2_cotorsion.begin(),
-                             [I] ( const Qideal& J ) {return class_group[find_ideal_class(I*J, class_group)];});
-              // append the new coset
-              class_group_2_cotorsion.insert(class_group_2_cotorsion.end(),
-                                             new_2_cotorsion.begin(), new_2_cotorsion.end());
+              // compute the new coset; first copy old subgroup:
+              auto coset = class_group_2_cotorsion;
+              // multiply each element by I:
+              std::for_each(coset.begin(), coset.end(), [I] ( Qideal& J )
+              { J = class_group[find_ideal_class(I*J, class_group)];});
+              // append the new coset to the subgroup:
+              class_group_2_cotorsion.insert(class_group_2_cotorsion.end(), coset.begin(), coset.end());
             }
         }
     }

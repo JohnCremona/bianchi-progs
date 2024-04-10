@@ -6,7 +6,7 @@
 
 int main ()
 {
-  long d, max(2000);
+  long d, maxpnorm(2000);
   cerr << "Enter field: " << flush;  cin >> d;
  if (!check_field(d))
    {
@@ -17,7 +17,7 @@ int main ()
 #ifdef MODP
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  int verbose, plusflag=1;
  cerr << "Verbose? "; cin>>verbose;
  cerr << "Plus space? "; cin>>plusflag;

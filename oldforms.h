@@ -28,14 +28,14 @@ private:
 
 // Given the new dimensions at level D and a multiple N of D, return
 // the oldspace dimensions at level N
-vector<int> old_multiplicities(Qideal D, vector<int> newdimsD, Qideal N);
+vector<int> old_multiplicities(const Qideal& D, vector<int> newdimsD, const Qideal& N);
 
 // The same with the list of divisors of N/D given
 vector<int> old_multiplicities(vector<int> newdimsD, vector<Qideal>& divisors);
 
 // Return the oldspace dimension at level N of a (rational) newform at
 // level D which is self-twist by discriminant d
-int old_multiplicity(Qideal D, INT d, Qideal N);
+int old_multiplicity(const Qideal& D, INT d, const Qideal& N);
 
 // The same with the list of divisors of N/D given
 int old_multiplicity(INT d, vector<Qideal>& divisors);

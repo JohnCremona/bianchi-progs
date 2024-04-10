@@ -459,10 +459,10 @@ int check_square(const POLYGON& squ)
   // {alpha_j'+z, beta} = (T^z*M_j*T^x*M_k)_k
   // {beta, alpha_i} = (M_i'*T^y)_l
 
-  const vector<int>& S = squ.indices;  // int i=S[0], j=S[1], k=S[2], l=S[3];
+  const vector<int>& ijkl = squ.indices;  // int i=ijkl[0], j=ijkl[1], k=ijkl[2], l=ijkl[3];
   const vector<Quad>& xyz = squ.shifts;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
-  mat22 Mi=M_alphas[S[0]], Mj=M_alphas[S[1]], Mk=M_alphas[S[2]], Ml=M_alphas[S[3]];
+  mat22 Mi=M_alphas[ijkl[0]], Mj=M_alphas[ijkl[1]], Mk=M_alphas[ijkl[2]], Ml=M_alphas[ijkl[3]];
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
   RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
   mat22 M = Mi*mat22::Tmat(z)*Mj;
@@ -471,11 +471,11 @@ int check_square(const POLYGON& squ)
 
 void check_squares(int verbose)
 {
-  for ( const auto& S : squares)
+  for ( const auto& Squ : squares)
     {
       if (verbose)
-        cout<<"Checking square "<<S.indices<<", "<<S.shifts<<endl;
-      assert(check_square(S));
+        cout<<"Checking square "<<Squ.indices<<", "<<Squ.shifts<<endl;
+      assert(check_square(Squ));
     }
 }
 
@@ -548,8 +548,6 @@ void check_hexagons(int verbose)
 
 void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose)
 {
-  int i,j,k,l,m,n;
-  Quad s,r,r1,r2, u, x, y, z, x1, x2, y1, y2;
   istringstream input_line(line);
   input_line >> file_d;
   if (file_d==-1 || file_d > Quad::d)
@@ -568,6 +566,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
   switch(G) {
   case 'A': // alpha orbit
     {
+      Quad s, r1, r2;
       input_line >> s >> r1 >> r2;
       if (verbose)
         cout << " reading alpha orbit data"<<endl
@@ -577,6 +576,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
     }
   case 'S': // sigma orbit
     {
+      Quad r, s;
       input_line >> r >> s;
       if (verbose)
         cout << " reading sigma orbit data"<<endl
@@ -596,6 +596,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
   case 'T': // aaa-triangle
   case 'U': // aas-triangle
     {
+      int i, j, k;   Quad u;
       input_line >> i >> j >> k >> u;
       if (verbose)
         cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl
@@ -605,6 +606,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
     }
   case 'Q': // square
     {
+      int i, j, k, l; Quad x, y, z;
       input_line >> i >> j >> k >> l >> x >> y >> z;
       if (verbose)
         cout << " reading square data"<<endl
@@ -615,6 +617,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
     }
   case 'H': // hexagon
     {
+      int i, j, k, l, m, n; Quad u, x1, x2, y1, y2;
       input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
       if (verbose)
         cout << " reading hexagon data"<<endl

@@ -476,10 +476,9 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
   // Now look for a suitable alpha, trying all in turn (skipping alpha=0 which we checked already)
 
   Quad a1,b1;
-  mat22 M;
   local_t = 1;
   int first = 1;
-  for ( const auto& M : M_alphas)
+  for ( auto& M : M_alphas)
     {
       if (first) {first=0;continue;} // so we skip M_alphas[0]
       r=-M.entry(1,1), s=M.entry(1,0); // alpha = r/s

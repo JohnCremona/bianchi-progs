@@ -5,42 +5,32 @@
 
 CuspList denom_2_sigmas()
 {
-  CuspList slist;
-  if (Quad::class_number == 1) return slist;
-  Quad w = Quad::w, two(2);
-  vector<Quad> numlist;
+  if (Quad::class_number == 1) return {};
   int d8 = (Quad::d)%8;
-  if (d8==1 || d8==5) numlist = {1+w};
-  if (d8==2 || d8==6) numlist = {w};
-  if (d8==7) numlist = {w,1-w};
-  for (const auto& n : numlist) slist.push_back(RatQuad(n,two));
-  return slist;
+  if (d8==1 || d8==5) return {{1,1,2}}; // (1+w)/2
+  if (d8==2 || d8==6) return {{0,1,2}}; // w/2
+  if (d8==7) return {{0,1,2}, {1,-1,2}}; // w/2, (1-w)/2
+  return {};
 }
 
 CuspList denom_3_sigmas()
 {
-  CuspList slist;
-  if (Quad::class_number == 1) return slist;
-  int d = Quad::d, d12 = (Quad::d)%12;
-  if (d==5 || d==6 || d==23 || d==15) return slist;
-  Quad w = Quad::w, three(3);
-  vector<Quad> numlist;
+  if (Quad::class_number == 1) return {};
+  int d = Quad::d;
+  if (d==5 || d==6 || d==23 || d==15) return {};
+  int d12 = (Quad::d)%12;
   switch (d12) {
   case 2: case 5:
-    numlist = {1+w, 1-w}; break;
+    return {{1,1,3}, {-1,-1,3}, {1,-1,3}, {-1,1,3}}; // {1+w, 1-w}/3 and negs
   case 3:
-    numlist = {w+1}; break;
+    return {{1,1,3}, {-1,-1,3}}; // {w+1}/3 and negs
   case 6: case 9:
-    numlist = {w}; break;
+    return {{0,1,3}, {0,-1,3}}; // {w}/3 and negs
   case 11:
-    numlist = {w, w-1}; break;
+    return {{0,1,3}, {0,-1,3}, {-1,1,3}, {1,-1,3}}; // {w, w-1}/3 and negs
+  default:
+    return {};
   }
-  for (const auto& n : numlist)
-    {
-      slist.push_back(RatQuad(n,three));
-      slist.push_back(RatQuad(-n,three));
-    }
-  return slist;
 }
 
 // Given an ideal I, return a list of singular points of class [I]
@@ -51,8 +41,8 @@ CuspList singular_points_in_class(Qideal I, int verbose)
   if (I.is_principal())
     return {RatQuad::infinity()};
   INT n = I.norm();
-  Quad temp, r, s(n);
-  vector<Quad> slist = {s};
+  Quad temp, s1(n);
+  vector<Quad> slist = {s1};
   Quad s2 = I.zgen(1);
   if (s2.norm()==n*n)
     slist.push_back(s2);
@@ -91,9 +81,9 @@ CuspList singular_points_in_class(Qideal I, int verbose)
 
 vector<CuspList> singular_points_by_class()
 {
-  vector<CuspList> sigma_lists;
-  for ( const auto& I : Quad::class_group)
-    sigma_lists.push_back(singular_points_in_class(I));
+  vector<CuspList> sigma_lists(Quad::class_group.size());
+  std::transform(Quad::class_group.begin(), Quad::class_group.end(), sigma_lists.begin(),
+                 [] (const Qideal& I) {return singular_points_in_class(I);});
   return sigma_lists;
 }
 

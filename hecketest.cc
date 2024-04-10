@@ -9,7 +9,7 @@
 
 int main(void)
 {
-  long d, max(MAXPRIME);
+  long d, maxpnorm(MAXPRIME);
   int np, ntp;
  Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal;
  cerr << "Enter field: " << flush;  cin >> d;
@@ -18,7 +18,7 @@ int main(void)
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  int n2r = Quad::class_group_2_rank;
  cerr << "Plus space (0/1)? "; cin>>plusflag;
@@ -108,8 +108,7 @@ int main(void)
                   sgs += (s? "-": "+");
                 }
               cout << "nu-eigenspace " << sgs << ": " << flush;
-              int n = rank(A);
-              cout << n <<endl;
+              cout << rank(A) <<endl;
             }
         }
 
@@ -345,11 +344,11 @@ int main(void)
               if ((P*Qe).is_principal())
                 {
                   cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                  mat m = h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0);
-                  tpwq = mat_to_mat_ZZ(m);
+                  mat m1 = h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0);
+                  tpwq = mat_to_mat_ZZ(m1);
                   cout << "done. " << endl;
                   if (show_mats)
-                    cout << "Matrix is \n" << m << endl;
+                    cout << "Matrix is \n" << m1 << endl;
                   tpwqlist.push_back(tpwq);
                   charpol = scaled_charpoly(tpwq, to_ZZ(den));
                   if (show_pols)

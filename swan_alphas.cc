@@ -6,51 +6,42 @@
 // direct lists of alphas and sigmas of denominator 2 or 3:
 CuspList denom_2_alphas()
 {
-  CuspList alist;
-  if (Quad::is_Euclidean) return alist;
-  Quad w = Quad::w, two(2);
-  vector<Quad> numlist;
+  if (Quad::is_Euclidean) return {};
   int d8 = (Quad::d)%8;
-  if (d8==1 || d8==5) numlist = {w};
-  if (d8==2 || d8==6) numlist = {1+w};
-  if (d8==3) numlist = {w,w-1};
-  for (const auto& n : numlist)
-    alist.push_back(RatQuad(n,two));
-  return alist;
+  if (d8==1 || d8==5) return {{0,1,2}}; // w/2
+  if (d8==2 || d8==6) return {{1,1,2}};  // (1+w)/2
+  if (d8==3) return {{0,1,2}, {-1,1,2}}; // w/2, (w-1)/2
+  // now d8=7
+  return {};
 }
 
 CuspList denom_3_alphas()
 {
-  CuspList alist;
-  if (Quad::is_Euclidean) return alist;
-  int d = Quad::d, d12 = (Quad::d)%12;
-  if (d==5 || d==6 || d==15 || d==19 || d==23) return alist;
-  Quad w = Quad::w, three(3);
-  vector<Quad> numlist;
+  if (Quad::is_Euclidean) return {};
+  int d = Quad::d;
+  if (d==5 || d==6 || d==15 || d==19 || d==23) return {};
+
+  int d12 = (Quad::d)%12;
+  // fill a3list up to sign
   switch (d12) {
   case 3:
-    numlist = {w, w-1}; break;
+    return {{0,1,3}, {0,-1,3}, {-1,1,3}, {1,-1,3}}; // {w, w-1}/3 and negs
   case 7:
     if (d>31)
-      numlist = {w, 1-w, 1+w};
+      return {{0,1,3}, {0,-1,3}, {1,-1,3}, {-1,1,3}, {1,1,3}, {-1,-1,3}}; // {w, 1-w, 1+w}/3 and negs
     else
-      numlist = {1+w};
-    break;
+      return {{1,1,3}, {-1,-1,3}}; // {1+w}/3 and negs
   case 11:
-    numlist = {w+1}; break;
+    return {{1,1,3}, {-1,-1,3}}; // {1+w}/3 and negs
   case 1: case 10:
-    numlist = {w, 1+w, 1-w}; break;
+    return {{0,1,3}, {0,-1,3}, {1,1,3}, {-1,-1,3}, {1,-1,3}, {-1,1,3}}; // {w, 1+w, 1-w}/3 and negs
   case 2: case 5:
-    numlist = {w}; break;
+    return {{0,1,3}, {0,-1,3}}; // {w}/3 and negs
   case 6: case 9:
-    numlist = {w+1, w-1}; break;
+    return {{1,1,3}, {-1,-1,3}, {-1,1,3}, {1,-1,3}}; // {w+1, w-1}/3 and negs
+  default:
+    return {};
   }
-  for (const auto& n : numlist)
-    {
-      alist.push_back(RatQuad(n,three));
-      alist.push_back(RatQuad(-n,three));
-    }
-  return alist;
 }
 
 // Return sorted list of (saturated covering) alphas (denom 1, denom 2, denom 3, larger denoms in pairs or fours)
@@ -96,6 +87,8 @@ CuspList sort_alphas(const CuspList& A,
   assert (a1list.size()==1 && a1list[0]==RatQuad(Quad(0)));
   auto d2s_expected = denom_2_alphas(), d3s_expected = denom_3_alphas();
   assert (compare_CuspLists_as_sets_mod_translation(a2list, d2s_expected));
+  cout << "a3list (actual):   " <<a3list << endl;
+  cout << "a3list (expected): " <<d3s_expected << endl;
   assert (compare_CuspLists_as_sets_mod_translation(a3list, d3s_expected));
   // We rely on the alphas of denom 1, 2, 3 begin in an exact order:
   if (a2list != d2s_expected)
@@ -284,7 +277,9 @@ string make_A_line(const Quad& s, const Quad& r1, const Quad& r2)
   return ost.str();
 }
 
-void output_alphas(vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
+void output_alphas(const vector<vector<Quad>>& pluspairs,
+                   const vector<vector<Quad>>& minuspairs,
+                   const vector<vector<Quad>>& fours,
                    int to_file, int to_screen)
 {
   vector<Quad> small_denoms = {Quad(0), Quad(1), Quad(2), Quad(3)};
@@ -328,7 +323,7 @@ CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist)
       blist.push_back(b);
   // CuspList blist(alist.size());
   // auto it = std::copy_if(alist.begin(), alist.end(), blist.begin(),
-  //                        [a0](RatQuad b){return circles_intersect(a0, b);});
+  //                        [a0](const RatQuad& b){return circles_intersect(a0, b);});
   // blist.resize(std::distance(blist.begin(),it));  // shrink to new size
   // cout << blist.size() << " alphas intersect "<<a0<< endl;
   return blist;
@@ -351,14 +346,6 @@ int are_intersection_points_covered_by_one(const RatQuad& a1, const RatQuad& a2,
 #endif
   if (debug)
     cout << "\tTesting if intersection points of "<<a1<<" and "<<a2<<" are covered by "<<a;
-
-  // Check the cusps are principal, not infinity, and with unit ideal
-  if (debug)
-    {
-      assert (a.is_finite() && a.is_principal());
-      assert (a1.is_finite() && a1.is_principal());
-      assert (a2.is_finite() && a2.is_principal());
-    }
 
   // Define the square radii and centres
   RatQuad delta = (a2-a1).conj();
@@ -826,7 +813,7 @@ H3pointList old_triple_intersections(const CuspList& alphas, int debug)
     vector<vector<int>> ijk_list;
     for (const auto& i_j_list : i2j)
       {
-        int i = i_j_list.first;
+        i = i_j_list.first;
         vector<int> j_list = i_j_list.second;
         for (const auto& j : j_list)
           for (const auto& k : j_list)
@@ -841,7 +828,7 @@ H3pointList old_triple_intersections(const CuspList& alphas, int debug)
 
     for ( const auto& ijk : ijk_list)
       {
-        int i=ijk[0], j=ijk[1], k=ijk[2];
+        i=ijk[0]; int j=ijk[1], k=ijk[2];
         H3pointList points1 = tri_inter_points(alphasF4X[i], alphasF4X[j], alphasF4X[k]);
         if (points1.empty())
           continue;
@@ -970,7 +957,7 @@ CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 {
   CuspList new_alist;
   std::copy_if(alist.begin(), alist.end(), std::back_inserter(new_alist),
-               [points](RatQuad a) {return nverts(a, points) >= 3;});
+               [points](const RatQuad& a) {return nverts(a, points) >= 3;});
   return new_alist;
 }
 
@@ -1100,13 +1087,13 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
               vector<INT> norms;
               norms.resize(extras.size());
               std::transform(extras.begin(), extras.end(), norms.begin(),
-                             [](RatQuad a) {return a.den().norm();});
+                             [](const RatQuad& a) {return a.den().norm();});
               cout << " with denominator norms " << norms;
               cout << ";  heights above P (height "<<P.t2<<") are ";
               vector<RAT> hts;
               hts.resize(extras.size());
               std::transform(extras.begin(), extras.end(), hts.begin(),
-                             [P](RatQuad a) {return height_above(a,P.z);});
+                             [P](const RatQuad& a) {return height_above(a,P.z);});
               cout <<hts <<endl;
             }
           for ( auto& a : extras)
@@ -1191,9 +1178,9 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
 // return  a saturated irredundant list of alphas in the fundamental rectangle
 CuspList find_alphas(const CuspList& slist, int debug, int verbose)
 {
-  auto alphas = covering_alphas(slist, verbose);
-  INT maxn = max_dnorm(alphas);
-  return saturate_covering_alphas(alphas, slist, maxn, debug, verbose);
+  auto alist = covering_alphas(slist, verbose);
+  INT maxn = max_dnorm(alist);
+  return saturate_covering_alphas(alist, slist, maxn, debug, verbose);
 }
 
 // return list of alphas (or translates) which pass through a finite cusp

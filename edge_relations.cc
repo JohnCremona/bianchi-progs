@@ -68,9 +68,9 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
       if (n_sigmas>1)
         {
           cout<<"sigmas: ";
-          for ( const auto& s : sigmas)
-            if (!s.is_infinity())
-              cout<<s<<" ";
+          for ( const auto& sig : sigmas)
+            if (!sig.is_infinity())
+              cout<<sig<<" ";
           cout<<endl;
         }
       cout<<"Edge relations (denominator 1)\n";
@@ -193,19 +193,18 @@ int edge_relations::check() // not completely implemented, don't use
 {
   if (verbose)
     cout<<"Checking edge relations..."<<endl;
-  int i, i2, n;
   pair<long, int> st, st2;
   action J(P1, mat22::J);
   Quad c,d, c2, d2;
 
-  for (i=0; i<(int)coordindex.size(); i++)
+  for (int i=0; i<(int)coordindex.size(); i++)
     {
-      n = coordindex[i];
+      int n = coordindex[i];
       if (n==0) continue; // no check for this case yet
       st = symbol_number_and_type(i);
       if (n>0)
         {
-          i2 = gens[n];
+          int i2 = gens[n];
           if (i2!=i)
             {
               st2 = symbol_number_and_type(i2);
@@ -246,7 +245,7 @@ int edge_relations::check() // not completely implemented, don't use
               cout<<"st = ("<<st.first<<","<<st.second<<"), with t<0"<<endl;
               return 0;
             }
-          i2 = gens[-n];
+          int i2 = gens[-n];
           st2 = symbol_number_and_type(i2);
           action M(P1, M_alphas[st.second]);
           // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
@@ -669,22 +668,22 @@ void edge_relations::edge_pairing_double(int i)
 void edge_relations::sigma_relations()          // for sigma with 2*sigma not integral
 {
   action J(P1, mat22::J);
-  int i, j, k, l, off1, off2;
-  for (i=0; i<n_sigmas; i++)
+  for (int i=0; i<n_sigmas; i++)
     {
-      j = sigma_flip[i];
+      int j = sigma_flip[i];
       // if i==j,  dealt with in edge_relations_2()
       // if i>j we already dealt with this pair
       if (j<=i) continue;
       // otherwise the symbols of types -i, -j are identified in pairs when plusflag is true
-      off1 = offset(-i);
-      off2 = offset(-j);
-      for (k=0; k<nsymb; k++)
+      int
+        off1 = offset(-i),
+        off2 = offset(-j);
+      for (int k=0; k<nsymb; k++)
         {
           ++ngens;
           gens.push_back(off1+k);
           coordindex[off1+k] = ngens;
-          l = J(k);
+          int l = J(k);
           if (!plusflag)
             {
               ++ngens;
