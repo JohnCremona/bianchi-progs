@@ -3,10 +3,10 @@
 
 int main ()
 {
-  long d, max;
+  long d, maxpnorm;
  cout << "Enter field: " << flush;  cin >> d;
- cout << "Enter max. norm for primes: " << flush;  cin >> max;
- Quad::field(d,max);
+ cout << "Enter max. norm for primes: " << flush;  cin >> maxpnorm;
+ Quad::field(d,maxpnorm);
  cout << "The field is "; Quad::displayfield(cout); cout << endl;
  Quad a,b,c;
 

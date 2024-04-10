@@ -9,9 +9,9 @@
 int main ()
 {
  cout.precision(10);
- int d,max=1000;
+ int d,maxpnorm=1000;
  cout << "Enter field: " << flush;  cin >> d;
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad n; int verbose=0;
  cout << "Verbose? "; cin>>verbose;
 #ifdef LOOPER

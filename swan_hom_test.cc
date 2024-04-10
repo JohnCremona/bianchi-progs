@@ -16,7 +16,7 @@ int main ()
   int verbose = VERBOSE;
   int debug = DEBUG;
 
-  long d, f, max=100;
+  long d, f, maxpnorm=100;
   vector<long> fields = valid_field_discs();
   cerr << "Enter field (0 for all up to "<<MAX_DISC<<", -1 for all): " << flush;  cin >> f;
 
@@ -30,7 +30,7 @@ int main ()
         break;
       if (D<MIN_DISC) continue;
       d = (D%4==0? D/4: D);
-      Quad::field(d,max);
+      Quad::field(d,maxpnorm);
 
       if (D!=fields.front())
         cout << "-------------------------------------" <<endl;
@@ -59,25 +59,18 @@ int main ()
       verbose = VERBOSE;
       if (verbose)
         cout << "Converting encoded faces to vertex lists..." <<flush;
-      vector<CuspList> all_faces;
 
       // convert POLYGON encodings to actual faces, by type:
-      for (const auto& P : all_polys[0]) // T triangles
-        {
-          all_faces.push_back(remake_triangle(P, alphas, sigmas, 0));
-        }
-      for (const auto& P : all_polys[1]) // U triangles
-        {
-          all_faces.push_back(remake_triangle(P, alphas, sigmas, 1));
-        }
-      for (const auto& P : all_polys[2]) // Q squares
-        {
-          all_faces.push_back(remake_quadrilateral(P, alphas));
-        }
-      for (const auto& P : all_polys[3]) // H hexagons
-        {
-          all_faces.push_back(remake_hexagon(P, alphas));
-        }
+      int nT = all_polys[0].size(), nU = all_polys[1].size(), nQ = all_polys[2].size(), nH = all_polys[3].size();
+      vector<CuspList> all_faces(nT+nU+nQ+nH);
+      std::transform(all_polys[0].begin(), all_polys[0].end(), all_faces.begin(),
+                     [] (const POLYGON& P) {return remake_triangle(P, alphas, sigmas, 0);});
+      std::transform(all_polys[1].begin(), all_polys[1].end(), all_faces.begin()+nT,
+                     [] (const POLYGON& P) {return remake_triangle(P, alphas, sigmas, 1);});
+      std::transform(all_polys[2].begin(), all_polys[2].end(), all_faces.begin()+nT+nU,
+                     [] (const POLYGON& P) {return remake_quadrilateral(P, alphas);});
+      std::transform(all_polys[3].begin(), all_polys[3].end(), all_faces.begin()+nT+nU+nQ,
+                     [] (const POLYGON& P) {return remake_hexagon(P, alphas);});
       if (verbose)
         cout << "done..."<<endl;
 

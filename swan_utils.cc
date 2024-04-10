@@ -51,7 +51,7 @@ int circle_inside_circle(const RatQuad& a1, const RatQuad& a2, int strict)
 int circle_inside_any_circle(const RatQuad& a, const CuspList& blist, int strict)
 {
   return std::any_of(blist.begin(), blist.end(),
-                     [a, strict](RatQuad b) {return circle_inside_circle(a,b,strict);});
+                     [a, strict](const RatQuad& b) {return circle_inside_circle(a,b,strict);});
 }
 
 // return a list of up to 2 k-rational cusps where the S_ai intersect
@@ -116,7 +116,7 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 int is_inside_one(const RatQuad& a, const CuspList& blist, int strict)
 {
   return std::any_of(blist.begin(), blist.end(),
-                     [a, strict](RatQuad b) {return is_inside(a,b,strict);});
+                     [a, strict](const RatQuad& b) {return is_inside(a,b,strict);});
 }
 
 
@@ -137,10 +137,11 @@ CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 // list of principal cusps with given denominator
 CuspList principal_cusps_with_denominator(const Quad& s)
 {
-  CuspList alist;
   Quad temp;
-  for ( const auto& r : invertible_residues(s))
-    alist.push_back(reduce_to_rectangle(RatQuad(r, s), temp));
+  auto invres = invertible_residues(s);
+  CuspList alist(invres.size());
+  std::transform(invres.begin(), invres.end(), alist.begin(),
+                 [s, &temp](const Quad& r) {return reduce_to_rectangle(RatQuad(r, s), temp);});
   return alist;
 }
 
@@ -205,7 +206,7 @@ INT max_dnorm(const CuspList& alphas)
 {
   INT m;
   std::for_each(alphas.begin(), alphas.end(),
-                [&m](RatQuad a) {INT n = a.den().norm(); if (n>m) m=n;});
+                [&m](const RatQuad& a) {INT n = a.den().norm(); if (n>m) m=n;});
   return m;
 }
 
@@ -341,7 +342,7 @@ int valid_edge(const RatQuad& a, const RatQuad& b, const CuspList& alphas,
 int nverts(const RatQuad& a, const H3pointList& points)
 {
   return std::count_if(points.begin(), points.end(),
-                       [a](H3point P) {return is_under(P,a)==0;});
+                       [a](const H3point& P) {return is_under(P,a)==0;});
 }
 
 // POLYHEDRON utilities
@@ -393,16 +394,16 @@ string poly_name(const POLYHEDRON& P)
 {
   auto vef = VEFx(P);
   return poly_names.at(vef);
-  auto search = poly_names.find(vef);
-  if ( search!=poly_names.end() )
-    return search->second;
-  cout << "Polyhedron with (V,E,F3,F4,F6) = " << vef << " not recognised";
-  int nv = vef[0];
-  int n = nv-2;
-  if (vef[1]==3*n && vef[2]==2*n && vef[3]==0 && vef[4]==0)
-    cout << " -- looks like a "<<n<<"-dipyramid";
-  cout <<endl;
-  return "unknown";
+  // auto search = poly_names.find(vef);
+  // if ( search!=poly_names.end() )
+  //   return search->second;
+  // cout << "Polyhedron with (V,E,F3,F4,F6) = " << vef << " not recognised";
+  // int nv = vef[0];
+  // int n = nv-2;
+  // if (vef[1]==3*n && vef[2]==2*n && vef[3]==0 && vef[4]==0)
+  //   cout << " -- looks like a "<<n<<"-dipyramid";
+  // cout <<endl;
+  // return "unknown";
 }
 
 // Given a base cusp s and a list of cusps alist, return a sorted
@@ -418,14 +419,14 @@ CuspList circular_sort(const RatQuad& s, const CuspList& alist)
   sorted_alist.push_back(a);
   // Now append any b with a before b:
   RatQuad b = *std::find_if(alist.begin()+1, alist.end(),
-                            [s,a](RatQuad b){return angle_under_pi(s,a,b);});
+                            [s,a](const RatQuad& b){return angle_under_pi(s,a,b);});
   sorted_alist.push_back(b);
   // Now consider all the rest, inserting in the right place
   for (const auto& c : alist)
     {
       if ((c==a)||(c==b)) continue;
       auto place = std::lower_bound(sorted_alist.begin(), sorted_alist.end(), c,
-                                    [s](RatQuad d1, RatQuad d2){return angle_under_pi(s,d1,d2);});
+                                    [s](const RatQuad& d1, const RatQuad& d2){return angle_under_pi(s,d1,d2);});
       sorted_alist.insert(place, c);
     }
   // Check:
@@ -452,7 +453,7 @@ int is_under(const H3point& P, const RatQuad& a)
 int is_under_any(const H3point& P, const CuspList& alist)
 {
   return std::any_of(alist.begin(), alist.end(),
-                     [P](RatQuad a) {return is_under(P,a)==1;});
+                     [P](const RatQuad& a) {return is_under(P,a)==1;});
 }
 
 // For z in F4 (quarter rectangle) return list of z and the 8
@@ -500,7 +501,7 @@ CuspList covering_hemispheres(const H3point& P, int option, long norm_s_lb, int 
   CuspList ans;
   RatQuad z = P.z, sz;
   RAT t2 = P.t2;
-  Quad r, temp;
+  Quad temp;
   int ok, test;
   INT norm_s_ub = t2.recip().floor();
   if (debug)
@@ -582,14 +583,14 @@ CuspList best_covering_hemispheres(const H3point& P, long norm_s_lb, int debug)
   RAT m(0);
   if(debug)
     std::for_each(alist.begin(), alist.end(),
-                  [P](RatQuad a) {cout<<"a="<<a<<": height above P is "<<height_above(a,P.z)<<endl;});
+                  [P](const RatQuad& a) {cout<<"a="<<a<<": height above P is "<<height_above(a,P.z)<<endl;});
   std::for_each(alist.begin(), alist.end(),
-                [P,&m](RatQuad a) {m = max(m, height_above(a,P.z));});
+                [P,&m](const RatQuad& a) {m = max(m, height_above(a,P.z));});
   if(debug)
     cout<<"max height is "<<m<<endl;
   // Discard those a whose height above P is not maximal
   alist.erase(std::remove_if(alist.begin(), alist.end(),
-                              [P,m](RatQuad a) { return height_above(a,P.z) < m;}),
+                              [P,m](const RatQuad& a) { return height_above(a,P.z) < m;}),
                alist.end());
   if(debug)
     {

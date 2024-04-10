@@ -18,18 +18,18 @@ vector<RatQuad> test_singular_points(int output_level=0)
         cout<<"Ideal class ["<<I<<"]: ";
         cout<<"singular points "<<singular_points_in_class(I,(output_level>3))<<endl;
       }
-  auto sigmas = singular_points();
+  auto sigs = singular_points();
   if (output_level>=1)
     cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
   if (output_level>=2)
     cout << "Unsorted singular points: "<<sigmas<<endl;
-  sigmas = sort_singular_points(sigmas);
+  sigs = sort_singular_points(sigs);
   if (output_level>=1)
     cout << "Sorted singular points: "<<sigmas<<endl;
   int to_file=0; //(output_level>=1);
   int to_screen=0; //(output_level>=2);
-  output_singular_points(sigmas, to_file, to_screen);
-  return sigmas;
+  output_singular_points(sigs, to_file, to_screen);
+  return sigs;
 }
 
 void test_principal_cusps(int n1=20, int n2=100)
@@ -45,15 +45,10 @@ void test_principal_cusps(int n1=20, int n2=100)
 
 int main ()
 {
-  int verbose = VERBOSE;
-  int debug = DEBUG;
-  int to_file=1;
-  int to_screen=0;
 
-  long d, f, max=100;
+  long f, maxpnorm=100;
   vector<long> fields = valid_field_discs();
   cerr << "Enter field (0 for all up to "<<MAX_DISC<<", -1 for all): " << flush;  cin >> f;
-
   cerr << endl;
 
   if (f>0)
@@ -64,10 +59,15 @@ int main ()
     }
   for (auto D: fields)
     {
+      int verbose = VERBOSE;
+      int debug = DEBUG;
+      int to_file=1;
+      int to_screen=0;
+
       if ((f==0) && (D>MAX_DISC))
         break;
-      d = (D%4==0? D/4: D);
-      Quad::field(d,max);
+      long d = (D%4==0? D/4: D);
+      Quad::field(d,maxpnorm);
 
       if (D!=fields.front())
         cout << "-------------------------------------" <<endl;
@@ -83,9 +83,9 @@ int main ()
 
       cout << "Finding sigmas and alphas (old method)"<<endl;
 
-      timer t;
+      timer tim;
       string method = "old-alpha-sigma-finder";
-      t.start(method);
+      tim.start(method);
 
       verbose = VERBOSE;
       debug = DEBUG;
@@ -141,8 +141,8 @@ int main ()
       if (debug||verbose)
         cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
       new_alphas = sorted_alphas;
-      t.stop(method);
-      cout<<"...done: "; t.show(0, method); cout<<endl;
+      tim.stop(method);
+      cout<<"...done: "; tim.show(0, method); cout<<endl;
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
 
@@ -152,7 +152,7 @@ int main ()
       cout<<"----------------------------------------------------------------------------------\n";
       cout << "Creating SwanData object"<<endl;
       method = "SwanData";
-      t.start(method);
+      tim.start(method);
       SwanData SD;
       cout << "Using SwanData object to create sigmas:"<<endl;
       auto SDsigmas = SD.get_sigmas();
@@ -162,8 +162,8 @@ int main ()
       cout << SDalphas.size() << " alphas found by SwanData"<<endl;
       auto SDcorners = SD.get_corners();
       cout << SDcorners.size() << " corners found by SwanData"<<endl;
-      t.stopAll();
-      cout<<"...done: "; t.show(0, method); cout<<endl;
+      tim.stopAll();
+      cout<<"...done: "; tim.show(0, method); cout<<endl;
 
       new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
       new_sigmas = SDsigmas; //
@@ -174,7 +174,6 @@ int main ()
       cout << "Testing newly computed sigmas and alphas with old..." <<flush;
       Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
       cout << "read in old data..."<<flush;
-      Quad t;
       if (compare_CuspLists_as_sets(sigmas, new_sigmas))
         cout << "sigmas agree..." <<flush;
       else
@@ -193,12 +192,13 @@ int main ()
                 cout << ": " <<new_sigmas;
               cout << endl;
               cout << "old not in new:\n";
+              Quad temp;
               for (const auto& a : sigmas)
-                if (cusp_index_with_translation(a,new_sigmas,t)==-1)
+                if (cusp_index_with_translation(a,new_sigmas,temp)==-1)
                   cout << a << " " << a.coords(1) << endl;
               cout << "new not in old:\n";
               for (const auto& a : new_sigmas)
-                if (cusp_index_with_translation(a,sigmas,t)==-1)
+                if (cusp_index_with_translation(a,sigmas,temp)==-1)
                   cout << a << " " << a.coords(1) << endl;
               exit(1);
             }
@@ -219,12 +219,13 @@ int main ()
               if (verbose) cout << ": " <<new_alphas;
               cout << endl;
               cout << "old not in new:\n";
+              Quad temp;
               for (const auto& a : alphas)
-                if (cusp_index_with_translation(a,new_alphas,t)==-1)
+                if (cusp_index_with_translation(a,new_alphas,temp)==-1)
                   cout << a << " " << a.coords(1) << endl;
               cout << "new not in old:\n";
               for (const auto& a : new_alphas)
-                if (cusp_index_with_translation(a,alphas,t)==-1)
+                if (cusp_index_with_translation(a,alphas,temp)==-1)
                   cout << a << " " << a.coords(1) << endl;
               exit(1);
             }
@@ -252,17 +253,16 @@ int main ()
 #endif
       // Find all principal polyhedra:
       verbose = VERBOSE;
-      int n;
       cout << "Constructing principal polyhedra from alphas";
       if (debug) cout << ": "<<alphas;
       cout << "..." << flush;
       if (verbose) cout<<endl;
       vector<POLYHEDRON> princ_polys = principal_polyhedra(alphas, verbose);
-      n = princ_polys.size();
-      if (n==1)
+      int npp = princ_polys.size();
+      if (npp==1)
         cout << "done: 1 principal polyhedron constructed:"<<endl;
       else
-        cout << "done: " << n << " principal polyhedra constructed:"<<endl;
+        cout << "done: " << npp << " principal polyhedra constructed:"<<endl;
       map<string,int> poly_counts;
       for (const auto& P: princ_polys)
         poly_counts[poly_name(P)]++;
@@ -272,11 +272,11 @@ int main ()
       verbose = VERBOSE;
       cout << "Constructing singular polyhedra..."<<flush;
       vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
-      n = sing_polys.size();
-      if (n==1)
+      int nsp = sing_polys.size();
+      if (nsp==1)
         cout << "done: 1 singular polyhedron constructed" <<endl;
       else
-        cout << "done: " << n << " singular polyhedra constructed" <<endl;
+        cout << "done: " << nsp << " singular polyhedra constructed" <<endl;
       map<string,int> spoly_counts;
       for (const auto& P: sing_polys)
         spoly_counts[poly_name(P)]++;
@@ -296,18 +296,18 @@ int main ()
       verbose = VERBOSE;
 
       // split up faces into 4 types for reporting and output:
-      vector<CuspList> aaa_triangles, aas_triangles, squares, hexagons;
+      vector<CuspList> aaa, aas, sqs, hexs;
       cout << "Faces up to GL2-action and reflection:\n";
-      int sing, red, i=0;
+      int sing, i=0;
       for (const auto& face: all_faces)
         {
           sing = is_face_singular(face, sigmas);
-          red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
+          int red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
           int n = face.size();
           string s;
           if (n==4)
             {
-              if (!red) squares.push_back(face);
+              if (!red) sqs.push_back(face);
               s = "square";
               if (red) s+= " (redundant)";
             }
@@ -315,7 +315,7 @@ int main ()
             {
               if (n==6)
                 {
-                  if (!red) hexagons.push_back(face);
+                  if (!red) hexs.push_back(face);
                   s = "hexagon";
                   if (red) s+= " (redundant)";
                 }
@@ -323,13 +323,13 @@ int main ()
                 {
                   if (sing)
                     {
-                      if (!red) aas_triangles.push_back(face);
+                      if (!red) aas.push_back(face);
                       s = "aas triangle";
                       if (red) s+= " (redundant)";
                     }
                   else
                     {
-                      if (!red) aaa_triangles.push_back(face);
+                      if (!red) aaa.push_back(face);
                       s = "aaa triangle";
                       if (red) s+= " (redundant)";
                     }
@@ -342,8 +342,8 @@ int main ()
 
       verbose = VERBOSE;
       int all_ok = 1;
-      cout<<aaa_triangles.size()<<" aaa-triangles\n";
-      for ( const auto& face : aaa_triangles)
+      cout<<aaa.size()<<" aaa-triangles\n";
+      for ( const auto& face : aaa)
         {
           if (verbose) cout <<face << " --> ";
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
@@ -353,8 +353,8 @@ int main ()
             cout<<"aaa-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<aas_triangles.size()<<" aas-triangles\n";
-      for ( const auto& face : aas_triangles)
+      cout<<aas.size()<<" aas-triangles\n";
+      for ( const auto& face : aas)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_aas_triangle(P, verbose);
@@ -362,8 +362,8 @@ int main ()
             cout<<"aas-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<squares.size()<<" squares\n";
-      for ( const auto& face : squares)
+      cout<<sqs.size()<<" squares\n";
+      for ( const auto& face : sqs)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_square(P);
@@ -371,8 +371,8 @@ int main ()
             cout<<"square "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
           all_ok = ok &&all_ok;
         }
-      cout<<hexagons.size()<<" hexagons\n";
-      for ( const auto& face : hexagons)
+      cout<<hexs.size()<<" hexagons\n";
+      for ( const auto& face : hexs)
         {
           POLYGON P = make_polygon(face, alphas, sigmas, sing);
           int ok = check_hexagon(P);
@@ -390,7 +390,7 @@ int main ()
       if (to_file||to_screen) cout << "geodata encodings of faces";
       if (to_file) cout << " output to geodata file";
       if (to_file||to_screen) cout << "\n";
-      output_faces({aaa_triangles, squares, hexagons, aas_triangles},
+      output_faces({aaa, sqs, hexs, aas},
                    alphas, sigmas, to_file, to_screen);
 
       // Compute integral homology

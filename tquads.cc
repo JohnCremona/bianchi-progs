@@ -4,15 +4,15 @@
 
 int main ()
 {
-  long d, max;
+  long d, maxpnorm;
  cout << "Enter field: " << flush;  cin >> d;
- cout << "Enter max. norm for primes: " << flush;  cin >> max;
- Quad::field(d,max);
+ cout << "Enter max. norm for primes: " << flush;  cin >> maxpnorm;
+ Quad::field(d,maxpnorm);
  cout << "The field is "; Quad::displayfield(cout); cout << endl;
  Quad w = Quad::w;
  cout << "w   = " << w << endl;
  cout << "w*w = " << (w*w) << endl;
- Quad a,b,c,p;
+ Quad a;
 
  cout << "Enter a Quad, a: ";
  cin >> a;
@@ -31,7 +31,7 @@ int main ()
      auto pr = quadprimes.begin();
      while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
        {
-         p = *pr++;
+         Quad p = *pr++;
          cout << "("<<p << ") has norm "<<p.norm()<<" and label "<<ideal_label(p)<<endl;
        }
    }
@@ -55,12 +55,12 @@ int main ()
      cout << "---------------------------------------------------------------" << endl;
    }
 
- b=a*a;
+ Quad b=a*a;
  cout << "b=a*a=" << b << endl;
  cout << "val(a,b) = " << val(a,b) << endl;
  cout << "div(a,b) = " << div(a,b) << endl;
  cout << "div(b,a) = " << div(b,a) << endl;
- c=b/a;
+ Quad c=b/a;
  cout << "b/a (=a?) = " << c;
  if (c==a) {cout<<" \t--OK!";}
  else      {cout<<" \t--NO!";}
@@ -89,9 +89,9 @@ int main ()
      cout << "A prime divisor of a: " << pda << endl;
      vector<Quad> plist = pdivs(a);
      cout << "The list of all prime divisors of a: " << plist << endl;
-     vector<int> elist;
-     for (const auto& p : plist)
-       elist.push_back(val(p,a));
+     vector<int> elist(plist.size());
+     std::transform(plist.begin(), plist.end(), elist.begin(),
+                    [a] (const Quad& p) {return val(p,a);});
      cout << "Exponents: " << elist << endl;
      vector<Quad> dlist = posdivs(a);
      cout << "The list of "<<dlist.size()<<" divisors of a (up to units): \n";

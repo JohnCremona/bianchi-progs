@@ -21,10 +21,11 @@
 vector<mat22> HeckeP(const Quad& p)  // P=(p) principal prime
 {
   vector<Quad> resmodp = residues(p);
-  vector<mat22> mats; mats.reserve(1+resmodp.size());
-  for ( const auto& r : resmodp)
-    mats.push_back(mat22(Quad::one,r,Quad::zero,p));
-  mats.push_back(mat22(p,Quad::zero,Quad::zero,Quad::one));
+  vector<mat22> mats(resmodp.size()); // will add 1 at end
+  Quad zero(0), one(1);
+  std::transform(resmodp.begin(), resmodp.end(), mats.begin(),
+                 [p, zero, one] (const Quad& r) {return mat22(one,r,zero,p);});
+  mats.push_back(mat22(p,zero,zero,one));
   return mats;
 }
 
@@ -170,7 +171,6 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
 #ifdef DEBUG_HECKE
   cout<<"In HeckeP_Chi("<<P<<","<<A<<"), level "<<N<<endl;
 #endif
-  vector<mat22> mats;
   Qideal AP = A*P;
   int i = ((A*AP).is_principal());
   assert(i && "A^2*P must be principal in HeckeP_chiA(A,P)");
@@ -182,16 +182,16 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
 #endif
 
   vector<Quad> Ngens = N.gens();
-  Quad nu = Ngens[0];
+  Quad nu = Ngens[0], one(1);
   if (P.divides(nu))
     nu = Ngens[1];
   assert (!P.divides(nu));
 
   vector<Quad> resmodp = P.residues();
   long normP = I2long(P.norm());
-  mats.reserve(1+normP);
-  for( const auto& a : resmodp)
-    mats.push_back(M*mat22(Quad::one,a,nu,Quad::one+a*nu));
+  vector<mat22> mats(normP); // will add 1 at end
+  std::transform(resmodp.begin(), resmodp.end(), mats.begin(),
+                 [nu, M, one] ( const Quad& a) {return M*mat22(one,a,nu,one+a*nu);});
   mats.push_back(M);
 #ifdef DEBUG_HECKE
   cout<<" Hecke matrices are "<<mats<<endl;
@@ -212,7 +212,7 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
 #endif
   Qideal P2 = P*P;
   Qideal NP2 = N*P2;
-  Quad g, u,v,a;
+  Quad g, u,v, one(1);
   int i = P2.is_principal(g);
   assert (i && "P^2 must be principal in HeckePSq(P,N)");
   N.is_coprime_to(P2, u, v); // u+v=1, u in N, v in P2
@@ -228,9 +228,9 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
   // with the second factor a lift from P^1(O/P^2) to Gamma_0(N)
   for( const auto& a : resmodp2)
     {
-      mats.push_back(M1*lift_to_Gamma_0(NP2, Quad::one, a, u, v));
+      mats.push_back(M1*lift_to_Gamma_0(NP2, one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M1*lift_to_Gamma_0(NP2, a, Quad::one, u, v));
+        mats.push_back(M1*lift_to_Gamma_0(NP2, a, one, u, v));
     }
 
   // (3) M2, a (P,P) matrix of level N  (1 matrix, so N(P)^2_N(P)+1 in all):
@@ -255,7 +255,7 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
   Qideal NP2 = N*P2;
   Qideal AP = A*P, AP2 = A*P2;
   Qideal A2P2 = A*AP2;
-  Quad g, u, v, a;
+  Quad g, u, v, one(1);
   int i = A2P2.is_principal(g);
   assert (i && "(AP)^2 must be principal in HeckePSq_Chi(P,A,N)");
   N.is_coprime_to(P2, u, v); // u+v=1, u in N, v in P2
@@ -270,9 +270,9 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
   // with the second factor a lift from P^1(P^2) to Gamma_0(N)
   for( const auto& a : resmodp2)
     {
-      mats.push_back(M1*lift_to_Gamma_0(NP2, Quad::one, a, u, v));
+      mats.push_back(M1*lift_to_Gamma_0(NP2, one, a, u, v));
       if (P.contains(a))
-        mats.push_back(M1*lift_to_Gamma_0(NP2, a, Quad::one, u, v));
+        mats.push_back(M1*lift_to_Gamma_0(NP2, a, one, u, v));
     }
 
   // (3) M2, an (AP,AP) matrix of level N  (1 matrix, so N(P)^2_N(P)+1 in all):
@@ -296,7 +296,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 #ifdef DEBUG_HECKE
   cout<<"In HeckePQ(P,Q,N) with P="<<P<<", Q="<<Q<<", N="<<N<<endl;
 #endif
-  Quad g, u, v, a;
+  Quad g, u, v, one(1);
   Qideal PQ = P*Q;
   Qideal NPQ = N*PQ;
   int i = PQ.is_principal(g);
@@ -310,9 +310,9 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
   for( const auto& a : resmodpq)
     {
-      mats.push_back(M*lift_to_Gamma_0(NPQ, Quad::one, a, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NPQ, one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(NPQ, a, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(NPQ, a, one, u, v));
     }
 
   // (3) (P,Q) and (Q,P) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
@@ -368,7 +368,7 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
 #ifdef DEBUG_HECKE
   cout<<"In HeckePQ_Chi(P,Q,A,N) with P="<<P<<", Q="<<Q<<", A="<<A<<", N="<<N<<endl;
 #endif
-  Quad g, u, v, a;
+  Quad g, u, v, one(1);
   Qideal PQ = P*Q, AP=A*P, AQ=A*Q;
   Qideal APQ = A*PQ, A2PQ=AP*AQ;
   Qideal NPQ = N*PQ;
@@ -384,9 +384,9 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
   // (2) M*lift(a:1) for a mod PQ not invertible (N(P)+N(Q)-1 matrices)
   for( const auto& a : resmodpq)
     {
-      mats.push_back(M*lift_to_Gamma_0(NPQ, Quad::one, a, u, v));
+      mats.push_back(M*lift_to_Gamma_0(NPQ, one, a, u, v));
       if (P.contains(a) or Q.contains(a)) // or both
-        mats.push_back(M*lift_to_Gamma_0(NPQ, a, Quad::one, u, v));
+        mats.push_back(M*lift_to_Gamma_0(NPQ, a, one, u, v));
     }
 
   // (3) (AP,AQ) and (AQ,AP) matrices of level N (2 matrices, so (N(P)+1)(N(Q)+1) in all)
@@ -452,12 +452,12 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 #endif
   vector<mat22> mats;
   Qideal PM1 = P*M1;
-  Quad g, h, h1, x, u, v;
+  Quad g, h, h1, u, v, t;
   int i = PM1.is_principal(g);
   assert (i && "P*M1 must be principal in HeckePAL(P,M1,M2");
   i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
   assert (i && "P and M1 are coprime");
-  Qideal M3 = M2.equivalent_coprime_to(PM1, h, x, 1); // M2*M3=(h)
+  Qideal M3 = M2.equivalent_coprime_to(PM1, h, t, 1); // M2*M3=(h)
   assert (Qideal(h) == M2*M3);
   // i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
   // assert (i && "M2*M3 is coprime to P*M1");

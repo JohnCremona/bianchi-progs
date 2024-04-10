@@ -153,7 +153,6 @@ void fill_faces(POLYHEDRON& P, int verbose)
         cout << v <<" --> " << ends[v] << endl;
     }
 
-  RatQuad v, w, x, y;
   vector<CuspList> badstarts; // will hold any invalid v->w->x found
   CuspList face;
 
@@ -161,6 +160,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
     {
       // find directed path v->w->x
       int found = 0;
+      RatQuad v, w, x;
       for ( const auto& vi: P.vertices)
         {
           if (found) break;
@@ -172,8 +172,8 @@ void fill_faces(POLYHEDRON& P, int verbose)
                   if (found) break;
                   if (xi!=vi)
                     {
-                      v = vi; w = wi; x = xi;
-                      face = {v,w,x};
+                      v=vi; w=wi; x=xi;
+                      face = {vi,wi,xi};
                       found = std::find(badstarts.begin(), badstarts.end(), face) == badstarts.end();
                       if (found)
                         badstarts.push_back(face);
@@ -228,8 +228,8 @@ void fill_faces(POLYHEDRON& P, int verbose)
       // of the directed edges from face[j]:
       for (int j=2; j<nface; j++)
         {
-          RatQuad x = face[j], y;
-          if (verbose>1) cout<<"j="<<j<<", x="<<x<<endl;
+          RatQuad xj = face[j], y;
+          if (verbose>1) cout<<"j="<<j<<", x="<<xj<<endl;
           if (j==nface-1)
             {
               y = face[0]; // wrap around
@@ -242,12 +242,12 @@ void fill_faces(POLYHEDRON& P, int verbose)
                 {
                   y = face[k];
                   if (verbose>1) cout<<" k="<<k<<", y="<<y<<endl;
-                  if (std::find(ends[x].begin(), ends[x].end(), y) == ends[x].end())
+                  if (std::find(ends[xj].begin(), ends[xj].end(), y) == ends[xj].end())
                     {
-                      if (verbose>1) cout<<" y IS NOT in ends[x] = "<<ends[x]<<endl;
+                      if (verbose>1) cout<<" y IS NOT in ends[x] = "<<ends[xj]<<endl;
                       continue;
                     }
-                  if (verbose>1) cout<<" y IS in ends[x] = "<<ends[x]<<endl;
+                  if (verbose>1) cout<<" y IS in ends[x] = "<<ends[xj]<<endl;
                   // now x-->y is a directed edge
                   if (k > j+1) // swap face[j+1] and face[k]
                     {
@@ -261,8 +261,8 @@ void fill_faces(POLYHEDRON& P, int verbose)
             }
           // delete y from ends[x]
           if (verbose>1)
-            cout<<" removing directed edge from "<<x<<" to "<<y<<endl;
-          ends[x].erase(std::remove(ends[x].begin(), ends[x].end(), y), ends[x].end());
+            cout<<" removing directed edge from "<<xj<<" to "<<y<<endl;
+          ends[x].erase(std::remove(ends[xj].begin(), ends[xj].end(), y), ends[xj].end());
           nde--;
           if (verbose>1)
             cout<<"Now the face is "<<face<<endl;
@@ -292,9 +292,9 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   poly.vertices = alist;
   poly.vertices.insert(poly.vertices.begin(), infty);
 
-  int nverts = poly.vertices.size();
+  int nv = poly.vertices.size();
   if (verbose)
-    cout << " - polyhedron has "<< nverts << " vertices ("<<alist.size()
+    cout << " - polyhedron has "<< nv << " vertices ("<<alist.size()
          <<" S_a go through P: "<<alist<<")"<<endl;
 
   // local function to test for being fundamental or oo:
@@ -346,7 +346,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
             cout<<"Checking off corner #"<<i<<" ("<<Plist[i]<<")\n";
         }
       // check off flag k where u*Plist[i]=Plist[k] (mod translation)
-      H3point Q = negate(P);
+      Q = negate(P);
       if (verbose)
         cout<<" Looking for corner "<<Q<<endl;
       int k = point_index_with_translation(Q, Plist, x);
@@ -358,12 +358,12 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
             cout<<" Q = corner #"<<k<<" ("<<Plist[k]<<")"<<endl;
         }
     }
-  int nedges = poly.edges.size()/2;
-  int nfaces = 2+nedges-nverts; // Euler's formula!
+  int ne = poly.edges.size()/2;
+  int nf = 2+ne-nv; // Euler's formula!
   if (verbose)
     {
       cout << " - orbit " << orbit << " of size " << orbit.size() << endl;
-      cout << " - polyhedron has (V,E,F)=("<<nverts<<","<<nedges<<","<<nfaces<<"):\n"; //<<poly << endl;
+      cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
       cout << " - now filling in face data..."<<endl;
     }
   fill_faces(poly, verbose>1);
@@ -692,11 +692,9 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       cout<<iU.size()<<" aas-triangles\n";
       cout<<iQ.size()<<" squares\n";
       cout<<iH.size()<<" hexagons\n";
+      // convert the M32 from sparse to dense vector<int>s of length nfaces
+      cout << "Converting polyhedron face data into face vectors of length "<<nfaces<<endl;
     }
-
-  // convert the M32 from sparse to dense vector<int>s of length nfaces
-  if (verbose)
-    cout << "Converting polyhedron face data into face vectors of length "<<nfaces<<endl;
 
   for ( auto& P_faces : M32)
     {
@@ -747,10 +745,9 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
         cout << ndups << " pairs of congruent faces found" << endl;
       else
         cout << "No pairs of congruent faces found" << endl;
+      cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
     }
   // Look for any other redundant faces (appearing with coefficient +1 or -1 in a polyhedron)
-  if (verbose)
-    cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
   // for (int i=0; i<nfaces; i++)
   //   {
   //     if (std::find(redundant_faces.begin(), redundant_faces.end(), i) != redundant_faces.end())
