@@ -80,6 +80,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static Quad zero;
   static Quad one;
   static Quad w;
+  static vector<Quad> shifts_by_one;
   static void field(long dd, long max=1000);
   static void displayfield(ostream& s = cout, int info2=0); // if info2, also output info about 2-part of class group
   static int chi(INT p); // quadratic character associated to the field
@@ -97,11 +98,13 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void setnorm();
   Quad() :r(0), i(0), nm(0)  {}
   explicit Quad(INT x) :r(x), i(0), nm(x*x)  {}
+  explicit Quad(long x) :r(INT(x)), i(INT(0)), nm(x*x)  {}
+  explicit Quad(int x) :r(INT(x)), i(INT(0)), nm(x*x)  {}
   explicit Quad(INT x, INT y) :r(x),i(y)  {setnorm();}
   explicit Quad(INT x, INT y, INT nrm) :r(x), i(y), nm(nrm)  {}
+  explicit Quad(int x, int y) :r(INT(x)), i(INT(y))  {setnorm();}
+  explicit Quad(long x, long y) :r(INT(x)), i(INT(y))  {setnorm();}
   explicit Quad(const bigcomplex& z);   //rounds to nearest
-  explicit Quad(int x, int y=0) :r(INT(x)), i(INT(y))  {setnorm();}
-  explicit Quad(long x, long y=0) :r(INT(x)), i(INT(y))  {setnorm();}
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {}
   // racb = real_part_of_first_times_conjugate_of_second
   friend INT racb(const Quad& a, const Quad& b)

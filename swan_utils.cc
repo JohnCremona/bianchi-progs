@@ -646,3 +646,31 @@ int is_face_singular(const CuspList& face, const CuspList& sigmas)
                          return is_cusp_singular(a, sigmas);
                        });
 }
+
+CuspList cusp_shifts(const RatQuad& a, const vector<Quad>& sh)
+{
+  CuspList blist(sh.size());
+  std::transform(sh.begin(), sh.end(), blist.begin(),
+                 [a] (const Quad& s) { return a+s; });
+  return blist;
+}
+
+CuspList cusp_shifts(const CuspList& alist, const vector<Quad>& sh)
+{
+  CuspList blist;
+  for ( const auto& a : alist)
+    {
+      auto a_sh = cusp_shifts(a, sh);
+      blist.insert(blist.end(), a_sh.begin(), a_sh.end());
+    }
+  return blist;
+}
+
+H3pointList H3point_shifts(const H3point& P, const vector<Quad>& sh)
+{
+  H3pointList Qlist(sh.size());
+  std::transform(sh.begin(), sh.end(), Qlist.begin(),
+                 [P] (const Quad& s) {return translate(P,s);});
+  return Qlist;
+}
+

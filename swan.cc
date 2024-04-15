@@ -4,11 +4,6 @@
 #include "swan_sigmas.h"
 #include "swan_alphas.h"
 
-SwanData::SwanData() {
-  maxn = 0;
-  for (auto x : {-1,0,1}) for (auto y : {-1,0,1}) shifts.push_back(Quad(x,y));
-}
-
 void SwanData::make_sigmas() {
   if (slist.empty())
     {
@@ -16,11 +11,10 @@ void SwanData::make_sigmas() {
       slistx.clear();
       for (const auto& s : slist)
         {
-          if (s.is_finite())
-            {
-              for (const auto& t : shifts)
-                slistx.push_back(s+t);
-            }
+          if (s.is_infinity())
+            continue;
+          CuspList s_sh = cusp_shifts(s, Quad::shifts_by_one);
+          slistx.insert(slistx.end(), s_sh.begin(), s_sh.end());
         }
     }
 }
@@ -41,8 +35,8 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
     return 0;
 
   alist.push_back(a);
-  for (const auto& t : shifts)
-    alistx.push_back(a+t);
+  auto a_sh = cusp_shifts(a, Quad::shifts_by_one);
+  alistx.insert(alistx.end(), a_sh.begin(), a_sh.end());
 
   Quad u; RatQuad b0, at;
   if (verbose)
@@ -178,11 +172,11 @@ int SwanData::add_new_alphas(int verbose)
 
 void SwanData::find_covering_alphas(int verbose)
 {
-  int nc, ok=0;
+  int ok=0;
   while (!ok)
     {
       // Get the next batch new_alphas, either of all dnorms up to maxn, or those with the next dnorm
-      nc = add_new_alphas(verbose);
+      int nc = add_new_alphas(verbose);
       if (nc==0)
         continue;
 
@@ -575,14 +569,10 @@ void SwanData::find_corners(int verbose)
 {
   int debug = verbose>1;
   if (verbose)
-    cout << "In SwanData.find_corners() with " <<alist.size()<<" alphas..."<<endl;
-
-  // Extract the alphas in F4.  NB the standard list of alphas has
-  // the property that, after those of denom 1, 2, 3, they come in
-  // pairs a, -a; the second of the pair is not always in the
-  // rectangle (because of the rounding of 1/2).
-  if (verbose)
-    cout << alistF4.size() <<" alphas are in the quarter rectangle"<<endl;
+    {
+      cout << "In SwanData.find_corners() with " <<alist.size()<<" alphas..."<<endl;
+      cout << alistF4.size() <<" alphas are in the quarter rectangle"<<endl;
+    }
 
   CuspList not_redundants; // list of a in alistF4 which are on >=3 corners
   Quad t;
@@ -695,9 +685,10 @@ void SwanData::saturate_alphas(int verbose)
         {
           corners_open = find_extra_corners(extra_alphas);
           if (verbose)
-            cout << "Found "<<corners_open.size()<<" new potential corners"<<endl;
-          if (verbose)
-            cout << " - number of corners was "<<corners_open.size()<<endl;
+            {
+              cout << "Found "<<corners_open.size()<<" new potential corners"<<endl;
+              cout << " - number of corners was "<<corners_open.size()<<endl;
+            }
           for (const auto& P : corners_open)
             if (std::find(corners.begin(), corners.end(), P) == corners.end())
               corners.push_back(P);
@@ -835,10 +826,15 @@ void SwanData::saturate_alphas(int verbose)
       // they might have become on deleting some potential corners:
       H3pointList cornersx;
       for ( const auto& P : corners)
-        for ( const auto& t : shifts)
-          cornersx.push_back(translate(P,t));
-      for ( const auto& s : slistx)
-        cornersx.push_back({s, RAT(0)});
+        {
+          auto Ps = H3point_shifts(P, Quad::shifts_by_one);
+          cornersx.insert(cornersx.end(), Ps.begin(), Ps.end());
+        }
+      H3pointList s_corners(slistx.size());
+      RAT zero(0);
+      std::transform(slistx.begin(), slistx.end(), s_corners.begin(),
+                     [zero] (const RatQuad& s) {return H3point({s,zero});});
+      cornersx.insert(cornersx.end(), s_corners.begin(), s_corners.end());
 
       CuspList alist0 = remove_redundants(alist, cornersx);
       if (alist.size() > alist0.size())

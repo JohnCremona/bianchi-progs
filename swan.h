@@ -14,7 +14,7 @@ public:
   CuspList slist;
   H3pointList corners;
 
-  SwanData();
+  SwanData() :maxn(0) {;}
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
@@ -28,7 +28,6 @@ public:
   H3pointList get_corners() const {
     return corners;
   }
-  vector<Quad> shifts; // x+yw with x,y in {-1,0,1}
 private:
   Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   CuspList alistx; // list of alphas + 8 integer translates

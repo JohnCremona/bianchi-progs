@@ -87,8 +87,8 @@ CuspList sort_alphas(const CuspList& A,
   assert (a1list.size()==1 && a1list[0]==RatQuad(Quad(0)));
   auto d2s_expected = denom_2_alphas(), d3s_expected = denom_3_alphas();
   assert (compare_CuspLists_as_sets_mod_translation(a2list, d2s_expected));
-  cout << "a3list (actual):   " <<a3list << endl;
-  cout << "a3list (expected): " <<d3s_expected << endl;
+  // cout << "a3list (actual):   " <<a3list << endl;
+  // cout << "a3list (expected): " <<d3s_expected << endl;
   assert (compare_CuspLists_as_sets_mod_translation(a3list, d3s_expected));
   // We rely on the alphas of denom 1, 2, 3 begin in an exact order:
   if (a2list != d2s_expected)
@@ -318,14 +318,8 @@ void output_alphas(const vector<vector<Quad>>& pluspairs,
 CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist)
 {
   CuspList blist;
-  for (const auto& b : alist)
-    if (circles_intersect(a0,b))
-      blist.push_back(b);
-  // CuspList blist(alist.size());
-  // auto it = std::copy_if(alist.begin(), alist.end(), blist.begin(),
-  //                        [a0](const RatQuad& b){return circles_intersect(a0, b);});
-  // blist.resize(std::distance(blist.begin(),it));  // shrink to new size
-  // cout << blist.size() << " alphas intersect "<<a0<< endl;
+  std::copy_if(alist.begin(), alist.end(), std::back_inserter(blist),
+               [a0](const RatQuad& b){return circles_intersect(a0, b);});
   return blist;
 }
 
@@ -573,13 +567,8 @@ int are_alphas_surrounded(CuspList& alist_ok, CuspList& alist_open,
   alist.insert(alist.end(), alist_open.begin(), alist_open.end());
 
   // add translates
-  CuspList alistx;
-  for ( auto& a : alist)
-    for (auto x : {-1,0,1})
-      for (auto y : {-1,0,1})
-        {
-          alistx.push_back(a+Quad(x,y));
-        }
+  CuspList alistx = cusp_shifts(alist, Quad::shifts_by_one);
+
   int i=0, n_open = alist_open.size();
 
   // We make a copy of alist_open to loop over, so we can delete elements from the original as we go
@@ -670,7 +659,7 @@ CuspList covering_alphas(const CuspList& slist, int verbose)
           assert (a.in_rectangle());
           if (circle_inside_any_circle(a, alist, 0)) // strict=0
             {
-              //cout<<"alpha = "<<a<<" is weakly inside one of "<<alist<<endl;
+              // cout<<"alpha = "<<a<<" is weakly inside one of "<<alist<<endl;
               continue;
             }
           // cout<<"alpha = "<<a<<" is useful and "

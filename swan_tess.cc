@@ -349,7 +349,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
       Q = negate(P);
       if (verbose)
         cout<<" Looking for corner "<<Q<<endl;
-      int k = point_index_with_translation(Q, Plist, x);
+      k = point_index_with_translation(Q, Plist, x);
       if (flags[k]==0)
         {
           flags[k] = 1;
@@ -452,7 +452,7 @@ CuspList normalise_polygon( const CuspList& face, const CuspList& alphas, const 
   cout<<"Applying matrix M = "<<M<<endl;
 #endif
   std::transform(newface.begin(), newface.end(), newface.begin(),
-                 [M](RatQuad a) {return M(a);});
+                 [M](const RatQuad& a) {return M(a);});
   assert (newface[1]==RatQuad::infinity());
   assert (std::find(alphas.begin(), alphas.end(), newface[0]) != alphas.end());
 #ifdef DEBUG_NORMALISE
@@ -521,7 +521,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   vector<int> face_copy_index, reverse_face_copy_index;
 
   int npoly=0, npolys = all_polys.size();
-  int nfaces = 0; // will track faces.size();
+  int nf = 0; // will track faces.size();
 
   // check if poly used for a face redundancy
   vector<int> used_polys(all_polys.size(), 0);
@@ -533,9 +533,9 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
   // by which it is GL2-equivalent to in the faces list; to encode the
   // orientation, an index i>=0 means it is the i'th face with the
   // same orientation, while -i-1 means the i'th face with opposite
-  // orientation.  At the end, when we know the total number nfaces of
+  // orientation.  At the end, when we know the total number nf of
   // incongruent faces, we will convert these into simple vector<int>s
-  // of length nfaces.
+  // of length nf.
 
   for ( const auto& P : all_polys )
     {
@@ -626,50 +626,50 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
           }
         // now we have a new face
         faces.push_back(face);
-        if (verbose) cout << " - new face #"<<nfaces<<": "<<face;
+        if (verbose) cout << " - new face #"<<nf<<": "<<face;
         face_copies.push_back(face);
-        face_copy_index.push_back(nfaces);
+        face_copy_index.push_back(nf);
         auto rface = normalise_polygon(reverse_polygon(face), alphas, sigmas, Fsing);
         auto mface = normalise_polygon(negate_polygon(face), alphas, sigmas, Fsing);
         auto mrface = normalise_polygon(negate_polygon(rface), alphas, sigmas, Fsing);
         reverse_face_copies.push_back(rface);
-        reverse_face_copy_index.push_back(nfaces);
+        reverse_face_copy_index.push_back(nf);
         face_copies.push_back(mface);
-        face_copy_index.push_back(nfaces);
+        face_copy_index.push_back(nf);
         reverse_face_copies.push_back(mrface);
-        reverse_face_copy_index.push_back(nfaces);
+        reverse_face_copy_index.push_back(nf);
         if (!Fsing)  // apply (n-1) rotations to face and rface
           {
             for (int i=1; i<n; i++)
               {
                 face = rotate_polygon(face);
                 face_copies.push_back(normalise_polygon(face, alphas, sigmas, Fsing));
-                face_copy_index.push_back(nfaces);
+                face_copy_index.push_back(nf);
 
                 rface = rotate_polygon(rface);
                 reverse_face_copies.push_back(normalise_polygon(rface, alphas, sigmas, Fsing));
-                reverse_face_copy_index.push_back(nfaces);
+                reverse_face_copy_index.push_back(nf);
 
                 mface = rotate_polygon(mface);
                 face_copies.push_back(normalise_polygon(mface, alphas, sigmas, Fsing));
-                face_copy_index.push_back(nfaces);
+                face_copy_index.push_back(nf);
 
                 mrface = rotate_polygon(mrface);
                 reverse_face_copies.push_back(normalise_polygon(mrface, alphas, sigmas, Fsing));
-                reverse_face_copy_index.push_back(nfaces);
+                reverse_face_copy_index.push_back(nf);
               }
           }
         if (redundant)
           {
-            redundant_faces.push_back(nfaces);
+            redundant_faces.push_back(nf);
             used_polys[npoly] = 1;
           }
         // update index per type
         vector<int>& ind = (n==3? (Fsing? iU : iT) : (n==4? iQ : iH));
-        ind.push_back(nfaces);
-        Pfaces.push_back(nfaces);
-        nfaces++;
-        if (verbose) cout<<", nfaces incremented to "<<nfaces<<endl;
+        ind.push_back(nf);
+        Pfaces.push_back(nf);
+        nf++;
+        if (verbose) cout<<", nf incremented to "<<nf<<endl;
         if (redundant && verbose)
           {
             cout << " - redundant faces now "<<redundant_faces<<endl;
@@ -684,7 +684,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
 
   if (verbose)
     {
-      cout<<"After processing "<<npolys<<" polyhedra, we have "<<nfaces<<" faces";
+      cout<<"After processing "<<npolys<<" polyhedra, we have "<<nf<<" faces";
       if (redundant_faces.size())
         cout<<" (of which "<<redundant_faces.size()<<" are redundant)";
       cout<<":\n";
@@ -692,13 +692,13 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       cout<<iU.size()<<" aas-triangles\n";
       cout<<iQ.size()<<" squares\n";
       cout<<iH.size()<<" hexagons\n";
-      // convert the M32 from sparse to dense vector<int>s of length nfaces
-      cout << "Converting polyhedron face data into face vectors of length "<<nfaces<<endl;
+      // convert the M32 from sparse to dense vector<int>s of length nf
+      cout << "Converting polyhedron face data into face vectors of length "<<nf<<endl;
     }
 
   for ( auto& P_faces : M32)
     {
-      vector<int> face_vector(nfaces,0);
+      vector<int> face_vector(nf,0);
       for ( const auto& f : P_faces)
         {
           if (f>=0)
@@ -748,7 +748,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       cout << " - before final test, redundant faces are "<<redundant_faces<<endl;
     }
   // Look for any other redundant faces (appearing with coefficient +1 or -1 in a polyhedron)
-  // for (int i=0; i<nfaces; i++)
+  // for (int i=0; i<nf; i++)
   //   {
   //     if (std::find(redundant_faces.begin(), redundant_faces.end(), i) != redundant_faces.end())
   //       continue;
@@ -777,7 +777,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
 int alpha_index_flip(int j, const CuspList& alphas)
 {
   int jd;
-  mat22 M = Malpha(alphas[j], alphas, jd);
+  Malpha(alphas[j], alphas, jd); // value discarded
   return jd;
 }
 
@@ -794,9 +794,9 @@ string encode_int_list(char type, const vector<INT> data)
 // Return string for POLYGON representing an aaa-triangle, aas-triangle, quadrilateral or hexagon
 string polygon_string(const POLYGON& P, int sing)
 {
-  vector<INT> data;
-  for ( const int i : P.indices)
-    data.push_back(INT(i));
+  vector<INT> data(P.indices.size());
+  std::transform(P.indices.begin(), P.indices.end(), data.begin(),
+                 [](int i) {return INT(i);});
   for ( const Quad& u : P.shifts)
     {
       data.push_back(u.re());
@@ -905,8 +905,8 @@ POLYGON make_quadrilateral(const CuspList& Q, const CuspList& alphas)
 
 CuspList remake_quadrilateral(const POLYGON& Q, const CuspList& alphas)
 {
-  int i=Q.indices[0],j=Q.indices[1],k=Q.indices[2], temp;
-  Quad x=Q.shifts[0], y=Q.shifts[1], z=Q.shifts[2];
+  int i=Q.indices[0], j=Q.indices[1], k=Q.indices[2], temp;
+  Quad x=Q.shifts[0], z=Q.shifts[2];
 
   int jd = alpha_index_flip(j, alphas);
   int kd = alpha_index_flip(k, alphas);
@@ -969,8 +969,8 @@ POLYGON make_hexagon(const CuspList& H, const CuspList& alphas)
 // vertices [a_i, oo, a_j, b_2, gamma, b_1]
 CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas)
 {
-  int i=H.indices[0],j=H.indices[1],k=H.indices[2],l=H.indices[3],m=H.indices[4],temp;
-  Quad u=H.shifts[0], x1=H.shifts[1], y1=H.shifts[2], x2=H.shifts[3], y2=H.shifts[4];
+  int i=H.indices[0], j=H.indices[1], k=H.indices[2], l=H.indices[3], m=H.indices[4], temp;
+  Quad u=H.shifts[0], x1=H.shifts[1], y1=H.shifts[2], x2=H.shifts[3];
 
   int id = alpha_index_flip(i, alphas);
   int jd = alpha_index_flip(j, alphas);
@@ -1017,10 +1017,10 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
         cout << "No face output as field is Euclidean" << endl;
       return;
     }
-  const auto& aaa_triangles = aaa_squ_hex_aas[0];
-  const auto& squares       = aaa_squ_hex_aas[1];
-  const auto& hexagons      = aaa_squ_hex_aas[2];
-  const auto& aas_triangles = aaa_squ_hex_aas[3];
+  const auto& aaas = aaa_squ_hex_aas[0];
+  const auto& sqs  = aaa_squ_hex_aas[1];
+  const auto& hexs = aaa_squ_hex_aas[2];
+  const auto& aass = aaa_squ_hex_aas[3];
   vector<CuspList> faces;
   // We do not output the triangle {0,oo,1},
   // and for the fields 19, 43, 67, 163 also not
@@ -1031,7 +1031,7 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
   CuspList tri2 = {RatQuad(Quad::w,two), RatQuad::infinity(), RatQuad(Quad::w+1,two)};
   long d = Quad::d;
   int temp;
-  for (const auto& T : aaa_triangles)
+  for (const auto& T : aaas)
     {
       CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
       if ((T==tri0) || (T2==tri0))
@@ -1050,9 +1050,9 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
       faces.push_back(T);
     }
   // if (to_screen) cout<<"aaa-triangles to be output as T lines: "<<faces<<endl;
-  faces.insert(faces.end(), aas_triangles.begin(), aas_triangles.end());
-  faces.insert(faces.end(), squares.begin(), squares.end());
-  faces.insert(faces.end(), hexagons.begin(), hexagons.end());
+  faces.insert(faces.end(), aass.begin(), aass.end());
+  faces.insert(faces.end(), sqs.begin(), sqs.end());
+  faces.insert(faces.end(), hexs.begin(), hexs.end());
   if (to_screen) cout<<"all faces to be output: "<<faces<<endl;
 
   ofstream geodata;

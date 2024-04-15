@@ -27,6 +27,7 @@ int Quad::class_group_2_rank;
 Quad Quad::w;
 Quad Quad::zero;
 Quad Quad::one;
+vector<Quad> Quad::shifts_by_one;
 int Quad::geometry_initialised;
 Quad_comparison Quad_cmp;
 
@@ -276,6 +277,7 @@ void Quad::field(long dd, long max)
   w = Quad(i0, i1, n);
   zero = Quad(i0,i0, i0);
   one = Quad(i1,i0, i1);
+  shifts_by_one = {-one-w, -one, -one+w, -w, zero, w, one-w, one, one+w};
 
   switch (d) {
   case 1:  pos=&pos13; name='i'; nunits=4; fundunit=w; break;

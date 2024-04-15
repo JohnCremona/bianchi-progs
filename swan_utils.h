@@ -186,4 +186,13 @@ int is_cusp_singular(const RatQuad& a, const CuspList& sigmas);
 // return number of vertices which are finite singular
 int is_face_singular(const CuspList& face, const CuspList& sigmas);
 
+// return list of shifts of a by s in sh:
+CuspList cusp_shifts(const RatQuad& a, const vector<Quad>& sh);
+
+// return list of shifts of all a in alist by s in sh:
+CuspList cusp_shifts(const CuspList& alist, const vector<Quad>& sh);
+
+// return list of shifts of P by s in sh:
+H3pointList H3point_shifts(const H3point& P, const vector<Quad>& sh);
+
 #endif
