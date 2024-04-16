@@ -8,16 +8,16 @@ void Quadlooper::setblims()
   switch (d)
     {
     case 1:
-      bmin = db2 = zero;
+      b = bmin = db2 = zero;
       bmax = include_conjugates? isqrt(n-1) : isqrt(n/2);
       break;
     case 3:
-      bmin = db2 = zero;
+      b = bmin = db2 = zero;
       bmax = include_conjugates? isqrt(n-1) : isqrt(n/3);
       break;
     default:
       bmax = isqrt(n4/d);
-      bmin = include_conjugates? -bmax : zero;
+      b = bmin = include_conjugates? -bmax : zero;
       db2 = d*bmin*bmin;
       if (db2==n4)
         {
@@ -26,8 +26,6 @@ void Quadlooper::setblims()
         }
     }
   // cout<<"n="<<n<<": Setting bmin="<<bmin<<", bmax="<<bmax<<endl;
-  b = bmin;
-  db2 = d*b*b;
   while(!testb())
     bstep();
 }
@@ -154,7 +152,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
   long d=Quad::d, t=Quad::t;
 
   INT n1x = (t ? 4*n1 : n1), n2x = (t ? 4*n2 : n2);
-  INT a1, b, bmax = isqrt(n2x/d), db2, aminsq, amax, amin;
+  INT b, bmax = isqrt(n2x/d), db2, aminsq, amax, amin;
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
   cout<<"bmax = "<<bmax<<endl;
 #endif
@@ -201,28 +199,28 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #endif
       for (INT a = amin; a<=amax; a+=1)
         {
-          Quad val(a, b);
+          Quad value(a, b);
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
-          cout<<" val = "<<val<<" with norm "<<val.norm()<<endl;
+          cout<<" value = "<<value<<" with norm "<<value.norm()<<endl;
 #endif
-          if (!(val.norm()>=n1 && val.norm()<=n2 && pos(val)))
+          if (!(value.norm()>=n1 && value.norm()<=n2 && pos(value)))
             {
               cout<<"In quads_of_norm_between() with n1="<<n1<<", n2="<<n2<<", conj="<<conj<<", sorted="<<sorted<<endl;
               cout<<"bmax="<<bmax<<", amin="<<amin<<", amax="<<amax<<endl;
               cout<<"a="<<a<<", b="<<b<<endl;
-              cout << "val = "<<val<<" has norm "<<val.norm()<<endl;
-              assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
+              cout << "value = "<<value<<" has norm "<<value.norm()<<endl;
+              assert (value.norm()>=n1 && value.norm()<=n2 && pos(value));
             }
-          ans.push_back(val);
+          ans.push_back(value);
           INT a1 = (t? 2*a+b : a);
           if ((d!=1)&&(d!=3)&&(a1>0)&&(b>0)&&conj)
             {
-              val = -val.conj();
+              value = -value.conj();
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
-              cout<<" conj val = "<<val<<" with norm "<<val.norm()<<endl;
+              cout<<" conj value = "<<value<<" with norm "<<value.norm()<<endl;
 #endif
-              assert (val.norm()>=n1 && val.norm()<=n2 && pos(val));
-              ans.push_back(val);
+              assert (value.norm()>=n1 && value.norm()<=n2 && pos(value));
+              ans.push_back(value);
             }
         }
     }
@@ -231,15 +229,11 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 #endif
 
   if (sorted)
-    std::sort(ans.begin(), ans.end(), Quad_cmp);
-
-  // This works but is inefficient unless n1==n2
-  // for(Quadlooper alpha(I2long(n1), I2long(n2), 1); alpha.ok(); ++alpha)
-  //   ans.push_back(alpha);
-
+    {
+      std::sort(ans.begin(), ans.end(), Quad_cmp);
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
-  if (sorted) cout<<"sorted list:   "<<ans<<endl;
+      cout<<"sorted list:   "<<ans<<endl;
 #endif
-
+    }
   return ans;
 }

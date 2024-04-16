@@ -7,14 +7,14 @@
 
 int main ()
 {
-  long d, max(200000);
+  long d, maxpnorm(200000);
   cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
    {
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  Quad n; int verbose=0;
  int nap;

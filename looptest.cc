@@ -4,15 +4,14 @@ const int show_both = 0; // set to 1 to display output from standalone functions
 
 int main(void)
 {
-  long d, max(1000);
+  long d, maxpnorm(1000);
   cerr << "Enter field: " << flush;  cin >> d;
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
   cout << endl;
 
-  long firstn, lastn; Quad a, n;
+  long firstn, lastn; Quad a;
   vector<Quad> values, values2;
-  Quadlooper looper(1,1);
 
   cerr <<"Enter first and last norm for Quad loop: ";
   cin >> firstn >> lastn;
@@ -31,9 +30,9 @@ int main(void)
       values = quads_of_norm_between(INT(firstn), INT(lastn), conj, 1);
       cout << "Quads in order of norm (using Quadlooper):" << endl;
 
-      for(Quadlooper looper(firstn,lastn,conj); looper.ok(); ++looper)
+      for(Quadlooper looper2(firstn,lastn,conj); looper2.ok(); ++looper2)
         {
-          a = (Quad)looper;
+          a = (Quad)looper2;
           cout << "Quad = " << a << "\twith norm " << a.norm() << endl;
           values2.push_back(a);
         }
@@ -44,7 +43,7 @@ int main(void)
 #if(1)
 
   cout << "Quads with each possible norm from "<<firstn<<" to "<<lastn<<":" << endl;
-  looper = Quadlooper(firstn,lastn,conj);
+  Quadlooper looper(firstn,lastn,conj);
   while(looper.ok())
     {
       values = looper.values_with_current_norm(1); // sorted

@@ -8,9 +8,9 @@ int main(void)
 {
  cout << "Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.\n";
  cout << "---------------\n\n";
- int d,max=150000;
+ int d,maxpnorm=150000;
  cout << "Enter field: " << flush;  cin >> d;
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad n; int verbose=0, output=0, showeigs=0, showforms=0, lastp;
  cout << "Verbose? "; cin>>verbose;
  cout << "Output new eigs to file (1/0)? ";  cin>>output;

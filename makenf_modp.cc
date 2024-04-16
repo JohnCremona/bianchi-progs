@@ -4,7 +4,7 @@
 
 int main ()
 {
-  long d, max(1000);
+  long d, maxpnorm(1000);
   cerr << "Enter field: " << flush;  cin >> d;
   if (!check_field(d))
    {
@@ -13,7 +13,7 @@ int main ()
    }
   long ch=0;
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  Quad n; int verbose=0;
  int startp, stopp;

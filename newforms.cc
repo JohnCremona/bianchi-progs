@@ -175,8 +175,9 @@ void newform::data_from_eigs()
 
   if (Quad::class_group_2_rank==0)
     {
-      for ( auto& Q : nf->badprimes)
-        aqlist.push_back(eigenvalueAtkinLehner(Q));
+      aqlist.resize(nf->badprimes.size());
+      std::transform(nf->badprimes.begin(), nf->badprimes.end(), aqlist.begin(),
+                     [this] ( Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
 
@@ -968,15 +969,15 @@ void newforms::find_lambdas()
                   if(verbose)cout<<"Newform # "<<j<<": ";
 #endif
                   newform& nfj = nflist[j];
-                  int dot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
-                  if(dot&&((chimod*nfj.sfe)==+1))
+                  int ldot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
+                  if(ldot&&((chimod*nfj.sfe)==+1))
                     {
 #ifdef DEBUG_LAMBDA
                       if(verbose)cout<<"Success! ";
 #endif
-                      nfj.loverp = rational(dot, Quad::nunits * nfj.cuspidalfactor);
+                      nfj.loverp = rational(ldot, Quad::nunits * nfj.cuspidalfactor);
                       nfj.lambda = lam;
-                      nfj.lambdadot = dot;
+                      nfj.lambdadot = ldot;
                       gotlambda[j] = 1;
                       nfound++;
                     }
@@ -1790,7 +1791,7 @@ int newforms::read_from_file()
   if(verbose>1) cout << " read "<<n1ds << " newforms for N = " << ideal_label(N) << endl;
 
  // construct the newforms from this data
-  for(int i=0; i<n1ds; i++)
+  for(i=0; i<n1ds; i++)
     {
       if(verbose>1)
         {
@@ -2013,7 +2014,7 @@ void newforms::getap(int first, int last, int verbose)
       int newn1ds=0;
       for (int i=0; i<n1ds; i++)
         {
-          while (nflist[i].fake && i<n1ds)
+          while (i<n1ds && nflist[i].fake)
             i++;
           if (i==n1ds)
             break; // for when we run off the end
@@ -2370,12 +2371,12 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
             }
            ap = top/fac;
         }
-      apv[i]=ap;
+
       if (characteristic>0)
         apv[i] = posmod(ap, characteristic);
       else
         {
-          apv[i]=ap;
+          apv[i] = ap;
           // check it is in range (in characteristic 0 only):
           if ((ap<apbounds.first)||(ap>apbounds.second))
             {
@@ -2431,7 +2432,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
 
   //images[j] is the image of the j'th M-symbol
   map<int,vec> images;
-  Quad a,b,c,q,u1,u2,u3;
+  Quad a,c,q,u1,u2,u3;
 
   // Compute the image of the necessary M-symbols (hopefully only one)
 
@@ -2690,12 +2691,11 @@ void newforms::conjugate(int debug)
       bad_prime_conjugation_permutation.push_back(std::find(badprimes.begin(), badprimes.end(), conj_badprimes[i].conj()) - badprimes.begin());
     }
   if (debug)
+    {
     cout<<"Conjugation permutation of bad primes = "<<bad_prime_conjugation_permutation<<endl;
 
-  if (debug)
-    {
-      cout<<"Before conjugating individual newforms:"<<endl;
-      display();
+    cout<<"Before conjugating individual newforms:"<<endl;
+    display();
     }
 
   // Conjugate aq and ap for each newform:
