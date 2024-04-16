@@ -156,10 +156,10 @@ int edge_index(const EDGE& e, const CuspList& alphas, const CuspList& sigmas)
 vector<int> face_boundary_vector(const CuspList& face, const CuspList& alphas, const CuspList& sigmas)
 {
   vector<int> v(alphas.size()+sigmas.size()-1,0);
-  int i, j, n=face.size();
-  for (i=0; i<n; i++)
+  int n=face.size();
+  for (int i=0; i<n; i++)
     {
-      j = edge_index(EDGE(face[i], face[(i+1)%n]), alphas, sigmas);
+      int j = edge_index(EDGE(face[i], face[(i+1)%n]), alphas, sigmas);
       if (j<0) v[-j]-=1; else v[j]+=1;
     }
   return v;
@@ -169,10 +169,10 @@ vector<int> face_boundary_vector(const CuspList& face, const CuspList& alphas, c
 vector<int> face_boundary_vector(const CuspList& face)
 {
   vector<int> v(alphas.size()+sigmas.size()-1,0);
-  int i, j, n=face.size();
-  for (i=0; i<n; i++)
+  int n=face.size();
+  for (int i=0; i<n; i++)
     {
-      j = edge_index(EDGE(face[i], face[(i+1)%n]), alphas, sigmas);
+      int j = edge_index(EDGE(face[i], face[(i+1)%n]), alphas, sigmas);
       if (j<0) v[-j]-=1; else v[j]+=1;
     }
   return v;
@@ -241,11 +241,11 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
   for (i=0; i<nplus; i++)
     {
       vector<int> row(ncols, 0);
-      Quad r = pluspairs[i][0], s = pluspairs[i][1];
-      j = cusp_index_with_translation(RatQuad(r,s), alphas, temp);
+      Quad ri = pluspairs[i][0], si = pluspairs[i][1];
+      j = cusp_index_with_translation(RatQuad(ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
-      j = cusp_index_with_translation(RatQuad(-r,s), alphas, temp);
+      j = cusp_index_with_translation(RatQuad(-ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       M.push_back(row);
@@ -255,8 +255,8 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
   for (i=0; i<nminus; i++)
     {
       vector<int> row(ncols, 0);
-      Quad r = minuspairs[i][0], s = minuspairs[i][1];
-      j = cusp_index_with_translation(RatQuad(r,s), alphas, temp);
+      Quad ri = minuspairs[i][0], si = minuspairs[i][1];
+      j = cusp_index_with_translation(RatQuad(ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=2;
       M.push_back(row);
@@ -266,11 +266,11 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
   for (i=0; i<nfours; i++)
     {
       vector<int> row(ncols, 0);
-      Quad s = fours[i][0], r1 = fours[i][1], r2 = fours[i][2];
-      j = cusp_index_with_translation(RatQuad(r1,s), alphas, temp);
+      Quad si = fours[i][0], r1i = fours[i][1], r2i = fours[i][2];
+      j = cusp_index_with_translation(RatQuad(r1i,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
-      j = cusp_index_with_translation(RatQuad(r2,s), alphas, temp);
+      j = cusp_index_with_translation(RatQuad(r2i,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
       M.push_back(row);
@@ -278,10 +278,10 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       if (!GL2)
         {
           vector<int> row2(ncols, 0);
-          j = cusp_index_with_translation(RatQuad(-r1,s), alphas, temp);
+          j = cusp_index_with_translation(RatQuad(-r1i,s), alphas, temp);
           assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
-          j = cusp_index_with_translation(RatQuad(-r2,s), alphas, temp);
+          j = cusp_index_with_translation(RatQuad(-r2i,s), alphas, temp);
           assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
           M.push_back(row2);
