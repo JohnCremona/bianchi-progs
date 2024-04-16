@@ -19,12 +19,12 @@ int main(void)
   cerr << "followed by nprimes lines each containing a prime's coefficients (2 integers) and nforms integers:\n";
   cerr << "<prime> <ap_1> <ap_2> ... <ap_nforms>\n";
   cerr << "----------------------------------------------------------------\n\n";
-  // max is the maximum norm of precomputed primes.  It should be
+  // maxpnorm is the maximum norm of precomputed primes.  It should be
   // large enough to include all prime factors of levels computed,
-  long d, max(250000);
+  long d, maxpnorm(250000);
   cerr<<"Enter field: \n";
   cin >> d;
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
   Qideal N;
   int verbose=0, showforms=0;
   //cerr << "Verbose? "; cin>>verbose;
@@ -183,14 +183,14 @@ int main(void)
         }
       else // even class number must look at unramified quadratic twists
         {
-          int nform = 0;
+          int nfm = 0;
           for (kform=0; kform<nnf; kform++)
             {
               auto twists = disc_factors_mod_D(nf.nflist[kform].CMD);
               vector<long> apvec = apvecs_comp[kform];
               for (auto twist = twists.begin(); twist!=twists.end(); ++twist)
                 {
-                  string code = codeletter(nform++);
+                  string code = codeletter(nfm++);
                   vector<long> apvec_twist = apvec;
                   // Twist the ap:
                   auto Pi = primes_needed.begin();

@@ -7,14 +7,14 @@
 
 int main ()
 {
- int d,max=1000000;
+ int d,maxpnorm=1000000;
  cout << "Enter field: " << flush;  cin >> d;
  if(!((d==1)||(d==2)||(d==3)||(d==7)||(d==11)))
    {
      cout<<"field must be one of: 1, 2, 3, 7, 11!\n";
      exit(1);
    }
- Quad::field(d,max);
+ Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  Quad n; int verbose=0;
  int startp, stopp;

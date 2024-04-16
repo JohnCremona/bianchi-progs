@@ -11,10 +11,9 @@ int main(void)
 {
  // cout << "Program rewrite_eigs: for each level, reads an existing newforms file, and rewrites it.\n";
  // cout << "--------------------\n\n";
- long d, max(150000);
+ long d, maxpnorm(150000);
  cerr << "Enter field: " << flush;  cin >> d;
- Quad::field(d,max);
- Qideal N;
+ Quad::field(d,maxpnorm);
  int verbose=0, showforms=0;
  if (showforms)
    {

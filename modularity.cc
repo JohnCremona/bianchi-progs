@@ -19,12 +19,12 @@ int main(void)
   cerr << "followed by nprimes lines each containing a prime (2 integers if principal, or a label) and nforms integers:\n";
   cerr << "<prime> <ap_1> <ap_2> ... <ap_nforms>\n";
   cerr << "----------------------------------------------------------------\n\n";
-  // max is the maximum norm of precomputed primes.  It should be
+  // maxpnorm is the maximum norm of precomputed primes.  It should be
   // large enough to include all prime factors of levels computed,
-  long d, max(250000);
+  long d, maxpnorm(250000);
   cerr<<"Enter field: \n";
   cin >> d;
-  Quad::field(d,max);
+  Quad::field(d,maxpnorm);
   Qideal N;
   int verbose=0, showforms=0;
   // cerr << "Verbose? "; cin>>verbose;
@@ -68,15 +68,15 @@ int main(void)
   vector<Quadprime> primes_needed(nprimes);
   vector<int> prime_indexes(nprimes);
   long maxnormp=0, maxip=0;
-  long ip, np, ap, nform, kform;
+  long ip, np, ap, kform;
   int computation_needed = 0;
   vector< vector<long> > apvecs_in(nforms);
   vector< vector<long> > apvecs_comp(nnf);
-  for (nform=0; nform<nforms; nform++)
+  for (int nform=0; nform<nforms; nform++)
     {
       apvecs_in[nform].resize(nprimes);
     }
-  for (nform=0; nform<nnf; nform++)
+  for (int nform=0; nform<nnf; nform++)
     {
       apvecs_comp[nform].resize(nprimes);
     }
@@ -88,7 +88,7 @@ int main(void)
       // if(verbose)
       //   cerr << "Enter a prime p followed by "<<nforms<<" ap: "<<endl;
       cin >> P;
-      for (nform=0; nform<nforms; nform++)
+      for (int nform=0; nform<nforms; nform++)
         {
           cin >> ap;
           apvecs_in[nform][np] = ap;
@@ -139,20 +139,20 @@ int main(void)
           vector<long> apv = nf.apvec(P);
           if(verbose)
             cerr << "List of a_P for P = "<<P<<": "<<apv<<endl;
-          for (nform=0; nform<nnf; nform++)
+          for (int nform=0; nform<nnf; nform++)
             apvecs_comp[nform][np] = apv[nform];
         }       // end of prime loop
     }
   else   // Extract the ap for these primes from the newform data
     {
       for(np=0; np<nprimes; np++)
-        for (nform=0; nform<nnf; nform++)
+        for (int nform=0; nform<nnf; nform++)
           apvecs_comp[nform][np] = nf.nflist[nform].aplist[prime_indexes[np]];
     }
 
   // Find each input ap list in the newforms aplists:
 
-  for (nform=0; nform<nforms; nform++)
+  for (int nform=0; nform<nforms; nform++)
     {
       int not_found = 1;
       vector<long> apvec_in = apvecs_in[nform];
@@ -177,14 +177,14 @@ int main(void)
         }
       else // even class number must look at unramified quadratic twists
         {
-          int nform = 0;
+          int nfm = 0;
           for (kform=0; (kform<nnf) &&not_found; kform++)
             {
               auto twists = disc_factors_mod_D(nf.nflist[kform].CMD);
               vector<long> apvec = apvecs_comp[kform];
               for (auto twist = twists.begin(); twist!=twists.end(); ++twist)
                 {
-                  string code = codeletter(nform++);
+                  string code = codeletter(nfm++);
                   vector<long> apvec_twist = apvec;
                   // Twist the ap:
                   auto Pi = primes_needed.begin();
