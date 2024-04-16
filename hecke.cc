@@ -91,7 +91,7 @@ mat22 AtkinLehner(Qideal& M1, Qideal& M2)
 // Level N=M1*M2 and M1,M2 coprime and [M1] square with A^2*M1
 // principal: a matrix representing T(A,A)W(M1)
 
-mat22 AtkinLehner_Chi(Qideal& M1, Qideal& M2, Qideal& A)
+mat22 AtkinLehner_Chi(const Qideal& M1, const Qideal& M2, const Qideal& A)
 {
   Quad g, a, c, x, y;
   Qideal AM1 = A*M1;
@@ -120,7 +120,7 @@ mat22 AtkinLehner_Chi(Qideal& M1, Qideal& M2, Qideal& A)
 // Level N, Q|N prime, Q^e||N where Q^e must be principal: then this
 // is a matrix representing W(Q^e).
 
-mat22 AtkinLehnerQ(Quadprime& Q, const Qideal& N)
+mat22 AtkinLehnerQ(const Quadprime& Q, const Qideal& N)
 {
   Qideal M1(Quad::one), M2(N);
   while (Q.divides(M2))
@@ -135,7 +135,7 @@ mat22 AtkinLehnerQ(Quadprime& Q, const Qideal& N)
 // principal, A coprime to N: this is a matrix representing
 // T(A,A)W(Q^e).
 
-mat22 AtkinLehnerQ_Chi(Quadprime& Q, Qideal& A, const Qideal& N)
+mat22 AtkinLehnerQ_Chi(const Quadprime& Q, const Qideal& A, const Qideal& N)
 {
   Qideal M1(Quad::one), M2(N);
   while (Q.divides(M2))
@@ -520,7 +520,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N)
+vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;

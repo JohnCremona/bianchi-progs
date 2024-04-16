@@ -59,7 +59,7 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N);
 mat22 AtkinLehner(Qideal& M1, Qideal& M2);
 
 // W(Q^e) at level N where Q^e||N and Q^e is principal
-mat22 AtkinLehnerQ(Quadprime& Q, const Qideal& N);
+mat22 AtkinLehnerQ(const Quadprime& Q, const Qideal& N);
 
 // We also need certain products of these.  All the operators above
 // have version where the relevant ideal is not principal but has
@@ -93,17 +93,17 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N);
 //   where A^2*Q^e is principal, which is W(Q^e,N/Q^e).
 
 // W(M1) at level N=M1*M2, where M1 is principal and M1,M2 coprime
-mat22 AtkinLehner_Chi(Qideal& M1, Qideal& M2, Qideal& A);
+mat22 AtkinLehner_Chi(const Qideal& M1, const Qideal& M2, const Qideal& A);
 
 // W(Q^e) at level N where Q^e||N and Q^e is principal
-mat22 AtkinLehnerQ_Chi(Quadprime& Q, Qideal& A, const Qideal& N);
+mat22 AtkinLehnerQ_Chi(const Quadprime& Q, const Qideal& A, const Qideal& N);
 
 // Products of Hecke and Atkin-Lehner operators
 
 // T(P)W(M1) at level N for P*M1 principal, P not dividing N=M1*M2
 vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2);
 // T(P)W(Q^e) at level N for P*Q^e principal, P not dividing N, Q^e||N
-vector<mat22> HeckePALQ(Quadprime& P, Quadprime& Q, Qideal& N);
+vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, const Qideal& N);
 
 // NB We will also need adjusted versions of these: not yet implemented.
 
@@ -194,7 +194,7 @@ inline matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
 
 // operator T(A,A)*W(M1,M2) at level N=M1*M2
 
-inline matop AtkinLehner_ChiOp(Qideal& M1, Qideal& M2, Qideal& A)
+inline matop AtkinLehner_ChiOp(Qideal& M1, const Qideal& M2, Qideal& A)
 {
   ostringstream s;
   s << "W(" << ideal_label(M1) << ") * " + opnameAA(A);
@@ -205,7 +205,7 @@ inline matop AtkinLehner_ChiOp(Qideal& M1, Qideal& M2, Qideal& A)
 
 // operator W(Q^e) at level N
 
-inline matop AtkinLehnerQOp(Quadprime& Q, const Qideal& N)
+inline matop AtkinLehnerQOp(const Quadprime& Q, const Qideal& N)
 {
   return matop(AtkinLehnerQ(Q,N), opname(Q,N));
 }
@@ -215,7 +215,7 @@ inline matop AtkinLehnerQOp(Quadprime& Q, const Qideal& N)
 
 // operator T(A,A)W(Q^e) at level N
 
-inline matop AtkinLehnerQChiOp(Quadprime& Q, Qideal& A, const Qideal& N)
+inline matop AtkinLehnerQChiOp(const Quadprime& Q, Qideal& A, const Qideal& N)
 {
   ostringstream s;
   s << "W(" << Q << ") * " + opnameAA(A);
@@ -316,7 +316,7 @@ inline matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-inline matop HeckePALQOp(Quadprime& P, Quadprime& Q, Qideal& N)
+inline matop HeckePALQOp(Quadprime& P, const Quadprime& Q, const Qideal& N)
 {
   ostringstream s;
   s << "T(" << P << ")*W(" << Q << ")";

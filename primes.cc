@@ -74,10 +74,8 @@ int Quadprime::genus_character(const INT& D)
   //cout<<"In P.genus_character(D) with P="<<(*this)<<", D="<<D;
   vector<int> v1 = chardisc(D), v2 = genus_character();
   //cout<<" with character values "<< v1 << " for D and "<< v2 << " for P"<<endl;
-  int dot = std::inner_product(v1.begin(), v1.end(), v2.begin(), 0) % 2;
-  dot = (dot? -1: +1);
-  //cout<<"dot product (mod 2) = "<<dot<<" --> "<< dot <<endl;
-  return dot;
+  int dotmod2 = std::inner_product(v1.begin(), v1.end(), v2.begin(), 0) % 2;
+  return (dotmod2? -1: +1);
 }
 
 long Quadprime::genus_class(int contract)
@@ -237,10 +235,9 @@ Factorization::Factorization(const Qideal& II)
 
 vector<Quadprime> Factorization::primes() const
 {
-  vector<Quadprime> plist;
-  plist.reserve(size());
-  for (const auto& Qi : Qlist)
-    plist.push_back(Qi.first);
+  vector<Quadprime> plist(size());
+  std::transform(Qlist.begin(), Qlist.end(), plist.begin(),
+                 [](const QuadprimePower& Q) {return Q.first;});
   return plist;
 }
 
@@ -253,10 +250,9 @@ vector<Quadprime> Factorization::sorted_primes() const
 
 vector<int> Factorization::exponents() const
 {
-  vector<int> elist;
-  elist.reserve(size());
-  for (const auto& Qi : Qlist)
-    elist.push_back(Qi.second);
+  vector<int> elist(size());
+  std::transform(Qlist.begin(), Qlist.end(), elist.begin(),
+                 [](const QuadprimePower& Q) {return Q.second;});
   return elist;
 }
 
@@ -273,10 +269,12 @@ int npdivs(Qideal& I)  // number of prime ideal divisors
 int ndivs(Qideal& I) // number of ideal divisors
 {
   vector<int> ee = I.factorization().exponents();
-  long nd = 1;
-  for (auto e : ee)
-    nd*=(1+e);
-  return nd;
+  // long nd = 1;
+  // for (auto e : ee)
+  //   nd*=(1+e);
+  // return nd;
+
+  return std::accumulate(ee.begin(), ee.end(), 1, [](int a, int b) {return a*(b+1);});
 }
 
 vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
@@ -424,13 +422,9 @@ vector<Qideal> sqdivs(Qideal& a) // all divisors whose square divides a, up to +
 vector<Qideal> sqfreedivs(Qideal& a)       // all square-free divisors
 {
   vector<Quadprime> plist=pdivs(a);
-  Qideal p;
-  long np = plist.size();
-  long nd = 1;
-  while (np-->0) nd*=2;
-  vector<Qideal> dlist(nd);
+  vector<Qideal> dlist(1<<plist.size());
   dlist[0]=Qideal(Quad::one);
-  nd=1;
+  int nd = 1;
   for(const auto& p : plist)
     {
       for (long k=0; k<nd; k++)
@@ -535,8 +529,7 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
           for (long i=1; i<e; i++)
             {
               I = Q*ans[i]; // = Q^(i+1)
-              for ( auto& PQ : ans)
-                PQ *= P;
+              std::for_each(ans.begin(), ans.end(), [P](Qideal& PQ) { PQ *= P;});
               ans.push_back(I);
             }
 #ifdef DEBUG_SORT
@@ -562,24 +555,29 @@ vector<Qideal> Qideal_lists::ideals_with_norm(INT N, int both_conj)
   // II is a list of sorted lists of ideals of prime power norm, the
   // outer list sorted by size of the underlying prime (not the prime
   // power):
-  vector<vector<Qideal>> II;
-  for ( const auto& p : pp)
-    II.push_back(ideals_with_norm(pow(p, val(p, N))));
+  vector<vector<Qideal>> II(pp.size());
+  std::transform(pp.begin(), pp.end(), II.begin(),
+                 [N] ( const INT& p) {return ideals_with_norm(pow(p, val(p, N)));});
 
   ans = {Qideal()}; // unit ideal
 
   // "merge" lexicographically
-  for ( auto QQ = II.crbegin(); QQ!=II.crend(); ++QQ)
+  for ( const auto& QQ : II)
     {
+      // replace ans with ans2 = list of products J*Q with J in ans, Q in QQ
       vector<Qideal> ans2;
-      for ( auto Q : *QQ)
-        for ( const auto& I : ans)
-          ans2.push_back(I*Q);
+      ans2.reserve(QQ.size()*ans.size());
+      for ( const auto& J : ans)
+        {
+          auto ans3 = QQ;
+          std::for_each(ans3.begin(), ans3.end(), [J] (Qideal& Q) {Q*=J;});
+          ans2.insert(ans2.end(), ans3.begin(), ans3.end());
+        }
       ans = ans2;
     }
   long i=1;
-  for ( auto& I : ans)
-    I.set_index(i++);
+  for ( auto& J : ans)
+    J.set_index(i++);
 
 #ifdef DEBUG_SORT
   cout<<"Sorted list of ideals with norm "<<N<<": "<<ans<<endl;
@@ -710,7 +708,13 @@ Qideal Qideal::sqrt_coprime_to(const Qideal& N)
   return Qideal();
 }
 
-QuadprimeLooper::QuadprimeLooper(Qideal level)
+QuadprimeLooper::QuadprimeLooper()
+  :Pi(Quadprimes::list.begin()), N(Qideal())
+{
+  P = *Pi;
+}
+
+QuadprimeLooper::QuadprimeLooper(const Qideal& level)
   :Pi(Quadprimes::list.begin()), N(level)
 {
   P = *Pi;
@@ -746,18 +750,14 @@ void QuadprimeLooper::reset()
 Factorization Qideal::factorization() // sets F if necessary then returns F
 {
   if (F==0)
-    {
-      F = new Factorization(*this);
-    }
+    F = new Factorization(*this);
   return *F;
 }
 
 int Qideal::is_square()
 {
   vector<int>ee = factorization().exponents();
-  for (auto e : ee)
-    if (e%2==1) return 0;
-  return 1;
+  return std::all_of(ee.begin(), ee.end(), []( int e ) {return e%2==0;});
 }
 
 long Qideal::genus_class(int contract)
@@ -778,8 +778,8 @@ int Qideal::genus_character(const INT& D) // one unram char value
   if (!div_disc(D, Quad::disc))
     return 0;
   int r = Quad::prime_disc_factors.size();
-  int dot = dotbits(from_bits(chardisc(D)), genus_class(), r);
-  return (dot? -1: +1);
+  int dotmod2 = dotbits(from_bits(chardisc(D)), genus_class(), r);
+  return (dotmod2? -1: +1);
 }
 
 vector<int> Qideal::genus_character()
@@ -813,7 +813,7 @@ int Qideal::is_prime_power() {return factorization().is_prime_power();}
 
 
 // Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
-pair<long,long> eigenvalue_range(Quadprime& P)
+pair<long,long> eigenvalue_range(const Quadprime& P)
 {
   long normp = I2long(P.norm());
   long aplim=2;
@@ -823,7 +823,7 @@ pair<long,long> eigenvalue_range(Quadprime& P)
 }
 
 // Return {-m,3*m} whereor m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
-pair<long,long> eigenvalue_sq_range(Quadprime& P)
+pair<long,long> eigenvalue_sq_range(const Quadprime& P)
 {
   long normp = I2long(P.norm());
   return {-normp, 3*normp};
@@ -848,7 +848,7 @@ vector<long> good_eigrange(Quadprime& P)
 }
 
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes)
+vector<Quadprime> make_squarebadprimes(const Qideal& N, const vector<Quadprime>& badprimes)
 {
   if (Quad::class_group_2_rank==0)
     return badprimes;
@@ -864,7 +864,7 @@ vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badpr
 // compute a list of at least nap good primes (excluding those
 // dividing characteristic if >0), to include at least on principal
 // one which has index iP0;
-vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p)
+vector<Quadprime> make_goodprimes(const Qideal& N,  int np, int& iP0, int p)
 {
   vector<Quadprime> goodprimes;
   QuadprimeLooper L(p==0? N : INT(long(p))*N);

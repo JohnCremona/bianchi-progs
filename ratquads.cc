@@ -145,7 +145,7 @@ RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 Quad rectify(const Quad& r, const Quad& s)
 {
   Quad q;
-  RatQuad a = reduce_to_rectangle(RatQuad(r,s), q);
+  reduce_to_rectangle(RatQuad(r,s), q);
   return r - q*s;
 }
 
@@ -359,24 +359,21 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Quad& N, int plusflag)
 #ifdef DEBUG_CUSP_EQ
   cout<<" - s1 =  "<<s1<<", s2 = " << s2 << ", q3 = "<<q3<<endl;
 #endif
-  vector<Quad>& units = (plusflag? quadunits: squareunits);
-  for ( const auto& u : units)
+  const vector<Quad>& units = (plusflag? quadunits: squareunits);
+  if (std::any_of(units.begin(), units.end(), [s1,s2,q3] (const Quad& u) {return div(q3,(s1-u*s2));}))
     {
 #ifdef DEBUG_CUSP_EQ
-      cout<<" - testing unit "<< u <<endl;
+      cout<<" - equivalent, returning 1"<<endl;
 #endif
-      if (div(q3,(s1-u*s2)))
-        {
-#ifdef DEBUG_CUSP_EQ
-          cout<<" - equivalent, returning 1"<<endl;
-#endif
-          return 1;
-        }
+      return 1;
     }
+  else
+    {
 #ifdef DEBUG_CUSP_EQ
-  cout<<" - not equivalent, returning 0"<<endl;
+      cout<<" - not equivalent, returning 0"<<endl;
 #endif
-  return 0;
+      return 0;
+    }
 }
 
 // General cusp equivalence modulo Gamma_0(N) where N is an ideal:
@@ -467,7 +464,7 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag)
 #endif
       return 1;
     }
-  vector<Quad>& units = (plusflag? quadunits: squareunits);
+  const vector<Quad>& units = (plusflag? quadunits: squareunits);
   int first = 1;
   for (const auto& u : units)
     {

@@ -90,8 +90,9 @@ public:
 
 class QuadprimeLooper {
 public:
-  // Constructor: the iterator will skip primes dividing N
-  QuadprimeLooper(Qideal level=Qideal());
+  // Constructor: the iterator will skip primes dividing level
+  QuadprimeLooper();
+  explicit QuadprimeLooper(const Qideal& level);
   // increment, if possible, skipping primes dividing N
   void operator++();
   // return the current P
@@ -167,22 +168,22 @@ int ndivs(Qideal&); // number of ideal divisors
 int npdivs(Qideal&);  // number of prime ideal divisors
 
 // Return {-m,m} where m is the largest integer <= +2*sqrt(N(P)), the bounds on a(P)
-pair<long,long> eigenvalue_range(Quadprime& P);
+pair<long,long> eigenvalue_range(const Quadprime& P);
 
 // Return {-m,3*m} where m = N(P), the bounds on a(P^2)=a(P)^2-N(P)
-pair<long,long> eigenvalue_sq_range(Quadprime& P);
+pair<long,long> eigenvalue_sq_range(const Quadprime& P);
 
 // Return list of integers between -2*sqrt(N(P)) and +2*sqrt(N(P)) if [P] is square, else
 // list of possible eigs for T(P^2) = T(P)^2-N(P), assuming T(P,P) trivial
 vector<long> good_eigrange(Quadprime& P);
 
 // compute a list of primes Q dividing N with Q^e||N such that [Q^e] is square
-vector<Quadprime> make_squarebadprimes(Qideal& N, const vector<Quadprime>& badprimes);
+vector<Quadprime> make_squarebadprimes(const Qideal& N, const vector<Quadprime>& badprimes);
 
 // compute a list of at least nap good primes (excluding those
 // dividing characteristic if >0), to include at least one principal
 // one which has index iP0;
-vector<Quadprime> make_goodprimes(Qideal& N,  int np, int& iP0, int p=0);
+vector<Quadprime> make_goodprimes(const Qideal& N,  int np, int& iP0, int p=0);
 
 #endif
 
