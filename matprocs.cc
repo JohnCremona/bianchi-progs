@@ -62,7 +62,7 @@ int check_involution(const mat_ZZ& A, long den, int verbose)
 // check that a matrix commutes with all those in a list:
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
 {
-  return std::all_of(Blist.begin(), Blist.end(), [A] (const mat_ZZ& B) {return A*B==B+A;});
+  return std::all_of(Blist.begin(), Blist.end(), [A] (const mat_ZZ& B) {return A*B==B*A;});
 }
 
 // display factors of a polynomaial:

@@ -22,6 +22,7 @@ void Quadlooper::setblims()
       if (db2==n4)
         {
           bmin+=1;
+          b = bmin;
           db2 = d*bmin*bmin;
         }
     }
