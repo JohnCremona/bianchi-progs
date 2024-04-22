@@ -155,11 +155,12 @@ void homspace::kernel_delta()
   scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
   vec pivs, npivs;
   int d2;
-  kern = kernel(smat(deltamat), modulus);
+  smat sdeltamat(deltamat);
+  kern = kernel(sdeltamat, modulus);
   if (characteristic==0)
     {
       smat sk;
-      int ok = liftmat(smat_elim(deltamat, modulus).kernel(npivs,pivs),MODULUS,sk,d2);
+      int ok = liftmat(smat_elim(sdeltamat).kernel(npivs,pivs),MODULUS,sk,d2);
       if (!ok)
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
     }
@@ -407,7 +408,7 @@ smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
   for (i=1; i<=d; i++)
     {
       int j = jlist[i];
-      svec colj = applyop(T,freemods[j-1]);
+      svec colj(applyop(T,freemods[j-1]));
       m.setrow(i,colj);
      }
   if (verb)
@@ -427,7 +428,7 @@ smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
     cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop()..."<<flush;
   smat m(dimension,dimension);
   for (long j=0; j<dimension; j++)
-     { svec colj = applyop(T,freemods[j]);
+    { svec colj(applyop(T,freemods[j]));
        m.setrow(j+1,colj);
      }
   if(cuspidal) // as above code computes the transpose
@@ -483,7 +484,7 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
   for (long j=1; j<=d; j++)
      {
        long jj = pivots(s)[j];
-       svec colj = applyop(T,freemods[jj-1]);
+       svec colj(applyop(T,freemods[jj-1]));
        m.setrow(j,colj);
      }
   m = mult_mod_p(m,basis(s),MODULUS);

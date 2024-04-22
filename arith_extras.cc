@@ -1,76 +1,14 @@
-// FILE ARITH_EXTRAS.CC: miscellaneous integer (int/long) functions which could be in eclib/arith.cc
+// FILE ARITH_EXTRAS.CC: miscellaneous integer (int/long) functions
 
 #include <assert.h>
 #include <numeric>
 #include "arith_extras.h"
-
-int isqrt(long a, long& root)
-{
-  if (a<0) {return 0;}
-  root = round(sqrt(a));
-  return a==root*root;
-}
-
-long isqrt(const long a) {long r; isqrt(a,r); return r;}
-
-int divrem(long a, long b, long& q, long& r)
-{
-  std::ldiv_t qr = ldiv(a, b);
-  r = qr.rem;
-  q = qr.quot;
-  return (r==0);
-}
-
-long squarefree_part(long d)
-{
-  if (d==0) return d;
-  vector<long> sd = sqdivs(d);
-  long maxd = sd[sd.size()-1];
-  long ans = d/(maxd*maxd);
-  //cout << "d has max square divisor "<<maxd<<"^2"<<" and squarefree part "<<ans<<endl;
-  return ans;
-}
 
 void sqrt_mod_p(long & x, long a, long p)
 {
   bigint rr;
   sqrt_mod_p(rr, BIGINT(posmod(a,p)), BIGINT(p));
   x = I2long(rr);
-}
-
-// The point of the following function is that the built-in gcc
-// division truncates towards 0, while we need rounding, with a
-// consistent behaviour for halves (they go up here).
-//
-// For b>0, rounded_division(a,b) = q such that a/b = q + r/b with -1/2 <= r/b < 1/2
-//
-// bigint version of a similar function roundover(a,b) is in marith.h implmented as
-// {bigint a0=(a%b); bigint c = (a-a0)/b; if(2*a0>b) c+=1; return c;}
-// which is not quite the same
-
-long rounded_division(long a, long b)
-{
-  std::ldiv_t qr = ldiv(a, b);
-  long r = qr.rem, q = qr.quot;
-  long r2 = r<<1;
-  return (r2<-b? q-1: (r2>=b? q+1: q));
-}
-
-// return list of integers from first to last inclusive
-vector<long> range(long first, long last)
-{
-  long n = last-first+1;
-  vector<long> ans(n);
-  std::iota(ans.begin(), ans.end(), first);
-  return ans;
-}
-
-// return 1 with r=sqrt(a) if a is square, else return 0:
-long is_square(long a, long& r)
-{
-  if (a<0) return 0;
-  r = (long)(sqrt((double)a)+0.001);
-  return (a == r*r);
 }
 
 // return the dot product (0/1) of a and b bitwise, with 0<=a,b<2^r
@@ -152,26 +90,5 @@ vector<long> dotperp(vector<long> alist, int r)
         if (coli[j+1])
           ans[i] |= 1<<j;
     }
-  return ans;
-}
-
-vec reduce_modp(const vec& v, const scalar& p)
-{
-  if (p==0) return v;
-  long i, d=dim(v);
-  vec ans(d);
-  for(i=1; i<=d; i++)
-    ans[i] = mod(v[i], p);
-  return ans;
-}
-
-mat reduce_modp(const mat& m, const scalar& p)
-{
-  if (p==0) return m;
-  long i, j, nr=m.nrows(), nc=m.ncols();
-  mat ans(nr,nc);
-  for(i=1; i<=nr; i++)
-    for(j=1; j<=nc; j++)
-      ans(i,j) = mod(m(i,j),p);
   return ans;
 }

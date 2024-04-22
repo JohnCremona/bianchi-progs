@@ -119,7 +119,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
     { // we don't have a mod p mat*vec
       mat vcol(dim(v),1);
       vcol.setcol(1,v);
-      basis = reduce_modp(matmulmodp(nf->h1->FR.coord, vcol, nf->hmod).col(1));
+      basis = reduce_modp(matmulmodp(nf->h1->FR.coord, vcol, nf->hmod).col(1), DEFAULT_MODULUS);
     }
   else
     {
@@ -1201,7 +1201,7 @@ void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
         { // we don't have a mod p mat*vec
           mat vcol(dim(b1),1);
           vcol.setcol(1,b1);
-          nflist[use_nf_number].basis = reduce_modp(matmulmodp(h1->FR.coord, vcol, hmod).col(1));
+          nflist[use_nf_number].basis = reduce_modp(matmulmodp(h1->FR.coord, vcol, hmod).col(1), DEFAULT_MODULUS);
         }
       else
         nflist[use_nf_number].basis = (h1->FR.coord)*b1;
@@ -1457,7 +1457,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           // Now aP2 is the eigenvalue of T(P)^2
           if (verbose>1)
             cout << " - a(P)^2 = " << aP2 << endl;
-          if (is_square(aP2, aP))
+          if (isqrt(aP2, aP))
             {
               if (aP!=0) // else we cannot use this as a new genus pivot
                 {
