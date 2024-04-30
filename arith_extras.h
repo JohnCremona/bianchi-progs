@@ -12,8 +12,6 @@
 #include <eclib/timer.h>
 #include <eclib/curvesort.h> // for letter codes
 
-inline long I2long(long n) {return n;}
-
 void sqrt_mod_p(long & x, long a, long p);
 
 // return the dot product (0/1) of a and b bitwise, with 0<=a,b<2^r

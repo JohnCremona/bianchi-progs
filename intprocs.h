@@ -35,7 +35,7 @@ const INT TWO(2);
 const INT THREE(3);
 
 // content
-INT vecgcd(const vector<INT>& a);
+INT content(const vector<INT>& a);
 
 //returns g = content(a) = a.c
 INT vecbezout(vector<INT>& a, vector<INT>& c);

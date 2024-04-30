@@ -141,7 +141,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
     }
   else
     {
-      cuspidalfactor = vecgcd((nf->h1->tkernbas)*v);
+      cuspidalfactor = content((nf->h1->tkernbas)*v);
       if(nf->verbose)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }

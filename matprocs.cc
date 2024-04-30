@@ -3,33 +3,31 @@
 #include <eclib/interface.h>
 #include <eclib/arith.h>
 #include <eclib/matrix.h>
-#include <eclib/mmatrix.h>
 #include "matprocs.h"
 
 factor_comparison fact_cmp;
 
 mat_ZZ mat_to_mat_ZZ(mat A)
 {
-  int i, j, d = A.nrows();
-
+  int d = A.nrows();
   // copy into an NTL matrix:
   mat_ZZ ntl_A;
   ntl_A.SetDims(d,d);
-  for(i=1; i<=d; i++)
-    for(j=1; j<=d; j++)
+  for(int i=1; i<=d; i++)
+    for(int j=1; j<=d; j++)
       ntl_A(i,j)=conv<ZZ>(A(i,j));
   return ntl_A;
 }
 
 mat_ZZ_p mat_to_mat_ZZ_p(mat A)
 {
-  int i, j, d = A.nrows();
+  int d = A.nrows();
 
   // copy into an NTL matrix:
   mat_ZZ_p ntl_A;
   ntl_A.SetDims(d,d);
-  for(i=1; i<=d; i++)
-    for(j=1; j<=d; j++)
+  for(int i=1; i<=d; i++)
+    for(int j=1; j<=d; j++)
       ntl_A(i,j)=conv<ZZ_p>(A(i,j));
   return ntl_A;
 }

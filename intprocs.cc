@@ -90,7 +90,7 @@ void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
 }
 #endif
 
-INT vecgcd(const vector<INT>& a)
+INT content(const vector<INT>& a)
 {
   INT g(0);
   for( const auto& ai : a)
@@ -182,7 +182,7 @@ INT vecbezout(vector<INT>& a, vector<INT>& c)
   int n=(int)a.size();
   if (n==2) return vecbezout2(a, c);
   if (n==3) return vecbezout3(a, c);
-  INT x(1), g = vecgcd(a);
+  INT x(1), g = content(a);
   vector<INT> a0=a;
   if (g>1)
     std::for_each(a0.begin(), a0.end(), [g](INT& ai) {ai/=g;});

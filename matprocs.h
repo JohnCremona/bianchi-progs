@@ -5,7 +5,7 @@
 
 // include stuff from eclib
 #include "intprocs.h"
-#include <eclib/mmatrix.h>
+#include <eclib/matrix.h>
 
 // include stuff from NTL
 #include <NTL/LLL.h>
