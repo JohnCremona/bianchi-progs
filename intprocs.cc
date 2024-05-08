@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <numeric>
 #include "intprocs.h"
+#include "flint_snf.h"
 
 #ifdef INT_IS_ZZ
 
@@ -96,14 +97,14 @@ INT content(const vector<INT>& a)
   for( const auto& ai : a)
     {
       g = gcd(g, ai);
-      if (g==1)
+      if (g.is_one())
         return g;
     }
   return g;
 }
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout2(vector<INT>& a, vector<INT>& c)
+INT vecbezout2(const vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=2) return vecbezout(a, c);
@@ -117,7 +118,7 @@ INT vecbezout2(vector<INT>& a, vector<INT>& c)
 //#define testbezout3
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout3(vector<INT>& a, vector<INT>& c)
+INT vecbezout3(const vector<INT>& a, vector<INT>& c)
 {
   int n=(int)a.size();
   if (n!=3) return vecbezout(a, c);
@@ -174,7 +175,7 @@ INT vecbezout3(vector<INT>& a, vector<INT>& c)
 //#define testbezout
 
 // returns content and sets c such that content(a) = a.c
-INT vecbezout(vector<INT>& a, vector<INT>& c)
+INT vecbezout(const vector<INT>& a, vector<INT>& c)
 {
 #ifdef testbezout
   cout<<"Computing vecbezout("<<a<<")"<<endl;
@@ -241,13 +242,17 @@ int span_Z2(const pair< vector<INT>, vector<INT>> & coords)
   return g==1;
 }
 
-//Sets basis={e1,e2,f1} such that [[e1,f1], [e2,0]] is a Z-basis for
-//the Z-module spanned by [first[i], second[i]]
-
 // Returns {a,b,c} where [(a,b), (c,0)] is an HNF basis for the
 // Z-module spanned by [coords.first[i], coords.second[i]]
 
 vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords)
+{
+  vector<vector<INT>> M = {coords.second, coords.first};
+  M = HNF(M);
+  return {M[1][0], M[0][0], M[1][1]};
+}
+
+vector<INT> oldZbasis(const pair<vector<INT>, vector<INT>>& coords)
 {
 #ifdef testbezout
   cout<<"findzbasis("<<coords.first<<", "<<coords.second<<"): "<<endl;

@@ -50,3 +50,24 @@ vector<int> invariants(const vector<vector<int>>& M)
   avma=av;
   return invs;
 }
+
+vector<long> hnf_invariants(const vector<vector<int>>& M)
+{
+  // assuming nrows = 2
+  eclib_pari_init();
+  pari_sp av=avma;  // store pari stack pointer
+
+  long nrows = M.size(), ncols = M[0].size();
+  // cout << "\nnrows="<<nrows<<", ncols="<<ncols<<endl;
+  GEN A = zeromatcopy(ncols, nrows);
+  // cout << "created A"<<endl;
+  for (int i=0; i<nrows; i++)
+    for (int j=0; j<ncols; j++)
+      gcoeff(A, j+1, i+1) = stoi(M[i][j]);
+  // cout << "filled A"<<endl;
+  GEN H = ZM_hnf(A);
+  // cout << "computed H"<<endl;
+  vector<long> invs = {itos(gcoeff(H,1,1)), itos(gcoeff(H,1,2)), itos(gcoeff(H,2,1)), itos(gcoeff(H,2,2))};
+  avma=av;
+  return invs;
+}

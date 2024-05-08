@@ -443,7 +443,7 @@ int Qideal::contains(const Quad& alpha) const
 int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
 {
   vector<INT> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
-  if (vecbezout(v, w)!=1)
+  if (vecbezout(v, w)!=1) // NB as a side-effect this fills w so that v*w=1
     return 0;
   // cout<<"is_coprime_to() with I="<<(*this)<<", J="<<J<<endl;
   // cout<<"vecbezout("<<v<<") returns "<<w<<endl;
@@ -514,9 +514,6 @@ Quad Qideal::reduce(const Quad& alpha)
 // Map from i to res (only depends on i mod norm)
 Quad Qideal::resnum(long i) // the i'the residue mod this, in standard order (0'th is 0)
 {
-  // INT quot, rem;
-  // ::divides(posmod(BIGINT(i), nm), ac, quot, rem);
-  // return reduce(Quad(rem, quot));
   make_residues();
   return the_residues[posmod(i,I2long(nm))];
 }

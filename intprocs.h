@@ -38,7 +38,7 @@ const INT THREE(3);
 INT content(const vector<INT>& a);
 
 //returns g = content(a) = a.c
-INT vecbezout(vector<INT>& a, vector<INT>& c);
+INT vecbezout(const vector<INT>& a, vector<INT>& c);
 
 // dot product
 INT dot(vector<INT>& a, vector<INT>& c);

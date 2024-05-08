@@ -4,6 +4,7 @@
 #include "swan_alphas.h"
 #include "swan_tess.h"
 #include "swan_hom.h"
+#include "flint_snf.h"
 
 // Return all singular polyhedra
 vector<POLYHEDRON>

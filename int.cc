@@ -122,7 +122,7 @@ long I2long(const INT& a)
 {
   if (a.is_long())
     return (long)fmpz_get_si(a.z);
-  assert(0 && "INT does not fint into an slong");
+  assert(0 && "INT does not fit into a long");
 }
 
 INT sqrt_mod_p(const INT& a, const INT& p)

@@ -63,6 +63,10 @@ public:
   void operator /=(const INT& a) {fmpz_divexact(z,z,a.z);}
   void operator /=(int a) {fmpz_divexact_si(z,z,a);}
   void operator /=(long a) {fmpz_divexact_si(z,z,a);}
+  int is_zero() const {return fmpz_is_zero(z);}
+  int is_one() const {return fmpz_is_one(z);}
+  int is_even() const {return fmpz_is_even(z);}
+  int is_odd() const {return fmpz_is_odd(z);}
   int is_square() const {return fmpz_is_square(z);}
   int is_square(INT& a) const {if (!fmpz_is_square(z)) return 0; else {fmpz_sqrt(a.z,z); return 1;}}
   INT isqrt() const {INT b; if (fmpz_sgn(z)>0) fmpz_sqrt(b.z,z); return b;}
@@ -91,6 +95,7 @@ public:
   friend void swap(INT& a, INT& b);
 
   friend class RAT;
+  friend void make_mat( fmpz_mat_t A, const std::vector<std::vector<INT>>& M);
 };
 
 inline int sign(const INT& a) {return a.sign();}
@@ -113,7 +118,6 @@ inline int compare(const INT& a, int b) {return fmpz_cmp_si(a.z,b);}
 inline int compare(const INT& a, long b) {return fmpz_cmp_si(a.z,b);}
 inline int operator==(int a, const INT& b) {return b==a;}
 inline int operator==(long a, const INT& b) {return b==a;}
-inline int is_zero(const INT& a) {return a.sign()==0;}
 inline int operator<(const INT& a, const INT& b) {return compare(a,b)<0;}
 inline int operator<(const INT& a, long b) {return compare(a,b)<0;}
 inline int operator>(const INT& a, const INT& b) {return compare(a,b)>0;}
@@ -144,6 +148,8 @@ inline int isqrt(const INT& a, INT& root) {root=a.isqrt(); return root*root==a;}
 inline INT isqrt(const INT& a) {return a.isqrt();}
 inline INT max(const INT& a, const INT& b) {return (a>=b? a : b);}
 inline INT min(const INT& a, const INT& b) {return (a<=b? a : b);}
+inline int is_zero(const INT& a) {return a.is_zero();}
+inline int is_one(const INT& a) {return a.is_one();}
 
 // functions implemented in int.cc:
 

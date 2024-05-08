@@ -6,8 +6,8 @@
 
 void sqrt_mod_p(long & x, long a, long p)
 {
-  bigint rr;
-  sqrt_mod_p(rr, BIGINT(posmod(a,p)), BIGINT(p));
+  bigint rr, amodp(posmod(a,p)), pp(p);
+  sqrt_mod_p(rr, amodp, pp);
   x = I2long(rr);
 }
 

@@ -9,4 +9,8 @@
 // (encoded as vector<vector<int>>)
 vector<int> invariants(const vector<vector<int>>& M);
 
+// Return list of entries of the HNF of M (exncoded as above),
+// assuming M has size 2 (i.e. represnts a 2xn matrix):
+vector<long> hnf_invariants(const vector<vector<int>>& M);
+
 #endif

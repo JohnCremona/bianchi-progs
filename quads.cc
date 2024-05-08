@@ -96,21 +96,21 @@ Quad (*quadconj)(const Quad& a);
 
 Quad mult0(const Quad& a, const Quad& b)
 {
-  return Quad(a.r*b.r - Quad::n*a.i*b.i, a.r*b.i + a.i*b.r, a.nm*b.nm);
+  return Quad(fmms(a.r,b.r, Quad::n*a.i,b.i), fmma(a.r,b.i, a.i,b.r), a.nm*b.nm);
 }
 
 Quad mult1(const Quad& a, const Quad& b)
 {
   INT x = a.i*b.i;
-  return Quad(a.r*b.r-Quad::n*x, a.r*b.i+a.i*b.r+x, a.nm*b.nm);
+  return Quad(fmms(a.r,b.r, Quad::n,x), fmma(a.r,b.i, a.i,b.r) + x, a.nm*b.nm);
 }
 
 // compute a*b+c*d
 Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
-  INT x = a.i*b.i + c.i*d.i;
-  INT r = a.r*b.r + c.r*d.r - Quad::n*x;
-  INT i = a.r*b.i + a.i*b.r + c.r*d.i + c.i*d.r;
+  INT x = fmma(a.i,b.i, c.i,d.i); // a.i*b.i + c.i*d.i;
+  INT r = fmma(a.r,b.r, c.r,d.r) - Quad::n*x; // a.r*b.r + c.r*d.r - Quad::n*x;
+  INT i = fmma(a.r,b.i, a.i,b.r) + fmma(c.r,d.i, c.i,d.r); // a.r*b.i + a.i*b.r + c.r*d.i + c.i*d.r;
   if (Quad::t)
     i += x;
   return Quad(r,i);
@@ -119,9 +119,9 @@ Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 // compute a*b-c*d
 Quad mms(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
-  INT x = a.i*b.i - c.i*d.i;
-  INT r = a.r*b.r - c.r*d.r - Quad::n*x;
-  INT i = a.r*b.i + a.i*b.r - (c.r*d.i + c.i*d.r);
+  INT x = fmms(a.i,b.i, c.i,d.i); // a.i*b.i - c.i*d.i;
+  INT r = fmms(a.r,b.r, c.r,d.r) - Quad::n*x; // a.r*b.r - c.r*d.r - Quad::n*x;
+  INT i = fmma(a.r,b.i, a.i,b.r) - fmma(c.r,d.i, c.i,d.r); // a.r*b.i + a.i*b.r - (c.r*d.i + c.i*d.r);
   if (Quad::t)
     i += x;
   return Quad(r,i);
@@ -131,8 +131,8 @@ void Quad::addprod(const Quad& a, const Quad& b) // this +=a*b
 {
   if (a.nm==0 || b.nm==0) return;
   INT c = a.i*b.i;
-  r += (a.r*b.r - n * c);
-  i += (a.r*b.i + a.i*b.r);
+  r += fmms(a.r,b.r, n,c);
+  i += fmma(a.r,b.i, a.i,b.r);
   if (t)
     i += c;
   setnorm();
@@ -150,8 +150,8 @@ void Quad::subprod(const Quad& a, const Quad& b) // this -=a*b
 {
   if (a.nm==0 || b.nm==0) return;
   INT c = a.i*b.i;
-  r -= (a.r*b.r - n * c);
-  i -= (a.r*b.i + a.i*b.r);
+  r -= fmms(a.r,b.r, n,c);
+  i -= fmma(a.r,b.i, a.i,b.r);
   if (t)
     i -= c;
   setnorm();
@@ -982,11 +982,7 @@ vector<INT> HNF(const Quad& alpha)
   // Now the HNF is g*[a, b+w] for some b mod a=N/g
   INT a = N/(g*g);
   INT b = posmod(((v-(Quad::t)*u)*x - (Quad::n)*u*y), a);
-  vector<INT> ans;
-  ans.push_back(a*g);
-  ans.push_back(b*g);
-  ans.push_back(g);
-  return ans;
+  return {a*g, b*g, g};
 }
 
 // Ideal label: formed from the Norm and HNF of the ideal (alpha)
