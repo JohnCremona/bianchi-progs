@@ -18,7 +18,7 @@ public:
   operator Quad() const {return val;}
   vector<Quad> values_with_current_norm(int sorted=0);
   vector<Quad> values_with_norm_up_to(const INT& m, int sorted=0);
-  int ok() const {return nmax==0 || n<=nmax;}
+  int ok() const {return nmax.is_zero() || n<=nmax;}
 
 private:
   long d;

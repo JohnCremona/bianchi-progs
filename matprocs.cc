@@ -66,8 +66,8 @@ int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
 // display factors of a polynomaial:
 void display_factors(const ZZX& f)
 {
-  ZZ content; vec_pair_ZZX_long factors;
-  factor(content, factors, f);
+  ZZ cont; vec_pair_ZZX_long factors;
+  factor(cont, factors, f);
   ::sort(factors.begin(), factors.end(), fact_cmp);
   cout<<"Factors of characteristic polynomial are:"<<endl;
   long nf = factors.length();

@@ -78,13 +78,8 @@ Qideal::Qideal()   //default ideal is whole ring
 { ; }
 
 Qideal::Qideal(const Qideal& i)   // the copy constructor
-  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), index(i.index), F(0), the_residues(i.the_residues)
-{ // don't copy the pointer F (though we could copy the underlying Factorizarion)
-  if(iclass!=-1)
-    {
-      g0=i.g0; g1=i.g1;
-    }
-}
+  : a(i.a), b(i.b), c(i.c), ac(i.ac), nm(i.nm), iclass(i.iclass), g0(i.g0), g1(i.g1), index(i.index), F(0), the_residues(i.the_residues)
+{ ; } // don't copy the pointer F (though we could copy the underlying Factorizarion)
 
 Qideal::~Qideal()
 {
@@ -143,6 +138,8 @@ Qideal::Qideal( const pair< vector<INT>, vector<INT>> & coords)  // ideal from Z
 pair<vector<INT>, vector<INT>> restrict_scalars(const vector<Quad>& gens)
 {
   vector<INT> rv, iv;
+  rv.reserve(2*gens.size());
+  iv.reserve(2*gens.size());
   for( auto a : gens)
     {
       rv.push_back(a.re());
@@ -184,10 +181,9 @@ Qideal Qideal::operator+(const INT& d) const
 {
   if (is_zero())
     return Qideal(d);
-  if (d==0)
-    return *this;
   Qideal ans=*this;
-  ans += d;
+  if (d.is_nonzero())
+    ans += d;
   return ans;
 }
 
@@ -195,10 +191,9 @@ Qideal Qideal::operator+(const Quad& alpha) const
 {
   if (is_zero())
     return Qideal(alpha);
-  if (alpha.is_zero())
-    return *this;
   Qideal ans=*this;
-  ans+=alpha;
+  if (alpha.nm.is_nonzero())
+    ans+=alpha;
   return ans;
 }
 
@@ -206,10 +201,9 @@ Qideal Qideal::operator+(const Qideal& f) const
 {
   if (is_zero())
     return f;
-  if (f.is_zero())
-    return *this;
   Qideal ans=*this;
-  ans+=f;
+  if (f.is_nonzero())
+    ans+=f;
   return ans;
 }
 
@@ -229,14 +223,13 @@ void Qideal::operator+=(const INT& aa)
   if (divides(aa))
     return;  //ideal remains unchanged
 
-  pair<vector<INT>,vector<INT>> coords;
-  coords.first = get_rv();
-  coords.second = get_iv();
+  pair<vector<INT>,vector<INT>> coords = {get_rv(), get_iv()};
+
   // extend the Z-gens by [a,0], [0,a]
-  INT z(0);
+  static const INT zero(0);
   coords.first.push_back(aa);
-  coords.first.push_back(z);
-  coords.second.push_back(z);
+  coords.first.push_back(zero);
+  coords.second.push_back(zero);
   coords.second.push_back(aa);
   *this = Qideal(coords);
 }
@@ -293,7 +286,7 @@ void Qideal::operator+=(const Qideal& f)
 
 Qideal Qideal::operator*(const INT& d) const
 {
-  if (d==0)
+  if (d.is_zero())
     {
       return Qideal(Quad());
     }
@@ -327,7 +320,7 @@ Qideal operator*(const Quad& a, const Qideal& f)
 
 void Qideal::operator*=(const INT& d)
 {
-  if (d==0)
+  if (d.is_zero())
     {
       *this=Qideal(Quad());
       return;
@@ -345,9 +338,9 @@ void Qideal::operator*=(const INT& d)
 
 void Qideal::operator*=(const Quad& alpha)
 {
-  if (c==0 || alpha.norm()==1) return;              // this is unchanged
-  if (alpha.is_zero()) { *this=Qideal(alpha); return;}         // this becomes 0
-  if (alpha.i==0) {*this *= alpha.r; return;} // alpha in Z
+  if (c.is_zero() || alpha.norm().is_one()) return;              // this is unchanged
+  if (alpha.is_zero()) { *this=Qideal(alpha); return;}           // this becomes 0
+  if (alpha.i.is_zero()) {*this *= alpha.r; return;}             // alpha in Z
   if (iclass==0) {
     // cout<<"operator *= with this="<<(*this)<<" (which is principal with generator "<<g0<<") and "<<alpha<<endl;
     *this=Qideal(g0*alpha);
@@ -376,8 +369,8 @@ void Qideal::operator*=(const Quad& alpha)
 
 void Qideal::operator*=(Qideal f)
 {
-  if (c==0 || f.nm==1) return;    // unchanged
-  if (f.c==0 || nm==1) { *this=f; return; }  // f unchanged
+  if (c.is_zero() || f.nm.is_one()) return;    // unchanged
+  if (f.c.is_zero() || nm.is_one()) { *this=f; return; }  // f unchanged
 
   if (is_principal())
     {
@@ -715,7 +708,7 @@ Qideal operator/(const Quad&alpha, const Qideal&f)
 
 void Qideal::operator/=(const INT&n)
 { INT na=abs(n);
-  if (na==1) return;
+  if (na.is_one()) return;
   // cout<<"applying operator/= to ideal "<<(*this)<<" and "<<n<<endl;
   INT quot, rem;
   divrem(c, na, quot, rem);
@@ -941,7 +934,7 @@ ostream& operator<<(ostream& s, const Qideal& x)
 
 long val(const Qideal& factor, const Qideal& dividend)
 {
-  if ((dividend.norm()==0) || (factor.norm()<=1))
+  if ((dividend.norm().is_zero()) || (factor.norm()<=1))
     {
       cerr<<"Warning: 9999 returned in Qideal version of val"<<endl;
       return 9999;
@@ -1101,7 +1094,7 @@ Qideal::Qideal(const string& s)           // ideal from label N.i
   std::getline(ss, istr);
   INT N;
   stringstream(Nstr)>>N;
-  if (N==0)
+  if (N.is_zero())
     *this = Qideal(Quad());
   else
     {
@@ -1254,7 +1247,7 @@ void residuetest(Qideal& I)
   vector<Quad> res = I.residues();
   assert ((long)res.size()==I.norm());
   cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
-  if (I.norm()==1) return;
+  if (I.norm().is_one()) return;
 
   Factorization F = I.factorization();
   INT phi(1);
@@ -1290,9 +1283,9 @@ int coprime(const Quad& a, const Quad& b)
 }
 
 // old code for coprime() involved creating an ideal:
-// if (gcd(a.norm(),b.norm())==1)
+// if (gcd(a.norm(),b.norm()).is_one())
 //   return 1;
-// return Qideal({a,b}).norm()==1;
+// return Qideal({a,b}).norm().is_one();
 
 int principal_gcd(const Quad& a, const Quad& b, Quad& g)
 {

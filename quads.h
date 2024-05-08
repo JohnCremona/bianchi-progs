@@ -132,9 +132,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   INT norm() const {return nm;}
   INT content() const {return gcd(r,i);}
   Quad pos_assoc() const {return makepos(*this);}
-  int is_zero() const {return ::is_zero(nm);}
-  int is_unit() const {return nm==1;}
-  int is_one() const {return (r==1)&&(i==0);}
+  int is_zero() const {return nm.is_zero();}
+  int is_unit() const {return nm.is_one();}
+  int is_one() const {return r.is_one() && i.is_zero();}
 
 //operators and related functions (friends are inlined below):
 
@@ -168,9 +168,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   friend void sl2z_reduce(Quad& alpha, Quad& beta);
 
   int operator== (const Quad& b) const {return (r==b.r) && (i==b.i);}
-  int operator== (const INT b) const {return (r==b) && (i==0);}
+  int operator== (const INT b) const {return (r==b) && i.is_zero();}
   int operator!= (const Quad& b) const {return (r!=b.r) || (i!=b.i);}
-  int operator!= (const INT b) const {return (r!=b) || (i!=0);}
+  int operator!= (const INT b) const {return (r!=b) || i.is_nonzero();}
   Quad operator* (const Quad& b) const {return mult(*this,b);}
   void operator*=(const Quad& b) {*this=mult(*this,b);}
   Quad operator* (INT m) const {return Quad(m*r,m*i, m*m*nm);}

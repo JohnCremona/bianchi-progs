@@ -374,7 +374,7 @@ istream& operator>>(istream& s, Quad& x)
 
 void Quad::setnorm()
 {
-  nm = r*r + n*i*i;
+  nm = fmma(r,r, n*i,i);
   if (t) {nm += r*i;};
   assert (nm>=0);
 }

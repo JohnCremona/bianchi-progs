@@ -64,6 +64,7 @@ public:
   void operator /=(int a) {fmpz_divexact_si(z,z,a);}
   void operator /=(long a) {fmpz_divexact_si(z,z,a);}
   int is_zero() const {return fmpz_is_zero(z);}
+  int is_nonzero() const {return !fmpz_is_zero(z);}
   int is_one() const {return fmpz_is_one(z);}
   int is_even() const {return fmpz_is_even(z);}
   int is_odd() const {return fmpz_is_odd(z);}
@@ -130,9 +131,9 @@ inline int operator<=(const INT& a, const INT& b) {return compare(a,b)<=0;}
 inline int operator<=(const INT& a, long b) {return compare(a,b)<=0;}
 inline int operator>=(const INT& a, const INT& b) {return compare(a,b)>=0;}
 inline int operator>=(const INT& a, long b) {return compare(a,b)>=0;}
-inline int divides(const INT& a, const INT& b) {return (b%a)==0;}
-inline int divides(int a, const INT& b) {return (b%a)==0;}
-inline int divides(long a, const INT& b) {return (b%a)==0;}
+inline int divides(const INT& a, const INT& b) {return (b%a).is_zero();}
+inline int divides(int a, const INT& b) {return (b%a) ==0;}
+inline int divides(long a, const INT& b) {return (b%a) ==0;}
 inline int kronecker(const INT& a, const INT& p) {return fmpz_kronecker(a.z, p.z);}
 inline int legendre(const INT& a, int p) {return legendre(a,INT(p));}
 inline int legendre(const INT& a, long p) {return legendre(a,INT(p));}
@@ -149,6 +150,7 @@ inline INT isqrt(const INT& a) {return a.isqrt();}
 inline INT max(const INT& a, const INT& b) {return (a>=b? a : b);}
 inline INT min(const INT& a, const INT& b) {return (a<=b? a : b);}
 inline int is_zero(const INT& a) {return a.is_zero();}
+inline int is_nonzero(const INT& a) {return a.is_nonzero();}
 inline int is_one(const INT& a) {return a.is_one();}
 
 // functions implemented in int.cc:

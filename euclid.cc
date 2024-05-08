@@ -106,7 +106,7 @@ int find_best_alpha_old(const Quad& a, const Quad& b, Quad& shift, int lucky)
   // of the one which gives best reduction
   for (const auto& M: M_alphas)
     {
-      if (t==0) // skpping alpha=0
+      if (t==0) // skipping alpha=0
         {
           t++;
           continue;
@@ -372,7 +372,7 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
 #ifdef DEBUG_PSEA
   cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.norm()<<", b="<<b<<", N(b)="<<b.norm()<<endl;
 #endif
-  if (b.norm()==0)
+  if (b.is_zero())
     {
       t=0;
       return;
@@ -552,7 +552,7 @@ void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qu
 
 Quad quadgcd_psea(const Quad& aa, const Quad& bb)   // Using (pseudo-)EA
 {
-  if (gcd(aa.norm(),bb.norm())==1) return Quad::one;
+  if (gcd(aa.norm(),bb.norm()).is_one()) return Quad::one;
   Quad a(aa), b(bb); int t=0;
   while (!b.is_zero() && t>=0) pseudo_euclidean_step(a, b, t);
   if (!b.is_zero())
@@ -580,7 +580,7 @@ Quad quadbezout_psea(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy)   // Us
   while (b.norm()>0 && t>=0)
     {
       pseudo_euclidean_step(a, b, t, c1, d1, c2, d2);
-      assert (c2*d1-c1*d2 == Quad::one);
+      assert ((c2*d1-c1*d2).is_one());
       assert (c1*a+d1*b==bb);
       assert (c2*a+d2*b==aa);
     }
@@ -650,7 +650,7 @@ mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s)
   while (b.norm()>0 && t>=0)
     {
       pseudo_euclidean_step(a, b, t, c1, d1, c2, d2);
-      assert (c2*d1-c1*d2 == Quad::one);
+      assert ((c2*d1-c1*d2).is_one());
       assert (c1*a+d1*b==bb);
       assert (c2*a+d2*b==aa);
     }
@@ -665,7 +665,7 @@ mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s)
   // [c2,d2;c1,d1]*[a,b] = [aa,bb], so
   // [d1,-d2;-c1,c2]*[aa,bb] = [a,b]
 
-  s = (b.norm()==0? 0 : -t);
+  s = (b.norm().is_zero()? 0 : -t);
 
   mat22 M(d1,-d2,-c1,c2); // maps aa/bb to a/b
   assert (d1*aa-d2*bb == a);

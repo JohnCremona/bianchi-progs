@@ -174,11 +174,12 @@ public:
   void operator/=(const Qideal&);
 
 //functions defined in qideal.cc unless inline
-  int is_zero() const {return c==0;}
+  int is_zero() const {return c.is_zero();}
+  int is_nonzero() const {return c.is_nonzero();}
   int is_principal();          // fills iclass if necessary
   int is_principal(Quad& g);   // same but puts generator into g
   int ideal_class();           // i s.t. this is equivalent to the i'th ideal in the class group
-  int is_primitive() const {return c==ONE;}
+  int is_primitive() const {return c.is_one();}
   int is_square();
   int is_Galois_stable() const {return ::divides(a, (2*b+Quad::t));}
   int is_prime();
