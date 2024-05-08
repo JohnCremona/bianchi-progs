@@ -838,7 +838,7 @@ void face_relations::solve_relations()
         }
       else
         {
-          cout<<"rank(relmat) = "<<relmat.rank();
+          cout<<"rank(relmat) = "<<relmat.rank(MODULUS);
         }
       cout<<", ngens = "<<ngens<<endl;
     }

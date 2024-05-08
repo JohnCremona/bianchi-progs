@@ -160,7 +160,7 @@ void homspace::kernel_delta()
   if (characteristic==0)
     {
       smat sk;
-      int ok = liftmat(smat_elim(sdeltamat).kernel(npivs,pivs),MODULUS,sk,d2);
+      int ok = liftmat(smat_elim(sdeltamat,MODULUS).kernel(npivs,pivs),MODULUS,sk,d2);
       if (!ok)
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
     }
@@ -211,7 +211,7 @@ int homspace::check_conjugate(int verb)
     {
       conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
     }
-  long conjmatrank1 = smat(conjmat1).rank();
+  long conjmatrank1 = smat(conjmat1).rank(MODULUS);
   if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
 
   // Now the reverse map
@@ -220,7 +220,7 @@ int homspace::check_conjugate(int verb)
     {
       conjmat2.setcol(i+1,chain(H1conj.freemods[i].conj()));
     }
-  long conjmatrank2 = smat(conjmat2).rank();
+  long conjmatrank2 = smat(conjmat2).rank(MODULUS);
   if (verb) cout<<" - reverse conjugation map has rank "<<conjmatrank2<<endl;
   if (conjmatrank1==dimension && conjmatrank2==dimension)
     {
@@ -488,7 +488,6 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
        m.setrow(j,colj);
      }
   m = mult_mod_p(m,basis(s),MODULUS);
-  m.reduce_mod_p();
   if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display)
   //   {
@@ -546,14 +545,14 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
   int dual = 1;
   smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
   long eig = (*ei++)*den;
-  ssubspace s = eigenspace(m, eig);
+  ssubspace s = eigenspace(m, eig, MODULUS);
   subdim = dim(s);
 
   for (; nui!=nulist.end() && subdim>0; ++ei)
     {
       m = s_calcop_restricted(CharOp(*nui++, N), s, dual, 0);
       eig = (*ei)*den;
-      s = combine(s, eigenspace(m, eig));
+      s = combine(s, eigenspace(m, eig, MODULUS));
       subdim = dim(s);
     }
   return s;
@@ -581,7 +580,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 
   ssubspace s = trivial_character_subspace();
 
-  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
+  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank(MODULUS)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
   dimlist.push_back(subdims0);
 
@@ -663,7 +662,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   cout << " - computed matrix of this op restricted to current subspace" << endl;
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
-              ssubspace newsD = combine(sD, eigenspace(m, eig));
+              ssubspace newsD = combine(sD, eigenspace(m, eig, MODULUS));
               int newsubdim = dim(newsD);
               if(verbose>1)
                 {
@@ -683,7 +682,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   nrepeats=0;
                   sD = newsD;
                   subdim = newsubdim;
-                  subdims = {subdim,(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank()};
+                  subdims = {subdim,(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank(MODULUS)};
                 }
               ++Pi; // extra increment, so we don't use both conjugates
             }

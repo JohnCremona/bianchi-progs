@@ -83,7 +83,7 @@ public:
   pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs)
   {
     ssubspace s = unramified_character_subspace(eigs);
-    return {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank()};
+    return {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank(MODULUS)};
   }
 
   // The dimension or cuspidal dimension of the previous space (for

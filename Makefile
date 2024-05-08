@@ -5,8 +5,8 @@
 # the following line might not be necessary.  If installed anywhere
 # else set the install directory here:
 
-ECLIB_BASE=/usr/local
-#ECLIB_BASE=$(HOME)/eclib
+#ECLIB_BASE=/usr/local
+ECLIB_BASE=$(HOME)/eclib
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -22,7 +22,7 @@ LIBDIR = $(ECLIB_BASE)/lib
 #  is much slower: e.g. with level (128), field 1 it takes 20m instead
 #  of <1s.
 
-GCC=g++ -std=c++11 -fmax-errors=1
+GCC=g++ -std=c++14 -fmax-errors=1
 CC = $(GCC)
 
 # to disable checking of assert() use the following:
@@ -74,11 +74,11 @@ endif
 
 # for profiling:
 #CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-#LFLAGS = -pg $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+#LFLAGS = -pg -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for coverage:
 #CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-#LFLAGS = --coverage -fprofile-arcs $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+#LFLAGS = --coverage -fprofile-arcs -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
@@ -89,7 +89,7 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
@@ -97,12 +97,13 @@ ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc swan_hom_test.cc pari_snf.cc
+ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc swan_hom_test.cc
+ccs8: pari_snf.cc flint_snf.cc
 
 Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
-swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h
+swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
 headers: Q_headers quad_headers swan_headers
 
 %.o:   %.cc
@@ -142,7 +143,9 @@ BASIC_TESTS = tquads tratquad looptest qidltest
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
 #HOM_TESTS =
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
+#NF_TESTS =
 FULL_TESTS = modularity modularity_modp  #makenf_modp
+#FULL_TESTS =
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
 #GLOBAL_TESTS =
@@ -196,7 +199,7 @@ Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
 QUAD_OBJS = quads.o euclid.o geometry.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o
-SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o pari_snf.o
+SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o pari_snf.o flint_snf.o
 
 OBJS = $(Q_OBJS) $(QUAD_OBJS) $(SWAN_OBJS)
 objs: $(OBJS)
