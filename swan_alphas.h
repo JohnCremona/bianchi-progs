@@ -11,6 +11,13 @@ CuspList sort_alphas(const CuspList& A,
                      vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
                      int verbose=0, int debug=0);
 
+// Return sorted list of (saturated covering) alphas (denom 1, denom
+// 2, denom 3, then larger denoms in orbit pairs or fours) and fill triples
+// with {s,r1,r2} where r1*r2=-1 (mod s)
+CuspList alpha_orbits(const CuspList& alist,
+                      vector<vector<Quad>>& triples,
+                      int verbose=0, int debug=0);
+
 // Output sorted list of alphas (denom > 3 in pairs or fours)
 void output_alphas(const vector<vector<Quad>>& pluspairs,
                    const vector<vector<Quad>>& minuspairs,
@@ -20,10 +27,6 @@ void output_alphas(const vector<vector<Quad>>& pluspairs,
 // direct lists of alphas of denominator 2 or 3:
 CuspList denom_2_alphas();
 CuspList denom_3_alphas();
-
-// Given a principal cusp a0, and a list of others, alist, return the
-// list of b in alist which intersect a0 in 2 distinct points.
-CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist);
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and
 // S_a2 intersect in distinct points, test whether S_a covers either
@@ -133,4 +136,12 @@ int are_sigmas_surrounded(const CuspList& slist, const CuspList& alist, int debu
 // test if one singular point (sigma) is surrounded by alpha circles:
 int is_sigma_surrounded(const RatQuad& sigma, const CuspList& alist, int debug=0);
 
+// Output string for one alpha orbit
+// Returns "A sr si r1r r1i r2r r2i" for alphas r1/s, r2/s with r1*r2=-1 (mod s)
+string make_A_line(const Quad& s, const Quad& r1, const Quad& r2);
+// same with parameter {s,r1,r2};
+inline string make_A_line(const vector<Quad>& sr1r2)
+{
+  return make_A_line(sr1r2[0], sr1r2[1], sr1r2[2]);
+}
 #endif

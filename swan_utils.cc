@@ -685,3 +685,12 @@ H3pointList H3point_shifts(const H3point& P, const vector<Quad>& sh)
   return Qlist;
 }
 
+// Given a principal cusp a0, and a list of others, alist, return the
+// list of b in alist which intersect a0 in 2 distinct points.
+CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist)
+{
+  CuspList blist;
+  std::copy_if(alist.begin(), alist.end(), std::back_inserter(blist),
+               [a0](const RatQuad& b){return circles_intersect(a0, b);});
+  return blist;
+}

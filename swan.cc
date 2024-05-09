@@ -578,12 +578,93 @@ H3pointList SwanData::find_corners_from_one(const RatQuad& a, int& redundant, in
   return new_corners;
 }
 
-// Find potential corners, store in class's corners list
-void SwanData::new_find_corners(int verbose)
+// Populate the corners list, using preexisting alist and alistF4
+
+void SwanData::find_corners(int debug)
 {
   string step = "SwanData::find_corners()";
   SwanTimer.start(step);
-  corners = triple_intersections(alist, verbose);
+
+  if (debug)
+    cout << "Finding triple intersections for " <<alist.size()<<" alphas..."<<endl;
+
+  // Extend alistF4 by 8 translations:
+  CuspList alistF4X;
+  for ( auto& z : alistF4)
+    {
+      CuspList z_nbrs = F4nbrs(z);
+      alistF4X.insert(alistF4X.end(), z_nbrs.begin(), z_nbrs.end());
+    }
+  int n=alistF4X.size();
+  if (debug)
+    cout << n <<" neighbours of these: " << alistF4X << endl;
+
+  // For each i get a list of j>i for which S_ai and S_aj intersect properly
+  map <int, vector<int> > i2j;
+  int i=0;
+  for ( const auto& a : alistF4X)
+    {
+      vector<int> i2j_i;
+      for (int j = i+1; j<n; j++)
+        if (circles_intersect(a, alistF4X[j]))
+          i2j_i.push_back(j);
+      i2j[i] = i2j_i;
+      i++;
+    }
+  if (debug)
+    cout << " finished making i2j" <<endl;
+
+  // Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
+
+  vector<vector<int>> ijk_list;
+  for (const auto& i_j_list : i2j)
+    {
+      i = i_j_list.first;
+      vector<int> j_list = i_j_list.second;
+      for (const auto& j : j_list)
+        for (const auto& k : j_list)
+          if (std::find(i2j[j].begin(), i2j[j].end(), k) != i2j[j].end()) // k is in i2j[j]
+            ijk_list.push_back({i,j,k});
+    }
+
+  if (debug)
+    cout <<" finished making ijk_list: "<<ijk_list.size()<<" triples\n";
+
+  for ( const auto& ijk : ijk_list)
+    {
+      i=ijk[0]; int j=ijk[1], k=ijk[2];
+      H3pointList points1 = tri_inter_points(alistF4X[i], alistF4X[j], alistF4X[k]);
+      if (points1.empty())
+        continue;
+      H3point P = points1.front();
+      RatQuad z = P.z;
+      RAT t2 = P.t2;
+      if (t2.sign()==0)
+        continue;
+      if (debug>2)
+        cout << " found P = "<<P<<"\n";
+      if (!z.in_quarter_rectangle())
+        continue;
+      if (std::find(corners.begin(), corners.end(), P) != corners.end())
+        continue;
+      if (is_under_any(P, alistF4X))
+        continue;
+      // These corners are in F4, so we apply symmetries to get all those in F:
+      RatQuad zbar = z.conj();
+      for (const auto& z2 : {z, -z, zbar, -zbar})
+        {
+          if (!z2.in_rectangle())
+            continue;
+          H3point P2 = {z2, t2};
+          if (std::find(corners.begin(), corners.end(), P2) != corners.end())
+            continue;
+          if (debug)
+            cout << " adding P2 = "<<P2<<" from (i,j,k) = "<< ijk <<endl;
+          corners.push_back(P2);
+        }
+    }
+  if (debug)
+    cout << " found "<<corners.size() <<" corners" <<endl;
   H3pointList cornersx;
   for ( const auto& P : corners)
     {
@@ -599,10 +680,11 @@ void SwanData::new_find_corners(int verbose)
   CuspList alist0 = remove_redundants(alist, cornersx);
   if (alist.size() > alist0.size())
     {
-      if (verbose)
+      if (debug)
         cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
       alist = alist0;
     }
+
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
@@ -900,4 +982,54 @@ void SwanData::saturate_alphas(int verbose)
   std::sort(alist.begin(), alist.end(), Cusp_cmp);
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
+}
+
+void SwanData::output_sigmas(int include_small_denoms, string subdir)
+{
+  make_sigmas();
+  vector<Quad> small_denoms;
+  if (!include_small_denoms) small_denoms  = {Quad(0), Quad(1), Quad(2), Quad(3)};
+  ofstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str(), ios_base::app);
+
+  int nlines=0;
+  CuspList sigmas_output; // record when s is output so -s is not also output
+  for ( const auto& s : slist)
+    {
+      if (std::find(small_denoms.begin(), small_denoms.end(), s.den()) != small_denoms.end())
+        continue;
+      // do not output s if s or -s already output
+      if (std::find(sigmas_output.begin(), sigmas_output.end(), s) != sigmas_output.end())
+        continue;
+      nlines++;
+      sigmas_output.push_back(s);
+      sigmas_output.push_back(-s);
+      geodata << make_S_line(s) << endl;
+    }
+  geodata.close();
+}
+
+void SwanData::output_alphas(int include_small_denoms, string subdir)
+{
+  vector<vector<Quad>> triples;
+  CuspList new_alist = alpha_orbits(alist, triples);
+
+  vector<Quad> small_denoms;
+  if (!include_small_denoms) small_denoms  = {Quad(0), Quad(1), Quad(2), Quad(3)};
+
+  ofstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str()); //  , ios_base::app);
+
+  for ( const auto& sr1r2 : triples)
+    {
+      if (std::find(small_denoms.begin(), small_denoms.end(), sr1r2[0]) == small_denoms.end())
+        geodata << make_A_line(sr1r2) <<endl;
+    }
+  geodata.close();
 }

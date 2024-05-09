@@ -15,16 +15,26 @@ public:
   H3pointList corners;
 
   SwanData(int s=0) :showtimes(s), maxn(0) {;}
+
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
     return slist;
   }
+  void output_sigmas(int include_small_denoms=0, string subdir="");
+
   void make_alphas(int verbose=0);
   CuspList get_alphas(int verbose=0) {
     make_alphas(verbose);
     return alist;
   }
+  void output_alphas(int include_small_denoms=0, string subdir="");
+  void output_alphas_and_sigmas(int include_small_denoms=0, string subdir="")
+  {
+    output_alphas(include_small_denoms, subdir);
+    output_sigmas(include_small_denoms, subdir);
+  }
+
   H3pointList get_corners() const {
     return corners;
   }
@@ -58,9 +68,9 @@ private:
 
   // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
   // (called only by saturate_alphas())
-  void find_corners(int verbose=0) {return new_find_corners(verbose);}
+  void find_corners(int verbose=0);
   void old_find_corners(int verbose=0);
-  void new_find_corners(int verbose=0);
+
   // After an unsuccessful saturation loop which produces extra alphas
   // properly covering some old corners, use these to compute more corners
   // (called only by saturate_alphas())

@@ -197,5 +197,9 @@ CuspList cusp_shifts(const CuspList& alist, const vector<Quad>& sh);
 // return list of shifts of P by s in sh:
 H3pointList H3point_shifts(const H3point& P, const vector<Quad>& sh);
 
+// Given a principal cusp a0, and a list of others, alist, return the
+// list of b in alist which intersect a0 in 2 distinct points.
+CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist);
+
 
 #endif

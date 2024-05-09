@@ -209,12 +209,12 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
 
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 
-string make_S_line(const RatQuad& sig)
+string make_S_line(const RatQuad& s)
 {
   ostringstream ost;
   ost << Quad::d << " S ";
-  ost << sig.num().re() << " " << sig.num().im() << " ";
-  ost << sig.den().re() << " " << sig.den().im();
+  ost << s.num().re() << " " << s.num().im() << " ";
+  ost << s.den().re() << " " << s.den().im();
   return ost.str();
 }
 

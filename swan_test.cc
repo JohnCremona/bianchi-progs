@@ -164,6 +164,9 @@ int main ()
       cout << SDcorners.size() << " corners found by SwanData"<<endl;
       tim.stop(method);
       cout<<"...done: "; tim.show(1, method);
+      string subdir = "xgeodata";
+      cout<<"SwanData A- and S- data output to " << subdir << "/geodata_" << Quad::d << ".dat" << endl;
+      SD.output_alphas_and_sigmas(0,subdir);
       // tim.showAll();
 
       new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data

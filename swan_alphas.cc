@@ -277,6 +277,43 @@ string make_A_line(const Quad& s, const Quad& r1, const Quad& r2)
   return ost.str();
 }
 
+CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int verbose, int debug)
+{
+  vector<vector<Quad>> pluspairs, minuspairs, fours;
+  CuspList new_alist = sort_alphas(alist, pluspairs, minuspairs, fours, verbose, debug);
+  triples.reserve(pluspairs.size() + minuspairs.size() + fours.size());
+  for ( const auto& rs : pluspairs)
+    triples.push_back({rs[1], rs[0], -rs[0]});
+  for ( const auto& rs : minuspairs)
+    triples.push_back({rs[1], rs[0], rs[0]});
+  for ( const auto& sr1r2 : fours)
+    triples.push_back(sr1r2);
+  return new_alist;
+}
+
+void output_alphas(const vector<vector<Quad>>& triples,
+                   int to_file, int to_screen)
+{
+  vector<Quad> small_denoms = {Quad(0), Quad(1), Quad(2), Quad(3)};
+  ofstream geodata;
+  stringstream ss;
+  if (to_file)
+    {
+      ss << "geodata_" << Quad::d << ".dat";
+      geodata.open(ss.str().c_str()); //  , ios_base::app);
+    }
+  for ( const auto& sr1r2 : triples)
+    {
+      if (std::find(small_denoms.begin(), small_denoms.end(), sr1r2[0]) != small_denoms.end())
+        continue;
+      string st = make_A_line(sr1r2);
+      if (to_file)
+        geodata << st <<endl;
+      if (to_screen)
+        cout << st << endl;
+    }
+}
+
 void output_alphas(const vector<vector<Quad>>& pluspairs,
                    const vector<vector<Quad>>& minuspairs,
                    const vector<vector<Quad>>& fours,
@@ -311,16 +348,6 @@ void output_alphas(const vector<vector<Quad>>& pluspairs,
     nlines += output3(sr1r2[0], sr1r2[1], sr1r2[2]);
   // if (to_file || to_screen)
   //   cout << nlines << " A-lines output"<<endl;
-}
-
-// Given a principal cusp a0, and a list of others, alist, return the
-// list of b in alist which intersect a0 in 2 distinct points.
-CuspList intersecting_alphas(const RatQuad& a0, const CuspList& alist)
-{
-  CuspList blist;
-  std::copy_if(alist.begin(), alist.end(), std::back_inserter(blist),
-               [a0](const RatQuad& b){return circles_intersect(a0, b);});
-  return blist;
 }
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and
