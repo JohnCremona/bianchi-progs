@@ -14,7 +14,7 @@ public:
   CuspList slist;
   H3pointList corners;
 
-  SwanData() :maxn(0) {;}
+  SwanData(int s=0) :showtimes(s), maxn(0) {;}
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
@@ -30,6 +30,8 @@ public:
   }
 
 private:
+  timer SwanTimer;
+  int showtimes;
   Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   CuspList alistx; // list of alphas + 8 integer translates
   CuspList alistF4; // sublist of those in quarter rectangle
@@ -56,7 +58,9 @@ private:
 
   // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
   // (called only by saturate_alphas())
-  void find_corners(int verbose=0);
+  void find_corners(int verbose=0) {return new_find_corners(verbose);}
+  void old_find_corners(int verbose=0);
+  void new_find_corners(int verbose=0);
   // After an unsuccessful saturation loop which produces extra alphas
   // properly covering some old corners, use these to compute more corners
   // (called only by saturate_alphas())

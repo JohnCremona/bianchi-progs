@@ -60,6 +60,8 @@ int main ()
 
       verbose = VERBOSE;
       debug = DEBUG;
+      string step = "finding sigmas";
+      tim.start(step);
       auto new_sigmas = singular_points();
       auto sorted_sigmas = sort_singular_points(new_sigmas);
       if (debug)
@@ -67,10 +69,14 @@ int main ()
       if (debug||verbose)
         cout<<"After  sorting, "<<sorted_sigmas.size()<<" sigmas:\n"<<sorted_sigmas<<endl;
       new_sigmas = sorted_sigmas;
+      tim.stop(step);
+      if (debug||verbose) tim.show(1, step);
 
       //test_principal_cusps(20, 30);
       verbose = VERBOSE;
       debug = DEBUG;
+      step = "covering alphas";
+      tim.start(step);
       auto new_alphas = covering_alphas(new_sigmas, verbose);
       INT maxn = max_dnorm(new_alphas);
       if (verbose)
@@ -79,15 +85,24 @@ int main ()
           if (debug) cout << ": " << new_alphas || "\n";
           cout << " with max dnorm = " << maxn <<endl;
         }
+      tim.stop(step);
+      if (debug||verbose) {cout<<step<<"...done: "; tim.show(1, step);}
 
       verbose = VERBOSE;
       debug = DEBUG;
+      step = "saturating alphas";
+      tim.start(step);
       new_alphas = saturate_covering_alphas(new_alphas, new_sigmas, maxn, debug, verbose);
       maxn = max_dnorm(new_alphas);
       if (verbose)
         cout << new_alphas.size() << " saturated alphas, max denom norm = " << maxn <<endl;
       if (debug || (verbose && new_alphas.size()<20))
         cout << new_alphas << endl;
+      tim.stop(step);
+      if (debug||verbose) {cout<<step<<"...done: "; tim.show(1, step);}
+
+      step = "intersection points";
+      tim.start(step);
       auto points = triple_intersections(new_alphas);
       RAT minht = points[0].t2;
       std::for_each(points.begin(), points.end(),
@@ -101,8 +116,13 @@ int main ()
       // d=7(8), we use (1-w)/2 though (w-1)/2 is in rectangle
       // d=3(12), we use (-1-w)/3 though (2-w)/3 is in rectangle
       // assert (std::all_of(new_sigmas.begin(), new_sigmas.end(), [](const RatQuad& a) {return a.in_rectangle();}));
+      tim.stop(step);
+      if (debug||verbose) {cout<<step<<"...done: "; tim.show(1, step);}
 
       // Sort and output alphas:
+
+      step = "alpha sorting";
+      tim.start(step);
       vector<vector<Quad>> pluspairs, minuspairs, fours;
       verbose = VERBOSE;
       debug = DEBUG;
@@ -112,8 +132,11 @@ int main ()
       if (debug||verbose)
         cout<<"After  sorting, alphas:\n"<<sorted_alphas<<endl;
       new_alphas = sorted_alphas;
+      tim.stop(step);
+      if (debug||verbose) {cout<<step<<"...done: "; tim.show(1, step);}
       tim.stop(method);
-      cout<<"...done: "; tim.show(0, method); cout<<endl;
+      cout<<method<<"...done: "; tim.show(1, method);
+      // tim.showAll();
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
 
@@ -130,7 +153,7 @@ int main ()
       cout << "Creating SwanData object"<<endl;
       method = "SwanData";
       tim.start(method);
-      SwanData SD;
+      SwanData SD(verbose); // 1 means show times for each step
       cout << "Using SwanData object to create sigmas:"<<endl;
       auto SDsigmas = SD.get_sigmas();
       cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
@@ -139,8 +162,9 @@ int main ()
       cout << SDalphas.size() << " alphas found by SwanData"<<endl;
       auto SDcorners = SD.get_corners();
       cout << SDcorners.size() << " corners found by SwanData"<<endl;
-      tim.stopAll();
-      cout<<"...done: "; tim.show(0, method); cout<<endl;
+      tim.stop(method);
+      cout<<"...done: "; tim.show(1, method);
+      // tim.showAll();
 
       new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
       new_sigmas = SDsigmas; //

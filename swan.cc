@@ -7,6 +7,8 @@
 void SwanData::make_sigmas() {
   if (slist.empty())
     {
+      string step = "SwanData::make_sigmas()";
+      SwanTimer.start(step);
       slist = sort_singular_points(singular_points());
       slistx.clear();
       for (const auto& s : slist)
@@ -16,15 +18,21 @@ void SwanData::make_sigmas() {
           CuspList s_sh = cusp_shifts(s, Quad::shifts_by_one);
           slistx.insert(slistx.end(), s_sh.begin(), s_sh.end());
         }
+      SwanTimer.stop(step);
+      if (showtimes) SwanTimer.show(1, step);
     }
 }
 
 void SwanData::make_alphas(int verbose) {
   if (alist.empty())
     {
+      string step = "SwanData::make_alphas()";
+      SwanTimer.start(step);
       make_sigmas();
       find_covering_alphas(verbose);
       saturate_alphas(verbose);
+      SwanTimer.stop(step);
+      if (showtimes) SwanTimer.show(1, step);
     }
 }
 
@@ -172,6 +180,8 @@ int SwanData::add_new_alphas(int verbose)
 
 void SwanData::find_covering_alphas(int verbose)
 {
+  string step = "SwanData::find_covering_alphas()";
+  SwanTimer.start(step);
   int ok=0;
   while (!ok)
     {
@@ -192,6 +202,8 @@ void SwanData::find_covering_alphas(int verbose)
   alist = alist_ok;
   if (verbose)
     cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<"\n";
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
 // test if a is singular by reducing to rectangle and comparing with
@@ -451,6 +463,8 @@ H3pointList SwanData::singular_corners(const RatQuad& a)
 // set to 1 if a has <3 corners (including singular ones).
 H3pointList SwanData::find_corners_from_one(const RatQuad& a, int& redundant, int verbose)
 {
+  string step = "SwanData::find_corners_from_one()";
+  SwanTimer.start(step);
   int debug = verbose;
   Quad t;
   H3pointList new_corners; // list of corners to be returned (and then added to class global corners)
@@ -559,13 +573,46 @@ H3pointList SwanData::find_corners_from_one(const RatQuad& a, int& redundant, in
       cout<<"  "<<a<<" has "<<n<<" corners (including singular corners) so ";
       cout<<(redundant?"IS":"is NOT")<<" redundant\n\n";
     }
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
   return new_corners;
+}
+
+// Find potential corners, store in class's corners list
+void SwanData::new_find_corners(int verbose)
+{
+  string step = "SwanData::find_corners()";
+  SwanTimer.start(step);
+  corners = triple_intersections(alist, verbose);
+  H3pointList cornersx;
+  for ( const auto& P : corners)
+    {
+      auto Ps = H3point_shifts(P, Quad::shifts_by_one);
+      cornersx.insert(cornersx.end(), Ps.begin(), Ps.end());
+    }
+  H3pointList s_corners(slistx.size());
+  const RAT zero(0);
+  std::transform(slistx.begin(), slistx.end(), s_corners.begin(),
+                 [zero] (const RatQuad& s) {return H3point({s,zero});});
+  cornersx.insert(cornersx.end(), s_corners.begin(), s_corners.end());
+
+  CuspList alist0 = remove_redundants(alist, cornersx);
+  if (alist.size() > alist0.size())
+    {
+      if (verbose)
+        cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
+      alist = alist0;
+    }
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
 // Find potential corners, store in class's corners list, replacing
 // alistF4 with sublist of alphas in F4 on >=3 corners
-void SwanData::find_corners(int verbose)
+void SwanData::old_find_corners(int verbose)
 {
+  string step = "SwanData::old_find_corners()";
+  SwanTimer.start(step);
   int debug = verbose>1;
   if (verbose)
     {
@@ -603,11 +650,9 @@ void SwanData::find_corners(int verbose)
   // re-expand to full alist excluding redundants
   // NB We will not need alistx again; if that changes, need to update it here
   auto nalist = alist.size();
-  if (verbose>1)
-    {
-      cout << "Old alist: "<<alist<<endl;
-    }
+  if (verbose>1) cout << "Old alist: "<<alist<<endl;
   alist = alistF4;
+
   for (const auto& a : alistF4)
     {
       RatQuad abar = a.conj();
@@ -629,6 +674,8 @@ void SwanData::find_corners(int verbose)
             cout << "New alist: "<<alist<<endl;
         }
     }
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
 // After an unsuccessful saturation loop which produces extra alphas a
@@ -653,6 +700,8 @@ H3pointList SwanData::find_extra_corners(const CuspList& extra_alphas)
 
 void SwanData::saturate_alphas(int verbose)
 {
+  string step = "SwanData::saturate_alphas()";
+  SwanTimer.start(step);
   int debug = verbose>0;
   int already_saturated = 1; // will flip to 0 if any new alphas are added
   auto nalist = alist.size();
@@ -849,4 +898,6 @@ void SwanData::saturate_alphas(int verbose)
 
   // (re)sort alist before returning:
   std::sort(alist.begin(), alist.end(), Cusp_cmp);
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
