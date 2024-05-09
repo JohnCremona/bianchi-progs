@@ -27,5 +27,6 @@ CuspList sort_singular_points(const CuspList& S, int verbose=0);
 // Output sorted list of singular points (oo, denom 2, denom 3, larger denoms in +/- pairs)
 void output_singular_points(const CuspList& S, int to_file=1, int to_screen=0);
 
+vector<RatQuad> test_singular_points(int output_level=0);
 
 #endif

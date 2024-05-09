@@ -159,6 +159,17 @@ CuspList principal_cusps_with_denominators(const vector<Quad>& slist)
   return alist;
 }
 
+void test_principal_cusps(int n1, int n2)
+{
+  for (int n=1; n<=n1; n++)
+    {
+      auto alist = principal_cusps_of_dnorm(INT(n));
+      cout << "Principal cusps of denominator norm "<<n<<": "<<alist<<endl;
+    }
+  auto alist = principal_cusps_of_dnorm_up_to(INT(n2));
+  cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alist<<endl;
+}
+
 // det([[a1,a2,a3],[a1bar,a2bar,a3bar],[1,1,1]])
 RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3)
 {

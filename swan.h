@@ -28,6 +28,7 @@ public:
   H3pointList get_corners() const {
     return corners;
   }
+
 private:
   Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   CuspList alistx; // list of alphas + 8 integer translates
@@ -37,36 +38,49 @@ private:
   map<RatQuad, CuspList, RatQuad_comparison> nbrs, nbrs_ok, nbrs_open;
   CuspList slistx; // list of sigmas + 8 integer translates
 
-  // add one alpha; use covered=1 after fiding covering alohas and
-  // saturating with more
+  // add one alpha; use covered=1 after finding covering alphas and saturating with more
+  // (called by add_new_alphas() and by saturate_aphas())
   int add_one_alpha(const RatQuad& a, int covered=0, int verbose=0);
+
   // add next batch of alphas from denom_looper, return number added
+  // (called only by find_covering_alphas())
   int add_new_alphas(int verbose=0);
 
+  // (called only by make_alphas())
   void find_covering_alphas(int verbose=0);
+  void saturate_alphas(int verbose=0);
 
   // list of singular corners [s,0] on S_a (s in slist or a translate)
+  // (called only by find_corners_from_one())
   H3pointList singular_corners(const RatQuad& a);
 
   // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
+  // (called only by saturate_alphas())
   void find_corners(int verbose=0);
-  // Find corners from one alpha.  The new corners are not added to the class list points, but are returned.
-  // The parameter redundant is set to 1 if a has <3 corners (including singular ones).
-  H3pointList find_corners_from_one(const RatQuad& a, int& redundant, int verbose=0);
   // After an unsuccessful saturation loop which produces extra alphas
-  // properly covering some old corners, use these to compute more
-  // corners
+  // properly covering some old corners, use these to compute more corners
+  // (called only by saturate_alphas())
   H3pointList find_extra_corners(const CuspList& extra_alphas);
-  void saturate_alphas(int verbose=0);
+  // Find corners from one alpha.  The new corners are not added to
+  // the class list points, but are returned.  The parameter redundant
+  // is set to 1 if a has <3 corners (including singular ones).
+  // (called only by find_corners() and find_extra_corners())
+  H3pointList find_corners_from_one(const RatQuad& a, int& redundant, int verbose=0);
 
-  int is_sigma_surrounded(const RatQuad& s, int verbose=0);
+  // (called only by are_alphas_surrounded())
   int are_sigmas_surrounded(int verbose=0);
-  // test if a is singular by reducing to recatngle and comparing with slist
-  int is_singular(const RatQuad& a);
+  // (called only by are_sigmas_surrounded())
+  int is_sigma_surrounded(const RatQuad& s, int verbose=0);
 
-  int is_alpha_surrounded(const RatQuad& a, int verbose=0);
-  int are_intersection_points_covered(const RatQuad& a, const RatQuad& b, int verbose=0);
+  // (called only by find_covering_alphas())
   int are_alphas_surrounded(int verbose=0);
+  // (called only by are_alphas_surrounded())
+  int is_alpha_surrounded(const RatQuad& a, int verbose=0);
+  // (called only by are_alphas_surrounded())
+  int are_intersection_points_covered(const RatQuad& a, const RatQuad& b, int verbose=0);
+  // test if a is singular by reducing to rectangle and comparing with slist
+  // (called only by are_intersection_points_covered())
+  int is_singular(const RatQuad& a);
 };
 
 #endif

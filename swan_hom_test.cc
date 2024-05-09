@@ -1,9 +1,6 @@
-#include "swan_sigmas.h"
-#include "swan_alphas.h"
-#include "swan_tess.h"
-#include "swan_hom.h"
-#include "swan.h"
 #include "geometry.h"
+#include "swan_tess.h" // for remake_triangle
+#include "swan_hom.h"  // for integral_homology
 
 #define MAX_DISC 100
 #define MIN_DISC 0

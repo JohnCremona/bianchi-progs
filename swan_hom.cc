@@ -278,10 +278,10 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       if (!GL2)
         {
           vector<int> row2(ncols, 0);
-          j = cusp_index_with_translation(RatQuad(-r1i,s), alphas, temp);
+          j = cusp_index_with_translation(RatQuad(-r1i,si), alphas, temp);
           assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
-          j = cusp_index_with_translation(RatQuad(-r2i,s), alphas, temp);
+          j = cusp_index_with_translation(RatQuad(-r2i,si), alphas, temp);
           assert ((j>=0)&&(j<nalphas));
           row2[j] +=1;
           M.push_back(row2);

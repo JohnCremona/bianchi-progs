@@ -10,39 +10,6 @@
 #define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
-vector<RatQuad> test_singular_points(int output_level=0)
-{
-  if (output_level>=3)
-    for (auto I : Quad::class_group)
-      {
-        cout<<"Ideal class ["<<I<<"]: ";
-        cout<<"singular points "<<singular_points_in_class(I,(output_level>3))<<endl;
-      }
-  auto sigs = singular_points();
-  if (output_level>=1)
-    cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
-  if (output_level>=2)
-    cout << "Unsorted singular points: "<<sigmas<<endl;
-  sigs = sort_singular_points(sigs);
-  if (output_level>=1)
-    cout << "Sorted singular points: "<<sigmas<<endl;
-  int to_file=0; //(output_level>=1);
-  int to_screen=0; //(output_level>=2);
-  output_singular_points(sigs, to_file, to_screen);
-  return sigs;
-}
-
-void test_principal_cusps(int n1=20, int n2=100)
-{
-  for (int n=1; n<=n1; n++)
-    {
-      auto alist = principal_cusps_of_dnorm(INT(n));
-      cout << "Principal cusps of denominator norm "<<n<<": "<<alist<<endl;
-    }
-  auto alist = principal_cusps_of_dnorm_up_to(INT(n2));
-  cout << "Principal cusps of denominator norm up to "<<n2<<": "<<alist<<endl;
-}
-
 int main ()
 {
 
@@ -73,13 +40,17 @@ int main ()
         cout << "-------------------------------------" <<endl;
 
       if (verbose)
-        {
-          Quad::displayfield(cout);
-        }
+        Quad::displayfield(cout);
       else
         cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = "<<D<<endl;
 
       //test_principal_cusps(20,20);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Old code for finding alphas and sigmas using swan_alphas and swan_sigmas, not SwanData class
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 
       cout << "Finding sigmas and alphas (old method)"<<endl;
 
@@ -146,6 +117,12 @@ int main ()
       output_alphas(pluspairs, minuspairs, fours, to_file, to_screen);
       output_singular_points(new_sigmas, to_file, to_screen);
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// New code for finding alphas and sigmas using SwanData class (not swan_alphas and swan_sigmas)
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
       // Create SwanData object
       verbose = VERBOSE;
       debug = DEBUG;
@@ -167,6 +144,12 @@ int main ()
 
       new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
       new_sigmas = SDsigmas; //
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Compare alphas and sigmas found using old and new code
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 
       if (D<1000)
         {
@@ -232,7 +215,13 @@ int main ()
         }
         } // end of code to compare new and old
 
-      continue; // while testing SwanData only
+      // continue; // while testing SwanData only
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Use alphas and sigmas to find tesseallation
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 
       alphas = new_alphas; // overwrite the globals with our lists
       sigmas = new_sigmas; //
@@ -251,7 +240,9 @@ int main ()
           cout << sigma << " has " << n << " neighbours (sorted): " << sigma_nbrs << endl;
         }
 #endif
+
       // Find all principal polyhedra:
+
       verbose = VERBOSE;
       cout << "Constructing principal polyhedra from alphas";
       if (debug) cout << ": "<<alphas;
@@ -268,7 +259,9 @@ int main ()
         poly_counts[poly_name(P)]++;
       for (const auto& pc : poly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
+
       // Find all singular polyhedra:
+
       verbose = VERBOSE;
       cout << "Constructing singular polyhedra..."<<flush;
       vector<POLYHEDRON> sing_polys = singular_polyhedra(sigmas, alphas, verbose);
@@ -283,8 +276,13 @@ int main ()
       for (const auto& pc : spoly_counts)
         cout<<pc.second<<" "<<pc.first << (pc.second>1?"s":"") << endl;
 
+      // Merge principal and singular polyhedra:
+
       vector<POLYHEDRON> all_polys = sing_polys;
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
+
+
+      // Get faces and M32 (= matrix of delta: 3-cells --> 2-cells) from polyhedra:
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
       vector<vector<int>> M32;
@@ -295,7 +293,8 @@ int main ()
 
       verbose = VERBOSE;
 
-      // split up faces into 4 types for reporting and output:
+      // Split up faces into 4 types for reporting and output:
+
       vector<CuspList> aaa, aas, sqs, hexs;
       cout << "Faces up to GL2-action and reflection:\n";
       int sing, i=0;
@@ -339,6 +338,8 @@ int main ()
             cout<<i<<" ("<<s<<"): "<<face<<endl;
           i++;
         }
+
+      // Report on faces found, and check their encodings for consistency:
 
       verbose = VERBOSE;
       int all_ok = 1;

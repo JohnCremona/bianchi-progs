@@ -263,7 +263,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
           // delete y from ends[x]
           if (verbose>1)
             cout<<" removing directed edge from "<<xj<<" to "<<y<<endl;
-          ends[x].erase(std::remove(ends[xj].begin(), ends[xj].end(), y), ends[xj].end());
+          ends[xj].erase(std::remove(ends[xj].begin(), ends[xj].end(), y), ends[xj].end());
           nde--;
           if (verbose>1)
             cout<<"Now the face is "<<face<<endl;
@@ -367,7 +367,7 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
       cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
       cout << " - now filling in face data..."<<endl;
     }
-  fill_faces(poly, verbose>1);
+  fill_faces(poly, verbose);
   if (verbose)
     {
       cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;

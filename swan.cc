@@ -309,7 +309,6 @@ int SwanData::is_alpha_surrounded(const RatQuad& a, int verbose)
   for ( auto it = a_nbrs_open.begin(); it!=a_nbrs_open.end(); )
     {
       RatQuad b = *it;
-      //if (::are_intersection_points_covered(a, b, alistx, slist, debug))
       if (are_intersection_points_covered(a, b, debug))
         {
           // record that this pair is ok

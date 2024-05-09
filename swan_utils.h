@@ -92,6 +92,8 @@ CuspList principal_cusps_with_denominator(const Quad& s);
 // list of principal cusps with denominator in given list
 CuspList principal_cusps_with_denominators(const vector<Quad>& slist);
 
+void test_principal_cusps(int n1=20, int n2=100);
+
 // det([[a1,a2,a3],[a1bar,a2bar,a3bar],[1,1,1]])
 RatQuad tri_det(const RatQuad& a1, const RatQuad& a2, const RatQuad& a3);
 
@@ -194,5 +196,6 @@ CuspList cusp_shifts(const CuspList& alist, const vector<Quad>& sh);
 
 // return list of shifts of P by s in sh:
 H3pointList H3point_shifts(const H3point& P, const vector<Quad>& sh);
+
 
 #endif

@@ -253,3 +253,26 @@ void output_singular_points(const CuspList& S, int to_file, int to_screen)
   if (to_screen)
     cout << nlines << " S lines output" <<endl;
 }
+
+
+vector<RatQuad> test_singular_points(int output_level)
+{
+  if (output_level>=3)
+    for (auto I : Quad::class_group)
+      {
+        cout<<"Ideal class ["<<I<<"]: ";
+        cout<<"singular points "<<singular_points_in_class(I,(output_level>3))<<endl;
+      }
+  auto sigs = singular_points();
+  if (output_level>=1)
+    cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
+  if (output_level>=2)
+    cout << "Unsorted singular points: "<<sigmas<<endl;
+  sigs = sort_singular_points(sigs);
+  if (output_level>=1)
+    cout << "Sorted singular points: "<<sigmas<<endl;
+  int to_file=0; //(output_level>=1);
+  int to_screen=0; //(output_level>=2);
+  output_singular_points(sigs, to_file, to_screen);
+  return sigs;
+}
