@@ -10,8 +10,22 @@
 
 class SwanData {
 public:
-  CuspList alist;
+
+  CuspList alist;               // Main list of alphas
+  std::set<Quad, Quad_comparison> a_denoms; // Denominators of alphas
+  map<vector<RAT>, int> a_ind;  // Index of an alpha in alist (from coords as key)
+  vector<int> a_inv;            // Permutation of order 2 swapping a to a' where M_a(oo)=a'
+  vector<int> a_flip;           // Permutation of order 2 swapping alpha to -alpha mod 1
+  vector<mat22> Mlist;          // List of M_a with det(M_a)=1 such that M_a(a)=oo and M_a(oo) in alphas
+  vector<int> edge_pairs_plus;  // indices of first of a pair (r/s, -r/s) with r^2=+1 (mod s)
+  vector<int> edge_pairs_minus; // indices of first of a pair (r/s, -r/s) with r^2=-1 (mod s)
+  vector<int> edge_fours;       // indices of first of a 4-tuple (r1,-r1,r2,-r2) of alphas with r1*r2=-1 (mod s)
+  vector<vector<Quad>> alpha_sets; // list of all {s, r1, r2} with r1*r2=-1(s)
+
   CuspList slist;
+  map<vector<RAT>, int> s_ind; // Index of a sigma in slist (from coords as key)
+  vector<int> s_flip;          // Permutation of order 2 swapping sigma to -sigma mod 1
+
   H3pointList corners;
 
   SwanData(int s=0) :showtimes(s), maxn(0) {;}
@@ -34,6 +48,7 @@ public:
     output_alphas(include_small_denoms, subdir);
     output_sigmas(include_small_denoms, subdir);
   }
+  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="");
 
   H3pointList get_corners() const {
     return corners;
@@ -95,6 +110,21 @@ private:
   // test if a is singular by reducing to rectangle and comparing with slist
   // (called only by are_intersection_points_covered())
   int is_singular(const RatQuad& a);
+
+  void process_sigma_orbit(const Quad& r, const Quad& s);
+  void process_sigma_orbit(const vector<Quad>& rs) {
+    process_sigma_orbit(rs[0], rs[1]);
+  }
+  void process_sigma_orbit(const RatQuad& sig) {
+    process_sigma_orbit(sig.num(), sig.den());
+  }
+
+  void process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2);
+  void process_alpha_orbit(const vector<Quad>& sr1r2) {
+    process_alpha_orbit(sr1r2[0], sr1r2[1], sr1r2[2]);
+  }
+
+  void make_alpha_orbits();
 };
 
 #endif

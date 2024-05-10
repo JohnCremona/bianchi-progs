@@ -147,7 +147,7 @@ int main ()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
       // Create SwanData object
-      verbose = VERBOSE;
+      verbose = 1; // VERBOSE;
       debug = DEBUG;
       cout<<"----------------------------------------------------------------------------------\n";
       cout << "Creating SwanData object"<<endl;
@@ -158,7 +158,7 @@ int main ()
       auto SDsigmas = SD.get_sigmas();
       cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
       cout << "Using SwanData object to create (covering, saturated) alphas:"<<endl;
-      auto SDalphas = SD.get_alphas(verbose);
+      auto SDalphas = SD.get_alphas(debug);
       cout << SDalphas.size() << " alphas found by SwanData"<<endl;
       auto SDcorners = SD.get_corners();
       cout << SDcorners.size() << " corners found by SwanData"<<endl;
@@ -223,10 +223,12 @@ int main ()
             {
               cout << "alphas DO NOT agree:\n";
               cout << alphas.size() << " old alphas";
-              if (verbose) cout << ": " <<alphas;
+              // if (verbose)
+                cout << ": " <<alphas;
               cout << endl;
               cout << new_alphas.size() << " new alphas";
-              if (verbose) cout << ": " <<new_alphas;
+              // if (verbose)
+                cout << ": " <<new_alphas;
               cout << endl;
               cout << "old not in new:\n";
               Quad temp;

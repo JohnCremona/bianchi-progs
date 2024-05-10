@@ -31,6 +31,7 @@ void SwanData::make_alphas(int verbose) {
       make_sigmas();
       find_covering_alphas(verbose);
       saturate_alphas(verbose);
+      make_alpha_orbits();
       SwanTimer.stop(step);
       if (showtimes) SwanTimer.show(1, step);
     }
@@ -1012,11 +1013,28 @@ void SwanData::output_sigmas(int include_small_denoms, string subdir)
   geodata.close();
 }
 
+void SwanData::make_alpha_orbits()
+{
+  string step = "SwanData::make_alpha_orbits()";
+  SwanTimer.start(step);
+  CuspList old_alist = alpha_orbits(alist, alpha_sets);
+  // cout<<"alpha_sets = "<<alpha_sets<<endl;
+  alist.clear();
+  for (const auto& sr1r2 : alpha_sets)
+    process_alpha_orbit(sr1r2);
+  assert (alist==old_alist);
+  // if (alist!=old_alist)
+  //   {
+  //     cout<<"Before make_alpha_orbits(), alist = "<<old_alist<<endl;
+  //     cout<<"After  make_alpha_orbits(), alist = "<<alist<<endl;
+  //     exit(1);
+  //   }
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
+}
+
 void SwanData::output_alphas(int include_small_denoms, string subdir)
 {
-  vector<vector<Quad>> triples;
-  CuspList new_alist = alpha_orbits(alist, triples);
-
   vector<Quad> small_denoms;
   if (!include_small_denoms) small_denoms  = {Quad(0), Quad(1), Quad(2), Quad(3)};
 
@@ -1026,10 +1044,258 @@ void SwanData::output_alphas(int include_small_denoms, string subdir)
   ss << "geodata_" << Quad::d << ".dat";
   geodata.open(ss.str().c_str()); //  , ios_base::app);
 
-  for ( const auto& sr1r2 : triples)
+  for ( const auto& sr1r2 : alpha_sets)
     {
       if (std::find(small_denoms.begin(), small_denoms.end(), sr1r2[0]) == small_denoms.end())
         geodata << make_A_line(sr1r2) <<endl;
+    }
+  geodata.close();
+}
+
+void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
+{
+  int n_sigmas = 0;
+  RatQuad sigma(r,s), msigma(-r,s);
+  Quad t;
+  slist.push_back(sigma);
+  if (!s.is_zero())
+    {
+      s_ind[sigma.coords()] = n_sigmas;
+      s_ind[reduce_to_rectangle(sigma, t).coords()] = n_sigmas;
+    }
+  if (s.is_zero() || s==TWO) // don't also include -sigma
+    {
+      s_flip.push_back(n_sigmas);     // identity
+      n_sigmas+=1;
+    }
+  else
+    {
+      slist.push_back(msigma);
+      s_ind[msigma.coords()] = n_sigmas+1;
+      s_ind[reduce_to_rectangle(msigma, t).coords()] = n_sigmas+1;
+      s_flip.push_back(n_sigmas+1);   // transposition with next
+      s_flip.push_back(n_sigmas);     // transposition with previous
+      n_sigmas+=2;
+    }
+}
+
+void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
+{
+  // cout<<"Processing alpha orbit ("<<s<<","<<r1<<","<<r2<<")\n";
+  int n_alphas = 0;
+  auto add_alpha = [this, &n_alphas](const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+  {
+    RatQuad alpha(-d,c);
+    alist.push_back(alpha);
+    mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
+    assert (M.is_unimodular());
+    Mlist.push_back(M);
+    a_denoms.insert(c);
+    a_ind[alpha.coords()] = n_alphas;
+    Quad t;
+    alpha_ind[reduce_to_rectangle(alpha, t).coords()] = n_alphas;
+    n_alphas++;
+  };
+
+  Quad t = -(r1*r2+Quad::one), two(2);
+  assert(div(s,t));
+  t /= s;
+  int s_divides_2 = div(s,two);
+
+  if (r1==r2) // "-" pair, r1^2=-1 (mod s)
+    {
+      edge_pairs_minus.push_back(n_alphas);
+      a_inv.push_back(n_alphas);   // identity
+      a_inv.push_back(n_alphas+1); // identity
+      a_flip.push_back(n_alphas+1);   // transposition with next
+      a_flip.push_back(n_alphas);     // transposition with previous
+      add_alpha( r1, t, s, -r1); // alpha =  r1/s
+      if (!s_divides_2)
+        add_alpha(-r1, t, s,  r1); // alpha = -r1/s
+      // cout<<"(-pair): alist is now "<<alist<<endl;
+      return;
+    }
+  if (r1==-r2) // "+" pair, r1^2=+1 (mod s)
+    {
+      edge_pairs_plus.push_back(n_alphas);
+      a_inv.push_back(n_alphas+1); // transposition with next
+      a_inv.push_back(n_alphas);   // transposition with previous
+      a_flip.push_back(n_alphas+1);   // transposition with next
+      a_flip.push_back(n_alphas);     // transposition with previous
+      add_alpha(-r1, t, s, -r1); // alpha =  r1/s
+      add_alpha( r1, t, s,  r1); // alpha = -r1/s
+      // cout<<"(+pair): alist is now "<<alist<<endl;
+      return;
+    }
+  // Now we have four distinct alphas
+  edge_fours.push_back(n_alphas);
+  a_inv.push_back(n_alphas+2);
+  a_inv.push_back(n_alphas+3);
+  a_inv.push_back(n_alphas);
+  a_inv.push_back(n_alphas+1);
+  a_flip.push_back(n_alphas+1);
+  a_flip.push_back(n_alphas);
+  a_flip.push_back(n_alphas+3);
+  a_flip.push_back(n_alphas+2);
+  add_alpha( r2, t, s, -r1); // alpha =  r1/s
+  if (!s_divides_2)
+    add_alpha(-r2, t, s,  r1); // alpha = -r1/s
+  add_alpha( r1, t, s, -r2); // alpha =  r2/s
+  if (!s_divides_2)
+    add_alpha(-r1, t, s,  r2); // alpha = -r2/s
+  // cout<<"(four): alist is now "<<alist<<endl;
+}
+
+void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
+{
+  alist.clear();
+  slist.clear();
+
+  // Start slist with sigma = oo:
+  slist = {RatQuad::infinity()};
+
+  // Add in alphas and sigmas with small denoms "manually" if they are not on file:
+
+  if (!include_small_denoms) // means they are *not* in the geodata file
+    {
+      int d = Quad::d;
+      int d8 = d%8, d12 = d%12;
+      Quad w = Quad::w, zero(0), one(1), two(2), three(3);
+
+      // sigmas of denom 2 and 3
+
+      if (Quad::class_number > 1)
+        {
+          switch (d8) {
+          case 1: case 5:
+            process_sigma_orbit(1+w,two);
+            break;
+          case 2: case 6:
+            process_sigma_orbit(w,two);
+            break;
+          case 7:
+            process_sigma_orbit(w,two);
+            process_sigma_orbit(1-w,two); // NB not in rectangle: (w-1)/2 is
+            break;
+          default:
+            ;
+          } // d8 switch
+          if (!(d==5 || d==6 || d==23 || d==15))
+            {
+              switch (d12) {
+              case 2: case 5:
+                process_sigma_orbit(1+w,three);
+                process_sigma_orbit(-1-w,three);
+                process_sigma_orbit(1-w,three);
+                process_sigma_orbit(-1+w,three);
+                break;
+              case 3:
+                process_sigma_orbit(1+w,three);
+                process_sigma_orbit(-1-w,three); // NB not in rectangle: (2-w)/3 is
+                break;
+              case 6: case 9:
+                process_sigma_orbit(w,three);
+                process_sigma_orbit(-w,three);
+                break;
+              case 11:
+                process_sigma_orbit(w,three);
+                process_sigma_orbit(-w,three);
+                process_sigma_orbit(-1+w,three);
+                process_sigma_orbit(1-w,three);
+                break;
+              default:
+                ;
+              } // d12 switch
+            } // excluded d=5,6,15,23
+        }  // class number>1
+
+      // alphas of denom 1, 2 and 3
+
+      process_alpha_orbit(one, zero, zero);
+
+      switch (d8) {
+      case 1: case 5:
+        process_alpha_orbit(two, w, w);
+        break;
+      case 2: case 6:
+        process_alpha_orbit(two, 1+w, 1+w);
+        break;
+      case 7:
+        process_alpha_orbit(two, w, 1+w);
+        break;
+      default:
+        ;
+      } // d8 switch
+
+      if (!Quad::is_Euclidean && !( (d==5 || d==6 || d==15 || d==19 || d==23) ))
+        {
+          switch (d%12) {
+          case 1: case 10:
+            process_alpha_orbit(three, w, w);       // w^2=-1 (mod 3)
+            process_alpha_orbit(three, 1+w, 1-w);   // (1+w)(1-w)=-1 (mod 3)
+            break;
+          case 7:
+            process_alpha_orbit(three, 1+w, 1+w);    // (1+w)^2=-1 (mod 3)
+            if (d>31)
+              process_alpha_orbit(three, w, 1-w);    // w(1-w)=-1 (mod 3)
+            break;
+          case 2: case 5:
+            process_alpha_orbit(three, w, -w);         // w^2=+1 (mod 3)
+            break;
+          case 11:
+            process_alpha_orbit(three, 1+w, -1-w);     // (1+w)^2=+1 (mod 3)
+            break;
+          case 3:
+            process_alpha_orbit(three, w, w-1);     // w(w-1)=-1 (mod 3)
+            break;
+          case 6: case 9:
+            process_alpha_orbit(three, w+1, w-1);   // (w+1)(w-1)=-1 (mod 3)
+            break;
+          } // d12 switch
+        } // small fields
+    } // small denoms
+
+  ifstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      cout << "No geodata file!" <<endl;
+      return;
+    }
+
+  string line;
+  int file_d;
+  char G;
+  POLYGON poly;
+
+  getline(geodata, line);
+  while (!geodata.eof())
+    {
+      parse_geodata_line(line, file_d, G, poly);
+      istringstream input_line(line);
+      switch(G) {
+      case 'A': // alpha orbit
+        {
+          process_alpha_orbit(poly.shifts[0], poly.shifts[1], poly.shifts[2]);
+          break;
+        }
+      case 'S': // sigma orbit
+        {
+          process_sigma_orbit(poly.shifts[0], poly.shifts[1]);
+          break;
+        }
+      default:
+        {
+          break;
+        }
+      }
+      if (G=='X')
+        break; // don't read any more lines
+      else
+        getline(geodata, line);
     }
   geodata.close();
 }

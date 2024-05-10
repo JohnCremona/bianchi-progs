@@ -28,7 +28,7 @@ CuspList denom_3_alphas()
     return {{0,1,3}, {0,-1,3}, {-1,1,3}, {1,-1,3}}; // {w, w-1}/3 and negs
   case 7:
     if (d>31)
-      return {{0,1,3}, {0,-1,3}, {1,-1,3}, {-1,1,3}, {1,1,3}, {-1,-1,3}}; // {w, 1-w, 1+w}/3 and negs
+      return {{1,1,3}, {-1,-1,3}, {0,1,3}, {0,-1,3}, {1,-1,3}, {-1,1,3}}; // {1+w, w, 1-w}/3 and negs
     else
       return {{1,1,3}, {-1,-1,3}}; // {1+w}/3 and negs
   case 11:
@@ -101,7 +101,6 @@ CuspList sort_alphas(const CuspList& A,
       if (verbose||debug) cout << "replacing denom 3 alphas by standard list "<<d3s_expected << endl;
       a3list = d3s_expected;
     }
-
 
   vector<vector<Quad>> rsfours; // {r,s} pairs in a foursome
 
@@ -179,6 +178,7 @@ CuspList sort_alphas(const CuspList& A,
   alist.insert(alist.end(), a3list.begin(), a3list.end());
   if (debug)
     cout << "After inserting alphas of denom 1,2,3, alist = "<<alist<<endl;
+
   // NB the code in geometry.cc relies on these being exact a, -a pairs
   for (const auto& rs : pluspairs)
     {
@@ -208,60 +208,59 @@ CuspList sort_alphas(const CuspList& A,
   if (debug)
     cout << "After inserting fours, alist = "<<alist<<endl;
 
-  // for homology edge relation computation include alphas with denom
-  // 1,2,3 in pluspairs, minuspairs and fours:
+  // include alphas with denom 1,2,3 in pluspairs, minuspairs and fours:
   Quad w = Quad::w, zero(0), one(1), two(2), three(3);
   int d = Quad::d;
+
   // denom 1:
   minuspairs.push_back({zero,one});
+
   // denom 2:
   if (!Quad::is_Euclidean)
     {
-  switch (d%8) {
-  case 1: case 5:
-    minuspairs.push_back({w,two});  // w^2=-1 (mod 2)
-                                    // could also go into pluspairs
-    break;
-  case 2: case 6:
-    minuspairs.push_back({w+1,two}); // (w+1)^2=-1 (mod 2)
-                                     // could also go into pluspairs
-    break;
-  case 3:
-    fours.push_back({two,w,w+1}); // w(w+1)=-1 (mod 2)
+      switch (d%8) {
+      case 1: case 5:
+        minuspairs.push_back({w,two});  // w^2=-1 (mod 2)
+        // could also go into pluspairs
+        break;
+      case 2: case 6:
+        minuspairs.push_back({w+1,two}); // (w+1)^2=-1 (mod 2)
+        // could also go into pluspairs
+        break;
+      case 3:
+        fours.push_back({two,w,w-1}); // w(w+1)=-1 (mod 2)
       };
     }
   // denom 3:
   if (!Quad::is_Euclidean && !( (d==5 || d==6 || d==15 || d==19 || d==23) ))
     {
-  switch (d%12) {
-  case 1: case 10:
-    minuspairs.push_back({w, three});          // w^2=-1 (mod 3)
-    fours.push_back({three, 1+w, 1-w});   // (1+w)(1-w)=-1 (mod 3)
-    break;
-  case 7:
-    if (Quad::d>19)
-      minuspairs.push_back({1+w, three});        // (1+w)^2=-1 (mod 3)
-    if (Quad::d>31)
-      fours.push_back({three, w, 1-w}); // w(1-w)=-1 (mod 3)
-    break;
-  case 2: case 5:
-    if (d>5)
-      pluspairs.push_back({w, three});           // w^2=+1 (mod 3)
-    break;
-  case 11:
-    if (d>23)
-      pluspairs.push_back({1+w, three});         // (1+w)^2=+1 (mod 3)
-    break;
-  case 3:
-    if (d>15)
-      fours.push_back({three, w, w-1});     // w(w-1)=-1 (mod 3)
-    break;
-  case 6: case 9:
-    if (d>6)
-      fours.push_back({three, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
-    break;
-  }
+      switch (d%12) {
+      case 1: case 10:
+        minuspairs.push_back({w, three});          // w^2=-1 (mod 3)
+        fours.push_back({three, 1+w, 1-w});   // (1+w)(1-w)=-1 (mod 3)
+        break;
+      case 7:
+        minuspairs.push_back({1+w, three});        // (1+w)^2=-1 (mod 3)
+        if (Quad::d>31)
+          fours.push_back({three, w, 1-w}); // w(1-w)=-1 (mod 3)
+        break;
+      case 2: case 5:
+        pluspairs.push_back({w, three});           // w^2=+1 (mod 3)
+        break;
+      case 11:
+        pluspairs.push_back({1+w, three});         // (1+w)^2=+1 (mod 3)
+        break;
+      case 3:
+        fours.push_back({three, w, w-1});     // w(w-1)=-1 (mod 3)
+        break;
+      case 6: case 9:
+        fours.push_back({three, w+1, w-1});   // (w+1)(w-1)=-1 (mod 3)
+        break;
+      }
     }
+  if (debug)
+    cout << "sort_alphas() returns "<<alist<<endl;
+
   return alist;
 }
 
@@ -282,12 +281,63 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
   vector<vector<Quad>> pluspairs, minuspairs, fours;
   CuspList new_alist = sort_alphas(alist, pluspairs, minuspairs, fours, verbose, debug);
   triples.reserve(pluspairs.size() + minuspairs.size() + fours.size());
-  for ( const auto& rs : pluspairs)
-    triples.push_back({rs[1], rs[0], -rs[0]});
+
+  // We don't just concatenate as we want denoms 1, 2, 3 first
+  // denoms 1 and 2 are in minuspairs not pluspairs
+
+  const Quad one(1);
   for ( const auto& rs : minuspairs)
-    triples.push_back({rs[1], rs[0], rs[0]});
+    if (rs[1]==one)
+      {
+        triples.push_back({rs[1], rs[0], rs[0]});
+        break; // there's at most one
+      }
+
+  const Quad two(2);
+  for ( const auto& rs : minuspairs)
+    if (rs[1]==two)
+      {
+        triples.push_back({rs[1], rs[0], rs[0]});
+        break; // there's at most one
+      }
   for ( const auto& sr1r2 : fours)
-    triples.push_back(sr1r2);
+    if (sr1r2[0]==two)
+      {
+        triples.push_back(sr1r2);
+        break; // there's at most one
+      }
+
+  const Quad three(3);
+  for ( const auto& rs : pluspairs)
+    if (rs[1]==three)
+      triples.push_back({rs[1], rs[0], -rs[0]});
+  for ( const auto& rs : minuspairs)
+    if (rs[1]==three)
+      triples.push_back({rs[1], rs[0], rs[0]});
+  for ( const auto& sr1r2 : fours)
+    if (sr1r2[0]==three)
+      triples.push_back(sr1r2);
+
+  for ( const auto& rs : pluspairs)
+    {
+      Quad s = rs[1];
+      if (s!=one && s!=two && s!=three)
+        triples.push_back({s, rs[0], -rs[0]});
+    }
+  for ( const auto& rs : minuspairs)
+    {
+      Quad s = rs[1];
+      if (s!=one && s!=two && s!=three)
+        triples.push_back({s, rs[0], rs[0]});
+    }
+  for ( const auto& sr1r2 : fours)
+    {
+      Quad s = sr1r2[0];
+      if (s!=one && s!=two && s!=three)
+        triples.push_back(sr1r2);
+    }
+  if (debug)
+    cout << "alpha_orbits() returns "<<new_alist<<endl;
   return new_alist;
 }
 
