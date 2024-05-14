@@ -29,6 +29,18 @@ public:
   H3pointList corners;
   vector<POLYHEDRON> singular_polyhedra, principal_polyhedra, all_polyhedra;
 
+  // all oriented faces up to GL2-equivalence, rotation and reflection, a single mixed list of:
+  // - principal triangles T {a1, oo, a2} with a1 reduced fundamental
+  // - principal squares   Q {a1, oo, a2, a3} with a1 reduced fundamental
+  // - principal hexagons  H {a1, oo, a2, a3, a4, a5, a6} with a1 reduced fundamental
+  // - singular triangles  U {a, oo, s} with a reduced fundamental, s singular
+  vector<CuspList> all_faces;
+  // Separate lists of faces of type T, U, Q, H excluding redundants
+  vector<CuspList> aaa, aas, sqs, hexs;
+
+  vector<vector<int>> M32;  // matrix (encoded as vector<vector<int>>) with one row per polyhedron
+                            // giving its boundary as a Z-linear combination of oriented faces
+
   SwanData(int s=0) :showtimes(s), maxn(0) {;}
 
   void make_sigmas();
@@ -58,6 +70,10 @@ public:
   void make_principal_polyhedra(int verbose=0);
   void make_singular_polyhedra(int verbose=0);
   void make_all_polyhedra(int verbose=0);
+
+  void make_all_faces(int verbose=0);
+  // Report on faces found if verbose; check their encodings/decodings for consistency:
+  int check_all_faces(int verbose=0);
 
 private:
   timer SwanTimer;

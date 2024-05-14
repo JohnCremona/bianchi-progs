@@ -142,7 +142,7 @@ int main ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// New code for finding alphas and sigmas using SwanData class (not swan_alphas and swan_sigmas)
+// New code for finding alphas and sigmas using SwanData class
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,7 +153,7 @@ int main ()
       cout << "Creating SwanData object"<<endl;
       method = "SwanData";
       tim.start(method);
-      SwanData SD(verbose); // 1 means show times for each step
+      SwanData SD(1); // 1 means show times for each step
       cout << "Using SwanData object to create sigmas:"<<endl;
       auto SDsigmas = SD.get_sigmas();
       cout << SDsigmas.size() << " sigmas found by SwanData: "<<SDsigmas<<endl;
@@ -246,7 +246,7 @@ int main ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Use alphas and sigmas to find tesseallation
+// Use alphas and sigmas to find tessellation
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -308,9 +308,23 @@ int main ()
       vector<POLYHEDRON> all_polys = sing_polys;
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// New code for finding tessellating polyhedra using SwanData class
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
       verbose = VERBOSE;
       cout << "\nFinding all polyhedra using SwanData object" << endl;
       SD.make_all_polyhedra(verbose);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Compare polyhedra found using old and new code
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
       if (sing_polys==SD.singular_polyhedra)
         cout<<"Singular polyhedra agree!\n";
       else
@@ -330,116 +344,32 @@ int main ()
       else
         cout<<"********************************Discrepancy in all_polyhedra!\n";
 
-      // Get faces and M32 (= matrix of delta: 3-cells --> 2-cells) from polyhedra:
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Get faces and M32 (= matrix of delta: 3-cells --> 2-cells) from polyhedra
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 
       cout << "\nFinding all faces up to GL2-equivalence" << endl;
-      vector<vector<int>> M32;
-      vector<int> redundant_faces;
       verbose = VERBOSE;
-      auto all_faces = get_faces(all_polys, alphas, sigmas, M32, redundant_faces, verbose);
-      //int nfaces = all_faces.size();
-
-      verbose = VERBOSE;
-
-      // Split up faces into 4 types for reporting and output:
-
-      vector<CuspList> aaa, aas, sqs, hexs;
-      cout << "Faces up to GL2-action and reflection:\n";
-      int sing, i=0;
-      for (const auto& face: all_faces)
-        {
-          sing = is_face_singular(face, sigmas);
-          int red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
-          int n = face.size();
-          string s;
-          if (n==4)
-            {
-              if (!red) sqs.push_back(face);
-              s = "square";
-              if (red) s+= " (redundant)";
-            }
-          else
-            {
-              if (n==6)
-                {
-                  if (!red) hexs.push_back(face);
-                  s = "hexagon";
-                  if (red) s+= " (redundant)";
-                }
-              else
-                {
-                  if (sing)
-                    {
-                      if (!red) aas.push_back(face);
-                      s = "aas triangle";
-                      if (red) s+= " (redundant)";
-                    }
-                  else
-                    {
-                      if (!red) aaa.push_back(face);
-                      s = "aaa triangle";
-                      if (red) s+= " (redundant)";
-                    }
-                }
-            }
-          if (verbose)
-            cout<<i<<" ("<<s<<"): "<<face<<endl;
-          i++;
-        }
+      SD.make_all_faces(verbose);
 
       // Report on faces found, and check their encodings for consistency:
-
-      verbose = VERBOSE;
-      int all_ok = 1;
-      cout<<aaa.size()<<" aaa-triangles\n";
-      for ( const auto& face : aaa)
-        {
-          if (verbose) cout <<face << " --> ";
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          if (verbose) cout <<face << " -->  ["<<P.indices<<","<<P.shifts<<"]"<<endl;
-          int ok = check_aaa_triangle(P, verbose);
-          if (!ok)
-            cout<<"aaa-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      cout<<aas.size()<<" aas-triangles\n";
-      for ( const auto& face : aas)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_aas_triangle(P, verbose);
-          if (!ok)
-            cout<<"aas-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      cout<<sqs.size()<<" squares\n";
-      for ( const auto& face : sqs)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_square(P);
-          if (!ok)
-            cout<<"square "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      cout<<hexs.size()<<" hexagons\n";
-      for ( const auto& face : hexs)
-        {
-          POLYGON P = make_polygon(face, alphas, sigmas, sing);
-          int ok = check_hexagon(P);
-          if (!ok)
-            cout<<"hexagon "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-          all_ok = ok &&all_ok;
-        }
-      if (all_ok)
+      verbose = 1; //VERBOSE;
+      int ok = SD.check_all_faces(verbose);
+      if (ok)
         cout<<"all encodings check out OK" << endl;
       else
         {
           cout<<"*****************not all encodings check out OK" << endl;
           exit(1);
         }
+
+      verbose = VERBOSE;
       if (to_file||to_screen) cout << "geodata encodings of faces";
       if (to_file) cout << " output to geodata file";
       if (to_file||to_screen) cout << "\n";
-      output_faces({aaa, sqs, hexs, aas},
+      output_faces({SD.aaa, SD.sqs, SD.hexs, SD.aas},
                    alphas, sigmas, to_file, to_screen);
 
       // Compute integral homology
@@ -452,9 +382,9 @@ int main ()
           cout<<"pluspairs: "<<pluspairs<<endl;
           cout<<"minuspairs: "<<minuspairs<<endl;
           cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<all_faces<<endl;
+          cout<<"faces: "<<SD.all_faces<<endl;
         }
-      vector<vector<int>> invariants = integral_homology(all_faces,
+      vector<vector<int>> invariants = integral_homology(SD.all_faces,
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);

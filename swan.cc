@@ -1322,7 +1322,11 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
 
 void SwanData::make_singular_polyhedra(int verbose)
 {
+  string step = "SwanData::make_singular_polyhedra()";
+  SwanTimer.start(step);
   singular_polyhedra = ::singular_polyhedra(slist, alist, verbose);
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
 POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& orbit, int verbose)
@@ -1413,6 +1417,8 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
 
 void SwanData::make_principal_polyhedra(int verbose)
 {
+  string step = "SwanData::make_principal_polyhedra()";
+  SwanTimer.start(step);
   if (verbose)
     cout<<"Finding principal polyhedra from "<<alphas.size()<<" alphas with "
         << corners.size()<<" corners..."<<endl<<"Corners:\n"<<corners<<endl;
@@ -1434,13 +1440,128 @@ void SwanData::make_principal_polyhedra(int verbose)
     }
   if (verbose)
     cout<<principal_polyhedra.size()<<" principal polyhedra constructed"<<endl;
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
 void SwanData::make_all_polyhedra(int verbose)
 {
+  string step = "SwanData::make_all_polyhedra()";
+  SwanTimer.start(step);
+
   make_singular_polyhedra(verbose);
   all_polyhedra = singular_polyhedra;
   make_principal_polyhedra(verbose);
   all_polyhedra.insert(all_polyhedra.end(), principal_polyhedra.begin(), principal_polyhedra.end());
+
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
 }
 
+void SwanData::make_all_faces(int verbose)
+{
+  string step = "SwanData::make_all_faces()";
+  SwanTimer.start(step);
+
+  vector<int> redundant_faces;
+  all_faces = get_faces(all_polyhedra, alist, slist, M32, redundant_faces, verbose);
+
+  // Split up faces into 4 types:
+  int i=0;
+  for (const auto& face: all_faces)
+    {
+      int sing = is_face_singular(face, sigmas);
+      int red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
+      int n = face.size();
+      string s;
+      switch (n) {
+      case 4:
+        {
+          if (!red) sqs.push_back(face);
+          s = "square";
+          break;
+        }
+      case 6:
+        {
+          if (!red) hexs.push_back(face);
+          s = "hexagon";
+          break;
+        }
+      case 3: default:
+        {
+          if (sing)
+            {
+              if (!red) aas.push_back(face);
+              s = "aas triangle";
+            }
+          else
+            {
+              if (!red) aaa.push_back(face);
+              s = "aaa triangle";
+            }
+        }
+      }
+      if (verbose)
+        {
+          cout<<i<<" ("<<s;
+          if (red) cout << " (redundant)";
+          cout<<"): "<<face<<endl;
+        }
+      i++;
+    }
+
+  SwanTimer.stop(step);
+  if (showtimes) SwanTimer.show(1, step);
+}
+
+// Report on faces found if verbose; check their encodings/decodings for consistency:
+int SwanData::check_all_faces(int verbose)
+{
+  int sing, all_ok = 1;
+
+  if (verbose)
+    cout<<aaa.size()<<" aaa-triangles\n";
+  for ( const auto& face : aaa)
+    {
+      if (verbose) cout <<face << " --> ";
+      POLYGON P = make_polygon(face, alist, slist, sing);
+      if (verbose) cout <<face << " -->  ["<<P.indices<<","<<P.shifts<<"]"<<endl;
+      int ok = check_aaa_triangle(P, verbose);
+      if (!ok)
+        cout<<"aaa-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
+      all_ok = ok &&all_ok;
+    }
+
+  if (verbose)
+    cout<<aas.size()<<" aas-triangles\n";
+  for ( const auto& face : aas)
+    {
+      POLYGON P = make_polygon(face, alist, slist, sing);
+      int ok = check_aas_triangle(P, verbose);
+      if (!ok)
+        cout<<"aas-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
+      all_ok = ok &&all_ok;
+    }
+
+  if (verbose)
+    cout<<sqs.size()<<" squares\n";
+  for ( const auto& face : sqs)
+    {
+      POLYGON P = make_polygon(face, alist, slist, sing);
+      int ok = check_square(P);
+      if (!ok)
+        cout<<"square "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
+      all_ok = ok &&all_ok;
+    }
+
+  if (verbose) cout<<hexs.size()<<" hexagons\n";
+  for ( const auto& face : hexs)
+    {
+      POLYGON P = make_polygon(face, alist, slist, sing);
+      int ok = check_hexagon(P);
+      if (!ok)
+        cout<<"hexagon "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
+      all_ok = ok &&all_ok;
+    }
+  return all_ok;
+}
