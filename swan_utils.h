@@ -145,6 +145,10 @@ inline vector<int> VEF(const POLYHEDRON& P)
 vector<int> VEFx(const POLYHEDRON& P);
 // return name (e.g. "tetrahedron") of a polyhedron
 string poly_name(const POLYHEDRON& P);
+inline int operator==(const POLYHEDRON& P, const POLYHEDRON& Q)
+{
+  return VEFx(P)==VEFx(Q);
+}
 
 // Return [P] where P is the triple intersection point of the
 // hemispheres S_a_i, where a0, a1, a2 are principal cusps, if there

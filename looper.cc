@@ -81,7 +81,7 @@ vector<Quad> Quadlooper::values_with_current_norm(int sorted)
   INT m = n;
   auto values = values_with_norm_up_to(m);
   if (sorted)
-    std::sort(values.begin(), values.end(), Quad_cmp);
+    std::sort(values.begin(), values.end());
   return values;
 }
 
@@ -98,7 +98,7 @@ vector<Quad> Quadlooper::values_with_norm_up_to(const INT& m, int sorted)
       operator++();
     }
   if (sorted)
-    std::sort(values.begin(), values.end(), Quad_cmp);
+    std::sort(values.begin(), values.end());
   return values;
 }
 
@@ -137,7 +137,7 @@ vector<Quad> quads_of_norm(const INT& n, int conj, int sorted)
         }
     }
   if (sorted)
-    std::sort(ans.begin(), ans.end(), Quad_cmp);
+    std::sort(ans.begin(), ans.end());
 
   return ans;
 }
@@ -231,7 +231,7 @@ vector<Quad> quads_of_norm_between(const INT& n1, const INT& n2, int conj, int s
 
   if (sorted)
     {
-      std::sort(ans.begin(), ans.end(), Quad_cmp);
+      std::sort(ans.begin(), ans.end());
 #ifdef DEBUG_QUADS_OF_NORM_BETWEEN
       cout<<"sorted list:   "<<ans<<endl;
 #endif

@@ -244,7 +244,7 @@ vector<Quadprime> Factorization::primes() const
 vector<Quadprime> Factorization::sorted_primes() const
 {
   vector<Quadprime> plist = primes();
-  std::sort(plist.begin(), plist.end(), Qideal_cmp);
+  std::sort(plist.begin(), plist.end());
   return plist;
 }
 

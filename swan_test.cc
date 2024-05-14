@@ -147,7 +147,7 @@ int main ()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
       // Create SwanData object
-      verbose = 1; // VERBOSE;
+      verbose = VERBOSE;
       debug = DEBUG;
       cout<<"----------------------------------------------------------------------------------\n";
       cout << "Creating SwanData object"<<endl;
@@ -244,8 +244,6 @@ int main ()
         }
         } // end of code to compare new and old
 
-      // continue; // while testing SwanData only
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Use alphas and sigmas to find tesseallation
@@ -310,6 +308,27 @@ int main ()
       vector<POLYHEDRON> all_polys = sing_polys;
       all_polys.insert(all_polys.end(), princ_polys.begin(), princ_polys.end());
 
+      verbose = VERBOSE;
+      cout << "\nFinding all polyhedra using SwanData object" << endl;
+      SD.make_all_polyhedra(verbose);
+      if (sing_polys==SD.singular_polyhedra)
+        cout<<"Singular polyhedra agree!\n";
+      else
+        {
+          cout<<"********************************Discrepancy in singular polyhedra! (d="<<Quad::d<<")\n";
+          exit(1);
+        }
+      if (princ_polys==SD.principal_polyhedra)
+        cout<<"Principal polyhedra agree!\n";
+      else
+        {
+          cout<<"********************************Discrepancy in principal polyhedra! (d="<<Quad::d<<")\n";
+          exit(1);
+        }
+      if (all_polys==SD.all_polyhedra)
+        cout<<"All polyhedra agree!\n";
+      else
+        cout<<"********************************Discrepancy in all_polyhedra!\n";
 
       // Get faces and M32 (= matrix of delta: 3-cells --> 2-cells) from polyhedra:
 

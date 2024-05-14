@@ -90,6 +90,7 @@ public:
   friend RatQuad operator/(const RatQuad&, int);
   friend int operator==(const RatQuad&, const RatQuad&);
   friend int operator!=(const RatQuad&, const RatQuad&);
+  friend int operator<(const RatQuad&, const RatQuad&); // used for sorting, not a mathematical order
   friend ostream& operator<< (ostream&s, const RatQuad&);
   void operator+=(const RatQuad&);
   void operator+=(const Quad&);
@@ -360,6 +361,11 @@ inline int operator!=(const RatQuad& r1, const RatQuad& r2)
   return r1.n*r2.d != r2.n*r1.d;
 }
 
+inline int operator<(const RatQuad& r1, const RatQuad& r2) // used for sorting, not a mathematical order
+{
+  return (r1.d<r2.d) || ((r1.d==r2.d) && (r1.n<r2.n));
+}
+
 inline ostream& operator<<(ostream& s, const RatQuad& r)
 {
   if ((r.d).is_zero()) s<<"oo";
@@ -405,24 +411,6 @@ int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 // Return index i of c mod O_K in clist, with t=c-clist[i], or -1 if not in list
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
 
-// Comparison function (based only on norm of denominator)
-struct Cusp_comparison {
-  bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
-  {return lhs.den().norm()<rhs.den().norm();}
-};
-
-// Comparison function (based on coords)
-struct RatQuad_comparison {
-  bool operator() (const RatQuad& lhs, const RatQuad& rhs) const
-  {
-    if (lhs.is_infinity()) return 0;  // oo < x always false
-    if (rhs.is_infinity()) return 1;  // x < oo always true for x!=oo
-    return lhs.coords()<rhs.coords();} // lex ordering by coords if both finite
-};
-
-extern Cusp_comparison Cusp_cmp;
-extern RatQuad_comparison RatQuad_cmp;
-
 // list of Quad(s) q s.t. N(q-z)<1:
 vector<Quad> nearest_quads(const RatQuad&, int just_one);
 // list of Quad(s) q s.t. N(q-a/b)<1, i.e. N(a-b*q)<N(b):
@@ -432,6 +420,6 @@ vector<Quad> nearest_quads_to_quotient(const Quad&, const Quad&, int just_one);
 vector<RatQuad> sqrts_in_k(const RAT& r);
 
 typedef vector<RatQuad> CuspList;  // may refactor using sets later
-typedef std::set<RatQuad, Cusp_comparison> CuspPair;
+typedef std::set<RatQuad> CuspPair;
 
 #endif

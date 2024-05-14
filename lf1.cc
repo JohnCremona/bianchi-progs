@@ -83,7 +83,7 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
 
 //add terms, one prime at a time:
   for (pvar.init(quadprimes); 
-       (pvar.index<nap)&&(pvar.ok())&&(quadnorm(pvar)<=limitnorm); 
+       (pvar.index<nap)&&(pvar.ok())&&(norm(pvar)<=limitnorm); 
         ++pvar)
     { int ind=pvar.index; 
       if(debug) cout << "p= " << pvar << ",\ta_p = " << aplist[ind];

@@ -51,7 +51,7 @@ CuspList sort_alphas(const CuspList& A,
                      int verbose, int debug)
 {
   CuspList alist, a1list, a2list, a3list;
-  map<Quad, vector<Quad>, Quad_comparison> alist_by_denom; // list of numerators for each denominator
+  map<Quad, vector<Quad>> alist_by_denom; // list of numerators for each denominator
   Quad temp;
   for (const auto& a0 : A)
     {
@@ -1237,7 +1237,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
   if (verbose)
     cout << "After removing alphas which go through <3 vertices, we now have "
          <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
-  std::sort(new_alphas.begin(), new_alphas.end(), Cusp_cmp);
+  std::sort(new_alphas.begin(), new_alphas.end());
   return new_alphas;
 }
 

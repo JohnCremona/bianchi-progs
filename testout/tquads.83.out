@@ -8,7 +8,7 @@ Enter a Quad, a: a = 5+6a
 real(a) = 5
 imag(a) = 6
 quadconj(a) = 11-6a
-quadnorm(a) = 811
+norm(a) = 811
 HNF(a) = [ 811 136 1 ]
 ideal_label(a) = 811.136.1
 ---------------------------------------------------------------

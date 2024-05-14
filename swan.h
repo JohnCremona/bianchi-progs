@@ -12,7 +12,7 @@ class SwanData {
 public:
 
   CuspList alist;               // Main list of alphas
-  std::set<Quad, Quad_comparison> a_denoms; // Denominators of alphas
+  std::set<Quad> a_denoms; // Denominators of alphas
   map<vector<RAT>, int> a_ind;  // Index of an alpha in alist (from coords as key)
   vector<int> a_inv;            // Permutation of order 2 swapping a to a' where M_a(oo)=a'
   vector<int> a_flip;           // Permutation of order 2 swapping alpha to -alpha mod 1
@@ -27,6 +27,7 @@ public:
   vector<int> s_flip;          // Permutation of order 2 swapping sigma to -sigma mod 1
 
   H3pointList corners;
+  vector<POLYHEDRON> singular_polyhedra, principal_polyhedra, all_polyhedra;
 
   SwanData(int s=0) :showtimes(s), maxn(0) {;}
 
@@ -54,6 +55,10 @@ public:
     return corners;
   }
 
+  void make_principal_polyhedra(int verbose=0);
+  void make_singular_polyhedra(int verbose=0);
+  void make_all_polyhedra(int verbose=0);
+
 private:
   timer SwanTimer;
   int showtimes;
@@ -62,7 +67,7 @@ private:
   CuspList alistF4; // sublist of those in quarter rectangle
   INT maxn; // max denom norm of alphas considered systematically
   CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
-  map<RatQuad, CuspList, RatQuad_comparison> nbrs, nbrs_ok, nbrs_open;
+  map<RatQuad, CuspList> nbrs, nbrs_ok, nbrs_open;
   CuspList slistx; // list of sigmas + 8 integer translates
 
   // add one alpha; use covered=1 after finding covering alphas and saturating with more
@@ -125,6 +130,7 @@ private:
   }
 
   void make_alpha_orbits();
+  POLYHEDRON make_principal_polyhedron(const H3point& P, std::set<int>& orbit, int verbose=0);
 };
 
 #endif

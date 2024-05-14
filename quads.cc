@@ -29,7 +29,6 @@ Quad Quad::zero;
 Quad Quad::one;
 vector<Quad> Quad::shifts_by_one;
 int Quad::geometry_initialised;
-Quad_comparison Quad_cmp;
 
 //Primes
 vector<Quad> quadprimes;  //Initialised by initquadprimes, see below
@@ -88,7 +87,7 @@ int check_field(long d, vector<long> fields)
 
 // declaration of "extern" functions declared in quads.h:
 Quad (*mult)(const Quad& a, const Quad& b);
-Quad (*qdivi)(const Quad& a, INT c);
+Quad (*qdivi)(const Quad& a, const INT& c);
 int (*pos)(const Quad& a);
 Quad (*quadgcd)(const Quad& aa, const Quad& bb);
 Quad (*quadbezout)(const Quad& aa, const Quad& bb, Quad& xx, Quad& yy);
@@ -165,38 +164,21 @@ void Quad::subprod(long a, const Quad& b) // this -=a*b
   setnorm();
 }
 
-Quad qdivi0(const Quad& a, INT c) // c>0,    // used when t=0
+Quad qdivi0(const Quad& a, const INT& c) // c>0,    // used when t=0
 {
-  Quad ans;
-  if (c>0)
-    {
-      ans.r = rounded_division(a.r,c);
-      ans.i = rounded_division(a.i,c);
-    }
-  else
-    {
-      ans.r = rounded_division(-a.r,-c);
-      ans.i = rounded_division(-a.i,-c);
-    }
-  ans.setnorm();
-  return ans;
+  return (c>0?
+          Quad(rounded_division(a.r,c), rounded_division(a.i,c))
+          :
+          Quad(rounded_division(-a.r,-c), rounded_division(-a.i,-c)));
 }
 
-Quad qdivi1(const Quad& a, INT c) // used when t=1
+Quad qdivi1(const Quad& a, const INT& c) // used when t=1
 {
-  Quad ans;
-  if (c>0)
-    {
-      ans.i = rounded_division(a.i,c);
-      ans.r = rounded_division(2*a.r+a.i-c*ans.i,2*c);
-    }
-  else
-    {
-      ans.i = rounded_division(-a.i,-c);
-      ans.r = rounded_division(-2*a.r-a.i+c*ans.i,-2*c);
-    }
-  ans.setnorm();
-  return ans;
+  INT ansi = (c>0? rounded_division(a.i,c) : rounded_division(-a.i,-c));
+  return (c>0?
+          Quad(rounded_division(2*a.r+a.i-c*ansi,2*c), ansi)
+          :
+          Quad(rounded_division(-2*a.r-a.i+c*ansi,-2*c), ansi));
 }
 
 // static function (one for the class, not per instance)
@@ -353,7 +335,7 @@ void Quad::displayfield(ostream& s, int info2)
    s<<nquadprimes<<" primes initialised, max norm = " << maxnorm << endl;
 }
 
-int Quad::chi(INT p)
+int Quad::chi(const INT& p)
 {
   return (p==2? (d%4==3? (d%8==3? -1: +1): 0):  legendre(disc,p));
 }
@@ -535,7 +517,7 @@ ostream& operator<<(ostream& s, const Quad& a)
 //Functions for computing quad-primes, initializing the vector<Quad>
 //quadprimes.  NB all primes are "pos" i.e. normalized w.r.t. units
 
-void factorp0(long p, INT& a, INT& b, INT d)
+void factorp0(long p, INT& a, INT& b, const INT& d)
 // finds a,b s.t. a^2+d*b^2=0 (mod p)
 { int found=0;
   for (int ib=1; !found; ib++)
@@ -545,7 +527,7 @@ void factorp0(long p, INT& a, INT& b, INT d)
   }
 }
 
-void factorp1(long p, INT& a, INT& b, INT d)
+void factorp1(long p, INT& a, INT& b, const INT& d)
 // finds a,b s.t. a^2+a*b+((d+1)/4)*b^2=0 (mod p)
 { int found=0; long fourp = 4*p;
   for (int ib=1; !found; ib++)
@@ -620,7 +602,7 @@ void Quad::initquadprimes()
 
   auto alpha=list1.begin(), beta=list2.begin();
   while ((alpha!=list1.end()) && (beta!=list2.end()))
-    if (quadnorm(*alpha)<quadnorm(*beta))
+    if ((alpha->nm)<(beta->nm))
       quadprimes.push_back(*alpha++);
     else
       quadprimes.push_back(*beta++);
@@ -1066,7 +1048,7 @@ INT discchar(vector<int> c)
 
 // convert a discriminant dividing Quad::disc into a binary vector
 
-vector<int> chardisc(INT D)
+vector<int> chardisc(const INT& D)
 {
   vector<int> ans(Quad::prime_disc_factors.size());
   std::transform(Quad::prime_disc_factors.begin(), Quad::prime_disc_factors.end(),

@@ -10,13 +10,13 @@
 extern CuspList sigmas; // Singular points: the 0'th is oo, the rest are indexed from 1.
 extern int n_sigmas;           // Number of sigmas
 extern map<vector<RAT>, int> sigma_ind; // Index of a sigma in the list (from coords as key)
-extern std::set<Quad, Quad_comparison> sigma_denoms; // Denominators of finite singular points
+extern std::set<Quad> sigma_denoms; // Denominators of finite singular points
 
 // Base points for principal adges {alpha,oo}
 extern CuspList alphas;
 extern int n_alphas;                // Number of alphas
 extern map<vector<RAT>, int> alpha_ind; // Index of an alpha in the list (from coords as key)
-extern std::set<Quad, Quad_comparison> alpha_denoms; // Denominators of alphas
+extern std::set<Quad> alpha_denoms; // Denominators of alphas
 extern vector<mat22> M_alphas;   // List of M_a with det(M_a)=1 such that M_a(a)=oo and M_a(oo) in alphas
 
 extern vector<int> alpha_inv;    // permutation of order 2 swapping a to a' where M_a(oo)=a'
@@ -27,7 +27,7 @@ extern vector<int> edge_pairs_minus; // indices of first of a pair (r/s, -r/s) w
 extern vector<int> edge_pairs_plus;  // indices of first of a pair (r/s, -r/s) with r^2=+1 (mod s)
 extern vector<int> edge_fours;  // indices of first of a 4-tuple (r1,-r1,r2,-r2) of alphas with r1*r2=-1 (mod s)
 
-inline ostream& operator<<(ostream& os, const std::set<Quad, Quad_comparison>& v)
+inline ostream& operator<<(ostream& os, const std::set<Quad>& v)
 {
   os <<"{ ";
   copy(v.begin(),v.end(), ostream_iterator<Quad>(os, " "));

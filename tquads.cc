@@ -20,7 +20,7 @@ int main ()
  cout << "real(a) = " << real(a) << endl;
  cout << "imag(a) = " << imag(a) << endl;
  cout << "quadconj(a) = " << quadconj(a) << endl;
- cout << "quadnorm(a) = " << quadnorm(a) << endl;
+ cout << "norm(a) = " << a.norm() << endl;
  cout << "HNF(a) = " << HNF(a) << endl;
  cout << "ideal_label(a) = " << ideal_label(a) << endl;
 

@@ -74,6 +74,8 @@ public:
   //
   int operator== (const Qideal& f) const {return (a==f.a)&&(b==f.b)&&(c==f.c);}
   int operator!= (const Qideal& f) const {return (a!=f.a)||(b!=f.b)||(c!=f.c);}
+  // just for sorting:
+  int operator<(const Qideal& J) const {return (nm<J.nm) || ((nm==J.nm) && (index<J.index)); }
 //
   Qideal operator+(const INT&) const;
   Qideal operator+(const Quad&) const;
@@ -219,7 +221,6 @@ public:
   friend istream& operator>>(istream& s, Qideal& x);
 
   friend class Quadprime;
-  friend struct Qideal_comparison;
 
 private:
   int ok() const;                 // checks that [a,b+w] *is* an ideal
@@ -277,17 +278,6 @@ vector<Qideal> make_nulist(Qideal& N);
 // return 1 iff a is the square mod M of some r in reslist
 int squaremod(const Quad& a, const Qideal& M, const vector<Quad>& reslist);
 vector<int> makechitable(const Qideal& L, const vector<Quad>& reslist);
-
-// function to sort ideals, first by norm then by index within norm
-
-struct Qideal_comparison {
-  bool operator()(const Qideal& I, const Qideal& J)
-  {
-    return (I.nm<J.nm) || ((I.nm==J.nm) && (I.index<J.index));
-  }
-};
-
-extern Qideal_comparison Qideal_cmp;
 
 // test functions used in qidltest.cc
 

@@ -3,8 +3,6 @@
 #include "primes.h"
 #include "mat22.h"
 
-H3_comparison H3_cmp;
-
 ostream& operator<<(ostream& s, const H3point& P)
 {
   s << "[" << P.z<<","<<P.t2<<"]";

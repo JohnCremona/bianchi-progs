@@ -36,7 +36,7 @@ int main(void)
           cout << "Quad = " << a << "\twith norm " << a.norm() << endl;
           values2.push_back(a);
         }
-      std::sort(values2.begin(), values2.end(), Quad_cmp);
+      std::sort(values2.begin(), values2.end());
       assert (values==values2);
       cout << "-------------------------------------------\n\n";
 #endif
@@ -47,7 +47,7 @@ int main(void)
   while(looper.ok())
     {
       values = looper.values_with_current_norm(1); // sorted
-      std::sort(values.begin(), values.end(), Quad_cmp);
+      std::sort(values.begin(), values.end());
       INT n = values.front().norm();
       cout << "Norm " << n << ":\t" << values;
       if (show_both) cout << " using Quadlooper";

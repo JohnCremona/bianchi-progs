@@ -8,7 +8,7 @@ Enter a Quad, a: a = 5+6a
 real(a) = 5
 imag(a) = 6
 quadconj(a) = 11-6a
-quadnorm(a) = 451
+norm(a) = 451
 HNF(a) = [ 451 76 1 ]
 ideal_label(a) = 451.76.1
 Here are the first 20 primes out of 175 (one per line):

@@ -106,7 +106,8 @@ std::vector<INT> sqdivs(const INT& a)
 INT invmod(const INT&a, const INT& p)
 {
   INT b;
-  fmpz_invmod(b.z, a.z, p.z);
+  int r = fmpz_invmod(b.z, a.z, p.z);
+  assert (r);
   return b;
 }
 
@@ -114,7 +115,9 @@ long invmod(const INT&a, long p)
 {
   fmpz_t b, P;
   fmpz_init_set_si(P,p);
-  fmpz_invmod(b, a.z, P);
+  fmpz_init(b);
+  int r = fmpz_invmod(b, a.z, P);
+  assert (r);
   return (long)fmpz_get_si(b);
 }
 

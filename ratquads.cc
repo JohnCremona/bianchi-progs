@@ -6,9 +6,6 @@
 #include "geometry.h"
 #include "looper.h"
 
-Cusp_comparison Cusp_cmp;
-RatQuad_comparison RatQuad_cmp;
-
 // reduce to lowest terms: when non-principal this method only divides
 // n and d by the gcd of the content.  Returns 1 iff principal.
 
@@ -134,10 +131,8 @@ RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
   yshift = y.round();
   xshift = (Quad::t? ((2*x-yshift)/2).round() : x.round());
   shift = Quad(xshift, yshift);
-  // cout << " a = " << a <<endl;
-  // cout << " shift = "<<shift<<" with norm "<<shift.norm()<<endl;
-  // cout << " a-shift = " << a-shift << " with rect coords "<<(a-shift).coords(1)<<endl;
-  assert ((a-shift).in_rectangle());
+  RatQuad a1 = a-shift;
+  assert (a1.in_rectangle());
   return a-shift;
 }
 

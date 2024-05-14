@@ -4,8 +4,6 @@
 #include "mat22.h"
 #include "qideal.h"
 
-Qideal_comparison Qideal_cmp;
-
 ////////////////////////////////////
 // implementation of class Qideal //
 ////////////////////////////////////

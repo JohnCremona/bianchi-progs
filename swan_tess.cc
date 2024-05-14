@@ -17,7 +17,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
   vector<pair<RatQuad,H3point>> sRlist; // list of (sigma, R) with R a fake corner at sigma
 
   // find and cache neighbours and fake corners for each finite sigma:
-  map<RatQuad, CuspList, RatQuad_comparison> sigma_nbrs;
+  map<RatQuad, CuspList> sigma_nbrs;
   for ( const auto& s : sigmas )
     {
       if (s.is_infinity())
@@ -143,7 +143,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
 void fill_faces(POLYHEDRON& P, int verbose)
 {
   // create ends: map from v to list of w with vw an edge
-  map<RatQuad, CuspList, RatQuad_comparison> ends;
+  map<RatQuad, CuspList> ends;
   for (const auto& e : P.edges)
     ends[e.alpha()].push_back(e.beta());
   int nde=P.edges.size(); // number of directed edges; will decrease to 0
@@ -206,7 +206,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
       // now we have a genuine oriented face
 
       // CuspList sface = face;
-      // std::sort(sface.begin(), sface.end(), RatQuad_cmp);
+      // std::sort(sface.begin(), sface.end());
       // if (std::find(sorted_faces.begin(), sorted_faces.end(), sface) != sorted_faces.end())
       //   continue; // duplicate
       // sorted_faces.push_back(sface);
@@ -387,7 +387,11 @@ principal_polyhedra(const CuspList& alphas, int verbose)
   auto Plist = triple_intersections(alphas, verbose);
   int n = Plist.size();
   if (verbose)
-    cout<<" number of corners is "<<n<<endl;
+    cout<<" number of corners is "<<n<<endl<<"Corners (before sorting):\n"<<Plist<<endl;
+  std::sort(Plist.begin(), Plist.end());
+  if (verbose)
+    cout<<"Corners (after  sorting):\n"<<Plist<<endl;
+
   vector<int>flags(n, 0);
 
   vector<POLYHEDRON> polys;

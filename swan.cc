@@ -3,6 +3,7 @@
 #include "swan.h"
 #include "swan_sigmas.h"
 #include "swan_alphas.h"
+#include "swan_tess.h"
 
 void SwanData::make_sigmas() {
   if (slist.empty())
@@ -76,7 +77,8 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
     }
   // Update nbr lists of earlier alphas (in F4) if they intersect
   // one of the new translates:
-  for (const auto& b : nbrs[a]) // NB these may have been translated
+  auto a_nbrs = nbrs.at(a); // make a copy as the loop may change the nbrs map
+  for (const auto& b : a_nbrs ) // NB these may have been translated
     {
       b0 = reduce_to_rectangle(b, u);
       // now b0+u intersects a, so a-u intersects b0
@@ -665,7 +667,15 @@ void SwanData::find_corners(int debug)
         }
     }
   if (debug)
-    cout << " found "<<corners.size() <<" corners" <<endl;
+    {
+      cout << " found "<<corners.size() <<" corners" <<endl;
+      cout << " Corners (before sorting):\n" << corners << endl;
+    }
+  std::sort(corners.begin(), corners.end());
+  if (debug)
+    {
+      cout << " Corners (after  sorting):\n" << corners << endl;
+    }
   H3pointList cornersx;
   for ( const auto& P : corners)
     {
@@ -979,8 +989,18 @@ void SwanData::saturate_alphas(int verbose)
           cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
     }
 
-  // (re)sort alist before returning:
-  std::sort(alist.begin(), alist.end(), Cusp_cmp);
+  // (re)sort alist and corners before returning:
+  if (verbose)
+    {
+      cout << " resorting corners "<<endl;
+      cout << " Corners (before sorting):\n" << corners << endl;
+    }
+  std::sort(corners.begin(), corners.end());
+  if (verbose)
+    {
+      cout << " Corners (after  sorting):\n" << corners << endl;
+    }
+  std::sort(alist.begin(), alist.end());
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
@@ -1299,3 +1319,128 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
     }
   geodata.close();
 }
+
+void SwanData::make_singular_polyhedra(int verbose)
+{
+  singular_polyhedra = ::singular_polyhedra(slist, alist, verbose);
+}
+
+POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& orbit, int verbose)
+{
+  if (verbose)
+    cout << " - constructing principal polyhedron around corner "<<P<<"...\n";
+  POLYHEDRON poly;
+  RatQuad infty = RatQuad::infinity();
+
+  // Find all a with P on S_a; these & oo are the vertices of the polyhedron
+  CuspList alistP = covering_hemispheres(P);
+  poly.vertices = alistP;
+  poly.vertices.insert(poly.vertices.begin(), infty);
+
+  int nv = poly.vertices.size();
+  if (verbose)
+    cout << " - polyhedron has "<< nv << " vertices ("<<alistP.size()
+         <<" S_a go through P: "<<alist<<")"<<endl;
+
+  // local function to test for being fundamental or oo:
+  Quad x;
+  auto is_fund = [this, &x](const RatQuad& a) {
+    return a.is_infinity() || cusp_index_with_translation(a, alist, x)>=0;
+  };
+
+  // check off flags j and k where P=corners[j], u*P=corners[k] (mod translation)
+  int i, j, k;
+  j = point_index_with_translation(P, corners, x);
+  orbit.insert(j);
+  if (verbose)
+    cout<<"Checking off corner #"<<j<<" ("<<corners[j]<<")\n";
+  H3point Q = negate(P);
+  if (verbose)
+    cout<<" Looking for corner "<<Q<<endl;
+  k = point_index_with_translation(Q, corners, x);
+  orbit.insert(k);
+  if (verbose)
+    cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
+
+  for ( const auto& a : alistP)
+    {
+      // First add edges {oo,a} and {a,oo} for a fundamental:
+      if (is_fund(a))
+        {
+          poly.edges.push_back({infty,a});
+          poly.edges.push_back({a,infty});
+        }
+      // Then add edges {a,b} for finite a,b, when M_a(b) is fundamental.
+      // NB this is equivalent to M_b(a) fundamental, so {b,a} will also be added.
+      mat22 M = Malpha(a, P, corners, i); // M(a)=oo, M(P)=corners[i]
+      for ( const auto& b : alistP)
+        {
+          if ((a!=b) && is_fund(M(b)))
+            poly.edges.push_back({a,b});
+        }
+      // add flag i to orbit
+      orbit.insert(i);
+      if (verbose)
+        cout<<"Checking off corner #"<<i<<" ("<<corners[i]<<")\n";
+
+      // check off flag k where u*corners[i]=corners[k] (mod translation)
+      Q = negate(P);
+      if (verbose)
+        cout<<" Looking for corner "<<Q<<endl;
+      k = point_index_with_translation(Q, corners, x);
+      orbit.insert(k);
+      if (verbose)
+        cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
+    }
+  int ne = poly.edges.size()/2;
+  int nf = 2+ne-nv; // Euler's formula!
+  if (verbose)
+    {
+      cout << " - orbit " << orbit << " of size " << orbit.size() << endl;
+      cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
+      cout << " - now filling in face data..."<<endl;
+    }
+  fill_faces(poly, verbose);
+  if (verbose)
+    {
+      cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
+      cout << "VEF(poly) = " << VEF(poly) <<endl;
+      cout << "VEFx(poly) = " << VEFx(poly) <<endl;
+      cout << " -- it is a "<<poly_name(poly)<<endl;
+    }
+  return poly;
+}
+
+void SwanData::make_principal_polyhedra(int verbose)
+{
+  if (verbose)
+    cout<<"Finding principal polyhedra from "<<alphas.size()<<" alphas with "
+        << corners.size()<<" corners..."<<endl<<"Corners:\n"<<corners<<endl;
+
+  vector<int>flags(corners.size(), 0);
+  int j=-1;
+  for ( const auto& P : corners)
+    {
+      j++;
+      if (flags[j])
+        continue;
+      if (verbose)
+        cout<<"Using corner #"<<j<<"..."<<flush;
+      std::set<int> orbit;
+      principal_polyhedra.push_back(make_principal_polyhedron(P, orbit, verbose));
+      if (verbose)
+        cout<<"Corner orbit "<<orbit<<"..."<<endl;
+      for ( int i : orbit) flags[i] = 1;
+    }
+  if (verbose)
+    cout<<principal_polyhedra.size()<<" principal polyhedra constructed"<<endl;
+}
+
+void SwanData::make_all_polyhedra(int verbose)
+{
+  make_singular_polyhedra(verbose);
+  all_polyhedra = singular_polyhedra;
+  make_principal_polyhedra(verbose);
+  all_polyhedra.insert(all_polyhedra.end(), principal_polyhedra.begin(), principal_polyhedra.end());
+}
+
