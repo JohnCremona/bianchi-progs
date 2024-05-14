@@ -102,6 +102,13 @@ POLYGON make_hexagon(const CuspList& H, const CuspList& alphas);
 // vertices [a_i, oo, a_j, b_2, gamma, b_1]
 CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas);
 
+// test if an aaa-triangle is the universal {0,oo,1} (up to GL2(O)) for all fields:
+int is_universal(const CuspList& T, const CuspList& alphas, const CuspList& sigmas);
+
+// test if an aaa-triangle is a standard one (up to GL2(O)) for non-Euclidean h=1 fields;
+// these are the triangles {oo,w/2,(w-1)/2} or {oo,w/2,(w+1)/2}
+int is_standard(const CuspList& T, const CuspList& alphas, const CuspList& sigmas);
+
 void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
                    const CuspList& alphas, const CuspList& sigmas,
                    int to_file, int to_screen);

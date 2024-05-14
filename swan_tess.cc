@@ -1012,6 +1012,31 @@ CuspList remake_hexagon(const POLYGON& H, const CuspList& alphas)
   return hexagon;
 }
 
+// test if an aaa-triangle is the universal {0,oo,1} (up to GL2(O)) for all fields:
+int is_universal(const CuspList& T, const CuspList& alphas, const CuspList& sigmas)
+{
+  static const CuspList tri0 = {{0,0,1}, {1,0,0}, {1,0,1}}; // {0,oo,1}
+  if (T==tri0) return 1;
+  int temp;
+  CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
+  return (T2==tri0);
+}
+
+// test if an aaa-triangle is a standard one (up to GL2(O)) for non-Euclidean h=1 fields;
+// these are the triangles {oo,w/2,(w-1)/2} or {oo,w/2,(w+1)/2}
+int is_standard(const CuspList& T, const CuspList& alphas, const CuspList& sigmas)
+{
+  long d = Quad::d;
+  if (!((d==19)||(d==43)||(d==67)||(d==163))) return 0;
+  CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}}; // {w/2,oo,(w-1)/2}
+  if (T==tri1) return 1;
+  CuspList tri2 = {{0,1,2}, {1,0,0}, {1,1,2}}; // {w/2, oo, (w+1)/2}
+  if (T==tri2) return 1;
+  int temp;
+  CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
+  return ((T2==tri1) || (T2==tri2));
+}
+
 void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
                    const CuspList& alphas, const CuspList& sigmas,
                    int to_file, int to_screen)
@@ -1026,34 +1051,13 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
   const auto& sqs  = aaa_squ_hex_aas[1];
   const auto& hexs = aaa_squ_hex_aas[2];
   const auto& aass = aaa_squ_hex_aas[3];
+
   vector<CuspList> faces;
-  // We do not output the triangle {0,oo,1},
-  // and for the fields 19, 43, 67, 163 also not
-  // the triangles {oo,w/2,(w-1)/2} or {oo,w/2,(w+1)/2}
-  Quad two(2);
-  CuspList tri0 = {RatQuad(0), RatQuad::infinity(), RatQuad(1)};
-  CuspList tri1 = {RatQuad(Quad::w,two), RatQuad::infinity(), RatQuad(Quad::w-1,two)};
-  CuspList tri2 = {RatQuad(Quad::w,two), RatQuad::infinity(), RatQuad(Quad::w+1,two)};
-  long d = Quad::d;
-  int temp;
-  for (const auto& T : aaas)
-    {
-      CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
-      if ((T==tri0) || (T2==tri0))
-        {
-          // if (to_screen) cout << "No T line for " << T << " as it is a universal one" << endl;
-          continue;
-        }
-      if ((d==19)||(d==43)||(d==67)||(d==163))
-        {
-          if ((T==tri1) || (T==tri2) || (T2==tri1) || (T2==tri2))
-            {
-              // if (to_screen) cout << "No T line for " << T << " as it is a standard one for d=16,43,67,163" << endl;
-              continue;
-            }
-        }
-      faces.push_back(T);
-    }
+  faces.reserve(aaas.size());
+  std::copy_if(aaas.begin(), aaas.end(), std::back_inserter(faces),
+               [alphas, sigmas] (const CuspList& T)
+               {return !is_standard(T,alphas, sigmas) && !is_universal(T,alphas, sigmas);});
+
   // if (to_screen) cout<<"aaa-triangles to be output as T lines: "<<faces<<endl;
   faces.insert(faces.end(), aass.begin(), aass.end());
   faces.insert(faces.end(), sqs.begin(), sqs.end());
@@ -1073,13 +1077,9 @@ void output_faces( const vector<vector<CuspList>>& aaa_squ_hex_aas,
       string s = face_encode(face, alphas, sigmas);
       nlines++;
       if (to_file)
-        {
-          geodata << s << endl;
-        }
+        geodata << s << endl;
       if (to_screen)
-        {
-          cout << s << endl;
-        }
+        cout << s << endl;
     }
   if (to_file)
     geodata.close();

@@ -1565,3 +1565,44 @@ int SwanData::check_all_faces(int verbose)
     }
   return all_ok;
 }
+
+void SwanData::output_face_data(string subdir, int verbose)
+{
+  if (Quad::is_Euclidean)
+    {
+      if (verbose)
+        cout << "No face output as field is Euclidean" << endl;
+      return;
+    }
+
+  ofstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str(), ios_base::app);
+
+  vector<CuspList> faces;
+  faces.reserve(aaa.size());
+  std::copy_if(aaa.begin(), aaa.end(), std::back_inserter(faces),
+               [this] (const CuspList& T)
+               {return !is_standard(T,alist,slist) && !is_universal(T,alist,slist);});
+  if (verbose>1) cout<<"aaa-triangles to be output as T lines: "<<faces<<endl;
+
+  faces.insert(faces.end(), aas.begin(), aas.end());
+  faces.insert(faces.end(), sqs.begin(), sqs.end());
+  faces.insert(faces.end(), hexs.begin(), hexs.end());
+  if (verbose>1) cout<<"all faces to be output: "<<faces<<endl;
+
+  int nlines=0;
+  for (const auto& face: faces)
+    {
+      string s = face_encode(face, alist, slist);
+      nlines++;
+      geodata << s << endl;
+      if (verbose) cout << s << endl;
+    }
+  if (verbose)
+    cout << nlines << " lines output" <<endl;
+
+  geodata.close();
+}

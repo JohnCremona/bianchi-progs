@@ -369,8 +369,8 @@ int main ()
       if (to_file||to_screen) cout << "geodata encodings of faces";
       if (to_file) cout << " output to geodata file";
       if (to_file||to_screen) cout << "\n";
-      output_faces({SD.aaa, SD.sqs, SD.hexs, SD.aas},
-                   alphas, sigmas, to_file, to_screen);
+      if (to_file)
+        SD.output_face_data("", to_screen);
 
       // Compute integral homology
 

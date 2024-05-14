@@ -75,6 +75,8 @@ public:
   // Report on faces found if verbose; check their encodings/decodings for consistency:
   int check_all_faces(int verbose=0);
 
+  void output_face_data(string subdir="", int verbose=0);
+
 private:
   timer SwanTimer;
   int showtimes;
