@@ -10,7 +10,6 @@
 extern CuspList sigmas; // Singular points: the 0'th is oo, the rest are indexed from 1.
 extern int n_sigmas;           // Number of sigmas
 extern map<vector<RAT>, int> sigma_ind; // Index of a sigma in the list (from coords as key)
-extern std::set<Quad> sigma_denoms; // Denominators of finite singular points
 
 // Base points for principal adges {alpha,oo}
 extern CuspList alphas;
@@ -36,9 +35,6 @@ inline ostream& operator<<(ostream& os, const std::set<Quad>& v)
 }
 
 // data for face relations in homology, not initialized by defult
-
-// indices of alpha such that M_alpha has order 3, giving cyclic triangle relations
-// extern vector<int> cyclic_triangles;
 
 struct POLYGON {
   vector<int> indices; // length n for an n-gon
@@ -75,7 +71,6 @@ int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& t);
 
 // The following require M_alphas to be defined properly, and for aas triangles also that sigmas is defined.
 int check_aaa_triangle(const POLYGON& T, int verbose=0);
-// int check_cyclic_triangle(int i, int verbose=0);
 int check_aas_triangle(const POLYGON& T, int verbose=0);
 int check_square(const POLYGON& squ);
 int check_hexagon(const POLYGON& hex);
