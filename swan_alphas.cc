@@ -285,6 +285,7 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
   // We don't just concatenate as we want denoms 1, 2, 3 first
   // denoms 1 and 2 are in minuspairs not pluspairs
 
+  // Denominator 2 is special as r=-r (mod1); 0/1 was put into minuspairs
   const Quad one(1);
   for ( const auto& rs : minuspairs)
     if (rs[1]==one)
@@ -293,6 +294,7 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
         break; // there's at most one
       }
 
+  // Denominator 2 is special as r=-r (mod2); these were was put into minuspairs or fours
   const Quad two(2);
   for ( const auto& rs : minuspairs)
     if (rs[1]==two)
@@ -307,6 +309,9 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
         break; // there's at most one
       }
 
+  // Denominator 3 does not need special treatment, but we do these
+  // before general denominators just so that they come before them in
+  // the list of triples
   const Quad three(3);
   for ( const auto& rs : pluspairs)
     if (rs[1]==three)

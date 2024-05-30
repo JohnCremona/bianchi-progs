@@ -354,9 +354,10 @@ int main ()
       verbose = VERBOSE;
       SD.make_all_faces(verbose);
 
-      // Report on faces found, and check their encodings for consistency:
-      verbose = 1; //VERBOSE;
-      int ok = SD.check_all_faces(verbose);
+      // Encode and (if verbose) report on faces found, and check
+      // their encodings for consistency:
+      verbose = VERBOSE;
+      int ok = SD.encode_all_faces(1, verbose);
       if (ok)
         cout<<"all encodings check out OK" << endl;
       else
@@ -375,7 +376,7 @@ int main ()
       // Compute integral homology
 
       debug = DEBUG;
-      if (debug)
+      if (0)
         {
           cout<<"alphas: "<<alphas<<endl;
           cout<<"sigmas: "<<sigmas<<endl;
@@ -384,14 +385,18 @@ int main ()
           cout<<"fours: "<<fours<<endl;
           cout<<"faces: "<<SD.all_faces<<endl;
         }
-      vector<vector<int>> invariants = integral_homology(SD.all_faces,
+      vector<vector<int>> invariants = SD.integral_homology(3, debug);
+      cout << Quad::disc << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
+      cout << Quad::disc << " SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+
+      vector<vector<int>> invariants_old = integral_homology(SD.all_faces,
                                                          alphas, sigmas,
                                                          pluspairs, minuspairs, fours,
                                                          3, debug);
-      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
-      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
-
-
+      cout << "GL2 integral homology (old): "; show_invariants(invariants_old[0]); cout << endl;
+      cout << "SL2 integral homology (old): "; show_invariants(invariants_old[1]); cout << endl;
+      if (invariants != invariants_old)
+        cout<<"******* disagreement in integral homology (d="<<Quad::d<<") **********"<<endl;
       cout<<"----------------------------------------------------------------------------------\n";
     }
 }

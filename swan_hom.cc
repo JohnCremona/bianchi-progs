@@ -10,6 +10,13 @@
 #endif
 #include "flint_snf.h"
 
+ostream& operator<<(ostream& os, const vector<vector<int>>& M)
+{
+  for (auto Mi : M) os << Mi << "\n";
+  return os;
+}
+
+
 // Given alphas (and pluspairs, minuspairs, fours), sigmas, faces,
 // return the invariants of H_1 as a Z-module in either the SL2 or GL2
 // cases or both
@@ -30,19 +37,26 @@ vector<vector<int>> integral_homology(const vector<CuspList>& faces,
     }
   vector<vector<int>> M10 = edge_boundary_matrix(alphas, sigmas);
   if (debug)
-    cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
+    {
+      cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
+      if (debug>1) cout << "M10 = \n" << M10 << endl;
+    }
   vector<vector<int>> M21G, M21S;
   if (group&1)
     {
       M21G = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 1);
       if (debug)
-        cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
+        {
+          cout << "GL2 face boundary matrix M21 has size " << M21G.size() << " x " << M21G[0].size() << endl;
+        }
     }
   if (group&2)
     {
       M21S = face_boundary_matrix(faces, alphas, sigmas, pluspairs, minuspairs, fours, 0);
       if (debug)
-        cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
+        {
+          cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
+        }
     }
   vector<vector<int>> invs;
   if (group&1)
@@ -223,6 +237,7 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
           assert ((j>=0)&&(j<nalphas));
           row[i] +=1;
           row[j] -=1;
+          // cout<<"i="<<i<<": alphas[i]="<<alphas[i]<<"; j="<<j<<": alphas[j]="<<alphas[j]<<" so row is "<<row<<endl;
           M.push_back(row);
           n++;
         }
@@ -248,6 +263,7 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       j = cusp_index_with_translation(RatQuad(-ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
+      // cout<<"pluspairs["<<i<<"]="<<pluspairs[i]<<" so row is "<<row<<endl;
       M.push_back(row);
       n++;
     }
@@ -259,6 +275,7 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       j = cusp_index_with_translation(RatQuad(ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=2;
+      // cout<<"minuspairs["<<i<<"]="<<minuspairs[i]<<" so row is "<<row<<endl;
       M.push_back(row);
       n++;
     }
@@ -273,6 +290,7 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       j = cusp_index_with_translation(RatQuad(r2i,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
       row[j] +=1;
+      // cout<<"fours["<<i<<"]="<<fours[i]<<" so row is "<<row<<endl;
       M.push_back(row);
       n++;
       if (!GL2)
@@ -452,7 +470,11 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          int GL2)
 {
   vector<vector<int>> M = edge_pairings(alphas, sigmas, pluspairs, minuspairs, fours, GL2);
+  // cout << "edge pairing matrix has size " << M.size() << " x " << M[0].size() << endl;
+  // cout << M << endl;
   vector<vector<int>> M2 = face_boundaries(faces, alphas, sigmas, GL2);
+  // cout << "face boundaries matrix has size " << M2.size() << " x " << M2[0].size() << endl;
+  // cout << M2 << endl;
   M.insert(M.end(), M2.begin(), M2.end());
   return M;
 }

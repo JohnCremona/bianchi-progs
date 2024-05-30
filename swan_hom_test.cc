@@ -49,7 +49,7 @@ int main ()
       verbose = VERBOSE;
       if (verbose)
         cout << "Reading encoded faces from geodata/geodata_"<<d<<".dat..." <<flush;
-      vector<vector<POLYGON>> all_polys = read_polygons(verbose);
+      vector<vector<POLYGON>> all_polys = read_polygons("geodata", verbose);
       if (verbose)
         cout << "done..."<<endl;
 

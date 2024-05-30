@@ -72,12 +72,12 @@ int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& t);
 // The following require M_alphas to be defined properly, and for aas triangles also that sigmas is defined.
 int check_aaa_triangle(const POLYGON& T, int verbose=0);
 int check_aas_triangle(const POLYGON& T, int verbose=0);
-int check_square(const POLYGON& squ);
-int check_hexagon(const POLYGON& hex);
+int check_square(const POLYGON& squ, int verbose=0);
+int check_hexagon(const POLYGON& hex, int verbose=0);
 
 // reads the polygons (T,U,Q,H) from geodata file: returns 4 lists, of
 // aaa-triangles, aas-triangles, squares, hexagons
-vector<vector<POLYGON>> read_polygons(int verbose=0);
+vector<vector<POLYGON>> read_polygons(string subdir="", int verbose=0);
 void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose=0);
 
 #endif

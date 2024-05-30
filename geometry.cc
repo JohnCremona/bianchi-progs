@@ -56,9 +56,9 @@ vector<POLYGON> hexagons;
 // aaa_triangles, aas_triangles, squares, hexagons
 void read_data(int verbose=0);
 
-void check_triangles(int verbose=0);
-void check_squares(int verbose=0);
-void check_hexagons(int verbose=0);
+int check_triangles(int verbose=0);
+int check_squares(int verbose=0);
+int check_hexagons(int verbose=0);
 void alphas_sigmas_universal();
 void alphas_sigmas_denom_2();
 void alphas_sigmas_denom_3();
@@ -118,13 +118,16 @@ void Quad::setup_geometry(int debug)
       for(int i=0; i<n_sigmas; i++) cout<<i<<": "<<sigmas[i]<<endl;
     }
 #ifdef CHECK_TRIANGLES
-  check_triangles(debug);
+  int tok = check_triangles(debug);
+  assert(tok);
 #endif
 #ifdef CHECK_SQUARES
-  check_squares(debug);
+  int sok = check_squares(debug);
+  assert(sok);
 #endif
 #ifdef CHECK_HEXAGONS
-  check_hexagons(debug);
+  int hok = check_hexagons(debug);
+  assert(hok);
 #endif
 }
 
@@ -408,20 +411,22 @@ int check_aas_triangle(const POLYGON& T, int verbose)
 // - (T^u)_{-j} = - T^u * {sigma_j,oo} = {oo, sigma_j+u},
 // (M_i'*T^x)_{-k} = M_i' * T^x * {sigma_k, oo} = M_i' * {x+sigma_k, oo} = {sigma_j+u, alpha_i}
 
-void check_triangles(int verbose)
+int check_triangles(int verbose)
 {
+  int all_ok = 1;
   for ( const auto& T : aaa_triangles)
     {
-      if(verbose)
-        cout<<"Checking aaa-triangle, ijk="<<T.indices<<", u="<<T.shifts[0]<<endl;
-      assert(check_aaa_triangle(T, verbose));
+      int ok = check_aaa_triangle(T, verbose);
+      assert(ok);
+      all_ok = all_ok && ok;
     }
   for ( const auto& T : aas_triangles)
     {
-      if(verbose)
-        cout<<"Checking aas-triangle, ijk="<<T.indices<<", u="<<T.shifts[0]<<endl;
-      assert(check_aas_triangle(T, verbose));
+      int ok = check_aas_triangle(T, verbose);
+      assert(ok);
+      all_ok = all_ok && ok;
     }
+  return all_ok;
 }
 
 /****************************************************************
@@ -430,7 +435,7 @@ void check_triangles(int verbose)
 
 ***************************************************************/
 
-int check_square(const POLYGON& squ)
+int check_square(const POLYGON& squ, int verbose)
 {
   // Check:  the square {{i,j,k,l},{x,y,z}} has vertices {alpha_i, oo, alpha[j']+z, beta}
   // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
@@ -445,6 +450,8 @@ int check_square(const POLYGON& squ)
 
   const vector<int>& ijkl = squ.indices;  // int i=ijkl[0], j=ijkl[1], k=ijkl[2], l=ijkl[3];
   const vector<Quad>& xyz = squ.shifts;
+  if (verbose)
+    cout<<"Checking square "<<ijkl<<", "<<xyz<<endl;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   mat22 Mi=M_alphas[ijkl[0]], Mj=M_alphas[ijkl[1]], Mk=M_alphas[ijkl[2]], Ml=M_alphas[ijkl[3]];
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
@@ -453,14 +460,16 @@ int check_square(const POLYGON& squ)
   return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
 }
 
-void check_squares(int verbose)
+int check_squares(int verbose)
 {
-  for ( const auto& Squ : squares)
+  int all_ok = 1;
+  for ( const auto& Q : squares)
     {
-      if (verbose)
-        cout<<"Checking square "<<Squ.indices<<", "<<Squ.shifts<<endl;
-      assert(check_square(Squ));
+      int ok = check_square(Q, verbose);
+      all_ok = ok && all_ok;
+      assert(ok);
     }
+  return all_ok;
 }
 
 /****************************************************************
@@ -469,7 +478,7 @@ void check_squares(int verbose)
 
 ***************************************************************/
 
-int check_hexagon(const POLYGON& hex)
+int check_hexagon(const POLYGON& hex, int verbose)
 {
   // Check: the hexagon {{i,j,k,l,m,n},{u,x1,y1,x2,y2}} has vertices
   // {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma} where
@@ -489,6 +498,8 @@ int check_hexagon(const POLYGON& hex)
 
   const vector<int>& ijklmn = hex.indices;
   const vector<Quad>& ux1y1x2y2 = hex.shifts;
+  if (verbose)
+    cout<<"Checking hexagon "<<ijklmn<<", "<<ux1y1x2y2<<endl;
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
   RatQuad gamma1 = (M_alphas[alpha_inv[i]]*mat22::Tmat(x1)*M_alphas[alpha_inv[k]])(y1+alphas[m]);
@@ -496,14 +507,16 @@ int check_hexagon(const POLYGON& hex)
   return gamma1==gamma2;
 }
 
-void check_hexagons(int verbose)
+int check_hexagons(int verbose)
 {
+  int all_ok = 1;
   for ( const auto& H : hexagons)
     {
-      if (verbose)
-        cout<<"Checking hexagon "<<H.indices<<", "<<H.shifts<<endl;
-      assert(check_hexagon(H));
+      int ok = check_hexagon(H, verbose);
+      all_ok = ok && all_ok;
+      assert(ok);
     }
+  return all_ok;
 }
 
 /****************************************************************
@@ -692,7 +705,7 @@ void read_data(int verbose)
 
 // same as above but only reads the polygons (T,U,Q,H):
 // returns 4 lists, of aaa-triangles, aas-triangles, squares, hexagons
-vector<vector<POLYGON>> read_polygons(int verbose)
+vector<vector<POLYGON>> read_polygons(string subdir, int verbose)
 {
   ifstream geodata;
   string line;
@@ -702,7 +715,9 @@ vector<vector<POLYGON>> read_polygons(int verbose)
   POLYGON poly;
 
   stringstream ss;
-  ss << "geodata/geodata_" << Quad::d << ".dat";
+  if (subdir.empty())
+    subdir = "geodata";
+  ss << subdir << "/geodata_" << Quad::d << ".dat";
   geodata.open(ss.str().c_str());
   if (!geodata.is_open())
     {

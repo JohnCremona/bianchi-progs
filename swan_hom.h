@@ -77,5 +77,6 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 vector<int> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
 void show_invariants(const vector<int>& v);
+ostream& operator<<(ostream& os, const vector<vector<int>>& M);
 
 #endif

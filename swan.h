@@ -37,31 +37,26 @@ public:
   vector<CuspList> all_faces;
   // Separate lists of faces of type T, U, Q, H excluding redundants
   vector<CuspList> aaa, aas, sqs, hexs;
+  // Encoded faces as POLYGONS of type T, U, Q, H excluding redundants
+  vector<POLYGON> T_faces, U_faces, Q_faces, H_faces;
 
   vector<vector<int>> M32;  // matrix (encoded as vector<vector<int>>) with one row per polyhedron
                             // giving its boundary as a Z-linear combination of oriented faces
+                            // (created by make_all_faces())
 
-  SwanData(int s=0) :showtimes(s), maxn(0) {;}
+  SwanData(int s=0) :showtimes(s), maxn(0) {;} // constructor: does no work
 
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
     return slist;
   }
-  void output_sigmas(int include_small_denoms=0, string subdir="");
 
   void make_alphas(int verbose=0);
   CuspList get_alphas(int verbose=0) {
     make_alphas(verbose);
     return alist;
   }
-  void output_alphas(int include_small_denoms=0, string subdir="");
-  void output_alphas_and_sigmas(int include_small_denoms=0, string subdir="")
-  {
-    output_alphas(include_small_denoms, subdir);
-    output_sigmas(include_small_denoms, subdir);
-  }
-  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="");
 
   H3pointList get_corners() const {
     return corners;
@@ -72,10 +67,63 @@ public:
   void make_all_polyhedra(int verbose=0);
 
   void make_all_faces(int verbose=0);
-  // Report on faces found if verbose; check their encodings/decodings for consistency:
-  int check_all_faces(int verbose=0);
+  // Encode all faces found as POLYGONs in T_faces, U_faces, H_faces,
+  // Q_faces; report if verbose; check their encodings/decodings for
+  // consistency if check
+  int encode_all_faces(int check=1, int verbose=0);
 
+  // Write alpha data to subdir/geodata_d.dat (overwriting if
+  // existing) in A-lines.  If include_small_denoms, output all alpha
+  // orbits, otherwise omit those of denominator 1, 2, 3.
+  void output_alphas(int include_small_denoms=0, string subdir="");
+  // Append sigma data to subdir/geodata_d.dat in S-lines.  If
+  // include_small_denoms, output all finite sigma orbits (up to
+  // sign), otherwise omit oo and those of denominator 2, 3.
+  void output_sigmas(int include_small_denoms=0, string subdir="");
+  // Write alpha and sigma data to subdir/geodata_d.dat (overwriting
+  // if existing) in A- and S-lines. If include_small_denoms, output
+  // all alpha and and sigma orbits , otherwise omit those of
+  // denominator 0,1,2,3.
+  void output_alphas_and_sigmas(int include_small_denoms=0, string subdir="")
+  {
+    output_alphas(include_small_denoms, subdir);
+    output_sigmas(include_small_denoms, subdir);
+  }
+
+  // Read from subdir/geodata_d.dat all A- and S-lines and fill alist,
+  // slist, Mlist, a_denoms, a_ind, a_inv, a_flip, edge_pairs_plus,
+  // edge_pairs_minus, edge_fours.  If include_small_denoms, the file
+  // contains all alpha and sigma orbits, otherwise construct those of
+  // denominator 0, 1, 2, 3 on the fly.
+  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="");
+
+  // Append to subdir/geodata_d.dat all TUQH lines from
+  // T_faces, U_faces, Q_faces, H_faces
   void output_face_data(string subdir="", int verbose=0);
+
+  // Read from subdir/geodata_d.dat all TUQH lines and fill
+  // T_faces, U_faces, Q_faces, H_faces
+  void read_face_data(string subdir="", int verbose=0);
+
+  // Read from subdir/geodata_d.dat all ASTUQH lines and fill
+  // everything needed for homspace computations:
+
+  // (1) slist, Mlist, a_denoms, a_ind, a_inv, a_flip,
+  // edge_pairs_plus, edge_pairs_minus, edge_fours.  If
+  // include_small_denoms, the file contains all alpha and sigma
+  // orbits, otherwise construct those of denominator 0, 1, 2, 3 on
+  // the fly.
+
+  // (2) T_faces, U_faces, Q_faces, H_faces
+  void read_geodata(int include_small_denoms=0, string subdir="", int verbose=0)
+  {
+    read_alphas_and_sigmas(include_small_denoms, subdir);
+    read_face_data(subdir, verbose);
+  }
+
+  // return the invariants of H_1 as a Z-module for either GL2
+  // (group=1) or SL2 (group=2) or both (group=3)
+  vector<vector<int>> integral_homology(int group, int debug=0);
 
 private:
   timer SwanTimer;
@@ -149,6 +197,43 @@ private:
 
   void make_alpha_orbits();
   POLYHEDRON make_principal_polyhedron(const H3point& P, std::set<int>& orbit, int verbose=0);
+
+  // Return the image under delta of the face, as a vector of length #alist+#slist-1
+  vector<int> face_boundary_vector(const CuspList& face);
+
+  // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
+  // For e={a,b} with a,b principal return i (>=0), where [oo,alphas[i]]
+  // is SL(2,Ok)-equivalent to e.
+
+  // If a is principal and b singular, return i+len(alphas)-1 (>=1),
+  // where [oo,sigmas[i]] is SL(2,Ok)-equivalent to e.
+
+  // If a is singular and b principal, return -(i+len(alphas)-1) (<0),
+  // where [sigmas[i],oo] is SL(2,Ok)-equivalent to e.
+
+  // Raise an error if both a and b are singular.
+
+  // Note that we assume sigmas[0]=oo which is not a singular point;
+  // the number of singular points is len(sigmas)-1.
+
+  int edge_index(const EDGE& e);
+
+  // Return the edge boundary matrix M10 (matrix of delta: 1-chains -> 0-chains).
+  // The edge basis consists of first the [a,oo] for a in alist (whose
+  // boundary is trivial), then the [s,oo] for s in slist[1:].  The
+  // cusp basis is indexed by ideal classes. Same for SL2 and GL2.
+  vector<vector<int>> edge_boundary_matrix();
+
+  // Use alist, slist, edge_pairs_plus, edge_pairs_minus, fours to
+  // return a matrix with one row per pair of glued oriented edges:
+  vector<vector<int>> edge_pairings(int GL2);
+  // Use all_faces to return a matrix with one row per face giving its
+  // boundary as a Z-linear combination of oriented edges
+  vector<vector<int>> face_boundaries(int GL2);
+  // Row concatenation of previous 2, giving the matrix M21 of the
+  // boundary map from 2-cells to 1-cells
+  vector<vector<int>> face_boundary_matrix(int GL2);
+
 };
 
 #endif

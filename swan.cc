@@ -4,6 +4,7 @@
 #include "swan_sigmas.h"
 #include "swan_alphas.h"
 #include "swan_tess.h"
+#include "swan_hom.h" // for homology_invariants() only
 
 void SwanData::make_sigmas() {
   if (slist.empty())
@@ -1102,68 +1103,71 @@ void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
 void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 {
   // cout<<"Processing alpha orbit ("<<s<<","<<r1<<","<<r2<<")\n";
-  int n_alphas = 0;
-  auto add_alpha = [this, &n_alphas](const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+  auto add_alpha = [this](const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   {
     RatQuad alpha(-d,c);
+    int n = alist.size(); // = index of this alpha once we have added it
+    a_ind[alpha.coords()] = n;
     alist.push_back(alpha);
     mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
     assert (M.is_unimodular());
     Mlist.push_back(M);
     a_denoms.insert(c);
-    a_ind[alpha.coords()] = n_alphas;
+    a_ind[alpha.coords()] = n;
     Quad t;
-    alpha_ind[reduce_to_rectangle(alpha, t).coords()] = n_alphas;
-    n_alphas++;
+    alpha = reduce_to_rectangle(alpha, t);
+    a_ind[alpha.coords()] = n;
   };
 
   Quad t = -(r1*r2+Quad::one), two(2);
   assert(div(s,t));
   t /= s;
   int s_divides_2 = div(s,two);
+  int n = alist.size(); // = index of this alpha once we have added it
 
   if (r1==r2) // "-" pair, r1^2=-1 (mod s)
     {
-      edge_pairs_minus.push_back(n_alphas);
-      a_inv.push_back(n_alphas);   // identity
-      a_inv.push_back(n_alphas+1); // identity
-      a_flip.push_back(n_alphas+1);   // transposition with next
-      a_flip.push_back(n_alphas);     // transposition with previous
+      edge_pairs_minus.push_back(n);
+      a_inv.push_back(n);   // identity
+      a_inv.push_back(n+1); // identity
+      a_flip.push_back(n+1);   // transposition with next
+      a_flip.push_back(n);     // transposition with previous
       add_alpha( r1, t, s, -r1); // alpha =  r1/s
       if (!s_divides_2)
         add_alpha(-r1, t, s,  r1); // alpha = -r1/s
-      // cout<<"(-pair): alist is now "<<alist<<endl;
+      // cout<<"(-pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_minus="<<edge_pairs_minus<<endl;
       return;
     }
   if (r1==-r2) // "+" pair, r1^2=+1 (mod s)
     {
-      edge_pairs_plus.push_back(n_alphas);
-      a_inv.push_back(n_alphas+1); // transposition with next
-      a_inv.push_back(n_alphas);   // transposition with previous
-      a_flip.push_back(n_alphas+1);   // transposition with next
-      a_flip.push_back(n_alphas);     // transposition with previous
+      edge_pairs_plus.push_back(n);
+      a_inv.push_back(n+1); // transposition with next
+      a_inv.push_back(n);   // transposition with previous
+      a_flip.push_back(n+1);   // transposition with next
+      a_flip.push_back(n);     // transposition with previous
       add_alpha(-r1, t, s, -r1); // alpha =  r1/s
       add_alpha( r1, t, s,  r1); // alpha = -r1/s
-      // cout<<"(+pair): alist is now "<<alist<<endl;
+      // cout<<"(+pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_plus="<<edge_pairs_plus<<endl;
       return;
     }
   // Now we have four distinct alphas
-  edge_fours.push_back(n_alphas);
-  a_inv.push_back(n_alphas+2);
-  a_inv.push_back(n_alphas+3);
-  a_inv.push_back(n_alphas);
-  a_inv.push_back(n_alphas+1);
-  a_flip.push_back(n_alphas+1);
-  a_flip.push_back(n_alphas);
-  a_flip.push_back(n_alphas+3);
-  a_flip.push_back(n_alphas+2);
+  edge_fours.push_back(n);
+  a_inv.push_back(n+2);
+  a_inv.push_back(n+3);
+  a_inv.push_back(n);
+  a_inv.push_back(n+1);
+  a_flip.push_back(n+1);
+  a_flip.push_back(n);
+  a_flip.push_back(n+3);
+  a_flip.push_back(n+2);
+  // cout<<"(four): before adding alphas, #alphas="<<n<<endl;
   add_alpha( r2, t, s, -r1); // alpha =  r1/s
   if (!s_divides_2)
     add_alpha(-r2, t, s,  r1); // alpha = -r1/s
   add_alpha( r1, t, s, -r2); // alpha =  r2/s
   if (!s_divides_2)
     add_alpha(-r1, t, s,  r2); // alpha = -r2/s
-  // cout<<"(four): alist is now "<<alist<<endl;
+  // cout<<"(four): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_fours="<<edge_fours<<endl;
 }
 
 void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
@@ -1420,7 +1424,7 @@ void SwanData::make_principal_polyhedra(int verbose)
   string step = "SwanData::make_principal_polyhedra()";
   SwanTimer.start(step);
   if (verbose)
-    cout<<"Finding principal polyhedra from "<<alphas.size()<<" alphas with "
+    cout<<"Finding principal polyhedra from "<<alist.size()<<" alphas with "
         << corners.size()<<" corners..."<<endl<<"Corners:\n"<<corners<<endl;
 
   vector<int>flags(corners.size(), 0);
@@ -1470,7 +1474,7 @@ void SwanData::make_all_faces(int verbose)
   int i=0;
   for (const auto& face: all_faces)
     {
-      int sing = is_face_singular(face, sigmas);
+      int sing = is_face_singular(face, slist);
       int red = std::find(redundant_faces.begin(), redundant_faces.end(), i)!=redundant_faces.end();
       int n = face.size();
       string s;
@@ -1514,54 +1518,102 @@ void SwanData::make_all_faces(int verbose)
   if (showtimes) SwanTimer.show(1, step);
 }
 
-// Report on faces found if verbose; check their encodings/decodings for consistency:
-int SwanData::check_all_faces(int verbose)
+// Encode all faces found as POLYGONs in T_faces, U_faces, H_faces,
+// Q_faces; report if verbose; check their encodings/decodings for
+// consistency if check.
+
+// NB T_faces will not include the universal triangle {0,oo,1} or the
+// standard triangles for d=19, 43, 67, 163 as these are handles
+// separately in face_relations code (for historic reasons).
+int SwanData::encode_all_faces(int check, int verbose)
 {
-  int sing, all_ok = 1;
+  int sing, ok, all_ok = 1;
+  POLYGON P;
 
   if (verbose)
     cout<<aaa.size()<<" aaa-triangles\n";
+  T_faces.clear();
   for ( const auto& face : aaa)
     {
-      if (verbose) cout <<face << " --> ";
-      POLYGON P = make_polygon(face, alist, slist, sing);
-      if (verbose) cout <<face << " -->  ["<<P.indices<<","<<P.shifts<<"]"<<endl;
-      int ok = check_aaa_triangle(P, verbose);
-      if (!ok)
-        cout<<"aaa-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-      all_ok = ok &&all_ok;
+      if (verbose) cout <<"T "<<face << " --> ";
+      P = make_polygon(face, alist, slist, sing);
+      if (verbose) cout <<"["<<P.indices<<","<<P.shifts<<"] : ";
+      ok = (!check) || check_aaa_triangle(P, verbose);
+      if (ok)
+        {
+          if (is_universal(face, alist, slist))
+            {
+              if (verbose)
+                cout << " (universal triangle)" << endl;
+              continue;
+            }
+          if (is_standard(face, alist, slist))
+            {
+              if (verbose)
+                cout << " (standard triangle)" << endl;
+              continue;
+            }
+          T_faces.push_back(P);
+        }
+      else
+        {
+          cout<<"aaa-triangle fails encoding check"<<endl;
+          all_ok = 0;
+        }
     }
 
   if (verbose)
     cout<<aas.size()<<" aas-triangles\n";
+  U_faces.clear();
   for ( const auto& face : aas)
     {
-      POLYGON P = make_polygon(face, alist, slist, sing);
-      int ok = check_aas_triangle(P, verbose);
-      if (!ok)
-        cout<<"aas-triangle "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-      all_ok = ok &&all_ok;
+      if (verbose) cout <<"U "<<face << " --> ";
+      P = make_polygon(face, alist, slist, sing);
+      if (verbose) cout <<"["<<P.indices<<","<<P.shifts<<"] : ";
+      ok = (!check) || check_aas_triangle(P, verbose);
+      if (ok)
+        U_faces.push_back(P);
+      else
+        {
+          cout<<"aas-triangle fails encoding check"<<endl;
+          all_ok = 0;
+        }
     }
 
   if (verbose)
     cout<<sqs.size()<<" squares\n";
+  Q_faces.clear();
   for ( const auto& face : sqs)
     {
-      POLYGON P = make_polygon(face, alist, slist, sing);
-      int ok = check_square(P);
-      if (!ok)
-        cout<<"square "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-      all_ok = ok &&all_ok;
+      if (verbose) cout <<"Q "<<face << " --> ";
+      P = make_polygon(face, alist, slist, sing);
+      if (verbose) cout <<"["<<P.indices<<","<<P.shifts<<"] : ";
+      ok = (!check) || check_square(P, verbose);
+      if (ok)
+        Q_faces.push_back(P);
+      else
+        {
+          cout<<"square fails encoding check"<<endl;
+          all_ok = 0;
+        }
     }
 
-  if (verbose) cout<<hexs.size()<<" hexagons\n";
+  if (verbose)
+    cout<<hexs.size()<<" hexagons\n";
+  H_faces.clear();
   for ( const auto& face : hexs)
     {
-      POLYGON P = make_polygon(face, alist, slist, sing);
-      int ok = check_hexagon(P);
-      if (!ok)
-        cout<<"hexagon "<<face<<" --> ["<<P.indices<<","<<P.shifts<<"] fails"<<endl;
-      all_ok = ok &&all_ok;
+      if (verbose) cout <<"H "<<face << " --> ";
+      P = make_polygon(face, alist, slist, sing);
+      if (verbose) cout <<"["<<P.indices<<","<<P.shifts<<"] : ";
+      ok = (!check) || check_hexagon(P, verbose);
+      if (ok)
+        H_faces.push_back(P);
+      else
+        {
+          cout<<"hexagon fails encoding check"<<endl;
+          all_ok = 0;
+        }
     }
   return all_ok;
 }
@@ -1579,30 +1631,367 @@ void SwanData::output_face_data(string subdir, int verbose)
   stringstream ss;
   if (!subdir.empty()) ss << subdir << "/";
   ss << "geodata_" << Quad::d << ".dat";
-  geodata.open(ss.str().c_str(), ios_base::app);
-
-  vector<CuspList> faces;
-  faces.reserve(aaa.size());
-  std::copy_if(aaa.begin(), aaa.end(), std::back_inserter(faces),
-               [this] (const CuspList& T)
-               {return !is_standard(T,alist,slist) && !is_universal(T,alist,slist);});
-  if (verbose>1) cout<<"aaa-triangles to be output as T lines: "<<faces<<endl;
-
-  faces.insert(faces.end(), aas.begin(), aas.end());
-  faces.insert(faces.end(), sqs.begin(), sqs.end());
-  faces.insert(faces.end(), hexs.begin(), hexs.end());
-  if (verbose>1) cout<<"all faces to be output: "<<faces<<endl;
-
+  geodata.open(ss.str().c_str(), ios_base::app); // append
   int nlines=0;
-  for (const auto& face: faces)
+
+  for (const POLYGON& T : T_faces)
     {
-      string s = face_encode(face, alist, slist);
+      string s = polygon_string(T, 0);
       nlines++;
       geodata << s << endl;
       if (verbose) cout << s << endl;
     }
+  for (const POLYGON& U : U_faces)
+    {
+      string s = polygon_string(U, 1);
+      nlines++;
+      geodata << s << endl;
+      if (verbose) cout << s << endl;
+    }
+  for (const POLYGON& Q : Q_faces)
+    {
+      string s = polygon_string(Q, 0);
+      nlines++;
+      geodata << s << endl;
+      if (verbose) cout << s << endl;
+    }
+  for (const POLYGON& H : H_faces)
+    {
+      string s = polygon_string(H, 0);
+      nlines++;
+      geodata << s << endl;
+      if (verbose) cout << s << endl;
+    }
+
   if (verbose)
     cout << nlines << " lines output" <<endl;
 
   geodata.close();
+}
+
+// Read from subdir/geodata_d.dat all TUQH lines and fill
+// aaa, aas, sqs, hexs (not all_faces)
+void SwanData::read_face_data(string subdir, int verbose)
+{
+  T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
+  ifstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      cout << "No geodata file!" <<endl;
+      return;
+    }
+  if (verbose)
+    cout << "reading from " << ss.str() <<endl;
+
+  string line;  int file_d;  char G;  POLYGON poly;
+  getline(geodata, line);
+  while (!geodata.eof())
+    {
+      parse_geodata_line(line, file_d, G, poly, verbose);
+      istringstream input_line(line);
+      switch(G) {
+      case 'X':
+        {
+          if (verbose>1)
+            cout<<"Skipping rest of file"<<endl;
+          break;
+        }
+      case '%':
+      case 'A': // alpha orbit
+      case 'S': // sigma orbit
+      default:
+        {
+          if (verbose>1)
+            cout<<"Skipping line: "<<line<<endl;
+          break;
+        }
+      case 'T': // aaa-triangle
+        {
+          T_faces.push_back(poly);
+          break;
+        }
+      case 'U': // aas-triangle
+        {
+          U_faces.push_back(poly);
+          break;
+        }
+      case 'Q': // square
+        {
+          Q_faces.push_back(poly);
+          break;
+        }
+      case 'H': // hexagon
+        {
+          H_faces.push_back(poly);
+          break;
+        }
+      } // end of switch
+      if (G=='X')
+        break; // don't read any more lines
+      else
+        getline(geodata, line);
+    }
+  geodata.close();
+}
+
+// Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
+// For e={a,b} with a,b principal return i (>=0), where [oo,alphas[i]]
+// is SL(2,Ok)-equivalent to e.
+
+// If a is principal and b singular, return i+len(alphas)-1 (>=1),
+// where [oo,sigmas[i]] is SL(2,Ok)-equivalent to e.
+
+// If a is singular and b principal, return -(i+len(alphas)-1) (<0),
+// where [sigmas[i],oo] is SL(2,Ok)-equivalent to e.
+
+// Raise an error if both a and b are singular.
+
+// Note that we assume sigmas[0]=oo which is not a singular point;
+// the number of singular points is len(sigmas)-1.
+
+int SwanData::edge_index(const EDGE& e)
+{
+  RatQuad a = e.alpha(), b = e.beta();
+  Quad temp;
+  int i;
+
+  auto is_finite_singular = [this, &temp](const RatQuad& c)
+  {
+    int j = cusp_index_with_translation(c, slist, temp);
+    return (j>0? j : 0);
+  };
+
+  if (is_finite_singular(b))
+    {
+      assert (!is_finite_singular(a));
+      mat22 M = Malpha(a);  // M(a)=oo
+      i = cusp_index_with_translation(M(b), slist, temp);
+      assert (i>0);
+      return alist.size() + i-1;
+    }
+
+  // now b is principal
+  if (is_finite_singular(a))
+    return - edge_index(EDGE(b,a));
+
+  // now a and b are principal
+  mat22 M = Malpha(a);  // M(a)=oo
+  i = cusp_index_with_translation(M(b), alist, temp);
+  assert (i>=0);
+  return i;
+}
+
+// Return the edge boundary matrix M10 (matrix of delta: 1-chains -> 0-chains).
+// The edge basis consists of first the [a,oo] for a in alist (whose
+// boundary is trivial), then the [s,oo] for s in slist[1:].  The
+// cusp basis is indexed by ideal classes. Same for SL2 and GL2.
+vector<vector<int>> SwanData::edge_boundary_matrix()
+{
+  int na = alist.size(), ns = slist.size()-1; // omit oo
+  unsigned int nrows = na+ns;
+  unsigned int h = Quad::class_number;
+  // Each row has h columns, and there are na+ns rows
+  vector<vector<int>> M;
+  M.reserve(na+ns);
+  for (int i=0; i<na; i++) // first na rows are 0 (boundary of principal edge)
+    {
+      vector<int> row(h, 0);
+      M.push_back(row);
+    }
+  for (int i=0; i<ns; i++) // next ns rows are boundaries of edge {oo,s}
+    {
+      vector<int> row(h, 0);
+      row[0] = -1;
+      row[slist[i+1].ideal_class()] = +1;
+      M.push_back(row);
+    }
+  assert (M.size()==nrows);
+  return M;
+}
+
+// Return the image under delta of the face, as a vector of length #alist+#slist-1
+vector<int> SwanData::face_boundary_vector(const CuspList& face)
+{
+  vector<int> v(alist.size()+slist.size()-1,0);
+  int n=face.size();
+  for (int i=0; i<n; i++)
+    {
+      int j = edge_index(EDGE(face[i], face[(i+1)%n]));
+      if (j<0) v[-j]-=1; else v[j]+=1;
+    }
+  return v;
+}
+
+// Use alist, slist, edge_pairs_plus, edge_pairs_minus, fours to
+// return a matrix with one row per pair of glued oriented edges:
+vector<vector<int>> SwanData::edge_pairings(int GL2)
+{
+  int nalphas = alist.size(), nsigmas = slist.size()-1;
+  int nplus = edge_pairs_plus.size(), nminus = edge_pairs_minus.size(), nfours = edge_fours.size();
+  unsigned int ncols = nalphas + nsigmas; // size of edge basis
+  unsigned int nrows = nplus + nminus + nfours + (GL2? nalphas + nsigmas : nfours);
+  vector<vector<int>> M;
+  M.reserve(nrows);
+
+  int i;
+  int j;
+  Quad temp, s, r, r1, r2;
+
+  // edge identifications
+  // (0) GL2 only: {a,oo}={-a,oo} for a in alist and {s,oo}={-s,oo} for s in slist
+  // (1) {a,oo}+{-a,oo}=0     for a=r/s, (r,s) in pluspairs
+  // (2) 2{a,oo}=0            for a=r/s, (r,s) in minuspairs
+  // (3) {a1,oo}+{a2,oo}=0    for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+  //   and if not GL2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
+
+  // NB When d=3 (mod 8), d>11 both r=w/2 and r'=(w-1)/2 are alphas,
+  // these form a "four" which only has 2 distinct elements
+  long d = Quad::d;
+  int special = (d%8==3 && d>11);
+  // if (special)
+  //   cout<<"Special case for d="<<d<<" as there's a four of size only 2"<<endl;
+  if (GL2) // type (0)
+    {
+      for (i=0; i<nalphas; i++)
+        {
+          vector<int> row(ncols, 0);
+          j = cusp_index_with_translation(-alist[i], alist, temp);
+          assert ((j>=0)&&(j<nalphas));
+          row[i] +=1;
+          row[j] -=1;
+          // cout<<"i="<<i<<": alphas[i]="<<alist[i]<<"; j="<<j<<": alphas[j]="<<alist[j]<<" so row is "<<row<<endl;
+          M.push_back(row);
+        }
+      for (i=0; i<nsigmas; i++)
+        {
+          vector<int> row(ncols, 0);
+          j = cusp_index_with_translation(-slist[i+1], slist, temp) -1;
+          assert ((j>=0)&&(j<nsigmas));
+          row[nalphas+i] +=1;
+          row[nalphas+j] -=1;
+          M.push_back(row);
+        }
+    }
+  // type (1)
+  // for (i=0; i<n2das; i++)
+  //   {
+  //     vector<int> row(ncols, 0);
+  //     j = denom_2_alphas[i];
+  //     row[j]+=2;
+  //     M.push_back(row);
+  //   }
+  for (i=0; i<nplus; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_pairs_plus[i];
+      row[j] +=1;
+      row[j+1] +=1;
+      // cout<<"edge_pairs_plus["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      M.push_back(row);
+    }
+  // type (2)
+  for (i=0; i<nminus; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_pairs_minus[i];
+      row[j] +=2;
+      // cout<<"edge_pairs_minus["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      M.push_back(row);
+    }
+  // types (3) and (3')
+  for (i=0; i<nfours; i++)
+    {
+      vector<int> row(ncols, 0);
+      j = edge_fours[i];
+      row[j] +=1;
+      if (i==0 && special)
+        row[j+1] +=1;
+      else
+        row[j+2] +=1;
+      M.push_back(row);
+      // cout<<"edge_fours["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      if (!GL2)
+        {
+          vector<int> row2(ncols, 0);
+          if (!(i==0 && special))
+            {
+              row2[j+1] +=1;
+              row2[j+3] +=1;
+            }
+          M.push_back(row2);
+        }
+    }
+  assert (M.size()==nrows);
+  return M;
+}
+
+// Return a matrix with one row per face in all_faces, giving its
+// boundary as a Z-linear combination of oriented edges
+vector<vector<int>> SwanData::face_boundaries(int GL2)
+{
+  unsigned int nrows = all_faces.size() * (GL2? 1 : 2);
+  vector<vector<int>> M;
+  M.reserve(nrows);
+  for (const auto& face : all_faces)
+    {
+      M.push_back(face_boundary_vector(face));
+      if (!GL2)
+        M.push_back(face_boundary_vector(negate_polygon(face)));
+    }
+  assert (M.size()==nrows);
+  return M;
+}
+
+// Row concatenation of previous 2, giving the matrix M21 of the
+// boundary map from 2-cells to 1-cells
+vector<vector<int>> SwanData::face_boundary_matrix(int GL2)
+{
+  vector<vector<int>> M = edge_pairings(GL2);
+  // cout << "edge pairing matrix has size " << M.size() << " x " << M[0].size() << endl;
+  // cout << M << endl;
+  vector<vector<int>> M2 = face_boundaries(GL2);
+  // cout << "face boundaries matrix has size " << M2.size() << " x " << M2[0].size() << endl;
+  // cout << M2 << endl;
+  M.insert(M.end(), M2.begin(), M2.end());
+  return M;
+}
+
+// return the invariants of H_1 as a Z-module for either GL2
+// (group=1) or SL2 (group=2) or both (group=3)
+vector<vector<int>> SwanData::integral_homology(int group, int debug)
+{
+  vector<vector<int>> M10 = edge_boundary_matrix();
+  if (debug)
+    {
+      cout << "edge boundary matrix M10 has size " << M10.size() << " x " << M10[0].size() << endl;
+      if (debug>1) cout << "M10 = \n" << M10 << endl;
+    }
+
+  vector<vector<int>> invs;
+  int
+    GL2 = group&1, // i.e. 1 or 3
+    SL2 = group&2; // i.e. 2 or 3
+  if (GL2)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(1);
+      if (debug)
+        {
+          cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+        }
+      invs.push_back(homology_invariants(M10, M21, debug>1));
+    }
+  if (SL2)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(0);
+      if (debug)
+        {
+          cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+        }
+      invs.push_back(homology_invariants(M10, M21, debug>1));
+    }
+  return invs;
 }
