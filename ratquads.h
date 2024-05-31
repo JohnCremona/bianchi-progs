@@ -61,6 +61,7 @@ public:
   int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
   int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
   friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
+  friend RatQuad reduce_to_rectangle(const RatQuad&);   // subtract Quad to put z into rectangle
   // list of Quad(s) q s.t. N(q-z)<1:
   friend vector<Quad> nearest_quads(const RatQuad&, int just_one);
   // list of Quad(s) q s.t. N(q-a/b)<1, i.e. N(a-b*q)<N(b):
@@ -122,18 +123,21 @@ private:
 
 class modsym {
  private:
-    RatQuad a,b;
+  RatQuad a,b;
  public:
   modsym() :a(), b() {}
-    modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
-    explicit modsym(const mat22& M, int type=0);              //conversion from (c:d)
-    RatQuad alpha() const {return a;}
-    RatQuad  beta() const {return b;}
-    modsym reverse() const {return modsym(b,a);}
-    modsym conj() const {return modsym(a.conj(), b.conj());}
-    friend int operator==(const modsym& m1, const modsym& m2);
-    friend int operator!=(const modsym& m1, const modsym& m2);
-  friend ostream& operator<< (ostream& s, const modsym& m); //inline below
+  modsym(const RatQuad& ra, const RatQuad& rb) :a(ra),b(rb) {}
+  RatQuad alpha() const {return a;}
+  RatQuad  beta() const {return b;}
+  modsym reverse() const {return modsym(b,a);}
+  modsym conj() const {return modsym(a.conj(), b.conj());}
+  int operator==(const modsym& m2) const {return a==m2.a && b==m2.b; }
+  int operator!=(const modsym& m2) const {return a!=m2.a || b!=m2.b; }
+  inline friend ostream& operator<< (ostream& s, const modsym& m)
+  {
+    s << "{" << (m.a) << "," << (m.b) << "}";
+    return s;
+  }
 };
 
 // Inline RatQuad functions
@@ -374,16 +378,6 @@ inline ostream& operator<<(ostream& s, const RatQuad& r)
    return s;
 }
 
-inline int operator==(const modsym& m1, const modsym& m2)
-{
-  return m1.a==m2.a && m1.b==m2.b;
-}
-
-inline int operator!=(const modsym& m1, const modsym& m2)
-{
-  return m1.a!=m2.a || m1.b!=m2.b;
-}
-
 // Cusp equivalence mod Gamma_0(N)
 
 // Special case: N is a Quad and c1, c2 assumed principal and reduced:
@@ -396,12 +390,6 @@ int cuspeq(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
 
 // Debugging version, does a second conjugate test and compares
 int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusflag);
-
-inline ostream& operator<< (ostream& s, const modsym& m)
-{
-   s << "{" << (m.a) << "," << (m.b) << "}";
-   return s;
-}
 
 // Finding cusp in list, with or without translation
 

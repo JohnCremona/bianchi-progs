@@ -51,12 +51,24 @@ public:
     make_sigmas();
     return slist;
   }
+  int n_sigmas(int finite_only=0) const {
+    int n = slist.size();
+    return finite_only? n-1: n;
+  }
 
   void make_alphas(int verbose=0);
   CuspList get_alphas(int verbose=0) {
     make_alphas(verbose);
     return alist;
   }
+  int n_alphas() const {return alist.size();}
+  // Return i such that alist[i]=a, else -1
+  int alpha_index(const RatQuad& a) const;
+  // Return i and set t such that alist[i]+t=a, else -1
+  int alpha_index_with_translation(const RatQuad& a, Quad& t) const;
+  // Return i such that alist[i]+t=a, else -1
+  // (same as above for when t is not needed)
+  int alpha_index_upto_translation(const RatQuad& a) const;
 
   H3pointList get_corners() const {
     return corners;

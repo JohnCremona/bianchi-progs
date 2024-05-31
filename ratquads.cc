@@ -121,7 +121,7 @@ int RatQuad::in_quarter_rectangle() const
   return 0<=x && x<=half && 0<=y && y<=half;
 }
 
-// subtract Quad to put into rectangle
+// subtract Quad to put into rectangle, and set shift to this Quad
 RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
   vector<RAT> xy = a.coords(1);  // so a = x+y*sqrt(-d)
@@ -134,6 +134,13 @@ RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
   RatQuad a1 = a-shift;
   assert (a1.in_rectangle());
   return a-shift;
+}
+
+// subtract Quad to put into rectangle (shift not required)
+RatQuad reduce_to_rectangle(const RatQuad& a)
+{
+  Quad shift;
+  return reduce_to_rectangle(a, shift);
 }
 
 // reduce r mod s so that r/s is in the rectangle
@@ -494,11 +501,3 @@ int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusf
     }
   return t1;
 }
-
-// if type = t>=0 , return U{alpha[t],oo}
-// if type = -s<0 , return U{sigmas[s],oo}
-
-modsym::modsym(const mat22& U, int type) // U in SL2
-  : a(U(type>=0? alphas[type]: sigmas[-type])),
-    b(U.image_oo())
-{;}

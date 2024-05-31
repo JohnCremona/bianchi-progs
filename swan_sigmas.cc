@@ -41,7 +41,7 @@ CuspList singular_points_in_class(Qideal I, int verbose)
   if (I.is_principal())
     return {RatQuad::infinity()};
   INT n = I.norm();
-  Quad temp, s1(n);
+  Quad s1(n);
   vector<Quad> slist = {s1};
   Quad s2 = I.zgen(1);
   if (s2.norm()==n*n)
@@ -66,7 +66,7 @@ CuspList singular_points_in_class(Qideal I, int verbose)
         {
           if (I==Qideal({r,s}))
             {
-              RatQuad sig = reduce_to_rectangle(RatQuad(r,s), temp);
+              RatQuad sig = reduce_to_rectangle(RatQuad(r,s));
               assert (sig.in_rectangle());
               if (verbose)
                 cout<<" - using r = "<<r<<" to give "<<sig<<endl;
@@ -170,9 +170,9 @@ CuspList sort_singular_points(const CuspList& slist, int verbose)
     cout<<"Sigmas with small denominators: "<<sorted_slist<<endl;
 
   // Now process the other sigmas (if any)
-  Quad temp;
   for ( auto s0 : slist) // not const or reference as we may change it
     {
+      Quad temp;
       RatQuad s = reduce_to_rectangle(s0, temp);
       if (!temp.is_zero() && verbose)
         cout<<"sort_singular_points replacing "<<s0<<" by "<<s<<", its translate by "<<temp<<endl;

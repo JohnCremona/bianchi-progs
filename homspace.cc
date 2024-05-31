@@ -54,9 +54,12 @@ homspace::homspace(const Qideal& I, int hp, int verb, long ch)
 modsym homspace::edge_generator(long i)
 {
   pair<long, int> st = ER.symbol_number_and_type(i);
-  return modsym(P1.lift_to_SL2(st.first), st.second);
+  mat22 U(P1.lift_to_SL2(st.first));
+  int type = st.second;
+  RatQuad a(type>=0? alphas[type]: sigmas[-type]);
+  return modsym(U(a), U.image_oo());
 }
- 
+
 void homspace::make_freemods()
 {
   if (dimension==0) return;

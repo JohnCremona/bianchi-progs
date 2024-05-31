@@ -61,29 +61,10 @@ continued fractions we need both.
 void pseudo_euclidean_step_orig(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
 void pseudo_euclidean_step_old(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
 void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2);
-#ifdef DEBUG_PSEA
-void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
-{
-  Quad a1(a), b1(b), a2(a), b2(b), c1a(c1), c1b(c1), d1a(d1), d1b(d1), c2a(c2), c2b(c2), d2a(d2), d2b(d2);
-  pseudo_euclidean_step_old(a1, b1, t, c1a, d1a, c2a,  d2a);
-  int t2;
-  pseudo_euclidean_step_old(a2, b2, t2, c1b, d1b, c2b,  d2b);
-  if (!(a1==a2 && b1==b2 && t==t2))
-    {
-      cout << "\nWith a="<<a<<", b="<<b<<" (norm "<<b.norm()<<"):\n";
-      cout << " -old code gives a'="<<a1<<", b'="<<b1<<" (norm "<<b1.norm()<<") and t="<<t<<endl;
-      cout << " -new code gives a'="<<a2<<", b'="<<b2<<" (norm "<<b2.norm()<<") and t="<<t2<<endl;
-    }
-  a=a1; b=b1;
-  c1=c1a; d1=d1a; c2=c2a; d2=d2a;
-  return;
-}
-#else
 void pseudo_euclidean_step(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Quad& c2, Quad& d2)
 {
   pseudo_euclidean_step_old(a, b, t, c1, d1, c2,  d2);
 }
-#endif
 
 //return type t if translation by -q followed by M_alphas[t] reduces
 //(a,b) to (a',b') with N(b')<N(b), or -1 if none exists, which will
@@ -236,7 +217,7 @@ void pseudo_euclidean_step_new(Quad& a, Quad& b, int& t, Quad& c1, Quad& d1, Qua
           M.apply_right_inverse(c2,d2);
         }
 #ifdef DEBUG_PSEA
-      cout<<" - reduction success (with shift="<<q<<" and alpha="<<alphas[t]
+      cout<<" - reduction success (with shift="<<q<<" and alpha #"<<t
           <<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
 #endif
       return;

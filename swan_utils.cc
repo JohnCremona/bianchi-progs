@@ -137,11 +137,10 @@ CuspList principal_cusps_of_dnorm_up_to(const INT& maxn)
 // list of principal cusps with given denominator
 CuspList principal_cusps_with_denominator(const Quad& s)
 {
-  Quad temp;
   auto invres = invertible_residues(s);
   CuspList alist(invres.size());
   std::transform(invres.begin(), invres.end(), alist.begin(),
-                 [s, &temp](const Quad& r) {return reduce_to_rectangle(RatQuad(r, s), temp);});
+                 [s](const Quad& r) {return reduce_to_rectangle(RatQuad(r, s));});
   return alist;
 }
 

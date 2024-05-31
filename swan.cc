@@ -173,6 +173,41 @@ int SwanData::add_new_alphas(int verbose)
   return nc;
 }
 
+// Return i such that alist[i]=a, else -1
+int SwanData::alpha_index(const RatQuad& a) const
+{
+  auto s = a_ind.find(a.coords());
+  if (s==a_ind.end())
+    return -1;
+  return s->second;
+}
+
+// Return i and set t such that alist[i]+t=a, else -1
+int SwanData::alpha_index_with_translation(const RatQuad& a, Quad& t) const
+{
+  auto s = a_ind.find(a.coords());
+  if (s==a_ind.end())
+    s = a_ind.find(reduce_to_rectangle(a,t).coords());
+  if (s==a_ind.end())
+    return -1;
+  int i = s->second;
+  (a-alist[i]).is_integral(t);
+  assert (t+alist[i]==a);
+  return i;
+}
+
+// Return i such that alist[i]+t=a, else -1
+// (same as above for when t is not needed)
+int SwanData::alpha_index_upto_translation(const RatQuad& a) const
+{
+  auto s = a_ind.find(a.coords());
+  if (s==a_ind.end())
+    s = a_ind.find(reduce_to_rectangle(a).coords());
+  if (s==a_ind.end())
+    return -1;
+  return s->second;
+}
+
 // Sets alist to a list of principal cusps a such that the S_{a+t}
 // for all integral t cover CC apart from singular points.
 
@@ -214,8 +249,7 @@ void SwanData::find_covering_alphas(int verbose)
 // slist (but there are two special cases)
 int SwanData::is_singular(const RatQuad& a)
 {
-  Quad t;
-  RatQuad a0 = reduce_to_rectangle(a,t);
+  RatQuad a0 = reduce_to_rectangle(a);
   if (std::find(slist.begin(), slist.end(), a0) != slist.end())
     return 1;
 
@@ -559,7 +593,7 @@ H3pointList SwanData::find_corners_from_one(const RatQuad& a, int& redundant, in
         RatQuad zbar = z.conj();
         for (auto z2 : {-z, zbar, -zbar})
           {
-            z2 = reduce_to_rectangle(z2, t);
+            z2 = reduce_to_rectangle(z2);
             H3point P2 = {z2, t2};
             if (std::find(new_corners.begin(), new_corners.end(), P2) != new_corners.end())
               continue;
@@ -752,7 +786,7 @@ void SwanData::old_find_corners(int verbose)
       RatQuad abar = a.conj();
       for (auto b : {-a, abar, -abar})
         {
-          b = reduce_to_rectangle(b, t);
+          b = reduce_to_rectangle(b);
           if (std::find(alist.begin(), alist.end(), b) == alist.end())
             alist.push_back(b);
         }
@@ -892,7 +926,7 @@ void SwanData::saturate_alphas(int verbose)
               CuspList blist = {a,-a,ca,-ca};
               for ( auto& b : blist)
                 {
-                  b = reduce_to_rectangle(b, temp);
+                  b = reduce_to_rectangle(b);
                   if (debug)
                     cout << " - testing potential new alpha " << b << endl;
                   if (std::find(extra_alphas.begin(), extra_alphas.end(), b) == extra_alphas.end())
@@ -917,7 +951,7 @@ void SwanData::saturate_alphas(int verbose)
           RatQuad zbar = z.conj();
           for (auto z2 : {z, -z, zbar, -zbar})
             {
-              H3point Q = {reduce_to_rectangle(z2, t), t2};
+              H3point Q = {reduce_to_rectangle(z2), t2};
               auto it = std::find(corners.begin(), corners.end(), Q);
               if ( it != corners.end())
                 corners.erase(it);
@@ -1077,12 +1111,11 @@ void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
 {
   int n_sigmas = 0;
   RatQuad sigma(r,s), msigma(-r,s);
-  Quad t;
   slist.push_back(sigma);
   if (!s.is_zero())
     {
       s_ind[sigma.coords()] = n_sigmas;
-      s_ind[reduce_to_rectangle(sigma, t).coords()] = n_sigmas;
+      s_ind[reduce_to_rectangle(sigma).coords()] = n_sigmas;
     }
   if (s.is_zero() || s==TWO) // don't also include -sigma
     {
@@ -1093,7 +1126,7 @@ void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
     {
       slist.push_back(msigma);
       s_ind[msigma.coords()] = n_sigmas+1;
-      s_ind[reduce_to_rectangle(msigma, t).coords()] = n_sigmas+1;
+      s_ind[reduce_to_rectangle(msigma).coords()] = n_sigmas+1;
       s_flip.push_back(n_sigmas+1);   // transposition with next
       s_flip.push_back(n_sigmas);     // transposition with previous
       n_sigmas+=2;
@@ -1114,8 +1147,7 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
     Mlist.push_back(M);
     a_denoms.insert(c);
     a_ind[alpha.coords()] = n;
-    Quad t;
-    alpha = reduce_to_rectangle(alpha, t);
+    alpha = reduce_to_rectangle(alpha);
     a_ind[alpha.coords()] = n;
   };
 
@@ -1791,7 +1823,7 @@ int SwanData::edge_index(const EDGE& e)
 // cusp basis is indexed by ideal classes. Same for SL2 and GL2.
 vector<vector<int>> SwanData::edge_boundary_matrix()
 {
-  int na = alist.size(), ns = slist.size()-1; // omit oo
+  int na = n_alphas(), ns = n_sigmas(1); // omit oo
   unsigned int nrows = na+ns;
   unsigned int h = Quad::class_number;
   // Each row has h columns, and there are na+ns rows
@@ -1816,7 +1848,7 @@ vector<vector<int>> SwanData::edge_boundary_matrix()
 // Return the image under delta of the face, as a vector of length #alist+#slist-1
 vector<int> SwanData::face_boundary_vector(const CuspList& face)
 {
-  vector<int> v(alist.size()+slist.size()-1,0);
+  vector<int> v(n_alphas()+n_sigmas(1),0);
   int n=face.size();
   for (int i=0; i<n; i++)
     {
@@ -1830,10 +1862,9 @@ vector<int> SwanData::face_boundary_vector(const CuspList& face)
 // return a matrix with one row per pair of glued oriented edges:
 vector<vector<int>> SwanData::edge_pairings(int GL2)
 {
-  int nalphas = alist.size(), nsigmas = slist.size()-1;
   int nplus = edge_pairs_plus.size(), nminus = edge_pairs_minus.size(), nfours = edge_fours.size();
-  unsigned int ncols = nalphas + nsigmas; // size of edge basis
-  unsigned int nrows = nplus + nminus + nfours + (GL2? nalphas + nsigmas : nfours);
+  unsigned int ncols = n_alphas() + n_sigmas(1); // size of edge basis
+  unsigned int nrows = nplus + nminus + nfours + (GL2? ncols : nfours);
   vector<vector<int>> M;
   M.reserve(nrows);
 
@@ -1856,6 +1887,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
   //   cout<<"Special case for d="<<d<<" as there's a four of size only 2"<<endl;
   if (GL2) // type (0)
     {
+      int nalphas = n_alphas();
       for (i=0; i<nalphas; i++)
         {
           vector<int> row(ncols, 0);
@@ -1866,6 +1898,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
           // cout<<"i="<<i<<": alphas[i]="<<alist[i]<<"; j="<<j<<": alphas[j]="<<alist[j]<<" so row is "<<row<<endl;
           M.push_back(row);
         }
+      int nsigmas = n_sigmas(1);
       for (i=0; i<nsigmas; i++)
         {
           vector<int> row(ncols, 0);

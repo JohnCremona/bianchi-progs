@@ -844,10 +844,9 @@ H3pointList old_triple_intersections(const CuspList& alphas, int debug)
     //                         [](RatQuad a){return a.in_quarter_rectangle();});
     // alphasF4.resize(std::distance(alphasF4.begin(),it1));  // shrink to new size
     CuspList alphasF4;
-    Quad t;
     for ( auto a : alphas)
       {
-        a = reduce_to_rectangle(a, t);
+        a = reduce_to_rectangle(a);
         if (a.in_quarter_rectangle())
           alphasF4.push_back(a);
       }
@@ -945,10 +944,9 @@ H3pointList new_triple_intersections(const CuspList& alphas, int debug)
     // pairs a, -a; the second of the pair is not always in the
     // rectangle (because of the rounding of 1/2).
     CuspList alphasF4;
-    Quad t;
     for ( auto a : alphas)
       {
-        a = reduce_to_rectangle(a, t);
+        a = reduce_to_rectangle(a);
         if (a.in_quarter_rectangle())
           alphasF4.push_back(a);
       }
@@ -1050,12 +1048,9 @@ CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 
 CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist, INT maxn, int debug, int verbose)
 {
-  INT m;
-  Quad temp;
   if (verbose)
     {
-      m = max_dnorm(alphas);
-      cout << "Saturating "<<alphas.size()<<" alphas with max dnorm "<< m <<endl;
+      cout << "Saturating "<<alphas.size()<<" alphas with max dnorm "<< max_dnorm(alphas) <<endl;
     }
   // First delete any alphas with <3 vertices, allowing for translates
   H3pointList points = triple_intersections(alphas, debug);
@@ -1085,10 +1080,9 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
         }
     }
   CuspList new_alphas = remove_redundants(alphas, pointsx);
-  m = max_dnorm(new_alphas);
   if (verbose)
     cout << "After removing alphas which go through <3 vertices, we now have "
-         <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
+         <<new_alphas.size()<<" alphas with max norm "<< max_dnorm(new_alphas) <<endl;
 
   int sat = 0, first_run=1;
   H3pointList checked_points;
@@ -1173,7 +1167,7 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
               CuspList blist = {a,-a,ca,-ca};
               for ( auto& b : blist)
                 {
-                  b = reduce_to_rectangle(b, temp);
+                  b = reduce_to_rectangle(b);
                   if (debug)
                     cout << " - testing potential new alpha " << b << endl;
                   if (b.in_rectangle() &&
@@ -1199,21 +1193,20 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
         {
           if (sat)
             {
-              m = max_dnorm(new_alphas);
-              cout << " alphas are saturated! "<<new_alphas.size()<<" alphas with max norm "<<m<<endl;
+              cout << " alphas are saturated! "<<new_alphas.size()<<" alphas with max norm "
+                   <<max_dnorm(new_alphas)<<endl;
             }
           else
             {
-              m = max_dnorm(extra_alphas);
-              cout << " alphas not saturated, "<<extra_alphas.size()<<" extras needed: "<<extra_alphas<<" (with norms at most "<<m<<")"<<endl;
+              cout << " alphas not saturated, "<<extra_alphas.size()<<" extras needed: "
+                   <<extra_alphas<<" (with norms at most "<<max_dnorm(extra_alphas)<<")"<<endl;
             }
         }
       new_alphas.insert(new_alphas.end(), extra_alphas.begin(), extra_alphas.end());
     } // ends while(!sat)
 
-  m = max_dnorm(new_alphas);
   if (verbose)
-    cout << "After saturation we now have "<<new_alphas.size()<<" alphas with max norm "<<m<<endl;
+    cout << "After saturation we now have "<<new_alphas.size()<<" alphas with max norm "<<max_dnorm(new_alphas)<<endl;
 
   // Now again delete any alphas with <3 vertices, allowing for translates
   points = triple_intersections(new_alphas, debug);
@@ -1238,10 +1231,9 @@ CuspList saturate_covering_alphas(const CuspList& alphas, const CuspList& slist,
         }
     }
   new_alphas = remove_redundants(new_alphas, pointsx);
-  m = max_dnorm(new_alphas);
   if (verbose)
     cout << "After removing alphas which go through <3 vertices, we now have "
-         <<new_alphas.size()<<" alphas with max norm "<< m <<endl;
+         <<new_alphas.size()<<" alphas with max norm "<< max_dnorm(new_alphas) <<endl;
   std::sort(new_alphas.begin(), new_alphas.end());
   return new_alphas;
 }

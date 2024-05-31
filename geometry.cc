@@ -143,8 +143,7 @@ void add_alpha(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   alpha_denoms.insert(c);
   M_alphas.push_back(M);
   alpha_ind[alpha.coords()] = n_alphas;
-  Quad t;
-  alpha_ind[reduce_to_rectangle(alpha, t).coords()] = n_alphas;
+  alpha_ind[reduce_to_rectangle(alpha).coords()] = n_alphas;
   n_alphas++;
 }
 
@@ -201,12 +200,11 @@ void add_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
 void add_sigma_orbit(const Quad& r, const Quad& s)
 {
   RatQuad sigma(r,s), msigma(-r,s);
-  Quad t;
   sigmas.push_back(sigma);
   if (!sigma.is_infinity())
     {
       sigma_ind[sigma.coords()] = n_sigmas;
-      sigma_ind[reduce_to_rectangle(sigma, t).coords()] = n_sigmas;
+      sigma_ind[reduce_to_rectangle(sigma).coords()] = n_sigmas;
     }
   if (s.is_zero() || s==TWO) // don't also include -sigma
     {
@@ -217,7 +215,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
     {
       sigmas.push_back(msigma);
       sigma_ind[msigma.coords()] = n_sigmas+1;
-      sigma_ind[reduce_to_rectangle(msigma, t).coords()] = n_sigmas+1;
+      sigma_ind[reduce_to_rectangle(msigma).coords()] = n_sigmas+1;
       sigma_flip.push_back(n_sigmas+1);   // transposition with next
       sigma_flip.push_back(n_sigmas);     // transposition with previous
       n_sigmas+=2;
