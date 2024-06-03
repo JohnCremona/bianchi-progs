@@ -390,7 +390,7 @@ void face_relations::square_relation_2()
   long j, k;
 
   Quad w=Quad::w, zero(0), one(1);
-  action U(P1,w,one,one,zero);  assert (U.det()==-one);
+  action U = act_with(w,one,one,zero);  assert (U.det()==-one);
   action S = act_with(mat22::S);
   action J = act_with(mat22::J);
 
@@ -436,8 +436,8 @@ void face_relations::rectangle_relation_7()
   long j, k;
   Quad w=Quad::w, zero(0), one(1);
 
-  action Y(P1,one,-w,one-w,-one); assert (Y.is_unimodular());
-  action US(P1,w,-one,one,zero);   assert (US.is_unimodular());
+  action Y = act_with(one,-w,one-w,-one); assert (Y.is_unimodular());
+  action US = act_with(w,-one,one,zero);  assert (US.is_unimodular());
   action R = act_with(mat22::R);
 
   for (k=0; k<nsymb; k++)
@@ -467,10 +467,10 @@ void face_relations::hexagon_relation_11()
   long j, k;
   Quad w=Quad::w, zero(0), one(1), two(2);
 
-  //  action X(P1,one,-w,one-w,-2); // as in JC thesis (order 3)
-  action X(P1,-two,w,w-one,one);      // its inverse, so the hexagon edges are in the right order
+  //  action X = act_with(one,-w,one-w,-2); // as in JC thesis (order 3)
+  action X = act_with(-two,w,w-one,one);      // its inverse, so the hexagon edges are in the right order
   assert (X.is_unimodular());
-  action US(P1,w,-one,one,zero);
+  action US = act_with(w,-one,one,zero);
   assert (US.is_unimodular());
   action R = act_with(mat22::R);
 
