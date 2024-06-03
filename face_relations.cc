@@ -326,8 +326,8 @@ void face_relations::triangle_relation_0()
   vector<long> rel(3);
   vector<int> types(3,0), done(nsymb, 0);
   long j, k;
-  action TiS(P1, mat22::TiS);
-  action R(P1, mat22::R);
+  action TiS = act_with(mat22::TiS);
+  action R = act_with(mat22::R);
   for (k=0; k<nsymb; k++)
     if (!done[k])
       {
@@ -391,8 +391,8 @@ void face_relations::square_relation_2()
 
   Quad w=Quad::w, zero(0), one(1);
   action U(P1,w,one,one,zero);  assert (U.det()==-one);
-  action S(P1, mat22::S);
-  action J(P1, mat22::J);
+  action S = act_with(mat22::S);
+  action J = act_with(mat22::J);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -438,7 +438,7 @@ void face_relations::rectangle_relation_7()
 
   action Y(P1,one,-w,one-w,-one); assert (Y.is_unimodular());
   action US(P1,w,-one,one,zero);   assert (US.is_unimodular());
-  action R(P1, mat22::R);
+  action R = act_with(mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -472,7 +472,7 @@ void face_relations::hexagon_relation_11()
   assert (X.is_unimodular());
   action US(P1,w,-one,one,zero);
   assert (US.is_unimodular());
-  action R(P1, mat22::R);
+  action R = act_with(mat22::R);
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -504,8 +504,8 @@ void face_relations::triangle_relation_2()
   long j, k;
   Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
-  action K(P1, M_alphas[1]);      assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
-  action N(P1, one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
+  action K = act_with(M_alphas[1]);      assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
+  action N = act_with(one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
   // triangle to the second with determinant -1.  Both have order 3 so
@@ -565,7 +565,7 @@ void face_relations::general_relation(const vector<action>& Mops,
       Mats[s] = Mops[s];
     }
   mat22 J = mat22::J;
-  vector<action> Jops(len, action(P1, J));
+  vector<action> Jops(len, act_with(J));
   vector<int> Jtypes(len);   // Jops, Jtypes used in applying J to a relation
 
   if (check)
@@ -595,7 +595,7 @@ void face_relations::general_relation(const vector<action>& Mops,
           if (a.is_integral(x))
             {
               mat22 T = mat22::Tmat(-x);
-              Jops[s] = action(P1, J*T);
+              Jops[s] = act_with(J*T);
               if (check)
                 Jmats[s] *= T;
             }
@@ -667,9 +667,9 @@ void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
   x.is_integral(xnum);
 
   vector<int> types = {i,alpha_inv[j],k}, signs(3, 1);
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, mat22::Tmat(u) * M_alphas[alpha_inv[j]]),
-                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
+  vector<action> Mops = {act_with(mat22::identity),
+                         act_with(mat22::Tmat(u) * M_alphas[alpha_inv[j]]),
+                         act_with(M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
 
   general_relation(Mops, types, signs, 0, check);
 
@@ -690,9 +690,9 @@ void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
   x.is_integral(xnum);
 
   vector<int> types = {i,-j,-k}, signs = {+1,-1,+1};
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, mat22::Tmat(u)),
-                         action(P1, M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
+  vector<action> Mops = {act_with(mat22::identity),
+                         act_with(mat22::Tmat(u)),
+                         act_with(M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
 
   general_relation(Mops, types, signs, 0, check);
 
@@ -729,10 +729,10 @@ void face_relations::general_square_relation(const POLYGON& S, int check)
   mat22 M1 = mat22::Tmat(z) * M_alphas[j];
   mat22 M2 = M1 * mat22::Tmat(x) * M_alphas[k];
   mat22 M3 = M_alphas[alpha_inv[i]] * mat22::Tmat(y);
-  vector<action> Mops = {action(P1, mat22::identity),
-                         action(P1, M1),
-                         action(P1, M2),
-                         action(P1, M3)};
+  vector<action> Mops = {act_with(mat22::identity),
+                         act_with(M1),
+                         act_with(M2),
+                         act_with(M3)};
 
   general_relation(Mops, types, signs, symmetry, check);
 
@@ -775,12 +775,12 @@ void face_relations::general_hexagon_relation(const POLYGON& H, int check)
   mat22 M3 = mat22::Tmat(u);
   mat22 M4 = M3 * M_alphas[alpha_inv[j]] * mat22::Tmat(x2);
   mat22 M5 = M4 * M_alphas[alpha_inv[l]] * mat22::Tmat(y2);
-  vector<action> Mops = {action(P1, M1),
-                         action(P1, M2),
-                         action(P1, mat22::identity),
-                         action(P1, M3),
-                         action(P1, M4),
-                         action(P1, M5)};
+  vector<action> Mops = {act_with(M1),
+                         act_with(M2),
+                         act_with(mat22::identity),
+                         act_with(M3),
+                         act_with(M4),
+                         act_with(M5)};
 
   general_relation(Mops, types, signs, symmetry, check);
 

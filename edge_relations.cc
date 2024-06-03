@@ -39,6 +39,16 @@ RatQuad base_point(int t)
     return sigmas[-t];
 }
 
+action edge_relations::act_with(const mat22& M)
+{
+  return action(P1, M);
+}
+
+action edge_relations::act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+{
+  return action(P1, mat22(a,b,c,d));
+}
+
 // 2-term (edge) relations
 
 edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
@@ -95,11 +105,11 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
       cout << "After denominator 2 relations, ngens = "<<ngens<<endl;
     }
 
-  if(!edge_pairs_minus.empty())
+  if(!::edge_pairs_minus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (-)\n";
-      for ( const auto& e : edge_pairs_minus)
+      for ( const auto& e : ::edge_pairs_minus)
         {
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_minus(e);
@@ -109,11 +119,11 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
         cout << "After edge pair (-) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!edge_pairs_plus.empty())
+  if(!::edge_pairs_plus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (+)\n";
-      for ( const auto& e : edge_pairs_plus)
+      for ( const auto& e : ::edge_pairs_plus)
         {
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_plus(e);
@@ -123,11 +133,11 @@ edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
         cout << "After edge pair (+) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!edge_fours.empty())
+  if(!::edge_fours.empty())
     {
       if(verbose)
         cout<<"General edge quadruple relations\n";
-      for ( const auto& e : edge_fours)
+      for ( const auto& e : ::edge_fours)
         {
           if(verbose) cout<<" quadruple "<< e <<flush;
           edge_pairing_double(e);
@@ -194,7 +204,7 @@ int edge_relations::check() // not completely implemented, don't use
   if (verbose)
     cout<<"Checking edge relations..."<<endl;
   pair<long, int> st, st2;
-  action J(P1, mat22::J);
+  action J = act_with(mat22::J);
   Quad c,d, c2, d2;
 
   for (int i=0; i<(int)coordindex.size(); i++)
@@ -247,7 +257,7 @@ int edge_relations::check() // not completely implemented, don't use
             }
           int i2 = gens[-n];
           st2 = symbol_number_and_type(i2);
-          action M(P1, M_alphas[st.second]);
+          action M = act_with(M_alphas[st.second]);
           // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
           if (!  (((alpha_inv[st.second] == st2.second) && (M(st2.first) == st.first))
                   || ((alpha_flip[alpha_inv[st.second]] == st2.second) && (M(J(st2.first)) == st.first))))
@@ -274,7 +284,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   int lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
   action eps(P1,unit,zero,zero,one);  assert (eps.det()==unit);
-  action sof(P1, mat22::S);
+  action sof = act_with(mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
   long j, k;
@@ -360,8 +370,8 @@ void edge_relations::edge_relations_2_d12mod4()
       b = w;
     }
 
-  action M(P1, M_alphas[1]);
-  action L(P1, -one,a,zero,one); assert (L.det()==-one);
+  action M = act_with(M_alphas[1]);
+  action L = act_with(-one,a,zero,one); assert (L.det()==-one);
 
   // alpha_1 = a/2 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
@@ -419,7 +429,7 @@ void edge_relations::edge_relations_2_d12mod4()
 
   // sigma_1 = b/2 = (1+w)/2  (d%4=1), w/2 (d%4=2)
 
-  action K(P1, -one,b,zero,one); assert (K.det()==-one);
+  action K = act_with(-one,b,zero,one); assert (K.det()==-one);
   assert (check_rel({mat22::identity, K}, {-1,-1}, {1,-1}));
 
   std::fill(done.begin(), done.end(), 0);
@@ -463,7 +473,7 @@ void edge_relations::edge_relations_2_d7mod8()
     {
       Quad x;
       (two*sigmas[t]).is_integral(x);
-      action L(P1, -one, x, zero,one); // fixes x/2 = sigma
+      action L = act_with(-one, x, zero,one); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
 
@@ -499,8 +509,8 @@ void edge_relations::edge_relations_2_d3mod8()
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  action M(P1, M_alphas[1]);
-  action L(P1, -one,w-one,zero,one); assert (L.det()==-one);
+  action M = act_with(M_alphas[1]);
+  action L = act_with(-one,w-one,zero,one); assert (L.det()==-one);
 
   // M maps w/2 --> oo --> (w-1)/2, where M = [w-1,u;2,-w], det=1,  order 3
   // so (g)_(w-1/2) = {g((w-1)/2),g(oo)} = {gM(oo),gM(w/2)} = -(gM)_w/2.
@@ -546,8 +556,8 @@ void edge_relations::edge_pairing_minus(int i)
 {
   long j, k, j2, k2;
   long off1 = offset(i), off2 = offset(i+1);
-  action J(P1, mat22::J);
-  action M(P1, M_alphas[i]);
+  action J = act_with(mat22::J);
+  action M = act_with(M_alphas[i]);
   vector<int> done(nsymb, 0);
 
   assert (check_rel({mat22::identity, M_alphas[i]}, {i, i}));
@@ -593,8 +603,8 @@ void edge_relations::edge_pairing_plus(int i)
 {
   long j, k, l, m;
   long off1 = offset(i), off2 = offset(i+1);
-  action J(P1, mat22::J);
-  action M(P1, M_alphas[i]);
+  action J = act_with(mat22::J);
+  action M = act_with(M_alphas[i]);
   vector<int> done(nsymb, 0);
 
   assert (check_rel({mat22::identity, M_alphas[i]}, {i+1, i}));
@@ -643,8 +653,8 @@ void edge_relations::edge_pairing_double(int i)
   long off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
-  action M(P1, M_alphas[i+2]);
-  action J(P1, mat22::J);
+  action M = act_with(M_alphas[i+2]);
+  action J = act_with(mat22::J);
 
   for (long j=0; j<nsymb; j++) // index of type i symbol
     {
@@ -667,7 +677,7 @@ void edge_relations::edge_pairing_double(int i)
 
 void edge_relations::sigma_relations()          // for sigma with 2*sigma not integral
 {
-  action J(P1, mat22::J);
+  action J = act_with(mat22::J);
   for (int i=0; i<n_sigmas; i++)
     {
       int j = sigma_flip[i];

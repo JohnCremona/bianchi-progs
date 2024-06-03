@@ -5,10 +5,11 @@
 
 #include "geometry.h"
 #include "P1N.h"
+#include "swan.h"
 
 class face_relations;
 
-class edge_relations {
+class edge_relations { // :public SwanData {
 public:
   edge_relations() {;}//{cout<<"In default edge_relations constructor"<<endl;}
   edge_relations(P1N*, int plus, int verb=0, long ch=0);
@@ -20,7 +21,7 @@ public:
   {
     return nsymb * (t>=0? t: n_alphas-t-1);
   }
-  pair<long, int> symbol_number_and_type(long i)
+  pair<long, int> symbol_number_and_type(long i) const
   {
     std::ldiv_t st = ldiv(i, nsymb);
     long s = st.rem;  // remainder gives (c:d) symbol number
@@ -29,6 +30,8 @@ public:
       t = n_alphas-t-1;
     return {s, t};
   }
+  action act_with(const mat22& M);
+  action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
 
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
