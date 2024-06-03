@@ -34,9 +34,7 @@ public:
   void make_freemods();         // computes freemods and needed
   modsym edge_generator(long i); // for i in 0..nsymb*(#types)-1, the i'th edge as a modsym
   modsym generator(long j)      // for j in 1..ngens, the j'th generating modsym
-  {
-    return edge_generator(ER.gen(j));
-  }
+  {return edge_generator(ER.gen(j));}
 
   int check_conjugate(int verb=0);     // function to check consistency between this and conjugate level
 

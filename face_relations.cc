@@ -359,7 +359,7 @@ void face_relations::triangle_relation_1_3()
 
   Quad w=Quad::w, zero(0), one(1);
   long field = Quad::d;
-  action X = (field==1? action(P1,w,one,one,zero): action(P1,one,w,w-one,zero));
+  action X = (field==1? act_with(w,one,one,zero): act_with(one,w,w-one,zero));
   assert (X.det()==(field==1? -one: one));
 
   for (k=0; k<nsymb; k++)

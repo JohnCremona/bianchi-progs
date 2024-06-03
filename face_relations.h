@@ -17,8 +17,6 @@ public:
   long get_rank() const {return rk;}
   long get_hmod() const {return hmod;}
   long gen(int i) const {return pivs[i];}
-  action act_with(const mat22& M) {return ER->act_with(M);}
-  action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d) {return ER->act_with(a,b,c,d);}
 
 private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
@@ -27,6 +25,8 @@ private:
   long ngens, nsymb, numrel, maxnumrel;
   long hmod, characteristic, denom, rk;
   vec pivs;
+  action act_with(const mat22& M) {return ER->act_with(M);}
+  action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d) {return ER->act_with(a,b,c,d);}
 
   void make_relations();        // creates relation matrix relmat
   void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]

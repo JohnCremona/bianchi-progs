@@ -283,7 +283,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   Quad unit = fundunit, zero(0), one(1);
   int lenrel = Quad::nunits;
   if(!plusflag) {unit=fundunit*fundunit; lenrel/=2;}
-  action eps(P1,unit,zero,zero,one);  assert (eps.det()==unit);
+  action eps = act_with(unit,zero,zero,one);  assert (eps.det()==unit);
   action sof = act_with(mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);

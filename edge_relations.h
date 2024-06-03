@@ -42,9 +42,8 @@ protected:
 
 private:
   void edge_relations_1();    // basic edge relations for alpha = 0
-
   void edge_relations_2();    // edge relations for alphas &sigmas with denom 2
-  // previous calls one of the following four:
+  // previous calls one of the following three:
   void edge_relations_2_d3mod8(); // 2 inert, 2 alphas, 0 sigmas
   void edge_relations_2_d7mod8(); // 2 split, 0 alphas, 2 sigmas
   void edge_relations_2_d12mod4(); // 2 ramified, alpha=w/2, sigma=(w+1)/2 or vice versa
