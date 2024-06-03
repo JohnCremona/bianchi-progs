@@ -99,8 +99,7 @@ int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<
 face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
   :ER(er), plusflag(plus), verbose(verb), characteristic(ch)
 {
-  P1 = ER->P1;
-  nsymb = P1->size();
+  nsymb = ER->nsymb;
   maxnumrel = 2*(plusflag?1:2)*nsymb;
   if (verbose)
     cout<<"initial bound on #relations = "<<maxnumrel<<endl;
@@ -258,9 +257,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       auto t = types.begin(), s=signs.begin();
       while (r!=rel.end())
         {
-          P1->make_symb(*r, c, d);
           cout<< ((*s)>0? " +": " -");
-          //cout<<"("<<c<<":"<<d<<")";
           cout<<"["<<(*r)<<";"<<(*t)<<"]";
           ++r, ++t, ++s;
         }
