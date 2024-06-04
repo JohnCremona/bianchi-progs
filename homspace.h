@@ -17,6 +17,7 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
+  SwanData SD;
   long ngens, nsymb, nap, nwq;
 
   ssubspace kern;

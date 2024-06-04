@@ -51,8 +51,8 @@ action edge_relations::act_with(const Quad& a, const Quad& b, const Quad& c, con
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(P1N* s, int plus, int verb, long ch)
-  :P1(s), plusflag(plus), verbose(verb), characteristic(ch)
+edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long ch)
+  : P1(p1), SD(sd), plusflag(plus), verbose(verb), characteristic(ch)
 { //cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
   nsymb = P1->size();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);

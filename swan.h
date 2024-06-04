@@ -51,17 +51,31 @@ public:
     make_sigmas();
     return slist;
   }
-  int n_sigmas(int finite_only=0) const {
+  int n_sig(int finite_only=0) const {
     int n = slist.size();
     return finite_only? n-1: n;
   }
+  // Return i such that slist[i]=s, else -1
+  int sigma_index(const RatQuad& s) const;
+  // Return i and set shift such that slist[i]+shift=a/b, else -1
+  int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& shift) const;
+  // Return i and set shift such that slist[i]+shift=s, else -1
+  int sigma_index_with_translation(const RatQuad& s, Quad& shift) const
+  {return sigma_index_with_translation(s.num(), s.den(), shift);}
+  // Return i such that slist[i]+shift=s, else -1
+  // (same as above for when shift is not needed)
+  int sigma_index_upto_translation(const Quad& a, const Quad& b) const
+  {return sigma_index_upto_translation(RatQuad(a,b));}
+  // Return i such that slist[i]+shift=s, else -1
+  // (same as above for when shift is not needed)
+  int sigma_index_upto_translation(const RatQuad& s) const;
 
   void make_alphas(int verbose=0);
   CuspList get_alphas(int verbose=0) {
     make_alphas(verbose);
     return alist;
   }
-  int n_alphas() const {return alist.size();}
+  int n_alph() const {return alist.size();}
   // Return i such that alist[i]=a, else -1
   int alpha_index(const RatQuad& a) const;
   // Return i and set t such that alist[i]+t=a, else -1

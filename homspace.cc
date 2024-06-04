@@ -6,10 +6,10 @@
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, int hp, int verb, long ch)
-  :verbose(verb), plusflag(hp), N(I), characteristic(ch), hmod(0)
+  :verbose(verb), plusflag(hp), N(I), P1(I), SD(0), characteristic(ch), hmod(0)
 {
   Quad::setup_geometry(); // will do nothing after the first time called
-  P1 = P1N(N);
+  SD.read_geodata(0, "geodata");
   nsymb = P1.size();
 
   if (verbose)
@@ -26,7 +26,7 @@ homspace::homspace(const Qideal& I, int hp, int verb, long ch)
         cout << endl;
     }
 
-  ER = edge_relations(&P1, hp, verb, characteristic);
+  ER = edge_relations(&P1, &SD, hp, verb, characteristic);
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
