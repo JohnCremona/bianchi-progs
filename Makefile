@@ -91,7 +91,7 @@ sources: ccs headers
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
-ccs1: lf1.cc looper.cc looptest.cc euclid.cc geometry.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc # euclid.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -102,7 +102,7 @@ ccs8: pari_snf.cc flint_snf.cc
 
 Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
- euclid.h geometry.h qideal.h primes.h qidloop.h mat22.h hecke.h
+ qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h # euclid.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
 headers: Q_headers quad_headers swan_headers
 
@@ -196,9 +196,9 @@ clean:
 	rm -f *.o *~ *.testout
 
 Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
-QUAD_OBJS = quads.o euclid.o geometry.o looper.o homspace.o \
+QUAD_OBJS = quads.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
-       primes.o mat22.o ratquads.o cusp.o P1N.o
+       primes.o mat22.o ratquads.o cusp.o P1N.o geometry.o  # euclid.o
 SWAN_OBJS = swan_utils.o swan_sigmas.o swan_alphas.o swan_tess.o swan_hom.o swan.o pari_snf.o flint_snf.o
 
 OBJS = $(Q_OBJS) $(QUAD_OBJS) $(SWAN_OBJS)

@@ -113,7 +113,7 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
   return 1;
 }
 
-int SwanData::add_new_alphas(int verbose)
+int SwanData::add_new_alphas(Quadlooper& denom_looper, int verbose)
 {
   INT first_maxn = 1+Quad::absdisc/4; // we first consider all alphas with dnorm up to this
   int first = maxn==0;
@@ -264,11 +264,12 @@ void SwanData::find_covering_alphas(int verbose)
 {
   string step = "SwanData::find_covering_alphas()";
   SwanTimer.start(step);
+  Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   int ok=0;
   while (!ok)
     {
       // Get the next batch new_alphas, either of all dnorms up to maxn, or those with the next dnorm
-      int nc = add_new_alphas(verbose);
+      int nc = add_new_alphas(denom_looper, verbose);
       if (nc==0)
         continue;
 
@@ -1247,8 +1248,9 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
 
 void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
 {
-  alist.clear();
-  slist.clear();
+  alist.clear(); a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
+  slist.clear(); s_ind.clear(); s_flip.clear();
+  edge_pairs_plus.clear();  edge_pairs_minus.clear();  edge_fours.clear();
 
   // Start slist with sigma = oo:
   slist = {RatQuad::infinity()};
@@ -2075,3 +2077,360 @@ vector<vector<int>> SwanData::integral_homology(int group, int debug)
     }
   return invs;
 }
+
+// This assumes that a is reduced mod b and that N(a)>N(b) so alpha=0 will not work
+int SwanData::find_best_alpha(const Quad& a, const Quad& b, Quad& shift, int lucky) const
+{
+  Quad a0 = a, b0=b, b1, s, best_shift(0);
+  INT best_bnorm = b.norm(), b0norm=b0.norm();
+  int t=0, best_t=-1;
+  // Look for a suitable alpha, trying all in turn, returning the type
+  // of the one which gives best reduction
+  for (const auto& M: Mlist)
+    {
+      if (t==0) // skipping alpha=0
+        {
+          t++;
+          continue;
+        }
+      // First see if we can reduce without a further shift
+      shift = 0;
+      b1 = M.apply_left_den(a0,b0);
+      if (b1.norm() >= b0norm) // not successful yet
+        {
+          // Find the shift taking a/b closest to alpha
+          s = M.entry(1,0);
+          shift = b1/(b0*s);      // closest integer to (a1/b1)-(r/s)
+          if (!shift.is_zero())  // do the extra translation by q
+            b1 = M.apply_left_den(a0-shift*b0,b0);
+        }
+      if (b1.norm() < best_bnorm)
+        {
+          best_bnorm = b1.norm();
+          best_shift = shift;
+          best_t     = t;
+          if (lucky)
+            break;
+        }
+      t++;
+    }
+  shift = best_shift;
+  return best_t;
+}
+
+void SwanData::pseudo_euclidean_step(Quad& a, Quad& b, int& t,  Quad& c1, Quad& d1, Quad& c2, Quad& d2) const
+{
+  // We update c1,d1 unless they are both 0 and similarly c2,d2.
+  // We record the type of the transformation in t unless it is initialised to -1.
+  // For simple gcd, we need none of these;  for bezout (extended EA) we need c1,d1 and c2,d2
+  // For convergents we need c1,d1 and t
+#ifdef DEBUG_PSEA
+  cout<<"Entering pseudo_euclidean_step with a="<<a<<", N(a)="<<a.norm()<<", b="<<b<<", N(b)="<<b.norm()<<endl;
+#endif
+  t = 0;
+  if (b.is_zero())
+    return;
+
+  int compute_c1d1 = !(c1.is_zero() && d1.is_zero());
+  int compute_c2d2 = !(c2.is_zero() && d2.is_zero());
+  Quad u, shift = a/b;  // rounded, so N(a/b - shift) is minimal
+
+  a.subprod(shift,b);
+  if (compute_c1d1) d1.addprod(shift,c1);
+  if (compute_c2d2) d2.addprod(shift,c2);
+#ifdef DEBUG_PSEA
+  cout<<" - translation = "<<shift<<endl;
+#endif
+
+  if (a.norm()<b.norm()) // standard Euclidean M works
+    {
+      u = a; a=-b; b=u;
+      if (compute_c1d1) {u = -d1; d1=c1; c1=u;}
+      if (compute_c2d2) {u = -d2; d2=c2; c2=u;}
+#ifdef DEBUG_PSEA
+      cout<<" - after inverting by S, returning (a,b) = ("<<a<<","<<b<<") ";
+      if (compute_c1d1) cout << "(c1,d1)=("<<c1<<","<<d1<<") ";
+      if (compute_c2d2) cout << "(c2,d2)=("<<c2<<","<<d2<<") ";
+      cout <<" type=0" << endl;
+#endif
+      t = 0;
+      return;
+    }
+
+  // If a/b is a translate of a singular point sigma, we apply an
+  // extra translation if necessary and set t=-i where the translate
+  // of a/b is the i'th singular point.  This is quick to check so we
+  // do it first; if this fails then a/b can be reduced using at least
+  // one alpha.
+
+  t = sigma_index_with_translation(a,b, shift);
+  if (t!=-1)
+    {
+      a.subprod(shift,b);
+      if (compute_c1d1) d1.addprod(shift,c1);
+      if (compute_c2d2) d2.addprod(shift,c2);
+#ifdef DEBUG_PSEA
+      cout<<" - a/b is singular, a translate of sigma["<<t<<"]"<<endl;
+#endif
+      t = -t;
+      return;
+    }
+
+  // Now look for a suitable alpha (skipping 0/1 which we already tested)
+
+  t = find_best_alpha(a, b, shift, 1); // 1 means use the first one found, 0 find the best
+  if (t==-1)
+    {
+#ifdef DEBUG_PSEA
+      cout<<" - all alphas failed thoough a/b is not singular"<<endl;
+#endif
+      // We should never arrive here, as it means that all alphas have
+      // failed and a/b is not singular.
+      cerr<<"Pseudo-Euclidean step fails for ("<<a<<", "<<b<<")"<<endl;
+      exit(1);
+    }
+
+  mat22 M = Mlist[t];
+  a.subprod(shift,b);
+  M.apply_left(a,b);
+  if (compute_c1d1)
+    {
+      d1.addprod(shift,c1);
+      M.apply_right_inverse(c1,d1);
+    }
+  if (compute_c2d2)
+    {
+      d2.addprod(shift,c2);
+      M.apply_right_inverse(c2,d2);
+    }
+#ifdef DEBUG_PSEA
+  cout<<" - reduction success (with shift="<<shift<<" and alpha="<<alphas[t]
+      <<"), returning (a,b) = ("<<a<<","<<b<<"), type "<<t<<endl;
+#endif
+  return;
+}
+
+// Each relation is a signed sum of edges (M)_alpha = {M(alpha},
+// M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
+// sigmas[-t] (when t<0), for t in the list types.  Here we check that
+// such a relation holds identically in H_3 (not just modulo the
+// congruence subgroup!)
+
+// Special case: all signs +1
+int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types) const
+{
+  vector<int> signs(mats.size(), 1);
+  return check_rel(mats, types, signs);
+}
+
+// General case:
+
+//#define DEBUG_FACE_RELATION
+
+int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs) const
+{
+#ifdef DEBUG_FACE_RELATION
+  int n = mats.size();
+  cout<<"  - Checking "<<(n==2? "edge": "face")<<" relation...\n";
+  cout<<"    mats: "<<mats<<endl;
+  cout<<"    types: "<<types<<endl;
+  cout<<"    signs: "<<signs<<endl;
+#endif
+  auto mi = mats.begin();
+  auto ti = types.begin(), si = signs.begin();
+  vector<RatQuad> as, bs;
+  while (ti!=types.end())
+    {
+      mat22 M = *mi++;
+      RatQuad c = base_point(*ti);
+#ifdef DEBUG_FACE_RELATION
+      cout<<"    M = "<<M<<" maps {"<< c <<",oo} to ";
+#endif
+      RatQuad a = M(c), b = M.image_oo();
+#ifdef DEBUG_FACE_RELATION
+      cout<<"{"<<a<<","<<b<<"}"<<endl;
+#endif
+      if (*si>0) // use {a,b} when sign is +1
+        {
+          as.push_back(a);
+          bs.push_back(b);
+        }
+      else // use {b,a} when sign is -1
+        {
+          as.push_back(b);
+          bs.push_back(a);
+        }
+      si++;
+    }
+
+  auto ai = as.begin()+1, bi = bs.begin();
+  int ok=1;
+  while ( bi!=bs.end() &&ok)
+    {
+      RatQuad next_alpha = (ai==as.end()? as[0]: *ai++);
+      ok = ok && (*bi++==next_alpha);
+    }
+  if (!ok)
+    {
+      int nsides = mats.size();
+      cout<<"\n*************Bad "<< (nsides==2? "edge": "face") << " relation!\n";
+      cout<<"alphas: "<<as<<endl;
+      cout<<"betas:  "<<bs<<endl;
+      exit(1);
+    }
+#ifdef DEBUG_FACE_RELATION
+  else
+    {
+      cout<<"  - Good "<< (n==2? "edge": "face") << " relation!\n";
+    }
+#endif
+  return ok;
+}
+
+// Generalization of extended Euclidean algorithm.
+
+// Given a,b, returns M=[d1,-d2;-c1,c2] (the inverse of [c2,d2;c1,d1])
+// such that g/h = M(a/b), i.e. g=d1*a-d2*b, h = -c1*a+c2*b, where
+//
+// (1) if (a,b) is principal then (a,b)=(g) and h=0, and s=0;
+// (2) otherwise (a,b)=(g,h) and g/h is  the s'th singular point (s>=1).
+//
+// So in case (1) we get essentially the same information as
+// quadbezout_psea(aa, bb, xx, yy) with xx,yy the top row of M.
+//
+// Note that in case 2, g/h is equal to the singular point sigma=g0/h0
+// as an element of the field, but not as a fraction, since the ideal
+// (g,h)=(a,b) is in the same (non-principal) ideal class as
+// (g0,h0). but is not the same ideal.  In fact, (g,h)=lambda*(g0,h0)
+// with lambda = g/g0 = h/h0 (since g*h0=h*g0), but in general lambda
+// is not integral.
+
+mat22 SwanData::generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s) const
+{
+  Quad a(aa), b(bb), c1(Quad::zero), d1(Quad::one), c2(Quad::one), d2(Quad::zero);
+  int t=0;
+  while (b.norm()>0 && t>=0)
+    {
+      pseudo_euclidean_step(a, b, t, c1, d1, c2, d2);
+      assert ((c2*d1-c1*d2).is_one());
+      assert (c1*a+d1*b==bb);
+      assert (c2*a+d2*b==aa);
+    }
+
+  // Now (1) c2*d1-c1*d2 = 1;
+  //     (2) c2/c1 = aa/bb (as a reduced fraction), since b = c2*bb-c1*aa = 0;
+  //     (3) a = gcd(aa,bb), since (aa,bb)=(a,b)=(a);
+  //     (4) aa=a*c2, bb=a*c1;
+  //     (5) aa*d1-bb*d2 = a.
+
+  // Note the matrix inversion involved here:
+  // [c2,d2;c1,d1]*[a,b] = [aa,bb], so
+  // [d1,-d2;-c1,c2]*[aa,bb] = [a,b]
+
+  s = (b.norm().is_zero()? 0 : -t);
+
+  mat22 M(d1,-d2,-c1,c2); // maps aa/bb to a/b
+  assert (d1*aa-d2*bb == a);
+  assert (-c1*aa+c2*bb == b);
+  return M;
+}
+
+int SwanData::check_aaa_triangle(const POLYGON& T, int verbose) const
+{
+  const vector<int>& tri = T.indices;
+  const Quad& u = T.shifts[0];
+  if (verbose)
+    cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
+  mat22 Mi=Mlist[tri[0]], Mj=Mlist[tri[1]], Mk=Mlist[tri[2]];
+  RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
+  return (x.is_integral());
+}
+
+int SwanData::check_aas_triangle(const POLYGON& T, int verbose) const
+{
+  const vector<int>& tri = T.indices;
+  const Quad& u = T.shifts[0];
+  if (verbose)
+    cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<endl;
+  int i=tri[0], j=tri[1], k=tri[2];
+  RatQuad x = Mlist[i](slist[j]+u) - slist[k];
+  return (x.is_integral());
+}
+
+int SwanData::check_triangles(int verbose) const
+{
+  return
+    std::all_of(T_faces.begin(), T_faces.end(),
+                [this, verbose](const POLYGON& T) {return check_aaa_triangle(T, verbose);})
+    &&
+    std::all_of(U_faces.begin(), U_faces.end(),
+                [this, verbose](const POLYGON& U) {return check_aas_triangle(U, verbose);});
+}
+
+int SwanData::check_square(const POLYGON& squ, int verbose) const
+{
+  // Check:  the square {{i,j,k,l},{x,y,z}} has vertices {alpha_i, oo, alpha[j']+z, beta}
+  // where beta = z + M_j(x+alpha[k']) = M_i'(y+alpha_l),
+  // so that M_i(T^z(M_j(x+alpha[k']))) = y+alpha_l.
+
+  // Edges:
+
+  // {alpha_i, oo} = (I)_i
+  // {oo, alpha_j'+z} = (T^z*M_j)_j
+  // {alpha_j'+z, beta} = (T^z*M_j*T^x*M_k)_k
+  // {beta, alpha_i} = (M_i'*T^y)_l
+
+  const vector<int>& ijkl = squ.indices;  // int i=ijkl[0], j=ijkl[1], k=ijkl[2], l=ijkl[3];
+  const vector<Quad>& xyz = squ.shifts;
+  if (verbose)
+    cout<<"Checking square "<<ijkl<<", "<<xyz<<endl;
+  Quad x = xyz[0], y=xyz[1], z=xyz[2];
+  mat22 Mi=Mlist[ijkl[0]], Mj=Mlist[ijkl[1]], Mk=Mlist[ijkl[2]], Ml=Mlist[ijkl[3]];
+  RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
+  RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
+  mat22 M = Mi*mat22::Tmat(z)*Mj;
+  return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+}
+
+int SwanData::check_squares(int verbose) const
+{
+  return std::all_of(Q_faces.begin(), Q_faces.end(),
+                     [this, verbose](const POLYGON& Q) {return check_square(Q, verbose);});
+}
+
+int SwanData::check_hexagon(const POLYGON& hex, int verbose) const
+{
+  // Check: the hexagon {{i,j,k,l,m,n},{u,x1,y1,x2,y2}} has vertices
+  // {beta_1, alpha_i, oo, u+alpha[j], beta_2, gamma} where
+
+  // beta1 = M_i'(x1+alpha[k]),
+  // beta2 = M_j'(x2+alpha[l]),
+  // gamma = M_i'*T^x1*M_k'*T^y1(alpha[m]) = T^u*M_j'*T^x2*M_l'*T^y2(alpha[n]).
+
+  // Edges:
+
+  // +{alpha_i, oo} = (I)_i
+  // +{beta1, alpha_i} = (M_i'*T^x1)_k
+  // +{gamma, beta1} = (M_i'*T^x1*M_k'*T^y1)_m
+  // -{u+alpha_j, oo} = - (T^u)_j
+  // -{beta2, alpha_j} = - (T^u*M_j'*T^x2)_l
+  // -{gamma, beta2} = - (T^u*M_j'*T^x2*M_l'*T^y2)_n
+
+  const vector<int>& ijklmn = hex.indices;
+  const vector<Quad>& ux1y1x2y2 = hex.shifts;
+  if (verbose)
+    cout<<"Checking hexagon "<<ijklmn<<", "<<ux1y1x2y2<<endl;
+  Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
+  int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
+  RatQuad gamma1 = (Mlist[a_inv[i]]*mat22::Tmat(x1)*Mlist[a_inv[k]])(y1+alist[m]);
+  RatQuad gamma2 = (mat22::Tmat(u)*Mlist[a_inv[j]]*mat22::Tmat(x2)*Mlist[a_inv[l]])(y2+alist[n]);
+  return gamma1==gamma2;
+}
+
+int SwanData::check_hexagons(int verbose) const
+{
+  return std::all_of(H_faces.begin(), H_faces.end(),
+                     [this, verbose](const POLYGON& H) {return check_hexagon(H, verbose);});
+}
+
+

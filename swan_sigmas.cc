@@ -265,12 +265,12 @@ vector<RatQuad> test_singular_points(int output_level)
       }
   auto sigs = singular_points();
   if (output_level>=1)
-    cout << "Number of singular points, including oo: "<<sigmas.size()<<endl;
+    cout << "Number of singular points, including oo: "<<sigs.size()<<endl;
   if (output_level>=2)
-    cout << "Unsorted singular points: "<<sigmas<<endl;
+    cout << "Unsorted singular points: "<<sigs<<endl;
   sigs = sort_singular_points(sigs);
   if (output_level>=1)
-    cout << "Sorted singular points: "<<sigmas<<endl;
+    cout << "Sorted singular points: "<<sigs<<endl;
   int to_file=0; //(output_level>=1);
   int to_screen=0; //(output_level>=2);
   output_singular_points(sigs, to_file, to_screen);

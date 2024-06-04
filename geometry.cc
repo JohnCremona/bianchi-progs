@@ -3,20 +3,202 @@
 #include <iostream>
 
 #include "geometry.h"
+#include "swan.h"
+
+SwanData Quad::SD;
+
+/****************************************************************
+
+ Code for reading face relations from file 'geodata.dat'
+
+***************************************************************/
+void Quad::setup_geometry(int debug)
+{
+  if (geometry_initialised)
+    return;
+  Quad::SD.read_geodata(0, "geodata", debug);
+}
+
+// reads from data file into global variables aaa_triangles,
+// aas_triangles, squares, hexagons
+
+// Each line starts with d, with d==0 meaning "ignore this line" (for
+// comments) and d==-1 means "stop reading", with the d values in
+// increasing order so that we can stop reading when we see a d value
+// larger than Quad::d.
+
+// The next non-space character is A,S,T,U,Q,H:
+
+// A 'alpha orbit' followed by 6 integers: s, r1, r2
+// S 'sigma orbit' followed by 4 integers: r, s
+// T 'aaa-triangle' followed by 5 integers: i,j,k; u
+// U 'aas-triangle' followed by 5 integers: i,j,k; u
+// Q 'square' followed by 10 integers: i,j,k,l; x,y,z
+// H 'hexagon' followed by 16 integers: i,j,k,l,m,n; u,x1,y1,x2,y2
+
+void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose)
+{
+  istringstream input_line(line);
+  input_line >> file_d;
+  if (file_d==-1 || file_d > Quad::d)
+    {
+      G = 'X'; // code for "quit reading"
+      return;
+    }
+  if (file_d != Quad::d)
+    {
+      G = '%'; // code for "skip line"
+      return;
+    }
+  if (verbose)
+    cout<<"Processing line "<<line<<endl;
+  input_line >> G;
+  switch(G) {
+  case 'A': // alpha orbit
+    {
+      Quad s, r1, r2;
+      input_line >> s >> r1 >> r2;
+      if (verbose)
+        cout << " reading alpha orbit data"<<endl
+             << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
+      poly = {{},{s,r1,r2}};
+      return;
+    }
+  case 'S': // sigma orbit
+    {
+      Quad r, s;
+      input_line >> r >> s;
+      if (verbose)
+        cout << " reading sigma orbit data"<<endl
+             << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
+      poly = {{},{r,s}};
+      return;
+    }
+  case 'T': // aaa-triangle
+  case 'U': // aas-triangle
+    {
+      int i, j, k;   Quad u;
+      input_line >> i >> j >> k >> u;
+      if (verbose)
+        cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl
+             << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
+      poly = {{i,j,k}, {u}};
+      return;
+    }
+  case 'Q': // square
+    {
+      int i, j, k, l; Quad x, y, z;
+      input_line >> i >> j >> k >> l >> x >> y >> z;
+      if (verbose)
+        cout << " reading square data"<<endl
+             << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
+             << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
+      poly = {{i,j,k,l}, {x,y,z}};
+      return;
+    }
+  case 'H': // hexagon
+    {
+      int i, j, k, l, m, n; Quad u, x1, x2, y1, y2;
+      input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
+      if (verbose)
+        cout << " reading hexagon data"<<endl
+             << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
+             << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
+      poly = {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
+      return;
+    }
+  default:
+    return;
+  }
+}
+
+// same as above but only reads the polygons (T,U,Q,H):
+// returns 4 lists, of aaa-triangles, aas-triangles, squares, hexagons
+vector<vector<POLYGON>> read_polygons(string subdir, int verbose)
+{
+  ifstream geodata;
+  string line;
+  int file_d;
+  char G;
+  vector<POLYGON> Ts, Us, Qs, Hs;
+  POLYGON poly;
+
+  stringstream ss;
+  if (subdir.empty())
+    subdir = "geodata";
+  ss << subdir << "/geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      ss.clear();
+      ss << "geodata_" << Quad::d << ".dat";
+      geodata.open(ss.str().c_str());
+      if (!geodata.is_open())
+        {
+          cout << "No geodata file!" <<endl;
+          return {};
+        }
+    }
+  if (verbose)
+    cout << "reading from " << ss.str() <<endl;
+
+  getline(geodata, line);
+  while (!geodata.eof())
+    {
+      parse_geodata_line(line, file_d, G, poly, verbose);
+      istringstream input_line(line);
+      switch(G) {
+      case 'X':
+        {
+          if (verbose>1)
+            cout<<"Skipping rest of file"<<endl;
+          break;
+        }
+      case '%':
+      case 'A': // alpha orbit
+      case 'S': // sigma orbit
+      default:
+        {
+          if (verbose>1)
+            cout<<"Skipping line: "<<line<<endl;
+          break;
+        }
+      case 'T': // aaa-triangle
+        {
+          Ts.push_back(poly);
+          break;
+        }
+      case 'U': // aas-triangle
+        {
+          Us.push_back(poly);
+          break;
+        }
+      case 'Q': // square
+        {
+          Qs.push_back(poly);
+          break;
+        }
+      case 'H': // hexagon
+        {
+          Hs.push_back(poly);
+          break;
+        }
+      } // end of switch
+      if (G=='X')
+        break; // don't read any more lines
+      else
+        getline(geodata, line);
+    }
+  geodata.close();
+  return {Ts, Us, Qs, Hs};
+}
+
+/***************************** obsolete code using globals ***************/
+#if(0)
 
 #define CHECK_TRIANGLES
 #define CHECK_SQUARES
 #define CHECK_HEXAGONS
-
-
-// Definitions of commonly used matrices
-
-mat22 mat22::identity(1,0,0,1);
-mat22 mat22::J(-1,0,0,1);
-mat22 mat22::S(0,-1,1,0);
-mat22 mat22::TS(1,-1,1,0);   // = T*S
-mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
-mat22 mat22::R(0,1,1,0);
 
 // Definitions of alphas and associated matrices M_alpha such that
 // det(M_alpha)=1 and M_alpha(alpha)=oo and M_alpha(oo)=alpha' in alphas.
@@ -517,103 +699,86 @@ int check_hexagons(int verbose)
   return all_ok;
 }
 
-/****************************************************************
-
- Code for reading face relations from file 'geodata.dat'
-
-***************************************************************/
-
-// reads from data file into global variables aaa_triangles,
-// aas_triangles, squares, hexagons
-
-// Each line starts with d, with d==0 meaning "ignore this line" (for
-// comments) and d==-1 means "stop reading", with the d values in
-// increasing order so that we can stop reading when we see a d value
-// larger than Quad::d.
-
-// The next non-space character is A,S,T,U,Q,H:
-
-// A 'alpha orbit' followed by 6 integers: s, r1, r2
-// S 'sigma orbit' followed by 4 integers: r, s
-// T 'aaa-triangle' followed by 5 integers: i,j,k; u
-// U 'aas-triangle' followed by 5 integers: i,j,k; u
-// Q 'square' followed by 10 integers: i,j,k,l; x,y,z
-// H 'hexagon' followed by 16 integers: i,j,k,l,m,n; u,x1,y1,x2,y2
-
-void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose)
+// Return i such that alphas[i]=a, else -1
+int alpha_index(const RatQuad& a)
 {
-  istringstream input_line(line);
-  input_line >> file_d;
-  if (file_d==-1 || file_d > Quad::d)
+  auto s = alpha_ind.find(a.coords());
+  if (s==alpha_ind.end())
+    return -1;
+  return s->second;
+}
+
+// Return i and set t such that alphas[i]+t=a, else -1
+int alpha_index_with_translation(const RatQuad& a, Quad& t)
+{
+  auto s = alpha_ind.find(a.coords());
+  if (s==alpha_ind.end())
+    s = alpha_ind.find(reduce_to_rectangle(a,t).coords());
+  if (s==alpha_ind.end())
+    return -1;
+  int i = s->second;
+  (a-alphas[i]).is_integral(t);
+  assert (t+alphas[i]==a);
+  return i;
+}
+
+// Return i such that sigmas[i]=a, else -1
+int sigma_index(const RatQuad& a)
+{
+  auto s = sigma_ind.find(a.coords());
+  if (s==sigma_ind.end())
+    return -1;
+  return s->second;
+}
+
+// Return i and set t such that sigmas[i]+t=a, else -1
+int sigma_index_with_translation_new(const RatQuad& z, Quad& shift);
+int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift);
+
+int sigma_index_with_translation(const RatQuad& z, Quad& shift)
+{
+  return sigma_index_with_translation_old(z.num(), z.den(), shift);
+}
+
+// Return i and set t such that sigmas[i]+t=a/b, else -1
+int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& shift)
+{
+  return sigma_index_with_translation_old(a, b, shift);
+}
+
+int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift)
+{
+  int t = 0;
+  Quad r, s;
+  for ( const auto& sigma : sigmas )
     {
-      G = 'X'; // code for "quit reading"
-      return;
-    }
-  if (file_d != Quad::d)
-    {
-      G = '%'; // code for "skip line"
-      return;
-    }
-  if (verbose)
-    cout<<"Processing line "<<line<<endl;
-  input_line >> G;
-  switch(G) {
-  case 'A': // alpha orbit
-    {
-      Quad s, r1, r2;
-      input_line >> s >> r1 >> r2;
-      if (verbose)
-        cout << " reading alpha orbit data"<<endl
-             << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
-      poly = {{},{s,r1,r2}};
-      return;
-    }
-  case 'S': // sigma orbit
-    {
-      Quad r, s;
-      input_line >> r >> s;
-      if (verbose)
-        cout << " reading sigma orbit data"<<endl
-             << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
-      poly = {{},{r,s}};
-      return;
-    }
-  case 'T': // aaa-triangle
-  case 'U': // aas-triangle
-    {
-      int i, j, k;   Quad u;
-      input_line >> i >> j >> k >> u;
-      if (verbose)
-        cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl
-             << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
-      poly = {{i,j,k}, {u}};
-      return;
-    }
-  case 'Q': // square
-    {
-      int i, j, k, l; Quad x, y, z;
-      input_line >> i >> j >> k >> l >> x >> y >> z;
-      if (verbose)
-        cout << " reading square data"<<endl
-             << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
-             << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
-      poly = {{i,j,k,l}, {x,y,z}};
-      return;
-    }
-  case 'H': // hexagon
-    {
-      int i, j, k, l, m, n; Quad u, x1, x2, y1, y2;
-      input_line >> i >> j >> k >> l >> m >> n >> u >> x1 >> y1 >> x2 >> y2;
-      if (verbose)
-        cout << " reading hexagon data"<<endl
-             << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
-             << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
-      poly = {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
-      return;
-    }
-  default:
-    return;
-  }
+      if (sigma.is_infinity()) // ignore sigma=1/0
+        {
+          t++;
+          continue;
+        }
+      r=sigma.num(), s=sigma.den(); // sigma = r/s
+      shift = mms(a,s,b,r); //a*s-b*r
+      if (div(b*s,shift,shift))  // success! NB shift is divided by b*s before returning
+        return t;
+      t++;
+    } // end of loop over singular points sigma
+  return -1;
+}
+
+int sigma_index_with_translation_new(const RatQuad& z, Quad& shift)
+{
+  // cout << "Looking up sigma = " << z << endl;
+  auto s = sigma_ind.find(z.coords());
+  if (s==sigma_ind.end())
+    s = sigma_ind.find(reduce_to_rectangle(z,shift).coords());
+  if (s==sigma_ind.end())
+    return -1;
+  int i = s->second;
+  (z-sigmas[i]).is_integral(shift);
+  assert (shift+sigmas[i]==z);
+  // cout << " sigma is sigmas["<<i<<"] + "<<shift<< endl;
+  return i;
 }
 
 void read_data(int verbose)
@@ -701,165 +866,4 @@ void read_data(int verbose)
   geodata.close();
 }
 
-// same as above but only reads the polygons (T,U,Q,H):
-// returns 4 lists, of aaa-triangles, aas-triangles, squares, hexagons
-vector<vector<POLYGON>> read_polygons(string subdir, int verbose)
-{
-  ifstream geodata;
-  string line;
-  int file_d;
-  char G;
-  vector<POLYGON> Ts, Us, Qs, Hs;
-  POLYGON poly;
-
-  stringstream ss;
-  if (subdir.empty())
-    subdir = "geodata";
-  ss << subdir << "/geodata_" << Quad::d << ".dat";
-  geodata.open(ss.str().c_str());
-  if (!geodata.is_open())
-    {
-      ss.clear();
-      ss << "geodata_" << Quad::d << ".dat";
-      geodata.open(ss.str().c_str());
-      if (!geodata.is_open())
-        {
-          cout << "No geodata file!" <<endl;
-          return {};
-        }
-    }
-  if (verbose)
-    cout << "reading from " << ss.str() <<endl;
-
-  getline(geodata, line);
-  while (!geodata.eof())
-    {
-      parse_geodata_line(line, file_d, G, poly, verbose);
-      istringstream input_line(line);
-      switch(G) {
-      case 'X':
-        {
-          if (verbose>1)
-            cout<<"Skipping rest of file"<<endl;
-          break;
-        }
-      case '%':
-      case 'A': // alpha orbit
-      case 'S': // sigma orbit
-      default:
-        {
-          if (verbose>1)
-            cout<<"Skipping line: "<<line<<endl;
-          break;
-        }
-      case 'T': // aaa-triangle
-        {
-          Ts.push_back(poly);
-          break;
-        }
-      case 'U': // aas-triangle
-        {
-          Us.push_back(poly);
-          break;
-        }
-      case 'Q': // square
-        {
-          Qs.push_back(poly);
-          break;
-        }
-      case 'H': // hexagon
-        {
-          Hs.push_back(poly);
-          break;
-        }
-      } // end of switch
-      if (G=='X')
-        break; // don't read any more lines
-      else
-        getline(geodata, line);
-    }
-  geodata.close();
-  return {Ts, Us, Qs, Hs};
-}
-
-// Return i such that alphas[i]=a, else -1
-int alpha_index(const RatQuad& a)
-{
-  auto s = alpha_ind.find(a.coords());
-  if (s==alpha_ind.end())
-    return -1;
-  return s->second;
-}
-
-// Return i and set t such that alphas[i]+t=a, else -1
-int alpha_index_with_translation(const RatQuad& a, Quad& t)
-{
-  auto s = alpha_ind.find(a.coords());
-  if (s==alpha_ind.end())
-    s = alpha_ind.find(reduce_to_rectangle(a,t).coords());
-  if (s==alpha_ind.end())
-    return -1;
-  int i = s->second;
-  (a-alphas[i]).is_integral(t);
-  assert (t+alphas[i]==a);
-  return i;
-}
-
-// Return i such that sigmas[i]=a, else -1
-int sigma_index(const RatQuad& a)
-{
-  auto s = sigma_ind.find(a.coords());
-  if (s==sigma_ind.end())
-    return -1;
-  return s->second;
-}
-
-// Return i and set t such that sigmas[i]+t=a, else -1
-int sigma_index_with_translation_new(const RatQuad& z, Quad& shift);
-int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift);
-
-int sigma_index_with_translation(const RatQuad& z, Quad& shift)
-{
-  return sigma_index_with_translation_old(z.num(), z.den(), shift);
-}
-
-// Return i and set t such that sigmas[i]+t=a/b, else -1
-int sigma_index_with_translation(const Quad& a, const Quad& b, Quad& shift)
-{
-  return sigma_index_with_translation_old(a, b, shift);
-}
-
-int sigma_index_with_translation_old(const Quad& a, const Quad& b, Quad& shift)
-{
-  int t = 0;
-  Quad r, s;
-  for ( const auto& sigma : sigmas )
-    {
-      if (sigma.is_infinity()) // ignore sigma=1/0
-        {
-          t++;
-          continue;
-        }
-      r=sigma.num(), s=sigma.den(); // sigma = r/s
-      shift = mms(a,s,b,r); //a*s-b*r
-      if (div(b*s,shift,shift))  // success! NB shift is divided by b*s before returning
-        return t;
-      t++;
-    } // end of loop over singular points sigma
-  return -1;
-}
-
-int sigma_index_with_translation_new(const RatQuad& z, Quad& shift)
-{
-  // cout << "Looking up sigma = " << z << endl;
-  auto s = sigma_ind.find(z.coords());
-  if (s==sigma_ind.end())
-    s = sigma_ind.find(reduce_to_rectangle(z,shift).coords());
-  if (s==sigma_ind.end())
-    return -1;
-  int i = s->second;
-  (z-sigmas[i]).is_integral(shift);
-  assert (shift+sigmas[i]==z);
-  // cout << " sigma is sigmas["<<i<<"] + "<<shift<< endl;
-  return i;
-}
+#endif // obsolete code

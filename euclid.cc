@@ -10,16 +10,16 @@
 /******************************************************************
 pseudo-Euclidean step: applies a translation and *if possible* an
 M_alpha inversion to a/b (or column vector [a;b]) reducing b, also
-multiplying row vector [c.d] my M_alpha on the right.  In the
+multiplying row vector [c,d] my M_alpha on the right.  In the
 Euclidean case, the shift is -q where q=a/b (rounded) and the
 inversion is via S=[0,-1;1,0], with t=0.  In general if t>=0 then
 the t'th inversion was applied.
 
-If the class number is >1 and the ideal (a,b) is non-principal,
-then possibly after translation we have that a/b is a singular
-point s, in which case no inversion is done and t<0 where s is the
-|t|'th singular point.  (The singular points list effectively
-starts at index 1.)
+If the class number is >1 and the ideal (a,b) is non-principal, then
+possibly after translation we have that a/b is a singular point s, in
+which case no inversion is done (as none can reduce N(b)); then t<0
+where s is the |t|'th singular point.  (The singular points list
+effectively starts at index 1.)
 
 a,b,c1,d1,c2,d2 are changed in place, though if either (c2,d2) or
 both (c1,d1), (c2,d2) are left as defaults they are not updated.

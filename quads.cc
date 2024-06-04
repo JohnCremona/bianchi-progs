@@ -9,7 +9,7 @@
 #include "primes.h"
 #include "geometry.h"
 
-//Declare static data members of class Quad:
+//Declare static data members of class Quad (except SD which is declared in geometry.cc)
 
 long Quad::d;
 INT Quad::disc;

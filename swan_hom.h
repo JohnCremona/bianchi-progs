@@ -21,24 +21,14 @@ vector<vector<int>> integral_homology(const vector<CuspList>& faces,
                                       const vector<vector<Quad>>& fours,
                                       int group, int debug=0);
 
-// same using globals
-vector<vector<int>> integral_homology(const vector<CuspList>& faces,
-                                      int group, int debug=0);
-
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
 int edge_index(const EDGE& e, const CuspList& alphas, const CuspList& sigmas);
-// Same using globals
-int edge_index(const EDGE& e);
 
 // Return the edge boundary matrix M10 (matrix of delta: 1-chains -> 0-chains)
 vector<vector<int>> edge_boundary_matrix(const CuspList& alphas, const CuspList& sigmas);
-// Same using globals
-vector<vector<int>> edge_boundary_matrix();
 
 // Return the image under delta of the face, as a vector of length #alphas+#sigmas-1
 vector<int> face_boundary_vector(const CuspList& face, const CuspList& alphas, const CuspList& sigmas);
-// Same using globals
-vector<int> face_boundary_vector(const CuspList& face);
 
 vector<vector<int>> edge_pairings(const vector<CuspList>& faces,
                                   const CuspList& alphas, const CuspList& sigmas,
@@ -47,25 +37,15 @@ vector<vector<int>> edge_pairings(const vector<CuspList>& faces,
                                   const vector<vector<Quad>>& fours,
                                   int GL2);
 
-// Same using globals
-vector<vector<int>> edge_pairings(int GL2);
-
 vector<vector<int>> face_boundaries(const vector<CuspList>& faces,
                                     const CuspList& alphas, const CuspList& sigmas,
                                     int GL2);
-// same using globals
-vector<vector<int>> face_boundaries(const vector<CuspList>& faces, int GL2);
-
 // Return the face boundary matrix M21 (matrix of delta: 2-chains -> 1-chains)
 vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          const CuspList& alphas, const CuspList& sigmas,
                                          const vector<vector<Quad>>& pluspairs,
                                          const vector<vector<Quad>>& minuspairs,
                                          const vector<vector<Quad>>& fours,
-                                         int GL2);
-
-// Same using globals
-vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          int GL2);
 
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps

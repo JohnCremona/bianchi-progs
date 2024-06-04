@@ -1,5 +1,5 @@
 #include "looper.h"
-#include "geometry.h"
+#include "swan.h"
 #include "primes.h"
 
 int main ()
@@ -168,7 +168,7 @@ int main ()
          {
            a = alpha;
            b = beta;
-           M = generalised_extended_euclid(a, b, s);
+           M = Quad::SD.generalised_extended_euclid(a, b, s);
            cout<<"generalised_extended_euclid("<<a<<","<<b<<") = " << M << "; ";
            g = a; h = b;
            M.apply_left(g,h);
@@ -185,10 +185,10 @@ int main ()
            RatQuad z(g,h);
            cout<<"("<<a<<","<<b<<") is ";
            if (s!=0)
-             cout << "not principal, maps to singular point " << sigmas[s] << endl;
+             cout << "not principal, maps to singular point " << Quad::SD.slist[s] << endl;
            else
              cout << "principal, maps to ("<<g<<")/("<<h<<") = " <<z<<endl;
-           assert (sigmas[s]==z);
+           assert (Quad::SD.slist[s]==z);
          }
    }
  cout<<"done.\n";

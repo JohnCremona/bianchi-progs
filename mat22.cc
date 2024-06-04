@@ -3,6 +3,17 @@
 #include "primes.h"
 #include "mat22.h"
 
+
+
+// Definitions of commonly used matrices
+
+mat22 mat22::identity(1,0,0,1);
+mat22 mat22::J(-1,0,0,1);
+mat22 mat22::S(0,-1,1,0);
+mat22 mat22::TS(1,-1,1,0);   // = T*S
+mat22 mat22::TiS(-1,-1,1,0); // = T^{-1}*S
+mat22 mat22::R(0,1,1,0);
+
 ostream& operator<<(ostream& s, const H3point& P)
 {
   s << "[" << P.z<<","<<P.t2<<"]";

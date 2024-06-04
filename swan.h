@@ -84,6 +84,10 @@ public:
   // (same as above for when t is not needed)
   int alpha_index_upto_translation(const RatQuad& a) const;
 
+  RatQuad base_point(int t) const {
+    return t>=0? alist[t] : slist[-t];
+  }
+
   H3pointList get_corners() const {
     return corners;
   }
@@ -141,6 +145,7 @@ public:
   // the fly.
 
   // (2) T_faces, U_faces, Q_faces, H_faces
+
   void read_geodata(int include_small_denoms=0, string subdir="", int verbose=0)
   {
     read_alphas_and_sigmas(include_small_denoms, subdir);
@@ -154,7 +159,6 @@ public:
 private:
   timer SwanTimer;
   int showtimes;
-  Quadlooper denom_looper; // default init: norms from 1 to oo, both conjugates
   CuspList alistx; // list of alphas + 8 integer translates
   CuspList alistF4; // sublist of those in quarter rectangle
   INT maxn; // max denom norm of alphas considered systematically
@@ -168,7 +172,7 @@ private:
 
   // add next batch of alphas from denom_looper, return number added
   // (called only by find_covering_alphas())
-  int add_new_alphas(int verbose=0);
+  int add_new_alphas(Quadlooper& denom_looper, int verbose=0);
 
   // (called only by make_alphas())
   void find_covering_alphas(int verbose=0);
@@ -260,6 +264,107 @@ private:
   // boundary map from 2-cells to 1-cells
   vector<vector<int>> face_boundary_matrix(int GL2);
 
+  // functions for pseudo-euclidean algorithm
+
+  // return type t if translation by -q followed by Mlist[t] reduces
+  // (a,b) to (a',b') with N(b')<N(b), or -1 if none exists, which
+  // will be if and only if a/b is singular.  If lucky is nonzero,
+  // return the first t which reduces N(b), otherwise try all and
+  // return the best.
+
+  int find_best_alpha(const Quad& a, const Quad& b, Quad& shift, int lucky=0) const;
+
+/******************************************************************
+
+One pseudo-Euclidean step applies a translation and *if possible* an
+M_alpha inversion to a/b (or column vector [a;b]) reducing b, also
+multiplying row vector [c,d] my M_alpha on the right.  In the
+Euclidean case, the shift is -q where q=a/b (rounded) and the
+inversion is via S=[0,-1;1,0], with t=0.  In general if t>=0 then
+the t'th inversion was applied.
+
+If the class number is >1 and the ideal (a,b) is non-principal, then
+possibly after translation we have that a/b is a singular point s, in
+which case no inversion is done (as none can reduce N(b)); then t<0
+where s is the |t|'th singular point.  (The singular points list
+effectively starts at index 1.)
+
+a,b,c1,d1,c2,d2 are changed in place, though if either (c2,d2) or
+both (c1,d1), (c2,d2) are left as defaults they are not updated.
+
+When applied repeatedly, there are two possible stopping
+conditions; note that the ideal (a,b) is unchanged throughout since
+we only apply SL(2,O_K)-transformations.  The process is guaranteed
+to stop after a finite number of steps since either N(b) is reduced
+or the second stopping conditions is reached.
+
+(1) When the ideal (a0,b0) is principal, the stopping condition is
+b==0.  Then a = (a0,b0) = a0*d1-b0*d2, and c2/c1=a0/b0 reduced to
+lowest terms.
+
+(2) When (a0,b0) is not principal, the stopping condiction is
+t<0. Then a/b is the |t|'th singular point, represented as a
+fraction with ideal (a,b)=(a0,b0), which may not be the "standard"
+representation of the singular point r/s.  Since a/b=r/s, we have
+a/r=b/s=lambda, say, where lambda*r=a and lambda*b=s, but *lambda
+is not integral* in general.
+
+The quantities c1*a+d1*b andc2*a+d2*b are invariant, i.e. M*v is
+invariant where M=[c1,d1;c2,d2] and v=[a;b], since we multuply v on
+the left by unimodular matrices at the same time as multiplyin M on
+the right by the inverse.
+
+We could use a mat22 [c2,d2;c1,d1] (note the numbering) instead of
+c1,d1,c2,d2, but we do not always need one or both pairs: for a gcd
+computation, we need neither, for a bezout we need c1,d1 and for
+continued fractions we need both.
+
+ This function is crucial in reducing modular symbols, expressing
+ each as a linear combination of generalised M-symbols.
+*********************************************************************/
+public:
+  void pseudo_euclidean_step(Quad& a, Quad& b, int& t,
+                             Quad& c1=Quad::zero, Quad& d1=Quad::zero,
+                             Quad& c2=Quad::zero, Quad& d2=Quad::zero) const;
+
+  // Generalization of extended Euclidean algorithm.
+
+  // Given a,b, returns M=[d1,-d2;-c1,c2] (the inverse of [c2,d2;c1,d1])
+  // such that g/h = M(a/b), i.e. g=d1*a-d2*b, h = -c1*a+c2*b, where
+  //
+  // (1) if (a,b) is principal then (a,b)=(g) and h=0, and s=0;
+  // (2) otherwise (a,b)=(g,h) and g/h is  the s'th singular point (s>=1).
+  //
+  // So in Case (1) we get essentially the same information as
+  // quadbezout_psea(aa, bb, xx, yy) with xx,yy the top row of M.
+  //
+  // Note that in case 2, g/h is equal to the singular point sigma=g0/h0
+  // as an element of the field, but not as a fraction, since the ideal
+  // (g,h)=(a,b) is in the same (non-principal) ideal class as
+  // (g0,h0). but is not the same ideal.  In fact, (g,h)=lambda*(g0,h0)
+  // with lambda = g/g0 = h/h0 (since g*h0=h*g0), but in general lambda
+  // is not integral.
+
+  mat22 generalised_extended_euclid(const Quad& aa, const Quad& bb, int& s) const;
+
+  // Each relation is a signed sum of edges (M)_alpha = {M(alpha},
+  // M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
+  // sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
+  // relation holds identically in H_3 (not just modulo the congruence
+  // subgroup!)
+
+  // General case:
+  int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs) const;
+  // Special case: all signs +1
+  int check_rel(const vector<mat22>& mats, const vector<int>& types) const;
+
+  int check_aaa_triangle(const POLYGON& T, int verbose=0) const;
+  int check_aas_triangle(const POLYGON& T, int verbose=0) const;
+  int check_triangles(int verbose=0) const;
+  int check_square(const POLYGON& squ, int verbose=0) const;
+  int check_squares(int verbose=0) const;
+  int check_hexagon(const POLYGON& hex, int verbose=0) const;
+  int check_hexagons(int verbose=0) const;
 };
 
 #endif

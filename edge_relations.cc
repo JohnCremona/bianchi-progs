@@ -28,17 +28,6 @@
 // have sigmas[0]=oo, sigmas[1]=(w+1)/2, so edges of type t=-1 map to
 // indices i+nsymb*n_alphas.
 
-RatQuad base_point(int t)
-{
-  if (t>=0) // alpha
-    {
-      mat22 M = M_alphas[t];
-      return RatQuad(-M.entry(1,1), M.entry(1,0));
-    }
-  else // sigma
-    return sigmas[-t];
-}
-
 action edge_relations::act_with(const mat22& M)
 {
   return action(P1, M);
@@ -51,10 +40,11 @@ action edge_relations::act_with(const Quad& a, const Quad& b, const Quad& c, con
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long ch)
-  : P1(p1), SD(sd), plusflag(plus), verbose(verb), characteristic(ch)
+edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
+  : P1(p1), plusflag(plus), verbose(verb), characteristic(ch)
 { //cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
   nsymb = P1->size();
+  n_alphas = Quad::SD.n_alph(), n_sigmas = Quad::SD.n_sig();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;
   coordindex.resize(nsymbx);
@@ -66,19 +56,12 @@ edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long c
       cout << "About to start on 2-term (edge) relations.\n";
       if (n_alphas>1)
         {
-          cout<<"alphas: ";
-          for (int i=0; i<n_alphas; i++)
-            {
-              mat22 M = M_alphas[i];
-              RatQuad alpha(-M.entry(1,1), M.entry(1,0));
-              cout<<alpha<<" ";
-            }
-          cout<<endl;
+          cout<<"alphas: " << Quad::SD.alist<<endl;
         }
       if (n_sigmas>1)
         {
           cout<<"sigmas: ";
-          for ( const auto& sig : sigmas)
+          for ( const auto& sig : Quad::SD.slist)
             if (!sig.is_infinity())
               cout<<sig<<" ";
           cout<<endl;
@@ -105,11 +88,11 @@ edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long c
       cout << "After denominator 2 relations, ngens = "<<ngens<<endl;
     }
 
-  if(!::edge_pairs_minus.empty())
+  if(!Quad::SD.edge_pairs_minus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (-)\n";
-      for ( const auto& e : ::edge_pairs_minus)
+      for ( const auto& e : Quad::SD.edge_pairs_minus)
         {
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_minus(e);
@@ -119,11 +102,11 @@ edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long c
         cout << "After edge pair (-) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!::edge_pairs_plus.empty())
+  if(!Quad::SD.edge_pairs_plus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (+)\n";
-      for ( const auto& e : ::edge_pairs_plus)
+      for ( const auto& e : Quad::SD.edge_pairs_plus)
         {
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_plus(e);
@@ -133,11 +116,11 @@ edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long c
         cout << "After edge pair (+) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!::edge_fours.empty())
+  if(!Quad::SD.edge_fours.empty())
     {
       if(verbose)
         cout<<"General edge quadruple relations\n";
-      for ( const auto& e : ::edge_fours)
+      for ( const auto& e : Quad::SD.edge_fours)
         {
           if(verbose) cout<<" quadruple "<< e <<flush;
           edge_pairing_double(e);
@@ -152,7 +135,6 @@ edge_relations::edge_relations(P1N* p1, SwanData* sd, int plus, int verb, long c
       cout<<" ngens now "<< ngens<<endl;
       report();
     }
-  //  assert(check());
 }
 
 void edge_relations::report()
@@ -182,12 +164,12 @@ void edge_relations::report()
           name = "sigma";
         }
       int off = offset(t);
-      alpha = base_point(t);
+      alpha = Quad::SD.base_point(t);
       if(n_alphas>1)
         {
           cout << "Type " << t << ", "<<name<<" = "<< alpha;
           if (t>=0)
-            cout<<", M_alpha = "<<M_alphas[j];
+            cout<<", M_alpha = "<<M_alpha(j);
           cout << "\n";
         }
       for (i=0; i<nsymb; i++)
@@ -197,85 +179,6 @@ void edge_relations::report()
         }
     }
   cout << endl;
-}
-
-int edge_relations::check() // not completely implemented, don't use
-{
-  if (verbose)
-    cout<<"Checking edge relations..."<<endl;
-  pair<long, int> st, st2;
-  action J = act_with(mat22::J);
-  Quad c,d, c2, d2;
-
-  for (int i=0; i<(int)coordindex.size(); i++)
-    {
-      int n = coordindex[i];
-      if (n==0) continue; // no check for this case yet
-      st = symbol_number_and_type(i);
-      if (n>0)
-        {
-          int i2 = gens[n];
-          if (i2!=i)
-            {
-              st2 = symbol_number_and_type(i2);
-              // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
-              // if(J(st.first) != st2.first)
-              //   {
-              //     cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
-              //     cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
-              //     return 0;
-              //   }
-              if (st.second>0)
-                {
-                  if(alpha_flip[st.second] != st2.second)
-                    {
-                      cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
-                      cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
-                      cout<<"alpha_flip["<<st.second<<"] = "<<alpha_flip[st.second]<<endl;
-                      return 0;
-                    }
-                }
-              else
-                {
-                  if(sigma_flip[-st.second] != -st2.second)
-                    {
-                      cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
-                      cout<<"st = ("<<st.first<<","<<st.second<<"), st2 = ("<<st2.first<<","<<st2.second<<")"<<endl;
-                      cout<<"sigma_flip["<<-st.second<<"] = "<<sigma_flip[-st.second]<<endl;
-                      return 0;
-                    }
-                }
-            }
-        }
-      else // (n<0)
-        {
-          if (st.second<0)
-            {
-              cout<<"i="<<i<<", coordindex[i]="<<n<<"<0, but ";
-              cout<<"st = ("<<st.first<<","<<st.second<<"), with t<0"<<endl;
-              return 0;
-            }
-          int i2 = gens[-n];
-          st2 = symbol_number_and_type(i2);
-          action M = act_with(M_alphas[st.second]);
-          // the next lines do not yet take into account alphas/sigmas a such that 2*a is integral
-          if (!  (((alpha_inv[st.second] == st2.second) && (M(st2.first) == st.first))
-                  || ((alpha_flip[alpha_inv[st.second]] == st2.second) && (M(J(st2.first)) == st.first))))
-            {
-              cout<<"i="<<i<<", coordindex[i]="<<n<<" --> i2="<<i2<<", coordindex["<<i2<<"] = "<<coordindex[i2]<<endl;
-              cout<<"i ->  s t = ("<<st.first<<","<<st.second<<"), ";
-              cout<<"i2 -> st2 = ("<<st2.first<<","<<st2.second<<"), \n";
-              cout<<" alpha_inv["<<st.second<<"] = "<<alpha_inv[st.second];
-              cout<<"; M("<<st2.first<<") = "<<M(st2.first)<<endl;
-              cout<<" alpha_flip[alpha_inv["<<st.second<<"]] = "<< alpha_flip[alpha_inv[st.second]];
-              cout<<"; MJ("<<st2.first<<") = "<<M(J(st2.first))<<endl;
-              return 0;
-            }
-        }
-    }
-  if (verbose)
-    cout<<"... finished checking edge relations..."<<endl;
-  return 1;
 }
 
 void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
@@ -370,13 +273,13 @@ void edge_relations::edge_relations_2_d12mod4()
       b = w;
     }
 
-  action M = act_with(M_alphas[1]);
+  action M = act_with(M_alpha(1));
   action L = act_with(-one,a,zero,one); assert (L.det()==-one);
 
   // alpha_1 = a/2 = w/2 (d%4=1), (w+1)/2 (d%4=2)
 
-  assert(check_rel({mat22::identity, M}, {1,1}));
-  assert(check_rel({mat22::identity, L}, {1,1}, {1,-1}));
+  assert(Quad::SD.check_rel({mat22::identity, M}, {1,1}));
+  assert(Quad::SD.check_rel({mat22::identity, L}, {1,1}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off = offset(1);
@@ -430,7 +333,7 @@ void edge_relations::edge_relations_2_d12mod4()
   // sigma_1 = b/2 = (1+w)/2  (d%4=1), w/2 (d%4=2)
 
   action K = act_with(-one,b,zero,one); assert (K.det()==-one);
-  assert (check_rel({mat22::identity, K}, {-1,-1}, {1,-1}));
+  assert (Quad::SD.check_rel({mat22::identity, K}, {-1,-1}, {1,-1}));
 
   std::fill(done.begin(), done.end(), 0);
   off = offset(-1);
@@ -472,12 +375,12 @@ void edge_relations::edge_relations_2_d7mod8()
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
       Quad x;
-      (two*sigmas[t]).is_integral(x);
+      (two*Quad::SD.slist[t]).is_integral(x);
       action L = act_with(-one, x, zero,one); // fixes x/2 = sigma
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
 
-      assert (check_rel({mat22::identity, L}, {-t,-t}, {1,-1}));
+      assert (Quad::SD.check_rel({mat22::identity, L}, {-t,-t}, {1,-1}));
 
       for (i=0; i<nsymb; i++)
         {
@@ -509,7 +412,7 @@ void edge_relations::edge_relations_2_d3mod8()
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
-  action M = act_with(M_alphas[1]);
+  action M = act_with(M_alpha(1));
   action L = act_with(-one,w-one,zero,one); assert (L.det()==-one);
 
   // M maps w/2 --> oo --> (w-1)/2, where M = [w-1,u;2,-w], det=1,  order 3
@@ -518,10 +421,10 @@ void edge_relations::edge_relations_2_d3mod8()
   // Also (g)_(w-1)/2 = (gL)_(w-1)/2      with L = [-1,w-1;0,1],  det=-1, order 2, if plus
   //                  = -(gLM)_w/2
 
-  assert(check_rel({mat22::identity, M}, {2,1}, {1,1}));
-  assert(check_rel({mat22::identity, M_alphas[2]}, {1,2}, {1,1}));
-  assert(check_rel({mat22::identity, mat22(-one,w,zero,one)}, {1,1}, {1,-1}));
-  assert(check_rel({mat22::identity, L}, {2,2}, {1,-1}));
+  assert(Quad::SD.check_rel({mat22::identity, M}, {2,1}, {1,1}));
+  assert(Quad::SD.check_rel({mat22::identity, M_alpha(2)}, {1,2}, {1,1}));
+  assert(Quad::SD.check_rel({mat22::identity, mat22(-one,w,zero,one)}, {1,1}, {1,-1}));
+  assert(Quad::SD.check_rel({mat22::identity, L}, {2,2}, {1,-1}));
 
   vector<int> done(nsymb, 0);
   long off1 = offset(1), off2 = offset(2);
@@ -557,13 +460,13 @@ void edge_relations::edge_pairing_minus(int i)
   long j, k, j2, k2;
   long off1 = offset(i), off2 = offset(i+1);
   action J = act_with(mat22::J);
-  action M = act_with(M_alphas[i]);
+  action M = act_with(M_alpha(i));
   vector<int> done(nsymb, 0);
 
-  assert (check_rel({mat22::identity, M_alphas[i]}, {i, i}));
-  assert (check_rel({mat22::identity, M_alphas[i+1]}, {i+1, i+1}));
-  assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
-  assert (check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
+  assert (Quad::SD.check_rel({mat22::identity, M_alpha(i)}, {i, i}));
+  assert (Quad::SD.check_rel({mat22::identity, M_alpha(i+1)}, {i+1, i+1}));
+  assert (Quad::SD.check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
+  assert (Quad::SD.check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
 
   for (j=0; j<nsymb; j++)
     {
@@ -604,13 +507,13 @@ void edge_relations::edge_pairing_plus(int i)
   long j, k, l, m;
   long off1 = offset(i), off2 = offset(i+1);
   action J = act_with(mat22::J);
-  action M = act_with(M_alphas[i]);
+  action M = act_with(M_alpha(i));
   vector<int> done(nsymb, 0);
 
-  assert (check_rel({mat22::identity, M_alphas[i]}, {i+1, i}));
-  assert (check_rel({mat22::identity, M_alphas[i+1]}, {i, i+1}));
-  assert (check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
-  assert (check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
+  assert (Quad::SD.check_rel({mat22::identity, M_alpha(i)}, {i+1, i}));
+  assert (Quad::SD.check_rel({mat22::identity, M_alpha(i+1)}, {i, i+1}));
+  assert (Quad::SD.check_rel({mat22::identity, mat22::J}, {i, i+1}, {1,-1}));
+  assert (Quad::SD.check_rel({mat22::identity, mat22::J}, {i+1, i}, {1,-1}));
 
   for (j=0; j<nsymb; j++)
     {
@@ -653,7 +556,7 @@ void edge_relations::edge_pairing_double(int i)
   long off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
-  action M = act_with(M_alphas[i+2]);
+  action M = act_with(M_alpha(i+2));
   action J = act_with(mat22::J);
 
   for (long j=0; j<nsymb; j++) // index of type i symbol
@@ -680,7 +583,7 @@ void edge_relations::sigma_relations()          // for sigma with 2*sigma not in
   action J = act_with(mat22::J);
   for (int i=0; i<n_sigmas; i++)
     {
-      int j = sigma_flip[i];
+      int j = Quad::SD.s_flip[i];
       // if i==j,  dealt with in edge_relations_2()
       // if i>j we already dealt with this pair
       if (j<=i) continue;

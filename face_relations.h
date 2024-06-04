@@ -30,6 +30,7 @@ private:
   void make_relations();        // creates relation matrix relmat
   void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]
 
+  mat22 M_alpha(int j) const {return Quad::SD.Mlist[j];}
   void add_face_rel(const vector<long>& rel, const vector<int>& types);
   void add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs);
 

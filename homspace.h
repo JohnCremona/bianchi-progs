@@ -17,7 +17,6 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
-  SwanData SD;
   long ngens, nsymb, nap, nwq;
 
   ssubspace kern;
@@ -123,16 +122,5 @@ public:
   // each D (including D=1, meaning no self-twist)
   vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> lower_bounds={});
 };
-
-// Each relation is a signed sum of edges (M)_alpha = {M(alpha},
-// M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
-// sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
-// relation holds identically in H_3 (not just modulo the congruence
-// subgroup!)
-
-// General case:
-int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs);
-// Special case: all signs +1
-int check_rel(const vector<mat22>& mats, const vector<int>& types);
 
 #endif

@@ -15,83 +15,6 @@
 int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, smat& m, scalar& dd);
 #endif
 
-// Each relation is a signed sum of edges (M)_alpha = {M(alpha},
-// M(oo)} for M in the list mats and alpha=alphas[t] (when t>=0) or
-// sigmas[-t] (when t<0), for t in the list types.  Here we check that such a
-// relation holds identically in H_3 (not just modulo the congruence
-// subgroup!)
-
-// Special case: all signs +1
-int check_rel(const vector<mat22>& mats, const vector<int>& types)
-{
-  vector<int> signs(mats.size(), 1);
-  return check_rel(mats, types, signs);
-}
-
-// General case:
-
-//#define DEBUG_FACE_RELATION
-
-int check_rel(const vector<mat22>& mats, const vector<int>& types, const vector<int>& signs)
-{
-#ifdef DEBUG_FACE_RELATION
-  int n = mats.size();
-  cout<<"  - Checking "<<(n==2? "edge": "face")<<" relation...\n";
-  cout<<"    mats: "<<mats<<endl;
-  cout<<"    types: "<<types<<endl;
-  cout<<"    signs: "<<signs<<endl;
-#endif
-  auto mi = mats.begin();
-  auto ti = types.begin(), si = signs.begin();
-  vector<RatQuad> as, bs;
-  while (ti!=types.end())
-    {
-      mat22 M = *mi++;
-#ifdef DEBUG_FACE_RELATION
-      cout<<"    M = "<<M<<" maps {"<<base_point(*ti)<<",oo} to ";
-#endif
-      RatQuad a = M(base_point(*ti++));
-      RatQuad b = M.image_oo();
-#ifdef DEBUG_FACE_RELATION
-      cout<<"{"<<a<<","<<b<<"}"<<endl;
-#endif
-      if (*si>0) // use {a,b} when sign is +1
-        {
-          as.push_back(a);
-          bs.push_back(b);
-        }
-      else // use {b,a} when sign is -1
-        {
-          as.push_back(b);
-          bs.push_back(a);
-        }
-      si++;
-    }
-
-  auto ai = as.begin()+1, bi = bs.begin();
-  int ok=1;
-  while ( bi!=bs.end() &&ok)
-    {
-      RatQuad next_alpha = (ai==as.end()? as[0]: *ai++);
-      ok = ok && (*bi++==next_alpha);
-    }
-  if (!ok)
-    {
-      int nsides = mats.size();
-      cout<<"\n*************Bad "<< (nsides==2? "edge": "face") << " relation!\n";
-      cout<<"alphas: "<<as<<endl;
-      cout<<"betas:  "<<bs<<endl;
-      exit(1);
-    }
-#ifdef DEBUG_FACE_RELATION
-  else
-    {
-      cout<<"  - Good "<< (n==2? "edge": "face") << " relation!\n";
-    }
-#endif
-  return ok;
-}
-
 //
 // face relations
 //
@@ -108,12 +31,13 @@ face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
     {
       if (verbose)
         {
-          cout<<aaa_triangles.size()<<" extra aaa triangle relation types"<<endl;
-          cout<<aas_triangles.size()<<" aas triangle relation types"<<endl;
-          cout<<squares.size()<<" square relation types"<<endl;
-          cout<<hexagons.size()<<" hexagon relation types"<<endl;
+          cout<<Quad::SD.T_faces.size()<<" extra aaa triangle relation types"<<endl;
+          cout<<Quad::SD.U_faces.size()<<" aas triangle relation types"<<endl;
+          cout<<Quad::SD.Q_faces.size()<<" square relation types"<<endl;
+          cout<<Quad::SD.H_faces.size()<<" hexagon relation types"<<endl;
         }
-      maxnumrel += (plusflag?1:2)*nsymb*(aaa_triangles.size() + aas_triangles.size() + squares.size() + hexagons.size());
+      maxnumrel += (plusflag?1:2) * nsymb *
+        (Quad::SD.T_faces.size() + Quad::SD.U_faces.size() + Quad::SD.Q_faces.size() + Quad::SD.H_faces.size());
       if (verbose)
         cout<<"final bound on #relations = "<<maxnumrel<<endl;
     }
@@ -191,38 +115,38 @@ void face_relations::make_relations()
   if (Quad::class_number==1)
     triangle_relation_2();
 
-  if (!aaa_triangles.empty())
+  if (!Quad::SD.T_faces.empty())
     {
       if(verbose)
-        cout<<"\nApplying "<<aaa_triangles.size()<<" general aaa-triangle relations"<<endl;
-      for ( const auto& T : aaa_triangles)
+        cout<<"\nApplying "<<Quad::SD.T_faces.size()<<" general aaa-triangle relations"<<endl;
+      for ( const auto& T : Quad::SD.T_faces)
         aaa_triangle_relation(T);
     }
 
-  if (!squares.empty())
+  if (!Quad::SD.Q_faces.empty())
     {
       if(verbose)
-        cout<<"\nApplying "<<squares.size()<<" general square relations"<<endl;
-      for ( const auto& S : squares)
+        cout<<"\nApplying "<<Quad::SD.Q_faces.size()<<" general square relations"<<endl;
+      for ( const auto& S : Quad::SD.Q_faces)
         general_square_relation(S);
     }
 
-  if (!hexagons.empty())
+  if (!Quad::SD.H_faces.empty())
     {
       if(verbose)
-        cout<<"\nApplying "<<hexagons.size()<<" general hexgaon relations"<<endl;
-      for ( const auto& H : hexagons)
+        cout<<"\nApplying "<<Quad::SD.H_faces.size()<<" general hexgaon relations"<<endl;
+      for ( const auto& H : Quad::SD.H_faces)
         general_hexagon_relation(H);
     }
 
   if (Quad::class_number==1)
     return;
 
-  if (!aas_triangles.empty())
+  if (!Quad::SD.U_faces.empty())
     {
       if(verbose)
-        cout<<"\nApplying "<<aas_triangles.size()<<" general aas-triangle relations"<<endl;
-      for ( const auto& T : aas_triangles)
+        cout<<"\nApplying "<<Quad::SD.U_faces.size()<<" general aas-triangle relations"<<endl;
+      for ( const auto& T : Quad::SD.U_faces)
         aas_triangle_relation(T);
     }
 }
@@ -501,7 +425,7 @@ void face_relations::triangle_relation_2()
   long j, k;
   Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
-  action K = act_with(M_alphas[1]);      assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
+  action K = act_with(M_alpha(1));       assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
   action N = act_with(one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
 
   // N is the conjugate of K by [-1,w;0,1] which maps the first
@@ -513,7 +437,7 @@ void face_relations::triangle_relation_2()
   vector<long> rel(3);
   vector<int> types(3, 1), done(nsymb, 0);
   vector<mat22> mats = {mat22::identity, K, K*K};
-  assert (check_rel(mats, types));
+  assert (Quad::SD.check_rel(mats, types));
 
   for (k=0; k<nsymb; k++)
     if (!done[k])
@@ -566,7 +490,7 @@ void face_relations::general_relation(const vector<action>& Mops,
   vector<int> Jtypes(len);   // Jops, Jtypes used in applying J to a relation
 
   if (check)
-    assert(check_rel(Mats, types, signs));
+    assert(Quad::SD.check_rel(Mats, types, signs));
 
   // Adjustments will be needed on applying J when one of the alphas[t] has denominator 2.
   if (!plusflag)
@@ -581,13 +505,13 @@ void face_relations::general_relation(const vector<action>& Mops,
           Quad x;
           if (t>=0)
             {
-              Jtypes[s] = alpha_flip[t];
-              a = two*alphas[t];
+              Jtypes[s] = Quad::SD.a_flip[t];
+              a = two* Quad::SD.alist[t];
             }
           else
             {
-              Jtypes[s] = -sigma_flip[-t];
-              a = two*sigmas[-t];
+              Jtypes[s] = - Quad::SD.s_flip[-t];
+              a = two* Quad::SD.slist[-t];
             }
           if (a.is_integral(x))
             {
@@ -598,7 +522,7 @@ void face_relations::general_relation(const vector<action>& Mops,
             }
         }
       if (check)
-        assert(check_rel(Jmats, Jtypes, signs));
+        assert(Quad::SD.check_rel(Jmats, Jtypes, signs));
     }
 
   vector<int> done(nsymb, 0);
@@ -657,16 +581,18 @@ void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
   if(verbose)
     cout << "Applying aaa-triangle relation ["<<T<<"; "<<u<<"]\n";
 
-  RatQuad beta = M_alphas[j].preimage_oo();
-  RatQuad gamma = M_alphas[k].preimage_oo();
-  RatQuad x = M_alphas[i](beta+u) - gamma;
+  RatQuad beta = M_alpha(j).preimage_oo();
+  RatQuad gamma = M_alpha(k).preimage_oo();
+  RatQuad x = M_alpha(i)(beta+u) - gamma;
   Quad xnum;
   x.is_integral(xnum);
 
-  vector<int> types = {i,alpha_inv[j],k}, signs(3, 1);
-  vector<action> Mops = {act_with(mat22::identity),
-                         act_with(mat22::Tmat(u) * M_alphas[alpha_inv[j]]),
-                         act_with(M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
+  vector<int> types = {i, Quad::SD.a_inv[j],k}, signs(3, 1);
+  vector<action> Mops = {
+    act_with(mat22::identity),
+    act_with(mat22::Tmat(u) * M_alpha(Quad::SD.a_inv[j])),
+    act_with(M_alpha(Quad::SD.a_inv[i])*mat22::Tmat(xnum))
+  };
 
   general_relation(Mops, types, signs, 0, check);
 
@@ -677,19 +603,18 @@ void face_relations::aaa_triangle_relation(const POLYGON& tri, int check)
 void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
 {
   vector<int> T = tri.indices;
-  Quad u = tri.shifts[0];
+  Quad u = tri.shifts[0], xnum;
   int i=T[0], j=T[1], k=T[2];
   if(verbose)
     cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
 
-  RatQuad x = M_alphas[i](sigmas[j]+u) - sigmas[k];
-  Quad xnum;
+  RatQuad x = M_alpha(i)(Quad::SD.slist[j]+u) - Quad::SD.slist[k];
   x.is_integral(xnum);
 
   vector<int> types = {i,-j,-k}, signs = {+1,-1,+1};
   vector<action> Mops = {act_with(mat22::identity),
                          act_with(mat22::Tmat(u)),
-                         act_with(M_alphas[alpha_inv[i]]*mat22::Tmat(xnum))};
+                         act_with(M_alpha(Quad::SD.a_inv[i])*mat22::Tmat(xnum))};
 
   general_relation(Mops, types, signs, 0, check);
 
@@ -723,9 +648,9 @@ void face_relations::general_square_relation(const POLYGON& S, int check)
     }
 
   vector<int> types = squ, signs(4, 1);
-  mat22 M1 = mat22::Tmat(z) * M_alphas[j];
-  mat22 M2 = M1 * mat22::Tmat(x) * M_alphas[k];
-  mat22 M3 = M_alphas[alpha_inv[i]] * mat22::Tmat(y);
+  mat22 M1 = mat22::Tmat(z) * M_alpha(j);
+  mat22 M2 = M1 * mat22::Tmat(x) * M_alpha(k);
+  mat22 M3 = M_alpha(Quad::SD.a_inv[i]) * mat22::Tmat(y);
   vector<action> Mops = {act_with(mat22::identity),
                          act_with(M1),
                          act_with(M2),
@@ -767,11 +692,11 @@ void face_relations::general_hexagon_relation(const POLYGON& H, int check)
     }
 
   vector<int> types = {m,k,i,j,l,n}, signs = {1,1,1,-1,-1,-1};
-  mat22 M2 = M_alphas[alpha_inv[i]] * mat22::Tmat(x1);
-  mat22 M1 = M2 * M_alphas[alpha_inv[k]] * mat22::Tmat(y1);
+  mat22 M2 = M_alpha(Quad::SD.a_inv[i]) * mat22::Tmat(x1);
+  mat22 M1 = M2 * M_alpha(Quad::SD.a_inv[k]) * mat22::Tmat(y1);
   mat22 M3 = mat22::Tmat(u);
-  mat22 M4 = M3 * M_alphas[alpha_inv[j]] * mat22::Tmat(x2);
-  mat22 M5 = M4 * M_alphas[alpha_inv[l]] * mat22::Tmat(y2);
+  mat22 M4 = M3 * M_alpha(Quad::SD.a_inv[j]) * mat22::Tmat(x2);
+  mat22 M5 = M4 * M_alpha(Quad::SD.a_inv[l]) * mat22::Tmat(y2);
   vector<action> Mops = {act_with(M1),
                          act_with(M2),
                          act_with(mat22::identity),

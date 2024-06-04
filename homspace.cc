@@ -1,15 +1,13 @@
 // FILE HOMSPACE.CC: Implemention of class homspace
 
-#include "euclid.h"
 #include "cusp.h"
 #include "homspace.h"
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, int hp, int verb, long ch)
-  :verbose(verb), plusflag(hp), N(I), P1(I), SD(0), characteristic(ch), hmod(0)
+  :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), hmod(0)
 {
   Quad::setup_geometry(); // will do nothing after the first time called
-  SD.read_geodata(0, "geodata");
   nsymb = P1.size();
 
   if (verbose)
@@ -17,16 +15,16 @@ homspace::homspace(const Qideal& I, int hp, int verb, long ch)
       cout << nsymb << " symbols";
       if (!Quad::is_Euclidean)
         {
-          cout << ", " << n_alphas;
+          cout << ", " << Quad::SD.n_alph();
           if (Quad::class_number>1)
-            cout << " + " << n_sigmas-1;
-          cout << " types, total " << (n_alphas+n_sigmas-1)*nsymb << " edges" << endl;
+            cout << " + " << Quad::SD.n_sig(1);
+          cout << " types, total " << (Quad::SD.n_alph()+Quad::SD.n_sig(1))*nsymb << " edges" << endl;
         }
       else
         cout << endl;
     }
 
-  ER = edge_relations(&P1, &SD, hp, verb, characteristic);
+  ER = edge_relations(&P1, hp, verb, characteristic);
   ngens = ER.get_ngens();
 
   FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
@@ -56,7 +54,7 @@ modsym homspace::edge_generator(long i)
   pair<long, int> st = ER.symbol_number_and_type(i);
   mat22 U(P1.lift_to_SL2(st.first));
   int type = st.second;
-  RatQuad a(type>=0? alphas[type]: sigmas[-type]);
+  RatQuad a(type>=0? Quad::SD.alist[type]: Quad::SD.slist[-type]);
   return modsym(U(a), U.image_oo());
 }
 
@@ -313,13 +311,13 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
 #endif
   while (!b.is_zero())
      {
-       pseudo_euclidean_step(a,b, t, c,d);
+       Quad::SD.pseudo_euclidean_step(a,b, t, c,d);
        //c = N.reduce(c); d = N.reduce(d); // reduce modulo the level
 
        // either t>=0 and we have a standard edge:
        if (t>=0)
          {
-           u = alpha_inv[t];
+           u = Quad::SD.a_inv[t];
 #ifdef DEBUG_CHAIN
            cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_t'=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(lift_to_SL2(N,c,d),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif

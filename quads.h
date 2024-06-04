@@ -12,6 +12,7 @@ class Quad;
 class mat22;
 class RatQuad;
 class Qideal;
+class SwanData;
 
 // Valid fields
 extern vector<long> valid_fields;
@@ -87,8 +88,9 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static void initquadprimes();
   static vector<Quad> primes_above(long p, int& sig);
   static void fill_class_group(); // implemented in qidloop.cc
+  static SwanData SD;
   static int geometry_initialised; // set to 0 on init and to 1 when the following function has been called
-  static void setup_geometry(int debug=0);   // implemented in geometry.cc
+  static void setup_geometry(int debug=0);   // fills SD (implemented in geometry.cc)
 
 // Now the actual data elements:
  private:

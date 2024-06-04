@@ -178,6 +178,7 @@ int main ()
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if(0)
       if (D<1000)
         {
       // Compare with precomputed alphas and sigmas
@@ -243,6 +244,7 @@ int main ()
             }
         }
         } // end of code to compare new and old
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -250,11 +252,8 @@ int main ()
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-      alphas = new_alphas; // overwrite the globals with our lists
-      sigmas = new_sigmas; //
-
-      // compute the M_alphas and alpha_inv from our lists:
-      M_alphas = all_M_alphas(alphas, alpha_inv);
+      auto alphas = new_alphas;
+      auto sigmas = new_sigmas;
 
 # if(0)
       // Look at neighbours of each finite singular point

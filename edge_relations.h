@@ -12,22 +12,22 @@ class face_relations;
 class edge_relations {
 public:
   edge_relations() {;} //{cout<<"In default edge_relations constructor"<<endl;}
-  edge_relations(P1N*, SwanData*, int plus, int verb=0, long ch=0);
+  edge_relations(P1N*, int plus, int verb=0, long ch=0);
   long coords(int i) const {return coordindex[i];}
   long coords(int i, int t) const {return coordindex[i+offset(t)];}
   long gen(int i) const {return gens[i];}  // indexed from 1 not 0
   long get_ngens() const {return ngens;}
   long offset(int t) const // offset into coordindex for type t
   {
-    return nsymb * (t>=0? t: n_alphas-t-1);
+    return nsymb * (t>=0? t: Quad::SD.n_alph()-t-1);
   }
   pair<long, int> symbol_number_and_type(long i) const
   {
     std::ldiv_t st = ldiv(i, nsymb);
     long s = st.rem;  // remainder gives (c:d) symbol number
     int t = st.quot;  // quotient gives symbol type
-    if (t>=n_alphas)  // convert singular type to negative
-      t = n_alphas-t-1;
+    if (t >= Quad::SD.n_alph())  // convert singular type to negative
+      t = Quad::SD.n_alph()-t-1;
     return {s, t};
   }
   action act_with(const mat22& M);
@@ -35,11 +35,12 @@ public:
 
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
-  SwanData* SD;
   int plusflag, verbose;
   long characteristic; // =0 or prime p
+  int n_alphas, n_sigmas;
   long nsymb, ngens;
   vector<int> coordindex, gens;
+  mat22 M_alpha(int j) const {return Quad::SD.Mlist[j];}
 
 private:
   void edge_relations_1();    // basic edge relations for alpha = 0
@@ -53,10 +54,7 @@ private:
   void edge_pairing_plus(int i);    // edge relation pair, alpha=r/s with r^2=+1 (s)
   void edge_pairing_double(int i);  // edge relation double pairing
   void report();
-  int check();
   friend class face_relations;
 };
-
-RatQuad base_point(int type);
 
 #endif
