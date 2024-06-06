@@ -606,10 +606,17 @@ void face_relations::aas_triangle_relation(const POLYGON& tri, int check)
   Quad u = tri.shifts[0], xnum;
   int i=T[0], j=T[1], k=T[2];
   if(verbose)
-    cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
-
+    {
+      cout << "Applying aas-triangle relation ["<<T<<"; "<<u<<"]\n";
+      cout<<"i="<<i<<", alpha[i]="<<Quad::SD.alist[i]<<endl;
+      cout<<"j="<<i<<", sigma[j]="<<Quad::SD.slist[j]<<endl;
+      cout<<"k="<<i<<", sigma[k]="<<Quad::SD.slist[k]<<endl;
+      cout<<"alpha_inv[i] = "<<Quad::SD.a_inv[i]<<" with matrix "<<M_alpha(Quad::SD.a_inv[i])<<endl;
+    }
   RatQuad x = M_alpha(i)(Quad::SD.slist[j]+u) - Quad::SD.slist[k];
   x.is_integral(xnum);
+  if (verbose)
+    cout<<"x="<<xnum<<endl;
 
   vector<int> types = {i,-j,-k}, signs = {+1,-1,+1};
   vector<action> Mops = {act_with(mat22::identity),
@@ -738,6 +745,7 @@ void face_relations::solve_relations()
       cout<<"# nonzero entries in row\t\t#rows"<<endl;
       for (int i=1; i<=maxrowsize; i++)
         cout<<i<<"\t\t\t\t\t"<<relmat_rowdata[i]<<endl;
+      cout <<relmat.as_mat()<<endl;
     }
    timer t;
    t.start("relation solver");
@@ -753,6 +761,7 @@ void face_relations::solve_relations()
        cout<<"Finished solving relation matrix in ";
        t.showAll();
        cout<<"\n";
+       cout<<ker.as_mat()<<endl;
      }
 #endif
    int ok = 1;

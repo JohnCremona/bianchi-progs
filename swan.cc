@@ -1156,15 +1156,15 @@ void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
   int ns = slist.size();
   RatQuad sigma(r,s), msigma(-r,s);
   slist.push_back(sigma);
-  if (!s.is_zero())
+  if (!s.is_zero()) // so oo is ignored
     {
       s_ind[sigma.coords()] = ns;
       s_ind[reduce_to_rectangle(sigma).coords()] = ns;
     }
-  if (s.is_zero() || s==TWO) // don't also include -sigma
+  static const Quad two(2);
+  if (s.is_zero() || s==two) // don't also include -sigma
     {
       s_flip.push_back(ns);     // identity
-      ns+=1;
     }
   else
     {
@@ -1173,13 +1173,17 @@ void SwanData::process_sigma_orbit(const Quad& r, const Quad& s)
       s_ind[reduce_to_rectangle(msigma).coords()] = ns+1;
       s_flip.push_back(ns+1);   // transposition with next
       s_flip.push_back(ns);     // transposition with previous
-      ns+=2;
     }
+  // cout<<"After process_sigma_orbit("<<r<<","<<s<<"):"<<endl;
+  // cout<<"slist = "<<slist<<endl;
+  // cout<<"s_flip = "<<s_flip<<endl;
 }
 
-void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2)
+void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2, int verbose)
 {
-  //  cout<<"Processing alpha orbit ("<<s<<","<<r1<<","<<r2<<")\n";
+  if (verbose)
+    cout<<"Processing alpha orbit ("<<s<<","<<r1<<","<<r2<<")\n";
+
   auto add_alpha = [this](const Quad& a, const Quad& b, const Quad& c, const Quad& d)
   {
     RatQuad alpha(-d,c);
@@ -1188,6 +1192,7 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
     alist.push_back(alpha);
     mat22 M(a,b,c,d);  // maps alpha = -d/c to oo
     assert (M.is_unimodular());
+    assert (M(alpha).is_infinity());
     Mlist.push_back(M);
     a_denoms.insert(c);
     a_ind[alpha.coords()] = n;
@@ -1203,39 +1208,75 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
 
   if (r1==r2) // "-" pair, r1^2=-1 (mod s)
     {
+      // General case alpha[n] = r/s, alpha[n+1] = -r/s are each self-inverse
+      // Special case alpha[n] = r/s = -r/s (if s|2) is self-inverse
       edge_pairs_minus.push_back(n);
-      a_inv.push_back(n);   // identity
-      a_inv.push_back(n+1); // identity
-      a_flip.push_back(n+1);   // transposition with next
-      a_flip.push_back(n);     // transposition with previous
+      if (s_divides_2) // inv and flip are identity (special case: only one alpha)
+        {
+          a_inv.push_back(n);
+          a_flip.push_back(n);
+        }
+      else // inv is identity, flip swaps n,n+1 (general case: two alphas)
+        {
+          // n,n+1 map to n,n+1
+          a_inv.push_back(n);
+          a_inv.push_back(n+1);
+          // n,n+1 map to n+1,n
+          a_flip.push_back(n+1);
+          a_flip.push_back(n);
+        }
       add_alpha( r1, t, s, -r1); // alpha =  r1/s
       if (!s_divides_2)
         add_alpha(-r1, t, s,  r1); // alpha = -r1/s
-      // cout<<"(-pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_minus="<<edge_pairs_minus<<endl;
+      if (verbose)
+        cout<<"(-pair): alist is now "<<alist<<", #alphas="<<alist.size()
+            <<", edge_pairs_minus="<<edge_pairs_minus<<endl;
       return;
     }
-  if (r1==-r2) // "+" pair, r1^2=+1 (mod s)
+
+  if (r1==-r2) // "+" pair, r1^2=+1 (mod s) -- here we do not have s|2
     {
+      // General case alpha[n] = r/s, alpha[n+1] = -r/s are inverses of each other
+      // Special case alpha[n] = r/s = -r/s (if s|2) does not occur
       edge_pairs_plus.push_back(n);
-      a_inv.push_back(n+1); // transposition with next
-      a_inv.push_back(n);   // transposition with previous
-      a_flip.push_back(n+1);   // transposition with next
-      a_flip.push_back(n);     // transposition with previous
+      // n,n+1 map to n+1,n
+      a_inv.push_back(n+1);
+      a_inv.push_back(n);
+      // n,n+1 map to n+1,n
+      a_flip.push_back(n+1);
+      a_flip.push_back(n);
       add_alpha(-r1, t, s, -r1); // alpha =  r1/s
       add_alpha( r1, t, s,  r1); // alpha = -r1/s
-      // cout<<"(+pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_plus="<<edge_pairs_plus<<endl;
+      if (verbose)
+        cout<<"(+pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_plus="<<edge_pairs_plus<<endl;
       return;
     }
-  // Now we have four distinct alphas
+
+  // Now we have in general four distinct alphas r1/s, -r1/s, r2/s, -r2/s with r1*r2=-1 (s).
+  // Special case (s|2): just two alphas, r1/s, r2/s with r1*r2=-1=+1 (mod s) and r1!=r2.
   edge_fours.push_back(n);
-  a_inv.push_back(n+2);
-  a_inv.push_back(n+3);
-  a_inv.push_back(n);
-  a_inv.push_back(n+1);
-  a_flip.push_back(n+1);
-  a_flip.push_back(n);
-  a_flip.push_back(n+3);
-  a_flip.push_back(n+2);
+  if (s_divides_2) // inv swaps n,n+1; flip is identity
+    {
+      // n,n+1 map to n+1,n
+      a_inv.push_back(n+1);
+      a_inv.push_back(n);
+      // n,n+1 map to n,n+1
+      a_flip.push_back(n);
+      a_flip.push_back(n+1);
+    }
+  else // inv swaps n,n+2 and n+1,n+3; flip swaps n,n+1 and n+2,n+3
+    {
+      // n,n+1,n+2,n+3 map to n+2,n+3,n,n+1
+      a_inv.push_back(n+2);
+      a_inv.push_back(n+3);
+      a_inv.push_back(n);
+      a_inv.push_back(n+1);
+      // n,n+1,n+2,n+3 map to n+1,n,n+3,n+2
+      a_flip.push_back(n+1);
+      a_flip.push_back(n);
+      a_flip.push_back(n+3);
+      a_flip.push_back(n+2);
+    }
   // cout<<"(four): before adding alphas, #alphas="<<n<<endl;
   add_alpha( r2, t, s, -r1); // alpha =  r1/s
   if (!s_divides_2)
@@ -1243,10 +1284,11 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
   add_alpha( r1, t, s, -r2); // alpha =  r2/s
   if (!s_divides_2)
     add_alpha(-r1, t, s,  r2); // alpha = -r2/s
-  // cout<<"(four): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_fours="<<edge_fours<<endl;
+  if (verbose)
+    cout<<"(four): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_fours="<<edge_fours<<endl;
 }
 
-void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
+void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, int verbose)
 {
   alist.clear(); a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
   slist.clear(); s_ind.clear(); s_flip.clear();
@@ -1254,11 +1296,14 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
 
   // Start slist with sigma = oo:
   slist = {RatQuad::infinity()};
+  s_flip = {0};
 
   // Add in alphas and sigmas with small denoms "manually" if they are not on file:
 
   if (!include_small_denoms) // means they are *not* in the geodata file
     {
+      if (verbose)
+        cout << "Constructing alphas and sigmas of denominator 1,2,3..."<<endl;
       int d = Quad::d;
       int d8 = d%8, d12 = d%12;
       Quad w = Quad::w, zero(0), one(1), two(2), three(3);
@@ -1286,23 +1331,18 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
               switch (d12) {
               case 2: case 5:
                 process_sigma_orbit(1+w,three);
-                process_sigma_orbit(-1-w,three);
                 process_sigma_orbit(1-w,three);
-                process_sigma_orbit(-1+w,three);
                 break;
               case 3:
                 process_sigma_orbit(1+w,three);
-                process_sigma_orbit(-1-w,three); // NB not in rectangle: (2-w)/3 is
+                // NB (-1-w)/3 is not in rectangle: (2-w)/3 is
                 break;
               case 6: case 9:
                 process_sigma_orbit(w,three);
-                process_sigma_orbit(-w,three);
                 break;
               case 11:
                 process_sigma_orbit(w,three);
-                process_sigma_orbit(-w,three);
                 process_sigma_orbit(-1+w,three);
-                process_sigma_orbit(1-w,three);
                 break;
               default:
                 ;
@@ -1312,20 +1352,20 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
 
       // alphas of denom 1, 2 and 3
 
-      process_alpha_orbit(one, zero, zero);
+      process_alpha_orbit(one, zero, zero, verbose);
 
       if (Quad::is_Euclidean)
         return;
 
       switch (d8) {
       case 1: case 5:
-        process_alpha_orbit(two, w, w);
+        process_alpha_orbit(two, w, w, verbose);
         break;
       case 2: case 6:
-        process_alpha_orbit(two, 1+w, 1+w);
+        process_alpha_orbit(two, 1+w, 1+w, verbose);
         break;
       case 3:
-        process_alpha_orbit(two, w, 1+w);
+        process_alpha_orbit(two, w, w-1, verbose);
         break;
       default:
         ;
@@ -1335,25 +1375,25 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
         {
           switch (d%12) {
           case 1: case 10:
-            process_alpha_orbit(three, w, w);       // w^2=-1 (mod 3)
-            process_alpha_orbit(three, 1+w, 1-w);   // (1+w)(1-w)=-1 (mod 3)
+            process_alpha_orbit(three, w, w, verbose);       // w^2=-1 (mod 3)
+            process_alpha_orbit(three, 1+w, 1-w, verbose);   // (1+w)(1-w)=-1 (mod 3)
             break;
           case 7:
-            process_alpha_orbit(three, 1+w, 1+w);    // (1+w)^2=-1 (mod 3)
             if (d>31)
-              process_alpha_orbit(three, w, 1-w);    // w(1-w)=-1 (mod 3)
+              process_alpha_orbit(three, w, 1-w, verbose);    // w(1-w)=-1 (mod 3)
+            process_alpha_orbit(three, 1+w, 1+w, verbose);    // (1+w)^2=-1 (mod 3)
             break;
           case 2: case 5:
-            process_alpha_orbit(three, w, -w);         // w^2=+1 (mod 3)
+            process_alpha_orbit(three, w, -w, verbose);         // w^2=+1 (mod 3)
             break;
           case 11:
-            process_alpha_orbit(three, 1+w, -1-w);     // (1+w)^2=+1 (mod 3)
+            process_alpha_orbit(three, 1+w, -1-w, verbose);     // (1+w)^2=+1 (mod 3)
             break;
           case 3:
-            process_alpha_orbit(three, w, w-1);     // w(w-1)=-1 (mod 3)
+            process_alpha_orbit(three, w, w-1, verbose);     // w(w-1)=-1 (mod 3)
             break;
           case 6: case 9:
-            process_alpha_orbit(three, w+1, w-1);   // (w+1)(w-1)=-1 (mod 3)
+            process_alpha_orbit(three, w+1, w-1, verbose);   // (w+1)(w-1)=-1 (mod 3)
             break;
           } // d12 switch
         } // small fields
@@ -1369,7 +1409,11 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
       cout << "No geodata file!" <<endl;
       return;
     }
-
+  else
+    {
+      if (verbose)
+        cout << "Reading A- and S- lines from geodata file" <<endl;
+    }
   string line;
   int file_d;
   char G;
@@ -1383,7 +1427,7 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
       switch(G) {
       case 'A': // alpha orbit
         {
-          process_alpha_orbit(poly.shifts[0], poly.shifts[1], poly.shifts[2]);
+          process_alpha_orbit(poly.shifts[0], poly.shifts[1], poly.shifts[2], verbose);
           break;
         }
       case 'S': // sigma orbit
@@ -1402,6 +1446,15 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir)
         getline(geodata, line);
     }
   geodata.close();
+  if (verbose)
+    {
+      cout << "alphas: " << alist << endl;
+      cout << "sigmas: " << slist << endl;
+      cout << "alpha_inv: " << a_inv << endl;
+      cout << "edge_pairs_plus: " << edge_pairs_plus << endl;
+      cout << "edge_pairs_minus: " << edge_pairs_minus << endl;
+      cout << "edge_fours: " << edge_fours << endl;
+    }
 }
 
 void SwanData::make_singular_polyhedra(int verbose)
@@ -1817,6 +1870,7 @@ void SwanData::read_face_data(string subdir, int verbose)
         getline(geodata, line);
     }
   geodata.close();
+  check_faces(verbose);
 }
 
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2
@@ -2242,7 +2296,8 @@ int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types, con
   while (ti!=types.end())
     {
       mat22 M = *mi++;
-      RatQuad c = base_point(*ti);
+      RatQuad c = base_point(*ti++);
+      int s = *si++;
 #ifdef DEBUG_FACE_RELATION
       cout<<"    M = "<<M<<" maps {"<< c <<",oo} to ";
 #endif
@@ -2250,7 +2305,7 @@ int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types, con
 #ifdef DEBUG_FACE_RELATION
       cout<<"{"<<a<<","<<b<<"}"<<endl;
 #endif
-      if (*si>0) // use {a,b} when sign is +1
+      if (s>0) // use {a,b} when sign is +1
         {
           as.push_back(a);
           bs.push_back(b);
@@ -2260,7 +2315,6 @@ int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types, con
           as.push_back(b);
           bs.push_back(a);
         }
-      si++;
     }
 
   auto ai = as.begin()+1, bi = bs.begin();
@@ -2276,7 +2330,7 @@ int SwanData::check_rel(const vector<mat22>& mats, const vector<int>& types, con
       cout<<"\n*************Bad "<< (nsides==2? "edge": "face") << " relation!\n";
       cout<<"alphas: "<<as<<endl;
       cout<<"betas:  "<<bs<<endl;
-      exit(1);
+      assert(ok);
     }
 #ifdef DEBUG_FACE_RELATION
   else
@@ -2340,10 +2394,12 @@ int SwanData::check_aaa_triangle(const POLYGON& T, int verbose) const
   const vector<int>& tri = T.indices;
   const Quad& u = T.shifts[0];
   if (verbose)
-    cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<endl;
+    cout<<"Checking aaa-triangle ("<<tri<<","<<u<<")"<<"..."<<flush;
   mat22 Mi=Mlist[tri[0]], Mj=Mlist[tri[1]], Mk=Mlist[tri[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
-  return (x.is_integral());
+  int ok = (x.is_integral());
+  if (verbose) cout << "OK"<<endl;
+  return ok;
 }
 
 int SwanData::check_aas_triangle(const POLYGON& T, int verbose) const
@@ -2351,10 +2407,12 @@ int SwanData::check_aas_triangle(const POLYGON& T, int verbose) const
   const vector<int>& tri = T.indices;
   const Quad& u = T.shifts[0];
   if (verbose)
-    cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<endl;
+    cout<<"Checking aas-triangle ("<<tri<<","<<u<<")"<<"..."<<flush;
   int i=tri[0], j=tri[1], k=tri[2];
   RatQuad x = Mlist[i](slist[j]+u) - slist[k];
-  return (x.is_integral());
+  int ok = (x.is_integral());
+  if (verbose) cout << "OK"<<endl;
+  return ok;
 }
 
 int SwanData::check_triangles(int verbose) const

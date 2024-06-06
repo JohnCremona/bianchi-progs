@@ -388,6 +388,7 @@ void add_sigma_orbit(const Quad& r, const Quad& s)
       sigma_ind[sigma.coords()] = n_sigmas;
       sigma_ind[reduce_to_rectangle(sigma).coords()] = n_sigmas;
     }
+  static const Quad two(2);
   if (s.is_zero() || s==TWO) // don't also include -sigma
     {
       sigma_flip.push_back(n_sigmas);     // identity

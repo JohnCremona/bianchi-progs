@@ -125,7 +125,7 @@ public:
   // edge_pairs_minus, edge_fours.  If include_small_denoms, the file
   // contains all alpha and sigma orbits, otherwise construct those of
   // denominator 0, 1, 2, 3 on the fly.
-  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="");
+  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="", int verbose=0);
 
   // Append to subdir/geodata_d.dat all TUQH lines from
   // T_faces, U_faces, Q_faces, H_faces
@@ -148,7 +148,7 @@ public:
 
   void read_geodata(int include_small_denoms=0, string subdir="", int verbose=0)
   {
-    read_alphas_and_sigmas(include_small_denoms, subdir);
+    read_alphas_and_sigmas(include_small_denoms, subdir, verbose);
     read_face_data(subdir, verbose);
   }
 
@@ -220,9 +220,9 @@ private:
     process_sigma_orbit(sig.num(), sig.den());
   }
 
-  void process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2);
-  void process_alpha_orbit(const vector<Quad>& sr1r2) {
-    process_alpha_orbit(sr1r2[0], sr1r2[1], sr1r2[2]);
+  void process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2, int verbose=0);
+  void process_alpha_orbit(const vector<Quad>& sr1r2, int verbose=0) {
+    process_alpha_orbit(sr1r2[0], sr1r2[1], sr1r2[2], verbose);
   }
 
   void make_alpha_orbits();
@@ -365,6 +365,10 @@ public:
   int check_squares(int verbose=0) const;
   int check_hexagon(const POLYGON& hex, int verbose=0) const;
   int check_hexagons(int verbose=0) const;
+  int check_faces(int verbose=0) const
+  {
+    return check_triangles(verbose) && check_squares(verbose) && check_hexagons(verbose);
+  }
 };
 
 #endif

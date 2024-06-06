@@ -42,7 +42,17 @@ action edge_relations::act_with(const Quad& a, const Quad& b, const Quad& c, con
 
 edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
   : P1(p1), plusflag(plus), verbose(verb), characteristic(ch)
-{ //cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
+{
+  if (verbose)
+    {
+      cout<<"In edge_relations constructor with P^1("<<P1->level()<<"), plus="<<plus<<endl;
+      cout << "alphas: " << Quad::SD.alist << endl;
+      cout << "sigmas: " << Quad::SD.slist << endl;
+      cout << "edge_pairs_plus: " << Quad::SD.edge_pairs_plus << endl;
+      cout << "edge_pairs_minus: " << Quad::SD.edge_pairs_minus << endl;
+      cout << "edge_fours: " << Quad::SD.edge_fours << endl;
+    }
+
   nsymb = P1->size();
   n_alphas = Quad::SD.n_alph(), n_sigmas = Quad::SD.n_sig();
   long nsymbx = nsymb*(n_alphas+n_sigmas-1);
@@ -88,12 +98,17 @@ edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
       cout << "After denominator 2 relations, ngens = "<<ngens<<endl;
     }
 
-  if(!Quad::SD.edge_pairs_minus.empty())
+  // NB the lists edge_pairs_plus and edge_pairs_minus and edge_fours
+  // include orbits with denom 1,2 but we do not want to process these
+  // again as they are dealt with above.
+
+   if(!Quad::SD.edge_pairs_minus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (-)\n";
       for ( const auto& e : Quad::SD.edge_pairs_minus)
         {
+          if (Quad::SD.alist[e].is_half_integral()) continue;
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_minus(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
@@ -102,12 +117,13 @@ edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
         cout << "After edge pair (-) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!Quad::SD.edge_pairs_plus.empty())
+   if(!Quad::SD.edge_pairs_plus.empty())
     {
       if(verbose)
         cout<<"General edge pair relations (+)\n";
       for ( const auto& e : Quad::SD.edge_pairs_plus)
         {
+          if (Quad::SD.alist[e].is_half_integral()) continue;
           if(verbose) cout<<" pair "<< e <<flush;
           edge_pairing_plus(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
@@ -116,12 +132,13 @@ edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
         cout << "After edge pair (+) relations, ngens = "<<ngens<<endl;
     }
 
-  if(!Quad::SD.edge_fours.empty())
+   if(!Quad::SD.edge_fours.empty())
     {
       if(verbose)
         cout<<"General edge quadruple relations\n";
       for ( const auto& e : Quad::SD.edge_fours)
         {
+          if (Quad::SD.alist[e].is_half_integral()) continue;
           if(verbose) cout<<" quadruple "<< e <<flush;
           edge_pairing_double(e);
           if(verbose) cout<<": ngens now "<< ngens<<endl;
@@ -258,6 +275,7 @@ void edge_relations::edge_relations_2()
 //#define DEBUG
 
 // edge relations for one alpha, one sigma with denominator 2 when 2 is ramified d%4=1,2 (d>2)
+
 void edge_relations::edge_relations_2_d12mod4()
 {
   Quad w = Quad::w, a, b, zero(0), one(1);
@@ -375,8 +393,10 @@ void edge_relations::edge_relations_2_d7mod8()
   for (int t=1; t<3; t++) // types -t = -1, -2
     {
       Quad x;
-      (two*Quad::SD.slist[t]).is_integral(x);
+      RatQuad s = Quad::SD.slist[t];
+      Quad::SD.slist[t].is_half_integral(x);
       action L = act_with(-one, x, zero,one); // fixes x/2 = sigma
+      assert (((mat22)L)(Quad::SD.slist[t])==Quad::SD.slist[t]);
       vector<int> done(nsymb, 0);
       long i, l, off = offset(-t);
 
@@ -405,6 +425,7 @@ void edge_relations::edge_relations_2_d7mod8()
 }
 
 // edge relations for two alphas with denominator 2 whenever 2 is inert, i.e. d%8=3 (d>3)
+
 void edge_relations::edge_relations_2_d3mod8()
 {
   Quad w = Quad::w, zero(0), one(1);
@@ -500,7 +521,7 @@ void edge_relations::edge_pairing_minus(int i)
     }
 }
 
-// For use when alpha[i]=r/s with r^2=+1 (mod s)
+// For use when alpha[i]=r/s with r^2=+1 (mod s), s
 
 void edge_relations::edge_pairing_plus(int i)
 {

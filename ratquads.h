@@ -25,6 +25,8 @@ public:
   void reduce(long n);
   int is_integral() const {return div(d,n);}
   int is_integral(Quad& a) const {return div(d,n,a);}
+  int is_half_integral() const {return div(d,2*n);}
+  int is_half_integral(Quad& a) const {return div(d,2*n,a);}
   int is_infinity() const {return d.is_zero();}
   int is_finite() const {return !d.is_zero();}
   int is_zero() const {return n.is_zero();}

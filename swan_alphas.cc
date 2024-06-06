@@ -221,14 +221,12 @@ CuspList sort_alphas(const CuspList& A,
       switch (d%8) {
       case 1: case 5:
         minuspairs.push_back({w,two});  // w^2=-1 (mod 2)
-        // could also go into pluspairs
         break;
       case 2: case 6:
         minuspairs.push_back({w+1,two}); // (w+1)^2=-1 (mod 2)
-        // could also go into pluspairs
         break;
       case 3:
-        fours.push_back({two,w,w-1}); // w(w+1)=-1 (mod 2)
+        fours.push_back({two,w,w-1}); // w(w-1)=-1 (mod 2)
       };
     }
   // denom 3:
