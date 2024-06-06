@@ -22,7 +22,6 @@ int main ()
       Quad::field(d,maxpnorm);
       Quad::displayfield(cout, 1); // 1 means also show info on 2-part of class group
       Quadprimes::display(cout, maxpnorm, 1);
-      Quad::setup_geometry();
       cout << "------------------------------------------------------------" << endl;
     }
 }

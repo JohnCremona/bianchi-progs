@@ -90,7 +90,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   static void fill_class_group(); // implemented in qidloop.cc
   static SwanData SD;
   static int geometry_initialised; // set to 0 on init and to 1 when the following function has been called
-  static void setup_geometry(int debug=0);   // fills SD (implemented in geometry.cc)
+  static void setup_geometry(int debug=0);   // reads or creates SwanData object SD
 
 // Now the actual data elements:
  private:

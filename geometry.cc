@@ -12,12 +12,6 @@ SwanData Quad::SD;
  Code for reading face relations from file 'geodata.dat'
 
 ***************************************************************/
-void Quad::setup_geometry(int debug)
-{
-  if (geometry_initialised)
-    return;
-  Quad::SD.read_geodata(0, "geodata", debug);
-}
 
 // reads from data file into global variables aaa_triangles,
 // aas_triangles, squares, hexagons
@@ -36,19 +30,19 @@ void Quad::setup_geometry(int debug)
 // Q 'square' followed by 10 integers: i,j,k,l; x,y,z
 // H 'hexagon' followed by 16 integers: i,j,k,l,m,n; u,x1,y1,x2,y2
 
-void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose)
+POLYGON parse_geodata_line(const string& line, int& file_d, char& G, int verbose)
 {
   istringstream input_line(line);
   input_line >> file_d;
   if (file_d==-1 || file_d > Quad::d)
     {
       G = 'X'; // code for "quit reading"
-      return;
+      return {{},{}};
     }
   if (file_d != Quad::d)
     {
       G = '%'; // code for "skip line"
-      return;
+      return {{},{}};
     }
   if (verbose)
     cout<<"Processing line "<<line<<endl;
@@ -61,8 +55,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
       if (verbose)
         cout << " reading alpha orbit data"<<endl
              << " - (s,r1,r2) = ("<< s<<","<<r1<<","<<r2<<")" <<endl;
-      poly = {{},{s,r1,r2}};
-      return;
+      return {{},{s,r1,r2}};
     }
   case 'S': // sigma orbit
     {
@@ -71,8 +64,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
       if (verbose)
         cout << " reading sigma orbit data"<<endl
              << " - (r,s) = ("<< r <<","<< s <<")" <<endl;
-      poly = {{},{r,s}};
-      return;
+      return {{},{r,s}};
     }
   case 'T': // aaa-triangle
   case 'U': // aas-triangle
@@ -82,8 +74,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
       if (verbose)
         cout << " reading AA"<<(G=='T'? 'A': 'S')<<"-triangle data"<<endl
              << " - [i,j,k] = ["<<i<<","<<j<<","<<k<<"], u = "<<u<<endl;
-      poly = {{i,j,k}, {u}};
-      return;
+      return {{i,j,k}, {u}};
     }
   case 'Q': // square
     {
@@ -93,8 +84,7 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
         cout << " reading square data"<<endl
              << " - [i,j,k,l] = ["<<i<<","<<j<<","<<k<<","<<l<<"], "
              << "[x,y,z] = ["<<x<<","<<y<<","<<z<<"]"<<endl;
-      poly = {{i,j,k,l}, {x,y,z}};
-      return;
+      return {{i,j,k,l}, {x,y,z}};
     }
   case 'H': // hexagon
     {
@@ -104,11 +94,10 @@ void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly,
         cout << " reading hexagon data"<<endl
              << " - [i,j,k,l,m,n] = ["<<i<<","<<j<<","<<k<<","<<l<<","<<m<<","<<n<<"], "
              << "[u,x1,y1,x2,y2] = ["<<u<<","<<x1<<","<<y1<<","<<x2<<","<<y2<<"]"<<endl;
-      poly = {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
-      return;
+      return {{i,j,k,l,m,n}, {u,x1,y1,x2,y2}};
     }
   default:
-    return;
+    return {{},{}};
   }
 }
 
@@ -145,7 +134,7 @@ vector<vector<POLYGON>> read_polygons(string subdir, int verbose)
   getline(geodata, line);
   while (!geodata.eof())
     {
-      parse_geodata_line(line, file_d, G, poly, verbose);
+      poly = parse_geodata_line(line, file_d, G, verbose);
       istringstream input_line(line);
       switch(G) {
       case 'X':
@@ -811,7 +800,7 @@ void read_data(int verbose)
   getline(geodata, line);
   while (!geodata.eof())
     {
-      parse_geodata_line(line, file_d, G, poly, verbose);
+      poly = parse_geodata_line(line, file_d, G, verbose);
       istringstream input_line(line);
       switch(G) {
       case 'X':

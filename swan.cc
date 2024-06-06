@@ -6,6 +6,28 @@
 #include "swan_tess.h"
 #include "swan_hom.h" // for homology_invariants() only
 
+// clears all alphas-sigma data, polyhedra, faces
+void SwanData::clear()
+{
+  alist.clear(); a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
+  slist.clear(); s_ind.clear(); s_flip.clear();
+  edge_pairs_plus.clear();  edge_pairs_minus.clear();  edge_fours.clear();
+  T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
+  all_polyhedra.clear();
+  all_faces.clear();
+}
+
+// clears all and recomputes alphas-sigma data, polyhedra, faces
+void SwanData::create(int verbose)
+{
+  clear();
+  make_sigmas();
+  make_alphas(verbose);        // calls make_sigmas()
+  make_all_polyhedra(verbose); // calls make_alphas()
+  make_all_faces(verbose);     // calls make_all_polyhedra()
+  encode_all_faces(1, verbose);  // (check=1) calls make_all_faces()
+}
+
 void SwanData::make_sigmas() {
   if (slist.empty())
     {
@@ -25,7 +47,8 @@ void SwanData::make_sigmas() {
     }
 }
 
-void SwanData::make_alphas(int verbose) {
+void SwanData::make_alphas(int verbose)
+{
   if (alist.empty())
     {
       string step = "SwanData::make_alphas()";
@@ -1134,6 +1157,7 @@ void SwanData::make_alpha_orbits()
 
 void SwanData::output_alphas(int include_small_denoms, string subdir)
 {
+  make_alphas();
   vector<Quad> small_denoms;
   if (!include_small_denoms) small_denoms  = {Quad(0), Quad(1), Quad(2), Quad(3)};
 
@@ -1288,15 +1312,37 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
     cout<<"(four): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_fours="<<edge_fours<<endl;
 }
 
-void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, int verbose)
+int SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, int verbose)
 {
   alist.clear(); a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
   slist.clear(); s_ind.clear(); s_flip.clear();
   edge_pairs_plus.clear();  edge_pairs_minus.clear();  edge_fours.clear();
 
-  // Start slist with sigma = oo:
+  Quad w = Quad::w, zero(0), one(1), two(2), three(3);
+
+  // Start alist with 0/1 amd slist with sigma = oo:
+
+  process_alpha_orbit(one, zero, zero, verbose);
   slist = {RatQuad::infinity()};
   s_flip = {0};
+
+  if (Quad::is_Euclidean) return 1;
+
+  ifstream geodata;
+  stringstream ss;
+  if (!subdir.empty()) ss << subdir << "/";
+  ss << "geodata_" << Quad::d << ".dat";
+  geodata.open(ss.str().c_str());
+  if (!geodata.is_open())
+    {
+      cout << "No geodata file!" <<endl;
+      return 0;
+    }
+  else
+    {
+      if (verbose)
+        cout << "Reading A- and S- lines from geodata file" <<endl;
+    }
 
   // Add in alphas and sigmas with small denoms "manually" if they are not on file:
 
@@ -1306,12 +1352,13 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
         cout << "Constructing alphas and sigmas of denominator 1,2,3..."<<endl;
       int d = Quad::d;
       int d8 = d%8, d12 = d%12;
-      Quad w = Quad::w, zero(0), one(1), two(2), three(3);
 
       // sigmas of denom 2 and 3
 
       if (Quad::class_number > 1)
         {
+          // sigmas of denom 2 (if any)
+
           switch (d8) {
           case 1: case 5:
             process_sigma_orbit(1+w,two);
@@ -1326,6 +1373,9 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
           default:
             ;
           } // d8 switch
+
+          // sigmas of denom 3 (if any)
+
           if (!(d==5 || d==6 || d==23 || d==15))
             {
               switch (d12) {
@@ -1350,12 +1400,7 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
             } // excluded d=5,6,15,23
         }  // class number>1
 
-      // alphas of denom 1, 2 and 3
-
-      process_alpha_orbit(one, zero, zero, verbose);
-
-      if (Quad::is_Euclidean)
-        return;
+      // alphas of denom 2 (if any)
 
       switch (d8) {
       case 1: case 5:
@@ -1370,6 +1415,8 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
       default:
         ;
       } // d8 switch
+
+      // alphas of denom 3 (if any)
 
       if (!( (d==5 || d==6 || d==15 || d==19 || d==23) ))
         {
@@ -1399,40 +1446,29 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
         } // small fields
     } // small denoms
 
-  ifstream geodata;
-  stringstream ss;
-  if (!subdir.empty()) ss << subdir << "/";
-  ss << "geodata_" << Quad::d << ".dat";
-  geodata.open(ss.str().c_str());
-  if (!geodata.is_open())
-    {
-      cout << "No geodata file!" <<endl;
-      return;
-    }
-  else
-    {
-      if (verbose)
-        cout << "Reading A- and S- lines from geodata file" <<endl;
-    }
-  string line;
-  int file_d;
-  char G;
-  POLYGON poly;
+  // Now read A- and S- lines from geodata file for alphas and sigmas
+  // of other denominators:
 
+  string line;
+  int nA=0, nS=0;
   getline(geodata, line);
   while (!geodata.eof())
     {
-      parse_geodata_line(line, file_d, G, poly);
-      istringstream input_line(line);
+      int file_d;
+      char G;
+      POLYGON poly =  parse_geodata_line(line, file_d, G, verbose);
+      auto data = poly.shifts;
       switch(G) {
       case 'A': // alpha orbit
         {
-          process_alpha_orbit(poly.shifts[0], poly.shifts[1], poly.shifts[2], verbose);
+          process_alpha_orbit(data[0], data[1], data[2], verbose);
+          nA++;
           break;
         }
       case 'S': // sigma orbit
         {
-          process_sigma_orbit(poly.shifts[0], poly.shifts[1]);
+          process_sigma_orbit(data[0], data[1]);
+          nS++;
           break;
         }
       default:
@@ -1448,13 +1484,14 @@ void SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, i
   geodata.close();
   if (verbose)
     {
-      cout << "alphas: " << alist << endl;
-      cout << "sigmas: " << slist << endl;
+      cout << alist.size() << "alphas in " << nA << "alpha orbits: " << alist << endl;
+      cout << slist.size() << "sigmas in " << nS << "sigma orbits: " << slist << endl;
       cout << "alpha_inv: " << a_inv << endl;
       cout << "edge_pairs_plus: " << edge_pairs_plus << endl;
       cout << "edge_pairs_minus: " << edge_pairs_minus << endl;
       cout << "edge_fours: " << edge_fours << endl;
     }
+  return 1;
 }
 
 void SwanData::make_singular_polyhedra(int verbose)
@@ -1583,6 +1620,9 @@ void SwanData::make_principal_polyhedra(int verbose)
 
 void SwanData::make_all_polyhedra(int verbose)
 {
+  if (!all_polyhedra.empty()) return;
+  make_alphas(verbose); // makes sure all sigma and alpha data is present
+
   string step = "SwanData::make_all_polyhedra()";
   SwanTimer.start(step);
 
@@ -1597,6 +1637,9 @@ void SwanData::make_all_polyhedra(int verbose)
 
 void SwanData::make_all_faces(int verbose)
 {
+  if (!all_faces.empty()) return;
+  make_all_polyhedra(verbose); // makes polyhedra (and all sigma and alpha data if necessary)
+
   string step = "SwanData::make_all_faces()";
   SwanTimer.start(step);
 
@@ -1660,6 +1703,8 @@ void SwanData::make_all_faces(int verbose)
 // separately in face_relations code (for historic reasons).
 int SwanData::encode_all_faces(int check, int verbose)
 {
+  make_all_faces(verbose); // will first make polyhedra if necessary
+
   int sing, ok, all_ok = 1;
   POLYGON P;
 
@@ -1804,9 +1849,12 @@ void SwanData::output_face_data(string subdir, int verbose)
 
 // Read from subdir/geodata_d.dat all TUQH lines and fill
 // aaa, aas, sqs, hexs (not all_faces)
-void SwanData::read_face_data(string subdir, int verbose)
+int SwanData::read_face_data(string subdir, int verbose)
 {
   T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
+
+  if (Quad::is_Euclidean) return 1;
+
   ifstream geodata;
   stringstream ss;
   if (!subdir.empty()) ss << subdir << "/";
@@ -1816,17 +1864,19 @@ void SwanData::read_face_data(string subdir, int verbose)
   if (!geodata.is_open())
     {
       cout << "No geodata file " << infile << " exists!" <<endl;
-      return;
+      return 0;
     }
   if (verbose)
     cout << "reading from geodata file " << infile <<endl;
 
-  string line;  int file_d;  char G;  POLYGON poly;
+  string line;
+  int nT=0, nU=0, nQ=0, nH=0;
   getline(geodata, line);
   while (!geodata.eof())
     {
-      parse_geodata_line(line, file_d, G, poly, verbose);
-      istringstream input_line(line);
+      int file_d;
+      char G;
+      POLYGON poly = parse_geodata_line(line, file_d, G, verbose);
       switch(G) {
       case 'X':
         {
@@ -1846,21 +1896,25 @@ void SwanData::read_face_data(string subdir, int verbose)
       case 'T': // aaa-triangle
         {
           T_faces.push_back(poly);
+          nT++;
           break;
         }
       case 'U': // aas-triangle
         {
           U_faces.push_back(poly);
+          nU++;
           break;
         }
       case 'Q': // square
         {
           Q_faces.push_back(poly);
+          nQ++;
           break;
         }
       case 'H': // hexagon
         {
           H_faces.push_back(poly);
+          nH++;
           break;
         }
       } // end of switch
@@ -1870,7 +1924,19 @@ void SwanData::read_face_data(string subdir, int verbose)
         getline(geodata, line);
     }
   geodata.close();
-  check_faces(verbose);
+  if (verbose)
+    cout<<"Read "<<nT<<" T triangles, "<<nU<<" U-triangles, "<<nQ<<" squares and "<<nH<<" hexagons"<<endl;
+  if (check_faces(verbose))
+    {
+      if(verbose)
+        cout<<"All polygons on file check OK"<<endl;
+      return nT || nU || nQ || nH;
+    }
+  else
+    {
+      cout<<"Some polygons on file fail to check OK"<<endl;
+      return 0;
+    }
 }
 
 // Return the index of an edge {a,b} in the range 0..#alphas+#sigmas-2

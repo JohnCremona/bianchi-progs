@@ -169,91 +169,14 @@ int main ()
       SD.output_alphas_and_sigmas(0,subdir);
       // tim.showAll();
 
-      new_alphas = SDalphas; // overwrite the SD lists for comparison with stored data
-      new_sigmas = SDsigmas; //
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Compare alphas and sigmas found using old and new code
-//
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if(0)
-      if (D<1000)
-        {
-      // Compare with precomputed alphas and sigmas
-      cout << "Testing newly computed sigmas and alphas with old..." <<flush;
-      Quad::setup_geometry(); // this sets lots of globals including alphas and sigmas, and M_alphas
-      cout << "read in old data..."<<flush;
-      if (compare_CuspLists_as_sets(sigmas, new_sigmas))
-        cout << "sigmas agree..." <<flush;
-      else
-        {
-          if (compare_CuspLists_as_sets_mod_translation(sigmas, new_sigmas))
-            cout << "sigmas agree (up to translation)..." <<flush;
-          else
-            {
-              cout << "sigmas DO NOT agree:\n";
-              cout << sigmas.size() << " old sigmas";
-              // if (verbose)
-                cout << ": " <<sigmas;
-              cout << endl;
-              cout << new_sigmas.size() << " new sigmas";
-              // if (verbose)
-                cout << ": " <<new_sigmas;
-              cout << endl;
-              cout << "old not in new:\n";
-              Quad temp;
-              for (const auto& a : sigmas)
-                if (cusp_index_with_translation(a,new_sigmas,temp)==-1)
-                  cout << a << " " << a.coords(1) << endl;
-              cout << "new not in old:\n";
-              for (const auto& a : new_sigmas)
-                if (cusp_index_with_translation(a,sigmas,temp)==-1)
-                  cout << a << " " << a.coords(1) << endl;
-              exit(1);
-            }
-        }
-      if (compare_CuspLists_as_sets(alphas, new_alphas))
-        cout << "alphas agree!" <<endl;
-      else
-        {
-          if (compare_CuspLists_as_sets_mod_translation(alphas, new_alphas))
-            cout << "alphas agree (up to translation)!" <<endl;
-          else
-            {
-              cout << "alphas DO NOT agree:\n";
-              cout << alphas.size() << " old alphas";
-              // if (verbose)
-                cout << ": " <<alphas;
-              cout << endl;
-              cout << new_alphas.size() << " new alphas";
-              // if (verbose)
-                cout << ": " <<new_alphas;
-              cout << endl;
-              cout << "old not in new:\n";
-              Quad temp;
-              for (const auto& a : alphas)
-                if (cusp_index_with_translation(a,new_alphas,temp)==-1)
-                  cout << a << " " << a.coords(1) << endl;
-              cout << "new not in old:\n";
-              for (const auto& a : new_alphas)
-                if (cusp_index_with_translation(a,alphas,temp)==-1)
-                  cout << a << " " << a.coords(1) << endl;
-              exit(1);
-            }
-        }
-        } // end of code to compare new and old
-#endif
+      auto alphas = SDalphas;
+      auto sigmas = SDsigmas;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Use alphas and sigmas to find tessellation
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-      auto alphas = new_alphas;
-      auto sigmas = new_sigmas;
 
 # if(0)
       // Look at neighbours of each finite singular point

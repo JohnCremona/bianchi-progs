@@ -46,6 +46,22 @@ public:
 
   SwanData(int s=0) :showtimes(s), maxn(0) {;} // constructor: does no work
 
+  // clears all alphas-sigma data, polyhedra, faces
+  void clear();
+  // clears all and recomputes alphas-sigma data, polyhedra, faces
+  void create(int verbose=0);
+  // read from geodata file, return 1 if successful or 0 if file absent
+  int read(string subdir="", int verbose=0)
+  {
+    clear();
+    return read_geodata(0, subdir, verbose);
+  }
+  // read from geodata file, or create from scratch if not successful (file absent)
+  void read_or_create(string subdir="", int verbose=0)
+  {
+    if (!read(subdir, verbose)) create(verbose);
+  }
+
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
@@ -125,20 +141,32 @@ public:
   // edge_pairs_minus, edge_fours.  If include_small_denoms, the file
   // contains all alpha and sigma orbits, otherwise construct those of
   // denominator 0, 1, 2, 3 on the fly.
-  void read_alphas_and_sigmas(int include_small_denoms=0, string subdir="", int verbose=0);
+
+  // Return 1 if the geodata file exists, else 0.
+  int read_alphas_and_sigmas(int include_small_denoms=0, string subdir="", int verbose=0);
 
   // Append to subdir/geodata_d.dat all TUQH lines from
   // T_faces, U_faces, Q_faces, H_faces
   void output_face_data(string subdir="", int verbose=0);
 
-  // Read from subdir/geodata_d.dat all TUQH lines and fill
-  // T_faces, U_faces, Q_faces, H_faces
-  void read_face_data(string subdir="", int verbose=0);
+  //
+  void output_geodata(string subdir="", int include_small_denoms=0, int verbose=0)
+  {
+    output_alphas_and_sigmas(include_small_denoms, subdir);
+    output_face_data(subdir, verbose);
+  }
+
+  // Read from subdir/geodata_d.dat all TUQH lines and fill T_faces,
+  // U_faces, Q_faces, H_faces.  Return 1 if Euclidean, or file exists
+  // and has at least 1 TUQH line.
+  int read_face_data(string subdir="", int verbose=0);
 
   // Read from subdir/geodata_d.dat all ASTUQH lines and fill
-  // everything needed for homspace computations:
+  // everything needed for homspace computations.  Return 2 if geodata
+  // file exists with all data, 1 if it exists with alpha-sigma data
+  // only, or 0 if it does not exist.
 
-  // (1) slist, Mlist, a_denoms, a_ind, a_inv, a_flip,
+  // (1) alist, slist, Mlist, a_denoms, a_ind, a_inv, a_flip,
   // edge_pairs_plus, edge_pairs_minus, edge_fours.  If
   // include_small_denoms, the file contains all alpha and sigma
   // orbits, otherwise construct those of denominator 0, 1, 2, 3 on
@@ -146,10 +174,12 @@ public:
 
   // (2) T_faces, U_faces, Q_faces, H_faces
 
-  void read_geodata(int include_small_denoms=0, string subdir="", int verbose=0)
+  int read_geodata(int include_small_denoms=0, string subdir="", int verbose=0)
   {
-    read_alphas_and_sigmas(include_small_denoms, subdir, verbose);
-    read_face_data(subdir, verbose);
+    int res = read_alphas_and_sigmas(include_small_denoms, subdir, verbose);
+    if (!res) return 0;
+    res = read_face_data(subdir, verbose);
+    return 1+res;
   }
 
   // return the invariants of H_1 as a Z-module for either GL2

@@ -739,7 +739,8 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       {
         if (M32[i]==M32[k])
           {
-            cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
+            if (verbose)
+              cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
             ndups++;
           }
       }

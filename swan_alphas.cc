@@ -278,6 +278,7 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
 {
   vector<vector<Quad>> pluspairs, minuspairs, fours;
   CuspList new_alist = sort_alphas(alist, pluspairs, minuspairs, fours, verbose, debug);
+  triples.clear();
   triples.reserve(pluspairs.size() + minuspairs.size() + fours.size());
 
   // We don't just concatenate as we want denoms 1, 2, 3 first

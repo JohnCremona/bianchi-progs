@@ -29,7 +29,7 @@ inline int operator==(const POLYGON& P1, const POLYGON& P2) {
 // reads the polygons (T,U,Q,H) from geodata file: returns 4 lists, of
 // aaa-triangles, aas-triangles, squares, hexagons
 vector<vector<POLYGON>> read_polygons(string subdir="", int verbose=0);
-void parse_geodata_line(const string& line, int& file_d, char& G, POLYGON& poly, int verbose=0);
+POLYGON parse_geodata_line(const string& line, int& file_d, char& G, int verbose=0);
 
 /***************************** obsolete code using globals ***************/
 #if (0)

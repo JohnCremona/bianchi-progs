@@ -8,6 +8,7 @@
 #include "quads.h"
 #include "primes.h"
 #include "geometry.h"
+#include "swan.h"
 
 //Declare static data members of class Quad (except SD which is declared in geometry.cc)
 
@@ -1074,4 +1075,13 @@ vector<INT> disc_factors_mod_D(const INT& D)
   ans.resize(std::distance(ans.begin(), it));
   // cout<<"All discs "<<Quad::all_disc_factors<<" mod "<<D<<": "<<ans<<endl;
   return ans;
+}
+
+void Quad::setup_geometry(int debug)
+{
+  if (!geometry_initialised)
+    {
+      SD.read_or_create("geodata", debug);
+      geometry_initialised = 1;
+    }
 }
