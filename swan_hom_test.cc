@@ -45,7 +45,7 @@ int main ()
 
       if (verbose)
         cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".dat..." <<flush;
-      Quad::setup_geometry(verbose);
+      Quad::setup_geometry("geodata", verbose);
       if (verbose)
         cout << "done..."<<endl;
 

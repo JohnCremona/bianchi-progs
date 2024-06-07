@@ -34,6 +34,9 @@ void SwanData::make_sigmas() {
       string step = "SwanData::make_sigmas()";
       SwanTimer.start(step);
       slist = sort_singular_points(singular_points());
+      s_flip.reserve(slist.size());
+      for (auto i=0; i<slist.size(); i++)
+        s_flip.push_back(cusp_index_upto_translation(-slist[i], slist));
       slistx.clear();
       for (const auto& s : slist)
         {
@@ -1139,18 +1142,18 @@ void SwanData::make_alpha_orbits()
 {
   string step = "SwanData::make_alpha_orbits()";
   SwanTimer.start(step);
-  CuspList old_alist = alpha_orbits(alist, alpha_sets);
+  CuspList new_alist = alpha_orbits(alist, alpha_sets); // sorts alist as well as finding the orbits
   // cout<<"alpha_sets = "<<alpha_sets<<endl;
+  // cout<<"sorted alphas: "<<new_alist<<endl;
   alist.clear();
   for (const auto& sr1r2 : alpha_sets)
     process_alpha_orbit(sr1r2);
-  assert (alist==old_alist);
-  // if (alist!=old_alist)
-  //   {
-  //     cout<<"Before make_alpha_orbits(), alist = "<<old_alist<<endl;
-  //     cout<<"After  make_alpha_orbits(), alist = "<<alist<<endl;
-  //     exit(1);
-  //   }
+  assert (alist==new_alist);
+  if (alist!=new_alist)
+    {
+      cout<<"after processing alpha orbits, alist = "<<alist<<endl;
+      exit(1);
+    }
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
@@ -1484,8 +1487,8 @@ int SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, in
   geodata.close();
   if (verbose)
     {
-      cout << alist.size() << "alphas in " << nA << "alpha orbits: " << alist << endl;
-      cout << slist.size() << "sigmas in " << nS << "sigma orbits: " << slist << endl;
+      cout << alist.size() << " alphas in " << nA << " orbits: " << alist << endl;
+      cout << slist.size() << " sigmas in " << nS << " orbits: " << slist << endl;
       cout << "alpha_inv: " << a_inv << endl;
       cout << "edge_pairs_plus: " << edge_pairs_plus << endl;
       cout << "edge_pairs_minus: " << edge_pairs_minus << endl;
@@ -2464,7 +2467,8 @@ int SwanData::check_aaa_triangle(const POLYGON& T, int verbose) const
   mat22 Mi=Mlist[tri[0]], Mj=Mlist[tri[1]], Mk=Mlist[tri[2]];
   RatQuad x = (Mi(Mj.preimage_oo()+u) - Mk.preimage_oo());
   int ok = (x.is_integral());
-  if (verbose) cout << "OK"<<endl;
+  if (ok && verbose) cout << "OK"<<endl;
+  if (!ok) cout << "BAD (x=" <<x<<")" << endl;
   return ok;
 }
 
@@ -2477,7 +2481,8 @@ int SwanData::check_aas_triangle(const POLYGON& T, int verbose) const
   int i=tri[0], j=tri[1], k=tri[2];
   RatQuad x = Mlist[i](slist[j]+u) - slist[k];
   int ok = (x.is_integral());
-  if (verbose) cout << "OK"<<endl;
+  if (ok && verbose) cout << "OK"<<endl;
+  if (!ok) cout << "BAD (x=" <<x<<")" << endl;
   return ok;
 }
 
@@ -2507,13 +2512,17 @@ int SwanData::check_square(const POLYGON& squ, int verbose) const
   const vector<int>& ijkl = squ.indices;  // int i=ijkl[0], j=ijkl[1], k=ijkl[2], l=ijkl[3];
   const vector<Quad>& xyz = squ.shifts;
   if (verbose)
-    cout<<"Checking square "<<ijkl<<", "<<xyz<<endl;
+    cout<<"Checking square "<<ijkl<<", "<<xyz<<"..."<<flush;
   Quad x = xyz[0], y=xyz[1], z=xyz[2];
   mat22 Mi=Mlist[ijkl[0]], Mj=Mlist[ijkl[1]], Mk=Mlist[ijkl[2]], Ml=Mlist[ijkl[3]];
   RatQuad alpha1 = x + RatQuad(Mk.entry(0,0),Mk.entry(1,0));  // = x+alpha_k'
   RatQuad alpha2 = y + RatQuad(-Ml.entry(1,1),Ml.entry(1,0)); // = y+alpha_l
   mat22 M = Mi*mat22::Tmat(z)*Mj;
-  return ((M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1)) == alpha2);
+  RatQuad test = (M.entry(0,0)*alpha1+M.entry(0,1))/(M.entry(1,0)*alpha1+M.entry(1,1));
+  int ok = (test == alpha2);
+  if (ok && verbose) cout << "OK"<<endl;
+  if (!ok) cout << "BAD (test="<<test<<", alpha2="<<alpha2<<")" << endl;
+  return ok;
 }
 
 int SwanData::check_squares(int verbose) const
@@ -2543,12 +2552,15 @@ int SwanData::check_hexagon(const POLYGON& hex, int verbose) const
   const vector<int>& ijklmn = hex.indices;
   const vector<Quad>& ux1y1x2y2 = hex.shifts;
   if (verbose)
-    cout<<"Checking hexagon "<<ijklmn<<", "<<ux1y1x2y2<<endl;
+    cout<<"Checking hexagon "<<ijklmn<<", "<<ux1y1x2y2<<"..."<<flush;
   Quad u = ux1y1x2y2[0], x1 = ux1y1x2y2[1], y1 = ux1y1x2y2[2], x2 = ux1y1x2y2[3], y2 = ux1y1x2y2[4];
   int i=ijklmn[0], j=ijklmn[1], k=ijklmn[2], l=ijklmn[3], m=ijklmn[4], n=ijklmn[5];
   RatQuad gamma1 = (Mlist[a_inv[i]]*mat22::Tmat(x1)*Mlist[a_inv[k]])(y1+alist[m]);
   RatQuad gamma2 = (mat22::Tmat(u)*Mlist[a_inv[j]]*mat22::Tmat(x2)*Mlist[a_inv[l]])(y2+alist[n]);
-  return gamma1==gamma2;
+  int ok = gamma1==gamma2;
+  if (ok && verbose) cout << "OK"<<endl;
+  if (!ok) cout << "BAD (gamma1="<<gamma1<<", gamma2="<<gamma2<<")" << endl;
+  return ok;
 }
 
 int SwanData::check_hexagons(int verbose) const

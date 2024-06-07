@@ -398,8 +398,15 @@ int cuspeq_conj(const RatQuad& c1, const RatQuad& c2, const Qideal& N, int plusf
 // Return index of c in clist, or -1 if not in list
 int cusp_index(const RatQuad& c, const vector<RatQuad>& clist);
 
-// Return index i of c mod O_K in clist, with t=c-clist[i], or -1 if not in list
+// Return index i of c mod O_K in clist, with t=c-clist[i], or -1 if not in list up to translation
 int cusp_index_with_translation(const RatQuad& c, const vector<RatQuad>& clist, Quad& t);
+
+// Return index i of c mod O_K in clist, or -1 if not in list up to translation
+inline int cusp_index_upto_translation(const RatQuad& c, const vector<RatQuad>& clist)
+{
+  Quad t;
+  return cusp_index_with_translation(c, clist, t);
+}
 
 // list of Quad(s) q s.t. N(q-z)<1:
 vector<Quad> nearest_quads(const RatQuad&, int just_one);

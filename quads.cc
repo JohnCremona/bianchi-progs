@@ -1077,11 +1077,11 @@ vector<INT> disc_factors_mod_D(const INT& D)
   return ans;
 }
 
-void Quad::setup_geometry(int debug)
+void Quad::setup_geometry(string subdir, int debug)
 {
   if (!geometry_initialised)
     {
-      SD.read_or_create("geodata", debug);
+      SD.read_or_create(subdir, debug);
       geometry_initialised = 1;
     }
 }

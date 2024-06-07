@@ -397,7 +397,11 @@ public:
   int check_hexagons(int verbose=0) const;
   int check_faces(int verbose=0) const
   {
-    return check_triangles(verbose) && check_squares(verbose) && check_hexagons(verbose);
+    // We want to check all even if some fail
+    int TU_ok = check_triangles(verbose);
+    int Q_ok = check_squares(verbose);
+    int H_ok = check_hexagons(verbose);
+    return TU_ok && Q_ok && H_ok;
   }
 };
 

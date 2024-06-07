@@ -165,7 +165,8 @@ int main ()
       tim.stop(method);
       cout<<"...done: "; tim.show(1, method);
       string subdir = "xgeodata";
-      cout<<"SwanData A- and S- data output to " << subdir << "/geodata_" << Quad::d << ".dat" << endl;
+      string geodata_filename = subdir+"/geodata_"+std::to_string(Quad::d)+".dat";
+      cout<<"SwanData A- and S- data output to " << geodata_filename << endl;
       SD.output_alphas_and_sigmas(0,subdir);
       // tim.showAll();
 
@@ -290,12 +291,72 @@ int main ()
 
       verbose = VERBOSE;
       if (to_file||to_screen) cout << "geodata encodings of faces";
-      if (to_file) cout << " output to geodata file";
+      if (to_file)
+        cout<<" output to " << geodata_filename;
       if (to_file||to_screen) cout << "\n";
       if (to_file)
-        SD.output_face_data("", to_screen);
+        SD.output_face_data(subdir, to_screen);
+
+      // Test that reading in the data is consistent:
+
+      cout<<"\n***************** reading data back in from "<<geodata_filename<<" ************************\n"<<endl;
+
+      Quad::setup_geometry(subdir, 0);
+      int all_ok = 1;
+      int sigmas_ok = (SD.slist == Quad::SD.slist);
+      cout << "sigmas " << (sigmas_ok? "agree" : "DO NOT agree:") << endl;
+      if (!sigmas_ok)
+        {
+          cout << "sigmas output: " << SD.slist << endl;
+          cout << "sigmas input:  " << Quad::SD.slist << endl;
+          all_ok = 0;
+        }
+      int alphas_ok = (SD.alist == Quad::SD.alist);
+      cout << "alphas " << (alphas_ok? "agree" : "DO NOT agree:") << endl;
+      if (!alphas_ok)
+        {
+          cout << "alphas output: " << SD.alist << endl;
+          cout << "alphas input:  " << Quad::SD.alist << endl;
+          all_ok = 0;
+        }
+      int mats_ok = (SD.Mlist == Quad::SD.Mlist);
+      cout << "M_alphas " << (mats_ok? "agree" : "DO NOT agree:") << endl;
+      if (!mats_ok) all_ok = 0;
+      int a_inv_ok = (SD.a_inv == Quad::SD.a_inv);
+      cout << "alpha_inv " << (a_inv_ok? "agree" : "DO NOT agree:") << endl;
+      if (!a_inv_ok) all_ok = 0;
+      int a_flip_ok = (SD.a_flip == Quad::SD.a_flip);
+      cout << "alpha_flip " << (a_flip_ok? "agree" : "DO NOT agree:") << endl;
+      if (!a_flip_ok) all_ok = 0;
+      int s_flip_ok = (SD.s_flip == Quad::SD.s_flip);
+      cout << "sigma_flip " << (s_flip_ok? "agree" : "DO NOT agree:") << endl;
+      if (!s_flip_ok)
+        {
+          cout << "sigma_flip output: " << SD.s_flip << endl;
+          cout << "sigma_flip input:  " << Quad::SD.s_flip << endl;
+          all_ok = 0;
+        }
+      int epp_ok = (SD.edge_pairs_plus == Quad::SD.edge_pairs_plus);
+      cout << "edge_pairs_plus " << (epp_ok? "agree" : "DO NOT agree:") << endl;
+      if (!epp_ok) all_ok = 0;
+      int epm_ok = (SD.edge_pairs_minus == Quad::SD.edge_pairs_minus);
+      cout << "edge_pairs_minus " << (epm_ok? "agree" : "DO NOT agree:") << endl;
+      if (!epm_ok) all_ok = 0;
+      int ef_ok = (SD.edge_fours == Quad::SD.edge_fours);
+      cout << "edge_fours " << (ef_ok? "agree" : "DO NOT agree:") << endl;
+      if (!ef_ok) all_ok = 0;
+
+      all_ok = all_ok && alphas_ok;
+
+      if (!all_ok)
+        {
+          cout << "!!!!!!!!!!!!!!!!! Inconsistency in data output and input!" << endl;
+          exit(1);
+        }
 
       // Compute integral homology
+
+      cout<<"\n***************** integral homology for d = "<<Quad::d<<" ************************\n"<<endl;
 
       debug = DEBUG;
       if (0)

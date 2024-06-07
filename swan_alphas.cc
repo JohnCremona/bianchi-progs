@@ -15,6 +15,13 @@ CuspList denom_2_alphas()
   return {};
 }
 
+// NB The order of these was set early on and many geodata files
+// (discriminants up to 1000) rely on this order. Later (in
+// sort_alphas()), we have to deal with the fact that for d=7 mod 12
+// and d=1,10 mod 12 where we have a pair and a foursome, in the first
+// case the foursome comes first while in the second case the pair
+// come first.
+
 CuspList denom_3_alphas()
 {
   if (Quad::is_Euclidean) return {};
@@ -22,23 +29,22 @@ CuspList denom_3_alphas()
   if (d==5 || d==6 || d==15 || d==19 || d==23) return {};
 
   int d12 = (Quad::d)%12;
-  // fill a3list up to sign
   switch (d12) {
-  case 3:
-    return {{0,1,3}, {0,-1,3}, {-1,1,3}, {1,-1,3}}; // {w, w-1}/3 and negs
+  case 3: // a foursome w/3, (w-1)/3 with negs
+    return {{0,1,3}, {0,-1,3}, {-1,1,3}, {1,-1,3}};
   case 7:
-    if (d>31)
-      return {{1,1,3}, {-1,-1,3}, {0,1,3}, {0,-1,3}, {1,-1,3}, {-1,1,3}}; // {1+w, w, 1-w}/3 and negs
-    else
-      return {{1,1,3}, {-1,-1,3}}; // {1+w}/3 and negs
-  case 11:
-    return {{1,1,3}, {-1,-1,3}}; // {1+w}/3 and negs
-  case 1: case 10:
-    return {{0,1,3}, {0,-1,3}, {1,1,3}, {-1,-1,3}, {1,-1,3}, {-1,1,3}}; // {w, 1+w, 1-w}/3 and negs
-  case 2: case 5:
-    return {{0,1,3}, {0,-1,3}}; // {w}/3 and negs
-  case 6: case 9:
-    return {{1,1,3}, {-1,-1,3}, {-1,1,3}, {1,-1,3}}; // {w+1, w-1}/3 and negs
+    if (d>31) // a foursome w/3, (w-1)/3 and a minuspair (1+w)/3 with negs:
+      return {{0,1,3}, {0,-1,3}, {1,-1,3}, {-1,1,3}, {1,1,3}, {-1,-1,3}};
+    else  // a minus pair (1+w)/3 and neg
+      return {{1,1,3}, {-1,-1,3}};
+  case 11:  // a plus pair (1+w)/3 and neg
+    return {{1,1,3}, {-1,-1,3}};
+  case 1: case 10: // a minuspair w/3 and a foursome (1+w)/3, (1-w)/3 with negs:
+    return {{0,1,3}, {0,-1,3}, {1,1,3}, {-1,-1,3}, {1,-1,3}, {-1,1,3}};
+  case 2: case 5: // a pluspair w/3 and negs
+    return {{0,1,3}, {0,-1,3}};
+  case 6: case 9: // a foursome (w+1)/3, (w-1)/3 with negs
+    return {{1,1,3}, {-1,-1,3}, {-1,1,3}, {1,-1,3}};
   default:
     return {};
   }
@@ -50,9 +56,15 @@ CuspList sort_alphas(const CuspList& A,
                      vector<vector<Quad>>& pluspairs, vector<vector<Quad>>& minuspairs, vector<vector<Quad>>& fours,
                      int verbose, int debug)
 {
+  if(debug) cout<<"In sort_alphas() with "<<A<<endl;
+
   CuspList alist, a1list, a2list, a3list;
   map<Quad, vector<Quad>> alist_by_denom; // list of numerators for each denominator
+
+  Quad w = Quad::w, zero(0), one(1), two(2), three(3);
+  int d = Quad::d;
   Quad temp;
+
   for (const auto& a0 : A)
     {
       RatQuad a = reduce_to_rectangle(a0, temp);
@@ -60,17 +72,17 @@ CuspList sort_alphas(const CuspList& A,
         cout<<"sort_alphas replacing "<<a0<<" by "<<a<<", its translate by "<<temp<<endl;
       //assert (a.in_rectangle());
       Quad r = a.num(), s = a.den();
-      if (div(s,r)) // a is integral
+      if (s.norm().is_one()) // a is integral
         {
           a1list.push_back(a);
           continue;
         }
-      if (div(s,2*r)) // 2a is integral
+      if (div(s,two)) // 2a is integral
         {
           a2list.push_back(a);
           continue;
         }
-      if (div(s,3*r)) // 3a is integral
+      if (div(s,three)) // 3a is integral
         {
           a3list.push_back(a);
           continue;
@@ -93,12 +105,14 @@ CuspList sort_alphas(const CuspList& A,
   // We rely on the alphas of denom 1, 2, 3 begin in an exact order:
   if (a2list != d2s_expected)
     {
-      if (verbose||debug) cout << "replacing denom 2 alphas by standard list "<<d2s_expected << endl;
+      // if (verbose||debug)
+        cout << "replacing denom 2 alphas by standard list "<<d2s_expected << endl;
       a2list = d2s_expected;
     }
   if (a3list != d3s_expected)
     {
-      if (verbose||debug) cout << "replacing denom 3 alphas by standard list "<<d3s_expected << endl;
+      // if (verbose||debug)
+        cout << "replacing denom 3 alphas by standard list "<<d3s_expected << endl;
       a3list = d3s_expected;
     }
 
@@ -209,8 +223,6 @@ CuspList sort_alphas(const CuspList& A,
     cout << "After inserting fours, alist = "<<alist<<endl;
 
   // include alphas with denom 1,2,3 in pluspairs, minuspairs and fours:
-  Quad w = Quad::w, zero(0), one(1), two(2), three(3);
-  int d = Quad::d;
 
   // denom 1:
   minuspairs.push_back({zero,one});
@@ -257,8 +269,12 @@ CuspList sort_alphas(const CuspList& A,
       }
     }
   if (debug)
-    cout << "sort_alphas() returns "<<alist<<endl;
-
+    {
+      cout << "sort_alphas() returns "<<alist<<endl;
+      cout << "plus pairs:  " << pluspairs <<endl;
+      cout << "minus pairs: " << minuspairs <<endl;
+      cout << "fours:       " << fours <<endl;
+    }
   return alist;
 }
 
@@ -281,10 +297,14 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
   triples.clear();
   triples.reserve(pluspairs.size() + minuspairs.size() + fours.size());
 
-  // We don't just concatenate as we want denoms 1, 2, 3 first
-  // denoms 1 and 2 are in minuspairs not pluspairs
+  // We don't just concatenate as we want denoms 1, 2, 3 first.
+  // Denoms 1 and 2 are in minuspairs not pluspairs.
 
-  // Denominator 2 is special as r=-r (mod1); 0/1 was put into minuspairs
+  // Denom 3 alphas for d=1,10 (mod 12) consist of a minuspair then a
+  // foursome, while for d=7 (mod 12) (d>=43) there is a foursome then
+  // a minuspair.
+
+  // Denominator 1 is special as r=-r (mod 1); 0/1 was put into minuspairs
   const Quad one(1);
   for ( const auto& rs : minuspairs)
     if (rs[1]==one)
@@ -293,7 +313,7 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
         break; // there's at most one
       }
 
-  // Denominator 2 is special as r=-r (mod2); these were was put into minuspairs or fours
+  // Denominator 2 is special as r=-r (mod 2); these were was put into minuspairs or fours
   const Quad two(2);
   for ( const auto& rs : minuspairs)
     if (rs[1]==two)
@@ -310,17 +330,62 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
 
   // Denominator 3 does not need special treatment, but we do these
   // before general denominators just so that they come before them in
-  // the list of triples
+  // the list of triples.
+
+  // NB for d=7 (mod 12) the foursome comes before the minuspair while
+  // for d=1,10 (12) the minuspair comes first. Also there is at most
+  // one orbit of each type.
   const Quad three(3);
-  for ( const auto& rs : pluspairs)
-    if (rs[1]==three)
-      triples.push_back({rs[1], rs[0], -rs[0]});
-  for ( const auto& rs : minuspairs)
-    if (rs[1]==three)
-      triples.push_back({rs[1], rs[0], rs[0]});
-  for ( const auto& sr1r2 : fours)
-    if (sr1r2[0]==three)
-      triples.push_back(sr1r2);
+  int d12 = Quad::d%12;
+  switch (d12) {
+  case 2: case 5: case 11:
+    for ( const auto& rs : pluspairs)
+      if (rs[1]==three)
+        {
+          triples.push_back({rs[1], rs[0], -rs[0]});
+          break;
+        }
+    break; // end of case 2,5,11
+  case 3: case 6: case 9:
+    for ( const auto& sr1r2 : fours)
+      if (sr1r2[0]==three)
+        {
+          triples.push_back(sr1r2);
+          break;
+        }
+    break; // end of case 3,6,9
+  case 7:
+    for ( const auto& sr1r2 : fours)
+      if (sr1r2[0]==three)
+        {
+          triples.push_back(sr1r2);
+          break;
+        }
+    for ( const auto& rs : minuspairs)
+      if (rs[1]==three)
+        {
+          triples.push_back({rs[1], rs[0], rs[0]});
+          break;
+        }
+    break; // end of case 7
+  case 1: case 10:
+    for ( const auto& rs : minuspairs)
+      if (rs[1]==three)
+        {
+          triples.push_back({rs[1], rs[0], rs[0]});
+          break;
+        }
+    for ( const auto& sr1r2 : fours)
+      if (sr1r2[0]==three)
+        {
+          triples.push_back(sr1r2);
+          break;
+        }
+    break; // end of case 1,10
+  default: ;
+  }
+
+  // Now the other denominators:
 
   for ( const auto& rs : pluspairs)
     {

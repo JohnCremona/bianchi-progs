@@ -7,7 +7,7 @@
 homspace::homspace(const Qideal& I, int hp, int verb, long ch)
   :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), hmod(0)
 {
-  Quad::setup_geometry(0); // will do nothing after the first time called
+  Quad::setup_geometry("geodata", 0); // will do nothing after the first time called
   nsymb = P1.size();
 
   if (verbose)
