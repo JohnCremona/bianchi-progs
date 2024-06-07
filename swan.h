@@ -56,11 +56,8 @@ public:
     clear();
     return read_geodata(0, subdir, verbose);
   }
-  // read from geodata file, or create from scratch if not successful (file absent)
-  void read_or_create(string subdir="", int verbose=0)
-  {
-    if (!read(subdir, verbose)) create(verbose);
-  }
+  // read from geodata file, or create from scratch and store if not successful (file absent)
+  void read_or_create(string subdir="", int verbose=0);
 
   void make_sigmas();
   CuspList get_sigmas() {

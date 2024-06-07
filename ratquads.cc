@@ -88,10 +88,12 @@ void RatQuad::normalise()                              // scale so ideal is a st
   while (!pos(d)) {n*=fundunit; d*=fundunit;}
 }
 
-// return rational x,y s.t. this = x+y*sqrt(-d)
+// return rational x,y s.t. this = x+y*w (or x+y*sqrt(-d) if rectangle=1)
 // NB Both 0/1 and 1/0 return {0,0}
 vector<RAT> RatQuad::coords(int rectangle) const
 {
+  // cout<<" [Quad::d = "<<Quad::d<<", Quad::t = "<<Quad::t<<"; ";
+  // cout<<"coords of "<<(*this)<<" with rectangle = "<<rectangle<<" (N("<<d<<")="<<d.norm()<<")";
   INT b = d.norm();
   Quad a = mult_conj(n,d);
   RAT x(a.r, b), y(a.i, b);
@@ -100,6 +102,7 @@ vector<RAT> RatQuad::coords(int rectangle) const
       y /= 2;
       x += y;
     }
+  // cout<<" returns x = "<<x<<", y = "<<y<<"] "<<endl;
   return {x,y};
 }
 
@@ -108,7 +111,7 @@ int RatQuad::in_rectangle() const
 {
   vector<RAT> xy = coords(1); // so this = x+y*sqrt(-d)
   RAT x=xy[0], y=xy[1], half(1,2);
-  if (Quad::t) y *=2;
+  if (Quad::t) y *= 2;
   return -half<x && x<=half && -half<y && y<=half;
 }
 
@@ -117,11 +120,12 @@ int RatQuad::in_quarter_rectangle() const
 {
   vector<RAT> xy = coords(1); // so this = x+y*sqrt(-d)
   RAT x=xy[0], y=xy[1], half(1,2);
-  if (Quad::t) y *=2;
+  if (Quad::t) y *= 2;
   return 0<=x && x<=half && 0<=y && y<=half;
 }
 
 // subtract Quad to put into rectangle, and set shift to this Quad
+// a=x+y*sqrt(-d) with x in (-1/2,1/2] and y in (-1/2,1/2] (even D) or (-1/4,1/4] (odd D)
 RatQuad reduce_to_rectangle(const RatQuad& a, Quad& shift)
 {
   vector<RAT> xy = a.coords(1);  // so a = x+y*sqrt(-d)

@@ -60,8 +60,8 @@ public:
   vector<RAT> coords(int rectangle=0) const;
   RAT x_coord(int rectangle=0) const {return coords(rectangle)[0];}
   RAT y_coord(int rectangle=0) const {return coords(rectangle)[1];}
-  int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even d) or (-1/4,1/4] (odd d)
-  int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even d) or [0,1/4] (odd d)
+  int in_rectangle() const;            // x in (-1/2,1/2] and y in (-1/2,1/2] (even D) or (-1/4,1/4] (odd D)
+  int in_quarter_rectangle() const;    // x in [0,1/2] and y in [0,1/2] (even D) or [0,1/4] (odd D)
   friend RatQuad reduce_to_rectangle(const RatQuad&, Quad&);   // subtract Quad to put z into rectangle
   friend RatQuad reduce_to_rectangle(const RatQuad&);   // subtract Quad to put z into rectangle
   // list of Quad(s) q s.t. N(q-z)<1:

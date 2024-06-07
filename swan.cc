@@ -9,12 +9,18 @@
 // clears all alphas-sigma data, polyhedra, faces
 void SwanData::clear()
 {
-  alist.clear(); a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
-  slist.clear(); s_ind.clear(); s_flip.clear();
+  alist.clear(); alistx.clear(); alistF4.clear(); alist_ok.clear(); alist_open.clear(); maxn=0;
+  nbrs.clear(); nbrs_ok.clear(); nbrs_open.clear();
+  a_denoms.clear(); a_ind.clear(); a_inv.clear(); a_flip.clear(); Mlist.clear();
+  slist.clear(); slistx.clear(); s_ind.clear(); s_flip.clear();
   edge_pairs_plus.clear();  edge_pairs_minus.clear();  edge_fours.clear();
+  alpha_sets.clear();
+  corners.clear();
+  singular_polyhedra.clear(); principal_polyhedra.clear(); all_polyhedra.clear();
+  aaa.clear();  aas.clear(); sqs.clear(); hexs.clear();
   T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
-  all_polyhedra.clear();
   all_faces.clear();
+  M32.clear();
 }
 
 // clears all and recomputes alphas-sigma data, polyhedra, faces
@@ -28,6 +34,26 @@ void SwanData::create(int verbose)
   encode_all_faces(1, verbose);  // (check=1) calls make_all_faces()
 }
 
+// read from geodata file, or create from scratch and store if not successful (file absent)
+void SwanData::read_or_create(string subdir, int verbose)
+{ if (verbose)
+    cout<<"In SwanData::read_or_create()" << endl;
+  if (!read(subdir, verbose))
+    { if (verbose)
+        cout << "Creating SwanData from scratch"<<endl;
+      create(verbose);
+      if (verbose)
+        cout << "Storing SwanData in geodata file"<<endl;
+      output_geodata(subdir);
+      read(subdir, verbose);
+    }
+  else
+    {
+      if (verbose)
+        cout << "SwanData read data OK" << endl;
+    }
+}
+
 void SwanData::make_sigmas() {
   if (slist.empty())
     {
@@ -35,7 +61,7 @@ void SwanData::make_sigmas() {
       SwanTimer.start(step);
       slist = sort_singular_points(singular_points());
       s_flip.reserve(slist.size());
-      for (auto i=0; i<slist.size(); i++)
+      for (int i=0; i< (int)slist.size(); i++)
         s_flip.push_back(cusp_index_upto_translation(-slist[i], slist));
       slistx.clear();
       for (const auto& s : slist)
@@ -158,7 +184,7 @@ int SwanData::add_new_alphas(Quadlooper& denom_looper, int verbose)
     {
       cout << "Considering "<<new_alphas.size()<<(first?"":" extra") << " principal cusps " << s << maxn
            << endl;
-      // cout << new_alphas <<endl;
+      cout << new_alphas <<endl;
     }
 
   // Of these, check for redundancy; if not redundant, append it to
@@ -305,12 +331,16 @@ void SwanData::find_covering_alphas(int verbose)
 
       ok = are_alphas_surrounded(verbose);
       if (!ok &&verbose)
-        cout << "Some alphas are not surrounded, continuing...\n";
+        {
+          cout << "Some alphas are not surrounded, continuing...\n";
+          cout << "alist_ok: " <<alist_ok<<endl;
+          cout << "alist_open: " <<alist_open<<endl;
+        }
     }
 
   alist = alist_ok;
   if (verbose)
-    cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<"\n";
+    cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<"\n"<<alist<<endl;
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
@@ -1338,7 +1368,8 @@ int SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, in
   geodata.open(ss.str().c_str());
   if (!geodata.is_open())
     {
-      cout << "No geodata file!" <<endl;
+      if (verbose) cout << "No geodata file!" <<endl;
+      clear();
       return 0;
     }
   else

@@ -199,6 +199,7 @@ void Quad::field(long dd, long max)
   class_group_2_torsion_gens.clear();
   class_group_2_cotorsion_gens.clear();
   Qideal_lists::clear();
+  SD.clear();
 
   d = squarefree_part(dd);
   if (d!=dd)
@@ -359,6 +360,10 @@ void Quad::setnorm()
 {
   nm = fmma(r,r, n*i,i);
   if (t) {nm += r*i;};
+  // INT N = r*r+t*r*i+n*i*i;
+  // if (N!=nm) cerr<<"In setnorm(): Quad "<<(*this)<<" with r = "<<r<<", i = "<<i
+  //                <<" and norm "<<N<<" has nm = "<<nm<<endl;
+  // assert(N==nm);
   assert (nm>=0);
 }
 
@@ -541,9 +546,8 @@ void factorp1(long p, INT& a, INT& b, const INT& d)
 
 vector<Quad> Quad::primes_above(long p, int& sig)
 {
-  INT d(Quad::d), P(p);
-  int t=Quad::t;
-  INT a,b;  Quad pi, piconj;
+  INT d(Quad::d), P(p), a, b;
+  Quad pi, piconj;
   vector<Quad> list;
   sig = Quad::chi(P);
   //  cout<<"disc = "<<Quad::disc<<", p="<<p<<", chi(p)="<<sig<<endl;
@@ -561,7 +565,7 @@ vector<Quad> Quad::primes_above(long p, int& sig)
     list.push_back(pi);
     break;
   case 1: // split
-    if(t==0) factorp0(p,a,b,d); else factorp1(p,a,b,d);
+    if(Quad::t) factorp1(p,a,b,d); else factorp0(p,a,b,d);
     pi = makepos(Quad(a,b, P));
     piconj = makepos(quadconj(pi));
     // We choose the ordering so the HNFs are [p,c,1], [p,c',1] with c<c'
@@ -833,7 +837,6 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
   cout<<"SL2Z-reducing ["<<alpha<<","<<beta<<"]..."<<endl;
 #endif
   int s=1;
-  Quad t;
   while (s)
     {
       s = 0; // will be set to 1 if anything changes
@@ -849,7 +852,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
       if (beta.nm < alpha.nm)
         {
           s=1;
-          t = -alpha; alpha = beta; beta = t;
+          Quad temp = -alpha; alpha = beta; beta = temp;
 #ifdef test_reduce
           cout<<" -- invert: alpha="<<alpha<<", beta="<<beta<< endl;
 #endif
@@ -890,7 +893,6 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
 // #endif
 //   U.reset(); // to the identity
 //   int s=1;
-//   Quad t;
 //   while (s)
 //     {
 //       s = 0; // will be set to 1 if anything changes
@@ -911,7 +913,7 @@ void sl2z_reduce(Quad& alpha, Quad& beta)
 //       if (beta.nm < alpha.nm)
 //         {
 //           s=1;
-//           t = -alpha; alpha = beta; beta = t;
+//           Quad temp = -alpha; alpha = beta; beta = temp;
 //           U.invert();
 // #ifdef test_reduce
 //           cout<<" -- invert: alpha="<<alpha<<", beta="<<beta<< endl;

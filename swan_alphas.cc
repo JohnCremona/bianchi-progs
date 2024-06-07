@@ -105,13 +105,13 @@ CuspList sort_alphas(const CuspList& A,
   // We rely on the alphas of denom 1, 2, 3 begin in an exact order:
   if (a2list != d2s_expected)
     {
-      // if (verbose||debug)
+      if (verbose||debug)
         cout << "replacing denom 2 alphas by standard list "<<d2s_expected << endl;
       a2list = d2s_expected;
     }
   if (a3list != d3s_expected)
     {
-      // if (verbose||debug)
+      if (verbose||debug)
         cout << "replacing denom 3 alphas by standard list "<<d3s_expected << endl;
       a3list = d3s_expected;
     }
@@ -292,6 +292,7 @@ string make_A_line(const Quad& s, const Quad& r1, const Quad& r2)
 
 CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int verbose, int debug)
 {
+  if (debug) cout<<"In alpha_orbits() with alist = "<<alist<<endl;
   vector<vector<Quad>> pluspairs, minuspairs, fours;
   CuspList new_alist = sort_alphas(alist, pluspairs, minuspairs, fours, verbose, debug);
   triples.clear();
