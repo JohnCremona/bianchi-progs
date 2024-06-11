@@ -7,7 +7,7 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define VERBOSE 2 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
 int main ()

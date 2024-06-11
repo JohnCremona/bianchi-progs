@@ -273,9 +273,11 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
 
 vector<vector<int>> face_boundaries(const vector<CuspList>& faces,
                                     const CuspList& alphas, const CuspList& sigmas,
-                                    int GL2)
+                                    int GL2, int debug)
 {
+  if (debug) cout<<"In face_boundaries("<<GL2<<")"<<endl;
   int nrows = faces.size() * (GL2? 1 : 2);
+  if (debug) cout<<"nrows = "<<nrows<<endl;
   vector<vector<int>> M;
   M.reserve(nrows);
   int n=0;
@@ -289,6 +291,7 @@ vector<vector<int>> face_boundaries(const vector<CuspList>& faces,
           n++;
         }
     }
+  if (debug) cout << "Matrix has size "<<faces.size()<<" x "<< M[0].size() << ":\n" << M << endl;
   assert (n==nrows);
   return M;
 }

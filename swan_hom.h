@@ -39,7 +39,7 @@ vector<vector<int>> edge_pairings(const vector<CuspList>& faces,
 
 vector<vector<int>> face_boundaries(const vector<CuspList>& faces,
                                     const CuspList& alphas, const CuspList& sigmas,
-                                    int GL2);
+                                    int GL2, int debug=0);
 // Return the face boundary matrix M21 (matrix of delta: 2-chains -> 1-chains)
 vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          const CuspList& alphas, const CuspList& sigmas,

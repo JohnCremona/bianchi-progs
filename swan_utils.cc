@@ -259,6 +259,9 @@ mat22 Malpha(const RatQuad& alpha)
   Quad g = quadbezout(c, d, b, a); // a*d+b*c=g=1
   if (g==Quad::zero)
     cerr<<"Error in Malpha(): cusp "<<alpha<<" is not principal"<<endl;
+  assert(a*d+b*c==g);
+  if (!g.is_one()) cout<<"Malpha("<<alpha<<"): a="<<a<<", b="<<b<<", g="<<g<<endl;
+  assert(g.is_one());
   mat22 M(-a,-b,c,-d);
   assert (M.is_unimodular()); // strict by default, i.e. det=1 not just a unit
   assert (M(alpha)==RatQuad::infinity());

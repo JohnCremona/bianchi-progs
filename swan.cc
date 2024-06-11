@@ -804,10 +804,10 @@ void SwanData::find_corners(int debug)
   if (debug)
     {
       cout << " found "<<corners.size() <<" corners" <<endl;
-      cout << " Corners (before sorting):\n" << corners << endl;
+      if (debug>2) cout << " Corners (before sorting):\n" << corners << endl;
     }
   std::sort(corners.begin(), corners.end());
-  if (debug)
+  if (debug>2)
     {
       cout << " Corners (after  sorting):\n" << corners << endl;
     }
@@ -1285,7 +1285,7 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
       add_alpha( r1, t, s, -r1); // alpha =  r1/s
       if (!s_divides_2)
         add_alpha(-r1, t, s,  r1); // alpha = -r1/s
-      if (verbose)
+      if (verbose>1)
         cout<<"(-pair): alist is now "<<alist<<", #alphas="<<alist.size()
             <<", edge_pairs_minus="<<edge_pairs_minus<<endl;
       return;
@@ -1304,7 +1304,7 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
       a_flip.push_back(n);
       add_alpha(-r1, t, s, -r1); // alpha =  r1/s
       add_alpha( r1, t, s,  r1); // alpha = -r1/s
-      if (verbose)
+      if (verbose>1)
         cout<<"(+pair): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_pairs_plus="<<edge_pairs_plus<<endl;
       return;
     }
@@ -1341,7 +1341,7 @@ void SwanData::process_alpha_orbit(const Quad& s, const Quad& r1, const Quad& r2
   add_alpha( r1, t, s, -r2); // alpha =  r2/s
   if (!s_divides_2)
     add_alpha(-r1, t, s,  r2); // alpha = -r2/s
-  if (verbose)
+  if (verbose>1)
     cout<<"(four): alist is now "<<alist<<", #alphas="<<alist.size()<<", edge_fours="<<edge_fours<<endl;
 }
 
@@ -1629,7 +1629,7 @@ void SwanData::make_principal_polyhedra(int verbose)
   SwanTimer.start(step);
   if (verbose)
     cout<<"Finding principal polyhedra from "<<alist.size()<<" alphas with "
-        << corners.size()<<" corners..."<<endl<<"Corners:\n"<<corners<<endl;
+        << corners.size()<<" corners..."<<endl; //<<"Corners:\n"<<corners<<endl;
 
   vector<int>flags(corners.size(), 0);
   int j=-1;
@@ -1828,6 +1828,63 @@ int SwanData::encode_all_faces(int check, int verbose)
         }
     }
   return all_ok;
+}
+
+// For use after reading face data from a geodata file.  From
+// T_faces, U_faces, Q_faces, H_faces reconstruct all_faces.  Must
+// include the standard faces not (for historical rasons) included
+// in geodata files, namely: (1) the universal triangle {0,oo,1};
+// (2) one standard triangle for d=19, 43, 67, 163; (3) one extra Q
+// or H face for d=2, 7, 11.
+void SwanData::decode_all_faces(int verbose)
+{
+  all_faces.clear();
+  int d = Quad::d;
+
+  // (1) Universal triangle
+  static const CuspList tri0 = {{0,0,1}, {1,0,0}, {1,0,1}}; // {0,oo,1}
+  all_faces.push_back(tri0);
+
+  // (2) Standard triangles
+  if ((d==19)||(d==43)||(d==67)||(d==163))
+    {
+      // {w/2,oo,(w-1)/2}
+      CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
+      all_faces.push_back(tri1);
+      //CuspList tri2 = {{0,1,2}, {1,0,0}, {1,1,2}}; // {w/2, oo, (w+1)/2}
+    }
+
+  std::transform(T_faces.begin(), T_faces.end(), std::back_inserter(all_faces),
+                 [this] (const POLYGON& P) {return remake_triangle(P, alist, slist, 0);});
+
+  std::transform(U_faces.begin(), U_faces.end(), std::back_inserter(all_faces),
+                 [this] (const POLYGON& P) {return remake_triangle(P, alist, slist, 1);});
+
+  // (3) Extras for Euclidean fields
+
+  if (d==2)
+    {
+      // {0,oo,w,-1/w}
+      CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
+      all_faces.push_back(sq);
+    }
+  if (d==7)
+    {
+      // {0,oo,w-1,-1/w}
+      CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-1),Quad::w}};
+      all_faces.push_back(sq);
+    }
+  std::transform(Q_faces.begin(), Q_faces.end(), std::back_inserter(all_faces),
+                 [this] (const POLYGON& P) {return remake_quadrilateral(P, alist);});
+
+  if (d==11)
+    {
+      // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
+      CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
+      all_faces.push_back(hex);
+    }
+  std::transform(H_faces.begin(), H_faces.end(), std::back_inserter(all_faces),
+                 [this] (const POLYGON& P) {return remake_hexagon(P, alist);});
 }
 
 void SwanData::output_face_data(string subdir, int verbose)
@@ -2063,8 +2120,9 @@ vector<int> SwanData::face_boundary_vector(const CuspList& face)
 
 // Use alist, slist, edge_pairs_plus, edge_pairs_minus, fours to
 // return a matrix with one row per pair of glued oriented edges:
-vector<vector<int>> SwanData::edge_pairings(int GL2)
+vector<vector<int>> SwanData::edge_pairings(int GL2, int debug)
 {
+  if(debug) cout<<"In edge_pairings("<<GL2<<")"<<endl;
   int nplus = edge_pairs_plus.size(), nminus = edge_pairs_minus.size(), nfours = edge_fours.size();
   unsigned int ncols = n_alph() + n_sig(1); // size of edge basis
   unsigned int nrows = nplus + nminus + nfours + (GL2? ncols : nfours);
@@ -2086,8 +2144,8 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
   // these form a "four" which only has 2 distinct elements
   long d = Quad::d;
   int special = (d%8==3 && d>11);
-  // if (special)
-  //   cout<<"Special case for d="<<d<<" as there's a four of size only 2"<<endl;
+  if (debug&&special)
+    cout<<"Special case for d="<<d<<" as there's a four of size only 2"<<endl;
   if (GL2) // type (0)
     {
       int nalphas = n_alph();
@@ -2098,7 +2156,8 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
           assert ((j>=0)&&(j<nalphas));
           row[i] +=1;
           row[j] -=1;
-          // cout<<"i="<<i<<": alphas[i]="<<alist[i]<<"; j="<<j<<": alphas[j]="<<alist[j]<<" so row is "<<row<<endl;
+          if (debug)
+            cout<<"i="<<i<<": alphas[i]="<<alist[i]<<"; j="<<j<<": alphas[j]="<<alist[j]<<" so row is "<<row<<endl;
           M.push_back(row);
         }
       int nsigmas = n_sig(1);
@@ -2126,7 +2185,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
       j = edge_pairs_plus[i];
       row[j] +=1;
       row[j+1] +=1;
-      // cout<<"edge_pairs_plus["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      if (debug) cout<<"edge_pairs_plus["<<i<<"]="<<j<<" so row is "<<row<<endl;
       M.push_back(row);
     }
   // type (2)
@@ -2135,7 +2194,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
       vector<int> row(ncols, 0);
       j = edge_pairs_minus[i];
       row[j] +=2;
-      // cout<<"edge_pairs_minus["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      if (debug) cout<<"edge_pairs_minus["<<i<<"]="<<j<<" so row is "<<row<<endl;
       M.push_back(row);
     }
   // types (3) and (3')
@@ -2149,7 +2208,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
       else
         row[j+2] +=1;
       M.push_back(row);
-      // cout<<"edge_fours["<<i<<"]="<<j<<" so row is "<<row<<endl;
+      if (debug) cout<<"edge_fours["<<i<<"]="<<j<<" so row is "<<row<<endl;
       if (!GL2)
         {
           vector<int> row2(ncols, 0);
@@ -2162,14 +2221,17 @@ vector<vector<int>> SwanData::edge_pairings(int GL2)
         }
     }
   assert (M.size()==nrows);
+  if (debug) cout<<"edge_pairings() returns a "<<nrows<<" x "<<ncols<<" matrix \n"<<M<<endl;
   return M;
 }
 
 // Return a matrix with one row per face in all_faces, giving its
 // boundary as a Z-linear combination of oriented edges
-vector<vector<int>> SwanData::face_boundaries(int GL2)
+vector<vector<int>> SwanData::face_boundaries(int GL2, int debug)
 {
+  if (debug) cout<<"In face_boundaries("<<GL2<<")"<<endl;
   unsigned int nrows = all_faces.size() * (GL2? 1 : 2);
+  if (debug) cout<<"nrows = "<<nrows<<endl;
   vector<vector<int>> M;
   M.reserve(nrows);
   for (const auto& face : all_faces)
@@ -2178,20 +2240,29 @@ vector<vector<int>> SwanData::face_boundaries(int GL2)
       if (!GL2)
         M.push_back(face_boundary_vector(negate_polygon(face)));
     }
+  if (debug) cout << "Matrix has size "<<all_faces.size()<<" x "<< M[0].size() << ":\n" << M << endl;
   assert (M.size()==nrows);
   return M;
 }
 
 // Row concatenation of previous 2, giving the matrix M21 of the
 // boundary map from 2-cells to 1-cells
-vector<vector<int>> SwanData::face_boundary_matrix(int GL2)
+vector<vector<int>> SwanData::face_boundary_matrix(int GL2, int debug)
 {
-  vector<vector<int>> M = edge_pairings(GL2);
-  // cout << "edge pairing matrix has size " << M.size() << " x " << M[0].size() << endl;
-  // cout << M << endl;
-  vector<vector<int>> M2 = face_boundaries(GL2);
-  // cout << "face boundaries matrix has size " << M2.size() << " x " << M2[0].size() << endl;
-  // cout << M2 << endl;
+  vector<vector<int>> M = edge_pairings(GL2, debug);
+  if (debug)
+    {
+      cout << "edge pairing matrix has size " << M.size() << " x " << M[0].size() << endl;
+      if (debug>1)
+        cout << M << endl;
+    }
+  vector<vector<int>> M2 = face_boundaries(GL2, debug);
+  if (debug)
+    {
+      cout << "face boundaries matrix has size " << M2.size() << " x " << M2[0].size() << endl;
+      if (debug>1)
+        cout << M2 << endl;
+    }
   M.insert(M.end(), M2.begin(), M2.end());
   return M;
 }
@@ -2200,6 +2271,8 @@ vector<vector<int>> SwanData::face_boundary_matrix(int GL2)
 // (group=1) or SL2 (group=2) or both (group=3)
 vector<vector<int>> SwanData::integral_homology(int group, int debug)
 {
+  if (all_faces.empty()) decode_all_faces();
+
   vector<vector<int>> M10 = edge_boundary_matrix();
   if (debug)
     {

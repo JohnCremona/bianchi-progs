@@ -115,6 +115,14 @@ public:
   // consistency if check
   int encode_all_faces(int check=1, int verbose=0);
 
+  // For use after reading face data fro ma geodata file.  From
+  // T_faces, U_fces, Q_faces, H_faces reconstruct all_faces.  Must
+  // include the standard faces not (for historical rasons) included
+  // in geodata files, namely: (1) the universal triangle {0,oo,1};
+  // (2) one standard triangle for d=19, 43, 67, 163; (3) one extra Q
+  // or H face for d=2, 7, 11.
+  void decode_all_faces(int verbose=0);
+
   // Write alpha data to subdir/geodata_d.dat (overwriting if
   // existing) in A-lines.  If include_small_denoms, output all alpha
   // orbits, otherwise omit those of denominator 1, 2, 3.
@@ -283,13 +291,13 @@ private:
 
   // Use alist, slist, edge_pairs_plus, edge_pairs_minus, fours to
   // return a matrix with one row per pair of glued oriented edges:
-  vector<vector<int>> edge_pairings(int GL2);
+  vector<vector<int>> edge_pairings(int GL2, int debug=0);
   // Use all_faces to return a matrix with one row per face giving its
   // boundary as a Z-linear combination of oriented edges
-  vector<vector<int>> face_boundaries(int GL2);
+  vector<vector<int>> face_boundaries(int GL2, int debug=0);
   // Row concatenation of previous 2, giving the matrix M21 of the
   // boundary map from 2-cells to 1-cells
-  vector<vector<int>> face_boundary_matrix(int GL2);
+  vector<vector<int>> face_boundary_matrix(int GL2, int debug=0);
 
   // functions for pseudo-euclidean algorithm
 
