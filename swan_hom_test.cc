@@ -62,6 +62,14 @@ int main ()
       if (verbose)
         cout << "Computing integral homology..." <<endl;
 
+      vector<vector<int>> invariants = Quad::SD.integral_homology(3, debug);
+#ifdef COMPARE_OLD
+      cout << "NEW CODE" << endl;
+#endif
+      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
+      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+
+#ifdef COMPARE_OLD
       vector<vector<POLYGON>> all_polys = read_polygons("geodata", verbose);
       int nT = all_polys[0].size(), nU = all_polys[1].size(), nQ = all_polys[2].size(), nH = all_polys[3].size();
       vector<CuspList> all_faces(nT+nU+nQ+nH);
@@ -102,19 +110,15 @@ int main ()
 
       vector<vector<Quad>> pluspairs, minuspairs, fours;
       auto sorted_alphas = sort_alphas(alphas, pluspairs, minuspairs, fours, verbose, debug);
-      vector<vector<int>> invariants = integral_homology(all_faces, alphas, sigmas,
-                                                         pluspairs, minuspairs, fours,
-                                                         3, debug);
+      vector<vector<int>> old_invariants = integral_homology(all_faces, alphas, sigmas,
+                                                             pluspairs, minuspairs, fours,
+                                                             3, debug);
 
       cout << "OLD CODE" << endl;
-      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
-      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+      cout << "GL2 integral homology: "; show_invariants(old_invariants[0]); cout << endl;
+      cout << "SL2 integral homology: "; show_invariants(old_invariants[1]); cout << endl;
 
-      vector<vector<int>> new_invariants = Quad::SD.integral_homology(3, debug);
-      cout << "NEW CODE" << endl;
-      cout << "GL2 integral homology: "; show_invariants(new_invariants[0]); cout << endl;
-      cout << "SL2 integral homology: "; show_invariants(new_invariants[1]); cout << endl;
-      if (invariants==new_invariants)
+      if (invariants==old_invariants)
         {
           cout << "Old and new agree!" << endl;
         }
@@ -122,6 +126,7 @@ int main ()
         {
           cout << "!!!!!!!!!!!!! Old and new disagree!" << endl;
         }
+#endif
       cout<<"----------------------------------------------------------------------------------\n";
     }
 }

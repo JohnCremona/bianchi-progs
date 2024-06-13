@@ -11,6 +11,13 @@
 
 #define MAXDEPTH 20 // maximum depth for splitting off eigenspaces
 
+#define genus_class_triviality_bound 10 // if aP=0 for this number of
+                                        // good primes in a genus
+                                        // class then we assume that a
+                                        // newform is self-twist and
+                                        // all aP for P in this class
+                                        // are 0.
+
 // This flag is only for use when updating the schema of the newforms
 // files to include the BC and CM fields, so we can read in data files
 // without these (but output files with them).  When the data format
@@ -151,6 +158,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   fake = 0;
   // to be set later
   CMD = 0;  // will be set to an unramified negative discriminant if self-twist
+  genus_classes_filled = 0; // will be set to 1 when all/half genus classes have a nonzero aP
   cm = 1;   // will be set to 0 or a negative square-free integer if CM
   bc = 4;   // will be set to 0 or a square-free integer if base-change or twist of b.c.
   sfe = pdot = dp0 = lambdadot = matdot = 0;
@@ -275,7 +283,7 @@ void newform::fill_in_genus_class_data()
   genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,1);
 
-  // Now we fill the genus classes with known ideaqls and eigenvalues,
+  // Now we fill the genus classes with known ideals and eigenvalues,
   // one in each genus class:
   int m2r = 0; // 2-rank of genus classes so far filled
   int iP = -1;  // index of old prime P begin looked at
@@ -1398,7 +1406,8 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
   else // P does not have square class, its genus class is c>0
     {
       // See if we already have an eigenvalue for this genus class
-      //cout<<"P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
+      if (verbose>1)
+        cout<<"P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
       auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
       if (ci != genus_classes.end()) // then we do
         {
@@ -1430,8 +1439,9 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
            // and the level admits nontrivial self twists.
            // NB 5 would not be enough for field 299, level 100.2, without checking for possible self twists.
         {
-          //cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-          if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= 10))
+          if (verbose>1)
+            cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
+          if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= genus_class_triviality_bound))
             {
               if (verbose>0)
                 cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
@@ -1904,6 +1914,9 @@ void newforms::getap(int first, int last, int verbose)
 
   auto pr = Quadprimes::list.begin()+first-1;
   while((pr!=Quadprimes::list.end()) && (nap<last))
+    // We should not stop when nap==last if for some newform its
+    // genus_classes.size() is less than nchi, or nchi/2 if it has
+    // extra twist.
     {
       Quadprime P = *pr++;
       long vp = val(P, N);
@@ -2043,10 +2056,12 @@ void newforms::getap(int first, int last, int verbose)
   // Also (only relevant for even class number), test each newform for
   // being unramified self-twist.  If so, then the number of
   // genus_classes should be 2^{n2r-1} = nchi/2, else it should be
-  // 2^n2r = nchi.
+  // 2^n2r = nchi.  NB If we don't compute many aP, we may not have
+  // covered all the genus classes (either nchi or nchi/2) with at
+  // least one P for which aP is nonzero. In that case we should
+  // compute more aP.
   for (int i=0; i<n1ds; i++)
     {
-      //cout<<"Newform "<<i<<":"<<endl;
       nflist[i].base_change_code();
       int cmd = nflist[i].is_CM();
       if (cmd)
@@ -2054,15 +2069,26 @@ void newforms::getap(int first, int last, int verbose)
           int ngcl = nflist[i].genus_classes.size();
           INT D1(cmd);
           if (posmod(D1,4)!=1) D1*=4;
-          //cout<<"cmd = "<<D1<<"; D = "<<Quad::disc<<"; divcmd,D) = "<<div_disc(D1, Quad::disc)<<endl;
           if (div_disc(D1, Quad::disc)) // then we have an unramified self-twist
             {
               nflist[i].CMD = D1;
-              assert (ngcl == nchi/2);
+              if (2*ngcl<nchi)
+                {
+                  cout<<"Newform "<<i<<" appears to have self-twist by "<<D1
+                      <<" but only "<<ngcl<<" genus classes have nonzero aP so far, out of "<<nchi/2<<" expected."
+                      <<" Compute more aP!." << endl;
+                }
+              //assert (ngcl == nchi/2);
             }
           else // the usual case, not a self-twist
             {
-              assert (ngcl == nchi);
+              if (ngcl<nchi)
+                {
+                  cout<<"Newform "<<i<<" appears to not have self-twist, "
+                      <<" and only "<<ngcl<<" genus classes have nonzero aP so far, out of "<<nchi<<" expected."
+                      <<" Compute more aP!." << endl;
+                }
+              //assert (ngcl == nchi);
             }
         }
     }

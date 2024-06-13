@@ -1027,33 +1027,6 @@ string ideal_label(Qideal& I)  // returns label of ideal I
   return s.str();
 }
 
-string eigfile(const Quad& N, long p)    //returns filename for eigs at level N, characteristic p
-{
-  stringstream s;
-  s << getenv("NF_DIR");
-  if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/" << field_label() << "/";
-  s << ideal_code(N);
-  if (p)
-    s << "_mod_"<<p;
-  return s.str();
-}
-
-string eigfile(Qideal& N, long p)    //returns filename for eigs at level N, characteristic p
-{
-  stringstream s;
-  s << getenv("NF_DIR");
-  if (s.str().empty()) {s.clear(); s<<"./newforms";}
-  s << "/" << field_label() << "/";
-  if (Quad::class_number==1) // for backwards compatibility of data file names
-    s << ideal_code(N.gen());
-  else
-    s << ideal_label(N);
-  if (p)
-    s << "_mod_"<<p;
-  return s.str();
-}
-
 string gens_string(Qideal& I)  // returns string of gens, of the form (x) if principal or (x,y) ideal I
 {
   stringstream s;

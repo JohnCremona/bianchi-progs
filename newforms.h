@@ -75,9 +75,11 @@ public:
   int j0; modsym m0; int fac, facinv;
   long cuspidalfactor;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
-  vector<long> genus_classes;
-  vector<Qideal> genus_class_ideals;
-  vector<long> genus_class_aP;
+  vector<long> genus_classes;        // list of genus classes for which we have a nonzero aP
+  vector<Qideal> genus_class_ideals; // list of good primes, one in each of these classes
+  vector<long> genus_class_aP;       // list of aP for these primes
+  int genus_classes_filled;          // set to 1 when genus_classes.size() reaches nchi (when CMD==0)
+                                     //or nchi/2 for self-twist (CMD!=0)
   // base-change code:
   //  +1 for b.c. of form over Q with coeffs in Q
   //  +d (d square-free) for b.c. of form over Q with coeffs in Q(sqrt(d))
@@ -94,7 +96,7 @@ public:
   int fake; // flag for "fake rational" forms
 
   // For each genus class c we count how many primes P in class c have
-  // a(P)=0, to aid i detecting self-twist forms.
+  // a(P)=0, to aid in detecting self-twist forms.
   vector<int> genus_class_trivial_counter;
   vector<INT> possible_self_twists;
 

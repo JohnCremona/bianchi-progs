@@ -5,7 +5,7 @@
 #include <pari/pari.h>
 
 // This is only the default of the environmant variable PARI_SIZE is not set
-#define DEFAULT_PARI_SIZE 1000000000 // 10^9 = 1GB approx (not enough for d=911)
+#define DEFAULT_PARI_SIZE 10000000000 // 10^10 = 10GB approx (10^9 not enough for d=911)
 #define DEFAULT_PARI_MAX_PRIME 1000000
 
 void eclib_pari_init(long max_prime=DEFAULT_PARI_MAX_PRIME)
