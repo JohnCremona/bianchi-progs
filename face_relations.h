@@ -36,10 +36,11 @@ private:
 
   void triangle_relation_0();           // triangle relation for all fields
   void triangle_relation_1_3();         // extra triangle relation for fields 1, 3
-  void triangle_relation_2();           // extra triangle relation(s) for fields 19+
-  void square_relation_2();             // extra square relation for field 2
-  void rectangle_relation_7();          // extra rectangle relation for field 7
-  void hexagon_relation_11();           // extra hexagon relation for field 11
+  // these special relations for class number fields are now included in the general T,Q,H lists
+  // void triangle_relation_2();           // extra triangle relation(s) for fields 19+
+  // void square_relation_2();             // extra square relation for field 2
+  // void rectangle_relation_7();          // extra rectangle relation for field 7
+  // void hexagon_relation_11();           // extra hexagon relation for field 11
 
   void aaa_triangle_relation(const POLYGON&, int check=1);   // generic aaa-triangle relation
   void aas_triangle_relation(const POLYGON&, int check=1);   // generic aas-triangle relation

@@ -25,22 +25,18 @@ face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
   nsymb = ER->nsymb;
   maxnumrel = 2*(plusflag?1:2)*nsymb;
   if (verbose)
-    cout<<"initial bound on #relations = "<<maxnumrel<<endl;
-
-  if (!Quad::is_Euclidean)
     {
-      if (verbose)
-        {
-          cout<<Quad::SD.T_faces.size()<<" extra aaa triangle relation types"<<endl;
-          cout<<Quad::SD.U_faces.size()<<" aas triangle relation types"<<endl;
-          cout<<Quad::SD.Q_faces.size()<<" square relation types"<<endl;
-          cout<<Quad::SD.H_faces.size()<<" hexagon relation types"<<endl;
-        }
-      maxnumrel += (plusflag?1:2) * nsymb *
-        (Quad::SD.T_faces.size() + Quad::SD.U_faces.size() + Quad::SD.Q_faces.size() + Quad::SD.H_faces.size());
-      if (verbose)
-        cout<<"final bound on #relations = "<<maxnumrel<<endl;
+      cout<<"initial bound on #relations = "<<maxnumrel<<endl;
+
+      cout<<Quad::SD.T_faces.size()<<" extra aaa triangle relation types"<<endl;
+      cout<<Quad::SD.U_faces.size()<<" aas triangle relation types"<<endl;
+      cout<<Quad::SD.Q_faces.size()<<" square relation types"<<endl;
+      cout<<Quad::SD.H_faces.size()<<" hexagon relation types"<<endl;
     }
+  maxnumrel += (plusflag?1:2) * nsymb *
+    (Quad::SD.T_faces.size() + Quad::SD.U_faces.size() + Quad::SD.Q_faces.size() + Quad::SD.H_faces.size());
+  if (verbose)
+    cout<<"final bound on #relations = "<<maxnumrel<<endl;
 
   ngens = ER->ngens;
   numrel = 0;
@@ -94,26 +90,26 @@ void face_relations::make_relations()
       return;
     }
 
-  if (field==2)
-    {
-      square_relation_2();
-      return;
-    }
-  if (field==7)
-    {
-      rectangle_relation_7();
-      return;
-    }
-  if (field==11)
-    {
-      hexagon_relation_11();
-      return;
-    }
+  // if (field==2)
+  //   {
+  //     square_relation_2();
+  //     return;
+  //   }
+  // if (field==7)
+  //   {
+  //     rectangle_relation_7();
+  //     return;
+  //   }
+  // if (field==11)
+  //   {
+  //     hexagon_relation_11();
+  //     return;
+  //   }
 
   // additional triangle and square relations
 
-  if (Quad::class_number==1)
-    triangle_relation_2();
+  // if (Quad::class_number==1)
+  //   triangle_relation_2();
 
   if (!Quad::SD.T_faces.empty())
     {
@@ -299,177 +295,177 @@ void face_relations::triangle_relation_1_3()
     }
 }
 
-// extra square relation for field 2
-void face_relations::square_relation_2()
-{
-  if(verbose)
-    {
-      cout << "Face relation type 2 (squares):\n";
-    }
-  vector<long> rel(4);
-  vector<int> types(4,0), done(nsymb, 0);
-  long j, k;
+// extra square relation for field 2 (redundant, now handled by general Q code)
+// void face_relations::square_relation_2()
+// {
+//   if(verbose)
+//     {
+//       cout << "Face relation type 2 (squares):\n";
+//     }
+//   vector<long> rel(4);
+//   vector<int> types(4,0), done(nsymb, 0);
+//   long j, k;
 
-  Quad w=Quad::w, zero(0), one(1);
-  action U = act_with(w,one,one,zero);  assert (U.det()==-one);
-  action S = act_with(mat22::S);
-  action J = act_with(mat22::J);
+//   Quad w=Quad::w, zero(0), one(1);
+//   action U = act_with(w,one,one,zero);  assert (U.det()==-one);
+//   action S = act_with(mat22::S);
+//   action J = act_with(mat22::J);
 
-  for (k=0; k<nsymb; k++)
-    if (!done[k])
-      {
-        for(j=0; j<4; j++)
-          {
-            rel[j] = (j? U(rel[j-1]): k);
-            if(plusflag) // NB det(U)=-1
-              {
-                done[rel[j]] = 1;
-                done[S(rel[j])] = 1;
-              }
-            else
-              {
-                if(j%2==0)
-                  done[rel[j]] = 1;
-              }
-          }
-        if (!plusflag) // since det(U)=-1
-          {
-            rel[1] = J(rel[1]);
-            rel[3] = J(rel[3]);
-          }
-        add_face_rel(rel, types);
-      }
-  if(verbose)
-    {
-      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
-    }
-}
+//   for (k=0; k<nsymb; k++)
+//     if (!done[k])
+//       {
+//         for(j=0; j<4; j++)
+//           {
+//             rel[j] = (j? U(rel[j-1]): k);
+//             if(plusflag) // NB det(U)=-1
+//               {
+//                 done[rel[j]] = 1;
+//                 done[S(rel[j])] = 1;
+//               }
+//             else
+//               {
+//                 if(j%2==0)
+//                   done[rel[j]] = 1;
+//               }
+//           }
+//         if (!plusflag) // since det(U)=-1
+//           {
+//             rel[1] = J(rel[1]);
+//             rel[3] = J(rel[3]);
+//           }
+//         add_face_rel(rel, types);
+//       }
+//   if(verbose)
+//     {
+//       cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+//     }
+// }
 
-// extra rectangle relation for field 7
-void face_relations::rectangle_relation_7()
-{
-  if(verbose)
-    {
-      cout << "Face relation type 2 (rectangles):\n";
-    }
-  vector<long> rel(4);
-  vector<int> types(4,0), done(nsymb, 0);
-  long j, k;
-  Quad w=Quad::w, zero(0), one(1);
+// extra rectangle relation for field 7 (redundant, now handled by general Q code)
+// void face_relations::rectangle_relation_7()
+// {
+//   if(verbose)
+//     {
+//       cout << "Face relation type 2 (rectangles):\n";
+//     }
+//   vector<long> rel(4);
+//   vector<int> types(4,0), done(nsymb, 0);
+//   long j, k;
+//   Quad w=Quad::w, zero(0), one(1);
 
-  action Y = act_with(one,-w,one-w,-one); assert (Y.is_unimodular());
-  action US = act_with(w,-one,one,zero);  assert (US.is_unimodular());
-  action R = act_with(mat22::R);
+//   action Y = act_with(one,-w,one-w,-one); assert (Y.is_unimodular());
+//   action US = act_with(w,-one,one,zero);  assert (US.is_unimodular());
+//   action R = act_with(mat22::R);
 
-  for (k=0; k<nsymb; k++)
-    if (!done[k])
-      {
-        for(j=0; j<4; j+=2) // j=0,2; j+1=1,3
-          {
-            rel[j] = (j? Y(rel[j-2]): k);
-            done[rel[j]] = 1;
-            rel[j+1] = US(rel[j]);
-            if (plusflag)
-              done[R(rel[j+1])]=1;
-          }
-        add_face_rel(rel, types);
-      }
-}
+//   for (k=0; k<nsymb; k++)
+//     if (!done[k])
+//       {
+//         for(j=0; j<4; j+=2) // j=0,2; j+1=1,3
+//           {
+//             rel[j] = (j? Y(rel[j-2]): k);
+//             done[rel[j]] = 1;
+//             rel[j+1] = US(rel[j]);
+//             if (plusflag)
+//               done[R(rel[j+1])]=1;
+//           }
+//         add_face_rel(rel, types);
+//       }
+// }
 
-// extra hexagon relation for field 11
-void face_relations::hexagon_relation_11()
-{
-  if(verbose)
-    {
-      cout << "Face relation type 2 (hexagons):\n";
-    }
-  vector<long> rel(6);
-  vector<int> types(6,0), done(nsymb, 0);
-  long j, k;
-  Quad w=Quad::w, zero(0), one(1), two(2);
+// extra hexagon relation for field 11 (redundant, now handled by general H code)
+// void face_relations::hexagon_relation_11()
+// {
+//   if(verbose)
+//     {
+//       cout << "Face relation type 2 (hexagons):\n";
+//     }
+//   vector<long> rel(6);
+//   vector<int> types(6,0), done(nsymb, 0);
+//   long j, k;
+//   Quad w=Quad::w, zero(0), one(1), two(2);
 
-  //  action X = act_with(one,-w,one-w,-2); // as in JC thesis (order 3)
-  action X = act_with(-two,w,w-one,one);      // its inverse, so the hexagon edges are in the right order
-  assert (X.is_unimodular());
-  action US = act_with(w,-one,one,zero);
-  assert (US.is_unimodular());
-  action R = act_with(mat22::R);
+//   //  action X = act_with(one,-w,one-w,-2); // as in JC thesis (order 3)
+//   action X = act_with(-two,w,w-one,one);      // its inverse, so the hexagon edges are in the right order
+//   assert (X.is_unimodular());
+//   action US = act_with(w,-one,one,zero);
+//   assert (US.is_unimodular());
+//   action R = act_with(mat22::R);
 
-  for (k=0; k<nsymb; k++)
-    if (!done[k])
-      {
-        for(j=0; j<6; j+=2) // j=0,2,4; j+1=1,3,5
-          {
-            rel[j] = (j? X(rel[j-2]): k);
-            done[rel[j]] = 1;
-            rel[j+1] = US(rel[j]);
-            if(plusflag)
-              done[R(rel[j+1])]=1;
-          }
-        add_face_rel(rel, types);
-      }
-  if(verbose)
-    {
-      cout << "After face relation type 2, number of relations = " << numrel <<"\n";
-    }
-}
+//   for (k=0; k<nsymb; k++)
+//     if (!done[k])
+//       {
+//         for(j=0; j<6; j+=2) // j=0,2,4; j+1=1,3,5
+//           {
+//             rel[j] = (j? X(rel[j-2]): k);
+//             done[rel[j]] = 1;
+//             rel[j+1] = US(rel[j]);
+//             if(plusflag)
+//               done[R(rel[j+1])]=1;
+//           }
+//         add_face_rel(rel, types);
+//       }
+//   if(verbose)
+//     {
+//       cout << "After face relation type 2, number of relations = " << numrel <<"\n";
+//     }
+// }
 
 // extra triangle relation(s)
 
 // Triangles {oo, w/2, (w-1)/2} {oo, w/2, (w+1)/2}  for non-Euclidean fields of class number 1
+// (redundant, now handled by general T code)
+// void face_relations::triangle_relation_2()
+// {
+//   long field = Quad::d;
+//   Quad w=Quad::w, one(1), two(2);
+//   long j, k;
+//   Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
-void face_relations::triangle_relation_2()
-{
-  long field = Quad::d;
-  Quad w=Quad::w, one(1), two(2);
-  long j, k;
-  Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
+//   action K = act_with(M_alpha(1));       assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
+//   action N = act_with(one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
 
-  action K = act_with(M_alpha(1));       assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
-  action N = act_with(one+w,u-w,two,-w); assert (N.is_unimodular()); // oo --> (w+1)/2 --> w/2 --> oo
+//   // N is the conjugate of K by [-1,w;0,1] which maps the first
+//   // triangle to the second with determinant -1.  Both have order 3 so
+//   // cycle the edges of each triangle around.
 
-  // N is the conjugate of K by [-1,w;0,1] which maps the first
-  // triangle to the second with determinant -1.  Both have order 3 so
-  // cycle the edges of each triangle around.
+//   // All symbols are type 1, i.e. images of {w/2,oo}.
 
-  // All symbols are type 1, i.e. images of {w/2,oo}.
+//   vector<long> rel(3);
+//   vector<int> types(3, 1), done(nsymb, 0);
+//   vector<mat22> mats = {mat22::identity, K, K*K};
+//   assert (Quad::SD.check_rel(mats, types));
 
-  vector<long> rel(3);
-  vector<int> types(3, 1), done(nsymb, 0);
-  vector<mat22> mats = {mat22::identity, K, K*K};
-  assert (Quad::SD.check_rel(mats, types));
+//   for (k=0; k<nsymb; k++)
+//     if (!done[k])
+//       {
+//         for(j=0; j<3; j++)
+//           {
+//             rel[j] = (j? K(rel[j-1]): k);
+//             done[rel[j]] = 1;
+//           }
+//         add_face_rel(rel, types);
+//       }
+//   if (!plusflag) // there's a second triangle (image of previous under L)
+//     {
+//       std::fill(done.begin(), done.end(), 0);
+//       for (k=0; k<nsymb; k++)
+//         if (!done[k])
+//           {
+//             for(j=0; j<3; j++)
+//               {
+//                 rel[j] = (j? N(rel[j-1]): k);
+//                 done[rel[j]] = 1;
+//               }
+//             add_face_rel(rel, types);
+//           }
+//     }
+//   if(verbose)
+//     {
+//       cout << "After type 2 triangle relations, number of relations = " << numrel <<"\n";
+//     }
+// }
 
-  for (k=0; k<nsymb; k++)
-    if (!done[k])
-      {
-        for(j=0; j<3; j++)
-          {
-            rel[j] = (j? K(rel[j-1]): k);
-            done[rel[j]] = 1;
-          }
-        add_face_rel(rel, types);
-      }
-  if (!plusflag) // there's a second triangle (image of previous under L)
-    {
-      std::fill(done.begin(), done.end(), 0);
-      for (k=0; k<nsymb; k++)
-        if (!done[k])
-          {
-            for(j=0; j<3; j++)
-              {
-                rel[j] = (j? N(rel[j-1]): k);
-                done[rel[j]] = 1;
-              }
-            add_face_rel(rel, types);
-          }
-    }
-  if(verbose)
-    {
-      cout << "After type 2 triangle relations, number of relations = " << numrel <<"\n";
-    }
-}
-
-// extra relation(s) (not needed for Euclidean fields)
+// all face relations other than the universal triangle
 
 void face_relations::general_relation(const vector<action>& Mops,
                                       const vector<int>& types,

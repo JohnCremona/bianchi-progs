@@ -7,8 +7,10 @@
 #define MAX_DISC 100
 #define MIN_DISC 0
 
-#define VERBOSE 1 // verbose setting to use if not overridden locally
+#define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
+
+//#define COMPARE_OLD
 
 int main ()
 {
@@ -83,30 +85,30 @@ int main ()
                      [alphas] (const POLYGON& P) {return remake_hexagon(P, alphas);});
       static const CuspList tri0 = {{0,0,1}, {1,0,0}, {1,0,1}}; // {0,oo,1}
       all_faces.push_back(tri0);
-      if ((d==19)||(d==43)||(d==67)||(d==163))
-        {
-          // {w/2,oo,(w-1)/2}
-          CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
-          all_faces.push_back(tri1);
-        }
-      if (d==2)
-        {
-          // {0,oo,w,w/2}
-          CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
-          all_faces.push_back(sq);
-        }
-      if (d==7)
-        {
-          // {0,oo,w-1,(w-1)/2}
-          CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1}, {Quad(-1),Quad::w}};
-          all_faces.push_back(sq);
-        }
-      if (d==11)
-        {
-          // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
-          CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
-          all_faces.push_back(hex);
-        }
+      // if ((d==19)||(d==43)||(d==67)||(d==163))
+      //   {
+      //     // {w/2,oo,(w-1)/2}
+      //     CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
+      //     all_faces.push_back(tri1);
+      //   }
+      // if (d==2)
+      //   {
+      //     // {0,oo,w,w/2}
+      //     CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
+      //     all_faces.push_back(sq);
+      //   }
+      // if (d==7)
+      //   {
+      //     // {0,oo,w-1,(w-1)/2}
+      //     CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1}, {Quad(-1),Quad::w}};
+      //     all_faces.push_back(sq);
+      //   }
+      // if (d==11)
+      //   {
+      //     // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
+      //     CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
+      //     all_faces.push_back(hex);
+      //   }
 
       vector<vector<Quad>> pluspairs, minuspairs, fours;
       auto sorted_alphas = sort_alphas(alphas, pluspairs, minuspairs, fours, verbose, debug);

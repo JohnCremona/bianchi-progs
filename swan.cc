@@ -1670,7 +1670,7 @@ void SwanData::make_all_polyhedra(int verbose)
 }
 
 void SwanData::make_all_faces(int verbose)
-{
+{ verbose=1;
   if (!all_faces.empty()) return;
   make_all_polyhedra(verbose); // makes polyhedra (and all sigma and alpha data if necessary)
 
@@ -1732,9 +1732,9 @@ void SwanData::make_all_faces(int verbose)
 // Q_faces; report if verbose; check their encodings/decodings for
 // consistency if check.
 
-// NB T_faces will not include the universal triangle {0,oo,1} or the
-// standard triangles for d=19, 43, 67, 163 as these are handles
-// separately in face_relations code (for historic reasons).
+// NB T_faces will not include the universal triangle {0,oo,1} which
+// is handled separately in face_relations code (for historic
+// reasons).
 int SwanData::encode_all_faces(int check, int verbose)
 {
   make_all_faces(verbose); // will first make polyhedra if necessary
@@ -1759,12 +1759,12 @@ int SwanData::encode_all_faces(int check, int verbose)
                 cout << " (universal triangle)" << endl;
               continue;
             }
-          if (is_standard(face, alist, slist))
-            {
-              if (verbose)
-                cout << " (standard triangle)" << endl;
-              continue;
-            }
+          // if (is_standard(face, alist, slist))
+          //   {
+          //     if (verbose)
+          //       cout << " (standard triangle)" << endl;
+          //     continue;
+          //   }
           T_faces.push_back(P);
         }
       else
@@ -1830,29 +1830,26 @@ int SwanData::encode_all_faces(int check, int verbose)
   return all_ok;
 }
 
-// For use after reading face data from a geodata file.  From
-// T_faces, U_faces, Q_faces, H_faces reconstruct all_faces.  Must
-// include the standard faces not (for historical rasons) included
-// in geodata files, namely: (1) the universal triangle {0,oo,1};
-// (2) one standard triangle for d=19, 43, 67, 163; (3) one extra Q
-// or H face for d=2, 7, 11.
+// For use after reading face data from a geodata file.  From T_faces,
+// U_faces, Q_faces, H_faces reconstruct all_faces.  Must include the
+// the universal triangle {0,oo,1} not included in geodata files.
 void SwanData::decode_all_faces(int verbose)
 {
   all_faces.clear();
-  int d = Quad::d;
+  // int d = Quad::d;
 
-  // (1) Universal triangle
+  // Universal triangle
   static const CuspList tri0 = {{0,0,1}, {1,0,0}, {1,0,1}}; // {0,oo,1}
   all_faces.push_back(tri0);
 
-  // (2) Standard triangles
-  if ((d==19)||(d==43)||(d==67)||(d==163))
-    {
-      // {w/2,oo,(w-1)/2}
-      CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
-      all_faces.push_back(tri1);
-      //CuspList tri2 = {{0,1,2}, {1,0,0}, {1,1,2}}; // {w/2, oo, (w+1)/2}
-    }
+  // // (2) Standard triangles
+  // if ((d==19)||(d==43)||(d==67)||(d==163))
+  //   {
+  //     // {w/2,oo,(w-1)/2}
+  //     CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
+  //     all_faces.push_back(tri1);
+  //     //CuspList tri2 = {{0,1,2}, {1,0,0}, {1,1,2}}; // {w/2, oo, (w+1)/2}
+  //   }
 
   std::transform(T_faces.begin(), T_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_triangle(P, alist, slist, 0);});
@@ -1862,40 +1859,33 @@ void SwanData::decode_all_faces(int verbose)
 
   // (3) Extras for Euclidean fields
 
-  if (d==2)
-    {
-      // {0,oo,w,-1/w}
-      CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
-      all_faces.push_back(sq);
-    }
-  if (d==7)
-    {
-      // {0,oo,w-1,-1/w}
-      CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-1),Quad::w}};
-      all_faces.push_back(sq);
-    }
+  // if (d==2)
+  //   {
+  //     // {0,oo,w,-1/w}
+  //     CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
+  //     all_faces.push_back(sq);
+  //   }
+  // if (d==7)
+  //   {
+  //     // {0,oo,w-1,-1/w}
+  //     CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-1),Quad::w}};
+  //     all_faces.push_back(sq);
+  //   }
   std::transform(Q_faces.begin(), Q_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_quadrilateral(P, alist);});
 
-  if (d==11)
-    {
-      // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
-      CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
-      all_faces.push_back(hex);
-    }
+  // if (d==11)
+  //   {
+  //     // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
+  //     CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
+  //     all_faces.push_back(hex);
+  //   }
   std::transform(H_faces.begin(), H_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_hexagon(P, alist);});
 }
 
 void SwanData::output_face_data(string subdir, int verbose)
 {
-  if (Quad::is_Euclidean)
-    {
-      if (verbose)
-        cout << "No face output as field is Euclidean" << endl;
-      return;
-    }
-
   ofstream geodata;
   stringstream ss;
   if (!subdir.empty()) ss << subdir << "/";
@@ -1943,8 +1933,6 @@ void SwanData::output_face_data(string subdir, int verbose)
 int SwanData::read_face_data(string subdir, int verbose)
 {
   T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
-
-  if (Quad::is_Euclidean) return 1;
 
   ifstream geodata;
   stringstream ss;

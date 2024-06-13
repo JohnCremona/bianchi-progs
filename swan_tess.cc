@@ -1020,7 +1020,12 @@ int is_universal(const CuspList& T, const CuspList& alphas, const CuspList& sigm
   if (T==tri0) return 1;
   int temp;
   CuspList T2 = normalise_polygon(reverse_polygon(T), alphas, sigmas, temp);
-  return (T2==tri0);
+  if (T2==tri0) return 1;
+  T2 = normalise_polygon(negate_polygon(T), alphas, sigmas, temp);
+  if (T2==tri0) return 1;
+  T2 = normalise_polygon(reverse_polygon(T2), alphas, sigmas, temp);
+  if (T2==tri0) return 1;
+  return 0;
 }
 
 // test if an aaa-triangle is a standard one (up to GL2(O)) for non-Euclidean h=1 fields;
