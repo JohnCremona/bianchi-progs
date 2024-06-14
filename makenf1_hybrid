@@ -16,22 +16,22 @@ mkdir -p newforms/2.0.${D}.1
 
 PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} 1 ${LEVEL} 0.0"
 
-PROG="./makenf_long_${d}_${LEVEL}"
-ln -s makenf_long "${PROG}"
-echo "Running " ${PROG} " with parameters " ${PARAMS}
+# PROG="./makenf_long_${d}_${LEVEL}"
+# ln -s makenf_long "${PROG}"
+# echo "Running " ${PROG} " with parameters " ${PARAMS}
 
-if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
-then
-  echo "${PROG} using long ints succeeded"
-  /bin/rm "${PROG}"
-else
-  echo "******************** ${PROG} using long ints FAILED, rerunning with ZZ *******************************"
-  /bin/rm "${PROG}"
+# if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
+# then
+#   echo "${PROG} using long ints succeeded"
+#   /bin/rm "${PROG}"
+# else
+#   echo "******************** ${PROG} using long ints FAILED, rerunning with ZZ *******************************"
+#   /bin/rm "${PROG}"
   PROG="./makenf_ZZ_${d}_${LEVEL}"
   ln -s makenf_ZZ "${PROG}"
   echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
   /bin/rm "${PROG}"
-fi
+# fi
 
 # To use in parallel runs, one level per run (e.g.: d=59, norms from 1 to 100):
 #
