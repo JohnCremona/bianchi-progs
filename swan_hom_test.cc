@@ -7,10 +7,10 @@
 #define MAX_DISC 100
 #define MIN_DISC 0
 
-#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define VERBOSE 1 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
-//#define COMPARE_OLD
+#define COMPARE_OLD
 
 int main ()
 {
@@ -47,10 +47,10 @@ int main ()
       // Read precomputed geometry data
 
       debug = DEBUG;
-      verbose = DEBUG;
+      verbose = VERBOSE;
 
       if (verbose)
-        cout << "Reading previously computed sigmas and alphas from geodata/geodata_"<<d<<".dat..." <<flush;
+        cout << "Reading data from geodata/geodata_"<<d<<".dat if possible, else creating from scratch..." <<flush;
       Quad::setup_geometry("geodata", verbose);
       auto alphas = Quad::SD.get_alphas();
       auto sigmas = Quad::SD.get_sigmas();

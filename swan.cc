@@ -184,7 +184,7 @@ int SwanData::add_new_alphas(Quadlooper& denom_looper, int verbose)
     {
       cout << "Considering "<<new_alphas.size()<<(first?"":" extra") << " principal cusps " << s << maxn
            << endl;
-      cout << new_alphas <<endl;
+      if (verbose>1)  cout << new_alphas <<endl;
     }
 
   // Of these, check for redundancy; if not redundant, append it to
@@ -333,8 +333,11 @@ void SwanData::find_covering_alphas(int verbose)
       if (!ok &&verbose)
         {
           cout << "Some alphas are not surrounded, continuing...\n";
-          cout << "alist_ok: " <<alist_ok<<endl;
-          cout << "alist_open: " <<alist_open<<endl;
+          if (verbose>1)
+            {
+              cout << "alist_ok: " <<alist_ok<<endl;
+              cout << "alist_open: " <<alist_open<<endl;
+            }
         }
     }
 
