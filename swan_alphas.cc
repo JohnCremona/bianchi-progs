@@ -305,29 +305,29 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
   // foursome, while for d=7 (mod 12) (d>=43) there is a foursome then
   // a minuspair.
 
-  // Denominator 1 is special as r=-r (mod 1); 0/1 was put into minuspairs
-  const Quad one(1);
-  for ( const auto& rs : minuspairs)
-    if (rs[1]==one)
-      {
-        triples.push_back({rs[1], rs[0], rs[0]});
-        break; // there's at most one
-      }
+  // Convert a -pair {r,s} to the triple {s,r,r} and a +pair {r,s} to the triple {s,r,-r}
+  auto minuspair2triple = [](const vector<Quad>& rs) {return vector<Quad>{rs[1], rs[0], rs[0]};};
+  auto pluspair2triple = [](const vector<Quad>& rs) {return vector<Quad>{rs[1], rs[0], -rs[0]};};
 
-  // Denominator 2 is special as r=-r (mod 2); these were was put into minuspairs or fours
+  // Denominator 1 is special as r=-r (mod 1); 0/1 was put into minuspairs.
+  // NB there is only one minuspair with s==1, and no pluspair or four.
+  const Quad one(1);
+  auto s1minus = std::find_if(minuspairs.begin(), minuspairs.end(),
+                              [one](const vector<Quad>& rs) {return rs[1]==one;});
+  if (s1minus!=minuspairs.end())
+      triples.push_back(minuspair2triple(*s1minus));
+
+  // Denominator 2 is special as r=-r (mod 2); these were put into minuspairs or fours.
+  // NB there is only at most one minuspair or four with s==2, and no plupairs.
   const Quad two(2);
-  for ( const auto& rs : minuspairs)
-    if (rs[1]==two)
-      {
-        triples.push_back({rs[1], rs[0], rs[0]});
-        break; // there's at most one
-      }
-  for ( const auto& sr1r2 : fours)
-    if (sr1r2[0]==two)
-      {
-        triples.push_back(sr1r2);
-        break; // there's at most one
-      }
+  auto s2minus = std::find_if(minuspairs.begin(), minuspairs.end(),
+                        [two](const vector<Quad>& rs) {return rs[1]==two;});
+  auto s2four = std::find_if(fours.begin(), fours.end(),
+                         [two](const vector<Quad>& rs) {return rs[0]==two;});
+  if (s2minus!=minuspairs.end())
+    triples.push_back(minuspair2triple(*s2minus));
+  if (s2four!=fours.end())
+    triples.push_back(*s2four);
 
   // Denominator 3 does not need special treatment, but we do these
   // before general denominators just so that they come before them in
@@ -336,52 +336,36 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
   // NB for d=7 (mod 12) the foursome comes before the minuspair while
   // for d=1,10 (12) the minuspair comes first. Also there is at most
   // one orbit of each type.
+
+  // NB there is only at most one plus- or minuspair or four with s==3
   const Quad three(3);
+  auto s3plus = std::find_if(pluspairs.begin(), pluspairs.end(),
+                             [three](const vector<Quad>& rs) {return rs[1]==three;});
+  auto s3minus = std::find_if(minuspairs.begin(), minuspairs.end(),
+                              [three](const vector<Quad>& rs) {return rs[1]==three;});
+  auto s3four = std::find_if(fours.begin(), fours.end(),
+                             [three](const vector<Quad>& rs) {return rs[0]==three;});
   int d12 = Quad::d%12;
   switch (d12) {
   case 2: case 5: case 11:
-    for ( const auto& rs : pluspairs)
-      if (rs[1]==three)
-        {
-          triples.push_back({rs[1], rs[0], -rs[0]});
-          break;
-        }
+    if (s3plus!= pluspairs.end())
+      triples.push_back(pluspair2triple(*s3plus));
     break; // end of case 2,5,11
   case 3: case 6: case 9:
-    for ( const auto& sr1r2 : fours)
-      if (sr1r2[0]==three)
-        {
-          triples.push_back(sr1r2);
-          break;
-        }
+    if (s3four!=fours.end())
+      triples.push_back(*s3four);
     break; // end of case 3,6,9
   case 7:
-    for ( const auto& sr1r2 : fours)
-      if (sr1r2[0]==three)
-        {
-          triples.push_back(sr1r2);
-          break;
-        }
-    for ( const auto& rs : minuspairs)
-      if (rs[1]==three)
-        {
-          triples.push_back({rs[1], rs[0], rs[0]});
-          break;
-        }
+    if (s3four!=fours.end())
+      triples.push_back(*s3four);
+    if (s3minus!=minuspairs.end())
+      triples.push_back(minuspair2triple(*s3minus));
     break; // end of case 7
   case 1: case 10:
-    for ( const auto& rs : minuspairs)
-      if (rs[1]==three)
-        {
-          triples.push_back({rs[1], rs[0], rs[0]});
-          break;
-        }
-    for ( const auto& sr1r2 : fours)
-      if (sr1r2[0]==three)
-        {
-          triples.push_back(sr1r2);
-          break;
-        }
+    if (s3minus!=minuspairs.end())
+      triples.push_back(minuspair2triple(*s3minus));
+    if (s3four!=fours.end())
+      triples.push_back(*s3four);
     break; // end of case 1,10
   default: ;
   }
@@ -392,13 +376,13 @@ CuspList alpha_orbits(const CuspList& alist, vector<vector<Quad>>& triples, int 
     {
       Quad s = rs[1];
       if (s!=one && s!=two && s!=three)
-        triples.push_back({s, rs[0], -rs[0]});
+        triples.push_back(pluspair2triple(rs));
     }
   for ( const auto& rs : minuspairs)
     {
       Quad s = rs[1];
       if (s!=one && s!=two && s!=three)
-        triples.push_back({s, rs[0], rs[0]});
+        triples.push_back(minuspair2triple(rs));
     }
   for ( const auto& sr1r2 : fours)
     {

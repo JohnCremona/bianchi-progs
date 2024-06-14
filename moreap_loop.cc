@@ -1,17 +1,17 @@
-// FILE moreap.cc: computes more ap for given level(s)
+// FILE moreap_loop.cc: computes more ap for a range of levels
 
-#include <fstream>
+//#include <fstream>
+#include "qidloop.h"
 #include "newforms.h"
-#include "looper.h"
 
 int main(void)
 {
  cout << "Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.\n";
  cout << "---------------\n\n";
- int d,maxpnorm=150000;
+ long d,maxpnorm=150000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,maxpnorm);
- Quad n; int verbose=0, output=0, showeigs=0, showforms=0, lastp;
+ int verbose=0, output=0, showeigs=0, showforms=0, lastp;
  cout << "Verbose? "; cin>>verbose;
  cout << "Output new eigs to file (1/0)? ";  cin>>output;
  cout << "Output new eigs to screen (1/0)? "; cin>>showeigs;
@@ -24,13 +24,14 @@ int main(void)
  cout<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
  if(firstn<2) firstn=2;
- for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
+
+ Qidealooper loop(firstn, lastn, 0, 1); // sorted within norm
+ while( loop.not_finished() )
    {
-     n = makepos((Quad)alpha);
-     long normn = n.norm();
-     string efilename = eigfile(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,verbose);
+     Qideal N = loop.next();
+     string efilename = eigfile(N);
+     cout << ">>>> Level " << ideal_label(N) <<" = ("<<gens_string(N)<<"), norm = "<<N.norm()<<" <<<<" << endl;
+     newforms nf(N,verbose);
      nf.read_from_file();
      if (showforms) nf.display();
 
