@@ -10,7 +10,7 @@
 #define VERBOSE 1 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
 
-#define COMPARE_OLD
+//#define COMPARE_OLD
 
 int main ()
 {
