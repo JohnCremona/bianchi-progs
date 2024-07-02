@@ -443,6 +443,34 @@ int SwanData::are_intersection_points_covered(const RatQuad& a, const RatQuad& b
   return 0;
 }
 
+int SwanData::is_alpha_redundant(const RatQuad& a, int verbose)
+{
+  int debug = verbose>1;
+  if (debug)
+    cout<<"Testing if "<<a<<" is redundant, with S_a covered by 2 neighbouring S_b..."<<flush;
+  const CuspList& a_nbrs = nbrs[a];
+  for (auto it = a_nbrs.begin(); it!=a_nbrs.end(); ++it)
+    {
+      RatQuad b = *it;
+      for (auto jt = it+1; jt!=a_nbrs.end(); ++jt)
+        {
+          RatQuad c = *jt;
+          if ( (are_intersection_points_covered_by_one(a, b, c)==2)
+               &&
+               (are_intersection_points_covered_by_one(a, c, b)==2)
+               )
+            {
+              if (debug)
+                cout << "Yes, " << a << " is redundant as covered by S_"<<b<<" and S_"<<c<<endl;
+              return 1;
+            }
+        }
+    }
+  if (debug)
+    cout << "No,  " << a << " is not proved to be redundant"<<endl;
+  return 0;
+}
+
 int SwanData::is_alpha_surrounded(const RatQuad& a, int verbose)
 {
   int debug = verbose>1;
@@ -531,17 +559,28 @@ int SwanData::are_alphas_surrounded(int verbose)
     {
       i++;
       if (verbose) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
-      if (is_alpha_surrounded(a, verbose))
+      if (is_alpha_redundant(a, verbose))
         {
-          if (verbose) cout << " ok! surrounded\n";
-          // add this alpha to the ok list end remove from the open list
+          if (verbose) cout << " ok! redundant\n";
+          // add this alpha to the ok list end remove from the open list and full list
           alist_ok.push_back(a);
           alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
+          alist.erase(std::find(alist.begin(), alist.end(), a));
         }
       else
         {
-          if (verbose) cout << " no, not surrounded" << endl;
-          return 0;
+          if (is_alpha_surrounded(a, verbose))
+            {
+              if (verbose) cout << " ok! surrounded\n";
+              // add this alpha to the ok list end remove from the open list
+              alist_ok.push_back(a);
+              alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
+            }
+          else
+            {
+              if (verbose) cout << " no, not surrounded" << endl;
+              return 0;
+            }
         }
     }
 
@@ -727,7 +766,7 @@ void SwanData::find_corners(int debug)
   SwanTimer.start(step);
 
   if (debug)
-    cout << "Finding triple intersections for " <<alist.size()<<" alphas..."<<endl;
+    cout << "Finding corners (triple intersections) for " <<alist.size()<<" alphas..."<<endl;
 
   // Extend alistF4 by 8 translations:
   CuspList alistF4X;
@@ -738,7 +777,10 @@ void SwanData::find_corners(int debug)
     }
   int n=alistF4X.size();
   if (debug)
-    cout << n <<" neighbours of these: " << alistF4X << endl;
+    {
+      cout << n <<" in first quadrant + neighbours of these" <<endl;
+      if (debug>1) cout << alistF4X << endl;
+    }
 
   // For each i get a list of j>i for which S_ai and S_aj intersect properly
   map <int, vector<int> > i2j;
@@ -755,55 +797,122 @@ void SwanData::find_corners(int debug)
   if (debug)
     cout << " finished making i2j" <<endl;
 
-  // Hence make a list of triples (i,j,k) with i<j<k with pairwise proper intersections
+  // Hence make a list of triples (i,j,k) with i<j<k with pairwise
+  // proper intersections; test if they make a triple intersection
+  // (corner) P=[z,t2] with t2>0 and z in the quarter-rectangle:
 
+  H3pointList cornersF4;
   vector<vector<int>> ijk_list;
   for (const auto& i_j_list : i2j)
     {
       i = i_j_list.first;
       vector<int> j_list = i_j_list.second;
       for (const auto& j : j_list)
-        for (const auto& k : j_list)
-          if (std::find(i2j[j].begin(), i2j[j].end(), k) != i2j[j].end()) // k is in i2j[j]
-            ijk_list.push_back({i,j,k});
+        {
+          auto klist = i2j[j];
+          for (const auto& k : j_list)
+            if ((k>j) && (std::find(klist.begin(), klist.end(), k) != klist.end())) // k is in i2j[j]
+              {
+                H3pointList points1 = tri_inter_points(alistF4X[i], alistF4X[j], alistF4X[k]);
+                if (points1.empty()) // it has size 0 or 1
+                  continue;
+                H3point P = points1.front();
+                RAT t2 = P.t2;
+                if (t2.sign()==0)
+                  continue;
+                RatQuad z = P.z;
+                if (debug>2)
+                  cout << " found P = "<<P<<"\n";
+                if (!z.in_quarter_rectangle())
+                  continue;
+                if (std::find(cornersF4.begin(), cornersF4.end(), P) != cornersF4.end())
+                  continue;
+                if (is_under_any(P, alistF4X))
+                  continue;
+                if (debug)
+                  cout << " adding P = "<<P<<" from (i,j,k) = ("<<i<<","<<j<<","<<k<<")" <<endl;
+                cornersF4.push_back(P);
+              }
+        }
     }
 
   if (debug)
-    cout <<" finished making ijk_list: "<<ijk_list.size()<<" triples\n";
+    cout << " found "<<cornersF4.size() <<" corners in first quadrant:\n" <<cornersF4<<endl;
 
-  for ( const auto& ijk : ijk_list)
+  // These corners are in F4, so we apply symmetries to get all those in F:
+  corners = cornersF4;
+  corners.reserve(4*corners.size());
+  static const RAT half(1,2);
+  for (const auto& P : cornersF4)
     {
-      i=ijk[0]; int j=ijk[1], k=ijk[2];
-      H3pointList points1 = tri_inter_points(alistF4X[i], alistF4X[j], alistF4X[k]);
-      if (points1.empty())
-        continue;
-      H3point P = points1.front();
-      RatQuad z = P.z;
       RAT t2 = P.t2;
-      if (t2.sign()==0)
-        continue;
-      if (debug>2)
-        cout << " found P = "<<P<<"\n";
-      if (!z.in_quarter_rectangle())
-        continue;
-      if (std::find(corners.begin(), corners.end(), P) != corners.end())
-        continue;
-      if (is_under_any(P, alistF4X))
-        continue;
-      // These corners are in F4, so we apply symmetries to get all those in F:
+      RatQuad z = P.z;
+      vector<RAT> xy = z.coords(1); // so z = x+y*sqrt(-d)
+      RAT x=xy[0], y=xy[1];
+      if (Quad::t) y *= 2;
+      int x_on_edge = (x==half);
+      int y_on_edge = (y==half);
+      int xy0 = (x==0)||(y==0);
       RatQuad zbar = z.conj();
-      for (const auto& z2 : {z, -z, zbar, -zbar})
-        {
-          if (!z2.in_rectangle())
-            continue;
-          H3point P2 = {z2, t2};
-          if (std::find(corners.begin(), corners.end(), P2) != corners.end())
-            continue;
-          if (debug)
-            cout << " adding P2 = "<<P2<<" from (i,j,k) = "<< ijk <<endl;
-          corners.push_back(P2);
-        }
+
+      // for (const auto& z2 : {-z, zbar, -zbar})
+      //   {
+      //     H3point P2 = {z2, t2};
+      //     if (z2.in_rectangle())
+      //       {
+      //         if (std::find(corners.begin(), corners.end(), P2) == corners.end())
+      //           corners.push_back(P2);
+      //       }
+      //   }
+      // RatQuad z2 = -z;
+      // H3point P2 = {z2, t2};
+      // int test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
+      // int test2 = (!(x_on_edge || y_on_edge));
+      // if (test1!=test2)
+      //   cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), -z = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
+      // if (test2)
+      //   {
+      //     // cout << "appending -P = "<<P2<<endl;
+      //     corners.push_back(P2);
+      //   }
+
+      // z2 = zbar;
+      // P2 = {z2, t2};
+      // test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
+      // test2 = (!(y_on_edge || xy0));
+      // if (test1!=test2)
+      //   {
+      //     cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), zbar = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
+      //     cout << "rectangular coords of zbar: " << z2.coords(1) << endl;
+      //     cout << "zbar in rectangle? " << z2.in_rectangle() <<endl;
+      //     cout << "P2 = "<<P2<<" not in list already? "<< (std::find(corners.begin(), corners.end(), P2) == corners.end()) << endl;
+      //   }
+      // if (test2)
+      //   {
+      //     // cout << "appending Pbar = "<<P2<<endl;
+      //     corners.push_back(P2);
+      //   }
+      // z2 = -zbar;
+      // P2 = {z2, t2};
+      // test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
+      // test2 = (!(x_on_edge || xy0));
+      // if (test1!=test2)
+      //   cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), -zbar = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
+      // if (test2)
+      //   {
+      //     // cout << "appending -Pbar = "<<P2<<endl;
+      //     corners.push_back(P2);
+      //   }
+
+      if (!(x_on_edge || y_on_edge)) // then -P is in the rectangle too
+        corners.push_back({-z, t2});
+      if (!(y_on_edge || xy0)) // then Pbar is in the rectangle too and !=P, !=-P
+        corners.push_back({zbar, t2});
+      if (!(x_on_edge || xy0)) // then -Pbar is in the rectangle too and !=P, !=-P
+        corners.push_back({-zbar, t2});
+
     }
+
   if (debug)
     {
       cout << " found "<<corners.size() <<" corners" <<endl;
@@ -811,9 +920,8 @@ void SwanData::find_corners(int debug)
     }
   std::sort(corners.begin(), corners.end());
   if (debug>2)
-    {
-      cout << " Corners (after  sorting):\n" << corners << endl;
-    }
+    cout << " Corners (after  sorting):\n" << corners << endl;
+
   H3pointList cornersx;
   for ( const auto& P : corners)
     {
@@ -847,7 +955,7 @@ void SwanData::old_find_corners(int verbose)
   int debug = verbose>1;
   if (verbose)
     {
-      cout << "In SwanData.find_corners() with " <<alist.size()<<" alphas..."<<endl;
+      cout << "In SwanData.old_find_corners() with " <<alist.size()<<" alphas..."<<endl;
       cout << alistF4.size() <<" alphas are in the quarter rectangle"<<endl;
     }
 
@@ -868,7 +976,7 @@ void SwanData::old_find_corners(int verbose)
 
   if (verbose)
     {
-      cout << " SwanData.find_corners() found "<<corners.size() <<" corners: " << corners<<endl;
+      cout << " SwanData.old_find_corners() found "<<corners.size() <<" corners: " << corners<<endl;
       int nnotred = not_redundants.size();
       int nred =  alistF4.size() - nnotred;
       cout << " of " <<alistF4.size() << " alphas in quarter_rectangle, "
@@ -1130,14 +1238,13 @@ void SwanData::saturate_alphas(int verbose)
   // (re)sort alist and corners before returning:
   if (verbose)
     {
-      cout << " resorting corners "<<endl;
-      cout << " Corners (before sorting):\n" << corners << endl;
+      cout << " resorting " << corners.size() << " corners "<<endl;
+      if (verbose>1)
+        cout << " Corners (before sorting):\n" << corners << endl;
     }
   std::sort(corners.begin(), corners.end());
-  if (verbose)
-    {
-      cout << " Corners (after  sorting):\n" << corners << endl;
-    }
+  if (verbose>1)
+    cout << " Corners (after  sorting):\n" << corners << endl;
   std::sort(alist.begin(), alist.end());
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
@@ -1555,7 +1662,7 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
   int nv = poly.vertices.size();
   if (verbose)
     cout << " - polyhedron has "<< nv << " vertices ("<<alistP.size()
-         <<" S_a go through P: "<<alist<<")"<<endl;
+         <<" S_a go through P: "<<alistP<<")"<<endl;
 
   // local function to test for being fundamental or oo:
   Quad x;
@@ -1836,23 +1943,13 @@ int SwanData::encode_all_faces(int check, int verbose)
 // For use after reading face data from a geodata file.  From T_faces,
 // U_faces, Q_faces, H_faces reconstruct all_faces.  Must include the
 // the universal triangle {0,oo,1} not included in geodata files.
-void SwanData::decode_all_faces(int verbose)
+void SwanData::decode_all_faces()
 {
   all_faces.clear();
-  // int d = Quad::d;
 
   // Universal triangle
   static const CuspList tri0 = {{0,0,1}, {1,0,0}, {1,0,1}}; // {0,oo,1}
   all_faces.push_back(tri0);
-
-  // // (2) Standard triangles
-  // if ((d==19)||(d==43)||(d==67)||(d==163))
-  //   {
-  //     // {w/2,oo,(w-1)/2}
-  //     CuspList tri1 = {{0,1,2}, {1,0,0}, {-1,1,2}};
-  //     all_faces.push_back(tri1);
-  //     //CuspList tri2 = {{0,1,2}, {1,0,0}, {1,1,2}}; // {w/2, oo, (w+1)/2}
-  //   }
 
   std::transform(T_faces.begin(), T_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_triangle(P, alist, slist, 0);});
@@ -1860,29 +1957,9 @@ void SwanData::decode_all_faces(int verbose)
   std::transform(U_faces.begin(), U_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_triangle(P, alist, slist, 1);});
 
-  // (3) Extras for Euclidean fields
-
-  // if (d==2)
-  //   {
-  //     // {0,oo,w,-1/w}
-  //     CuspList sq = {{0,0,1}, {1,0,0}, {0,1,1}, {Quad(-1),Quad::w}};
-  //     all_faces.push_back(sq);
-  //   }
-  // if (d==7)
-  //   {
-  //     // {0,oo,w-1,-1/w}
-  //     CuspList sq = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-1),Quad::w}};
-  //     all_faces.push_back(sq);
-  //   }
   std::transform(Q_faces.begin(), Q_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_quadrilateral(P, alist);});
 
-  // if (d==11)
-  //   {
-  //     // {0,oo,w-1,2(w-1)/3,(w-1)/2,(w-1)/3}
-  //     CuspList hex = {{0,0,1}, {1,0,0}, {-1,1,1},  {Quad(-2),Quad::w}, {-1,1,2}, {Quad(-1),Quad::w}};
-  //     all_faces.push_back(hex);
-  //   }
   std::transform(H_faces.begin(), H_faces.end(), std::back_inserter(all_faces),
                  [this] (const POLYGON& P) {return remake_hexagon(P, alist);});
 }
@@ -2231,7 +2308,7 @@ vector<vector<int>> SwanData::face_boundaries(int GL2, int debug)
       if (!GL2)
         M.push_back(face_boundary_vector(negate_polygon(face)));
     }
-  if (debug) cout << "Matrix has size "<<all_faces.size()<<" x "<< M[0].size() << ":\n" << M << endl;
+  if (debug) cout << "Matrix has size "<<nrows<<" x "<< M[0].size() << ":\n" << M << endl;
   assert (M.size()==nrows);
   return M;
 }
@@ -2277,7 +2354,7 @@ vector<vector<int>> SwanData::integral_homology(int group, int debug)
     SL2 = group&2; // i.e. 2 or 3
   if (GL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(1);
+      vector<vector<int>> M21 = face_boundary_matrix(1, debug>1);
       if (debug)
         {
           cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
@@ -2286,7 +2363,7 @@ vector<vector<int>> SwanData::integral_homology(int group, int debug)
     }
   if (SL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(0);
+      vector<vector<int>> M21 = face_boundary_matrix(0, debug>1);
       if (debug)
         {
           cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;

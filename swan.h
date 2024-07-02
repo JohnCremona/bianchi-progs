@@ -115,13 +115,13 @@ public:
   // consistency if check
   int encode_all_faces(int check=1, int verbose=0);
 
-  // For use after reading face data fro ma geodata file.  From
+  // For use after reading face data from a geodata file.  From
   // T_faces, U_fces, Q_faces, H_faces reconstruct all_faces.  Must
   // include the standard faces not (for historical rasons) included
   // in geodata files, namely: (1) the universal triangle {0,oo,1};
   // (2) one standard triangle for d=19, 43, 67, 163; (3) one extra Q
   // or H face for d=2, 7, 11.
-  void decode_all_faces(int verbose=0);
+  void decode_all_faces();
 
   // Write alpha data to subdir/geodata_d.dat (overwriting if
   // existing) in A-lines.  If include_small_denoms, output all alpha
@@ -239,6 +239,8 @@ private:
 
   // (called only by find_covering_alphas())
   int are_alphas_surrounded(int verbose=0);
+  // (called only by are_alphas_surrounded())
+  int is_alpha_redundant(const RatQuad& a, int verbose=0);
   // (called only by are_alphas_surrounded())
   int is_alpha_surrounded(const RatQuad& a, int verbose=0);
   // (called only by are_alphas_surrounded())

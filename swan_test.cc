@@ -82,7 +82,7 @@ int main ()
       if (verbose)
         {
           cout << new_alphas.size() << " covering alphas";
-          if (debug) cout << ": " << new_alphas || "\n";
+          if (debug>1) cout << ": " << new_alphas || "\n";
           cout << " with max dnorm = " << maxn <<endl;
         }
       tim.stop(step);
@@ -195,7 +195,7 @@ int main ()
       // Find all principal polyhedra:
 
       verbose = VERBOSE;
-      cout << "Constructing principal polyhedra from alphas";
+      cout << "Constructing principal polyhedra from alphas (old code)";
       if (debug) cout << ": "<<alphas;
       cout << "..." << flush;
       if (verbose) cout<<endl;
@@ -360,14 +360,14 @@ int main ()
       cout<<"\n***************** integral homology for d = "<<Quad::d<<" ************************\n"<<endl;
 
       debug = DEBUG;
-      if (0)
+      if (debug)
         {
-          cout<<"alphas: "<<alphas<<endl;
-          cout<<"sigmas: "<<sigmas<<endl;
-          cout<<"pluspairs: "<<pluspairs<<endl;
-          cout<<"minuspairs: "<<minuspairs<<endl;
-          cout<<"fours: "<<fours<<endl;
-          cout<<"faces: "<<SD.all_faces<<endl;
+          cout<<alphas.size()<<" alphas: "<<alphas<<endl;
+          cout<<sigmas.size()<<" sigmas: "<<sigmas<<endl;
+          cout<<pluspairs.size()<<" pluspairs: "<<pluspairs<<endl;
+          cout<<minuspairs.size()<<" minuspairs: "<<minuspairs<<endl;
+          cout<<fours.size()<<" fours: "<<fours<<endl;
+          cout<<SD.all_faces.size()<<" faces: "<<SD.all_faces<<endl;
         }
       vector<vector<int>> invariants = SD.integral_homology(3, debug);
       cout << Quad::disc << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;

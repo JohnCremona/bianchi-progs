@@ -116,9 +116,17 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict)
 int is_inside_one(const RatQuad& a, const CuspList& blist, int strict)
 {
   return std::any_of(blist.begin(), blist.end(),
-                     [a, strict](const RatQuad& b) {return is_inside(a,b,strict);});
+                     [a, strict](const RatQuad& b)
+                     {return is_inside(a,b,strict);});
 }
 
+// return 1 iff a1 and a2 are both [strictly] inside the same S_b for at least one b in blist
+int are_both_inside_one(const RatQuad& a1, const RatQuad& a2, const CuspList& blist, int strict)
+{
+  return std::any_of(blist.begin(), blist.end(),
+                     [a1, a2, strict](const RatQuad& b)
+                     {return is_inside(a1,b,strict) && is_inside(a2,b,strict);});
+}
 
 // list of principal cusps with given denominator norm
 CuspList principal_cusps_of_dnorm(const INT& n)

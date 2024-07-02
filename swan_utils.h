@@ -58,6 +58,9 @@ int is_inside(const RatQuad& a, const RatQuad& b, int strict=0);
 // return 1 iff a is [strictly] inside S_b for at least one b in blist
 int is_inside_one(const RatQuad& a, const CuspList& blist, int strict=0);
 
+// return 1 iff a1 and a2 are both [strictly] inside the same S_b for at least one b in blist
+int are_both_inside_one(const RatQuad& a1, const RatQuad& a2, const CuspList& blist, int strict=0);
+
 // Return the height of S_a above z, or 0 if S_a does not cover z
 RAT height_above(const RatQuad& a, const RatQuad& z);
 

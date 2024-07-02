@@ -68,8 +68,8 @@ int main ()
 #ifdef COMPARE_OLD
       cout << "NEW CODE" << endl;
 #endif
-      cout << "GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
-      cout << "SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+      cout << -D << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
+      cout << -D << " SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
 
 #ifdef COMPARE_OLD
       vector<vector<POLYGON>> all_polys = read_polygons("geodata", verbose);
@@ -117,8 +117,8 @@ int main ()
                                                              3, debug);
 
       cout << "OLD CODE" << endl;
-      cout << "GL2 integral homology: "; show_invariants(old_invariants[0]); cout << endl;
-      cout << "SL2 integral homology: "; show_invariants(old_invariants[1]); cout << endl;
+      cout <<  -D << " GL2 integral homology: "; show_invariants(old_invariants[0]); cout << endl;
+      cout <<  -D << " SL2 integral homology: "; show_invariants(old_invariants[1]); cout << endl;
 
       if (invariants==old_invariants)
         {
