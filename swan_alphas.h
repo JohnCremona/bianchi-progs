@@ -112,8 +112,18 @@ H3pointList triple_intersections(const CuspList& alist, int debug=0);
 H3pointList new_triple_intersections(const CuspList& alist, int debug=0);
 H3pointList old_triple_intersections(const CuspList& alist, int debug=0);
 
-// count how many P in points are on S_a
-int nverts(const RatQuad& a, const H3pointList& points);
+
+// With a=r/s principal, return 1 off no principal S_b strictly cover
+// P=[a,1/N(s)].  This is sufficient (but not necessary) for a (up to
+// translation) to be in the set of saturated covering alphas, so is a
+// quick first check when testing alphas for redundancy.
+inline int is_maximal(const RatQuad& a)
+{
+  H3point P({a, radius_squared(a)});
+  return covering_hemispheres(P, 0).size() == 1; // a is the only alpha over or through P
+}
+
+int not_redundant(const RatQuad& a, const H3pointList& points);
 
 // return sublist of a in alist which have at least 3 vertices in points
 CuspList remove_redundants(const CuspList& alist, const H3pointList& points);

@@ -70,6 +70,9 @@ int is_under(const H3point& P, const RatQuad& a);
 // return +1 iff P is under at least one S_a for a in slist
 int is_under_any(const H3point& P, const CuspList& alist);
 
+// count how many P in points are on S_a
+int nverts(const RatQuad& a, const H3pointList& points);
+
 // multiply a point by fundamental unit (usually -1, hence the name here)
 H3point negate(const H3point& P);
 

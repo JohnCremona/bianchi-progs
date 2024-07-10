@@ -362,8 +362,17 @@ int valid_edge(const RatQuad& a, const RatQuad& b, const CuspList& alphas,
 // count how many P in points are on S_a
 int nverts(const RatQuad& a, const H3pointList& points)
 {
+  // return std::count_if(points.begin(), points.end(),
+  //                      [a](const H3point& P) {return is_under(P,a)==0;});
+  Quad r = a.num(), s = a.den();
   return std::count_if(points.begin(), points.end(),
-                       [a](const H3point& P) {return is_under(P,a)==0;});
+                       [r,s](const H3point& P)
+                       {
+                         INT quo, rem;
+                         if (!divrem((s * P.z.den()).norm() * P.t2.num(), P.t2.den(), quo, rem)) return 0;
+                         return P.z.den().norm() == mms(s,P.z.num(),r,P.z.den()).norm() + quo;
+                         // return is_under(P,a)==0;
+                       });
 }
 
 // POLYHEDRON utilities
@@ -414,17 +423,17 @@ static const map<vector<int>, string> poly_names =
 string poly_name(const POLYHEDRON& P)
 {
   auto vef = VEFx(P);
-  return poly_names.at(vef);
-  // auto search = poly_names.find(vef);
-  // if ( search!=poly_names.end() )
-  //   return search->second;
-  // cout << "Polyhedron with (V,E,F3,F4,F6) = " << vef << " not recognised";
+  // return poly_names.at(vef); // will crash if P is not in the above list
+  auto search = poly_names.find(vef);
+  if ( search!=poly_names.end() )
+    return search->second;
+  cout << "Polyhedron with (V,E,F3,F4,F6) = " << vef << " not recognised" << endl;
   // int nv = vef[0];
   // int n = nv-2;
   // if (vef[1]==3*n && vef[2]==2*n && vef[3]==0 && vef[4]==0)
   //   cout << " -- looks like a "<<n<<"-dipyramid";
   // cout <<endl;
-  // return "unknown";
+  return "new type of polyhedron";
 }
 
 // Given a base cusp s and a list of cusps alist, return a sorted

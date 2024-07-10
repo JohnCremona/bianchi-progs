@@ -1069,13 +1069,21 @@ H3pointList new_triple_intersections(const CuspList& alphas, int debug)
     return points;
 }
 
+int not_redundant(const RatQuad& a, const H3pointList& points)
+{
+  // if (is_maximal(a) && (nverts(a, points) < 3))
+  //   cout << "a = "<<a<<" is maximal, but nverts(a,points) = "<<nverts(a,points)<<endl;
+  return (is_maximal(a)? 1 : nverts(a, points) >= 3);
+  // older version:
+  // return nverts(a, points) >= 3;
+}
 
 // return sublist of a in alist which have t least 3 vertices in points
 CuspList remove_redundants(const CuspList& alist, const H3pointList& points)
 {
   CuspList new_alist;
   std::copy_if(alist.begin(), alist.end(), std::back_inserter(new_alist),
-               [points](const RatQuad& a) {return nverts(a, points) >= 3;});
+               [points] (const RatQuad& a) {return not_redundant(a, points);});
   return new_alist;
 }
 

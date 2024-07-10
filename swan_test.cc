@@ -165,7 +165,12 @@ int main ()
       tim.stop(method);
       cout<<"...done: "; tim.show(1, method);
       string subdir = "xgeodata";
-      std::system(("mkdir -p "+subdir).c_str());
+      int res = std::system(("mkdir -p "+subdir).c_str());
+      if (res)
+        {
+          cerr << "mkdir -p "<<subdir<<" failed, writing geodata file in current directory"<<endl;
+          subdir = ".";
+        }
       string geodata_filename = subdir+"/geodata_"+std::to_string(Quad::d)+".dat";
       cout<<"SwanData A- and S- data output to " << geodata_filename << endl;
       SD.output_alphas_and_sigmas(0,subdir);
