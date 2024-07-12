@@ -208,6 +208,28 @@ def read_dimtabeis_new(d, fname):
                 data[label] = record
     return data
 
+def read_dimtabeis_many(dlist, N1, N2):
+    """Same as read_dimtabeis_new() but for a list of fields.
+
+    The dim table for field d must be in file f"dimtabnew.{d}.{N1}-{N2}"
+
+    Returns a dict containing all the data, keys all space labels with
+    values the data for that space.
+
+    """
+    data = {}
+    for d in dlist:
+        K, a = field(d)
+        D = K.discriminant().abs()
+        field_label = "2.0.{}.1".format(D)
+        filename = os.path.join(DIM_DIR, f"dimtabnew.{d}.{N1}-{N2}")
+        with open(filename) as infile:
+            for L in infile:
+                if L[0] != '#':
+                    label, record = parse_dims_line(L, K, D, field_label, d)
+                    data[label] = record
+    return data
+
 def numerify_iso_label(lab):
     from sage.databases.cremona import class_to_int
     return class_to_int(lab.lower())
@@ -309,6 +331,31 @@ def read_newforms(d, fname):
             if L[0] != '#' and "Primes" not in L and "..." not in L:
                 label, record = parse_newforms_line(L, K)
                 data[label] = record
+    return data
+
+def read_newforms_many(dlist, N1, N2):
+    """Read newforms files as output by nflist.cc.
+    Ignore lines starting with # or containing "Primes" or "...".
+
+    dlist is a list of (squarefree positive) d defining IQFs with data
+    from level norm N1 to N2.  The newform file for each d is assumed to be
+    f"newforms.{d}.{N1}-{N2}"
+
+    Returns a dict containing all the data, keys all newform labels with
+    values the data for that newform.
+
+    """
+    data = {}
+    for d in dlist:
+        K, a = field(d)
+        D = K.discriminant().abs()
+        field_label = "2.0.{}.1".format(D)
+        filename = os.path.join(FORM_DIR, f"newforms.{d}.{N1}-{N2}")
+        with open(filename) as infile:
+            for L in infile:
+                if L[0] != '#' and "Primes" not in L and "..." not in L:
+                    label, record = parse_newforms_line(L, K)
+                    data[label] = record
     return data
 
 bmf_dims_schema = {
@@ -442,17 +489,40 @@ def write_bmf_upload_file(data, fname, table, sl2):
 
 # e.g. (assumes directory ~/bmf-upload exists)
 # sage: %runfile bianchi.py
-# sage: d=43
+# sage: d=43 # square-free
+# sage: D=43 # abs(disc), either d or 4*d
 # sage: N1=1
 # sage: N2=1000
-# sage: dimdat = read_dimtabeis_new(d, "dimtabeis.{}.all.newdims".format(d))
+# sage: # either (old style)
+# sage: dimdat = read_dimtabeis_new(d, f"dimtabeis.{d}.all.newdims")
+# sage: # or (new style)
+# sage: dimdat = read_dimtabeis_new(d, f"dimtabnew.{d}.{N1}-{N2}")
 # sage: sl2_levels = []
-# sage: if d in [1,2,3,7,11,19,43,67,163,20]:
-# sage:    sl2_levels = read_data("sl2_levels_{}".format(d), str)
-# sage:    write_bmf_upload_file(dimdat, "bmf_dims.{}.{}-{}.sl2".format(d,N1,N1), 'dims', sl2=True)
-# sage: write_bmf_upload_file(dimdat, "bmf_dims.{}.{}-{}.no_sl2".format(d,N1,N2), 'dims', sl2=False)
-# sage: formdat = read_newforms(d, "newforms.{}.{}-{}".format(d,N1,N2))
-# sage: write_bmf_upload_file(formdat, "bmf_forms.{}.{}-{}".format(d,N1,N2), 'forms', True)
+# sage: if D in [1,2,3,7,11,19,43,67,163,20]:
+# sage:    sl2_levels = read_data(f"sl2_levels_{D}", str)
+# sage:    write_bmf_upload_file(dimdat, f"bmf_dims.{d}.{N1}-{N2}.sl2", 'dims', sl2=True)
+# sage: write_bmf_upload_file(dimdat, f"bmf_dims.{d}.{N1}-{N2}.no_sl2", 'dims', sl2=False)
+# sage: formdat = read_newforms(d, f"newforms.{d}.{N1}-{N2}")
+# sage: write_bmf_upload_file(formdat, f"bmf_forms.{d}.{N1}-{N2}", 'forms', True)
+
+# or simply (for any fields with no sl2 data)
+
+# sage: dimdat = read_dimtabeis_new(d, f"dimtabnew.{d}.{N1}-{N2}")
+# sage: sl2_levels = []
+# sage: write_bmf_upload_file(dimdat, f"bmf_dims.{d}.{N1}-{N2}", 'dims', sl2=False)
+# sage: formdat = read_newforms(d, f"newforms.{d}.{N1}-{N2}")
+# sage: write_bmf_upload_file(formdat, f"bmf_forms.{d}.{N1}-{N2}", 'forms', True)
+
+# or for several fields d together, same N1 and N2 (and no sl2 data)
+
+# sage: dimdat = read_dimtabeis_many(dlist, N1, N2)
+# sage: sl2_levels = []
+# sage: Dlist = [d if d%4==3 else 4*d for d in dlist]
+# sage: DD = "-".join(str(D) for D in Dlist)
+# sage: write_bmf_upload_file(dimdat, f"bmf_dims.{DD}.{N1}-{N2}", 'dims', sl2=False)
+# sage: formdat = read_newforms_many(dlist, N1, N2)
+# sage: write_bmf_upload_file(formdat, f"bmf_forms.{DD}.{N1}-{N2}", 'forms', True)
+
 
 # Copy the three files to legendre in bmf-upload/.
 # Do the upload as follows:
