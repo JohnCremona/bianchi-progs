@@ -61,13 +61,13 @@ while true; do
 
 done
 
-echo ${d} -1  ${MINLEVEL} ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
-echo $d $MAXLEVEL | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.${MINLEVEL}-${MAXLEVEL}
-grep data ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
+echo ${d} -1  1 ${MAXLEVEL} | ./nflist_loop > ${HOME}/bianchi-data/newforms/newforms.${d}.1-${MAXLEVEL}
+echo $d ${MAXLEVEL} | ./dimtabnew >  ~/bianchi-data/dims/dimtabnew.${d}.1-${MAXLEVEL}
+grep data ${HOME}/bianchi-data/newforms/newforms.${d}.1-${MAXLEVEL}
 
 echo "============================================"
 echo "Finished field:" $d " level norms " ${MINLEVEL} " to " ${MAXLEVEL} ": "
-wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.${MINLEVEL}-${MAXLEVEL}
+wc -l ${HOME}/bianchi-data/newforms/newforms.${d}.1-${MAXLEVEL}
 echo "============================================"
 
 

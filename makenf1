@@ -1,4 +1,9 @@
 #!/bin/bash
+
+if [ $HOSTNAME == "lovelace" ]; then
+ export LD_LIBRARY_PATH=/home/jcremona/lib
+fi
+
 d=$1
 LEVEL=$2
 NAP=${3:-100}

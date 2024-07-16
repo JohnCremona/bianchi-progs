@@ -6,7 +6,7 @@
 # else set the install directory here:
 
 #ECLIB_BASE=/usr/local
-ECLIB_BASE=$(HOME)/eclib
+ECLIB_BASE=$(HOME)
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -55,7 +55,8 @@ ifeq ($(INT_TYPE), long)
  BASE_TYPE_FLAG = -D INT_IS_long
 else
  BASE_TYPE_FLAG = -D FLINT
- FLINT_LDFLAGS = -lflint -lgmp
+ FLINT_CFLAGS = -I$(HOME)/include
+ FLINT_LDFLAGS = -L$(HOME)/lib -lflint -lgmp
 endif
 endif
 
@@ -73,16 +74,16 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 # for profiling:
-#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+#CFLAGS = -c -g -pg $(OPTFLAG) $(FLINT_CFLAGS) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 #LFLAGS = -pg -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for coverage:
-#CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+#CFLAGS = -c -g --coverage $(FLINT_CFLAGS) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
 #LFLAGS = --coverage -fprofile-arcs -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
-LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
+CFLAGS = -c -g $(OPTFLAG) -I/usr/local $(FLINT_CFLAGS) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+LFLAGS = -L$(HOME)/lib -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
 
