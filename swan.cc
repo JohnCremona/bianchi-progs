@@ -785,16 +785,16 @@ void SwanData::find_corners(int debug)
     }
 
   // For each i get a list of j>i for which S_ai and S_aj intersect properly
-  map <int, vector<int> > i2j;
-  int i=0;
+  vector<std::set<int> > i2j;
+  int i=-1;
   for ( const auto& a : alistF4X)
     {
-      vector<int> i2j_i;
+      i++;
+      std::set<int> i2j_i;
       for (int j = i+1; j<n; j++)
         if (circles_intersect(a, alistF4X[j]))
-          i2j_i.push_back(j);
-      i2j[i] = i2j_i;
-      i++;
+          i2j_i.insert(j);
+      i2j.push_back(i2j_i);
     }
   if (debug)
     cout << " finished making i2j" <<endl;
@@ -804,17 +804,19 @@ void SwanData::find_corners(int debug)
   // (corner) P=[z,t2] with t2>0 and z in the quarter-rectangle:
 
   H3pointList cornersF4;
-  vector<vector<int>> ijk_list;
-  for (const auto& i_j_list : i2j)
+  i=-1;
+  for (const auto& ij_list : i2j)
     {
-      i = i_j_list.first;
-      vector<int> j_list = i_j_list.second;
-      for (const auto& j : j_list)
+      i++;
+      for (const auto& j : ij_list) // so (i,j) intersect
         {
-          auto klist = i2j[j];
-          for (const auto& k : j_list)
-            if ((k>j) && (std::find(klist.begin(), klist.end(), k) != klist.end())) // k is in i2j[j]
-              {
+          std::set<int> jk_list = i2j[j], ik_list = ij_list, k_list;
+          // so (i,k) and (j,k) also intersect
+          std::set_intersection(ik_list.begin(), ik_list.end(),
+                                jk_list.begin(), jk_list.end(),
+                                std::inserter(k_list, k_list.begin()));
+          for (const auto& k : k_list) // so all pairs intersect
+            { // Now i<j<k and they intersect pairwise, not necessarily triply
                 H3pointList points1 = tri_inter_points(alistF4X[i], alistF4X[j], alistF4X[k]);
                 if (points1.empty()) // it has size 0 or 1
                   continue;
