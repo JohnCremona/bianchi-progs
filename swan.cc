@@ -343,7 +343,9 @@ void SwanData::find_covering_alphas(int verbose)
 
   alist = alist_ok;
   if (verbose)
-    cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<"\n"<<alist<<endl;
+    cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<endl;
+  if (verbose>1)
+    cout <<alist<<endl;
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
@@ -837,7 +839,9 @@ void SwanData::find_corners(int debug)
     }
 
   if (debug)
-    cout << " found "<<cornersF4.size() <<" corners in first quadrant:\n" <<cornersF4<<endl;
+    cout << " found "<<cornersF4.size() <<" corners in first quadrant" << endl;
+  if (debug>1)
+    cout<<cornersF4<<endl;
 
   // These corners are in F4, so we apply symmetries to get all those in F:
   corners = cornersF4;
@@ -1600,12 +1604,12 @@ int SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, in
     {
       int file_d;
       char G;
-      POLYGON poly =  parse_geodata_line(line, file_d, G, verbose);
+      POLYGON poly =  parse_geodata_line(line, file_d, G, verbose>1);
       auto data = poly.shifts;
       switch(G) {
       case 'A': // alpha orbit
         {
-          process_alpha_orbit(data[0], data[1], data[2], verbose);
+          process_alpha_orbit(data[0], data[1], data[2], verbose>1);
           nA++;
           break;
         }
@@ -1628,12 +1632,17 @@ int SwanData::read_alphas_and_sigmas(int include_small_denoms, string subdir, in
   geodata.close();
   if (verbose)
     {
-      cout << alist.size() << " alphas in " << nA << " orbits: " << alist << endl;
-      cout << slist.size() << " sigmas in " << nS << " orbits: " << slist << endl;
-      cout << "alpha_inv: " << a_inv << endl;
-      cout << "edge_pairs_plus: " << edge_pairs_plus << endl;
-      cout << "edge_pairs_minus: " << edge_pairs_minus << endl;
-      cout << "edge_fours: " << edge_fours << endl;
+      cout << alist.size() << " alphas in " << nA << " orbits" <<endl;
+      cout << slist.size() << " sigmas in " << nS << " orbits" << endl;
+      if (verbose>1)
+        {
+          cout << "alphas: " << alist << endl;
+          cout << "sigmas: " << slist << endl;
+          cout << "alpha_inv: " << a_inv << endl;
+          cout << "edge_pairs_plus: " << edge_pairs_plus << endl;
+          cout << "edge_pairs_minus: " << edge_pairs_minus << endl;
+          cout << "edge_fours: " << edge_fours << endl;
+        }
     }
   return 1;
 }
@@ -1674,14 +1683,14 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
   int i, j, k;
   j = point_index_with_translation(P, corners, x);
   orbit.insert(j);
-  if (verbose)
+  if (verbose>1)
     cout<<"Checking off corner #"<<j<<" ("<<corners[j]<<")\n";
   H3point Q = negate(P);
-  if (verbose)
+  if (verbose>1)
     cout<<" Looking for corner "<<Q<<endl;
   k = point_index_with_translation(Q, corners, x);
   orbit.insert(k);
-  if (verbose)
+  if (verbose>1)
     cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
 
   for ( const auto& a : alistP)
@@ -1702,33 +1711,35 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
         }
       // add flag i to orbit
       orbit.insert(i);
-      if (verbose)
+      if (verbose>1)
         cout<<"Checking off corner #"<<i<<" ("<<corners[i]<<")\n";
 
       // check off flag k where u*corners[i]=corners[k] (mod translation)
       Q = negate(P);
-      if (verbose)
+      if (verbose>1)
         cout<<" Looking for corner "<<Q<<endl;
       k = point_index_with_translation(Q, corners, x);
       orbit.insert(k);
-      if (verbose)
+      if (verbose>1)
         cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
     }
-  int ne = poly.edges.size()/2;
-  int nf = 2+ne-nv; // Euler's formula!
   if (verbose)
     {
       cout << " - orbit " << orbit << " of size " << orbit.size() << endl;
-      cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
-      cout << " - now filling in face data..."<<endl;
+      if (verbose>1)
+        {
+          int ne = poly.edges.size()/2;
+          int nf = 2+ne-nv; // Euler's formula!
+          cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
+          cout << " - now filling in face data..."<<endl;
+        }
     }
   fill_faces(poly, verbose);
   if (verbose)
     {
-      cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
-      cout << "VEF(poly) = " << VEF(poly) <<endl;
+      cout << "After filling in faces, polyhedron is a " << poly_name(poly) << " with "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
+      // cout << "VEF(poly) = " << VEF(poly) <<endl;
       cout << "VEFx(poly) = " << VEFx(poly) <<endl;
-      cout << " -- it is a "<<poly_name(poly)<<endl;
     }
   return poly;
 }
@@ -2085,7 +2096,7 @@ int SwanData::read_face_data(string subdir, int verbose)
   geodata.close();
   if (verbose)
     cout<<"Read "<<nT<<" T triangles, "<<nU<<" U-triangles, "<<nQ<<" squares and "<<nH<<" hexagons"<<endl;
-  if (check_faces(verbose))
+  if (check_faces(verbose>1))
     {
       if(verbose)
         cout<<"All polygons on file check OK"<<endl;

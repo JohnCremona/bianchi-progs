@@ -54,7 +54,7 @@ public:
   int read(string subdir="", int verbose=0)
   {
     clear();
-    return read_geodata(0, subdir, verbose);
+    return read_geodata(0, subdir, verbose>1);
   }
   // read from geodata file, or create from scratch and store if not successful (file absent)
   void read_or_create(string subdir="", int verbose=0);

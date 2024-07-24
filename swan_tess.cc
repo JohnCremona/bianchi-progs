@@ -24,7 +24,9 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
         continue;
       auto alist = sorted_neighbours(s, alphas);
       if (verbose)
-        cout<<"sigma = "<<s<<" has alpha-neighbours "<<alist<<endl;
+        cout<<"sigma = "<<s<<" has " << alist.size() << " alpha-neighbours" << endl;
+      if (verbose>1)
+        cout<<alist<<endl;
       sigma_nbrs[s] = alist;
       n = alist.size();
       for (i=0; i<n; i++)
@@ -32,11 +34,11 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
           RatQuad a = alist[i], b = alist[(i+1)%n];
           H3point R = bi_inter(a, b);
           sRlist.push_back({s,R});
-          if (verbose)
+          if (verbose>1)
             cout<<" alphas "<<a<<" and "<<b<<" give R = ["<<R.z.coords(1)<<","<<R.t2<<"]\n";
         }
     }
-  if (verbose)
+  if (verbose>1)
     cout << " from " << sigmas.size()-1 << " finite sigmas we have " << sRlist.size() << " (sigma,R) pairs" << endl;
 
   // local function to test for being fundamental or oo:
@@ -57,7 +59,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
       vector<int> orbit = {j};
       RatQuad s = sR.first;
       H3point R = sR.second;
-      if (verbose)
+      if (verbose>1)
         cout<<" - processing #"<<j<<" (sigma,R) = ("<<s<<","<<R<<")"<<endl;
       CuspList alist = covering_hemispheres(R);
       POLYHEDRON P;
@@ -150,8 +152,9 @@ void fill_faces(POLYHEDRON& P, int verbose)
   if (verbose)
     {
       cout << "filling in faces of a polyhedron with "<<nde<<" directed edges" << endl;
-      for (const auto& v : P.vertices)
-        cout << v <<" --> " << ends[v] << endl;
+      if (verbose>1)
+        for (const auto& v : P.vertices)
+          cout << v <<" --> " << ends[v] << endl;
     }
 
   vector<CuspList> badstarts; // will hold any invalid v->w->x found
@@ -182,7 +185,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
                 }
             }
         }
-      if (verbose)
+      if (verbose>1)
         cout << " - trying "<<v<<"-->"<<w<<"-->"<<x<<endl;
 
       // Check that no vertices y are on the "wrong" side,
@@ -212,7 +215,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
       // sorted_faces.push_back(sface);
 
       int nface = face.size();
-      if (verbose)
+      if (verbose>1)
         cout << " - found a new face with "<<nface<<" sides (unsorted):"<<face<<endl;
 
       // delete the relevant directed edges, starting with v->w->x
@@ -269,7 +272,7 @@ void fill_faces(POLYHEDRON& P, int verbose)
             cout<<"Now the face is "<<face<<endl;
         }
       P.faces.push_back(face);
-      if (verbose)
+      if (verbose>1)
         cout << " we now have "<<P.faces.size()<<" faces; "<<nde << " directed edges remain" <<endl;
     }
 }
@@ -308,17 +311,17 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
   // check off flags j and k where u*P=Plist[k] (mod translation)
   flags[j] = 1;
   orbit.push_back(j);
-  if (verbose)
+  if (verbose>1)
     cout<<"Checking off corner #"<<j<<" ("<<Plist[j]<<")\n";
   H3point Q = negate(P);
-  if (verbose)
+  if (verbose>1)
     cout<<" Looking for corner "<<Q<<endl;
   int k = point_index_with_translation(Q, Plist, x);
   if (flags[k]==0)
     {
       flags[k] = 1;
       orbit.push_back(k);
-      if (verbose)
+      if (verbose>1)
         cout<<" Q = corner #"<<k<<" ("<<Plist[k]<<")"<<endl;
     }
 
@@ -359,21 +362,20 @@ principal_polyhedron(int j, const CuspList& alphas, const H3pointList& Plist,
             cout<<" Q = corner #"<<k<<" ("<<Plist[k]<<")"<<endl;
         }
     }
-  int ne = poly.edges.size()/2;
-  int nf = 2+ne-nv; // Euler's formula!
   if (verbose)
     {
       cout << " - orbit " << orbit << " of size " << orbit.size() << endl;
-      cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
-      cout << " - now filling in face data..."<<endl;
+      // int ne = poly.edges.size()/2;
+      // int nf = 2+ne-nv; // Euler's formula!
+      // cout << " - polyhedron has (V,E,F)=("<<nv<<","<<ne<<","<<nf<<"):\n"; //<<poly << endl;
+      // cout << " - now filling in face data..."<<endl;
     }
   fill_faces(poly, verbose);
   if (verbose)
     {
-      cout << "After filling in faces, polyhedron has "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
-      cout << "VEF(poly) = " << VEF(poly) <<endl;
+      cout << "After filling in faces, polyhedron is a " << poly_name(poly) << " with "<<poly.faces.size()<<" faces:\n"<<poly.faces << endl;
+      // cout << "VEF(poly) = " << VEF(poly) <<endl;
       cout << "VEFx(poly) = " << VEFx(poly) <<endl;
-      cout << " -- it is a "<<poly_name(poly)<<endl;
     }
   return poly;
 }
@@ -725,11 +727,14 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
            << " polyhedra, the boundary matrix has "<<M32.size()
            << " rows, and rank "<<r<<endl;
 
-      cout<<"Polyhedron face boundaries:\n";
-      for (int i=0; i<npolys; i++)
+      if (verbose>1)
         {
-          auto P = all_polys[i];
-          cout<<i<<" ("<<poly_name(P)<<"): "<<M32[i]<<endl;//" from "<<P<<endl;
+          cout<<"Polyhedron face boundaries:\n";
+          for (int i=0; i<npolys; i++)
+            {
+              auto P = all_polys[i];
+              cout<<i<<" ("<<poly_name(P)<<"): "<<M32[i]<<endl;//" from "<<P<<endl;
+            }
         }
     }
   // Check for duplicates:
@@ -739,7 +744,7 @@ vector<CuspList> get_faces( const vector<POLYHEDRON>& all_polys,
       {
         if (M32[i]==M32[k])
           {
-            if (verbose)
+            if (verbose>1)
               cout<<"Polyhedra "<<i<<" and "<<k<<" have congruent faces"<<endl;
             ndups++;
           }
