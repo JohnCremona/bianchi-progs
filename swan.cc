@@ -793,7 +793,7 @@ void SwanData::find_corners(int debug)
       std::set<int> i2j_i;
       for (int j = i+1; j<n; j++)
         if (circles_intersect(a, alistF4X[j]))
-          i2j_i.insert(j);
+          i2j_i.insert(i2j_i.end(), j);
       i2j.push_back(i2j_i);
     }
   if (debug)
@@ -803,7 +803,7 @@ void SwanData::find_corners(int debug)
   // proper intersections; test if they make a triple intersection
   // (corner) P=[z,t2] with t2>0 and z in the quarter-rectangle:
 
-  H3pointList cornersF4;
+  std::set<H3point> cornersF4;
   i=-1;
   for (const auto& ij_list : i2j)
     {
@@ -821,21 +821,17 @@ void SwanData::find_corners(int debug)
                 if (points1.empty()) // it has size 0 or 1
                   continue;
                 H3point P = points1.front();
-                RAT t2 = P.t2;
-                if (t2.sign()==0)
+                if (P.t2.sign()==0)
                   continue;
-                RatQuad z = P.z;
-                if (debug>2)
-                  cout << " found P = "<<P<<"\n";
-                if (!z.in_quarter_rectangle())
-                  continue;
-                if (std::find(cornersF4.begin(), cornersF4.end(), P) != cornersF4.end())
+                if (!P.z.in_quarter_rectangle())
                   continue;
                 if (is_under_any(P, alistF4X))
                   continue;
-                if (debug)
+                if (debug>2)
+                  cout << " found P = "<<P<<"\n";
+                auto res = cornersF4.insert(P);
+                if (debug && res.second)
                   cout << " adding P = "<<P<<" from (i,j,k) = ("<<i<<","<<j<<","<<k<<")" <<endl;
-                cornersF4.push_back(P);
               }
         }
     }
@@ -846,76 +842,26 @@ void SwanData::find_corners(int debug)
     cout<<cornersF4<<endl;
 
   // These corners are in F4, so we apply symmetries to get all those in F:
-  corners = cornersF4;
-  corners.reserve(4*corners.size());
+  corners.reserve(4*cornersF4.size());
   static const RAT half(1,2);
   for (const auto& P : cornersF4)
     {
-      RAT t2 = P.t2;
+      corners.push_back(P);
       RatQuad z = P.z;
+      RatQuad zbar = z.conj();
       vector<RAT> xy = z.coords(1); // so z = x+y*sqrt(-d)
       RAT x=xy[0], y=xy[1];
       if (Quad::t) y *= 2;
       int x_on_edge = (x==half);
       int y_on_edge = (y==half);
       int xy0 = (x==0)||(y==0);
-      RatQuad zbar = z.conj();
-
-      // for (const auto& z2 : {-z, zbar, -zbar})
-      //   {
-      //     H3point P2 = {z2, t2};
-      //     if (z2.in_rectangle())
-      //       {
-      //         if (std::find(corners.begin(), corners.end(), P2) == corners.end())
-      //           corners.push_back(P2);
-      //       }
-      //   }
-      // RatQuad z2 = -z;
-      // H3point P2 = {z2, t2};
-      // int test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
-      // int test2 = (!(x_on_edge || y_on_edge));
-      // if (test1!=test2)
-      //   cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), -z = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
-      // if (test2)
-      //   {
-      //     // cout << "appending -P = "<<P2<<endl;
-      //     corners.push_back(P2);
-      //   }
-
-      // z2 = zbar;
-      // P2 = {z2, t2};
-      // test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
-      // test2 = (!(y_on_edge || xy0));
-      // if (test1!=test2)
-      //   {
-      //     cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), zbar = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
-      //     cout << "rectangular coords of zbar: " << z2.coords(1) << endl;
-      //     cout << "zbar in rectangle? " << z2.in_rectangle() <<endl;
-      //     cout << "P2 = "<<P2<<" not in list already? "<< (std::find(corners.begin(), corners.end(), P2) == corners.end()) << endl;
-      //   }
-      // if (test2)
-      //   {
-      //     // cout << "appending Pbar = "<<P2<<endl;
-      //     corners.push_back(P2);
-      //   }
-      // z2 = -zbar;
-      // P2 = {z2, t2};
-      // test1 = z2.in_rectangle() && (std::find(corners.begin(), corners.end(), P2) == corners.end());
-      // test2 = (!(x_on_edge || xy0));
-      // if (test1!=test2)
-      //   cout << "z = "<<z<<" (x,y)=("<<x<<","<<y<<"), -zbar = "<<z2<<": test1 = "<<test1<<" but test2 = "<<test2<<endl;
-      // if (test2)
-      //   {
-      //     // cout << "appending -Pbar = "<<P2<<endl;
-      //     corners.push_back(P2);
-      //   }
 
       if (!(x_on_edge || y_on_edge)) // then -P is in the rectangle too
-        corners.push_back({-z, t2});
+        corners.push_back({-z, P.t2});
       if (!(y_on_edge || xy0)) // then Pbar is in the rectangle too and !=P, !=-P
-        corners.push_back({zbar, t2});
+        corners.push_back({zbar, P.t2});
       if (!(x_on_edge || xy0)) // then -Pbar is in the rectangle too and !=P, !=-P
-        corners.push_back({-zbar, t2});
+        corners.push_back({-zbar, P.t2});
 
     }
 

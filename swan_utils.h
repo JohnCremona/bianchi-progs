@@ -67,6 +67,14 @@ RAT height_above(const RatQuad& a, const RatQuad& z);
 // return -1,0,+1 according as P is over, on, under S_a (a principal)
 int is_under(const H3point& P, const RatQuad& a);
 
+// return 1 iff P is strictly under S_a
+// (same as is_under(P,a)==1 but faster)
+int is_strictly_under(const H3point& P, const RatQuad& a);
+
+// return 1 iff P is exactly on S_a
+// (same as is_under(P,a)==0 but faster)
+int is_on(const H3point& P, const RatQuad& a);
+
 // return +1 iff P is under at least one S_a for a in slist
 int is_under_any(const H3point& P, const CuspList& alist);
 
@@ -168,10 +176,6 @@ CuspList circular_sort(const RatQuad& s, const CuspList& alist);
 
 // Return the height of S_a above P, or 0 if S_a does not cover P
 RAT height_above(const RatQuad& a, const RatQuad& z);
-// return -1,0,+1 according as P is over, on, under S_a (a principal)
-int is_under(const H3point& P, const RatQuad& a);
-// return +1 iff P is under at least one S_a for a in alist
-int is_under_any(const H3point& P, const CuspList& alist);
 
 // For z in F4 (quarter rectangle) return list of z and the 8
 // neighbours of z, -z, zbar, -zbar in the 8 surrounding

@@ -211,9 +211,9 @@ H3pointList tri_inter_points(const RatQuad& a0, const RatQuad& a1, const RatQuad
   assert (t2==t2a);
   assert (t2==t2b);
   H3point P = {z,t2};
-  assert (is_under(P,a0)==0);
-  assert (is_under(P,a1)==0);
-  assert (is_under(P,a2)==0);
+  assert (is_on(P,a0));
+  assert (is_on(P,a1));
+  assert (is_on(P,a2));
   if (t2>=0)
     points.push_back(P);
   return points;
@@ -362,17 +362,8 @@ int valid_edge(const RatQuad& a, const RatQuad& b, const CuspList& alphas,
 // count how many P in points are on S_a
 int nverts(const RatQuad& a, const H3pointList& points)
 {
-  // return std::count_if(points.begin(), points.end(),
-  //                      [a](const H3point& P) {return is_under(P,a)==0;});
-  Quad r = a.num(), s = a.den();
   return std::count_if(points.begin(), points.end(),
-                       [r,s](const H3point& P)
-                       {
-                         INT quo, rem;
-                         if (!divrem((s * P.z.den()).norm() * P.t2.num(), P.t2.den(), quo, rem)) return 0;
-                         return P.z.den().norm() == mms(s,P.z.num(),r,P.z.den()).norm() + quo;
-                         // return is_under(P,a)==0;
-                       });
+                       [a](const H3point& P) { return is_on(P,a);} );
 }
 
 // POLYHEDRON utilities
@@ -479,11 +470,32 @@ int is_under(const H3point& P, const RatQuad& a)
   return sign(height_above(a, P.z) - P.t2);
 }
 
+// return 1 iff P is strictly under S_a
+// (same as is_under(P,a)==1 but faster)
+int is_strictly_under(const H3point& P, const RatQuad& a)
+{
+  const Quad& s = a.den(), d = P.z.den();
+  INT x = d.norm() - mms(s, P.z.num(), a.num(), d).norm();
+  if (x<0) return 0;
+  return (s * d).norm() * P.t2.num() < x * P.t2.den();
+}
+
+// return 1 iff P is exactly on S_a
+// (same as is_under(P,a)==0 but faster)
+int is_on(const H3point& P, const RatQuad& a)
+{
+  const Quad& s = a.den(), d = P.z.den();
+  INT quo, rem;
+  if (!divrem((s * d).norm() * P.t2.num(), P.t2.den(), quo, rem)) return 0;
+  return d.norm() == mms(s, P.z.num(), a.num(), d).norm() + quo;
+}
+
+
 // return +1 iff P is under at least one S_a for a in alist
 int is_under_any(const H3point& P, const CuspList& alist)
 {
   return std::any_of(alist.begin(), alist.end(),
-                     [P](const RatQuad& a) {return is_under(P,a)==1;});
+                     [P](const RatQuad& a) {return is_strictly_under(P,a);});
 }
 
 // For z in F4 (quarter rectangle) return list of z and the 8
