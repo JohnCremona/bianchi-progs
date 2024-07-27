@@ -23,7 +23,7 @@ void eclib_pari_init(long max_prime=DEFAULT_PARI_MAX_PRIME)
   }
 }
 
-vector<int> invariants(const vector<vector<int>>& M)
+vector<long> invariants(const vector<vector<int>>& M)
 {
   eclib_pari_init();
   pari_sp av=avma;  // store pari stack pointer
@@ -40,10 +40,18 @@ vector<int> invariants(const vector<vector<int>>& M)
   // cout << "computed S"<<endl;
   long s = lg(S)-1; // itos(gel(matsize(S), 2));
   // cout << "computed size of S = "<<s<<endl;
-  vector<int> invs;
+  vector<long> invs;
+  // pari_printf("Invariants in libpari: %Ps\n", S);
   for (int i=0; i<s; i++)
     {
-      int d = itos(gel(S,s-i)); // reversing order
+      GEN e = gel(S,s-i);
+      long d = itos(e); // reversing order
+      if (is_bigint(e))
+        {
+          cout<<"Warning: an invariant is too big to fit into an int!" << endl;
+          pari_printf("In libpari it is %Ps\n", e);
+          cout<<"As a long it is "<<d<<endl;
+        }
       if (d!=1)
         invs.push_back(d);
     }

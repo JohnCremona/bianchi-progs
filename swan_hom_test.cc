@@ -64,7 +64,7 @@ int main ()
       if (verbose)
         cout << "Computing integral homology..." <<endl;
 
-      vector<vector<int>> invariants = Quad::SD.integral_homology(3, debug);
+      vector<vector<long>> invariants = Quad::SD.integral_homology(3, debug);
 #ifdef COMPARE_OLD
       cout << "NEW CODE" << endl;
 #endif
@@ -112,7 +112,7 @@ int main ()
 
       vector<vector<Quad>> pluspairs, minuspairs, fours;
       auto sorted_alphas = sort_alphas(alphas, pluspairs, minuspairs, fours, verbose, debug);
-      vector<vector<int>> old_invariants = integral_homology(all_faces, alphas, sigmas,
+      vector<vector<long>> old_invariants = integral_homology(all_faces, alphas, sigmas,
                                                              pluspairs, minuspairs, fours,
                                                              3, debug);
 

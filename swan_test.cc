@@ -374,14 +374,14 @@ int main ()
           cout<<fours.size()<<" fours: "<<fours<<endl;
           cout<<SD.all_faces.size()<<" faces: "<<SD.all_faces<<endl;
         }
-      vector<vector<int>> invariants = SD.integral_homology(3, debug);
+      vector<vector<long>> invariants = SD.integral_homology(3, debug);
       cout << Quad::disc << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
       cout << Quad::disc << " SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
 
-      vector<vector<int>> invariants_old = integral_homology(SD.all_faces,
-                                                         alphas, sigmas,
-                                                         pluspairs, minuspairs, fours,
-                                                         3, debug);
+      vector<vector<long>> invariants_old = integral_homology(SD.all_faces,
+                                                              alphas, sigmas,
+                                                              pluspairs, minuspairs, fours,
+                                                              3, debug);
       cout << "GL2 integral homology (old): "; show_invariants(invariants_old[0]); cout << endl;
       cout << "SL2 integral homology (old): "; show_invariants(invariants_old[1]); cout << endl;
       if (invariants != invariants_old)
