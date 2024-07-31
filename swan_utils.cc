@@ -504,7 +504,7 @@ int is_under_any(const H3point& P, const CuspList& alist)
 // -cz, 1-cz, w-z, w+cz} and either w+cz-1 or w+1-cz depending on
 // Trace(w).
 
-CuspList F4nbrs(const RatQuad& z)
+CuspList oldF4nbrs(const RatQuad& z)
 {
   RatQuad cz = z.conj();
   int t = Quad::t;
@@ -513,6 +513,56 @@ CuspList F4nbrs(const RatQuad& z)
   for ( RatQuad a : {-z, cz, one-z, -cz, one-cz, w-z, w+cz, (t? w+cz-one : w+one-z)})
     if (std::find(ans.begin(), ans.end(), a) == ans.end())
       ans.push_back(a);
+  return ans;
+}
+
+// For principal a in F4 (quarter rectangle) return list of a and up
+// to 3 neighbours of a, -a, abar, -abar in the 8 surrounding
+// quarter-rectangles, omitting those whose circles do not intersect
+// F4 so cannot contribut to a triple intersection.
+
+// Write a=r/s= x+y*sqrt(-d), n=N(s), r*conj(s) = n*a = u+v*sqrt(-d).
+// Then
+// (L) a is near left   edge iff u^2 <= n;
+// (R) a is near right  edge iff (n-2*u)^2 <= 4*n;
+// (B) a is near bottom edge iff d*v^2 <= n;
+// (T) a is near top    edge iff d*(n-2*v)^2 <=  4*n (t==0)
+//                            or d*(n-4*v)^2 <= 16*n (t==1)
+//
+// if (L) we add -abar;
+// if (R) we add 1-abar;
+// if (B) we add abar;
+// if (T) we add w+abar (t==0) or w-a (t==1);
+// if (L) & (B) we also add -a;
+// if (B) & (R) we also add 1-a;
+// if (R) & (T) we also add 1+w-a (t==0) or w+abar   (t==1);
+// if (T) & (L) we also add   w-a (t==0) or w-1+abar (t==1).
+
+// These are (with
+// cz=z.conj()): {z, -z, cz, 1-z, -cz, 1-cz, w-z, w+cz} and either
+// w+cz-1 or w+1-cz depending on Trace(w).
+CuspList F4nbrs(const RatQuad& a)
+{
+  RatQuad abar = a.conj();
+  int t = Quad::t, d = Quad::d;
+  Quad w = Quad::w, r = a.num(), s = a.den(), one(1);
+  INT i = racb(r, s), j = iacb(r, s), n = s.norm(); // so r*conj(s) = i+j*w
+  INT p = (t? 2*i+j: 2*i), q = (t? j: 2*j);          //   = (p*q*sqrt(-d))/2
+  INT p2 = n-p, q2 = n-2*q, n4 = 4*n;
+  int L = (p*p<=n4), R = p2*p2<=n4, B = d*q*q <= n4, T = d*q2*q2 <= 4*n4;
+
+  std::set<RatQuad> nbrs = {a};
+  if (L) nbrs.insert(-abar);
+  if (R) nbrs.insert(one-abar);
+  if (B) nbrs.insert(abar);
+  if (T) nbrs.insert((t? w-a : w+abar));
+  if (L&&B) nbrs.insert(-a);
+  if (B&&R) nbrs.insert(one-a);
+  if (R&&T) nbrs.insert((t? w+abar : w+1-a));
+  if (T&&L) nbrs.insert((t? w-1+abar : w-a));
+
+  CuspList ans;
+  std::copy(nbrs.begin(), nbrs.end(), std::back_inserter(ans));
   return ans;
 }
 

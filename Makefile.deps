@@ -95,10 +95,10 @@ moreap.o: moreap.cc newforms.h ratquads.h quads.h intprocs.h \
  arith_extras.h rat.h int.h oldforms.h primes.h qideal.h homspace.h \
  cusp.h mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
-moreap_loop.o: moreap_loop.cc newforms.h ratquads.h quads.h intprocs.h \
- arith_extras.h rat.h int.h oldforms.h primes.h qideal.h homspace.h \
- cusp.h mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
- swan_utils.h looper.h hecke.h
+moreap_loop.o: moreap_loop.cc qidloop.h qideal.h quads.h intprocs.h \
+ arith_extras.h newforms.h ratquads.h rat.h int.h oldforms.h primes.h \
+ homspace.h cusp.h mat22.h face_relations.h edge_relations.h geometry.h \
+ P1N.h swan.h swan_utils.h looper.h hecke.h
 newforms.o: newforms.cc looper.h quads.h intprocs.h arith_extras.h \
  newforms.h ratquads.h rat.h int.h oldforms.h primes.h qideal.h \
  homspace.h cusp.h mat22.h face_relations.h edge_relations.h geometry.h \
