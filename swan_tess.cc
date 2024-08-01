@@ -23,12 +23,14 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
       if (s.is_infinity())
         continue;
       auto alist = sorted_neighbours(s, alphas);
-      if (verbose)
-        cout<<"sigma = "<<s<<" has " << alist.size() << " alpha-neighbours" << endl;
-      if (verbose>1)
-        cout<<alist<<endl;
-      sigma_nbrs[s] = alist;
       n = alist.size();
+      if (verbose)
+        {
+          cout<<"sigma = "<<s<<" has " << n << " alpha-neighbours" << endl;
+          if (verbose>1)
+            cout<<alist<<endl;
+        }
+      sigma_nbrs[s] = alist;
       for (i=0; i<n; i++)
         {
           RatQuad a = alist[i], b = alist[(i+1)%n];
@@ -38,7 +40,7 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
             cout<<" alphas "<<a<<" and "<<b<<" give R = ["<<R.z.coords(1)<<","<<R.t2<<"]\n";
         }
     }
-  if (verbose>1)
+  if (verbose)
     cout << " from " << sigmas.size()-1 << " finite sigmas we have " << sRlist.size() << " (sigma,R) pairs" << endl;
 
   // local function to test for being fundamental or oo:
