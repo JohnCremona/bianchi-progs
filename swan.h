@@ -197,7 +197,7 @@ private:
   CuspList alistx; // list of alphas + 8 integer translates
   CuspList alistF4; // sublist of those in quarter rectangle
   INT maxn; // max denom norm of alphas considered systematically
-  CuspList alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
+  std::set<RatQuad> alist_ok, alist_open; // partition of current alphas (ok=surrounded, open=not yet)
   map<RatQuad, CuspList> nbrs, nbrs_ok, nbrs_open;
   CuspList slistx; // list of sigmas + 8 integer translates
 

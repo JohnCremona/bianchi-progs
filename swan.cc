@@ -109,7 +109,7 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
     cout<<" - nbrs of "<<a<<" initially "<<nbrs[a]<<endl;
   if (a.in_quarter_rectangle())
     {
-      alist_open.push_back(a);
+      alist_open.insert(a);
       alistF4.push_back(a);
       if (verbose)
         cout<<"appending a="<<a<<" to alistF4"<<endl;
@@ -126,7 +126,7 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
     }
   else
     {
-      alist_ok.push_back(a);
+      alist_ok.insert(a);
     }
   // Update nbr lists of earlier alphas (in F4) if they intersect
   // one of the new translates:
@@ -341,7 +341,8 @@ void SwanData::find_covering_alphas(int verbose)
         }
     }
 
-  alist = alist_ok;
+  alist.clear();
+  std::copy(alist_ok.begin(), alist_ok.end(), std::back_inserter(alist));
   if (verbose)
     cout << "Success in covering using "<<alist.size()<<" alphas of with max norm "<<maxn<<endl;
   if (verbose>1)
@@ -556,7 +557,7 @@ int SwanData::are_alphas_surrounded(int verbose)
   int i=0, n_open = alist_open.size();
 
   // We make a copy of alist_open to loop over, so we can delete elements from the original as we go
-  CuspList new_alist_open = alist_open;
+  std::set<RatQuad> new_alist_open = alist_open;
   for ( const auto& a : new_alist_open)
     {
       i++;
@@ -565,8 +566,8 @@ int SwanData::are_alphas_surrounded(int verbose)
         {
           if (verbose) cout << " ok! redundant\n";
           // add this alpha to the ok list end remove from the open list and full list
-          alist_ok.push_back(a);
-          alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
+          alist_ok.insert(a);
+          alist_open.erase(a);
           alist.erase(std::find(alist.begin(), alist.end(), a));
         }
       else
@@ -575,8 +576,8 @@ int SwanData::are_alphas_surrounded(int verbose)
             {
               if (verbose) cout << " ok! surrounded\n";
               // add this alpha to the ok list end remove from the open list
-              alist_ok.push_back(a);
-              alist_open.erase(std::find(alist_open.begin(), alist_open.end(), a));
+              alist_ok.insert(a);
+              alist_open.erase(a);
             }
           else
             {
@@ -603,7 +604,7 @@ int SwanData::is_sigma_surrounded(const RatQuad& s, int verbose)
 {
   if (s.is_infinity())
     return 1;
-  CuspList ans = neighbours(s, alistx);
+  CuspList ans = neighbours(s, alist); // includes translates of a in alist
   if (verbose)
     cout<<"Neighbours of "<<s<<" are "<<ans<<endl;
 

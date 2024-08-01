@@ -1313,7 +1313,9 @@ CuspList neighbours(const RatQuad& a, const CuspList& alist)
   for ( const auto& alpha : alist)
     {
       Quad c = alpha.num(), d=alpha.den();
-      Quad f = r*d-s*c, g=s*d;
+      Quad
+        f = mms(r,d, s,c), //r*d-s*c
+        g=s*d;
       // S_alpha goes through a iff N(r*d-s*c)=N(s)
       for (auto tx : txy)
         for (auto ty : txy)
