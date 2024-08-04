@@ -218,11 +218,12 @@ void fill_faces(POLYHEDRON& P, int verbose)
 
       int nface = face.size();
       if (verbose>1)
-        cout << " - found a new face with "<<nface<<" sides (unsorted):"<<face<<endl;
+        {
+          cout << " - found a new face with "<<nface<<" sides (unsorted):"<<face<<endl;
 
-      // delete the relevant directed edges, starting with v->w->x
-      if (verbose>1)
-        cout<<" removing directed edge from "<<v<<" to "<<w<<endl;
+          // delete the relevant directed edges, starting with v->w->x
+          cout<<" removing directed edge from "<<v<<" to "<<w<<endl;
+        }
       ends[v].erase(std::remove(ends[v].begin(), ends[v].end(), w), ends[v].end());
       nde--;
       if (verbose>1)

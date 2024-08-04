@@ -220,8 +220,9 @@ private:
   // Find and fill corners list, replacing alist/alistF4 with sublist of alphas (/in F4) on >=3 corners
   // (called only by saturate_alphas())
   void find_corners(int verbose=0);
+#if(0)
   void old_find_corners(int verbose=0);
-
+#endif
   // After an unsuccessful saturation loop which produces extra alphas
   // properly covering some old corners, use these to compute more corners
   // (called only by saturate_alphas())

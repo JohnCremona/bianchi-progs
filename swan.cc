@@ -107,12 +107,8 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
   nbrs[a] = intersecting_alphas(a,alistx);
   if (verbose)
     cout<<" - nbrs of "<<a<<" initially "<<nbrs[a]<<endl;
-  if (a.in_quarter_rectangle())
+  if (a.in_quarter_rectangle() && !is_alpha_redundant(a))
     {
-      alist_open.insert(a);
-      alistF4.push_back(a);
-      if (verbose)
-        cout<<"appending a="<<a<<" to alistF4"<<endl;
       if (covered)
         {
           nbrs_ok[a] = nbrs[a];
@@ -123,6 +119,10 @@ int SwanData::add_one_alpha(const RatQuad& a, int covered, int verbose)
           nbrs_open[a] = nbrs[a];
           nbrs_ok[a] = CuspList();
         }
+      alist_open.insert(a);
+      alistF4.push_back(a);
+      if (verbose)
+        cout<<"appending a="<<a<<" to alistF4"<<endl;
     }
   else
     {
@@ -564,7 +564,7 @@ int SwanData::are_alphas_surrounded(int verbose)
       if (verbose) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
       if (is_alpha_redundant(a, verbose))
         {
-          if (verbose) cout << " ok! redundant\n";
+          if (verbose) cout << " ok! redundant" <<endl;
           // add this alpha to the ok list end remove from the open list and full list
           alist_ok.insert(a);
           alist_open.erase(a);
@@ -574,7 +574,7 @@ int SwanData::are_alphas_surrounded(int verbose)
         {
           if (is_alpha_surrounded(a, verbose))
             {
-              if (verbose) cout << " ok! surrounded\n";
+              if (verbose) cout << " ok! surrounded" << endl;
               // add this alpha to the ok list end remove from the open list
               alist_ok.insert(a);
               alist_open.erase(a);
@@ -818,16 +818,20 @@ void SwanData::find_corners(int debug)
                                 std::inserter(k_list, k_list.begin()));
           for (const auto& k : k_list) // so all pairs intersect
             { // Now i<j<k and they intersect pairwise, not necessarily triply
+              // cout << "\n(i,j,k) = ("<<i<<","<<j<<","<<k<<")" <<endl;
                 H3pointList points1 = tri_inter_points(alistF4X[i], alistF4X[j], alistF4X[k]);
                 if (points1.empty()) // it has size 0 or 1
                   continue;
                 H3point P = points1.front();
                 if (P.t2.sign()==0)
                   continue;
+                // cout << " testing P = "<<P<<"..."<<flush;
                 if (!P.z.in_quarter_rectangle())
                   continue;
+                // cout << " z(P) in F4..."<<flush;
                 if (is_under_any(P, alistF4X))
                   continue;
+                // cout << " P not under any hemisphere..."<<flush;
                 if (debug>2)
                   cout << " found P = "<<P<<"\n";
                 auto res = cornersF4.insert(P);
@@ -892,6 +896,11 @@ void SwanData::find_corners(int debug)
     {
       if (debug)
         cout<<"...number of alphas reduced from "<<alist.size()<<" to "<<alist0.size()<<endl;
+      // Test that the singular points are still surrounded:
+      int ok = are_sigmas_surrounded();
+      if (!ok)
+        cout << " but singular points are no longer surrounded" <<endl;
+
       alist = alist0;
     }
 
@@ -899,6 +908,7 @@ void SwanData::find_corners(int debug)
   if (showtimes) SwanTimer.show(1, step);
 }
 
+#if(0)
 // Find potential corners, store in class's corners list, replacing
 // alistF4 with sublist of alphas in F4 on >=3 corners
 void SwanData::old_find_corners(int verbose)
@@ -969,6 +979,7 @@ void SwanData::old_find_corners(int verbose)
   SwanTimer.stop(step);
   if (showtimes) SwanTimer.show(1, step);
 }
+#endif // old_find_corners()
 
 // After an unsuccessful saturation loop which produces extra alphas a
 // such that S_a properly covers an old corners (which was then

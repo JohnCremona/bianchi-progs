@@ -31,7 +31,7 @@ vector<int> bits(long a, int r)
 }
 
 // recover a from its bit vector of length r
-long from_bits(vector<int> aa, int r)
+long from_bits(const vector<int>& aa, int r)
 {
   long a=0;
   for(int i=0; i<r; i++)
@@ -72,7 +72,7 @@ vector<long> dotperp(long a, int r)
 }
 
 // return a basis for the orthogonal complement of the span of a in alist (viewed as bit vectors of length r)
-vector<long> dotperp(vector<long> alist, int r)
+vector<long> dotperp(const vector<long>& alist, int r)
 {
   int s = alist.size();
   mat_i m(s,r);
