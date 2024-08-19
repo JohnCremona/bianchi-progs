@@ -434,26 +434,51 @@ CuspList circular_sort(const RatQuad& s, const CuspList& alist)
   int n = alist.size();
   assert (n>=3);
   if (n==3) return alist;
+  int debug=0;
+  if (debug)
+    cout<<"circular sort of "<<alist<<" around "<<s<<endl;
   CuspList sorted_alist;
   RatQuad a = alist[0];
   // can start with any a for circular sort:
   sorted_alist.push_back(a);
-  // Now append any b with a before b:
-  RatQuad b = *std::find_if(alist.begin()+1, alist.end(),
-                            [s,a](const RatQuad& b){return angle_under_pi(s,a,b);});
-  sorted_alist.push_back(b);
-  // Now consider all the rest, inserting in the right place
-  for (const auto& c : alist)
+  if (debug)
+    cout<<" - initial list: "<<sorted_alist<<endl;
+
+  auto is_after = [s](const RatQuad& a, const RatQuad& b) {return angle_under_pi(s,a,b);};
+  auto half_afters = [alist, is_after](const RatQuad& a) {
+		       CuspList afters;
+		       std::copy_if(alist.begin(), alist.end(), std::back_inserter(afters),
+				    [a, is_after](const RatQuad& b){return is_after(a,b);});
+		       return afters;
+		     };
+  auto is_first = [is_after](const CuspList& as, const RatQuad& a) {
+		    return std::all_of(as.begin(), as.end(), [is_after, a](const RatQuad& b) {return b==a || is_after(a,b);});
+		      };
+  auto find_first = [is_first](const CuspList& as) {
+		      auto it = std::find_if(as.begin(), as.end(), [is_first, as](const RatQuad& a) {return is_first(as,a);});
+		      return *it;
+		    };
+  auto next = [find_first, half_afters](const RatQuad& a) { return find_first(half_afters(a)); };
+
+  // Now repeatedly append the next one:
+  while (sorted_alist.size() < n)
     {
-      if ((c==a)||(c==b)) continue;
-      auto place = std::lower_bound(sorted_alist.begin(), sorted_alist.end(), c,
-                                    [s](const RatQuad& d1, const RatQuad& d2){return angle_under_pi(s,d1,d2);});
-      sorted_alist.insert(place, c);
+      sorted_alist.push_back(next(sorted_alist.back()));
+      if (debug)
+	cout<<" - next list: "<<sorted_alist<<endl;
     }
+
+  if (debug)
+    cout<<" - final list is "<<sorted_alist<<"\n ... now checking..."<<endl;
   // Check:
-  assert(angle_under_pi(s, sorted_alist[n-1], sorted_alist[0]));
-  for (int i=1; i<n; i++)
-    assert(angle_under_pi(s, sorted_alist[i-1], sorted_alist[i]));
+  for (int i=0; i<n; i++)
+    {
+      int i1 = (i+1)%n;
+      int t = angle_under_pi(s, sorted_alist[i], sorted_alist[i1]);
+      if (debug || !t)
+	cout<<"angle_under_pi("<<s<<", "<< sorted_alist[i] << ", " << sorted_alist[i1] << ") = " << t << endl;
+      assert(t);
+    }
 
   return sorted_alist;
 }
