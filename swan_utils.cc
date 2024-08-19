@@ -461,7 +461,7 @@ CuspList circular_sort(const RatQuad& s, const CuspList& alist)
   auto next = [find_first, half_afters](const RatQuad& a) { return find_first(half_afters(a)); };
 
   // Now repeatedly append the next one:
-  while (sorted_alist.size() < n)
+  while (sorted_alist.size() < alist.size())
     {
       sorted_alist.push_back(next(sorted_alist.back()));
       if (debug)
