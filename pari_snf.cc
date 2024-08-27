@@ -41,7 +41,7 @@ vector<long> invariants(const vector<vector<int>>& M)
   long s = lg(S)-1; // itos(gel(matsize(S), 2));
   // cout << "computed size of S = "<<s<<endl;
   vector<long> invs;
-  // pari_printf("Invariants in libpari: %Ps\n", S);
+  pari_printf("Invariants in libpari: %Ps\n", S);
   for (int i=0; i<s; i++)
     {
       GEN e = gel(S,s-i);
