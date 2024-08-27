@@ -1,6 +1,8 @@
 #!/bin/bash
 d=$1
 
+export PARI_SIZE=20000000000
+
 echo "Starting field" $d " at " `date`
 T1=`date +%s`
 echo ${d} | ./swan_hom_test > hom.out.${d}
