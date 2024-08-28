@@ -23,7 +23,7 @@ ostream& operator<<(ostream& os, const vector<vector<int>>& M)
 
 // group=1 for GL2 only, 2 for SL2 only, 3 for both
 
-vector<vector<long>> integral_homology(const vector<CuspList>& faces,
+vector<vector<INT>> integral_homology(const vector<CuspList>& faces,
                                       const CuspList& alphas, const CuspList& sigmas,
                                       const vector<vector<Quad>>& pluspairs,
                                       const vector<vector<Quad>>& minuspairs,
@@ -58,7 +58,7 @@ vector<vector<long>> integral_homology(const vector<CuspList>& faces,
           cout << "SL2 face boundary matrix M21 has size " << M21S.size() << " x " << M21S[0].size() << endl;
         }
     }
-  vector<vector<long>> invs;
+  vector<vector<INT>> invs;
   if (group&1)
     invs.push_back(homology_invariants(M10, M21G, debug>1));
   if (group&2)
@@ -331,7 +331,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 
 // NB Both matrices are formed by rows, and act on row-vectors on the right
 
-vector<long> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug)
+vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug)
 {
   // M10 represents a n1xn0 matrix and M21 a n2xn1, with M21*M10=0
   long n0 = M10[0].size(), n1 = M10.size(), n2 = M21.size();
@@ -402,7 +402,7 @@ vector<long> homology_invariants(const vector<vector<int>>& M10, const vector<ve
 #ifdef PARI_SNF
   vector<vector<int>> M21a;
   unmake_mat(M, M21a);
-  vector<long> v = invariants(M21a);
+  vector<INT> v = invariants(M21a);
   cout << "non-trivial invariants: "<<v<<endl;
 #else
   fmpz_mat_t S;
@@ -420,10 +420,10 @@ vector<long> homology_invariants(const vector<vector<int>>& M10, const vector<ve
 
   // Extract the diagonal entries of S (omitting any 1s):
   long n = min(n2, n1-r);
-  vector<long> vv;
+  vector<INT> vv;
   for (long i=0; i<n; i++)
     {
-      long m = fmpz_get_si(fmpz_mat_entry(S, i, i));
+      INT m(fmpz_mat_entry(S, i, i));
       if (debug) cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
       if (m!=1)
         vv.push_back(m);
@@ -443,15 +443,15 @@ vector<long> homology_invariants(const vector<vector<int>>& M10, const vector<ve
   return v;
 }
 
-void show_invariants(const vector<long>& v)
+void show_invariants(const vector<INT>& v)
 {
-  map<long,int> mults;
+  map<INT,int> mults;
   for (const auto& vi : v)
     mults[vi]++;
   int i=0;
   for (const auto& mi : mults)
     {
-      long d=mi.first;
+      INT d=mi.first;
       int e=mi.second;
       if (i)
         cout<<" x ";

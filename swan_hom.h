@@ -14,7 +14,7 @@
 
 // group=1 for GL2 only, 2 for SL2 only, 3 for both
 
-vector<vector<long>> integral_homology(const vector<CuspList>& faces,
+vector<vector<INT>> integral_homology(const vector<CuspList>& faces,
                                       const CuspList& alphas, const CuspList& sigmas,
                                       const vector<vector<Quad>>& pluspairs,
                                       const vector<vector<Quad>>& minuspairs,
@@ -54,9 +54,9 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 // return the invariants of the integral 1-homology
 
 // NB Both matrices are formed by rows, and act on row-vectors on the right
-vector<long> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
+vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
-void show_invariants(const vector<long>& v);
+void show_invariants(const vector<INT>& v);
 ostream& operator<<(ostream& os, const vector<vector<int>>& M);
 
 #endif

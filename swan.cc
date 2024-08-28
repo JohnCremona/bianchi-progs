@@ -2308,7 +2308,7 @@ vector<vector<int>> SwanData::face_boundary_matrix(int GL2, int debug)
 
 // return the invariants of H_1 as a Z-module for either GL2
 // (group=1) or SL2 (group=2) or both (group=3)
-vector<vector<long>> SwanData::integral_homology(int group, int debug)
+vector<vector<INT>> SwanData::integral_homology(int group, int debug)
 {
   if (all_faces.empty()) decode_all_faces();
 
@@ -2319,7 +2319,7 @@ vector<vector<long>> SwanData::integral_homology(int group, int debug)
       if (debug>1) cout << "M10 = \n" << M10 << endl;
     }
 
-  vector<vector<long>> invs;
+  vector<vector<INT>> invs;
   int
     GL2 = group&1, // i.e. 1 or 3
     SL2 = group&2; // i.e. 2 or 3

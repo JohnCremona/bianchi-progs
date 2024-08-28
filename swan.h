@@ -189,7 +189,7 @@ public:
 
   // return the invariants of H_1 as a Z-module for either GL2
   // (group=1) or SL2 (group=2) or both (group=3)
-  vector<vector<long>> integral_homology(int group, int debug=0);
+  vector<vector<INT>> integral_homology(int group, int debug=0);
 
 private:
   timer SwanTimer;

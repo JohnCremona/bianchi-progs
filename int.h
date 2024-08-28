@@ -51,6 +51,7 @@ public:
   long operator%(long a) const {INT b; fmpz_mod_ui(b.z,z,a); return I2long(b);} // a must be >0
   INT operator^(int e) const {INT b; fmpz_pow_ui(b.z,z,e); return b;}
   INT operator^(long e) const {INT b; fmpz_pow_ui(b.z,z,e); return b;}
+  INT operator<<(long e) const {INT b; fmpz_mul_2exp(b.z, z, e); return b;} // mult by 2^e
   void operator +=(const INT& a) {fmpz_add(z,z,a.z);}
   void operator +=(int a) {fmpz_add_si(z,z,a);}
   void operator +=(long a) {fmpz_add_si(z,z,a);}
@@ -63,6 +64,7 @@ public:
   void operator /=(const INT& a) {fmpz_divexact(z,z,a.z);}
   void operator /=(int a) {fmpz_divexact_si(z,z,a);}
   void operator /=(long a) {fmpz_divexact_si(z,z,a);}
+  void operator<<=(long e) {fmpz_mul_2exp(z, z, e);} // mult by 2^e in place
   int is_zero() const {return fmpz_is_zero(z);}
   int is_nonzero() const {return !fmpz_is_zero(z);}
   int is_one() const {return fmpz_is_one(z);}
