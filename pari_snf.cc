@@ -122,11 +122,11 @@ vector<INT> invariants(const vector<vector<int>>& M)
       INT d = convert_t_INT_to_INT(e);
       if (!is_one(d))
         {
-          if (d>2)
-            {
-              pari_printf("%Ps converts to ", e);
-              cout<<d<<endl;
-            }
+          // if (d>2)
+          //   {
+          //     pari_printf("%Ps converts to ", e);
+          //     cout<<d<<endl;
+          //   }
           invs.push_back(INT(d));
         }
     }
