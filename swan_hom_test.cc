@@ -35,7 +35,7 @@ int main ()
       Quad::field(d,maxpnorm);
 
       if (D!=fields.front())
-        cout << "-------------------------------------" <<endl;
+        cout << "-------------------------------------------" <<endl;
 
       debug = DEBUG;
       verbose = VERBOSE;
@@ -43,7 +43,7 @@ int main ()
       if (verbose)
         Quad::displayfield(cout);
       else
-        cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = "<<D<<endl;
+        cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = -"<<D<<endl;
 
       // Read precomputed geometry data
 
@@ -72,11 +72,15 @@ int main ()
       cout << -D << " ";
       if (PRETTY_INVARIANTS)
         cout << "GL2 integral homology: ";
+      else
+        cout << "GL2 ";
       show_invariants(invariants[0], PRETTY_INVARIANTS);
       cout << endl;
       cout << -D << " ";
       if (PRETTY_INVARIANTS)
         cout << "SL2 integral homology: ";
+      else
+        cout << "SL2 ";
       show_invariants(invariants[1], PRETTY_INVARIANTS);
       cout << endl;
 
@@ -129,11 +133,15 @@ int main ()
       cout << -D << " ";
       if (PRETTY_INVARIANTS)
         cout << "GL2 integral homology: ";
+      else
+        cout << "GL2 ";
       show_invariants(old_invariants[0], PRETTY_INVARIANTS);
       cout << endl;
       cout << -D << " ";
       if (PRETTY_INVARIANTS)
         cout << "SL2 integral homology: ";
+      else
+        cout << "SL2 ";
       show_invariants(old_invariants[1], PRETTY_INVARIANTS);
       cout << endl;
 
@@ -146,6 +154,5 @@ int main ()
           cout << "!!!!!!!!!!!!! Old and new disagree!" << endl;
         }
 #endif
-      cout<<"----------------------------------------------------------------------------------\n";
     }
 }

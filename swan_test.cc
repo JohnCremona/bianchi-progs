@@ -7,8 +7,11 @@
 
 #define MAX_DISC 100
 
-#define VERBOSE 1 // verbose setting to use if not overridden locally
+#define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
+#define PRETTY_INVARIANTS 0
+
+//#define COMPARE_OLD
 
 int main ()
 {
@@ -42,7 +45,7 @@ int main ()
       if (verbose)
         Quad::displayfield(cout);
       else
-        cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = "<<D<<endl;
+        cout << "Field Q(sqrt("<<-d<<"))\tdiscriminant = -"<<D<<endl;
 
       //test_principal_cusps(20,20);
 
@@ -375,17 +378,43 @@ int main ()
           cout<<SD.all_faces.size()<<" faces: "<<SD.all_faces<<endl;
         }
       vector<vector<INT>> invariants = SD.integral_homology(3, debug);
-      cout << Quad::disc << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
-      cout << Quad::disc << " SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "GL2 integral homology: ";
+      else
+        cout << "GL2 ";
+      show_invariants(invariants[0], PRETTY_INVARIANTS);
+      cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "SL2 integral homology: ";
+      else
+        cout << "SL2 ";
+      show_invariants(invariants[1], PRETTY_INVARIANTS);
+      cout << endl;
+
+#ifdef COMPARE_OLD
 
       vector<vector<INT>> invariants_old = integral_homology(SD.all_faces,
                                                               alphas, sigmas,
                                                               pluspairs, minuspairs, fours,
                                                               3, debug);
-      cout << "GL2 integral homology (old): "; show_invariants(invariants_old[0]); cout << endl;
-      cout << "SL2 integral homology (old): "; show_invariants(invariants_old[1]); cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "GL2 integral homology (old): ";
+      else
+        cout << "GL2 (old) ";
+      show_invariants(invariants[0], PRETTY_INVARIANTS);
+      cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "SL2 integral homology (old): ";
+      else
+        cout << "SL2 (old) ";
+      show_invariants(invariants[1], PRETTY_INVARIANTS);
+      cout << endl;
       if (invariants != invariants_old)
         cout<<"******* disagreement in integral homology (d="<<Quad::d<<") **********"<<endl;
-      cout<<"----------------------------------------------------------------------------------\n";
+#endif
     }
 }

@@ -421,7 +421,8 @@ vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vec
       // fmpz_mat_print_pretty(M);
       cout<<endl;
     }
-  cout << "Homology rank = " << homrank << "; ";
+  if (debug)
+    cout << "Homology rank = " << homrank << "; ";
   assert (fmpz_mat_nrows(M)==n2);
   assert (fmpz_mat_ncols(M)==n1-r);
 
@@ -429,7 +430,8 @@ vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   vector<vector<int>> M21a;
   unmake_mat(M, M21a);
   vector<INT> v = invariants(M21a);
-  cout << "non-trivial invariants: "<<v<<endl;
+  if (debug)
+    cout << "non-trivial invariants: "<<v<<endl;
 #else
   fmpz_mat_t S;
   // Compute Smith Normal Form of that:
