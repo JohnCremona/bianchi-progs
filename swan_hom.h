@@ -48,6 +48,8 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
                                          const vector<vector<Quad>>& fours,
                                          int GL2);
 
+int is_product_zero(const vector<vector<int>>& M10, const vector<vector<int>>& M21);
+
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
 // M10: 1-chains -> 0-chains (as from edge_boundary_matrix())
 // M21: 2-chains -> 1-chains (as from face_boundary_matrix())
@@ -56,7 +58,7 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
 // NB Both matrices are formed by rows, and act on row-vectors on the right
 vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
 
-void show_invariants(const vector<INT>& v);
+void show_invariants(const vector<INT>& v, int pretty=1);
 ostream& operator<<(ostream& os, const vector<vector<int>>& M);
 
 #endif

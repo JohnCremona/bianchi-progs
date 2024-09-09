@@ -7,8 +7,9 @@
 #define MAX_DISC 100
 #define MIN_DISC 0
 
-#define VERBOSE 1 // verbose setting to use if not overridden locally
+#define VERBOSE 0 // verbose setting to use if not overridden locally
 #define DEBUG 0   // verbose setting to use if not overridden locally
+#define PRETTY_INVARIANTS 0
 
 //#define COMPARE_OLD
 
@@ -68,8 +69,16 @@ int main ()
 #ifdef COMPARE_OLD
       cout << "NEW CODE" << endl;
 #endif
-      cout << -D << " GL2 integral homology: "; show_invariants(invariants[0]); cout << endl;
-      cout << -D << " SL2 integral homology: "; show_invariants(invariants[1]); cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "GL2 integral homology: ";
+      show_invariants(invariants[0], PRETTY_INVARIANTS);
+      cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "SL2 integral homology: ";
+      show_invariants(invariants[1], PRETTY_INVARIANTS);
+      cout << endl;
 
 #ifdef COMPARE_OLD
       vector<vector<POLYGON>> all_polys = read_polygons("geodata", verbose);
@@ -117,8 +126,16 @@ int main ()
                                                              3, debug);
 
       cout << "OLD CODE" << endl;
-      cout <<  -D << " GL2 integral homology: "; show_invariants(old_invariants[0]); cout << endl;
-      cout <<  -D << " SL2 integral homology: "; show_invariants(old_invariants[1]); cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "GL2 integral homology: ";
+      show_invariants(old_invariants[0], PRETTY_INVARIANTS);
+      cout << endl;
+      cout << -D << " ";
+      if (PRETTY_INVARIANTS)
+        cout << "SL2 integral homology: ";
+      show_invariants(old_invariants[1], PRETTY_INVARIANTS);
+      cout << endl;
 
       if (invariants==old_invariants)
         {

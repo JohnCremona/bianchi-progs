@@ -185,7 +185,7 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
   // edge identifications
   // (0) GL2 only: {a,oo}={-a,oo} for a in alphas and {s,oo}={-s,oo} for s in sigmas
   // (1) {a,oo}+{-a,oo}=0     for a=r/s, (r,s) in pluspairs
-  // (2) 2{a,oo}=0            for a=r/s, (r,s) in minuspairs
+  // (2) {a,oo}=0            for a=r/s, (r,s) in minuspairs
   // (3) {a1,oo}+{a2,oo}=0    for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
   //   and if not GL2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
 
@@ -235,7 +235,8 @@ vector<vector<int>> edge_pairings(const CuspList& alphas, const CuspList& sigmas
       Quad ri = minuspairs[i][0], si = minuspairs[i][1];
       j = cusp_index_with_translation(RatQuad(ri,si), alphas, temp);
       assert ((j>=0)&&(j<nalphas));
-      row[j] +=2;
+      // row[j] +=2; // no: if g(e)=-e then e=0, not 2e=0
+      row[j] +=1;
       // cout<<"minuspairs["<<i<<"]="<<minuspairs[i]<<" so row is "<<row<<endl;
       M.push_back(row);
       n++;
@@ -322,6 +323,31 @@ vector<vector<int>> face_boundary_matrix(const vector<CuspList>& faces,
   // cout << M2 << endl;
   M.insert(M.end(), M2.begin(), M2.end());
   return M;
+}
+
+int is_product_zero(const vector<vector<int>>& M1, const vector<vector<int>>& M2)
+{
+  // M1 represents a n1xn0 matrix and M2 a n2xn1, with M2*M1=0
+  long n0 = M1[0].size(), n1 = M1.size(), n2 = M2.size();
+  assert (n1==(long)M2[0].size());
+  // convert from vector<vector<int>> to fmpz_mats:
+  fmpz_mat_t A10, A21, Z;
+  fmpz_mat_init(A10, n1, n0);
+  fmpz_mat_init(A21, n2, n1);
+  fmpz_mat_init(Z, n2, n0);
+
+  make_mat(A10, M1); // size n1xn0
+  make_mat(A21, M2); // size n2xn1
+
+  // Check that A21*A10=0:
+  fmpz_mat_init(Z, n2, n0);
+  fmpz_mat_mul(Z, A21, A10);
+
+  int res = fmpz_mat_is_zero(Z);
+  fmpz_mat_clear(Z);
+  fmpz_mat_clear(A10);
+  fmpz_mat_clear(A21);
+  return res;
 }
 
 // Given integer matrices (encoded as vector<vector<int>>) of the boundary maps
@@ -443,30 +469,50 @@ vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   return v;
 }
 
-void show_invariants(const vector<INT>& v)
+void show_invariants(const vector<INT>& v, int pretty)
 {
   map<INT,int> mults;
   for (const auto& vi : v)
     mults[vi]++;
-  int i=0;
-  for (const auto& mi : mults)
+  if (pretty)
     {
-      INT d=mi.first;
-      int e=mi.second;
-      if (i)
-        cout<<" x ";
-      if (e>1 && d!=0) cout << "(";
-      if (d>0)
-        cout << "Z/"<<d<<"Z";
-      else
-        cout << "Z";
-      if (e>1)
+      int i=0;
+      for (const auto& mi : mults)
         {
-          if (d!=0) cout << ")";
-          cout << "^" << e;
+          INT d=mi.first;
+          int e=mi.second;
+          if (i)
+            cout<<" x ";
+          if (e>1 && d!=0) cout << "(";
+          if (d>0)
+            cout << "Z/"<<d<<"Z";
+          else
+            cout << "Z";
+          if (e>1)
+            {
+              if (d!=0) cout << ")";
+              cout << "^" << e;
+            }
+          i++;
         }
-      i++;
+      if (i==0)
+        cout << "trivial";
     }
-  if (i==0)
-    cout << "trivial";
+  else
+    {
+      cout << mults[INT(0)] << " (";
+      int i=0;
+      for (const auto& mi : mults)
+        {
+          INT d=mi.first;
+          if (d==0)
+            continue;
+          int e=mi.second;
+          if (i) cout << ",";
+          cout << d;
+          if (e>1) cout << "^" << e;
+          i++;
+        }
+      cout << ")";
+    }
 }

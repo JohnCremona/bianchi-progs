@@ -2175,7 +2175,7 @@ vector<vector<int>> SwanData::edge_pairings(int GL2, int debug)
   // edge identifications
   // (0) GL2 only: {a,oo}={-a,oo} for a in alist and {s,oo}={-s,oo} for s in slist
   // (1) {a,oo}+{-a,oo}=0     for a=r/s, (r,s) in pluspairs
-  // (2) 2{a,oo}=0            for a=r/s, (r,s) in minuspairs
+  // (2) {a,oo}=0            for a=r/s, (r,s) in minuspairs
   // (3) {a1,oo}+{a2,oo}=0    for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
   //   and if not GL2: {-a1,oo}+{-a2,oo}=0 for a1=r1/s, a2=r2/s, (s,r1,r2) in fours
 
@@ -2210,14 +2210,6 @@ vector<vector<int>> SwanData::edge_pairings(int GL2, int debug)
           M.push_back(row);
         }
     }
-  // type (1)
-  // for (i=0; i<n2das; i++)
-  //   {
-  //     vector<int> row(ncols, 0);
-  //     j = denom_2_alphas[i];
-  //     row[j]+=2;
-  //     M.push_back(row);
-  //   }
   for (i=0; i<nplus; i++)
     {
       vector<int> row(ncols, 0);
@@ -2232,7 +2224,8 @@ vector<vector<int>> SwanData::edge_pairings(int GL2, int debug)
     {
       vector<int> row(ncols, 0);
       j = edge_pairs_minus[i];
-      row[j] +=2;
+      // row[j] +=2; // no: if g(e)=-e then e=0, not 2e=0
+      row[j] +=1;
       if (debug) cout<<"edge_pairs_minus["<<i<<"]="<<j<<" so row is "<<row<<endl;
       M.push_back(row);
     }
