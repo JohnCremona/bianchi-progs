@@ -558,12 +558,16 @@ int SwanData::are_alphas_surrounded(int verbose)
 
   // We make a copy of alist_open to loop over, so we can delete elements from the original as we go
   std::set<RatQuad> new_alist_open = alist_open;
+  int alphas_redundant = 0;
+  int alphas_surrounded = 0;
+  int alphas_not_surrounded = 0;
   for ( const auto& a : new_alist_open)
     {
       i++;
       if (verbose) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
       if (is_alpha_redundant(a, verbose))
         {
+          alphas_redundant++;
           if (verbose) cout << " ok! redundant" <<endl;
           // add this alpha to the ok list end remove from the open list and full list
           alist_ok.insert(a);
@@ -574,6 +578,7 @@ int SwanData::are_alphas_surrounded(int verbose)
         {
           if (is_alpha_surrounded(a, verbose))
             {
+              alphas_surrounded++;
               if (verbose) cout << " ok! surrounded" << endl;
               // add this alpha to the ok list end remove from the open list
               alist_ok.insert(a);
@@ -582,11 +587,22 @@ int SwanData::are_alphas_surrounded(int verbose)
           else
             {
               if (verbose) cout << " no, not surrounded" << endl;
-              return 0;
+              alphas_not_surrounded++;
+              //return 0;
             }
         }
     }
 
+  if (alphas_not_surrounded)
+    {
+      if (verbose)
+        {
+          cout<<alphas_redundant<<" redundant alphas"<<endl;
+          cout<<alphas_surrounded<<" surrounded alphas"<<endl;
+          cout<<alphas_not_surrounded<<" alphas not yet surrounded"<<endl;
+        }
+      return 0;
+    }
   // Test that the singular points are surrounded:
   int ok = are_sigmas_surrounded(debug);
   if (verbose)
