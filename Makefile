@@ -91,14 +91,14 @@ sources: ccs headers
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc # euclid.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
-ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc swan_hom_test.cc
-ccs8: pari_snf.cc flint_snf.cc
+ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
+ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
 Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
@@ -109,7 +109,7 @@ headers: Q_headers quad_headers swan_headers
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom
 
 tests: $(TESTS)
 
@@ -288,6 +288,9 @@ dimtabnew: dimtabnew.o $(OBJS)
 dimtabtwist: dimtabtwist.o $(OBJS)
 	$(CC) -o dimtabtwist dimtabtwist.o $(OBJS) $(LFLAGS)
 
+basechange: basechange.o $(OBJS)
+	$(CC) -o basechange basechange.o $(OBJS) $(LFLAGS)
+
 hecketest: hecketest.o $(OBJS)
 	$(CC) -o hecketest hecketest.o $(OBJS) $(LFLAGS)
 
@@ -314,6 +317,12 @@ swan_test: swan_test.o $(OBJS) rat.h
 
 swan_hom_test: swan_hom_test.o $(OBJS) rat.h
 	$(CC) -o swan_hom_test swan_hom_test.o $(OBJS) $(LFLAGS)
+
+make_geodata: make_geodata.o $(OBJS) rat.h
+	$(CC) -o make_geodata make_geodata.o $(OBJS) $(LFLAGS)
+
+int_hom: int_hom.o $(OBJS) rat.h
+	$(CC) -o int_hom int_hom.o $(OBJS) $(LFLAGS)
 
 tbug: tbug.o $(OBJS) rat.h
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
