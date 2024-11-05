@@ -58,8 +58,9 @@ snf_test
 swan_hom_test
 dimtab
 dimtable_all
-*_long
-*_ZZ
+basechange
+int_hom
+make_geodata
 
 # temporary test output files
 *.testout
