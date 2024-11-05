@@ -433,6 +433,9 @@ def plot1hemi(kdata, H):
     X, Y, Z = var('X, Y, Z')
     Ymax = kdata['Ymax']
     Xmax = 0.5
+    # In case you want to see a bit more than the fundamental rectangle:
+    # Xmax *= 1.2
+    # Ymax *= 1.2
     x0, y0 = kdata['emb'](H[0])
     eq = (X - x0)**2 + (Y - y0)**2 + Z**2 - H[1]
     return implicit_plot3d(eq, (Y, -Ymax, Ymax ),  (X, -Xmax, Xmax), (Z, 0, 1), plot_points=60, aspect_ratio=1, color='lightgreen', name=str(kdata['k'].discriminant()))
@@ -639,6 +642,7 @@ def alpha_triples(alphas, debug=False):
     n = len(xalphas)
     if debug:
         print(f"After adding translates number of alphas is {n}")
+        #print(f"{xalphas = }")
 
     # convert each cusp to a point
     # [a,tsq] with tsq the square
@@ -2340,6 +2344,9 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False,
     if verbose:
         print("{} alphas".format(len(alphas)))
         print("{} sigmas".format(len(sigmas)))
+    if verbose>1:
+        print("alphas: {}".format(alphas))
+        print("sigmas: {}".format(sigmas))
 
     if plot2D:
         print("plotting projection of fundamental domain")
@@ -2350,6 +2357,10 @@ def tessellation(d, verbose=0, plot2D=False, plot3D=False,
     npoly = len(polyhedra)
     poly = "polyhedra" if npoly>1 else "polyhedron"
     print(f"Tessellation has {npoly} {poly}:")
+    # print(f"{polyhedra = }")
+    # w = kdata['w']
+    # hemis = [cusp_to_point(cusp(a,k)) for a in [0,1,-1,w,-w,w-1,1-w]]
+    # print(f"{hemis = }")
     if plot3D:
         print("plotting fundamental domain")
         from sage.misc.viewer import viewer
