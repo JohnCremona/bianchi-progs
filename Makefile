@@ -1,12 +1,14 @@
 
 # Makefile for bianchi-progs with test programs
 
-# eclib is a requirement.  If installed in the usual place /usr/local
-# the following line might not be necessary.  If installed anywhere
-# else set the install directory here:
+# (1) eclib is a requirement.  If not installed in the usual place
+# /usr/local, or to use a different version, set ECLIB_BASE to where
+# it is in the (host-dependent) file Makefile.local, which is included
+# here. (2) If BOOST is installed, make sure that Makefile.local sets
+# USE_BOOST=1 in Makeifle.local.
 
-ECLIB_BASE=/usr/local
-#ECLIB_BASE=$(HOME)/eclib
+include Makefile.local
+
 INCDIR = $(ECLIB_BASE)/include
 LIBDIR = $(ECLIB_BASE)/lib
 
@@ -60,10 +62,10 @@ endif
 endif
 
 # NB If used with a multithreaded build of eclib then you MUST define
-# USE_BOOST=1 below so that the correct compiler and linker stuff is
-# appended below.  Otherwise set USE_BOOST=0 (or do not set it).
+# USE_BOOST=1 in Makefile.local so that the correct compiler and
+# linker stuff is appended below.  Otherwise set USE_BOOST=0 (or do
+# not set it).
 
-#USE_BOOST=1
 ifeq ($(USE_BOOST), 1)
  BOOST_ASIO_LIB = -lboost_system-mt
  BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
