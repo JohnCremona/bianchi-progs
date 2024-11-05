@@ -19,22 +19,13 @@ mkdir -p newforms/2.0.${D}.1
 
 PARAMS="${d} ${VERBOSE} ${NAP} ${OUTPUT_EIGS} ${BOTH_CONJUGATES} ${FIRST_NORM} ${LAST_NORM}"
 
-PROG="./makenf_long_${d}_${N}"
-ln -s makenf_loop_long "${PROG}"
+PROG="./makenf_${d}_${N}"
+ln -s makenf_loop "${PROG}"
 echo "Running " ${PROG} " with parameters " ${PARAMS}
+echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
+echo "${PROG} completed"
+/bin/rm "${PROG}"
 
-if ( echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out );
-then
-  echo "${PROG} using long ints succeeded"
-  /bin/rm "${PROG}"
-else
-  echo "******************** ${PROG} using long ints FAILED, rerunning with ZZ *******************************"
-  /bin/rm "${PROG}"
-  PROG="./makenf_ZZ_${d}_${N}"
-  ln -s makenf_loop_ZZ "${PROG}"
-  echo "${PARAMS}" | "${PROG}" > out/"${PROG}".out
-  /bin/rm "${PROG}"
-fi
 
 # To use in parallel runs, one level norm per run:
 #

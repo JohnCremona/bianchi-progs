@@ -5,7 +5,7 @@ export PARI_SIZE=20000000000
 
 echo "Starting field" $d " at " `date`
 T1=`date +%s`
-echo ${d} | ./swan_hom_test > out/hom.out.new.${d}
+echo ${d} | ./swan_hom_test > out/hom.out.${d}
 T2=`date +%s`
 echo "Finished field:" $d " at " `date`
 let 'T = T2 - T1'
