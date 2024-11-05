@@ -564,11 +564,11 @@ int SwanData::are_alphas_surrounded(int verbose)
   for ( const auto& a : new_alist_open)
     {
       i++;
-      if (verbose) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
+      if (debug) cout <<"Testing alpha #"<<i<<"/"<<n_open<<" = "<<a<<"...";
       if (is_alpha_redundant(a, verbose))
         {
           alphas_redundant++;
-          if (verbose) cout << " ok! redundant" <<endl;
+          if (debug) cout << " ok! redundant" <<endl;
           // add this alpha to the ok list end remove from the open list and full list
           alist_ok.insert(a);
           alist_open.erase(a);
@@ -579,14 +579,14 @@ int SwanData::are_alphas_surrounded(int verbose)
           if (is_alpha_surrounded(a, verbose))
             {
               alphas_surrounded++;
-              if (verbose) cout << " ok! surrounded" << endl;
+              if (debug) cout << " ok! surrounded" << endl;
               // add this alpha to the ok list end remove from the open list
               alist_ok.insert(a);
               alist_open.erase(a);
             }
           else
             {
-              if (verbose) cout << " no, not surrounded" << endl;
+              if (debug) cout << " no, not surrounded" << endl;
               alphas_not_surrounded++;
               //return 0;
             }
