@@ -5,6 +5,7 @@
 #include "swan_alphas.h"
 #include "swan_tess.h"
 #include "swan_hom.h" // for homology_invariants() only
+#include "pari_snf.h" // for homology_invariants_via_pari() only
 
 // clears all alphas-sigma data, polyhedra, faces
 void SwanData::clear()
@@ -2336,19 +2337,15 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
     {
       vector<vector<int>> M21 = face_boundary_matrix(1, debug>1);
       if (debug)
-        {
-          cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
-        }
-      invs.push_back(homology_invariants(M10, M21, debug>1));
+        cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+      invs.push_back(homology_invariants(M10, M21, debug));
     }
   if (SL2)
     {
       vector<vector<int>> M21 = face_boundary_matrix(0, debug>1);
       if (debug)
-        {
-          cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
-        }
-      invs.push_back(homology_invariants(M10, M21, debug>1));
+        cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+      invs.push_back(homology_invariants(M10, M21, debug));
     }
   return invs;
 }

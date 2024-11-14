@@ -23,7 +23,6 @@ int main(void)
    }
  Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
- int n2r = Quad::class_group_2_rank;
  // cerr << "Plus space (0/1)? "; cin>>plusflag;
  // cerr << "Cuspidal subspace (0/1)? "; cin>>cuspidal;
  // cerr << "See the hecke matrices (0/1)? "; cin >> show_mats;

@@ -88,9 +88,6 @@ LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl
 
 all: tests
 
-sources: ccs headers
-	chmod a+r *.h *.cc
-
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
@@ -108,12 +105,24 @@ quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
 headers: Q_headers quad_headers swan_headers
 
+# DEPENDENCIES (of *.o files)
+#
+Makefile.deps:
+	for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
+# recreate with
+# for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
+#
+include Makefile.deps
+
+sources: ccs headers Makefile.deps
+	chmod a+r *.h *.cc
+
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
 TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom
 
-tests: $(TESTS)
+tests: sources $(TESTS)
 
 # These are for creation of temporary newforms directories for tests:
 DISCS9=3 4 7 8 11 19 43 67 163
@@ -151,7 +160,7 @@ FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
 #GLOBAL_TESTS =
-ALL_TESTS = $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
+ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -328,13 +337,6 @@ int_hom: int_hom.o $(OBJS) rat.h
 
 tbug: tbug.o $(OBJS) rat.h
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
-
-# DEPENDENCIES (of *.o files)
-#
-# recreate with
-# for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
-#
-include Makefile.deps
 
 # Some tables
 

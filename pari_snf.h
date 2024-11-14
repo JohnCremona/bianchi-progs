@@ -14,4 +14,8 @@ vector<INT> invariants(const vector<vector<int>>& M);
 // assuming M has size 2 (i.e. represnts a 2xn matrix):
 vector<INT> hnf_invariants(const vector<vector<int>>& M);
 
+// Return integral homology invarints of ker(M10)/im(M21)
+vector<INT> homology_invariants_via_pari(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
+
+
 #endif
