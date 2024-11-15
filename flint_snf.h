@@ -32,3 +32,6 @@ vector<int> HNF_pivots(const vector<vector<int>>& M);
 
 void SNF(fmpz_mat_t& S, fmpz_mat_t& A);
 
+vector<INT> homology_invariants_via_flint(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug=0);
+
+

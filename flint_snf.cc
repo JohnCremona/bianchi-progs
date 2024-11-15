@@ -176,3 +176,127 @@ void SNF(fmpz_mat_t& S, fmpz_mat_t& A)
   fmpz_mat_clear(Ht);
 }
 
+vector<INT> homology_invariants_via_flint(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug)
+{
+  // M10 represents a n1xn0 matrix and M21 a n2xn1, with M21*M10=0
+  long n0 = M10[0].size(), n1 = M10.size(), n2 = M21.size();
+  assert (n1==(long)M21[0].size());
+
+  // convert from vector<vector<int>> to fmpz_mats:
+  fmpz_mat_t A10, A21, Z, U, H, M;
+  fmpz_mat_init(A10, n1, n0);
+  fmpz_mat_init(A21, n2, n1);
+  make_mat(A10, M10); // size n1xn0
+  make_mat(A21, M21); // size n2xn1
+  if (debug>2)
+    {
+      cout << "M10 as a FLINT matrix:\n";
+      fmpz_mat_print_pretty(A10);
+      cout<<endl;
+      cout << "M21 as a FLINT matrix:\n";
+      fmpz_mat_print_pretty(A21);
+      cout<<endl;
+    }
+
+  // Check that A21*A10=0:
+  fmpz_mat_init(Z, n2, n0);
+  fmpz_mat_mul(Z, A21, A10);
+  assert (fmpz_mat_is_zero(Z));
+
+  // find H = HNF of A10, with transform matrix U s.t. H=U*A10:
+  if (debug)
+    {
+      cout<<"Computing HNF of A10 which has size "<<n1<<" x "<<n0<<endl;
+    }
+  fmpz_mat_init(H, n1, n0);
+  fmpz_mat_init(U, n1, n1);
+  fmpz_mat_hnf_transform(H, U, A10);
+  long r = fmpz_mat_rank(H);
+  if (debug)
+    {
+      cout<<"H has size "<<n1<<" x "<<n0<<", and r="<<r<<endl;
+      cout<<"U has size "<<n1<<" x "<<n1<<", now inverting U..."<<endl;
+    }
+  // replace U by U^-1:
+  fmpz_t den;
+  fmpz_init(den);
+  int ok = fmpz_mat_inv(U, den, U);
+  assert (ok); // means U was invertible over Q, i.e. det(U) nonzero
+  if (debug)
+    {
+      cout<<"...finished inverting U";
+      if (debug>1)
+        {
+          cout<<"; denom is ";
+          fmpz_print(den);
+        }
+      cout<<endl;
+    }
+  assert (fmpz_equal_si(den, 1) || fmpz_equal_si(den, -1)); // denominator is +-1
+
+  // multiply A21 by U^-1:
+  if (debug)
+    {
+      cout<<"Multiplying A21 by U^-1...";
+    }
+  fmpz_mat_mul(A21, A21, U);
+  if (debug)
+    {
+      cout<<"...done, A21*U^{-1} has size "<<n2<<" x "<<n1<<", now dropping first r columns..."<<endl;
+      if (debug>2)
+        {
+          fmpz_mat_print_pretty(A21);
+          cout<<endl;
+        }
+    }
+  // drop first r cols of this:
+  fmpz_mat_window_init(M, A21, 0, r, n2, n1);
+  int homrank = n1 - r - fmpz_mat_rank(M); // ==nullity(M)
+  if (debug>1)
+    {
+      cout<<"The window has size "<<fmpz_mat_nrows(M)<<" x "<<fmpz_mat_ncols(M)<<endl;
+      if (debug>2)
+        {
+          fmpz_mat_print_pretty(M);
+          cout<<endl;
+        }
+    }
+  if (debug)
+    cout << "Homology rank = " << homrank << "; ";
+  assert (fmpz_mat_nrows(M)==n2);
+  assert (fmpz_mat_ncols(M)==n1-r);
+
+  fmpz_mat_t S;
+  // Compute Smith Normal Form of that:
+  fmpz_mat_init_set(S, M); // to set to the right size
+  if (debug)
+    {
+      cout<<" (about to compute SNF of M with "<<fmpz_mat_nrows(M)<<" rows, "<<fmpz_mat_ncols(M)<<" columns)" <<endl;
+      cout<<"=============="<<endl;
+      // fmpz_mat_print(S);
+      // cout<<"\n=============="<<endl;
+    }
+
+  SNF(S, M);
+
+  // Extract the diagonal entries of S (omitting any 1s):
+  long n = min(n2, n1-r);
+  vector<INT> v;
+  for (long i=0; i<n; i++)
+    {
+      INT m(fmpz_mat_entry(S, i, i));
+      if (debug) cout<<" S["<<i<<","<<i<<"] =  "<<m<<endl;
+      if (m!=1)
+        v.push_back(m);
+    }
+  cout << "non-trivial invariants: "<<v<<endl;
+  fmpz_mat_clear(S);
+  fmpz_mat_window_clear(M);
+  fmpz_mat_clear(A10);
+  fmpz_mat_clear(A21);
+  fmpz_mat_clear(Z);
+  fmpz_mat_clear(H);
+  fmpz_mat_clear(U);
+
+  return v;
+}
