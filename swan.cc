@@ -2318,9 +2318,12 @@ vector<vector<int>> SwanData::face_boundary_matrix(int GL2, int debug)
 
 // return the invariants of H_1 as a Z-module for either GL2
 // (group=1) or SL2 (group=2) or both (group=3)
-vector<vector<INT>> SwanData::integral_homology(int group, int debug)
+vector<vector<INT>> SwanData::old_integral_homology(int group, int debug)
 {
   if (all_faces.empty()) decode_all_faces();
+
+  string step = "SwanData::integral_homology()";
+  SwanTimer.start(step);
 
   vector<vector<int>> M10 = edge_boundary_matrix();
   if (debug)
@@ -2347,6 +2350,91 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
         cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
       invs.push_back(homology_invariants(M10, M21, debug));
     }
+  SwanTimer.stop(step);
+  if (showtimes)
+    SwanTimer.show(1, step);
+  return invs;
+}
+
+// return the invariants of H_1 as a Z-module for either GL2
+// (group=1) or SL2 (group=2) or both (group=3)
+vector<vector<INT>> SwanData::integral_homology(int group, int debug)
+{
+  if (all_faces.empty()) decode_all_faces();
+
+  string step = "SwanData::new_integral_homology()";
+  SwanTimer.start(step);
+
+  // find 'redundant' edges
+  vector<int> class_flags(Quad::class_number, 0);
+  int n_edges = n_alph()+n_sig(1);
+  vector<int> edge_flags(n_edges, 0);
+  int i = n_alph(), j;
+  for (auto s: slist)
+    {
+      if (s.is_finite()) // ignore s = oo in trivial class
+        {
+          j = s.ideal_class();
+          if (!class_flags[j]) // this is a new ideal class
+            {
+              class_flags[j] = 1; // check that this class has been flagged
+              edge_flags[i] = j;  // mark the i'th edge as the first for the j'th ideal class
+            }
+          i++;
+        }
+    }
+  // Now edge_flags[i] is set to 1 iff the i'th edge is {sigma,oo} where
+  // sigma is the first singular point in one ideal class.
+
+  vector<vector<INT>> invs;
+  int
+    GL2 = group&1, // i.e. 1 or 3
+    SL2 = group&2; // i.e. 2 or 3
+  if (GL2)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(1, debug>1);
+      if (debug)
+        cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+      // Set the entries to 0 in positions j where edge_flags[j]>0
+      i = 0;
+      for (auto Mi : M21)
+        {
+          vector<int> Minew;
+          Minew.reserve(n_edges);
+          for (j=0; j<n_edges; j++)
+            {
+              if (!edge_flags[j])
+                Minew.push_back(Mi[j]);
+            }
+          M21[i] = Minew;
+          i++;
+        }
+      invs.push_back(invariants(M21));
+    }
+  if (SL2)
+    {
+      vector<vector<int>> M21 = face_boundary_matrix(0, debug>1);
+      if (debug)
+        cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+      // Set the entries to 0 in positions j where edge_flags[j]>0
+      i = 0;
+      for (auto Mi : M21)
+        {
+          vector<int> Minew;
+          Minew.reserve(n_edges);
+          for (j=0; j<n_edges; j++)
+            {
+              if (!edge_flags[j])
+                Minew.push_back(Mi[j]);
+            }
+          M21[i] = Minew;
+          i++;
+        }
+      invs.push_back(invariants(M21));
+    }
+  SwanTimer.stop(step);
+  if (showtimes)
+    SwanTimer.show(1, step);
   return invs;
 }
 

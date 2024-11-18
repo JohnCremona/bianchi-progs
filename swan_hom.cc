@@ -9,6 +9,8 @@
 // Define this to use FLINT instead of PARI for HNF,SNF:
 //#define INVARIANTS_VIA_FLINT
 
+//#define CHECK_INVARIANTS
+
 ostream& operator<<(ostream& os, const vector<vector<int>>& M)
 {
   for (auto Mi : M) os << Mi << "\n";
@@ -357,11 +359,17 @@ int is_product_zero(const vector<vector<int>>& M1, const vector<vector<int>>& M2
 
 vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vector<int>>& M21, int debug)
 {
+  vector<INT> invs =
 #ifdef INVARIANTS_VIA_FLINT
-  return homology_invariants_via_flint(M10, M21, debug);
+    homology_invariants_via_flint(M10, M21, debug);
 #else
-  return homology_invariants_via_pari(M10, M21, debug);
+    homology_invariants_via_pari(M10, M21, debug);
+#ifdef CHECK_INVARIANTS
+    vector<INT> invs2 = homology_invariants_via_flint(M10, M21, debug);
+    assert (invs==invs2);
 #endif
+#endif
+  return invs;
 }
 
 void show_invariants(const vector<INT>& v, int pretty)

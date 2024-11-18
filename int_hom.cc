@@ -4,11 +4,11 @@
 #include "swan_hom.h"  // for show_invariants
 #include "swan.h"  // for integral_homology
 
-#define MAX_DISC 100
+#define MAX_DISC 300
 #define MIN_DISC 0
 
 #define VERBOSE 0 // verbose setting to use if not overridden locally
-#define DEBUG 0   // verbose setting to use if not overridden locally
+#define DEBUG 1   // verbose setting to use if not overridden locally
 #define PRETTY_INVARIANTS 0
 
 int main ()
@@ -23,7 +23,7 @@ int main ()
   cerr << endl;
 
   if (f>0)
-    fields = {f};
+    fields = {(f%4==3?f:4*f)};
   for (auto D: fields)
     {
       if ((f==0) && (D>MAX_DISC))
@@ -79,5 +79,26 @@ int main ()
       show_invariants(invariants[1], PRETTY_INVARIANTS);
       cout << endl;
 
+      debug = 0; //DEBUG;
+      if (debug)
+        {
+          cout<<"Recomputing using old code..."<<flush;
+          vector<vector<INT>> old_invariants = Quad::SD.old_integral_homology(3, debug);
+          int ok=1;
+          if (invariants[0] != old_invariants[0])
+            {
+              ok=0;
+              cout<<"GL2: old invariants " << old_invariants[0] << " not " << invariants[0] <<endl;
+            }
+          if (invariants[1] != old_invariants[1])
+            {
+              ok=0;
+              cout<<"SL2: new invariants " << old_invariants[1] << " not " << invariants[1] <<endl;
+            }
+          if(ok)
+            cout<<"...new code agrees!"<<endl;
+          else
+            cout<<"...new code does not agree **********************!"<<endl;
+        }
     }
 }
