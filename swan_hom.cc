@@ -372,6 +372,21 @@ vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   return invs;
 }
 
+void show_matrix_data(const vector<vector<int>>& M)
+{
+  long nrows = M.size(), ncols = M[0].size();
+  cout << "Matrix with nrows="<<nrows<<", ncols="<<ncols<<endl;
+  map<int,int> entry_dist;
+  for (auto Mi : M)
+    for (auto Mij : Mi)
+      entry_dist[Mij] +=1;
+  cout << "Distribution of entries:\n";
+  for (auto x : entry_dist)
+    {
+      cout<<x.first<<":\t"<<x.second<<endl;
+    }
+}
+
 void show_invariants(const vector<INT>& v, int pretty)
 {
   map<INT,int> mults;

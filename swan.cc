@@ -2322,7 +2322,7 @@ vector<vector<INT>> SwanData::old_integral_homology(int group, int debug)
 {
   if (all_faces.empty()) decode_all_faces();
 
-  string step = "SwanData::integral_homology()";
+  string step = "SwanData::integral_homology() (old version)";
   SwanTimer.start(step);
 
   vector<vector<int>> M10 = edge_boundary_matrix();
@@ -2362,7 +2362,7 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
 {
   if (all_faces.empty()) decode_all_faces();
 
-  string step = "SwanData::new_integral_homology()";
+  string step = "SwanData::integral_homology()";
   SwanTimer.start(step);
 
   // find 'redundant' edges
@@ -2409,6 +2409,7 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
           M21[i] = Minew;
           i++;
         }
+      if (debug) show_matrix_data(M21);
       invs.push_back(invariants(M21));
     }
   if (SL2)
@@ -2430,6 +2431,7 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
           M21[i] = Minew;
           i++;
         }
+      if (debug) show_matrix_data(M21);
       invs.push_back(invariants(M21));
     }
   SwanTimer.stop(step);
