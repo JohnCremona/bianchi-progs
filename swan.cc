@@ -2002,6 +2002,8 @@ int SwanData::read_face_data(string subdir, int verbose)
 {
   T_faces.clear(); U_faces.clear(); Q_faces.clear(); H_faces.clear();
 
+  if (Quad::nunits > 2) // These fields have no face data: geodata file is emptpy
+    return 1;
   ifstream geodata;
   stringstream ss;
   if (!subdir.empty()) ss << subdir << "/";
@@ -2298,14 +2300,14 @@ vector<vector<int>> SwanData::face_boundaries(int GL2, int debug)
 // boundary map from 2-cells to 1-cells
 vector<vector<int>> SwanData::face_boundary_matrix(int GL2, int debug)
 {
-  vector<vector<int>> M = edge_pairings(GL2, debug);
+  vector<vector<int>> M = edge_pairings(GL2, max(0,debug-1));
   if (debug)
     {
       cout << "edge pairing matrix has size " << M.size() << " x " << M[0].size() << endl;
       if (debug>1)
         cout << M << endl;
     }
-  vector<vector<int>> M2 = face_boundaries(GL2, debug);
+  vector<vector<int>> M2 = face_boundaries(GL2, max(0,debug-1));
   if (debug)
     {
       cout << "face boundaries matrix has size " << M2.size() << " x " << M2[0].size() << endl;
@@ -2338,14 +2340,14 @@ vector<vector<INT>> SwanData::old_integral_homology(int group, int debug)
     SL2 = group&2; // i.e. 2 or 3
   if (GL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(1, debug>1);
+      vector<vector<int>> M21 = face_boundary_matrix(1, max(0,debug-1));
       if (debug)
         cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
       invs.push_back(homology_invariants(M10, M21, debug));
     }
   if (SL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(0, debug>1);
+      vector<vector<int>> M21 = face_boundary_matrix(0, max(0,debug-1));
       if (debug)
         cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
       invs.push_back(homology_invariants(M10, M21, debug));
@@ -2356,13 +2358,11 @@ vector<vector<INT>> SwanData::old_integral_homology(int group, int debug)
   return invs;
 }
 
-// return the invariants of H_1 as a Z-module for either GL2
-// (group=1) or SL2 (group=2) or both (group=3)
-vector<vector<INT>> SwanData::integral_homology(int group, int debug)
+// The face boundary matrix with h-1 columns deleted, whose cokernel gives H_1
+vector<vector<int>> SwanData::adjusted_face_boundary_matrix(int GL2, int debug)
 {
   if (all_faces.empty()) decode_all_faces();
-
-  string step = "SwanData::integral_homology()";
+  string step = "SwanData::adjusted_face_boundary_matrix()";
   SwanTimer.start(step);
 
   // find 'redundant' edges
@@ -2386,53 +2386,95 @@ vector<vector<INT>> SwanData::integral_homology(int group, int debug)
   // Now edge_flags[i] is set to 1 iff the i'th edge is {sigma,oo} where
   // sigma is the first singular point in one ideal class.
 
+  vector<vector<int>> M21 = face_boundary_matrix(GL2, max(0,debug-1));
+  if (debug)
+    cout << (GL2?"GL2":"SL2")<< " face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
+  // Set the entries to 0 in positions j where edge_flags[j]>0
+  i = 0;
+  for (auto Mi : M21)
+    {
+      vector<int> Minew;
+      Minew.reserve(n_edges);
+      for (j=0; j<n_edges; j++)
+        {
+          if (!edge_flags[j])
+            Minew.push_back(Mi[j]);
+        }
+      M21[i] = Minew;
+      i++;
+    }
+  SwanTimer.stop(step);
+  if (showtimes)
+    SwanTimer.show(1, step);
+
+  return M21;
+}
+
+// Compute the adjusted M21 matrix and output gp code to compute the
+// structure of H_1 as a Z-module for either GL2 (group=1) or SL2
+// (group=2) or both (group=3)
+void SwanData::integral_homology_gp_code(int group, int debug)
+{
+  stringstream gp_file;
+  gp_file << "gp/int_hom_" << Quad::d << ".gp";
+  string gp = gp_file.str();
+  ofstream gp_code(gp.c_str());
+  gp_code << "\\r cremona.gp;\n\n" << flush;
+
+  int
+    GL2 = group&1, // i.e. 1 or 3
+    SL2 = group&2; // i.e. 2 or 3
+  if (GL2)
+    {
+      vector<vector<int>> M21 = adjusted_face_boundary_matrix(1, max(0,debug-1));
+      show_matrix_data(M21);
+      output_gp_homology_code(M21, gp, "GL2");
+    }
+  if (SL2)
+    {
+      vector<vector<int>> M21 = adjusted_face_boundary_matrix(0, max(0,debug-1));
+      show_matrix_data(M21);
+      output_gp_homology_code(M21, gp, "SL2");
+    }
+}
+
+// Compute the adjusted M21 matrix and return the invariants of H_1 as
+// a Z-module for either GL2 (group=1) or SL2 (group=2) or both
+// (group=3)
+vector<vector<INT>> SwanData::integral_homology(int group, int debug)
+{
+  if (all_faces.empty()) decode_all_faces();
+
+  string step = "SwanData::integral_homology()";
+  SwanTimer.start(step);
+
   vector<vector<INT>> invs;
   int
     GL2 = group&1, // i.e. 1 or 3
     SL2 = group&2; // i.e. 2 or 3
   if (GL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(1, debug>1);
+      string gl2_step = "SwanData::integral_homology() GL2";
+      SwanTimer.start(gl2_step);
+      vector<vector<int>> M21 = adjusted_face_boundary_matrix(1, debug);
       if (debug)
-        cout << "GL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
-      // Set the entries to 0 in positions j where edge_flags[j]>0
-      i = 0;
-      for (auto Mi : M21)
-        {
-          vector<int> Minew;
-          Minew.reserve(n_edges);
-          for (j=0; j<n_edges; j++)
-            {
-              if (!edge_flags[j])
-                Minew.push_back(Mi[j]);
-            }
-          M21[i] = Minew;
-          i++;
-        }
-      if (debug) show_matrix_data(M21);
+        show_matrix_data(M21);
       invs.push_back(invariants(M21));
+      SwanTimer.stop(gl2_step);
+      if (showtimes)
+        SwanTimer.show(1, gl2_step);
     }
   if (SL2)
     {
-      vector<vector<int>> M21 = face_boundary_matrix(0, debug>1);
+      string sl2_step = "SwanData::integral_homology() SL2";
+      SwanTimer.start(sl2_step);
+      vector<vector<int>> M21 = face_boundary_matrix(0, debug);
       if (debug)
-        cout << "SL2 face boundary matrix M21 has size " << M21.size() << " x " << M21[0].size() << endl;
-      // Set the entries to 0 in positions j where edge_flags[j]>0
-      i = 0;
-      for (auto Mi : M21)
-        {
-          vector<int> Minew;
-          Minew.reserve(n_edges);
-          for (j=0; j<n_edges; j++)
-            {
-              if (!edge_flags[j])
-                Minew.push_back(Mi[j]);
-            }
-          M21[i] = Minew;
-          i++;
-        }
-      if (debug) show_matrix_data(M21);
+        show_matrix_data(M21);
       invs.push_back(invariants(M21));
+      SwanTimer.stop(sl2_step);
+      if (showtimes)
+        SwanTimer.show(1, sl2_step);
     }
   SwanTimer.stop(step);
   if (showtimes)

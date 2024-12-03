@@ -59,6 +59,9 @@ public:
   // read from geodata file, or create from scratch and store if not successful (file absent)
   void read_or_create(string subdir="", int verbose=0);
 
+  int get_timer_status() {return showtimes;}
+  void set_timer_status(int s) {showtimes=s;}
+
   void make_sigmas();
   CuspList get_sigmas() {
     make_sigmas();
@@ -191,6 +194,8 @@ public:
   // (group=1) or SL2 (group=2) or both (group=3)
   vector<vector<INT>> old_integral_homology(int group, int debug=0);
   vector<vector<INT>> integral_homology(int group, int debug=0);
+  // Compute the adjusted M21 matrix and output gp code to compute the invariants
+  void integral_homology_gp_code(int group, int debug=0);
 
 private:
   timer SwanTimer;
@@ -302,6 +307,8 @@ private:
   // Row concatenation of previous 2, giving the matrix M21 of the
   // boundary map from 2-cells to 1-cells
   vector<vector<int>> face_boundary_matrix(int GL2, int debug=0);
+  // The face boundary matrix with h-1 columns deleted, whose cokernel gives H_1
+  vector<vector<int>> adjusted_face_boundary_matrix(int GL2, int debug=0);
 
   // functions for pseudo-euclidean algorithm
 
