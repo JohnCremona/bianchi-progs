@@ -1,5 +1,7 @@
 // FILE INT_HOM.CC: compute GL2 and SL2 integral homology (assuming that a geodata file exists)
 
+// Define GP_CODE to not compute it but only output a gp script to compute it
+
 #include "geometry.h"
 #include "swan_hom.h"  // for show_invariants
 #include "swan.h"  // for integral_homology
@@ -7,9 +9,11 @@
 #define MAX_DISC 300
 #define MIN_DISC 0
 
-#define VERBOSE 0 // verbose setting to use if not overridden locally
+#define VERBOSE 1 // verbose setting to use if not overridden locally
 #define DEBUG 1   // verbose setting to use if not overridden locally
 #define PRETTY_INVARIANTS 0
+
+#define GP_SCRIPT 1
 
 int main ()
 {
@@ -54,12 +58,22 @@ int main ()
           cout << "Run make_geodata first!" << endl;
           continue;
         }
+      Quad::SD.set_timer_status(verbose);
       Quad::setup_geometry("geodata", verbose);
-
-      // Compute integral homology
 
       debug = DEBUG;
       verbose = VERBOSE;
+
+#if(GP_SCRIPT)
+      // Output a gp script to compute H1
+      if (verbose)
+        cout << "Outputting GP script to compute integral homology..." <<endl;
+      Quad::SD.integral_homology_gp_code(3, debug);
+      if (verbose)
+        cout << "done." << endl;
+#else
+      // Compute integral homology
+
       if (verbose)
         cout << "Computing integral homology..." <<endl;
 
@@ -100,5 +114,6 @@ int main ()
           else
             cout<<"...new code does not agree **********************!"<<endl;
         }
+#endif
     }
 }
