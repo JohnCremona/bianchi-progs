@@ -94,7 +94,6 @@ void test_convert(int debug=0)
   avma=av;
 }
 
-
 vector<INT> invariants(const vector<vector<int>>& M)
 {
   eclib_pari_init();

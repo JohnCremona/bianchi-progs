@@ -372,6 +372,117 @@ vector<INT> homology_invariants(const vector<vector<int>>& M10, const vector<vec
   return invs;
 }
 
+void show_matrix_data(const vector<vector<int>>& M)
+{
+  long nrows = M.size(), ncols = M[0].size();
+  cout << "Matrix with nrows="<<nrows<<", ncols="<<ncols<<endl;
+  map<int,int> entry_dist;
+  for (auto Mi : M)
+    for (auto Mij : Mi)
+      entry_dist[Mij] +=1;
+  cout << "Distribution of entries:\n";
+  for (auto x : entry_dist)
+    {
+      cout<<x.first<<":\t"<<x.second<<endl;
+    }
+}
+
+void output_gp_matrix(const vector<vector<int>>& M, const string& s)
+{
+  ofstream fout;
+  fout.open(s.c_str(), ios::app);
+  fout<<"[";
+  for (auto Mi = M.begin(); Mi!=M.end(); ++Mi)
+    {
+      if (Mi!=M.begin()) fout <<";";
+      for (auto Mij = Mi->begin(); Mij!=Mi->end(); ++Mij)
+        {
+          if (Mij!=Mi->begin()) fout <<",";
+          fout << *Mij;
+        }
+    }
+  fout<<"]"<<flush;
+}
+
+void output_gp_homology_code(const vector<vector<int>>& M, const string& s, const string& group)
+// s is the filename, group is "GL2" or "SL2"
+{
+  ofstream fout;
+  fout.open(s.c_str(), ios::app);
+
+  // Output the field discriminant and group name
+  fout << "D = " << Quad::disc << ";\n";
+  fout << "group = \"" << group << "\";\n";
+
+  // Output the matrix for debugging
+  // fout << "\nM = " << flush;
+  // output_gp_matrix(M, s);
+  // fout << ";\n" << flush;
+
+  // Define the dimensions n1 and n2 for a complex 0 -> Z^n1 -> Z^n2 -> 0
+  long n1 = M.size(), n2 = M[0].size();
+
+  fout << "ranks = Vecsmall([0," << n2 << "," << n1 << ",0]);\n";
+
+  // Define a 0 x n1 sparse matrix
+  fout << "\\\\ D1 is 0 x " << n1 << ":\n";
+  fout << "D1 = vector(ranks[2],i,[Vecsmall([]),Vecsmall([])]);\n";
+
+  // Define an n1 x n2 sparse matrix from M:
+  fout << "\\\\ D2 is " << n1 << " x " << n2 << ":\n";
+  fout << "D2 = [";
+  int i = 0; // row number
+  for (auto Mi : M)  // loop over n2 columns of M
+    {
+      if (i) fout << ",";
+      i++;
+      // output row numbers with a nonzero entry
+      fout << "[";
+      int first = 1;
+      int j = 0;
+      fout << "Vecsmall([";
+      for (auto Mij : Mi)
+        {
+          j++;
+          if (Mij)
+            {
+              if (!first) fout<<",";
+              fout << j;
+              first = 0;
+            }
+        }
+      fout << "]),Vecsmall([";
+      j = 0;
+      first = 1;
+      for (auto Mij : Mi)
+        {
+          j++;
+          if (Mij)
+            {
+              if (!first) fout<<",";
+              fout << Mij;
+              first = 0;
+            }
+        }
+      fout << "])]~";
+    }
+  fout << "];\n";
+  // Define a n2 x 0 sparse matrix
+  fout << "\\\\ D3 is " << n2 << " x 0:\n";
+  fout << "D3 = [];\n";
+
+  fout << "diffs = [D1,D2,D3];\n";
+  fout << "C = [ranks, diffs];\n";
+  // fout << "DC = densecomplex(C);\n"; //don't do this for the big ones!
+  // fout << "checkcomplex(DC);\n";
+  fout << "H = homology(C,1,3);\n";
+  fout << "out_string = concat([D,space,group,space,H[1][1],space,inv_string(H[1][2])]);\n";
+  fout << "print(out_string);\n";
+  fout << "f = fileopen(\"hom.txt\", \"a\");\n";
+  fout << "filewrite(f, out_string);\n";
+  fout << "fileclose(f);\n";
+}
+
 void show_invariants(const vector<INT>& v, int pretty)
 {
   map<INT,int> mults;
