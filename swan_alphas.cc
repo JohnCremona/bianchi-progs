@@ -1309,7 +1309,7 @@ CuspList neighbours(const RatQuad& a, const CuspList& alist)
   Quad r = a.num(), s=a.den();
   INT ns = s.norm();
   CuspList ans;
-  const std::array<int,3> txy = {-1,0,1};
+  const vector<int> txy = {-1,0,1};
   for ( const auto& alpha : alist)
     {
       Quad c = alpha.num(), d=alpha.den();
