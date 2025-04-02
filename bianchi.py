@@ -1,8 +1,8 @@
 import os
 import re
-from sage.all import QQ, polygen, NumberField, cartesian_product_iterator, prod
+from sage.all import ZZ, QQ, polygen, PolynomialRing, NumberField, cartesian_product_iterator, prod
 from psort import ideal_label, ideal_from_label
-
+from missing_curves import get_curve_status
 whitespace = re.compile(r'\s+')
 
 HOME = os.getenv("HOME")
@@ -11,8 +11,8 @@ DATA_DIR = os.path.join(HOME, "bianchi-data")
 DIM_DIR = os.path.join(DATA_DIR, "dims")
 FORM_DIR = os.path.join(DATA_DIR, "newforms")
 
-
 Qx = PolynomialRing(QQ,'x')
+
 
 def split(line):
     return whitespace.split(line.strip())
@@ -312,6 +312,7 @@ def parse_newforms_line(line, K):
         'hecke_eigs': hecke_eigs,
         'field_bad_primes': field_bad_primes,
         'level_bad_primes': level_bad_primes,
+        'curve_status': get_curve_status(label) # see missing_curves.py
     }
 
 def read_newforms(d, fname):
@@ -322,8 +323,8 @@ def read_newforms(d, fname):
     values the data for that newform.
     """
     K, a = field(d)
-    D = K.discriminant().abs()
-    field_label = "2.0.{}.1".format(D)
+    #D = K.discriminant().abs()
+    #field_label = "2.0.{}.1".format(D)
     data = {}
     filename = os.path.join(FORM_DIR, fname)
     with open(filename) as infile:
@@ -348,8 +349,8 @@ def read_newforms_many(dlist, N1, N2):
     data = {}
     for d in dlist:
         K, a = field(d)
-        D = K.discriminant().abs()
-        field_label = "2.0.{}.1".format(D)
+        #D = K.discriminant().abs()
+        #field_label = "2.0.{}.1".format(D)
         filename = os.path.join(FORM_DIR, f"newforms.{d}.{N1}-{N2}")
         with open(filename) as infile:
             for L in infile:
@@ -405,12 +406,13 @@ bmf_forms_schema = {
     'dimension': 'smallint',
     'level_ideal': 'text',
     'field_bad_primes': 'integer[]',
-    'level_bad_primes': 'integer[]'
+    'level_bad_primes': 'integer[]',
+    'curve_status': 'smallint'
 }
 
 
 int_cols = ['field_absdisc', 'level_norm', 'gl2_cusp_totaldim', 'gl2_new_totaldim', 'sl2_cusp_totaldim', 'sl2_new_totaldim',
-            'field_disc', 'sfe', 'weight', 'CM', 'bc', 'field_deg', 'label_nsuffix', 'dimension']
+            'field_disc', 'sfe', 'weight', 'CM', 'bc', 'field_deg', 'label_nsuffix', 'dimension', 'curve_status']
 str_cols = ['label', 'field_label', 'level_label',
             'level_gen', 'label_suffix', 'hecke_poly', 'Lratio', 'short_label', 'level_ideal']
 dict_cols = ['gl2_dims', 'sl2_dims',
@@ -462,6 +464,11 @@ def write_bmf_upload_file(data, fname, table, sl2):
     cols = ['label'] + cols
     vals = [schema[k] for k in cols]
     print("cols: {}".format(cols))
+
+    try:
+        print(f'{sl2_levels = }')
+    except NameError:
+        sl2_levels = []
 
     filename = os.path.join(UPLOAD_DIR, fname)
     with open(filename, 'w') as outfile:
