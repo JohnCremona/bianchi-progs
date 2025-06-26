@@ -59,6 +59,11 @@ def make_k(dk):
         d = -dk//4
     assert k.discriminant() == dk
     w = k.gen()
+    units = [k(1), k(-1)]
+    if dk==4:
+        units = units + [w*u for u in units]
+    if dk==3:
+        units = units + [w*u for u in units] + [w*w*u for u in units]
     emb = next(e for e in k.embeddings(CC) if e(w).imag()>0)
     if k not in elts_of_norm_cache:
         elts_of_norm_cache[k] = {}
@@ -66,8 +71,8 @@ def make_k(dk):
             'h': k.class_number(), 'Cl': k.class_group(), 'Cl_invs': k.class_group().invariants(),
             'oo': cusp(oo,k),
             'emb': emb, 'Ymax': emb(w).imag()/2,
-            'Ireps': [c.ideal() for c in k.class_group()]}
-
+            'Ireps': [c.ideal() for c in k.class_group()],
+            'units': units}
 
 def nf(x):
     """

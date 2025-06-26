@@ -402,7 +402,7 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
 }
 
 // Returns psi(B) matrices representing T(A,A)T(B) when
-// [B] is square, with A^2*B principal, A coprime to N.
+// [B] is squarefree, with A^2*B principal, A coprime to N.
 
 vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
 {

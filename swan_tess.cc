@@ -59,6 +59,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
       if (flags[j]) {j++; continue;}
       flags[j] = 1;
       vector<int> orbit = {j};
+      if (verbose>1)
+        cout << " - starting new orbit {"<<j<<"}"<<endl;
       RatQuad s = sR.first;
       H3point R = sR.second;
       if (verbose>1)
@@ -104,6 +106,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
             {
               flags[k] = 1;
               orbit.push_back(k);
+              if (verbose>1)
+                cout << " - adding "<<k<<" to orbit, now " << orbit <<endl;
             }
           // check off flag k where {-M(s), -M(R)}=sRlist[k] (up to translation)
           k = cusp_index_with_translation(-s2, sigmas, x);
@@ -118,6 +122,8 @@ singular_polyhedra(const CuspList& sigmas, const CuspList& alphas, int verbose)
             {
               flags[k] = 1;
               orbit.push_back(k);
+              if (verbose>1)
+                cout << " - adding "<<k<<" to orbit, now " << orbit <<endl;
             }
         }
       // add s to the vertices

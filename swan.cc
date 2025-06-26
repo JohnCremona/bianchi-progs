@@ -1661,17 +1661,19 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
   j = point_index_with_translation(P, corners, x);
   orbit.insert(j);
   if (verbose>1)
-    cout<<"Checking off corner #"<<j<<" ("<<corners[j]<<")\n";
+    cout<<"  - adding "<<j<<" to new orbit, corner #"<<j<<" = P = "<<corners[j]<<"\n";
   H3point Q = negate(P);
   if (verbose>1)
-    cout<<" Looking for corner "<<Q<<endl;
+    cout<<" Looking for negated corner -P = "<<Q<<endl;
   k = point_index_with_translation(Q, corners, x);
   orbit.insert(k);
   if (verbose>1)
-    cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
+    cout<<"  - adding "<<k<<" to current orbit, now "<<orbit<<endl;
 
   for ( const auto& a : alistP)
     {
+      if (verbose>1)
+        cout<<" - using a = " << a <<endl;
       // First add edges {oo,a} and {a,oo} for a fundamental:
       if (is_fund(a))
         {
@@ -1681,6 +1683,8 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
       // Then add edges {a,b} for finite a,b, when M_a(b) is fundamental.
       // NB this is equivalent to M_b(a) fundamental, so {b,a} will also be added.
       mat22 M = Malpha(a, P, corners, i); // M(a)=oo, M(P)=corners[i]
+      if (verbose>1)
+        cout<<"   - M_a takes P to corner #" << i <<endl;
       for ( const auto& b : alistP)
         {
           if ((a!=b) && is_fund(M(b)))
@@ -1689,16 +1693,16 @@ POLYHEDRON SwanData::make_principal_polyhedron(const H3point& P, std::set<int>& 
       // add flag i to orbit
       orbit.insert(i);
       if (verbose>1)
-        cout<<"Checking off corner #"<<i<<" ("<<corners[i]<<")\n";
+        cout<<"  - adding "<<i<<" to current orbit, now "<<orbit<<endl;
 
       // check off flag k where u*corners[i]=corners[k] (mod translation)
-      Q = negate(P);
+      Q = negate(corners[i]);
       if (verbose>1)
-        cout<<" Looking for corner "<<Q<<endl;
+        cout<<" Looking for negated corner "<<Q<<endl;
       k = point_index_with_translation(Q, corners, x);
       orbit.insert(k);
       if (verbose>1)
-        cout<<" Q = corner #"<<k<<" ("<<corners[k]<<")"<<endl;
+        cout<<"  - adding "<<k<<" to current orbit, now "<<orbit<<endl;
     }
   if (verbose)
     {
@@ -1737,11 +1741,11 @@ void SwanData::make_principal_polyhedra(int verbose)
       if (flags[j])
         continue;
       if (verbose)
-        cout<<"Using corner #"<<j<<"..."<<flush;
+        cout<<"Constructing polyhedron from corner #"<<j<<" = "<<P<<endl;
       std::set<int> orbit;
       principal_polyhedra.push_back(make_principal_polyhedron(P, orbit, verbose));
       if (verbose)
-        cout<<"Corner orbit "<<orbit<<"..."<<endl;
+        cout<<"Corner orbit was "<<orbit<<endl;
       for ( int i : orbit) flags[i] = 1;
     }
   if (verbose)

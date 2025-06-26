@@ -148,6 +148,12 @@ def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
     alphas = []
     z, t2 = P
     k = z.parent()
+    w = k.gen()
+    units = [1,-1]
+    if k.discriminant()==-4:
+        units = units + [w*u for u in units]
+    if k.discriminant()==-3:
+        units = units + [w*u for u in units] + [w*w*u for u in units]
     a = z.numerator()   # in O_K
     b = z.denominator() # in Z
     sbound = (1/t2).floor()
@@ -173,7 +179,9 @@ def covering_hemispheres1(P, option=None, norm_s_lb=1, debug=False):
         for u in ulist:
             if debug:
                 print(f"  {u = }")
-            for rb in [sa+u, sa-u] if u else [sa]:
+            ulist = [u*v for v in units] if u else [u]
+            for v in ulist:
+                rb  = sa + v
                 r = rb/b
                 if debug:
                     print(f"    {r = }")
