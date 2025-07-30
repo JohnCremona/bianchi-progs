@@ -5,64 +5,6 @@
 #include "intprocs.h"
 #include "flint_snf.h"
 
-#ifdef INT_IS_ZZ
-
-INT rounded_division(INT a, INT b, int round_down)
-{
-  INT q, r;
-  ::divides(a,b, q,r);
-  assert (a==b*q+r);
-  INT r2 = 2*r;
-  if (round_down)
-    {
-      // We want -b <= r2 < +b
-      if (r2<-b)
-        q-=1;
-      else
-        if (r2>=b)
-          q+=1;
-    }
-  else
-    {
-      // We want -b < r2 <= +b
-      if (r2<=-b)
-        q-=1;
-      else
-        if (r2>b)
-          q+=1;
-    }
-  return q;
-}
-
-int divides(const INT& aa, const INT& bb)
-{
-  return div(aa,bb);
-}
-
-int divrem(const bigint& a, const bigint& b, bigint& q, bigint& r)
-{
-  return divides(a, b, q, r);
-}
-
-INT isqrt(const INT& a)
-{
-  INT r; isqrt(a,r); return r;
-}
-
-// This is the heart of vecbzout3; if we are not using multiprecision
-// integers we do things differently using bigfloats
-void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
-                   const INT& a1, const INT& b1, const INT& c1, const INT& h1,
-                   INT& lambda, INT& mu)
-{
-  INT x2y2 = x*x+y*y;
-  lambda = rounded_division(x2y2*c1*z-h1*w, x2y2*c1*c1+h1*h1);
-  mu = rounded_division((b1*x-a1*y)*z, a1*a1+b1*b1);
-}
-
-#endif
-
-#ifdef FLINT
 void get_lambda_mu(INT x, INT y, INT z, INT w,
                    INT a1, INT b1, INT c1, INT h1,
                    INT& lambda, INT& mu)
@@ -73,23 +15,6 @@ void get_lambda_mu(INT x, INT y, INT z, INT w,
   lambda = rounded_division(p, q);
   mu = rounded_division(fmms(b1,x,a1,y)*z, fmma(a1,a1,b1,b1));
 }
-#endif
-
-#ifdef INT_IS_long
-
-// This is the heart of vecbzout3; if we are not using multiprecision
-// integers we do things differently using bigfloats
-void get_lambda_mu(const INT& x, const INT& y, const INT& z, const INT& w,
-                   const INT& a1, const INT& b1, const INT& c1, const INT& h1,
-                   INT& lambda, INT& mu)
-{
-  bigfloat rx2y2 = pow(to_bigfloat(x),2) + pow(to_bigfloat(y),2);
-  bigfloat rlambda = (rx2y2*c1*z-h1*w) / (rx2y2*pow(to_bigfloat(c1),2)+pow(to_bigfloat(h1),2));
-  bigfloat rmu = to_bigfloat(b1*x-a1*y)*z /  (pow(to_bigfloat(a1),2)+pow(to_bigfloat(b1),2));
-  longify(rlambda, lambda);
-  longify(rmu, mu);
-}
-#endif
 
 INT content(const vector<INT>& a)
 {

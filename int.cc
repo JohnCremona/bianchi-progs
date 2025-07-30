@@ -3,8 +3,6 @@
 #include <assert.h>
 #include "int.h"
 
-#ifdef FLINT // else none of these are needed
-
 std::ostream& operator<<(std::ostream& s, const INT& a)
 {
   char* st = fmpz_get_str(NULL, 10, a.z);
@@ -134,5 +132,3 @@ INT sqrt_mod_p(const INT& a, const INT& p)
   sqrt_mod_p(b, a, p);
   return b;
 }
-
-#endif

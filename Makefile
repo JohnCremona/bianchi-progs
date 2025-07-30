@@ -33,33 +33,12 @@ CC = $(GCC)
 OPTFLAG = -O3 -Wall -Wextra -fPIC
 #OPTFLAG = -O0 -Wall -Wextra -fPIC
 
-
 # The type of integers used for components of Quad, Qideal, RatQuad
-# can be either long or bigint (=NTL's ZZ), these being typedef'd to
-# INT, or the class INT (wrapper around FLINT's fmpz_t defined in
-# int.h/cc).  Choose which by setting INT_TYPE here.  If the type is
-# long then INT_IS_long is defined; this is fastest but results in
-# overflow for large levels over larger fields.  If it is ZZ, there is
-# no overflow but the code is slower; otherwise the macro FLINT is
-# defined, there is no overflow and the code runs about 4 times slower
-# than using longs but about 5 times faster than using ZZ.
+# used to be either long or bigint (=NTL's ZZ), these being typedef'd
+# to INT, but are now always the class INT which is a wrapper around
+# FLINT's fmpz_t defined in int.h/cc.
 
-# Timings for "make check" 22/11/23:
-# INT_TYPE=long:  4m 24s =  264s
-# INT_TYPE=ZZ:   78m 25s = 4705s (~ 17.8 times slower)
-# INT_TYPE=none: 15m 47s =  947s (~  3.6 times slower)
-
-INT_TYPE=
-ifeq ($(INT_TYPE), ZZ)
- BASE_TYPE_FLAG = -D INT_IS_ZZ
-else
-ifeq ($(INT_TYPE), long)
- BASE_TYPE_FLAG = -D INT_IS_long
-else
- BASE_TYPE_FLAG = -D FLINT
- FLINT_LDFLAGS = -lflint -lgmp
-endif
-endif
+FLINT_LDFLAGS = -lflint -lgmp
 
 # NB If used with a multithreaded build of eclib then you MUST define
 # USE_BOOST=1 in Makefile.local so that the correct compiler and
@@ -75,15 +54,15 @@ ifeq ($(USE_BOOST), 1)
 endif
 
 # for profiling:
-#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+#CFLAGS = -c -g -pg $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
 #LFLAGS = -pg -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for coverage:
-#CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+#CFLAGS = -c -g --coverage $(BOOST_CPPFLAGS) -I$(INCDIR)
 #LFLAGS = --coverage -fprofile-arcs -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) $(BASE_TYPE_FLAG) -I$(INCDIR)
+CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests

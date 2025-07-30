@@ -28,55 +28,83 @@
 
 // Notes on scaling:
 //
-// For a newform F (however normalised), the periods of F are the
-// integrals of (the differential associated to) F along paths between
-// Gamma_0(N)-equivalent cusps.  These are all integral multiples of a
-// minimal positive real period P.  The map from integral homology to
-// the associated period multiple takes gamma In H_1(-,Z) to
-// n_F(gamma) = (integral of F over gamma)/P, and the image of this
-// map is (by definiton) Z.
+// For a newform F (however normalised), the *integral periods* of F
+// are the integrals of (the differential associated to) F along paths
+// between Gamma_0(N)-equivalent cusps, mutiplied by a normalising
+// factor a_K which depends only on the field.  This factor is
+// a_K=(4\pi)^2/(w*|D|), where w is the number of units and D the
+// discriminant, and is chosen so that the integral of F over {0,oo}
+// is exactly L(F,1); the factor of w accounts for F being a sum over
+// nonzero elements of the ring of integers, with the coefficients of
+// \alpha and u*\alpha begin the same for units u, while L(F,a) is a
+// sum over integral ideals.
 
-// Similarly the "cuspidal periods" of F are its integrals along all
+// These integral periods are all integral multiples of a minimal
+// positive real period P.  The map from integral homology to the
+// associated period multiple takes gamma in H_1(-,Z) to n(gamma) =
+// (scaled integral of F over gamma)/P, and the image of this map is
+// (by definition) the full integer ring Z.
+
+// Similarly the *cuspidal periods* of F are its integrals along *all*
 // paths gamma between cusps, whether or not they are
 // Gamma_0(N)-equivalent, and these are the integral multiples of a
-// least positive real cuspidal period P'.  Now P*Z is a subgroup of
-// P'*Z, and its index c is called the "cuspidal factor", also equal
-// to c=P/P'.  Let n'_F(gamma) = (integral of F over gamma)/P' for gamma
-// in H_1(-,Z; cusps).
+// least positive real cuspidal period P_cusp.  In particular, P is
+// such a multiple, say P=c*P_cusp, so P*Z is the subgroup of P_cusp*Z
+// of index c; c is called the "cuspidal factor", equal to c=P/P_cusp.
 
-// The map from gamma to n'_F(gamma) is modular and an eigenfunction
+// Let n_cusp(gamma) = (integral of F over gamma)/P_cusp for gamma in
+// H_1(-,Z; cusps).
+
+// The map from gamma to n_cusp(gamma) is modular and an eigenfunction
 // for Hecke, so is a primitive basis vector for the associated dual
 // eigenspace.  Since we do linear algebra on the dual (by transposing
 // Hecke matrices), we can compute this map, up to scaling, by simply
 // taking the dot product of our dual basis vector v with the coords
 // of gamma with respect to the homology basis.  Regardless of whether
-// our "freegens" generator the whole integral homology (w.r.t. cusps)
+// our "freegens" generates the whole integral homology (w.r.t. cusps)
 // or only a sublattice of finite index, i.e. whether denom1=1 or >1,
-// this does not nmatter since the map n'_F is primitive, so to get
-// the correct values (up to sign) we just have to divide out these
-// dot products by their gcd.
+// this does not matter since the map n_cusp is primitive, by
+// definition, so to get the correct values (up to sign) we just have
+// to divide out these dot products by the gcd of all of them.
 
-// The map n'_F(gamma) is almost encoded in the matrix projcoord
-// (created by calling make_projcoord()): its rows are indexed by
-// edges modulo edge relations, so to get the value for the j'th
-// newform on an edge (c:d)_t we find the edge number i =
+// In more detail: each edge is a (possibly rational) linear
+// combination of the "freegens" generating cuspidal homology; we have
+// a common denominator of all these (called "denom1") which we can
+// ignore.  We take the dot product of our dual basis vector v with
+// each of these, and divide out by the content of the result, to get
+// a new (longer) vector w, whose coordindates w_i, one for each edge
+// e_i (modulo edge relations), are such that the integral of F over
+// e_i is w_i*P_cusp.
+
+// Thus, by definition, the values of n_cusp(gamma) are coprime
+// integers.  The vector of these integers is the 'basis' component of
+// each newform; it has length 'ngens' with coordinates indexed by
+// edges modulo edge-relations.  We do not compute the longer vector
+// of length 'ngens'; each of its entries is 0 or +/- one of the
+// previous vector's entries, so is still a primitive integer vector.
+
+// Hence the map n_cusp(gamma) is almost encoded in the matrix
+// projcoord (created by calling make_projcoord()), whose rows are
+// indexed by edges modulo edge relations. To get the value for the
+// j'th newform on an edge (c:d)_t we find the edge number i =
 // offset(t)+index(c,d)), use that to look up
-// k=ER.coords(i)=ER.coords(index(c,d), t), and the value is
+// k = ER.coords(i) = ER.coords(index(c,d), t), and the value is
 // sign(k)*projcoord[abs(k),j].
 
-// For example n'_F({0,oo}) is obtained this way with (c,d,t)=(0,1,0).
-// Now L(F,1) is the integral of F over {0,oo} (?times a normalising
-// factor?), hence we obtain L(F,1)/P' = n'_F({0,oo}) (an integer).
-// For L(F,1)/P we divide by the cuspidal factor for F, obtaining a
-// rational.  [P=c*P' so L/P = L/(c*P') = (L/P')/c.]
+// For example, n_cusp({0,oo}) is obtained this way with
+// (c,d,t)=(0,1,0).  Now L(F,1) is the integral of F over {0,oo}
+// (scaled by a_K), hence we obtain L(F,1)/P_cusp = n_cusp({0,oo}) (an
+// integer).  For L(F,1)/P we divide by the cuspidal factor c for F,
+// obtaining the rational n_cusp({0,oo})/c.  [P=c*P_cusp so L/P =
+// L/(c*P_cusp) = (L/P_cusp)/c.]
 
-// A second way to compute L(F,1)/P' which only involves integral
+// A second way to compute L(F,1)/P_cusp which only involves integral
 // periods is to use a "Manin vector" mvp for some good prime p, which
-// is the sum over x mod p of {0,x/p}, since (1+N(p)-a(p))*n'_F({0,oo})
-// = n'_F(mvp), hence L/P' = n'_F(mvp)/(1+N(p)-a(p)).
+// is the sum over x mod p of {0,x/p}, since (1+N(p)-a(p))*n_cusp({0,oo})
+// = n_cusp(mvp), hence L/P_cusp = n_cusp(mvp)/(1+N(p)-a(p)).
 
 // NB in the newform constructor we cannot use projcoord since that is
-// only computed after all the newforms are found
+// only computed after all the newforms are found.
 
 // Sorting functions
 
@@ -120,8 +148,8 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   //cout<<"Constructing newform with eigs "<<eigs<<" and basis "<<v<<endl;
   nf=nfs;
 
-  // convert basis vector from coords w.r.t. face-gens to coords
-  // w.r.t.edge-gens:
+  // convert basis vector from coords w.r.t. homology-gens (edges mod
+  // face-relations) to coords w.r.t. edge-gens:
   if(nf->hmod)
     { // we don't have a mod p mat*vec
       mat vcol(dim(v),1);
@@ -206,6 +234,13 @@ void newform::data_from_eigs()
   if (pdot != dp0*pdot0)
     {
       cout << "Inconsistent values for L/P computed two ways!"<<endl;
+    }
+#ifdef DEBUG_LoverP
+  else
+    {
+      cout << "Consistent values for L/P computed two ways!"<<endl;
+    }
+  {
       cout << "from {0,oo} directly: " << loverp <<endl;
       cout << "pdot0 = "<<pdot0<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
@@ -214,11 +249,11 @@ void newform::data_from_eigs()
       cout << "nP0 = "<<nf->nP0<<endl;
       cout << "iP0 = "<<nf->iP0<<endl;
       cout << "eigs (size "<<eigs.size()<<") = "<<eigs<<endl;
-      cout << "ap0 = "<<nf->aP0[index]<<endl;
+      cout << "ap0 = "<<nf->aP0[index-1]<<endl;
       cout << "dp0 = "<<dp0<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
-
+#endif
   // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
   // integral over {0,M(0)} = {0,b/d} with M = [a,b;N*c,d] is a
   // nonzero multiple "matdot" of the period P.
@@ -854,7 +889,7 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   nwq = 0; // prevents any W_Q being used for splitting
 
   // goodprimes is a list of at least nap good primes (excluding those
-  // dividing characteristic if >0), includinge at least one principal
+  // dividing characteristic if >0), including at least one principal
   // one which has index iP0;
 
   nap = MAXDEPTH;
@@ -1166,7 +1201,13 @@ void newforms::fill_in_newform_data(int everything)
 
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
   find_jlist();
+#ifdef DEBUG_LoverP
+  cout << "coords of {0,oo} is " << h1->chaincd(Quad::zero, Quad::one, 0, 0) << endl;
+#endif
   zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
+#ifdef DEBUG_LoverP
+  cout << "proj of {0,oo} is " << zero_infinity << endl;
+#endif
   mvp=h1->maninvector(P0, 1);              // last 1 means use projcoord
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
@@ -1244,7 +1285,9 @@ void newform::display(void) const
       cout << "Sign of F.E. = " << sfe << endl;
       // stop outputting these as we do not use them
       // cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
-      // cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+#ifdef DEBUG_LoverP
+      cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+#endif
       // cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
       if (CMD!=0)
         cout << "Unramified self-twist by discriminant "<<CMD<<endl;
@@ -1642,6 +1685,9 @@ void newforms::make_projcoord()
   h1->projcoord.init(h1->ngens,n1ds);
   for (int j=1; j<=n1ds; j++)
     h1->projcoord.setcol(j, nflist[j-1].basis);
+#ifdef DEBUG_LoverP
+  cout << "projcoord:\n" << h1->projcoord << endl;
+#endif
 }
 
 // try to read from file, and if no data file exists, finds from scratch and stores

@@ -209,10 +209,13 @@ private:
   void find_jlist();
 
 protected:
-  oldforms *of; // pointer to one, not an array
-  Quadprime P0; int iP0; long nP0; vec mvp;
-  vector<long> aP0;
-  vec zero_infinity;
+  oldforms *of;      // pointer to one, not an array
+  Quadprime P0;      // the first good principal prime
+  int iP0;           // P0's index in the list goodprimes (indexed from 0)
+  long nP0;          // N(P0)
+  vector<long> aP0;  // vector of ap for P0 (indexed from 0)
+  vec mvp;           // Manin vector of P0
+  vec zero_infinity; // {0,oo}
 public:
   Qideal N;  // the level
   vector<Quadprime> badprimes; // list of all bad primes Q (dividing the level N)
