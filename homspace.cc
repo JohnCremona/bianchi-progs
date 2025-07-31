@@ -170,7 +170,8 @@ void homspace::kernel_delta()
       d2 = 1;
     }
 
-  tkernbas = transpose(kern.bas());         // dim(kern) x rank
+  const smat& basiskern = basis(kern);
+  tkernbas = transpose(basiskern);         // dim(kern) x rank
   if(verbose>1)
     cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
 
@@ -178,7 +179,6 @@ void homspace::kernel_delta()
   denom2 = d2;
   denom3 = denom1 * denom2;
 
-  const smat& basiskern = basis(kern);
   if (verbose)
     {
       cout << "Basis of ker(delta):\n";
@@ -241,7 +241,6 @@ int homspace::check_conjugate(int verb)
     }
 }
 
-
 //#define DEBUG_CHAIN
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
@@ -263,6 +262,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
   else
     return vec((proj? projcoord.ncols(): dimension)); // zero vector
 }
+#undef DEBUG_CHAIN
 
 vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // Instead of just {return chain(beta, proj) - chain(alpha, proj);},

@@ -5,15 +5,26 @@
 
 #include "newforms.h"
 
+inline double realnorm(const Quad& z) {  return sqrt(to_double(z.norm()));}
+// inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
+// inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
+
+
 class period_via_lf1chi {
 private:
-  Quad N; int debug;
+  Qideal N;
+  int debug;
   long limitnorm;
   double factor, sum;
-  Quad lambda; Quadlist lambdares;
+  Quad lambda;
+  vector<Quad> lambdares;
   vector<int> chitable;
-  int chi(const Quad& n) {return chitable[lambdares.locate(n%lambda)];}
-  int nap;  vector<long> aplist;
+  int chi(const Quad& n)
+  {
+    return chitable[std::distance(lambdares.begin(), std::find(lambdares.begin(), lambdares.end(), n%lambda))];
+  }
+  int nap;
+  vector<long> aplist;
   rational ratio;
   double lf1chivalue, period;
 
@@ -21,10 +32,13 @@ private:
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  explicit period_via_lf1chi (newform* f, int db=0); 
-  double getlf1chivalue() {return lf1chivalue;}
-  double getperiod() {return period;}
-  rational getratio(){/* cout<<"<getratio: "<<ratio<<">";*/ return ratio;}
+  explicit period_via_lf1chi (newform* f, int db=0);
+  double getlf1chivalue()
+  {return lf1chivalue;}
+  double getperiod()
+  {return period;}
+  rational getratio()
+  {return ratio;}
 };
 
 /*
@@ -40,7 +54,7 @@ private:
   void add(int n, int pindex, int y, int z);
 
 public:
-  periods_direct (h1newform* f); 
+  periods_direct (h1newform* f);
   ~periods_direct () {delete periods;}
 
   Complex* getperiods() {return periods;}

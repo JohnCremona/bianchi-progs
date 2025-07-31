@@ -106,7 +106,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   explicit Quad(const INT& x, const INT& y, const INT& nrm) :r(x), i(y), nm(nrm)  {}
   explicit Quad(int x, int y) :r(x), i(y)  {setnorm();}
   explicit Quad(long x, long y) :r(x), i(y)  {setnorm();}
-  explicit Quad(const bigcomplex& z);   //rounds to nearest
+  //explicit Quad(const bigcomplex& z);   //rounds to nearest
   Quad(const Quad& a) :r(a.r), i(a.i), nm(a.nm) {}
   // racb = real part of (first times conjugate of second)
   friend INT racb(const Quad& a, const Quad& b)
@@ -225,7 +225,7 @@ and maxnorm (default 1000) is the upper bound for the norms of primes.
   void subprod(long a, const Quad& b); // this -=a*b
   Quad operator% (long b) const { return Quad(INT(r%b), INT(i%b));}
   Quad operator% (const INT& b) const { return Quad(r%b, i%b);}
-  operator bigcomplex() const;
+  //operator bigcomplex() const;
   // compute a*b+c*d
   friend Quad mma(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
   // compute a*b-c*d
@@ -292,10 +292,6 @@ vector<int> chardisc(const INT& D);
 // some other general-purpose functions
 
 #include <values.h>
-
-//inline bigfloat realnorm(const Quad& z) {  return sqrt(to_bigfloat(z.norm()));}
-inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
-inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
 
 int squaremod(const Quad& a, const Quad& m, const vector<Quad>& reslist);
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist);

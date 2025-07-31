@@ -9,7 +9,7 @@
 int main ()
 {
  cout.precision(10);
- int d,maxpnorm=1000;
+ int d,maxpnorm=10000;
  cout << "Enter field: " << flush;  cin >> d;
  Quad::field(d,maxpnorm);
  Quad n; int verbose=0;
@@ -21,17 +21,16 @@ int main ()
  int both_conj=0;
  for(Quadlooper alpha(firstn,lastn,both_conj); alpha.ok(); ++alpha)
 #else
- Quad alpha;
- while(cout<<"Enter level: ", cin>>alpha, alpha!=0)
+   Qideal N;
+ while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
 #endif
    {
-     n = makepos((Quad)alpha);  long normn = n.norm();
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
-     newforms nf(n,verbose);
+     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     newforms nf(N,verbose);
      nf.read_from_file();
      nf.display();
-     int denom = nf.h1->h1denom();
-     if(denom!=1) cout << "Denom = " << denom << endl;
+     // int denom = nf.h1->h1denom();
+     // if(denom!=1) cout << "Denom = " << denom << endl;
      for(int i=0; i<nf.n1ds; i++)
        {
          cout << "\nForm number " << i+1 << ": " << endl;

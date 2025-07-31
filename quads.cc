@@ -1068,6 +1068,8 @@ string ideal_code(const Quad& N) // string code for a (principal) ideal N
 
 vector<int> makechitable(const Quad& lambda, const vector<Quad>& reslist)
 {
+  if (lambda.is_unit())
+    return {1};
   vector<int> chi(reslist.size());
   std::transform(reslist.begin(), reslist.end(), chi.begin(),
                  [lambda, reslist] (const Quad& r) {return squaremod(r,lambda,reslist);});
