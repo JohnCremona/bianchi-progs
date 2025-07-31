@@ -5,10 +5,7 @@
 
 #include "newforms.h"
 
-inline double realnorm(const Quad& z) {  return sqrt(to_double(z.norm()));}
-// inline bigfloat psif(bigcomplex z) {  return cos(4*PI*real(z));}
-// inline bigfloat psig(bigcomplex z) {  return sin(4*PI*real(z));}
-
+// Class to compute L(F,1) from a newform
 
 class period_via_lf1chi {
 private:
@@ -33,34 +30,36 @@ private:
 
 public:
   explicit period_via_lf1chi (newform* f, int db=0);
-  double getlf1chivalue()
+  double get_lf1chivalue()
   {return lf1chivalue;}
-  double getperiod()
+  double get_period()
   {return period;}
-  rational getratio()
+  rational get_ratio()
   {return ratio;}
 };
 
-/*
-class periods_direct {
-private:
-  int N,limit;
-  double theta1,theta2,efactor;
-  Complex sum;
-  int nap;  longlist aplist;  longlist primelist;
-  Complex *periods;
+// Class to compute the period of F, by computing the integral of F
+// from a to M(a) where M=[a,b;nu*c,d] in Gamma_0(nu) is a matrix
+// chosen in the newform constructor to be such that this integral is
+// a nonzero multiple of the period
 
-  void use(int n, int an);
-  void add(int n, int pindex, int y, int z);
+class period_direct {
+private:
+  Qideal N;
+  int debug;
+  long limitnorm;
+  bigcomplex theta1, theta2;
+  double factor, sum, period;
+  int nap;
+  vector<long> aplist;
+  double psi_factor(const Quad& n);
+  void use(const Quad& n, int an);
+  void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  periods_direct (h1newform* f);
-  ~periods_direct () {delete periods;}
+  period_direct (newform* f, int db=0);
 
-  Complex* getperiods() {return periods;}
+  double get_period() {return period;}
 };
-
-Complex epi(double);
-*/
 
 #endif

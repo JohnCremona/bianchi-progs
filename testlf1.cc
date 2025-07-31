@@ -34,18 +34,24 @@ int main ()
      for(int i=0; i<nf.n1ds; i++)
        {
          cout << "\nForm number " << i+1 << ": " << endl;
-         cout<<"Finding periods -- via L(f_chi)."<<endl;
+         cout<<"Finding period via L(f,chi,1)."<<endl;
          Quad lambda = nf.nflist[i].lambda;
          if(lambda!=Quad(1))
            cout<<"Using twisting prime lambda = "<<lambda<<endl;
          period_via_lf1chi per(&(nf.nflist[i]),verbose);
-         double period = per.getperiod();
-         double lf1chivalue = per.getlf1chivalue();
-         rational ratio = per.getratio();
-         cout << "Period = " << period << endl;
-         cout << "L(f_chi,1) = " << lf1chivalue << endl;
+         double period = per.get_period();
+         double lf1chivalue = per.get_lf1chivalue();
+         rational ratio = per.get_ratio();
+         cout << "Period (via L(F,chi,1)) = " << period << endl;
+         cout << "L(f,chi,1) = " << lf1chivalue << endl;
          cout << "ratio = " << ratio << endl;
-//       cout << "ratio direct from newform = " << nf.nflist[i].loverp << endl;
+
+         cout<<"Finding period by direct integration."<<endl;
+         period_direct per2(&(nf.nflist[i]),verbose);
+         double period2 = per2.get_period();
+         cout << "Period (direct) = " << period2 << endl;
+         cout << "Actual ratio = " << lf1chivalue/period2 << endl;
        }
    }
+ cout << endl;
 }

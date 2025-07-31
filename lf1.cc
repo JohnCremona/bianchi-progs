@@ -5,8 +5,21 @@
 #include "eclib/kbessel.h"
 #include "lf1.h"
 
-const double twopi = 2.0*PI;
-const double eps = 1.0e-20;   // ?? mindouble;
+// absolute value of Quad x
+double realnorm(const Quad& z) {  return sqrt(to_double(z.norm()));}
+
+// convert to a complex number
+bigcomplex to_bigcomplex(const Quad& a)
+{
+  static const bigfloat rootd = sqrt(to_bigfloat(Quad::d));
+  bigfloat x = to_bigfloat(I2long(real(a))), y = to_bigfloat(I2long(imag(a)));
+  if(Quad::t) // then y is coeff of (1+sqrt(-d))/2
+    {
+      y /= 2;
+      x += y;
+    }
+  return bigcomplex(x, y*rootd);
+}
 
 void period_via_lf1chi::use(const Quad& n, int an)
 {
@@ -21,9 +34,13 @@ void period_via_lf1chi::use(const Quad& n, int an)
 void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
 {
   int ip,istart=pindex;
-  Quad p, pn;
+  Quad p;
   long maxnorm=limitnorm/I2long(n.norm());
-  if ( y!=0 ) {use (n,y); istart=0;}
+  if ( y!=0 )
+    {
+      use(n,y);
+      istart=0;
+    }
   for(p=quadprimes[ip=istart];
       (ip<=pindex) && (p.norm()<=maxnorm);
       p=quadprimes[++ip])
@@ -44,12 +61,15 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
    debug(db),
    lambda(f->lambda),
    nap(f->aplist.size()),
+   aplist(f->aplist),
    ratio(f->loverp)
 {
   double rootdisc = sqrt((double)(I2long(Quad::absdisc))), modlambda = realnorm(lambda);
   factor = 4*PI/(rootdisc*sqrt(realnorm(N.gen()))*modlambda);
   lambdares = residues(lambda);
   chitable = makechitable(lambda, lambdares);
+  long maxnormp = I2long(quadprimes[nap-1].norm());
+  limitnorm = maxnormp;
   if(debug)
   {
     cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
@@ -58,20 +78,7 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
     cout << "residue \t chi \n";
     for(unsigned int ires=0; ires<lambdares.size(); ires++)
       cout << lambdares[ires] << "\t" << chitable[ires] << endl;
-  }
-
-//Extract the aplist from f->aplist which has all the coefficients at
-//all primes in standard order:
-  aplist = f->aplist;
-
-  if(debug)
-    {
-      cout<<"nap = "<<nap<<endl;
-    }
-  long maxnormp = I2long(quadprimes[nap-1].norm());
-  limitnorm = maxnormp;   //  for debugging only
-  if(debug)
-  {
+    cout<<"nap = "<<nap<<endl;
    cout<<"Integration using terms up to norm      "<<limitnorm<<endl;
    cout<<"            using a_p for norm(p) up to "<<maxnormp<<endl;
   }
@@ -84,18 +91,18 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
   for(int i=0; i<nap; i++)
     {
       Quad p = quadprimes[i];
-      if(debug)
+      if(debug>1)
         cout << "p= " << p << ",\ta_p = " << aplist[i];
       add(p,i,aplist[i],1);
-      if(debug)
+      if(debug>1)
         cout << "\t\tSum = " << sum << endl;
-      if (p.norm()>=limitnorm)
+      if (p.norm()>=maxnormp)
         break;
     }
 
 //Scale to get values of L(f_chi,1) and the period:
   lf1chivalue = 2*factor*sum;
-  period=lf1chivalue*modlambda/double(ratio);
+  period=abs(lf1chivalue*modlambda/double(ratio));
   if(debug)
   {
     cout<<"lf1chivalue = "<<lf1chivalue<<", ratio = "<<ratio;
@@ -104,92 +111,106 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
 }
 
 
+// psi(z) = exp(2*pi*i*Tr(z)) = cos(4*pi*x) + i*sin(4*pi*x)  where z=x+iy
 
-/*
-Complex epi(double x)
-{ double theta = 2*PI*x;
-  return Complex(cos(theta),sin(theta));
-}
+// psi1(z) = psi(z)+psi(-z) = 2*cos(4*pi*x)
 
-void periods_direct::use(int n, int an)
-{ double dn = (double)n, dan = (double)an;
-  sum += (dan/dn) * exp(dn*efactor) * (epi(dn*theta1)-epi(dn*theta2));
-}
+// psi_tilde(z) = sum of psi(eps*z) over units eps, so usually
+// psi_tilde=psi1
 
-void periods_direct::add(int n, int pindex, int y, int z)
+double psi1(bigcomplex z)
 {
-  int p,pn,ip,istart=pindex;
-  int triv = (y==0);
-  if ( ! triv ) { use (n,y); istart=0; }
-
-  for(pn=n*(p=quadprimes(ip=istart));
-      (ip<=pindex) && (pn<=limit);
-      pn=n*(p=quadprimes(++ip)))
-    { int x = y * aplist[ip];
-      if ( (ip==pindex)  && (N%p)) { x -=  p*z; }
-      add(pn,ip,x,y);
-    }
+  return to_double(cos(4*Pi()*real(z)));
 }
 
-
-periods_direct::periods_direct(h1newform*f)
-:N(level::modulus),nap(f->aplist.length)
+double psi_tilde(bigcomplex z)
 {
-//Sort out the aplist, since f_>aplist has the W_q eigs first:
-  aplist=longlist(nap);
-  int ip = level::npdivs;
-  longvar p(quadprimes);
-  for( ; p.ok(); p++)
-    { int i = p.index;
-      int j = level::plist.locate(p);  // = -1 if p is good
-      if(j+1) // then p is j'th bad prime
-        {
-          if(div(p*p,N))
-            {
-              aplist[i]=0;
-//cout << "p = " << p << "\ta_p = " << aplist[i] << endl;
-            }
-          else
-            {
-              aplist[i] = - (f->aplist)[j];
-//cout << "p = " << p << "\ta_p = " << aplist[i] << endl;
-            }
-        }
-        else  // p is good
-        {
-          aplist[i] = (f->aplist)[ip++];
-//cout << "p = " << p << "\ta_p = " << aplist[i] << endl;
-        }
-
-    }
-//  cout << "After rearranging, aplist = " << aplist << endl;
-  long maxp = prime(nap);
-  limit = maxp;
-  double a=f->a,b=f->b,c=f->c,d=f->d;
-  if (c<0) { a=-a;b=-b;c=-c;d=-d;}
-  sum = 0.0;
-  double cmodrecip =  1.0 / (c*N);
-  theta1 = -d * cmodrecip;
-  theta2 =  a * cmodrecip;
-  efactor = -2 * PI * cmodrecip;
-//n=1 term:
-  use(1,1);
-//add terms, one prime at a time:
-  for (p.init(quadprimes); p.ok()&&(p<=limit); p++)
-    { int ip=p.index;
-//      cout << "p= " << p << ",\ta_p = " << aplist[ip];
-      add(p,ip,aplist[ip],1);
-//      cout << "\t\tSum now " << sum << endl;
-    }
-  double u = real(sum)/(f->dotplus);
-  double v = imag(sum)/(f->dotminus);
-  //and then the periods:
-  periods = new Complex[2];
-  switch (f->type) {
-  case 2: periods[0]=Complex(u,0); periods[1]=Complex(0,v); break;
-        case 1: periods[0]=Complex(2*u,0); periods[1]=Complex(u,v); break;
-        }
+  static const bigcomplex eps = to_bigcomplex(fundunit);
+  switch (Quad::nunits) {
+  case 4:
+    return psi1(z) + psi1(eps*z);
+  case 6:
+    return psi1(z) + psi1(eps*z) + psi1(eps*eps*z);
+  case 2:
+  default:
+    return psi1(z);
+  }
 }
 
-*/
+double period_direct::psi_factor(const Quad& n)
+{
+  bigcomplex cn = to_bigcomplex(n);
+  return psi_tilde(cn*theta1)-psi_tilde(cn*theta2);
+}
+
+period_direct::period_direct(newform*f, int db)
+  :N(f->nf->N),
+   debug(db),
+   aplist(f->aplist)
+{
+  nap = aplist.size();
+  long maxnormp = I2long(quadprimes[nap-1].norm());
+  limitnorm = maxnormp;
+
+  Quad nu = N.gen();
+  Quad a=f->a, b=f->b, c=f->c, d=f->d; // matrix entries: [a,b;c*nu,d] is in Gamma_0(nu)
+  if (debug)
+    {
+      cout << "Matrix [a,b;c*n,d] with a="<<a<<", b="<<b<<", c="<<c<<", d="<<d<<" and matdot="<<f->matdot<<endl;
+    }
+  double rootdisc = sqrt((double)(I2long(Quad::absdisc)));
+
+  factor = 4*PI / (realnorm(nu*c)*rootdisc);
+  bigcomplex ncrD =  to_bigcomplex(nu*c)*to_bigfloat(rootdisc);
+  theta1 = to_bigcomplex(-d) / ncrD;
+  theta2 = to_bigcomplex( a) / ncrD;
+
+  //Initialize sum and use n=1 term:
+  sum = 0;
+  use(Quad(1),1);
+
+  //add terms, one prime at a time:
+  for(int i=0; i<nap; i++)
+    {
+      Quad p = quadprimes[i];
+      if(debug>1)
+        cout << "p= " << p << ",\ta_p = " << aplist[i];
+      add(p,i,aplist[i],1);
+      if (debug>1)
+        cout << "\t\tSum = " << sum << endl;
+    }
+  period = abs(sum * factor / f->matdot);
+}
+
+void period_direct::use(const Quad& n, int an)
+{
+  double rn = realnorm(n);
+  sum += double(an) * K1(rn*factor) * psi_factor(n) / rn;
+}
+
+// NB the code here is identical to period_via_lf1chi::add()
+
+void period_direct::add(const Quad& n, int pindex, int y, int z)
+{
+  int ip,istart=pindex;
+  Quad p;
+  long maxnorm=limitnorm/I2long(n.norm());
+  if ( y!=0 )
+    {
+      use(n,y);
+      istart=0;
+    }
+  for(p=quadprimes[ip=istart];
+      (ip<=pindex) && (p.norm()<=maxnorm);
+      p=quadprimes[++ip])
+  {
+   int x = y * aplist[ip];
+   if ( (ip==pindex)  && ndiv(p,N.gen()))
+     {
+       x -=  I2long(p.norm())*z;
+     }
+   add(p*n,ip,x,y);
+  }
+}
+
 
