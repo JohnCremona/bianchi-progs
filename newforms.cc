@@ -254,9 +254,9 @@ void newform::data_from_eigs()
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 #endif
-  // find (a,b,c,d) such that cusp b/d is equivalent to 0 and the
-  // integral over {0,M(0)} = {0,b/d} with M = [a,b;N*c,d] is a
-  // nonzero multiple "matdot" of the period P.
+  // find (a,b,c,d) such that N|c, cusp b/d is equivalent to 0 and the
+  // integral over {0,M(0)} = {0,b/d} with M = [a,b;c,d] is a nonzero
+  // multiple "matdot" of the period P.
 
   // NB We do not currently use this, it should be further scaled
   find_matrix();
@@ -487,7 +487,7 @@ void newform::find_matrix()
                   c /= -b;
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
-                  matdot = abs((nf->h1->chain(b,d, 1))[index]);
+                  matdot = abs((nf->h1->chain(RatQuad(0,0,1), RatQuad(b,d), 1))[index]);
                   if (matdot)
                     break;
                 } // b coprime to d test

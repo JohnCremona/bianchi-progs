@@ -28,7 +28,7 @@ int main ()
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N,verbose);
      nf.read_from_file();
-     nf.display();
+     //nf.display();
      // int denom = nf.h1->h1denom();
      // if(denom!=1) cout << "Denom = " << denom << endl;
      for(int i=0; i<nf.n1ds; i++)
@@ -41,14 +41,14 @@ int main ()
          period_via_lf1chi per(&(nf.nflist[i]),verbose);
          double period = per.get_period();
          double lf1chivalue = per.get_lf1chivalue();
-         rational ratio = per.get_ratio();
+         rational ratio = nf.nflist[i].loverp;
          cout << "Period (via L(F,chi,1)) = " << period << endl;
          cout << "L(f,chi,1) = " << lf1chivalue << endl;
          cout << "ratio = " << ratio << endl;
 
          cout<<"Finding period by direct integration."<<endl;
          period_direct per2(&(nf.nflist[i]),verbose);
-         double period2 = per2.get_period();
+         double period2 = per2.compute_base_period();
          cout << "Period (direct) = " << period2 << endl;
          cout << "Actual ratio = " << lf1chivalue/period2 << endl;
        }

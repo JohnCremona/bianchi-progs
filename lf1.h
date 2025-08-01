@@ -16,26 +16,19 @@ private:
   Quad lambda;
   vector<Quad> lambdares;
   vector<int> chitable;
-  int chi(const Quad& n)
-  {
-    return chitable[std::distance(lambdares.begin(), std::find(lambdares.begin(), lambdares.end(), n%lambda))];
-  }
-  int nap;
+  int chi_is_trivial;
   vector<long> aplist;
-  rational ratio;
+  rational loverp;
   double lf1chivalue, period;
 
+  int chi(const Quad& n);
   void use(const Quad& n, int an);
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
   explicit period_via_lf1chi (newform* f, int db=0);
-  double get_lf1chivalue()
-  {return lf1chivalue;}
-  double get_period()
-  {return period;}
-  rational get_ratio()
-  {return ratio;}
+  double get_lf1chivalue()  {return lf1chivalue;}
+  double get_period()       {return period;}
 };
 
 // Class to compute the period of F, by computing the integral of F
@@ -46,20 +39,24 @@ public:
 class period_direct {
 private:
   Qideal N;
+  Quad nu;
   int debug;
-  long limitnorm;
-  bigcomplex theta1, theta2;
-  double factor, sum, period;
-  int nap;
+  long limitnorm, maxnormp;
+  bigcomplex eta, z1, z2;
+  double rootdisc, factor, sum;
   vector<long> aplist;
+  Quad fa, fb, fc, fd; // matrix stored with f
+  long period_multiple;
   double psi_factor(const Quad& n);
   void use(const Quad& n, int an);
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
   period_direct (newform* f, int db=0);
-
-  double get_period() {return period;}
+  // Compute the period along {.,g(.)} for g in Gamma_0(N)
+  double compute_period(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
+  // Compute the period along {.,g(.)} for f's stored matrix g and divide by period_multiple
+  double compute_base_period();
 };
 
 #endif
