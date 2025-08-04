@@ -73,7 +73,7 @@ public:
   Quad a,b,c,d; int matdot;    // integration matrix and factor
   int index;             // the index of this newform (from 1)
   int j0; modsym m0; int fac, facinv;
-  long cuspidalfactor;
+  long cuspidalfactor, denomfactor;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   vector<long> genus_classes;        // list of genus classes for which we have a nonzero aP
   vector<Qideal> genus_class_ideals; // list of good primes, one in each of these classes

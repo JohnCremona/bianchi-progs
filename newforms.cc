@@ -30,18 +30,18 @@
 //
 // For a newform F (however normalised), the *integral periods* of F
 // are the integrals of (the differential associated to) F along paths
-// between Gamma_0(N)-equivalent cusps, mutiplied by a normalising
-// factor a_K which depends only on the field.  This factor is
-// a_K=(4\pi)^2/(w*|D|), where w is the number of units and D the
-// discriminant, and is chosen so that the integral of F over {0,oo}
-// is exactly L(F,1); the factor of w accounts for F being a sum over
-// nonzero elements of the ring of integers, with the coefficients of
-// \alpha and u*\alpha begin the same for units u, while L(F,a) is a
-// sum over integral ideals.
+// between Gamma_0(N)-equivalent cusps. The differential is scaled by
+// a normalising factor a_K which depends only on the field: the
+// factor is a_K=(4\pi)^2/(w*|D|), where w is the number of units and
+// D the discriminant, and is chosen so that the integral of F over
+// {0,oo} is exactly L(F,1); the factor of w accounts for F being a
+// sum over nonzero elements of the ring of integers, with the
+// coefficients of \alpha and u*\alpha begin the same for units u,
+// while L(F,a) is a sum over integral ideals.
 
 // These integral periods are all integral multiples of a minimal
 // positive real period P.  The map from integral homology to the
-// associated period multiple takes gamma in H_1(-,Z) to n(gamma) =
+// associated period multiple takes gamma in H_1(-,Z) to n_F(gamma) =
 // (scaled integral of F over gamma)/P, and the image of this map is
 // (by definition) the full integer ring Z.
 
@@ -71,17 +71,20 @@
 // combination of the "freegens" generating cuspidal homology; we have
 // a common denominator of all these (called "denom1") which we can
 // ignore.  We take the dot product of our dual basis vector v with
-// each of these, and divide out by the content of the result, to get
-// a new (longer) vector w, whose coordindates w_i, one for each edge
-// e_i (modulo edge relations), are such that the integral of F over
-// e_i is w_i*P_cusp.
+// each of these, and divide out by the content of the result (stored
+// as denomfactor), to get a new (longer) vector w, whose coordindates
+// w_i, one for each edge e_i (modulo edge relations), are such that
+// the integral of F over e_i is w_i*P_cusp.  The vectors w_i are
+// stored in each newform as 'basis', and form the columns of the
+// matrix projcoord.
 
-// Thus, by definition, the values of n_cusp(gamma) are coprime
-// integers.  The vector of these integers is the 'basis' component of
-// each newform; it has length 'ngens' with coordinates indexed by
-// edges modulo edge-relations.  We do not compute the longer vector
-// of length 'ngens'; each of its entries is 0 or +/- one of the
-// previous vector's entries, so is still a primitive integer vector.
+// Thus, by definition, the values of n_cusp(gamma) as gamma ranges
+// over Gamma_0(N) are coprime integers.  The vector of these integers
+// is the 'basis' component of each newform; it has length 'ngens'
+// with coordinates indexed by edges modulo edge-relations.  We do not
+// compute the longer vector of length 'ngens'; each of its entries is
+// 0 or +/- one of the previous vector's entries, so is still a
+// primitive integer vector.
 
 // Hence the map n_cusp(gamma) is almost encoded in the matrix
 // projcoord (created by calling make_projcoord()), whose rows are
@@ -92,19 +95,19 @@
 // sign(k)*projcoord[abs(k),j].
 
 // For example, n_cusp({0,oo}) is obtained this way with
-// (c,d,t)=(0,1,0).  Now L(F,1) is the integral of F over {0,oo}
-// (scaled by a_K), hence we obtain L(F,1)/P_cusp = n_cusp({0,oo}) (an
-// integer).  For L(F,1)/P we divide by the cuspidal factor c for F,
-// obtaining the rational n_cusp({0,oo})/c.  [P=c*P_cusp so L/P =
-// L/(c*P_cusp) = (L/P_cusp)/c.]
+// (c,d,t)=(0,1,0).  Now L(F,1) is the (scaled) integral of F over
+// {0,oo} and hence we obtain the integer L(F,1)/P_cusp =
+// n_cusp({0,oo}).  For L(F,1)/P we divide by the cuspidal factor c
+// for F, obtaining the rational n_cusp({0,oo})/c.  [P=c*P_cusp so L/P
+// = L/(c*P_cusp) = (L/P_cusp)/c.]
 
 // A second way to compute L(F,1)/P_cusp which only involves integral
 // periods is to use a "Manin vector" mvp for some good prime p, which
 // is the sum over x mod p of {0,x/p}, since (1+N(p)-a(p))*n_cusp({0,oo})
 // = n_cusp(mvp), hence L/P_cusp = n_cusp(mvp)/(1+N(p)-a(p)).
 
-// NB in the newform constructor we cannot use projcoord since that is
-// only computed after all the newforms are found.
+// NB in the newform *constructor* we cannot use projcoord since that
+// is only computed after all the newforms are found.
 
 // Sorting functions
 
@@ -159,13 +162,21 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   else
     {
       basis = (nf->h1->FR.coord)*v;
-      makeprimitive(basis); // this is now independent of h1's denom1
+      denomfactor = content(basis); // divides h1's denom1
+      if (!divides(denomfactor, nf->h1->denom1))
+        cerr << "Error: denomfactor = "<<denomfactor<<" does not divide denom = "<<nf->h1->denom1<<endl;
+      basis /= denomfactor; // basis is now independent of h1's denom1
     }
 
-  if (nf->verbose >1)
+  if (nf->verbose)
   {
-    cout << "short newform basis = "<<v<<endl;
-    cout << "long  newform basis = "<<basis<<endl;
+    cout << "denom = " << nf->h1->denom1 << endl;
+    cout << "denomfactor = "<<denomfactor << endl;
+    if (nf->verbose>1)
+      {
+        cout << "short newform basis = "<<v<<endl;
+        cout << "long  newform basis = "<<basis<<endl;
+      }
   }
   // Find the ratio of the least period w.r.t. integral homology
   // divided by the least period w.r.t. homology relative to cusps.
@@ -217,14 +228,14 @@ void newform::data_from_eigs()
       sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
     }
 
-  // compute L/P as n_F({0,oo})
+  // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
   int pdot0 = abs(nf->zero_infinity[index]);
-  loverp =  rational(pdot0, (Quad::nunits) * cuspidalfactor);
+  loverp =  rational(pdot0, cuspidalfactor);
 
   // compute L/P again using Manin vector
   dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
   pdot = abs(nf->mvp[index]);
-  rational loverp_mvp(pdot, dp0 * (Quad::nunits) * cuspidalfactor);
+  rational loverp_mvp(pdot, dp0 * cuspidalfactor);
 
   if (nf->characteristic>0)
     return;
@@ -234,6 +245,10 @@ void newform::data_from_eigs()
   if (pdot != dp0*pdot0)
     {
       cout << "Inconsistent values for L/P computed two ways!"<<endl;
+      cout << "pdot  = " <<pdot <<endl;
+      cout << "pdot0 = " <<pdot0 <<endl;
+      cout << "dp0   = " <<dp0 <<endl;
+      cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 #ifdef DEBUG_LoverP
   else
@@ -243,6 +258,7 @@ void newform::data_from_eigs()
   {
       cout << "from {0,oo} directly: " << loverp <<endl;
       cout << "pdot0 = "<<pdot0<<endl;
+      cout << "denomfactor = "<<denomfactor<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
       cout << "from Manin vector:    " << loverp_mvp <<endl;
       cout << "pdot = "<<pdot<<endl;
@@ -870,6 +886,7 @@ void newforms::makeh1plus(void)
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch), have_bases(0)
 {
+  //  cout<<"In newforms constructor with level = "<<ideal_label(N)<<endl;
   nchi = 1<<n2r;
   level_is_square = N.is_square();
 
@@ -1018,7 +1035,7 @@ void newforms::find_lambdas()
 #ifdef DEBUG_LAMBDA
                       if(verbose)cout<<"Success! ";
 #endif
-                      nfj.loverp = rational(ldot, Quad::nunits * nfj.cuspidalfactor);
+                      nfj.loverp = rational(ldot, nfj.cuspidalfactor);
                       nfj.lambda = lam;
                       nfj.lambdadot = ldot;
                       gotlambda[j] = 1;
@@ -1201,14 +1218,14 @@ void newforms::fill_in_newform_data(int everything)
 
   make_projcoord();    // Compute homspace::projcoord before filling in newform data
   find_jlist();
-#ifdef DEBUG_LoverP
-  cout << "coords of {0,oo} is " << h1->chaincd(Quad::zero, Quad::one, 0, 0) << endl;
-#endif
+  vec zero_infinity_coords = h1->chaincd(Quad::zero, Quad::one, 0, 0);
   zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
+  mvp = h1->maninvector(P0, 1);              // last 1 means use projcoord
 #ifdef DEBUG_LoverP
-  cout << "proj of {0,oo} is " << zero_infinity << endl;
+  cout << "coords of {0,oo} is " << zero_infinity_coords << endl;
+  cout << "proj   of {0,oo} is " << zero_infinity << endl;
+  cout << "proj   of mvp    is " << mvp << endl;
 #endif
-  mvp=h1->maninvector(P0, 1);              // last 1 means use projcoord
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
   if (everything)
@@ -1253,9 +1270,15 @@ void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
           nflist[use_nf_number].basis = reduce_modp(matmulmodp(h1->FR.coord, vcol, hmod).col(1), DEFAULT_MODULUS);
         }
       else
-        nflist[use_nf_number].basis = (h1->FR.coord)*b1;
-      if (characteristic==0)
-        makeprimitive(nflist[use_nf_number].basis); // this is now independent of h1's denom1
+        {
+          nflist[use_nf_number].basis = (h1->FR.coord)*b1;
+          if (characteristic==0)
+            {
+              nflist[use_nf_number].denomfactor = content(nflist[use_nf_number].basis);
+              nflist[use_nf_number].basis /= nflist[use_nf_number].denomfactor;
+              // basis is now independent of h1's denom1
+            }
+        }
     }
 }
 
@@ -1674,7 +1697,7 @@ void newforms::sort_lmfdb(void)
 // Each has ngens rows (ngens = number of edges modulo
 // edge-relations).  coord has rk columns, and the i'th row of coord
 // gives the coordinates of the i'th generating edge with respect to
-// the basis modulo face-realations, these begin implicitly scaled by
+// the basis modulo face-relations, these begin implicitly scaled by
 // denom1.  projcoord has n1ds columns, and the i'th row gives the
 // coords with respect to the (partial) basis of eigenforms; its
 // columns are primitive and uniquely determined (up to sign),
