@@ -111,18 +111,21 @@ public:
           const vector<long>& aq, const vector<long>& ap);
 
   // After finding all newforms using the basic constructor and
-  // setting h1's projcoord, fill in the rest of the data for this,
-  // extracting the aqlist from eigs:
-  //  - aq and sfe from eigs // using compute_AL()
-  //  - L/P                  // using compute_loverp()
-  //  - integration matrix  // using find_matrix()
+  // setting h1's projcoord and bigtkernbas, fill in the rest of the
+  // data for this, extracting the aqlist from eigs:
 
-  void data_from_eigs(int AL=1, int LP=1, int M=1);
+  //  - aq and sfe from eigs // using compute_AL()
+  //  - cuspidalfactor
+  //  - L/P                  // using compute_loverp()
+  //  - integration matrix   // using find_matrix()
+
   // Compute AL eigs and SFE
   void compute_AL();
-  // Compute L/P ratio
+  // Compute cuspidalfactor (needs long basis and bigtkernbas)
+  void compute_cuspidalfactor();
+  // Compute L/P ratio (needs cuspidalfactor)
   void compute_loverp();
-  // Find matrix for integration:
+  // Find matrix for integration (needs cuspidalfactor)
   void find_matrix();
 
 
@@ -192,7 +195,7 @@ private:
 
   // For the automatic finding of 1-dimensional egenspaces we need to
   // interface with eclib's splitter class, which wants to know thw
-  // i'th operator matix and its possible eigenvalues, for i=0,1,2,...
+  // i'th operator matrix and its possible eigenvalues, for i=0,1,2,...
 
   // the list of matrices defining the i'th operator:
   matop h1matop(int);
@@ -204,6 +207,9 @@ private:
   vector<vector<long>> eigranges;
 
   long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
+
+  // Compute a long basis vector from a short one
+  vec lengthen_basis(const vec& sbasis);
 
   long j0; // single j0 in 1..ngens, a pivot for all newforms, or 0
   std::set<long> jlist; // set of j in 1..ngens, including pivots for all newforms
@@ -274,7 +280,7 @@ private:
   // AL-eigenvalues and SFE (if AL)l
   // loverp if LPl
   // integration matrix and multiple (if M);
-  void fill_in_newform_data(int AL=1, int LP=1, int M=1);
+  void fill_in_newform_data(int AL=1, int CF=1, int LP=1, int M=1);
   void find_lambdas();
 
   // add newform with basis b1, eiglist eigs to current list (b2 not used)

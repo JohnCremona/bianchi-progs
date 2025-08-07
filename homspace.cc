@@ -156,7 +156,7 @@ void homspace::kernel_delta()
   scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
   vec pivs, npivs;
   int d2;
-  smat sdeltamat(deltamat);
+  sdeltamat = smat(deltamat);
   kern = kernel(sdeltamat, modulus);
   if (characteristic==0)
     {
