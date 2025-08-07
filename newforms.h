@@ -73,7 +73,7 @@ public:
   Quad a,b,c,d; int matdot;    // integration matrix and factor
   int index;             // the index of this newform (from 1)
   int j0; modsym m0; int fac, facinv;
-  long cuspidalfactor, denomfactor;
+  long cuspidalfactor;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   vector<long> genus_classes;        // list of genus classes for which we have a nonzero aP
   vector<Qideal> genus_class_ideals; // list of good primes, one in each of these classes
@@ -113,12 +113,18 @@ public:
   // After finding all newforms using the basic constructor and
   // setting h1's projcoord, fill in the rest of the data for this,
   // extracting the aqlist from eigs:
-  //  - aq and sfe from eigs
-  //  - L/P
-  //  - manin vector data
+  //  - aq and sfe from eigs // using compute_AL()
+  //  - L/P                  // using compute_loverp()
   //  - integration matrix  // using find_matrix()
 
-  void data_from_eigs();
+  void data_from_eigs(int AL=1, int LP=1, int M=1);
+  // Compute AL eigs and SFE
+  void compute_AL();
+  // Compute L/P ratio
+  void compute_loverp();
+  // Find matrix for integration:
+  void find_matrix();
+
 
   // When a newform has been read from file, we have the aqlist and
   // aplist but not the sequence of eigs in order.  This is needed
@@ -146,8 +152,7 @@ public:
 
   void display(void) const;
   void list(string prefix, long nap=-1);
-  // To find matrix for integration:
-  void find_matrix();
+
   // Test if form is base-change
   int is_base_change(void);
   // Test if form is base-change up to twist
@@ -258,11 +263,18 @@ public:
 
 private:
   // Compute the associated homspace
-  void makeh1plus(void);
+  void makeh1(void);
   // Set projcoord member of homspace
   void make_projcoord(void);
-  // fill in extra data in each newforms:
-  void fill_in_newform_data(int everything=1);
+  // Set bigtkernbas member of homspace
+  void make_bigtkernbas(void);
+  // fill in extra data for all:
+  // projcoord, jlist, zero_infinity, mvp, lambdas
+  // and, for each newform:
+  // AL-eigenvalues and SFE (if AL)l
+  // loverp if LPl
+  // integration matrix and multiple (if M);
+  void fill_in_newform_data(int AL=1, int LP=1, int M=1);
   void find_lambdas();
 
   // add newform with basis b1, eiglist eigs to current list (b2 not used)

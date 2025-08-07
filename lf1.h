@@ -59,4 +59,10 @@ public:
   double compute_base_period();
 };
 
+// absolute value of Quad x
+double realnorm(const Quad& z);
+
+// convert to a complex number
+bigcomplex to_bigcomplex(const Quad& a);
+
 #endif

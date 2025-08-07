@@ -13,6 +13,7 @@ public:
   face_relations(edge_relations*, int plus, int verb=0, long ch=0);
   long ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
+  mat get_coord() const {return coord;}
   long get_denom() const {return denom;}
   long get_rank() const {return rk;}
   long get_hmod() const {return hmod;}
@@ -56,7 +57,7 @@ private:
 #else
   mat relmat;
 #endif
-protected:
+  protected:
   mat coord;
   friend class newform;
   friend class newforms;

@@ -18,26 +18,20 @@
                                         // all aP for P in this class
                                         // are 0.
 
-// This flag is only for use when updating the schema of the newforms
-// files to include the BC and CM fields, so we can read in data files
-// without these (but output files with them).  When the data format
-// conversion is complete, the flag can be removed and some lines
-// removed below in the two places it is used.
-
-//#define NO_BC_CM
-
 // Notes on scaling:
 //
-// For a newform F (however normalised), the *integral periods* of F
-// are the integrals of (the differential associated to) F along paths
-// between Gamma_0(N)-equivalent cusps. The differential is scaled by
-// a normalising factor a_K which depends only on the field: the
-// factor is a_K=(4\pi)^2/(w*|D|), where w is the number of units and
-// D the discriminant, and is chosen so that the integral of F over
-// {0,oo} is exactly L(F,1); the factor of w accounts for F being a
-// sum over nonzero elements of the ring of integers, with the
-// coefficients of \alpha and u*\alpha begin the same for units u,
-// while L(F,a) is a sum over integral ideals.
+// For a newform F (however scaled / normalised), the *integral
+// periods* of F are the integrals of (the differential associated to)
+// F along paths between Gamma_0(N)-equivalent cusps. The differential
+// is scaled by a normalising factor a_K, which depends only on the
+// field: the factor is a_K=(4\pi)^2/(w*|D|), where w is the number of
+// units and D the discriminant; this is chosen so that the integral
+// of F over {0,oo}, denoted I_F({0,oo}) = L(F,1).
+
+// [The factor of w accounts for F being a sum over nonzero elements of
+// the ring of integers, with the coefficients of \alpha and u*\alpha
+// being the same for units u, while L(F,a) is a sum over integral
+// ideals.]
 
 // These integral periods are all integral multiples of a minimal
 // positive real period P.  The map from integral homology to the
@@ -71,12 +65,11 @@
 // combination of the "freegens" generating cuspidal homology; we have
 // a common denominator of all these (called "denom1") which we can
 // ignore.  We take the dot product of our dual basis vector v with
-// each of these, and divide out by the content of the result (stored
-// as denomfactor), to get a new (longer) vector w, whose coordindates
-// w_i, one for each edge e_i (modulo edge relations), are such that
-// the integral of F over e_i is w_i*P_cusp.  The vectors w_i are
-// stored in each newform as 'basis', and form the columns of the
-// matrix projcoord.
+// each of these, and divide out by the content of the result, to get
+// a new longer primitive vector w, whose coordindates w_i, one for
+// each edge e_i (modulo edge relations), are such that the integral
+// of F over e_i is w_i*P_cusp.  The vectors w_i are stored in each
+// newform as 'basis', and form the columns of the matrix projcoord.
 
 // Thus, by definition, the values of n_cusp(gamma) as gamma ranges
 // over Gamma_0(N) are coprime integers.  The vector of these integers
@@ -162,7 +155,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   else
     {
       basis = (nf->h1->FR.coord)*v;
-      denomfactor = content(basis); // divides h1's denom1
+      long denomfactor = content(basis); // divides h1's denom1
       if (!divides(denomfactor, nf->h1->denom1))
         cerr << "Error: denomfactor = "<<denomfactor<<" does not divide denom = "<<nf->h1->denom1<<endl;
       basis /= denomfactor; // basis is now independent of h1's denom1
@@ -171,8 +164,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   if (nf->verbose)
   {
     cout << "denom = " << nf->h1->denom1 << endl;
-    cout << "denomfactor = "<<denomfactor << endl;
-    if (nf->verbose>1)
+    if (nf->verbose)
       {
         cout << "short newform basis = "<<v<<endl;
         cout << "long  newform basis = "<<basis<<endl;
@@ -187,7 +179,7 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
     }
   else
     {
-      cuspidalfactor = content((nf->h1->tkernbas)*v);
+      cuspidalfactor = content((nf->h1->bigtkernbas)*basis);
       if(nf->verbose)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
@@ -205,29 +197,19 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   possible_self_twists = nf->possible_self_twists; // may be cut down on computing aP later
 }
 
-// Fill in data for one newform. This assumes we have:
-
-// cuspidalfactor
-
-// and computes
-
-//  - L/P (uses cuspidalfactor)
-//  - dp0, pdot (uses nP0, aP0, mvp from newform class)
-//  - a,b,c,d,matdot (integration data) via find_matrix()
-
-void newform::data_from_eigs()
+// Compute AL eigs and SFE: fills aqlist and sets sfe
+// Requires h1
+void newform::compute_AL()
 {
-  // compute A-L eigenvalues now in odd class number, else they are
-  // computed in getap()
+  aqlist.resize(nf->badprimes.size());
+  std::transform(nf->badprimes.begin(), nf->badprimes.end(), aqlist.begin(),
+                 [this] ( Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
+  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+}
 
-  if (Quad::class_group_2_rank==0)
-    {
-      aqlist.resize(nf->badprimes.size());
-      std::transform(nf->badprimes.begin(), nf->badprimes.end(), aqlist.begin(),
-                     [this] ( Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
-      sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
-    }
-
+// Compute L/P ratio
+void newform::compute_loverp()
+{
   // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
   int pdot0 = abs(nf->zero_infinity[index]);
   loverp =  rational(pdot0, cuspidalfactor);
@@ -237,11 +219,7 @@ void newform::data_from_eigs()
   pdot = abs(nf->mvp[index]);
   rational loverp_mvp(pdot, dp0 * cuspidalfactor);
 
-  if (nf->characteristic>0)
-    return;
-
   // Check they agree:
-
   if (pdot != dp0*pdot0)
     {
       cout << "Inconsistent values for L/P computed two ways!"<<endl;
@@ -258,24 +236,50 @@ void newform::data_from_eigs()
   {
       cout << "from {0,oo} directly: " << loverp <<endl;
       cout << "pdot0 = "<<pdot0<<endl;
-      cout << "denomfactor = "<<denomfactor<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
       cout << "from Manin vector:    " << loverp_mvp <<endl;
       cout << "pdot = "<<pdot<<endl;
       cout << "nP0 = "<<nf->nP0<<endl;
       cout << "iP0 = "<<nf->iP0<<endl;
-      cout << "eigs (size "<<eigs.size()<<") = "<<eigs<<endl;
+      cout << "eigs (size "<<eigs.size()<<") = ";
+      vec_out(cout, eigs, 10);
+      cout<<endl;
       cout << "ap0 = "<<nf->aP0[index-1]<<endl;
       cout << "dp0 = "<<dp0<<endl;
       cout << "cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 #endif
-  // find (a,b,c,d) such that N|c, cusp b/d is equivalent to 0 and the
-  // integral over {0,M(0)} = {0,b/d} with M = [a,b;c,d] is a nonzero
-  // multiple "matdot" of the period P.
+ }
 
-  // NB We do not currently use this, it should be further scaled
-  find_matrix();
+// Fill in data for one newform. This assumes we have:
+
+// cuspidalfactor
+
+// and computes
+
+//  - L/P (uses cuspidalfactor)
+//  - dp0, pdot (uses nP0, aP0, mvp from newform class)
+//  - a,b,c,d,matdot (integration data) via find_matrix()
+
+void newform::data_from_eigs(int AL, int LP, int M)
+{
+  // compute A-L eigenvalues now in odd class number, else they are
+  // computed in getap()
+  if (AL && Quad::class_group_2_rank==0)
+    compute_AL();
+
+  if (nf->characteristic>0)
+    return;
+
+  // compute L/P ratio
+  if (LP)
+    compute_loverp();
+
+  // find M=[a,b;c,d] in Gamma_0(N) (i.e. N|c, det=1), so cusp b/d is
+  // equivalent to 0 and the integral over {0,M(0)} = {0,b/d} is a
+  // nonzero multiple "matdot" of the base period P0.
+  if (M)
+    find_matrix();
 }
 
 // When a newform has been read from file, we have the aqlist and
@@ -438,8 +442,8 @@ newform::newform(newforms* nfs, int ind,
       //  cout<<"sfe from file = "<<sfe<<endl;
       pdot = intdata[1];
       dp0 = intdata[2];
-      loverp = rational(abs(pdot),dp0*(Quad::nunits));
       cuspidalfactor = intdata[3];
+      loverp = rational(abs(pdot),dp0*cuspidalfactor);
       lambda = Quaddata[0];
       lambdadot = intdata[4];
       a = Quaddata[1];
@@ -447,17 +451,9 @@ newform::newform(newforms* nfs, int ind,
       c = Quaddata[3];
       d = Quaddata[4];
       matdot = intdata[5];
-#ifndef NO_BC_CM
       bc = intdata[6];
       cm = intdata[7];
       CMD = intdata[8];
-#else
-      bc = 4; // will be set by calling base_change_code() to 0, or a
-              // square-free integer if base-change or twist of b.c.
-      cm = 1; // will be set by calling is_CM() to 0, or a a negative
-              // square-free integer if CM
-      CMD = intdata[6];
-#endif
       aqlist = aq;
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
       int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
@@ -503,9 +499,22 @@ void newform::find_matrix()
                   c /= -b;
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
-                  matdot = abs((nf->h1->chain(RatQuad(0,0,1), RatQuad(b,d), 1))[index]);
+                  RatQuad q(b,d);
+                  matdot = abs((nf->h1->chain(q, 1))[index]);
+                  //cout << "Period from {0,"<<q<<"}, unscaled multiple "<<matdot<<endl;
                   if (matdot)
-                    break;
+                    {
+                      if (divides(cuspidalfactor, matdot))
+                        matdot /= cuspidalfactor;
+                      else
+                        cout << "Error: unscaled matdot = " << matdot
+                             << " is not divisible by cuspidalfactor " << cuspidalfactor << endl;
+                      if (matdot)
+                        {
+                          //cout << "Using period from {0,"<<q<<"}, multiple "<<matdot<<endl;
+                          break;
+                        }
+                    }
                 } // b coprime to d test
             } // loop over b
         } // d coprime to N test
@@ -874,7 +883,7 @@ newform newform::twist(const INT& D)
   return f;
 }
 
-void newforms::makeh1plus(void)
+void newforms::makeh1(void)
 {
   if(!h1)
     {
@@ -1054,7 +1063,7 @@ void newforms::find()
 {
   if(verbose)
     cout<<"Constructing homspace at level "<<ideal_label(N)<<" ...\n";
-  makeh1plus();
+  makeh1();
 
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
@@ -1212,7 +1221,7 @@ void newforms::find()
 }
 
 // fill in extra data in each newform:
-void newforms::fill_in_newform_data(int everything)
+void newforms::fill_in_newform_data(int AL, int LP, int M)
 {
   if(n1ds==0) return; // no work to do
 
@@ -1228,12 +1237,11 @@ void newforms::fill_in_newform_data(int everything)
 #endif
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
   if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
-  if (everything)
-    for (int j=0; j<n1ds; j++)
-      {
-        nflist[j].index = j+1;
-        nflist[j].data_from_eigs();
-      }
+  for (int j=0; j<n1ds; j++)
+    {
+      nflist[j].index = j+1;
+      nflist[j].data_from_eigs(AL, LP, M);
+    }
 
   // Find the twisting primes for each newform (more efficient to do
   // this here instead of within the newform constructors, as one lambda
@@ -1274,8 +1282,8 @@ void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
           nflist[use_nf_number].basis = (h1->FR.coord)*b1;
           if (characteristic==0)
             {
-              nflist[use_nf_number].denomfactor = content(nflist[use_nf_number].basis);
-              nflist[use_nf_number].basis /= nflist[use_nf_number].denomfactor;
+              long denomfactor = content(nflist[use_nf_number].basis);
+              nflist[use_nf_number].basis /= denomfactor;
               // basis is now independent of h1's denom1
             }
         }
@@ -1310,8 +1318,8 @@ void newform::display(void) const
       // cout << "Twisting prime lambda = " << lambda << ", factor = " << lambdadot << endl;
 #ifdef DEBUG_LoverP
       cout << "L/P ratio    = " << loverp << ", cuspidal factor = " << cuspidalfactor << endl;
+      cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
 #endif
-      // cout << "Integration matrix = [" << a << "," << b << ";" << c << "," << d << "], factor   = " << matdot << endl;
       if (CMD!=0)
         cout << "Unramified self-twist by discriminant "<<CMD<<endl;
     }
@@ -1709,8 +1717,23 @@ void newforms::make_projcoord()
   for (int j=1; j<=n1ds; j++)
     h1->projcoord.setcol(j, nflist[j-1].basis);
 #ifdef DEBUG_LoverP
-  cout << "projcoord:\n" << h1->projcoord << endl;
+  cout << "projcoord (transpose):\n" << transpose(h1->projcoord) << endl;
+  cout << "basis of ker(delta) (rows):\n" << h1->tkernbas.as_mat() <<endl;
 #endif
+}
+
+// Set bigtkernbas member of homspace
+
+// The rows of h1->tkernbas are a basis for ker(delta) with respect to
+// the freegens basis for homology (rel cusps), but this is not a
+// basis for the integral homology when h1->denom>1.  Instead we need
+// a basis with respect to the gens.
+void newforms::make_bigtkernbas(void)
+{
+  // 'big' version bigtkernbas
+  scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
+  smat bigdeltamat(h1->deltamat * transpose(h1->FR.get_coord()));
+  h1->bigtkernbas = transpose(basis(kernel(bigdeltamat, modulus)));
 }
 
 // try to read from file, and if no data file exists, finds from scratch and stores
@@ -1822,12 +1845,10 @@ int newforms::read_from_file()
       for (i=0; i<n1ds; i++) data>>Quaddata[i][4]; // d
       for (i=0; i<n1ds; i++) data>>intdata[i][5];  // matdot
       int iCMD=6;
-#ifndef NO_BC_CM
       for (i=0; i<n1ds; i++) data>>intdata[i][6];  // bc
       //for (i=0; i<n1ds; i++) intdata[i][6]=4;  // temp fix to to recompute bc
       for (i=0; i<n1ds; i++) data>>intdata[i][7];  // cm
       iCMD=8;
-#endif
       if (n2r>0)
         for (i=0; i<n1ds; i++) data>>intdata[i][iCMD];  // CMD
       else
@@ -1889,7 +1910,7 @@ int newforms::read_from_file()
 void newforms::makebases()
 {
   if(have_bases) return;
-  makeh1plus();  // create the homology space if not yet
+  makeh1();  // create the homology space if not yet
   sort_eigs();   // sort the newforms by their eigs list for efficient basis recovery
   // fill the h1matops and eigranges lists with empties; the functions
   // h1matop(i) and eigrange(i) will compute and store these the first
@@ -1904,14 +1925,18 @@ void newforms::makebases()
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {
-      if (verbose) cout<<"Recovering newform #"<<(use_nf_number+1)
-                       <<", eigs "<<nflist[use_nf_number].eigs<< "...\n";
+      if (verbose)
+        {
+          cout<<"Recovering newform #"<<(use_nf_number+1) <<", eigs ";
+          vec_out(cout, nflist[use_nf_number].eigs, 10);
+          cout<< "...\n";
+        }
       splitspace.splitoff(nflist[use_nf_number].eigs);
     }
   if(verbose) cout<<"Finished recovering newform bases, resorting back into lmfdb order..."<<endl;
   sort_lmfdb();
   if(verbose>1) cout<<"Filling in newform data..."<<endl;
-  fill_in_newform_data(0);
+  fill_in_newform_data(0, 1, 1); // no need to recompute ALs, but do recompute loverp and integration  matrix
   have_bases=1;
   if(verbose) cout<<"Finished makebases()"<<endl;
 }

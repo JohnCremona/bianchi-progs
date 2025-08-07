@@ -20,7 +20,8 @@ public:
   long ngens, nsymb, nap, nwq;
 
   ssubspace kern;
-  smat tkernbas; // transpose of kernel(delta) basis
+  mat deltamat;
+  smat tkernbas, bigtkernbas; // transpose of kernel(delta) basis in terms of freegens, gens
   vector<modsym> freemods;
   vector<int> freegens;
   mat projcoord;

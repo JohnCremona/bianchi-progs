@@ -144,7 +144,7 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
 
 double psi1(bigcomplex z)
 {
-  return to_double(cos(4*Pi()*real(z)));
+  return 2*to_double(cos(4*Pi()*real(z)));
 }
 
 double psi_tilde(bigcomplex z)
@@ -163,8 +163,9 @@ double psi_tilde(bigcomplex z)
 
 double period_direct::psi_factor(const Quad& n)
 {
+  // NB we divide by the number of units, correcting the formula (2.9) in Cremona-Whitley
   bigcomplex cn = to_bigcomplex(n);
-  return psi_tilde(cn*z1)-psi_tilde(cn*z2);
+  return (psi_tilde(cn*z1)-psi_tilde(cn*z2)) / Quad::nunits;
 }
 
 period_direct::period_direct(newform*f, int db)
