@@ -182,14 +182,14 @@ void newform::compute_AL()
 // Compute cuspidalfactor (needs long basis and bigtkernbas)
 void newform::compute_cuspidalfactor()
 {
-  if(nf->characteristic)
+  if(nf->characteristic || Quad::class_number>1)
     {
-      cuspidalfactor=1;
+      cuspidalfactor=1; // place-holder
     }
   else
     {
       cuspidalfactor = content((nf->h1->bigtkernbas)*basis);
-      if(nf->verbose)
+      if(nf->verbose>1)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
 }
@@ -197,13 +197,14 @@ void newform::compute_cuspidalfactor()
 // Compute L/P ratio (needs cuspidalfactor)
 void newform::compute_loverp()
 {
-  // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
   int pdot0 = abs(nf->zero_infinity[index]);
+  dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
+  pdot = abs(nf->mvp[index]);
+
+  // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
   loverp =  rational(pdot0, cuspidalfactor);
 
   // compute L/P again using Manin vector
-  dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
-  pdot = abs(nf->mvp[index]);
   rational loverp_mvp(pdot, dp0 * cuspidalfactor);
 
   // Check they agree:
@@ -1186,8 +1187,11 @@ void newforms::fill_in_newform_data(int AL, int CF, int LP, int M)
   if(n1ds==0) return; // no work to do
   make_projcoord();    // Compute homspace::projcoord and homspace::bigtkernbas
   //cout<<" - projcoord computed:\n"<<h1->projcoord<<endl;
-  make_bigtkernbas();  //  before filling in newform data
-  //cout<<" - bigtkernbas computed:\n"<<h1->bigtkernbas<<endl;
+  if (Quad::class_number == 1)
+    {
+      make_bigtkernbas();  //  before filling in newform data
+      //cout<<" - bigtkernbas computed:\n"<<h1->bigtkernbas<<endl;
+    }
   find_jlist();
   vec zero_infinity_coords = h1->chaincd(Quad::zero, Quad::one, 0, 0);
   zero_infinity = h1->chaincd(Quad::zero, Quad::one, 0, 1); // last 1 means use projcoord
@@ -1725,6 +1729,8 @@ void newforms::make_projcoord()
 // the freegens basis for homology (rel cusps), but this is not a
 // basis for the integral homology when h1->denom>1.  Instead we need
 // a basis with respect to the gens.
+
+// We only call this when the class number is 1
 void newforms::make_bigtkernbas(void)
 {
   // 'big' version bigtkernbas
@@ -1907,7 +1913,7 @@ int newforms::read_from_file()
   return 1;
 }
 
-void newforms::makebases()
+void newforms::makebases(int extra_data)
 {
   if(have_bases) return;
   makeh1();  // create the homology space if not yet
@@ -1935,11 +1941,19 @@ void newforms::makebases()
     }
   if(verbose) cout<<"Finished recovering newform bases, resorting back into lmfdb order..."<<endl;
   sort_lmfdb();
-  if(verbose>1) cout<<"Filling in newform data..."<<endl;
-  // no need to recompute ALs, but do recompute cuspidalfactor, loverp and integration  matrix
-  fill_in_newform_data(0, 1, 1, 1);
+  if (extra_data)
+    {
+      if(verbose>1) cout<<"Filling in newform data..."<<endl;
+      // no need to recompute ALs, but do recompute cuspidalfactor, loverp and integration  matrix
+      fill_in_newform_data(0, 1, 1, 1);
+    }
   have_bases=1;
-  if(verbose) cout<<"Finished makebases()"<<endl;
+  if(verbose)
+    {
+      cout<<"Finished makebases()";
+      //if (extra_data) cout<<" with extra data";
+      cout<<endl;
+    }
 }
 
 // getap() calls apvec(P) to compute eigenvalues e for each newform,

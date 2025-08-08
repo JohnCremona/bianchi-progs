@@ -63,6 +63,7 @@ endif
 
 #for normal use:
 CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+#CFLAGS = -c -g $(OPTFLAG) -DDEBUG_LoverP $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
@@ -71,7 +72,7 @@ ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
-ccs3: testlf1.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
+ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc flint_test
@@ -99,7 +100,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -221,8 +222,8 @@ makenf_loop: makenf_loop.o $(OBJS)
 pmanin: pmanin.o $(OBJS)
 	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
 
-testlf1: testlf1.o lf1.o $(OBJS)
-	$(CC) -o testlf1 testlf1.o lf1.o $(OBJS) $(LFLAGS)
+lf1_periods: lf1_periods.o lf1.o $(OBJS)
+	$(CC) -o lf1_periods lf1_periods.o lf1.o $(OBJS) $(LFLAGS)
 
 nftest: nftest.o $(OBJS)
 	$(CC) -o nftest nftest.o $(OBJS) $(LFLAGS)

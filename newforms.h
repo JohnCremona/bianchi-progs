@@ -277,8 +277,8 @@ private:
   // fill in extra data for all:
   // projcoord, jlist, zero_infinity, mvp, lambdas
   // and, for each newform:
-  // AL-eigenvalues and SFE (if AL)l
-  // loverp if LPl
+  // AL-eigenvalues and SFE (if AL);
+  // loverp if LP;
   // integration matrix and multiple (if M);
   void fill_in_newform_data(int AL=1, int CF=1, int LP=1, int M=1);
   void find_lambdas();
@@ -316,7 +316,8 @@ private:
   // try to read from file, and if no data file exists, finds from scratch and stores
   void read_from_file_or_find();
   // if created from stored data but need bases and homspace
-  void makebases();
+  // (if extra_data, also recompute cuspidalfactor, loverp, integration data)
+  void makebases(int extra_data=1);
 
   // Conjugate data: NB this *only* conjugates data needed for
   // output_to_file(), not everything!

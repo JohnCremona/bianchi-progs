@@ -44,17 +44,6 @@ int main ()
  cerr<<"Enter first and last norm for Quads: ";
  cin >> firstn >> lastn;
 
- // // Open file for output of dimension table
- // stringstream dimtabfilename;
- // dimtabfilename << getenv("NF_DIR");
- // if (dimtabfilename.str().empty())
- //   {
- //     dimtabfilename.clear();
- //     dimtabfilename<<"./newforms";
- //   }
- // dimtabfilename << "/dimtabeis."<<d<<"."<<firstn<<"-"<<lastn;
- // ofstream dimtab(dimtabfilename.str().c_str());
-
  // This loop only covers one of each conjugate pair.  For levels not
  // Galois stable, if both_conj is true and output is true, we'll
  // output the conjugate data too.
@@ -81,19 +70,6 @@ int main ()
        }
 #endif
      nf.find();
-
-// #ifdef LOOPER
-//      int dimcusp, dimeis, dimall;
-//      // output lines as in dimtabeis:
-//      dimtab << d << "\t2\t";           // field and weight
-//      dimtab << label<<"\t\t"; // level and norm
-//      dimcusp = nf.h1->h1cuspdim();
-//      dimall = nf.h1->h1dim();
-//      dimeis = dimall-dimcusp;
-//      dimtab << dimall << "\t\t"
-//             << dimcusp << "\t\t"
-//             << dimeis << endl;
-// #endif
 
      // So far the newforms may include some "fake rationals" so don't
      //display yet
@@ -134,9 +110,6 @@ int main ()
 
        }
      cout<<"==========================================="<<endl;
-   }
- cout<<endl;
-// #ifdef LOOPER
-//  dimtab.close();
-// #endif
+       }
+     cout<<endl;
 }

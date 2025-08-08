@@ -42,10 +42,6 @@ int main ()
      nf.read_from_file();
 #ifdef RECOMPUTE_RATIOS
      nf.makebases();
-     int denom = nf.h1->h1denom();
-     if(denom!=1) cout << "Denom = " << denom << endl;
-     int cdenom = nf.h1->h1cdenom();
-     if(cdenom!=1) cout << "c-Denom = " << cdenom << endl;
 #endif
      if (verbose)
        nf.display();
