@@ -1737,7 +1737,7 @@ void newforms::make_bigtkernbas(void)
   scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
-  smat bigdeltamat = h1->sdeltamat * smat(tcoord);
+  smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);
   //cout<<" *** computed bigdeltamat: "<<bigdeltamat<<endl;
   h1->bigtkernbas = transpose(basis(kernel(bigdeltamat, modulus)));
 }

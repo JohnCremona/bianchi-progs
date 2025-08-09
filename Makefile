@@ -225,6 +225,9 @@ pmanin: pmanin.o $(OBJS)
 lf1_periods: lf1_periods.o lf1.o $(OBJS)
 	$(CC) -o lf1_periods lf1_periods.o lf1.o $(OBJS) $(LFLAGS)
 
+fix_ratios: fix_ratios.o lf1.o $(OBJS)
+	$(CC) -o fix_ratios fix_ratios.o lf1.o $(OBJS) $(LFLAGS)
+
 nftest: nftest.o $(OBJS)
 	$(CC) -o nftest nftest.o $(OBJS) $(LFLAGS)
 

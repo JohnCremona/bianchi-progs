@@ -6,8 +6,7 @@
 #include "looper.h"
 #endif
 
-#define RECOMPUTE_RATIOS
-#define MANY_PERIODS
+//#define RECOMPUTE_RATIOS
 
 int main ()
 {
@@ -64,6 +63,8 @@ int main ()
 
          double P_from_L = per.get_period();
          rational ratio = nf.nflist[i].loverp;
+         if (num(ratio)==0)
+           ratio = rational(nf.nflist[i].lambdadot, nf.nflist[i].cuspidalfactor);
          cout << "Period = " << P_from_L
               << " (via L(F,chi,1), using L/P ratio = " << ratio << ")"<< endl << endl;
 
@@ -74,9 +75,13 @@ int main ()
          int matdot0 = nf.nflist[i].matdot;
          cout << "Base period P0 = " << P0 << " = I_F({0,"<<RatQuad(b0,d0)<<"}) / "<<matdot0<<endl;
          cout << "(computed) L/P ratio = " << lf1chi_abs_lambda/P0 << endl << endl;
+
+         if (!denom_norm_bound)
+           continue;
+
+         cout << "Computing extra periods I_F({0,b/d}) for N(d) <= "<<denom_norm_bound<<endl;
          Quad a, b, c, d;
          long gcd_multiple = 0;
-         cout << "Computing extra periods I_F({0,b/d}) for N(d) <= "<<denom_norm_bound<<endl;
          for (Quadlooper dl(2, denom_norm_bound, 1); dl.ok(); ++dl)
            { d=(Quad)dl;
              Qideal D(d);

@@ -79,6 +79,8 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
 {
   Quad nu = N.gen();
   chi_is_trivial = lambda.is_unit();
+  if (!chi_is_trivial)
+    loverp = rational(f->lambdadot, f->cuspidalfactor);
   double rootdisc = sqrt((double)(I2long(Quad::absdisc)));
   double modlambda = realnorm(lambda);
   factor = 4*PI/(rootdisc*sqrt(realnorm(nu))*modlambda);
@@ -88,7 +90,9 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
   limitnorm = maxnormp;
   if(debug)
   {
+    cout << "chi_is_trivial = " << chi_is_trivial << endl;
     cout << "lambda = " << lambda << endl;
+    cout << "loverp = " << loverp << endl;
     cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
     cout << "factor = (4*pi) / (rootdisc * sqrt{|n|} * |lambda|) = " <<factor <<endl;
     if (!chi_is_trivial)
