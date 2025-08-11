@@ -1137,7 +1137,7 @@ void Quad::setup_geometry(string subdir, int debug)
     }
 }
 
-// return name of newforsm directory for this field; if
+// return name of newforms directory for this field; if
 // create_if_necessary, creates the directory if it does not yet exist
 string newforms_directory(int create_if_necessary)
 {

@@ -1,4 +1,4 @@
-// lf1.cc : class period_via_lfchi for integrating newforms
+// lf1.cc : classes lf1 and period_direct for computing L(F,1), L(F,chi,1) and periods of newforms
 
 #include <values.h>
 #include "eclib/interface.h"
@@ -23,29 +23,34 @@ bigcomplex to_bigcomplex(const Quad& a)
   return z;
 }
 
-int period_via_lf1chi::chi(const Quad& n)
+double lf1::K(double x)
+{
+  return (sfe==1? K1(x) : K0(x)/x);
+}
+
+int lf1::chi(const Quad& n)
 {
   if (chi_is_trivial) return 1;
   return chitable[std::distance(lambdares.begin(), std::find(lambdares.begin(), lambdares.end(), n%lambda))];
 }
 
-void period_via_lf1chi::use(const Quad& n, int an)
+void lf1::use(const Quad& n, int an)
 {
   if (n.norm() >= limitnorm)
     return;
   double rn = realnorm(n);
   double cn = double(an)/rn;
-  if (!chi_is_trivial) cn *= chi(n);
+  if (!chi_is_trivial && deriv==0) cn *= chi(n);
   if (debug>1)
     {
       cout << "\nUsing term n = " << n << ", a_n = " << an;
       if (!chi_is_trivial) cout << ", chi(n)="<<chi(n);
       cout << endl;
     }
-  sum += cn * K1(factor*rn);
+  sum += cn * K(factor*rn);
 }
 
-void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
+void lf1::add(const Quad& n, int pindex, int y, int z)
 {
   int ip,istart=pindex;
   Quad p;
@@ -70,41 +75,53 @@ void period_via_lf1chi::add(const Quad& n, int pindex, int y, int z)
 
 //constructor -- does all the work after initializing:
 
-period_via_lf1chi::period_via_lf1chi (newform* f, int db)
+lf1::lf1 (newform* f, int d, int db)
   :N(f->nf->N),
    debug(db),
    lambda(f->lambda),
    aplist(f->aplist),
-   loverp(f->loverp)
+   loverp(f->loverp),
+   sfe(f->sfe),
+   deriv(d)
 {
   Quad nu = N.gen();
-  chi_is_trivial = lambda.is_unit();
-  if (!chi_is_trivial)
-    loverp = rational(f->lambdadot, f->cuspidalfactor);
-  double rootdisc = sqrt((double)(I2long(Quad::absdisc)));
   double modlambda = realnorm(lambda);
-  factor = 4*PI/(rootdisc*sqrt(realnorm(nu))*modlambda);
-  lambdares = residues(lambda);
-  chitable = makechitable(lambda, lambdares);
+  double rootdisc = sqrt((double)(I2long(Quad::absdisc)));
+  factor = 4*PI/(rootdisc*sqrt(realnorm(nu)));
+
+  chi_is_trivial = lambda.is_unit();
+  if (!chi_is_trivial && deriv==0)
+    {
+      loverp = rational(f->lambdadot, f->cuspidalfactor);
+      lambdares = residues(lambda);
+      chitable = makechitable(lambda, lambdares);
+      factor /= realnorm(lambda);
+    }
   long maxnormp = I2long(quadprimes.back().norm());
   limitnorm = maxnormp;
   if(debug)
   {
-    cout << "chi_is_trivial = " << chi_is_trivial << endl;
+    cout << "In lf1 constructor with deriv = "<<deriv<<endl;
+    if (deriv==0)
+      cout << "chi_is_trivial = " << chi_is_trivial << endl;
     cout << "lambda = " << lambda << endl;
     cout << "loverp = " << loverp << endl;
     cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
-    cout << "factor = (4*pi) / (rootdisc * sqrt{|n|} * |lambda|) = " <<factor <<endl;
-    if (!chi_is_trivial)
+    if (chi_is_trivial || deriv==1)
       {
+        cout << "factor = (4*pi) / (rootdisc * sqrt{|n|}) = " << factor <<endl;
+      }
+    else
+      {
+        cout << "factor = (4*pi) / (rootdisc * sqrt{|n|} * |lambda|) = " << factor <<endl;
         cout << "Table of chi mod lambda (lambda = "<<lambda<<")\n";
         cout << "residue \t chi \n";
         for(unsigned int ires=0; ires<lambdares.size(); ires++)
           cout << lambdares[ires] << "\t" << chitable[ires] << endl;
       }
     cout<<"number of ap = "<<aplist.size()<<endl;
-    cout<<"Integration using terms up to norm      "<<limitnorm<<endl;
-    cout<<"            using a_p for norm(p) up to "<<maxnormp<<endl;
+    cout<<"Summation using terms up to norm      "<<limitnorm<<endl;
+    cout<<"          using a_p for norm(p) up to "<<maxnormp<<endl;
   }
 
 //Initialize sum and use n=1 term:
@@ -125,18 +142,28 @@ period_via_lf1chi::period_via_lf1chi (newform* f, int db)
         break;
     }
 
-//Scale to get values of L(f_chi,1) and the period:
-  lf1chivalue = 2*factor*sum;
-  if (loverp)
-    period=abs(lf1chivalue*modlambda/double(loverp));
+//Scale to get values of L(f_chi,1) and the period, or L'(F,1):
+  sum = 2*factor*sum;
+  if (deriv==0)
+    {
+      lf1chi = sum;
+      if (loverp)
+        period=abs(lf1chi*modlambda/double(loverp));
+      else
+        period = 0; // not determined
+      if(debug)
+        {
+          cout<<"lf1chi = "<<lf1chi<<", L/P ratio = "<< loverp;
+          if (loverp) cout<<", period = "<<period;
+          cout<<endl;
+        }
+    }
   else
-    period = 0;
-  if(debug)
-  {
-    cout<<"lf1chivalue = "<<lf1chivalue<<", L/P ratio = "<< loverp;
-    if (loverp) cout<<", period = "<<period;
-    cout<<endl;
-  }
+    {
+      ldash1 = 2*sum;
+      lf1chi = 0;
+      period = 0; // not determined
+    }
 }
 
 // psi(z) = exp(2*pi*i*Tr(z)) = cos(4*pi*x) + i*sin(4*pi*x)  where z=x+iy
@@ -260,7 +287,7 @@ void period_direct::use(const Quad& n, int an)
   sum += (double(an) * K1(rn*factor) * psi_factor(n) / rn);
 }
 
-// NB the code here is identical to period_via_lf1chi::add()
+// NB the code here is identical to lf1::add()
 
 void period_direct::add(const Quad& n, int pindex, int y, int z)
 {

@@ -5,9 +5,9 @@
 
 #include "newforms.h"
 
-// Class to compute L(F,1) from a newform
+// Class to compute L(F,1) or L(F,chi,1) or L'(F,1) from a newform
 
-class period_via_lf1chi {
+class lf1 {
 private:
   Qideal N;
   int debug;
@@ -19,16 +19,19 @@ private:
   int chi_is_trivial;
   vector<long> aplist;
   rational loverp;
-  double lf1chivalue, period;
+  int sfe, deriv;
+  double lf1chi, ldash1, period;
 
   int chi(const Quad& n);
+  double K(double x);
   void use(const Quad& n, int an);
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  explicit period_via_lf1chi (newform* f, int db=0);
-  double get_lf1chivalue()  {return lf1chivalue;}
-  double get_period()       {return period;}
+  explicit lf1(newform* f, int d, int db=0);
+  double get_lf1chi()  {return lf1chi;}
+  double get_period()  {return period;}
+  double get_ldash1()  {return ldash1;}
 };
 
 // Class to compute the period of F, by computing the integral of F
