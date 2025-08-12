@@ -40,7 +40,7 @@ void lf1::use(const Quad& n, int an)
     return;
   double rn = realnorm(n);
   double cn = double(an)/rn;
-  if (!chi_is_trivial && deriv==0) cn *= chi(n);
+  if (!chi_is_trivial && ar==0) cn *= chi(n);
   if (debug>1)
     {
       cout << "\nUsing term n = " << n << ", a_n = " << an;
@@ -75,14 +75,14 @@ void lf1::add(const Quad& n, int pindex, int y, int z)
 
 //constructor -- does all the work after initializing:
 
-lf1::lf1 (newform* f, int d, int db)
+lf1::lf1 (newform* f, int r, int db)
   :N(f->nf->N),
    debug(db),
    lambda(f->lambda),
    aplist(f->aplist),
    loverp(f->loverp),
    sfe(f->sfe),
-   deriv(d)
+   ar(r)
 {
   Quad nu = N.gen();
   double modlambda = realnorm(lambda);
@@ -90,7 +90,7 @@ lf1::lf1 (newform* f, int d, int db)
   factor = 4*PI/(rootdisc*sqrt(realnorm(nu)));
 
   chi_is_trivial = lambda.is_unit();
-  if (!chi_is_trivial && deriv==0)
+  if (!chi_is_trivial && ar==0)
     {
       loverp = rational(f->lambdadot, f->cuspidalfactor);
       lambdares = residues(lambda);
@@ -101,13 +101,13 @@ lf1::lf1 (newform* f, int d, int db)
   limitnorm = maxnormp;
   if(debug)
   {
-    cout << "In lf1 constructor with deriv = "<<deriv<<endl;
-    if (deriv==0)
+    cout << "In lf1 constructor with ar = "<<ar<<endl;
+    if (ar==0)
       cout << "chi_is_trivial = " << chi_is_trivial << endl;
     cout << "lambda = " << lambda << endl;
     cout << "loverp = " << loverp << endl;
     cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
-    if (chi_is_trivial || deriv==1)
+    if (chi_is_trivial || ar==1)
       {
         cout << "factor = (4*pi) / (rootdisc * sqrt{|n|}) = " << factor <<endl;
       }
@@ -144,7 +144,7 @@ lf1::lf1 (newform* f, int d, int db)
 
 //Scale to get values of L(f_chi,1) and the period, or L'(F,1):
   sum = 2*factor*sum;
-  if (deriv==0)
+  if (ar==0)
     {
       lf1chi = sum;
       if (loverp)

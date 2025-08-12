@@ -19,7 +19,7 @@ private:
   int chi_is_trivial;
   vector<long> aplist;
   rational loverp;
-  int sfe, deriv;
+  int sfe, ar;
   double lf1chi, ldash1, period;
 
   int chi(const Quad& n);
@@ -28,7 +28,7 @@ private:
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  explicit lf1(newform* f, int d, int db=0);
+  explicit lf1(newform* f, int r, int db=0);
   double get_lf1chi()  {return lf1chi;}
   double get_period()  {return period;}
   double get_ldash1()  {return ldash1;}
