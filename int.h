@@ -1,7 +1,7 @@
 // FILE INT.H: wrapper for FLINT's fmpz type
 
-#if     !defined(_FLINT_H)
-#define _FLINT_H      1       //flags that this file has been included
+#if     !defined(_INT_H)
+#define _INT_H      1       //flags that this file has been included
 
 #include <iostream>
 #include <vector>
@@ -98,6 +98,7 @@ public:
   friend void swap(INT& a, INT& b);
 
   friend class RAT;
+  friend class REAL;
   friend void make_mat( fmpz_mat_t A, const std::vector<std::vector<INT>>& M);
 };
 

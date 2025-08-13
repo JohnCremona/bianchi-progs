@@ -79,7 +79,7 @@ ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_e
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
-Q_headers: arith_extras.h int.h rat.h intprocs.h matprocs.h
+Q_headers: arith_extras.h int.h rat.h real.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h # euclid.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
@@ -222,7 +222,7 @@ makenf_loop: makenf_loop.o $(OBJS)
 pmanin: pmanin.o $(OBJS)
 	$(CC) -o pmanin pmanin.o $(OBJS) $(LFLAGS)
 
-lf1_periods: lf1_periods.o lf1.o $(OBJS)
+lf1_periods: lf1_periods.o lf1.o real.h $(OBJS)
 	$(CC) -o lf1_periods lf1_periods.o lf1.o $(OBJS) $(LFLAGS)
 
 fix_ratios: fix_ratios.o lf1.o $(OBJS)

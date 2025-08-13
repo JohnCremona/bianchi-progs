@@ -6,7 +6,7 @@
 #include "looper.h"
 #endif
 
-//#define RECOMPUTE_RATIOS
+#define RECOMPUTE_RATIOS
 
 int main ()
 {
@@ -48,7 +48,7 @@ int main ()
        {
          cout << "\nForm number " << i+1 << ": " << endl << endl;
          Quad lambda = nf.nflist[i].lambda;
-         double abs_lambda = realnorm(lambda);
+         REAL abs_lambda = realnorm(lambda);
          int trivial_twist = (lambda==Quad(1));
          string chi_string = (trivial_twist? "": "chi,");
          int sign = nf.nflist[i].sfe;
@@ -73,11 +73,11 @@ int main ()
              continue;
            }
 
-         double lf1chi = summer.get_lf1chi();
+         REAL lf1chi = summer.get_lf1chi();
          cout << "L(F," << chi_string << "1) = " << lf1chi << endl;
-         double lf1chi_abs_lambda = lf1chi*abs_lambda;;
+         REAL lf1chi_abs_lambda = lf1chi*abs_lambda;;
 
-         double P_from_L = summer.get_period();
+         REAL P_from_L = summer.get_period();
          rational ratio = nf.nflist[i].loverp;
          if (num(ratio)==0)
            ratio = rational(nf.nflist[i].lambdadot, nf.nflist[i].cuspidalfactor);
@@ -86,7 +86,7 @@ int main ()
 
          cout<<"Finding period by direct integration, using stored matrix and scaling factor:"<<endl;
          period_direct summer2(&(nf.nflist[i]), verbose);
-         double P0 = summer2.compute_base_period();
+         REAL P0 = summer2.compute_base_period();
          Quad b0=nf.nflist[i].b, d0=nf.nflist[i].d;
          int matdot0 = nf.nflist[i].matdot;
          cout << "Base period P0 = " << P0 << " = I_F({0,"<<RatQuad(b0,d0)<<"}) / "<<matdot0<<endl;
@@ -119,7 +119,7 @@ int main ()
                          long matdot = abs((nf.h1->chain(q, 1))[i+1]) / nf.nflist[i].cuspidalfactor;
                          gcd_multiple = gcd(gcd_multiple, matdot);
 #endif
-                         double period__b_d = summer2.compute_period(a,b,c,d);
+                         REAL period__b_d = summer2.compute_period(a,b,c,d);
                          cout << " period " <<period__b_d
                               << " = I_F({0,"<< q <<"}) = P0 * " << period__b_d/P0
 #ifdef RECOMPUTE_RATIOS

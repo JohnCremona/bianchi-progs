@@ -2,28 +2,35 @@
 
 #include <values.h>
 #include "eclib/interface.h"
-#include "eclib/kbessel.h"
 #include "lf1.h"
 
-// absolute value of Quad x
-double realnorm(const Quad& z) {  return sqrt(to_double(z.norm()));}
+// If Quad::t==0 then Quad (a,b) is x+y*sqrt(-d) so re,im parts are x, y*rootd
+// If Quad::t==1 then Quad (a,b) is x+y*(1+sqrt(-d))/2 so re,im parts are x+y/2, y*rootd/2
 
-// convert to a complex number
-bigcomplex to_bigcomplex(const Quad& a)
+// real part of Quad x
+REAL real_part(const Quad& z)
 {
-  static const bigfloat rootd = sqrt(to_bigfloat(Quad::d));
-  bigfloat x = to_bigfloat(I2long(real(a))), y = to_bigfloat(I2long(imag(a)));
-  if(Quad::t) // then y is coeff of (1+sqrt(-d))/2
-    {
-      y /= 2;
-      x += y;
-    }
-  bigcomplex z(x, y*rootd);
-  //cout << "a = " << a << " --> " << z << endl;
-  return z;
+  REAL x(real(z));
+  if(Quad::t) // then x is coeff of 1/2
+    x += REAL(imag(z))/2;
+  return x;
 }
 
-double lf1::K(double x)
+// imag part of Quad x
+REAL imag_part(const Quad& z, int norootd)
+{
+  REAL y(imag(z));
+  if (norootd)  // return actual imaginary part divided by sqrt|D|
+    return y/2;
+  if(Quad::t) // then y is coeff of (1+sqrt(-d))/2
+    y /= 2;
+  return y*rootd();
+}
+
+// absolute value of Quad x
+REAL realnorm(const Quad& z) {  return sqrt(z.norm());}
+
+REAL lf1::K(REAL x)
 {
   return (sfe==1? K1(x) : K0(x)/x);
 }
@@ -36,30 +43,36 @@ int lf1::chi(const Quad& n)
 
 void lf1::use(const Quad& n, int an)
 {
-  if (n.norm() >= limitnorm)
+  if (an ==0 || (n.norm() >= limitnorm))
     return;
-  double rn = realnorm(n);
-  double cn = double(an)/rn;
-  if (!chi_is_trivial && ar==0) cn *= chi(n);
+  REAL rn = realnorm(n);
+  REAL term = an * K(factor*rn) / rn;
+  if (!chi_is_trivial && ar==0 && an)
+    term *= chi(n);
   if (debug>1)
     {
-      cout << "\nUsing term n = " << n << ", a_n = " << an;
+      cout << "\nUsing term for n = " << n << ", |n| = "<<rn<<", a_n = " << an;
       if (!chi_is_trivial) cout << ", chi(n)="<<chi(n);
       cout << endl;
+      REAL cn = REAL(an)/rn;
+      cout << "Term    = " << term << " = "<<cn<<" * K("<<factor*rn<<") = "<<cn<<" * "<<K(factor*rn)<<endl;
+      cout << "Sum was = " <<sum << endl;
     }
-  sum += cn * K(factor*rn);
+  sum += term;
+  if (debug>1)
+    cout << "Now sum = " <<sum << endl;
 }
 
 void lf1::add(const Quad& n, int pindex, int y, int z)
 {
   int ip,istart=pindex;
-  Quad p;
-  long maxnorm=limitnorm/I2long(n.norm());
   if ( y!=0 )
     {
       use(n,y);
       istart=0;
     }
+  Quad p;
+  long maxnorm=limitnorm/I2long(n.norm());
   for(p=quadprimes[ip=istart];
       (ip<=pindex) && (p.norm()<=maxnorm);
       p=quadprimes[++ip])
@@ -85,9 +98,8 @@ lf1::lf1 (newform* f, int r, int db)
    ar(r)
 {
   Quad nu = N.gen();
-  double modlambda = realnorm(lambda);
-  double rootdisc = sqrt((double)(I2long(Quad::absdisc)));
-  factor = 4*PI/(rootdisc*sqrt(realnorm(nu)));
+  REAL modlambda = realnorm(lambda);
+  factor = 4*REAL::Pi()/(rootdisc()*sqrt(realnorm(nu)));
 
   chi_is_trivial = lambda.is_unit();
   if (!chi_is_trivial && ar==0)
@@ -106,14 +118,14 @@ lf1::lf1 (newform* f, int r, int db)
       cout << "chi_is_trivial = " << chi_is_trivial << endl;
     cout << "lambda = " << lambda << endl;
     cout << "loverp = " << loverp << endl;
-    cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
+    cout << "rootdisc = sqrt{|D_K|} = " << rootdisc() <<endl;
     if (chi_is_trivial || ar==1)
       {
-        cout << "factor = (4*pi) / (rootdisc * sqrt{|n|}) = " << factor <<endl;
+        cout << "factor = (4*pi) / (rootdisc() * sqrt{|n|}) = " << factor <<endl;
       }
     else
       {
-        cout << "factor = (4*pi) / (rootdisc * sqrt{|n|} * |lambda|) = " << factor <<endl;
+        cout << "factor = (4*pi) / (rootdisc() * sqrt{|n|} * |lambda|) = " << factor <<endl;
         cout << "Table of chi mod lambda (lambda = "<<lambda<<")\n";
         cout << "residue \t chi \n";
         for(unsigned int ires=0; ires<lambdares.size(); ires++)
@@ -148,7 +160,11 @@ lf1::lf1 (newform* f, int r, int db)
     {
       lf1chi = sum;
       if (loverp)
-        period=abs(lf1chi*modlambda/double(loverp));
+        {
+          period=abs(lf1chi*modlambda);
+          period/=num(loverp);
+          period*=den(loverp);
+        }
       else
         period = 0; // not determined
       if(debug)
@@ -173,30 +189,32 @@ lf1::lf1 (newform* f, int r, int db)
 // psi_tilde(z) = sum of psi(eps*z) over units eps, so usually
 // psi_tilde=psi1
 
-double psi1(bigcomplex z)
+REAL psi0(const REAL& x)
 {
-  return 2*to_double(cos(4*Pi()*real(z)));
+  return 2*cos(4*REAL::Pi()*x);
 }
 
-double psi_tilde(bigcomplex z)
+REAL psi1(const Quad& alpha, const Quad& a, const Quad& c)
 {
-  static const bigcomplex eps = to_bigcomplex(fundunit);
-  switch (Quad::nunits) {
-  case 4:
-    return psi1(z) + psi1(eps*z);
-  case 6:
-    return psi1(z) + psi1(eps*z) + psi1(eps*eps*z);
-  case 2:
-  default:
-    return psi1(z);
-  }
+  return psi0(imag_part(alpha*a*c.conj(), 1) / REAL(c.norm()));
 }
 
-double period_direct::psi_factor(const Quad& n)
+REAL psi_tilde(const Quad& alpha, const Quad& a, const Quad& c)
+{
+  REAL ans = psi1(alpha, a, c);
+  if (Quad::nunits == 2) // D not -3 or -4
+    return ans;
+  ans += psi1(fundunit*alpha, a, c);
+  if (Quad::nunits == 4) // D=-4
+    return ans;
+  ans += psi1(fundunit*fundunit*alpha, a, c);
+  return ans;
+}
+
+REAL period_direct::psi_factor(const Quad& alpha)
 {
   // NB we divide by the number of units, correcting the formula (2.9) in Cremona-Whitley
-  bigcomplex cn = to_bigcomplex(n);
-  return (psi_tilde(cn*z1)-psi_tilde(cn*z2)) / Quad::nunits;
+  return (psi_tilde(alpha, Md, Mc) - psi_tilde(alpha, Ma, Mc)) / Quad::nunits;
 }
 
 period_direct::period_direct(newform*f, int db)
@@ -209,35 +227,24 @@ period_direct::period_direct(newform*f, int db)
   maxnormp = I2long(quadprimes.back().norm());
   limitnorm = maxnormp;
   nu = N.gen();
-  rootdisc = sqrt((double)(I2long(Quad::absdisc))); // = sqrt(|D|), real
-  eta = bigcomplex(to_bigfloat(0),to_bigfloat(rootdisc));    // = sqrt(D), pure imagainry
 }
 
 // Compute the period along {.,g(.)} for g=[a,b;c,d] in Gamma_0(N)
-double period_direct::compute_period(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
+REAL period_direct::compute_period(const Quad& a, const Quad& b, const Quad& c, const Quad& d)
 {
-  bigcomplex ca = to_bigcomplex(a);
-  bigcomplex cc = to_bigcomplex(c);
-  bigcomplex cd = to_bigcomplex(d);
-
-  double t0 = 1/realnorm(c);
-  z1 = - cd / (eta*cc);
-  z2 = + ca / (eta*cc);
-  // The path of integration is from (z1,t0) to (z2,t0) = M(z1,t0); we integrate
-  // from (z1,t0) to oo and from (z2,t0) to oo and subtract
+  REAL t0 = realnorm(c).inv();
+  Ma = a; Mb = b; Mc = c; Md = d;
 
   // The n'th term involves K_1(|n|*factor), and also the value of the
   // integral is factor*sum:
 
-  factor = 4*PI*t0 / rootdisc;
+  factor = 4*REAL::Pi()*t0 / rootdisc();
 
   if (debug)
     {
-      cout << "Matrix M = [a,b;c,d] with a="<<a<<", b="<<b<<", c="<<c<<", d="<<d<<endl;
-      cout << "M in Gamma_0(N)? " << ((a*d-b*c).is_one() && N.contains(c)) << endl;
-      cout << "rootdisc = sqrt{|D_K|} = " << rootdisc <<endl;
-      cout << "(z1,t0) = ("<<z1<<","<<t0<<")"<<endl;
-      cout << "(z2,t0) = ("<<z2<<","<<t0<<")"<<endl;
+      cout << "Matrix M = [a,b;c,d] = ["<<Ma<<", "<<Mb<<"; "<<Mc<<", "<<Md<<"]"<<endl;
+      cout << "M in Gamma_0(N)? " << ((Ma*Md-Mb*Mc).is_one() && N.contains(Mc)) << endl;
+      cout << "rootdisc = sqrt{|D_K|} = " << rootdisc() <<endl;
       cout << "factor = (4*pi*t0) / rootdisc = " << factor <<endl;
       cout << "number of ap =                          "<<aplist.size()<<endl;
       cout << "Integration using terms up to norm      "<<limitnorm<<endl;
@@ -245,7 +252,7 @@ double period_direct::compute_period(const Quad& a, const Quad& b, const Quad& c
     }
 
   //Initialize sum and use n=1 term:
-  sum = 0;
+  sum = REAL(0);
   use(Quad(1),1);
 
   //add terms, one prime at a time:
@@ -258,20 +265,20 @@ double period_direct::compute_period(const Quad& a, const Quad& b, const Quad& c
       if (p.norm()>=maxnormp)
         break;
     }
-  double period = abs(factor * sum);
+  REAL period = abs(factor * sum);
   if (debug)
     {
       cout << "Sum      = " << abs(sum) << endl;
       cout << "Period = " << period << endl;
-      cout << "Period*  = " << 2*period/rootdisc << endl;
+      cout << "Period*  = " << 2*period/rootdisc() << endl;
     }
   return period;
 }
 
-double period_direct::compute_base_period()
+REAL period_direct::compute_base_period()
 {
-  double period = compute_period(fa,fb,fc,fd);
-  double base_period = period/period_multiple;
+  REAL period = compute_period(fa,fb,fc,fd);
+  REAL base_period = period/period_multiple;
   if (debug)
     {
       cout << "period along ["<<fa<<","<<fb<<";"<<fc<<","<<fd<<"] = " << period << endl;
@@ -283,8 +290,20 @@ double period_direct::compute_base_period()
 
 void period_direct::use(const Quad& n, int an)
 {
-  double rn = realnorm(n);
-  sum += (double(an) * K1(rn*factor) * psi_factor(n) / rn);
+  if (an ==0 || (n.norm() >= limitnorm))
+    return;
+  REAL rn = realnorm(n);
+  REAL cn = REAL(an)/rn;
+  REAL term = cn * K1(factor*rn) * psi_factor(n);
+  if (debug>1)
+    {
+      cout << "\nUsing term for n = " << n << ", |n| = "<<rn<<", a_n = " << an << endl;
+      cout << "Term    = " << term << " = "<<cn<<" * K1("<<factor*rn<<") * psi_factor(n) = "<<cn<<" * "<<K1(factor*rn)<<" * "<< psi_factor(n) << endl;
+      cout << "Sum was = " <<sum << endl;
+    }
+  sum += term;
+  if (debug>1)
+    cout << "Now sum = " <<sum << endl;
 }
 
 // NB the code here is identical to lf1::add()
@@ -294,12 +313,12 @@ void period_direct::add(const Quad& n, int pindex, int y, int z)
   if ( y!=0 )
     use(n,y);
 
-  long normn = I2long(n.norm());
+  long maxnorm=limitnorm/I2long(n.norm());
   for(int ip = (y==0? pindex : 0); ip<=pindex; ip++)
   {
     Quad p = quadprimes[ip];
     long normp = I2long(p.norm());
-    if (normp*normn > limitnorm)
+    if (normp > maxnorm)
       break;
     int x = y * aplist[ip];
     if ( (ip==pindex)  && ndiv(p,N.gen()))
