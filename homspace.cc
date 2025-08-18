@@ -253,7 +253,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 #endif
   if (i)
     {
-      vec ans = reduce_modp(sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i))), hmod);
+      vec ans = reduce_mod_p(sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i))), hmod);
 #ifdef DEBUG_CHAIN
       cout << ": coordinate vector "<<ans<<endl;
 #endif
@@ -270,7 +270,7 @@ vec homspace::chain(const RatQuad& alpha, const RatQuad& beta, int proj)
 // beta is principal.  But experiment showed that this is actually a
 // bit slower.
 {
-  return reduce_modp(chain(beta, proj) - chain(alpha, proj),hmod);
+  return reduce_mod_p(chain(beta, proj) - chain(alpha, proj),hmod);
 }
 #if(0)
 {
@@ -322,7 +322,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
            cout<<" STEP (t="<<t<<", t'="<<u<<", (c:d)_t'=("<<c<<":"<<d<<")_"<<u<<" = "<< modsym(lift_to_SL2(N,c,d),u)<<") TO "<<RatQuad(a,b,1) << endl;
 #endif
            // Look up this symbol, convert to a vector w.r.t. homology basis
-           ans = reduce_modp(ans + chaincd(c, d, u, proj), hmod);
+           ans = reduce_mod_p(ans + chaincd(c, d, u, proj), hmod);
 #ifdef DEBUG_CHAIN
            cout<<" partial coordinate vector = "<<ans<<endl;
 #endif
@@ -332,7 +332,7 @@ vec homspace::chain(const Quad& aa, const Quad& bb, int proj, const Quad& cc, co
             // finish off by subtracting M{sigma[|t|],oo} where M has
             // second row (c,d). [See Lingham's thesis, p.77]
          {
-           ans = reduce_modp(ans - chaincd(c, d, t, proj), hmod);
+           ans = reduce_mod_p(ans - chaincd(c, d, t, proj), hmod);
 #ifdef DEBUG_CHAIN
            cout<<" full coordinate vector = "<<ans<<endl;
 #endif
@@ -352,7 +352,7 @@ vec homspace::applyop(const matop& T, const RatQuad& alpha, int proj)
   if (proj) ans.init(projcoord.ncols());
   std::for_each(T.mats.begin(), T.mats.end(),
                 [this, alpha, proj, &ans] (const mat22& M)
-                {ans = reduce_modp(ans + chain(M(alpha), proj), hmod);});
+                {ans = reduce_mod_p(ans + chain(M(alpha), proj), hmod);});
   return ans;
 }
 
@@ -361,7 +361,7 @@ vec homspace::applyop(const matop& T, const modsym& m, int proj)
   if (proj) ans.init(projcoord.ncols());
   std::for_each(T.mats.begin(), T.mats.end(),
                 [this, m, proj, &ans] (const mat22& M)
-                {ans = reduce_modp(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);});
+                {ans = reduce_mod_p(ans + chain(M(m.alpha()), M(m.beta()), proj), hmod);});
   return ans;
 }
 
@@ -511,7 +511,7 @@ vec homspace::maninvector(Quadprime& P, int proj)
   for (const auto& r : resmodp)
     {
       if (first) {first=0; continue;} // skip resmodp[0]
-      ans = reduce_modp(ans + chain(r,p, proj), hmod);
+      ans = reduce_mod_p(ans + chain(r,p, proj), hmod);
     }
   return ans;
 }
@@ -522,7 +522,7 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
   auto chi=chitable.begin();
   auto r=res.begin();
   while(r!=res.end())
-    ans = reduce_modp(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
+    ans = reduce_mod_p(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
  return ans;
 }
 

@@ -1250,7 +1250,7 @@ vec newforms::lengthen_basis(const vec& sbasis)
     { // we don't have a mod p mat*vec
       mat vcol(dim(sbasis),1);
       vcol.setcol(1,sbasis);
-      return reduce_modp(matmulmodp(h1->FR.coord, vcol, hmod).col(1), DEFAULT_MODULUS);
+      return reduce_mod_p(matmulmodp(h1->FR.coord, vcol, hmod).col(1), DEFAULT_MODULUS);
     }
   vec basis = (h1->FR.coord)*sbasis;
   if (characteristic==0)
@@ -2555,7 +2555,7 @@ void update(const mat& pcd, vec& imagej, long ind, long hmod)
 {
   if (ind==0) return;
   vec part = (ind>0? pcd.row(ind): -pcd.row(-ind));
-  imagej = reduce_modp(imagej + part, hmod);
+  imagej = reduce_mod_p(imagej + part, hmod);
 }
 
 // compute eigenvalue at P for each newform (good P, Euclidean) and check that it is in [minap,..,maxap]

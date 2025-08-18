@@ -190,7 +190,7 @@ private:
   smat s_opmat_restricted(int i, const ssubspace& s, int d, int);
   long matdim(void)
   {return h1->dimension;}
-  long matden(void)
+  scalar matden(void)
   {return h1->denom3;}
 
   // For the automatic finding of 1-dimensional egenspaces we need to
