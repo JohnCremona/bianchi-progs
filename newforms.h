@@ -255,7 +255,7 @@ public:
   vector<int> old1dims, new1dims;
   vector<int> old2dims, new2dims;
   homspace* h1; // pointer to one, not an array
-  long hmod, nfhmod;
+  scalar hmod, nfhmod;
   long characteristic; // 0 or prime
   int have_bases;
   vector<newform> nflist;

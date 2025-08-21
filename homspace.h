@@ -11,7 +11,8 @@ class homspace {
 friend class newforms;
 public:
   int verbose;
-  long denom1, denom2, dimension, cuspidal_dimension, denom3, ncusps;
+  scalar denom1, denom2, denom3;
+  int dimension, cuspidal_dimension, ncusps;
   edge_relations ER;
   face_relations FR;
   int plusflag;
@@ -26,7 +27,7 @@ public:
   vector<int> freegens;
   mat projcoord;
   long characteristic; // =0 or prime p
-  long hmod; // if >0, did not lift from modular linear algebra
+  scalar hmod; // if >0, did not lift from modular linear algebra
              // so coord is modulo this
 
   homspace(const Qideal& I, int hp, int verb=0, long ch=0);
@@ -43,12 +44,12 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
-  long h1cuspdim() const {return cuspidal_dimension;}
-  long h1dim() const {return dimension;}  // No confusion with subspace::dim
-  long h1denom() const {return denom1;}
-  long h1cdenom() const {return denom3;}
-  long h1ncusps() const {return ncusps;}
-  long h1hmod() const {return hmod;}
+  int h1cuspdim() const {return cuspidal_dimension;}
+  int h1dim() const {return dimension;}  // No confusion with subspace::dim
+  int h1ncusps() const {return ncusps;}
+  scalar h1denom() const {return denom1;}
+  scalar h1cdenom() const {return denom3;}
+  scalar h1hmod() const {return hmod;}
 
   vec chaincd(const Quad& c, const Quad& d, int type=0, int proj=0);
   vec chain(const Quad& a, const Quad& b, int proj=0, const Quad& c=Quad::zero, const Quad& d=Quad::one);

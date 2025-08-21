@@ -531,7 +531,7 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
 ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 {
   int subdim = h1dim();
-  long den = h1denom();
+  scalar den = h1denom();
 
   if (Quad::class_group_2_rank==0) // no characters, so return full (resp. cuspidal) space
     return ssubspace(subdim);
@@ -545,7 +545,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 
   int dual = 1;
   smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
-  long eig = (*ei++)*den;
+  scalar eig = (*ei++)*den;
   ssubspace s = eigenspace(m, eig, MODULUS);
   subdim = dim(s);
 
@@ -564,7 +564,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 // each D (including D=1, meaning no self-twist)
 vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(int use_lower_bounds, int use_cuspidal_lower_bounds, vector<int> lower_bounds, vector<int> cuspidal_lower_bounds)
 { //verbose=2;
-  long den = h1denom();
+  scalar den = h1denom();
   pair<int,int> subdims = {dimension, cuspidal_dimension};
   vector<pair<int,int>> dimlist;
   if (Quad::class_group_2_rank==0)
@@ -640,7 +640,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                 cout<<"Forcing aP=0 for P = "<<P<<": current dimension is "<<dim(sD)<<endl;
               ip++;
               long Pnorm = I2long(P.norm());
-              long eig = -den*Pnorm;
+              scalar eig = -den*Pnorm;
               Qideal P2 = P*P, A;
               matop op;
               if (P2.is_principal())
@@ -663,7 +663,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   cout << " - computed matrix of this op restricted to current subspace" << endl;
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
-              ssubspace newsD = combine(sD, eigenspace(m, eig, MODULUS));
+              ssubspace newsD = combine(sD, eigenspace(m, eig, scalar(MODULUS)));
               int newsubdim = dim(newsD);
               if(verbose>1)
                 {
