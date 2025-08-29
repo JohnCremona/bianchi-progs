@@ -1,8 +1,6 @@
 // FILE MATPROCS.CC:  implementation of interface with NTL mat_ZZ and related classes
 
-#include <eclib/interface.h>
-#include <eclib/arith.h>
-#include <eclib/matrix.h>
+#include <eclib/linalg.h>
 #include "matprocs.h"
 
 factor_comparison fact_cmp;
@@ -49,7 +47,7 @@ ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den)
   return charpol;
 }
 
-int check_involution(const mat_ZZ& A, long den, int verbose)
+int check_involution(const mat_ZZ& A, scalar den, int verbose)
 {
   int res = IsDiag(power(A,2), A.NumRows(), to_ZZ(den*den));
   if (verbose)

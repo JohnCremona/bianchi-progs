@@ -1,7 +1,7 @@
 // FILE FACE_RELATIONS.CC: Implemention of the face relations for class homspace
 
 //#define TIME_RELATION_SOLVING
-//#define USE_CRT // if using smats  mod MODULUS, try CRT-ing with another prime
+//#define USE_CRT // if using smats  mod default_modulus(), try CRT-ing with another prime
                 // NB this is experimental only
 
 
@@ -68,7 +68,7 @@ face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
       if (rk>0)
         {
           if (verbose>1) cout << "coord:" << coord;
-          if (hmod && characteristic==0)
+          if (hmod!=0 && characteristic==0)
             cout << "failed to lift, coord is only defined modulo "<<hmod<<endl;
           else
             cout << "lifted ok, denominator = " << denom << endl;
@@ -197,10 +197,11 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       //      cout<<"c = "<<c<<endl;
       if(c)
         {
+          scalar sc(sign(c));
 #ifdef USE_SMATS
-          relation.add(abs(c), sign(c));
+          relation.add(abs(c), sc);
 #else
-          relation[abs(c)] += sign(c);
+          relation[abs(c)] += sc;
 #endif
         }
       ++r, ++t, ++s;
@@ -223,7 +224,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       if (characteristic==0)
         make_primitive(relation);
       else
-        relation.reduce_mod_p(characteristic);
+        relation.reduce_mod_p(scalar(characteristic));
       if (verbose) cout<<relation<<endl;
       relmat.setrow(numrel,relation);
     }
@@ -715,21 +716,21 @@ void face_relations::general_hexagon_relation(const POLYGON& H, int check)
 
 void face_relations::solve_relations()
 {
-  vec npivs; // pivs is a class attribute
+  vec_i npivs; // pivs is a class attribute
   if(verbose>1)
     {
       mat M = relmat.as_mat().slice(numrel,ngens);
       cout<<"relmat = "<<M<<endl;
       if (characteristic)
         {
-          vec pcols, npcols;
+          vec_i pcols, npcols;
           long rk_modp, ny_modp;
           echmodp_uptri(M, pcols, npcols, rk_modp, ny_modp, scalar(characteristic));
           cout<<"rank_mod_p(relmat) = "<<rk_modp;
         }
       else
         {
-          cout<<"rank(relmat) = "<<relmat.rank(MODULUS);
+          cout<<"rank(relmat) = "<<relmat.rank(default_modulus<scalar>());
         }
       cout<<", ngens = "<<ngens<<endl;
     }
@@ -746,9 +747,9 @@ void face_relations::solve_relations()
    timer t;
    t.start("relation solver");
 #endif
-   scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
+   scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
    smat_elim sme(relmat, modulus);
-   int d1;
+   scalar d1;
    smat ker = sme.kernel(npivs, pivs), sp;
 #ifdef TIME_RELATION_SOLVING
    t.stopAll();
@@ -763,7 +764,7 @@ void face_relations::solve_relations()
    int ok = 1;
    if (characteristic==0)
      {
-       ok = liftmat(ker,MODULUS,sp,d1);
+       ok = liftmat(ker,modulus,sp,d1);
      }
    else
      {
@@ -774,10 +775,10 @@ void face_relations::solve_relations()
      {
        if(verbose)
          cout << "failed to lift modular kernel using modulus "
-              << MODULUS << endl;
+              << modulus << endl;
 #ifdef USE_CRT
        int mod2 = 1073741783; // 2^30-41
-       INT mmod(MODULUS); mmod*=mod2;
+       INT mmod(default_modulus<scalar>()); mmod*=mod2;
        if(verbose)
          cout << "repeating kernel computation, modulo " << mod2 << endl;
        smat_elim sme2(relmat,mod2);
@@ -791,7 +792,7 @@ void face_relations::solve_relations()
        else
          {
            if(verbose) cout << " pivs agree" << endl;
-           ok = liftmats_chinese(ker,MODULUS,ker2,mod2,sp,d1);
+           ok = liftmats_chinese(ker, default_modulus<scalar>() ,ker2,mod2,sp,d1);
          }
        if (ok)
          {
@@ -809,12 +810,12 @@ void face_relations::solve_relations()
    if (ok)
      {
        hmod = characteristic;
-       denom = (characteristic==0? d1: 1);
+       denom = (characteristic==0? d1: scalar(1));
      }
    else
      {
-       hmod = MODULUS;
-       denom = 1;
+       hmod = default_modulus<scalar>();
+       denom = scalar(1);
      }
    relmat=smat(0,0); // clear space
    if(verbose>1)

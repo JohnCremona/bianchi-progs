@@ -73,7 +73,7 @@ public:
   Quad a,b,c,d; int matdot;    // integration matrix and factor
   int index;             // the index of this newform (from 1)
   int j0; modsym m0; int fac, facinv;
-  long cuspidalfactor;
+  int cuspidalfactor;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   vector<long> genus_classes;        // list of genus classes for which we have a nonzero aP
   vector<Qideal> genus_class_ideals; // list of good primes, one in each of these classes
@@ -176,17 +176,17 @@ public:
   void conjugate(int debug=0);
 };
 
-class newforms :public splitter_base {
+class newforms :public splitter_base<scalar> {
 friend class newform;
 private:
   // instantiations of virtual functions required by the splitter_base class:
   mat opmat(int i, int d, int);
   vec opmat_col(int i, int j, int);
-  mat opmat_cols(int i, const vec& jlist, int);
+  mat opmat_cols(int i, const vec_i& jlist, int);
   mat opmat_restricted(int i, const subspace& s, int d, int);
   smat s_opmat(int i, int d, int);
   svec s_opmat_col(int i, int j, int);
-  smat s_opmat_cols(int i, const vec& jlist, int);
+  smat s_opmat_cols(int i, const vec_i& jlist, int);
   smat s_opmat_restricted(int i, const ssubspace& s, int d, int);
   long matdim(void)
   {return h1->dimension;}
@@ -255,12 +255,16 @@ public:
   vector<int> old1dims, new1dims;
   vector<int> old2dims, new2dims;
   homspace* h1; // pointer to one, not an array
-  scalar hmod, nfhmod;
+  scalar hmod, nfhmod, modulus;
   long characteristic; // 0 or prime
   int have_bases;
   vector<newform> nflist;
   explicit newforms(const Qideal& N, int disp=0, long ch=0);
-  ~newforms(void) { if(h1)delete h1; }
+  ~newforms(void)
+  {
+    if(h1!=NULL)delete h1;
+    if(of!=NULL)delete of;
+  }
   void display(int detail=1);
   // List newforms in a fixed format. NB In even class number, each
   // element from nflist gives rise to 2**n2r (or 2**(n2r-1) in case

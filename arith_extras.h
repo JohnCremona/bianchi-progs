@@ -6,7 +6,7 @@
 // for convenience we put all the includes from eclib here, since all
 // other files include this one directly or indirectly:
 
-#include <eclib/xsplit.h>   // which includes method.h
+#include <eclib/xsplit.h>   // which includes linalg.h
 #include <eclib/rat.h>
 #include <eclib/unimod.h>
 #include <eclib/timer.h>

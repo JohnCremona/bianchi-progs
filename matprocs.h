@@ -5,7 +5,6 @@
 
 // include stuff from eclib
 #include "intprocs.h"
-#include <eclib/matrix.h>
 
 // include stuff from NTL
 #include <NTL/LLL.h>
@@ -28,7 +27,7 @@ mat_ZZ_p mat_to_mat_ZZ_p(mat A);
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den);
 
 // check that a matrix is a scaled involution:
-int check_involution(const mat_ZZ& A, long den=1, int verbose=0);
+int check_involution(const mat_ZZ& A, scalar den, int verbose=0);
 
 // check that a matrix commutes with all those in a list:
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist);

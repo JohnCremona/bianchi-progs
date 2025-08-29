@@ -64,10 +64,10 @@ public:
 
   mat calcop(const matop& T, int cuspidal=0, int dual=1, int display=0);
   vec calcop_col(const matop& T, int j, int)  {return applyop(T,freemods[j-1]);}
-  mat calcop_cols(const matop& T, const vec& jlist, int);
+  mat calcop_cols(const matop& T, const vec_i& jlist, int);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
   smat s_calcop(const matop& T, int cuspidal, int dual, int display);
-  smat s_calcop_cols(const matop& T, const vec& jlist, int verb=0);
+  smat s_calcop_cols(const matop& T, const vec_i& jlist, int verb=0);
   smat s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display);
 
   vec maninvector(Quadprime& P, int proj=0);
@@ -80,11 +80,7 @@ public:
 
   // The dimension and cuspidal of the previous space (for when we do
   // not need the subspace itself).
-  pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs)
-  {
-    ssubspace s = unramified_character_subspace(eigs);
-    return {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank(MODULUS)};
-  }
+  pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs);
 
   // The dimension or cuspidal dimension of the previous space (for
   // when we do not need the subspace itself).

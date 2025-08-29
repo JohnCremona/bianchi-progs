@@ -44,11 +44,11 @@ int main(void)
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N,plusflag,0);  //level, plusflag, verbose
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
-  int den = (cuspidal? h.h1cdenom(): h.h1denom());
+  long den = I2long(cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << dim << endl;
   //if(den!=1) cout << " denominator = " << den << endl;
-  long hmod = h.h1hmod();
-  if(hmod)
+  scalar hmod = h.h1hmod();
+  if(hmod!=0)
     {
       cout << "Failed to lift basis from Z/"<<hmod<<" to Z!" << endl;
       cout << "Hence characteristic polynomials are only correct modulo "<<hmod

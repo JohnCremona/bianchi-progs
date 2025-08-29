@@ -188,7 +188,7 @@ void newform::compute_cuspidalfactor()
     }
   else
     {
-      cuspidalfactor = content((nf->h1->bigtkernbas)*basis);
+      cuspidalfactor = I2long(content((nf->h1->bigtkernbas)*basis));
       if(nf->verbose>1)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
@@ -197,9 +197,9 @@ void newform::compute_cuspidalfactor()
 // Compute L/P ratio (needs cuspidalfactor)
 void newform::compute_loverp()
 {
-  int pdot0 = abs(nf->zero_infinity[index]);
+  int pdot0 = I2long(abs(nf->zero_infinity[index]));
   dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
-  pdot = abs(nf->mvp[index]);
+  pdot = I2long(abs(nf->mvp[index]));
 
   // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
   loverp =  rational(pdot0, cuspidalfactor);
@@ -457,7 +457,7 @@ void newform::find_matrix()
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
                   RatQuad q(b,d);
-                  matdot = abs((nf->h1->chain(q, 1))[index]);
+                  matdot = I2long(abs((nf->h1->chain(q, 1))[index]));
                   //cout << "Period from {0,"<<q<<"}, unscaled multiple "<<matdot<<endl;
                   if (matdot)
                     {
@@ -852,6 +852,7 @@ void newforms::makeh1(void)
 newforms::newforms(const Qideal& iN, int disp, long ch)
   : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch), have_bases(0)
 {
+  modulus = default_modulus<scalar>();
   //  cout<<"In newforms constructor with level = "<<ideal_label(N)<<endl;
   nchi = 1<<n2r;
   level_is_square = N.is_square();
@@ -909,7 +910,7 @@ vec newforms::opmat_col(int i, int j, int verb)
   return h1->calcop_col(h1matop(i),j, verb);
 }
 
-mat newforms::opmat_cols(int i, const vec& jlist, int verb)
+mat newforms::opmat_cols(int i, const vec_i& jlist, int verb)
 {
   return h1->calcop_cols(h1matop(i),jlist, verb);
 }
@@ -924,7 +925,7 @@ smat newforms::s_opmat(int i, int dual, int)
   return h1->s_calcop(h1matop(i),0, dual, verbose);
 }
 
-smat newforms::s_opmat_cols(int i, const vec& jlist, int)
+smat newforms::s_opmat_cols(int i, const vec_i& jlist, int)
 {
   return h1->s_calcop_cols(h1matop(i),jlist, verbose);
 }
@@ -995,7 +996,7 @@ void newforms::find_lambdas()
                   if(verbose)cout<<"Newform # "<<j<<": ";
 #endif
                   newform& nfj = nflist[j];
-                  int ldot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
+                  int ldot = I2long(abs(mvtw[j+1]));  // j based at 0 but vec mvtw based at 1
                   if(ldot&&((chimod*nfj.sfe)==+1))
                     {
 #ifdef DEBUG_LAMBDA
@@ -1125,7 +1126,7 @@ void newforms::find()
       if(verbose)
         cout<<"Finding rational newforms...\n";
       use_nf_number=-1; // flags to use() that the nfs found are new
-      form_finder ff(this,1,maxdepth,mindepth,1,0,verbose);
+      form_finder ff(this,modulus,1,maxdepth,mindepth,1,0,verbose);
       ff.find();
      }
   n2ds=dimtrivcuspnew-n1ds; // dimension of new, non-rational forms
@@ -1246,11 +1247,11 @@ void newforms::fill_in_newform_data(int AL, int CF, int LP, int M)
 vec newforms::lengthen_basis(const vec& sbasis)
 {
   // convert short basis vector (coords w.r.t. face-gens) to a long one (coords w.r.t.edge-gens):
-  if(hmod)
+  if(hmod!=0)
     { // we don't have a mod p mat*vec
       mat vcol(dim(sbasis),1);
       vcol.setcol(1,sbasis);
-      return reduce_mod_p(matmulmodp(h1->FR.coord, vcol, hmod).col(1), scalar(DEFAULT_MODULUS));
+      return reduce_mod_p(matmulmodp(h1->FR.coord, vcol, hmod).col(1), default_modulus<scalar>());
     }
   vec basis = (h1->FR.coord)*sbasis;
   if (characteristic==0)
@@ -1409,11 +1410,12 @@ void newform::list(string prefix, long nap)
 long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
 {
   vec image = nf->h1->applyop(op, m0, 1);
-  int top = image[index]; // where this is the i'th newform
+  int top = I2long(image[index]); // where this is the i'th newform
   long ap;
   // The eigenvalue is now top/fac (which should divide exactly)
-  if(nf->nfhmod)
-    ap=mod(xmodmul(top,facinv,nf->nfhmod), nf->nfhmod);
+  int nfhmod = I2long(nf->nfhmod);
+  if(nfhmod!=0)
+    ap=mod(xmodmul(top,facinv,nfhmod), nfhmod);
   else
     {
       if (top%fac !=0)
@@ -1734,7 +1736,7 @@ void newforms::make_projcoord()
 void newforms::make_bigtkernbas(void)
 {
   // 'big' version bigtkernbas
-  scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
+  scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
   smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);
@@ -1927,7 +1929,7 @@ void newforms::makebases(int extra_data)
       h1matops.push_back(matop());
       eigranges.push_back(vector<long>());
     }
-  form_finder splitspace(this, 1, maxdepth, 0, 1, 0, verbose);
+  form_finder splitspace(this, modulus, 1, maxdepth, 0, 1, 0, verbose);
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {
@@ -2448,8 +2450,8 @@ void newforms::find_jlist()
           newform& nfi = nflist[i];
 	  nfi.j0 = j0;
 	  nfi.m0 = m0;
-          nfi.fac = nfi.basis[j0];
-          if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
+          nfi.fac = I2long(nfi.basis[j0]);
+          if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, I2long(nfhmod));
 	}
       if(verbose>1)
         cout<<"index j0="<<j0<<" works as a pivot for all newforms"<<endl;
@@ -2470,8 +2472,8 @@ void newforms::find_jlist()
       nfi.j0 = j;
       nfi.m0 = m;
       mjlist[j] = m;
-      nfi.fac = bas[j];
-      if(nfhmod) nfi.facinv=invmod(nfi.fac,nfhmod);
+      nfi.fac = I2long(bas[j]);
+      if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, I2long(nfhmod));
     }
   if(verbose>1)
     cout<<"set of pivotal indices = "<<jlist<<endl;
@@ -2488,11 +2490,12 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
     {
       int j0 = nflist[i].j0;
       int fac = nflist[i].fac;
-      int top = images[j0][i+1];
+      int top = I2long(images[j0][i+1]);
       long ap;
       // The eigenvalue is now top/fac (which should divide exactly)
-      if(nfhmod)
-        ap=mod(xmodmul(top,nflist[i].facinv,nfhmod), nfhmod);
+      long nfhm = I2long(nfhmod);
+      if(nfhm)
+        ap=mod(xmodmul(top,nflist[i].facinv,nfhm), nfhm);
       else
         {
 #ifdef DEBUG_APVEC

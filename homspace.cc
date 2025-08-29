@@ -153,15 +153,15 @@ void homspace::kernel_delta()
       if(verbose>1)
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
-  scalar modulus = (characteristic==0? DEFAULT_MODULUS: characteristic);
-  vec pivs, npivs;
-  int d2;
+  scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
+  vec_i pivs, npivs;
+  scalar d2;
   sdeltamat = smat(deltamat);
   kern = kernel(sdeltamat, modulus);
   if (characteristic==0)
     {
       smat sk;
-      int ok = liftmat(smat_elim(sdeltamat,MODULUS).kernel(npivs,pivs),MODULUS,sk,d2);
+      int ok = liftmat(smat_elim(sdeltamat,modulus).kernel(npivs,pivs),modulus,sk,d2);
       if (!ok)
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
     }
@@ -212,7 +212,8 @@ int homspace::check_conjugate(int verb)
     {
       conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
     }
-  long conjmatrank1 = smat(conjmat1).rank(MODULUS);
+  scalar modulus(default_modulus<scalar>());
+  long conjmatrank1 = smat(conjmat1).rank(modulus);
   if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
 
   // Now the reverse map
@@ -221,7 +222,7 @@ int homspace::check_conjugate(int verb)
     {
       conjmat2.setcol(i+1,chain(H1conj.freemods[i].conj()));
     }
-  long conjmatrank2 = smat(conjmat2).rank(MODULUS);
+  long conjmatrank2 = smat(conjmat2).rank(modulus);
   if (verb) cout<<" - reverse conjugation map has rank "<<conjmatrank2<<endl;
   if (conjmatrank1==dimension && conjmatrank2==dimension)
     {
@@ -253,7 +254,7 @@ vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 #endif
   if (i)
     {
-      vec ans = reduce_mod_p(sign(i) * (proj? projcoord.row(abs(i)) : coords(abs(i))), hmod);
+      vec ans = reduce_mod_p(scalar(sign(i)) * (proj? projcoord.row(abs(i)) : coords(abs(i))), hmod);
 #ifdef DEBUG_CHAIN
       cout << ": coordinate vector "<<ans<<endl;
 #endif
@@ -383,7 +384,7 @@ mat homspace::calcop(const matop& T, int cuspidal, int dual, int display)
   return m;
 }
 
-mat homspace::calcop_cols(const matop& T, const vec& jlist, int verb)
+mat homspace::calcop_cols(const matop& T, const vec_i& jlist, int verb)
 {
   if(verb)
     cout<<"Computing " << T.name() <<"...";
@@ -400,7 +401,7 @@ mat homspace::calcop_cols(const matop& T, const vec& jlist, int verb)
   return m;
 }
 
-smat homspace::s_calcop_cols(const matop& T, const vec& jlist, int verb)
+smat homspace::s_calcop_cols(const matop& T, const vec_i& jlist, int verb)
 {
   int i, d = dim(jlist);
   if(verb)
@@ -463,7 +464,7 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
        vec colj = applyop(T,freemods[jj]);
        m.setrow(j+1,colj);
      }
-  if(hmod)
+  if(hmod!=0)
     m = matmulmodp(m,basis(s),hmod);
   else
     m = m*basis(s);
@@ -488,7 +489,8 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
        svec colj(applyop(T,freemods[jj-1]));
        m.setrow(j,colj);
      }
-  m = mult_mod_p(m,basis(s),MODULUS);
+  scalar modulus(default_modulus<scalar>());
+  m = mult_mod_p(m,basis(s), modulus);
   if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display)
   //   {
@@ -522,7 +524,7 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
   auto chi=chitable.begin();
   auto r=res.begin();
   while(r!=res.end())
-    ans = reduce_mod_p(ans + (*chi++)*chain(*r++,lambda, proj), hmod);
+    ans = reduce_mod_p(ans + scalar(*chi++)*chain(*r++,lambda, proj), hmod);
  return ans;
 }
 
@@ -546,18 +548,27 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
   int dual = 1;
   smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
   scalar eig = (*ei++)*den;
-  ssubspace s = eigenspace(m, eig, MODULUS);
+  scalar modulus(default_modulus<scalar>());
+  ssubspace s = eigenspace(m, eig, modulus);
   subdim = dim(s);
 
   for (; nui!=nulist.end() && subdim>0; ++ei)
     {
       m = s_calcop_restricted(CharOp(*nui++, N), s, dual, 0);
       eig = (*ei)*den;
-      s = combine(s, eigenspace(m, eig, MODULUS));
+      s = combine(s, eigenspace(m, eig, modulus));
       subdim = dim(s);
     }
   return s;
 }
+
+pair<int,int> homspace::unramified_character_subspace_dimensions(const vector<int>& eigs)
+{
+  ssubspace s = unramified_character_subspace(eigs);
+  scalar modulus(default_modulus<scalar>());
+  return {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
+}
+
 
 // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
@@ -581,7 +592,8 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 
   ssubspace s = trivial_character_subspace();
 
-  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), MODULUS)).rank(MODULUS)};
+  scalar modulus(default_modulus<scalar>());
+  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
   dimlist.push_back(subdims0);
 
@@ -663,7 +675,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   cout << " - computed matrix of this op restricted to current subspace" << endl;
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
-              ssubspace newsD = combine(sD, eigenspace(m, eig, scalar(MODULUS)));
+              ssubspace newsD = combine(sD, eigenspace(m, eig, modulus));
               int newsubdim = dim(newsD);
               if(verbose>1)
                 {
@@ -683,7 +695,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   nrepeats=0;
                   sD = newsD;
                   subdim = newsubdim;
-                  subdims = {subdim,(mult_mod_p(tkernbas, sD.bas(), MODULUS)).rank(MODULUS)};
+                  subdims = {subdim,(mult_mod_p(tkernbas, sD.bas(), modulus)).rank(modulus)};
                 }
               ++Pi; // extra increment, so we don't use both conjugates
             }

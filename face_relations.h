@@ -14,17 +14,17 @@ public:
   long ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
   mat get_coord() const {return coord;}
-  long get_denom() const {return denom;}
+  scalar get_denom() const {return denom;}
   long get_rank() const {return rk;}
-  long get_hmod() const {return hmod;}
+  scalar get_hmod() const {return hmod;}
   long gen(int i) const {return pivs[i];}
 
 private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
   int plusflag, verbose;
-  long ngens, nsymb, numrel, maxnumrel;
-  long hmod, characteristic, denom, rk;
-  vec pivs;
+  long ngens, nsymb, numrel, maxnumrel, characteristic, rk;
+  scalar hmod, denom;
+  vec_i pivs;
   action act_with(const mat22& M) {return ER->act_with(M);}
   action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d) {return ER->act_with(a,b,c,d);}
 

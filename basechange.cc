@@ -51,11 +51,11 @@ int main(void)
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N,plusflag,0);  //level, plusflag, verbose
   int h1dim = (cuspidal? h.h1cuspdim(): h.h1dim());
-  int den = (cuspidal? h.h1cdenom(): h.h1denom());
+  scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << h1dim << endl;
   if(den!=1) cout << " denominator = " << den << endl;
-  long hmod = h.h1hmod();
-  if(hmod)
+  scalar hmod = h.h1hmod();
+  if(hmod!=0)
     {
       cout << "Failed to lift basis from Z/"<<hmod<<" to Z!" << endl;
       cout << "Hence characteristic polynomials are only correct modulo "<<hmod
@@ -91,8 +91,9 @@ int main(void)
       cout << endl;
 
       smat SC(C);
-      int dplus = SC.nullity(+den, MODULUS);
-      int dminus = SC.nullity(-den, MODULUS);
+      scalar modulus(default_modulus<scalar>());
+      int dplus = SC.nullity(scalar(den), modulus);
+      int dminus = SC.nullity(scalar(-den), modulus);
       cout << "Conjugation has eigenvalue multiplicities:\n";
       cout << "+1: "<<dplus<<endl;
       cout << "-1: "<<dminus<<endl;
@@ -387,7 +388,7 @@ mat galois_conjugate_matrix(homspace& h, const ssubspace& s, int dual, int displ
        long jj = pivots(s)[j+1]-1;
        sm.setrow(j+1,svec(h.chain(h.freemods[jj].conj())));
      }
-  mat m = mult_mod_p(sm,basis(s),MODULUS).as_mat();
+  mat m = mult_mod_p(sm,basis(s), default_modulus<scalar>()).as_mat();
   if(!dual) m=transpose(m); // as above code computes the transpose
 
   if (display)

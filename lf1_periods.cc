@@ -116,7 +116,7 @@ int main ()
                          assert (a*d-b*c==Quad::one);
                          RatQuad q(b,d);
 #ifdef RECOMPUTE_RATIOS
-                         long matdot = abs((nf.h1->chain(q, 1))[i+1]) / nf.nflist[i].cuspidalfactor;
+                         long matdot = I2long(abs((nf.h1->chain(q, 1))[i+1]) / nf.nflist[i].cuspidalfactor);
                          gcd_multiple = gcd(gcd_multiple, matdot);
 #endif
                          REAL period__b_d = summer2.compute_period(a,b,c,d);
