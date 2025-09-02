@@ -747,7 +747,8 @@ void face_relations::solve_relations()
    timer t;
    t.start("relation solver");
 #endif
-   scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
+   scalar modulus = default_modulus<scalar>();
+   if (characteristic) modulus = scalar(characteristic);
    smat_elim sme(relmat, modulus);
    scalar d1;
    smat ker = sme.kernel(npivs, pivs), sp;

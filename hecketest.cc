@@ -44,7 +44,7 @@ int main(void)
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N,plusflag,0);  //level, plusflag, verbose
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
-  long den = I2long(cuspidal? h.h1cdenom(): h.h1denom());
+  scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << dim << endl;
   //if(den!=1) cout << " denominator = " << den << endl;
   scalar hmod = h.h1hmod();

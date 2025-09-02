@@ -1736,7 +1736,8 @@ void newforms::make_projcoord()
 void newforms::make_bigtkernbas(void)
 {
   // 'big' version bigtkernbas
-  scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
+  scalar modulus = default_modulus<scalar>();
+  if (characteristic) modulus = scalar(characteristic);
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
   smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);

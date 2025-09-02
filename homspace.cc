@@ -153,7 +153,8 @@ void homspace::kernel_delta()
       if(verbose>1)
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
-  scalar modulus(characteristic==0? default_modulus<scalar>(): characteristic);
+  scalar modulus = default_modulus<scalar>();
+  if (characteristic) modulus = scalar(characteristic);
   vec_i pivs, npivs;
   scalar d2;
   sdeltamat = smat(deltamat);

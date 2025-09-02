@@ -62,7 +62,8 @@ endif
 #LFLAGS = --coverage -fprofile-arcs -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 #for normal use:
-CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+#CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
+CFLAGS = -c -g $(OPTFLAG) -DSCALAR_OPTION=1 $(BOOST_CPPFLAGS) -I$(INCDIR)
 #CFLAGS = -c -g $(OPTFLAG) -DDEBUG_LoverP $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
@@ -303,7 +304,7 @@ qidl_labels: qidl_labels.o $(OBJS)
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
-flint_test: flint_test.o int.h rat.h
+flint_test: flint_test.o flint_test.cc int.o rat.h
 	$(CC) -o flint_test flint_test.o int.o $(LFLAGS)
 
 swan_test: swan_test.o $(OBJS) rat.h
