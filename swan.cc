@@ -5,7 +5,7 @@
 #include "swan_alphas.h"
 #include "swan_tess.h"
 #include "swan_hom.h" // for homology_invariants() only
-#include "pari_snf.h" // for homology_invariants_via_pari() only
+#include "pari_snf.h" // for invariants() only
 
 // clears all alphas-sigma data, polyhedra, faces
 void SwanData::clear()

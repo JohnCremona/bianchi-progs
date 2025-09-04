@@ -3,7 +3,7 @@
 #include "swan_utils.h"
 #include "swan_tess.h"
 #include "swan_hom.h"
-#include "pari_snf.h"
+#include "pari_snf.h" // for homology_invariants_via_pari() only
 #include "flint_snf.h"
 
 // Define this to use FLINT instead of PARI for HNF,SNF:

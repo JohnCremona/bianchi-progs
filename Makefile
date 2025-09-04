@@ -86,6 +86,21 @@ quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
 headers: Q_headers quad_headers swan_headers
 
+#####################################################################################################
+# Files which do not involve quads at all:
+#
+# int.h/cc:            INT class wrapping FLINT fmpz_t
+# rat.h:               RAT class wrapping FLINT fmpq_t
+# real.h:              REAL class wrapping FLINT arb_t
+# arith_extras.h/cc:   int/long utilities
+# intprocs.h/cc:       INT utilities
+# pari_snf.h/cc:       Homology invariants (as INTS) via PARI
+# flint_snf.h/cc:      HF, SNF and homology invariants (as INTS) via FLINT
+# flint_test.cc:       Test program (for INT, RAT)
+# snf_test.cc:         Test program (for flint_snf)
+#
+#####################################################################################################
+
 # DEPENDENCIES (of *.o files)
 #
 Makefile.deps:
