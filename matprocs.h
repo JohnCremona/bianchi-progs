@@ -24,13 +24,16 @@ mat_ZZ mat_to_mat_ZZ(mat A);
 mat_ZZ_p mat_to_mat_ZZ_p(mat A);
 
 // compute char poly of A/den:
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den);
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const ZZ& modulus);
 
-// check that a matrix is a scaled involution:
-int check_involution(const mat_ZZ& A, scalar den, int verbose=0);
+// check that a matrix is a scaled involution (modulo modulus, if modulus!=0):
+int check_involution(const mat_ZZ& A, scalar den, const ZZ& modulus, int verbose=0);
 
-// check that a matrix commutes with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist);
+// check that two matrices commute (modulo modulus, if modulus!=0):
+int commute(const mat_ZZ& A, const mat_ZZ& B, const ZZ& modulus);
+
+// check that a matrix commutes (modulo modulus, if modulus!=0) with all those in a list:
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const ZZ& modulus);
 
 // display factors of a polynomial:
 void display_factors(const ZZX& f);

@@ -51,8 +51,8 @@ int main(void)
   if(hmod!=0)
     {
       cout << "Failed to lift basis from Z/"<<hmod<<" to Z!" << endl;
-      cout << "Hence characteristic polynomials are only correct modulo "<<hmod
-           <<" and their factorizations are not useful."<<endl;
+      cout << "Hence characteristic polynomials are only correct modulo "<<hmod<<endl;
+      ZZ_p::init(to_ZZ(hmod));
     }
 
   if (dim>0)
@@ -75,7 +75,7 @@ int main(void)
               if (show_mats)
                 cout << "Matrix is \n" << m << endl;
 
-              ZZX charpol = scaled_charpoly(nu, to_ZZ(den));
+              ZZX charpol = scaled_charpoly(nu, to_ZZ(den), hmod);
               if (show_pols)
                 {
                   cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -85,11 +85,11 @@ int main(void)
                   display_factors(charpol);
                 }
               cout << endl;
-              if (!check_involution(nu,den, 1))
+              if (!check_involution(nu,den,hmod, 1))
                 {
                   exit(1);
                 }
-              if (!check_commute(nu, nulist))
+              if (!check_commute(nu, nulist, hmod))
                 {
                   cout << "********* unramified character matrices do not commute with each other ***********" << endl;
                   exit(1);
@@ -154,7 +154,7 @@ int main(void)
           if (show_mats)
             cout << "Matrix is \n" << m << "\n="<< m << endl;
 
-          ZZX charpol = scaled_charpoly(wq, to_ZZ(den));
+          ZZX charpol = scaled_charpoly(wq, to_ZZ(den), hmod);
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -164,16 +164,16 @@ int main(void)
               display_factors(charpol);
             }
           cout << endl;
-          if (!check_involution(wq,den, 1))
+          if (!check_involution(wq,den,hmod, 1))
             {
               exit(1);
             }
-          if (!check_commute(wq, nulist))
+          if (!check_commute(wq, nulist, hmod))
             {
               cout << "********* W(Q) does not commute with unramified character matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(wq, wqlist))
+          if (!check_commute(wq, wqlist, hmod))
             {
               cout << "********* W(Q) matrices do not commute with each other ***********" << endl;
               exit(1);
@@ -246,7 +246,7 @@ int main(void)
           ntp++;
           tplist.push_back(tp);
 
-          ZZX charpol = scaled_charpoly(tp, to_ZZ(den));
+          ZZX charpol = scaled_charpoly(tp, to_ZZ(den), hmod);
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -257,17 +257,17 @@ int main(void)
             }
           cout << endl;
 
-          if (!check_commute(tp, nulist))
+          if (!check_commute(tp, nulist, hmod))
             {
               cout << "********* T(P) does not commute with unramified character matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(tp, wqlist))
+          if (!check_commute(tp, wqlist, hmod))
             {
               cout << "********* T(P) does not commute with W(Q) matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(tp, tplist))
+          if (!check_commute(tp, tplist, hmod))
             {
               cout << "********* T(P) does not commute with other T(P) matrices ***********" << endl;
               exit(1);
@@ -301,7 +301,7 @@ int main(void)
             cout << "Matrix is \n" << m << endl;
           tpqlist.push_back(tpq);
 
-          charpol = scaled_charpoly(tpq, to_ZZ(den));
+          charpol = scaled_charpoly(tpq, to_ZZ(den), hmod);
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -312,22 +312,22 @@ int main(void)
             }
           cout << endl;
 
-          if (!check_commute(tpq, nulist))
+          if (!check_commute(tpq, nulist, hmod))
             {
               cout << "********* T(PQ) does not commute with unramified character matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(tpq, wqlist))
+          if (!check_commute(tpq, wqlist, hmod))
             {
               cout << "********* T(PQ) does not commute with all W matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(tpq, tplist))
+          if (!check_commute(tpq, tplist, hmod))
             {
               cout << "********* T(PQ) does not commute with all T matrices ***********" << endl;
               exit(1);
             }
-          if (!check_commute(tpq, tpqlist))
+          if (!check_commute(tpq, tpqlist, hmod))
             {
               cout << "********* T(PQ) does not commute with other T(PQ) matrices ***********" << endl;
               exit(1);
@@ -350,7 +350,7 @@ int main(void)
                   if (show_mats)
                     cout << "Matrix is \n" << m1 << endl;
                   tpwqlist.push_back(tpwq);
-                  charpol = scaled_charpoly(tpwq, to_ZZ(den));
+                  charpol = scaled_charpoly(tpwq, to_ZZ(den), hmod);
                   if (show_pols)
                     {
                       cout << "Coefficients of characteristic polynomial are " << charpol << endl;
@@ -360,27 +360,27 @@ int main(void)
                       display_factors(charpol);
                     }
                   cout << endl;
-                  if (!check_commute(tpwq, nulist))
+                  if (!check_commute(tpwq, nulist, hmod))
                     {
                       cout << "********* T(P)W(Q) does not commute with unramified character matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpwq, wqlist))
+                  if (!check_commute(tpwq, wqlist, hmod))
                     {
                       cout << "********* T(P)W(Q) does not commute with all W matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpwq, tplist))
+                  if (!check_commute(tpwq, tplist, hmod))
                     {
                       cout << "********* T(P)W(Q) does not commute with all T matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpwq, tpqlist))
+                  if (!check_commute(tpwq, tpqlist, hmod))
                     {
                       cout << "********* T(P)W(Q) does not commute with all T(PQ) matrices ***********" << endl;
                       exit(1);
                     }
-                  if (!check_commute(tpwq, tpwqlist))
+                  if (!check_commute(tpwq, tpwqlist, hmod))
                     {
                       cout << "********* T(P)W(Q) does not commute with other T(P)W(Q) matrices ***********" << endl;
                       exit(1);

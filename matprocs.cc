@@ -30,35 +30,63 @@ mat_ZZ_p mat_to_mat_ZZ_p(mat A)
   return ntl_A;
 }
 
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den)
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const ZZ& modulus)
 {
   ZZX charpol;
   CharPoly(charpol, A);
   long d = deg(charpol);
-  if (den>1)
+  if ((den>1)||(modulus!=0))
     {
       bigint dpow(1);
       for(int i=0; i<=d; i++)
         {
-          SetCoeff(charpol, d-i, coeff(charpol, d-i)/dpow);
+          bigint c = coeff(charpol, d-i)/dpow;
+          if (modulus!=0)
+            {
+              c = mod(c, modulus);
+            }
+          SetCoeff(charpol, d-i, c);
           dpow *= den;
         }
     }
   return charpol;
 }
 
-int check_involution(const mat_ZZ& A, scalar den, int verbose)
+int check_involution(const mat_ZZ& A, scalar den, const ZZ& modulus, int verbose)
 {
-  int res = IsDiag(power(A,2), A.NumRows(), to_ZZ(den*den));
+  int n = A.NumRows();
+  mat_ZZ Asq = sqr(A);
+  if (modulus!=0)
+    {
+      for (int i=1; i<=n; i++)
+        for (int j=1; j<=n; j++)
+          Asq(i,j) = mod(Asq(i,j), modulus);
+    }
+  int res = IsDiag(Asq, n, to_ZZ(den*den));
   if (verbose)
     cout << (res? "Involution!": "NOT an involution....") << "\n";
   return res;
 }
 
-// check that a matrix commutes with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist)
+int commute(const mat_ZZ& A, const mat_ZZ& B, const ZZ& modulus)
 {
-  return std::all_of(Blist.begin(), Blist.end(), [A] (const mat_ZZ& B) {return A*B==B*A;});
+  mat_ZZ C = A*B-B*A;
+  int n = C.NumRows();
+  for (int i=1; i<=n; i++)
+    for (int j=1; j<=n; j++)
+      {
+        ZZ Cij = C(i,j);
+        if (modulus!=0)
+          Cij = mod(Cij, modulus);
+        if (Cij!=0) return 0;
+      }
+  return 1;
+}
+
+// check that a matrix commutes with all those in a list:
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const ZZ& modulus)
+{
+  return std::all_of(Blist.begin(), Blist.end(), [A, modulus] (const mat_ZZ& B) {return commute(A,B,modulus);});
 }
 
 // display factors of a polynomaial:

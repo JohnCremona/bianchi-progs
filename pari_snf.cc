@@ -6,6 +6,16 @@
 #include <eclib/convert.h>
 #include <assert.h>
 
+using PARI::zeromatcopy;
+using PARI::ZM_rank;
+using PARI::ZM_inv;
+using PARI::ZM_mul;
+using PARI::ZM_snf;
+using PARI::ZM_hnf;
+using PARI::ZM_hnfall;
+using PARI::RgM_dimensions;
+using PARI::rowslice;
+
 // Convert a pari t_INT to an INT
 INT PARI_to_INT(GEN n)
 {
