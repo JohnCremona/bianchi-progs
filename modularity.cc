@@ -3,10 +3,7 @@
 #include <fstream>
 #include "newforms.h"
 
-long prime_index(const Quadprime& P)
-{
-  return find(Quadprimes::list.begin(), Quadprimes::list.end(), P) - Quadprimes::list.begin();
-}
+scalar modulus = default_modulus<scalar>();
 
 int main(void)
 {
@@ -39,7 +36,7 @@ int main(void)
   cerr<<"Enter number of newforms and number of primes to check: \n";
   cin >> nforms >> nprimes;
 
-  newforms nf(N,verbose>1);
+  newforms nf(N, modulus, verbose>1);
   nf.read_from_file_or_find();
   if (verbose && showforms)
     nf.display();

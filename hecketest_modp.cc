@@ -44,7 +44,7 @@ int main(void)
    {
 #endif
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-  homspace h(N,plusflag,0, ch);  //level, plusflag, verbose, characteristic
+  homspace h(N, ch, plusflag,0, ch);  //level, plusflag, verbose, characteristic
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;
 

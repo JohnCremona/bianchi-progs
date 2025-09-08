@@ -3,7 +3,7 @@
 #if     !defined(_RAT_H)
 #define _RAT_H      1       //flags that this file has been included
 
-#include "arith_extras.h"
+#include "eclib.h"
 #include "int.h"
 #include <flint/fmpq.h>
 

@@ -27,9 +27,10 @@ public:
   vector<int> freegens;
   mat projcoord;
   scalar characteristic; // =0 or prime p
+  scalar modulus; // prime for linear algebra (=characteristic if that is >0)
   scalar hmod; // if >0, did not lift from modular linear algebra so coord is modulo this
 
-  homspace(const Qideal& I, int hp, int verb=0, scalar ch=scalar(0));
+  homspace(const Qideal& I, scalar mod, int hp, int verb=0, scalar ch=scalar(0));
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed

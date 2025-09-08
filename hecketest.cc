@@ -6,6 +6,7 @@
 //#define LOOPER
 
 #define MAXPRIME 10000
+scalar modulus = default_modulus<scalar>();
 
 int main(void)
 {
@@ -42,7 +43,7 @@ int main(void)
    {
 #endif
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-  homspace h(N,plusflag,0);  //level, plusflag, verbose
+  homspace h(N, modulus, plusflag, 0);
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << dim << endl;
@@ -50,8 +51,8 @@ int main(void)
   scalar hmod = h.h1hmod();
   if(hmod!=0)
     {
-      cout << "Failed to lift basis from Z/"<<hmod<<" to Z!" << endl;
-      cout << "Hence characteristic polynomials are only correct modulo "<<hmod<<endl;
+      cout << "Failed to lift basis from Z/"<<hmod<<" to Z -- "
+           << "homology is modulo "<<hmod<<endl;
       ZZ_p::init(to_ZZ(hmod));
     }
 

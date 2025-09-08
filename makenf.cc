@@ -5,6 +5,8 @@
                  // which loops over a range of norms and skips any level for which
                  // data already exists.
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxpnorm(200000);
@@ -60,7 +62,7 @@ int main ()
      string efilename = eigfile(N);
      string label = ideal_label(N);
      cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     newforms nf(N,verbose);
+     newforms nf(N, modulus, verbose);
 #ifdef LOOPER // skip this level if we already have a newforms file
      if(nf.read_from_file())
        {

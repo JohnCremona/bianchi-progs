@@ -70,7 +70,7 @@ LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl
 all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
-ccs0: int.cc arith_extras.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs0: int.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
@@ -80,7 +80,7 @@ ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_e
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
-Q_headers: arith_extras.h int.h rat.h real.h intprocs.h matprocs.h
+Q_headers: eclib.h int.h rat.h real.h intprocs.h matprocs.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h # euclid.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
@@ -92,7 +92,7 @@ headers: Q_headers quad_headers swan_headers
 # int.h/cc:            INT class wrapping FLINT fmpz_t
 # rat.h:               RAT class wrapping FLINT fmpq_t
 # real.h:              REAL class wrapping FLINT arb_t
-# arith_extras.h/cc:   int/long utilities
+# eclib.h:             eclib includes
 # intprocs.h/cc:       INT utilities
 # pari_snf.h/cc:       Homology invariants (as INTS) via PARI
 # flint_snf.h/cc:      HF, SNF and homology invariants (as INTS) via FLINT
@@ -202,7 +202,7 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-Q_OBJS = int.o arith_extras.o intprocs.o matprocs.o
+Q_OBJS = int.o intprocs.o matprocs.o
 QUAD_OBJS = quads.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o geometry.o  # euclid.o

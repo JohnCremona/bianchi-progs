@@ -255,10 +255,10 @@ public:
   vector<int> old1dims, new1dims;
   vector<int> old2dims, new2dims;
   homspace* h1; // pointer to one, not an array
-  scalar hmod, nfhmod, modulus, characteristic; // 0 or prime
+  scalar hmod, modulus, characteristic; // 0 or prime
   int have_bases;
   vector<newform> nflist;
-  explicit newforms(const Qideal& N, int disp=0, scalar ch=scalar(0));
+  explicit newforms(const Qideal& N, scalar mod, int disp=0, scalar ch=scalar(0));
   ~newforms(void)
   {
     if(h1!=NULL)delete h1;

@@ -6,6 +6,7 @@
 //#define LOOPER
 
 #define MAXPRIME 10000
+scalar modulus = default_modulus<scalar>();
 
 mat galois_conjugate_matrix(homspace& h, int cuspidal=0, int dual=1, int display=0);
 mat galois_conjugate_matrix(homspace& h, const ssubspace& s, int dual=1, int display=0);
@@ -49,7 +50,7 @@ int main(void)
          continue;
        }
   cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-  homspace h(N,plusflag,0);  //level, plusflag, verbose
+  homspace h(N, modulus, plusflag, 0);
   int h1dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
   cout << (cuspidal?"Cuspidal dimension = ":"Dimension = ") << h1dim << endl;

@@ -53,7 +53,7 @@ void oldforms::getoldclasses(Qideal& D)
   if(nf->verbose)
     cout << "\nGetting oldclasses at level "<<ideal_label(N)<<" from divisor " << ideal_label(D) << endl;
 
-  newforms olddata(D, nf->verbose, nf->characteristic);
+  newforms olddata(D, nf->modulus, nf->verbose, nf->characteristic);
   olddata.read_from_file_or_find();
   int old1ds=olddata.n1ds, old2ds=olddata.n2ds;
   noldclasses += old1ds;

@@ -2,6 +2,8 @@
 #include "homspace.h"
 //#define MODP
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxpnorm(2000);
@@ -58,12 +60,12 @@ int main ()
      cout << ideal_label(N)<<"\t "<<N.norm()<<"\t"; // level and norm
      if (!plusflag)
        {
-         homspace h1(N,0, 0, ch);  //level, plusflag, verbose, characteristic
+         homspace h1(N, modulus, 0, 0, ch);  // plusflag=0, verbose=0, characteristic
          dimall = h1.h1dim();
          dimcusp = h1.h1cuspdim();
          cout << dimall << "   " << dimcusp << "\t\t";
        }
-     homspace h1plus(N,1, 0, ch);  //level, plusflag, verbose, characteristic
+     homspace h1plus(N, modulus, 1, 0, ch);  // plusflag=1, verbose=0, characteristic
      dimall = h1plus.h1dim();
      dimcusp = h1plus.h1cuspdim();
      cout << dimall << "   " << dimcusp;

@@ -185,6 +185,13 @@ vector<Quadprime> make_squarebadprimes(const Qideal& N, const vector<Quadprime>&
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(const Qideal& N,  int np, int& iP0, long p);
 
+inline long prime_index(const Quadprime& P)
+{
+  return find(Quadprimes::list.begin(), Quadprimes::list.end(), P) - Quadprimes::list.begin();
+}
+
+
+
 #endif
 
 // END OF FILE primes.h

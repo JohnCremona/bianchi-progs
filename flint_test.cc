@@ -1,4 +1,4 @@
-#include "arith_extras.h"
+#include "eclib.h"
 #include "rat.h"
 
 void testINT(INT a)

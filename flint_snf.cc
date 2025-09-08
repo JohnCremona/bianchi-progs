@@ -1,4 +1,4 @@
-#include "arith_extras.h"
+#include "eclib.h"
 #include "flint_snf.h"
 
 // Given a matrix as vector<vector<int>>, construct a FLINT fmpz_mat

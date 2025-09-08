@@ -845,16 +845,15 @@ void newforms::makeh1(void)
 {
   if(!h1)
     {
-      h1 = new homspace(N, /*plus*/ 1, /*verbose*/ 0, characteristic);
-      nfhmod=hmod = h1->h1hmod();
+      h1 = new homspace(N, modulus, /*plus*/ 1, /*verbose*/ 0, characteristic);
+      hmod = h1->h1hmod();
     }
 }
 
-newforms::newforms(const Qideal& iN, int disp, scalar ch)
-  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch), have_bases(0)
+newforms::newforms(const Qideal& iN, scalar mod, int disp, scalar ch)
+  : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), modulus(mod), characteristic(ch), have_bases(0)
 {
-  modulus = default_modulus<scalar>();
-  //  cout<<"In newforms constructor with level = "<<ideal_label(N)<<endl;
+  //cout<<"In newforms constructor with level = "<<ideal_label(N)<<", modulus = "<<modulus<<endl;
   nchi = 1<<n2r;
   level_is_square = N.is_square();
 
@@ -897,7 +896,7 @@ newforms::newforms(const Qideal& iN, int disp, scalar ch)
 
   h1=0;
   of=0;
-  nfhmod=0;
+  hmod=0;
 }
 
 // instantiations of virtual functions required by the splitter_base class:
@@ -1034,7 +1033,7 @@ void newforms::find()
       eigranges.push_back(vector<long>());
     }
 
-  nfhmod=hmod = h1->h1hmod();
+  hmod = h1->h1hmod();
   int dimcusp = h1->h1cuspdim();
   int dimall = h1->h1dim();
 
@@ -1249,10 +1248,8 @@ vec newforms::lengthen_basis(const vec& sbasis)
 {
   // convert short basis vector (coords w.r.t. face-gens) to a long one (coords w.r.t.edge-gens):
   if(hmod!=0)
-    { // we don't have a mod p mat*vec
-      mat vcol(dim(sbasis),1);
-      vcol.setcol(1,sbasis);
-      return reduce_mod_p(matmulmodp(h1->FR.coord, vcol, hmod).col(1), default_modulus<scalar>());
+    {
+      return matvecmulmodp(h1->FR.coord, sbasis, hmod);
     }
   vec basis = (h1->FR.coord)*sbasis;
   if (characteristic==0)
@@ -1415,8 +1412,8 @@ long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
 
   // The eigenvalue ap is now top/fac (which should divide exactly)
   long ap;
-  if(nf->nfhmod!=0)
-    ap = I2long(xmodmul(top, facinv, nf->nfhmod));
+  if(nf->hmod!=0)
+    ap = I2long(mod(xmodmul(top, facinv, nf->hmod), nf->hmod));
   else
     {
       if (top%fac !=0)
@@ -1737,8 +1734,6 @@ void newforms::make_projcoord()
 void newforms::make_bigtkernbas(void)
 {
   // 'big' version bigtkernbas
-  scalar modulus = default_modulus<scalar>();
-  if (characteristic!=0) modulus = scalar(characteristic);
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
   smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);
@@ -2455,7 +2450,7 @@ void newforms::find_jlist()
 	  nfi.j0 = j0;
 	  nfi.m0 = m0;
           nfi.fac = nfi.basis[j0];
-          if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, nfhmod);
+          if(hmod!=0) nfi.facinv=invmod(nfi.fac, hmod);
 	}
       if(verbose>1)
         cout<<"index j0="<<j0<<" works as a pivot for all newforms"<<endl;
@@ -2477,7 +2472,7 @@ void newforms::find_jlist()
       nfi.m0 = m;
       mjlist[j] = m;
       nfi.fac = bas[j];
-      if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, nfhmod);
+      if(hmod!=0) nfi.facinv=invmod(nfi.fac, hmod);
     }
   if(verbose>1)
     cout<<"set of pivotal indices = "<<jlist<<endl;
@@ -2497,8 +2492,8 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
       scalar top = images[j0][i+1];
       // The eigenvalue is now top/fac (which should divide exactly)
       long ap;
-      if(nfhmod!=0)
-        ap = I2long(xmodmul(top,nflist[i].facinv, nfhmod));
+      if(hmod!=0)
+        ap = I2long(mod(xmodmul(top,nflist[i].facinv, hmod), hmod));
       else
         {
 #ifdef DEBUG_APVEC
@@ -2593,18 +2588,18 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
       // matrices: Loop over residues res mod P and for each res
       // compute several M-symbol image parts (u1:v1).  Accumulate the
       // associated vectors in vec imagej using the utility
-      // update(projcoord, imagej, ind, nfhmod), where (u1:v1) is the
+      // update(projcoord, imagej, ind, hmod), where (u1:v1) is the
       // ind'th symbol.
 
       mat& pcd = h1->projcoord;
 
       // Matrix [1,0;0,p]
       int ind = h1->ER.coords(h1->index(u,p*v));
-      update(pcd,imagej,ind,nfhmod);
+      update(pcd,imagej,ind,hmod);
 
       // Matrix [p,0;0,1]
       ind = h1->ER.coords(h1->index(p*u,v));
-      update(pcd,imagej,ind,nfhmod);
+      update(pcd,imagej,ind,hmod);
 
       // Other matrices, several for each nonzero residue b mod p
       vector<Quad> resmodp = P.residues();
@@ -2614,13 +2609,13 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
           a = -p;
           u1=u*p; u2=v-u*b;
           ind = h1->ER.coords(h1->index(u1,u2));
-          update(pcd,imagej,ind,nfhmod);
+          update(pcd,imagej,ind,hmod);
           while(!b.is_zero())
             {
               q=a/b; c=a-b*q; u3=q*u2-u1;
               a=-b; b=c; u1=u2; u2=u3;
               ind = h1->ER.coords(h1->index(u1,u2));
-              update(pcd,imagej,ind,nfhmod);
+              update(pcd,imagej,ind,hmod);
             }
         }
       images[j]=imagej;

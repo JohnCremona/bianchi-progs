@@ -13,6 +13,8 @@
 #include "qidloop.h"
 #include "homspace.h"
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   vector<long> fields = valid_field_discs(0); // all
@@ -46,24 +48,24 @@ int main ()
 
       // SL2
 
-      homspace h1(N, 0);  //level, plusflag=0 for SL2
+      homspace h1(N, modulus, 0);  // plusflag=0 for SL2
       long dimall = h1.h1dim();
       long dimcusp = h1.h1cuspdim();
       cout << dimall << "   " << dimcusp << "\t\t";
 
       // GL2
 
-     homspace h1plus(N, 1);  //level, plusflag=1 for GL2
-     dimall = h1plus.h1dim();
-     dimcusp = h1plus.h1cuspdim();
-     cout << dimall << "   " << dimcusp;
+      homspace h1plus(N, modulus, 1);  // plusflag=1 for GL2
+      dimall = h1plus.h1dim();
+      dimcusp = h1plus.h1cuspdim();
+      cout << dimall << "   " << dimcusp;
 
-     if (n2r)
-       {
-         dimall = h1plus.trivial_character_subspace_dimension(0);
-         dimcusp = h1plus.trivial_character_subspace_dimension(1);
-         cout << "\t\t" << dimall << "   " << dimcusp;
-       }
-     cout << endl;
+      if (n2r)
+        {
+          dimall = h1plus.trivial_character_subspace_dimension(0);
+          dimcusp = h1plus.trivial_character_subspace_dimension(1);
+          cout << "\t\t" << dimall << "   " << dimcusp;
+        }
+      cout << endl;
     }
 }

@@ -8,6 +8,8 @@
 
 #define RECOMPUTE_RATIOS
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
  cout.precision(10);
@@ -37,7 +39,7 @@ int main ()
 #endif
    {
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     newforms nf(N,1);
+     newforms nf(N, modulus, 1);
      nf.read_from_file();
 #ifdef RECOMPUTE_RATIOS
      nf.makebases();

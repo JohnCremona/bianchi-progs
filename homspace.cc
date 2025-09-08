@@ -4,8 +4,8 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Qideal& I, int hp, int verb, scalar ch)
-  :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), hmod(0)
+homspace::homspace(const Qideal& I, scalar mod, int hp, int verb, scalar ch)
+  :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), modulus(mod), hmod(0)
 {
   Quad::setup_geometry("geodata", 0); // will do nothing after the first time called
   nsymb = P1.size();
@@ -27,7 +27,7 @@ homspace::homspace(const Qideal& I, int hp, int verb, scalar ch)
   ER = edge_relations(&P1, hp, verb, characteristic);
   ngens = ER.get_ngens();
 
-  FR = face_relations(&ER, hp, verb, characteristic); // fills relmat with the relations and solves
+  FR = face_relations(&ER, modulus, hp, verb, characteristic); // fills relmat with the relations and solves
   denom1 = FR.get_denom();
   dimension = FR.get_rank();
   hmod = FR.get_hmod();

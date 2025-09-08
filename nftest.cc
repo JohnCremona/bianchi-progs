@@ -2,6 +2,8 @@
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxnorm(10000);
@@ -28,7 +30,7 @@ int main ()
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-     newforms nf(N,verbose);
+     newforms nf(N, modulus, verbose);
      nf.read_from_file_or_find();
      int nnf = nf.n1ds;
      if(verbose||nnf)

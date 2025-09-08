@@ -15,6 +15,8 @@
 #include "homspace.h"
 //#define MODP
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxpnorm(1000);
@@ -53,7 +55,7 @@ int main ()
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << ideal_label(N)<<"\t"; // level
-     homspace hplus(N, 1, verbose, ch);  //level, plusflag, verbose, characteristic
+     homspace hplus(N, modulus, 1, verbose, ch);  // plusflag=1
      pair<int,int> dims = hplus.trivial_character_subspace_dimensions();
      int dimcusp = dims.second;
      int dimall = dims.first;

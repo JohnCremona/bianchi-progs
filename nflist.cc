@@ -2,6 +2,8 @@
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
 //#define LOOPER
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxnorm(10000); // must be at least as many as #eigs on file
@@ -44,7 +46,7 @@ int main ()
    {
 #endif
      //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
-     newforms nf(N,0);
+     newforms nf(N, modulus, 0);
      if(nf.read_from_file())
        {
          nf.list(nap);

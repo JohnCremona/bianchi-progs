@@ -18,6 +18,7 @@
 #include "qidloop.h"
 #include "newforms.h"
 //#define MODP
+scalar modulus = default_modulus<scalar>();
 
 int main ()
 {
@@ -80,7 +81,7 @@ int main ()
      cout << "\t"<< d << "\t2\t";                  // field and weight
      cout << level_label<<"\t\t"; // level
 
-     newforms nfdata(N, 0, ch);
+     newforms nfdata(N, modulus, 0, ch); // verbose=0
      if (nfdata.read_from_file())
        {
          int dimcuspnew, dimcuspold, dimcusp;

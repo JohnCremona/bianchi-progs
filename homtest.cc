@@ -4,6 +4,8 @@
 //#define CHECK_CONJUGATE
 //#define MODP
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
   long d, maxpnorm(2000);
@@ -45,7 +47,7 @@ int main ()
            cout<<endl;
          else
            cout << "\t";
-         homspace h(N,plusflag, verbose, ch);  //level, plusflag, cuspidal, verbose
+         homspace h(N, modulus, plusflag, verbose, ch);  //level, plusflag, cuspidal, verbose
          cout << "Dimension";
 #ifdef MODP
          if (ch) cout << " (mod "<<ch<<")";

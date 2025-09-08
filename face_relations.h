@@ -10,7 +10,7 @@
 class face_relations {
 public:
   face_relations() {;}
-  face_relations(edge_relations*, int plus, int verb=0, scalar ch=scalar(0));
+  face_relations(edge_relations*, scalar mod, int plus, int verb=0, scalar ch=scalar(0));
   int ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
   mat get_coord() const {return coord;}
@@ -22,7 +22,7 @@ public:
 private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
   int plusflag, verbose, ngens, nsymb, numrel, maxnumrel, rk;
-  scalar characteristic, hmod, denom;
+  scalar characteristic, modulus, hmod, denom;
   vec_i pivs;
   action act_with(const mat22& M) {return ER->act_with(M);}
   action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d) {return ER->act_with(a,b,c,d);}

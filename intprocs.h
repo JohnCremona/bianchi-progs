@@ -3,8 +3,7 @@
 #if     !defined(_INTPROCS_H)
 #define _INTPROCS_H      1       //flags that this file has been included
 
-#include "arith_extras.h"
-
+#include "eclib.h"
 #include "int.h"
 
 inline double to_double(const INT& x) { return I2long(x);}

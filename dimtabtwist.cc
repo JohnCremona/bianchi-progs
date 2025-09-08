@@ -35,6 +35,7 @@
 #include "newforms.h"
 
 #define MAXPRIME 10000
+scalar modulus = default_modulus<scalar>();
 
 int main(void)
 {
@@ -82,7 +83,7 @@ int main(void)
       cout << field_label() << "\t" << Nlabel << "\t"; // field, level
 
       // compute homology dimensions directly: cuspidal and trivial character cuspidal
-      homspace h(N,plusflag,0);  //level, plusflag, verbose
+      homspace h(N, modulus, plusflag, 0);  // verbose=0
       int cdim = h.h1cuspdim();
       cout << cdim << "\t";
       int dimtriv = h.trivial_character_subspace_dimension(/*cuspidal*/ 1);
@@ -91,7 +92,7 @@ int main(void)
       // Read new dimensions from data file:
 
       vector<int> newdims(nchi,0);
-      newforms nfdata(N);
+      newforms nfdata(N, modulus);
       if (nfdata.read_from_file())
         {
           if (nchi == 1)

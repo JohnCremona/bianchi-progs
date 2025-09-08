@@ -3,6 +3,8 @@
 #include <fstream>
 #include "newforms.h"
 
+scalar modulus = default_modulus<scalar>();
+
 int main(void)
 {
  cout << "Program moreap: for each level, assumes that the newforms file exists, and computes more Hecke eigenvalues.\n";
@@ -23,7 +25,7 @@ int main(void)
      cerr << "How many primes for Hecke eigenvalues? ";
      cin  >> lastp; cout << endl;
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     newforms nf(N,verbose);
+     newforms nf(N, modulus, verbose);
      int ok = nf.read_from_file();
      if (!ok)
        {

@@ -1,7 +1,7 @@
 // FILE FACE_RELATIONS.CC: Implemention of the face relations for class homspace
 
 //#define TIME_RELATION_SOLVING
-//#define USE_CRT // if using smats  mod default_modulus(), try CRT-ing with another prime
+//#define USE_CRT // if using smats  mod modulus, try CRT-ing with another prime
                 // NB this is experimental only
 
 
@@ -19,8 +19,8 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, sma
 // face relations
 //
 
-face_relations::face_relations(edge_relations* er, int plus, int verb, scalar ch)
-  :ER(er), plusflag(plus), verbose(verb), characteristic(ch)
+face_relations::face_relations(edge_relations* er, scalar mod, int plus, int verb, scalar ch)
+  :ER(er), plusflag(plus), verbose(verb), characteristic(ch), modulus(mod)
 {
   nsymb = ER->nsymb;
   maxnumrel = 2*(plusflag?1:2)*nsymb;
@@ -198,19 +198,11 @@ void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& typ
       if(c)
         {
           scalar sc(sign(c));
-#ifdef USE_SMATS
           relation.add(abs(c), sc);
-#else
-          relation[abs(c)] += sc;
-#endif
         }
       ++r, ++t, ++s;
     }
-#ifdef USE_SMATS
-  if(relation.size()==0)
-#else
   if(trivial(relation))
-#endif
     {
       if (verbose) cout<<relation<<endl;
       return;
@@ -730,7 +722,7 @@ void face_relations::solve_relations()
         }
       else
         {
-          cout<<"rank(relmat) = "<<relmat.rank(default_modulus<scalar>());
+          cout<<"rank(relmat) = "<<relmat.rank(modulus);
         }
       cout<<", ngens = "<<ngens<<endl;
     }
@@ -747,8 +739,8 @@ void face_relations::solve_relations()
    timer t;
    t.start("relation solver");
 #endif
-   scalar modulus = default_modulus<scalar>();
    if (characteristic!=0) modulus = characteristic;
+   if (verbose>1) cout << "About to find kernel of relmat, modulus = "<<modulus<<endl;
    smat_elim sme(relmat, modulus);
    scalar d1;
    smat ker = sme.kernel(npivs, pivs), sp;
@@ -779,7 +771,7 @@ void face_relations::solve_relations()
               << modulus << endl;
 #ifdef USE_CRT
        int mod2 = 1073741783; // 2^30-41
-       INT mmod(default_modulus<scalar>()); mmod*=mod2;
+       INT mmod(modulus); mmod*=mod2;
        if(verbose)
          cout << "repeating kernel computation, modulo " << mod2 << endl;
        smat_elim sme2(relmat,mod2);
@@ -793,7 +785,7 @@ void face_relations::solve_relations()
        else
          {
            if(verbose) cout << " pivs agree" << endl;
-           ok = liftmats_chinese(ker, default_modulus<scalar>() ,ker2,mod2,sp,d1);
+           ok = liftmats_chinese(ker, modulus ,ker2,mod2,sp,d1);
          }
        if (ok)
          {
@@ -815,7 +807,7 @@ void face_relations::solve_relations()
      }
    else
      {
-       hmod = default_modulus<scalar>();
+       hmod = modulus;
        denom = scalar(1);
      }
    relmat=smat(0,0); // clear space
