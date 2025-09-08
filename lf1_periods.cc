@@ -80,7 +80,7 @@ int main ()
          REAL P_from_L = summer.get_period();
          rational ratio = nf.nflist[i].loverp;
          if (num(ratio)==0)
-           ratio = rational(nf.nflist[i].lambdadot, nf.nflist[i].cuspidalfactor);
+           ratio = rational(I2long(nf.nflist[i].lambdadot), I2long(nf.nflist[i].cuspidalfactor));
          cout << "Period = " << P_from_L
               << " (via L(F,chi,1), using L/P ratio = " << ratio << ")"<< endl << endl;
 
@@ -88,7 +88,7 @@ int main ()
          period_direct summer2(&(nf.nflist[i]), verbose);
          REAL P0 = summer2.compute_base_period();
          Quad b0=nf.nflist[i].b, d0=nf.nflist[i].d;
-         int matdot0 = nf.nflist[i].matdot;
+         scalar matdot0 = nf.nflist[i].matdot;
          cout << "Base period P0 = " << P0 << " = I_F({0,"<<RatQuad(b0,d0)<<"}) / "<<matdot0<<endl;
          cout << "(computed) L/P ratio = " << lf1chi_abs_lambda/P0 << endl << endl;
 

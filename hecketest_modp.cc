@@ -18,7 +18,7 @@ int main(void)
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
-  long ch=0;
+ scalar ch(0);
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
   ZZ_p::init(ZZ(ch));
   Quad::field(d,maxpnorm);

@@ -19,7 +19,7 @@ int liftmats_chinese(const smat& m1, scalar pr1, const smat& m2, scalar pr2, sma
 // face relations
 //
 
-face_relations::face_relations(edge_relations* er, int plus, int verb, long ch)
+face_relations::face_relations(edge_relations* er, int plus, int verb, scalar ch)
   :ER(er), plusflag(plus), verbose(verb), characteristic(ch)
 {
   nsymb = ER->nsymb;
@@ -160,14 +160,14 @@ void face_relations::make_relations()
 //
 
 // Special case: all signs +1
-void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& types)
+void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types)
 {
   vector<int> signs(rel.size(), 1);
   add_face_rel(rel, types, signs);
 }
 
 // General case:
-void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs)
+void face_relations::add_face_rel(const vector<int>& rel, const vector<int>& types, const vector<int>& signs)
 {
   if (verbose)
     {
@@ -193,7 +193,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
   while (r!=rel.end())
     {
       //      cout<<"Looking up edge coord of symbol "<<(*r)<<", type "<<(*t)<<"...";
-      long c = (*s) * ER->coords(*r, *t);
+      int c = (*s) * ER->coords(*r, *t);
       //      cout<<"c = "<<c<<endl;
       if(c)
         {
@@ -224,7 +224,7 @@ void face_relations::add_face_rel(const vector<long>& rel, const vector<int>& ty
       if (characteristic==0)
         make_primitive(relation);
       else
-        relation.reduce_mod_p(scalar(characteristic));
+        relation.reduce_mod_p(characteristic);
       if (verbose) cout<<relation<<endl;
       relmat.setrow(numrel,relation);
     }
@@ -241,9 +241,9 @@ void face_relations::triangle_relation_0()
     {
       cout << "Face relation type 1 (universal triangle):\n";
     }
-  vector<long> rel(3);
+  vector<int> rel(3);
   vector<int> types(3,0), done(nsymb, 0);
-  long j, k;
+  int j, k;
   action TiS = act_with(mat22::TiS);
   action R = act_with(mat22::R);
   for (k=0; k<nsymb; k++)
@@ -271,9 +271,9 @@ void face_relations::triangle_relation_1_3()
     {
       cout << "Face relation type 2 (triangles):\n";
     }
-  vector<long> rel(3);
+  vector<int> rel(3);
   vector<int> types(3,0), done(nsymb, 0);
-  long j, k;
+  int j, k;
 
   Quad w=Quad::w, zero(0), one(1);
   long field = Quad::d;
@@ -303,9 +303,9 @@ void face_relations::triangle_relation_1_3()
 //     {
 //       cout << "Face relation type 2 (squares):\n";
 //     }
-//   vector<long> rel(4);
+//   vector<int> rel(4);
 //   vector<int> types(4,0), done(nsymb, 0);
-//   long j, k;
+//   int j, k;
 
 //   Quad w=Quad::w, zero(0), one(1);
 //   action U = act_with(w,one,one,zero);  assert (U.det()==-one);
@@ -349,9 +349,9 @@ void face_relations::triangle_relation_1_3()
 //     {
 //       cout << "Face relation type 2 (rectangles):\n";
 //     }
-//   vector<long> rel(4);
+//   vector<int> rel(4);
 //   vector<int> types(4,0), done(nsymb, 0);
-//   long j, k;
+//   int j, k;
 //   Quad w=Quad::w, zero(0), one(1);
 
 //   action Y = act_with(one,-w,one-w,-one); assert (Y.is_unimodular());
@@ -380,9 +380,9 @@ void face_relations::triangle_relation_1_3()
 //     {
 //       cout << "Face relation type 2 (hexagons):\n";
 //     }
-//   vector<long> rel(6);
+//   vector<int> rel(6);
 //   vector<int> types(6,0), done(nsymb, 0);
-//   long j, k;
+//   int j, k;
 //   Quad w=Quad::w, zero(0), one(1), two(2);
 
 //   //  action X = act_with(one,-w,one-w,-2); // as in JC thesis (order 3)
@@ -417,9 +417,9 @@ void face_relations::triangle_relation_1_3()
 // (redundant, now handled by general T code)
 // void face_relations::triangle_relation_2()
 // {
-//   long field = Quad::d;
+//   int field = Quad::d;
 //   Quad w=Quad::w, one(1), two(2);
-//   long j, k;
+//   int j, k;
 //   Quad u(INT(field-3)/8); // u=2, 5, 8, 20 for 19,43,67,163
 
 //   action K = act_with(M_alpha(1));       assert (K.is_unimodular()); // oo --> (w-1)/2 --> w/2 --> oo
@@ -431,7 +431,7 @@ void face_relations::triangle_relation_1_3()
 
 //   // All symbols are type 1, i.e. images of {w/2,oo}.
 
-//   vector<long> rel(3);
+//   vector<int> rel(3);
 //   vector<int> types(3, 1), done(nsymb, 0);
 //   vector<mat22> mats = {mat22::identity, K, K*K};
 //   assert (Quad::SD.check_rel(mats, types));
@@ -523,13 +523,13 @@ void face_relations::general_relation(const vector<action>& Mops,
     }
 
   vector<int> done(nsymb, 0);
-  for (long j=0; j<nsymb; j++)
+  for (int j=0; j<nsymb; j++)
     {
       if (done[j]) continue;
-      vector<long> rel(len);
+      vector<int> rel(len);
       for (int s=0; s<len; s++)
         {
-          long k = Mops[s](j);  // NB first matrix is NOT I for hexagons
+          int k = Mops[s](j);  // NB first matrix is NOT I for hexagons
           rel[s] = k;
           if (sym[s]) done[k]=1;
         }
@@ -721,11 +721,11 @@ void face_relations::solve_relations()
     {
       mat M = relmat.as_mat().slice(numrel,ngens);
       cout<<"relmat = "<<M<<endl;
-      if (characteristic)
+      if (characteristic!=0)
         {
           vec_i pcols, npcols;
           long rk_modp, ny_modp;
-          echmodp_uptri(M, pcols, npcols, rk_modp, ny_modp, scalar(characteristic));
+          echmodp_uptri(M, pcols, npcols, rk_modp, ny_modp, characteristic);
           cout<<"rank_mod_p(relmat) = "<<rk_modp;
         }
       else
@@ -748,7 +748,7 @@ void face_relations::solve_relations()
    t.start("relation solver");
 #endif
    scalar modulus = default_modulus<scalar>();
-   if (characteristic) modulus = scalar(characteristic);
+   if (characteristic!=0) modulus = characteristic;
    smat_elim sme(relmat, modulus);
    scalar d1;
    smat ker = sme.kernel(npivs, pivs), sp;
@@ -827,14 +827,14 @@ void face_relations::solve_relations()
      }
    rk = sp.ncols();
    coord.init(ngens,rk); // 0'th is unused
-   for(long i=1; i<=ngens; i++)
+   for(int i=1; i<=ngens; i++)
      coord.setrow(i,sp.row(i).as_vec());
 #ifdef USE_CRT
-   long maxcoord =0;
-   for(long i=1; i<=ngens; i++)
-     for(long j=1; j<=rk; j++)
+   int maxcoord =0;
+   for(int i=1; i<=ngens; i++)
+     for(int j=1; j<=rk; j++)
        {
-         long cij = coord(i,j);
+         int cij = coord(i,j);
          if (abs(cij)>maxcoord) maxcoord=cij;
        }
    if (verbose)

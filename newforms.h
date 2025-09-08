@@ -65,15 +65,15 @@ public:
   vector<long> eigs;   // list of eigenvalues which split off this 1D subspace
   vector<long> aplist; // list of Fourier coefficients, all primes in standard order
   vector<long> aqlist; // list of W-eigenvalues, bad primes in standard order
-  int dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good principal prime
-  int pdot;              // Manin vector's projection factor
+  scalar dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good principal prime
+  scalar pdot;              // Manin vector's projection factor
   rational loverp;       // = pdot/(dp0*nunuits)
   int sfe;               // sign of F.E.
-  Quad lambda; int lambdadot;  // twisting prime and factor
-  Quad a,b,c,d; int matdot;    // integration matrix and factor
+  Quad lambda; scalar lambdadot;  // twisting prime and factor
+  Quad a,b,c,d; scalar matdot;    // integration matrix and factor
   int index;             // the index of this newform (from 1)
-  int j0; modsym m0; int fac, facinv;
-  int cuspidalfactor;
+  int j0; modsym m0; scalar fac, facinv;
+  scalar cuspidalfactor;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   vector<long> genus_classes;        // list of genus classes for which we have a nonzero aP
   vector<Qideal> genus_class_ideals; // list of good primes, one in each of these classes
@@ -223,7 +223,7 @@ protected:
   oldforms *of;      // pointer to one, not an array
   Quadprime P0;      // the first good principal prime
   int iP0;           // P0's index in the list goodprimes (indexed from 0)
-  long nP0;          // N(P0)
+  scalar nP0;        // N(P0)
   vector<long> aP0;  // vector of ap for P0 (indexed from 0)
   vec mvp;           // Manin vector of P0
   vec zero_infinity; // {0,oo}
@@ -255,11 +255,10 @@ public:
   vector<int> old1dims, new1dims;
   vector<int> old2dims, new2dims;
   homspace* h1; // pointer to one, not an array
-  scalar hmod, nfhmod, modulus;
-  long characteristic; // 0 or prime
+  scalar hmod, nfhmod, modulus, characteristic; // 0 or prime
   int have_bases;
   vector<newform> nflist;
-  explicit newforms(const Qideal& N, int disp=0, long ch=0);
+  explicit newforms(const Qideal& N, int disp=0, scalar ch=scalar(0));
   ~newforms(void)
   {
     if(h1!=NULL)delete h1;

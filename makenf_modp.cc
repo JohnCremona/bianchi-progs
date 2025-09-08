@@ -11,7 +11,7 @@ int main ()
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
-  long ch=0;
+  scalar ch(0);
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
  Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
@@ -51,7 +51,7 @@ int main ()
 #endif
 
      INT normN = N.norm();
-     string efilename = eigfile(N, ch);
+     string efilename = eigfile(N, I2long(ch));
      string label = ideal_label(N);
      cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
      newforms nf(N,verbose, ch);

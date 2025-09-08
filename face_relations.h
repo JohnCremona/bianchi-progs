@@ -10,20 +10,19 @@
 class face_relations {
 public:
   face_relations() {;}
-  face_relations(edge_relations*, int plus, int verb=0, long ch=0);
-  long ncoords() const {return coord.nrows();}
+  face_relations(edge_relations*, int plus, int verb=0, scalar ch=scalar(0));
+  int ncoords() const {return coord.nrows();}
   vec coords(int i) const {return coord.row(i);}
   mat get_coord() const {return coord;}
   scalar get_denom() const {return denom;}
-  long get_rank() const {return rk;}
+  int get_rank() const {return rk;}
   scalar get_hmod() const {return hmod;}
-  long gen(int i) const {return pivs[i];}
+  int gen(int i) const {return pivs[i];}
 
 private:
   edge_relations* ER; // provides coord(i) and symbdata for nsymb, symbol(i), symbops
-  int plusflag, verbose;
-  long ngens, nsymb, numrel, maxnumrel, characteristic, rk;
-  scalar hmod, denom;
+  int plusflag, verbose, ngens, nsymb, numrel, maxnumrel, rk;
+  scalar characteristic, hmod, denom;
   vec_i pivs;
   action act_with(const mat22& M) {return ER->act_with(M);}
   action act_with(const Quad& a, const Quad& b, const Quad& c, const Quad& d) {return ER->act_with(a,b,c,d);}
@@ -32,8 +31,8 @@ private:
   void solve_relations();       // computes kernel of relmat and sets rk, denom, coord[, freegens]
 
   mat22 M_alpha(int j) const {return Quad::SD.Mlist[j];}
-  void add_face_rel(const vector<long>& rel, const vector<int>& types);
-  void add_face_rel(const vector<long>& rel, const vector<int>& types, const vector<int>& signs);
+  void add_face_rel(const vector<int>& rel, const vector<int>& types);
+  void add_face_rel(const vector<int>& rel, const vector<int>& types, const vector<int>& signs);
 
   void triangle_relation_0();           // triangle relation for all fields
   void triangle_relation_1_3();         // extra triangle relation for fields 1, 3

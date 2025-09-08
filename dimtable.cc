@@ -11,7 +11,7 @@ int main ()
       cerr<<"field must be one of: "<<valid_fields<<endl;
       exit(1);
     }
-  long ch=0;
+  scalar ch(0);
 #ifdef MODP
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif
@@ -28,7 +28,7 @@ int main ()
  int n2r = Quad::class_group_2_rank>0;
 
  cout << "Table of dimensions of ";
- if (ch) cout<<"mod "<<ch<<" ";
+ if (ch!=0) cout<<"mod "<<ch<<" ";
  cout<<"level N homology over Q(sqrt(-"<<d<<"))" << endl;
  if (n2r)
    {

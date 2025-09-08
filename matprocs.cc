@@ -30,7 +30,7 @@ mat_ZZ_p mat_to_mat_ZZ_p(mat A)
   return ntl_A;
 }
 
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const ZZ& modulus)
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& modulus)
 {
   ZZX charpol;
   CharPoly(charpol, A);
@@ -52,7 +52,7 @@ ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const ZZ& modulus)
   return charpol;
 }
 
-int check_involution(const mat_ZZ& A, scalar den, const ZZ& modulus, int verbose)
+int check_involution(const mat_ZZ& A, scalar den, const scalar& modulus, int verbose)
 {
   int n = A.NumRows();
   mat_ZZ Asq = sqr(A);
@@ -68,7 +68,7 @@ int check_involution(const mat_ZZ& A, scalar den, const ZZ& modulus, int verbose
   return res;
 }
 
-int commute(const mat_ZZ& A, const mat_ZZ& B, const ZZ& modulus)
+int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& modulus)
 {
   mat_ZZ C = A*B-B*A;
   int n = C.NumRows();
@@ -84,7 +84,7 @@ int commute(const mat_ZZ& A, const mat_ZZ& B, const ZZ& modulus)
 }
 
 // check that a matrix commutes with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const ZZ& modulus)
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& modulus)
 {
   return std::all_of(Blist.begin(), Blist.end(), [A, modulus] (const mat_ZZ& B) {return commute(A,B,modulus);});
 }

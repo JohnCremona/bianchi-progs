@@ -12,19 +12,19 @@ class face_relations;
 class edge_relations {
 public:
   edge_relations() {;} //{cout<<"In default edge_relations constructor"<<endl;}
-  edge_relations(P1N*, int plus, int verb=0, long ch=0);
-  long coords(int i) const {return coordindex[i];}
-  long coords(int i, int t) const {return coordindex[i+offset(t)];}
-  long gen(int i) const {return gens[i];}  // indexed from 1 not 0
-  long get_ngens() const {return ngens;}
-  long offset(int t) const // offset into coordindex for type t
+  edge_relations(P1N*, int plus, int verb=0, scalar ch=scalar(0));
+  int coords(int i) const {return coordindex[i];}
+  int coords(int i, int t) const {return coordindex[i+offset(t)];}
+  int gen(int i) const {return gens[i];}  // indexed from 1 not 0
+  int get_ngens() const {return ngens;}
+  int offset(int t) const // offset into coordindex for type t
   {
     return nsymb * (t>=0? t: Quad::SD.n_alph()-t-1);
   }
-  pair<long, int> symbol_number_and_type(long i) const
+  pair<int, int> symbol_number_and_type(int i) const
   {
-    std::ldiv_t st = ldiv(i, nsymb);
-    long s = st.rem;  // remainder gives (c:d) symbol number
+    std::div_t st = div(i, nsymb);
+    int s = st.rem;   // remainder gives (c:d) symbol number
     int t = st.quot;  // quotient gives symbol type
     if (t >= Quad::SD.n_alph())  // convert singular type to negative
       t = Quad::SD.n_alph()-t-1;
@@ -36,9 +36,9 @@ public:
 protected:
   P1N* P1; // provides nsymb, symbol(i), symbops
   int plusflag, verbose;
-  long characteristic; // =0 or prime p
+  scalar characteristic; // =0 or prime p
   int n_alphas, n_sigmas;
-  long nsymb, ngens;
+  int nsymb, ngens;
   vector<int> coordindex, gens;
   mat22 M_alpha(int j) const {return Quad::SD.Mlist[j];}
 

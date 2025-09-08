@@ -104,7 +104,7 @@ lf1::lf1 (newform* f, int r, int db)
   chi_is_trivial = lambda.is_unit();
   if (!chi_is_trivial && ar==0)
     {
-      loverp = rational(f->lambdadot, f->cuspidalfactor);
+      loverp = rational(I2long(f->lambdadot), I2long(f->cuspidalfactor));
       lambdares = residues(lambda);
       chitable = makechitable(lambda, lambdares);
       factor /= realnorm(lambda);
@@ -222,7 +222,7 @@ period_direct::period_direct(newform*f, int db)
    debug(db),
    aplist(f->aplist),
    fa(f->a), fb(f->b),fc(f->c), fd(f->d),
-   period_multiple(abs(f->matdot))
+   period_multiple(I2long(abs(f->matdot)))
 {
   maxnormp = I2long(quadprimes.back().norm());
   limitnorm = maxnormp;

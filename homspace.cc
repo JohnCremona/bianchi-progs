@@ -4,7 +4,7 @@
 #include "homspace.h"
 #include <assert.h>
 
-homspace::homspace(const Qideal& I, int hp, int verb, long ch)
+homspace::homspace(const Qideal& I, int hp, int verb, scalar ch)
   :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), hmod(0)
 {
   Quad::setup_geometry("geodata", 0); // will do nothing after the first time called
@@ -49,9 +49,9 @@ homspace::homspace(const Qideal& I, int hp, int verb, long ch)
 }
 
 // for i >=0, the i'th edge as a modsym
-modsym homspace::edge_generator(long i)
+modsym homspace::edge_generator(int i)
 {
-  pair<long, int> st = ER.symbol_number_and_type(i);
+  pair<int, int> st = ER.symbol_number_and_type(i);
   mat22 U(P1.lift_to_SL2(st.first));
   int type = st.second;
   RatQuad a(type>=0? Quad::SD.alist[type]: Quad::SD.slist[-type]);
@@ -62,7 +62,7 @@ void homspace::make_freemods()
 {
   if (dimension==0) return;
 
-  long i;
+  int i;
   modsym m;
 
   freegens.resize(dimension);
@@ -82,10 +82,10 @@ void homspace::make_freemods()
       freemods.push_back(m);
       if (verbose)
         {
-          long j = freegens[i];
-          pair<long, int> st = ER.symbol_number_and_type(j);
-          long s = st.first;  // (c:d) symbol number
-          long t = st.second; // symbol type (negative for singular edges)
+          int j = freegens[i];
+          pair<int, int> st = ER.symbol_number_and_type(j);
+          int s = st.first;  // (c:d) symbol number
+          int t = st.second; // symbol type (negative for singular edges)
           mat22 U = P1.lift_to_SL2(s);
           cout<<"--lifting symbol #"<<s<<" to SL2: "<<U
               <<", type "<<t<<" --> "<<m<<"\n"
@@ -154,7 +154,7 @@ void homspace::kernel_delta()
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
   scalar modulus = default_modulus<scalar>();
-  if (characteristic) modulus = scalar(characteristic);
+  if (characteristic!=0) modulus = scalar(characteristic);
   vec_i pivs, npivs;
   scalar d2;
   sdeltamat = smat(deltamat);
@@ -214,7 +214,7 @@ int homspace::check_conjugate(int verb)
       conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
     }
   scalar modulus(default_modulus<scalar>());
-  long conjmatrank1 = smat(conjmat1).rank(modulus);
+  int conjmatrank1 = smat(conjmat1).rank(modulus);
   if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
 
   // Now the reverse map
@@ -223,7 +223,7 @@ int homspace::check_conjugate(int verb)
     {
       conjmat2.setcol(i+1,chain(H1conj.freemods[i].conj()));
     }
-  long conjmatrank2 = smat(conjmat2).rank(modulus);
+  int conjmatrank2 = smat(conjmat2).rank(modulus);
   if (verb) cout<<" - reverse conjugation map has rank "<<conjmatrank2<<endl;
   if (conjmatrank1==dimension && conjmatrank2==dimension)
     {
@@ -247,8 +247,8 @@ int homspace::check_conjugate(int verb)
 
 vec homspace::chaincd(const Quad& c, const Quad& d, int type, int proj)
 {
-  long ind = P1.index(c,d);
-  long i= ER.coords(ind, type);
+  int ind = P1.index(c,d);
+  int i= ER.coords(ind, type);
 #ifdef DEBUG_CHAIN
   cout<<"Symbol ("<<c<<":"<<d<<") has index "<<ind<<" plus offset "<< ER.offset(type) <<" = "<<ind+ER.offset(type)
        <<", giving coordindex "<<i;
@@ -372,7 +372,7 @@ mat homspace::calcop(const matop& T, int cuspidal, int dual, int display)
   if(display)
     cout<<"Computing " << T.name() <<"...";
   mat m(dimension,dimension);
-  for (long j=0; j<dimension; j++)
+  for (int j=0; j<dimension; j++)
      { vec colj = applyop(T,freemods[j]);
        m.setcol(j+1,colj);
      }
@@ -430,7 +430,7 @@ smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
   if(display)
     cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop()..."<<flush;
   smat m(dimension,dimension);
-  for (long j=0; j<dimension; j++)
+  for (int j=0; j<dimension; j++)
     { svec colj(applyop(T,freemods[j]));
        m.setrow(j+1,colj);
      }
@@ -454,14 +454,14 @@ smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
 
 mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int display)
 {
-  long d=dim(s);
+  int d=dim(s);
   if(display)
     cout<<"Computing " << T.name()
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   mat m(d,dimension);
-  for (long j=0; j<d; j++)
+  for (int j=0; j<d; j++)
      {
-       long jj = pivots(s)[j+1]-1;
+       int jj = pivots(s)[j+1]-1;
        vec colj = applyop(T,freemods[jj]);
        m.setrow(j+1,colj);
      }
@@ -479,14 +479,14 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
 
 smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display)
 {
-  long d=dim(s);
+  int d=dim(s);
   if(display)
     cout<<"Computing " << T.name()// <<" in s_calcop_restricted()"
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   smat m(d,dimension);
-  for (long j=1; j<=d; j++)
+  for (int j=1; j<=d; j++)
      {
-       long jj = pivots(s)[j];
+       int jj = pivots(s)[j];
        svec colj(applyop(T,freemods[jj-1]));
        m.setrow(j,colj);
      }

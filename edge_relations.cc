@@ -40,7 +40,7 @@ action edge_relations::act_with(const Quad& a, const Quad& b, const Quad& c, con
 
 // 2-term (edge) relations
 
-edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
+edge_relations::edge_relations(P1N* p1, int plus, int verb, scalar ch)
   : P1(p1), plusflag(plus), verbose(verb), characteristic(ch)
 {
   if (verbose)
@@ -55,7 +55,7 @@ edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
 
   nsymb = P1->size();
   n_alphas = Quad::SD.n_alph(), n_sigmas = Quad::SD.n_sig();
-  long nsymbx = nsymb*(n_alphas+n_sigmas-1);
+  int nsymbx = nsymb*(n_alphas+n_sigmas-1);
   ngens=0;
   coordindex.resize(nsymbx);
   gens.reserve(1+nsymbx);  //NB start of gens array is at 1 not 0
@@ -156,8 +156,7 @@ edge_relations::edge_relations(P1N* p1, int plus, int verb, long ch)
 
 void edge_relations::report()
 {
-  long i;
-  int j, t;
+  int i, j, t;
   RatQuad alpha;
   string name;
   Quad c, d;
@@ -207,8 +206,7 @@ void edge_relations::edge_relations_1()    // basic edge relations for alpha = 0
   action sof = act_with(mat22::S);
   vector<int> a(lenrel), b(lenrel);
   vector<int> done(nsymb, 0);
-  long j, k;
-  int triv;
+  int j, k, triv;
   if(verbose && n_alphas>1)
     cout<<"Generic edge relations for type 0 symbols\n";
   for (j=nsymb-1; j>=0; j--)
@@ -300,8 +298,7 @@ void edge_relations::edge_relations_2_d12mod4()
   assert(Quad::SD.check_rel({mat22::identity, L}, {1,1}, {1,-1}));
 
   vector<int> done(nsymb, 0);
-  long off = offset(1);
-  long i, m, l, k;
+  int off = offset(1), i, m, l, k;
   for (i=0; i<nsymb; i++)
     {
       if (done[i])
@@ -398,7 +395,7 @@ void edge_relations::edge_relations_2_d7mod8()
       action L = act_with(-one, x, zero,one); // fixes x/2 = sigma
       assert (((mat22)L)(Quad::SD.slist[t])==Quad::SD.slist[t]);
       vector<int> done(nsymb, 0);
-      long i, l, off = offset(-t);
+      int i, l, off = offset(-t);
 
       assert (Quad::SD.check_rel({mat22::identity, L}, {-t,-t}, {1,-1}));
 
@@ -429,7 +426,7 @@ void edge_relations::edge_relations_2_d7mod8()
 void edge_relations::edge_relations_2_d3mod8()
 {
   Quad w = Quad::w, zero(0), one(1);
-  long j, k, l, m;
+  int j, k, l, m;
 
   // relevant alphas are  {1:w/2, 2:(w-1)/2}
 
@@ -448,7 +445,7 @@ void edge_relations::edge_relations_2_d3mod8()
   assert(Quad::SD.check_rel({mat22::identity, L}, {2,2}, {1,-1}));
 
   vector<int> done(nsymb, 0);
-  long off1 = offset(1), off2 = offset(2);
+  int off1 = offset(1), off2 = offset(2);
   for (j=0; j<nsymb; j++)
     {
       if (!done[j])
@@ -478,8 +475,8 @@ void edge_relations::edge_relations_2_d3mod8()
 
 void edge_relations::edge_pairing_minus(int i)
 {
-  long j, k, j2, k2;
-  long off1 = offset(i), off2 = offset(i+1);
+  int j, k, j2, k2;
+  int off1 = offset(i), off2 = offset(i+1);
   action J = act_with(mat22::J);
   action M = act_with(M_alpha(i));
   vector<int> done(nsymb, 0);
@@ -525,8 +522,8 @@ void edge_relations::edge_pairing_minus(int i)
 
 void edge_relations::edge_pairing_plus(int i)
 {
-  long j, k, l, m;
-  long off1 = offset(i), off2 = offset(i+1);
+  int j, k, l, m;
+  int off1 = offset(i), off2 = offset(i+1);
   action J = act_with(mat22::J);
   action M = act_with(M_alpha(i));
   vector<int> done(nsymb, 0);
@@ -574,17 +571,17 @@ void edge_relations::edge_pairing_plus(int i)
 
 void edge_relations::edge_pairing_double(int i)
 {
-  long off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
+  int off1 = offset(i), off2 = offset(i+1), off3 = offset(i+2), off4 = offset(i+3);
 
   // M has det 1, maps {alpha[i+2],oo} to {oo,  alpha[i]}
   action M = act_with(M_alpha(i+2));
   action J = act_with(mat22::J);
 
-  for (long j=0; j<nsymb; j++) // index of type i symbol
+  for (int j=0; j<nsymb; j++) // index of type i symbol
     {
-      long k = M(j); // index of type i+2 symbol: (M)_{i+2} = - (I)_i
-      long j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
-      long k2 = J(k); // index of type i+3 symbol
+      int k = M(j); // index of type i+2 symbol: (M)_{i+2} = - (I)_i
+      int j2 = J(j); // index of type i+1 symbol: (I)_I = (J)_{i+1} if plusflag
+      int k2 = J(k); // index of type i+3 symbol
       ++ngens;
       gens.push_back(off1+j);
       coordindex[off1+j] = ngens;

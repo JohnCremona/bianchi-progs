@@ -164,7 +164,8 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   genus_classes_filled = 0; // will be set to 1 when all/half genus classes have a nonzero aP
   cm = 1;   // will be set to 0 or a negative square-free integer if CM
   bc = 4;   // will be set to 0 or a square-free integer if base-change or twist of b.c.
-  sfe = pdot = dp0 = lambdadot = matdot = 0;
+  sfe = 0;
+  pdot = dp0 = lambdadot = matdot = scalar(0);
   genus_class_trivial_counter.resize(nf->nchi, 0);
   possible_self_twists = nf->possible_self_twists; // may be cut down on computing aP later
 }
@@ -182,13 +183,13 @@ void newform::compute_AL()
 // Compute cuspidalfactor (needs long basis and bigtkernbas)
 void newform::compute_cuspidalfactor()
 {
-  if(nf->characteristic || Quad::class_number>1)
+  if(nf->characteristic!=0 || Quad::class_number>1)
     {
       cuspidalfactor=1; // place-holder
     }
   else
     {
-      cuspidalfactor = I2long(content((nf->h1->bigtkernbas)*basis));
+      cuspidalfactor = content((nf->h1->bigtkernbas)*basis);
       if(nf->verbose>1)
         cout<<"cuspidalfactor = "<<cuspidalfactor<<endl;
     }
@@ -197,15 +198,15 @@ void newform::compute_cuspidalfactor()
 // Compute L/P ratio (needs cuspidalfactor)
 void newform::compute_loverp()
 {
-  int pdot0 = I2long(abs(nf->zero_infinity[index]));
-  dp0  =  1 + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
-  pdot = I2long(abs(nf->mvp[index]));
+  scalar pdot0 = abs(nf->zero_infinity[index]);
+  dp0  =  scalar(1) + (nf->nP0) - nf->aP0[index-1];  // aP0 is based at 0
+  pdot = abs(nf->mvp[index]);
 
   // compute L/P as n_F({0,oo}) = n_cusp({0,oo})/c
-  loverp =  rational(pdot0, cuspidalfactor);
+  loverp =  rational(I2long(pdot0), I2long(cuspidalfactor));
 
   // compute L/P again using Manin vector
-  rational loverp_mvp(pdot, dp0 * cuspidalfactor);
+  rational loverp_mvp(I2long(pdot), I2long(dp0 * cuspidalfactor));
 
   // Check they agree:
   if (pdot != dp0*pdot0)
@@ -250,7 +251,7 @@ void newform::eigs_from_data()
   // good p
 {
   // cout<<"In eigs_from_data (level "<<ideal_label(nf->N)<<"), aplist = "<<aplist<<endl;
-  int ch(nf->characteristic);
+  scalar ch(nf->characteristic);
   if (ch == 0)      // the first n2r eigs are all +1
     eigs.resize(nf->n2r, +1);
   else
@@ -262,19 +263,19 @@ void newform::eigs_from_data()
   while (((int)eigs.size() < nf->nap+nf->n2r) && (api!=aplist.end()))
     {
       Quadprime P = *pr;
-      INT normP = P.norm();
-      while ((P.divides(nf->N)) || (ch>0 && (normP%ch==0)))
+      long normP = I2long(P.norm());
+      while ((P.divides(nf->N)) || (ch>0 && (scalar(normP)%ch==0)))
         {
           // cout<<" - P = "<<ideal_label(P)<<": bad prime, skipping"<<endl;
           ++pr;
           ++api;
           P = *pr;
-          normP = P.norm();
+          normP = I2long(P.norm());
         }
       long ap = *api;
       if (!P.has_square_class()) // then we need the eigenvalue of T(P^2)
         {
-          ap = ap*ap - I2long(normP);
+          ap = ap*ap -normP;
         }
       eigs.push_back(ap);
       //cout<<" - P = "<<ideal_label(P)<<": eig = "<<ap<<endl;
@@ -287,7 +288,7 @@ void newform::eigs_from_data()
 }
 
 // When a newform has been read from file, when the class number is
-// even,before computing more ap, we need to fill in the genus class
+// even, before computing more ap, we need to fill in the genus class
 // data for each newform.
 void newform::fill_in_genus_class_data()
 {
@@ -391,7 +392,7 @@ newform::newform(newforms* nfs, int ind,
   nf=nfs;
   index = ind;
   Qideal N(nf->N);
-  int ch(nf->characteristic);
+  scalar ch(nf->characteristic);
 
   if (ch == 0)
     {
@@ -400,7 +401,7 @@ newform::newform(newforms* nfs, int ind,
       pdot = intdata[1];
       dp0 = intdata[2];
       cuspidalfactor = intdata[3];
-      loverp = rational(abs(pdot),dp0*cuspidalfactor);
+      loverp = rational(abs(intdata[1]),intdata[2]*intdata[3]);
       lambda = Quaddata[0];
       lambdadot = intdata[4];
       a = Quaddata[1];
@@ -440,7 +441,7 @@ void newform::find_matrix()
     cout<<"computing integration matrix for newform "<<index<<"..."<<flush;
   matdot=0;
   Qideal N(nf->N);
-  for (Quadlooper dl(2, 1000, 1); dl.ok()&&!matdot; ++dl)
+  for (Quadlooper dl(2, 1000, 1); dl.ok() && matdot==0; ++dl)
     { d=(Quad)dl;
       Qideal D(d);
       if (N.is_coprime_to(D))
@@ -457,16 +458,16 @@ void newform::find_matrix()
                   a /= d; // now a*d-b*c=1 with c in N
                   assert (a*d-b*c==Quad::one);
                   RatQuad q(b,d);
-                  matdot = I2long(abs((nf->h1->chain(q, 1))[index]));
+                  matdot = abs((nf->h1->chain(q, 1))[index]);
                   //cout << "Period from {0,"<<q<<"}, unscaled multiple "<<matdot<<endl;
-                  if (matdot)
+                  if (matdot!=0)
                     {
-                      if (divides(cuspidalfactor, matdot))
+                      if (matdot%cuspidalfactor ==0)
                         matdot /= cuspidalfactor;
                       else
                         cout << "Error: unscaled matdot = " << matdot
                              << " is not divisible by cuspidalfactor " << cuspidalfactor << endl;
-                      if (matdot)
+                      if (matdot!=0)
                         {
                           //cout << "Using period from {0,"<<q<<"}, multiple "<<matdot<<endl;
                           break;
@@ -849,7 +850,7 @@ void newforms::makeh1(void)
     }
 }
 
-newforms::newforms(const Qideal& iN, int disp, long ch)
+newforms::newforms(const Qideal& iN, int disp, scalar ch)
   : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), characteristic(ch), have_bases(0)
 {
   modulus = default_modulus<scalar>();
@@ -877,12 +878,12 @@ newforms::newforms(const Qideal& iN, int disp, long ch)
   // one which has index iP0;
 
   nap = MAXDEPTH;
-  goodprimes = make_goodprimes(N, nap, iP0, characteristic);
+  goodprimes = make_goodprimes(N, nap, iP0, I2long(characteristic));
   nap = goodprimes.size(); // it may be > original nap
   if (nap!=MAXDEPTH && verbose)
     cout<<" nap changed to "<<nap<<" since goodprimes = "<<goodprimes<<endl;
   P0 = goodprimes[iP0];
-  nP0 = I2long(P0.norm());
+  nP0 = scalar(I2long(P0.norm()));
 
 // P0 is the smallest good principal prime: and iP0 its index (in
 // plist, which starts with the bad primes and then the good
@@ -996,13 +997,13 @@ void newforms::find_lambdas()
                   if(verbose)cout<<"Newform # "<<j<<": ";
 #endif
                   newform& nfj = nflist[j];
-                  int ldot = I2long(abs(mvtw[j+1]));  // j based at 0 but vec mvtw based at 1
-                  if(ldot&&((chimod*nfj.sfe)==+1))
+                  scalar ldot = abs(mvtw[j+1]);  // j based at 0 but vec mvtw based at 1
+                  if(ldot!=0 && ((chimod*nfj.sfe)==+1))
                     {
 #ifdef DEBUG_LAMBDA
                       if(verbose)cout<<"Success! ";
 #endif
-                      nfj.loverp = rational(ldot, nfj.cuspidalfactor);
+                      nfj.loverp = rational(I2long(ldot), I2long(nfj.cuspidalfactor));
                       nfj.lambda = lam;
                       nfj.lambdadot = ldot;
                       gotlambda[j] = 1;
@@ -1410,12 +1411,12 @@ void newform::list(string prefix, long nap)
 long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
 {
   vec image = nf->h1->applyop(op, m0, 1);
-  int top = I2long(image[index]); // where this is the i'th newform
+  scalar top = image[index]; // where this is the i'th newform
+
+  // The eigenvalue ap is now top/fac (which should divide exactly)
   long ap;
-  // The eigenvalue is now top/fac (which should divide exactly)
-  int nfhmod = I2long(nf->nfhmod);
-  if(nfhmod!=0)
-    ap=mod(xmodmul(top,facinv,nfhmod), nfhmod);
+  if(nf->nfhmod!=0)
+    ap = I2long(xmodmul(top, facinv, nf->nfhmod));
   else
     {
       if (top%fac !=0)
@@ -1424,10 +1425,10 @@ long newform::eigenvalue(const matop& op, pair<long,long> apbounds, long factor)
               <<top<<" which is not divisible by pivot "<<fac<<endl;
           cout<<flush;
         }
-      ap = top/fac;
+      ap = I2long(top/fac);
     }
   if (nf->characteristic>0)
-    ap = posmod(ap, nf->characteristic);
+    ap = posmod(ap, I2long(nf->characteristic));
   else // check it is in range (in characteristic 0 only)
     {
       long absfac = abs(factor);
@@ -1737,7 +1738,7 @@ void newforms::make_bigtkernbas(void)
 {
   // 'big' version bigtkernbas
   scalar modulus = default_modulus<scalar>();
-  if (characteristic) modulus = scalar(characteristic);
+  if (characteristic!=0) modulus = scalar(characteristic);
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
   smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);
@@ -1768,7 +1769,8 @@ void newforms::read_from_file_or_find()
         cout << " - computing eigenvalues numbers 1 to "<<max(nap,25)<<"... "<<endl;
       getap(1, max(nap,25), 0);
     }
-  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
+  int ch = I2long(characteristic);
+  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), ch): eigfile(N, ch));
   output_to_file(eigfilename);
   if(verbose)
     {
@@ -1786,14 +1788,15 @@ int newforms::read_from_file()
 // Read newform data from file
 
   if(verbose>1) cout << "Getting newform data for " << N << endl;
-  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), characteristic): eigfile(N, characteristic));
+  int ch = I2long(characteristic);
+  string eigfilename = (Quad::class_number==1? eigfile(N.gen(), ch): eigfile(N, ch));
   ifstream data(eigfilename.c_str());
   if (!data)
     {
       if(verbose)
         {
           cout << "No data file for level " << ideal_label(N);
-          if (characteristic) cout << " mod " << characteristic;
+          if (ch) cout << " mod " << characteristic;
           cout << endl;
         }
       return 0;
@@ -2451,8 +2454,8 @@ void newforms::find_jlist()
           newform& nfi = nflist[i];
 	  nfi.j0 = j0;
 	  nfi.m0 = m0;
-          nfi.fac = I2long(nfi.basis[j0]);
-          if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, I2long(nfhmod));
+          nfi.fac = nfi.basis[j0];
+          if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, nfhmod);
 	}
       if(verbose>1)
         cout<<"index j0="<<j0<<" works as a pivot for all newforms"<<endl;
@@ -2473,8 +2476,8 @@ void newforms::find_jlist()
       nfi.j0 = j;
       nfi.m0 = m;
       mjlist[j] = m;
-      nfi.fac = I2long(bas[j]);
-      if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, I2long(nfhmod));
+      nfi.fac = bas[j];
+      if(nfhmod!=0) nfi.facinv=invmod(nfi.fac, nfhmod);
     }
   if(verbose>1)
     cout<<"set of pivotal indices = "<<jlist<<endl;
@@ -2490,13 +2493,12 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
   for (int i=0; i<n1ds; i++)
     {
       int j0 = nflist[i].j0;
-      int fac = nflist[i].fac;
-      int top = I2long(images[j0][i+1]);
-      long ap;
+      scalar fac = nflist[i].fac;
+      scalar top = images[j0][i+1];
       // The eigenvalue is now top/fac (which should divide exactly)
-      long nfhm = I2long(nfhmod);
-      if(nfhm)
-        ap=mod(xmodmul(top,nflist[i].facinv,nfhm), nfhm);
+      long ap;
+      if(nfhmod!=0)
+        ap = I2long(xmodmul(top,nflist[i].facinv, nfhmod));
       else
         {
 #ifdef DEBUG_APVEC
@@ -2508,11 +2510,11 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
               cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
               cout<<flush;
             }
-           ap = top/fac;
+          ap = I2long(top/fac);
         }
 
       if (characteristic>0)
-        apv[i] = posmod(ap, characteristic);
+        apv[i] = posmod(ap, I2long(characteristic));
       else
         {
           apv[i] = ap;
@@ -2555,7 +2557,7 @@ vector<long> newforms::apvec(const matop& op, pair<long,long> apbounds)
 // - if ind=0 it leaves imagej unchaged.
 // if hmod is nonzero the vector addition is done modulo hmod.
 
-void update(const mat& pcd, vec& imagej, long ind, scalar hmod)
+void update(const mat& pcd, vec& imagej, int ind, scalar hmod)
 {
   if (ind==0) return;
   vec part = (ind>0? pcd.row(ind): -pcd.row(-ind));
@@ -2580,7 +2582,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
       vec imagej=vec(n1ds); // initialised to 0
       // Since this code is only used in the Euclidean case,
       // all symbols have type 0
-      long s_number = h1->ER.gen(j);  // (c:d) symbol number
+      int s_number = h1->ER.gen(j);  // (c:d) symbol number
       Quad u, v;
       h1->P1.make_symb(s_number, u, v);
 
@@ -2597,7 +2599,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
       mat& pcd = h1->projcoord;
 
       // Matrix [1,0;0,p]
-      long ind = h1->ER.coords(h1->index(u,p*v));
+      int ind = h1->ER.coords(h1->index(u,p*v));
       update(pcd,imagej,ind,nfhmod);
 
       // Matrix [p,0;0,1]
@@ -2645,10 +2647,9 @@ vector<long> newforms::apvec(Quadprime& P)
 #ifdef DEBUG_APVEC
   cout<<"In apvec with P = "<<P<<endl;
 #endif
-  long normp=I2long(P.norm());
   int i, vp = val(P,N);
 
-  if ((characteristic>0) && ((vp>0) || (normp%characteristic ==0)))
+  if ((characteristic>0) && ((vp>0) || (P.norm()% I2long(characteristic) ==0)))
     {
       vector<long> apv(n1ds, -999);
 #ifdef DEBUG_APVEC
@@ -2791,7 +2792,7 @@ vector<long> newforms::eigrange(int i)
           if (verbose>1)
             cout<<"Using goodprimes["<<i-n2r<<"] = "<<P<<endl;
           if (characteristic>0)
-            eigranges[i] = range(0,characteristic-1);
+            eigranges[i] = range(0,I2long(characteristic)-1);
           else
             eigranges[i] = good_eigrange(P);
           if (verbose>1)

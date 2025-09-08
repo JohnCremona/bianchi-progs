@@ -13,7 +13,7 @@ int main ()
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
-  long ch=0;
+ scalar ch(0);
 #ifdef MODP
   cerr << "Enter characteristic (0 or prime): " << flush;  cin >> ch;
 #endif

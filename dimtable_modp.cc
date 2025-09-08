@@ -13,14 +13,14 @@ int main ()
      exit(1);
    }
 
- vector<long> charlist;
- charlist.push_back(0);
+ vector<scalar> charlist;
+ charlist.push_back(scalar(0));
  cerr << "Enter list of characteristics, ending in 0: " << flush;
- long ch=1;
- while(ch)
+ scalar ch(1); // any nonzero
+ while(ch!=0)
    {
      cin >> ch;
-     if (ch) charlist.push_back(ch);
+     if (ch!=0) charlist.push_back(ch);
    }
 
  Quad::field(d,maxpnorm);

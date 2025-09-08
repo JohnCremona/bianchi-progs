@@ -18,7 +18,7 @@ public:
   int plusflag;
   Qideal N; // the level
   P1N P1;
-  long ngens, nsymb, nap, nwq;
+  int ngens, nsymb, nap, nwq;
 
   ssubspace kern;
   smat sdeltamat;
@@ -26,16 +26,15 @@ public:
   vector<modsym> freemods;
   vector<int> freegens;
   mat projcoord;
-  long characteristic; // =0 or prime p
-  scalar hmod; // if >0, did not lift from modular linear algebra
-             // so coord is modulo this
+  scalar characteristic; // =0 or prime p
+  scalar hmod; // if >0, did not lift from modular linear algebra so coord is modulo this
 
-  homspace(const Qideal& I, int hp, int verb=0, long ch=0);
+  homspace(const Qideal& I, int hp, int verb=0, scalar ch=scalar(0));
 
   void kernel_delta();          // computes ker(delta) for cuspidal homology
   void make_freemods();         // computes freemods and needed
-  modsym edge_generator(long i); // for i in 0..nsymb*(#types)-1, the i'th edge as a modsym
-  modsym generator(long j)      // for j in 1..ngens, the j'th generating modsym
+  modsym edge_generator(int i); // for i in 0..nsymb*(#types)-1, the i'th edge as a modsym
+  modsym generator(int j)      // for j in 1..ngens, the j'th generating modsym
   {return edge_generator(ER.gen(j));}
 
   int check_conjugate(int verb=0);     // function to check consistency between this and conjugate level
