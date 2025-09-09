@@ -6,10 +6,10 @@
 //#define LOOPER
 
 #define MAXPRIME 10000
-scalar modulus = default_modulus<scalar>();
 
 int main(void)
 {
+  scalar modulus = default_modulus<scalar>();
   long d, maxpnorm(MAXPRIME);
   int np, ntp;
  Quad n; int show_mats, show_pols, show_factors, plusflag, cuspidal;

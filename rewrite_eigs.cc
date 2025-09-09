@@ -7,6 +7,8 @@
 #include "qidloop.h"
 #include "newforms.h"
 
+scalar modulus = default_modulus<scalar>();
+
 int main(void)
 {
  // cout << "Program rewrite_eigs: for each level, reads an existing newforms file, and rewrites it.\n";
@@ -40,7 +42,7 @@ int main(void)
      string efilename = eigfile(N);
      if (verbose)
        cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     newforms nf(N,verbose);
+     newforms nf(N, modulus, verbose);
      int ok = nf.read_from_file();
      if (!ok)
        {

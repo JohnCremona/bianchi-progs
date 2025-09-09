@@ -153,7 +153,6 @@ void homspace::kernel_delta()
       if(verbose>1)
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
-  scalar modulus = default_modulus<scalar>();
   if (characteristic!=0) modulus = scalar(characteristic);
   vec_i pivs, npivs;
   scalar d2;
@@ -200,7 +199,7 @@ int homspace::check_conjugate(int verb)
 {
   Qideal Nconj = N.conj();
   if (verb) cout<<"Constructing conjugate homspace for level "<<ideal_label(Nconj)<<"..."<<endl;
-  homspace H1conj(Nconj, plusflag, 0);
+  homspace H1conj(Nconj, modulus, plusflag, 0);
   if (H1conj.dimension!=dimension)
     {
       if (verb) cout<<"Error: this space and the conjugate space have differeent dimensions"<<endl;
@@ -213,7 +212,6 @@ int homspace::check_conjugate(int verb)
     {
       conjmat1.setcol(i+1, H1conj.chain(freemods[i].conj()));
     }
-  scalar modulus(default_modulus<scalar>());
   int conjmatrank1 = smat(conjmat1).rank(modulus);
   if (verb) cout<<" - conjugation map has rank "<<conjmatrank1<<endl;
 
@@ -490,7 +488,6 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
        svec colj(applyop(T,freemods[jj-1]));
        m.setrow(j,colj);
      }
-  scalar modulus(default_modulus<scalar>());
   m = mult_mod_p(m,basis(s), modulus);
   if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display)
@@ -549,7 +546,6 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
   int dual = 1;
   smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
   scalar eig = (*ei++)*den;
-  scalar modulus(default_modulus<scalar>());
   ssubspace s = eigenspace(m, eig, modulus);
   subdim = dim(s);
 
@@ -566,7 +562,6 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
 pair<int,int> homspace::unramified_character_subspace_dimensions(const vector<int>& eigs)
 {
   ssubspace s = unramified_character_subspace(eigs);
-  scalar modulus(default_modulus<scalar>());
   return {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
 }
 
@@ -593,7 +588,6 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 
   ssubspace s = trivial_character_subspace();
 
-  scalar modulus(default_modulus<scalar>());
   pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
   dimlist.push_back(subdims0);

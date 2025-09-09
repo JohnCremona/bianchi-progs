@@ -757,6 +757,8 @@ void face_relations::solve_relations()
    int ok = 1;
    if (characteristic==0)
      {
+       if (verbose) cout<<"About to lift from Z/"<<modulus<<" to Z"<<endl;
+       if (verbose>1) cout<<"Before lifting:\n"<<ker.as_mat()<<endl;
        ok = liftmat(ker,modulus,sp,d1);
      }
    else
