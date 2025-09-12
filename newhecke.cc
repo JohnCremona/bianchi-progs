@@ -2,8 +2,6 @@
 
 // Currently only implemented for class number 1
 
-#undef SCALAR_OPTION
-#define SCALAR_OPTION 3
 #include "eclib.h"
 
 #include "matprocs.h"
@@ -18,7 +16,7 @@
 int main(void)
 {
   scalar modulus = default_modulus<scalar>();
-  NextPrime(modulus, power_ZZ(2,256));
+  //  NextPrime(modulus, power_ZZ(2,256));
 
   long d, maxpnorm(MAXPRIME);
   int np, ntp;

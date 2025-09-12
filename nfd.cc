@@ -43,7 +43,7 @@ nfd::nfd(homspace* h1, int verb)
 
 // compute projcoord, precomputed projections the basis of S
 
-  H1-> projcoord = H1->FR.get_coord() * basis(S);
+  H1-> projcoord = H1->FR.get_coord() * to_mat(basis(S));
 
   // Compute change of basis matrix, expressing the basis on which we
   // will express eigenvalues in terms of the power basis on the roots
@@ -144,7 +144,7 @@ void nfd::make_S()
   if (verbose)
     cout<<"Computing charpoly(T)..."<<endl;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), dH, hmod);
+  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(to_mat(T)), dH, I2int(hmod));
   if (verbose)
     cout<<"(scaled) char poly = "<<cpT<<endl;
 
@@ -228,7 +228,7 @@ void nfd::make_S()
 
   // Check that (scaled) charpoly(A) = fT
 
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), dHS, hmod);
+  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(to_mat(A)), dHS, I2int(hmod));
   if (cpA!=f)
     {
       cout<<"Error: f(X) =            "<<f<<endl;
@@ -250,7 +250,7 @@ void nfd::make_S()
 // denominator of content
 vec_m nfd::ap(Quadprime& P)
 {
-  return H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
+  return to_vec_m(H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
 }
 
 mat_m nfd::heckeop(Quadprime& P)
@@ -258,10 +258,10 @@ mat_m nfd::heckeop(Quadprime& P)
   return to_mat_m(H1->calcop(HeckePOp(P, N), 0, 1, 0)); // 1 cuspidal, 1 transpose, 0 display
 }
 
-mat_m nfd::heckeop_S(Quadprime& P)
-{
-  return to_mat_m(H1->calcop_restricted(HeckePOp(P, N), S, 1, 0)); // 1 transpose, 0 display
-}
+// mat_m nfd::heckeop_S(Quadprime& P)
+// {
+//   return to_mat_m(H1->calcop_restricted(HeckePOp(P, N), S, 1, 0)); // 1 transpose, 0 display
+// }
 
 map<Qideal,homspace*> H1_dict;
 map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
