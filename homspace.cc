@@ -2,6 +2,7 @@
 
 #include "cusp.h"
 #include "homspace.h"
+#include "matprocs.h"
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, scalar mod, int hp, int verb, scalar ch)
@@ -381,6 +382,12 @@ mat homspace::calcop(const matop& T, int cuspidal, int dual, int display)
   if (display)
     cout<<"done."<<endl;
   return m;
+}
+
+ZZX homspace::charpoly(const matop& T, int cuspidal)
+{
+  ZZ den = to_ZZ(cuspidal? denom3: denom1);
+  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0,0)), den, hmod);
 }
 
 mat homspace::calcop_cols(const matop& T, const vec_i& jlist, int verb)

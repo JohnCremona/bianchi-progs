@@ -63,14 +63,14 @@ endif
 
 #for normal use:
 #CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
-CFLAGS = -c -g $(OPTFLAG) -DSCALAR_OPTION=1 $(BOOST_CPPFLAGS) -I$(INCDIR)
+CFLAGS = -c -g $(OPTFLAG) -DSCALAR_OPTION=3 $(BOOST_CPPFLAGS) -I$(INCDIR)
 #CFLAGS = -c -g $(OPTFLAG) -DDEBUG_LoverP $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
-ccs0: int.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc
+ccs0: int.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
@@ -116,7 +116,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -148,7 +148,7 @@ FIELDS=$(FIELDS_hom)
 BASIC_TESTS = tquads tratquad looptest qidltest
 #BASIC_TESTS =
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-#HOM_TESTS =
+#HOM_TESTS = hecketest
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
 #NF_TESTS =
 FULL_TESTS = modularity modularity_modp  #makenf_modp
@@ -306,6 +306,12 @@ hecketest: hecketest.o $(OBJS)
 
 hecketest_modp: hecketest_modp.o $(OBJS)
 	$(CC) -o hecketest_modp hecketest_modp.o $(OBJS) $(LFLAGS)
+
+newhecke: newhecke.o nfd.o $(OBJS)
+	$(CC) -o newhecke newhecke.o nfd.o $(OBJS) $(LFLAGS)
+
+tnfd: tnfd.o nfd.o $(OBJS)
+	$(CC) -o tnfd tnfd.o nfd.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o quads.o
 	$(CC) -o roundtest roundtest.o quads.o $(LFLAGS)

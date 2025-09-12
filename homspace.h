@@ -44,6 +44,8 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
+  vec cuspidalpart(const vec& v) const {return v[pivots(kern)];}
+
   int h1cuspdim() const {return cuspidal_dimension;}
   int h1dim() const {return dimension;}  // No confusion with subspace::dim
   int h1ncusps() const {return ncusps;}
@@ -63,6 +65,7 @@ public:
   vec applyop(const matop& T, const modsym& m, int proj=0);
 
   mat calcop(const matop& T, int cuspidal=0, int dual=1, int display=0);
+  ZZX charpoly(const matop& T, int cuspidal=0);
   vec calcop_col(const matop& T, int j, int)  {return applyop(T,freemods[j-1]);}
   mat calcop_cols(const matop& T, const vec_i& jlist, int);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);

@@ -95,7 +95,6 @@ void display_factors(const ZZX& f)
   ZZ cont; vec_pair_ZZX_long factors;
   factor(cont, factors, f);
   ::sort(factors.begin(), factors.end(), fact_cmp);
-  cout<<"Factors of characteristic polynomial are:"<<endl;
   long nf = factors.length();
   for(int i=0; i<nf; i++)
     {

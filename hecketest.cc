@@ -83,6 +83,7 @@ int main(void)
                 }
               if(show_factors)
                 {
+                  cout<<"Factors of characteristic polynomial are:"<<endl;
                   display_factors(charpol);
                 }
               cout << endl;
@@ -162,6 +163,7 @@ int main(void)
             }
           if(show_factors)
             {
+              cout<<"Factors of characteristic polynomial are:"<<endl;
               display_factors(charpol);
             }
           cout << endl;
@@ -254,6 +256,7 @@ int main(void)
             }
           if(show_factors)
             {
+              cout<<"Factors of characteristic polynomial are:"<<endl;
               display_factors(charpol);
             }
           cout << endl;
@@ -309,6 +312,7 @@ int main(void)
             }
           if(show_factors)
             {
+              cout<<"Factors of characteristic polynomial are:"<<endl;
               display_factors(charpol);
             }
           cout << endl;
@@ -358,6 +362,7 @@ int main(void)
                     }
                   if(show_factors)
                     {
+                      cout<<"Factors of characteristic polynomial are:"<<endl;
                       display_factors(charpol);
                     }
                   cout << endl;
