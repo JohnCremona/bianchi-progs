@@ -14,27 +14,25 @@ class nfd {
 private:
   Qideal N; // the level
   homspace* H1;  // the ambient modular symbol space at level N
-  mat_m T;  // matrix of an operator on H1
+  mat T;  // matrix of an operator on H1
 
-  mat_m W,Winv,Winv_scaled;
+  mat W,Winv,Winv_scaled;
   int cdimH, dimH;
-  scalar coord_fac;
-  bigint hmod, Wdetnum, Wdetdenom;
-  vector<bigint> minpol;  // min poly of alpha, field generator
+  scalar hmod, Wdetnum, Wdetdenom;
   int verbose;
 public:
   ZZX f;    // a multiplicity-1 irreducible factor of charpoly(T)
-  subspace_m S;  // the irreducible subspace, ker(f(T))
-  mat_m A;  // matrix of T restricted to S
-  vector<bigint> Hscales, Sscales;
-  bigint dH, dS, dHS;
+  subspace S;  // the irreducible subspace, ker(f(T))
+  mat A;  // matrix of T restricted to S
+  vector<scalar> Hscales, Sscales;
+  scalar dH, dS, dHS;
   int dimS;
   nfd(void) {;}
   nfd(homspace* h1, int verb=1);
   void display(void) const;
-  mat_m heckeop(Quadprime& P);
-  mat_m heckeop_S(Quadprime& P);
-  vec_m ap(Quadprime& P);
+  mat heckeop(Quadprime& P);
+  mat heckeop_S(Quadprime& P);
+  vec ap(Quadprime& P);
   void make_T(); // compute T (via prompts)
   void make_S(); // compute S, A, f (via prompts)
 };

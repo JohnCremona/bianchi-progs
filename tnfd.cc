@@ -17,8 +17,9 @@ int main()
   // init_time();
   cout << "Program tnfd." << endl;
   scalar modulus = default_modulus<scalar>();
+#if (SCALAR_OPTION==3)
   NextPrime(modulus, power_ZZ(2,256));
-
+#endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field (one of "<<class_number_one_fields<<"): " << flush;  cin >> d;
   if (!is_class_number_one(d))
@@ -57,8 +58,7 @@ int main()
          <<" and defining polynomial "<<form.f<<endl;
      if(dimS==0)
        continue;
-     bigint den=form.dHS;
-     int i, ip, nap=5;
+     int ip, nap=5;
      cout<<"Number of ap? ";  cin>>nap;
      //     start_time();
       ip = 0;
@@ -69,26 +69,8 @@ int main()
           ip++;
           if (ip>nap)
             break;
-          if(0) // verbose)
-	   {
-	     mat_m tp = form.heckeop(P);
-	     if(den>1) cout<<den<<"*";
-	     cout<<"Matrix of ";
-	     cout<<"T(" <<ideal_label(P)<<") = ";
-	     tp.output_pari(cout);
-             cout << endl;
-	     vector<bigint> cptp = tp.charpoly();
-	     for(i=0; i<dimS; i++)
-	       {
-		 bigint temp = cptp[i];
-		 divide_exact(temp,form.Hscales[dimS-i],temp);
-		 divide_exact(temp,form.Sscales[dimS-i],temp);
-		 cptp[i]=temp;
-	       }
-	     cout<<"char poly = "<<cptp<<endl;
-	   }
 
-          vec_m apvec = form.ap(P);
+          vec apvec = form.ap(P);
           cout<<"a_"<<ideal_label(P)<<" = ";
           if (dimS==1)
             cout << apvec[1];

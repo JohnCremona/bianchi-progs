@@ -43,7 +43,7 @@ nfd::nfd(homspace* h1, int verb)
 
 // compute projcoord, precomputed projections the basis of S
 
-  H1-> projcoord = H1->FR.get_coord() * to_mat(basis(S));
+  H1-> projcoord = H1->FR.get_coord() * basis(S);
 
   // Compute change of basis matrix, expressing the basis on which we
   // will express eigenvalues in terms of the power basis on the roots
@@ -51,7 +51,7 @@ nfd::nfd(homspace* h1, int verb)
 
   W.init(dimS,dimS);
   Winv.init(dimS,dimS);
-  vec_m v(dimS);  v[1]=1; // so v=[1,0,...,0]
+  vec v(dimS);  v[1]=1; // so v=[1,0,...,0]
   W.setcol(1,v);
   for(int i=2; i<=dimS; i++)
     {
@@ -115,11 +115,11 @@ void nfd::make_T()
     }
 
   int nP;
-  ZZ cP;
+  scalar cP;
   cout<<"Enter a linear combination of I and T_P for one or more primes P.\n";
   cout<<"First enter the coefficient of the identity: ";
   cin>>cP;
-  T = mat_m::scalar_matrix(dimH, cP);
+  T = mat::scalar_matrix(dimH, cP);
   cout<<"Now enter the number of P: "; cin>>nP;
   for (int iP=0; iP<nP; iP++)
     {
@@ -129,7 +129,7 @@ void nfd::make_T()
       cin>>cP;
       if(verbose)
         cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
-      mat_m TP = heckeop(P);
+      mat TP = heckeop(P);
       if(verbose)
         cout<<"done."<<endl;
       T += cP*TP;
@@ -144,7 +144,7 @@ void nfd::make_S()
   if (verbose)
     cout<<"Computing charpoly(T)..."<<endl;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(to_mat(T)), dH, I2int(hmod));
+  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), ZZ(dH), hmod);
   if (verbose)
     cout<<"(scaled) char poly = "<<cpT<<endl;
 
@@ -187,7 +187,7 @@ void nfd::make_S()
   // Compute f(T); since T is scaled by dH and f(X) is not, we
   // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
   // X^i by dH^(d-i):
-  mat_m fT = T;
+  mat fT = T;
   for(int i=d-1; i>=0; i--)
     {
       fT = addscalar(fT,coeff(f,i)*Hscales[d-i]);
@@ -228,7 +228,7 @@ void nfd::make_S()
 
   // Check that (scaled) charpoly(A) = fT
 
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(to_mat(A)), dHS, I2int(hmod));
+  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), dHS, hmod);
   if (cpA!=f)
     {
       cout<<"Error: f(X) =            "<<f<<endl;
@@ -248,20 +248,20 @@ void nfd::make_S()
 
 // ap_vec has length dim(S); last entries hold numerator and
 // denominator of content
-vec_m nfd::ap(Quadprime& P)
+vec nfd::ap(Quadprime& P)
 {
-  return to_vec_m(H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
+  return H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
 }
 
-mat_m nfd::heckeop(Quadprime& P)
+mat nfd::heckeop(Quadprime& P)
 {
-  return to_mat_m(H1->calcop(HeckePOp(P, N), 0, 1, 0)); // 1 cuspidal, 1 transpose, 0 display
+  return H1->calcop(HeckePOp(P, N), 0, 1, 0); // 1 cuspidal, 1 transpose, 0 display
 }
 
-// mat_m nfd::heckeop_S(Quadprime& P)
-// {
-//   return to_mat_m(H1->calcop_restricted(HeckePOp(P, N), S, 1, 0)); // 1 transpose, 0 display
-// }
+mat nfd::heckeop_S(Quadprime& P)
+{
+  return H1->calcop_restricted(HeckePOp(P, N), S, 1, 0); // 1 transpose, 0 display
+}
 
 map<Qideal,homspace*> H1_dict;
 map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
