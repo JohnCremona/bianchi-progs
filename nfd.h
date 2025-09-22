@@ -26,7 +26,7 @@ public:
   ZZX f;    // a multiplicity-1 irreducible factor of charpoly(T)
   subspace S;  // the irreducible subspace, ker(f(T))
   mat A;  // matrix of T restricted to S
-  vector<scalar> Hscales, Sscales;
+  vector<scalar> Hscales, Sscales, Scontents;
   scalar dH, dS, dHS;
   int dimS;
   nfd(void) {;}

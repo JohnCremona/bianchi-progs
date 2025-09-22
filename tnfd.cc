@@ -48,8 +48,9 @@ int main()
 #endif
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      homspace hplus(N, modulus, 1);
-     int dimH = hplus.h1cuspdim();
-     cout << "dimension = " << dimH << endl;
+     // int dimH = hplus.h1cuspdim();
+     // cout << "dimension = " << dimH << endl;
+     // cout << "denom     = " << hplus.h1cdenom() << endl;
 
      nfd forms = nfd(&hplus, verbose);
 

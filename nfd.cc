@@ -20,7 +20,7 @@ nfd::nfd(homspace* h1, int verb)
   N = H1->N;
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
-  dH = H1->h1denom();
+  dH = H1->h1cdenom();
   hmod = H1->hmod;
 
   if(verbose && dH>1)
@@ -76,9 +76,9 @@ void nfd::make_T()
         }
     }
   if (verbose)
-    cout<<"Computing charpoly(T)..."<<endl;
+    cout<<"Computing charpoly(T)... to_ZZ(dH)="<<to_ZZ(dH)<<endl;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), ZZ(dH), hmod);
+  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), to_ZZ(dH), hmod);
   if (verbose)
     cout<<"(scaled) char poly = "<<cpT<<endl;
 
@@ -187,12 +187,21 @@ int nfd::make_S()
 
   // compute projcoord, precomputed projections the basis of S
 
-  mat projcoord = H1->FR.get_coord() * basis(S);
-  scalar Scontent = projcoord.content();
-  projcoord /= Scontent;
-  H1-> projcoord = projcoord;
+  mat projcoord = transpose(H1->FR.get_coord() * basis(S));
   if (verbose>1)
-    cout<<"After removing content, projcoord = "<<projcoord;
+    cout<<"Before removing contents, projcoord = "<<projcoord<<endl;
+  Scontents.clear();
+  for (int i=1; i<=projcoord.nrows(); i++)
+    {
+      scalar ci = projcoord.row_content(i);
+      Scontents.push_back(ci);
+      if (verbose>1)
+        cout << "Column "<<i<<" of projcoord has content "<<ci<<endl;
+      projcoord.divrow(i,ci);
+    }
+  if (verbose>1)
+    cout<<"After removing contents "<<Scontents<<",\nprojcoord = "<<projcoord<<endl;
+  H1-> projcoord = transpose(projcoord);
 
   // Compute change of basis matrix, expressing the basis on which we
   // will express eigenvalues in terms of the power basis on the roots
@@ -208,7 +217,7 @@ int nfd::make_S()
       W.setcol(i,v);
     }
   Wdetnum = inverse(W,Winv); // so W*Winv = Wdetnum*identity
-  if(verbose)
+  if(verbose>1)
     {
       cout<<"W     = ";
       W.output_pari(cout);
@@ -220,11 +229,15 @@ int nfd::make_S()
     }
 
   Winv_scaled=Winv;
-  for(int i=2; i<=dimS; i++)
+  for(int i=0; i<dimS; i++)
     {
-      Winv_scaled.multrow(i,Hscales[i-1]*Sscales[i-1]);
+      Winv_scaled.multrow(i+1,Hscales[i] * Sscales[i]); // * Scontents[i]);
     }
-  if(verbose)
+  // scale *columns* by Scontents
+  for(int i=1; i<=dimS; i++)
+    for(int j=1; j<=dimS; j++)
+      Winv_scaled(i,j ) *= Scontents[j-1];
+  if(verbose>1)
     {
       cout << "Winv_scaled = ";
       Winv_scaled.output_pari(cout);
@@ -234,16 +247,16 @@ int nfd::make_S()
   Winv_scaled /= c;
   Wdetdenom = c;
   Wdetnum*=dHS;
-  Wdetdenom*=Scontent;
   scalar g = gcd(Wdetnum, Wdetdenom);
   Wdetnum /= g;
   Wdetdenom /= g;
-  cout<<"Wdetdenom = "<<Wdetdenom<<", Wdetnum = "<<Wdetnum<<endl;
+  if(verbose>1)
+    cout<<"Wdetdenom = "<<Wdetdenom<<", Wdetnum = "<<Wdetnum<<endl;
   cout<<"Basis for Hecke eigenvalues, in terms of powers of alpha:"<<endl;
   for(int i=1; i<=dimS; i++)
     {
-      cout<<"("<<Wdetdenom<<"/"<<Wdetnum<<")*";
-      cout<<Winv_scaled.col(i)<<endl;
+      cout << "("<<Wdetdenom<<"/"<<Wdetnum<<")*";
+      cout << Winv_scaled.col(i)<<endl;
     }
   return 1;
 }
