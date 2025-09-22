@@ -23,17 +23,33 @@ mat_ZZ mat_to_mat_ZZ(mat A);
 // convert an eclib mat to an NTL mat_ZZ_p:
 mat_ZZ_p mat_to_mat_ZZ_p(mat A);
 
-// compute char poly of A/den:
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& modulus);
+// return f(X/c)*c^d
+ZZX scale_poly_up(const ZZX& f, const ZZ& c);
+// return f(c*X)/c^d
+ZZX scale_poly_down(const ZZX& f, const ZZ& c);
 
-// check that a matrix is a scaled involution (modulo modulus, if modulus!=0):
-int check_involution(const mat_ZZ& A, scalar den, const scalar& modulus, int verbose=0);
+// return f(X) mod m (or just f if m==0)
+ZZX reduce_poly(const ZZX& f, const ZZ& m);
 
-// check that two matrices commute (modulo modulus, if modulus!=0):
-int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& modulus);
+// compute char poly of A/den mod m:
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m);
 
-// check that a matrix commutes (modulo modulus, if modulus!=0) with all those in a list:
-int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& modulus);
+// return A mod m (or just A if m==0)
+mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m);
+
+// evaluate f(A) (assumes f monic)
+mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A);
+// evaluate f(A) (assumes f monic)
+mat evaluate(const ZZX& f, const mat& A);
+
+// check that a matrix is a scaled involution (modulo m, if m!=0):
+int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose=0);
+
+// check that two matrices commute (modulo m, if m!=0):
+int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& m);
+
+// check that a matrix commutes (modulo m, if m!=0) with all those in a list:
+int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& m);
 
 // display factors of a polynomial:
 void display_factors(const ZZX& f);

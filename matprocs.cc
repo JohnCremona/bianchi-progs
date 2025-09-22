@@ -30,57 +30,109 @@ mat_ZZ_p mat_to_mat_ZZ_p(mat A)
   return ntl_A;
 }
 
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& modulus)
+// return f(X/c)*c^d: multiply coeff(f,i) by c^(d-i)
+ZZX scale_poly_up(const ZZX& f, const ZZ& c)
+{
+  if (c==1) return f;
+  ZZX g = f;
+  ZZ cpow(1);
+  long d = deg(f);
+  for (int i=0; i<=d; i++)
+    {
+      SetCoeff(g, d-i, cpow*coeff(g, d-i));
+      if (i<d)
+        cpow *= c;
+    }
+  return g;
+}
+
+// return f(c*X)/c^d: divide coeff(f,i) by c^(d-i)
+// NB only use when divisions are exact
+ZZX scale_poly_down(const ZZX& f, const ZZ& c)
+{
+  if (c==1) return f;
+  ZZX g = f;
+  ZZ cpow(1);
+  long d = deg(f);
+  for (int i=0; i<=d; i++)
+    {
+      SetCoeff(g, d-i, coeff(g, d-i)/cpow);
+      if (i<d)
+        cpow *= c;
+    }
+  return g;
+}
+
+// return f(X) mod m
+ZZX reduce_poly(const ZZX& f, const ZZ& m)
+{
+  if (m==0) return f;
+  ZZX g = f;
+  long d = deg(f);
+  for (int i=0; i<=d; i++)
+    SetCoeff(g, d-i, mod(coeff(g, d-i), m));
+  return g;
+}
+
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)
 {
   ZZX charpol;
   CharPoly(charpol, A);
-  long d = deg(charpol);
-  if ((den>1)||(modulus!=0))
-    {
-      bigint dpow(1);
-      for(int i=0; i<=d; i++)
-        {
-          bigint c = coeff(charpol, d-i)/dpow;
-          if (modulus!=0)
-            {
-              c = mod(c, modulus);
-            }
-          SetCoeff(charpol, d-i, c);
-          dpow *= den;
-        }
-    }
-  return charpol;
+  return reduce_poly(scale_poly_down(charpol, den), m);
 }
 
-int check_involution(const mat_ZZ& A, scalar den, const scalar& modulus, int verbose)
+// return A mod m (or just A if m==0)
+mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m)
 {
-  int n = A.NumRows();
-  mat_ZZ Asq = sqr(A);
-  if (modulus!=0)
+  if (m==0) return A;
+  int nr= A.NumRows(), nc = A.NumCols();
+  mat_ZZ B = A;
+  for (int i=1; i<=nr; i++)
+    for (int j=1; j<=nc; j++)
+      B(i,j) = mod(B(i,j), m);
+  return B;
+}
+
+// evaluate f(A) (assumes f monic)
+mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A)
+{
+  long d = deg(f);
+  mat_ZZ fA = A, I;
+  ident(I, A.NumRows());
+  for(int i=d-1; i>=0; i--)
     {
-      for (int i=1; i<=n; i++)
-        for (int j=1; j<=n; j++)
-          Asq(i,j) = mod(Asq(i,j), modulus);
+      fA += coeff(f,i)*I;
+      if(i)
+        fA *= A;
     }
-  int res = IsDiag(Asq, n, to_ZZ(den*den));
+  return fA;
+}
+
+// evaluate f(A) (assumes f monic)
+mat evaluate(const ZZX& f, const mat& A)
+{
+  long d = deg(f);
+  mat fA = A;
+  for(int i=d-1; i>=0; i--)
+    {
+      fA = addscalar(fA,coeff(f,i));
+      if(i)
+        fA = fA*A;
+    }
+  return fA;
+}
+
+int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose)
+{
+  int res = IsDiag(reduce_mat(sqr(A), m), A.NumRows(), to_ZZ(den*den));
   if (verbose)
     cout << (res? "Involution!": "NOT an involution....") << "\n";
   return res;
 }
 
-int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& modulus)
+int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& m)
 {
-  mat_ZZ C = A*B-B*A;
-  int n = C.NumRows();
-  for (int i=1; i<=n; i++)
-    for (int j=1; j<=n; j++)
-      {
-        ZZ Cij = C(i,j);
-        if (modulus!=0)
-          Cij = mod(Cij, modulus);
-        if (Cij!=0) return 0;
-      }
-  return 1;
+  return IsZero(reduce_mat(A*B-B*A, m));
 }
 
 // check that a matrix commutes with all those in a list:

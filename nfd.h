@@ -21,6 +21,8 @@ private:
   scalar hmod, Wdetnum, Wdetdenom;
   int verbose;
 public:
+  vector<ZZX> factors; // list of multiplicity-1 irreducible factor of charpoly(T)
+  int nfactors;        // the number of them
   ZZX f;    // a multiplicity-1 irreducible factor of charpoly(T)
   subspace S;  // the irreducible subspace, ker(f(T))
   mat A;  // matrix of T restricted to S
@@ -34,7 +36,7 @@ public:
   mat heckeop_S(Quadprime& P);
   vec ap(Quadprime& P);
   void make_T(); // compute T (via prompts)
-  void make_S(); // compute S, A, f (via prompts)
+  int make_S(); // compute S, A, f (via prompts)
 };
 
 extern vector<long> class_number_one_fields; // defined in quads.cc

@@ -28,22 +28,171 @@ nfd::nfd(homspace* h1, int verb)
   Hscales.resize(dimH+1);
   Hscales[0]=1;
   for(int i=1; i<=dimH; i++) Hscales[i]=Hscales[i-1]*dH;
-  //  if (verbose>1)
+  if (verbose>1)
     cout << "Hscales = "<<Hscales<<endl;
+}
 
-  // get the operator whose kernel we will use:
-  make_T(); // assigns T (square of size cdmiH)
+// Compute T, either one T_P or a linear combination of T_P, and its
+// char poly and the irreducible factors of multiplicity 1:
+void nfd::make_T()
+{
+  Quadprime P;
+  int one_p;
+  cout << "Use just one prime (1) or a linear combination (0)? ";
+  cin >> one_p;
+  if(one_p) // Compute just one Tp:
+    {
+      cout<<"Enter a prime P (label or generator): ";
+      cin>>P;
+      // QuadprimeLooper L(N); // loop over primes not dividing N
+      // P = L; // first one
+      if (verbose)
+        cout << "Computing T_P for P = " << P << "..." << flush;
+      T = heckeop(P);
+      if (verbose)
+        cout<<"done."<<endl;
+    }
+  else // a linear combination:
+    {
+      int nP;
+      scalar cP;
+      cout<<"Enter a linear combination of I and T_P for one or more primes P.\n";
+      cout<<"First enter the coefficient of the identity: ";
+      cin>>cP;
+      T = mat::scalar_matrix(dimH, cP);
+      cout<<"Now enter the number of P: "; cin>>nP;
+      for (int iP=0; iP<nP; iP++)
+        {
+          cout<<"Enter a prime P (label or generator): ";
+          cin>>P;
+          cout<<"Enter the coefficient of "<<opname(P,N)<<": ";
+          cin>>cP;
+          if(verbose)
+            cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
+          mat TP = heckeop(P);
+          if(verbose)
+            cout<<"done."<<endl;
+          T += cP*TP;
+        }
+    }
   if (verbose)
-    cout << "Splitting operator matrix T:\n" << T << endl;
+    cout<<"Computing charpoly(T)..."<<endl;
+  // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
+  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), ZZ(dH), hmod);
+  if (verbose)
+    cout<<"(scaled) char poly = "<<cpT<<endl;
 
-  // Compute the subspace S=ker(f(T)) of dimensions dimS fo some
-  // irreducible (multiplicity 1) factor of charpoly(T) chosen by the
-  // user:
-  make_S();
+  // factor the charpoly, just the factors of multiplicity 1:
+  vec_pair_ZZX_long factors_with_multiplicities;
+  SquareFreeDecomp(factors_with_multiplicities,cpT);
+  if(verbose>1)
+    cout<<"NTL char poly square-free factors = "<<factors_with_multiplicities<<endl;
+  if(factors_with_multiplicities[0].b>1)
+    {
+      cout<<"No factors of multiplicity 1"<<endl;
+      return;
+    }
+  factors.clear();
+  vec_pair_ZZX_long NTL_factors;
+  ZZ cont;
+  cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
+  factor(cont,NTL_factors,factors_with_multiplicities[0].a);
+  ::sort(NTL_factors.begin(), NTL_factors.end(), fact_cmp);
+  nfactors = NTL_factors.length();
+  for(int i=0; i<nfactors; i++)
+    {
+      ZZX fi = NTL_factors[i].a;
+      cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+      factors.push_back(fi);
+    }
+  return;
+}
 
-// compute projcoord, precomputed projections the basis of S
+// Select one factor f(X), set S to be ker(f(T)) and A the restriction
+// of T to S, and compute the eigenvalue basis.  Return 0 if no factor
+// is chosen.
+int nfd::make_S()
+{
+  // Select one factor to determine the subspace S.
+  // If the chosen factor is f then S = ker(f(A)).
 
-  H1-> projcoord = H1->FR.get_coord() * basis(S);
+  int j = 0;
+  while((j<1)||(j>nfactors))
+    {
+      cout<<"Enter factor number, between 1 and "<<nfactors<<" (or 0 to stop): ";
+      cin>>j;
+      if (j==0)
+        return 0;
+    }
+  f = factors[j-1];
+  int d = deg(f);
+  if (verbose)
+    cout << "Factor "<<j<<" is f = "<<f<<" of degree "<<d<<endl;
+
+  // Compute f(T); since T is scaled by dH and f(X) is not, we
+  // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
+  // X^i by dH^(d-i):
+  mat fT = evaluate(scale_poly_up(f, dH), T);
+  if (verbose)
+    cout << "Computed f(T), finding its kernel..."<<flush;
+  S = kernel(fT);
+  dimS=dim(S);
+  dS=denom(S);
+  dHS=dH*dS;
+  if (verbose)
+    cout << "done" << endl;
+  if(dimS!=d)
+    {
+      cout<<"Problem: eigenspace has wrong dimension "<<dimS<<endl;
+      exit(1);
+    }
+  Sscales.resize(dimS+1);
+  Sscales[0]=1;
+  for(int i=1; i<=dimS; i++)
+    Sscales[i]=Sscales[i-1]*dS;
+  if (verbose>1)
+    cout << "Sscales = "<<Sscales<<endl;
+
+  if (verbose)
+    {
+      cout<<"Finished constructing S of dimension "<<dimS<<endl;
+      cout<<"Computing A, the restriction of T to S..." <<flush;
+    }
+
+  A = transpose(restrict_mat(T,S)); // matrix of T on chosen irreducible subspace of dual space
+
+  if(verbose)
+    {
+      cout<<"done."<<endl;
+    }
+
+  // Check that (scaled) charpoly(A) = fT
+
+  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), dHS, hmod);
+  if (cpA!=f)
+    {
+      cout<<"Error: f(X) =            "<<f<<endl;
+      cout<<"but scaled_charpoly(A) = "<<cpA<<endl;
+    }
+
+  if(verbose)
+    {
+      cout<<"S has denom "<<dS<<", cumulative denom = "<<dHS<<endl;
+      if(dHS>1) cout<<dHS<<" * ";
+      cout<<"A (the matrix of T restricted to S) = ";
+      A.output_pari(cout);
+      cout<<endl;
+      cout<<"f(X) is the min poly of alpha, the eigenvalue of A"<<endl;
+    }
+
+  // compute projcoord, precomputed projections the basis of S
+
+  mat projcoord = H1->FR.get_coord() * basis(S);
+  scalar Scontent = projcoord.content();
+  projcoord /= Scontent;
+  H1-> projcoord = projcoord;
+  if (verbose>1)
+    cout<<"After removing content, projcoord = "<<projcoord;
 
   // Compute change of basis matrix, expressing the basis on which we
   // will express eigenvalues in terms of the power basis on the roots
@@ -70,9 +219,6 @@ nfd::nfd(homspace* h1, int verb)
       cout<<"W^(-1)= (1/"<<Wdetnum<<") * Winv"<<endl;
     }
 
-  Wdetdenom = 1;
-  Wdetnum*=dHS;
-
   Winv_scaled=Winv;
   for(int i=2; i<=dimS; i++)
     {
@@ -84,6 +230,14 @@ nfd::nfd(homspace* h1, int verb)
       Winv_scaled.output_pari(cout);
       cout<<endl;
     }
+  scalar c = Winv_scaled.content();
+  Winv_scaled /= c;
+  Wdetdenom = c;
+  Wdetnum*=dHS;
+  Wdetdenom*=Scontent;
+  scalar g = gcd(Wdetnum, Wdetdenom);
+  Wdetnum /= g;
+  Wdetdenom /= g;
   cout<<"Wdetdenom = "<<Wdetdenom<<", Wdetnum = "<<Wdetnum<<endl;
   cout<<"Basis for Hecke eigenvalues, in terms of powers of alpha:"<<endl;
   for(int i=1; i<=dimS; i++)
@@ -91,163 +245,10 @@ nfd::nfd(homspace* h1, int verb)
       cout<<"("<<Wdetdenom<<"/"<<Wdetnum<<")*";
       cout<<Winv_scaled.col(i)<<endl;
     }
+  return 1;
 }
 
-// Compute T, either one T_P or a linear combination of T_P
-void nfd::make_T()
-{
-  Quadprime P;
-  int one_p;
-  cout << "Use just one prime (1) or a linear combination (0)? ";
-  cin >> one_p;
-  if(one_p) // Compute one Tp:
-    {
-      cout<<"Enter a prime P (label or generator): ";
-      cin>>P;
-      // QuadprimeLooper L(N); // loop over primes not dividing N
-      // P = L; // first one
-      if (verbose)
-        cout << "Computing T_P for P = " << P << "..." << flush;
-      T = heckeop(P);
-      if (verbose)
-        cout<<"done."<<endl;
-      return;
-    }
-
-  int nP;
-  scalar cP;
-  cout<<"Enter a linear combination of I and T_P for one or more primes P.\n";
-  cout<<"First enter the coefficient of the identity: ";
-  cin>>cP;
-  T = mat::scalar_matrix(dimH, cP);
-  cout<<"Now enter the number of P: "; cin>>nP;
-  for (int iP=0; iP<nP; iP++)
-    {
-      cout<<"Enter a prime P (label or generator): ";
-      cin>>P;
-      cout<<"Enter the coefficient of "<<opname(P,N)<<": ";
-      cin>>cP;
-      if(verbose)
-        cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
-      mat TP = heckeop(P);
-      if(verbose)
-        cout<<"done."<<endl;
-      T += cP*TP;
-    }
-  return;
-}
-
-// Compute and factor charpoly(T), select one factor f(X), set S to be
-// ker(f(T)) and A the restriction of T to S:
-void nfd::make_S()
-{
-  if (verbose)
-    cout<<"Computing charpoly(T)..."<<endl;
-  // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), ZZ(dH), hmod);
-  if (verbose)
-    cout<<"(scaled) char poly = "<<cpT<<endl;
-
-  // factor the charpoly, just the factors of multiplicity 1:
-  vec_pair_ZZX_long factors_with_multiplicities;
-  SquareFreeDecomp(factors_with_multiplicities,cpT);
-  if(verbose)  cout<<"NTL char poly square-free factors = "<<factors_with_multiplicities<<endl;
-  if(factors_with_multiplicities[0].b>1)
-    {
-      cout<<"No factors of multiplicity 1"<<endl;
-      return;
-    }
-  vector<ZZX> factors;
-  vec_pair_ZZX_long NTL_factors;
-  ZZ cont;
-  cout<<"Factors of multiplicity 1 are:"<<endl;
-  factor(cont,NTL_factors,factors_with_multiplicities[0].a);
-  long nf = NTL_factors.length();
-  for(int i=0; i<nf; i++)
-    {
-      ZZX fi = NTL_factors[i].a;
-      cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
-      factors.push_back(fi);
-    }
-
-  // Select one factor to determine the subspace S.
-  // If the chosen factor is f then S = ker(f(A)).
-
-  int j = 0;
-  while((j<1)||(j>nf))
-    {
-      cout<<"Enter factor number, between 1 and "<<nf<<": ";
-      cin>>j;
-    }
-  f = factors[j-1];
-  int d = deg(f);
-  if (verbose)
-    cout << "Factor "<<j<<" is f = "<<f<<" of degree "<<d<<endl;
-
-  // Compute f(T); since T is scaled by dH and f(X) is not, we
-  // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
-  // X^i by dH^(d-i):
-  mat fT = T;
-  for(int i=d-1; i>=0; i--)
-    {
-      fT = addscalar(fT,coeff(f,i)*Hscales[d-i]);
-      if(i) fT = fT*T;
-    }
-  if (verbose)
-    cout << "Computed f(T), finding its kernel..."<<flush;
-  S = kernel(fT);
-  dimS=dim(S);
-  dS=denom(S);
-  dHS=dH*dS;
-  if (verbose)
-    cout << "done" << endl;
-  if(dimS!=d)
-    {
-      cout<<"Problem: eigenspace has wrong dimension "<<dimS<<endl;
-      exit(1);
-    }
-  Sscales.resize(dimS+1);
-  Sscales[0]=1;
-  for(int i=1; i<=dimS; i++)
-    Sscales[i]=Sscales[i-1]*dS;
-  //  if (verbose>1)
-    cout << "Sscales = "<<Sscales<<endl;
-
-  if (verbose)
-    {
-      cout<<"Finished constructing S of dimensions "<<dimS<<endl;
-      cout<<" computing A, the restriction of T to S..." <<endl;
-    }
-
-  A = transpose(restrict_mat(T,S)); // matrix of T on chosen irreducible subspace of dual space
-
-  if(verbose)
-    {
-      cout<<"done."<<endl;
-    }
-
-  // Check that (scaled) charpoly(A) = fT
-
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), dHS, hmod);
-  if (cpA!=f)
-    {
-      cout<<"Error: f(X) =            "<<f<<endl;
-      cout<<"but scaled_charpoly(A) = "<<cpA<<endl;
-    }
-
-  if(verbose)
-    {
-      cout<<"S has denom "<<dS<<", cumulative denom = "<<dHS<<endl;
-      if(dHS>1) cout<<dHS<<" * ";
-      cout<<"A, the matrix of T restricted to S, = ";
-      A.output_pari(cout);
-      cout<<endl;
-      cout<<"f(X) is the min poly of alpha, the eigenvalue of A"<<endl;
-    }
-}
-
-// ap_vec has length dim(S); last entries hold numerator and
-// denominator of content
+// ap_vec has length dim(S)
 vec nfd::ap(Quadprime& P)
 {
   return H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S

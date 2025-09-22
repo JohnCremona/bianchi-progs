@@ -14,7 +14,6 @@
 
 int main()
 {
-  // init_time();
   cout << "Program tnfd." << endl;
   scalar modulus = default_modulus<scalar>();
 #if (SCALAR_OPTION==3)
@@ -52,35 +51,56 @@ int main()
      int dimH = hplus.h1cuspdim();
      cout << "dimension = " << dimH << endl;
 
-     nfd form = nfd(&hplus, verbose);
-     int dimS = form.dimS;
-     cout<<"Finished constructing nfd object, with an irreducible subspace of dimension "<<dimS
-         <<" and defining polynomial "<<form.f<<endl;
-     if(dimS==0)
-       continue;
-     int ip, nap=5;
-     cout<<"Number of ap? ";  cin>>nap;
-     //     start_time();
-      ip = 0;
-      for ( auto& P : Quadprimes::list)
-	{
-	  if (P.divides(N))
-            continue;
-          ip++;
-          if (ip>nap)
-            break;
+     nfd forms = nfd(&hplus, verbose);
 
-          vec apvec = form.ap(P);
-          cout<<"a_"<<ideal_label(P)<<" = ";
-          if (dimS==1)
-            cout << apvec[1];
-          else
-            cout << apvec;
-          cout<<endl;
-        } // end of prime loop
+     // compute the splitting operator T and the multiplicity 1
+     // irreducible factors of its char poly f_T(X):
+     int ok = 0;
+     while (!ok)
+       {
+         cout<<"Computing a splitting operator T"<<endl;
+         forms.make_T();
+         cout<<"Computed splitting operator and its multiplicity 1 irreducible factors\n";
+         ok = forms.factors.size();
+         if (!ok)
+           cout<<"No suitable factors, use a different operator to split!"<<endl;
+       }
+     while (ok)
+       {
+         // Choose one such factor f(X) of f_T(X), and compute the
+         // subspace S=ker(f(T)) of dimensions dimS
+         ok = forms.make_S(); // returns 0 is user chooses to quit
+         if (!ok)
+           continue; // and end the while() loop
+
+         int dimS = forms.dimS;
+         cout<<"Finished constructing an irreducible subspace of dimension "<<dimS
+             <<" and defining polynomial "<<forms.f<<endl;
+         if(dimS==0)
+           continue; // for another round of the while() loop
+
+         int ip, nap=5;
+         cout<<"Number of ap? ";  cin>>nap;
+
+         ip = 0;
+         for ( auto& P : Quadprimes::list)
+           {
+             if (P.divides(N))
+               continue;
+             ip++;
+             if (ip>nap)
+               break;
+
+             vec apvec = forms.ap(P);
+             cout<<"a_"<<ideal_label(P)<<" = ";
+             if (dimS==1)
+               cout << apvec[1];
+             else
+               cout << apvec;
+             cout<<endl;
+           } // end of prime loop
+       } // end of while() loop over factors
     }     // end of level loop
-  //     stop_time();
-  //     show_time();
   cout<<endl;
   exit(0);
 }      // end of main()
