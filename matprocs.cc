@@ -78,7 +78,7 @@ ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)
 {
   ZZX charpol;
   CharPoly(charpol, A);
-  return reduce_poly(scale_poly_down(charpol, den), m);
+  return reduce_poly(scale_poly_down(charpol, den), to_ZZ(m));
 }
 
 // return A mod m (or just A if m==0)
@@ -112,19 +112,20 @@ mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A)
 mat evaluate(const ZZX& f, const mat& A)
 {
   long d = deg(f);
-  mat fA = A;
+  mat_m mA = to_mat_m(A);
+  mat_m fA(mA);
   for(int i=d-1; i>=0; i--)
     {
       fA = addscalar(fA,coeff(f,i));
       if(i)
-        fA = fA*A;
+        fA = fA*mA;
     }
-  return fA;
+  return to_mat(fA);
 }
 
 int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose)
 {
-  int res = IsDiag(reduce_mat(sqr(A), m), A.NumRows(), to_ZZ(den*den));
+  int res = IsDiag(reduce_mat(sqr(A), to_ZZ(m)), A.NumRows(), to_ZZ(den*den));
   if (verbose)
     cout << (res? "Involution!": "NOT an involution....") << "\n";
   return res;
@@ -132,7 +133,7 @@ int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose)
 
 int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& m)
 {
-  return IsZero(reduce_mat(A*B-B*A, m));
+  return IsZero(reduce_mat(A*B-B*A, to_ZZ(m)));
 }
 
 // check that a matrix commutes with all those in a list:

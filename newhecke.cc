@@ -48,8 +48,8 @@ int main(void)
           cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace* h = get_homspace(N, modulus);
   int dim = h->h1cuspdim();
-  scalar den = h->h1cdenom();
   cout << "Cuspidal dimension = " << dim << endl;
+  //scalar den = h->h1cdenom();
   //if(den!=1) cout << " denominator = " << den << endl;
 
   if (dim>0)

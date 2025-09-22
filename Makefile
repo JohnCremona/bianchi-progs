@@ -7,6 +7,8 @@
 # here. (2) If BOOST is installed, make sure that Makefile.local sets
 # USE_BOOST=1 in Makeifle.local.
 
+SCALAR_OPTION ?= 1
+
 include Makefile.local
 
 INCDIR = $(ECLIB_BASE)/include
@@ -63,11 +65,12 @@ endif
 
 #for normal use:
 #CFLAGS = -c -g $(OPTFLAG) $(BOOST_CPPFLAGS) -I$(INCDIR)
-CFLAGS = -c -g $(OPTFLAG) -DSCALAR_OPTION=1 $(BOOST_CPPFLAGS) -I$(INCDIR)
+CFLAGS = -c -g $(OPTFLAG) -DSCALAR_OPTION=$(SCALAR_OPTION) $(BOOST_CPPFLAGS) -I$(INCDIR)
 #CFLAGS = -c -g $(OPTFLAG) -DDEBUG_LoverP $(BOOST_CPPFLAGS) -I$(INCDIR)
 LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl,$(LIBDIR) $(BOOST_LDFLAGS)
 
 all: tests
+	@echo "Using SCALAR_OPTION = "$(SCALAR_OPTION)
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: int.cc intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc

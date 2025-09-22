@@ -132,7 +132,7 @@ int nfd::make_S()
   // Compute f(T); since T is scaled by dH and f(X) is not, we
   // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
   // X^i by dH^(d-i):
-  mat fT = evaluate(scale_poly_up(f, dH), T);
+  mat fT = evaluate(scale_poly_up(f, to_ZZ(dH)), T);
   if (verbose)
     cout << "Computed f(T), finding its kernel..."<<flush;
   S = kernel(fT);
@@ -168,7 +168,7 @@ int nfd::make_S()
 
   // Check that (scaled) charpoly(A) = fT
 
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), dHS, hmod);
+  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(dHS), hmod);
   if (cpA!=f)
     {
       cout<<"Error: f(X) =            "<<f<<endl;
