@@ -17,7 +17,8 @@ int main()
   cout << "Program tnfd." << endl;
   scalar modulus = default_modulus<scalar>();
 #if (SCALAR_OPTION==3)
-  NextPrime(modulus, power_ZZ(2,256));
+  //  NextPrime(modulus, power_ZZ(2,256));
+  NextPrime(modulus, power_ZZ(2,512));
 #endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field (one of "<<class_number_one_fields<<"): " << flush;  cin >> d;

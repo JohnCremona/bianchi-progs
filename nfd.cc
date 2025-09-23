@@ -76,11 +76,16 @@ void nfd::make_T()
         }
     }
   if (verbose)
-    cout<<"Computing charpoly(T)... to_ZZ(dH)="<<to_ZZ(dH)<<endl;
+    cout<<"Computing charpoly(T)..."<<flush;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
   ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), to_ZZ(dH), hmod);
   if (verbose)
-    cout<<"(scaled) char poly = "<<cpT<<endl;
+    {
+      cout << "done.";
+      if (verbose>1)
+        cout<<" scaled char poly = "<<cpT;
+      cout<<endl;
+    }
 
   // factor the charpoly, just the factors of multiplicity 1:
   vec_pair_ZZX_long factors_with_multiplicities;

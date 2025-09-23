@@ -17,6 +17,7 @@ int main(void)
 {
   scalar modulus = default_modulus<scalar>();
   //  NextPrime(modulus, power_ZZ(2,256));
+  NextPrime(modulus, power_ZZ(2,512));
 
   long d, maxpnorm(MAXPRIME);
   int np, ntp;
@@ -82,8 +83,9 @@ int main(void)
               display_factors(charpol);
               cout << endl;
             }
-          cout << "New characteristic polynomial of T(" << P << ")"<<endl;
+          cout << "New characteristic polynomial of T(" << P << ")"<<flush;
           ZZX newpol = get_new_poly(N,P,modulus);
+          cout<<" has degree "<<deg(newpol)<<endl;
           cout << "Coefficients: " << newpol << endl;
           cout<<"Factors:"<<endl;
           display_factors(newpol);
