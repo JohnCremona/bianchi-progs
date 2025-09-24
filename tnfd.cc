@@ -67,43 +67,32 @@ int main()
          if (!ok)
            cout<<"No suitable factors, use a different operator to split!"<<endl;
        }
-     while (ok)
+     forms.make_irreducible_subspaces();
+     int nforms = forms.nfactors;
+     cout<<"Finished constructing "<<nforms
+         <<" irreducible subspaces of dimensions "<<forms.dimS<<endl<<endl;
+     for (int j=1; j<=nforms; j++)
        {
-         // Choose one such factor f(X) of f_T(X), and compute the
-         // subspace S=ker(f(T)) of dimensions dimS
-         ok = forms.make_S(); // returns 0 is user chooses to quit
-         if (!ok)
-           continue; // and end the while() loop
+         forms.display_basis(j);
+         cout<<endl;
+       }
+     int ip, nap=5;
+     cout<<"Number of ap? ";  cin>>nap; cout<<endl;
 
-         int dimS = forms.dimS;
-         cout<<"Finished constructing an irreducible subspace of dimension "<<dimS
-             <<" and defining polynomial "<<forms.f<<endl;
-         if(dimS==0)
-           continue; // for another round of the while() loop
+     ip = 0;
+     for ( auto& P : Quadprimes::list)
+       {
+         if (P.divides(N))
+           continue;
+         ip++;
+         if (ip>nap)
+           break;
 
-         int ip, nap=5;
-         cout<<"Number of ap? ";  cin>>nap;
-
-         ip = 0;
-         for ( auto& P : Quadprimes::list)
-           {
-             if (P.divides(N))
-               continue;
-             ip++;
-             if (ip>nap)
-               break;
-
-             vec apvec = forms.ap(P);
-             cout<<"a_"<<ideal_label(P)<<" = ";
-             if (dimS==1)
-               cout << apvec[1];
-             else
-               cout << apvec;
-             cout<<endl;
-           } // end of prime loop
-       } // end of while() loop over factors
+         vector<vec> apvec = forms.ap(P);
+         cout<<"a_"<<ideal_label(P)<<" : "<<apvec<<endl;
+       } // end of prime loop
     }     // end of level loop
   cout<<endl;
   exit(0);
-}      // end of main()
+}   // end of main()
 

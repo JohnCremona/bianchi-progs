@@ -16,9 +16,10 @@
 int main(void)
 {
   scalar modulus = default_modulus<scalar>();
+#if (SCALAR_OPTION==3)
   //  NextPrime(modulus, power_ZZ(2,256));
-  NextPrime(modulus, power_ZZ(2,512));
-
+    NextPrime(modulus, power_ZZ(2,512));
+#endif
   long d, maxpnorm(MAXPRIME);
   int np, ntp;
   Quad n; int show_pols=1;
