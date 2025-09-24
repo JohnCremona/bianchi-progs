@@ -48,24 +48,40 @@ int main()
     {
 #endif
      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     homspace hplus(N, modulus, 1);
-     // int dimH = hplus.h1cuspdim();
+     homspace* hplus = get_homspace(N, modulus);
+     // int dimH = hplus->h1cuspdim();
      // cout << "dimension = " << dimH << endl;
-     // cout << "denom     = " << hplus.h1cdenom() << endl;
+     // cout << "denom     = " << hplus->h1cdenom() << endl;
 
-     nfd forms = nfd(&hplus, verbose);
+     nfd forms = nfd(hplus, verbose);
 
      // compute the splitting operator T and the multiplicity 1
      // irreducible factors of its char poly f_T(X):
-     int ok = 0;
-     while (!ok)
+     int manual = 0;
+     cout << "Choose a splitting operator yourself (1)? or automatically (0)? ";
+     cin >> manual;
+     cout << endl;
+     if (manual)
        {
-         cout<<"Computing a splitting operator T"<<endl;
-         forms.make_T();
-         cout<<"Computed splitting operator and its multiplicity 1 irreducible factors\n";
-         ok = forms.factors.size();
-         if (!ok)
-           cout<<"No suitable factors, use a different operator to split!"<<endl;
+         int ok = 0;
+         while (!ok)
+           {
+             cout<<"Computing a splitting operator T"<<endl;
+             forms.find_T();
+             cout<<"Computed splitting operator and its multiplicity 1 irreducible factors\n";
+             ok = forms.factors.size();
+             if (!ok)
+               cout<<"No suitable factors, use a different operator to split!"<<endl;
+           }
+       }
+     else
+       {
+         INT maxpnorm(100);
+         cout << "Trying all primes P of norm up to " << maxpnorm << endl;
+         Quadprime P0;
+         int ok = forms.find_T_auto(maxpnorm, P0, 1);
+         assert(ok);
+         cout << "Success with P = " << ideal_label(P0) << endl;
        }
      forms.make_irreducible_subspaces();
      int nforms = forms.nfactors;

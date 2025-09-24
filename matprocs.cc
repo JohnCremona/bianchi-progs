@@ -4,6 +4,7 @@
 #include "matprocs.h"
 
 factor_comparison fact_cmp;
+poly_comparison poly_cmp;
 
 mat_ZZ mat_to_mat_ZZ(mat A)
 {
@@ -72,6 +73,12 @@ ZZX reduce_poly(const ZZX& f, const ZZ& m)
   for (int i=0; i<=d; i++)
     SetCoeff(g, d-i, mod(coeff(g, d-i), m));
   return g;
+}
+
+// Squarefree test
+int IsSquareFree(const ZZX& f)
+{
+  return deg(GCD(f, diff(f))) == 0;
 }
 
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)

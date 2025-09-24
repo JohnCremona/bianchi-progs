@@ -34,7 +34,7 @@ nfd::nfd(homspace* h1, int verb)
 
 // Compute T, either one T_P or a linear combination of T_P, and its
 // char poly and the irreducible factors of multiplicity 1:
-void nfd::make_T()
+void nfd::find_T()
 {
   Quadprime P;
   int one_p;
@@ -75,6 +75,12 @@ void nfd::make_T()
           T += cP*TP;
         }
     }
+  factor_T();
+  return;
+}
+
+void nfd::factor_T()
+{
   if (verbose)
     cout<<"Computing charpoly(T)..."<<flush;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
@@ -100,18 +106,59 @@ void nfd::make_T()
   factors.clear();
   vec_pair_ZZX_long NTL_factors;
   ZZ cont;
-  if (verbose)
-    cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
   factor(cont,NTL_factors,factors_with_multiplicities[0].a);
   ::sort(NTL_factors.begin(), NTL_factors.end(), fact_cmp);
   nfactors = NTL_factors.length();
+  cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
   for(int i=0; i<nfactors; i++)
     {
       ZZX fi = NTL_factors[i].a;
       cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
       factors.push_back(fi);
     }
-  return;
+}
+
+// compute T=T_P, trying all good P with N(P)<=maxnormP
+int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
+{
+  ZZX f;
+  for ( auto& P : Quadprimes::list)
+    {
+      if (P.divides(N))
+        continue;
+      if (P.norm() > maxnormP)
+        {
+          cout << "No suitable splitting prime P found of norm up to "<<maxnormP<<endl;
+          return 0;
+        }
+      if (verb)
+        cout << "Trying P = " << ideal_label(P) << "..." << flush;
+      f = get_new_poly(N, P, H1->modulus);
+      if (IsSquareFree(f))
+        {
+          T = heckeop(P);
+          P0 = P;
+          cout << endl;
+          break;
+        }
+      else
+        {
+          if (verb)
+            cout << " NO: Hecke polynomial is not squarefree" << endl;
+        }
+    }
+  cout << " OK: Hecke polynomial "<<f<<" is squarefree" << endl;
+  vec_ZZX NTL_factors= SFFactor(f);
+  ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
+  nfactors = NTL_factors.length();
+  cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
+  for(int i=0; i<nfactors; i++)
+    {
+      ZZX fi = NTL_factors[i];
+      cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+      factors.push_back(fi);
+    }
+  return 1;
 }
 
 // For each factor f(X), set S to be ker(f(T)) and A the restriction
@@ -320,65 +367,8 @@ mat nfd::heckeop_S(Quadprime& P, const subspace& S)
   return H1->calcop_restricted(HeckePOp(P, N), S, 1, 0); // 1 transpose, 0 display
 }
 
-map<Qideal,homspace*> H1_dict;
-map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
-map<pair<Qideal,Quadprime>, ZZX> new_poly_dict;
-
 int is_class_number_one(long d)
 {
   return std::find(class_number_one_fields.begin(), class_number_one_fields.end(), d)
     != class_number_one_fields.end();
-}
-
-homspace* get_homspace(const Qideal& N, scalar mod)
-{
-  auto res = H1_dict.find(N);
-  if (res==H1_dict.end())
-    {
-      homspace* H = new homspace(N, mod, 1); // cuspidal=1
-      H1_dict[N] = H;
-      return H;
-    }
-  else
-    return H1_dict[N];
-}
-
-ZZX get_full_poly(const Qideal& N,  Quadprime& P, const scalar& mod)
-{
-  pair<Qideal,Quadprime> NP = {N,P};
-  auto res = full_poly_dict.find(NP);
-  if (res==full_poly_dict.end())
-    {
-      homspace* H = get_homspace(N, mod);
-      ZZX full_poly = H->charpoly(HeckePOp(P, N), 1); // 1 for cuspidal
-      full_poly_dict[NP] = full_poly;
-      return full_poly;
-    }
-  else
-    return full_poly_dict[NP];
-}
-
-ZZX get_new_poly(Qideal& N, Quadprime& P, const scalar& mod)
-{
-  pair<Qideal,Quadprime> NP = {N,P};
-  auto res = new_poly_dict.find(NP);
-  if (res==new_poly_dict.end())
-    {
-      ZZX new_poly = get_full_poly(N, P, mod);
-      vector<Qideal> DD = alldivs(N);
-      for( auto D : DD)
-        {
-          if (D==N)
-            continue;
-          ZZX new_poly_D = get_new_poly(D, P, mod);
-          Qideal M = N/D;
-          int mult = alldivs(M).size();
-          for (int i=0; i<mult; i++)
-            new_poly /= new_poly_D;
-        }
-      new_poly_dict[NP] = new_poly;
-      return new_poly;
-    }
-  else
-    return new_poly_dict[NP];
 }

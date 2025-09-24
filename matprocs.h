@@ -31,6 +31,9 @@ ZZX scale_poly_down(const ZZX& f, const ZZ& c);
 // return f(X) mod m (or just f if m==0)
 ZZX reduce_poly(const ZZX& f, const ZZ& m);
 
+// Squarefree test
+int IsSquareFree(const ZZX& f);
+
 // compute char poly of A/den mod m:
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m);
 
@@ -60,8 +63,9 @@ long rank(mat_ZZ A);
 // nullity of an NTL matrix:
 long nullity(mat_ZZ A);
 
-// function to sort a factorization vector, first by degree of factor
-// then exponent of factor then lexicographically
+// function to sort factorizations (lists of (factor,exponent) pairs),
+// first by degree of factor then exponent of factor then
+// lexicographically
 
 struct factor_comparison {
   bool operator()(pair_ZZX_long& fac1, pair_ZZX_long& fac2)
@@ -79,6 +83,22 @@ struct factor_comparison {
   }
 };
 
+// function to sort of polynomials, first by degree of factor
+// then lexicographically
+
+struct poly_comparison {
+  bool operator()(ZZX& pol1, ZZX& pol2)
+  {
+    // first sort by degree of the factor
+    int s = deg(pol1) - deg(pol2);
+    if(s) return (s<0); // true if pol1 has smaller degree
+
+    // finally lexicographically compare the coefficient lists
+    return std::lexicographical_compare(pol1.rep.begin(), pol1.rep.end(), pol2.rep.begin(), pol2.rep.end());
+  }
+};
+
 extern factor_comparison fact_cmp;
+extern poly_comparison poly_cmp;
 
 #endif

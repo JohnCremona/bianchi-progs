@@ -746,3 +746,62 @@ vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspida
       return dims1;
     }
 }
+
+// functions for caching homspaces, full Hecke polynomials and new Hecke polynomials
+
+map<Qideal,homspace*> H1_dict;
+map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
+map<pair<Qideal,Quadprime>, ZZX> new_poly_dict;
+
+homspace* get_homspace(const Qideal& N, scalar mod)
+{
+  auto res = H1_dict.find(N);
+  if (res==H1_dict.end())
+    {
+      homspace* H = new homspace(N, mod, 1); // cuspidal=1
+      H1_dict[N] = H;
+      return H;
+    }
+  else
+    return H1_dict[N];
+}
+
+ZZX get_full_poly(const Qideal& N,  Quadprime& P, const scalar& mod)
+{
+  pair<Qideal,Quadprime> NP = {N,P};
+  auto res = full_poly_dict.find(NP);
+  if (res==full_poly_dict.end())
+    {
+      homspace* H = get_homspace(N, mod);
+      ZZX full_poly = H->charpoly(HeckePOp(P, N), 1); // 1 for cuspidal
+      full_poly_dict[NP] = full_poly;
+      return full_poly;
+    }
+  else
+    return full_poly_dict[NP];
+}
+
+ZZX get_new_poly(Qideal& N, Quadprime& P, const scalar& mod)
+{
+  pair<Qideal,Quadprime> NP = {N,P};
+  auto res = new_poly_dict.find(NP);
+  if (res==new_poly_dict.end())
+    {
+      ZZX new_poly = get_full_poly(N, P, mod);
+      vector<Qideal> DD = alldivs(N);
+      for( auto D : DD)
+        {
+          if (D==N)
+            continue;
+          ZZX new_poly_D = get_new_poly(D, P, mod);
+          Qideal M = N/D;
+          int mult = alldivs(M).size();
+          for (int i=0; i<mult; i++)
+            new_poly /= new_poly_D;
+        }
+      new_poly_dict[NP] = new_poly;
+      return new_poly;
+    }
+  else
+    return new_poly_dict[NP];
+}

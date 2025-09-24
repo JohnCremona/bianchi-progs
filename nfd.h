@@ -42,20 +42,14 @@ public:
   mat heckeop(Quadprime& P);
   mat heckeop_S(Quadprime& P, const subspace& S);
   vector<vec> ap(Quadprime& P);
-  void make_T(); // compute T (via prompts) and factors
+  void find_T(); // compute T (via prompts)
+  // compute T=T_P, trying all good P with N(P)<=maxnormP
+  int find_T_auto(INT maxnormP, Quadprime& P0, int verb);
+  void factor_T();
   void make_irreducible_subspaces(); // compute S, A, f for all factors
 };
 
 extern vector<long> class_number_one_fields; // defined in quads.cc
 int is_class_number_one(long d);
-
-extern map<Qideal,homspace*> H1_dict;
-homspace* get_homspace(const Qideal& N, scalar mod);
-
-extern map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
-ZZX get_full_poly(const Qideal& N,  Quadprime& P, const scalar& mod);
-
-extern map<pair<Qideal,Quadprime>, ZZX> new_poly_dict;
-ZZX get_new_poly(Qideal& N, Quadprime& P, const scalar& mod);
 
 #endif
