@@ -22,13 +22,14 @@ nfd::nfd(homspace* h1, int verb)
   cdimH = H1->h1cuspdim();
   dH = H1->h1cdenom();
   hmod = H1->hmod;
+  Ndivs = alldivs(N);
 
   if(verbose && dH>1)
     cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<dH<<endl;
   Hscales.resize(dimH+1);
   Hscales[0]=1;
   for(int i=1; i<=dimH; i++) Hscales[i]=Hscales[i-1]*dH;
-  if (verbose>1)
+  if (verbose>2)
     cout << "Hscales = "<<Hscales<<endl;
 }
 
@@ -48,7 +49,7 @@ void nfd::find_T()
       // P = L; // first one
       if (verbose)
         cout << "Computing T_P for P = " << P << "..." << flush;
-      T = heckeop(P);
+      T = heckeop(P,0); // not cuspidal
       if (verbose)
         cout<<"done."<<endl;
     }
@@ -69,7 +70,7 @@ void nfd::find_T()
           cin>>cP;
           if(verbose)
             cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
-          mat TP = heckeop(P);
+          mat TP = heckeop(P,0); // not cuspidal
           if(verbose)
             cout<<"done."<<endl;
           T += cP*TP;
@@ -87,7 +88,7 @@ void nfd::factor_T()
   ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), to_ZZ(dH), hmod);
   if (verbose)
     {
-      cout << "done.";
+      cout << "done (degree = "<<deg(cpT)<<").";
       if (verbose>1)
         cout<<" scaled char poly = "<<cpT;
       cout<<endl;
@@ -109,7 +110,7 @@ void nfd::factor_T()
   factor(cont,NTL_factors,factors_with_multiplicities[0].a);
   ::sort(NTL_factors.begin(), NTL_factors.end(), fact_cmp);
   nfactors = NTL_factors.length();
-  cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
+  cout<<nfactors<<" irreducible factors of multiplicity 1 (may include non-cuspidal):"<<endl;
   for(int i=0; i<nfactors; i++)
     {
       ZZX fi = NTL_factors[i].a;
@@ -125,39 +126,73 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
   for ( auto& P : Quadprimes::list)
     {
       if (P.divides(N))
-        continue;
+        continue; // to next prime
       if (P.norm() > maxnormP)
         {
-          cout << "No suitable splitting prime P found of norm up to "<<maxnormP<<endl;
-          return 0;
+          if (verb)
+            cout << "No suitable splitting prime P found of norm up to "<<maxnormP<<endl;
+          return 0; // give up
         }
       if (verb)
         cout << "Trying P = " << ideal_label(P) << "..." << flush;
       f = get_new_poly(N, P, H1->modulus);
-      if (IsSquareFree(f))
-        {
-          T = heckeop(P);
-          P0 = P;
-          cout << endl;
-          break;
-        }
-      else
+      if (!IsSquareFree(f))
         {
           if (verb)
             cout << " NO: Hecke polynomial is not squarefree" << endl;
+          continue; // to next prime
+        }
+      // We still need to check that f is coprime to the new polys
+      // for P at lower levels (which have been computed and
+      // cached so this is cheap)
+      if (verb)
+        {
+          cout << " OK so far: new cuspidal Hecke polynomial for P="<<ideal_label(P0)
+               <<" is "<<f<<", which is squarefree." << endl;
+          cout << " Now checking whether it is coprime to old polys..."<<endl;
+        }
+      int ok = 1;
+      for( auto D : Ndivs)
+        {
+          if (D==N)
+            continue;
+          ZZX f_D = get_new_poly(D, P, H1->modulus); // from cache
+          if (!AreCoprime(f, f_D))
+            {
+              if (verb)
+                {
+                  cout << " No: shares factors with poly at level "<<ideal_label(D) << endl;
+                }
+              ok = 0;
+              break; // out of loop over divisors
+            }
+        }
+      if (ok) // all proper divisors' new polys are coprime to f
+        {
+          if (verb)
+            {
+              cout << " OK: coprime to all polys at proper divisor levels" << endl;
+            }
+          T = heckeop(P, 0); // not cupidal
+          P0 = P;
+          break; // out of loop over primes
         }
     }
-  cout << " OK: Hecke polynomial "<<f<<" is squarefree" << endl;
-  vec_ZZX NTL_factors= SFFactor(f);
-  ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
-  nfactors = NTL_factors.length();
-  cout<<"Irreducible factors of multiplicity 1 are:"<<endl;
-  for(int i=0; i<nfactors; i++)
+  if (verb)
     {
-      ZZX fi = NTL_factors[i];
-      cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
-      factors.push_back(fi);
+      cout << " OK: new cuspidal Hecke polynomial for P="<<ideal_label(P0)
+           <<" is "<<f<<", which is squarefree" << endl;
+      vec_ZZX NTL_factors= SFFactor(f);
+      ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
+      int nf = NTL_factors.length();
+      cout<<"Its irreducible factors of multiplicity 1 are:"<<endl;
+      for(int i=0; i<nf; i++)
+        {
+          ZZX fi = NTL_factors[i];
+          cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+        }
     }
+  factor_T();
   return 1;
 }
 
@@ -198,7 +233,7 @@ void nfd::make_irreducible_subspaces()
       Sscalesj[0]=1;
       for(int i=1; i<=dimSj; i++)
         Sscalesj[i]=Sscalesj[i-1]*dSj;
-      if (verbose>1)
+      if (verbose>2)
         cout << "Sscales = "<<Sscalesj<<endl;
       Sscales.push_back(Sscalesj);
       if (verbose)
@@ -234,7 +269,11 @@ void nfd::make_irreducible_subspaces()
 
       // compute projcoord, precomputed projections the basis of S
 
-      mat projcoordj = transpose(H1->FR.get_coord() * basis(Sj));
+      mat m1 = H1->FR.get_coord();
+      //cout<<"H1->FR.get_coord() has size "<<m1.nrows()<<" x "<<m1.ncols()<<endl;
+      mat m2 = basis(Sj);
+      //cout<<"basis(Sj)          has size "<<m2.nrows()<<" x "<<m2.ncols()<<endl;
+      mat projcoordj = transpose(m1*m2);
       vector<scalar> Scontentsj;
       for (int i=1; i<=projcoordj.nrows(); i++)
         {
@@ -267,7 +306,7 @@ void nfd::make_irreducible_subspaces()
           cout<<"Winv  = ";
           Winvj.output_pari(cout);
           cout<<endl;
-          cout<<"W^(-1)= (1/"<<Wdetnum<<") * Winv"<<endl;
+          cout<<"W^(-1)= (1/"<<Wdetnumj<<") * Winv"<<endl;
         }
       W.push_back(Wj);
       Winv.push_back(Winvj);
@@ -330,7 +369,7 @@ void nfd::display_basis(int j) const // output basis info for subspace j (1<=j<=
   ZZX f = factors[j-1];
   if (deg==1)
     {
-      cout << "Hecke field Q " << endl;
+      cout << "Hecke field Q" << endl;
     }
   else
     {
@@ -357,9 +396,9 @@ void nfd::display_basis(int j) const // output basis info for subspace j (1<=j<=
     }
 }
 
-mat nfd::heckeop(Quadprime& P)
+mat nfd::heckeop(Quadprime& P, int cuspidal)
 {
-  return H1->calcop(HeckePOp(P, N), 0, 1, 0); // 1 cuspidal, 1 transpose, 0 display
+  return H1->calcop(HeckePOp(P, N), cuspidal, 1, 0); // 1 transpose, 0 display
 }
 
 mat nfd::heckeop_S(Quadprime& P, const subspace& S)

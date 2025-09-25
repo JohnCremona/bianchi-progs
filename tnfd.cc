@@ -54,46 +54,49 @@ int main()
      // cout << "denom     = " << hplus->h1cdenom() << endl;
 
      nfd forms = nfd(hplus, verbose);
+     int nforms;
 
      // compute the splitting operator T and the multiplicity 1
      // irreducible factors of its char poly f_T(X):
      int manual = 0;
-     cout << "Choose a splitting operator yourself (1)? or automatically (0)? ";
+     cerr << "Choose a splitting operator yourself (1)? or automatically (0)? ";
      cin >> manual;
-     cout << endl;
      if (manual)
        {
          int ok = 0;
          while (!ok)
            {
-             cout<<"Computing a splitting operator T"<<endl;
+             if (verbose)
+               cout<<"Computing a splitting operator T"<<endl;
              forms.find_T();
              cout<<"Computed splitting operator and its multiplicity 1 irreducible factors\n";
-             ok = forms.factors.size();
-             if (!ok)
+             nforms = forms.nfactors;
+             if (nforms==0)
                cout<<"No suitable factors, use a different operator to split!"<<endl;
            }
        }
      else
        {
          INT maxpnorm(100);
-         cout << "Trying all primes P of norm up to " << maxpnorm << endl;
+         if(verbose)
+           cout << "Trying all primes P of norm up to " << maxpnorm << endl;
          Quadprime P0;
-         int ok = forms.find_T_auto(maxpnorm, P0, 1);
+         int ok = forms.find_T_auto(maxpnorm, P0, verbose);
          assert(ok);
-         cout << "Success with P = " << ideal_label(P0) << endl;
+         nforms = forms.nfactors;
+         if (verbose)
+           cout << "Success with P = " << ideal_label(P0) << endl;
        }
      forms.make_irreducible_subspaces();
-     int nforms = forms.nfactors;
-     cout<<"Finished constructing "<<nforms
-         <<" irreducible subspaces of dimensions "<<forms.dimS<<endl<<endl;
+     assert(nforms==(int)forms.factors.size());
+     cout << "Found " << nforms << " irreducible components with dimensions " << forms.dimS << endl;
      for (int j=1; j<=nforms; j++)
        {
          forms.display_basis(j);
          cout<<endl;
        }
      int ip, nap=5;
-     cout<<"Number of ap? ";  cin>>nap; cout<<endl;
+     cerr<<"Number of ap? ";  cin>>nap;
 
      ip = 0;
      for ( auto& P : Quadprimes::list)
@@ -107,8 +110,8 @@ int main()
          vector<vec> apvec = forms.ap(P);
          cout<<"a_"<<ideal_label(P)<<" : "<<apvec<<endl;
        } // end of prime loop
-    }     // end of level loop
   cout<<endl;
+    }     // end of level loop
   exit(0);
 }   // end of main()
 

@@ -75,10 +75,16 @@ ZZX reduce_poly(const ZZX& f, const ZZ& m)
   return g;
 }
 
+// Coprime test
+int AreCoprime(const ZZX& f, const ZZX& g)
+{
+  return deg(GCD(f, g)) == 0;
+}
+
 // Squarefree test
 int IsSquareFree(const ZZX& f)
 {
-  return deg(GCD(f, diff(f))) == 0;
+  return AreCoprime(f, diff(f));
 }
 
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)

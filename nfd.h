@@ -13,6 +13,7 @@
 class nfd {
 private:
   Qideal N; // the level
+  vector<Qideal> Ndivs; // divisors of N
   homspace* H1;  // the ambient modular symbol space at level N
 
   int cdimH, dimH;
@@ -39,7 +40,7 @@ public:
   vector<int>dimS;     // their degrees
   void display_basis(int j) const; // output basis info for subspace j (1<=j<=nfactors)
 
-  mat heckeop(Quadprime& P);
+  mat heckeop(Quadprime& P, int cuspidal=1);
   mat heckeop_S(Quadprime& P, const subspace& S);
   vector<vec> ap(Quadprime& P);
   void find_T(); // compute T (via prompts)

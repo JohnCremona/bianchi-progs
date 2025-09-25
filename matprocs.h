@@ -31,6 +31,9 @@ ZZX scale_poly_down(const ZZX& f, const ZZ& c);
 // return f(X) mod m (or just f if m==0)
 ZZX reduce_poly(const ZZX& f, const ZZ& m);
 
+// Coprime test
+int AreCoprime(const ZZX& f, const ZZX& g);
+
 // Squarefree test
 int IsSquareFree(const ZZX& f);
 

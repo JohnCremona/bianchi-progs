@@ -119,7 +119,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
