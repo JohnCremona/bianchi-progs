@@ -4,7 +4,6 @@
 #define _RATQUADS_H      1       //flags that this file has been included
 
 #include "quads.h"
-#include "rat.h"
 
 class RatQuad {
 

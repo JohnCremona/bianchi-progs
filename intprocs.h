@@ -4,7 +4,6 @@
 #define _INTPROCS_H      1       //flags that this file has been included
 
 #include "eclib.h"
-#include "int.h"
 
 inline double to_double(const INT& x) { return I2long(x);}
 

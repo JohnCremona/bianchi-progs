@@ -1,4 +1,4 @@
-#include "int.h"
+#include <eclib/int.h>
 #include <flint/fmpz_mat.h>
 
 // Given a matrix as vector<vector<int>>, construct a FLINT fmpz_mat

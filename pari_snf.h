@@ -4,7 +4,7 @@
 #define _PARI_SNF_H      1       //flags that this file has been included
 
 #include <eclib/templates.h>
-#include "int.h"
+#include <eclib/int.h>
 
 // Return a list of the Smith Normal Form invariants of a matrix
 // (encoded as vector<vector<int>>)
