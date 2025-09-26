@@ -116,7 +116,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels flint_test swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -325,19 +325,19 @@ qidl_labels: qidl_labels.o $(OBJS)
 rewrite_eigs: rewrite_eigs.o $(OBJS)
 	$(CC) -o rewrite_eigs rewrite_eigs.o $(OBJS) $(LFLAGS)
 
-swan_test: swan_test.o $(OBJS) rat.h
+swan_test: swan_test.o $(OBJS)
 	$(CC) -o swan_test swan_test.o $(OBJS) $(LFLAGS)
 
-swan_hom_test: swan_hom_test.o $(OBJS) rat.h
+swan_hom_test: swan_hom_test.o $(OBJS)
 	$(CC) -o swan_hom_test swan_hom_test.o $(OBJS) $(LFLAGS)
 
-make_geodata: make_geodata.o $(OBJS) rat.h
+make_geodata: make_geodata.o $(OBJS)
 	$(CC) -o make_geodata make_geodata.o $(OBJS) $(LFLAGS)
 
-int_hom: int_hom.o $(OBJS) rat.h
+int_hom: int_hom.o $(OBJS)
 	$(CC) -o int_hom int_hom.o $(OBJS) $(LFLAGS)
 
-tbug: tbug.o $(OBJS) rat.h
+tbug: tbug.o $(OBJS)
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
 
 # Some tables

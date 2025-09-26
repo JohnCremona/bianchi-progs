@@ -127,7 +127,8 @@ void homspace::kernel_delta()
   if (verbose)
     cout<<"Computing boundary map"<<endl;
   cusplist cusps(N, plusflag);
-  mat deltamat(2*dimension,dimension);
+  deltamat.init(2*dimension,dimension); // 2*dimension is an upper bound
+  int nr = 0; // # distinct cusps encountered, = # rows of deltamat used
   for (int i=0; i<dimension; i++)
     {
       modsym m = freemods[i];
@@ -138,26 +139,31 @@ void homspace::kernel_delta()
       if (verbose>1)
         cout<<" index is "<<ib<<endl;
       deltamat(ib+1, i+1) += 1;  // N.B. offset of 1
+      nr = max(nr, ib+1);
       if (verbose>1)
         cout<<"Finding index of cusp "<<a<<"..."<<flush;
       int ia = cusps.index(a);
       if (verbose>1)
         cout<<" index is "<<ia<<endl;
       deltamat(ia+1, i+1) -= 1;
+      nr = max(nr, ia+1);
       if (verbose)
         cout << "#"<<i<<" -->  C"<<(ib+1)<<" - C"<<(ia+1)<<endl;
     }
   ncusps=cusps.count();
+  assert(nr==ncusps);
+  deltamat = deltamat.slice(nr, dimension);
   if(verbose)
     {
-      cout<<ncusps<<" inequivalent cusps encountered "<<endl;
+      cout<<ncusps<<" inequivalent cusps encountered "
+          <<" (deltamat has "<<nr<<"rows)"<<endl;
       if(verbose>1)
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
   if (characteristic!=0) modulus = scalar(characteristic);
   vec_i pivs, npivs;
   scalar d2;
-  sdeltamat = smat(deltamat);
+  smat sdeltamat(deltamat);
   kern = kernel(sdeltamat, modulus);
   if (characteristic==0)
     {
@@ -745,6 +751,12 @@ vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspida
                      [] (const pair<int,int>& di) {return di.first;});
       return dims1;
     }
+}
+
+// test for cupidality (of a non-dual subspace only)
+int homspace::is_cuspidal(const subspace& s) const
+{
+  return (deltamat*s.bas()).is_zero();
 }
 
 // functions for caching homspaces, full Hecke polynomials and new Hecke polynomials

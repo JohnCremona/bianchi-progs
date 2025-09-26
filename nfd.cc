@@ -49,7 +49,7 @@ void nfd::find_T()
       // P = L; // first one
       if (verbose)
         cout << "Computing T_P for P = " << P << "..." << flush;
-      T = heckeop(P,0); // not cuspidal
+      T = heckeop(P); // not cuspidal or dual
       if (verbose)
         cout<<"done."<<endl;
     }
@@ -70,7 +70,7 @@ void nfd::find_T()
           cin>>cP;
           if(verbose)
             cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
-          mat TP = heckeop(P,0); // not cuspidal
+          mat TP = heckeop(P); // not cuspidal or dual
           if(verbose)
             cout<<"done."<<endl;
           T += cP*TP;
@@ -173,26 +173,30 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
             {
               cout << " OK: coprime to all polys at proper divisor levels" << endl;
             }
-          T = heckeop(P, 0); // not cupidal
+          T = heckeop(P, 0, 1); // not cuspidal,  dual
           P0 = P;
           break; // out of loop over primes
         }
     }
+  factors.clear();
   if (verb)
     {
       cout << " OK: new cuspidal Hecke polynomial for P="<<ideal_label(P0)
            <<" is "<<f<<", which is squarefree" << endl;
-      vec_ZZX NTL_factors= SFFactor(f);
-      ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
-      int nf = NTL_factors.length();
-      cout<<"Its irreducible factors of multiplicity 1 are:"<<endl;
-      for(int i=0; i<nf; i++)
-        {
-          ZZX fi = NTL_factors[i];
-          cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
-        }
     }
-  factor_T();
+  vec_ZZX NTL_factors= SFFactor(f);
+  ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
+  nfactors = NTL_factors.length();
+  if (verb)
+    cout<<"Its irreducible factors of multiplicity 1 are:"<<endl;
+  for(int i=0; i<nfactors; i++)
+    {
+      ZZX fi = NTL_factors[i];
+      if (verb)
+        cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+      factors.push_back(fi);
+    }
+  //factor_T();
   return 1;
 }
 
@@ -222,8 +226,6 @@ void nfd::make_irreducible_subspaces()
       dS.push_back(dSj);
       dHS.push_back(dHSj);
       dimS.push_back(dimSj);
-      if (verbose)
-        cout << "done" << endl;
       if(dimSj!=dj)
         {
           cout<<"Problem: eigenspace has wrong dimension "<<dimSj<<endl;
@@ -396,14 +398,9 @@ void nfd::display_basis(int j) const // output basis info for subspace j (1<=j<=
     }
 }
 
-mat nfd::heckeop(Quadprime& P, int cuspidal)
+mat nfd::heckeop(Quadprime& P, int cuspidal, int dual)
 {
-  return H1->calcop(HeckePOp(P, N), cuspidal, 1, 0); // 1 transpose, 0 display
-}
-
-mat nfd::heckeop_S(Quadprime& P, const subspace& S)
-{
-  return H1->calcop_restricted(HeckePOp(P, N), S, 1, 0); // 1 transpose, 0 display
+  return H1->calcop(HeckePOp(P, N), cuspidal, dual, 0); // 0 display
 }
 
 int is_class_number_one(long d)

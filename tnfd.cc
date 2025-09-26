@@ -32,6 +32,12 @@ int main()
 
   int verbose=1;
   cerr << "Verbose output? (0/1) "; cin >> verbose;
+  int manual = 0;
+  cerr << "Choose a splitting operator yourself (1)? or automatically (0)? ";
+  cin >> manual;
+  int nap=5;
+  cerr<<"Number of ap? ";
+  cin>>nap;
 
   Quad n;
   Qideal N;
@@ -47,7 +53,8 @@ int main()
   while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
     {
 #endif
-     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+      cout << endl;
+      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      homspace* hplus = get_homspace(N, modulus);
      // int dimH = hplus->h1cuspdim();
      // cout << "dimension = " << dimH << endl;
@@ -58,9 +65,6 @@ int main()
 
      // compute the splitting operator T and the multiplicity 1
      // irreducible factors of its char poly f_T(X):
-     int manual = 0;
-     cerr << "Choose a splitting operator yourself (1)? or automatically (0)? ";
-     cin >> manual;
      if (manual)
        {
          int ok = 0;
@@ -95,10 +99,7 @@ int main()
          forms.display_basis(j);
          cout<<endl;
        }
-     int ip, nap=5;
-     cerr<<"Number of ap? ";  cin>>nap;
-
-     ip = 0;
+     int ip = 0;
      for ( auto& P : Quadprimes::list)
        {
          if (P.divides(N))
@@ -106,9 +107,10 @@ int main()
          ip++;
          if (ip>nap)
            break;
-
          vector<vec> apvec = forms.ap(P);
-         cout<<"a_"<<ideal_label(P)<<" : "<<apvec<<endl;
+         cout<<"a_"<<ideal_label(P)
+             <<" : "
+             <<apvec<<endl;
        } // end of prime loop
   cout<<endl;
     }     // end of level loop

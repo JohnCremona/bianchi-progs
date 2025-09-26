@@ -21,7 +21,7 @@ public:
   int ngens, nsymb, nap, nwq;
 
   ssubspace kern;
-  smat sdeltamat;
+  mat deltamat;
   smat tkernbas, bigtkernbas; // transpose of kernel(delta) basis in terms of freegens, gens
   vector<modsym> freemods;
   vector<int> freegens;
@@ -45,6 +45,7 @@ public:
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
   vec cuspidalpart(const vec& v) const {return v[pivots(kern)];}
+  int is_cuspidal(const subspace& s) const; // test for cupidality (of a non-dual subspace only)
 
   int h1cuspdim() const {return cuspidal_dimension;}
   int h1dim() const {return dimension;}  // No confusion with subspace::dim

@@ -1736,7 +1736,7 @@ void newforms::make_bigtkernbas(void)
   // 'big' version bigtkernbas
   mat tcoord = transpose(h1->FR.get_coord());
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
-  smat bigdeltamat = mult_mod_p(h1->sdeltamat, smat(tcoord), modulus);
+  smat bigdeltamat(matmulmodp(h1->deltamat, tcoord, modulus));
   //cout<<" *** computed bigdeltamat: "<<bigdeltamat<<endl;
   h1->bigtkernbas = transpose(basis(kernel(bigdeltamat, modulus)));
 }

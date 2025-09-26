@@ -40,8 +40,7 @@ public:
   vector<int>dimS;     // their degrees
   void display_basis(int j) const; // output basis info for subspace j (1<=j<=nfactors)
 
-  mat heckeop(Quadprime& P, int cuspidal=1);
-  mat heckeop_S(Quadprime& P, const subspace& S);
+  mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
   vector<vec> ap(Quadprime& P);
   void find_T(); // compute T (via prompts)
   // compute T=T_P, trying all good P with N(P)<=maxnormP
