@@ -127,13 +127,16 @@ public:
 
 // functions for caching homspaces, full Hecke polynomials and new Hecke polynomials
 
-extern map<Qideal,homspace*> H1_dict;
+// Key is ideal_label(N)
+extern map<string,homspace*> H1_dict;
 homspace* get_homspace(const Qideal& N, scalar mod);
 
-extern map<pair<Qideal,Quadprime>, ZZX> full_poly_dict;
-ZZX get_full_poly(const Qideal& N,  Quadprime& P, const scalar& mod);
+// Key is ideal_label(N)-ideal_label(P)
+extern map<string, ZZX> full_poly_dict;
+ZZX get_full_poly(const Qideal& N,  const Quadprime& P, const scalar& mod);
 
-extern map<pair<Qideal,Quadprime>, ZZX> new_poly_dict;
-ZZX get_new_poly(Qideal& N, Quadprime& P, const scalar& mod);
+// Key is ideal_label(N)-ideal_label(P)
+extern map<string, ZZX> new_poly_dict;
+ZZX get_new_poly(const Qideal& N, const Quadprime& P, const scalar& mod);
 
 #endif
