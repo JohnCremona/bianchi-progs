@@ -1068,7 +1068,9 @@ void newforms::find()
     {
       dimtrivcuspold=0;
       olddim1 = olddim2 = 0;
-      mindepth = nap;
+      //      mindepth = nap;
+      mindepth = 1;
+      olddims = vector<int>(nchi,0);
     }
 
   // find dimension of trivial character subspace and its split by characters:
@@ -1113,12 +1115,12 @@ void newforms::find()
           cout<<"\n unramified character discriminants: " << Quad::all_disc_factors;
         }
       cout<<endl;
+    }
       if(verbose>1)
         {
           cout<<"maxdepth = "<<maxdepth<<endl;
           cout<<"mindepth = "<<mindepth<<endl;
         }
-    }
 
   n1ds = 0; // number of rational newforms found (will be incremented by the finder)
   if(dimtrivcuspnew>0)  // Else no newforms certainly so do no work!

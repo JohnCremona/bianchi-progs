@@ -1,4 +1,5 @@
-// NEWHECKE.CC  -- Hecke operators: factored characteristic polynomials on the new cuspidal subspace
+// NEWHECKE_MODP.CC -- Hecke operators: factored characteristic
+// polynomials on the new cuspidal subspace in characteristic p
 
 #include "eclib.h"
 
@@ -13,11 +14,6 @@
 
 int main(void)
 {
-  scalar modulus = default_modulus<scalar>();
-#if (SCALAR_OPTION==3)
-  //  NextPrime(modulus, power_ZZ(2,256));
-    NextPrime(modulus, power_ZZ(2,512));
-#endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;
   cin >> d;
@@ -26,6 +22,9 @@ int main(void)
      cerr<<"field must be one of: "<<valid_fields<<endl;
      exit(1);
    }
+  scalar ch(0);
+  cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
+  ZZ_p::init(ZZ(ch));
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
 
@@ -49,21 +48,12 @@ int main(void)
         {
 #endif
           cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-  homspace* h = get_homspace(N, modulus);
+          homspace* h = get_homspace_modp(N, ch);
   int dim = h->h1cuspdim();
   cout << "Cuspidal dimension = " << dim << endl;
-  //scalar den = h->h1cdenom();
-  //if(den!=1) cout << " denominator = " << den << endl;
 
   if (dim>0)
     {
-      scalar hmod = h->h1hmod();
-      if(hmod!=0)
-        {
-          cout << "Failed to lift basis from Z/"<<hmod<<" to Z -- "
-               << "homology is modulo "<<hmod<<endl;
-          ZZ_p::init(to_ZZ(hmod));
-        }
       int ntp = 0;
       for ( auto& P : Quadprimes::list)
 	{
@@ -74,13 +64,13 @@ int main(void)
           if (show_pols)
             {
               cout << "Characteristic polynomial of T(" << P << ")"<<endl;
-              ZZX charpol = get_full_poly(N,P,modulus);
+              ZZ_pX charpol = get_full_poly_modp(N,P,ch);
               cout << "Coefficients: " << charpol << endl;
               cout<<"Factors:"<<endl;
               display_factors(charpol);
               cout << endl;
             }
-          ZZX newpol = get_new_poly(N,P,modulus);
+          ZZ_pX newpol = get_new_poly_modp(N,P, ch);
           int dimnew = deg(newpol);
           if (dimnew==0)
             {

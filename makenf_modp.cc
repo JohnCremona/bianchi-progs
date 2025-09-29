@@ -1,6 +1,6 @@
 #include "qidloop.h"
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 
 int main ()
 {

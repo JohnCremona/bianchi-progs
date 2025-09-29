@@ -60,6 +60,9 @@ int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& m)
 // display factors of a polynomial:
 void display_factors(const ZZX& f);
 
+// display factors of a polynomial mod p:
+void display_factors(const ZZ_pX& f);
+
 // rank of an NTL matrix:
 long rank(mat_ZZ A);
 
@@ -82,7 +85,29 @@ struct factor_comparison {
     if(s) return (s<0); // true if fac1 is to a lower exponent
 
     // finally lexicographically compare the coefficient lists
-    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(), fac2.a.rep.begin(), fac2.a.rep.end());
+    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(),
+                                        fac2.a.rep.begin(), fac2.a.rep.end());
+  }
+};
+
+//bool operator<(ZZ_p a, ZZ_p b); // {return rep(a)<rep(b);}
+
+struct factor_modp_comparison {
+  bool operator()(pair_ZZ_pX_long& fac1, pair_ZZ_pX_long& fac2)
+  {
+    auto cmp = [](const ZZ_p& a, const ZZ_p& b) {return rep(a)<rep(b);};
+    // first sort by degree of the factor
+    int s = deg(fac1.a) - deg(fac2.a);
+    if(s) return (s<0); // true if fac1 has smaller degree
+
+    // then sort by exponent of the factor
+    s = fac1.b - fac2.b;
+    if(s) return (s<0); // true if fac1 is to a lower exponent
+
+    // finally lexicographically compare the coefficient lists
+    return std::lexicographical_compare(fac1.a.rep.begin(), fac1.a.rep.end(),
+                                        fac2.a.rep.begin(), fac2.a.rep.end(),
+                                        cmp);
   }
 };
 
@@ -97,11 +122,29 @@ struct poly_comparison {
     if(s) return (s<0); // true if pol1 has smaller degree
 
     // finally lexicographically compare the coefficient lists
-    return std::lexicographical_compare(pol1.rep.begin(), pol1.rep.end(), pol2.rep.begin(), pol2.rep.end());
+    return std::lexicographical_compare(pol1.rep.begin(), pol1.rep.end(),
+                                        pol2.rep.begin(), pol2.rep.end());
+  }
+};
+
+struct poly_modp_comparison {
+  bool operator()(ZZ_pX& pol1, ZZ_pX& pol2)
+  {
+    auto cmp = [](const ZZ_p& a, const ZZ_p& b) {return rep(a)<rep(b);};
+    // first sort by degree of the factor
+    int s = deg(pol1) - deg(pol2);
+    if(s) return (s<0); // true if pol1 has smaller degree
+
+    // finally lexicographically compare the coefficient lists
+    return std::lexicographical_compare(pol1.rep.begin(), pol1.rep.end(),
+                                        pol2.rep.begin(), pol2.rep.end(),
+                                        cmp);
   }
 };
 
 extern factor_comparison fact_cmp;
 extern poly_comparison poly_cmp;
+extern factor_modp_comparison fact_modp_cmp;
+extern poly_modp_comparison poly_modp_cmp;
 
 #endif

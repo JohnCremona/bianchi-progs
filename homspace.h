@@ -139,4 +139,16 @@ ZZX get_full_poly(const Qideal& N,  const Quadprime& P, const scalar& mod);
 extern map<string, ZZX> new_poly_dict;
 ZZX get_new_poly(const Qideal& N, const Quadprime& P, const scalar& mod);
 
+// Key is ideal_label(N)-mod-p
+extern map<string,homspace*> H1_modp_dict;
+homspace* get_homspace_modp(const Qideal& N, scalar p);
+
+// Key is ideal_label(N)-ideal_label(P)
+extern map<string, ZZ_pX> full_poly_modp_dict;
+ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p);
+
+// Key is ideal_label(N)-ideal_label(P)
+extern map<string, ZZ_pX> new_poly_modp_dict;
+ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p);
+
 #endif

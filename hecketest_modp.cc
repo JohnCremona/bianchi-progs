@@ -3,7 +3,7 @@
 #include "matprocs.h"
 #include "qidloop.h"
 #include "homspace.h"
-//#define LOOPER
+#define LOOPER
 
 #define MAXPRIME 10000
 

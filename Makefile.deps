@@ -110,6 +110,10 @@ newhecke.o: newhecke.cc eclib.h matprocs.h intprocs.h qidloop.h qideal.h \
  quads.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h nfd.h
+newhecke_modp.o: newhecke_modp.cc eclib.h matprocs.h intprocs.h qidloop.h \
+ qideal.h quads.h newforms.h ratquads.h oldforms.h primes.h homspace.h \
+ cusp.h mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
+ swan_utils.h looper.h hecke.h nfd.h
 nfd.o: nfd.cc matprocs.h intprocs.h eclib.h qidloop.h qideal.h quads.h \
  nfd.h homspace.h cusp.h mat22.h ratquads.h primes.h face_relations.h \
  edge_relations.h geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h

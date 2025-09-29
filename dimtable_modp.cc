@@ -3,6 +3,15 @@
 #define LOOPER
 //#define CHECK_CONJUGATE
 
+int is_B_smooth(const INT& N, const INT& B)
+{
+  vector<INT> pr = pdivs(N);
+  // cout << "N = "<<N<<" has prime factors "<<pr<<" and is ";
+  int ans = std::all_of(pr.begin(), pr.end(), [B](const INT& p){return p<=B;});
+  // cout << (ans?"":" NOT ")<< B<<"-smooth"<<endl;
+  return ans;
+}
+
 int main ()
 {
   long d, maxpnorm(1000);
@@ -14,8 +23,12 @@ int main ()
    }
 
  vector<scalar> charlist;
- charlist.push_back(scalar(0));
- cerr << "Enter list of characteristics, ending in 0: " << flush;
+ cerr << "Include characteristic 0? ";
+ int char0 = 0;
+ cin >> char0;
+ if (char0)
+   charlist.push_back(scalar(0));
+ cerr << "Enter list of characteristics, ending in either 0: " << flush;
  scalar ch(1); // any nonzero
  while(ch!=0)
    {
@@ -39,10 +52,17 @@ int main ()
    cout<<" "<<c;
  cout<<endl;
 
+ cerr << "Enter smoothness parameter (or 0 for none): ";
+ INT B;
+ cin >> B;
+ // Skip levels whose norm is not B-smooth
+
  Qidealooper loop(firstn, lastn, both_conj, 1); // sorted within norm
  while( loop.not_finished() )
    {
      Qideal N = loop.next();
+     if (!is_B_smooth(N.norm(), B))
+       continue;
 #else
      Qideal N;
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
@@ -51,7 +71,8 @@ int main ()
          cout << ideal_label(N);
          for ( const auto& c : charlist)
            {
-             homspace h(N, c, plusflag, 0, c);  //level, char, plusflag, verbose, characteristic
+             scalar modulus = (c==0? default_modulus<scalar>(): c);
+             homspace h(N, modulus, plusflag, 0, c);  //level, modulus, plusflag, verbose, characteristic
              long dim = (cuspidalflag? h.h1cuspdim(): h.h1dim());
              cout << " " << dim;
            }

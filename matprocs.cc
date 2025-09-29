@@ -5,6 +5,13 @@
 
 factor_comparison fact_cmp;
 poly_comparison poly_cmp;
+factor_modp_comparison fact_modp_cmp;
+poly_modp_comparison poly_modp_cmp;
+
+// bool operator<(ZZ_p a, ZZ_p b)
+// {
+//   return rep(a)<rep(b);
+// }
 
 mat_ZZ mat_to_mat_ZZ(mat A)
 {
@@ -161,6 +168,20 @@ void display_factors(const ZZX& f)
   ZZ cont; vec_pair_ZZX_long factors;
   factor(cont, factors, f);
   ::sort(factors.begin(), factors.end(), fact_cmp);
+  long nf = factors.length();
+  for(int i=0; i<nf; i++)
+    {
+      cout<<(i+1)<<":\t"<<factors[i].a
+          <<"\t(degree "<<deg(factors[i].a)<<")";
+      cout<<"\t to power "<<factors[i].b;
+      cout<<endl;
+    }
+}
+
+void display_factors(const ZZ_pX& f)
+{
+  vec_pair_ZZ_pX_long factors = berlekamp(f);
+  ::sort(factors.begin(), factors.end(), fact_modp_cmp);
   long nf = factors.length();
   for(int i=0; i<nf; i++)
     {

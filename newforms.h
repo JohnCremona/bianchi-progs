@@ -206,7 +206,7 @@ private:
   // cached list of previous
   vector<vector<long>> eigranges;
 
-  long dimoldpart(const vector<long> l) {return of->dimoldpart(l);}
+  long dimoldpart(const vector<long> l) {return (characteristic==0?of->dimoldpart(l):0);}
 
   // Compute a long basis vector from a short one
   vec lengthen_basis(const vec& sbasis);

@@ -79,7 +79,7 @@ ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relation
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
 ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
-ccs6: hecketest_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
+ccs6: hecketest_modp.cc newhecke_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
@@ -116,7 +116,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -307,8 +307,11 @@ hecketest: hecketest.o $(OBJS)
 hecketest_modp: hecketest_modp.o $(OBJS)
 	$(CC) -o hecketest_modp hecketest_modp.o $(OBJS) $(LFLAGS)
 
-newhecke: newhecke.o nfd.o $(OBJS)
-	$(CC) -o newhecke newhecke.o nfd.o $(OBJS) $(LFLAGS)
+newhecke: newhecke.o $(OBJS)
+	$(CC) -o newhecke newhecke.o $(OBJS) $(LFLAGS)
+
+newhecke_modp: newhecke_modp.o $(OBJS)
+	$(CC) -o newhecke_modp newhecke_modp.o $(OBJS) $(LFLAGS)
 
 tnfd: tnfd.o nfd.o $(OBJS)
 	$(CC) -o tnfd tnfd.o nfd.o $(OBJS) $(LFLAGS)

@@ -762,6 +762,19 @@ int homspace::is_cuspidal(const subspace& s) const
 // Functions for caching homspaces, full Hecke polynomials and new Hecke polynomials
 // Keys are strings of the form Nlabel (for homspace) or Nlabel-Plabel (for Hecke polynomials)
 
+string Nkey(Qideal& N)
+{
+  return ideal_label(N);
+}
+
+string Nmodpkey(Qideal& N, const scalar p)
+{
+  stringstream s;
+  s << ideal_label(N) << "-mod-"<<p;
+  return s.str();
+  return ideal_label(N);
+}
+
 string NPkey(Qideal& N, Quadprime& P)
 {
   stringstream s;
@@ -769,9 +782,19 @@ string NPkey(Qideal& N, Quadprime& P)
   return s.str();
 }
 
+string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
+{
+  stringstream s;
+  s << ideal_label(N) << "-" << ideal_label(P) << "-mod-"<<p;
+  return s.str();
+}
+
 map<string,homspace*> H1_dict;
 map<string, ZZX> full_poly_dict;
 map<string, ZZX> new_poly_dict;
+map<string,homspace*> H1_modp_dict;
+map<string, ZZ_pX> full_poly_modp_dict;
+map<string, ZZ_pX> new_poly_modp_dict;
 
 void show_new_poly_dict()
 {
@@ -806,7 +829,7 @@ ZZX get_full_poly(const Qideal& N,  const Quadprime& P, const scalar& mod)
     {
       homspace* H = get_homspace(N, mod);
       ZZX full_poly = H->charpoly(HeckePOp(PP, N), 1); // 1 for cuspidal
-
+      full_poly_dict[NP] = full_poly;
       if (deg(full_poly)==0)
         {
           new_poly_dict[NP] = full_poly;
@@ -878,4 +901,104 @@ ZZX get_new_poly(const Qideal& N, const Quadprime& P, const scalar& mod)
     }
   else
     return new_poly_dict[NP];
+}
+
+homspace* get_homspace_modp(const Qideal& N, scalar p)
+{
+  Qideal NN=N; // copy as N is const, for ideal_label
+  string Nlabel = Nmodpkey(NN, p);
+  auto res = H1_modp_dict.find(Nlabel);
+  if (res==H1_modp_dict.end())
+    {
+      homspace* H = new homspace(N, p, 1, 0, p); // plus=1, verb=0
+      H1_modp_dict[Nlabel] = H;
+      return H;
+    }
+  else
+    return H1_modp_dict[Nlabel];
+}
+
+ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p)
+{
+  Qideal NN=N; // copy as N is const, for ideal_label
+  Quadprime PP=P; // copy as P is const, for HeckePOp()
+  string NP = NPmodpkey(NN,PP,p);
+  auto res = full_poly_modp_dict.find(NP);
+  if (res==full_poly_modp_dict.end())
+    {
+      homspace* H = get_homspace_modp(N, p);
+      ZZ_pX full_poly = to_ZZ_pX(H->charpoly(HeckePOp(PP, N), 1)); // 1 for cuspidal
+      full_poly_modp_dict[NP] = full_poly;
+
+      if (deg(full_poly)==0)
+        {
+          new_poly_modp_dict[NP] = full_poly;
+        }
+      return full_poly;
+    }
+  else
+    return full_poly_modp_dict[NP];
+}
+
+ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
+{
+  Qideal NN=N; // copy as N is const, for alldivs()
+  Quadprime PP=P; // copy as P is const, for ideal_label
+  string NP = NPmodpkey(NN,PP,p);
+  auto res = new_poly_modp_dict.find(NP);
+  if (res==new_poly_modp_dict.end())
+    {
+      ZZ_pX new_poly = get_full_poly_modp(N, P, p);
+      if (deg(new_poly)==0)
+        {
+          new_poly_modp_dict[NP] = new_poly;
+          return new_poly;
+        }
+      vector<Qideal> DD = alldivs(NN);
+      for( auto D : DD)
+        {
+          if (D==N)
+            continue;
+          ZZ_pX new_poly_D = get_new_poly_modp(D, P, p);
+          if (deg(new_poly_D)==0)
+            continue;
+          Qideal M = N/D;
+          int mult = alldivs(M).size();
+          // The actual multiplicity may be less than this.  If an
+          // irreducible factor of new_poly_D corresponds to a
+          // newforms with self-twist by the unramified quadratic
+          // character chi, then the old multiplicity of this factor
+          // is the number of divisors D1 of N/D for which chi(D1)=+1.
+          // BUT here we do not know which factors are self-twist.
+
+          for (int i=0; i<mult; i++)
+            {
+              //new_poly /= new_poly_D;
+              ZZ_pX quo, rem;
+              DivRem(quo, rem, new_poly, new_poly_D);
+              if (IsZero(rem))
+                new_poly = quo;
+              else
+                {
+                  cout << "Problem in get_new_poly("<<NP<<"), D="<<ideal_label(D)<<endl;
+                  cout << "Dividing " << new_poly << " by " << new_poly_D
+                       << " gives quotient " << quo <<", remainder "<< rem << endl;
+                  cout << "Old multiplicities are smaller than expected."<<endl;
+                  cout << "This should be because a newform at a dividing level has inner twist"<<endl;
+                  if (Quad::class_group_2_rank==0)
+                    cout << "*** so it should not happen, as the class number "
+                         << Quad::class_number<<" is odd!"<<endl;
+                }
+            }
+          if (deg(new_poly)==0) // nothing left, new dimension must be 0
+            {
+              new_poly_modp_dict[NP] = new_poly;
+              return new_poly;
+            }
+        }
+      new_poly_modp_dict[NP] = new_poly;
+      return new_poly;
+    }
+  else
+    return new_poly_modp_dict[NP];
 }
