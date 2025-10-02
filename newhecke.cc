@@ -67,20 +67,44 @@ int main(void)
       int ntp = 0;
       for ( auto& P : Quadprimes::list)
 	{
-	  if (P.divides(N) || !P.is_principal())
+	  if (P.divides(N)) // || !P.is_principal())
             continue;
           ntp++;
           if (ntp>np) break;
+          Qideal Q=P;
+          int expo = 1;
+          string lab = prime_label(P);
+          if (!Q.is_principal())
+            {
+              Q=Q*Q;
+              expo = 2;
+              lab = lab + " ^ 2";
+              if (!Q.is_principal())
+                {
+                  continue;
+                }
+            }
+          assert (Q.is_principal());
+          if (expo==1)
+            {
+              cout << "P = " << P << " is principal, ideal class " << P.ideal_class() << endl;
+              cout << "Using Q = P^"<<expo<<" = "<<ideal_label(Q)<<" = "<<gens_string(Q)<<endl;
+            }
+          if (expo==2)
+            {
+              cout << "P = " << P << " is not principal, ideal class " << P.ideal_class() << endl;
+              cout << "Using Q = P^"<<expo<<" = "<<ideal_label(Q)<<" = "<<gens_string(Q)<<endl;
+            }
           if (show_pols)
             {
-              cout << "Characteristic polynomial of T(" << P << ")"<<endl;
-              ZZX charpol = get_full_poly(N,P,modulus);
+              cout << "Characteristic polynomial of T(" << lab << ")"<<endl;
+              ZZX charpol = get_full_poly(N,Q,modulus);
               cout << "Coefficients: " << charpol << endl;
               cout<<"Factors:"<<endl;
               display_factors(charpol);
               cout << endl;
             }
-          ZZX newpol = get_new_poly(N,P,modulus);
+          ZZX newpol = get_new_poly(N,Q,modulus);
           int dimnew = deg(newpol);
           if (dimnew==0)
             {
@@ -91,7 +115,7 @@ int main(void)
             {
               cout << "Newspace has dimension " << dimnew << endl;
             }
-          cout << "New characteristic polynomial of T(" << P << "):" << endl;
+          cout << "New characteristic polynomial of T(" << lab << ")"<<endl;
           cout << "Coefficients: " << newpol << endl;
           cout<<"Factors:"<<endl;
           display_factors(newpol);

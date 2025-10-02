@@ -775,7 +775,7 @@ string Nmodpkey(Qideal& N, const scalar p)
   return ideal_label(N);
 }
 
-string NPkey(Qideal& N, Quadprime& P)
+string NPkey(Qideal& N, Qideal& P)
 {
   stringstream s;
   s << ideal_label(N) << "-" << ideal_label(P);
@@ -819,16 +819,37 @@ homspace* get_homspace(const Qideal& N, scalar mod)
     return H1_dict[Nlabel];
 }
 
-ZZX get_full_poly(const Qideal& N,  const Quadprime& P, const scalar& mod)
+// Here P whould be prime or prime power
+ZZX get_full_poly(const Qideal& N,  const Qideal& P, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
-  Quadprime PP=P; // copy as P is const, for HeckePOp()
+  Qideal PP=P; // copy as P is const, for HeckePOp()
   string NP = NPkey(NN,PP);
   auto res = full_poly_dict.find(NP);
   if (res==full_poly_dict.end())
     {
       homspace* H = get_homspace(N, mod);
-      ZZX full_poly = H->charpoly(HeckePOp(PP, N), 1); // 1 for cuspidal
+      Factorization Pfact = PP.factorization();
+      if (Pfact.size()!=1)
+        {
+          cout<<"get_full_poly() called with P = "<<ideal_label(PP)
+              << " which is not a prime power"<<endl;
+          exit(1);
+        }
+      int expo = Pfact.exponent(0);
+      Quadprime P1 = Pfact.prime(0);
+      if (expo>2)
+        {
+          cout<<"get_full_poly() called with P = "<<ideal_label(PP)
+              << " which is prime to the power "<<expo<<", not yet implemented"<<endl;
+          exit(1);
+        }
+      ZZX full_poly = (expo==1
+                       ?
+                       H->charpoly(HeckePOp(P1, NN), 1) // 1 for cuspidal
+                       :
+                       H->charpoly(HeckeP2Op(P1, NN), 1)
+                       );
       full_poly_dict[NP] = full_poly;
       if (deg(full_poly)==0)
         {
@@ -840,10 +861,11 @@ ZZX get_full_poly(const Qideal& N,  const Quadprime& P, const scalar& mod)
     return full_poly_dict[NP];
 }
 
-ZZX get_new_poly(const Qideal& N, const Quadprime& P, const scalar& mod)
+// Here P whould be prime or prime power
+ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
-  Quadprime PP=P; // copy as P is const, for ideal_label
+  Qideal PP=P; // copy as P is const, for ideal_label
   string NP = NPkey(NN,PP);
   auto res = new_poly_dict.find(NP);
   if (res==new_poly_dict.end())

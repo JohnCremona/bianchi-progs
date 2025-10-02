@@ -49,14 +49,21 @@ public:
                                     // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
 
-  friend inline ostream& operator<<(ostream& s, const Quadprime& x);
+  friend inline string prime_label(const Quadprime& x);
   friend istream& operator>>(istream& s, Quadprime& P);
 };
 
-inline ostream& operator<<(ostream& s, const Quadprime& x)
+inline string prime_label(const Quadprime& x)
 {
+  stringstream s;
   s << "P" << x.p;
   if (x.is_split()) s << (x.index==1? "a": "b") ;
+  return s.str();
+}
+
+inline ostream& operator<<(ostream& s, const Quadprime& x)
+{
+  s << prime_label(x);
   return s;
 }
 

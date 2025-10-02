@@ -2782,6 +2782,8 @@ vector<long> newforms::eigrange(int i)
       if (i<n2r)
         {
           eigranges[i] = {1};
+          // eigranges[i] = {-1};
+          // eigranges[i] = {1, -1};
         }
       else
         {

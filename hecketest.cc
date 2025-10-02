@@ -145,7 +145,8 @@ int main(void)
             if (Qe.has_square_class()) // we compute T(A,A)*W_Q
               {
                 Qideal A = Qe.sqrt_coprime_to(N);
-                cout << "Computing W("<<Q<<")*T(A,A) for A="<<A<<"..." << flush;
+                cout << "Computing W("<<Q<<")*T(A,A) for A="<<ideal_label(A)
+                     <<" [A]="<<A.ideal_class()<<"..." << flush;
                 op = AtkinLehnerQChiOp(Q, A, N);
               }
             else  // we have an odd power of an ideal with non-square ideal class and compute nothing
@@ -204,6 +205,8 @@ int main(void)
             continue;
           int P_class_order=1; // will hold order of [P] mod squares
           matop op;
+          int clP = P.ideal_class();
+          cout<<"P = "<<P<<" has ideal class "<<clP<<endl;
           if (P.is_principal())
             {
               op = HeckePOp(P, N);
@@ -215,7 +218,8 @@ int main(void)
                 {
                   Qideal A = P.sqrt_coprime_to(N);
                   op = HeckePChiOp(P, A, N);
-                  cout << "Computing T(" << P << ")*T(A,A) for A="<<A<<"..."<<flush;
+                  cout << "Computing T(" << P << ")*T(A,A) for A="<<ideal_label(A)
+                       <<" [A]="<<A.ideal_class()<<"..."<<flush;
                 }
               else
                 {
@@ -235,7 +239,8 @@ int main(void)
                     {
                       Qideal A = P.equivalent_mod_2_coprime_to(N,1);
                       op = HeckeP2ChiOp(P, A, N);
-                      cout << "Computing T(" << P << "^2)*T(A,A) for A="<<A<<"..."<<flush;
+                      cout << "Computing T(" << P << "^2)*T(A,A) for A="<<ideal_label(A)
+                           <<" [A]="<<A.ideal_class()<<"..."<<flush;
                     }
                 }
             }
@@ -293,7 +298,8 @@ int main(void)
               {
                 Qideal A = PP0.sqrt_coprime_to(N);
                 op = HeckePQChiOp(P,P0,A,N);
-                cout << "Computing T(" << P << ") T(" << P0 << ")*T(A,A) with A = "<<A<<"..."<<flush;
+                cout << "Computing T(" << P << ") T(" << P0 << ")*T(A,A) with A = "<<ideal_label(A)
+                     <<" [A]="<<A.ideal_class()<<"..."<<flush;
               }
             else
               continue;
