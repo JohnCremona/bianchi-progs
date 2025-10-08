@@ -69,8 +69,9 @@ int main(void)
 
           for ( auto& A : t2ideals)
             {
-              cout << "Computing nu_"<< ideal_label(A) <<"..." << flush;
-              mat m = h.calcop(CharOp(A, N), cuspidal, 0, 0);
+              matop op = CharOp(A, N);
+              cout << "Computing "<< op.name() <<"..." << flush;
+              mat m = h.calcop(op, cuspidal, 0, 0);
               mat_ZZ nu = mat_to_mat_ZZ(m);
               cout << "done. " << endl;
               if (show_mats)
@@ -93,7 +94,7 @@ int main(void)
                 }
               if (!check_commute(nu, nulist, hmod))
                 {
-                  cout << "********* unramified character matrices do not commute with each other ***********" << endl;
+                  cout << "********* unramified character matrices do not commute ***********" << endl;
                   exit(1);
                 }
               nulist.push_back(nu);
@@ -138,16 +139,15 @@ int main(void)
           while (--e) Qe *= Q;
           if (Qe.is_principal()) // we compute W_Q directly
             {
-              cout << "Computing W("<<Q<<")..." << flush;
               op = AtkinLehnerQOp(Q, N);
+              cout << "Computing "<<op.name()<<"..." << flush;
             }
           else
             if (Qe.has_square_class()) // we compute T(A,A)*W_Q
               {
                 Qideal A = Qe.sqrt_coprime_to(N);
-                cout << "Computing W("<<Q<<")*T(A,A) for A="<<ideal_label(A)
-                     <<" [A]="<<A.ideal_class()<<"..." << flush;
                 op = AtkinLehnerQChiOp(Q, A, N);
+                cout << "Computing "<<op.name()<<"..." << flush;
               }
             else  // we have an odd power of an ideal with non-square ideal class and compute nothing
               continue;
@@ -185,9 +185,15 @@ int main(void)
 	  wqlist.push_back(wq);
 	}
 
-      // Compute Hecke operators T(P) or T(P^2) and check that they
-      // commute with each other and with the character matrices and
-      // with A-Ls
+      // Compute Hecke operators for each good prime P:
+
+      // T(P) if P principal; else
+      // T(P)T(A,A) if P has square class and PA^2 is principal; else
+      // T(P^2) if P^2 principal; else
+      // T(P^2)T(A,A) if (PA)^2 is principal.
+
+      // In each case, and check that they commute with each other and
+      // with the character matrices and with A-Ls
 
 #ifndef LOOPER
       cerr << "How many Hecke matrices T(P)? ";
@@ -203,51 +209,20 @@ int main(void)
           mat_ZZ tp, tpq, tpwq;
 	  if (P.divides(N))
             continue;
-          int P_class_order=1; // will hold order of [P] mod squares
-          matop op;
-          int clP = P.ideal_class();
-          cout<<"P = "<<P<<" has ideal class "<<clP<<endl;
-          if (P.is_principal())
+          //cout<<"P = "<<P<<" has ideal class "<< P.ideal_class() <<endl;
+          matop op = AutoHeckeOp(P, N);
+          string opname = op.name();
+          int P_class_order = (P.has_square_class()? 1 : 2);
+          if ((P_class_order==2) && (!P0_set) && (Quad::class_number==2))
             {
-              op = HeckePOp(P, N);
-              cout << "Computing T(" << P << ")..."<<flush;
-            }
-          else
-            {
-              if (P.has_square_class())
-                {
-                  Qideal A = P.sqrt_coprime_to(N);
-                  op = HeckePChiOp(P, A, N);
-                  cout << "Computing T(" << P << ")*T(A,A) for A="<<ideal_label(A)
-                       <<" [A]="<<A.ideal_class()<<"..."<<flush;
-                }
-              else
-                {
-                  P_class_order = 2;
-                  if ((!P0_set) && (Quad::class_number==2))
-                    {
-                      P0 = P;
-                      P0_set = 1;
-                      //cout<<"Setting P0 to "<<P0<<endl;
-                    }
-                  if ((P*P).is_principal())
-                    {
-                      op = HeckeP2Op(P, N);
-                      cout << "Computing T(" << P << "^2)..."<<flush;
-                    }
-                  else
-                    {
-                      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
-                      op = HeckeP2ChiOp(P, A, N);
-                      cout << "Computing T(" << P << "^2)*T(A,A) for A="<<ideal_label(A)
-                           <<" [A]="<<A.ideal_class()<<"..."<<flush;
-                    }
-                }
+              P0 = P;
+              P0_set = 1;
             }
 
+          cout << "Computing " << opname << "..." << flush;
           mat m = h.calcop(op,cuspidal, 0, show_mats);
-          tp = mat_to_mat_ZZ(m);
           cout << "done. " << endl;
+          tp = mat_to_mat_ZZ(m);
           if (show_mats)
             cout << "Matrix is \n" << m <<endl;
 
@@ -287,22 +262,20 @@ int main(void)
           if (!(P0_set && (P0!=P) && (P_class_order==2)))
             continue;
 
-          Qideal PP0 = P*P0;
+          Qideal PP0 = P*P0, A;
           if (PP0.is_principal())
             {
               op = HeckePQOp(P,P0,N);
-              cout << "Computing T(" << P << ") T(" << P0 << ")..."<<flush;
             }
           else
             if (PP0.has_square_class())
               {
-                Qideal A = PP0.sqrt_coprime_to(N);
+                A = PP0.sqrt_coprime_to(N);
                 op = HeckePQChiOp(P,P0,A,N);
-                cout << "Computing T(" << P << ") T(" << P0 << ")*T(A,A) with A = "<<ideal_label(A)
-                     <<" [A]="<<A.ideal_class()<<"..."<<flush;
               }
             else
               continue;
+          cout << "Computing " << op.name() << "..."<<flush;
 
           m = h.calcop(op,cuspidal, 0, 0);
           tpq = mat_to_mat_ZZ(m);
@@ -354,8 +327,9 @@ int main(void)
               Qideal Qe = *qe;
               if ((P*Qe).is_principal())
                 {
-                  cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
-                  mat m1 = h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0);
+                  matop op = HeckePALQOp(P,Q,N);
+                  cout<<"Computing T("<<P<<") * W("<<ideal_label(Qe)<<")..."<<flush;
+                  mat m1 = h.calcop(op,cuspidal, 0, 0);
                   tpwq = mat_to_mat_ZZ(m1);
                   cout << "done. " << endl;
                   if (show_mats)

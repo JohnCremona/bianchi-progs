@@ -133,11 +133,11 @@ homspace* get_homspace(const Qideal& N, scalar mod);
 
 // Key is ideal_label(N)-ideal_label(P)
 extern map<string, ZZX> full_poly_dict;
-ZZX get_full_poly(const Qideal& N,  const Qideal& P, const scalar& mod);
+ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod);
 
 // Key is ideal_label(N)-ideal_label(P)
 extern map<string, ZZX> new_poly_dict;
-ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod);
+ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod);
 
 // Key is ideal_label(N)-mod-p
 extern map<string,homspace*> H1_modp_dict;

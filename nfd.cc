@@ -135,7 +135,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
         }
       if (verb)
         cout << "Trying P = " << ideal_label(P) << "..." << flush;
-      f = get_new_poly(N, P, H1->modulus);
+      f = get_new_poly(N, HeckePOp(P,N), H1->modulus);
       if (!IsSquareFree(f))
         {
           if (verb)
@@ -156,7 +156,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
         {
           if (D==N)
             continue;
-          ZZX f_D = get_new_poly(D, P, H1->modulus); // from cache
+          ZZX f_D = get_new_poly(D, HeckePOp(P,D), H1->modulus); // from cache
           if (!AreCoprime(f, f_D))
             {
               if (verb)

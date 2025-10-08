@@ -782,6 +782,13 @@ string NPkey(Qideal& N, Qideal& P)
   return s.str();
 }
 
+string NTkey(Qideal& N, const matop& T)
+{
+  stringstream s;
+  s << ideal_label(N) << "-" << T.name();
+  return s.str();
+}
+
 string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
 {
   stringstream s;
@@ -819,61 +826,33 @@ homspace* get_homspace(const Qideal& N, scalar mod)
     return H1_dict[Nlabel];
 }
 
-// Here P whould be prime or prime power
-ZZX get_full_poly(const Qideal& N,  const Qideal& P, const scalar& mod)
+ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
-  Qideal PP=P; // copy as P is const, for HeckePOp()
-  string NP = NPkey(NN,PP);
-  auto res = full_poly_dict.find(NP);
-  if (res==full_poly_dict.end())
+  string NT = NTkey(NN,T);
+  if (full_poly_dict.find(NT) == full_poly_dict.end())
     {
       homspace* H = get_homspace(N, mod);
-      Factorization Pfact = PP.factorization();
-      if (Pfact.size()!=1)
-        {
-          cout<<"get_full_poly() called with P = "<<ideal_label(PP)
-              << " which is not a prime power"<<endl;
-          exit(1);
-        }
-      int expo = Pfact.exponent(0);
-      Quadprime P1 = Pfact.prime(0);
-      if (expo>2)
-        {
-          cout<<"get_full_poly() called with P = "<<ideal_label(PP)
-              << " which is prime to the power "<<expo<<", not yet implemented"<<endl;
-          exit(1);
-        }
-      ZZX full_poly = (expo==1
-                       ?
-                       H->charpoly(HeckePOp(P1, NN), 1) // 1 for cuspidal
-                       :
-                       H->charpoly(HeckeP2Op(P1, NN), 1)
-                       );
-      full_poly_dict[NP] = full_poly;
+      ZZX full_poly = H->charpoly(T, 1);
+      full_poly_dict[NT] = full_poly;
       if (deg(full_poly)==0)
-        {
-          new_poly_dict[NP] = full_poly;
-        }
+        new_poly_dict[NT] = full_poly;
       return full_poly;
     }
   else
-    return full_poly_dict[NP];
+    return full_poly_dict[NT];
 }
 
-// Here P whould be prime or prime power
-ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod)
+ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
-  Qideal PP=P; // copy as P is const, for ideal_label
-  string NP = NPkey(NN,PP);
-  auto res = new_poly_dict.find(NP);
-  if (res==new_poly_dict.end())
+  string NT = NTkey(NN,T);
+  if (new_poly_dict.find(NT) == new_poly_dict.end())
     {
-      ZZX new_poly = get_full_poly(N, P, mod);
+      ZZX new_poly = get_full_poly(N, T, mod);
       if (deg(new_poly)==0)
         {
-          new_poly_dict[NP] = new_poly;
+          new_poly_dict[NT] = new_poly;
           return new_poly;
         }
       vector<Qideal> DD = alldivs(NN);
@@ -881,7 +860,7 @@ ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod)
         {
           if (D==N)
             continue;
-          ZZX new_poly_D = get_new_poly(D, P, mod);
+          ZZX new_poly_D = get_new_poly(D, T, mod);
           if (deg(new_poly_D)==0)
             continue;
           Qideal M = N/D;
@@ -895,14 +874,14 @@ ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod)
 
           for (int i=0; i<mult; i++)
             {
-              //new_poly /= new_poly_D;
+              //essentially new_poly /= new_poly_D // but checking divisibility
               ZZX quo, rem;
               DivRem(quo, rem, new_poly, new_poly_D);
               if (IsZero(rem))
                 new_poly = quo;
               else
                 {
-                  cout << "Problem in get_new_poly("<<NP<<"), D="<<ideal_label(D)<<endl;
+                  cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
                   cout << "Dividing " << new_poly << " by " << new_poly_D
                        << " gives quotient " << quo <<", remainder "<< rem << endl;
                   cout << "Old multiplicities are smaller than expected."<<endl;
@@ -914,15 +893,15 @@ ZZX get_new_poly(const Qideal& N, const Qideal& P, const scalar& mod)
             }
           if (deg(new_poly)==0) // nothing left, new dimension must be 0
             {
-              new_poly_dict[NP] = new_poly;
+              new_poly_dict[NT] = new_poly;
               return new_poly;
             }
         }
-      new_poly_dict[NP] = new_poly;
+      new_poly_dict[NT] = new_poly;
       return new_poly;
     }
   else
-    return new_poly_dict[NP];
+    return new_poly_dict[NT];
 }
 
 homspace* get_homspace_modp(const Qideal& N, scalar p)

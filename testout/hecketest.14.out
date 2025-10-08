@@ -3,7 +3,7 @@ Class number 4
 Ideal class group representatives: [ [1,a] [2,a] [3,1+a] [3,2+a] ]
 >>>> Level 1.1 = (1), norm = 1 <<<<
 Dimension = 3
-Computing nu_2.1...done. 
+Computing nu(2.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 2
@@ -12,24 +12,24 @@ Involution!
 nu-eigenspace +: 1
 nu-eigenspace -: 2
 
-Computing T(P2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[3 1]	(degree 1)	 to power 1
 2:	[1 0 1]	(degree 2)	 to power 1
 
-Computing T(P3a^2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P3a^2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[7 1]	(degree 1)	 to power 1
 2:	[73 6 1]	(degree 2)	 to power 1
 
-Computing T(P3b^2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P3b^2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[7 1]	(degree 1)	 to power 1
 2:	[73 -6 1]	(degree 2)	 to power 1
 
 >>>> Level 7.1 = (a,-7), norm = 7 <<<<
 Dimension = 10
-Computing nu_2.1...done. 
+Computing nu(2.1)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 4
 2:	[-1 1]	(degree 1)	 to power 6
@@ -37,14 +37,14 @@ Factors of characteristic polynomial are:
 Involution!
 nu-eigenspace +: 6
 nu-eigenspace -: 4
-Computing W(P7)*T(A,A) for A=[3,1+a]...done. 
+Computing W(P7) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 4
 2:	[1 1]	(degree 1)	 to power 6
 
 Involution!
 
-Computing T(P2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-3 1]	(degree 1)	 to power 1
 2:	[0 1]	(degree 1)	 to power 1
@@ -52,7 +52,7 @@ Factors of characteristic polynomial are:
 4:	[-4 -1 1]	(degree 2)	 to power 1
 5:	[1 0 1]	(degree 2)	 to power 2
 
-Computing T(P3a^2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P3a^2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-13 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 1
@@ -60,7 +60,7 @@ Factors of characteristic polynomial are:
 4:	[-13 -4 1]	(degree 2)	 to power 1
 5:	[73 6 1]	(degree 2)	 to power 2
 
-Computing T(P3b^2)*T(A,A) for A=[3,1+a]...done. 
+Computing T(P3b^2) * T(3.1,3.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-13 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 1
@@ -70,7 +70,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 18.1 = (-2+a), norm = 18 <<<<
 Dimension = 26
-Computing nu_7.1...done. 
+Computing nu(7.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 12
 2:	[1 1]	(degree 1)	 to power 14
@@ -78,20 +78,20 @@ Factors of characteristic polynomial are:
 Involution!
 nu-eigenspace +: 12
 nu-eigenspace -: 14
-Computing W(P2)*T(A,A) for A=[13,5+a]...done. 
+Computing W(P2) * T(13.1,13.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 12
 2:	[1 1]	(degree 1)	 to power 14
 
 Involution!
-Computing W(P3a)*T(A,A) for A=[13,5+a]...done. 
+Computing W(P3a) * T(13.1,13.1)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 12
 2:	[-1 1]	(degree 1)	 to power 14
 
 Involution!
 
-Computing T(P3b^2)*T(A,A) for A=[3,2+a]...done. 
+Computing T(P3b^2) * T(3.2,3.2)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 2:	[-3 1]	(degree 1)	 to power 2
@@ -99,7 +99,7 @@ Factors of characteristic polynomial are:
 4:	[7 1]	(degree 1)	 to power 6
 5:	[73 6 1]	(degree 2)	 to power 6
 
-Computing T(P5a^2)*T(A,A) for A=[3,2+a]...done. 
+Computing T(P5a^2) * T(3.2,3.2)...done. 
 Factors of characteristic polynomial are:
 1:	[3 1]	(degree 1)	 to power 1
 2:	[-5 1]	(degree 1)	 to power 2
@@ -107,7 +107,7 @@ Factors of characteristic polynomial are:
 4:	[21 1]	(degree 1)	 to power 6
 5:	[601 10 1]	(degree 2)	 to power 6
 
-Computing T(P5b^2)*T(A,A) for A=[3,2+a]...done. 
+Computing T(P5b^2) * T(3.2,3.2)...done. 
 Factors of characteristic polynomial are:
 1:	[-3 1]	(degree 1)	 to power 1
 2:	[5 1]	(degree 1)	 to power 2

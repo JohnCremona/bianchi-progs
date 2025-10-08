@@ -3,7 +3,7 @@ Class number 2
 Ideal class group representatives: [ [1,a] [5,1+a] ]
 >>>> Level 1.1 = (1), norm = 1 <<<<
 Dimension = 1
-Computing nu_5.1...done. 
+Computing nu(5.1)...done. 
 Factors of characteristic polynomial are:
 1:	[1 1]	(degree 1)	 to power 1
 
@@ -23,7 +23,7 @@ Computing T(P5b^2)...done.
 Factors of characteristic polynomial are:
 1:	[-21 1]	(degree 1)	 to power 1
 
-Computing T(P5b) T(P5a)...done. 
+Computing T(P5b*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-16 1]	(degree 1)	 to power 1
 
@@ -31,7 +31,7 @@ Computing T(P7^2)...done.
 Factors of characteristic polynomial are:
 1:	[-43 1]	(degree 1)	 to power 1
 
-Computing T(P7) T(P5a)...done. 
+Computing T(P7*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-24 1]	(degree 1)	 to power 1
 
@@ -43,7 +43,7 @@ Computing T(P13^2)...done.
 Factors of characteristic polynomial are:
 1:	[-157 1]	(degree 1)	 to power 1
 
-Computing T(P13) T(P5a)...done. 
+Computing T(P13*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-48 1]	(degree 1)	 to power 1
 
@@ -51,7 +51,7 @@ Computing T(P19a^2)...done.
 Factors of characteristic polynomial are:
 1:	[-343 1]	(degree 1)	 to power 1
 
-Computing T(P19a) T(P5a)...done. 
+Computing T(P19a*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-72 1]	(degree 1)	 to power 1
 
@@ -59,7 +59,7 @@ Computing T(P19b^2)...done.
 Factors of characteristic polynomial are:
 1:	[-343 1]	(degree 1)	 to power 1
 
-Computing T(P19b) T(P5a)...done. 
+Computing T(P19b*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-72 1]	(degree 1)	 to power 1
 
@@ -73,7 +73,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 7.1 = (3+a,-4+a), norm = 7 <<<<
 Dimension = 6
-Computing nu_5.1...done. 
+Computing nu(5.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 1
 2:	[1 1]	(degree 1)	 to power 5
@@ -99,13 +99,13 @@ Factors of characteristic polynomial are:
 2:	[-21 1]	(degree 1)	 to power 2
 3:	[116 -28 -4 1]	(degree 3)	 to power 1
 
-Computing T(P5b) T(P5a)...done. 
+Computing T(P5b*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-36 1]	(degree 1)	 to power 1
 2:	[-16 1]	(degree 1)	 to power 2
 3:	[1 7 11 1]	(degree 3)	 to power 1
 
-Computing T(P5b)W(7.1)...done. 
+Computing T(P5b) * W(7.1)...done. 
 Factors of characteristic polynomial are:
 1:	[6 1]	(degree 1)	 to power 1
 2:	[16 0 1]	(degree 2)	 to power 1
@@ -122,13 +122,13 @@ Factors of characteristic polynomial are:
 2:	[-157 1]	(degree 1)	 to power 2
 3:	[311 -45 -11 1]	(degree 3)	 to power 1
 
-Computing T(P13) T(P5a)...done. 
+Computing T(P13*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-84 1]	(degree 1)	 to power 1
 2:	[-48 1]	(degree 1)	 to power 2
 3:	[2 1]	(degree 1)	 to power 3
 
-Computing T(P13)W(7.1)...done. 
+Computing T(P13) * W(7.1)...done. 
 Factors of characteristic polynomial are:
 1:	[14 1]	(degree 1)	 to power 1
 2:	[144 0 1]	(degree 2)	 to power 1
@@ -136,7 +136,7 @@ Factors of characteristic polynomial are:
 
 >>>> Level 16.1 = (4), norm = 16 <<<<
 Dimension = 13
-Computing nu_5.1...done. 
+Computing nu(5.1)...done. 
 Factors of characteristic polynomial are:
 1:	[-1 1]	(degree 1)	 to power 4
 2:	[1 1]	(degree 1)	 to power 9
@@ -169,7 +169,7 @@ Factors of characteristic polynomial are:
 5:	[496 16 1]	(degree 2)	 to power 1
 6:	[756 36 1]	(degree 2)	 to power 1
 
-Computing T(P5b) T(P5a)...done. 
+Computing T(P5b*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-36 1]	(degree 1)	 to power 2
 2:	[-31 1]	(degree 1)	 to power 2
@@ -185,7 +185,7 @@ Factors of characteristic polynomial are:
 3:	[-57 1]	(degree 1)	 to power 4
 4:	[-43 1]	(degree 1)	 to power 5
 
-Computing T(P7) T(P5a)...done. 
+Computing T(P7*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-48 1]	(degree 1)	 to power 2
 2:	[-9 1]	(degree 1)	 to power 2
@@ -207,7 +207,7 @@ Factors of characteristic polynomial are:
 3:	[-183 1]	(degree 1)	 to power 4
 4:	[-157 1]	(degree 1)	 to power 5
 
-Computing T(P13) T(P5a)...done. 
+Computing T(P13*P5a)...done. 
 Factors of characteristic polynomial are:
 1:	[-84 1]	(degree 1)	 to power 2
 2:	[-18 1]	(degree 1)	 to power 2
