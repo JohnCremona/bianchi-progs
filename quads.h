@@ -309,7 +309,7 @@ Quad rectify(const Quad& r, const Quad& s);
 string eigfile(const Quad& N, long p=0);    //returns directory/filename for eigs at level N, characteristic p
 string eigfile(Qideal& N, long p=0);        //returns directory/filename for eigs at level N, characteristic p
 
-// return name of newforsm directory for this field; if
+// return name of newforms directory for this field; if
 // create_if_necessary, creates the directory if it does not yet exist
 string newforms_directory(int create_if_necessary=1);
 

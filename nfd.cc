@@ -49,7 +49,7 @@ void nfd::find_T()
       // P = L; // first one
       if (verbose)
         cout << "Computing T_P for P = " << P << "..." << flush;
-      T = heckeop(P); // not cuspidal or dual
+      T_mat = heckeop(P); // not cuspidal or dual
       if (verbose)
         cout<<"done."<<endl;
     }
@@ -60,7 +60,7 @@ void nfd::find_T()
       cout<<"Enter a linear combination of I and T_P for one or more primes P.\n";
       cout<<"First enter the coefficient of the identity: ";
       cin>>cP;
-      T = mat::scalar_matrix(dimH, cP);
+      T_mat = mat::scalar_matrix(dimH, cP);
       cout<<"Now enter the number of P: "; cin>>nP;
       for (int iP=0; iP<nP; iP++)
         {
@@ -73,7 +73,7 @@ void nfd::find_T()
           mat TP = heckeop(P); // not cuspidal or dual
           if(verbose)
             cout<<"done."<<endl;
-          T += cP*TP;
+          T_mat += cP*TP;
         }
     }
   factor_T();
@@ -85,12 +85,12 @@ void nfd::factor_T()
   if (verbose)
     cout<<"Computing charpoly(T)..."<<flush;
   // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T), to_ZZ(dH), hmod);
+  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T_mat), to_ZZ(dH), hmod);
   if (verbose)
     {
       cout << "done (degree = "<<deg(cpT)<<").";
       if (verbose>1)
-        cout<<" scaled char poly = "<<cpT;
+        cout<<" scaled char poly = "<<polynomial_string(cpT);
       cout<<endl;
     }
 
@@ -114,7 +114,7 @@ void nfd::factor_T()
   for(int i=0; i<nfactors; i++)
     {
       ZZX fi = NTL_factors[i].a;
-      cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+      cout<<(i+1)<<":\t"<<polynomial_string(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
       factors.push_back(fi);
     }
 }
@@ -133,9 +133,11 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
             cout << "No suitable splitting prime P found of norm up to "<<maxnormP<<endl;
           return 0; // give up
         }
+      T_op = AutoHeckeOp(P,N);
+      string T_name = T_op.name();
       if (verb)
-        cout << "Trying P = " << ideal_label(P) << "..." << flush;
-      f = get_new_poly(N, HeckePOp(P,N), H1->modulus);
+        cout << "Trying P = " << ideal_label(P) << ", using " << T_name << "..." << flush;
+      f = get_new_poly(N, T_op, H1->modulus);
       if (!IsSquareFree(f))
         {
           if (verb)
@@ -147,8 +149,8 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
       // cached so this is cheap)
       if (verb)
         {
-          cout << " OK so far: new cuspidal Hecke polynomial for P="<<ideal_label(P0)
-               <<" is "<<f<<", which is squarefree." << endl;
+          cout << " OK so far: new cuspidal Hecke polynomial for "<< T_name
+               <<" is "<<polynomial_string(f)<<", which is squarefree." << endl;
           cout << " Now checking whether it is coprime to old polys..."<<endl;
         }
       int ok = 1;
@@ -156,7 +158,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
         {
           if (D==N)
             continue;
-          ZZX f_D = get_new_poly(D, HeckePOp(P,D), H1->modulus); // from cache
+          ZZX f_D = get_new_poly(D, AutoHeckeOp(P,D), H1->modulus); // from cache
           if (!AreCoprime(f, f_D))
             {
               if (verb)
@@ -173,7 +175,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
             {
               cout << " OK: coprime to all polys at proper divisor levels" << endl;
             }
-          T = heckeop(P, 0, 1); // not cuspidal,  dual
+          T_mat = heckeop(P, 0, 1); // not cuspidal,  dual
           P0 = P;
           break; // out of loop over primes
         }
@@ -182,7 +184,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
   if (verb)
     {
       cout << " OK: new cuspidal Hecke polynomial for P="<<ideal_label(P0)
-           <<" is "<<f<<", which is squarefree" << endl;
+           <<" is "<<polynomial_string(f)<<", which is squarefree" << endl;
     }
   vec_ZZX NTL_factors= SFFactor(f);
   ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
@@ -193,7 +195,7 @@ int nfd::find_T_auto(INT maxnormP, Quadprime& P0, int verb)
     {
       ZZX fi = NTL_factors[i];
       if (verb)
-        cout<<(i+1)<<":\t"<<fi<<"\t(degree "<<deg(fi)<<")"<<endl;
+        cout<<(i+1)<<":\t"<<polynomial_string(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
       factors.push_back(fi);
     }
   //factor_T();
@@ -210,12 +212,12 @@ void nfd::make_irreducible_subspaces()
       ZZX fj = factors[j];
       int dj = deg(fj);
       if (verbose)
-        cout << "Factor "<<j+1<<" is f = "<<fj<<" of degree "<<dj<<endl;
+        cout << "Factor "<<j+1<<" is f = "<<polynomial_string(fj)<<" of degree "<<dj<<endl;
 
       // Compute f(T); since T is scaled by dH and f(X) is not, we
       // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
       // X^i by dH^(d-i):
-      mat fT = evaluate(scale_poly_up(fj, to_ZZ(dH)), T);
+      mat fT = evaluate(scale_poly_up(fj, to_ZZ(dH)), T_mat);
       if (verbose)
         cout << "Computed f(T), finding its kernel..."<<flush;
       subspace Sj = kernel(fT);
@@ -244,7 +246,7 @@ void nfd::make_irreducible_subspaces()
           cout<<"Computing A, the restriction of T to S..." <<flush;
         }
 
-      mat Aj = transpose(restrict_mat(T,Sj)); // matrix of T on chosen irreducible subspace of dual space
+      mat Aj = transpose(restrict_mat(T_mat,Sj)); // matrix of T on chosen irreducible subspace of dual space
 
       if(verbose)
         cout<<"done."<<endl;
@@ -255,8 +257,8 @@ void nfd::make_irreducible_subspaces()
       ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(Aj), to_ZZ(dHSj), hmod);
       if (cpA!=fj)
         {
-          cout<<"Error: f(X) =            "<<fj<<endl;
-          cout<<"but scaled_charpoly(A) = "<<cpA<<endl;
+          cout<<"Error: f(X) =            "<<polynomial_string(fj)<<endl;
+          cout<<"but scaled_charpoly(A) = "<<polynomial_string(cpA)<<endl;
         }
 
       if(verbose)
@@ -350,40 +352,96 @@ void nfd::make_irreducible_subspaces()
             }
         }
     } // end of loop over factors, index j
+
+  // loop over unramified quadratic characters, finding the sign of each space for each
+  int n2r = Quad::class_group_2_rank;
+  if (n2r)
+    {
+      if (verbose)
+        cout << "Unramified quadratic character values" << endl;
+      vector<Qideal> t2ideals = make_nulist(N);
+      for ( auto& A : t2ideals)
+        {
+          matop chi = CharOp(A, N);
+          string chiname = chi.name();
+          vector<scalar> epsvec = eps(chi);
+          epsvecs.push_back(epsvec);
+          epsnames.push_back(chiname);
+          if (verbose)
+            cout<<"chi(" << chiname <<") : " <<epsvec<<endl;
+        }
+    }
 }
 
 // ap_vec has length dim(S)
 vector<vec> nfd::ap(Quadprime& P)
 {
+  return eig(AutoHeckeOp(P,N));
+}
+
+vector<vec> nfd::eig(const matop& T)
+{
   vector<vec> ans;
   for (int j=0; j<nfactors; j++)
     {
       H1-> projcoord = projcoord[j];
-      ans.push_back(H1->applyop(HeckePOp(P,N), H1->freemods[pivots(S[j])[1] -1], 1)); // 1: proj to S
+      ans.push_back(H1->applyop(T, H1->freemods[pivots(S[j])[1] -1], 1)); // 1: proj to S
     }
+  return ans;
+}
+
+vector<scalar> nfd::eps(const matop& T) // T should be a scalar
+{
+  vector<vec> epsvec = eig(T);
+  auto e = [this, epsvec](int i) {return epsvec[i][1] / Sscales[i][1];};
+  vector<scalar> ans(nfactors);
+  int i=0;
+  std::generate(ans.begin(), ans.end(), [&i, e]{return e(i++);});
   return ans;
 }
 
 void nfd::display_basis(int j) const // output basis info for subspace j (1<=j<=nfactors)
 {
-  cout << "Factor "<<j<<":\t";
+  cout << "Factor "<<j<<": ";
   int deg = dimS[j-1];
   ZZX f = factors[j-1];
+  string fpol = polynomial_string(f);
+  string tab = "          "; // enough for single digit j
+  int n2r = epsvecs.size();
+  vector<scalar> epsvec;
+  for(int i=0; i<n2r; i++)
+    epsvec.push_back(epsvecs[i][j-1]);
+  auto showchar = [n2r, epsvec, tab] {
+    if (n2r==1)
+      {
+        cout << tab << "Character: " <<  (epsvec[0]>0? "+1": "-1") << endl;
+      }
+    else
+      if (n2r>1)
+        {
+          cout << tab << "Characters: " <<  epsvec << endl;
+        }
+  };
   if (deg==1)
     {
       cout << "Hecke field Q" << endl;
+      if (n2r)
+        showchar();
     }
   else
     {
-      cout << "Hecke field Q(alpha) with defining polynomial "<<f<<" of degree "<<deg;
+      cout << "Hecke field Q(alpha) with defining polynomial "<<fpol<<" of degree "<<deg;
       if (deg==2)
         {
           cout << ", discriminant "<<discriminant(f);
         }
       cout << endl;
-      cout << "Basis for Hecke eigenvalues, in terms of powers of alpha:\n";
+      showchar();
+      cout << endl;
+      cout << tab << "Basis for Hecke eigenvalues, in terms of powers of alpha:\n";
       for(int i=1; i<=dimS[j-1]; i++)
         {
+          cout << tab;
           scalar n=Wdetnum[j-1], d=Wdetdenom[j-1];
           if (d>1 || n>1)
             {
@@ -398,9 +456,14 @@ void nfd::display_basis(int j) const // output basis info for subspace j (1<=j<=
     }
 }
 
+mat nfd::heckeop(const matop& T, int cuspidal, int dual)
+{
+  return H1->calcop(T, cuspidal, dual, 0); // 0 display
+}
+
 mat nfd::heckeop(Quadprime& P, int cuspidal, int dual)
 {
-  return H1->calcop(HeckePOp(P, N), cuspidal, dual, 0); // 0 display
+  return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
 }
 
 int is_class_number_one(long d)

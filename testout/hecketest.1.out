@@ -5,39 +5,39 @@ Euclidean
 Dimension = 11
 Computing W(P2)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 5
-2:	[-1 1]	(degree 1)	 to power 6
+1:	(degree 1)	X + 1	 to power 5
+2:	(degree 1)	X - 1	 to power 6
 
 Involution!
 Computing W(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 4
-2:	[1 1]	(degree 1)	 to power 7
+1:	(degree 1)	X - 1	 to power 4
+2:	(degree 1)	X + 1	 to power 7
 
 Involution!
 
 Computing T(P5a)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 2
-2:	[-6 1]	(degree 1)	 to power 9
+1:	(degree 1)	X + 2	 to power 2
+2:	(degree 1)	X - 6	 to power 9
 
 Computing T(P5b)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 2
-2:	[-6 1]	(degree 1)	 to power 9
+1:	(degree 1)	X + 2	 to power 2
+2:	(degree 1)	X - 6	 to power 9
 
 Computing T(P13a)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 2
-2:	[-14 1]	(degree 1)	 to power 9
+1:	(degree 1)	X + 2	 to power 2
+2:	(degree 1)	X - 14	 to power 9
 
 Computing T(P13b)...done. 
 Factors of characteristic polynomial are:
-1:	[2 1]	(degree 1)	 to power 2
-2:	[-14 1]	(degree 1)	 to power 9
+1:	(degree 1)	X + 2	 to power 2
+2:	(degree 1)	X - 14	 to power 9
 
 Computing T(P17a)...done. 
 Factors of characteristic polynomial are:
-1:	[-2 1]	(degree 1)	 to power 2
-2:	[-18 1]	(degree 1)	 to power 9
+1:	(degree 1)	X - 2	 to power 2
+2:	(degree 1)	X - 18	 to power 9
 

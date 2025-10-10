@@ -5,11 +5,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+//#define LOOPER
+#ifdef LOOPER
+#include "qidloop.h"
+#endif
 #include "nfd.h"
 
-//#define DEBUG
-//#define COMPARE_OLD
-//#define LOOPER
+
 #define MAXPRIME 10000
 
 int main()
@@ -21,14 +23,10 @@ int main()
   NextPrime(modulus, power_ZZ(2,512));
 #endif
   long d, maxpnorm(MAXPRIME);
-  cerr << "Enter field (one of "<<class_number_one_fields<<"): " << flush;  cin >> d;
-  if (!is_class_number_one(d))
-    {
-      cerr<<"field must be one of: "<<class_number_one_fields<<endl;
-      exit(1);
-    }
+  cerr << "Enter field: " << flush;  cin >> d;
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
+  //int n2r = Quad::class_group_2_rank;
 
   int verbose=1;
   cerr << "Verbose output? (0/1) "; cin >> verbose;
@@ -89,7 +87,7 @@ int main()
          assert(ok);
          nforms = forms.nfactors;
          if (verbose)
-           cout << "Success with P = " << ideal_label(P0) << endl;
+           cout << "Success with " << AutoHeckeOp(P0,N).name() << endl;
        }
      forms.make_irreducible_subspaces();
      assert(nforms==(int)forms.factors.size());
@@ -107,9 +105,9 @@ int main()
          ip++;
          if (ip>nap)
            break;
-         vector<vec> apvec = forms.ap(P);
-         cout<<"a_"<<ideal_label(P)
-             <<" : "
+         matop T = AutoHeckeOp(P,N);
+         vector<vec> apvec = forms.eig(T);
+         cout<<"a(" << T.name() << ") \t"
              <<apvec<<endl;
        } // end of prime loop
   cout<<endl;

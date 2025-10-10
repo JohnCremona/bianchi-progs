@@ -3,9 +3,9 @@ Class number 2
 Ideal class group representatives: [ [1,a] [2,a] ]
 >>>> Level 1.1 = (1), norm = 1 <<<<
 Dimension = 1
-Computing nu(2.1)...done. 
+Computing chi(2.1)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 1	 to power 1
 
 Involution!
 nu-eigenspace +: 0
@@ -13,163 +13,163 @@ nu-eigenspace -: 1
 
 Computing T(P2^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 3	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[-10 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 10	 to power 1
 
 Computing T(P11^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-111 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 111	 to power 1
 
 Computing T(P11*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-10 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 10	 to power 1
 
 Computing T(P13a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-157 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 157	 to power 1
 
 Computing T(P13a*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-12 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 12	 to power 1
 
 Computing T(P13b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-157 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 157	 to power 1
 
 Computing T(P13b*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-12 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 12	 to power 1
 
 Computing T(P19a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-343 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 343	 to power 1
 
 Computing T(P19a*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-18 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 18	 to power 1
 
 Computing T(P19b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-343 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 343	 to power 1
 
 Computing T(P19b*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-18 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 18	 to power 1
 
 Computing T(P23a)...done. 
 Factors of characteristic polynomial are:
-1:	[-24 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 24	 to power 1
 
 Computing T(P23b)...done. 
 Factors of characteristic polynomial are:
-1:	[-24 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 24	 to power 1
 
 Computing T(P5)...done. 
 Factors of characteristic polynomial are:
-1:	[-26 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 26	 to power 1
 
 >>>> Level 9.1 = (3), norm = 9 <<<<
 Dimension = 4
-Computing nu(2.1)...done. 
+Computing chi(2.1)...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 1
-2:	[1 1]	(degree 1)	 to power 3
+1:	(degree 1)	X - 1	 to power 1
+2:	(degree 1)	X + 1	 to power 3
 
 Involution!
 nu-eigenspace +: 1
 nu-eigenspace -: 3
 Computing W(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 2
-2:	[1 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 1	 to power 2
+2:	(degree 1)	X + 1	 to power 2
 
 Involution!
 
 Computing T(P2^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-7 1]	(degree 1)	 to power 1
-2:	[2 1]	(degree 1)	 to power 1
-3:	[-3 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 7	 to power 1
+2:	(degree 1)	X + 2	 to power 1
+3:	(degree 1)	X - 3	 to power 2
 
 Computing T(P11^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-133 1]	(degree 1)	 to power 1
-2:	[-11 1]	(degree 1)	 to power 1
-3:	[-111 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 133	 to power 1
+2:	(degree 1)	X - 11	 to power 1
+3:	(degree 1)	X - 111	 to power 2
 
 Computing T(P11*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-36 1]	(degree 1)	 to power 1
-2:	[0 1]	(degree 1)	 to power 1
-3:	[-10 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 36	 to power 1
+2:	(degree 1)	X	 to power 1
+3:	(degree 1)	X - 10	 to power 2
 
 Computing T(P13a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-183 1]	(degree 1)	 to power 1
-2:	[3 1]	(degree 1)	 to power 1
-3:	[-157 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 183	 to power 1
+2:	(degree 1)	X + 3	 to power 1
+3:	(degree 1)	X - 157	 to power 2
 
 Computing T(P13a*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-42 1]	(degree 1)	 to power 1
-2:	[8 1]	(degree 1)	 to power 1
-3:	[-12 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 42	 to power 1
+2:	(degree 1)	X + 8	 to power 1
+3:	(degree 1)	X - 12	 to power 2
 
 Computing T(P13b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-183 1]	(degree 1)	 to power 1
-2:	[3 1]	(degree 1)	 to power 1
-3:	[-157 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 183	 to power 1
+2:	(degree 1)	X + 3	 to power 1
+3:	(degree 1)	X - 157	 to power 2
 
 Computing T(P13b*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-42 1]	(degree 1)	 to power 1
-2:	[8 1]	(degree 1)	 to power 1
-3:	[-12 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 42	 to power 1
+2:	(degree 1)	X + 8	 to power 1
+3:	(degree 1)	X - 12	 to power 2
 
 Computing T(P19a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-381 1]	(degree 1)	 to power 1
-2:	[-3 1]	(degree 1)	 to power 1
-3:	[-343 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 381	 to power 1
+2:	(degree 1)	X - 3	 to power 1
+3:	(degree 1)	X - 343	 to power 2
 
 Computing T(P19a*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-60 1]	(degree 1)	 to power 1
-2:	[-8 1]	(degree 1)	 to power 1
-3:	[-18 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 60	 to power 1
+2:	(degree 1)	X - 8	 to power 1
+3:	(degree 1)	X - 18	 to power 2
 
 Computing T(P19b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-381 1]	(degree 1)	 to power 1
-2:	[-3 1]	(degree 1)	 to power 1
-3:	[-343 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 381	 to power 1
+2:	(degree 1)	X - 3	 to power 1
+3:	(degree 1)	X - 343	 to power 2
 
 Computing T(P19b*P2)...done. 
 Factors of characteristic polynomial are:
-1:	[-60 1]	(degree 1)	 to power 1
-2:	[-8 1]	(degree 1)	 to power 1
-3:	[-18 1]	(degree 1)	 to power 2
+1:	(degree 1)	X - 60	 to power 1
+2:	(degree 1)	X - 8	 to power 1
+3:	(degree 1)	X - 18	 to power 2
 
 Computing T(P23a)...done. 
 Factors of characteristic polynomial are:
-1:	[-4 1]	(degree 1)	 to power 1
-2:	[-24 1]	(degree 1)	 to power 3
+1:	(degree 1)	X - 4	 to power 1
+2:	(degree 1)	X - 24	 to power 3
 
 Computing T(P23b)...done. 
 Factors of characteristic polynomial are:
-1:	[-4 1]	(degree 1)	 to power 1
-2:	[-24 1]	(degree 1)	 to power 3
+1:	(degree 1)	X - 4	 to power 1
+2:	(degree 1)	X - 24	 to power 3
 
 >>>> Level 22.1 = (a), norm = 22 <<<<
 Dimension = 21
-Computing nu(13.1)...done. 
+Computing chi(13.1)...done. 
 Factors of characteristic polynomial are:
-1:	[-1 1]	(degree 1)	 to power 5
-2:	[1 1]	(degree 1)	 to power 16
+1:	(degree 1)	X - 1	 to power 5
+2:	(degree 1)	X + 1	 to power 16
 
 Involution!
 nu-eigenspace +: 5
@@ -177,52 +177,52 @@ nu-eigenspace -: 16
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 2
-2:	[5 1]	(degree 1)	 to power 2
-3:	[-10 1]	(degree 1)	 to power 7
-4:	[106 -279 104 14 -10 1]	(degree 5)	 to power 2
+1:	(degree 1)	X + 1	 to power 2
+2:	(degree 1)	X + 5	 to power 2
+3:	(degree 1)	X - 10	 to power 7
+4:	(degree 5)	X^5 - 10*X^4 + 14*X^3 + 104*X^2 - 279*X + 106	 to power 2
 
 Computing T(P13a^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 2
-2:	[-183 1]	(degree 1)	 to power 3
-3:	[-157 1]	(degree 1)	 to power 4
-4:	[-53 -7 1]	(degree 2)	 to power 1
-5:	[7367 -10635 2934 -166 -13 1]	(degree 5)	 to power 2
+1:	(degree 1)	X - 3	 to power 2
+2:	(degree 1)	X - 183	 to power 3
+3:	(degree 1)	X - 157	 to power 4
+4:	(degree 2)	X^2 - 7*X - 53	 to power 1
+5:	(degree 5)	X^5 - 13*X^4 - 166*X^3 + 2934*X^2 - 10635*X + 7367	 to power 2
 
 Computing T(P13b^2)...done. 
 Factors of characteristic polynomial are:
-1:	[-3 1]	(degree 1)	 to power 2
-2:	[-183 1]	(degree 1)	 to power 3
-3:	[-157 1]	(degree 1)	 to power 4
-4:	[-53 -7 1]	(degree 2)	 to power 1
-5:	[7367 -10635 2934 -166 -13 1]	(degree 5)	 to power 2
+1:	(degree 1)	X - 3	 to power 2
+2:	(degree 1)	X - 183	 to power 3
+3:	(degree 1)	X - 157	 to power 4
+4:	(degree 2)	X^2 - 7*X - 53	 to power 1
+5:	(degree 5)	X^5 - 13*X^4 - 166*X^3 + 2934*X^2 - 10635*X + 7367	 to power 2
 
 Computing T(P13b*P13a)...done. 
 Factors of characteristic polynomial are:
-1:	[-16 1]	(degree 1)	 to power 2
-2:	[-5 1]	(degree 1)	 to power 2
-3:	[-196 1]	(degree 1)	 to power 3
-4:	[-144 1]	(degree 1)	 to power 4
-5:	[256 10048 5248 848 52 1]	(degree 5)	 to power 2
+1:	(degree 1)	X - 16	 to power 2
+2:	(degree 1)	X - 5	 to power 2
+3:	(degree 1)	X - 196	 to power 3
+4:	(degree 1)	X - 144	 to power 4
+5:	(degree 5)	X^5 + 52*X^4 + 848*X^3 + 5248*X^2 + 10048*X + 256	 to power 2
 
 Computing T(P13b) * W(2.1)...done. 
 Factors of characteristic polynomial are:
-1:	[-14 1]	(degree 1)	 to power 1
-2:	[-4 1]	(degree 1)	 to power 1
-3:	[4 1]	(degree 1)	 to power 1
-4:	[14 1]	(degree 1)	 to power 2
-5:	[-5 3 1]	(degree 2)	 to power 1
-6:	[144 0 1]	(degree 2)	 to power 2
-7:	[-16 -104 -24 24 10 1]	(degree 5)	 to power 1
-8:	[16 -104 24 24 -10 1]	(degree 5)	 to power 1
+1:	(degree 1)	X - 14	 to power 1
+2:	(degree 1)	X - 4	 to power 1
+3:	(degree 1)	X + 4	 to power 1
+4:	(degree 1)	X + 14	 to power 2
+5:	(degree 2)	X^2 + 3*X - 5	 to power 1
+6:	(degree 2)	X^2X + 144	 to power 2
+7:	(degree 5)	X^5 + 10*X^4 + 24*X^3 - 24*X^2 - 104*X - 16	 to power 1
+8:	(degree 5)	X^5 - 10*X^4 + 24*X^3 + 24*X^2 - 104*X + 16	 to power 1
 
 Computing T(P13b) * W(11.1)...done. 
 Factors of characteristic polynomial are:
-1:	[-14 1]	(degree 1)	 to power 1
-2:	[4 1]	(degree 1)	 to power 2
-3:	[14 1]	(degree 1)	 to power 2
-4:	[-5 3 1]	(degree 2)	 to power 1
-5:	[144 0 1]	(degree 2)	 to power 2
-6:	[-16 -104 -24 24 10 1]	(degree 5)	 to power 2
+1:	(degree 1)	X - 14	 to power 1
+2:	(degree 1)	X + 4	 to power 2
+3:	(degree 1)	X + 14	 to power 2
+4:	(degree 2)	X^2 + 3*X - 5	 to power 1
+5:	(degree 2)	X^2X + 144	 to power 2
+6:	(degree 5)	X^5 + 10*X^4 + 24*X^3 - 24*X^2 - 104*X - 16	 to power 2
 

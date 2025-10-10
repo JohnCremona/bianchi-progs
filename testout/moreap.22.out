@@ -13,7 +13,7 @@ About to recover 1 newform bases (nap=25)
 Recovering newform #1, eigs [ 1 2 -5 3 3 -19 -19 -1 -1 -9 ...]...
 Entering form_finder, depth = 0, dimension 9
 restarting at depth = 0, dimension 9
-Computing nu(2.1)...done.
+Computing chi(2.1)...done.
  eig 1 gives new subspace at depth 1 of dimension 2
 Computing T(P2^2)...done.
  eig 2 gives new subspace at depth 2 of dimension 1

@@ -8,10 +8,64 @@ poly_comparison poly_cmp;
 factor_modp_comparison fact_modp_cmp;
 poly_modp_comparison poly_modp_cmp;
 
-// bool operator<(ZZ_p a, ZZ_p b)
-// {
-//   return rep(a)<rep(b);
-// }
+// pretty output for integer *monic* polynomials
+string monomial_string(int i)
+{
+  ostringstream s;
+  if (i>0) s << "X";
+  if (i>1) s << "^" << i;
+  return s.str();
+}
+
+string polynomial_string(const ZZX& p)
+{
+  int d = deg(p);
+  ostringstream s;
+  // Leading term:
+  s << monomial_string(d);
+  // Middle terms:
+  for (int i=d-1; i>0; i--)
+    {
+      string Xi = monomial_string(i);
+      ZZ c = coeff(p, i);
+      if (c>1) s << " + " << c << "*";
+      else if (c==1) s << " + ";
+      else if (c==-1) s << " - ";
+      else if (c<-1) s << " - " << abs(c) << "*";
+      s << Xi;
+    }
+  // Constant term:
+  ZZ c = coeff(p, 0);
+  if (c>0) s << " + " << c;
+  else if (c<0) s << " - " <<abs(c);
+
+  return s.str();
+}
+
+string polynomial_string(const ZZ_pX& p)
+{
+  int d = deg(p);
+  ostringstream s;
+  // Leading term:
+  s << monomial_string(d);
+  // Middle terms:
+  for (int i=d-1; i>0; i--)
+    {
+      string Xi = monomial_string(i);
+      ZZ c = rep(coeff(p, i));
+      if (c>1) s << " + " << c << "*";
+      else if (c==1) s << " + ";
+      else if (c==-1) s << " - ";
+      else if (c<-1) s << " - " << abs(c) << "*";
+      s << Xi;
+    }
+  // Constant term:
+  ZZ c = rep(coeff(p, 0));
+  if (c>0) s << " + " << c;
+  else if (c<0) s << " - " <<abs(c);
+
+  return s.str();
+}
 
 mat_ZZ mat_to_mat_ZZ(mat A)
 {
@@ -163,6 +217,17 @@ int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& mo
 }
 
 // display factors of a polynomaial:
+void display_factor(const pair_ZZX_long& f)
+{
+  ZZX p = f.a;
+  string pol = polynomial_string(p);
+  int d = deg(p), e = f.b;
+  cout << "(degree " << d << ")\t"
+       << pol
+       << "\t to power " << e;
+  //cout << " (coefficients " << p << ")";
+}
+
 void display_factors(const ZZX& f)
 {
   ZZ cont; vec_pair_ZZX_long factors;
@@ -171,11 +236,21 @@ void display_factors(const ZZX& f)
   long nf = factors.length();
   for(int i=0; i<nf; i++)
     {
-      cout<<(i+1)<<":\t"<<factors[i].a
-          <<"\t(degree "<<deg(factors[i].a)<<")";
-      cout<<"\t to power "<<factors[i].b;
+      cout << (i+1) << ":\t";
+      display_factor(factors[i]);
       cout<<endl;
     }
+}
+
+void display_factor(const pair_ZZ_pX_long& f)
+{
+  ZZ_pX p = f.a;
+  string pol = polynomial_string(p);
+  int d = deg(p), e = f.b;
+  cout << "(degree " << d << ")\t"
+       << pol
+       << "\t to power " << e;
+  //cout << " (coefficients " << p << ")";
 }
 
 void display_factors(const ZZ_pX& f)
@@ -185,9 +260,8 @@ void display_factors(const ZZ_pX& f)
   long nf = factors.length();
   for(int i=0; i<nf; i++)
     {
-      cout<<(i+1)<<":\t"<<factors[i].a
-          <<"\t(degree "<<deg(factors[i].a)<<")";
-      cout<<"\t to power "<<factors[i].b;
+      cout << (i+1) << ":\t";
+      display_factor(factors[i]);
       cout<<endl;
     }
 }

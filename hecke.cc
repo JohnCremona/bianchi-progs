@@ -543,7 +543,12 @@ mat22 Char(Qideal& A, const Qideal& N)
   return A.AB_matrix_of_level(A, N, g);
 }
 
-
+void matop::set_long_name()
+{
+  long_name = short_name + (char_name.size()?
+                            "*chi(" + char_name + ")" :
+                            "");
+}
 
 // constructor for
 // (1) T_P if P principal, else
@@ -578,26 +583,34 @@ string opname(const Quad& p, const Quad& n)
   return ans.str();
 }
 
+string opname(const string& Tname, const string& Pname)
+{
+  return Tname + "(" + Pname + ")";
+}
+
+string opnameW(const Quadprime& P)
+{
+  return opname("W", prime_label(P));
+}
+
+string opnameT(const Quadprime& P)
+{
+  return opname("T", prime_label(P));
+}
+
 string opname(const Quadprime& P, const Qideal& N)
 {
-  ostringstream ans;
-  ans << (P.divides(N) ? "W" : "T") << "(" << P << ")";
-  return ans.str();
+  return opname((P.divides(N) ? "W" : "T"), prime_label(P));
 }
 
 string opname(Qideal& N)
 {
-  ostringstream ans;
-  ans << "W(" << ideal_label(N) << ")";
-  return ans.str();
+  return opname("W", ideal_label(N));
 }
 
 string opnameAA(Qideal& A)
 {
-  ostringstream ans;
-  string s = ideal_label(A);
-  ans << "T(" << s << "," << s << ")";
-  return ans.str();
+  return opname("chi", ideal_label(A));
 }
 
 // Constructors for various matops
@@ -613,9 +626,7 @@ matop AtkinLehnerOp(const Quad& p, const Quad& n)
 
 matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
 {
-  ostringstream s;
-  s << "W(" << ideal_label(M1) << ")";
-  return matop(AtkinLehner(M1,M2), s.str());
+  return matop(AtkinLehner(M1,M2), opname("W", ideal_label(M1)));
 }
 
 // For [M1] square with A^2*M1 principal and M1,M2 coprime, A,N coprime:
@@ -624,9 +635,7 @@ matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
 
 matop AtkinLehner_ChiOp(Qideal& M1, const Qideal& M2, Qideal& A)
 {
-  ostringstream s;
-  s << "W(" << ideal_label(M1) << ") * " + opnameAA(A);
-  return matop(AtkinLehner_Chi(M1,M2, A), s.str());
+  return matop(AtkinLehner_Chi(M1,M2, A), opname("W", ideal_label(M1)), ideal_label(A));
 }
 
 // For Q prime, Q^e||N, Q^e principal:
@@ -635,7 +644,7 @@ matop AtkinLehner_ChiOp(Qideal& M1, const Qideal& M2, Qideal& A)
 
 matop AtkinLehnerQOp(const Quadprime& Q, const Qideal& N)
 {
-  return matop(AtkinLehnerQ(Q,N), opname(Q,N));
+  return matop(AtkinLehnerQ(Q,N), opnameW(Q));
 }
 
 // For Q prime, Q^e||N, [Q^e] square with A^2*Q^e principal, A coprime
@@ -645,9 +654,7 @@ matop AtkinLehnerQOp(const Quadprime& Q, const Qideal& N)
 
 matop AtkinLehnerQChiOp(const Quadprime& Q, Qideal& A, const Qideal& N)
 {
-  ostringstream s;
-  s << opname(Q,N) << " * " + opnameAA(A);
-  return matop(AtkinLehnerQ_Chi(Q,A,N), s.str());
+  return matop(AtkinLehnerQ_Chi(Q,A,N), opnameW(Q), ideal_label(A));
 }
 
 // For P prime not dividing N, P principal:
@@ -668,7 +675,7 @@ matop HeckePChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
   ostringstream s;
   s << opname(P,N) << " * " + opnameAA(A);
-  return matop(HeckeP_Chi(P,A,N), s.str());
+  return matop(HeckeP_Chi(P,A,N), opnameT(P), ideal_label(A));
 }
 
 // For P prime not dividing N with P^2 principal:
@@ -679,7 +686,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 {
   ostringstream s;
   s << "T(" << P << "^2)";
-  return matop(HeckeP2(P,N), s.str());
+  return matop(HeckeP2(P,N), opname("T", prime_label(P) + "^2"));
 }
 
 // For P prime not dividing N and A coprime to N with (AP)^2 principal:
@@ -688,9 +695,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 
 matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << P << "^2) * " + opnameAA(A);
-  return matop(HeckeP2_Chi(P,A,N), s.str());
+  return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), ideal_label(A));
 }
 
 // For P,Q distinct primes not dividing N, with P*Q principal:
@@ -699,9 +704,7 @@ matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 
 matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << P << "*" << Q << ")";
-  return matop(HeckePQ(P,Q,N), s.str());
+  return matop(HeckePQ(P,Q,N), opname("T", prime_label(P)+"*"+prime_label(Q)));
 }
 
 // For P,Q distinct primes not dividing N, with [P*Q] square, A^2*P*Q
@@ -711,9 +714,7 @@ matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << P << "*" << Q << ") * " + opnameAA(A);
-  return matop(HeckePQ_Chi(P,Q,A,N), s.str());
+  return matop(HeckePQ_Chi(P,Q,A,N), prime_label(P)+"*"+prime_label(Q), ideal_label(A));
 }
 
 // For B squarefree principal coprime to N:
@@ -722,9 +723,7 @@ matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 
 matop HeckeBOp(Qideal& B, Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << B << ")";
-  return matop(HeckeB(B,N), s.str());
+  return matop(HeckeB(B,N), opname("T", ideal_label(B)));
 }
 
 // For B squarefree coprime to N, with [B] square, A^2*B
@@ -734,9 +733,7 @@ matop HeckeBOp(Qideal& B, Qideal& N)
 
 matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << B << ") * " + opnameAA(A);
-  return matop(HeckeB_Chi(B,A,N), s.str());
+  return matop(HeckeB_Chi(B,A,N), opname("T", ideal_label(B)), ideal_label(A));
 }
 
 // The operator T(P)W(Q) where P does not divide N, Q^e||N,
@@ -747,9 +744,7 @@ matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 
 matop HeckePALQOp(Quadprime& P, const Quadprime& Q, const Qideal& N)
 {
-  ostringstream s;
-  s << "T(" << P << ")*W(" << Q << ")";
-  return matop(HeckePALQ(P,Q,N), s.str());
+  return matop(HeckePALQ(P,Q,N), opnameT(P)+"*"+opnameW(Q));
 }
 
 // The operator T(P)W(M1) where P does not divide N=M1*M2, M1,M2 coprime and P*M1 principal
@@ -758,21 +753,15 @@ matop HeckePALQOp(Quadprime& P, const Quadprime& Q, const Qideal& N)
 
 matop HeckePALOp(Quadprime& P, Qideal& M1, Qideal& M2)
 {
-  ostringstream s;
-  s << "T(" << P << ")*W(" << ideal_label(M1) << ")";
-  return matop(HeckePAL(P,M1,M2), s.str());
+  return matop(HeckePAL(P,M1,M2), opnameT(P)+"*"+opname("W",ideal_label(M1)));
 }
 
 matop FrickeOp(Qideal& N)
 {
-  return matop(Fricke(N), opname(N));
+  return matop(Fricke(N), opname("W",ideal_label(N)));
 }
 
 matop CharOp(Qideal& A, const Qideal& N)
 {
-  ostringstream s;
-  s << "nu(" << ideal_label(A) <<")";
-  return matop(Char(A,N), s.str());
+  return matop(Char(A,N), opname("chi", ideal_label(A)));
 }
-
-

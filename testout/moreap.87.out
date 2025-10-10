@@ -13,9 +13,9 @@ About to recover 1 newform bases (nap=11)
 Recovering newform #1, eigs [ 1 -1 -1 2 2 -2 -2 3 3 19 ...]...
 Entering form_finder, depth = 0, dimension 27
 restarting at depth = 0, dimension 27
-Computing nu(29.1)...done.
+Computing chi(29.1)...done.
  eig 1 gives new subspace at depth 1 of dimension 11
-Computing T(P2a^2) * T(2.2,2.2)...done.
+Computing T(P2a^2)*chi(2.2)...done.
  eig -1 gives new subspace at depth 2 of dimension 1
 Finished recovering newform bases, resorting back into lmfdb order...
 Finished makebases()

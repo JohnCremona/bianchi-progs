@@ -5,47 +5,47 @@ Non-Euclidean, class number 1
 Cuspidal dimension = 1
 Computing W(P11)...done. 
 Factors of characteristic polynomial are:
-1:	[1 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 1	 to power 1
 
 Involution!
 
 Computing T(P2)...done. 
 Factors of characteristic polynomial are:
-1:	[0 1]	(degree 1)	 to power 1
+1:	(degree 1)	X	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	[5 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 5	 to power 1
 
 Computing T(P5)...done. 
 Factors of characteristic polynomial are:
-1:	[9 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 9	 to power 1
 
 Computing T(P41a)...done. 
 Factors of characteristic polynomial are:
-1:	[8 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 8	 to power 1
 
 Computing T(P41b)...done. 
 Factors of characteristic polynomial are:
-1:	[8 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 8	 to power 1
 
 Computing T(P43a)...done. 
 Factors of characteristic polynomial are:
-1:	[6 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 6	 to power 1
 
 Computing T(P43b)...done. 
 Factors of characteristic polynomial are:
-1:	[6 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 6	 to power 1
 
 Computing T(P47a)...done. 
 Factors of characteristic polynomial are:
-1:	[-8 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 8	 to power 1
 
 Computing T(P47b)...done. 
 Factors of characteristic polynomial are:
-1:	[-8 1]	(degree 1)	 to power 1
+1:	(degree 1)	X - 8	 to power 1
 
 Computing T(P7)...done. 
 Factors of characteristic polynomial are:
-1:	[10 1]	(degree 1)	 to power 1
+1:	(degree 1)	X + 10	 to power 1
 

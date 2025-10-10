@@ -137,13 +137,24 @@ inline mat22 Fricke(Qideal& N) // assumes N principal
 class matop {  // formal sum of 2x2 matrices
  public:
   vector<mat22> mats;
-  string the_name;
+  // For an operator like T(A) the long and short names are "T(A)" and
+  // the char name is "".  For an operator like T(A)T(B,B) the short
+  // name is "T(A)", the char name is the label of B and the full name
+  // is the concatenation of these with " * "
+  string long_name;
+  string short_name;
+  string char_name;
   matop() {;}
-  explicit matop(const mat22& m, const string& n="") :mats({m}), the_name(n) {;}
-  explicit matop(const vector<mat22>& mlist, const string& n="") :mats(mlist), the_name(n) {;}
+  explicit matop(const mat22& m, const string& n="", const string& c="")
+    :mats({m}), short_name(n), char_name(c)  {set_long_name();}
+  explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="")
+    :mats(mlist), short_name(n), char_name(c) {set_long_name();}
+  void set_long_name();
   mat22 operator[](int i) const {return mats[i];}
   int length() const {return mats.size();}
-  string name() const {return the_name;}
+  string sname() const {return short_name;}
+  string cname() const {return char_name;}
+  string name() const  {return long_name;}
 };
 
 // Constructors for various matops

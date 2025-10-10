@@ -21,7 +21,8 @@ private:
   int verbose;
   vector<scalar> Hscales;
 
-  mat T;  // matrix of an operator on H1
+  matop T_op; // an operator on H1
+  mat T_mat;  // matrix of T_op
 
   // data per irreducible component
   vector<subspace> S;  // the irreducible subspaces, ker(f(T)) for f in factors
@@ -37,11 +38,16 @@ public:
   void display(void) const;
   vector<ZZX> factors; // list of multiplicity-1 irreducible factor of charpoly(T)
   int nfactors;        // the number of them
-  vector<int>dimS;     // their degrees
+  vector<int> dimS;    // their degrees
+  vector<vector<scalar>> epsvecs; // a list of 'Quad::class_group_2_rank' lists of signs
+  vector<string> epsnames; // a list of 'Quad::class_group_2_rank' names of chars
   void display_basis(int j) const; // output basis info for subspace j (1<=j<=nfactors)
 
   mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
+  mat heckeop(const matop& T, int cuspidal=0, int dual=0);
   vector<vec> ap(Quadprime& P);
+  vector<vec> eig(const matop& T);
+  vector<scalar> eps(const matop& T); // T should be a scalar operator
   void find_T(); // compute T (via prompts)
   // compute T=T_P, trying all good P with N(P)<=maxnormP
   int find_T_auto(INT maxnormP, Quadprime& P0, int verb);

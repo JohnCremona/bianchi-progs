@@ -147,4 +147,6 @@ extern poly_comparison poly_cmp;
 extern factor_modp_comparison fact_modp_cmp;
 extern poly_modp_comparison poly_modp_cmp;
 
+string polynomial_string(const ZZX& p);
+
 #endif
