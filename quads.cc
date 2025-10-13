@@ -128,11 +128,6 @@ vector<long> valid_field_discs(long max_disc)
   return discs;
 }
 
-int check_field(long d, vector<long> fields)
-{
-  return (std::find(fields.begin(), fields.end(), d) != fields.end());
-}
-
 // declaration of "extern" functions declared in quads.h:
 Quad (*mult)(const Quad& a, const Quad& b);
 Quad (*qdivi)(const Quad& a, const INT& c);

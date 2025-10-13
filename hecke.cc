@@ -550,6 +550,17 @@ void matop::set_long_name()
                             "");
 }
 
+string gmatop::name() const
+{
+  ostringstream s;
+  auto ci=coeffs.begin();
+  for (auto T: ops)
+    {
+      s << (ci==coeffs.begin()? "[" : "+[") << *ci++ << "]" << T.name();
+    }
+  return s.str();
+}
+
 // constructor for
 // (1) T_P if P principal, else
 // (2) T_P*T_{A,A} if P*A^2 principal, else

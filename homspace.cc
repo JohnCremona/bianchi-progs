@@ -381,12 +381,44 @@ mat homspace::calcop(const matop& T, int cuspidal, int dual, int display)
      { vec colj = applyop(T,freemods[j]);
        m.setcol(j+1,colj);
      }
-  if(cuspidal) m = restrict_mat(smat(m),kern).as_mat();
-  if(dual) m = transpose(m);
-  if (display) cout << "Matrix of " << T.name() << " = " << m;
-  if (display && (dimension>1)) cout << endl;
+  if(cuspidal)
+    m = restrict_mat(smat(m),kern).as_mat();
+  if(dual)
+    m = transpose(m);
   if (display)
-    cout<<"done."<<endl;
+    {
+      cout<<"done."<<endl;
+      cout << "Matrix of " << T.name() << " = " << m;
+      if (dimension>1) cout << endl;
+    }
+  return m;
+}
+
+mat homspace::calcop(const gmatop& T, int cuspidal, int dual, int display)
+{
+  if(display)
+    cout<<"Computing " << T.name() <<"...";
+  mat m(dimension,dimension);
+  auto ci = T.coeffs.begin();
+  auto Ti = T.ops.begin();
+  while (ci!=T.coeffs.end())
+    {
+      scalar c = *ci++;
+      if (c !=0 )
+        {
+          mat mi = calcop(*Ti, cuspidal, dual, display);
+          if (c!=1)
+            mi *= c;
+          m += mi;
+        }
+      ++Ti;
+    }
+  if (display)
+    {
+      cout<<"done."<<endl;
+      cout << "Matrix of " << T.name() << " = " << m;
+      if (dimension>1) cout << endl;
+    }
   return m;
 }
 
@@ -394,6 +426,12 @@ ZZX homspace::charpoly(const matop& T, int cuspidal)
 {
   ZZ den = to_ZZ(cuspidal? denom3: denom1);
   return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0,0)), den, hmod);
+}
+
+ZZX homspace::charpoly(const gmatop& T, int cuspidal)
+{
+  ZZ den = to_ZZ(cuspidal? denom3: denom1);
+  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0)), den, hmod);
 }
 
 mat homspace::calcop_cols(const matop& T, const vec_i& jlist, int verb)
@@ -789,6 +827,14 @@ string NTkey(Qideal& N, const matop& T)
   return s.str();
 }
 
+// identical code to previous
+string NTkey(Qideal& N, const gmatop& T)
+{
+  stringstream s;
+  s << ideal_label(N) << "-" << T.name();
+  return s.str();
+}
+
 string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
 {
   stringstream s;
@@ -797,6 +843,7 @@ string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
 }
 
 map<string,homspace*> H1_dict;
+map<string, mat> full_mat_dict;
 map<string, ZZX> full_poly_dict;
 map<string, ZZX> new_poly_dict;
 map<string,homspace*> H1_modp_dict;
@@ -826,6 +873,53 @@ homspace* get_homspace(const Qideal& N, scalar mod)
     return H1_dict[Nlabel];
 }
 
+mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
+{
+  Qideal NN=N; // copy as N is const, for ideal_label
+  string NT = NTkey(NN,T);
+  if (full_mat_dict.find(NT) == full_mat_dict.end())
+    {
+      homspace* H = get_homspace(N, mod);
+      mat M = H->calcop(T,1,0,1);
+      full_mat_dict[NT] = M;
+      return M;
+    }
+  else
+    return full_mat_dict[NT];
+}
+
+mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
+{
+  Qideal NN=N; // copy as N is const, for ideal_label
+  string NT = NTkey(NN,T);
+  if (full_mat_dict.find(NT) == full_mat_dict.end())
+    {
+      int d = get_homspace(N, mod)->h1dim();
+      mat M(d,d);
+      if (d)
+        {
+          auto ci = T.coeffs.begin();
+          auto Ti = T.ops.begin();
+          while (ci!=T.coeffs.end())
+            {
+              scalar c = *ci++;
+              if (c !=0 )
+                {
+                  mat Mi = get_full_mat(NN, *Ti, mod);
+                  if (c!=1)
+                    Mi *= c;
+                  M += Mi;
+                }
+              ++Ti;
+            }
+        }
+      full_mat_dict[NT] = M;
+      return M;
+    }
+  else
+    return full_mat_dict[NT];
+}
+
 ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
@@ -833,7 +927,26 @@ ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod)
   if (full_poly_dict.find(NT) == full_poly_dict.end())
     {
       homspace* H = get_homspace(N, mod);
-      ZZX full_poly = H->charpoly(T, 1);
+      ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(get_full_mat(N, T, mod)),
+                                       to_ZZ(H->denom3), H->hmod);
+      full_poly_dict[NT] = full_poly;
+      if (deg(full_poly)==0)
+        new_poly_dict[NT] = full_poly;
+      return full_poly;
+    }
+  else
+    return full_poly_dict[NT];
+}
+
+ZZX get_full_poly(const Qideal& N,  const gmatop& T, const scalar& mod)
+{
+  Qideal NN=N; // copy as N is const, for ideal_label
+  string NT = NTkey(NN,T);
+  if (full_poly_dict.find(NT) == full_poly_dict.end())
+    {
+      homspace* H = get_homspace(N, mod);
+      ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(get_full_mat(N, T, mod)),
+                                       to_ZZ(H->denom3), H->hmod);
       full_poly_dict[NT] = full_poly;
       if (deg(full_poly)==0)
         new_poly_dict[NT] = full_poly;
@@ -844,6 +957,71 @@ ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod)
 }
 
 ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod)
+{
+  Qideal NN=N; // copy as N is const, for alldivs()
+  string NT = NTkey(NN,T);
+  if (new_poly_dict.find(NT) == new_poly_dict.end())
+    {
+      ZZX new_poly = get_full_poly(N, T, mod);
+      if (deg(new_poly)==0)
+        {
+          new_poly_dict[NT] = new_poly;
+          return new_poly;
+        }
+      vector<Qideal> DD = alldivs(NN);
+      for( auto D : DD)
+        {
+          if (D==N)
+            continue;
+          ZZX new_poly_D = get_new_poly(D, T, mod);
+          if (deg(new_poly_D)==0)
+            continue;
+          Qideal M = N/D;
+          int mult = alldivs(M).size();
+          // The actual multiplicity may be less than this.  If an
+          // irreducible factor of new_poly_D corresponds to a
+          // newforms with self-twist by the unramified quadratic
+          // character chi, then the old multiplicity of this factor
+          // is the number of divisors D1 of N/D for which chi(D1)=+1.
+          // BUT here we do not know which factors are self-twist.
+
+          for (int i=0; i<mult; i++)
+            {
+              //essentially new_poly /= new_poly_D // but checking divisibility
+              ZZX quo, rem;
+              DivRem(quo, rem, new_poly, new_poly_D);
+              if (IsZero(rem))
+                new_poly = quo;
+              else
+                {
+                  cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
+                  cout << "Dividing " << new_poly << " by " << new_poly_D
+                       << " gives quotient " << quo <<", remainder "<< rem << endl;
+                  cout << "Old multiplicities are smaller than expected."<<endl;
+                  cout << "This should be because a newform at a dividing level has inner twist"<<endl;
+                  if (Quad::class_group_2_rank==0)
+                    cout << "*** so it should not happen, as the class number "
+                         << Quad::class_number<<" is odd!"<<endl;
+                }
+            }
+          if (deg(new_poly)==0) // nothing left, new dimension must be 0
+            {
+              new_poly_dict[NT] = new_poly;
+              return new_poly;
+            }
+        }
+      new_poly_dict[NT] = new_poly;
+      return new_poly;
+    }
+  else
+    return new_poly_dict[NT];
+}
+
+// Code duplication: this is identical to the version where T is just
+// an opmat.  We could replace the simple version by a call to this
+// with a constructed gopmat with ops {T} and coeffs {1} but that
+// would have a different name.
+ZZX get_new_poly(const Qideal& N, const gmatop& T, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
   string NT = NTkey(NN,T);

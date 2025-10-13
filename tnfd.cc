@@ -1,4 +1,4 @@
-// FILE TNFD.CC:  test program for nfd (d-dimensional newform) class
+// FILE TNFD.CC:  test program for Newforms (d-dimensional newform) class
 //////////////////////////////////////////////////////////////////////////
 //
 // Adapted from the similar program (over Q) in eclib
@@ -10,7 +10,6 @@
 #include "qidloop.h"
 #endif
 #include "nfd.h"
-
 
 #define MAXPRIME 10000
 
@@ -30,9 +29,6 @@ int main()
 
   int verbose=1;
   cerr << "Verbose output? (0/1) "; cin >> verbose;
-  int manual = 0;
-  cerr << "Choose a splitting operator yourself (1)? or automatically (0)? ";
-  cin >> manual;
   int nap=5;
   cerr<<"Number of ap? ";
   cin>>nap;
@@ -43,7 +39,7 @@ int main()
   long firstn, lastn;
   cerr<<"Enter first and last norm for Quad loop: ";
   cin >> firstn >> lastn;
-  Qidealooper loop(firstn, lastn, 1, 1); // sorted within norm
+  Qidealooper loop(firstn, lastn, 0, 1); // 0 = not both conjugates; 1 = sorted within norm
   while( loop.not_finished() )
     {
       N = loop.next();
@@ -54,49 +50,23 @@ int main()
       cout << endl;
       cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      homspace* hplus = get_homspace(N, modulus);
-     // int dimH = hplus->h1cuspdim();
-     // cout << "dimension = " << dimH << endl;
-     // cout << "denom     = " << hplus->h1cdenom() << endl;
 
-     nfd forms = nfd(hplus, verbose);
-     int nforms;
-
-     // compute the splitting operator T and the multiplicity 1
-     // irreducible factors of its char poly f_T(X):
-     if (manual)
+     INT maxpnorm(100);
+     Newforms forms(hplus, maxpnorm, verbose);
+     if (!forms.ok())
        {
-         int ok = 0;
-         while (!ok)
-           {
-             if (verbose)
-               cout<<"Computing a splitting operator T"<<endl;
-             forms.find_T();
-             cout<<"Computed splitting operator and its multiplicity 1 irreducible factors\n";
-             nforms = forms.nfactors;
-             if (nforms==0)
-               cout<<"No suitable factors, use a different operator to split!"<<endl;
-           }
+         cout << "Failed to find a splitting operator with maxpnorm = " << maxpnorm << endl;
+         continue; // to next level
        }
-     else
-       {
-         INT maxpnorm(100);
-         if(verbose)
-           cout << "Trying all primes P of norm up to " << maxpnorm << endl;
-         Quadprime P0;
-         int ok = forms.find_T_auto(maxpnorm, P0, verbose);
-         assert(ok);
-         nforms = forms.nfactors;
-         if (verbose)
-           cout << "Success with " << AutoHeckeOp(P0,N).name() << endl;
-       }
-     forms.make_irreducible_subspaces();
-     assert(nforms==(int)forms.factors.size());
-     cout << "Found " << nforms << " irreducible components with dimensions " << forms.dimS << endl;
-     for (int j=1; j<=nforms; j++)
-       {
-         forms.display_basis(j);
-         cout<<endl;
-       }
+     cout << "Success with " << forms.splitopname() << endl;
+     int nnf = forms.nforms();
+     cout << "Found " << nnf << " newforms";
+     if (nnf)
+       cout << " with dimensions " << forms.dimensions();
+     cout << endl;
+     if (!nnf)
+       continue;
+     forms.display_bases();
      int ip = 0;
      for ( auto& P : Quadprimes::list)
        {
@@ -107,10 +77,9 @@ int main()
            break;
          matop T = AutoHeckeOp(P,N);
          vector<vec> apvec = forms.eig(T);
-         cout<<"a(" << T.name() << ") \t"
-             <<apvec<<endl;
+         cout<<T.name() << ":\t" <<apvec<<endl;
        } // end of prime loop
-  cout<<endl;
+     //  cout<<endl;
     }     // end of level loop
   exit(0);
 }   // end of main()

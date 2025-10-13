@@ -5,7 +5,6 @@
 #include "matprocs.h"
 #include "qidloop.h"
 #include "newforms.h"
-#include "nfd.h"
 
 //#define LOOPER
 

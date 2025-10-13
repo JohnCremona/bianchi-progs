@@ -26,13 +26,14 @@ string polynomial_string(const ZZX& p)
   // Middle terms:
   for (int i=d-1; i>0; i--)
     {
-      string Xi = monomial_string(i);
       ZZ c = coeff(p, i);
+      if (c==0)
+        continue;
       if (c>1) s << " + " << c << "*";
       else if (c==1) s << " + ";
       else if (c==-1) s << " - ";
       else if (c<-1) s << " - " << abs(c) << "*";
-      s << Xi;
+      s << monomial_string(i);
     }
   // Constant term:
   ZZ c = coeff(p, 0);
@@ -51,13 +52,14 @@ string polynomial_string(const ZZ_pX& p)
   // Middle terms:
   for (int i=d-1; i>0; i--)
     {
-      string Xi = monomial_string(i);
       ZZ c = rep(coeff(p, i));
+      if (c==0)
+        continue;
       if (c>1) s << " + " << c << "*";
       else if (c==1) s << " + ";
       else if (c==-1) s << " - ";
       else if (c<-1) s << " - " << abs(c) << "*";
-      s << Xi;
+      s << monomial_string(i);
     }
   // Constant term:
   ZZ c = rep(coeff(p, 0));

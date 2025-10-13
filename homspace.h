@@ -67,6 +67,8 @@ public:
 
   mat calcop(const matop& T, int cuspidal=0, int dual=1, int display=0);
   ZZX charpoly(const matop& T, int cuspidal=0);
+  mat calcop(const gmatop& T, int cuspidal=0, int dual=1, int display=0);
+  ZZX charpoly(const gmatop& T, int cuspidal=0);
   vec calcop_col(const matop& T, int j, int)  {return applyop(T,freemods[j-1]);}
   mat calcop_cols(const matop& T, const vec_i& jlist, int);
   mat calcop_restricted(const matop& T, const subspace& s, int dual, int display);
@@ -125,19 +127,24 @@ public:
   vector<int> trivial_character_subspace_dimensions_by_twist(int cuspidal, int use_lower_bounds, vector<int> lower_bounds={});
 };
 
-// functions for caching homspaces, full Hecke polynomials and new Hecke polynomials
+// functions for caching homspaces, full Hecke matrices, full and new Hecke polynomials
 
 // Key is ideal_label(N)
 extern map<string,homspace*> H1_dict;
 homspace* get_homspace(const Qideal& N, scalar mod);
 
-// Key is ideal_label(N)-ideal_label(P)
+// Key is ideal_label(N)-T.name()
 extern map<string, ZZX> full_poly_dict;
 ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod);
+ZZX get_full_poly(const Qideal& N,  const gmatop& T, const scalar& mod);
 
-// Key is ideal_label(N)-ideal_label(P)
+extern map<string, mat> full_mat_dict;
+mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod);
+mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod);
+
 extern map<string, ZZX> new_poly_dict;
 ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod);
+ZZX get_new_poly(const Qideal& N, const gmatop& T, const scalar& mod);
 
 // Key is ideal_label(N)-mod-p
 extern map<string,homspace*> H1_modp_dict;

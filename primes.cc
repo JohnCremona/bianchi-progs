@@ -862,6 +862,17 @@ vector<Quadprime> make_squarebadprimes(const Qideal& N, const vector<Quadprime>&
 }
 
 // compute a list of at least nap good primes (excluding those
+// dividing characteristic if >0)
+vector<Quadprime> make_goodprimes(const Qideal& N,  int np, long p)
+{
+  vector<Quadprime> goodprimes;
+  QuadprimeLooper L(p==0? N : INT(p)*N);
+  for (int i=0; i<np; i++, ++L)
+    goodprimes.push_back(L);
+  return goodprimes;
+}
+
+// compute a list of at least nap good primes (excluding those
 // dividing characteristic if >0), to include at least on principal
 // one which has index iP0;
 vector<Quadprime> make_goodprimes(const Qideal& N,  int np, int& iP0, long p)

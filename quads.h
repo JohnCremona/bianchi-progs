@@ -16,8 +16,16 @@ class SwanData;
 
 // Valid fields
 extern vector<long> valid_fields;
+extern vector<long> class_number_one_fields; // defined in quads.cc
 vector<long> valid_field_discs(long max_disc=0);
-int check_field(long d, vector<long> fields=valid_fields);
+inline int check_field(long d, vector<long> fields=valid_fields)
+{
+  return (std::find(fields.begin(), fields.end(), d) != fields.end());
+}
+inline int is_class_number_one(long d)
+{
+  return check_field(d, class_number_one_fields);
+}
 
 //functions assigned by Quad::field initializer
 extern Quad (*quadconj)(const Quad& a);  //Can't have same names as Complex functions

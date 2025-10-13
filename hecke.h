@@ -8,9 +8,11 @@
 
 // Atkin-Lehner and Hecke operators are implemented in the class matop
 // which consists of a list of 2x2 matrices and a string holding the
-// operator's name.
+// operator's name. The class gmatop is a formal Z-linear combination
+// of matops.
 
 class matop;  // details below
+class gmatop;  // details below
 
 // We first define various functions returning the matrix lists.
 // These are where all the hard work is done: the later functions
@@ -134,7 +136,9 @@ inline mat22 Fricke(Qideal& N) // assumes N principal
   return AtkinLehner(N, One);
 }
 
-class matop {  // formal sum of 2x2 matrices
+// a matop is a formal sum of 2x2 matrices representing a principal
+// Hecke operator
+class matop {
  public:
   vector<mat22> mats;
   // For an operator like T(A) the long and short names are "T(A)" and
@@ -144,6 +148,7 @@ class matop {  // formal sum of 2x2 matrices
   string long_name;
   string short_name;
   string char_name;
+  vector<int> genus_char; // list of chi(B)
   matop() {;}
   explicit matop(const mat22& m, const string& n="", const string& c="")
     :mats({m}), short_name(n), char_name(c)  {set_long_name();}
@@ -155,6 +160,20 @@ class matop {  // formal sum of 2x2 matrices
   string sname() const {return short_name;}
   string cname() const {return char_name;}
   string name() const  {return long_name;}
+};
+
+// a gmatop is a linear combination of matops
+class gmatop {
+ public:
+  vector<matop> ops;
+  vector<scalar> coeffs;
+  gmatop() {;}
+  explicit gmatop(const vector<matop>& Tlist, const vector<scalar> clist)
+    :ops(Tlist), coeffs(clist)  {;}
+  explicit gmatop(const vector<matop>& Tlist)
+    :ops(Tlist), coeffs(vector<scalar>(Tlist.size(), scalar(1)))  {;}
+  void set_coeff(int i, const scalar& c) {coeffs[i] = c;}
+  string name() const;
 };
 
 // Constructors for various matops
