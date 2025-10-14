@@ -38,4 +38,10 @@ vector<INT> Zbasis(const pair<vector<INT>, vector<INT>>& coords);
 // For D1, D fundamental discriminants, test if D=D1*D2 with D2 another discriminant
 int div_disc(INT D1, INT D);
 
+// Return a list of all vectors of length dim which are primitive,
+// with all entries <= bound (in absolute value), modulo
+// multiplication by -1 (the first nonzero entry in each will be
+// positive).
+vector<vector<int>> all_linear_combinations(int dim, int bound);
+
 #endif

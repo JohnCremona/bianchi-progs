@@ -74,7 +74,6 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   // double transpose is only because eclib doesn't have column
   // content and divide functions
   projcoord = transpose(nf->H1->FR.get_coord() * basis(S));
-  vector<scalar> contents;
   for (int i=1; i<=projcoord.nrows(); i++)
     {
       scalar ci = projcoord.row_content(i);
@@ -181,10 +180,11 @@ Newforms::Newforms(homspace* h1, const INT& maxnormP, int verb)
                  [this](Qideal& A){return CharOp(A, N);});
 
   // Find the splitting operator
-  find_T(0, maxnormP);
+  find_T(0, maxnormP); // 0 = *not* simple, i.e. try linear combinations
   if (split_ok)
     // Construct the newforms if that succeeded
-    make_newforms();
+    for (auto f: factors)
+      newforms.push_back(Newform(this, f, verbose));
   else
     // abort if not
     cout << "Unable to find a suitable splitting operator!" << endl;
@@ -194,157 +194,79 @@ Newforms::Newforms(homspace* h1, const INT& maxnormP, int verb)
 void Newforms::find_T(int simple, INT maxnormP)
 {
   split_ok = 0;
+  gmatop T_op;
   ZZX f;
   if (simple)
     {
-  for ( auto& P : Quadprimes::list)
-    {
-      if (verbose>1)
-        cout << "In loop over primes, P = " << P << " with norm " << P.norm() << endl;
-      if (P.divides(N))
-        continue; // to next prime
-      if (P.norm() > maxnormP)
+      for ( auto& P : Quadprimes::list)
         {
-          //  if (verbose)
-            cout << "No suitable splitting prime found of norm up to "<<maxnormP<<endl;
-            return;
-        }
-      matop T_op = AutoHeckeOp(P,N);
-      T_name = T_op.name();
-      if (verbose)
-        cout << "Trying P = " << ideal_label(P) << ", using " << T_name << "..." << flush;
-      f = get_new_poly(N, T_op, H1->modulus);
-      if (!IsSquareFree(f))
-        {
-          if (verbose)
-            cout << " NO: Hecke polynomial is not squarefree" << endl;
-          continue; // to next prime
-        }
-      // We still need to check that f is coprime to the new polys
-      // for P at lower levels (which have been computed and
-      // cached so this is cheap)
-      if (verbose)
-        {
-          cout << " OK so far: new cuspidal Hecke polynomial for "<< T_name
-               <<" is "<<polynomial_string(f)<<", which is squarefree." << endl;
-          cout << " Now checking whether it is coprime to old polys..."<<endl;
-        }
-      split_ok = 1;
-      for( auto D : Ndivs)
-        {
-          if (D==N)
-            continue;
-          // NB T_op is OK to use for lower levels as D|N
-          ZZX f_D = get_new_poly(D, T_op, H1->modulus); // from cache
-          string fDs = polynomial_string(f_D);
-          if (!AreCoprime(f, f_D))
+          if (verbose>1)
+            cout << "In loop over primes, P = " << P << " with norm " << P.norm() << endl;
+          if (P.divides(N))
+            continue; // to next prime
+          if (P.norm() > maxnormP)
             {
-              if (verbose)
-                {
-                  cout << " No: shares factors with poly " << fDs
-                       << " at level "<<ideal_label(D) << endl;
-                }
-              split_ok = 0;
-              break; // out of loop over divisors
+              //  if (verbose)
+              cout << "No suitable splitting prime found of norm up to "<<maxnormP<<endl;
+              return;
             }
-          else
-            {
-              if (verbose)
-                cout << " OK so far: coprime to poly " << fDs
-                     << " at level "<<ideal_label(D) << endl;
-            }
+          T_op = gmatop(AutoHeckeOp(P,N));
+          T_name = T_op.name();
+          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose);
+          if (split_ok)
+            break; // out of loop over primes
         }
-      if (split_ok) // all proper divisors' new polys are coprime to f
-        {
-          if (verbose)
-            cout << " OK: coprime to all polys at proper divisor levels" << endl;
-          T_mat = heckeop(P, 0, 1); // not cuspidal,  dual
-          break; // out of loop over primes
-        }
-    }
     } // end of simple case (using a single prime)
   else // use a linear combination
     {
       // parameters (which could be set via parameter)
-      int np = 3; // number of primes P in linear combination
-      int maxc = 1; // max abs value of coefficients in linear combination
+      int np = 6; // number of primes P in linear combination
+      int maxc = 2; // max abs value of coefficients in linear combination
+      vector<vector<int>> lincombs = all_linear_combinations(np, maxc);
       vector<Quadprime> Plist = make_goodprimes(N,np, 0);
       vector<matop> TPlist(Plist.size());
       std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
                      [this](Quadprime P){return AutoHeckeOp(P,N);});
-      gmatop T_op(TPlist); // all coefficients 1
-      if (verbose)
-        cout << "Trying linear combinations of "<<np<<" operators, coefficients up to "<<maxc << endl;
-      T_name = T_op.name();
-      if (verbose)
-        cout << "Trying T = " << T_name << "..." << flush;
-      f = get_new_poly(N, T_op, H1->modulus);
-      if (!IsSquareFree(f))
+      for (auto lc: lincombs)
         {
+          vector<scalar> ilc(lc.size());
+          std::transform(lc.begin(), lc.end(), ilc.begin(), [](int c){return scalar(c);});
+          T_op = gmatop(TPlist, ilc);
+          T_name = T_op.name();
           if (verbose)
-            cout << " NO: Hecke polynomial is not squarefree" << endl;
-          split_ok = 0;
-          return;
-        }
-      // We still need to check that f is coprime to the new polys
-      // for P at lower levels (which have been computed and
-      // cached so this is cheap)
-      if (verbose)
-        {
-          cout << " OK so far: new cuspidal Hecke polynomial for "<< T_name
-               <<" is "<<polynomial_string(f)<<", which is squarefree." << endl;
-          cout << " Now checking whether it is coprime to old polys..."<<endl;
-        }
-      split_ok = 1;
-      for( auto D : Ndivs)
-        {
-          if (D==N)
-            continue;
-          vector<matop> TPlist_D(Plist.size());
-          std::transform(Plist.begin(), Plist.end(), TPlist_D.begin(),
-                         [&D](Quadprime& P){return AutoHeckeOp(P,D);});
-          gmatop T_op_D(TPlist_D); // all coefficients 1
-          // NB But T_op should be OK to use for lower levels as D|N
-          ZZX f_D = get_new_poly(D, T_op_D, H1->modulus); // from cache
-          string fDs = polynomial_string(f_D);
-          if (!AreCoprime(f, f_D))
+            cout << "Trying linear combination "<<lc<<": "<<T_name<<"..."<<flush;
+          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose);
+          if (split_ok)
             {
               if (verbose)
-                {
-                  cout << " No: shares factors with poly " << fDs
-                       << " at level "<<ideal_label(D) << endl;
-                }
-              split_ok = 0;
-              break; // out of loop over divisors
+                cout<<"OK!"<<endl;
+              break;
             }
-          else
-            {
-              if (verbose)
-                cout << " OK so far: coprime to poly " << fDs
-                     << " at level "<<ideal_label(D) << endl;
-            }
-        }
-      if (split_ok) // all proper divisors' new polys are coprime to f
-        {
           if (verbose)
-            cout << " OK: coprime to all polys at proper divisor levels" << endl;
-          T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
+            cout << "No good, continuing..." << endl;
         }
     } // end if not-simple case
-  if (!split_ok)
+  if (split_ok)
+    {
+      if (verbose)
+        cout << " OK: using operator " << T_name << " to split off newforms" << endl;
+      T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
+      f = get_new_poly(N, T_op, 1, H1->modulus); // cuspidal=1
+    }
+  else
     return;
 
   factors.clear();
   if (verbose)
     {
-      cout << " OK: new cuspidal Hecke polynomial for operator " << T_name
-           <<" is "<<polynomial_string(f)<<", which is squarefree" << endl;
+      cout << " New cuspidal Hecke polynomial for operator" << T_name
+           <<" is "<<polynomial_string(f)<<endl;
     }
   vec_ZZX NTL_factors= SFFactor(f);
   ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
   int nfactors = NTL_factors.length();
   if (verbose)
-    cout<<"Its irreducible factors of multiplicity 1 are:"<<endl;
+    cout<<"Irreducible factors:"<<endl;
   for(int i=0; i<nfactors; i++)
     {
       ZZX fi = NTL_factors[i];
@@ -353,13 +275,6 @@ void Newforms::find_T(int simple, INT maxnormP)
       factors.push_back(fi);
     }
   return;
-}
-
-// For each factor f(X), construct the associated Newform object
-void Newforms::make_newforms()
-{
-  for (auto f: factors)
-    newforms.push_back(Newform(this, f, verbose));
 }
 
 vec Newform::eig(const matop& T) const
@@ -375,10 +290,19 @@ vec Newform::ap(Quadprime& P) const
 
 scalar Newform::eps(const matop& T) const // T should be a scalar
 {
-  scalar ans = eig(T)[1];
-  if (abs(ans)!=denom_abs)
-    cout<<"Error in eps:  unscaled value "<<ans<<" but denom = "<<denom_abs<<endl;
-  return  ans / denom_abs;
+  scalar ans = contents[0] * eig(T)[1];
+  scalar den = denom_abs;
+  if (abs(ans)==den)
+    return  scalar(ans*den>0 ? +1 : -1);
+
+  cout<<"Problem in eps:  unscaled value "<<ans<<" but denom_rel = "<<denom_rel
+      <<", denom_abs = "<<denom_abs<<endl;
+  cout<<"Recomputing another way..."<<endl;
+  mat E = nf->H1->calcop_restricted(T, S, 0, 0); // dual=0, display=0
+  cout<<"matrix of "<<T.name()<<" = \n"<<E<<endl;
+  scalar s = scalar(E(1,1)>0 ? +1 : -1);
+  cout<<"so eps = "<<s<<endl;
+  return s;
 }
 
 vector<vec> Newforms::eig(const matop& T) const

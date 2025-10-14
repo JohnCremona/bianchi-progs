@@ -23,6 +23,7 @@ private:
   mat A;        // matrix of T restricted to S, with min.poly. minpoly
   scalar denom_rel, denom_abs; // relative and absolute denominators of S
   vector<scalar> scales; // powers of denom_rel
+  vector<scalar> contents;
   mat projcoord; // used to computed eigenvalues of any operator
   vector<scalar> epsvec; // list of unramified quadratic character values on S
   scalar nfbasis_num, nfbasis_den; // num&denom of basis scale factor
@@ -75,7 +76,6 @@ private:
   // with N(P)<=maxnormP.  If not simple, try similar where T is a
   // linear combination of T_P.  Set split_ok=1 if successful else 0.
   void find_T(int simple=1, INT maxnormP=INT(0));
-  void make_newforms(); // compute a Newform from each factor
 
 public:
   Newforms(void) {;}

@@ -554,9 +554,21 @@ string gmatop::name() const
 {
   ostringstream s;
   auto ci=coeffs.begin();
+  int first = 1;
   for (auto T: ops)
     {
-      s << (ci==coeffs.begin()? "[" : "+[") << *ci++ << "]" << T.name();
+      scalar c = *ci++;
+      if (c!=0)
+        {
+          if (!first)
+            {
+              s << "+";
+            }
+          first = 0;
+          if (c!=1)
+            s << "[" << c << "]";
+          s<< T.name();
+        }
     }
   return s.str();
 }

@@ -28,12 +28,18 @@ int main(void)
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
 
-  int show_pols=1;
-  cerr << "See the full char polys (0/1)? ";
-  cin >> show_pols;
+  int show_only_new_pols=1;
+  cerr << "See only the new char polys (0/1)? ";
+  cin >> show_only_new_pols;
+
+  int show_only_cuspidal_pols=1;
+  cerr << "See only the cuspidal char polys (0/1)? ";
+  cin >> show_only_cuspidal_pols;
+
   int np;
   cerr << "How many Hecke matrices T(P)? ";
   cin >> np;
+
   Qideal N;
 #ifdef LOOPER
   long firstn, lastn;
@@ -49,10 +55,13 @@ int main(void)
 #endif
           cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace* h = get_homspace(N, modulus);
-  int dim = h->h1cuspdim();
-  cout << "Cuspidal dimension = " << dim << endl;
+  int dim = h->h1dim();
+  int cdim = h->h1cuspdim();
+  cout << "Dimension = " << dim << endl;
+  cout << "Cuspidal dimension = " << cdim << endl;
   //scalar den = h->h1cdenom();
   //if(den!=1) cout << " denominator = " << den << endl;
+  ZZX charpol;
 
   if (dim>0)
     {
@@ -73,35 +82,68 @@ int main(void)
           matop T = AutoHeckeOp(P, N);
           cout << "P = " << P << " is in ideal class " << P.ideal_class()
                << ", using T = "<<T.name()<<endl;
-          if (show_pols)
+          if (!show_only_new_pols)
             {
-              ZZX charpol = get_full_poly(N, T, modulus);
-              cout << "Full characteristic polynomial: "
+              if (!show_only_cuspidal_pols)
+                {
+                  charpol = get_poly(N, T, 0, modulus); // cuspidal=0
+                  cout << "Full characteristic polynomial: "
+                       << polynomial_string(charpol)
+                       << endl;
+                  if (deg(charpol)>0)
+                    {
+                      cout <<"Factors:"<<endl;
+                      display_factors(charpol);
+                      cout << endl;
+                    }
+                }
+              charpol = get_poly(N, T, 1, modulus); // cuspidal=1
+              cout << "Full cuspidal characteristic polynomial: "
                    << polynomial_string(charpol)
-                //                   << "\tCoefficients: " << charpol
                    << endl;
-              cout <<"Factors:"<<endl;
+              if (deg(charpol)>0)
+                {
+                  cout <<"Factors:"<<endl;
+                  display_factors(charpol);
+                  cout << endl;
+                }
+            }
+          // This is commented out because the non-cuspidal oldform
+          // multiplicities are not the same as for cusp forms
+
+          // if (!show_only_cuspidal_pols)
+          //   {
+          //     charpol = get_new_poly(N, T, 0, modulus); // cuspidal=0
+          //     int dimnew = deg(charpol);
+          //     if (ntp==1)
+          //       {
+          //         cout << "Newspace has dimension " << dimnew << endl;
+          //       }
+          //     cout << "New characteristic polynomial: "
+          //          << polynomial_string(charpol)
+          //          << endl;
+          //     if (deg(charpol)>0)
+          //       {
+          //         cout << "Factors:" <<endl;
+          //         display_factors(charpol);
+          //         cout << endl;
+          //       }
+          //   }
+          charpol = get_new_poly(N, T, 1, modulus); // cuspidal=1
+          int dimnewcusp = deg(charpol);
+          if (ntp==1)
+            {
+              cout << "Cuspidal newspace has dimension " << dimnewcusp << endl;
+            }
+          cout << "New cuspidal characteristic polynomial: "
+               << polynomial_string(charpol)
+               << endl;
+          if (deg(charpol)>0)
+            {
+              cout << "Factors:" <<endl;
               display_factors(charpol);
               cout << endl;
             }
-          ZZX newpol = get_new_poly(N, T, modulus);
-          int dimnew = deg(newpol);
-          if (dimnew==0)
-            {
-              cout << "Newspace is trivial" << endl;
-              break;
-            }
-          if (ntp==1)
-            {
-              cout << "Newspace has dimension " << dimnew << endl;
-            }
-          cout << "New characteristic polynomial: "
-               << polynomial_string(newpol)
-            //               << "\tCoefficients: " << newpol
-               << endl;
-          cout << "Factors:" <<endl;
-          display_factors(newpol);
-          cout << endl;
         }
     }      // end of if(dim>0)
 }       // end of while()

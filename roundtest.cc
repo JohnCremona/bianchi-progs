@@ -3,12 +3,12 @@
 #include <eclib/arith.h>
 #include "intprocs.h"
 
-int main ()
+void roundtest(long alim=10, long blim=8)
 {
   long a, b, q, r;
-  for(b=2; b<=8; b++)
+  for(b=2; b<=blim; b++)
     {
-      for(a=-10; a<=10; a++)
+      for(a=-alim; a<=alim; a++)
         {
           cout << "("<<a<<","<<b<<"):\t";
           q = rounded_division(a,b);
@@ -17,4 +17,22 @@ int main ()
         }
       cout<<endl;
     }
+}
+
+void lctest(int dim=3, int bound=2)
+{
+  vector<vector<int>> lclist = all_linear_combinations(dim, bound);
+  cout << "All "<< lclist.size()
+       <<" primitive integer vectors of length " << dim
+       << ", max entry " << bound << " (up to sign)" << endl;
+  for(auto v: lclist)
+    cout << v << endl;
+}
+
+int main ()
+{
+  roundtest();
+  int dim=4, bnd=1;
+  for(int d=1; d<=dim; d++)
+    lctest(d,bnd);
 }

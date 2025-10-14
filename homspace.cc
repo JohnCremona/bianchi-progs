@@ -842,10 +842,19 @@ string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
   return s.str();
 }
 
+// cache of homspaces keyed by level
 map<string,homspace*> H1_dict;
+// cache of operator matrices keyed by level and opname, not restricted to cuspidal
 map<string, mat> full_mat_dict;
-map<string, ZZX> full_poly_dict;
+// cache of operator charpolys keyed by level and opname, not restricted to cuspidal
+map<string, ZZX> poly_dict;
+// cache of operator charpolys keyed by level and opname, restricted to cuspidal
+map<string, ZZX> cuspidal_poly_dict;
+// cache of operator new charpolys keyed by level and opname, not restricted to cuspidal
 map<string, ZZX> new_poly_dict;
+// cache of operator new charpolys keyed by level and opname, restricted to cuspidal
+map<string, ZZX> new_cuspidal_poly_dict;
+// mod-p versions
 map<string,homspace*> H1_modp_dict;
 map<string, ZZ_pX> full_poly_modp_dict;
 map<string, ZZ_pX> new_poly_modp_dict;
@@ -862,224 +871,174 @@ homspace* get_homspace(const Qideal& N, scalar mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
   string Nlabel = ideal_label(NN);
-  auto res = H1_dict.find(Nlabel);
-  if (res==H1_dict.end())
-    {
-      homspace* H = new homspace(N, mod, 1); // cuspidal=1
-      H1_dict[Nlabel] = H;
-      return H;
-    }
-  else
+  if (H1_dict.find(Nlabel) != H1_dict.end())
     return H1_dict[Nlabel];
+  homspace* H = new homspace(N, mod, 1); // cuspidal=1
+  H1_dict[Nlabel] = H;
+  return H;
 }
 
+// Key is ideal_label(N)-T.name()
+// Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
   string NT = NTkey(NN,T);
-  if (full_mat_dict.find(NT) == full_mat_dict.end())
-    {
-      homspace* H = get_homspace(N, mod);
-      mat M = H->calcop(T,1,0,1);
-      full_mat_dict[NT] = M;
-      return M;
-    }
-  else
+  if (full_mat_dict.find(NT) != full_mat_dict.end())
     return full_mat_dict[NT];
+  homspace* H = get_homspace(N, mod);
+  mat M = H->calcop(T,0,0,0); // cuspidal=0, dual=0, display=0
+  full_mat_dict[NT] = M;
+  return M;
 }
 
+// Key is ideal_label(N)-T.name()
+// Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
 {
+  //  cout<<"In get_full_mat() with T = "<<T.name()<<", coeffs "<<T.coeffs<<endl;
   Qideal NN=N; // copy as N is const, for ideal_label
   string NT = NTkey(NN,T);
-  if (full_mat_dict.find(NT) == full_mat_dict.end())
-    {
-      int d = get_homspace(N, mod)->h1dim();
-      mat M(d,d);
-      if (d)
-        {
-          auto ci = T.coeffs.begin();
-          auto Ti = T.ops.begin();
-          while (ci!=T.coeffs.end())
-            {
-              scalar c = *ci++;
-              if (c !=0 )
-                {
-                  mat Mi = get_full_mat(NN, *Ti, mod);
-                  if (c!=1)
-                    Mi *= c;
-                  M += Mi;
-                }
-              ++Ti;
-            }
-        }
-      full_mat_dict[NT] = M;
-      return M;
-    }
-  else
+  //  cout<<"key="<<NT<<endl;
+  if (full_mat_dict.find(NT) != full_mat_dict.end())
     return full_mat_dict[NT];
+
+  int d = get_homspace(N, mod)->h1dim();
+  mat M(d,d);
+  if (d)
+    {
+      auto ci = T.coeffs.begin();
+      auto Ti = T.ops.begin();
+      while (ci!=T.coeffs.end())
+        {
+          scalar c = *ci++;
+          if (c !=0 )
+            {
+              mat Mi = get_full_mat(NN, *Ti, mod);
+              if (c!=1)
+                Mi *= c;
+              M += Mi;
+            }
+          ++Ti;
+        }
+    }
+  //  cout<<"final M="<<M<<endl;
+  full_mat_dict[NT] = M;
+  return M;
 }
 
-ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod)
+ZZX get_poly(const Qideal& N,  const matop& T, int cuspidal, const scalar& mod)
+{
+  return get_poly(N, gmatop(T), cuspidal, mod);
+}
+
+ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
   string NT = NTkey(NN,T);
-  if (full_poly_dict.find(NT) == full_poly_dict.end())
-    {
-      homspace* H = get_homspace(N, mod);
-      ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(get_full_mat(N, T, mod)),
-                                       to_ZZ(H->denom3), H->hmod);
-      full_poly_dict[NT] = full_poly;
-      if (deg(full_poly)==0)
-        new_poly_dict[NT] = full_poly;
-      return full_poly;
-    }
-  else
-    return full_poly_dict[NT];
+  auto poly_cache = (cuspidal?cuspidal_poly_dict:poly_dict);
+  auto new_poly_cache = (cuspidal?new_cuspidal_poly_dict:new_poly_dict);
+  if (poly_cache.find(NT) != poly_cache.end())
+    return poly_cache[NT];
+
+  homspace* H = get_homspace(N, mod);
+  mat M = get_full_mat(N, T, mod);
+  if (cuspidal)
+    M = restrict_mat(smat(M),H->kern).as_mat();
+  scalar den = (cuspidal? H->h1cdenom() :H->h1denom());
+  ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(M), to_ZZ(den), H->hmod);
+  poly_cache[NT] = full_poly;
+  if (deg(full_poly)==0)
+    new_poly_cache[NT] = full_poly;
+  return full_poly;
 }
 
-ZZX get_full_poly(const Qideal& N,  const gmatop& T, const scalar& mod)
+ZZX get_new_poly(const Qideal& N, const matop& T, int cuspidal, const scalar& mod)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string NT = NTkey(NN,T);
-  if (full_poly_dict.find(NT) == full_poly_dict.end())
-    {
-      homspace* H = get_homspace(N, mod);
-      ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(get_full_mat(N, T, mod)),
-                                       to_ZZ(H->denom3), H->hmod);
-      full_poly_dict[NT] = full_poly;
-      if (deg(full_poly)==0)
-        new_poly_dict[NT] = full_poly;
-      return full_poly;
-    }
-  else
-    return full_poly_dict[NT];
+  return get_new_poly(N, gmatop(T), cuspidal, mod);
 }
 
-ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod)
+ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
   string NT = NTkey(NN,T);
-  if (new_poly_dict.find(NT) == new_poly_dict.end())
+  auto new_cache = (cuspidal?new_cuspidal_poly_dict:new_poly_dict);
+  if (new_cache.find(NT) != new_cache.end())
+    return new_cache[NT];
+  ZZX new_poly = get_poly(N, T, cuspidal, mod);
+  if (deg(new_poly)==0)
     {
-      ZZX new_poly = get_full_poly(N, T, mod);
-      if (deg(new_poly)==0)
-        {
-          new_poly_dict[NT] = new_poly;
-          return new_poly;
-        }
-      vector<Qideal> DD = alldivs(NN);
-      for( auto D : DD)
-        {
-          if (D==N)
-            continue;
-          ZZX new_poly_D = get_new_poly(D, T, mod);
-          if (deg(new_poly_D)==0)
-            continue;
-          Qideal M = N/D;
-          int mult = alldivs(M).size();
-          // The actual multiplicity may be less than this.  If an
-          // irreducible factor of new_poly_D corresponds to a
-          // newforms with self-twist by the unramified quadratic
-          // character chi, then the old multiplicity of this factor
-          // is the number of divisors D1 of N/D for which chi(D1)=+1.
-          // BUT here we do not know which factors are self-twist.
-
-          for (int i=0; i<mult; i++)
-            {
-              //essentially new_poly /= new_poly_D // but checking divisibility
-              ZZX quo, rem;
-              DivRem(quo, rem, new_poly, new_poly_D);
-              if (IsZero(rem))
-                new_poly = quo;
-              else
-                {
-                  cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
-                  cout << "Dividing " << new_poly << " by " << new_poly_D
-                       << " gives quotient " << quo <<", remainder "<< rem << endl;
-                  cout << "Old multiplicities are smaller than expected."<<endl;
-                  cout << "This should be because a newform at a dividing level has inner twist"<<endl;
-                  if (Quad::class_group_2_rank==0)
-                    cout << "*** so it should not happen, as the class number "
-                         << Quad::class_number<<" is odd!"<<endl;
-                }
-            }
-          if (deg(new_poly)==0) // nothing left, new dimension must be 0
-            {
-              new_poly_dict[NT] = new_poly;
-              return new_poly;
-            }
-        }
-      new_poly_dict[NT] = new_poly;
+      new_cache[NT] = new_poly;
       return new_poly;
     }
-  else
-    return new_poly_dict[NT];
+  vector<Qideal> DD = alldivs(NN);
+  for( auto D : DD)
+    {
+      if (D==N)
+        continue;
+      ZZX new_poly_D = get_new_poly(D, T, cuspidal, mod);
+      if (deg(new_poly_D)==0)
+        continue;
+      Qideal M = N/D;
+      int mult = alldivs(M).size();
+      // The actual multiplicity may be less than this.  If an
+      // irreducible factor of new_poly_D corresponds to a
+      // newforms with self-twist by the unramified quadratic
+      // character chi, then the old multiplicity of this factor
+      // is the number of divisors D1 of N/D for which chi(D1)=+1.
+      // BUT here we do not know which factors are self-twist.
+
+      for (int i=0; i<mult; i++)
+        {
+          //essentially new_poly /= new_poly_D // but checking divisibility
+          ZZX quo, rem;
+          DivRem(quo, rem, new_poly, new_poly_D);
+          if (IsZero(rem))
+            new_poly = quo;
+          else
+            {
+              cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
+              cout << "Dividing " << polynomial_string(new_poly) << " by " << polynomial_string(new_poly_D)
+                   << " gives quotient " << polynomial_string(quo) <<", remainder "<< polynomial_string(rem) << endl;
+              cout << "Old multiplicities are smaller than expected."<<endl;
+              cout << "This should be because a newform at a dividing level has inner twist"<<endl;
+              if (Quad::class_group_2_rank==0)
+                cout << "*** so it should not happen, as the class number "
+                     << Quad::class_number<<" is odd!"<<endl;
+            }
+        }
+      if (deg(new_poly)==0) // nothing left, new dimension must be 0
+        break;
+    } // end of loop over divisors
+  new_cache[NT] = new_poly;
+  return new_poly;
 }
 
-// Code duplication: this is identical to the version where T is just
-// an opmat.  We could replace the simple version by a call to this
-// with a constructed gopmat with ops {T} and coeffs {1} but that
-// would have a different name.
-ZZX get_new_poly(const Qideal& N, const gmatop& T, const scalar& mod)
+// Return true iff T's new poly is squarefree and coprime to its old poly
+int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod, int verbose)
 {
-  Qideal NN=N; // copy as N is const, for alldivs()
-  string NT = NTkey(NN,T);
-  if (new_poly_dict.find(NT) == new_poly_dict.end())
+  if (verbose)
+    cout << "Testing " << T.name() << "..." << endl;
+  ZZX f_new = get_new_poly(N, T, 1, mod); // cuspidal=1
+  if (!IsSquareFree(f_new))
     {
-      ZZX new_poly = get_full_poly(N, T, mod);
-      if (deg(new_poly)==0)
-        {
-          new_poly_dict[NT] = new_poly;
-          return new_poly;
-        }
-      vector<Qideal> DD = alldivs(NN);
-      for( auto D : DD)
-        {
-          if (D==N)
-            continue;
-          ZZX new_poly_D = get_new_poly(D, T, mod);
-          if (deg(new_poly_D)==0)
-            continue;
-          Qideal M = N/D;
-          int mult = alldivs(M).size();
-          // The actual multiplicity may be less than this.  If an
-          // irreducible factor of new_poly_D corresponds to a
-          // newforms with self-twist by the unramified quadratic
-          // character chi, then the old multiplicity of this factor
-          // is the number of divisors D1 of N/D for which chi(D1)=+1.
-          // BUT here we do not know which factors are self-twist.
-
-          for (int i=0; i<mult; i++)
-            {
-              //essentially new_poly /= new_poly_D // but checking divisibility
-              ZZX quo, rem;
-              DivRem(quo, rem, new_poly, new_poly_D);
-              if (IsZero(rem))
-                new_poly = quo;
-              else
-                {
-                  cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
-                  cout << "Dividing " << new_poly << " by " << new_poly_D
-                       << " gives quotient " << quo <<", remainder "<< rem << endl;
-                  cout << "Old multiplicities are smaller than expected."<<endl;
-                  cout << "This should be because a newform at a dividing level has inner twist"<<endl;
-                  if (Quad::class_group_2_rank==0)
-                    cout << "*** so it should not happen, as the class number "
-                         << Quad::class_number<<" is odd!"<<endl;
-                }
-            }
-          if (deg(new_poly)==0) // nothing left, new dimension must be 0
-            {
-              new_poly_dict[NT] = new_poly;
-              return new_poly;
-            }
-        }
-      new_poly_dict[NT] = new_poly;
-      return new_poly;
+      if (verbose)
+        cout << " NO: new Hecke polynomial "<<polynomial_string(f_new)<<" is not squarefree" << endl;
+      return 0;
     }
-  else
-    return new_poly_dict[NT];
+  ZZX f_full = get_poly(N, T, 0, mod); // cuspidal=0
+  ZZX f_old = f_full / f_new;
+  if (!AreCoprime(f_new, f_old))
+    {
+      if (verbose)
+        cout << " NO: new Hecke polynomial "<<polynomial_string(f_new)
+             <<" is not coprime to old Hecke polynomial "<<polynomial_string(f_old)<<endl
+             <<" (full polynomial is "<<polynomial_string(f_full)<<")"<<endl;
+      return 0;
+    }
+  if (verbose)
+    cout << " YES: new Hecke polynomial is squarefree and coprime to old Hecke polynomial" << endl;
+  return 1;
 }
 
 homspace* get_homspace_modp(const Qideal& N, scalar p)

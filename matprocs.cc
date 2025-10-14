@@ -21,6 +21,11 @@ string polynomial_string(const ZZX& p)
 {
   int d = deg(p);
   ostringstream s;
+  if (d==0)
+    {
+      s << coeff(p, 0);
+      return s.str();
+    }
   // Leading term:
   s << monomial_string(d);
   // Middle terms:
@@ -47,6 +52,11 @@ string polynomial_string(const ZZ_pX& p)
 {
   int d = deg(p);
   ostringstream s;
+  if (d==0)
+    {
+      s << coeff(p, 0);
+      return s.str();
+    }
   // Leading term:
   s << monomial_string(d);
   // Middle terms:

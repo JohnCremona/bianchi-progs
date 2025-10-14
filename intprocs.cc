@@ -235,3 +235,52 @@ int div_disc(INT D1, INT D)
   INT d = posmod(D/D1, INT(4));
   return (d==0 || d==1);
 }
+
+// Return a list of all vectors of length dim which are primitive,
+// with all entries <= bound (in absolute value), modulo
+// multiplication by -1 (the first nonzero entry in each will be
+// positive).
+vector<vector<int>> all_linear_combinations(int dim, int bound)
+{
+  if (dim<1) return {};
+  if (dim==1) return {{1}};
+  vector<int> v(dim,0);
+  v[0] = 1;
+  vector<vector<int>> ans = {v};
+  // recurse
+  vector<vector<int>> ans1 = all_linear_combinations(dim-1, bound);
+  for (auto v1: ans1)
+    {
+      int maxv1 = * std::max_element(v1.begin(), v1.end(), [](int a, int b){return abs(a)<abs(b);});
+      int max_scale = bound / maxv1; // round down
+      v = v1;
+      v.insert(v.begin(), 0);
+      ans.push_back(v);
+      //
+      // for (int i=0; i<dim; i++)
+      //   cout << " ";
+      // cout << v << endl;
+      //
+      for (int b=-max_scale; b<=max_scale; b++)
+        {
+          if (b==0)
+            continue;
+          vector<int> vb = v;
+          std::transform(v.begin(), v.end(), vb.begin(), [b](int c){return b*c;});
+          for (int a=1; a<=bound; a++)
+            {
+              if (gcd(a,b)==1)
+                {
+                  vb[0] = a;
+                  ans.push_back(vb);
+                  //
+                  // for (int i=0; i<dim; i++)
+                  //   cout << " ";
+                  // cout << vb << endl;
+                  //
+                }
+            }
+        }
+    }
+  return ans;
+}

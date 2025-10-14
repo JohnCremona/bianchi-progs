@@ -134,17 +134,23 @@ extern map<string,homspace*> H1_dict;
 homspace* get_homspace(const Qideal& N, scalar mod);
 
 // Key is ideal_label(N)-T.name()
-extern map<string, ZZX> full_poly_dict;
-ZZX get_full_poly(const Qideal& N,  const matop& T, const scalar& mod);
-ZZX get_full_poly(const Qideal& N,  const gmatop& T, const scalar& mod);
-
+// Value is matrix of T on the full space (not restricted to cuspidal subspace)
 extern map<string, mat> full_mat_dict;
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod);
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod);
 
+extern map<string, ZZX> poly_dict;
+extern map<string, ZZX> cuspidal_poly_dict;
+ZZX get_poly(const Qideal& N,  const matop& T, int cuspidal, const scalar& mod);
+ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod);
+
 extern map<string, ZZX> new_poly_dict;
-ZZX get_new_poly(const Qideal& N, const matop& T, const scalar& mod);
-ZZX get_new_poly(const Qideal& N, const gmatop& T, const scalar& mod);
+extern map<string, ZZX> new_cuspidal_poly_dict;
+ZZX get_new_poly(const Qideal& N, const matop& T, int cuspidal, const scalar& mod);
+ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& mod);
+
+// Return true iff T's new poly is squarefree and coprime to its old poly
+int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod, int verbose=0);
 
 // Key is ideal_label(N)-mod-p
 extern map<string,homspace*> H1_modp_dict;
@@ -157,5 +163,6 @@ ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p);
 // Key is ideal_label(N)-ideal_label(P)
 extern map<string, ZZ_pX> new_poly_modp_dict;
 ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p);
+
 
 #endif

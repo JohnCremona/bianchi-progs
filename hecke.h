@@ -172,6 +172,8 @@ class gmatop {
     :ops(Tlist), coeffs(clist)  {;}
   explicit gmatop(const vector<matop>& Tlist)
     :ops(Tlist), coeffs(vector<scalar>(Tlist.size(), scalar(1)))  {;}
+  explicit gmatop(const matop& T)
+    :ops({T}), coeffs({scalar(1)})  {;}
   void set_coeff(int i, const scalar& c) {coeffs[i] = c;}
   string name() const;
 };

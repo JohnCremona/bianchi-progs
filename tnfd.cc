@@ -55,7 +55,7 @@ int main()
      Newforms forms(hplus, maxpnorm, verbose);
      if (!forms.ok())
        {
-         cout << "Failed to find a splitting operator with maxpnorm = " << maxpnorm << endl;
+         cout << "Failed to find a splitting operator" << endl;
          continue; // to next level
        }
      cout << "Success with " << forms.splitopname() << endl;

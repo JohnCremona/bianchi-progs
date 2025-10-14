@@ -80,7 +80,7 @@ int main(void)
               ZZX charpol = scaled_charpoly(nu, to_ZZ(den), hmod);
               if (show_pols)
                 {
-                  cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+                  cout << "Characteristic polynomial is " << polynomial_string(charpol) << endl;
                 }
               if(show_factors)
                 {
@@ -160,7 +160,7 @@ int main(void)
           ZZX charpol = scaled_charpoly(wq, to_ZZ(den), hmod);
           if (show_pols)
             {
-              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+              cout << "Characteristic polynomial is " << polynomial_string(charpol) << endl;
             }
           if(show_factors)
             {
@@ -232,7 +232,7 @@ int main(void)
           ZZX charpol = scaled_charpoly(tp, to_ZZ(den), hmod);
           if (show_pols)
             {
-              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+              cout << "Characteristic polynomial is " << polynomial_string(charpol) << endl;
             }
           if(show_factors)
             {
@@ -287,7 +287,7 @@ int main(void)
           charpol = scaled_charpoly(tpq, to_ZZ(den), hmod);
           if (show_pols)
             {
-              cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+              cout << "Characteristic polynomial is " << polynomial_string(charpol) << endl;
             }
           if(show_factors)
             {
@@ -338,7 +338,7 @@ int main(void)
                   charpol = scaled_charpoly(tpwq, to_ZZ(den), hmod);
                   if (show_pols)
                     {
-                      cout << "Coefficients of characteristic polynomial are " << charpol << endl;
+                      cout << "Characteristic polynomial is " << polynomial_string(charpol) << endl;
                     }
                   if(show_factors)
                     {
