@@ -8,6 +8,7 @@
 #ifndef _BIANCHI_NFD_H
 #define _BIANCHI_NFD_H      1
 
+#include "matprocs.h"
 #include "homspace.h"
 
 class Newforms;
@@ -25,8 +26,8 @@ private:
   vector<scalar> scales; // powers of denom_rel
   vector<scalar> contents;
   mat projcoord; // used to computed eigenvalues of any operator
-  vector<scalar> epsvec; // list of unramified quadratic character values on S
-  scalar nfbasis_num, nfbasis_den; // num&denom of basis scale factor
+  vector<int> epsvec; // list of unramified quadratic character values (+1,-1) on S
+  bigrational nfbasis_factor; // Hecke field basis scale factor
   mat nfbasis;   // columns give newform basis in terms of powers basis
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
@@ -40,11 +41,40 @@ public:
   scalar eps(const matop& T) const;
 
   // output basis for the Hecke field and character
-  void display_basis(int j) const;
+  void display(int j) const; // j is the index in the list of all newforms
   int dimension() const {return d;}
   ZZX poly() const {return minpoly;}
-  vector<scalar> character() const {return epsvec;}
+  vector<int> character() const {return epsvec;}
+  int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
 };
+
+// function to sort newforms of the same level, by (1) character
+// values (reverse lexicographically so trivial char is first), (2)
+// dimension, (3) min poly (so dimension 1 forms with the same
+// character are ordered only by the order of the degree 1 factors of
+// the splitting polynomial).
+
+struct newform_comparison {
+  bool operator()(Newform& f1, Newform& f2)
+  {
+    // first sort by character
+    vector<int> char1 = f1.character(), char2 = f2.character();
+    bool t = char1>char2;  // true if f1 has 'earlier' char
+    if(t) return 1;
+    t = char1<char2; // true if f1 has 'later' char
+    if(t) return 0;
+
+    // Now sharacters are the same,  sort by dimension
+    int s = f1.dimension() - f2.dimension();
+    if(s) return (s<0); // true if f1 has smaller dimension
+
+    // then sort by min poly (smaller degree comes before larger)
+    ZZX pol1 = f1.poly(), pol2 = f2.poly();
+    return poly_cmp(pol1, pol2);
+  }
+};
+
+extern newform_comparison newform_cmp;
 
 // class for the collection of all d-dimensional newforms
 class Newforms {
@@ -64,24 +94,26 @@ private:
   mat T_mat;  // matrix of splitting operator
   string T_name;  // name of splitting operator
   vector<ZZX> factors; // list of multiplicity-1 irreducible factor of charpoly(T)
-  vector<Newform> newforms; // the newforms
 
   // Internal methods, called by constructor
 
   //void find_T_manual(); // compute T (via prompts)
   //void factor_T();
 
-  // If simple find T_P whose char poly on the newspace is squarefree
-  // and coprime to its char poly on the oldspace, trying all good P
-  // with N(P)<=maxnormP.  If not simple, try similar where T is a
-  // linear combination of T_P.  Set split_ok=1 if successful else 0.
-  void find_T(int simple=1, INT maxnormP=INT(0));
+  // If maxc=0, find T_P whose char poly on the newspace is squarefree
+  // and coprime to its char poly on the oldspace, trying the first
+  // maxnp good primes.  If maxc>0, try similar where T is a linear
+  // combination of up to maxnp T_P with coefficients up to maxc.  Set
+  // split_ok=1 if successful else 0.
+  void find_T(int maxnp, int maxc);
 
 public:
+  vector<Newform> newforms; // the newforms
   Newforms(void) {;}
   // constructor from a homspace, looking for a splitting operator
-  // from primes up to given norm
-  Newforms(homspace* h1, const INT& maxnormP, int verb=1);
+  // using linear combinations of up to maxnp primes, coefficients up
+  // to maxc
+  Newforms(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
   mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
   mat heckeop(const matop& T, int cuspidal=0, int dual=0) const;
@@ -95,8 +127,12 @@ public:
   string splitopname() const {return T_name;}
   vector<int> dimensions() const;
   // output basis for the Hecke field and character of all newforms
-  void display_bases() const;
+  void display_newforms(int triv_char_only=0) const;
+  // return the list of newforms
+  vector<Newform> the_newforms() const {return newforms;}
 };
 
+// same as m.output(cout) except no newlines between rows
+void output_flat_matrix(const mat& m);
 
 #endif

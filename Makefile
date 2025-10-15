@@ -316,6 +316,12 @@ newhecke_modp: newhecke_modp.o $(OBJS)
 tnfd: tnfd.o nfd.o $(OBJS)
 	$(CC) -o tnfd tnfd.o nfd.o $(OBJS) $(LFLAGS)
 
+tnfd_loop.o:   tnfd.cc nfd.h
+	$(CC) -DLOOPER $(CFLAGS) tnfd.cc -o tnfd_loop.o
+
+tnfd_loop: tnfd_loop.o nfd.o $(OBJS)
+	$(CC) -o tnfd_loop tnfd_loop.o nfd.o $(OBJS) $(LFLAGS)
+
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)
 

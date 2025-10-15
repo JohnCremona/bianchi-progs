@@ -12,6 +12,8 @@
 #include "matprocs.h"
 #include "nfd.h"
 
+newform_comparison newform_cmp;
+
 Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   :nf(x), minpoly(f)
 {
@@ -63,7 +65,7 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
     {
       cout<<"done."<<endl;
       cout<<"A (the matrix of T restricted to S) = ";
-      A.output_pari(cout);
+      output_flat_matrix(A);
       if(denom_abs>1)
         cout<<" / " << denom_abs;
       cout<<endl;
@@ -98,10 +100,10 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   if(verbose>1)
     {
       cout<<"W     = ";
-      W.output_pari(cout);
+      output_flat_matrix(W);
       cout<<endl;
       cout<<"Winv  = ";
-      Winv.output_pari(cout);
+      output_flat_matrix(Winv);
       cout<<endl;
       cout<<"W^(-1)= (1/"<<nfbasis_num<<") * Winv"<<endl;
     }
@@ -117,45 +119,42 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
       for(int i=1; i<=d; i++)
         nfbasis(i,k) *= c;
     }
-  nfbasis_den = nfbasis.content();
+  scalar nfbasis_den = nfbasis.content();
   nfbasis /= nfbasis_den;
   if(verbose>1)
     {
       cout << "nfbasis = ";
-      nfbasis.output_pari(cout);
+      output_flat_matrix(nfbasis);
       cout<<endl;
     }
   nfbasis_num *= denom_abs;
   scalar g = gcd(nfbasis_num, nfbasis_den);
   nfbasis_num /= g;
   nfbasis_den /= g;
-  ostringstream sc; // rational nfbasis_den / nfbasis_num
-  if (nfbasis_num==1)
-    {
-      if (nfbasis_den>1)
-        sc << nfbasis_den << " * ";
-    }
-  else
-    sc << "(" << nfbasis_den << "/" << nfbasis_num << " ) *";
+  // yes this is supposed to be den/num, those names were badly chosen!
+  nfbasis_factor = bigrational(bigint(nfbasis_den), bigint(nfbasis_num));
 
   if (verbose)
     {
       cout<<"Basis for Hecke eigenvalues, in terms of powers of alpha:"<<endl;
-      for(int i=1; i<=d; i++)
-        {
-          cout << sc.str()
-               << nfbasis.col(i)
-               <<endl;
-        }
+      if (nfbasis_factor != bigrational(1))
+        cout << "(" << nfbasis_factor << ") * ";
+      output_flat_matrix(transpose(nfbasis));
+      cout<<endl;
     }
 
   // Compute character values
   epsvec.resize(nf->eps_ops.size());
   std::transform(nf->eps_ops.begin(), nf->eps_ops.end(), epsvec.begin(),
-                 [this](const matop& op){return eps(op);});
+                 [this](const matop& op){return (eps(op)>0?+1:-1);});
 }
 
-Newforms::Newforms(homspace* h1, const INT& maxnormP, int verb)
+int Newform::trivial_char() // 1 iff all  unramified quadratic character values (if any) are +1
+{
+  return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
+}
+
+Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
   : verbose(verb), H1(h1)
 {
   N = H1->N;
@@ -180,36 +179,34 @@ Newforms::Newforms(homspace* h1, const INT& maxnormP, int verb)
                  [this](Qideal& A){return CharOp(A, N);});
 
   // Find the splitting operator
-  find_T(0, maxnormP); // 0 = *not* simple, i.e. try linear combinations
+  find_T(maxnp, maxc);
+  // Construct the newforms if that succeeded
   if (split_ok)
-    // Construct the newforms if that succeeded
     for (auto f: factors)
       newforms.push_back(Newform(this, f, verbose));
   else
     // abort if not
     cout << "Unable to find a suitable splitting operator!" << endl;
+  // Sort the newforms (by character, dimension, polynomial)
+  std::sort(newforms.begin(), newforms.end(), newform_cmp);
 }
 
 // compute T=T_P, trying all good P with N(P)<=maxnormP
-void Newforms::find_T(int simple, INT maxnormP)
+void Newforms::find_T(int maxnp, int maxc)
 {
   split_ok = 0;
   gmatop T_op;
   ZZX f;
-  if (simple)
+  if (maxc==0)
     {
-      for ( auto& P : Quadprimes::list)
+      int np = 0;
+      QuadprimeLooper Pi(N); // loop over primes not dividing N
+      while(np<maxnp && Pi.ok())
         {
+          Quadprime P = Pi;
           if (verbose>1)
             cout << "In loop over primes, P = " << P << " with norm " << P.norm() << endl;
-          if (P.divides(N))
-            continue; // to next prime
-          if (P.norm() > maxnormP)
-            {
-              //  if (verbose)
-              cout << "No suitable splitting prime found of norm up to "<<maxnormP<<endl;
-              return;
-            }
+          np++;
           T_op = gmatop(AutoHeckeOp(P,N));
           T_name = T_op.name();
           split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose);
@@ -220,10 +217,8 @@ void Newforms::find_T(int simple, INT maxnormP)
   else // use a linear combination
     {
       // parameters (which could be set via parameter)
-      int np = 6; // number of primes P in linear combination
-      int maxc = 2; // max abs value of coefficients in linear combination
-      vector<vector<int>> lincombs = all_linear_combinations(np, maxc);
-      vector<Quadprime> Plist = make_goodprimes(N,np, 0);
+      vector<vector<int>> lincombs = all_linear_combinations(maxnp, maxc);
+      vector<Quadprime> Plist = make_goodprimes(N, maxnp, 0);
       vector<matop> TPlist(Plist.size());
       std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
                      [this](Quadprime P){return AutoHeckeOp(P,N);});
@@ -243,7 +238,7 @@ void Newforms::find_T(int simple, INT maxnormP)
               break;
             }
           if (verbose)
-            cout << "No good, continuing..." << endl;
+            cout << " no good, continuing..." << endl;
         }
     } // end if not-simple case
   if (split_ok)
@@ -292,17 +287,19 @@ scalar Newform::eps(const matop& T) const // T should be a scalar
 {
   scalar ans = contents[0] * eig(T)[1];
   scalar den = denom_abs;
-  if (abs(ans)==den)
-    return  scalar(ans*den>0 ? +1 : -1);
+  return ans/den;
 
-  cout<<"Problem in eps:  unscaled value "<<ans<<" but denom_rel = "<<denom_rel
-      <<", denom_abs = "<<denom_abs<<endl;
-  cout<<"Recomputing another way..."<<endl;
-  mat E = nf->H1->calcop_restricted(T, S, 0, 0); // dual=0, display=0
-  cout<<"matrix of "<<T.name()<<" = \n"<<E<<endl;
-  scalar s = scalar(E(1,1)>0 ? +1 : -1);
-  cout<<"so eps = "<<s<<endl;
-  return s;
+  // if (abs(ans)==den)
+  //   return scalar(ans*den>0 ? +1 : -1);
+
+  // cout<<"Problem in eps:  unscaled value "<<ans<<" but denom_rel = "<<denom_rel
+  //     <<", denom_abs = "<<denom_abs<<endl;
+  // cout<<"Recomputing another way..."<<endl;
+  // mat E = nf->H1->calcop_restricted(T, S, 0, 0); // dual=0, display=0
+  // cout<<"matrix of "<<T.name()<<" = \n"<<E<<endl;
+  // scalar s = scalar(E(1,1)>0 ? +1 : -1);
+  // cout<<"so eps = "<<s<<endl;
+  // return s;
 }
 
 vector<vec> Newforms::eig(const matop& T) const
@@ -319,63 +316,47 @@ vector<vec> Newforms::ap(Quadprime& P)
 }
 
 // output basis for the Hecke field and character of one newform
-void Newform::display_basis(int j) const
+void Newform::display(int j) const
 {
-  cout << "Newform " << j
-       << " of dimension "<<d<<endl;
-  string fpol = polynomial_string(minpoly);
   int n2r = Quad::class_group_2_rank;
-  auto showchar = [this, n2r] {
-    if (n2r==1)
-      {
-        cout << " - Character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
-      }
-    else
-      if (n2r>1)
-        {
-          cout << " - Character values: " <<  epsvec << endl;
-        }
-  };
+  cout << "Newform " << j << endl;
+  if (n2r==1)
+    cout << " - Character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
+  if (n2r>1)
+    cout << " - Character values: " <<  epsvec << endl;
+  cout << " - Dimension: "<<d<<endl;
+  cout << " - Hecke field: ";
+  string fpol = polynomial_string(minpoly);
   if (d==1)
     {
-      cout << " - Hecke field Q" << endl;
-      showchar();
-      cout << endl;
+      cout << "Q" << endl;
     }
   else
     {
-      cout << " - Hecke field Q(alpha) with defining polynomial "<<fpol<<" of degree "<<d;
+      cout << "Q(alpha) with defining polynomial "<<fpol<<" of degree "<<d;
       if (d==2)
-        {
-          cout << ", discriminant "<<discriminant(minpoly);
-        }
+        cout << ", discriminant "<<discriminant(minpoly);
       cout << endl;
-      showchar();
-      cout << endl;
-      cout << " - Basis for Hecke eigenvalues, with respect to alpha-power basis:\n";
-      scalar num=nfbasis_num, den=nfbasis_den;
-      ostringstream fac;
-      fac << " : ";
-      if (den>1 || num>1)
-        {
-          if (num>1)
-            fac << "(" << den << "/" << num << ") * ";
-          else
-            fac << den << " * ";
-        }
-      for(int i=1; i<=d; i++)
-        cout << fac.str() << nfbasis.col(i)<<endl;
+      cout << " - Basis for Hecke eigenvalues, with respect to alpha-power basis:\n   ";
+      if (nfbasis_factor != bigrational(1))
+        cout << "(" << nfbasis_factor << ") * ";
+      output_flat_matrix(transpose(nfbasis));
+      cout<<endl;
     }
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newforms::display_bases() const
+void Newforms::display_newforms(int triv_char_only) const
 {
   int j=1;
   for ( auto F : newforms)
     {
-      F.display_basis(j++);
-      cout<<endl;
+      if ((!triv_char_only) || F.trivial_char())
+        {
+          F.display(j);
+          cout<<endl;
+        }
+      j++;
     }
 }
 
@@ -401,6 +382,37 @@ mat Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
 {
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
 }
+
+// same as m.output(cout) except no newlines between rows
+void output_flat_matrix(const mat& m)
+{
+  vector<scalar> entries = m.get_entries();
+  auto mij = entries.begin();
+  cout << "[";
+      cout<<flush;
+  long nr = m.nrows();
+  while(nr--)
+    {
+      long nc = m.ncols();
+      cout<<"[";
+      cout<<flush;
+      while(nc--)
+        {
+          cout<<(*mij++);
+          cout<<flush;
+          if(nc)
+            cout<<",";
+          cout<<flush;
+        }
+      cout<<"]";
+      cout<<flush;
+      if(nr)
+        cout<<",";
+      cout<<flush;
+    }
+  cout << "]";
+}
+
 
 #if(0)
 // Compute T, either one T_P or a linear combination of T_P, and its

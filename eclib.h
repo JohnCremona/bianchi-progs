@@ -7,7 +7,7 @@
 // other files include this one directly or indirectly:
 
 #include <eclib/xsplit.h>   // which includes linalg.h
-#include <eclib/rat.h>
+#include <eclib/bigrat.h>
 #include <eclib/unimod.h>
 #include <eclib/bitspace.h>
 #include <eclib/timer.h>

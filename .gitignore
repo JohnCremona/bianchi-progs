@@ -61,6 +61,11 @@ dimtable_all
 basechange
 int_hom
 make_geodata
+testlf1
+tnfd
+tnfd_loop
+fix_ratios
+fix_ratios_loop
 
 # temporary test output files
 *.testout

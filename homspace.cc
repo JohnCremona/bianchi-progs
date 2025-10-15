@@ -1018,26 +1018,26 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& m
 int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod, int verbose)
 {
   if (verbose)
-    cout << "Testing " << T.name() << "..." << endl;
+    cout << "Testing " << T.name() << "..." << flush;
   ZZX f_new = get_new_poly(N, T, 1, mod); // cuspidal=1
   if (!IsSquareFree(f_new))
     {
-      if (verbose)
-        cout << " NO: new Hecke polynomial "<<polynomial_string(f_new)<<" is not squarefree" << endl;
+      if (verbose>1)
+        cout << "\n NO: new Hecke polynomial "<<polynomial_string(f_new)<<" is not squarefree" << endl;
       return 0;
     }
   ZZX f_full = get_poly(N, T, 0, mod); // cuspidal=0
   ZZX f_old = f_full / f_new;
   if (!AreCoprime(f_new, f_old))
     {
-      if (verbose)
-        cout << " NO: new Hecke polynomial "<<polynomial_string(f_new)
+      if (verbose>1)
+        cout << "\n NO: new Hecke polynomial "<<polynomial_string(f_new)
              <<" is not coprime to old Hecke polynomial "<<polynomial_string(f_old)<<endl
              <<" (full polynomial is "<<polynomial_string(f_full)<<")"<<endl;
       return 0;
     }
-  if (verbose)
-    cout << " YES: new Hecke polynomial is squarefree and coprime to old Hecke polynomial" << endl;
+  if (verbose>1)
+    cout << "\n YES: new Hecke polynomial is squarefree and coprime to old Hecke polynomial" << endl;
   return 1;
 }
 
