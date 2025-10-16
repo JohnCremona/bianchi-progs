@@ -26,7 +26,8 @@ private:
   vector<scalar> scales; // powers of denom_rel
   vector<scalar> contents;
   mat projcoord; // used to computed eigenvalues of any operator
-  vector<int> epsvec; // list of unramified quadratic character values (+1,-1) on S
+  vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
+  INT genus_char_disc; // associated discriminant factor (1 for trivial char)
   bigrational nfbasis_factor; // Hecke field basis scale factor
   mat nfbasis;   // columns give newform basis in terms of powers basis
 public:
@@ -84,7 +85,8 @@ private:
 
   Qideal N; // the level
   vector<Qideal> Ndivs; // divisors of N
-  vector<matop> eps_ops; // list of unram quad chars
+  vector<Qideal> t2ideals; // list of ideals coprime to level generating 2-torsion in class group
+  vector<matop> eps_ops; // list of T(A,A) operators for A in t2ideals
 
   homspace* H1;  // the ambient modular symbol space at level N
   int cdimH, dimH;
@@ -115,6 +117,7 @@ public:
   // to maxc
   Newforms(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
+
   mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
   mat heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;

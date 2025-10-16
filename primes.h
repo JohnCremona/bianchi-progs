@@ -192,9 +192,10 @@ vector<Quadprime> make_squarebadprimes(const Qideal& N, const vector<Quadprime>&
 // one which has index iP0
 vector<Quadprime> make_goodprimes(const Qideal& N,  int np, int& iP0, long p);
 
-// compute a list of at least nap good primes (excluding those
-// dividing characteristic if >0)
-vector<Quadprime> make_goodprimes(const Qideal& N,  int np, long p);
+// compute a list of at least np good primes, excluding those dividing
+// characteristic if >0, only one of each conjugate pair if
+// only_one_conj=1
+vector<Quadprime> make_goodprimes1(const Qideal& N,  int np, int only_one_conj=0, long p=0);
 
 inline long prime_index(const Quadprime& P)
 {

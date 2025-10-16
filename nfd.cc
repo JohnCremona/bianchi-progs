@@ -147,6 +147,42 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   epsvec.resize(nf->eps_ops.size());
   std::transform(nf->eps_ops.begin(), nf->eps_ops.end(), epsvec.begin(),
                  [this](const matop& op){return (eps(op)>0?+1:-1);});
+  int n2r = Quad::class_group_2_rank;
+  if (n2r==0)
+    {
+      genus_char_disc = INT(1);
+      return;
+    }
+  if (verbose)
+    cout<<"genus char values: "<<epsvec<<endl;
+
+#if(0) // this needs more work to do anything sensible
+  // Compute genus character discriminant. We cannot just multiply the
+  // prime discriminants for which epsvec has entry -1 since the
+  // 2-torsion in the class group has (possibly) a different basis.
+
+  // First take product over those t2ideals whose eps is -1
+  Qideal I(INT(1));
+  auto epsveci = epsvec.begin();
+  for (auto A : nf->t2ideals)
+    {
+      if (*epsveci++==-1)
+        I *= A;
+    }
+  if (verbose)
+    {
+      cout<<"genus char ideal: "<<ideal_label(I)<<endl;
+      cout<<"prime_disc_factors: "<<Quad::prime_disc_factors<<endl;
+    }
+  vector<int> genus_char = I.genus_character();
+  if (verbose)
+    cout<<"genus char: "<<genus_char<<endl;
+  genus_char_disc = discchar(genus_char);
+  if (genus_char_disc>0)
+    genus_char_disc = Quad::disc/genus_char_disc;
+  if (verbose)
+    cout<<"genus char disc: "<<genus_char_disc<<endl;
+#endif
 }
 
 int Newform::trivial_char() // 1 iff all  unramified quadratic character values (if any) are +1
@@ -173,11 +209,16 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
     cout << "Hscales = "<<Hscales<<endl;
 
   // Make the unramified quadratic character operators
-  vector<Qideal> t2ideals = make_nulist(N);
+  t2ideals = make_nulist(N);
   eps_ops.resize(t2ideals.size());
   std::transform(t2ideals.begin(), t2ideals.end(), eps_ops.begin(),
                  [this](Qideal& A){return CharOp(A, N);});
-
+  if (verbose&& t2ideals.size())
+    {
+      cout << "Unramified quadratic character operators: ";
+      for (auto T: eps_ops) cout << T.name() << " ";
+      cout << endl;
+    }
   // Find the splitting operator
   find_T(maxnp, maxc);
   // Construct the newforms if that succeeded
@@ -216,12 +257,23 @@ void Newforms::find_T(int maxnp, int maxc)
     } // end of simple case (using a single prime)
   else // use a linear combination
     {
-      // parameters (which could be set via parameter)
-      vector<vector<int>> lincombs = all_linear_combinations(maxnp, maxc);
-      vector<Quadprime> Plist = make_goodprimes(N, maxnp, 0);
-      vector<matop> TPlist(Plist.size());
-      std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
+      vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
+      vector<matop> TPlist = eps_ops;
+      std::transform(Plist.begin(), Plist.end(), std::inserter(TPlist,TPlist.end()),
                      [this](Quadprime P){return AutoHeckeOp(P,N);});
+      // NB should enhance all_linear_combinations so that the first
+      // eps_ops.size() entries are only in {0,1} as only the parity
+      // matters for involutions
+      vector<vector<int>> lincombs = all_linear_combinations(maxnp+eps_ops.size(), maxc);
+      if (verbose)
+        {
+          cout << "Trying linear combinations with coefficients up to "<<maxc<<" of ";
+          if (verbose)
+            for (auto T: TPlist) cout << T.name() << " ";
+          else
+            cout << TPlist.size() << " operators";
+          cout << endl;
+        }
       for (auto lc: lincombs)
         {
           vector<scalar> ilc(lc.size());
@@ -229,8 +281,8 @@ void Newforms::find_T(int maxnp, int maxc)
           T_op = gmatop(TPlist, ilc);
           T_name = T_op.name();
           if (verbose)
-            cout << "Trying linear combination "<<lc<<": "<<T_name<<"..."<<flush;
-          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose);
+            cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
+          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose>1);
           if (split_ok)
             {
               if (verbose)
@@ -321,9 +373,9 @@ void Newform::display(int j) const
   int n2r = Quad::class_group_2_rank;
   cout << "Newform " << j << endl;
   if (n2r==1)
-    cout << " - Character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
+    cout << " - Genus character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
   if (n2r>1)
-    cout << " - Character values: " <<  epsvec << endl;
+    cout << " - Genus character values: " <<  epsvec << endl;
   cout << " - Dimension: "<<d<<endl;
   cout << " - Hecke field: ";
   string fpol = polynomial_string(minpoly);
