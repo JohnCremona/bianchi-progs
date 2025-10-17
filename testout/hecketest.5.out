@@ -42,7 +42,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X - 4	 to power 3
 3:	(degree 1)	X + 2	 to power 3
 4:	(degree 1)	X + 4	 to power 4
-5:	(degree 2)	X^2X + 4	 to power 4
+5:	(degree 2)	X^2 + 4	 to power 4
 
 Computing T(P5)...done. 
 Factors of characteristic polynomial are:
@@ -72,7 +72,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X - 8	 to power 3
 3:	(degree 1)	X - 2	 to power 3
 4:	(degree 1)	X + 8	 to power 4
-5:	(degree 2)	X^2X + 36	 to power 4
+5:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P7b^2)...done. 
 Factors of characteristic polynomial are:
@@ -98,7 +98,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X - 8	 to power 3
 3:	(degree 1)	X - 2	 to power 3
 4:	(degree 1)	X + 8	 to power 4
-5:	(degree 2)	X^2X + 36	 to power 4
+5:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
@@ -121,7 +121,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X - 24	 to power 3
 3:	(degree 1)	X - 2	 to power 3
 4:	(degree 1)	X + 24	 to power 4
-5:	(degree 2)	X^2X + 484	 to power 4
+5:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P23b^2)...done. 
 Factors of characteristic polynomial are:
@@ -147,7 +147,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X - 24	 to power 3
 3:	(degree 1)	X - 2	 to power 3
 4:	(degree 1)	X + 24	 to power 4
-5:	(degree 2)	X^2X + 484	 to power 4
+5:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P29a)...done. 
 Factors of characteristic polynomial are:
@@ -213,7 +213,7 @@ Factors of characteristic polynomial are:
 3:	(degree 1)	X - 4	 to power 3
 4:	(degree 1)	X - 2	 to power 3
 5:	(degree 1)	X + 4	 to power 4
-6:	(degree 2)	X^2X + 4	 to power 4
+6:	(degree 2)	X^2 + 4	 to power 4
 
 Computing T(P7a^2)...done. 
 Factors of characteristic polynomial are:
@@ -238,7 +238,7 @@ Factors of characteristic polynomial are:
 3:	(degree 1)	X - 8	 to power 3
 4:	(degree 1)	X + 2	 to power 3
 5:	(degree 1)	X + 8	 to power 4
-6:	(degree 2)	X^2X + 36	 to power 4
+6:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P7b^2)...done. 
 Factors of characteristic polynomial are:
@@ -263,7 +263,7 @@ Factors of characteristic polynomial are:
 3:	(degree 1)	X - 8	 to power 3
 4:	(degree 1)	X + 2	 to power 3
 5:	(degree 1)	X + 8	 to power 4
-6:	(degree 2)	X^2X + 36	 to power 4
+6:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
@@ -289,7 +289,7 @@ Factors of characteristic polynomial are:
 4:	(degree 1)	X + 2	 to power 2
 5:	(degree 1)	X - 24	 to power 3
 6:	(degree 1)	X + 24	 to power 4
-7:	(degree 2)	X^2X + 484	 to power 4
+7:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P23b^2)...done. 
 Factors of characteristic polynomial are:
@@ -315,7 +315,7 @@ Factors of characteristic polynomial are:
 4:	(degree 1)	X + 2	 to power 2
 5:	(degree 1)	X - 24	 to power 3
 6:	(degree 1)	X + 24	 to power 4
-7:	(degree 2)	X^2X + 484	 to power 4
+7:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P29a)...done. 
 Factors of characteristic polynomial are:
@@ -383,7 +383,7 @@ Computing T(P3b) * W(3.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 4	 to power 3
 2:	(degree 1)	X + 4	 to power 4
-3:	(degree 2)	X^2X + 4	 to power 4
+3:	(degree 2)	X^2 + 4	 to power 4
 
 Computing T(P7a^2)...done. 
 Factors of characteristic polynomial are:
@@ -403,7 +403,7 @@ Computing T(P7a) * W(3.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 8	 to power 3
 2:	(degree 1)	X + 8	 to power 4
-3:	(degree 2)	X^2X + 36	 to power 4
+3:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P7b^2)...done. 
 Factors of characteristic polynomial are:
@@ -423,7 +423,7 @@ Computing T(P7b) * W(3.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 8	 to power 3
 2:	(degree 1)	X + 8	 to power 4
-3:	(degree 2)	X^2X + 36	 to power 4
+3:	(degree 2)	X^2 + 36	 to power 4
 
 Computing T(P23a^2)...done. 
 Factors of characteristic polynomial are:
@@ -441,7 +441,7 @@ Computing T(P23a) * W(3.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 24	 to power 3
 2:	(degree 1)	X + 24	 to power 4
-3:	(degree 2)	X^2X + 484	 to power 4
+3:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P23b^2)...done. 
 Factors of characteristic polynomial are:
@@ -459,7 +459,7 @@ Computing T(P23b) * W(3.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 24	 to power 3
 2:	(degree 1)	X + 24	 to power 4
-3:	(degree 2)	X^2X + 484	 to power 4
+3:	(degree 2)	X^2 + 484	 to power 4
 
 Computing T(P29a)...done. 
 Factors of characteristic polynomial are:

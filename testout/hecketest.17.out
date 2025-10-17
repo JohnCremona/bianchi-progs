@@ -15,7 +15,7 @@ nu-eigenspace -: 2
 Computing T(P2)*chi(3.1)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 1)	X + 3	 to power 1
-2:	(degree 2)	X^2X + 1	 to power 1
+2:	(degree 2)	X^2 + 1	 to power 1
 
 Computing T(P3a^2)*chi(3.1)...done. 
 Factors of characteristic polynomial are:
@@ -121,7 +121,7 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X + 1	 to power 2
 3:	(degree 1)	X - 3	 to power 3
 4:	(degree 1)	X + 3	 to power 4
-5:	(degree 2)	X^2X + 1	 to power 4
+5:	(degree 2)	X^2 + 1	 to power 4
 
 Computing T(P3b^2)*chi(3.2)...done. 
 Factors of characteristic polynomial are:

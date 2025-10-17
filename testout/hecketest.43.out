@@ -63,6 +63,6 @@ Factors of characteristic polynomial are:
 Computing T(P13a)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 1)	X + 5	 to power 1
-2:	(degree 2)	X^2X - 45	 to power 1
+2:	(degree 2)	X^2 - 45	 to power 1
 3:	(degree 2)	X^2 - 2*X - 7	 to power 1
 

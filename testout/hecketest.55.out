@@ -25,7 +25,7 @@ Factors of characteristic polynomial are:
 Computing T(P5)*chi(2.1)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 1)	X + 6	 to power 1
-2:	(degree 2)	X^2X + 16	 to power 1
+2:	(degree 2)	X^2 + 16	 to power 1
 
 Computing T(P7a^2)*chi(2.1)...done. 
 Factors of characteristic polynomial are:
@@ -73,7 +73,7 @@ Factors of characteristic polynomial are:
 1:	(degree 1)	X - 6	 to power 1
 2:	(degree 1)	X - 2	 to power 2
 3:	(degree 1)	X + 6	 to power 2
-4:	(degree 2)	X^2X + 16	 to power 2
+4:	(degree 2)	X^2 + 16	 to power 2
 
 Computing T(P7a^2)*chi(2.1)...done. 
 Factors of characteristic polynomial are:
@@ -118,7 +118,7 @@ Factors of characteristic polynomial are:
 1:	(degree 1)	X - 3	 to power 1
 2:	(degree 1)	X - 6	 to power 5
 3:	(degree 1)	X + 6	 to power 6
-4:	(degree 2)	X^2X + 16	 to power 6
+4:	(degree 2)	X^2 + 16	 to power 6
 
 Computing T(P7b^2)*chi(2.1)...done. 
 Factors of characteristic polynomial are:
@@ -137,7 +137,7 @@ Factors of characteristic polynomial are:
 1:	(degree 1)	X	 to power 1
 2:	(degree 1)	X - 12	 to power 5
 3:	(degree 1)	X + 12	 to power 6
-4:	(degree 2)	X^2X + 100	 to power 6
+4:	(degree 2)	X^2 + 100	 to power 6
 
 >>>> Level 31.1 = (10+a,-1+3a), norm = 31 <<<<
 Dimension = 7
@@ -172,7 +172,7 @@ Computing T(P5)*chi(2.1)...done.
 Factors of characteristic polynomial are:
 1:	(degree 1)	X - 6	 to power 1
 2:	(degree 1)	X + 6	 to power 2
-3:	(degree 2)	X^2X + 16	 to power 2
+3:	(degree 2)	X^2 + 16	 to power 2
 
 Computing T(P7a^2)*chi(2.1)...done. 
 Factors of characteristic polynomial are:

@@ -213,7 +213,7 @@ Factors of characteristic polynomial are:
 3:	(degree 1)	X + 4	 to power 1
 4:	(degree 1)	X + 14	 to power 2
 5:	(degree 2)	X^2 + 3*X - 5	 to power 1
-6:	(degree 2)	X^2X + 144	 to power 2
+6:	(degree 2)	X^2 + 144	 to power 2
 7:	(degree 5)	X^5 + 10*X^4 + 24*X^3 - 24*X^2 - 104*X - 16	 to power 1
 8:	(degree 5)	X^5 - 10*X^4 + 24*X^3 + 24*X^2 - 104*X + 16	 to power 1
 
@@ -223,6 +223,6 @@ Factors of characteristic polynomial are:
 2:	(degree 1)	X + 4	 to power 2
 3:	(degree 1)	X + 14	 to power 2
 4:	(degree 2)	X^2 + 3*X - 5	 to power 1
-5:	(degree 2)	X^2X + 144	 to power 2
+5:	(degree 2)	X^2 + 144	 to power 2
 6:	(degree 5)	X^5 + 10*X^4 + 24*X^3 - 24*X^2 - 104*X - 16	 to power 2
 

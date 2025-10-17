@@ -51,12 +51,12 @@ Involution!
 Computing T(P2a)*chi(8.1)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 2)	X^2 + X - 1	 to power 1
-2:	(degree 3)	X^3X^2 - 4*X + 1	 to power 1
+2:	(degree 3)	X^3 - 4*X + 1	 to power 1
 
 Computing T(P2b)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 2)	X^2 - X - 1	 to power 1
-2:	(degree 3)	X^3X^2 - 4*X - 1	 to power 1
+2:	(degree 3)	X^3 - 4*X - 1	 to power 1
 
 Computing T(P5a)*chi(19.1)...done. 
 Factors of characteristic polynomial are:
