@@ -257,28 +257,36 @@ void Newforms::find_T(int maxnp, int maxc)
     } // end of simple case (using a single prime)
   else // use a linear combination
     {
+      vector<matop> ops = eps_ops;
       vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
-      vector<matop> TPlist = eps_ops;
-      std::transform(Plist.begin(), Plist.end(), std::inserter(TPlist,TPlist.end()),
+      vector<matop> TPlist(maxnp);
+      std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
                      [this](Quadprime P){return AutoHeckeOp(P,N);});
+      ops.insert(ops.end(), TPlist.begin(), TPlist.end());
       // NB should enhance all_linear_combinations so that the first
       // eps_ops.size() entries are only in {0,1} as only the parity
       // matters for involutions
-      vector<vector<int>> lincombs = all_linear_combinations(maxnp+eps_ops.size(), maxc);
+      vector<vector<int>> lincombs = all_linear_combinations(ops.size(), maxc);
       if (verbose)
         {
-          cout << "Trying linear combinations with coefficients up to "<<maxc<<" of ";
-          if (verbose)
-            for (auto T: TPlist) cout << T.name() << " ";
-          else
-            cout << TPlist.size() << " operators";
+          cout << "Trying linear combinations with coefficients up to "<<maxc
+               <<" of " << ops.size() << " operators";
+          if (verbose>1)
+            {
+              cout << " (";
+              // for (int i=0; i<ops.size(); i++)
+              //   cout << " " <<i<<" "<< ops[i].name();
+              for (auto T: ops)
+                cout << " " << T.name();
+              cout << ")";
+            }
           cout << endl;
         }
       for (auto lc: lincombs)
         {
           vector<scalar> ilc(lc.size());
           std::transform(lc.begin(), lc.end(), ilc.begin(), [](int c){return scalar(c);});
-          T_op = gmatop(TPlist, ilc);
+          T_op = gmatop(ops, ilc);
           T_name = T_op.name();
           if (verbose)
             cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;

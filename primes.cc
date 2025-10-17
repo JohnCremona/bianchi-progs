@@ -868,12 +868,15 @@ vector<Quadprime> make_goodprimes1(const Qideal& N,  int np, int only_one_conj, 
 {
   vector<Quadprime> goodprimes;
   QuadprimeLooper L(p==0? N : INT(p)*N);
-  for (int i=0; i<np; i++, ++L)
+  int i=0;
+  while ( i<np )
     {
       Quadprime P = L;
+      ++L;
       if (only_one_conj && P.get_index()>1)
         continue;
       goodprimes.push_back(P);
+      ++i;
     }
   return goodprimes;
 }
