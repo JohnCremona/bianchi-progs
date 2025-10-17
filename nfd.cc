@@ -141,6 +141,8 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
         cout << "(" << nfbasis_factor << ") * ";
       output_flat_matrix(transpose(nfbasis));
       cout<<endl;
+      if (d==1 && nfbasis_factor != bigrational(1))
+        cout << "(eigenvalues will be scaled by "<<nfbasis_factor<<" so this can be ignored)"<<endl;
     }
 
   // Compute character values
@@ -335,7 +337,20 @@ void Newforms::find_T(int maxnp, int maxc)
 vec Newform::eig(const matop& T) const
 {
   nf->H1->projcoord = projcoord;
-  return nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
+  vec ap = nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
+  // if the Hecke field is Q we apply the scale factor here (if any)
+  // as we don't want to display a basis.
+  if (d==1 && nfbasis_factor != bigrational(1))
+    {
+      bigint n = num(nfbasis_factor);
+      bigint d = den(nfbasis_factor);
+#if (SCALAR_OPTION==3)
+      ap[1] = (ap[1]*n)/d;
+#else
+      ap[1] = (ap[1]*I2long(n))/I2long(d);
+#endif
+    }
+  return ap;
 }
 
 vec Newform::ap(Quadprime& P) const
