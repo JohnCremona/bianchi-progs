@@ -160,6 +160,14 @@ int IsSquareFree(const ZZX& f)
   return AreCoprime(f, diff(f));
 }
 
+// Irreducibility test (ignoring content)
+int IsIrreducible(const ZZX& f)
+{
+  ZZ cont; vec_pair_ZZX_long factors;
+  factor(cont, factors, f);
+  return factors.length()==1;
+}
+
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)
 {
   ZZX charpol;
@@ -208,6 +216,23 @@ mat evaluate(const ZZX& f, const mat& A)
     }
   return to_mat(fA);
 }
+
+// p should be monic:
+mat_ZZ CompanionMatrix(const ZZX& p)
+{
+  int d = deg(p);
+  mat_ZZ A;
+  A.SetDims(d,d);
+  ZZ one(1);
+  for(int i=1; i<d; i++)
+    {
+      A(i+1,i) = one;
+      A(i,d) = -coeff(p, i-1);
+    }
+  A(d,d) = -coeff(p, d-1);
+  return A;
+}
+
 
 int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose)
 {

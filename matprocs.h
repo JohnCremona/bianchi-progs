@@ -34,11 +34,18 @@ ZZX reduce_poly(const ZZX& f, const ZZ& m);
 // Coprime test
 int AreCoprime(const ZZX& f, const ZZX& g);
 
+// Monic test
+inline int IsMonic(const ZZX& f)
+{ return IsOne(LeadCoeff(f));}
+
+// Irreducibility test (ignoring content)
+int IsIrreducible(const ZZX& f);
+
 // Squarefree test
 int IsSquareFree(const ZZX& f);
 
 // compute char poly of A/den mod m:
-ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m);
+ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den = to_ZZ(1), const scalar& m = scalar(0));
 
 // return A mod m (or just A if m==0)
 mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m);
@@ -47,6 +54,9 @@ mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m);
 mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A);
 // evaluate f(A) (assumes f monic)
 mat evaluate(const ZZX& f, const mat& A);
+
+// p should be monic:
+mat_ZZ CompanionMatrix(const ZZX& p);
 
 // check that a matrix is a scaled involution (modulo m, if m!=0):
 int check_involution(const mat_ZZ& A, scalar den, const scalar& m, int verbose=0);

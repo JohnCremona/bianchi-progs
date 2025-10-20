@@ -11,6 +11,31 @@
 #include "matprocs.h"
 #include "homspace.h"
 
+class HeckeFieldElement;
+
+class HeckeField {
+  friend class HeckeFieldElement;
+private:
+  int d;        // degree
+  ZZX minpoly;  // irredicible poly of degree d
+  scalar denom; // minpoly is the (integral) min poly of A/denom
+  mat A;        // dxd matrix with scaled min.poly. minpoly
+  mat C;        // dxd companion matrix with min.poly. minpoly
+  mat B, Binv;  // Binv*B = Bdet*I
+  scalar Bdet;  // Binv*A*B = Bdet*denom*C
+  scalar Bfactor; // basis scale factor: cols of Binv are Bfactor * coeffs of basis w.r.t. a-powers
+public:
+  //HeckeField(const ZZX& p);
+  HeckeField(); // defaults to Q
+  HeckeField(const mat& m, const scalar& denom = scalar(1), int verb=0);
+  int degree() const {return d;}
+  ZZX poly() const {return minpoly;}
+  mat basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
+  scalar basis_factor() const {return Bfactor;}
+  mat inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
+  void display(ostream&s = cout) const;
+};
+
 class Newforms;
 
 // class for a d-dimensional newform, defined by an irreducible factor
@@ -19,17 +44,14 @@ class Newform {
 private:
   Newforms* nf;    // pointer to "parent" class holding global info
   int d;      // dim(S)
-  ZZX minpoly;  // irredicible poly defining S of degree d
+  HeckeField F;
   subspace S; // irreducible subspace of modular symbol space
-  mat A;        // matrix of T restricted to S, with min.poly. minpoly
   scalar denom_rel, denom_abs; // relative and absolute denominators of S
   vector<scalar> scales; // powers of denom_rel
-  vector<scalar> contents;
+  //  vector<scalar> contents;
   mat projcoord; // used to computed eigenvalues of any operator
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   INT genus_char_disc; // associated discriminant factor (1 for trivial char)
-  bigrational nfbasis_factor; // Hecke field basis scale factor
-  mat nfbasis;   // columns give newform basis in terms of powers basis
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
   // poly of Newforms's T_mat
@@ -44,7 +66,7 @@ public:
   // output basis for the Hecke field and character
   void display(int j) const; // j is the index in the list of all newforms
   int dimension() const {return d;}
-  ZZX poly() const {return minpoly;}
+  ZZX poly() const {return F.poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
 };
@@ -80,6 +102,8 @@ extern newform_comparison newform_cmp;
 // class for the collection of all d-dimensional newforms
 class Newforms {
   friend class Newform;
+  friend class HeckeField;
+  friend class HeckeFieldElement;
 private:
   int verbose;
 
@@ -136,6 +160,6 @@ public:
 };
 
 // same as m.output(cout) except no newlines between rows
-void output_flat_matrix(const mat& m);
+void output_flat_matrix(const mat& m, ostream&s = cout);
 
 #endif

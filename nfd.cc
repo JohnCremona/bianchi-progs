@@ -14,20 +14,108 @@
 
 newform_comparison newform_cmp;
 
-Newform::Newform(Newforms* x, const ZZX& f, int verbose)
-  :nf(x), minpoly(f)
+// HeckeField::HeckeField(const ZZX& p)
+//   :d(degree(p))
+// {
+//   // check that p is monic and irreducible
+//   assert (IsMonic(p) && IsIrreducible(p));
+//   // Set A to be the companion matrix of p
+//   A = CompanionMatrix(p);
+// }
+
+HeckeField::HeckeField() // defaults to Q
 {
-  d = deg(minpoly);
+  d=1;
+  A.init(1,1); // zero matrix
+  B.init(1,1); // zero matrix
+  C.init(1,1); // zero matrix
+  B(1,1) = Bdet = Bfactor = scalar(1);
+  Binv = B;
+}
+
+HeckeField::HeckeField(const mat& m, const scalar& denom, int verb)
+  : d(m.nrows()), A(m)
+{
+  if (verb)
+    {
+      cout << "----------------------------"<<endl;
+      cout << "In HeckeField constructor" << endl;
+    }
+  minpoly = scaled_charpoly(mat_to_mat_ZZ(A), denom);
+
+  // Compute change of basis matrix B, with column j equal to
+  // denom^(n-j)*A^(j-1)v for j from 1 to d
+  vec v(d);
+  v[1] = pow(denom,d-1); // so v=[1,0,...,0]*denom^(d-1)
+  B.init(d,d);
+  B.setcol(1,v);
+  for(int i=2; i<=d; i++)
+    {
+      v = A*v / denom;
+      B.setcol(i,v);
+    }
+  B /= B.content();
+  Binv.init(d,d);
+  Bdet = inverse(B,Binv); // so B*Binv = Bdet*identity
+  Bfactor = denom*Bdet;
+  // Now we should have Binv*A*B = Bfactor * companion matrix of minpoly
+  C = Binv*A*B;
+  assert (to_ZZ(Bfactor)*CompanionMatrix(minpoly) == mat_to_mat_ZZ(C));
+  C /= (denom*Bdet); // now C == companion matrix
+  if(verb)
+    {
+      cout<<"inverse basis = ";
+      output_flat_matrix(B);
+      cout<<endl;
+      cout<<"scaled basis  = ";
+      output_flat_matrix(Binv);
+      cout<<endl;
+      cout << "basis factor  = " << Bfactor <<endl;
+      if (verb>1)
+        {
+          cout<<"companion matrix  = ";
+          output_flat_matrix(C);
+          cout<<endl;
+        }
+      cout << "Leaving HeckeField constructor" << endl;
+      cout << "----------------------------"<<endl;
+    }
+}
+
+void HeckeField::display(ostream&s) const
+{
+  string fpol = polynomial_string(minpoly);
+  if (d==1)
+    {
+      s << "Q" << endl;
+      return;
+    }
+  s << "Q(alpha) with defining polynomial "<< fpol <<" of degree "<<d;
+  if (d==2)
+    s << ", discriminant "<<discriminant(minpoly);
+  s << endl;
+  s << "   Basis with respect to alpha-power basis:\n   ";
+  if (Bfactor != scalar(1))
+    s << "(1/" << Bfactor << ") * ";
+  output_flat_matrix(transpose(Binv), s);
+  s<<endl;
+}
+
+Newform::Newform(Newforms* x, const ZZX& f, int verbose)
+  :nf(x)
+{
+  d = deg(f);
+  string fstring = polynomial_string(f);
   if (verbose)
-    cout << "Constructing Newform from factor f = "<<polynomial_string(minpoly)<<" of degree "<<d<<endl;
+    cout << "Constructing Newform from factor f = "<< fstring <<" of degree "<<d<<endl;
 
   // Compute f(T); since T is scaled by dH and f(X) is not, we
   // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
   // X^i by dH^(d-i):
   scalar dH = nf->H1->h1cdenom();
-  mat fT = evaluate(scale_poly_up(minpoly, to_ZZ(dH)), nf->T_mat);
+  mat fT = evaluate(scale_poly_up(f, to_ZZ(dH)), nf->T_mat);
   if (verbose)
-    cout << "Computed f(T), finding its kernel..."<<flush;
+    cout << "Computed f(T), finding its kernel..."<<endl;
   S = kernel(fT);
   int dimS=dim(S);
   denom_rel=denom(S);
@@ -47,16 +135,16 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
           <<", denom "<<denom_rel<<", absolute denom = "<<denom_abs<<endl;
       cout<<"Computing A, the restriction of T..." <<flush;
     }
-  A = transpose(restrict_mat(nf->T_mat,S));
+  mat A = transpose(restrict_mat(nf->T_mat,S));
   if(verbose)
     cout<<"done."<<endl;
 
   // Check that (scaled) charpoly(A) = fT
   ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(denom_abs), nf->H1->hmod);
-  if (cpA!=minpoly)
+  if (cpA != f)
     {
       cout<<endl;
-      cout<<"Error: f(X) =            "<<polynomial_string(minpoly)<<endl;
+      cout<<"Error: f(X) =            "<<fstring<<endl;
       cout<<"but scaled_charpoly(A) = "<<polynomial_string(cpA)<<endl;
       exit(1);
     }
@@ -72,77 +160,18 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
       cout<<"f(X) is the min poly of A"<<endl;
     }
 
-  // compute projcoord, precomputed projections the basis of S - the
-  // double transpose is only because eclib doesn't have column
-  // content and divide functions
-  projcoord = transpose(nf->H1->FR.get_coord() * basis(S));
-  for (int i=1; i<=projcoord.nrows(); i++)
-    {
-      scalar ci = projcoord.row_content(i);
-      contents.push_back(ci);
-      projcoord.divrow(i,ci);
-    }
-  projcoord = transpose(projcoord);
+  // compute projcoord, precomputed projections the basis of S
+  projcoord = nf->H1->FR.get_coord() * basis(S);
 
-  // Compute basis matrix, expressing the basis on which we will
-  // express eigenvalues w.r.t. the power basis on the roots of f
+  // Compute Hecke field basis (expressing the basis on which we will
+  // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  mat W(d,d);
-  mat Winv(d,d);
-  vec v(d);  v[1]=1; // so v=[1,0,...,0]
-  W.setcol(1,v);
-  for(int i=2; i<=d; i++)
-    {
-      v = A*v;
-      W.setcol(i,v);
-    }
-  scalar nfbasis_num = inverse(W,Winv); // so W*Winv = nfbasis_num*identity
-  if(verbose>1)
-    {
-      cout<<"W     = ";
-      output_flat_matrix(W);
-      cout<<endl;
-      cout<<"Winv  = ";
-      output_flat_matrix(Winv);
-      cout<<endl;
-      cout<<"W^(-1)= (1/"<<nfbasis_num<<") * Winv"<<endl;
-    }
-
-  nfbasis = Winv;
-  for(int i=0; i<d; i++)
-    nfbasis.multrow(i+1,nf->Hscales[i] * scales[i]);
-
-  // scale *columns* by contents
-  for(int k=1; k<=d; k++)
-    {
-      scalar c = contents[k-1];
-      for(int i=1; i<=d; i++)
-        nfbasis(i,k) *= c;
-    }
-  scalar nfbasis_den = nfbasis.content();
-  nfbasis /= nfbasis_den;
-  if(verbose>1)
-    {
-      cout << "nfbasis = ";
-      output_flat_matrix(nfbasis);
-      cout<<endl;
-    }
-  nfbasis_num *= denom_abs;
-  scalar g = gcd(nfbasis_num, nfbasis_den);
-  nfbasis_num /= g;
-  nfbasis_den /= g;
-  // yes this is supposed to be den/num, those names were badly chosen!
-  nfbasis_factor = bigrational(bigint(nfbasis_den), bigint(nfbasis_num));
+  F = HeckeField(A, denom_abs, verbose>1);
 
   if (verbose)
     {
-      cout<<"Basis for Hecke eigenvalues, in terms of powers of alpha:"<<endl;
-      if (nfbasis_factor != bigrational(1))
-        cout << "(" << nfbasis_factor << ") * ";
-      output_flat_matrix(transpose(nfbasis));
-      cout<<endl;
-      if (d==1 && nfbasis_factor != bigrational(1))
-        cout << "(eigenvalues will be scaled by "<<nfbasis_factor<<" so this can be ignored)"<<endl;
+      cout <<"Hecke field data:" << endl;
+      F.display();
     }
 
   // Compute character values
@@ -340,15 +369,9 @@ vec Newform::eig(const matop& T) const
   vec ap = nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
   // if the Hecke field is Q we apply the scale factor here (if any)
   // as we don't want to display a basis.
-  if (d==1 && nfbasis_factor != bigrational(1))
+  if (d==1 && F.basis_factor() != 1)
     {
-      bigint n = num(nfbasis_factor);
-      bigint d = den(nfbasis_factor);
-#if (SCALAR_OPTION==3)
-      ap[1] = (ap[1]*n)/d;
-#else
-      ap[1] = (ap[1]*I2long(n))/I2long(d);
-#endif
+      ap /= F.basis_factor();
     }
   return ap;
 }
@@ -360,21 +383,7 @@ vec Newform::ap(Quadprime& P) const
 
 scalar Newform::eps(const matop& T) const // T should be a scalar
 {
-  scalar ans = contents[0] * eig(T)[1];
-  scalar den = denom_abs;
-  return ans/den;
-
-  // if (abs(ans)==den)
-  //   return scalar(ans*den>0 ? +1 : -1);
-
-  // cout<<"Problem in eps:  unscaled value "<<ans<<" but denom_rel = "<<denom_rel
-  //     <<", denom_abs = "<<denom_abs<<endl;
-  // cout<<"Recomputing another way..."<<endl;
-  // mat E = nf->H1->calcop_restricted(T, S, 0, 0); // dual=0, display=0
-  // cout<<"matrix of "<<T.name()<<" = \n"<<E<<endl;
-  // scalar s = scalar(E(1,1)>0 ? +1 : -1);
-  // cout<<"so eps = "<<s<<endl;
-  // return s;
+  return eig(T)[1]/denom_abs;
 }
 
 vector<vec> Newforms::eig(const matop& T) const
@@ -401,23 +410,7 @@ void Newform::display(int j) const
     cout << " - Genus character values: " <<  epsvec << endl;
   cout << " - Dimension: "<<d<<endl;
   cout << " - Hecke field: ";
-  string fpol = polynomial_string(minpoly);
-  if (d==1)
-    {
-      cout << "Q" << endl;
-    }
-  else
-    {
-      cout << "Q(alpha) with defining polynomial "<<fpol<<" of degree "<<d;
-      if (d==2)
-        cout << ", discriminant "<<discriminant(minpoly);
-      cout << endl;
-      cout << " - Basis for Hecke eigenvalues, with respect to alpha-power basis:\n   ";
-      if (nfbasis_factor != bigrational(1))
-        cout << "(" << nfbasis_factor << ") * ";
-      output_flat_matrix(transpose(nfbasis));
-      cout<<endl;
-    }
+  F.display();
 }
 
 // output basis for the Hecke field and character of all newforms
@@ -459,33 +452,27 @@ mat Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
 }
 
 // same as m.output(cout) except no newlines between rows
-void output_flat_matrix(const mat& m)
+void output_flat_matrix(const mat& m, ostream&s)
 {
   vector<scalar> entries = m.get_entries();
   auto mij = entries.begin();
-  cout << "[";
-      cout<<flush;
+  s << "[";
   long nr = m.nrows();
   while(nr--)
     {
       long nc = m.ncols();
-      cout<<"[";
-      cout<<flush;
+      s<<"[";
       while(nc--)
         {
-          cout<<(*mij++);
-          cout<<flush;
+          s<<(*mij++);
           if(nc)
-            cout<<",";
-          cout<<flush;
+            s<<",";
         }
-      cout<<"]";
-      cout<<flush;
+      s<<"]";
       if(nr)
-        cout<<",";
-      cout<<flush;
+        s<<",";
     }
-  cout << "]";
+  s << "]";
 }
 
 
