@@ -18,7 +18,8 @@
 #include "qidloop.h"
 
 // convert an eclib mat to an NTL mat_ZZ:
-mat_ZZ mat_to_mat_ZZ(mat A);
+template<class T>
+mat_ZZ mat_to_mat_ZZ(Zmat<T> A);
 
 // convert an eclib mat to an NTL mat_ZZ_p:
 mat_ZZ_p mat_to_mat_ZZ_p(mat A);
@@ -53,7 +54,8 @@ mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m);
 // evaluate f(A) (assumes f monic)
 mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A);
 // evaluate f(A) (assumes f monic)
-mat evaluate(const ZZX& f, const mat& A);
+template<class T>
+mat_m evaluate(const ZZX& f, const Zmat<T>& A);
 
 // p should be monic:
 mat_ZZ CompanionMatrix(const ZZX& p);
@@ -160,7 +162,7 @@ extern poly_modp_comparison poly_modp_cmp;
 vector<ZZ> coeffs(const ZZX& p);
 vector<ZZ> coeffs(const ZZ_pX& p);
 string polynomial_string(const vector<ZZ>& coeffs, const string& var="X");
-string polynomial_string(const vec& coeffs, const string& var="X");
+string polynomial_string(const vec_m& coeffs, const string& var="X");
 string polynomial_string(const ZZX& p, const string& var="X");
 string polynomial_string(const ZZ_pX& p, const string& var="X");
 

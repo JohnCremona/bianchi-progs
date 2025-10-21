@@ -5,38 +5,38 @@ Euclidean
 Cuspidal dimension = 4
 Computing W(P3a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
-2:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X+1	 to power 1
+2:	(degree 1)	X-1	 to power 3
 
 Involution!
 Computing W(P11)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 4
+1:	(degree 1)	X+1	 to power 4
 
 Involution!
 
 Computing T(P3b)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 2	 to power 1
-2:	(degree 1)	X + 1	 to power 3
+1:	(degree 1)	X-2	 to power 1
+2:	(degree 1)	X+1	 to power 3
 
 Computing T(P2)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 3	 to power 1
+1:	(degree 1)	X-3	 to power 1
 2:	(degree 1)	X	 to power 3
 
 Computing T(P5a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 2	 to power 1
-2:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X+2	 to power 1
+2:	(degree 1)	X-1	 to power 3
 
 Computing T(P5b)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 2	 to power 1
-2:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X+2	 to power 1
+2:	(degree 1)	X-1	 to power 3
 
 Computing T(P23a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 4	 to power 1
-2:	(degree 1)	X + 1	 to power 3
+1:	(degree 1)	X+4	 to power 1
+2:	(degree 1)	X+1	 to power 3
 

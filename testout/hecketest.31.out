@@ -5,18 +5,18 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 Cuspidal dimension = 1
 Computing W(P2a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 Involution!
 Computing W(P5a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
+1:	(degree 1)	X-1	 to power 1
 
 Involution!
 
 Computing T(P2b)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
+1:	(degree 1)	X-1	 to power 1
 
 Computing T(P5b)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
@@ -24,26 +24,26 @@ Factors of characteristic polynomial are:
 
 Computing T(P7a)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 4	 to power 1
+1:	(degree 1)	X-4	 to power 1
 
 Computing T(P7b)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 2	 to power 1
+1:	(degree 1)	X-2	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 4	 to power 1
+1:	(degree 1)	X+4	 to power 1
 
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 Cuspidal dimension = 1
 Computing W(P2a)*chi(5.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
+1:	(degree 1)	X-1	 to power 1
 
 Involution!
 Computing W(P7b)*chi(5.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 Involution!
 
@@ -57,33 +57,33 @@ Factors of characteristic polynomial are:
 
 Computing T(P5b)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 3	 to power 1
+1:	(degree 1)	X-3	 to power 1
 
 Computing T(P7a)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
+1:	(degree 1)	X-1	 to power 1
 
 >>>> Level 40.1 = (-8+2a,-8-3a), norm = 40 <<<<
 Cuspidal dimension = 3
 Computing W(P2a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
-2:	(degree 1)	X + 1	 to power 2
+1:	(degree 1)	X-1	 to power 1
+2:	(degree 1)	X+1	 to power 2
 
 Involution!
 Computing W(P5a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X-1	 to power 3
 
 Involution!
 
 Computing T(P2b)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X-1	 to power 3
 
 Computing T(P5b)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
@@ -91,13 +91,13 @@ Factors of characteristic polynomial are:
 
 Computing T(P7a)*chi(7.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 4	 to power 3
+1:	(degree 1)	X-4	 to power 3
 
 Computing T(P7b)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 2	 to power 3
+1:	(degree 1)	X-2	 to power 3
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 4	 to power 3
+1:	(degree 1)	X+4	 to power 3
 

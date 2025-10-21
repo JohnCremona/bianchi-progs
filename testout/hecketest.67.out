@@ -5,66 +5,66 @@ Non-Euclidean, class number 1
 Cuspidal dimension = 3
 Computing W(P17a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 3
+1:	(degree 1)	X+1	 to power 3
 
 Involution!
 
 Computing T(P2)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 3)	X^3 - 4*X^2 - 2*X + 13	 to power 1
+1:	(degree 3)	X^3-4*X^2-2*X+13	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 3)	X^3 - 7*X^2 + 9*X + 10	 to power 1
+1:	(degree 3)	X^3-7*X^2+9*X+10	 to power 1
 
 Computing T(P17b)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 3)	X^3 - 4*X^2 - 24*X - 8	 to power 1
+1:	(degree 3)	X^3-4*X^2-24*X-8	 to power 1
 
 Computing T(P19a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 3)	X^3 + 5*X^2 - 17*X + 4	 to power 1
+1:	(degree 3)	X^3+5*X^2-17*X+4	 to power 1
 
 Computing T(P19b)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 3)	X^3 - 3*X^2 - 7*X + 20	 to power 1
+1:	(degree 3)	X^3-3*X^2-7*X+20	 to power 1
 
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
 Cuspidal dimension = 5
 Computing W(P67)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 2
-2:	(degree 1)	X + 1	 to power 3
+1:	(degree 1)	X-1	 to power 2
+2:	(degree 1)	X+1	 to power 3
 
 Involution!
 
 Computing T(P2)...done. 
 Factors of characteristic polynomial are:
 1:	(degree 1)	X	 to power 1
-2:	(degree 2)	X^2 + X - 11	 to power 1
-3:	(degree 2)	X^2 + 5*X + 5	 to power 1
+2:	(degree 2)	X^2+X-11	 to power 1
+3:	(degree 2)	X^2+5*X+5	 to power 1
 
 Computing T(P3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 2	 to power 1
-2:	(degree 2)	X^2 + 5*X - 5	 to power 1
-3:	(degree 2)	X^2 + 9*X + 19	 to power 1
+1:	(degree 1)	X+2	 to power 1
+2:	(degree 2)	X^2+5*X-5	 to power 1
+3:	(degree 2)	X^2+9*X+19	 to power 1
 
 Computing T(P17a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 3	 to power 1
-2:	(degree 2)	X^2 - 6*X + 4	 to power 1
-3:	(degree 2)	X^2 + 6*X + 4	 to power 1
+1:	(degree 1)	X-3	 to power 1
+2:	(degree 2)	X^2-6*X+4	 to power 1
+3:	(degree 2)	X^2+6*X+4	 to power 1
 
 Computing T(P17b)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 3	 to power 1
-2:	(degree 2)	X^2 - 6*X + 4	 to power 1
-3:	(degree 2)	X^2 + 6*X + 4	 to power 1
+1:	(degree 1)	X-3	 to power 1
+2:	(degree 2)	X^2-6*X+4	 to power 1
+3:	(degree 2)	X^2+6*X+4	 to power 1
 
 Computing T(P19a)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 7	 to power 1
-2:	(degree 2)	X^2 - X - 11	 to power 1
-3:	(degree 2)	X^2 + 11*X + 29	 to power 1
+1:	(degree 1)	X-7	 to power 1
+2:	(degree 2)	X^2-X-11	 to power 1
+3:	(degree 2)	X^2+11*X+29	 to power 1
 

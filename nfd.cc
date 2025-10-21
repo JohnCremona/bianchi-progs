@@ -21,14 +21,14 @@ HeckeField::HeckeField(const ZZX& p)
       // Set A to be the companion matrix of p.  The function
       // CompanionMatrix(p) returns a mat_ZZ so we do this manually.
       d = deg(p);
-      mat m(d,d);
-      scalar one(1);
+      mat_m m(d,d);
+      ZZ one(1);
       for(int i=1; i<d; i++)
         {
           m(i+1,i) = one;
-          m(i,d) = scalar(-coeff(p, i-1));
+          m(i,d) = -coeff(p, i-1);
         }
-      m(d,d) = scalar(-coeff(p, d-1));
+      m(d,d) = -coeff(p, d-1);
       // Finally call the other constructor
       *this = HeckeField(m);
     }
@@ -37,15 +37,16 @@ HeckeField::HeckeField(const ZZX& p)
 HeckeField::HeckeField() // defaults to Q
 {
   d=1;
-  denom=1;
+  ZZ one(1);
+  denom=one;
   A.init(1,1); // zero matrix
   B.init(1,1); // zero matrix
   C.init(1,1); // zero matrix
-  B(1,1) = Bdet = Bfactor = scalar(1);
+  B(1,1) = Bdet = Bfactor = one;
   Binv = B;
 }
 
-HeckeField::HeckeField(const mat& m, const scalar& den, int verb)
+HeckeField::HeckeField(const mat_m& m, const ZZ& den, int verb)
   : d(m.nrows()), denom(den), A(m)
 {
   if (verb)
@@ -57,7 +58,7 @@ HeckeField::HeckeField(const mat& m, const scalar& den, int verb)
 
   // Compute change of basis matrix B, with column j equal to
   // denom^(n-j)*A^(j-1)v for j from 1 to d
-  vec v(d);
+  vec_m v(d);
   v[1] = pow(denom,d-1); // so v=[1,0,...,0]*denom^(d-1)
   B.init(d,d);
   B.setcol(1,v);
@@ -72,7 +73,7 @@ HeckeField::HeckeField(const mat& m, const scalar& den, int verb)
   Bfactor = denom*Bdet;
   // Now we should have Binv*A*B = Bfactor * companion matrix of minpoly
   C = Binv*A*B;
-  assert (to_ZZ(Bfactor)*CompanionMatrix(minpoly) == mat_to_mat_ZZ(C));
+  assert (Bfactor*CompanionMatrix(minpoly) == mat_to_mat_ZZ(C));
   C /= (denom*Bdet); // now C == companion matrix
   if(verb)
     {
@@ -95,13 +96,13 @@ HeckeField::HeckeField(const mat& m, const scalar& den, int verb)
 }
 
 // Linear combinarion of n>0 matrices, all dxd
-mat lin_comb_mats(const vec& co, const vector<mat>& mats)
+mat_m lin_comb_mats(const vec_m& co, const vector<mat_m>& mats)
 {
   int n = mats.size(), d = mats[0].nrows();
-  mat a(d,d);
+  mat_m a(d,d);
   for (int i=0; i<n; i++)
     {
-      scalar c = co[i+1];
+      ZZ c = co[i+1];
       if (c!=0)
         a += c*mats[i];
     }
@@ -109,13 +110,13 @@ mat lin_comb_mats(const vec& co, const vector<mat>& mats)
 }
 
 // Linear combinarion of n>0 matrices, all dxd
-mat lin_comb_mats(const vector<scalar>& co, const vector<mat>& mats)
+mat_m lin_comb_mats(const vector<ZZ>& co, const vector<mat_m>& mats)
 {
   int n = mats.size(), d = mats[0].nrows();
-  mat a(d,d);
+  mat_m a(d,d);
   for (int i=0; i<n; i++)
     {
-      scalar c = co[i];
+      ZZ c = co[i];
       if (c!=0)
         a += c*mats[i];
     }
@@ -124,10 +125,10 @@ mat lin_comb_mats(const vector<scalar>& co, const vector<mat>& mats)
 
 void HeckeField::display_bases(ostream&s) const
 {
-  mat I(mat::identity_matrix(d));
+  mat_m I(mat_m::identity_matrix(d));
 
   s << "Powers of A (i.e. powers of alpha in A-embedding):\n";
-  vector<mat> Apowers(d);
+  vector<mat_m> Apowers(d);
   Apowers[0] = I;
   for (int i=1; i<d; i++)
     Apowers[i] = A*Apowers[i-1];
@@ -137,22 +138,22 @@ void HeckeField::display_bases(ostream&s) const
       s<<endl;
       s<<endl;
     }
-  scalar fac = pow(denom, d-1) * Bfactor;
+  ZZ fac = pow(denom, d-1) * Bfactor;
   s << "Basis in A-embedding, scaled by "<< fac <<":\n";
   s << "(first columns should be standard basis vectors * "<< (fac/denom) <<")\n";
   for(int i=1; i<=d; i++)
     {
-      vec coli = Binv.col(i);
+      vec_m coli = Binv.col(i);
       for(int j=1; j<=d; j++)
         coli[j] *= pow(denom, d-j);
-      mat M = lin_comb_mats(coli, Apowers);
+      mat_m M = lin_comb_mats(coli, Apowers);
       M.output(s);
       s<<endl;
       s<<endl;
       assert (denom*M.col(1)==fac*I.col(i));
     }
   s << "Powers of C (i.e. powers of alpha in C-embedding):\n";
-  vector<mat> Cpowers(d);
+  vector<mat_m> Cpowers(d);
   Cpowers[0] = I;
   for (int i=1; i<d; i++)
     Cpowers[i] = C*Cpowers[i-1];
@@ -166,7 +167,7 @@ void HeckeField::display_bases(ostream&s) const
   s << "(first columns should be columns of basis())\n";
   for(int i=1; i<=d; i++)
     {
-      mat M = lin_comb_mats(Binv.col(i), Cpowers);
+      mat_m M = lin_comb_mats(Binv.col(i), Cpowers);
       M.output(s);
       s<<endl;
       s<<endl;
@@ -213,7 +214,7 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
   // X^i by dH^(d-i):
   scalar dH = nf->H1->h1cdenom();
-  mat fT = evaluate(scale_poly_up(f, to_ZZ(dH)), nf->T_mat);
+  mat fT = to_mat(evaluate(scale_poly_up(f, to_ZZ(dH)), nf->T_mat));
   if (verbose)
     cout << "Computed f(T), finding its kernel..."<<endl;
   S = kernel(fT);
@@ -235,7 +236,8 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
           <<", denom "<<denom_rel<<", absolute denom = "<<denom_abs<<endl;
       cout<<"Computing A, the restriction of T..." <<flush;
     }
-  mat A = transpose(restrict_mat(nf->T_mat,S));
+  mat A = transpose(restrict_mat(to_mat(nf->T_mat),S));
+  mat_m mA = to_mat_m(A);
   if(verbose)
     cout<<"done."<<endl;
 
@@ -266,7 +268,7 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  F = HeckeField(A, denom_abs, verbose>1);
+  F = HeckeField(mA, to_ZZ(denom_abs), verbose>1);
 
   if (verbose)
     {
@@ -323,10 +325,10 @@ int Newform::trivial_char() // 1 iff all  unramified quadratic character values 
   return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
 }
 
-vec Newform::eig(const matop& T, basis_type bt) const
+vec_m Newform::eig(const matop& T, basis_type bt) const
 {
   nf->H1->projcoord = projcoord;
-  vec ap = nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
+  vec_m ap = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
   // if the Hecke field is Q we apply the scale factor here (if any)
   // as we don't want to display a basis.
   if (d==1 && F.Bfactor != 1)
@@ -343,12 +345,12 @@ vec Newform::eig(const matop& T, basis_type bt) const
   return ap;
 }
 
-vec Newform::ap(Quadprime& P, basis_type bt) const
+vec_m Newform::ap(Quadprime& P, basis_type bt) const
 {
   return eig(AutoHeckeOp(P,nf->N), bt);
 }
 
-scalar Newform::eps(const matop& T) const // T should be a scalar
+ZZ Newform::eps(const matop& T) const // T should be a scalar
 {
   return eig(T)[1]/denom_abs;
 }
@@ -495,15 +497,15 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
-vector<vec> Newforms::eig(const matop& T, basis_type bt) const
+vector<vec_m> Newforms::eig(const matop& T, basis_type bt) const
 {
-  vector<vec> ans(newforms.size());
+  vector<vec_m> ans(newforms.size());
   std::transform(newforms.begin(), newforms.end(), ans.begin(),
                  [T, bt](const Newform f){return f.eig(T, bt);});
   return ans;
 }
 
-vector<vec> Newforms::ap(Quadprime& P, basis_type bt)
+vector<vec_m> Newforms::ap(Quadprime& P, basis_type bt)
 {
   return eig(AutoHeckeOp(P,N), bt);
 }
@@ -545,25 +547,26 @@ vector<int> Newforms::dimensions() const
   return dims;
 }
 
-mat Newforms::heckeop(const gmatop& T, int cuspidal, int dual) const
+mat_m Newforms::heckeop(const gmatop& T, int cuspidal, int dual) const
 {
-  return H1->calcop(T, cuspidal, dual, 0); // 0 display
+  return to_mat_m(H1->calcop(T, cuspidal, dual, 0)); // 0 display
 }
 
-mat Newforms::heckeop(const matop& T, int cuspidal, int dual) const
+mat_m Newforms::heckeop(const matop& T, int cuspidal, int dual) const
 {
-  return H1->calcop(T, cuspidal, dual, 0); // 0 display
+  return to_mat_m(H1->calcop(T, cuspidal, dual, 0)); // 0 display
 }
 
-mat Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
+mat_m Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
 {
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
 }
 
 // same as m.output(cout) except no newlines between rows
-void output_flat_matrix(const mat& m, ostream&s)
+template<class T>
+void output_flat_matrix(const Zmat<T>& m, ostream&s)
 {
-  vector<scalar> entries = m.get_entries();
+  vector<T> entries = m.get_entries();
   auto mij = entries.begin();
   s << "[";
   long nr = m.nrows();
@@ -583,6 +586,10 @@ void output_flat_matrix(const mat& m, ostream&s)
     }
   s << "]";
 }
+
+template void output_flat_matrix<int>(const Zmat<int>& m, ostream&s);
+template void output_flat_matrix<long>(const Zmat<long>& m, ostream&s);
+template void output_flat_matrix<bigint>(const Zmat<bigint>& m, ostream&s);
 
 
 #if(0)

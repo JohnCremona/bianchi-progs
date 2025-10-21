@@ -5,71 +5,71 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [
 Cuspidal dimension = 1
 Computing W(P2a)*chi(16.5)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X - 1	 to power 1
+1:	(degree 1)	X-1	 to power 1
 
 Involution!
 Computing W(P3a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 Involution!
 
 Computing T(P2b)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 2	 to power 1
+1:	(degree 1)	X+2	 to power 1
 
 Computing T(P3b)*chi(4.3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 Computing T(P5a)*chi(19.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 2	 to power 1
+1:	(degree 1)	X+2	 to power 1
 
 Computing T(P5b)*chi(10.3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 3	 to power 1
+1:	(degree 1)	X+3	 to power 1
 
 Computing T(P19a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 1
+1:	(degree 1)	X+1	 to power 1
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 Cuspidal dimension = 5
 Computing W(P3a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 5
+1:	(degree 1)	X+1	 to power 5
 
 Involution!
 Computing W(P3b)*chi(4.3)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 2
-2:	(degree 1)	X - 1	 to power 3
+1:	(degree 1)	X+1	 to power 2
+2:	(degree 1)	X-1	 to power 3
 
 Involution!
 
 Computing T(P2a)*chi(8.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 2)	X^2 + X - 1	 to power 1
-2:	(degree 3)	X^3 - 4*X + 1	 to power 1
+1:	(degree 2)	X^2+X-1	 to power 1
+2:	(degree 3)	X^3-4*X+1	 to power 1
 
 Computing T(P2b)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 2)	X^2 - X - 1	 to power 1
-2:	(degree 3)	X^3 - 4*X - 1	 to power 1
+1:	(degree 2)	X^2-X-1	 to power 1
+2:	(degree 3)	X^3-4*X-1	 to power 1
 
 Computing T(P5a)*chi(19.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 2)	X^2 - X - 1	 to power 1
-2:	(degree 3)	X^3 - X^2 - 5*X - 2	 to power 1
+1:	(degree 2)	X^2-X-1	 to power 1
+2:	(degree 3)	X^3-X^2-5*X-2	 to power 1
 
 Computing T(P5b)*chi(2.1)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 2)	X^2 + X - 1	 to power 1
-2:	(degree 3)	X^3 + X^2 - 5*X + 2	 to power 1
+1:	(degree 2)	X^2+X-1	 to power 1
+2:	(degree 3)	X^3+X^2-5*X+2	 to power 1
 
 Computing T(P19a)*chi(10.4)...done. 
 Factors of characteristic polynomial are:
-1:	(degree 1)	X + 1	 to power 2
-2:	(degree 3)	X^3 - 10*X^2 + X + 124	 to power 1
+1:	(degree 1)	X+1	 to power 2
+2:	(degree 3)	X^3-10*X^2+X+124	 to power 1
 

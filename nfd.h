@@ -22,22 +22,22 @@ class HeckeField {
 private:
   int d;        // degree
   ZZX minpoly;  // irredicible poly of degree d
-  scalar denom; // minpoly is the (integral) min poly of A/denom
-  mat A;        // dxd matrix with scaled min.poly. minpoly
-  mat C;        // dxd companion matrix with min.poly. minpoly
-  mat B, Binv;  // Binv*B = Bdet*I
-  scalar Bdet;  // Binv*A*B = Bdet*denom*C
-  scalar Bfactor; // basis scale factor: cols of Binv are Bfactor * coeffs of basis w.r.t. a-powers
+  ZZ denom; // minpoly is the (integral) min poly of A/denom
+  mat_m A;        // dxd matrix with scaled min.poly. minpoly
+  mat_m C;        // dxd companion matrix with min.poly. minpoly
+  mat_m B, Binv;  // Binv*B = Bdet*I
+  ZZ Bdet;  // Binv*A*B = Bdet*denom*C
+  ZZ Bfactor; // basis scale factor: cols of Binv are Bfactor * coeffs of basis w.r.t. a-powers
 public:
   //HeckeField(const ZZX& p);
   HeckeField(); // defaults to Q
-  HeckeField(const mat& m, const scalar& den = scalar(1), int verb=0);
+  HeckeField(const mat_m& m, const ZZ& den = to_ZZ(1), int verb=0);
   HeckeField(const ZZX& p);
   int degree() const {return d;}
   ZZX poly() const {return minpoly;}
-  mat basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
-  scalar basis_factor() const {return Bfactor;}
-  mat inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
+  mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
+  ZZ basis_factor() const {return Bfactor;}
+  mat_m inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
   void display(ostream&s = cout) const;
   void display_bases(ostream&s = cout) const;
 };
@@ -63,11 +63,11 @@ public:
   // poly of Newforms's T_mat
   Newform(Newforms* x, const ZZX& f, int verbose=0);
   // eigenvalue (as coords w.r.t. basis) of a general operator on this:
-  vec eig(const matop& T, basis_type bt=basis_type::raw) const;
+  vec_m eig(const matop& T, basis_type bt=basis_type::raw) const;
   // eigenvalue of AutoHeckeOp(P) on this:
-  vec ap(Quadprime& P, basis_type bt=basis_type::raw) const;
+  vec_m ap(Quadprime& P, basis_type bt=basis_type::raw) const;
   // eigenvalue of a scalar operator
-  scalar eps(const matop& T) const;
+  ZZ eps(const matop& T) const;
 
   // output basis for the Hecke field and character
   void display(int j) const; // j is the index in the list of all newforms
@@ -75,7 +75,7 @@ public:
   ZZX poly() const {return F.poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
-  scalar basis_factor() const {return F.Bfactor;}
+  ZZ basis_factor() const {return F.Bfactor;}
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -124,7 +124,7 @@ private:
   scalar hmod, dH;
   vector<scalar> Hscales;
 
-  mat T_mat;  // matrix of splitting operator
+  mat_m T_mat;  // matrix of splitting operator
   string T_name;  // name of splitting operator
   vector<ZZX> factors; // list of multiplicity-1 irreducible factor of charpoly(T)
 
@@ -149,12 +149,11 @@ public:
   Newforms(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
-  mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
-  mat heckeop(const matop& T, int cuspidal=0, int dual=0) const;
-  mat heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  vector<vec> ap(Quadprime& P, basis_type bt=basis_type::raw);
-  vector<vec> eig(const matop& T, basis_type bt=basis_type::raw) const;
-  //  vector<scalar> eps(const matop& T) const; // T should be a scalar operator
+  mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0);
+  mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
+  mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
+  vector<vec_m> ap(Quadprime& P, basis_type bt=basis_type::raw);
+  vector<vec_m> eig(const matop& T, basis_type bt=basis_type::raw) const;
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
@@ -167,6 +166,7 @@ public:
 };
 
 // same as m.output(cout) except no newlines between rows
-void output_flat_matrix(const mat& m, ostream&s = cout);
+template<class T>
+void output_flat_matrix(const Zmat<T>& m, ostream&s = cout);
 
 #endif

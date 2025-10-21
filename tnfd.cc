@@ -103,7 +103,7 @@ int main()
          if (ip>nap)
            break;
          matop T = AutoHeckeOp(P,N);
-         vector<vec> apvec = forms.eig(T, bt);
+         vector<vec_m> apvec = forms.eig(T, bt);
          cout<<T.name() << ":\t";
          auto F = forms.newforms.begin();
          for (auto ap: apvec)
@@ -116,8 +116,8 @@ int main()
                    {
                      if (bt==basis_type::powers)
                        {
-                         scalar den = F->basis_factor();
-                         scalar g = gcd(den, content(ap));
+                         ZZ den = F->basis_factor();
+                         ZZ g = gcd(den, content(ap));
                          ap /= g;
                          den /= g;
                          if (den==1)

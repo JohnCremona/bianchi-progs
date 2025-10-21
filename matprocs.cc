@@ -23,7 +23,7 @@ string polynomial_string(const vector<ZZ>& coeffs, const string& var)
   if (std::all_of(coeffs.begin(), coeffs.end(), [](const ZZ&c){return IsZero(c);}))
     return "0";
   int d = coeffs.size()-1;
-  scalar c;
+  ZZ c;
   ostringstream s;
   if (d==0)
     {
@@ -57,7 +57,7 @@ string polynomial_string(const vector<ZZ>& coeffs, const string& var)
   return s.str();
 }
 
-string polynomial_string(const vec& coeffs, const string& var)
+string polynomial_string(const vec_m& coeffs, const string& var)
 {
   if (trivial(coeffs))
     return "0";
@@ -96,7 +96,8 @@ string polynomial_string(const ZZ_pX& p, const string& var)
   return polynomial_string(coeffs(p), var);
 }
 
-mat_ZZ mat_to_mat_ZZ(mat A)
+template<class T>
+mat_ZZ mat_to_mat_ZZ(Zmat<T> A)
 {
   int d = A.nrows();
   // copy into an NTL matrix:
@@ -107,6 +108,9 @@ mat_ZZ mat_to_mat_ZZ(mat A)
       ntl_A(i,j)=conv<ZZ>(A(i,j));
   return ntl_A;
 }
+template mat_ZZ mat_to_mat_ZZ<int>(Zmat<int> A);
+template mat_ZZ mat_to_mat_ZZ<long>(Zmat<long> A);
+template mat_ZZ mat_to_mat_ZZ<bigint>(Zmat<bigint> A);
 
 mat_ZZ_p mat_to_mat_ZZ_p(mat A)
 {
@@ -220,19 +224,24 @@ mat_ZZ evaluate(const ZZX& f, const mat_ZZ& A)
 }
 
 // evaluate f(A) (assumes f monic)
-mat evaluate(const ZZX& f, const mat& A)
+template<class T>
+mat_m evaluate(const ZZX& f, const Zmat<T>& A)
 {
   long d = deg(f);
-  mat_m mA = to_mat_m(A);
+  mat_m mA(to_mat_m(A));
   mat_m fA(mA);
   for(int i=d-1; i>=0; i--)
     {
-      fA = addscalar(fA,coeff(f,i));
+      fA = addscalar(fA, coeff(f,i));
       if(i)
         fA = fA*mA;
     }
-  return to_mat(fA);
+  return fA;
 }
+
+template mat_m evaluate<int>(const ZZX& f, const Zmat<int>& A);
+template mat_m evaluate<long>(const ZZX& f, const Zmat<long>& A);
+template mat_m evaluate<bigint>(const ZZX& f, const Zmat<bigint>& A);
 
 // p should be monic:
 mat_ZZ CompanionMatrix(const ZZX& p)
