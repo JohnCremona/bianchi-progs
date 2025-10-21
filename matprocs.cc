@@ -8,75 +8,92 @@ poly_comparison poly_cmp;
 factor_modp_comparison fact_modp_cmp;
 poly_modp_comparison poly_modp_cmp;
 
-// pretty output for integer *monic* polynomials
-string monomial_string(int i)
+// pretty output for integer polynomials
+string monomial_string(int i, const string& var)
 {
   ostringstream s;
-  if (i>0) s << "X";
+  if (i>0) s << var;
   if (i>1) s << "^" << i;
   return s.str();
 }
 
-string polynomial_string(const ZZX& p)
+string polynomial_string(const vector<ZZ>& coeffs, const string& var)
 {
-  int d = deg(p);
+  //  cout<<"\npolynomial_string("<<coeffs<<")\n";
+  if (std::all_of(coeffs.begin(), coeffs.end(), [](const ZZ&c){return IsZero(c);}))
+    return "0";
+  int d = coeffs.size()-1;
+  scalar c;
   ostringstream s;
   if (d==0)
     {
-      s << coeff(p, 0);
+      s << coeffs[0];
       return s.str();
     }
-  // Leading term:
-  s << monomial_string(d);
-  // Middle terms:
-  for (int i=d-1; i>0; i--)
+  // All non-constant terms:
+  for (int i=d; i>0; i--)
     {
-      ZZ c = coeff(p, i);
+      c = coeffs[i];
       if (c==0)
         continue;
-      if (c>1) s << " + " << c << "*";
-      else if (c==1) s << " + ";
-      else if (c==-1) s << " - ";
-      else if (c<-1) s << " - " << abs(c) << "*";
-      s << monomial_string(i);
+      if (c>1)
+        {
+          if (i<d) // no + needed on leading term
+            s << "+";
+          s << c << "*";
+        }
+      else if (c==1 && i<d) s << "+";
+      else if (c==-1) s << "-";
+      else if (c<-1) s << "-" << abs(c) << "*";
+      s << monomial_string(i, var);
+      //cout<<" - after i="<<i<<": "<<s.str()<<endl;
     }
   // Constant term:
-  ZZ c = coeff(p, 0);
-  if (c>0) s << " + " << c;
-  else if (c<0) s << " - " <<abs(c);
+  c = coeffs[0];
+  if (c>0) s << "+" << c;
+  else if (c<0) s << "-" <<abs(c);
+  //cout<<" - after i=0: "<<s.str()<<endl;
 
   return s.str();
 }
 
-string polynomial_string(const ZZ_pX& p)
+string polynomial_string(const vec& coeffs, const string& var)
+{
+  if (trivial(coeffs))
+    return "0";
+  int d = dim(coeffs); // one less than 'degree'
+  vector<ZZ> co(d);
+  for(int i=0; i<d; i++)
+    co[i] = coeffs[i+1];
+  return polynomial_string(co, var);
+}
+
+vector<ZZ> coeffs(const ZZX& p)
 {
   int d = deg(p);
-  ostringstream s;
-  if (d==0)
-    {
-      s << coeff(p, 0);
-      return s.str();
-    }
-  // Leading term:
-  s << monomial_string(d);
-  // Middle terms:
-  for (int i=d-1; i>0; i--)
-    {
-      ZZ c = rep(coeff(p, i));
-      if (c==0)
-        continue;
-      if (c>1) s << " + " << c << "*";
-      else if (c==1) s << " + ";
-      else if (c==-1) s << " - ";
-      else if (c<-1) s << " - " << abs(c) << "*";
-      s << monomial_string(i);
-    }
-  // Constant term:
-  ZZ c = rep(coeff(p, 0));
-  if (c>0) s << " + " << c;
-  else if (c<0) s << " - " <<abs(c);
+  vector<ZZ> v(d+1);
+  for(int i=0; i<=d; i++)
+    v[i] = coeff(p, i);
+  return v;
+}
 
-  return s.str();
+vector<ZZ> coeffs(const ZZ_pX& p)
+{
+  int d = deg(p);
+  vector<ZZ> v(d+1);
+  for(int i=0; i<=d; i++)
+    v[i] = rep(coeff(p, i));
+  return v;
+}
+
+string polynomial_string(const ZZX& p, const string& var)
+{
+  return polynomial_string(coeffs(p), var);
+}
+
+string polynomial_string(const ZZ_pX& p, const string& var)
+{
+  return polynomial_string(coeffs(p), var);
 }
 
 mat_ZZ mat_to_mat_ZZ(mat A)

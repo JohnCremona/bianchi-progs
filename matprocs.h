@@ -157,6 +157,11 @@ extern poly_comparison poly_cmp;
 extern factor_modp_comparison fact_modp_cmp;
 extern poly_modp_comparison poly_modp_cmp;
 
-string polynomial_string(const ZZX& p);
+vector<ZZ> coeffs(const ZZX& p);
+vector<ZZ> coeffs(const ZZ_pX& p);
+string polynomial_string(const vector<ZZ>& coeffs, const string& var="X");
+string polynomial_string(const vec& coeffs, const string& var="X");
+string polynomial_string(const ZZX& p, const string& var="X");
+string polynomial_string(const ZZ_pX& p, const string& var="X");
 
 #endif

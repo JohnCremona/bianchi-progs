@@ -14,18 +14,30 @@
 
 newform_comparison newform_cmp;
 
-// HeckeField::HeckeField(const ZZX& p)
-//   :d(degree(p))
-// {
-//   // check that p is monic and irreducible
-//   assert (IsMonic(p) && IsIrreducible(p));
-//   // Set A to be the companion matrix of p
-//   A = CompanionMatrix(p);
-// }
+HeckeField::HeckeField(const ZZX& p)
+{
+  if (IsMonic(p) && IsIrreducible(p))
+    {
+      // Set A to be the companion matrix of p.  The function
+      // CompanionMatrix(p) returns a mat_ZZ so we do this manually.
+      d = deg(p);
+      mat m(d,d);
+      scalar one(1);
+      for(int i=1; i<d; i++)
+        {
+          m(i+1,i) = one;
+          m(i,d) = scalar(-coeff(p, i-1));
+        }
+      m(d,d) = scalar(-coeff(p, d-1));
+      // Finally call the other constructor
+      *this = HeckeField(m);
+    }
+}
 
 HeckeField::HeckeField() // defaults to Q
 {
   d=1;
+  denom=1;
   A.init(1,1); // zero matrix
   B.init(1,1); // zero matrix
   C.init(1,1); // zero matrix
@@ -33,8 +45,8 @@ HeckeField::HeckeField() // defaults to Q
   Binv = B;
 }
 
-HeckeField::HeckeField(const mat& m, const scalar& denom, int verb)
-  : d(m.nrows()), A(m)
+HeckeField::HeckeField(const mat& m, const scalar& den, int verb)
+  : d(m.nrows()), denom(den), A(m)
 {
   if (verb)
     {
@@ -82,6 +94,86 @@ HeckeField::HeckeField(const mat& m, const scalar& denom, int verb)
     }
 }
 
+// Linear combinarion of n>0 matrices, all dxd
+mat lin_comb_mats(const vec& co, const vector<mat>& mats)
+{
+  int n = mats.size(), d = mats[0].nrows();
+  mat a(d,d);
+  for (int i=0; i<n; i++)
+    {
+      scalar c = co[i+1];
+      if (c!=0)
+        a += c*mats[i];
+    }
+  return a;
+}
+
+// Linear combinarion of n>0 matrices, all dxd
+mat lin_comb_mats(const vector<scalar>& co, const vector<mat>& mats)
+{
+  int n = mats.size(), d = mats[0].nrows();
+  mat a(d,d);
+  for (int i=0; i<n; i++)
+    {
+      scalar c = co[i];
+      if (c!=0)
+        a += c*mats[i];
+    }
+  return a;
+}
+
+void HeckeField::display_bases(ostream&s) const
+{
+  mat I(mat::identity_matrix(d));
+
+  s << "Powers of A (i.e. powers of alpha in A-embedding):\n";
+  vector<mat> Apowers(d);
+  Apowers[0] = I;
+  for (int i=1; i<d; i++)
+    Apowers[i] = A*Apowers[i-1];
+  for (auto Apow: Apowers)
+    {
+      Apow.output(s);
+      s<<endl;
+      s<<endl;
+    }
+  scalar fac = pow(denom, d-1) * Bfactor;
+  s << "Basis in A-embedding, scaled by "<< fac <<":\n";
+  s << "(first columns should be standard basis vectors * "<< (fac/denom) <<")\n";
+  for(int i=1; i<=d; i++)
+    {
+      vec coli = Binv.col(i);
+      for(int j=1; j<=d; j++)
+        coli[j] *= pow(denom, d-j);
+      mat M = lin_comb_mats(coli, Apowers);
+      M.output(s);
+      s<<endl;
+      s<<endl;
+      assert (denom*M.col(1)==fac*I.col(i));
+    }
+  s << "Powers of C (i.e. powers of alpha in C-embedding):\n";
+  vector<mat> Cpowers(d);
+  Cpowers[0] = I;
+  for (int i=1; i<d; i++)
+    Cpowers[i] = C*Cpowers[i-1];
+  for (auto Cpow: Cpowers)
+    {
+      Cpow.output(s);
+      s<<endl;
+      s<<endl;
+    }
+  s << "Basis in C-embedding, scaled by "<<Bfactor<<":\n";
+  s << "(first columns should be columns of basis())\n";
+  for(int i=1; i<=d; i++)
+    {
+      mat M = lin_comb_mats(Binv.col(i), Cpowers);
+      M.output(s);
+      s<<endl;
+      s<<endl;
+      assert (M.col(1) == Binv.col(i));
+    }
+}
+
 void HeckeField::display(ostream&s) const
 {
   string fpol = polynomial_string(minpoly);
@@ -90,14 +182,22 @@ void HeckeField::display(ostream&s) const
       s << "Q" << endl;
       return;
     }
-  s << "Q(alpha) with defining polynomial "<< fpol <<" of degree "<<d;
+  s << "Q(a) with defining polynomial "<< fpol <<" of degree "<<d;
   if (d==2)
     s << ", discriminant "<<discriminant(minpoly);
   s << endl;
-  s << "   Basis with respect to alpha-power basis:\n   ";
+  s << "   Raw basis with respect to alpha-power basis:\n   ";
+  s<<"[";
+  for(int i=1; i<=d; i++)
+    {
+      if(i>1) s << ", ";
+      s << polynomial_string(Binv.col(i), "a");
+    }
+  s<<"]";
+  // s<<"\t";
+  // output_flat_matrix(transpose(Binv), s);
   if (Bfactor != scalar(1))
-    s << "(1/" << Bfactor << ") * ";
-  output_flat_matrix(transpose(Binv), s);
+    s << " / " << Bfactor;
   s<<endl;
 }
 
@@ -172,6 +272,8 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
     {
       cout <<"Hecke field data:" << endl;
       F.display();
+      if (verbose>1)
+        F.display_bases();
     }
 
   // Compute character values
@@ -219,6 +321,36 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
 int Newform::trivial_char() // 1 iff all  unramified quadratic character values (if any) are +1
 {
   return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
+}
+
+vec Newform::eig(const matop& T, basis_type bt) const
+{
+  nf->H1->projcoord = projcoord;
+  vec ap = nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
+  // if the Hecke field is Q we apply the scale factor here (if any)
+  // as we don't want to display a basis.
+  if (d==1 && F.Bfactor != 1)
+    {
+      ap /= F.Bfactor;
+    }
+  if (bt==basis_type::powers)
+    {
+      // cout << "Changing basis for eig of " << T.name() << endl;
+      // cout << "Before: " << ap << endl;
+      ap = F.Binv * ap;
+      // cout << "After:  " << ap << endl;
+    }
+  return ap;
+}
+
+vec Newform::ap(Quadprime& P, basis_type bt) const
+{
+  return eig(AutoHeckeOp(P,nf->N), bt);
+}
+
+scalar Newform::eps(const matop& T) const // T should be a scalar
+{
+  return eig(T)[1]/denom_abs;
 }
 
 Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
@@ -363,40 +495,17 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
-vec Newform::eig(const matop& T) const
-{
-  nf->H1->projcoord = projcoord;
-  vec ap = nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1); // 1: proj to S
-  // if the Hecke field is Q we apply the scale factor here (if any)
-  // as we don't want to display a basis.
-  if (d==1 && F.basis_factor() != 1)
-    {
-      ap /= F.basis_factor();
-    }
-  return ap;
-}
-
-vec Newform::ap(Quadprime& P) const
-{
-  return eig(AutoHeckeOp(P,nf->N));
-}
-
-scalar Newform::eps(const matop& T) const // T should be a scalar
-{
-  return eig(T)[1]/denom_abs;
-}
-
-vector<vec> Newforms::eig(const matop& T) const
+vector<vec> Newforms::eig(const matop& T, basis_type bt) const
 {
   vector<vec> ans(newforms.size());
   std::transform(newforms.begin(), newforms.end(), ans.begin(),
-                 [T](const Newform f){return f.eig(T);});
+                 [T, bt](const Newform f){return f.eig(T, bt);});
   return ans;
 }
 
-vector<vec> Newforms::ap(Quadprime& P)
+vector<vec> Newforms::ap(Quadprime& P, basis_type bt)
 {
-  return eig(AutoHeckeOp(P,N));
+  return eig(AutoHeckeOp(P,N), bt);
 }
 
 // output basis for the Hecke field and character of one newform

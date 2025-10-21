@@ -90,7 +90,10 @@ int main()
          cout << "No newforms have trivial character"<<endl;
          continue;
        }
-     cout << "Hecke eigenvalues:" << endl;
+     //basis_type bt = basis_type::raw;
+     basis_type bt = basis_type::powers;
+     string bts = (bt==basis_type::powers? "power" : "raw");
+     cout << "Hecke eigenvalues (with respect to " << bts << " basis):" << endl;
      int ip = 0;
      for ( auto& P : Quadprimes::list)
        {
@@ -100,7 +103,7 @@ int main()
          if (ip>nap)
            break;
          matop T = AutoHeckeOp(P,N);
-         vector<vec> apvec = forms.eig(T);
+         vector<vec> apvec = forms.eig(T, bt);
          cout<<T.name() << ":\t";
          auto F = forms.newforms.begin();
          for (auto ap: apvec)
@@ -110,7 +113,25 @@ int main()
                  if (dim(ap)==1)
                    cout << ap[1];
                  else
-                   cout << ap;
+                   {
+                     if (bt==basis_type::powers)
+                       {
+                         scalar den = F->basis_factor();
+                         scalar g = gcd(den, content(ap));
+                         ap /= g;
+                         den /= g;
+                         if (den==1)
+                           cout <<
+                             //ap<<"="<<
+                             polynomial_string(ap, "a");
+                         else
+                           cout <<
+                             //ap<<"="<<
+                             "(" << polynomial_string(ap, "a") << ")/" << den;
+                       }
+                           else
+                             cout<<ap;
+                   }
                  cout << "\t";
                }
              ++F;

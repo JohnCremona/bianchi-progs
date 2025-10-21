@@ -11,10 +11,14 @@
 #include "matprocs.h"
 #include "homspace.h"
 
+class HeckeField;
 class HeckeFieldElement;
+class Newform;
+class Newforms;
 
 class HeckeField {
   friend class HeckeFieldElement;
+  friend class Newform;
 private:
   int d;        // degree
   ZZX minpoly;  // irredicible poly of degree d
@@ -27,16 +31,18 @@ private:
 public:
   //HeckeField(const ZZX& p);
   HeckeField(); // defaults to Q
-  HeckeField(const mat& m, const scalar& denom = scalar(1), int verb=0);
+  HeckeField(const mat& m, const scalar& den = scalar(1), int verb=0);
+  HeckeField(const ZZX& p);
   int degree() const {return d;}
   ZZX poly() const {return minpoly;}
   mat basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
   scalar basis_factor() const {return Bfactor;}
   mat inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
   void display(ostream&s = cout) const;
+  void display_bases(ostream&s = cout) const;
 };
 
-class Newforms;
+enum class basis_type {raw, powers};
 
 // class for a d-dimensional newform, defined by an irreducible factor
 // of the characteristic polynomial of some splitting operator T
@@ -57,9 +63,9 @@ public:
   // poly of Newforms's T_mat
   Newform(Newforms* x, const ZZX& f, int verbose=0);
   // eigenvalue (as coords w.r.t. basis) of a general operator on this:
-  vec eig(const matop& T) const;
+  vec eig(const matop& T, basis_type bt=basis_type::raw) const;
   // eigenvalue of AutoHeckeOp(P) on this:
-  vec ap(Quadprime& P) const;
+  vec ap(Quadprime& P, basis_type bt=basis_type::raw) const;
   // eigenvalue of a scalar operator
   scalar eps(const matop& T) const;
 
@@ -69,6 +75,7 @@ public:
   ZZX poly() const {return F.poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
+  scalar basis_factor() const {return F.Bfactor;}
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -145,8 +152,8 @@ public:
   mat heckeop(Quadprime& P, int cuspidal=0, int dual=0);
   mat heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  vector<vec> ap(Quadprime& P);
-  vector<vec> eig(const matop& T) const;
+  vector<vec> ap(Quadprime& P, basis_type bt=basis_type::raw);
+  vector<vec> eig(const matop& T, basis_type bt=basis_type::raw) const;
   //  vector<scalar> eps(const matop& T) const; // T should be a scalar operator
 
   int ok() const {return split_ok;}
