@@ -1,47 +1,15 @@
 // File NFD.H: class for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
-//
-// Adapted from the similar class (over Q) in eclib
-//
-//////////////////////////////////////////////////////////////////////////
 
 #ifndef _BIANCHI_NFD_H
 #define _BIANCHI_NFD_H      1
 
 #include "matprocs.h"
 #include "homspace.h"
+#include "heckefield.h"
 
-class HeckeField;
-class HeckeFieldElement;
 class Newform;
 class Newforms;
-
-class HeckeField {
-  friend class HeckeFieldElement;
-  friend class Newform;
-private:
-  int d;        // degree
-  ZZX minpoly;  // irredicible poly of degree d
-  ZZ denom; // minpoly is the (integral) min poly of A/denom
-  mat_m A;        // dxd matrix with scaled min.poly. minpoly
-  mat_m C;        // dxd companion matrix with min.poly. minpoly
-  mat_m B, Binv;  // Binv*B = Bdet*I
-  ZZ Bdet;  // Binv*A*B = Bdet*denom*C
-  ZZ Bfactor; // basis scale factor: cols of Binv are Bfactor * coeffs of basis w.r.t. a-powers
-public:
-  //HeckeField(const ZZX& p);
-  HeckeField(); // defaults to Q
-  HeckeField(const mat_m& m, const ZZ& den = to_ZZ(1), int verb=0);
-  HeckeField(const ZZX& p);
-  int degree() const {return d;}
-  ZZX poly() const {return minpoly;}
-  mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
-  ZZ basis_factor() const {return Bfactor;}
-  mat_m inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
-  void display(ostream&s = cout) const;
-  void display_bases(ostream&s = cout) const;
-};
-
 enum class basis_type {raw, powers};
 
 // class for a d-dimensional newform, defined by an irreducible factor
@@ -62,10 +30,10 @@ public:
   // constructor from ambient Newforms using one irreducibel factor of char
   // poly of Newforms's T_mat
   Newform(Newforms* x, const ZZX& f, int verbose=0);
-  // eigenvalue (as coords w.r.t. basis) of a general operator on this:
-  vec_m eig(const matop& T, basis_type bt=basis_type::raw) const;
+  // eigenvalue in F of a general principal operator on this:
+  HeckeFieldElement eig(const matop& T) const;
   // eigenvalue of AutoHeckeOp(P) on this:
-  vec_m ap(Quadprime& P, basis_type bt=basis_type::raw) const;
+  HeckeFieldElement ap(Quadprime& P) const;
   // eigenvalue of a scalar operator
   ZZ eps(const matop& T) const;
 
@@ -75,7 +43,7 @@ public:
   ZZX poly() const {return F.poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
-  ZZ basis_factor() const {return F.Bfactor;}
+  ZZ basis_factor() const {return F.Bdet;}
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -152,8 +120,8 @@ public:
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0);
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  vector<vec_m> ap(Quadprime& P, basis_type bt=basis_type::raw);
-  vector<vec_m> eig(const matop& T, basis_type bt=basis_type::raw) const;
+  vector<HeckeFieldElement> ap(Quadprime& P);
+  vector<HeckeFieldElement> eig(const matop& T) const;
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
@@ -164,9 +132,5 @@ public:
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
 };
-
-// same as m.output(cout) except no newlines between rows
-template<class T>
-void output_flat_matrix(const Zmat<T>& m, ostream&s = cout);
 
 #endif

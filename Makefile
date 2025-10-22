@@ -7,7 +7,7 @@
 # here. (2) If BOOST is installed, make sure that Makefile.local sets
 # USE_BOOST=1 in Makeifle.local.
 
-SCALAR_OPTION ?= 1
+SCALAR_OPTION ?= 3
 
 include Makefile.local
 
@@ -74,7 +74,7 @@ all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc # euclid.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc heckefield.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -83,10 +83,10 @@ ccs6: hecketest_modp.cc newhecke_modp.cc dimtable_modp.cc makenf_modp.cc nflist_
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
-Q_headers: eclib.h real.h intprocs.h matprocs.h
+Q_headers: eclib.h real.h intprocs.h matprocs.h pari_snf.h flint_snf.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
- qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h # euclid.h
-swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h pari_snf.h flint_snf.h
+ qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h heckefield.h
+swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
 headers: Q_headers quad_headers swan_headers
 
 #####################################################################################################
@@ -116,7 +116,7 @@ sources: ccs headers Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -313,14 +313,14 @@ newhecke: newhecke.o $(OBJS)
 newhecke_modp: newhecke_modp.o $(OBJS)
 	$(CC) -o newhecke_modp newhecke_modp.o $(OBJS) $(LFLAGS)
 
-tnfd: tnfd.o nfd.o $(OBJS)
-	$(CC) -o tnfd tnfd.o nfd.o $(OBJS) $(LFLAGS)
+tnfd: tnfd.o nfd.o heckefield.o $(OBJS)
+	$(CC) -o tnfd tnfd.o nfd.o heckefield.o $(OBJS) $(LFLAGS)
 
-tnfd_loop.o:   tnfd.cc nfd.h
+tnfd_loop.o:   tnfd.cc nfd.h heckefield.h
 	$(CC) -DLOOPER $(CFLAGS) tnfd.cc -o tnfd_loop.o
 
-tnfd_loop: tnfd_loop.o nfd.o $(OBJS)
-	$(CC) -o tnfd_loop tnfd_loop.o nfd.o $(OBJS) $(LFLAGS)
+tnfd_loop: tnfd_loop.o nfd.o heckefield.o $(OBJS)
+	$(CC) -o tnfd_loop tnfd_loop.o nfd.o heckefield.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)

@@ -279,6 +279,63 @@ int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& mo
   return std::all_of(Blist.begin(), Blist.end(), [A, modulus] (const mat_ZZ& B) {return commute(A,B,modulus);});
 }
 
+// Linear combinarion of n>0 matrices, all dxd
+mat_m lin_comb_mats(const vec_m& co, const vector<mat_m>& mats)
+{
+  int n = mats.size(), d = mats[0].nrows();
+  mat_m a(d,d);
+  for (int i=0; i<n; i++)
+    {
+      ZZ c = co[i+1];
+      if (c!=0)
+        a += c*mats[i];
+    }
+  return a;
+}
+
+// Linear combinarion of n>0 matrices, all dxd
+mat_m lin_comb_mats(const vector<ZZ>& co, const vector<mat_m>& mats)
+{
+  int n = mats.size(), d = mats[0].nrows();
+  mat_m a(d,d);
+  for (int i=0; i<n; i++)
+    {
+      ZZ c = co[i];
+      if (c!=0)
+        a += c*mats[i];
+    }
+  return a;
+}
+
+// same as m.output(cout) except no newlines between rows
+template<class T>
+void output_flat_matrix(const Zmat<T>& m, ostream&s)
+{
+  vector<T> entries = m.get_entries();
+  auto mij = entries.begin();
+  s << "[";
+  long nr = m.nrows();
+  while(nr--)
+    {
+      long nc = m.ncols();
+      s<<"[";
+      while(nc--)
+        {
+          s<<(*mij++);
+          if(nc)
+            s<<",";
+        }
+      s<<"]";
+      if(nr)
+        s<<",";
+    }
+  s << "]";
+}
+
+template void output_flat_matrix<int>(const Zmat<int>& m, ostream&s);
+template void output_flat_matrix<long>(const Zmat<long>& m, ostream&s);
+template void output_flat_matrix<bigint>(const Zmat<bigint>& m, ostream&s);
+
 // display factors of a polynomaial:
 void display_factor(const pair_ZZX_long& f)
 {

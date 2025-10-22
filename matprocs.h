@@ -81,6 +81,15 @@ long rank(mat_ZZ A);
 // nullity of an NTL matrix:
 long nullity(mat_ZZ A);
 
+// Linear combinarion of n>0 matrices, all dxd
+mat_m lin_comb_mats(const vec_m& co, const vector<mat_m>& mats);
+// Linear combinarion of n>0 matrices, all dxd
+mat_m lin_comb_mats(const vector<ZZ>& co, const vector<mat_m>& mats);
+
+// same as m.output(cout) except no newlines between rows
+template<class T>
+void output_flat_matrix(const Zmat<T>& m, ostream&s = cout);
+
 // function to sort factorizations (lists of (factor,exponent) pairs),
 // first by degree of factor then exponent of factor then
 // lexicographically
