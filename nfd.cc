@@ -15,8 +15,8 @@
 
 newform_comparison newform_cmp;
 
-Newform::Newform(Newforms* x, const ZZX& f, int verbose)
-  :nf(x)
+Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
+  :nf(x), index(ind)
 {
   d = deg(f);
   string fstring = polynomial_string(f);
@@ -81,7 +81,7 @@ Newform::Newform(Newforms* x, const ZZX& f, int verbose)
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  F = HeckeField(mA, to_ZZ(denom_abs), verbose>1);
+  F = HeckeField(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
 
   if (verbose)
     {
@@ -138,7 +138,7 @@ int Newform::trivial_char() // 1 iff all  unramified quadratic character values 
   return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
 }
 
-HeckeFieldElement Newform::eig(const matop& T) const
+HeckeFieldElement Newform::eig(const matop& T)
 {
   nf->H1->projcoord = projcoord;
   //  cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
@@ -146,16 +146,16 @@ HeckeFieldElement Newform::eig(const matop& T) const
   //  cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
   HeckeFieldElement ap(&F, apv, one, 1); // raw=1
-  //  cout << "ap = " << ap << endl;
+  // cout << "ap = " << ap << endl;
   return ap;
 }
 
-HeckeFieldElement Newform::ap(Quadprime& P) const
+HeckeFieldElement Newform::ap(Quadprime& P)
 {
   return eig(AutoHeckeOp(P,nf->N));
 }
 
-ZZ Newform::eps(const matop& T) const // T should be a scalar
+ZZ Newform::eps(const matop& T) // T should be a scalar
 {
   // nf->H1->projcoord = projcoord;
   // cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
@@ -202,8 +202,14 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
   find_T(maxnp, maxc);
   // Construct the newforms if that succeeded
   if (split_ok)
-    for (auto f: factors)
-      newforms.push_back(Newform(this, f, verbose));
+    {
+      int i=1;
+      for (auto f: factors)
+        {
+          newforms.push_back(Newform(this, i, f, verbose));
+          ++i;
+        }
+    }
   else
     // abort if not
     cout << "Unable to find a suitable splitting operator!" << endl;
@@ -312,24 +318,24 @@ void Newforms::find_T(int maxnp, int maxc)
 }
 
 // NB the returned vector consists of HeckeFieldElements in different fields
-vector<HeckeFieldElement> Newforms::eig(const matop& T) const
-{
-  vector<HeckeFieldElement> ans;
-  std::transform(newforms.begin(), newforms.end(), std::inserter(ans,ans.end()),
-                 [T](const Newform f){return f.eig(T);});
-  return ans;
-}
+// vector<HeckeFieldElement> Newforms::eig(const matop& T) const
+// {
+//   vector<HeckeFieldElement> eiglist;
+//   std::transform(newforms.begin(), newforms.end(), std::inserter(eiglist,eiglist.end()),
+//                  [T](Newform f){return f.eig(T);});
+//   return eiglist;
+// }
 
-vector<HeckeFieldElement> Newforms::ap(Quadprime& P)
-{
-  return eig(AutoHeckeOp(P,N));
-}
+// vector<HeckeFieldElement> Newforms::ap(Quadprime& P)
+// {
+//   return eig(AutoHeckeOp(P,N));
+// }
 
 // output basis for the Hecke field and character of one newform
-void Newform::display(int j) const
+void Newform::display()
 {
   int n2r = Quad::class_group_2_rank;
-  cout << "Newform " << j << endl;
+  cout << "Newform " << index << " (" << F.var << ")" << endl;
   if (n2r==1)
     cout << " - Genus character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
   if (n2r>1)
@@ -342,15 +348,13 @@ void Newform::display(int j) const
 // output basis for the Hecke field and character of all newforms
 void Newforms::display_newforms(int triv_char_only) const
 {
-  int j=1;
   for ( auto F : newforms)
     {
       if ((!triv_char_only) || F.trivial_char())
         {
-          F.display(j);
+          F.display();
           cout<<endl;
         }
-      j++;
     }
 }
 

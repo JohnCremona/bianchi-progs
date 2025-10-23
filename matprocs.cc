@@ -189,6 +189,14 @@ int IsIrreducible(const ZZX& f)
   return factors.length()==1;
 }
 
+// compute char poly of A:
+ZZX charpoly(const mat_ZZ& A)
+{
+  ZZX charpol;
+  CharPoly(charpol, A);
+  return charpol;
+}
+
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)
 {
   ZZX charpol;
@@ -335,6 +343,17 @@ void output_flat_matrix(const Zmat<T>& m, ostream&s)
 template void output_flat_matrix<int>(const Zmat<int>& m, ostream&s);
 template void output_flat_matrix<long>(const Zmat<long>& m, ostream&s);
 template void output_flat_matrix<bigint>(const Zmat<bigint>& m, ostream&s);
+
+// factor a primitive (e.g. monic) polynomial
+vec_pair_ZZX_long factor(const ZZX& f)
+{
+  vec_pair_ZZX_long factors;
+  ZZ cont;
+  factor(cont,factors,f);
+  ::sort(factors.begin(), factors.end(), fact_cmp);
+  return factors;
+}
+
 
 // display factors of a polynomaial:
 void display_factor(const pair_ZZX_long& f)

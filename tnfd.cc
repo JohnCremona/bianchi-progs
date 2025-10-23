@@ -25,6 +25,11 @@ int main()
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;
   cin >> d;
+  if (d<1)
+    {
+      cout << "Field parameter d must be positive for Q(sqrt(-d))" << endl;
+      exit(0);
+    }
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
   //int n2r = Quad::class_group_2_rank;
@@ -91,7 +96,16 @@ int main()
          cout << "No newforms have trivial character"<<endl;
          continue;
        }
-     cout << "Hecke eigenvalues:" << endl;
+     cout << "Hecke eigenvalues:\t";
+     for (auto F: forms.newforms)
+       {
+         if ((!triv_char_only) || F.trivial_char())
+           {
+             cout << F.var() << "\t";
+           }
+       }
+     cout<<endl;
+
      int ip = 0;
      for ( auto& P : Quadprimes::list)
        {
@@ -101,16 +115,13 @@ int main()
          if (ip>nap)
            break;
          matop T = AutoHeckeOp(P,N);
-         vector<HeckeFieldElement> apvec = forms.eig(T);
-         cout<<T.name() << ":\t";
-         auto F = forms.newforms.begin();
-         for (auto ap: apvec)
+         cout<<T.name() << ":\t" << flush;
+         for (auto F: forms.newforms)
            {
-             if ((!triv_char_only) || F->trivial_char())
+             if ((!triv_char_only) || F.trivial_char())
                {
-                 cout << ap << "\t";
+                 cout << F.eig(T) << "\t";
                }
-             ++F;
            }
          cout<<endl;
        } // end of prime loop

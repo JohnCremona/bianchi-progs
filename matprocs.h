@@ -45,6 +45,12 @@ int IsIrreducible(const ZZX& f);
 // Squarefree test
 int IsSquareFree(const ZZX& f);
 
+// compute char poly of A:
+ZZX charpoly(const mat_ZZ& A);
+
+// compute char poly of A:
+inline ZZX charpoly(const mat_m& A) {return charpoly(mat_to_mat_ZZ(A));}
+
 // compute char poly of A/den mod m:
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den = to_ZZ(1), const scalar& m = scalar(0));
 
@@ -68,6 +74,9 @@ int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& m);
 
 // check that a matrix commutes (modulo m, if m!=0) with all those in a list:
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& m);
+
+// factor a primitive (e.g. monic) polynomial
+vec_pair_ZZX_long factor(const ZZX& f);
 
 // display factors of a polynomial:
 void display_factors(const ZZX& f);

@@ -17,6 +17,7 @@ enum class basis_type {raw, powers};
 class Newform {
 private:
   Newforms* nf;    // pointer to "parent" class holding global info
+  int index;       // index (starting from 1) of this newforms in the list of all
   int d;      // dim(S)
   HeckeField F;
   subspace S; // irreducible subspace of modular symbol space
@@ -29,16 +30,18 @@ private:
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
   // poly of Newforms's T_mat
-  Newform(Newforms* x, const ZZX& f, int verbose=0);
+  Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
   // eigenvalue in F of a general principal operator on this:
-  HeckeFieldElement eig(const matop& T) const;
+  HeckeFieldElement eig(const matop& T);
   // eigenvalue of AutoHeckeOp(P) on this:
-  HeckeFieldElement ap(Quadprime& P) const;
+  HeckeFieldElement ap(Quadprime& P);
   // eigenvalue of a scalar operator
-  ZZ eps(const matop& T) const;
+  ZZ eps(const matop& T);
 
   // output basis for the Hecke field and character
-  void display(int j) const; // j is the index in the list of all newforms
+  HeckeField field() const {return F;}
+  string var() const {return F.var;}
+  void display();
   int dimension() const {return d;}
   ZZX poly() const {return F.poly();}
   vector<int> character() const {return epsvec;}
@@ -117,11 +120,11 @@ public:
   Newforms(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
-  mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0);
+  mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  vector<HeckeFieldElement> ap(Quadprime& P);
-  vector<HeckeFieldElement> eig(const matop& T) const;
+  // vector<HeckeFieldElement> ap(Quadprime& P); // not const as may add info into N
+  // vector<HeckeFieldElement> eig(const matop& T) const;
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
