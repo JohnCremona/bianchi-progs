@@ -80,7 +80,8 @@ int main()
               << endl;
          continue; // to next level
        }
-     cout << "Splitting using " << forms.splitopname() << endl;
+     if (verbose)
+       cout << "Splitting using " << forms.splitopname() << endl;
      int nnf = forms.nforms();
      cout << "Found " << nnf << " newforms";
      if (nnf)
@@ -88,13 +89,20 @@ int main()
      cout << endl;
      if (!nnf)
        continue;
-     forms.display_newforms(triv_char_only);
      int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),
                                        [](Newform F){return F.trivial_char()==1;});
      if (triv_char_only&& nnf_triv_char==0)
        {
          cout << "No newforms have trivial character"<<endl;
          continue;
+       }
+     else
+       {
+         cout << "Newform data";
+         if (triv_char_only)
+           cout << " (only listing newforms with trivial character)";
+         cout << endl;
+         forms.display_newforms(triv_char_only);
        }
      cout << "Hecke eigenvalues:\t";
      for (auto F: forms.newforms)
