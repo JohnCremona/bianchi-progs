@@ -54,6 +54,17 @@ inline ZZX charpoly(const mat_m& A) {return charpoly(mat_to_mat_ZZ(A));}
 // compute char poly of A/den mod m:
 ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den = to_ZZ(1), const scalar& m = scalar(0));
 
+// return f(X^2)
+ZZX XtoX2(const ZZX& f);
+
+// write f(x) = f0(X^2)+X*f1(X^2)
+void parity_split(const ZZX& f, ZZX& f0, ZZX& f1);
+
+// assuming f irreducible:
+// return 0 if f(x^2) is irreducible; else
+// return 1 and set g where f(x^2)=g(x)g(-x) (*-1 if degree odd)
+int is_square(const ZZX& f, ZZX& g);
+
 // return A mod m (or just A if m==0)
 mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m);
 

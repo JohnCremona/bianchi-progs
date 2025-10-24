@@ -66,17 +66,44 @@ public:
   mat_m matrix() const; // ignores denom
   ZZX charpoly() const {return ::charpoly(matrix());}
   ZZX minpoly() const;
+  int degree() const {return deg(minpoly());}
   int is_zero() const;
   int is_one() const;
   int is_minus_one() const;
+  int is_generator() const {return degree()==F->d;}
   int operator==(const HeckeFieldElement& b) const;
+
   HeckeFieldElement operator+(const HeckeFieldElement& b) const; // add
+  void operator+=(const HeckeFieldElement& b); // add b to this
+  void operator+=(const ZZ& b) { operator+=(HeckeFieldElement(F,b));} // add b
+
   HeckeFieldElement operator-(const HeckeFieldElement& b) const; // subtract
+  void operator-=(const HeckeFieldElement& b); // subtract b from this
+  void operator-=(const ZZ& b) { operator-=(HeckeFieldElement(F,b));} // subtract b
   HeckeFieldElement operator-() const;                           // unary minus
+
   HeckeFieldElement operator*(const HeckeFieldElement& b) const; // product
+  void operator*=(const HeckeFieldElement& b); // multiply by b
+  void operator*=(const ZZ& b) { operator*=(HeckeFieldElement(F,b));} // multiply by b
+
   HeckeFieldElement inverse() const; // raise error if zero      // inverse
   HeckeFieldElement operator/(const HeckeFieldElement& b) const; // divide (raise error if b is zero)
+  void operator/=(const HeckeFieldElement& b);                        // divide by b
+  void operator/=(const ZZ& b) { operator/=(HeckeFieldElement(F,b));} // divide by b
+
+  // NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
+  // The first function only applies when a has maximal degree:
+  // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
+  int is_absolute_square(HeckeFieldElement& r)  const;
+  // Same as above if the min poly is known
+  int is_absolute_square(HeckeFieldElement& r, const ZZX& minpol)  const;
+  // The second function applies in general: return 1 and r
+  // s.t. r^2=this, with deg(r)=degree(), else 0. Here, ntries is the
+  // number of squares this is multiplied by to get odd co-degree.
+  int is_square(HeckeFieldElement& r, int ntries=100) const;
 };
+
+HeckeFieldElement evaluate(const ZZX& f, const HeckeFieldElement a);
 
 inline ostream& operator<<(ostream& s, const HeckeFieldElement& x)
 { s << x.str(); return s;}

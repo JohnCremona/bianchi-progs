@@ -128,7 +128,15 @@ int main()
            {
              if ((!triv_char_only) || F.trivial_char())
                {
-                 cout << F.eig(T) << "\t";
+                 HeckeFieldElement ap = F.eig(T), r(F.field().zero());
+                 cout << ap << "\t";
+#if(0)
+                 if (ap.is_square(r))
+                   cout << "[square]\t";
+                 else
+                   cout << "[non-square]\t";
+                 assert ((ap*ap).is_square(r) && ((ap==r)||(ap==-r)));
+#endif
                }
            }
          cout<<endl;

@@ -283,6 +283,19 @@ ZZX HeckeFieldElement::minpoly() const
   return factor(charpoly())[0].a;
 }
 
+// add b to this
+void HeckeFieldElement::operator+=(const HeckeFieldElement& b)
+{
+  if (F!=b.F)
+    {
+      cerr << "Attempt to add elements of different fields!" << endl;
+      exit(1);
+    }
+  coords = b.denom*coords + denom*b.coords;
+  denom *= b.denom;
+  cancel();
+}
+
 HeckeFieldElement HeckeFieldElement::operator+(const HeckeFieldElement& b) const
 {
   if (F!=b.F)
@@ -290,12 +303,27 @@ HeckeFieldElement HeckeFieldElement::operator+(const HeckeFieldElement& b) const
       cerr << "Attempt to add elements of different fields!" << endl;
       exit(1);
     }
-  return HeckeFieldElement(F, b.denom*coords + denom*b.coords, denom*b.denom);
+  HeckeFieldElement a = *this;
+  a += b;
+  return a;
 }
 
 HeckeFieldElement HeckeFieldElement::operator-() const
 {
   return HeckeFieldElement(F, -coords, denom);
+}
+
+// subtract b
+void HeckeFieldElement::operator-=(const HeckeFieldElement& b)
+{
+  if (F!=b.F)
+    {
+      cerr << "Attempt to subtract elements of different fields!" << endl;
+      exit(1);
+    }
+  coords = b.denom*coords - denom*b.coords;
+  denom *= b.denom;
+  cancel();
 }
 
 HeckeFieldElement HeckeFieldElement::operator-(const HeckeFieldElement& b) const
@@ -305,7 +333,21 @@ HeckeFieldElement HeckeFieldElement::operator-(const HeckeFieldElement& b) const
       cerr << "Attempt to subtract elements of different fields!" << endl;
       exit(1);
     }
-  return HeckeFieldElement(F, b.denom*coords - denom*b.coords, denom*b.denom);
+  HeckeFieldElement a = *this;
+  a -= b;
+  return a;
+}
+
+void HeckeFieldElement::operator*=(const HeckeFieldElement& b) // multiply by b
+{
+  if (F!=b.F)
+    {
+      cerr << "Attempt to multiply elements of different fields!" << endl;
+      exit(1);
+    }
+  coords = (matrix()*b.matrix()).col(1);
+  denom *= b.denom;
+  cancel();
 }
 
 HeckeFieldElement HeckeFieldElement::operator*(const HeckeFieldElement& b) const
@@ -315,7 +357,9 @@ HeckeFieldElement HeckeFieldElement::operator*(const HeckeFieldElement& b) const
       cerr << "Attempt to multiply elements of different fields!" << endl;
       exit(1);
     }
-  return HeckeFieldElement(F, (matrix()*b.matrix()).col(1), denom*b.denom);
+  HeckeFieldElement a = *this;
+  a *= b;
+  return a;
 }
 
 HeckeFieldElement HeckeFieldElement::inverse() const // raise error if zero
@@ -332,6 +376,21 @@ HeckeFieldElement HeckeFieldElement::inverse() const // raise error if zero
   return ans;
 }
 
+void HeckeFieldElement::operator/=(const HeckeFieldElement& b)      // divide by b
+{
+  if (b.is_zero())
+    {
+      cerr << "Attempt to divide by zero!" << endl;
+      exit(1);
+    }
+  if (F!=b.F)
+    {
+      cerr << "Attempt to divide elements of different fields!" << endl;
+      exit(1);
+    }
+  operator*=(b.inverse());
+}
+
 HeckeFieldElement HeckeFieldElement::operator/(const HeckeFieldElement& b) const // raise error if b is zero
 {
   if (b.is_zero())
@@ -344,5 +403,97 @@ HeckeFieldElement HeckeFieldElement::operator/(const HeckeFieldElement& b) const
       cerr << "Attempt to divide elements of different fields!" << endl;
       exit(1);
     }
-  return operator*(b.inverse());
+  HeckeFieldElement a = *this;
+  a /= b;
+  return a;
+}
+
+HeckeFieldElement evaluate(const ZZX& f, const HeckeFieldElement a)
+{
+  long d = deg(f);
+  HeckeFieldElement fa = a;
+  fa *= coeff(f,d);
+  for(int i=d-1; i>=0; i--)
+    {
+      fa += coeff(f,i);
+      if(i)
+        fa *= a;
+    }
+  return fa;
+
+}
+
+// NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
+// The first function only applies when a has maximal degree:
+// return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
+int HeckeFieldElement::is_absolute_square(HeckeFieldElement& r) const
+{
+  return is_absolute_square(r, minpoly());
+}
+
+// Same as above if the min poly is known
+int HeckeFieldElement::is_absolute_square(HeckeFieldElement& r, const ZZX& minpol)  const
+{
+  ZZX g, g0, g1;
+  if (::is_square(minpol, g))
+    {
+      parity_split(g, g0, g1);
+      // Now 0 = g(r) = g0(a)+r*g1(a) and g1(a)!=0
+      r = - evaluate(g0,*this)/evaluate(g1,*this);
+      if (r*r== *this)
+        return 1;
+      else
+        {
+          cout << (*this) << " has min poly " << polynomial_string(minpol) << " whose double has factor "
+               << polynomial_string(g)
+               << " with even part g0 = " << polynomial_string(g0)
+               << " and odd part g1 = " << polynomial_string(g1) << endl;
+          cout << "These evaluate to " << evaluate(g0,*this) << " and " << evaluate(g1,*this)
+               << " with negative quotient r = " << r
+               << " but r*r = " << r*r << endl;
+          return 0;
+        }
+    }
+  return 0;
+}
+
+// The second function applies in general:
+// return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
+int HeckeFieldElement::is_square(HeckeFieldElement& r, int ntries) const
+{
+  if (is_zero() || is_one())
+    {
+      r = *this;
+      return 1;
+    }
+  // If this has full degree, or if the relative degree is odd, just
+  // call is_absolute_square()
+  ZZX m = minpoly();
+  if (((F->d)/deg(m))%2)
+    {
+      //cout << "Is_square() succeeds directly" << endl;
+      return is_absolute_square(r, m);
+    }
+
+  // Otherwise we multiply this by a "random" square to have full degree first
+  HeckeFieldElement b = F->gen();
+  for (int i=0; i<ntries; i++, b+=to_ZZ(1))
+    {
+      HeckeFieldElement abb = (*this)*b*b, rb(F);
+      ZZX mb = abb.minpoly();
+      if (((F->d)/deg(mb))%2)
+        {
+          if (is_absolute_square(rb, mb))
+            {
+              //cout << "Is_square() succeeds after " << i+1 << " tries" << endl;
+              r = rb/b;
+              return 1;
+            }
+          else
+            return 0;
+        }
+      // else keep trying
+    } // end of loop over shifts i
+  cout << "is_square() fails on " << (*this) << " after " << ntries << " tries" << endl;
+  return 0;
 }

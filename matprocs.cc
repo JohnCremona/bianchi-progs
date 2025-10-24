@@ -204,6 +204,54 @@ ZZX scaled_charpoly(const mat_ZZ& A, const ZZ& den, const scalar& m)
   return reduce_poly(scale_poly_down(charpol, den), to_ZZ(m));
 }
 
+// return f(X^2)
+ZZX XtoX2(const ZZX& f)
+{
+  int n = deg(f);
+  ZZX f2(2*n, LeadCoeff(f));
+  for (int i=0; i<n; i++)
+    SetCoeff(f2, 2*i, coeff(f,i));
+  return f2;
+}
+
+// write f(x) = f0(X^2)+X*f1(X^2)
+void parity_split(const ZZX& f, ZZX& f0, ZZX& f1)
+{
+  int n = deg(f);
+  // if n is even, deg(f0)=n/2 and deg(f1)<=(n-2)/2
+  // if n is odd, deg(f0)<=(n-1)/2 and deg(f1)=(n-1)/2
+  // so both have degree <=n/2
+  f0.SetLength(1 + n/2); // reserve enough space
+  f1.SetLength(1 + n/2); // reserve enough space
+  for (int i=0; i<=n; i++)
+    {
+      if (i%2) // i odd
+        SetCoeff(f1, (i-1)/2, coeff(f,i));
+      else // i even
+        SetCoeff(f0, i/2, coeff(f,i));
+    }
+  f0.normalize(); // strip any leading 0s
+  f1.normalize(); // strip any leading 0s
+  if (! (f==XtoX2(f0)+LeftShift(XtoX2(f1),1)))
+    cout << "parity_split of " << polynomial_string(f) << " gives \n"
+         << "f0 = "<< polynomial_string(f0) << "\n"
+         << "f1 = "<< polynomial_string(f1) << "\n"
+         << " --> " << polynomial_string(XtoX2(f0)+LeftShift(XtoX2(f1),1)) << endl;
+}
+
+// assuming f irreducible:
+// return 0 if f(x^2) is irreducible; else
+// return 1 and set g where f(x^2)=g(x)g(-x) (*-1 if degree odd)
+int is_square(const ZZX& f, ZZX& g)
+{
+  vec_pair_ZZX_long factors = factor(XtoX2(f));
+  if (factors.length()==1)
+    return 0;
+  g = factors[0].a;
+  return 1;
+}
+
+
 // return A mod m (or just A if m==0)
 mat_ZZ reduce_mat(const mat_ZZ& A, const ZZ& m)
 {
