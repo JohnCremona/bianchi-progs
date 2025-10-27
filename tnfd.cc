@@ -10,7 +10,7 @@
 #include "qidloop.h"
 #endif
 #include "nfd.h"
-#include "heckefield.h"
+#include "field.h"
 
 #define MAXPRIME 10000
 
@@ -128,7 +128,7 @@ int main()
            {
              if ((!triv_char_only) || F.trivial_char())
                {
-                 HeckeFieldElement ap = F.eig(T), r(F.field().zero());
+                 FieldElement ap = F.eig(T), r(F.field().zero());
                  cout << ap << "\t";
 #if(0)
                  if (ap.is_square(r))

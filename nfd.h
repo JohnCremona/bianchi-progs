@@ -6,7 +6,7 @@
 
 #include "matprocs.h"
 #include "homspace.h"
-#include "heckefield.h"
+#include "field.h"
 
 class Newform;
 class Newforms;
@@ -19,7 +19,7 @@ private:
   Newforms* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
   int d;      // dim(S)
-  HeckeField F;
+  Field F;
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_rel, denom_abs; // relative and absolute denominators of S
   vector<scalar> scales; // powers of denom_rel
@@ -32,14 +32,14 @@ public:
   // poly of Newforms's T_mat
   Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
   // eigenvalue in F of a general principal operator on this:
-  HeckeFieldElement eig(const matop& T);
+  FieldElement eig(const matop& T);
   // eigenvalue of AutoHeckeOp(P) on this:
-  HeckeFieldElement ap(Quadprime& P);
+  FieldElement ap(Quadprime& P);
   // eigenvalue of a scalar operator
   ZZ eps(const matop& T);
 
   // output basis for the Hecke field and character
-  HeckeField field() const {return F;}
+  Field field() const {return F;}
   string var() const {return F.var;}
   void display();
   int dimension() const {return d;}
@@ -80,8 +80,8 @@ extern newform_comparison newform_cmp;
 // class for the collection of all d-dimensional newforms
 class Newforms {
   friend class Newform;
-  friend class HeckeField;
-  friend class HeckeFieldElement;
+  friend class Field;
+  friend class FieldElement;
 private:
   int verbose;
 
@@ -123,8 +123,8 @@ public:
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  // vector<HeckeFieldElement> ap(Quadprime& P); // not const as may add info into N
-  // vector<HeckeFieldElement> eig(const matop& T) const;
+  // vector<FieldElement> ap(Quadprime& P); // not const as may add info into N
+  // vector<FieldElement> eig(const matop& T) const;
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}

@@ -1,4 +1,4 @@
-// File HECKEFIELD.CC: class for working with number fields for Hecke eigenvalues
+// File FIELD.CC: class for working with number fields for Hecke eigenvalues
 //////////////////////////////////////////////////////////////////////////
 
 #include <NTL/mat_ZZ.h>
@@ -6,9 +6,9 @@
 #include <NTL/ZZXFactoring.h>
 #include "eclib/subspace.h"
 #include "matprocs.h"
-#include "heckefield.h"
+#include "field.h"
 
-HeckeField::HeckeField(const ZZX& p, string a, int verb)
+Field::Field(const ZZX& p, string a, int verb)
 {
   if (IsMonic(p) && IsIrreducible(p))
     {
@@ -24,11 +24,11 @@ HeckeField::HeckeField(const ZZX& p, string a, int verb)
         }
       m(d,d) = -coeff(p, d-1);
       // Finally call the other constructor
-      *this = HeckeField(m, one, a, verb);
+      *this = Field(m, one, a, verb);
     }
 }
 
-HeckeField::HeckeField() // defaults to Q
+Field::Field() // defaults to Q
 {
   d=1;
   ZZ one(1);
@@ -41,13 +41,13 @@ HeckeField::HeckeField() // defaults to Q
   var = ""; // will not be used anyway
 }
 
-HeckeField::HeckeField(const mat_m& m, const ZZ& den, string a, int verb)
+Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
   : var(a), d(m.nrows()), denom(den), A(m)
 {
   if (verb)
     {
       cout << "----------------------------"<<endl;
-      cout << "In HeckeField constructor" << endl;
+      cout << "In Field constructor" << endl;
     }
   minpoly = scaled_charpoly(mat_to_mat_ZZ(A), denom);
   if (verb)
@@ -101,12 +101,12 @@ HeckeField::HeckeField(const mat_m& m, const ZZ& den, string a, int verb)
           output_flat_matrix(C);
           cout<<endl;
         }
-      cout << "Leaving HeckeField constructor" << endl;
+      cout << "Leaving Field constructor" << endl;
       cout << "----------------------------"<<endl;
     }
 }
 
-void HeckeField::display_bases(ostream&s) const
+void Field::display_bases(ostream&s) const
 {
   mat_m I(mat_m::identity_matrix(d));
 
@@ -159,7 +159,7 @@ void HeckeField::display_bases(ostream&s) const
     }
 }
 
-void HeckeField::display(ostream&s, int raw)
+void Field::display(ostream&s, int raw)
 {
   static const ZZ one(1);
   string fpol = polynomial_string(minpoly);
@@ -177,7 +177,7 @@ void HeckeField::display(ostream&s, int raw)
       s << "   Raw basis with respect to alpha-power basis:\n";
       for(int i=1; i<=d; i++)
         {
-          HeckeFieldElement bi = element(vec_m::unit_vector(d,i), one, 1);
+          FieldElement bi = element(vec_m::unit_vector(d,i), one, 1);
           s << "   #"<<i<<": "<< bi << endl;
           s << "   (with char poly = " << polynomial_string(bi.charpoly())
             << " and minpoly = " << polynomial_string(bi.minpoly()) << "\n";
@@ -188,10 +188,10 @@ void HeckeField::display(ostream&s, int raw)
 ////////////////////////////////////////////////////////////////////////
 
 // raw means the given coords are w.r.t. the B-basis
-HeckeFieldElement::HeckeFieldElement( HeckeField* HF, const vec_m& c, const ZZ& d, int raw)
+FieldElement::FieldElement( Field* HF, const vec_m& c, const ZZ& d, int raw)
     :F(HF), coords(c), denom(d)
 {
-  // cout<<"Constructing a HeckeFieldElement in Q("<<F->var<<")\n";
+  // cout<<"Constructing a FieldElement in Q("<<F->var<<")\n";
   if (raw)
     {
       coords = F->Binv *coords;
@@ -202,35 +202,35 @@ HeckeFieldElement::HeckeFieldElement( HeckeField* HF, const vec_m& c, const ZZ& 
 }
 
 // creation from a rational
-HeckeFieldElement::HeckeFieldElement( HeckeField* HF, const ZZ& a, const ZZ& d)
+FieldElement::FieldElement( Field* HF, const ZZ& a, const ZZ& d)
     :F(HF), coords(a*vec_m::unit_vector(HF->d, 1)), denom(d)
 {
-  // cout<<"Constructing a HeckeFieldElement in Q("<<F->var<<")\n";
+  // cout<<"Constructing a FieldElement in Q("<<F->var<<")\n";
   cancel();
   // cout<<" - finished constructing " << (*this) << "\n";
 }
 
-HeckeFieldElement HeckeField::element(const vec_m& c, const ZZ& d, int raw)
+FieldElement Field::element(const vec_m& c, const ZZ& d, int raw)
 {
-  return HeckeFieldElement(this, c, d, raw);
+  return FieldElement(this, c, d, raw);
 }
 
-HeckeFieldElement HeckeField::zero()
+FieldElement Field::zero()
 {
-  return HeckeFieldElement(this, vec_m(d));
+  return FieldElement(this, vec_m(d));
 }
 
-HeckeFieldElement HeckeField::one()
+FieldElement Field::one()
 {
-  return HeckeFieldElement(this, vec_m::unit_vector(d, 1));
+  return FieldElement(this, vec_m::unit_vector(d, 1));
 }
 
-HeckeFieldElement HeckeField::gen()
+FieldElement Field::gen()
 {
-  return HeckeFieldElement(this, vec_m::unit_vector(d, 2));
+  return FieldElement(this, vec_m::unit_vector(d, 2));
 }
 
-void HeckeFieldElement::cancel() // divides through by gcd(content(coords, denom))
+void FieldElement::cancel() // divides through by gcd(content(coords, denom))
 {
   if (IsOne(denom))
     return;
@@ -241,24 +241,24 @@ void HeckeFieldElement::cancel() // divides through by gcd(content(coords, denom
   coords /= g;
 }
 
-int HeckeFieldElement::is_zero() const
+int FieldElement::is_zero() const
 {
   return trivial(coords);
 }
 
-int HeckeFieldElement::is_one() const
+int FieldElement::is_one() const
 {
   return IsOne(denom) && coords == vec_m::unit_vector(F->d,1);
 }
 
-int HeckeFieldElement::is_minus_one() const
+int FieldElement::is_minus_one() const
 {
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
-string HeckeFieldElement::str() const
+string FieldElement::str() const
 {
-  // cout << "In HeckeFieldElement::str() with var = " << F->var << endl;
+  // cout << "In FieldElement::str() with var = " << F->var << endl;
   string s1 = polynomial_string(coords, F->var);
   if (denom==1)
     return s1;
@@ -267,24 +267,24 @@ string HeckeFieldElement::str() const
   return s.str();
 }
 
-int HeckeFieldElement::operator==(const HeckeFieldElement& b) const
+int FieldElement::operator==(const FieldElement& b) const
 {
   return F==b.F && denom==b.denom && coords==b.coords;
 }
 
-mat_m HeckeFieldElement::matrix() const // ignores denom
+mat_m FieldElement::matrix() const // ignores denom
 {
   return lin_comb_mats(coords, F->Cpowers);
 }
 
 // the charpoly is a power of the minpoly
-ZZX HeckeFieldElement::minpoly() const
+ZZX FieldElement::minpoly() const
 {
   return factor(charpoly())[0].a;
 }
 
 // add b to this
-void HeckeFieldElement::operator+=(const HeckeFieldElement& b)
+void FieldElement::operator+=(const FieldElement& b)
 {
   if (F!=b.F)
     {
@@ -296,25 +296,25 @@ void HeckeFieldElement::operator+=(const HeckeFieldElement& b)
   cancel();
 }
 
-HeckeFieldElement HeckeFieldElement::operator+(const HeckeFieldElement& b) const
+FieldElement FieldElement::operator+(const FieldElement& b) const
 {
   if (F!=b.F)
     {
       cerr << "Attempt to add elements of different fields!" << endl;
       exit(1);
     }
-  HeckeFieldElement a = *this;
+  FieldElement a = *this;
   a += b;
   return a;
 }
 
-HeckeFieldElement HeckeFieldElement::operator-() const
+FieldElement FieldElement::operator-() const
 {
-  return HeckeFieldElement(F, -coords, denom);
+  return FieldElement(F, -coords, denom);
 }
 
 // subtract b
-void HeckeFieldElement::operator-=(const HeckeFieldElement& b)
+void FieldElement::operator-=(const FieldElement& b)
 {
   if (F!=b.F)
     {
@@ -326,19 +326,19 @@ void HeckeFieldElement::operator-=(const HeckeFieldElement& b)
   cancel();
 }
 
-HeckeFieldElement HeckeFieldElement::operator-(const HeckeFieldElement& b) const
+FieldElement FieldElement::operator-(const FieldElement& b) const
 {
   if (F!=b.F)
     {
       cerr << "Attempt to subtract elements of different fields!" << endl;
       exit(1);
     }
-  HeckeFieldElement a = *this;
+  FieldElement a = *this;
   a -= b;
   return a;
 }
 
-void HeckeFieldElement::operator*=(const HeckeFieldElement& b) // multiply by b
+void FieldElement::operator*=(const FieldElement& b) // multiply by b
 {
   if (F!=b.F)
     {
@@ -350,19 +350,19 @@ void HeckeFieldElement::operator*=(const HeckeFieldElement& b) // multiply by b
   cancel();
 }
 
-HeckeFieldElement HeckeFieldElement::operator*(const HeckeFieldElement& b) const
+FieldElement FieldElement::operator*(const FieldElement& b) const
 {
   if (F!=b.F)
     {
       cerr << "Attempt to multiply elements of different fields!" << endl;
       exit(1);
     }
-  HeckeFieldElement a = *this;
+  FieldElement a = *this;
   a *= b;
   return a;
 }
 
-HeckeFieldElement HeckeFieldElement::inverse() const // raise error if zero
+FieldElement FieldElement::inverse() const // raise error if zero
 {
   if (is_zero())
     {
@@ -371,12 +371,12 @@ HeckeFieldElement HeckeFieldElement::inverse() const // raise error if zero
     }
   mat_m M = matrix(), Minv;
   ZZ Mdet = ::inverse(M,Minv); // so M*Minv = Mdet*identity
-  HeckeFieldElement ans(F, denom*Minv.col(1), Mdet);
+  FieldElement ans(F, denom*Minv.col(1), Mdet);
   assert (operator*(ans).is_one());
   return ans;
 }
 
-void HeckeFieldElement::operator/=(const HeckeFieldElement& b)      // divide by b
+void FieldElement::operator/=(const FieldElement& b)      // divide by b
 {
   if (b.is_zero())
     {
@@ -391,7 +391,7 @@ void HeckeFieldElement::operator/=(const HeckeFieldElement& b)      // divide by
   operator*=(b.inverse());
 }
 
-HeckeFieldElement HeckeFieldElement::operator/(const HeckeFieldElement& b) const // raise error if b is zero
+FieldElement FieldElement::operator/(const FieldElement& b) const // raise error if b is zero
 {
   if (b.is_zero())
     {
@@ -403,15 +403,15 @@ HeckeFieldElement HeckeFieldElement::operator/(const HeckeFieldElement& b) const
       cerr << "Attempt to divide elements of different fields!" << endl;
       exit(1);
     }
-  HeckeFieldElement a = *this;
+  FieldElement a = *this;
   a /= b;
   return a;
 }
 
-HeckeFieldElement evaluate(const ZZX& f, const HeckeFieldElement a)
+FieldElement evaluate(const ZZX& f, const FieldElement a)
 {
   long d = deg(f);
-  HeckeFieldElement fa = a;
+  FieldElement fa = a;
   fa *= coeff(f,d);
   for(int i=d-1; i>=0; i--)
     {
@@ -426,13 +426,13 @@ HeckeFieldElement evaluate(const ZZX& f, const HeckeFieldElement a)
 // NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
 // The first function only applies when a has maximal degree:
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
-int HeckeFieldElement::is_absolute_square(HeckeFieldElement& r) const
+int FieldElement::is_absolute_square(FieldElement& r) const
 {
   return is_absolute_square(r, minpoly());
 }
 
 // Same as above if the min poly is known
-int HeckeFieldElement::is_absolute_square(HeckeFieldElement& r, const ZZX& minpol)  const
+int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 {
   ZZX g, g0, g1;
   if (::is_square(minpol, g))
@@ -459,7 +459,7 @@ int HeckeFieldElement::is_absolute_square(HeckeFieldElement& r, const ZZX& minpo
 
 // The second function applies in general:
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
-int HeckeFieldElement::is_square(HeckeFieldElement& r, int ntries) const
+int FieldElement::is_square(FieldElement& r, int ntries) const
 {
   if (is_zero() || is_one())
     {
@@ -476,10 +476,10 @@ int HeckeFieldElement::is_square(HeckeFieldElement& r, int ntries) const
     }
 
   // Otherwise we multiply this by a "random" square to have full degree first
-  HeckeFieldElement b = F->gen();
+  FieldElement b = F->gen();
   for (int i=0; i<ntries; i++, b+=to_ZZ(1))
     {
-      HeckeFieldElement abb = (*this)*b*b, rb(F);
+      FieldElement abb = (*this)*b*b, rb(F);
       ZZX mb = abb.minpoly();
       if (((F->d)/deg(mb))%2)
         {

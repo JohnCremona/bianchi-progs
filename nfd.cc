@@ -11,7 +11,7 @@
 #include "eclib/subspace.h"
 #include "matprocs.h"
 #include "nfd.h"
-#include "heckefield.h"
+#include "field.h"
 
 newform_comparison newform_cmp;
 
@@ -81,7 +81,7 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  F = HeckeField(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
+  F = Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
 
   if (verbose)
     {
@@ -138,19 +138,19 @@ int Newform::trivial_char() // 1 iff all  unramified quadratic character values 
   return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
 }
 
-HeckeFieldElement Newform::eig(const matop& T)
+FieldElement Newform::eig(const matop& T)
 {
   nf->H1->projcoord = projcoord;
   //  cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
   vec_m apv = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
   //  cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
-  HeckeFieldElement ap(&F, apv, one, 1); // raw=1
+  FieldElement ap(&F, apv, one, 1); // raw=1
   // cout << "ap = " << ap << endl;
   return ap;
 }
 
-HeckeFieldElement Newform::ap(Quadprime& P)
+FieldElement Newform::ap(Quadprime& P)
 {
   return eig(AutoHeckeOp(P,nf->N));
 }
@@ -159,7 +159,7 @@ ZZ Newform::eps(const matop& T) // T should be a scalar
 {
   // nf->H1->projcoord = projcoord;
   // cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
-  HeckeFieldElement e = eig(T);
+  FieldElement e = eig(T);
   static const ZZ one(1);
   if (e.is_one())
     return one;
@@ -317,16 +317,16 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
-// NB the returned vector consists of HeckeFieldElements in different fields
-// vector<HeckeFieldElement> Newforms::eig(const matop& T) const
+// NB the returned vector consists of FieldElements in different fields
+// vector<FieldElement> Newforms::eig(const matop& T) const
 // {
-//   vector<HeckeFieldElement> eiglist;
+//   vector<FieldElement> eiglist;
 //   std::transform(newforms.begin(), newforms.end(), std::inserter(eiglist,eiglist.end()),
 //                  [T](Newform f){return f.eig(T);});
 //   return eiglist;
 // }
 
-// vector<HeckeFieldElement> Newforms::ap(Quadprime& P)
+// vector<FieldElement> Newforms::ap(Quadprime& P)
 // {
 //   return eig(AutoHeckeOp(P,N));
 // }
