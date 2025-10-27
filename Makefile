@@ -74,7 +74,7 @@ all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc heckefield.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc field.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -85,7 +85,7 @@ ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
 Q_headers: eclib.h real.h intprocs.h matprocs.h pari_snf.h flint_snf.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
- qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h heckefield.h
+ qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h field.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
 headers: Q_headers quad_headers swan_headers
 
@@ -313,14 +313,14 @@ newhecke: newhecke.o $(OBJS)
 newhecke_modp: newhecke_modp.o $(OBJS)
 	$(CC) -o newhecke_modp newhecke_modp.o $(OBJS) $(LFLAGS)
 
-tnfd: tnfd.o nfd.o heckefield.o $(OBJS)
-	$(CC) -o tnfd tnfd.o nfd.o heckefield.o $(OBJS) $(LFLAGS)
+tnfd: tnfd.o nfd.o field.o $(OBJS)
+	$(CC) -o tnfd tnfd.o nfd.o field.o $(OBJS) $(LFLAGS)
 
-tnfd_loop.o:   tnfd.cc nfd.h heckefield.h
+tnfd_loop.o:   tnfd.cc nfd.h field.h
 	$(CC) -DLOOPER $(CFLAGS) tnfd.cc -o tnfd_loop.o
 
-tnfd_loop: tnfd_loop.o nfd.o heckefield.o $(OBJS)
-	$(CC) -o tnfd_loop tnfd_loop.o nfd.o heckefield.o $(OBJS) $(LFLAGS)
+tnfd_loop: tnfd_loop.o nfd.o field.o $(OBJS)
+	$(CC) -o tnfd_loop tnfd_loop.o nfd.o field.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)
