@@ -302,7 +302,7 @@ void Newforms::find_T(int maxnp, int maxc)
       cout << " New cuspidal Hecke polynomial for operator " << T_name
            <<" is "<<polynomial_string(f)<<endl;
     }
-  vec_ZZX NTL_factors= SFFactor(f);
+  NTL::vec_ZZX NTL_factors= SFFactor(f);
   ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
   int nfactors = NTL_factors.length();
   if (verbose)

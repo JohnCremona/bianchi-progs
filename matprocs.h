@@ -6,15 +6,6 @@
 // include stuff from eclib
 #include "intprocs.h"
 
-// include stuff from NTL
-#include <NTL/LLL.h>
-
-#include <NTL/mat_poly_ZZ.h>
-#include <NTL/ZZXFactoring.h>
-
-#include <NTL/mat_poly_ZZ_p.h>
-#include <NTL/ZZ_pXFactoring.h>
-
 #include "qidloop.h"
 
 // convert an eclib mat to an NTL mat_ZZ:
@@ -87,7 +78,7 @@ int commute(const mat_ZZ& A, const mat_ZZ& B, const scalar& m);
 int check_commute(const mat_ZZ& A, const vector<mat_ZZ>& Blist, const scalar& m);
 
 // factor a primitive (e.g. monic) polynomial
-vec_pair_ZZX_long factor(const ZZX& f);
+NTL::vec_pair_ZZX_long factor(const ZZX& f);
 
 // display factors of a polynomial:
 void display_factors(const ZZX& f);
@@ -115,7 +106,7 @@ void output_flat_matrix(const Zmat<T>& m, ostream&s = cout);
 // lexicographically
 
 struct factor_comparison {
-  bool operator()(pair_ZZX_long& fac1, pair_ZZX_long& fac2)
+  bool operator()(NTL::pair_ZZX_long& fac1, NTL::pair_ZZX_long& fac2)
   {
     // first sort by degree of the factor
     int s = deg(fac1.a) - deg(fac2.a);
@@ -134,7 +125,7 @@ struct factor_comparison {
 //bool operator<(ZZ_p a, ZZ_p b); // {return rep(a)<rep(b);}
 
 struct factor_modp_comparison {
-  bool operator()(pair_ZZ_pX_long& fac1, pair_ZZ_pX_long& fac2)
+  bool operator()(NTL::pair_ZZ_pX_long& fac1, NTL::pair_ZZ_pX_long& fac2)
   {
     auto cmp = [](const ZZ_p& a, const ZZ_p& b) {return rep(a)<rep(b);};
     // first sort by degree of the factor

@@ -105,12 +105,12 @@ mat_ZZ mat_to_mat_ZZ(Zmat<T> A)
   ntl_A.SetDims(d,d);
   for(int i=1; i<=d; i++)
     for(int j=1; j<=d; j++)
-      ntl_A(i,j)=conv<ZZ>(A(i,j));
+      ntl_A(i,j)=NTL::conv<ZZ>(A(i,j));
   return ntl_A;
 }
 template mat_ZZ mat_to_mat_ZZ<int>(Zmat<int> A);
 template mat_ZZ mat_to_mat_ZZ<long>(Zmat<long> A);
-template mat_ZZ mat_to_mat_ZZ<bigint>(Zmat<bigint> A);
+template mat_ZZ mat_to_mat_ZZ<ZZ>(Zmat<ZZ> A);
 
 mat_ZZ_p mat_to_mat_ZZ_p(mat A)
 {
@@ -121,7 +121,7 @@ mat_ZZ_p mat_to_mat_ZZ_p(mat A)
   ntl_A.SetDims(d,d);
   for(int i=1; i<=d; i++)
     for(int j=1; j<=d; j++)
-      ntl_A(i,j)=conv<ZZ_p>(A(i,j));
+      ntl_A(i,j)=NTL::conv<ZZ_p>(A(i,j));
   return ntl_A;
 }
 
@@ -297,7 +297,7 @@ mat_m evaluate(const ZZX& f, const Zmat<T>& A)
 
 template mat_m evaluate<int>(const ZZX& f, const Zmat<int>& A);
 template mat_m evaluate<long>(const ZZX& f, const Zmat<long>& A);
-template mat_m evaluate<bigint>(const ZZX& f, const Zmat<bigint>& A);
+template mat_m evaluate<ZZ>(const ZZX& f, const Zmat<ZZ>& A);
 
 // p should be monic:
 mat_ZZ CompanionMatrix(const ZZX& p)
@@ -390,7 +390,7 @@ void output_flat_matrix(const Zmat<T>& m, ostream&s)
 
 template void output_flat_matrix<int>(const Zmat<int>& m, ostream&s);
 template void output_flat_matrix<long>(const Zmat<long>& m, ostream&s);
-template void output_flat_matrix<bigint>(const Zmat<bigint>& m, ostream&s);
+template void output_flat_matrix<ZZ>(const Zmat<ZZ>& m, ostream&s);
 
 // factor a primitive (e.g. monic) polynomial
 vec_pair_ZZX_long factor(const ZZX& f)
@@ -457,7 +457,7 @@ void display_factors(const ZZ_pX& f)
 long rank(mat_ZZ A)
 {
   ZZ d2;
-  return image(d2, A);
+  return NTL::image(d2, A);
 }
 
 // nullity of an NTL matrix:

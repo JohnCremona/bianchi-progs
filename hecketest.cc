@@ -65,7 +65,7 @@ int main(void)
           // Compute unramified quadratic characters and check that they are involutions and commute
 
           vector<Qideal> t2ideals = make_nulist(N);
-          mat_ZZ I = ident_mat_ZZ(dim);
+          mat_ZZ I = NTL::ident_mat_ZZ(dim);
 
           for ( auto& A : t2ideals)
             {
