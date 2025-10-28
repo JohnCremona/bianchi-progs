@@ -1,11 +1,6 @@
 // File FIELD.CC: class for working with number fields for Hecke eigenvalues
 //////////////////////////////////////////////////////////////////////////
 
-#include <NTL/mat_ZZ.h>
-#include <NTL/mat_poly_ZZ.h>
-#include <NTL/ZZXFactoring.h>
-#include "eclib/subspace.h"
-#include "matprocs.h"
 #include "field.h"
 
 Field::Field(const ZZX& p, string a, int verb)
