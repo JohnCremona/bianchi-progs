@@ -492,3 +492,44 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   cout << "is_square() fails on " << (*this) << " after " << ntries << " tries" << endl;
   return 0;
 }
+
+unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& ra)
+{
+  unsigned int i=0;
+  for (auto x: elements)
+    {
+      if ((a*x).is_square(ra))
+        return i;
+      i++;
+    }
+  // We get here if a is not in the current group
+  gens.push_back(a);
+  r++;
+  ra = F->one();
+  vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+  std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                 [a](const FieldElement& x){return a*x;});
+  elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+ return r;
+}
+
+string FieldModSq::elt_str(unsigned int i)
+{
+  static const string v = "r";
+  ostringstream s;
+  if (i==0)
+    {
+      s << "1";
+    }
+  else
+    {
+      for (unsigned int j=0; j<r; j++)
+        {
+          if (bit(i,j))
+            {
+              s << "r" << (j+1);
+            }
+        }
+    }
+  return s.str();
+}

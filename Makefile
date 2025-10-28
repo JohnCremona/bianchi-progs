@@ -73,7 +73,7 @@ all: tests
 	@echo "Using SCALAR_OPTION = "$(SCALAR_OPTION)
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
-ccs0: intprocs.cc matprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
+ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc field.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
@@ -83,7 +83,7 @@ ccs6: hecketest_modp.cc newhecke_modp.cc dimtable_modp.cc makenf_modp.cc nflist_
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
-Q_headers: eclib.h real.h intprocs.h matprocs.h pari_snf.h flint_snf.h
+Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h field.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
@@ -202,7 +202,7 @@ clean:
 	rm -f $(TESTS)
 	rm -f *.o *~ *.testout
 
-Q_OBJS = intprocs.o matprocs.o
+Q_OBJS = intprocs.o
 QUAD_OBJS = quads.o looper.o homspace.o \
        newforms.o oldforms.o edge_relations.o face_relations.o hecke.o qideal.o qidloop.o \
        primes.o mat22.o ratquads.o cusp.o P1N.o geometry.o  # euclid.o

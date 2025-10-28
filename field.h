@@ -8,6 +8,7 @@
 
 class Field;
 class FieldElement;
+class FieldModSq;   // finite subgroups of (F^*)/(F^*)^2
 
 class Field {
   friend class FieldElement;
@@ -107,5 +108,30 @@ FieldElement evaluate(const ZZX& f, const FieldElement a);
 
 inline ostream& operator<<(ostream& s, const FieldElement& x)
 { s << x.str(); return s;}
+
+// Class to handle finite subgroups of (F^*)/(F^*)^2
+
+// Contains a list gens of length r of nonzero elements of F which are
+// independent modulo squares.  Elements of the group are represented
+// by an unsigned int between 0 and 2^r-1; if the i'th bit is b_i then
+// the element is the product of those gens whose index i has b_i=1.
+
+class FieldModSq {
+private:
+  Field* F;
+  unsigned int r;
+  vector<FieldElement> gens;
+  vector<FieldElement> elements;
+public:
+  FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}) {;}
+  FieldElement gen(unsigned int i) const {return gens.at(i);}
+  FieldElement elt(unsigned int i) const {return elements.at(i);}
+  // Compute the index of a nonzero element. If a belongs to the
+  // current group return i and set ra, where a*elements[i] = ra^2. If
+  // a does not belong to the subgroup (mod squares) it is appended to
+  // gens, r is incremented, ra=1 and the new r is returned.
+  unsigned int get_index(const FieldElement& a, FieldElement& ra);
+  string elt_str(unsigned int i);
+};
 
 #endif
