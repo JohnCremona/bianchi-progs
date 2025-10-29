@@ -2,7 +2,6 @@
 
 #include "cusp.h"
 #include "homspace.h"
-#include "matprocs.h"
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, scalar mod, int hp, int verb, scalar ch)

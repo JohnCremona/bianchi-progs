@@ -1,6 +1,5 @@
 // HECKETEST.CC  -- Test for Hecke operators
 
-#include "matprocs.h"
 #include "qidloop.h"
 #include "newforms.h"
 //#define LOOPER

@@ -1,6 +1,5 @@
 // HECKETEST_MODP.CC  -- Test for Hecke operators in characteristic p>0
 
-#include "matprocs.h"
 #include "qidloop.h"
 #include "homspace.h"
 #define LOOPER

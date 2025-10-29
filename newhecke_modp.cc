@@ -1,9 +1,6 @@
 // NEWHECKE_MODP.CC -- Hecke operators: factored characteristic
 // polynomials on the new cuspidal subspace in characteristic p
 
-#include "eclib.h"
-
-#include "matprocs.h"
 #include "qidloop.h"
 #include "newforms.h"
 

@@ -3,6 +3,8 @@
 
 #include "field.h"
 
+Field* FieldQQ = new Field();
+
 Field::Field(const ZZX& p, string a, int verb)
 {
   if (IsMonic(p) && IsIrreducible(p))
@@ -338,6 +340,8 @@ void FieldElement::operator*=(const FieldElement& b) // multiply by b
   if (F!=b.F)
     {
       cerr << "Attempt to multiply elements of different fields!" << endl;
+      cerr << "LHS field: "; F->display(); cerr << endl;
+      cerr << "RHS field: "; b.F->display(); cerr << endl;
       exit(1);
     }
   coords = (matrix()*b.matrix()).col(1);
@@ -350,6 +354,8 @@ FieldElement FieldElement::operator*(const FieldElement& b) const
   if (F!=b.F)
     {
       cerr << "Attempt to multiply elements of different fields!" << endl;
+      cerr << "LHS field: "; F->display(); cerr << endl;
+      cerr << "RHS field: "; b.F->display(); cerr << endl;
       exit(1);
     }
   FieldElement a = *this;
@@ -406,9 +412,8 @@ FieldElement FieldElement::operator/(const FieldElement& b) const // raise error
 FieldElement evaluate(const ZZX& f, const FieldElement a)
 {
   long d = deg(f);
-  FieldElement fa = a;
-  fa *= coeff(f,d);
-  for(int i=d-1; i>=0; i--)
+  FieldElement fa(a.F, to_ZZ(0));
+  for(int i=d; i>=0; i--)
     {
       fa += coeff(f,i);
       if(i)
@@ -493,27 +498,32 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   return 0;
 }
 
-unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& ra)
+unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
 {
   unsigned int i=0;
   for (auto x: elements)
     {
-      if ((a*x).is_square(ra))
-        return i;
+      if ((a*x).is_square(s))
+        {
+          // Now a*x = s^2 so a = x*(s/x)^2
+          // but we want a = x*s^2
+          s /= x;
+          return i;
+        }
       i++;
     }
   // We get here if a is not in the current group
   gens.push_back(a);
   r++;
-  ra = F->one();
+  s = F->one();
   vector<FieldElement> new_elements(elements.size(), FieldElement(F));
   std::transform(elements.begin(), elements.end(), new_elements.begin(),
                  [a](const FieldElement& x){return a*x;});
   elements.insert(elements.end(), new_elements.begin(), new_elements.end());
- return r;
+  return r;
 }
 
-string FieldModSq::elt_str(unsigned int i)
+string FieldModSq::elt_str(unsigned int i) const
 {
   static const string v = "r";
   ostringstream s;
@@ -523,13 +533,56 @@ string FieldModSq::elt_str(unsigned int i)
     }
   else
     {
+      int first = 1;
       for (unsigned int j=0; j<r; j++)
         {
           if (bit(i,j))
             {
+              if (!first) s << ".";
               s << "r" << (j+1);
+              first = 0;
             }
         }
     }
+  return s.str();
+}
+
+void FieldModSq::display()
+{
+  cout << "FieldModSq data:\n";
+  cout << "Field  is " <<flush;
+  F->display();
+  cout << "rank = " << r;
+  cout << ", gens = " << gens << endl;
+  cout << "order = " << elements.size();
+  cout << ", elements = " << elements << endl;
+}
+
+Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
+{
+  FieldElement r = root_part() * b.root_part();
+  FieldElement s(a.F);
+  unsigned int j = SqCl->get_index(r, s);
+  // Now r = s^2 * elt(j)
+  return Eigenvalue(a*b.a*s*s, SqCl, j);
+}
+
+Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
+{
+  FieldElement r = root_part() / b.root_part();
+  FieldElement s(a.F);
+  unsigned int j = SqCl->get_index(r, s);
+  // Now r = s^2 * elt(j)
+  return Eigenvalue((a/b.a)*s*s, SqCl, j);
+}
+
+string Eigenvalue::str() const
+{
+  ostringstream s;
+  if (root_index)
+    s << "(";
+  s << a;
+  if (root_index)
+    s << ")*sqrt(" << SqCl->elt_str(root_index) << ")";
   return s.str();
 }

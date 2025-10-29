@@ -30,8 +30,7 @@
 // old dimensions are computed from the new dimensions at lower
 // levels.
 
-
-#include "matprocs.h"
+#include "qidloop.h"
 #include "newforms.h"
 
 #define MAXPRIME 10000

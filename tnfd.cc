@@ -104,6 +104,23 @@ int main()
          cout << endl;
          forms.display_newforms(triv_char_only);
        }
+
+     int inf=1;
+     for (auto F: forms.newforms)
+       {
+         if (F.trivial_char())
+           {
+             if (verbose)
+               cout << "Computing eigenvalues for newform #" << inf <<endl;
+             map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
+             F.display(1);
+             cout << endl;
+             for (auto x: eigs)
+               cout << x.first << " : " << x.second << endl;
+           }
+         inf++;
+       }
+#if(0)
      cout << "Hecke eigenvalues:\t";
      for (auto F: forms.newforms)
        {
@@ -141,6 +158,7 @@ int main()
            }
          cout<<endl;
        } // end of prime loop
+#endif
      //  cout<<endl;
     }     // end of level loop
   exit(0);

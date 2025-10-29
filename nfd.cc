@@ -5,15 +5,17 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include <NTL/mat_ZZ.h>
-#include <NTL/mat_poly_ZZ.h>
-#include <NTL/ZZXFactoring.h>
-#include "eclib/subspace.h"
-#include "matprocs.h"
 #include "nfd.h"
 #include "field.h"
 
 newform_comparison newform_cmp;
+
+#define genus_class_triviality_bound 10 // if aP=0 for this number of
+                                        // good primes in a genus
+                                        // class then we assume that a
+                                        // newform is self-twist and
+                                        // all aP for P in this class
+                                        // are 0.
 
 Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   :nf(x), index(ind)
@@ -81,14 +83,14 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  F = Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
+  F = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
 
   if (verbose)
     {
-      cout <<"Homological Hecke field data:" << endl;
-      F.display();
+      cout <<"Principal Hecke field data:" << endl;
+      F->display();
       if (verbose>1)
-        F.display_bases();
+        F->display_bases();
     }
 
   // Compute character values
@@ -103,6 +105,16 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
     }
   if (verbose)
     cout<<"genus char values: "<<epsvec<<endl;
+
+  // Initialise book-keeping data for eigenvalue computation
+  Fmodsq = new FieldModSq(F);
+  possible_self_twists = nf->possible_self_twists;
+  if (verbose)
+    cout << "Possible self-twist discriminants: " << possible_self_twists << endl;
+  genus_class_trivial_counter.resize(1<<n2r, 0);
+  genus_classes.resize(1,0);
+  genus_class_ideals.resize(1,Qideal(ONE));
+  genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
 
 #if(0) // this needs more work to do anything sensible
   // Compute genus character discriminant. We cannot just multiply the
@@ -145,7 +157,7 @@ FieldElement Newform::eig(const matop& T)
   vec_m apv = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
   //  cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
-  FieldElement ap(&F, apv, one, 1); // raw=1
+  FieldElement ap(F, apv, one, 1); // raw=1
   // cout << "ap = " << ap << endl;
   return ap;
 }
@@ -178,6 +190,7 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
   dH = H1->h1cdenom();
   hmod = H1->hmod;
   Ndivs = alldivs(N);
+  possible_self_twists = N.possible_unramified_twists();
 
   if(verbose && dH>1)
     cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<dH<<endl;
@@ -317,42 +330,209 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
-// NB the returned vector consists of FieldElements in different fields
-// vector<FieldElement> Newforms::eig(const matop& T) const
-// {
-//   vector<FieldElement> eiglist;
-//   std::transform(newforms.begin(), newforms.end(), std::inserter(eiglist,eiglist.end()),
-//                  [T](Newform f){return f.eig(T);});
-//   return eiglist;
-// }
+// Fill aPmap, dict of eigenvalues of first ntp good primes
+void Newform::compute_eigs(int ntp, int verbose)
+{
+  if (!trivial_char())
+    {
+      cout << "get_eigs() not yet implemented for forms with nontrivial character" << endl;
+      return;
+    }
+  int nap = 0;
+  auto pr = Quadprimes::list.begin();
+  while((pr!=Quadprimes::list.end()) && (nap<ntp))
+    {
+      Quadprime P = *pr++;
+      if (P.divides(nf->N))
+        continue; // skip bad primes for now
+      nap++;
+      Eigenvalue aP;
+      long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
+      if (c==0) // P has trivial genus class
+        {
+          aP = Eigenvalue(eig(AutoHeckeOp(P, nf->N)), Fmodsq, 0);
+          aPmap[P] = aP;
+          if (verbose)
+            cout<<" -- P="<<P<<" has trivial genus class, aP = " << aP << endl;
+          if (!aP.is_zero())
+            genus_class_trivial_counter[c] +=1;
+          continue;
+        }
 
-// vector<FieldElement> Newforms::ap(Quadprime& P)
-// {
-//   return eig(AutoHeckeOp(P,N));
-// }
+      // Now P does not have square class, its genus class is c>0
+      // See if we already have an eigenvalue for this genus class
 
-// output basis for the Hecke field and character of one newform
-void Newform::display()
+      if (verbose)
+        cout<<" -- P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
+      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      if (ci != genus_classes.end()) // P is in a known genus class
+        {
+          int i = ci - genus_classes.begin();
+          Qideal A = genus_class_ideals[i];
+          Qideal B = A*P; // so B is square-free and of square class
+          if (verbose>1)
+            cout << "-- computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
+                 <<ideal_label(A)<<endl;
+          if (B.is_principal())         // compute T(B)
+            {
+              Eigenvalue APeig(eig(HeckeBOp(B, nf->N)), Fmodsq, 0);
+              aP = APeig / genus_class_aP[i];
+            }
+          else                          // compute T(B)*T(C,C)
+            {
+              Qideal C = B.sqrt_coprime_to(nf->N); // so A*P*C^2 is principal
+              Eigenvalue APCeig(eig(HeckeBChiOp(B,C, nf->N)), Fmodsq, 0);
+              aP = APCeig / genus_class_aP[i];
+            }
+          aPmap[P] = aP;
+          // See whether P is a better genus class rep than the one we have:
+          if ((P.norm()<A.norm()) && (!aP.is_zero()))
+            {
+              genus_class_ideals[i] = P;
+              genus_class_aP[i] = aP;
+            }
+          continue;
+        }
+
+      // Now we have a new genus class, compute a_{P}^2 unless we
+      // already have at least genus_class_triviality_bound zeros in
+      // this class and the level admits nontrivial self twists.  NB 5
+      // is not enough for field 299, level 100.2
+      if (verbose)
+        cout << " -- P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
+      if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= genus_class_triviality_bound))
+        {
+          if (verbose)
+            cout << " -- P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
+                 <<" zero eigenvalues, so assuming self-twist, and taking aP=0"<<endl;
+          aPmap[P] = Eigenvalue(F->zero(), Fmodsq, 0);
+          continue;
+        }
+
+      if (verbose)
+        cout << " -- P = "<<P<<": computing T(P^2) to get a(P^2) and hence a(P)^2" << endl;
+      Qideal P2 = P*P;
+      FieldElement aP2;
+      if (P2.is_principal())  // compute T(P^2)
+        {
+          aP2 = eig(HeckeP2Op(P, nf->N));
+        }
+      else // T(P^2)*T(A,A) with (A*P)^2 principal
+        {
+          Qideal A = P.equivalent_mod_2_coprime_to(nf->N, 1);
+          aP2 = eig(HeckeP2ChiOp(P,A, nf->N));
+        }
+      // Now aP2 is the eigenvalue of T(P^2)
+      ZZ normP = to_ZZ(I2long(P.norm()));
+      aP2 += normP;
+      // Now aP2 is the eigenvalue of T(P)^2
+      if (verbose)
+        cout << " -- a(P)^2 = " << aP2 << endl;
+
+      // Check if this eigenvalue is 0
+      if (aP2.is_zero())
+        {
+          aPmap[P] = Eigenvalue(F->zero(), Fmodsq, 0);
+          genus_class_trivial_counter[c] +=1;
+          if (verbose)
+            cout << " -- genus_class_trivial_counter for class "<<c
+                 <<" is now "<<genus_class_trivial_counter[c]<<endl;
+          continue;
+        }
+
+      // Look up the square class of aP2 in Fmodsq to see if we need to extend the field
+      unsigned int old_order = Fmodsq->order();
+      FieldElement s = F->one();
+      unsigned int j = Fmodsq->get_index(aP2, s);
+      if (verbose)
+        {
+          cout<<" -- P="<<P<<", a(P)^2 = "<<aP2<<" is in square class #"<<j;
+          if (j>=old_order)
+            cout<<" (new class, rank mod squares is now " << Fmodsq->rank() << ")";
+          cout << endl;
+        }
+      aP = Eigenvalue(s, Fmodsq, j);
+      aPmap[P] = aP;
+      if (verbose)
+        cout << " -- taking a(P) = " << aP << endl;
+
+      // update genus_classes (append binary sum of each and c)
+      // update genus_class_ideals (append product of each and P)
+      // update genus_class_aP (append product of each and aP)
+      long oldsize = genus_classes.size();
+      if (verbose)
+        cout<<" -- doubling number of genus classes covered by P with nonzero aP from "<<oldsize
+            <<" to "<<2*oldsize<<" using P="<<P<<endl;
+      genus_classes.resize(2*oldsize);
+      genus_class_ideals.resize(2*oldsize);
+      genus_class_aP.resize(2*oldsize);
+      genus_class_trivial_counter[c] = 0;
+      for (int i = 0; i<oldsize; i++)
+        {
+          genus_classes[oldsize+i] = genus_classes[i]^c;
+          genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
+          genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
+        }
+#if(0)
+      // we can possibly eliminate some of
+      // possible_self_twists now, namely those whose
+      // characters chi have chi(P)=-1, since such a
+      // newform would have to have aP=0:
+      int n_before = possible_self_twists.size();
+      // We can now eliminate any self-twist discriminants
+      // not matching the square-free part of aP^2-4*N(P):
+      int d1 = squarefree_part(aP2-4*normP);
+      possible_self_twists.erase(std::remove_if(possible_self_twists.begin(),
+                                                possible_self_twists.end(),
+                                                [&d1](INT D) { return D!=d1;}),
+                                 possible_self_twists.end());
+      int n_after = possible_self_twists.size();
+      if ((n_before>n_after) && (verbose>1))
+        cout<<" - after erasing "<<(n_before-n_after)
+            <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
+#endif
+    } // end of primes loop
+}
+
+// output basis for the Principal Hecke field and character of one newform
+// If full, also output multiplicative basis for the full Hecke field
+void Newform::display(int full)
 {
   int n2r = Quad::class_group_2_rank;
-  cout << "Newform " << index << " (" << F.var << ")" << endl;
+  cout << "Newform " << index << " (" << F->var << ")" << endl;
   if (n2r==1)
     cout << " - Genus character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
   if (n2r>1)
     cout << " - Genus character values: " <<  epsvec << endl;
   cout << " - Dimension: "<<d<<endl;
-  cout << " - Homological Hecke field: ";
-  F.display();
+  cout << " - Principal Hecke field k_f: ";
+  F->display();
+  if (full && n2r>0)
+    {
+      int r = Fmodsq->rank();
+      if (r==0)
+        cout << " - Full Hecke field is the same as the Principal Hecke field";
+      else
+        {
+          cout << " - Full Hecke Field k_F = k_f(";
+          for (int i=0; i<r; i++)
+            {
+              if (i) cout << ", ";
+              cout << "sqrt(" << Fmodsq->gen(i) << ")";
+            }
+          cout << ")" << endl;
+        }
+    }
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newforms::display_newforms(int triv_char_only) const
+void Newforms::display_newforms(int triv_char_only, int full) const
 {
   for ( auto F : newforms)
     {
       if ((!triv_char_only) || F.trivial_char())
         {
-          F.display();
+          F.display(full);
           cout<<endl;
         }
     }

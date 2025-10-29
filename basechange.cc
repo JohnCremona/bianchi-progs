@@ -1,6 +1,5 @@
 // BASECHANGE.CC  -- dimension and splitting of (non-)base-change forms for Galois stable levels
 
-#include "matprocs.h"
 #include "qidloop.h"
 #include "newforms.h"
 //#define LOOPER

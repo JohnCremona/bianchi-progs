@@ -4,11 +4,12 @@
 #ifndef _FIELD_H
 #define _FIELD_H      1
 
-#include "matprocs.h"
+#include "eclib.h"
 
 class Field;
 class FieldElement;
 class FieldModSq;   // finite subgroups of (F^*)/(F^*)^2
+class Eigenvalue;   // a FieldElement a and an index i into FieldModSq representing a*sqrt(elt(i))
 
 class Field {
   friend class FieldElement;
@@ -45,8 +46,13 @@ public:
   void display_bases(ostream&s = cout) const; // display powers of A and C and bases in both embeddings
 };
 
+extern Field* FieldQQ;
+
 class FieldElement {
   friend class Field;
+  friend class FieldModSq;
+  friend class Eigenvalue;
+  friend FieldElement evaluate(const ZZX& f, const FieldElement a);
 private:
   Field* F;
   vec_m coords; // length F->d
@@ -55,15 +61,17 @@ private:
   // NB On construction every element will be reduced using cancel()
   void cancel(); // divides through by gcd(content(coords, denom))
 public:
+  FieldElement()
+    :F(FieldQQ) {;}
   FieldElement( Field* HF)
-    :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {};
+    :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {;}
   // raw means the given coords are w.r.t. the B-basis
   FieldElement( Field* HF, const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
   // creation from a rational
   FieldElement( Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1));
 
   string str() const;
-  const Field* field() const {return F;}
+  Field* field() {return F;}
   mat_m matrix() const; // ignores denom
   ZZX charpoly() const {return ::charpoly(matrix());}
   ZZX minpoly() const;
@@ -123,15 +131,43 @@ private:
   vector<FieldElement> gens;
   vector<FieldElement> elements;
 public:
+  FieldModSq(){;}
   FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}) {;}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
+  vector<FieldElement> elts() const {return elements;}
   // Compute the index of a nonzero element. If a belongs to the
-  // current group return i and set ra, where a*elements[i] = ra^2. If
+  // current group return i and set s, where a = elements[i]*s^2. If
   // a does not belong to the subgroup (mod squares) it is appended to
-  // gens, r is incremented, ra=1 and the new r is returned.
-  unsigned int get_index(const FieldElement& a, FieldElement& ra);
-  string elt_str(unsigned int i);
+  // gens, r is incremented, s=1 and the new r is returned.
+  unsigned int get_index(const FieldElement& a, FieldElement& s);
+  string elt_str(unsigned int i) const;
+  unsigned int rank() const {return r;}
+  int order() const {return elements.size();}
+  void display();
 };
+
+// an instance of class Eigenvalue consist of FieldElement a and an
+// index i into a FieldModSq representing a*sqrt(elt(i))
+class Eigenvalue {
+private:
+  FieldElement a;
+  unsigned int root_index;
+  FieldModSq* SqCl;
+public:
+  Eigenvalue() {;}
+  Eigenvalue(const FieldElement& x, FieldModSq* S, unsigned int i=0)
+    : a(x), root_index(i), SqCl(S)
+  {;}
+  FieldElement coeff() const {return a;}
+  FieldElement root_part() const  { return SqCl->elt(root_index); }
+  Eigenvalue operator*(Eigenvalue b) const;
+  Eigenvalue operator/(Eigenvalue b) const;
+  int is_zero() const {return a.is_zero();}
+  string str() const;
+};
+
+inline ostream& operator<<(ostream& s, const Eigenvalue& x)
+{ s << x.str(); return s;}
 
 #endif

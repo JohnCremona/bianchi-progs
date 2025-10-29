@@ -26,7 +26,7 @@ LIBDIR = $(ECLIB_BASE)/lib
 #  is much slower: e.g. with level (128), field 1 it takes 20m instead
 #  of <1s.
 
-GCC=g++ -std=c++14 -fmax-errors=1
+GCC=g++ -std=c++17 -fmax-errors=1
 CC = $(GCC)
 
 # to disable checking of assert() use the following:

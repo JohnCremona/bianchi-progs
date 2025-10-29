@@ -4,13 +4,11 @@
 #ifndef _BIANCHI_NFD_H
 #define _BIANCHI_NFD_H      1
 
-#include "matprocs.h"
 #include "homspace.h"
 #include "field.h"
 
 class Newform;
 class Newforms;
-enum class basis_type {raw, powers};
 
 // class for a d-dimensional newform, defined by an irreducible factor
 // of the characteristic polynomial of some splitting operator T
@@ -19,7 +17,7 @@ private:
   Newforms* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
   int d;      // dim(S)
-  Field F;
+  Field* F;   // pointer to the (homological) Hecke field
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_rel, denom_abs; // relative and absolute denominators of S
   vector<scalar> scales; // powers of denom_rel
@@ -27,6 +25,25 @@ private:
   mat projcoord; // used to computed eigenvalues of any operator
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   INT genus_char_disc; // associated discriminant factor (1 for trivial char)
+  // book-keeping data for eigenvalue computations
+  FieldModSq* Fmodsq;
+  vector<long> genus_classes; // list of classes for which we have a nonzero eigenvalue
+  vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
+  vector<Eigenvalue> genus_class_aP;  // list of eigenvalues of these ideals
+  int genus_classes_filled;  // Set to 1 when all genus classes are
+                             // filled, or when half are filled if we
+                             // have detected self-twist
+  // For each genus class c we count how many primes P in class c have
+  // a(P)=0, to aid in detecting self-twist forms.
+  vector<int> genus_class_trivial_counter;
+  // list of possible self-twist discriminants, initially depends only
+  // on the level but may be cut down later
+  vector<INT> possible_self_twists;
+  // map of eigenvalues for (good) primes, computed by geteigs()
+  map<Quadprime, Eigenvalue> aPmap;
+  // Fill dict aPmap of eigenvalues of first ntp good primes
+  void compute_eigs(int ntp=10, int verbose=0);
+
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
   // poly of Newforms's T_mat
@@ -38,15 +55,23 @@ public:
   // eigenvalue of a scalar operator
   ZZ eps(const matop& T);
 
-  // output basis for the Hecke field and character
-  Field field() const {return F;}
-  string var() const {return F.var;}
-  void display();
+  // eigenvalue of a (good) prime
+  Eigenvalue eig(Quadprime& P);
+  Field* field() const {return F;}
+  string var() const {return F->var;}
+  // output basis for the Homological Hecke field and character
+  // If full, also output multiplicative basis for the full Hecke field
+  void display(int full=0);
   int dimension() const {return d;}
-  ZZX poly() const {return F.poly();}
+  ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
-  ZZ basis_factor() const {return F.Bdet;}
+  ZZ basis_factor() const {return F->Bdet;}
+  map<Quadprime, Eigenvalue> eigs(int ntp=10, int verbose=0)
+  {
+    compute_eigs(ntp, verbose);
+    return aPmap;
+  }
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -98,6 +123,8 @@ private:
   mat_m T_mat;  // matrix of splitting operator
   string T_name;  // name of splitting operator
   vector<ZZX> factors; // list of multiplicity-1 irreducible factor of charpoly(T)
+  // list of possible self-twist discriminants depending only on the level
+  vector<INT> possible_self_twists;
 
   // Internal methods, called by constructor
 
@@ -123,15 +150,13 @@ public:
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
-  // vector<FieldElement> ap(Quadprime& P); // not const as may add info into N
-  // vector<FieldElement> eig(const matop& T) const;
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
   string splitopname() const {return T_name;}
   vector<int> dimensions() const;
   // output basis for the Hecke field and character of all newforms
-  void display_newforms(int triv_char_only=0) const;
+  void display_newforms(int triv_char_only=0, int full=0) const;
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
 };
