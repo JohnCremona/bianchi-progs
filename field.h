@@ -38,6 +38,7 @@ public:
   FieldElement gen();
   FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
   int degree() const {return d;}
+  int isQ() const {return d==1;}
   ZZX poly() const {return minpoly;}
   mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
   ZZ basis_factor() const {return Bdet;}

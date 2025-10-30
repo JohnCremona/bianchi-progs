@@ -173,6 +173,8 @@ ZZ Newform::eps(const matop& T) // T should be a scalar
   // cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
   FieldElement e = eig(T);
   static const ZZ one(1);
+  // cout << "Computed e = " << e << endl;
+  // cout << "(should be +1 or -1)" << endl;
   if (e.is_one())
     return one;
   if (e.is_minus_one())
@@ -381,19 +383,27 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           int i = ci - genus_classes.begin();
           Qideal A = genus_class_ideals[i];
           Qideal B = A*P; // so B is square-free and of square class
-          if (verbose>1)
-            cout << "-- computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
+          if (verbose)
+            cout << " -- computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
                  <<ideal_label(A)<<endl;
           if (B.is_principal())         // compute T(B)
             {
               Eigenvalue APeig(eig(HeckeBOp(B, nf->N)), Fmodsq, 0);
               aP = APeig / genus_class_aP[i];
+              if (verbose)
+                cout << "P*A has eigenvalue " << APeig
+                     << "; dividing by " << genus_class_aP[i]
+                     << " gives " << aP << endl;
             }
           else                          // compute T(B)*T(C,C)
             {
               Qideal C = B.sqrt_coprime_to(nf->N); // so A*P*C^2 is principal
               Eigenvalue APCeig(eig(HeckeBChiOp(B,C, nf->N)), Fmodsq, 0);
               aP = APCeig / genus_class_aP[i];
+              if (verbose)
+                cout << "P*A has eigenvalue " << APCeig
+                     << "; dividing by " << genus_class_aP[i]
+                     << " gives " << aP << endl;
             }
           aPmap[P] = aP;
           // See whether P is a better genus class rep than the one we have:
@@ -516,7 +526,7 @@ void Newform::display(int full)
   if (n2r>1)
     cout << " - Genus character values: " <<  epsvec << endl;
   cout << " - Dimension: "<<d<<endl;
-  cout << " - Principal Hecke field k_f: ";
+  cout << " - Principal Hecke field k_f = ";
   F->display();
   if (full && n2r>0)
     {
@@ -525,17 +535,32 @@ void Newform::display(int full)
         cout << " - Full Hecke field is the same as the Principal Hecke field";
       else
         {
-          cout << " - Full Hecke Field k_F = k_f(";
+          // If the base field is Q we output something like
+          // "Q(sqrt(2), sqrt(5))", otherwise something like
+          // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
+
+          cout << " - Full Hecke Field k_F = "
+               << (F->isQ()? "Q" : "k_f")
+               << "(";
           for (int i=0; i<r; i++)
             {
               if (i) cout << ", ";
-              cout << "sqrt(r" << (i+1) << ")";
+              cout << "sqrt(";
+              if (F->isQ())
+                cout << Fmodsq->gen(i);
+              else
+                cout << "r" << (i+1);
+              cout << ")";
             }
-          cout << ") where ";
-          for (int i=0; i<r; i++)
+          cout << ")";
+          if (!(F->isQ()))
             {
-              if (i) cout << ", ";
-              cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+              cout << " where ";
+              for (int i=0; i<r; i++)
+                {
+                  if (i) cout << ", ";
+                  cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+                }
             }
           cout << endl;
         }

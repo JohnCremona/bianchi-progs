@@ -231,6 +231,11 @@ void FieldElement::cancel() // divides through by gcd(content(coords, denom))
 {
   if (IsOne(denom))
     return;
+  if (denom<0)
+    {
+      denom = -denom;
+      coords = -coords;
+    }
   ZZ g = gcd(content(coords), denom);
   if (IsOne(g))
     return;
@@ -240,27 +245,41 @@ void FieldElement::cancel() // divides through by gcd(content(coords, denom))
 
 int FieldElement::is_zero() const
 {
+  if (F->isQ())
+    return ::is_zero(coords[1]);
   return trivial(coords);
 }
 
 int FieldElement::is_one() const
 {
+  if (F->isQ())
+    return IsOne(coords[1]) && IsOne(denom);
   return IsOne(denom) && coords == vec_m::unit_vector(F->d,1);
 }
 
 int FieldElement::is_minus_one() const
 {
+  if (F->isQ())
+    return IsOne(-coords[1]) && IsOne(denom);
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
 string FieldElement::str() const
 {
   // cout << "In FieldElement::str() with var = " << F->var << endl;
-  string s1 = polynomial_string(coords, F->var);
-  if (denom==1)
-    return s1;
+  // cout << "coords = " << coords << ", denom = " << denom << endl;
   ostringstream s;
-  s << "(" << s1 << ")/" << denom;
+  if (F->isQ())
+    {
+      s << coords[1];
+      if (denom!=1)
+        s << "/" << denom;
+      return s.str();
+    }
+  string n = polynomial_string(coords, F->var);
+  if (denom==1)
+    return n;
+  s << "(" << n << ")/" << denom;
   return s.str();
 }
 
@@ -274,7 +293,9 @@ mat_m FieldElement::matrix() const // ignores denom
   return lin_comb_mats(coords, F->Cpowers);
 }
 
-// the charpoly is a power of the minpoly
+// the charpoly is a power of the irreducible minpoly NB This monic
+// integer polynomial is the min poly of the numerator, it ignoes the
+// denominator!
 ZZX FieldElement::minpoly() const
 {
   return factor(charpoly())[0].a;
@@ -288,7 +309,12 @@ void FieldElement::operator+=(const FieldElement& b)
       cerr << "Attempt to add elements of different fields!" << endl;
       exit(1);
     }
-  coords = b.denom*coords + denom*b.coords;
+  if (b.is_zero())
+    return;
+  if (F->isQ())
+    coords[1] = b.denom*coords[1] + denom*b.coords[1];
+  else
+    coords = b.denom*coords + denom*b.coords;
   denom *= b.denom;
   cancel();
 }
@@ -301,7 +327,8 @@ FieldElement FieldElement::operator+(const FieldElement& b) const
       exit(1);
     }
   FieldElement a = *this;
-  a += b;
+  if (!b.is_zero())
+    a += b;
   return a;
 }
 
@@ -318,7 +345,12 @@ void FieldElement::operator-=(const FieldElement& b)
       cerr << "Attempt to subtract elements of different fields!" << endl;
       exit(1);
     }
-  coords = b.denom*coords - denom*b.coords;
+  if (b.is_zero())
+    return;
+  if (F->isQ())
+    coords[1] = b.denom*coords[1] - denom*b.coords[1];
+  else
+    coords = b.denom*coords - denom*b.coords;
   denom *= b.denom;
   cancel();
 }
@@ -331,7 +363,8 @@ FieldElement FieldElement::operator-(const FieldElement& b) const
       exit(1);
     }
   FieldElement a = *this;
-  a -= b;
+  if (!b.is_zero())
+    a -= b;
   return a;
 }
 
@@ -344,7 +377,12 @@ void FieldElement::operator*=(const FieldElement& b) // multiply by b
       cerr << "RHS field: "; b.F->display(); cerr << endl;
       exit(1);
     }
-  coords = (matrix()*b.matrix()).col(1);
+  if (is_zero()) return;
+  if (b.is_zero()) {*this = b; return;}
+  if (F->isQ())
+    coords[1] *= b.coords[1];
+  else
+    coords = (matrix()*b.matrix()).col(1);
   denom *= b.denom;
   cancel();
 }
@@ -358,8 +396,10 @@ FieldElement FieldElement::operator*(const FieldElement& b) const
       cerr << "RHS field: "; b.F->display(); cerr << endl;
       exit(1);
     }
+  if (b.is_zero()) return b;
   FieldElement a = *this;
-  a *= b;
+  if (!is_zero())
+    a *= b;
   return a;
 }
 
@@ -370,9 +410,22 @@ FieldElement FieldElement::inverse() const // raise error if zero
       cerr << "Attempt to invert zero!" << endl;
       exit(1);
     }
-  mat_m M = matrix(), Minv;
-  ZZ Mdet = ::inverse(M,Minv); // so M*Minv = Mdet*identity
-  FieldElement ans(F, denom*Minv.col(1), Mdet);
+  if (is_one() || is_minus_one())
+    {
+      return FieldElement(*this);
+    }
+  FieldElement ans(F);
+  if (F->isQ())
+    {
+      ans = FieldElement(F, denom, coords[1]);
+      // constructor will ensure new denom>0
+    }
+  else
+    {
+      mat_m M = matrix(), Minv;
+      ZZ Mdet = ::inverse(M,Minv); // so M*Minv = Mdet*identity
+      ans = FieldElement(F, denom*Minv.col(1), Mdet);
+    }
   assert (operator*(ans).is_one());
   return ans;
 }
@@ -389,7 +442,16 @@ void FieldElement::operator/=(const FieldElement& b)      // divide by b
       cerr << "Attempt to divide elements of different fields!" << endl;
       exit(1);
     }
-  operator*=(b.inverse());
+  if (is_zero())
+    return;
+  if (F->isQ())
+    {
+      coords[1] *= b.denom;
+      denom *= b.coords[1];
+      cancel();
+    }
+  else
+    operator*=(b.inverse());
 }
 
 FieldElement FieldElement::operator/(const FieldElement& b) const // raise error if b is zero
@@ -405,15 +467,15 @@ FieldElement FieldElement::operator/(const FieldElement& b) const // raise error
       exit(1);
     }
   FieldElement a = *this;
-  a /= b;
+  if (!is_zero())
+    a /= b;
   return a;
 }
 
 FieldElement evaluate(const ZZX& f, const FieldElement a)
 {
-  long d = deg(f);
   FieldElement fa(a.F, to_ZZ(0));
-  for(int i=d; i>=0; i--)
+  for(int i=deg(f); i>=0; i--)
     {
       fa += coeff(f,i);
       if(i)
@@ -428,6 +490,20 @@ FieldElement evaluate(const ZZX& f, const FieldElement a)
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
 int FieldElement::is_absolute_square(FieldElement& r) const
 {
+  if (F->isQ())
+    {
+      ZZ n = coords[1];
+      if (n<0)
+        return 0;
+      ZZ x = n*denom, rn;
+      SqrRoot(rn, x); // rounds down if x is not square;
+      if (rn*rn != x)
+          return 0;
+      // sqrt(n/d) = sqrt(n*d)/d = r/d
+      r = FieldElement(F, rn, denom);
+      assert (r*r== *this);
+      return 1;
+    }
   return is_absolute_square(r, minpoly());
 }
 
@@ -467,6 +543,11 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
       r = *this;
       return 1;
     }
+  if (F->isQ())
+    {
+      return is_absolute_square(r);
+    }
+
   // If this has full degree, or if the relative degree is odd, just
   // call is_absolute_square()
   ZZX m = minpoly();
@@ -506,21 +587,43 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
     {
       if ((a*x).is_square(s))
         {
+          assert (a*elements[i] == s*s);
           // Now a*x = s^2 so a = x*(s/x)^2
           // but we want a = x*s^2
           s /= x;
+          assert (a == elements[i]*s*s);
           return i;
         }
       i++;
     }
-  // We get here if a is not in the current group
-  gens.push_back(a);
+  // We get here if a is not in the current group. For fields other
+  // than Q we use a itself as the new gen, otherwise the squarefree
+  // part of a.
+  FieldElement newgen = a;
+  ZZ a1;
+  if (F->isQ())
+    {
+      a1 = squarefree_part(a.coords[1]*a.denom);
+      newgen = FieldElement(F, a1);
+    }
+  gens.push_back(newgen);
   r++;
   s = F->one();
+  // cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << newgen << endl;
+  // cout << "elements were " << elements << endl;
   vector<FieldElement> new_elements(elements.size(), FieldElement(F));
-  std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                 [a](const FieldElement& x){return a*x;});
+  if (F->isQ())
+    {
+      std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                     [this, a1](const FieldElement& x){return FieldElement(F, squarefree_part(a1*x.coords[1]*x.denom));});
+    }
+  else
+    {
+      std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                     [newgen](const FieldElement& x){return newgen*x;});
+    }
   elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+  // cout << "elements are now " << elements << endl;
   return r;
 }
 
@@ -561,20 +664,30 @@ void FieldModSq::display()
 
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
 {
+  if (is_zero()) return Eigenvalue(*this);
+  if (b.is_zero()) return b;
   FieldElement r = root_part() * b.root_part();
   FieldElement s(a.F);
   unsigned int j = SqCl->get_index(r, s);
+  assert (r == s*s*SqCl->elt(j));
   // Now r = s^2 * elt(j)
-  return Eigenvalue(a*b.a*s*s, SqCl, j);
+  return Eigenvalue(a*b.a*s, SqCl, j);
 }
 
 Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
 {
+  if (is_zero()) return Eigenvalue(*this);
+  // cout << "\nDividing " << (*this) << " by " << b << endl;
   FieldElement r = root_part() / b.root_part();
-  FieldElement s(a.F);
+  // cout << "Quotent of root_parts " << root_part() << " and " << b.root_part() << " is " << r << endl;
+  FieldElement s(a.F); // value ignored, just to set the field
   unsigned int j = SqCl->get_index(r, s);
+  assert (r == s*s*SqCl->elt(j));
+  // cout << "... which has index " << j << ", elt(j) = "<< SqCl->elt(j)
+  //      << " with s="<<s<<endl;
+  // cout << "s^2*elt(j) = " << s*s*SqCl->elt(j) << endl;
   // Now r = s^2 * elt(j)
-  return Eigenvalue((a/b.a)*s*s, SqCl, j);
+  return Eigenvalue(s*a/b.a, SqCl, j);
 }
 
 string Eigenvalue::str() const
@@ -584,11 +697,32 @@ string Eigenvalue::str() const
     s << "0";
   else
     {
-      if (root_index)
-        s << "(";
-      s << a;
-      if (root_index)
-        s << ")*sqrt(" << SqCl->elt_str(root_index) << ")";
+      int QQ = a.F->isQ();
+      if (!root_index) // then a involves no sqrts
+        s << a;
+      else // it does
+        {
+          if (QQ)
+            {
+              if (a.is_one())
+                ;
+              else
+                if (a.is_minus_one())
+                  s << "-";
+                else
+                  s << a << "*";
+            }
+          else
+            {
+              s << "(" << a << ")";
+            }
+          s << "sqrt(";
+          if (QQ)
+            s << SqCl->elt(root_index);
+          else
+            s << SqCl->elt_str(root_index);
+          s  << ")";
+        }
     }
   return s.str();
 }
