@@ -83,20 +83,24 @@ public:
   int operator==(const FieldElement& b) const;
 
   FieldElement operator+(const FieldElement& b) const; // add
+  FieldElement operator+(const ZZ& b) const {return operator+(FieldElement(F,b));} // add
   void operator+=(const FieldElement& b); // add b to this
   void operator+=(const ZZ& b) { operator+=(FieldElement(F,b));} // add b
 
   FieldElement operator-(const FieldElement& b) const; // subtract
+  FieldElement operator-(const ZZ& b) const {return operator-(FieldElement(F,b));} // subtract
   void operator-=(const FieldElement& b); // subtract b from this
   void operator-=(const ZZ& b) { operator-=(FieldElement(F,b));} // subtract b
   FieldElement operator-() const;                           // unary minus
 
   FieldElement operator*(const FieldElement& b) const; // product
+  FieldElement operator*(const ZZ& b) const {return operator*(FieldElement(F,b));} // product
   void operator*=(const FieldElement& b); // multiply by b
   void operator*=(const ZZ& b) { operator*=(FieldElement(F,b));} // multiply by b
 
   FieldElement inverse() const; // raise error if zero      // inverse
   FieldElement operator/(const FieldElement& b) const; // divide (raise error if b is zero)
+  FieldElement operator/(const ZZ& b) const {return operator/(FieldElement(F,b));} // divide
   void operator/=(const FieldElement& b);                        // divide by b
   void operator/=(const ZZ& b) { operator/=(FieldElement(F,b));} // divide by b
 

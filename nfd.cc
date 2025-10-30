@@ -219,6 +219,8 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
       int i=1;
       for (auto f: factors)
         {
+          // The index i is stored in the newform but these will
+          // change after we sort them
           newforms.push_back(Newform(this, i, f, verbose));
           ++i;
         }
@@ -228,6 +230,9 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
     cout << "Unable to find a suitable splitting operator!" << endl;
   // Sort the newforms (by character, dimension, polynomial)
   std::sort(newforms.begin(), newforms.end(), newform_cmp);
+  int i=1;
+  for (Newform& f: newforms)
+    f.set_index(i++);
 }
 
 // compute T=T_P, trying all good P with N(P)<=maxnormP
@@ -333,11 +338,17 @@ void Newforms::find_T(int maxnp, int maxc)
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs(int ntp, int verbose)
 {
+  if (trivial_char())
+    compute_eigs_triv_char(ntp, verbose);
+  else
+    cout << "compute_eigs() not yet implemented for forms with nontrivial character" << endl;
+}
+
+// Fill aPmap, dict of eigenvalues of first ntp good primes
+void Newform::compute_eigs_triv_char(int ntp, int verbose)
+{
   if (!trivial_char())
-    {
-      cout << "get_eigs() not yet implemented for forms with nontrivial character" << endl;
-      return;
-    }
+    return;
   int nap = 0;
   auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
@@ -518,9 +529,15 @@ void Newform::display(int full)
           for (int i=0; i<r; i++)
             {
               if (i) cout << ", ";
-              cout << "sqrt(" << Fmodsq->gen(i) << ")";
+              cout << "sqrt(r" << (i+1) << ")";
             }
-          cout << ")" << endl;
+          cout << ") where ";
+          for (int i=0; i<r; i++)
+            {
+              if (i) cout << ", ";
+              cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+            }
+          cout << endl;
         }
     }
 }

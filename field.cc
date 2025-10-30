@@ -435,21 +435,22 @@ int FieldElement::is_absolute_square(FieldElement& r) const
 int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 {
   ZZX g, g0, g1;
-  if (::is_square(minpol, g))
+  ZZX f = scale_poly_up(minpol, denom);
+  if (::is_square(f, g))
     {
       parity_split(g, g0, g1);
       // Now 0 = g(r) = g0(a)+r*g1(a) and g1(a)!=0
-      r = - evaluate(g0,*this)/evaluate(g1,*this);
+      r = - evaluate(g0,*this)/(evaluate(g1,*this)*denom);
       if (r*r== *this)
         return 1;
       else
         {
-          cout << (*this) << " has min poly " << polynomial_string(minpol) << " whose double has factor "
-               << polynomial_string(g)
+          cout << (*this) << " has scaled min poly " << polynomial_string(f)
+               << " whose double has factor " << polynomial_string(g)
                << " with even part g0 = " << polynomial_string(g0)
                << " and odd part g1 = " << polynomial_string(g1) << endl;
           cout << "These evaluate to " << evaluate(g0,*this) << " and " << evaluate(g1,*this)
-               << " with negative quotient r = " << r
+               << " with negative quotient/denom r = " << r
                << " but r*r = " << r*r << endl;
           return 0;
         }
@@ -538,8 +539,8 @@ string FieldModSq::elt_str(unsigned int i) const
         {
           if (bit(i,j))
             {
-              if (!first) s << ".";
-              s << "r" << (j+1);
+              if (!first) s << "*";
+              s << v << (j+1);
               first = 0;
             }
         }
@@ -579,10 +580,15 @@ Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
 string Eigenvalue::str() const
 {
   ostringstream s;
-  if (root_index)
-    s << "(";
-  s << a;
-  if (root_index)
-    s << ")*sqrt(" << SqCl->elt_str(root_index) << ")";
+  if (is_zero())
+    s << "0";
+  else
+    {
+      if (root_index)
+        s << "(";
+      s << a;
+      if (root_index)
+        s << ")*sqrt(" << SqCl->elt_str(root_index) << ")";
+    }
   return s.str();
 }

@@ -83,7 +83,7 @@ int main()
      if (verbose)
        cout << "Splitting using " << forms.splitopname() << endl;
      int nnf = forms.nforms();
-     cout << "Found " << nnf << " newforms";
+     cout << "Found " << nnf << " homological newforms";
      if (nnf)
        cout << " with dimensions " << forms.dimensions();
      cout << endl;
@@ -98,6 +98,9 @@ int main()
        }
      else
        {
+         cout << "Of these, " << nnf_triv_char
+              << (nnf_triv_char==1? " has": " have")
+              << " trivial character"<<endl<<endl;
          cout << "Newform data";
          if (triv_char_only)
            cout << " (only listing newforms with trivial character)";

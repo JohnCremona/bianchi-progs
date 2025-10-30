@@ -13,6 +13,7 @@ class Newforms;
 // class for a d-dimensional newform, defined by an irreducible factor
 // of the characteristic polynomial of some splitting operator T
 class Newform {
+  friend class Newforms;
 private:
   Newforms* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
@@ -43,18 +44,22 @@ private:
   map<Quadprime, Eigenvalue> aPmap;
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
+  void compute_eigs_triv_char(int ntp=10, int verbose=0);
 
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
   // poly of Newforms's T_mat
   Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
+
+  int get_index() const { return index;}
+  void set_index(int i) {index = i;}
+
   // eigenvalue in F of a general principal operator on this:
   FieldElement eig(const matop& T);
   // eigenvalue of AutoHeckeOp(P) on this:
   FieldElement ap(Quadprime& P);
   // eigenvalue of a scalar operator
   ZZ eps(const matop& T);
-
   // eigenvalue of a (good) prime
   Eigenvalue eig(Quadprime& P);
   Field* field() const {return F;}
