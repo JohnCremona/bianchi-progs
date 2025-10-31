@@ -32,14 +32,14 @@ int main()
     }
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
-  //int n2r = Quad::class_group_2_rank;
+  int n2r = Quad::class_group_2_rank;
 
   int verbose=1;
   cerr << "Verbose output? (0/1) ";
   cin >> verbose;
 
   int triv_char_only = 0;
-  if (Quad::class_group_2_rank > 0)
+  if (n2r > 0)
     {
       cout << "Trivial character only? (0/1) ";
       cin >> triv_char_only;
@@ -98,9 +98,10 @@ int main()
        }
      else
        {
-         cout << "Of these, " << nnf_triv_char
-              << (nnf_triv_char==1? " has": " have")
-              << " trivial character"<<endl<<endl;
+         if (n2r)
+           cout << "Of these, " << nnf_triv_char
+                << (nnf_triv_char==1? " has": " have")
+                << " trivial character"<<endl<<endl;
          cout << "Newform data";
          if (triv_char_only)
            cout << " (only listing newforms with trivial character)";

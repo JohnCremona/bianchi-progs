@@ -98,18 +98,13 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   std::transform(nf->eps_ops.begin(), nf->eps_ops.end(), epsvec.begin(),
                  [this](const matop& op){return (eps(op)>0?+1:-1);});
   int n2r = Quad::class_group_2_rank;
-  if (n2r==0)
-    {
-      genus_char_disc = INT(1);
-      return;
-    }
-  if (verbose)
+  if (verbose && n2r)
     cout<<"genus char values: "<<epsvec<<endl;
 
   // Initialise book-keeping data for eigenvalue computation
   Fmodsq = new FieldModSq(F);
   possible_self_twists = nf->possible_self_twists;
-  if (verbose)
+  if (verbose && n2r)
     cout << "Possible self-twist discriminants: " << possible_self_twists << endl;
   genus_class_trivial_counter.resize(1<<n2r, 0);
   genus_classes.resize(1,0);
@@ -117,6 +112,9 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
 
 #if(0) // this needs more work to do anything sensible
+  if (n2r==0)
+    genus_char_disc = INT(1);
+
   // Compute genus character discriminant. We cannot just multiply the
   // prime discriminants for which epsvec has entry -1 since the
   // 2-torsion in the class group has (possibly) a different basis.
@@ -367,7 +365,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           aPmap[P] = aP;
           if (verbose)
             cout<<" -- P="<<P<<" has trivial genus class, aP = " << aP << endl;
-          if (!aP.is_zero())
+          if (aP.is_zero())
             genus_class_trivial_counter[c] +=1;
           continue;
         }
@@ -453,7 +451,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // Check if this eigenvalue is 0
       if (aP2.is_zero())
         {
-          aPmap[P] = Eigenvalue(F->zero(), Fmodsq, 0);
+          aPmap[P] = Eigenvalue(aP2, Fmodsq, 0);
           genus_class_trivial_counter[c] +=1;
           if (verbose)
             cout << " -- genus_class_trivial_counter for class "<<c
