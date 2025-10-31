@@ -41,6 +41,7 @@ Field::Field() // defaults to Q
 Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
   : var(a), d(m.nrows()), denom(den), A(m)
 {
+  verb = 1;
   if (verb)
     {
       cout << "----------------------------"<<endl;
@@ -290,7 +291,11 @@ int FieldElement::operator==(const FieldElement& b) const
 
 mat_m FieldElement::matrix() const // ignores denom
 {
-  return lin_comb_mats(coords, F->Cpowers);
+  mat_m M = lin_comb_mats(coords, F->Cpowers);
+  cout << *this << " has coords " << coords << " and matrix ";
+  output_flat_matrix(M);
+  cout << endl;
+  return M;
 }
 
 // the charpoly is a power of the irreducible minpoly NB This monic
@@ -298,7 +303,12 @@ mat_m FieldElement::matrix() const // ignores denom
 // denominator!
 ZZX FieldElement::minpoly() const
 {
-  return factor(charpoly())[0].a;
+  ZZX cp = charpoly();
+  cout << "charpoly() of " << *this << " times "<<denom<<" is " << polynomial_string(cp) << endl;
+  display_factors(cp);
+  ZZX mp = factor(cp)[0].a;
+  cout << "so minpoly() of " << *this << " times "<<denom<<" is " << polynomial_string(mp) << endl;
+  return mp;
 }
 
 // add b to this
@@ -493,18 +503,40 @@ int FieldElement::is_absolute_square(FieldElement& r) const
   if (F->isQ())
     {
       ZZ n = coords[1];
+      if (n==0)
+        return 1;
       if (n<0)
-        return 0;
+        {
+          // FieldElement r2=r;
+          // if ((-*this).is_absolute_square(r2))
+          //   {
+          //     cout << "***************************************************"<<endl;
+          //     cout << "x = " << *this << " is not a square but -x is!" << endl;
+          //     cout << "***************************************************"<<endl;
+          //   }
+          return 0;
+        }
+      // Now r is positive
       ZZ x = n*denom, rn;
       SqrRoot(rn, x); // rounds down if x is not square;
       if (rn*rn != x)
-          return 0;
+        return 0;
       // sqrt(n/d) = sqrt(n*d)/d = r/d
       r = FieldElement(F, rn, denom);
       assert (r*r== *this);
       return 1;
     }
-  return is_absolute_square(r, minpoly());
+  // field not Q
+  int res = is_absolute_square(r, minpoly());
+  // FieldElement r2=r;
+  // if (!res && (-r).is_absolute_square(r2)) // this will cause an infinte loop if neither is square
+  //   {
+  //     cout << "***************************************************"<<endl;
+  //     cout << "r = " << r << " is not a square but -r is!" << endl;
+  //     cout << "***************************************************"<<endl;
+  //     exit(0);
+  //   }
+  return res;
 }
 
 // Same as above if the min poly is known
@@ -512,6 +544,9 @@ int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 {
   ZZX g, g0, g1;
   ZZX f = scale_poly_up(minpol, denom);
+  cout << "In is_absolute_square() with " << *this
+       << ", minpoly of this (ignoring denom "<<denom<<") is " << minpol << endl;
+  cout << "Scaled minpoly is " << f << endl;
   if (::is_square(f, g))
     {
       parity_split(g, g0, g1);
@@ -545,17 +580,20 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
     }
   if (F->isQ())
     {
-      return is_absolute_square(r);
+      int res = is_absolute_square(r);
+      if (res) return 1;
     }
 
   // If this has full degree, or if the relative degree is odd, just
   // call is_absolute_square()
+  int d = F->d;
   ZZX m = minpoly();
-  if (((F->d)/deg(m))%2)
+  if ((d/deg(m))%2)
     {
-      //cout << "Is_square() succeeds directly" << endl;
+      cout << "Is_square() works directly" << endl;
       return is_absolute_square(r, m);
     }
+  cout << "Is_square() multipying by successive squares" << endl;
 
   // Otherwise we multiply this by a "random" square to have full degree first
   FieldElement b = F->gen();
@@ -563,11 +601,11 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
     {
       FieldElement abb = (*this)*b*b, rb(F);
       ZZX mb = abb.minpoly();
-      if (((F->d)/deg(mb))%2)
+      if ((d/deg(mb))%2)
         {
           if (is_absolute_square(rb, mb))
             {
-              //cout << "Is_square() succeeds after " << i+1 << " tries" << endl;
+              cout << "Is_square() succeeds after " << i+1 << " tries, using b = " << b << endl;
               r = rb/b;
               return 1;
             }
@@ -596,9 +634,12 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
         }
       i++;
     }
-  // We get here if a is not in the current group. For fields other
-  // than Q we use a itself as the new gen, otherwise the squarefree
-  // part of a.
+  // We get here if a (mod squares) is not in the current group.  In
+  // particular, it is not a square. For fields other than Q we use a
+  // itself as the new gen, otherwise the squarefree part of a.
+
+  // We are interested to see if we ever have a nonsquare but -a
+  // square (when the field is totally real, both cannot be squares!).
   FieldElement newgen = a;
   ZZ a1;
   if (F->isQ())

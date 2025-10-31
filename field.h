@@ -45,6 +45,8 @@ public:
   mat_m inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
   void display(ostream&s = cout, int raw=0); // if raw, also display raw basis
   void display_bases(ostream&s = cout) const; // display powers of A and C and bases in both embeddings
+  string get_var() const {return var;}
+  void set_var(const string& v)  {var = v;}
 };
 
 extern Field* FieldQQ;

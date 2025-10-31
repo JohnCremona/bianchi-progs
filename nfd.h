@@ -52,7 +52,7 @@ public:
   Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
 
   int get_index() const { return index;}
-  void set_index(int i) {index = i;}
+  void set_index(int i) {index = i; F->set_var(codeletter(i-1));}
 
   // eigenvalue in F of a general principal operator on this:
   FieldElement eig(const matop& T);
