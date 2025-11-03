@@ -83,9 +83,16 @@ int main()
      if (verbose)
        cout << "Splitting using " << forms.splitopname() << endl;
      int nnf = forms.nforms();
-     cout << "Found " << nnf << " homological newforms";
+     cout << "Found " << nnf << " homological newform";
+     if (nnf!=1) cout << "s";
      if (nnf)
-       cout << " with dimensions " << forms.dimensions();
+       {
+         cout << " of dimension";
+         if (nnf>1)
+           cout << "s " << forms.dimensions();
+         else
+           cout << " " << forms.dimensions()[0];
+       }
      cout << endl;
      if (!nnf)
        continue;
@@ -109,11 +116,13 @@ int main()
          forms.display_newforms(triv_char_only);
        }
 
+     cout << "Hecke eigenvalues:" << endl;
      int inf=1;
      for (auto F: forms.newforms)
        {
          if (F.trivial_char())
            {
+             cout << endl;
              if (verbose)
                cout << "Computing eigenvalues for newform #" << inf <<endl;
              map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
@@ -125,7 +134,6 @@ int main()
          inf++;
        }
 #if(0)
-     cout << "Hecke eigenvalues:\t";
      for (auto F: forms.newforms)
        {
          if ((!triv_char_only) || F.trivial_char())

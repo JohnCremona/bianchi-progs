@@ -41,7 +41,6 @@ Field::Field() // defaults to Q
 Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
   : var(a), d(m.nrows()), denom(den), A(m)
 {
-  verb = 1;
   if (verb)
     {
       cout << "----------------------------"<<endl;
@@ -291,11 +290,7 @@ int FieldElement::operator==(const FieldElement& b) const
 
 mat_m FieldElement::matrix() const // ignores denom
 {
-  mat_m M = lin_comb_mats(coords, F->Cpowers);
-  cout << *this << " has coords " << coords << " and matrix ";
-  output_flat_matrix(M);
-  cout << endl;
-  return M;
+  return lin_comb_mats(coords, F->Cpowers);
 }
 
 // the charpoly is a power of the irreducible minpoly NB This monic
@@ -304,10 +299,7 @@ mat_m FieldElement::matrix() const // ignores denom
 ZZX FieldElement::minpoly() const
 {
   ZZX cp = charpoly();
-  cout << "charpoly() of " << *this << " times "<<denom<<" is " << polynomial_string(cp) << endl;
-  display_factors(cp);
   ZZX mp = factor(cp)[0].a;
-  cout << "so minpoly() of " << *this << " times "<<denom<<" is " << polynomial_string(mp) << endl;
   return mp;
 }
 
@@ -506,16 +498,7 @@ int FieldElement::is_absolute_square(FieldElement& r) const
       if (n==0)
         return 1;
       if (n<0)
-        {
-          // FieldElement r2=r;
-          // if ((-*this).is_absolute_square(r2))
-          //   {
-          //     cout << "***************************************************"<<endl;
-          //     cout << "x = " << *this << " is not a square but -x is!" << endl;
-          //     cout << "***************************************************"<<endl;
-          //   }
-          return 0;
-        }
+        return 0;
       // Now r is positive
       ZZ x = n*denom, rn;
       SqrRoot(rn, x); // rounds down if x is not square;
@@ -527,16 +510,9 @@ int FieldElement::is_absolute_square(FieldElement& r) const
       return 1;
     }
   // field not Q
-  int res = is_absolute_square(r, minpoly());
-  // FieldElement r2=r;
-  // if (!res && (-r).is_absolute_square(r2)) // this will cause an infinte loop if neither is square
-  //   {
-  //     cout << "***************************************************"<<endl;
-  //     cout << "r = " << r << " is not a square but -r is!" << endl;
-  //     cout << "***************************************************"<<endl;
-  //     exit(0);
-  //   }
-  return res;
+
+  ZZX mp = minpoly();
+  return is_absolute_square(r, mp);
 }
 
 // Same as above if the min poly is known
@@ -544,9 +520,6 @@ int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 {
   ZZX g, g0, g1;
   ZZX f = scale_poly_up(minpol, denom);
-  cout << "In is_absolute_square() with " << *this
-       << ", minpoly of this (ignoring denom "<<denom<<") is " << minpol << endl;
-  cout << "Scaled minpoly is " << f << endl;
   if (::is_square(f, g))
     {
       parity_split(g, g0, g1);
@@ -571,6 +544,7 @@ int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 
 // The second function applies in general:
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
+//#define DEBUG_IS_SQUARE
 int FieldElement::is_square(FieldElement& r, int ntries) const
 {
   if (is_zero() || is_one())
@@ -590,10 +564,14 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   ZZX m = minpoly();
   if ((d/deg(m))%2)
     {
+#ifdef DEBUG_IS_SQUARE
       cout << "Is_square() works directly" << endl;
+#endif
       return is_absolute_square(r, m);
     }
+#ifdef DEBUG_IS_SQUARE
   cout << "Is_square() multipying by successive squares" << endl;
+#endif
 
   // Otherwise we multiply this by a "random" square to have full degree first
   FieldElement b = F->gen();
@@ -603,14 +581,18 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
       ZZX mb = abb.minpoly();
       if ((d/deg(mb))%2)
         {
-          if (is_absolute_square(rb, mb))
+#ifdef DEBUG_IS_SQUARE
+          cout << "Is_square() succeeds after " << i+1 << " tries, using b = " << b << endl;
+#endif
+          if (abb.is_absolute_square(rb, mb))
             {
-              cout << "Is_square() succeeds after " << i+1 << " tries, using b = " << b << endl;
               r = rb/b;
               return 1;
             }
           else
-            return 0;
+            {
+              return 0;
+            }
         }
       // else keep trying
     } // end of loop over shifts i
