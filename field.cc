@@ -105,6 +105,8 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
 
 void Field::display_bases(ostream&s) const
 {
+  if (isQ())
+    return;
   mat_m I(mat_m::identity_matrix(d));
 
   s << "Powers of A (i.e. powers of " << var << " in A-embedding):\n";
@@ -160,7 +162,7 @@ void Field::display(ostream&s, int raw)
 {
   static const ZZ one(1);
   string fpol = polynomial_string(minpoly);
-  if (d==1)
+  if (isQ() || (d==1))
     {
       s << "Q" << endl;
       return;
@@ -169,7 +171,7 @@ void Field::display(ostream&s, int raw)
   if (d==2)
     s << ", discriminant "<<discriminant(minpoly);
   s << endl;
-  if(raw)
+  if(raw && !isQ())
     {
       s << "   Raw basis with respect to alpha-power basis:\n";
       for(int i=1; i<=d; i++)
@@ -198,15 +200,6 @@ FieldElement::FieldElement( Field* HF, const vec_m& c, const ZZ& d, int raw)
   // cout<<" - finished constructing " << (*this) << "\n";
 }
 
-// creation from a rational
-FieldElement::FieldElement( Field* HF, const ZZ& a, const ZZ& d)
-    :F(HF), coords(a*vec_m::unit_vector(HF->d, 1)), denom(d)
-{
-  // cout<<"Constructing a FieldElement in Q("<<F->var<<")\n";
-  cancel();
-  // cout<<" - finished constructing " << (*this) << "\n";
-}
-
 FieldElement Field::element(const vec_m& c, const ZZ& d, int raw)
 {
   return FieldElement(this, c, d, raw);
@@ -214,17 +207,26 @@ FieldElement Field::element(const vec_m& c, const ZZ& d, int raw)
 
 FieldElement Field::zero()
 {
-  return FieldElement(this, vec_m(d));
+  if (isQ())
+    return FieldElement(bigrational(0));
+  else
+    return FieldElement(this, vec_m(d));
 }
 
 FieldElement Field::one()
 {
-  return FieldElement(this, vec_m::unit_vector(d, 1));
+  if (isQ())
+    return FieldElement(bigrational(1));
+  else
+    return FieldElement(this, vec_m::unit_vector(d, 1));
 }
 
 FieldElement Field::gen()
 {
-  return FieldElement(this, vec_m::unit_vector(d, 2));
+  if (isQ())
+    return FieldElement(bigrational(1));
+  else
+    return FieldElement(this, vec_m::unit_vector(d, 2));
 }
 
 void FieldElement::cancel() // divides through by gcd(content(coords, denom))
@@ -246,21 +248,23 @@ void FieldElement::cancel() // divides through by gcd(content(coords, denom))
 int FieldElement::is_zero() const
 {
   if (F->isQ())
-    return ::is_zero(coords[1]);
+    return val.is_zero();
   return trivial(coords);
 }
 
 int FieldElement::is_one() const
 {
+  static const bigrational one(1);
   if (F->isQ())
-    return IsOne(coords[1]) && IsOne(denom);
+    return val==one;
   return IsOne(denom) && coords == vec_m::unit_vector(F->d,1);
 }
 
 int FieldElement::is_minus_one() const
 {
+  static const bigrational minus_one(-1);
   if (F->isQ())
-    return IsOne(-coords[1]) && IsOne(denom);
+    return val==minus_one;
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
@@ -271,9 +275,7 @@ string FieldElement::str() const
   ostringstream s;
   if (F->isQ())
     {
-      s << coords[1];
-      if (denom!=1)
-        s << "/" << denom;
+      s << val;
       return s.str();
     }
   string n = polynomial_string(coords, F->var);
@@ -285,19 +287,32 @@ string FieldElement::str() const
 
 int FieldElement::operator==(const FieldElement& b) const
 {
+  if (F->isQ())
+    {
+      return val==b.val;
+    }
   return F==b.F && denom==b.denom && coords==b.coords;
 }
 
-mat_m FieldElement::matrix() const // ignores denom
+mat_m FieldElement::matrix() const // ignores denom, not used for Q
 {
+  if (F->isQ())
+    return mat_m::scalar_matrix(1, num(val));
   return lin_comb_mats(coords, F->Cpowers);
 }
 
 // the charpoly is a power of the irreducible minpoly NB This monic
-// integer polynomial is the min poly of the numerator, it ignoes the
+// integer polynomial is the min poly of the numerator, it ignores the
 // denominator!
 ZZX FieldElement::minpoly() const
 {
+  if (F->isQ())
+    {
+      ZZX mp;
+      SetX(mp);
+      SetCoeff(mp, 0, -num(val));
+      return mp;
+    }
   ZZX cp = charpoly();
   ZZX mp = factor(cp)[0].a;
   return mp;
@@ -314,9 +329,11 @@ void FieldElement::operator+=(const FieldElement& b)
   if (b.is_zero())
     return;
   if (F->isQ())
-    coords[1] = b.denom*coords[1] + denom*b.coords[1];
-  else
-    coords = b.denom*coords + denom*b.coords;
+    {
+      val += b.val;
+      return;
+    }
+  coords = b.denom*coords + denom*b.coords;
   denom *= b.denom;
   cancel();
 }
@@ -336,6 +353,8 @@ FieldElement FieldElement::operator+(const FieldElement& b) const
 
 FieldElement FieldElement::operator-() const
 {
+  if (F->isQ())
+    return FieldElement(-val);
   return FieldElement(F, -coords, denom);
 }
 
@@ -350,9 +369,11 @@ void FieldElement::operator-=(const FieldElement& b)
   if (b.is_zero())
     return;
   if (F->isQ())
-    coords[1] = b.denom*coords[1] - denom*b.coords[1];
-  else
-    coords = b.denom*coords - denom*b.coords;
+    {
+      val -= b.val;
+      return;
+    }
+  coords = b.denom*coords - denom*b.coords;
   denom *= b.denom;
   cancel();
 }
@@ -382,9 +403,11 @@ void FieldElement::operator*=(const FieldElement& b) // multiply by b
   if (is_zero()) return;
   if (b.is_zero()) {*this = b; return;}
   if (F->isQ())
-    coords[1] *= b.coords[1];
-  else
-    coords = (matrix()*b.matrix()).col(1);
+    {
+      val *= b.val;
+      return;
+    }
+  coords = (matrix()*b.matrix()).col(1);
   denom *= b.denom;
   cancel();
 }
@@ -413,21 +436,13 @@ FieldElement FieldElement::inverse() const // raise error if zero
       exit(1);
     }
   if (is_one() || is_minus_one())
-    {
-      return FieldElement(*this);
-    }
-  FieldElement ans(F);
+    return FieldElement(*this);
   if (F->isQ())
-    {
-      ans = FieldElement(F, denom, coords[1]);
-      // constructor will ensure new denom>0
-    }
-  else
-    {
-      mat_m M = matrix(), Minv;
-      ZZ Mdet = ::inverse(M,Minv); // so M*Minv = Mdet*identity
-      ans = FieldElement(F, denom*Minv.col(1), Mdet);
-    }
+    return FieldElement(recip(val));
+
+  mat_m M = matrix(), Minv;
+  ZZ Mdet = ::inverse(M,Minv); // so M*Minv = Mdet*identity
+  FieldElement ans = FieldElement(F, denom*Minv.col(1), Mdet);
   assert (operator*(ans).is_one());
   return ans;
 }
@@ -448,12 +463,10 @@ void FieldElement::operator/=(const FieldElement& b)      // divide by b
     return;
   if (F->isQ())
     {
-      coords[1] *= b.denom;
-      denom *= b.coords[1];
-      cancel();
+      val /= b.val;
+      return;
     }
-  else
-    operator*=(b.inverse());
+  operator*=(b.inverse());
 }
 
 FieldElement FieldElement::operator/(const FieldElement& b) const // raise error if b is zero
@@ -493,38 +506,29 @@ FieldElement evaluate(const ZZX& f, const FieldElement a)
 int FieldElement::is_absolute_square(FieldElement& r) const
 {
   if (F->isQ())
-    {
-      ZZ n = coords[1];
-      if (n==0)
-        return 1;
-      if (n<0)
-        return 0;
-      // Now r is positive
-      ZZ x = n*denom, rn;
-      SqrRoot(rn, x); // rounds down if x is not square;
-      if (rn*rn != x)
-        return 0;
-      // sqrt(n/d) = sqrt(n*d)/d = r/d
-      r = FieldElement(F, rn, denom);
-      assert (r*r== *this);
-      return 1;
-    }
-  // field not Q
-
-  ZZX mp = minpoly();
-  return is_absolute_square(r, mp);
+    return (val.is_square(r.val));
+  // field not Q, reduce to integral case if necessary
+  if (::is_one(denom))
+    return is_absolute_integral_square(r);
+  FieldElement x = FieldElement(F, denom*coords);
+  int res = x.is_absolute_integral_square(r);
+  if (res)
+    r /= denom;
+  return res;
 }
 
-// Same as above if the min poly is known
-int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
+// Same as above if the min poly is known and denom=1
+int FieldElement::is_absolute_integral_square(FieldElement& r)  const
 {
-  ZZX g, g0, g1;
-  ZZX f = scale_poly_up(minpol, denom);
-  if (::is_square(f, g))
+  if (F->isQ())
+    return (val.is_square(r.val));
+  assert (::is_one(denom));
+  ZZX g, g0, g1, f = minpoly();
+  if (::is_square(f, g)) // Tests if f(x^2) = (+/-) g(x)*g(-x)
     {
-      parity_split(g, g0, g1);
+      parity_split(g, g0, g1); // g(x) = g0(x^2) + x*g1(x^2)
       // Now 0 = g(r) = g0(a)+r*g1(a) and g1(a)!=0
-      r = - evaluate(g0,*this)/(evaluate(g1,*this)*denom);
+      r = - evaluate(g0,*this)/evaluate(g1,*this);
       if (r*r== *this)
         return 1;
       else
@@ -547,16 +551,16 @@ int FieldElement::is_absolute_square(FieldElement& r, const ZZX& minpol)  const
 //#define DEBUG_IS_SQUARE
 int FieldElement::is_square(FieldElement& r, int ntries) const
 {
+#ifdef DEBUG_IS_SQUARE
+  cout << "Testing whether " << (*this) << " is a square" << endl;
+#endif
   if (is_zero() || is_one())
     {
       r = *this;
       return 1;
     }
   if (F->isQ())
-    {
-      int res = is_absolute_square(r);
-      if (res) return 1;
-    }
+    return (val.is_square(r.val));
 
   // If this has full degree, or if the relative degree is odd, just
   // call is_absolute_square()
@@ -567,7 +571,14 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
 #ifdef DEBUG_IS_SQUARE
       cout << "Is_square() works directly" << endl;
 #endif
-      return is_absolute_square(r, m);
+      int res = is_absolute_square(r);
+#ifdef DEBUG_IS_SQUARE
+      if (res)
+        cout << (*this) << " is square with sqrt(" << (*this) << ") = " << r << endl;
+      else
+        cout << (*this) << " is not a square" << endl;
+#endif
+      return res;
     }
 #ifdef DEBUG_IS_SQUARE
   cout << "Is_square() multipying by successive squares" << endl;
@@ -584,15 +595,10 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
 #ifdef DEBUG_IS_SQUARE
           cout << "Is_square() succeeds after " << i+1 << " tries, using b = " << b << endl;
 #endif
-          if (abb.is_absolute_square(rb, mb))
-            {
-              r = rb/b;
-              return 1;
-            }
-          else
-            {
-              return 0;
-            }
+          int res = abb.is_absolute_square(rb);
+          if (res)
+            r = rb/b;
+          return res;
         }
       // else keep trying
     } // end of loop over shifts i
@@ -618,27 +624,32 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
     }
   // We get here if a (mod squares) is not in the current group.  In
   // particular, it is not a square. For fields other than Q we use a
-  // itself as the new gen, otherwise the squarefree part of a.
+  // itself as the new gen, unless it is minus a square, otherwise the
+  // squarefree part of a.
 
-  // We are interested to see if we ever have a nonsquare but -a
-  // square (when the field is totally real, both cannot be squares!).
-  FieldElement newgen = a;
-  ZZ a1;
+  FieldElement newgen = a;  //default, for F not Q
+  bigrational g1, s1;       // only used when F is Q
+  // Add a new generator and set s so that a=s^2*newgen
   if (F->isQ())
     {
-      a1 = squarefree_part(a.coords[1]*a.denom);
-      newgen = FieldElement(F, a1);
+      //      cout << "New generator for Q^*/(Q^*)^2 from a = " << a << endl;
+      sqfdecomp(a.val, g1, s1); // a = g1*s1^2 with g1 squarefree
+      newgen = FieldElement(g1);
+      s = FieldElement(s1);
+    }
+  else
+    {
+      s = F->one();
     }
   gens.push_back(newgen);
   r++;
-  s = F->one();
   // cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << newgen << endl;
   // cout << "elements were " << elements << endl;
   vector<FieldElement> new_elements(elements.size(), FieldElement(F));
   if (F->isQ())
     {
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                     [this, a1](const FieldElement& x){return FieldElement(F, squarefree_part(a1*x.coords[1]*x.denom));});
+                     [g1](const FieldElement& x){return FieldElement(squarefree_product(x.val,g1));});
     }
   else
     {
@@ -700,16 +711,10 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
 Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
 {
   if (is_zero()) return Eigenvalue(*this);
-  // cout << "\nDividing " << (*this) << " by " << b << endl;
   FieldElement r = root_part() / b.root_part();
-  // cout << "Quotent of root_parts " << root_part() << " and " << b.root_part() << " is " << r << endl;
   FieldElement s(a.F); // value ignored, just to set the field
   unsigned int j = SqCl->get_index(r, s);
   assert (r == s*s*SqCl->elt(j));
-  // cout << "... which has index " << j << ", elt(j) = "<< SqCl->elt(j)
-  //      << " with s="<<s<<endl;
-  // cout << "s^2*elt(j) = " << s*s*SqCl->elt(j) << endl;
-  // Now r = s^2 * elt(j)
   return Eigenvalue(s*a/b.a, SqCl, j);
 }
 

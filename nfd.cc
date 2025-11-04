@@ -83,7 +83,10 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
-  F = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
+  if (d==1)
+    F = FieldQQ;
+  else
+    F = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
 
   if (verbose)
     {
@@ -104,8 +107,15 @@ Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
   // Initialise book-keeping data for eigenvalue computation
   Fmodsq = new FieldModSq(F);
   possible_self_twists = nf->possible_self_twists;
+  int self_twist_possible = !possible_self_twists.empty();
   if (verbose && n2r)
-    cout << "Possible self-twist discriminants: " << possible_self_twists << endl;
+    {
+      if (self_twist_possible)
+        cout << "Possible self-twist discriminants: " << possible_self_twists << endl;
+      else
+        cout << "Self-twist not possible at this level" << endl;
+    }
+  self_twist_flag = (self_twist_possible ? -1 : 0); // -1 means not yet decided
   genus_class_trivial_counter.resize(1<<n2r, 0);
   genus_classes.resize(1,0);
   genus_class_ideals.resize(1,Qideal(ONE));
@@ -151,13 +161,22 @@ int Newform::trivial_char() // 1 iff all  unramified quadratic character values 
 FieldElement Newform::eig(const matop& T)
 {
   nf->H1->projcoord = projcoord;
-  //  cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
+  //      cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
   vec_m apv = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
-  //  cout << "ap vector = " << apv <<endl;
+  //      cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
-  FieldElement ap(F, apv, one, 1); // raw=1
-  // cout << "ap = " << ap << endl;
-  return ap;
+  if (F->isQ())
+    {
+      FieldElement ap(bigrational(apv[1], denom_abs));
+      //            cout << "ap = " << ap << endl;
+      return ap;
+    }
+  else
+    {
+      FieldElement ap(F, apv, one, 1); // raw=1
+      //            cout << "ap = " << ap << endl;
+      return ap;
+    }
 }
 
 FieldElement Newform::ap(Quadprime& P)
@@ -167,17 +186,17 @@ FieldElement Newform::ap(Quadprime& P)
 
 ZZ Newform::eps(const matop& T) // T should be a scalar
 {
-  // nf->H1->projcoord = projcoord;
-  // cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
+  //   nf->H1->projcoord = projcoord;
+  //   cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
   FieldElement e = eig(T);
   static const ZZ one(1);
-  // cout << "Computed e = " << e << endl;
-  // cout << "(should be +1 or -1)" << endl;
+  //   cout << "Computed e = " << e << endl;
+  //   cout << "(should be +1 or -1)" << endl;
   if (e.is_one())
     return one;
   if (e.is_minus_one())
     return -one;
-  cout << "eps(" << T.name() << ") returns " << e << ", not +1 or -1" << endl;
+  cerr << "eps(" << T.name() << ") returns " << e << ", not +1 or -1" << endl;
   exit(1);
 }
 
@@ -232,7 +251,9 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
   std::sort(newforms.begin(), newforms.end(), newform_cmp);
   int i=1;
   for (Newform& f: newforms)
-    f.set_index(i++);
+    {
+      f.set_index(i++);
+    }
 }
 
 // compute T=T_P, trying all good P with N(P)<=maxnormP
@@ -335,6 +356,28 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
+// Fill dict eigmap of eigenvalues of first ntp principal operators
+void Newform::compute_principal_eigs(int nap, int verbose)
+{
+  int ip = 0;
+  for ( auto& P : Quadprimes::list)
+    {
+      if (P.divides(nf->N))
+        continue;
+      ip++;
+      if (ip>nap)
+        break;
+      matop T = AutoHeckeOp(P, nf->N);
+      string Tname = T.name();
+      if (verbose)
+        cout << "Computing eigenvalue of " << Tname << "..." << flush;
+      FieldElement a = eig(T);
+      eigmap[Tname] = a;
+      if (verbose)
+        cout << ":\t" << a << endl; 
+    } // end of prime loop
+}
+
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs(int ntp, int verbose)
 {
@@ -429,7 +472,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
         }
 
       if (verbose)
-        cout << " -- P = "<<P<<": computing T(P^2) to get a(P^2) and hence a(P)^2" << endl;
+        cout << " -- P="<<P<<": computing T(P^2) to get a(P^2) and hence a(P)^2" << endl;
       Qideal P2 = P*P;
       FieldElement aP2;
       if (P2.is_principal())  // compute T(P^2)
@@ -442,6 +485,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           aP2 = eig(HeckeP2ChiOp(P,A, nf->N));
         }
       // Now aP2 is the eigenvalue of T(P^2)
+      if (verbose)
+        cout << " -- a(P^2) = " << aP2 << endl;
       ZZ normP = to_ZZ(I2long(P.norm()));
       aP2 += normP;
       // Now aP2 is the eigenvalue of T(P)^2
@@ -492,6 +537,11 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
           genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
         }
+      if (genus_classes.size() == genus_class_trivial_counter.size())
+        {
+          self_twist_flag = 0;
+          cout << "All genus classes now have a nonzero eigenvalue, so this form is *not* self-twist" << endl;
+        }
 #if(0)
       // we can possibly eliminate some of
       // possible_self_twists now, namely those whose
@@ -511,6 +561,13 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
             <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
 #endif
     } // end of primes loop
+  if (self_twist_flag == -1)
+    {
+      cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
+           << " genus classes have non-zero eigenvalues!\n"
+           << "Flagging this newform as having self-twist.\n";
+      self_twist_flag = +1;
+    }
 }
 
 // output basis for the Principal Hecke field and character of one newform
@@ -518,7 +575,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
 void Newform::display(int full)
 {
   int n2r = Quad::class_group_2_rank;
-  cout << "Newform " << index << " (" << F->var << ")" << endl;
+  cout << "Newform #" << index << " (" << lab << ")" << endl;
   if (n2r==1)
     cout << " - Genus character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
   if (n2r>1)

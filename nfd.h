@@ -17,6 +17,7 @@ class Newform {
 private:
   Newforms* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
+  string lab;    //
   int d;      // dim(S)
   Field* F;   // pointer to the (homological) Hecke field
   subspace S; // irreducible subspace of modular symbol space
@@ -41,9 +42,17 @@ private:
   // on the level but may be cut down later
   vector<INT> possible_self_twists;
   // map of eigenvalues for (good) primes, computed by geteigs()
+  int self_twist_flag;
+  INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
+  // Dict of eigenvalues of principal operators
+  map<string, FieldElement> eigmap;
+  // Dict of eigenvalues of good primes
   map<Quadprime, Eigenvalue> aPmap;
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
+  // Fill dict eigmap of eigenvalues of first ntp principal operators
+  void compute_principal_eigs(int ntp=10, int verbose=0);
+  // Fill dict aPmap of eigenvalues of first ntp good primes, trivial char case only
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
 
 public:
@@ -52,7 +61,7 @@ public:
   Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
 
   int get_index() const { return index;}
-  void set_index(int i) {index = i; F->set_var(codeletter(i-1));}
+  void set_index(int i) {index = i; lab = codeletter(i-1); F->set_var(lab);}
 
   // eigenvalue in F of a general principal operator on this:
   FieldElement eig(const matop& T);
@@ -63,7 +72,7 @@ public:
   // eigenvalue of a (good) prime
   Eigenvalue eig(Quadprime& P);
   Field* field() const {return F;}
-  string var() const {return F->var;}
+  string label() const {return lab;}
   // output basis for the Homological Hecke field and character
   // If full, also output multiplicative basis for the full Hecke field
   void display(int full=0);
@@ -71,11 +80,17 @@ public:
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
+  int is_self_twist() const {return self_twist_flag;}
   ZZ basis_factor() const {return F->Bdet;}
   map<Quadprime, Eigenvalue> eigs(int ntp=10, int verbose=0)
   {
     compute_eigs(ntp, verbose);
     return aPmap;
+  }
+  map<string, FieldElement> principal_eigs(int nap=10, int verbose=0)
+  {
+    compute_principal_eigs(nap, verbose);
+    return eigmap;
   }
 };
 

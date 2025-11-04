@@ -38,13 +38,6 @@ int main()
   cerr << "Verbose output? (0/1) ";
   cin >> verbose;
 
-  int triv_char_only = 0;
-  if (n2r > 0)
-    {
-      cout << "Trivial character only? (0/1) ";
-      cin >> triv_char_only;
-    }
-
   int nap=5;
   cerr<<"Number of ap? ";
   cin>>nap;
@@ -98,80 +91,67 @@ int main()
        continue;
      int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),
                                        [](Newform F){return F.trivial_char()==1;});
-     if (triv_char_only&& nnf_triv_char==0)
-       {
-         cout << "No newforms have trivial character"<<endl;
-         continue;
-       }
-     else
-       {
-         if (n2r)
-           cout << "Of these, " << nnf_triv_char
-                << (nnf_triv_char==1? " has": " have")
-                << " trivial character"<<endl<<endl;
-         cout << "Newform data";
-         if (triv_char_only)
-           cout << " (only listing newforms with trivial character)";
-         cout << endl;
-         forms.display_newforms(triv_char_only);
-       }
+     if (n2r)
+       cout << "Of these, " << nnf_triv_char
+            << (nnf_triv_char==1? " has": " have")
+            << " trivial character"<<endl<<endl;
 
-     cout << "Hecke eigenvalues:" << endl;
-     int inf=1;
-     for (auto F: forms.newforms)
-       {
-         if (F.trivial_char())
-           {
-             cout << endl;
-             if (verbose)
-               cout << "Computing eigenvalues for newform #" << inf <<endl;
-             map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
-             F.display(1);
-             cout << endl;
-             for (auto x: eigs)
-               cout << x.first << " : " << x.second << endl;
-           }
-         inf++;
-       }
-#if(0)
-     for (auto F: forms.newforms)
-       {
-         if ((!triv_char_only) || F.trivial_char())
-           {
-             cout << F.var() << "\t";
-           }
-       }
-     cout<<endl;
+     cout << "Newform data" << endl;
+     forms.display_newforms();
 
-     int ip = 0;
-     for ( auto& P : Quadprimes::list)
+     cout << "Hecke eigenvalues:" << endl << endl;
+
+     // For homological forms with trivial character we find the full
+     // eigensystem with trivial character:
+
+     if (nnf_triv_char > 0)
        {
-         if (P.divides(N))
-           continue;
-         ip++;
-         if (ip>nap)
-           break;
-         matop T = AutoHeckeOp(P,N);
-         cout<<T.name() << ":\t" << flush;
+         if (n2r>0)
+           cout << "Full eigensystems for forms with trivial character" << endl;
+         int inf=1;
          for (auto F: forms.newforms)
            {
-             if ((!triv_char_only) || F.trivial_char())
+             if (F.trivial_char())
                {
-                 FieldElement ap = F.eig(T), r(F.field().zero());
-                 cout << ap << "\t";
-#if(0)
-                 if (ap.is_square(r))
-                   cout << "[square]\t";
-                 else
-                   cout << "[non-square]\t";
-                 assert ((ap*ap).is_square(r) && ((ap==r)||(ap==-r)));
-#endif
+                 cout << endl;
+                 if (verbose)
+                   cout << "Computing eigenvalues for newform #" << inf <<endl;
+                 map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
+                 F.display(1);
+                 cout << endl;
+                 cout << "Eigenvalues for first " << nap << " good primes:" << endl;
+                 for (auto x: eigs)
+                   cout << x.first << ":\t" << x.second << endl;
+                 if (F.is_self_twist()==+1)
+                   cout << "*** form appears to have self-twist ***" << endl;
                }
+             inf++;
            }
-         cout<<endl;
-       } // end of prime loop
-#endif
-     //  cout<<endl;
+       }
+
+     cout<<endl;
+
+     if (nnf > nnf_triv_char)
+       {
+         cout << "Principal eigenvalues for forms with non-trivial character" << endl;
+
+         for (auto F: forms.newforms)
+           {
+             if (F.trivial_char())
+               continue;
+             cout << endl;
+             if (verbose)
+               cout << "Computing principal eigenvalues for newform #" << F.get_index() <<endl;
+             map<string, FieldElement> eigs = F.principal_eigs(nap, verbose);
+             F.display(1);
+             cout << endl;
+             cout << "Principal eigenvalues for first " << nap << " good primes:" << endl;
+             for (auto x: eigs)
+               cout << x.first << ":\t" << x.second << endl;
+             if (F.is_self_twist()==+1)
+               cout << "*** form appears to have self-twist ***" << endl;
+           }
+       }
     }     // end of level loop
   exit(0);
 }   // end of main()

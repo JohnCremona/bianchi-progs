@@ -11,6 +11,8 @@ class FieldElement;
 class FieldModSq;   // finite subgroups of (F^*)/(F^*)^2
 class Eigenvalue;   // a FieldElement a and an index i into FieldModSq representing a*sqrt(elt(i))
 
+extern Field* FieldQQ;
+
 class Field {
   friend class FieldElement;
   friend class Newform;
@@ -38,7 +40,7 @@ public:
   FieldElement gen();
   FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
   int degree() const {return d;}
-  int isQ() const {return d==1;}
+  int isQ() const {return this==FieldQQ;}
   ZZX poly() const {return minpoly;}
   mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
   ZZ basis_factor() const {return Bdet;}
@@ -49,8 +51,6 @@ public:
   void set_var(const string& v)  {var = v;}
 };
 
-extern Field* FieldQQ;
-
 class FieldElement {
   friend class Field;
   friend class FieldModSq;
@@ -58,20 +58,29 @@ class FieldElement {
   friend FieldElement evaluate(const ZZX& f, const FieldElement a);
 private:
   Field* F;
+
+  // In general the field element is (1/denom)*coords-combination of power basis of F
+  // NB On construction every element will be reduced using cancel()
   vec_m coords; // length F->d
   ZZ denom;     // >=1
-  // the field element is (1/denom)*coords-combination of power basis of F
-  // NB On construction every element will be reduced using cancel()
   void cancel(); // divides through by gcd(content(coords, denom))
+
+  // When F is Q this is just a wrapper round eclib's bigrational
+  // class and coords and denom are ignored
+  bigrational val;
 public:
   FieldElement()
     :F(FieldQQ) {;}
   FieldElement( Field* HF)
-    :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {;}
+    :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {if (HF==FieldQQ) val = bigrational(0);}
   // raw means the given coords are w.r.t. the B-basis
   FieldElement( Field* HF, const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
-  // creation from a rational
-  FieldElement( Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1));
+  // creation from a rational (general F)
+  FieldElement( Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1))
+    :F(HF), coords(a*vec_m::unit_vector(HF->d, 1)), denom(d), val(bigrational(a,d)) { cancel();}
+  // creation from a rational (F=Q)
+  FieldElement( const bigrational& r)
+    :F(FieldQQ), val(r) {;}
 
   string str() const;
   Field* field() {return F;}
@@ -111,8 +120,8 @@ public:
   // The first function only applies when a has maximal degree:
   // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
   int is_absolute_square(FieldElement& r)  const;
-  // Same as above if the min poly is known
-  int is_absolute_square(FieldElement& r, const ZZX& minpol)  const;
+  // Same as above if the denom is 1
+  int is_absolute_integral_square(FieldElement& r)  const;
   // The second function applies in general: return 1 and r
   // s.t. r^2=this, with deg(r)=degree(), else 0. Here, ntries is the
   // number of squares this is multiplied by to get odd co-degree.
