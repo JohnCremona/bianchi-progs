@@ -89,7 +89,7 @@ void Quad::fill_class_group()
                 }
             }
           else
-            { // I has order>1, and we keep its conjugate (in the inverse class) too
+            { // I has order>2, and we keep its conjugate (in the inverse class) too
               // cout << " -- this class has order > 2" <<endl;
               class_group.push_back(I.conj());
             }

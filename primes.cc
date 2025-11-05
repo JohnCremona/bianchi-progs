@@ -13,13 +13,14 @@ vector<Quadprime> Quadprimes::list;
 
 Quadprime::Quadprime(Qideal& I) :Qideal(I)
 {
-  if (I.is_prime())
+  auto IF = I.factorization();
+  if (IF.is_prime())
     {
-      *this = I.factorization().prime(0);
+      *this = IF.prime(0);
     }
   else
     {
-      cerr << "***cannot construct a prime ideal from the ideal "<<I<<" = "<<F<<", which is not prime!"<<endl;
+      cerr << "***cannot construct a prime ideal from the ideal "<<I<<" = "<<IF<<", which is not prime!"<<endl;
     }
 }
 

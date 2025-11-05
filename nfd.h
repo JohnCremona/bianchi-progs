@@ -44,13 +44,16 @@ private:
   // map of eigenvalues for (good) primes, computed by geteigs()
   int self_twist_flag;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
-  // Dict of eigenvalues of principal operators
-  map<string, FieldElement> eigmap;
+  // Dict of eigenvalues of principal operators (the key includes an
+  // int for sorting, othewise they get sorted in alphabetical order
+  // of opname)
+  map<pair<int,string>, FieldElement> eigmap;
   // Dict of eigenvalues of good primes
   map<Quadprime, Eigenvalue> aPmap;
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
   // Fill dict eigmap of eigenvalues of first ntp principal operators
+  void compute_one_principal_eig(int, const matop& T, int verbose=0);
   void compute_principal_eigs(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, trivial char case only
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
@@ -87,7 +90,7 @@ public:
     compute_eigs(ntp, verbose);
     return aPmap;
   }
-  map<string, FieldElement> principal_eigs(int nap=10, int verbose=0)
+  map<pair<int,string>, FieldElement> principal_eigs(int nap=10, int verbose=0)
   {
     compute_principal_eigs(nap, verbose);
     return eigmap;

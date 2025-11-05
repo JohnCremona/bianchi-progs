@@ -142,12 +142,14 @@ int main()
              cout << endl;
              if (verbose)
                cout << "Computing principal eigenvalues for newform #" << F.get_index() <<endl;
-             map<string, FieldElement> eigs = F.principal_eigs(nap, verbose);
+             map<pair<int,string>, FieldElement> eigs = F.principal_eigs(nap, verbose);
              F.display(1);
              cout << endl;
-             cout << "Principal eigenvalues for first " << nap << " good primes:" << endl;
+             cout << "Principal eigenvalues involving first " << nap << " good primes:" << endl;
              for (auto x: eigs)
-               cout << x.first << ":\t" << x.second << endl;
+               cout
+                 // << "(" << x.first.first << ") "
+                 << x.first.second << ":\t" << x.second << endl;
              if (F.is_self_twist()==+1)
                cout << "*** form appears to have self-twist ***" << endl;
            }

@@ -356,10 +356,22 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
+void Newform::compute_one_principal_eig(int i, const matop& T, int verbose)
+{
+  string Tname = T.name();
+  if (verbose)
+    cout << "Computing eigenvalue of " << Tname << "..." << flush;
+  FieldElement a = eig(T);
+  eigmap[{i,Tname}] = a;
+  if (verbose)
+    cout << ":\t" << a << endl;
+}
+
 // Fill dict eigmap of eigenvalues of first ntp principal operators
 void Newform::compute_principal_eigs(int nap, int verbose)
 {
-  int ip = 0;
+  int nop = 0; // used to index the dict
+  int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
     {
       if (P.divides(nf->N))
@@ -367,14 +379,30 @@ void Newform::compute_principal_eigs(int nap, int verbose)
       ip++;
       if (ip>nap)
         break;
-      matop T = AutoHeckeOp(P, nf->N);
-      string Tname = T.name();
-      if (verbose)
-        cout << "Computing eigenvalue of " << Tname << "..." << flush;
-      FieldElement a = eig(T);
-      eigmap[Tname] = a;
-      if (verbose)
-        cout << ":\t" << a << endl; 
+      nop++;
+      compute_one_principal_eig(nop, AutoHeckeOp(P, nf->N), verbose);
+
+      int jp = 0;
+      for ( auto& Q : Quadprimes::list)
+        {
+          if (Q.divides(nf->N))
+            continue;
+          jp++;
+          if (jp>=ip)
+            break;
+          // Compute an eigenvalue for P*Q if that has square class
+          Qideal PQ  = P*Q;
+          if (!(PQ.has_square_class()))
+            continue;
+          nop++;
+          if (PQ.is_principal())
+            compute_one_principal_eig(nop, HeckePQOp(P, Q, nf->N), verbose);
+          else
+            {
+              Qideal A = PQ.sqrt_coprime_to(nf->N);
+              compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, nf->N), verbose);
+            }
+        }
     } // end of prime loop
 }
 
@@ -540,7 +568,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       if (genus_classes.size() == genus_class_trivial_counter.size())
         {
           self_twist_flag = 0;
-          cout << "All genus classes now have a nonzero eigenvalue, so this form is *not* self-twist" << endl;
+          if (verbose)
+            cout << "All genus classes now have a nonzero eigenvalue, so this form is *not* self-twist" << endl;
         }
 #if(0)
       // we can possibly eliminate some of

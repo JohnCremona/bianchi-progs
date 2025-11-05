@@ -737,7 +737,7 @@ matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 {
-  return matop(HeckePQ_Chi(P,Q,A,N), prime_label(P)+"*"+prime_label(Q), ideal_label(A));
+  return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), ideal_label(A));
 }
 
 // For B squarefree principal coprime to N:

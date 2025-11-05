@@ -30,6 +30,7 @@ public:
   Quadprime(const Quadprime& x) : Qideal(x) { p=x.p; character=x.character;}
   explicit Quadprime(Qideal& I); // constructor from an ideal (which should be a nonzero prime ideal)
   Quadprime() : Qideal() { p=0; character=0;}
+  Quadprime conj() const { Qideal Q = Qideal::conj(); return Quadprime(Q);}
   Quadprime& operator=(const Quadprime& x) {
     Qideal::operator=(x);
     p=x.p;
