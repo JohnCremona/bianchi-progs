@@ -92,6 +92,7 @@ public:
   int is_one() const;
   int is_minus_one() const;
   int is_generator() const {return degree()==F->d;}
+  bigrational get_val() const {return val;}
   int operator==(const FieldElement& b) const;
 
   FieldElement operator+(const FieldElement& b) const; // add

@@ -370,6 +370,18 @@ void Newform::compute_one_principal_eig(int i, const matop& T, int verbose)
 // Fill dict eigmap of eigenvalues of first ntp principal operators
 void Newform::compute_principal_eigs(int nap, int verbose)
 {
+  int do_more = (Quad::class_number==4) && (Quad::class_group_2_rank==1) && (d==1);
+  Qideal Pc;
+  int ic=-1, ic3=-1;
+  r1 = ZZ(0); // will store r1>0 s.t. Hecke field is Q(i,sqrt(r1)) if it is not Q(i) in C4 case
+  if (do_more) // group C4, e.g. Q(sqrt(-17))
+    {
+      // This is to fix a generator of the class group
+      // We define character \chi_1(Pc) = +i
+      Pc = Quad::class_group_2_cotorsion[1];
+      ic = Pc.ideal_class();
+      ic3 = Pc.conj().ideal_class();
+    }
   int nop = 0; // used to index the dict
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
@@ -382,6 +394,87 @@ void Newform::compute_principal_eigs(int nap, int verbose)
       nop++;
       compute_one_principal_eig(nop, AutoHeckeOp(P, nf->N), verbose);
 
+      if (do_more) // group C4, e.g. Q(sqrt(-17))
+        {
+          int s = (P.ideal_class() == ic? +1 : (P.ideal_class() == ic3? -1 : 0));
+          if (s)
+            {
+              if (verbose>1)
+                cout << "P = " << P << ", chi(P) = " << (s==1? "i" : "-i") << endl;
+              ZZ p = ZZ(I2long(P.norm()));
+              matop T =  HeckeP2ChiOp(P, P, nf->N);
+              bigrational aQ = eig(T).get_val();
+              assert (aQ.den()==1);
+              ZZ a = aQ.num();
+              if (verbose>1)
+                {
+                  cout << (s==1? "+": "-") << "a(P^2)*i" << " = " << a << endl;
+                  cout << "a(P^2) = " << -s*a << "*i" << endl;
+                }
+              // Now the chi_1 eig a(P^2) = a/(s*i) = -s*a*i;
+              // a(P)^2 = a(P^2)+chi(P)*p = s*(p-a)*i with p=N(P);
+              // a(P) = sqrt(2*s*(p-a)) * (1+i)/2
+              ZZ b = s*(p-a);
+              if (verbose>1)
+                cout << "a(P)^2 = " << b << "*i" << endl;
+              if (::is_zero(b))
+                {
+                  if (verbose)
+                    cout << "a(" <<P<<") = 0"<<endl;
+                }
+              else
+                {
+                  int flip = (b<0);
+                  string ifactor;
+                  if (odd(b))
+                    {
+                      b *= 2;
+                      ifactor = "(1+i)/2";
+                      if (flip)
+                        {
+                          b = -b;
+                          ifactor = "(1-i)/2";
+                        }
+                    }
+                  else
+                    {
+                      b /= 2;
+                      ifactor = "(1+i)";
+                      if (flip)
+                        {
+                          b = -b;
+                          ifactor = "(1-i)";
+                        }
+                    }
+                  ZZ b1, b2;
+                  vector<ZZ> plist = pdivs(b);
+                  sqfdecomp(b, plist, b1, b2); // b==b1*b2^2
+                  if (verbose>1)
+                    cout << "sqfdecomp("<<b<<") gives b1 = " << b1 << ", b2 = "<<b2<<endl;
+                  if (is_zero(r1)) // then this is the first
+                    {
+                      r1 = b1;
+                      if (verbose && !is_one(b1))
+                        cout << "Adjoining sqrt("<<r1<<") to Hecke field" << endl;
+                    }
+                  else
+                    {
+                      if (!is_square(b1*r1, b)) // value b is discarded
+                        cout << "Error: squarefree parts "<<b1<<", "<<r1<<" are different!" << endl;
+                    }
+                  if (verbose)
+                    {
+                      cout << "a(" <<P<<") = +/- "<<b2;
+                      if (!is_one(b1))
+                        cout << "*sqrt("<<b1<<")";
+                      cout << "*" << ifactor << endl;
+                    }
+                } // b==0 test
+              // do_more = 0;
+            } // end of s switch
+        } // end of do_more
+
+#if(0)
       int jp = 0;
       for ( auto& Q : Quadprimes::list)
         {
@@ -403,7 +496,14 @@ void Newform::compute_principal_eigs(int nap, int verbose)
               compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, nf->N), verbose);
             }
         }
+#endif
     } // end of prime loop
+  if (do_more)
+    {
+      cout << "The full Hecke field is Q(i";
+      if (!is_one(r1)) cout << ", sqrt("<<r1<<")";
+      cout << ")" << endl;
+    }
 }
 
 // Fill aPmap, dict of eigenvalues of first ntp good primes
@@ -614,40 +714,62 @@ void Newform::display(int full)
   F->display();
   if (full && n2r>0)
     {
-      int r = Fmodsq->rank();
-      if (r==0)
-        cout << " - Full Hecke field is the same as the Principal Hecke field";
-      else
+      if (trivial_char())
         {
-          // If the base field is Q we output something like
-          // "Q(sqrt(2), sqrt(5))", otherwise something like
-          // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
-
-          cout << " - Full Hecke Field k_F = "
-               << (F->isQ()? "Q" : "k_f")
-               << "(";
-          for (int i=0; i<r; i++)
+          int r = Fmodsq->rank();
+          if (r==0)
+            cout << " - Full Hecke field is the same as the Principal Hecke field";
+          else
             {
-              if (i) cout << ", ";
-              cout << "sqrt(";
-              if (F->isQ())
-                cout << Fmodsq->gen(i);
-              else
-                cout << "r" << (i+1);
-              cout << ")";
-            }
-          cout << ")";
-          if (!(F->isQ()))
-            {
-              cout << " where ";
+              // If the base field is Q we output something like
+              // "Q(sqrt(2), sqrt(5))", otherwise something like
+              // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
+              cout << " - Full Hecke Field k_F = "
+                   << (F->isQ()? "Q" : "k_f")
+                   << "(";
               for (int i=0; i<r; i++)
                 {
                   if (i) cout << ", ";
-                  cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+                  cout << "sqrt(";
+                  if (F->isQ())
+                    cout << Fmodsq->gen(i);
+                  else
+                    cout << "r" << (i+1);
+                  cout << ")";
+                }
+              cout << ")";
+              if (!(F->isQ()))
+                {
+                  cout << " where ";
+                  for (int i=0; i<r; i++)
+                    {
+                      if (i) cout << ", ";
+                      cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+                    }
+                }
+              cout << endl;
+            }
+        } // end of trivial char case
+      else
+        {
+          if ((Quad::class_number==4) && (Quad::class_group_2_rank==1) && (d==1))
+            {
+              if (is_one(r1))
+                cout << " - Full Hecke field is k_f(i)" << endl;
+              else
+                {
+                  if (is_zero(r1))
+                    {
+                      cout << " - Full Hecke field not yet determined, it is either k_f(i) or a quadratic extension of it" << endl;
+                      cout << " - this form may have self-twist, in which case the full Hecke field is k_f" << endl;
+                    }
+                  else
+                    cout << " - Full Hecke field is k_f(i, sqrt("<<r1<<"))" << endl;
                 }
             }
-          cout << endl;
-        }
+          else
+            cout << " - Full Hecke field not yet determined, it is either k_f(i) or a quadratic extension of it" << endl;
+        } // end of non-trivial char case
     }
 }
 
