@@ -515,7 +515,7 @@ void Newform::compute_principal_eigs(int nap, int verbose)
                         }
                       else
                         {
-                          if ((b1*R1).is_square(b)) // value b is discarded
+                          if (! ( (b1*R1).is_square(b) ||((-b1*R1).is_square(b))) ) // value b is discarded
                             cout << "Error: "<<b1<<" and "<<R1<<" are not in the same class mod squares!" << endl;
                         }
                       if (verbose)
