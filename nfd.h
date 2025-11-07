@@ -45,6 +45,7 @@ private:
   int self_twist_flag;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   ZZ r1;  // temp for displaying eigs if nontrivial char C4 class group
+  FieldElement R1;  // temp for displaying eigs if nontrivial char C4 class group
   // Dict of eigenvalues of principal operators (the key includes an
   // int for sorting, othewise they get sorted in alphabetical order
   // of opname)

@@ -221,6 +221,14 @@ FieldElement Field::one()
     return FieldElement(this, vec_m::unit_vector(d, 1));
 }
 
+FieldElement Field::minus_one()
+{
+  if (isQ())
+    return FieldElement(bigrational(-1));
+  else
+    return FieldElement(this, -vec_m::unit_vector(d, 1));
+}
+
 FieldElement Field::gen()
 {
   if (isQ())

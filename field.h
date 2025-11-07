@@ -36,6 +36,7 @@ public:
   Field(const mat_m& m, const ZZ& den = to_ZZ(1), string a="a", int verb=0);
   Field(const ZZX& p, string a="a", int verb=0);
   FieldElement one();
+  FieldElement minus_one();
   FieldElement zero();
   FieldElement gen();
   FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
