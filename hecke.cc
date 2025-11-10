@@ -573,7 +573,7 @@ string gmatop::name() const
   return s.str();
 }
 
-// constructor for
+// constructor for one of the following, where P is prime not dividing N:
 // (1) T_P if P principal, else
 // (2) T_P*T_{A,A} if P*A^2 principal, else
 // (3) T_{P^2} if P^2 principal, else
@@ -787,4 +787,35 @@ matop FrickeOp(Qideal& N)
 matop CharOp(Qideal& A, const Qideal& N)
 {
   return matop(Char(A,N), opname("chi", ideal_label(A)));
+}
+
+
+// constructor for one of the following, where Q is prime dividing N
+// with Q^e||N:
+// (1) W_Q^e if Q^e principal, ( and set t=0);
+// (2) W_Q^e*T_{A,A} if Q^e*A^2 principal (and set t=1 and A)
+// (3) W_Q*T_P for P  good with Q^e*P principal (and set t=2 and P)
+matop AutoALOp(Quadprime& Q, Qideal& N, int& t, Qideal& A, Quadprime& P)
+{
+  t = 0;
+  int e = val(Q,N);
+  if (e==0) return matop(); // identity
+  Qideal Qe = Q;
+  while (--e) Qe*=Q;
+  if (Qe.is_principal())
+    return AtkinLehnerQOp(Q,N);
+  if (Qe.has_square_class())
+    {
+      t = 1;
+      A = Qe.sqrt_coprime_to(N);
+      return AtkinLehnerQChiOp(Q,A,N);
+    }
+  for (auto Pi : Quadprimes::list)
+    if (!Pi.divides(N) && (Pi*Qe).is_principal())
+      {
+        t = 2;
+        P = Pi;
+        return HeckePALQOp(P, Q, N);
+      }
+  return matop(); // fall-back to identity (not useful)
 }

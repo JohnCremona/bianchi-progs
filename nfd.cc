@@ -578,7 +578,7 @@ void Newform::compute_eigs(int ntp, int verbose)
   if (trivial_char())
     compute_eigs_triv_char(ntp, verbose);
   else
-    cout << "compute_eigs() not yet implemented for forms with nontrivial character" << endl;
+    compute_principal_eigs(ntp, verbose);
 }
 
 // Fill aPmap, dict of eigenvalues of first ntp good primes
@@ -587,18 +587,19 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
   if (!trivial_char())
     return;
   int nap = 0;
+  Qideal N = nf->N;
   auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
     {
       Quadprime P = *pr++;
-      if (P.divides(nf->N))
-        continue; // skip bad primes for now
+      if (P.divides(N))
+        continue; // skip bad primes now, fill in AL eigs later
       nap++;
       Eigenvalue aP;
       long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0) // P has trivial genus class
         {
-          aP = Eigenvalue(eig(AutoHeckeOp(P, nf->N)), Fmodsq, 0);
+          aP = Eigenvalue(eig(AutoHeckeOp(P, N)), Fmodsq, 0);
           aPmap[P] = aP;
           if (verbose)
             cout<<" -- P="<<P<<" has trivial genus class, aP = " << aP << endl;
@@ -623,7 +624,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
                  <<ideal_label(A)<<endl;
           if (B.is_principal())         // compute T(B)
             {
-              Eigenvalue APeig(eig(HeckeBOp(B, nf->N)), Fmodsq, 0);
+              Eigenvalue APeig(eig(HeckeBOp(B, N)), Fmodsq, 0);
               aP = APeig / genus_class_aP[i];
               if (verbose)
                 cout << "P*A has eigenvalue " << APeig
@@ -632,8 +633,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
             }
           else                          // compute T(B)*T(C,C)
             {
-              Qideal C = B.sqrt_coprime_to(nf->N); // so A*P*C^2 is principal
-              Eigenvalue APCeig(eig(HeckeBChiOp(B,C, nf->N)), Fmodsq, 0);
+              Qideal C = B.sqrt_coprime_to(N); // so A*P*C^2 is principal
+              Eigenvalue APCeig(eig(HeckeBChiOp(B,C, N)), Fmodsq, 0);
               aP = APCeig / genus_class_aP[i];
               if (verbose)
                 cout << "P*A has eigenvalue " << APCeig
@@ -671,12 +672,12 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       FieldElement aP2;
       if (P2.is_principal())  // compute T(P^2)
         {
-          aP2 = eig(HeckeP2Op(P, nf->N));
+          aP2 = eig(HeckeP2Op(P, N));
         }
       else // T(P^2)*T(A,A) with (A*P)^2 principal
         {
-          Qideal A = P.equivalent_mod_2_coprime_to(nf->N, 1);
-          aP2 = eig(HeckeP2ChiOp(P,A, nf->N));
+          Qideal A = P.equivalent_mod_2_coprime_to(N, 1);
+          aP2 = eig(HeckeP2ChiOp(P,A, N));
         }
       // Now aP2 is the eigenvalue of T(P^2)
       if (verbose)
@@ -763,7 +764,61 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
            << "Flagging this newform as having self-twist.\n";
       self_twist_flag = +1;
     }
-}
+  // Now compute AL-eigs to fill   map<Quadprime, Eigenvalue> eQmap;
+  vector<Quadprime> badprimes = pdivs(N);
+  if (verbose)
+    cout << "Computing W(Q) eigenvalues for Q in " << badprimes << endl;
+  for (auto Q: badprimes)
+    {
+      if (verbose)
+        cout << "Computing W(Q) eigenvalue for Q = " << Q << endl;
+      int t;
+      Quadprime P;
+      Qideal A;
+      matop T = AutoALOp(Q,N, t, A, P);
+      if (verbose)
+        cout << "Computing " << T.name() << endl;
+      if (t<2)  // T = W(Q^e) or W(Q^e)*T(A,A)
+        {
+          ZZ e = eps(T); // we ignore the second factor as character is trivial
+          if (verbose)
+            cout << "Direct computation gives eigenvalue " << e << endl;
+          eQmap[Q] = Eigenvalue(FieldElement(F, e), Fmodsq);
+        }
+      else // use W(Q)*T(P) where P*Q is principal and a(P) is nonzero
+        {
+          Eigenvalue aP = Eigenvalue(F->zero(), Fmodsq);
+          for (auto Pi: Quadprimes::list)
+            {
+              if (Pi.divides(N))
+                continue;
+              auto it = aPmap.find(Pi);
+              if (it==aPmap.end())
+                {
+                  cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
+                  break;
+                }
+              aP = it->second; // = aPmap[P];
+              if (!aP.is_zero())
+                break;
+            }
+          if (aP.is_zero())
+            {
+              cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
+              eQmap[Q] = aP; // 0 as place-holder
+            }
+          else
+            {
+              if (verbose)
+                cout << "Indirect computation using aP = " << aP << endl;
+              Eigenvalue aPe(eig(T), Fmodsq);
+              eQmap[Q] = aPe/aP;
+              if (verbose)
+                cout << "Product eigenvalue is " <<aPe << " so eigenvalue is " << aPe/aP << endl;
+            }
+        }
+    } // end of loop over bad primes Q
+} // end of compute_eigs_triv_char
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field

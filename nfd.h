@@ -41,7 +41,6 @@ private:
   // list of possible self-twist discriminants, initially depends only
   // on the level but may be cut down later
   vector<INT> possible_self_twists;
-  // map of eigenvalues for (good) primes, computed by geteigs()
   int self_twist_flag;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   ZZ r1;  // temp for displaying eigs if nontrivial char C4 class group
@@ -50,8 +49,10 @@ private:
   // int for sorting, othewise they get sorted in alphabetical order
   // of opname)
   map<pair<int,string>, FieldElement> eigmap;
-  // Dict of eigenvalues of good primes
+  // Dict of T(P) eigenvalues of good primes P
   map<Quadprime, Eigenvalue> aPmap;
+  // Dict of W(Q) eigenvalues of bad primes Q
+  map<Quadprime, Eigenvalue> eQmap;
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
   // Fill dict eigmap of eigenvalues of first ntp principal operators
@@ -89,8 +90,15 @@ public:
   ZZ basis_factor() const {return F->Bdet;}
   map<Quadprime, Eigenvalue> eigs(int ntp=10, int verbose=0)
   {
-    compute_eigs(ntp, verbose);
+    if (aPmap.empty())
+      compute_eigs(ntp, verbose);
     return aPmap;
+  }
+  map<Quadprime, Eigenvalue> ALeigs(int ntp=10, int verbose=0)
+  {
+    if (aPmap.empty())
+      compute_eigs(ntp, verbose);
+    return eQmap;
   }
   map<pair<int,string>, FieldElement> principal_eigs(int nap=10, int verbose=0)
   {

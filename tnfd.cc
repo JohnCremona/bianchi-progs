@@ -118,12 +118,21 @@ int main()
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
                  map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
                  F.display(1);
+                 if (F.is_self_twist()==+1)
+                   cout << "*** form appears to have self-twist ***" << endl;
                  cout << endl;
                  cout << "Eigenvalues for first " << nap << " good primes:" << endl;
                  for (auto x: eigs)
                    cout << x.first << ":\t" << x.second << endl;
-                 if (F.is_self_twist()==+1)
-                   cout << "*** form appears to have self-twist ***" << endl;
+                 if (N.norm()>1)
+                   {
+                     cout << "Atkin-Lehner eigenvalues:" << endl;
+                     eigs = F.ALeigs(nap, verbose);
+                     for (auto x: eigs)
+                       cout << x.first << ":\t" << x.second << endl;
+                   }
+                 else
+                   cout << "No Atkin-Lehner eigenvalues as level is " << N << endl;
                }
              inf++;
            }

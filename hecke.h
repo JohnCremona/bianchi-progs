@@ -149,7 +149,8 @@ class matop {
   string short_name;
   string char_name;
   vector<int> genus_char; // list of chi(B)
-  matop() {;}
+  matop() // default is identity
+    :mats({mat22::identity}), short_name("I"), char_name("") {set_long_name();}
   explicit matop(const mat22& m, const string& n="", const string& c="")
     :mats({m}), short_name(n), char_name(c)  {set_long_name();}
   explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="")
@@ -260,11 +261,18 @@ matop FrickeOp(Qideal& N);
 
 matop CharOp(Qideal& A, const Qideal& N);
 
-// constructor for
+// constructor for one of the following, where P is prime not dividing N:
 // (1) T_P if P principal, else
 // (2) T_P*T_{A,A} if P*A^2 principal, else
 // (3) T_{P^2} if P^2 principal, else
 // (4) T(A,A)*T(P^2); all at level N
 matop AutoHeckeOp(Quadprime& P, Qideal& N);
+
+// constructor for one of the following, where Q is prime dividing N
+// with Q^e||N:
+// (1) W_Q^e if Q^e principal, ( and set t=0);
+// (2) W_Q^e*T_{A,A} if Q^e*A^2 principal (and set t=1 and A)
+// (3) W_Q*T_P for P  good with Q^e*P principal (and set t=2 and P)
+matop AutoALOp(Quadprime& Q, Qideal& N, int& t, Qideal& A, Quadprime& P);
 
 #endif
