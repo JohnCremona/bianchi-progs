@@ -229,6 +229,22 @@ FieldElement Field::minus_one()
     return FieldElement(this, -vec_m::unit_vector(d, 1));
 }
 
+FieldElement Field::two()
+{
+  if (isQ())
+    return FieldElement(bigrational(2));
+  else
+    return FieldElement(this, ZZ(2)*vec_m::unit_vector(d, 1));
+}
+
+FieldElement Field::minus_two()
+{
+  if (isQ())
+    return FieldElement(bigrational(-2));
+  else
+    return FieldElement(this, ZZ(-2)*vec_m::unit_vector(d, 1));
+}
+
 FieldElement Field::gen()
 {
   if (isQ())
@@ -701,7 +717,11 @@ void FieldModSq::display()
   cout << "rank = " << r;
   cout << ", gens = " << gens << endl;
   cout << "order = " << elements.size();
-  cout << ", elements = " << elements << endl;
+  cout << ", elements " << endl;
+  // cout << "[ ";
+  for (unsigned int i=0; i<elements.size(); i++)
+    cout << i << ": " << elt_str(i) << " = " << elements[i] << endl;
+  // cout << "]" << endl;
 }
 
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
@@ -713,7 +733,28 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
   unsigned int j = SqCl->get_index(r, s);
   assert (r == s*s*SqCl->elt(j));
   // Now r = s^2 * elt(j)
-  return Eigenvalue(a*b.a*s, SqCl, j);
+  Eigenvalue ans(a*b.a*s, SqCl, j); // sets ans.xf to 0
+  if (xf==0)
+    ans.xf = b.xf;
+  else
+    {
+      if (b.xf==0)
+        ans.xf = xf;
+      else
+        {
+          // now both are nonzero
+          if (xf!=b.xf) // (1+i)*(1-i)=2
+            ans.a *= ZZ(2);
+          else
+            {
+              if (xf==1) // b.xf=1 too, (1+i)^2=2i
+                ans = ans * Eigenvalue(a.F->two(), SqCl, 1);
+              else // now xf=b.xf=-1, (1-i)^2=-2i
+                ans = ans * Eigenvalue(a.F->minus_two(), SqCl, 1);
+            }
+        }
+    }
+  return ans;
 }
 
 Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
@@ -723,42 +764,59 @@ Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
   FieldElement s(a.F); // value ignored, just to set the field
   unsigned int j = SqCl->get_index(r, s);
   assert (r == s*s*SqCl->elt(j));
-  return Eigenvalue(s*a/b.a, SqCl, j);
+  FieldElement c = s*a/b.a;
+  if (b.xf==0)
+    return Eigenvalue(c, SqCl, j, xf);
+  if (xf==b.xf)
+    return Eigenvalue(c, SqCl, j);
+  if (xf==0)
+    return Eigenvalue(c/ZZ(2), SqCl, j, -b.xf);
+  if (xf==1)
+    return Eigenvalue(c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
+  else
+    return Eigenvalue(-c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
 }
 
 string Eigenvalue::str() const
 {
-  ostringstream s;
   if (is_zero())
-    s << "0";
-  else
+    return "0";
+  if (is_one())
+    return "1";
+  if (is_minus_one())
+    return "-1";
+  if (root_index==0 && xf==0)
+    return a.str();
+
+  ostringstream s;
+  int QQ = a.F->isQ();
+
+  // output the first factor
+  if (a.is_one()) {;}
+  else if (a.is_minus_one()) {s<<"-";}
+  else if(QQ) {s<<a<<"*";}
+  else {s<<"("<<a<<")*";}
+
+  // output the second (sqrt) factor if nontrivial
+  if (root_index) // then a involves sqrts
     {
-      int QQ = a.F->isQ();
-      if (!root_index) // then a involves no sqrts
-        s << a;
-      else // it does
+      FieldElement r = SqCl->elt(root_index);
+      if (r.is_minus_one())
+        s << "i";
+      else
         {
-          if (QQ)
-            {
-              if (a.is_one())
-                ;
-              else
-                if (a.is_minus_one())
-                  s << "-";
-                else
-                  s << a << "*";
-            }
-          else
-            {
-              s << "(" << a << ")";
-            }
           s << "sqrt(";
           if (QQ)
-            s << SqCl->elt(root_index);
+            s << r;
           else
             s << SqCl->elt_str(root_index);
           s  << ")";
         }
+      if (xf!=0)
+        s << "*";
     }
+  // output extra factor (1+i or 1-i) if present
+  if (xf!=0)
+    s << extra_factor();
   return s.str();
 }

@@ -37,6 +37,8 @@ public:
   Field(const ZZX& p, string a="a", int verb=0);
   FieldElement one();
   FieldElement minus_one();
+  FieldElement two();
+  FieldElement minus_two();
   FieldElement zero();
   FieldElement gen();
   FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
@@ -165,23 +167,32 @@ public:
   void display();
 };
 
-// an instance of class Eigenvalue consist of FieldElement a and an
-// index i into a FieldModSq representing a*sqrt(elt(i))
+// An instance of class Eigenvalue consists of:
+// a: FieldElement;
+// root_index: index i into a SqCl;
+// SqCl: a subgroup of F^*/(F^*)^2
+// xf: 0,+1,-1
+// Where the value is a*sqrt(r)*(1+xf*i) where r is the SqCl->elt(root_index)
 class Eigenvalue {
 private:
   FieldElement a;
   unsigned int root_index;
   FieldModSq* SqCl;
+  int xf;
 public:
   Eigenvalue() {;}
-  Eigenvalue(const FieldElement& x, FieldModSq* S, unsigned int i=0)
-    : a(x), root_index(i), SqCl(S)
+  Eigenvalue(const FieldElement& x, FieldModSq* S, unsigned int i=0, int f=0)
+    : a(x), root_index(i), SqCl(S), xf(f)
   {;}
   FieldElement coeff() const {return a;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
+  string extra_factor() const {return (xf>0? "(1+i)" : (xf<0? "(1-i)" : ""));}
   Eigenvalue operator*(Eigenvalue b) const;
   Eigenvalue operator/(Eigenvalue b) const;
+  Eigenvalue operator-() const {return Eigenvalue(-a, SqCl, root_index, xf);}
   int is_zero() const {return a.is_zero();}
+  int is_one() const {return a.is_one() && root_index==0 && xf==0;}
+  int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
   string str() const;
 };
 

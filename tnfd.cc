@@ -33,6 +33,7 @@ int main()
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
   int n2r = Quad::class_group_2_rank;
+  int C4 = ((Quad::class_number==4) && (n2r==1));
 
   int verbose=1;
   cerr << "Verbose output? (0/1) ";
@@ -57,7 +58,8 @@ int main()
     {
 #endif
       cout << endl;
-      cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+      string Nlabel = ideal_label(N);
+      cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      homspace* H1 = get_homspace(N, modulus);
      if (verbose)
        cout << "Constructed homspace of dimension " << H1->h1dim()
@@ -104,19 +106,27 @@ int main()
      // For homological forms with trivial character we find the full
      // eigensystem with trivial character:
 
-     if (nnf_triv_char > 0)
+     if (C4 || (nnf_triv_char > 0))
        {
          if (n2r>0)
-           cout << "Full eigensystems for forms with trivial character" << endl;
+           {
+             if (C4)
+               cout << "Full eigensystems for forms with character chi_0 (trivial)"
+                << " and character chi_1" << endl;
+           }
+         else
+           {
+             cout << "Full eigensystems for forms with trivial character" << endl;
+           }
          int inf=1;
          for (auto F: forms.newforms)
            {
-             if (F.trivial_char())
+             if (C4 || F.trivial_char())
                {
                  cout << endl;
                  if (verbose)
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
-                 map<Quadprime, Eigenvalue> eigs = F.eigs(nap, verbose);
+                 map<Quadprime, Eigenvalue> eigs = F.aPeigs(nap, verbose);
                  F.display(1);
                  if (F.is_self_twist()==+1)
                    cout << "*** form appears to have self-twist ***" << endl;
@@ -126,21 +136,23 @@ int main()
                    cout << x.first << ":\t" << x.second << endl;
                  if (N.norm()>1)
                    {
-                     cout << "Atkin-Lehner eigenvalues:" << endl;
-                     eigs = F.ALeigs(nap, verbose);
-                     for (auto x: eigs)
-                       cout << x.first << ":\t" << x.second << endl;
+                     if (!C4)
+                       {
+                         cout << "Atkin-Lehner eigenvalues:" << endl;
+                         eigs = F.ALeigs(nap, verbose);
+                         for (auto x: eigs)
+                           cout << x.first << ":\t" << x.second << endl;
+                       }
                    }
                  else
-                   cout << "No Atkin-Lehner eigenvalues as level is " << N << endl;
+                   cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                }
              inf++;
            }
        }
 
      cout<<endl;
-
-     if (nnf > nnf_triv_char)
+     if (!C4 && (nnf > nnf_triv_char))
        {
          cout << "Principal eigenvalues for forms with non-trivial character" << endl;
 
@@ -151,7 +163,7 @@ int main()
              cout << endl;
              if (verbose)
                cout << "Computing principal eigenvalues for newform #" << F.get_index() <<endl;
-             map<pair<int,string>, FieldElement> eigs = F.principal_eigs(nap, verbose);
+             map<pair<int,string>, Eigenvalue> eigs = F.principal_eigs(nap, verbose);
              F.display(1);
              cout << endl;
              cout << "Principal eigenvalues involving first " << nap << " good primes:" << endl;

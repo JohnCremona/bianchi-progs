@@ -43,12 +43,11 @@ private:
   vector<INT> possible_self_twists;
   int self_twist_flag;
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
-  ZZ r1;  // temp for displaying eigs if nontrivial char C4 class group
-  FieldElement R1;  // temp for displaying eigs if nontrivial char C4 class group
+
   // Dict of eigenvalues of principal operators (the key includes an
   // int for sorting, othewise they get sorted in alphabetical order
   // of opname)
-  map<pair<int,string>, FieldElement> eigmap;
+  map<pair<int,string>, Eigenvalue> eigmap;
   // Dict of T(P) eigenvalues of good primes P
   map<Quadprime, Eigenvalue> aPmap;
   // Dict of W(Q) eigenvalues of bad primes Q
@@ -56,10 +55,12 @@ private:
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
   // Fill dict eigmap of eigenvalues of first ntp principal operators
-  void compute_one_principal_eig(int, const matop& T, int verbose=0);
+  Eigenvalue compute_one_principal_eig(int, const matop& T, int store=0, int verbose=0);
   void compute_principal_eigs(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, trivial char case only
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
+  // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
+  void compute_eigs_C4(int ntp=10, int verbose=0);
 
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
@@ -88,7 +89,7 @@ public:
   int trivial_char(); // 1 iff unramified quadratic character values (if any) are all +1
   int is_self_twist() const {return self_twist_flag;}
   ZZ basis_factor() const {return F->Bdet;}
-  map<Quadprime, Eigenvalue> eigs(int ntp=10, int verbose=0)
+  map<Quadprime, Eigenvalue> aPeigs(int ntp=10, int verbose=0)
   {
     if (aPmap.empty())
       compute_eigs(ntp, verbose);
@@ -100,7 +101,7 @@ public:
       compute_eigs(ntp, verbose);
     return eQmap;
   }
-  map<pair<int,string>, FieldElement> principal_eigs(int nap=10, int verbose=0)
+  map<pair<int,string>, Eigenvalue> principal_eigs(int nap=10, int verbose=0)
   {
     compute_principal_eigs(nap, verbose);
     return eigmap;

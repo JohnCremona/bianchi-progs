@@ -356,35 +356,22 @@ void Newforms::find_T(int maxnp, int maxc)
   return;
 }
 
-void Newform::compute_one_principal_eig(int i, const matop& T, int verbose)
+Eigenvalue Newform::compute_one_principal_eig(int i, const matop& T, int store, int verbose)
 {
   string Tname = T.name();
   if (verbose)
     cout << "Computing eigenvalue of " << Tname << "..." << flush;
-  FieldElement a = eig(T);
-  eigmap[{i,Tname}] = a;
+  Eigenvalue a(eig(T), Fmodsq);
+  if (store)
+    eigmap[{i,Tname}] = a;
   if (verbose)
     cout << ":\t" << a << endl;
+  return a;
 }
 
 // Fill dict eigmap of eigenvalues of first ntp principal operators
 void Newform::compute_principal_eigs(int nap, int verbose)
 {
-  int do_more_1 = (Quad::class_number==4) && (Quad::class_group_2_rank==1) && (d==1);
-  int do_more_d = (Quad::class_number==4) && (Quad::class_group_2_rank==1) && (d>1);
-  int do_more = do_more_1 || do_more_d;
-  Qideal Pc;
-  int ic=-1, ic3=-1;
-  r1 = ZZ(0); // will store r1>0 s.t. Hecke field is Q(i,sqrt(r1)) if it is not Q(i) in C4 case
-  R1 = F->zero();
-  if (do_more) // group C4, e.g. Q(sqrt(-17))
-    {
-      // This is to fix a generator of the class group
-      // We define character \chi_1(Pc) = +i
-      Pc = Quad::class_group_2_cotorsion[1];
-      ic = Pc.ideal_class();
-      ic3 = Pc.conj().ideal_class();
-    }
   int nop = 0; // used to index the dict
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
@@ -395,142 +382,8 @@ void Newform::compute_principal_eigs(int nap, int verbose)
       if (ip>nap)
         break;
       nop++;
-      compute_one_principal_eig(nop, AutoHeckeOp(P, nf->N), verbose);
+      compute_one_principal_eig(nop, AutoHeckeOp(P, nf->N), 1, verbose);
 
-      if (do_more) // group C4, e.g. Q(sqrt(-17))
-        {
-          int s = (P.ideal_class() == ic? +1 : (P.ideal_class() == ic3? -1 : 0));
-          if (s)
-            {
-              if (verbose>1)
-                cout << "P = " << P << ", chi(P) = " << (s==1? "i" : "-i") << endl;
-              ZZ p = ZZ(I2long(P.norm()));
-              matop T =  HeckeP2ChiOp(P, P, nf->N);
-              FieldElement a = eig(T);
-              if (do_more_1)
-                {
-              bigrational aQ = a.get_val();
-              assert (aQ.den()==1);
-              ZZ a = aQ.num();
-              if (verbose>1)
-                {
-                  cout << (s==1? "+": "-") << "a(P^2)*i" << " = " << a << endl;
-                  cout << "a(P^2) = " << -s*a << "*i" << endl;
-                }
-              // Now the chi_1 eig a(P^2) = a/(s*i) = -s*a*i;
-              // a(P)^2 = a(P^2)+chi(P)*p = s*(p-a)*i with p=N(P);
-              // a(P) = sqrt(2*s*(p-a)) * (1+i)/2
-              ZZ b = s*(p-a);
-              if (verbose>1)
-                cout << "a(P)^2 = " << b << "*i" << endl;
-              if (::is_zero(b))
-                {
-                  if (verbose)
-                    cout << "a(" <<P<<") = 0"<<endl;
-                }
-              else
-                {
-                  int flip = (b<0);
-                  string ifactor;
-                  if (odd(b))
-                    {
-                      b *= 2;
-                      ifactor = "(1+i)/2";
-                      if (flip)
-                        {
-                          b = -b;
-                          ifactor = "(1-i)/2";
-                        }
-                    }
-                  else
-                    {
-                      b /= 2;
-                      ifactor = "(1+i)";
-                      if (flip)
-                        {
-                          b = -b;
-                          ifactor = "(1-i)";
-                        }
-                    }
-                  ZZ b1, b2;
-                  vector<ZZ> plist = pdivs(b);
-                  sqfdecomp(b, plist, b1, b2); // b==b1*b2^2
-                  if (verbose>1)
-                    cout << "sqfdecomp("<<b<<") gives b1 = " << b1 << ", b2 = "<<b2<<endl;
-                  if (is_zero(r1)) // then this is the first
-                    {
-                      r1 = b1;
-                      if (verbose && !is_one(b1))
-                        cout << "Adjoining sqrt("<<r1<<") to Hecke field" << endl;
-                    }
-                  else
-                    {
-                      if (!is_square(b1*r1, b)) // value b is discarded
-                        cout << "Error: squarefree parts "<<b1<<", "<<r1<<" are different!" << endl;
-                    }
-                  if (verbose)
-                    {
-                      cout << "a(" <<P<<") = +/- "<<b2;
-                      if (!is_one(b1))
-                        cout << "*sqrt("<<b1<<")";
-                      cout << "*" << ifactor << endl;
-                    }
-                } // b==0 test
-                } // end of d=1 special case
-              else // general case
-                {
-                  FieldElement b, b1, b2;
-                  Fmodsq->get_index(F->minus_one(),b2); // -1 = elements[1]*b2^2
-                  FieldElement S(F,ZZ(s));
-                  if (verbose>1)
-                    {
-                      cout << (s==1? "+": "-") << "a(P^2)*i = " << a << endl;
-                      cout << "a(P^2) = " << -S*a << "*i" << endl;
-                    }
-                  // Now the chi_1 eig a(P^2) = a/(s*i) = -s*a*i;
-                  // a(P)^2 = a(P^2)+chi(P)*p = s*(p-a)*i with p=N(P);
-                  // a(P) = sqrt(2*s*(p-a)) * (1+i)/2
-                  b = S*(FieldElement(F,p)-a);
-                  if (verbose>1)
-                    cout << "a(P)^2 = " << b << "*i" << endl;
-                  if (b.is_zero())
-                    {
-                      if (verbose)
-                        cout << "a(" <<P<<") = 0"<<endl;
-                    }
-                  else
-                    {
-                      string ifactor;
-                      b += b;
-                      ifactor = "(1+i)/2";
-                      int i = Fmodsq->get_index(b,b2); // b = elements[i]*b2^2
-                      b1 = Fmodsq->elt(i);
-                      if (verbose>1)
-                        cout << "get_index("<<b<<") gives i = " << i << ", ri="<<b1<<", b2 = "<<b2<<endl;
-                      if (R1.is_zero()) // then this is the first
-                        {
-                          R1 = b1;
-                          if (verbose && !b1.is_one())
-                            cout << "Adjoining sqrt("<<b1<<") to Hecke field" << endl;
-                        }
-                      else
-                        {
-                          if (! ( (b1*R1).is_square(b) ||((-b1*R1).is_square(b))) ) // value b is discarded
-                            cout << "Error: "<<b1<<" and "<<R1<<" are not in the same class mod squares!" << endl;
-                        }
-                      if (verbose)
-                        {
-                          cout << "a(" <<P<<") = +/- ("<<b2<<")";
-                          if (!b1.is_one())
-                            cout << "*sqrt("<<b1<<")";
-                          cout << "*" << ifactor << endl;
-                        }
-                    } // b==0 test
-                } // end of d=1/d>1 switch
-            } // end of s switch
-        } // end of do_more
-
-#if(0)
       int jp = 0;
       for ( auto& Q : Quadprimes::list)
         {
@@ -545,31 +398,14 @@ void Newform::compute_principal_eigs(int nap, int verbose)
             continue;
           nop++;
           if (PQ.is_principal())
-            compute_one_principal_eig(nop, HeckePQOp(P, Q, nf->N), verbose);
+            compute_one_principal_eig(nop, HeckePQOp(P, Q, nf->N), 1, verbose);
           else
             {
               Qideal A = PQ.sqrt_coprime_to(nf->N);
-              compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, nf->N), verbose);
+              compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, nf->N), 1, verbose);
             }
         }
-#endif
     } // end of prime loop
-  if (do_more)
-    {
-      cout << "The full Hecke field is Q(";
-      if (do_more_1)
-        {
-          cout << "i";
-          if (!is_one(r1))
-            cout << ", sqrt("<<r1<<")";
-        }
-      else
-        {
-          if (!(R1.is_one()))
-            cout << "sqrt("<<R1<<")";
-        }
-      cout << ")" << endl;
-    }
 }
 
 // Fill aPmap, dict of eigenvalues of first ntp good primes
@@ -578,8 +414,136 @@ void Newform::compute_eigs(int ntp, int verbose)
   if (trivial_char())
     compute_eigs_triv_char(ntp, verbose);
   else
-    compute_principal_eigs(ntp, verbose);
+    if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
+      compute_eigs_C4(ntp, verbose);
+    else
+      compute_principal_eigs(ntp, verbose);
 }
+
+// Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
+void Newform::compute_eigs_C4(int ntp, int verbose)
+{
+  // If the character (restricted to Cl[2]) is trivial we take chi=1
+  // and use the general code:
+  if (trivial_char())
+    {
+      compute_eigs_triv_char(ntp, verbose);
+      return;
+    }
+  // Otherwise the character (restricted to Cl[2]) is non-trivial so
+  // is quartic. We pick a generator c of the class group and take
+  // chi(c)=+i:
+  Qideal N = nf->N;
+  // an ideal in class c which generates the class group:
+  Qideal Pc = Quad::class_group_2_cotorsion[1];
+  // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
+  int ic1 = Pc.ideal_class();
+  int ic2 = (Pc*Pc).ideal_class();
+  int ic3 = Pc.conj().ideal_class();
+
+  FieldElement b, b1;
+
+  // add -1 to the generators of F^*/(F*)^2
+  int j = Fmodsq->get_index(F->minus_one(),b1); // -1 = elements[1]*b1^2
+  assert (j==1);
+
+  int ip = 0;  // counts the primes used
+  for ( auto& P : Quadprimes::list)
+    {
+      if (P.divides(N))
+        continue; // we will compute AL eigs later
+      ip++;
+      if (ip>ntp)
+        break;
+      int cP = P.ideal_class();
+      string Pname = prime_label(P);
+      if (cP==0) // P principal, compute T(P) directly
+        {
+          matop T = HeckePOp(P, N);
+          aPmap[P] = compute_one_principal_eig(ip, T, 1, verbose);
+          continue;
+        }
+      if (cP==ic2) // P in class c^2, compute T(P)*T(A,A) where [A]=c or c^3
+        {
+          Qideal A = P.sqrt_coprime_to(N);
+          int cA = A.ideal_class(); // c or c^3
+          assert ((cA==ic1) || (cA==ic3));
+          matop T = HeckePChiOp(P, A, N);
+          FieldElement aPchiP = compute_one_principal_eig(ip, T, 1, verbose).coeff();
+          if (cA==ic1)
+            aPchiP = -aPchiP;
+          Eigenvalue aP(aPchiP, Fmodsq, 1, 0); // 1 for factor of i, 0 for no factor of 1+i or 1-i
+          if (verbose)
+            cout << " so a("<<P<<") = " << aP << endl;
+          aPmap[P] = aP;
+          continue;
+        }
+      // Now P is in class c or c^3
+      int s = (cP == ic1? +1 : (cP == ic3? -1 : 0));
+      FieldElement S(F,ZZ(s));
+      if (verbose>1)
+        cout << "P = " << P << ", chi(P) = " << (s==1? "i" : "-i") << endl;
+      ZZ p = ZZ(I2long(P.norm()));
+      matop T =  HeckeP2ChiOp(P, P, nf->N);
+      FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).coeff();
+      if (verbose>1)
+        cout << (s==1? "+": "-") << "a(P^2)*i = " << a << endl
+             << "a(P^2) = " << -S*a << "*i" << endl;
+      if (verbose)
+        cout << " - hence computing eigenvalue of " << Pname << "..." << endl;
+      // Now a(P^2) = a/(s*i) = -s*a*i;
+      //     a(P)^2 = a(P^2)+chi(P)*p = s*(p-a)*i with p=N(P);
+      //     a(P)   = sqrt(2*s*(p-a)) * (1+i)/2
+      b = S*(FieldElement(F,p)-a);
+      if (verbose>1)
+        cout << "a(P)^2 = " << b << "*i" << endl;
+      if (b.is_zero())
+        {
+          if (verbose)
+            cout << "a(" <<P<<") = 0"<<endl;
+          aPmap[P] = Eigenvalue(b, Fmodsq);
+          continue;
+        }
+      else
+        {
+          b *= ZZ(2);
+          // Now a(P)   = (1/2) * sqrt(b) * (1+i)
+
+          // (1) If b=b1^2 with b1 in F this is just (b1/2)*(1+i) (2)
+          // If b=-b1^2 with b1 in F this is (b1/2)*i*(1+i) =
+          // (-b1/2)*(1-i) (3) Else b=b1^2*r and it is
+          // (b1/2)*sqrt(r)*(1+i) The point of the next block is that
+          // if b<0 then instead of making sqrt(b) a generator we make
+          // sqrt(b) a generator;
+          if (F->isQ() && b.get_val().num()<0)
+            j = 1 + Fmodsq->get_index(-b,b1); // -b = elements[j]*b1^2
+          else
+            j = Fmodsq->get_index(b,b1); // b = elements[j]*b1^2
+          // If j is odd then elements[j] involves i=sqrt(-1), so we:
+          // replace j by j-1, negate b1, and use factor 1-i instead of 1+i
+          b1 = b1/ZZ(2);
+          int xf = 1;
+          if (j&1) // absorb factor i into (1+i) factor: i*(1+i)=-(1-i)
+            {
+              b1 = -b1;
+              xf = -1;
+              j -= 1;
+            }
+          Eigenvalue aP(b1, Fmodsq, j, xf);
+          aPmap[P] = aP;
+          if (verbose)
+            cout << "a(" <<P<<") = "<<aP<<endl;
+        } // end of b=0, b!=0 cases
+    } // end of loop over P
+  if (verbose)
+    {
+      cout << "The full Hecke field is k_f(i";
+      if (Fmodsq->rank()>1)
+        cout << ", sqrt("<<Fmodsq->gen(1)<<")";
+      cout << ")" << endl;
+    }
+}
+
 
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)
@@ -875,39 +839,19 @@ void Newform::display(int full)
         {
           if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
             {
-              if (d==1)
-                {
-                  if (is_one(r1))
-                    cout << " - Full Hecke field is k_f(i)" << endl;
-                  else
-                    {
-                      if (is_zero(r1))
-                        {
-                          cout << " - Full Hecke field not yet determined, it is either k_f(i) or a quadratic extension of it" << endl;
-                          cout << " - this form may have self-twist, in which case the full Hecke field is k_f" << endl;
-                        }
-                      else
-                        cout << " - Full Hecke field is k_f(i, sqrt("<<r1<<"))" << endl;
-                    }
-                }
+              cout << " - Full Hecke field k_f(i";
+              if (Fmodsq->rank()>1)
+                cout << ", sqrt(r2)), where r2 = " << Fmodsq->gen(1);
               else
-                {
-                  if (R1.is_one()||R1.is_minus_one())
-                    cout << " - Full Hecke field is k_f(i)" << endl;
-                  else
-                    {
-                      if (R1.is_zero())
-                        {
-                          cout << " - Full Hecke field not yet determined, it is either k_f(i) or a quadratic extension of it" << endl;
-                          cout << " - this form may have self-twist, in which case the full Hecke field is k_f" << endl;
-                        }
-                      else
-                        cout << " - Full Hecke field is k_f(i, sqrt("<<R1<<"))" << endl;
-                    }
-                }
+                cout << ")";
+              cout << endl;
+              if (nf->verbose>1)
+                Fmodsq->display();
             }
           else
-            cout << " - Full Hecke field not yet determined, it is either k_f(i) or a quadratic extension of it" << endl;
+            {
+              cout << " - Full Hecke field not determined except for trivial character or class group C4" << endl;
+            }
         } // end of non-trivial char case
     }
 }
