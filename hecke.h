@@ -149,8 +149,8 @@ class matop {
   string short_name;
   string char_name;
   vector<int> genus_char; // list of chi(B)
-  matop() // default is identity
-    :mats({mat22::identity}), short_name("I"), char_name("") {set_long_name();}
+  matop() // default is zero
+    :mats({}), short_name("O"), char_name("") {set_long_name();}
   explicit matop(const mat22& m, const string& n="", const string& c="")
     :mats({m}), short_name(n), char_name(c)  {set_long_name();}
   explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="")
