@@ -728,61 +728,98 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
            << "Flagging this newform as having self-twist.\n";
       self_twist_flag = +1;
     }
-  // Now compute AL-eigs to fill   map<Quadprime, Eigenvalue> eQmap;
+} // end of compute_eigs_triv_char
+
+// Fill dict eQmap *after* aPmap
+void Newform::compute_AL_eigs(int verbose)
+{
+  // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap.
+
+  // Except in the trivial char case or if all Q^e|N are principal,
+  // this requires aPmap to be filled with a nonzero eigenvalue for
+  // primes P in each class inverse to each [Q^e].
+
+  Qideal N = nf->N;
   vector<Quadprime> badprimes = pdivs(N);
+  if (badprimes.empty())  // nothing to do
+    return;
+  int triv_char = trivial_char();
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << badprimes << endl;
   for (auto Q: badprimes)
     {
       if (verbose)
         cout << "Computing W(Q) eigenvalue for Q = " << Q << endl;
-      int t;
-      Quadprime P;
-      Qideal A;
-      matop T = AutoALOp(Q,N, t, A, P);
-      if (verbose)
-        cout << "Computing " << T.name() << endl;
-      if (t<2)  // T = W(Q^e) or W(Q^e)*T(A,A)
+      int e = val(Q,N);
+      assert (e>0);
+      // if (e==0)
+      //   {
+      //     eQmap[Q] = Eigenvalue(F->one(), Fmodsq);
+      //     continue;
+      //   }
+      Qideal Qe = Q;
+      while (--e) Qe*=Q;
+
+      if (Qe.is_principal()) // direct computation
         {
-          ZZ e = eps(T); // we ignore the second factor as character is trivial
+          ZZ eQ = eps(AtkinLehnerQOp(Q,N));
           if (verbose)
-            cout << "Direct computation gives eigenvalue " << e << endl;
-          eQmap[Q] = Eigenvalue(FieldElement(F, e), Fmodsq);
+            cout << "Direct computation gives eigenvalue " << eQ << endl;
+          eQmap[Q] = Eigenvalue(FieldElement(F, eQ), Fmodsq);
+          continue;
         }
-      else // use W(Q)*T(P) where P*Q is principal and a(P) is nonzero
+
+      if (Qe.has_square_class() && triv_char)
         {
-          Eigenvalue aP = Eigenvalue(F->zero(), Fmodsq);
-          for (auto Pi: Quadprimes::list)
+          Qideal A = Qe.sqrt_coprime_to(N);
+          ZZ eQ = eps(AtkinLehnerQChiOp(Q,A,N));
+          if (verbose)
+            cout << "Indirect computation gives eigenvalue " << eQ << endl;
+          eQmap[Q] = Eigenvalue(FieldElement(F, eQ), Fmodsq);
+          continue;
+        }
+
+      Quadprime P;
+      Eigenvalue aP = Eigenvalue(F->zero(), Fmodsq); // set to 0
+
+      // Use W(Q)*T(P) where P*Q is principal and a(P) is nonzero
+      for (auto Pi: Quadprimes::list)
+        {
+          if (Pi.divides(N))
+            continue;
+          if (!(Pi*Qe).is_principal())
+            continue;
+          auto it = aPmap.find(Pi);
+          if (it==aPmap.end())
+            continue;
+          P = Pi;
+          aP = it->second;   // = aPmap[P];
+          if (!aP.is_zero()) // found a good P with aP nonzero
+            break;
+        } // end of loop over P
+      if (aP.is_zero()) // then we never found a good P with aP known and nonzero
+        {
+          cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
+          eQmap[Q] = aP; // 0 as place-holder
+          continue;
+        }
+      else
+        {
+          if (verbose)
+            cout << "Indirect computation using T(P)W(Q) with P="<<P<<", aP = " << aP << endl;
+          Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), Fmodsq);
+          Eigenvalue eQ = aPeQ/aP;
+          eQmap[Q] = eQ;
+          if (verbose)
             {
-              if (Pi.divides(N))
-                continue;
-              auto it = aPmap.find(Pi);
-              if (it==aPmap.end())
-                {
-                  cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
-                  break;
-                }
-              aP = it->second; // = aPmap[P];
-              if (!aP.is_zero())
-                break;
-            }
-          if (aP.is_zero())
-            {
-              cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
-              eQmap[Q] = aP; // 0 as place-holder
-            }
-          else
-            {
-              if (verbose)
-                cout << "Indirect computation using aP = " << aP << endl;
-              Eigenvalue aPe(eig(T), Fmodsq);
-              eQmap[Q] = aPe/aP;
-              if (verbose)
-                cout << "Product eigenvalue is " <<aPe << " so eigenvalue is " << aPe/aP << endl;
+              cout << "Product eigenvalue is " <<aPeQ
+                   << " so eigenvalue is " << eQ
+                   << " with square " << eQ*eQ
+                   << endl;
             }
         }
     } // end of loop over bad primes Q
-} // end of compute_eigs_triv_char
+} // end of Newform::compute_AL_eigs()
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field

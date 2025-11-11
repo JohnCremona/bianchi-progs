@@ -136,13 +136,10 @@ int main()
                    cout << x.first << ":\t" << x.second << endl;
                  if (N.norm()>1)
                    {
-                     if (!C4)
-                       {
-                         cout << "Atkin-Lehner eigenvalues:" << endl;
-                         eigs = F.ALeigs(nap, verbose);
-                         for (auto x: eigs)
-                           cout << x.first << ":\t" << x.second << endl;
-                       }
+                     cout << "Atkin-Lehner eigenvalues:" << endl;
+                     eigs = F.ALeigs(verbose);
+                     for (auto x: eigs)
+                       cout << x.first << ":\t" << x.second << endl;
                    }
                  else
                    cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;

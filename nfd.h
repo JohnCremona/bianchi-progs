@@ -61,6 +61,8 @@ private:
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
   void compute_eigs_C4(int ntp=10, int verbose=0);
+  // Fill dict eQmap *after* aPmap
+  void compute_AL_eigs(int verbose=0);
 
 public:
   // constructor from ambient Newforms using one irreducibel factor of char
@@ -95,10 +97,10 @@ public:
       compute_eigs(ntp, verbose);
     return aPmap;
   }
-  map<Quadprime, Eigenvalue> ALeigs(int ntp=10, int verbose=0)
+  map<Quadprime, Eigenvalue> ALeigs(int verbose=0)
   {
-    if (aPmap.empty())
-      compute_eigs(ntp, verbose);
+    if (eQmap.empty())
+      compute_AL_eigs(verbose);
     return eQmap;
   }
   map<pair<int,string>, Eigenvalue> principal_eigs(int nap=10, int verbose=0)
