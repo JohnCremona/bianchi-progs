@@ -372,22 +372,23 @@ Eigenvalue Newform::compute_one_principal_eig(int i, const matop& T, int store, 
 // Fill dict eigmap of eigenvalues of first ntp principal operators
 void Newform::compute_principal_eigs(int nap, int verbose)
 {
+  Qideal N = nf->N;
   int nop = 0; // used to index the dict
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
     {
-      if (P.divides(nf->N))
+      if (P.divides(N))
         continue;
       ip++;
       if (ip>nap)
         break;
       nop++;
-      compute_one_principal_eig(nop, AutoHeckeOp(P, nf->N), 1, verbose);
+      compute_one_principal_eig(nop, AutoHeckeOp(P, N), 1, verbose);
 
       int jp = 0;
       for ( auto& Q : Quadprimes::list)
         {
-          if (Q.divides(nf->N))
+          if (Q.divides(N))
             continue;
           jp++;
           if (jp>=ip)
@@ -398,11 +399,11 @@ void Newform::compute_principal_eigs(int nap, int verbose)
             continue;
           nop++;
           if (PQ.is_principal())
-            compute_one_principal_eig(nop, HeckePQOp(P, Q, nf->N), 1, verbose);
+            compute_one_principal_eig(nop, HeckePQOp(P, Q, N), 1, verbose);
           else
             {
-              Qideal A = PQ.sqrt_coprime_to(nf->N);
-              compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, nf->N), 1, verbose);
+              Qideal A = PQ.sqrt_coprime_to(N);
+              compute_one_principal_eig(nop, HeckePQChiOp(P, Q, A, N), 1, verbose);
             }
         }
     } // end of prime loop
@@ -447,11 +448,18 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   int j = Fmodsq->get_index(F->minus_one(),b1); // -1 = elements[1]*b1^2
   assert (j==1);
 
+  // We will store a prime P0 in class c or c^3 with nonzero aP0 and
+  // set this flag to 1:
+  Quadprime P0;
+  Eigenvalue aP0, aP0_inverse;
+  int cP0;
+  int P0_set = 0;
+
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
     {
       if (P.divides(N))
-        continue; // we will compute AL eigs later
+        continue; // we compute AL eigs separately, later
       ip++;
       if (ip>ntp)
         break;
@@ -474,7 +482,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
             aPchiP = -aPchiP;
           Eigenvalue aP(aPchiP, Fmodsq, 1, 0); // 1 for factor of i, 0 for no factor of 1+i or 1-i
           if (verbose)
-            cout << " so a("<<P<<") = " << aP << endl;
+            cout << " a("<<P<<") = " << aP << endl;
           aPmap[P] = aP;
           continue;
         }
@@ -483,6 +491,53 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       FieldElement S(F,ZZ(s));
       if (verbose>1)
         cout << "P = " << P << ", chi(P) = " << (s==1? "i" : "-i") << endl;
+
+
+      if (P0_set)
+        {
+          // If P and P0 are in opposite classes it is simpler: compute a(P*P0), then set a(P)=a(P*P0)/aP0
+          if (cP!=cP0) // then P*P0 is principal
+            {
+              matop T = HeckePQOp(P, P0, N);
+              Eigenvalue aPaP0 = compute_one_principal_eig(ip, T, 1, verbose);
+              Eigenvalue aP = aPaP0 * aP0_inverse;
+              assert (aP*aP0==aPaP0);
+              if (verbose)
+                {
+                  if (verbose>1)
+                    cout << "a("<<P<<") = a("<<P<<"*"<<P0<<")/a("<<P0<<") = "<<aPaP0<<"/"<<aP0<<" = "<<aP<<endl;
+                  else
+                    cout << " a("<<P<<") = " << aP << endl;
+                }
+              aPmap[P] = aP;
+              continue;
+            }
+          // Now P and P0 have the same class (c or c^3) so we compute
+          // T(P*P0)*T(P0,P0) and divide the eigenvalue by aP0 and
+          // chi(P0):
+          Qideal B = P0*P; // so B is square-free and of square class
+          Qideal C = B.sqrt_coprime_to(N); // so B*C^2 = P0*P*C^2 is principal
+          matop T = HeckeBChiOp(B, C, N);
+          Eigenvalue aPaP0chiC = compute_one_principal_eig(ip, T, 1, verbose);
+          FieldElement a((C.ideal_class()==ic3? F->one() : F->minus_one()));
+          Eigenvalue chiC_inverse(a, Fmodsq, 1); // 1 for factor of i
+          Eigenvalue aP = aPaP0chiC*aP0_inverse*chiC_inverse;
+          if (verbose)
+            {
+              if (verbose>1)
+                cout << "a("<<P<<") = a("<<P<<"*"<<P0<<")*chi("<<C<<")/a("<<P0<<")*chi("<<C<<") = "
+                     << aPaP0chiC << "*("<<aP0_inverse<<")*("<<chiC_inverse<<") = "<<aP<<endl;
+              else
+                cout << " a("<<P<<") = " << aP << endl;
+            }
+          assert (aPaP0chiC*chiC_inverse == aP*aP0);
+          aPmap[P] = aP;
+          continue;
+        }
+      // Now P is the first prime in one of these classes. We compute
+      // T(P)*T(P,P) to find a(P)^2, pick a square root (if nonzero),
+      // store the P in P0, aP in aP0, and set the flag.
+
       ZZ p = ZZ(I2long(P.norm()));
       matop T =  HeckeP2ChiOp(P, P, nf->N);
       FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).coeff();
@@ -502,7 +557,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           if (verbose)
             cout << "a(" <<P<<") = 0"<<endl;
           aPmap[P] = Eigenvalue(b, Fmodsq);
-          continue;
+          continue; // without setting the flag
         }
       else
         {
@@ -533,8 +588,19 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           aPmap[P] = aP;
           if (verbose)
             cout << "a(" <<P<<") = "<<aP<<endl;
+
+          // Store P and aP and set the flag:
+          P0 = P;
+          aP0 = aP;
+          aP0_inverse = aP.inverse();
+          cP0 = cP;
+          P0_set = 1;
+          if (verbose)
+            cout << "Stored eigenvalue " << aP0 << " with inverse " << aP0_inverse << " for prime " << P0 << endl;
         } // end of b=0, b!=0 cases
+
     } // end of loop over P
+
   if (verbose)
     {
       cout << "The full Hecke field is k_f(i";
@@ -557,13 +623,13 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     {
       Quadprime P = *pr++;
       if (P.divides(N))
-        continue; // skip bad primes now, fill in AL eigs later
+        continue; // compute AL eigs separately, later
       nap++;
       Eigenvalue aP;
       long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0) // P has trivial genus class
         {
-          aP = Eigenvalue(eig(AutoHeckeOp(P, N)), Fmodsq, 0);
+          aP = compute_one_principal_eig(nap, AutoHeckeOp(P, N), 1, verbose);
           aPmap[P] = aP;
           if (verbose)
             cout<<" -- P="<<P<<" has trivial genus class, aP = " << aP << endl;
@@ -588,22 +654,40 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
                  <<ideal_label(A)<<endl;
           if (B.is_principal())         // compute T(B)
             {
-              Eigenvalue APeig(eig(HeckeBOp(B, N)), Fmodsq, 0);
-              aP = APeig / genus_class_aP[i];
-              if (verbose)
-                cout << "P*A has eigenvalue " << APeig
-                     << "; dividing by " << genus_class_aP[i]
-                     << " gives " << aP << endl;
+              Eigenvalue APeig = compute_one_principal_eig(nap, HeckeBOp(B, N), 1, verbose);
+              if (APeig.is_zero())
+                {
+                  aP = APeig;
+                  if (verbose)
+                    cout << "a(P*A) = 0 so a(P) = 0" << endl;
+                }
+              else
+                {
+                  aP = APeig / genus_class_aP[i];
+                  if (verbose)
+                    cout << "P*A has eigenvalue " << APeig
+                         << "; dividing by " << genus_class_aP[i]
+                         << " gives " << aP << endl;
+                }
             }
           else                          // compute T(B)*T(C,C)
             {
               Qideal C = B.sqrt_coprime_to(N); // so A*P*C^2 is principal
-              Eigenvalue APCeig(eig(HeckeBChiOp(B,C, N)), Fmodsq, 0);
-              aP = APCeig / genus_class_aP[i];
-              if (verbose)
-                cout << "P*A has eigenvalue " << APCeig
-                     << "; dividing by " << genus_class_aP[i]
-                     << " gives " << aP << endl;
+              Eigenvalue APCeig = compute_one_principal_eig(nap, HeckeBChiOp(B,C, N), 1, verbose);
+              if (APCeig.is_zero())
+                {
+                  aP = APCeig;
+                  if (verbose)
+                    cout << "a(P*A)chi(C) = 0 so a(P) = 0" << endl;
+                }
+              else
+                {
+                  aP = APCeig / genus_class_aP[i];
+                  if (verbose)
+                    cout << "P*A has eigenvalue " << APCeig
+                         << "; dividing by " << genus_class_aP[i]
+                         << " gives " << aP << endl;
+                }
             }
           aPmap[P] = aP;
           // See whether P is a better genus class rep than the one we have:
@@ -633,15 +717,15 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       if (verbose)
         cout << " -- P="<<P<<": computing T(P^2) to get a(P^2) and hence a(P)^2" << endl;
       Qideal P2 = P*P;
-      FieldElement aP2;
+      FieldElement aP2; // not an Eigenvalue yet as we'll be adding N(P)
       if (P2.is_principal())  // compute T(P^2)
         {
-          aP2 = eig(HeckeP2Op(P, N));
+          aP2 = compute_one_principal_eig(nap, HeckeP2Op(P, N), 1, verbose).coeff();
         }
       else // T(P^2)*T(A,A) with (A*P)^2 principal
         {
           Qideal A = P.equivalent_mod_2_coprime_to(N, 1);
-          aP2 = eig(HeckeP2ChiOp(P,A, N));
+          aP2 = compute_one_principal_eig(nap, HeckeP2ChiOp(P,A, N), 1, verbose).coeff();
         }
       // Now aP2 is the eigenvalue of T(P^2)
       if (verbose)

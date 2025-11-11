@@ -318,6 +318,15 @@ int FieldElement::operator==(const FieldElement& b) const
   return F==b.F && denom==b.denom && coords==b.coords;
 }
 
+int FieldElement::operator!=(const FieldElement& b) const
+{
+  if (F->isQ())
+    {
+      return val!=b.val;
+    }
+  return (F!=b.F) || (denom!=b.denom) || (coords!=b.coords);
+}
+
 mat_m FieldElement::matrix() const // ignores denom, not used for Q
 {
   if (F->isQ())
@@ -641,6 +650,8 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
           // Now a*x = s^2 so a = x*(s/x)^2
           // but we want a = x*s^2
           s /= x;
+          if (F->isQ()&& s.val.num()<0)
+            s=-s;
           assert (a == elements[i]*s*s);
           return i;
         }
@@ -724,16 +735,90 @@ void FieldModSq::display()
   // cout << "]" << endl;
 }
 
+//#define DEBUG_ARITH
+
+int Eigenvalue::operator==(const Eigenvalue& b) const
+{
+  return (SqCl==b.SqCl) && (root_index==b.root_index) && (xf==b.xf) && (a==b.a);
+}
+
+int Eigenvalue::operator!=(const Eigenvalue& b) const
+{
+  return (SqCl!=b.SqCl) || (root_index!=b.root_index) || (xf!=b.xf) || (a!=b.a);
+}
+
+// When i=sqrt(-1) is the first element of SqCl normalise using
+// sqrt(-r)*(1+i)=-sqrt(r)*(1-i) and similar.
+// sqrt(-r)*(1-i)=+sqrt(r)*(1+i) and similar.
+// NB The xf field will only be non-zero when i is there.
+void Eigenvalue::normalise()
+{
+  if (xf && root_index&1) // true when root_index is odd and xf nonzero
+    {
+      if (xf==1) a = -a;
+      xf = -xf;
+      root_index -= 1;
+    }
+}
+
+Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
+{
+  if (is_zero())
+    cerr << "Attempt to invert " << *(this) << endl;
+  FieldElement b = a*root_part();
+  if (xf) b *= ZZ(2);
+  Eigenvalue ans(b.inverse(), SqCl, root_index, -xf);
+#ifdef DEBUG_ARITH
+  cout << "Inverse of " << (*this) << " is " << ans << endl;
+  assert (((*this)*ans).is_one());
+#endif
+  return ans;
+}
+
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
 {
   if (is_zero()) return Eigenvalue(*this);
   if (b.is_zero()) return b;
-  FieldElement r = root_part() * b.root_part();
-  FieldElement s(a.F);
-  unsigned int j = SqCl->get_index(r, s);
-  assert (r == s*s*SqCl->elt(j));
-  // Now r = s^2 * elt(j)
-  Eigenvalue ans(a*b.a*s, SqCl, j); // sets ans.xf to 0
+#ifdef DEBUG_ARITH
+  cout << "Multiplying " << (*this) << " by " << b << endl;
+  cout << "[" << a << "*sqrt(" << root_part() << ")*" << extra_factor() << "]";
+  cout << " * ";
+  cout << "[" << b.a << "*sqrt(" << b.root_part() << ")*" << b.extra_factor() << "]";
+  cout << endl;
+#endif
+
+  // Multiply the coefficients:
+  FieldElement c = a * b.a;
+#ifdef DEBUG_ARITH
+  cout << "Product of coefficients = " << c << endl;
+#endif
+
+  // Multiply the root parts:
+  FieldElement r, s(a.F->one());
+  unsigned int j;
+  if (root_index==0)
+    j = b.root_index;
+  else if (b.root_index==0)
+    j = root_index;
+  else
+    {
+      r = root_part() * b.root_part();
+      j = SqCl->get_index(r, s);
+      // Now r = s^2 * elt(j)
+      c *= s;
+      assert (r == s*s*SqCl->elt(j));
+    }
+#ifdef DEBUG_ARITH
+  cout << "Product of root parts = " << s << " * " << "sqrt(" << SqCl->elt(j) << ")" << endl;
+#endif
+
+  // Form the product without the last factors:
+  Eigenvalue ans(c, SqCl, j); // sets ans.xf to 0
+
+#ifdef DEBUG_ARITH
+  cout << "Before adjusting last factor, ans = " << ans << endl;
+#endif
+
   if (xf==0)
     ans.xf = b.xf;
   else
@@ -754,27 +839,113 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
             }
         }
     }
+  if (ans.xf) // else normalise does nothing
+    {
+#ifdef DEBUG_ARITH
+      cout << "Before normalising, product " << ans << endl;
+#endif
+      ans.normalise();
+    }
+#ifdef DEBUG_ARITH
+  cout << "Returning product " << ans << endl;
+#endif
   return ans;
 }
 
 Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
 {
   if (is_zero()) return Eigenvalue(*this);
-  FieldElement r = root_part() / b.root_part();
-  FieldElement s(a.F); // value ignored, just to set the field
-  unsigned int j = SqCl->get_index(r, s);
-  assert (r == s*s*SqCl->elt(j));
-  FieldElement c = s*a/b.a;
-  if (b.xf==0)
-    return Eigenvalue(c, SqCl, j, xf);
-  if (xf==b.xf)
-    return Eigenvalue(c, SqCl, j);
-  if (xf==0)
-    return Eigenvalue(c/ZZ(2), SqCl, j, -b.xf);
-  if (xf==1)
-    return Eigenvalue(c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
+#ifdef DEBUG_ARITH
+  cout << "Dividing " << (*this) << " by " << b << endl;
+  cout << "[" << a << "*sqrt(" << root_part() << ")*" << extra_factor() << "]";
+  cout << " / ";
+  cout << "[" << b.a << "*sqrt(" << b.root_part() << ")*" << b.extra_factor() << "]";
+  cout << endl;
+#endif
+
+  // Divide coefficients:
+  FieldElement c = a/b.a;
+#ifdef DEBUG_ARITH
+  cout << "Quotient of coefficients = " << c << endl;
+#endif
+
+  // Divide root parts
+  FieldElement r, s(a.F->one());
+  unsigned int j;
+  if (b.root_index==0)
+    {
+      j = root_index;
+#ifdef DEBUG_ARITH
+      cout << "Quotient of root parts = " << "sqrt(" << SqCl->elt(j) << ")" << endl;
+#endif
+    }
+  else if (root_index==0)
+    {
+      // 1/sqrt(r) = (1/r)*sqrt(r)
+      c /= b.root_part();
+      j = b.root_index;
+#ifdef DEBUG_ARITH
+      cout << "Quotient of root parts = (1/" << c << ") * " << "sqrt(" << SqCl->elt(j) << ")" << endl;
+#endif
+    }
   else
-    return Eigenvalue(-c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
+    {
+      // sqrt(r1)/sqrt(r2) = s*sqrt(r3) where r1/r2 = s^2*r3
+      r = root_part() / b.root_part();
+      j = SqCl->get_index(r, s);
+      c *= s;
+#ifdef DEBUG_ARITH
+      cout << "Quotient of root parts = " << s << " * " << "sqrt(" << SqCl->elt(j) << ")" << endl;
+#endif
+      assert (r == s*s*SqCl->elt(j));
+    }
+
+  Eigenvalue ans(c, SqCl, j);
+#ifdef DEBUG_ARITH
+  cout << "Before adjusting last factor, ans = " << ans << endl;
+#endif
+  if (b.xf==0)
+    ans = Eigenvalue(c, SqCl, j, xf);
+  else if (xf==b.xf)
+    ans = Eigenvalue(c, SqCl, j);
+  else if (xf==0)
+    ans = Eigenvalue(c/ZZ(2), SqCl, j, -b.xf);
+  else if (xf==1)
+    ans = Eigenvalue(c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
+  else
+    ans = Eigenvalue(-c, SqCl, j) * Eigenvalue(a.F->one(), SqCl, 1);
+
+  if (ans.xf) // else normalise does nothing
+    {
+#ifdef DEBUG_ARITH
+      cout << "Before normalising, quotient " << ans << endl;
+#endif
+      ans.normalise();
+    }
+#ifdef DEBUG_ARITH
+  Eigenvalue check = ans*b;
+  if (!(check == (*this)))
+    {
+      cerr << "**************\n"
+           << "Quotient ("<<(*this)<<")/("<<b<<") returns " << ans
+           << " but "<<b<<"*"<<ans<<" = "<< check
+           << " -- wrong!"
+           <<endl;
+      exit(1);
+    }
+  check = b.inverse()*(*this);
+  if (check != ans)
+    {
+      cerr << "**************\n"
+           << "Quotient ("<<(*this)<<")/("<<b<<") returns " << ans
+           << " but "<<(b.inverse())<<"*("<<(*this)<<") = "<< check
+           << " -- wrong!"
+           <<endl;
+      exit(1);
+    }
+  cout << "Returning quotient " << ans << endl;
+#endif
+  return ans;
 }
 
 string Eigenvalue::str() const

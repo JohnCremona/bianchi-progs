@@ -97,6 +97,7 @@ public:
   int is_generator() const {return degree()==F->d;}
   bigrational get_val() const {return val;}
   int operator==(const FieldElement& b) const;
+  int operator!=(const FieldElement& b) const;
 
   FieldElement operator+(const FieldElement& b) const; // add
   FieldElement operator+(const ZZ& b) const {return operator+(FieldElement(F,b));} // add
@@ -187,9 +188,14 @@ public:
   FieldElement coeff() const {return a;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
   string extra_factor() const {return (xf>0? "(1+i)" : (xf<0? "(1-i)" : ""));}
+  // When i=sqrt(-1) is the first element of SqCl normalise using sqrt(-r)*(1+i)=-sqrt(r)*(1-i) and similar
+  void normalise();
   Eigenvalue operator*(Eigenvalue b) const;
   Eigenvalue operator/(Eigenvalue b) const;
   Eigenvalue operator-() const {return Eigenvalue(-a, SqCl, root_index, xf);}
+  Eigenvalue inverse() const; // raise error if zero      // inverse
+  int operator==(const Eigenvalue& b) const;
+  int operator!=(const Eigenvalue& b) const;
   int is_zero() const {return a.is_zero();}
   int is_one() const {return a.is_one() && root_index==0 && xf==0;}
   int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
