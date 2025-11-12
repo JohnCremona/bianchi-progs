@@ -517,20 +517,39 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           // chi(P0):
           Qideal B = P0*P; // so B is square-free and of square class
           Qideal C = B.sqrt_coprime_to(N); // so B*C^2 = P0*P*C^2 is principal
+          int iC = C.ideal_class();
           matop T = HeckeBChiOp(B, C, N);
           Eigenvalue aPaP0chiC = compute_one_principal_eig(ip, T, 1, verbose);
           FieldElement a((C.ideal_class()==ic3? F->one() : F->minus_one()));
-          Eigenvalue chiC_inverse(a, Fmodsq, 1); // 1 for factor of i
-          Eigenvalue aP = aPaP0chiC*aP0_inverse*chiC_inverse;
+          Eigenvalue aP = aPaP0chiC*aP0_inverse;
+          aP =aP.times_i(); // i.e. divide by -i, correct if C has class ic3
+          if (iC==ic1) // chi(C)=-i so multiply by i
+            aP = -aP;
           if (verbose)
             {
               if (verbose>1)
                 cout << "a("<<P<<") = a("<<P<<"*"<<P0<<")*chi("<<C<<")/a("<<P0<<")*chi("<<C<<") = "
-                     << aPaP0chiC << "*("<<aP0_inverse<<")*("<<chiC_inverse<<") = "<<aP<<endl;
+                     << aPaP0chiC << "*("<<aP0_inverse<<")*("
+                     << (iC==ic3? "i" : "-i")
+                     << ") = "<<aP<<endl;
               else
                 cout << " a("<<P<<") = " << aP << endl;
             }
-          assert (aPaP0chiC*chiC_inverse == aP*aP0);
+          Eigenvalue b = aPaP0chiC;
+          if (iC==ic1)
+            b=b.times_minus_i();
+          else
+            b=b.times_i();
+          if (b != aP*aP0)
+            {
+              cout << "aPaP0chiC = " << aPaP0chiC << endl;
+              cout << "chiC = " << (iC==ic1? "i" : "-i") << endl;
+              cout << "quotient = " << b << endl;
+              cout << "aP = " << aP << endl;
+              cout << "aP0 = " << aP0 << endl;
+              cout << "product = " << aP*aP0 << endl;
+              assert (b == aP*aP0);
+            }
           aPmap[P] = aP;
           continue;
         }
@@ -600,6 +619,14 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
         } // end of b=0, b!=0 cases
 
     } // end of loop over P
+
+  if (!P0_set)
+    {
+      if (verbose)
+        cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
+             << "Flagging this newform as having self-twist.\n";
+      self_twist_flag = +1;
+    }
 
   if (verbose)
     {

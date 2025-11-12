@@ -3,6 +3,8 @@
 
 #include "field.h"
 
+//#define DEBUG_ARITH
+
 Field* FieldQQ = new Field();
 
 Field::Field(const ZZX& p, string a, int verb)
@@ -639,6 +641,8 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   return 0;
 }
 
+//#define DEBUG_SQUARES
+
 unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
 {
   unsigned int i=0;
@@ -657,43 +661,95 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
         }
       i++;
     }
-  // We get here if a (mod squares) is not in the current group.  In
-  // particular, it is not a square. For fields other than Q we use a
-  // itself as the new gen, unless it is minus a square, otherwise the
-  // squarefree part of a.
 
-  FieldElement newgen = a;  //default, for F not Q
-  bigrational g1, s1;       // only used when F is Q
-  // Add a new generator and set s so that a=s^2*newgen
-  if (F->isQ())
-    {
-      //      cout << "New generator for Q^*/(Q^*)^2 from a = " << a << endl;
-      sqfdecomp(a.val, g1, s1); // a = g1*s1^2 with g1 squarefree
-      newgen = FieldElement(g1);
-      s = FieldElement(s1);
-    }
-  else
-    {
-      s = F->one();
-    }
-  gens.push_back(newgen);
+  // We get here if a (mod squares) is not in the current group.  In
+  // particular, it is not a square.
+
+  // Increment the rank:
+  unsigned int j = 1<<r; // This will be the new index (with a possible offset)
   r++;
-  // cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << newgen << endl;
-  // cout << "elements were " << elements << endl;
-  vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+
+  // If the field is Q we adjoin the squarefree part of a as the new generator:
   if (F->isQ())
     {
+      bigrational g1, s1;
+      sqfdecomp(a.val, g1, s1); // a = g1*s1^2 with g1 squarefree
+      s = FieldElement(s1);
+#ifdef DEBUG_SQUARES
+      cout << "New generator " << g1 << " for Q^*/(Q^*)^2 from a = " << a << endl;
+#endif
+      gens.push_back(FieldElement(g1));
+#ifdef DEBUG_SQUARES
+      cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << g1 << endl;
+      cout << "elements were " << elements << endl;
+#endif
+      vector<FieldElement> new_elements(elements.size(), FieldElement(F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
                      [g1](const FieldElement& x){return FieldElement(squarefree_product(x.val,g1));});
+      elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+#ifdef DEBUG_SQUARES
+  cout << "elements are now " << elements << endl;
+#endif
+      return j;
     }
-  else
+
+  // Test whether a small integer times an existing rep will do
+
+#ifdef DEBUG_SQUARES
+  cout << "Trying to simplify a = " << a << " mod squares" << endl;
+#endif
+  for (auto u : {-1,2,-2,3,-3,5,-5})
     {
+#ifdef DEBUG_SQUARES
+      cout << "Trying u = " << u << endl;
+#endif
+      FieldElement U(F,ZZ(u));
+      FieldElement au = a*U;
+      i = 0;
+      for (auto x: elements)
+        {
+          if ((au*x).is_square(s))
+            {
+#ifdef DEBUG_SQUARES
+              cout << "Success with u = " << u << " and x = " << x << endl;
+#endif
+              // now a*u*x = s^2
+              s /= (U*x);
+              // now a = s^2 * u*x
+              gens.push_back(U);
+#ifdef DEBUG_SQUARES
+              cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << U << endl;
+              cout << "elements were " << elements << endl;
+#endif
+              vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+              std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                             [U](const FieldElement& x){return U*x;});
+              elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+#ifdef DEBUG_SQUARES
+              cout << "elements are now " << elements << endl;
+#endif
+              return i + j;
+            }
+          i++;
+        } // end of loop over elements x
+    }  // end of loop over small u
+
+  // If we reach here, we failed to find a small new generator, so we use a itself
+  cout << "No small u worked, so we take " << a << " as new generator" << endl;
+  s = F->one();
+  gens.push_back(a);
+#ifdef DEBUG_SQUARES
+  cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << a << endl;
+  cout << "elements were " << elements << endl;
+#endif
+  vector<FieldElement> new_elements(elements.size(), FieldElement(F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                     [newgen](const FieldElement& x){return newgen*x;});
-    }
+                     [a](const FieldElement& x){return a*x;});
   elements.insert(elements.end(), new_elements.begin(), new_elements.end());
-  // cout << "elements are now " << elements << endl;
-  return r;
+#ifdef DEBUG_SQUARES
+  cout << "elements are now " << elements << endl;
+#endif
+  return j;
 }
 
 string FieldModSq::elt_str(unsigned int i) const
@@ -735,8 +791,6 @@ void FieldModSq::display()
   // cout << "]" << endl;
 }
 
-//#define DEBUG_ARITH
-
 int Eigenvalue::operator==(const Eigenvalue& b) const
 {
   return (SqCl==b.SqCl) && (root_index==b.root_index) && (xf==b.xf) && (a==b.a);
@@ -775,6 +829,69 @@ Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
   return ans;
 }
 
+Eigenvalue Eigenvalue::times_i() const
+{
+  Eigenvalue ans = *this;
+  if (ans.xf==0)
+    {
+      if (ans.root_index&1)
+        {
+          // we already have a factor i, so remove it and negate
+          ans.root_index -= 1;
+          ans.a *= ZZ(-1);
+        }
+      else
+        {
+          // we do not, so add it
+          ans.root_index += 1;
+        }
+#ifdef DEBUG_ARITH
+      cout << "times_i(" << (*this) << ") = " << ans << endl;
+#endif
+      return ans;
+    }
+  // else (ans.xf==-1) // factor (1-i)
+  else if (ans.xf==1)
+    {
+      if (ans.root_index&1) // factor i
+        {
+          // we already have a factor i, so remove it and negate
+          ans.root_index -= 1;
+        }
+      else
+        {
+          // we do not, so add it: change 1+i into 1-i and negate
+          ans.xf = -ans.xf;
+        }
+      ans.a *= ZZ(-1);
+#ifdef DEBUG_ARITH
+      cout << "times_i(" << (*this) << ") = " << ans << endl;
+#endif
+      return ans;
+    }
+  // else (ans.xf==-1) // factor (1-i)
+  if (ans.root_index&1) // factor i
+    {
+      // we already have a factor i, so remove it and negate
+      ans.root_index -= 1;
+      ans.a *= ZZ(-1);
+    }
+  else
+    {
+      // we do not, so add it: change 1-i into 1+i
+      ans.xf = -ans.xf;
+    }
+#ifdef DEBUG_ARITH
+      cout << "times_i(" << (*this) << ") = " << ans << endl;
+#endif
+  return ans;
+}
+
+Eigenvalue Eigenvalue::times_minus_i() const
+{
+  return - times_i();
+}
+
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
 {
   if (is_zero()) return Eigenvalue(*this);
@@ -800,7 +917,15 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
     j = b.root_index;
   else if (b.root_index==0)
     j = root_index;
+  else if (b.root_index==root_index)
+    {
+      j = 0;
+      s = root_part();
+      c *= s;
+    }
   else
+    // NB In this case s is only determined up to sign, hence so is c,
+    // hence so is the final product
     {
       r = root_part() * b.root_part();
       j = SqCl->get_index(r, s);
@@ -816,7 +941,7 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
   Eigenvalue ans(c, SqCl, j); // sets ans.xf to 0
 
 #ifdef DEBUG_ARITH
-  cout << "Before adjusting last factor, ans = " << ans << endl;
+  cout << "Before setting last factor, ans = " << ans << endl;
 #endif
 
   if (xf==0)
