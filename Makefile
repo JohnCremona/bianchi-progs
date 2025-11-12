@@ -72,7 +72,7 @@ LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl
 all: tests
 	@echo "Using SCALAR_OPTION = "$(SCALAR_OPTION)
 
-ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8 ccs9
 ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
 ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc field.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
@@ -82,8 +82,9 @@ ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc newhecke_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
+ccs9: polred.cc polredtest.cc
 
-Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h
+Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h polred.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h field.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
@@ -98,20 +99,24 @@ headers: Q_headers quad_headers swan_headers
 # pari_snf.h/cc:       Homology invariants (as INTS) via PARI
 # flint_snf.h/cc:      HF, SNF and homology invariants (as INTS) via FLINT
 # snf_test.cc:         Test program (for flint_snf)
+# polredtest.cc:       Test program (for polred)
 #
 #####################################################################################################
 
 # DEPENDENCIES (of *.o files)
 #
-Makefile.deps:
-	for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
-# recreate with
-# for f in *.cc; do g++ -MM -std=c++11 ${f}; done > Makefile.deps
-#
-include Makefile.deps
 
 sources: ccs headers Makefile.deps
 	chmod a+r *.h *.cc
+
+# This target dows not work
+Makefile.deps:
+	for f in *.cc; do echo "# "${f}; g++ -MM -std=c++11 ${f}; done > Makefile.deps
+# recreate with
+# for f in *.cc; do echo "# "${f}; g++ -MM -std=c++11 ${f}; done > Makefile.deps
+#
+include Makefile.deps
+
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
@@ -348,6 +353,10 @@ int_hom: int_hom.o $(OBJS)
 
 tbug: tbug.o $(OBJS)
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
+
+polredtest: polredtest.o polred.o
+	$(CC) -o polredtest polredtest.o polred.o $(LFLAGS)
+
 
 # Some tables
 
