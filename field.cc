@@ -207,50 +207,58 @@ FieldElement Field::element(const vec_m& c, const ZZ& d, int raw)
   return FieldElement(this, c, d, raw);
 }
 
-FieldElement Field::zero()
+FieldElement Field::rational(const bigrational& x)
 {
   if (isQ())
-    return FieldElement(bigrational(0));
+    return FieldElement(x);
   else
-    return FieldElement(this, vec_m(d));
+    return FieldElement(this, x.num(), x.den());
+}
+
+FieldElement Field::rational(const ZZ& x)
+{
+  return rational(bigrational(x));
+}
+
+FieldElement Field::rational(long x)
+{
+  return rational(bigrational(x));
+}
+
+FieldElement Field::rational(int x)
+{
+  return rational(bigrational(x));
+}
+
+FieldElement Field::zero()
+{
+  return rational(0);
 }
 
 FieldElement Field::one()
 {
-  if (isQ())
-    return FieldElement(bigrational(1));
-  else
-    return FieldElement(this, vec_m::unit_vector(d, 1));
+  return rational(1);
 }
 
 FieldElement Field::minus_one()
 {
-  if (isQ())
-    return FieldElement(bigrational(-1));
-  else
-    return FieldElement(this, -vec_m::unit_vector(d, 1));
+  return rational(-1);
 }
 
 FieldElement Field::two()
 {
-  if (isQ())
-    return FieldElement(bigrational(2));
-  else
-    return FieldElement(this, ZZ(2)*vec_m::unit_vector(d, 1));
+  return rational(2);
 }
 
 FieldElement Field::minus_two()
 {
-  if (isQ())
-    return FieldElement(bigrational(-2));
-  else
-    return FieldElement(this, ZZ(-2)*vec_m::unit_vector(d, 1));
+  return rational(-2);
 }
 
 FieldElement Field::gen()
 {
   if (isQ())
-    return FieldElement(bigrational(1));
+    return rational(1);
   else
     return FieldElement(this, vec_m::unit_vector(d, 2));
 }
@@ -703,7 +711,7 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
 #ifdef DEBUG_SQUARES
       cout << "Trying u = " << u << endl;
 #endif
-      FieldElement U(F,ZZ(u));
+      FieldElement U = F->rational(u);
       FieldElement au = a*U;
       i = 0;
       for (auto x: elements)

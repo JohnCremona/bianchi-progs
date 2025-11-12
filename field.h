@@ -35,11 +35,15 @@ public:
   Field(); // defaults to Q
   Field(const mat_m& m, const ZZ& den = to_ZZ(1), string a="a", int verb=0);
   Field(const ZZX& p, string a="a", int verb=0);
-  FieldElement one();
-  FieldElement minus_one();
-  FieldElement two();
-  FieldElement minus_two();
-  FieldElement zero();
+  FieldElement rational(const bigrational& x);
+  FieldElement rational(const ZZ& x); // {return rational(bigrational(x));}
+  FieldElement rational(long x); // {return rational(bigrational(ZZ(x)));}
+  FieldElement rational(int x); // {return rational(bigrational(ZZ(x)));}
+  FieldElement one(); // {return rational(1);}
+  FieldElement minus_one(); // {return rational(-1);}
+  FieldElement two(); // {return rational(2);}
+  FieldElement minus_two(); // {return rational(-2);}
+  FieldElement zero(); // {return rational(0);}
   FieldElement gen();
   FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
   int degree() const {return d;}

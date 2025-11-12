@@ -522,7 +522,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           Eigenvalue aPaP0chiC = compute_one_principal_eig(ip, T, 1, verbose);
           FieldElement a((C.ideal_class()==ic3? F->one() : F->minus_one()));
           Eigenvalue aP = aPaP0chiC*aP0_inverse;
-          aP =aP.times_i(); // i.e. divide by -i, correct if C has class ic3
+          aP = aP.times_i(); // i.e. divide by -i, correct if C has class ic3
           if (iC==ic1) // chi(C)=-i so multiply by i
             aP = -aP;
           if (verbose)
