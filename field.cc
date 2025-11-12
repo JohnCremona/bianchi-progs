@@ -743,7 +743,9 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
     }  // end of loop over small u
 
   // If we reach here, we failed to find a small new generator, so we use a itself
+#ifdef DEBUG_SQUARES
   cout << "No small u worked, so we take " << a << " as new generator" << endl;
+#endif
   s = F->one();
   gens.push_back(a);
 #ifdef DEBUG_SQUARES
