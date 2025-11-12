@@ -8,14 +8,14 @@
 #include "field.h"
 
 class Newform;
-class Newforms;
+class Newspace;
 
 // class for a d-dimensional newform, defined by an irreducible factor
 // of the characteristic polynomial of some splitting operator T
 class Newform {
-  friend class Newforms;
+  friend class Newspace;
 private:
-  Newforms* nf;    // pointer to "parent" class holding global info
+  Newspace* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
   string lab;    //
   int d;      // dim(S)
@@ -65,9 +65,9 @@ private:
   void compute_AL_eigs(int verbose=0);
 
 public:
-  // constructor from ambient Newforms using one irreducibel factor of char
-  // poly of Newforms's T_mat
-  Newform(Newforms* x, int ind, const ZZX& f, int verbose=0);
+  // constructor from ambient Newspace using one irreducibel factor of char
+  // poly of Newspace's T_mat
+  Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
 
   int get_index() const { return index;}
   void set_index(int i) {index = i; lab = codeletter(i-1); F->set_var(lab);}
@@ -139,7 +139,7 @@ struct newform_comparison {
 extern newform_comparison newform_cmp;
 
 // class for the collection of all d-dimensional newforms
-class Newforms {
+class Newspace {
   friend class Newform;
   friend class Field;
   friend class FieldElement;
@@ -176,11 +176,11 @@ private:
 
 public:
   vector<Newform> newforms; // the newforms
-  Newforms(void) {;}
+  Newspace(void) {;}
   // constructor from a homspace, looking for a splitting operator
   // using linear combinations of up to maxnp primes, coefficients up
   // to maxc
-  Newforms(homspace* h1, int maxnp, int maxc, int verb=1);
+  Newspace(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N

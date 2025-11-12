@@ -1,4 +1,4 @@
-// FILE TNFD.CC:  test program for Newforms (d-dimensional newform) class
+// FILE TNFD.CC:  test program for Newspace (d-dimensional newform) class
 //////////////////////////////////////////////////////////////////////////
 //
 // Adapted from the similar program (over Q) in eclib
@@ -67,7 +67,7 @@ int main()
             << ", denominator " << H1->h1cdenom() << endl;
 
      int maxnp = 7, maxc = 2;
-     Newforms forms(H1, maxnp, maxc, verbose);
+     Newspace forms(H1, maxnp, maxc, verbose);
      if (!forms.ok())
        {
          cout << "Failed to find a splitting operator using lnear combnations of " << maxnp

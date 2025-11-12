@@ -1,4 +1,4 @@
-// FILE nfd.cc: implementation of class Newforms for newforms of any dimension
+// FILE nfd.cc: implementation of class Newspace for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
 //
 // Adapted from the similar class (over Q) in eclib
@@ -17,7 +17,7 @@ newform_comparison newform_cmp;
                                         // all aP for P in this class
                                         // are 0.
 
-Newform::Newform(Newforms* x, int ind, const ZZX& f, int verbose)
+Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   :nf(x), index(ind)
 {
   d = deg(f);
@@ -200,7 +200,7 @@ ZZ Newform::eps(const matop& T) // T should be a scalar
   exit(1);
 }
 
-Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
+Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   : verbose(verb), H1(h1)
 {
   N = H1->N;
@@ -257,7 +257,7 @@ Newforms::Newforms(homspace* h1, int maxnp, int maxc, int verb)
 }
 
 // compute T=T_P, trying all good P with N(P)<=maxnormP
-void Newforms::find_T(int maxnp, int maxc)
+void Newspace::find_T(int maxnp, int maxc)
 {
   split_ok = 0;
   gmatop T_op;
@@ -1005,7 +1005,7 @@ void Newform::display(int full)
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newforms::display_newforms(int triv_char_only, int full) const
+void Newspace::display_newforms(int triv_char_only, int full) const
 {
   for ( auto F : newforms)
     {
@@ -1017,7 +1017,7 @@ void Newforms::display_newforms(int triv_char_only, int full) const
     }
 }
 
-vector<int> Newforms::dimensions() const
+vector<int> Newspace::dimensions() const
 {
   vector<int> dims(newforms.size());
   std::transform(newforms.begin(), newforms.end(), dims.begin(),
@@ -1025,17 +1025,17 @@ vector<int> Newforms::dimensions() const
   return dims;
 }
 
-mat_m Newforms::heckeop(const gmatop& T, int cuspidal, int dual) const
+mat_m Newspace::heckeop(const gmatop& T, int cuspidal, int dual) const
 {
   return to_mat_m(H1->calcop(T, cuspidal, dual, 0)); // 0 display
 }
 
-mat_m Newforms::heckeop(const matop& T, int cuspidal, int dual) const
+mat_m Newspace::heckeop(const matop& T, int cuspidal, int dual) const
 {
   return to_mat_m(H1->calcop(T, cuspidal, dual, 0)); // 0 display
 }
 
-mat_m Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
+mat_m Newspace::heckeop(Quadprime& P, int cuspidal, int dual)
 {
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
 }
@@ -1043,7 +1043,7 @@ mat_m Newforms::heckeop(Quadprime& P, int cuspidal, int dual)
 #if(0)
 // Compute T, either one T_P or a linear combination of T_P, and its
 // char poly and the irreducible factors of multiplicity 1:
-void Newforms::find_T_manual()
+void Newspace::find_T_manual()
 {
   Quadprime P;
   int one_p;
@@ -1088,7 +1088,7 @@ void Newforms::find_T_manual()
   return;
 }
 
-void Newforms::factor_T()
+void Newspace::factor_T()
 {
   if (verbose)
     cout<<"Computing charpoly(T)..."<<flush;
