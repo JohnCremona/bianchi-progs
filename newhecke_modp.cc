@@ -44,6 +44,7 @@ int main(void)
         {
 #endif
           cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+          cout << "Characteristic p = " << ch << endl;
           homspace* h = get_homspace_modp(N, ch);
   int dim = h->h1cuspdim();
   cout << "Cuspidal dimension = " << dim << endl;
@@ -59,9 +60,9 @@ int main(void)
           if (ntp>np) break;
           if (show_pols)
             {
-              cout << "Characteristic polynomial of T(" << P << ")"<<endl;
+              cout << "Characteristic polynomial of T(" << P << "): "<<flush;
               ZZ_pX charpol = get_full_poly_modp(N,P,ch);
-              cout << "Coefficients: " << charpol << endl;
+              cout << polynomial_string(charpol) << endl;
               cout<<"Factors:"<<endl;
               display_factors(charpol);
               cout << endl;
@@ -77,8 +78,8 @@ int main(void)
             {
               cout << "Newspace has dimension " << dimnew << endl;
             }
-          cout << "New characteristic polynomial of T(" << P << "):" << endl;
-          cout << "Coefficients: " << newpol << endl;
+          cout << "New characteristic polynomial of T(" << P << "): "
+               << polynomial_string(newpol) << endl;
           cout<<"Factors:"<<endl;
           display_factors(newpol);
           cout << endl;
