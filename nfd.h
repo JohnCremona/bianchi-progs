@@ -108,7 +108,13 @@ public:
   // output basis for the Homological Hecke field and character
   // If full, also output multiplicative basis for the full Hecke field
   void display(int full=0);
-  int dimension() const {return d;}
+  int dimension(int full=1) const
+  {
+    if (full)
+      return d<<Fmodsq->rank();
+    else
+      return d;
+  }
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
   int is_char_trivial(); // sets triv_char flag (1 iff unramified quadratic character values (if any) are all +1)
@@ -142,6 +148,9 @@ public:
     compute_principal_eigs(nap, verbose);
     return eigmap;
   }
+  // filename for this Newform
+  string filename() const;
+  void output_to_file() const;
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -224,11 +233,16 @@ public:
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
   string splitopname() const {return T_name;}
-  vector<int> dimensions() const;
+  vector<int> dimensions(int full=0) const;
   // output basis for the Hecke field and character of all newforms
   void display_newforms(int triv_char_only=0, int full=0) const;
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
+  // filename for Newspace
+  string filename();
+  // output data for this Newspace and each Newform
+  void output_to_file();
 };
+
 
 #endif

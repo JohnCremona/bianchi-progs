@@ -85,6 +85,9 @@ int main()
            cout << " " << forms.dimensions()[0];
        }
      cout << endl;
+     //     cout << "Outputting newform data to files" << endl;
+     forms.output_to_file();
+
      if (!nnf)
        continue;
      int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),

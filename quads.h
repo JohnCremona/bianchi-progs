@@ -320,6 +320,9 @@ string eigfile(Qideal& N, long p=0);        //returns directory/filename for eig
 // return name of newforms directory for this field; if
 // create_if_necessary, creates the directory if it does not yet exist
 string newforms_directory(int create_if_necessary=1);
+// return name of Newspaces directory for this field; if
+// create_if_necessary, creates the directory if it does not yet exist
+string newspaces_directory(int create_if_necessary=1);
 
 #endif
 

@@ -1151,6 +1151,25 @@ string newforms_directory(int create_if_necessary)
   return dirname;
 }
 
+// return name of Newspace directory for this field; if
+// create_if_necessary, creates the directory if it does not yet exist
+string newspaces_directory(int create_if_necessary)
+{
+  stringstream s;
+  s << getenv_with_default("NS_DIR", "newspaces") << "/" << field_label();
+  string dirname = s.str();
+  if (create_if_necessary)
+    {
+      int res = std::system(("mkdir -p "+dirname).c_str());
+      if (res)
+        {
+          cerr << "mkdir -p "<<dirname<<" failed, writing newforms files in current directory"<<endl;
+          dirname = ".";
+        }
+    }
+  return dirname;
+}
+
 string eigfile(const Quad& N, long p)    //returns filename for eigs at level N, characteristic p
 {
   stringstream s;

@@ -1155,6 +1155,64 @@ void Newform::display(int full)
     }
 }
 
+// filename
+string Newform::filename() const
+{
+  stringstream s;
+  s << newspaces_directory() << "/" << ideal_label(nf->N) << "-" << lab;
+  return s.str();
+}
+
+string Newspace::filename()
+{
+  stringstream s;
+  s << newspaces_directory() << "/" << ideal_label(N);
+  return s.str();
+}
+
+void Newform::output_to_file() const
+{
+  //  int echo=0; // Set to 1 to echo what is written to the file for debugging
+  ofstream out;
+  out.open(filename().c_str());
+  // Field, level, letter-code:
+  out << field_label() << " ";
+  out << ideal_label(nf->N) << " ";
+  out << lab << endl;
+  // Principal Hecke field:
+  out << *F << endl;
+  // Full Hecke field data:
+  out << *Fmodsq << endl;
+}
+
+void Newspace::output_to_file()
+{
+  //  int echo=0; // Set to 1 to echo what is written to the file for debugging
+  ofstream out;
+  out.open(filename().c_str());
+  // Field, level, number of newforms:
+  out << field_label() << " ";
+  out << ideal_label(N) << " ";
+  int nnf = newforms.size();
+  out << nnf << endl;
+  if (nnf==0)
+    {
+      out.close();
+      return;
+    }
+  // Homological dimensions:
+  vector<int> dims = dimensions(0);
+  for (auto d: dims) out << " " << d;
+  out << endl;
+  // Full dimensions:
+  dims = dimensions(1);
+  for (auto d: dims) out << " " << d;
+  out << endl;
+  out.close();
+  for (auto f: newforms)
+    f.output_to_file();
+}
+
 // output basis for the Hecke field and character of all newforms
 void Newspace::display_newforms(int triv_char_only, int full) const
 {
@@ -1168,11 +1226,11 @@ void Newspace::display_newforms(int triv_char_only, int full) const
     }
 }
 
-vector<int> Newspace::dimensions() const
+vector<int> Newspace::dimensions(int full) const
 {
   vector<int> dims(newforms.size());
   std::transform(newforms.begin(), newforms.end(), dims.begin(),
-                 [](const Newform& F){return F.dimension();});
+                 [full](const Newform& F){return F.dimension(full);});
   return dims;
 }
 

@@ -56,6 +56,41 @@ public:
   void display_bases(ostream&s = cout) const; // display powers of A and C and bases in both embeddings
   string get_var() const {return var;}
   void set_var(const string& v)  {var = v;}
+  // String for raw output, suitable for re-input, like "Q" or "i [1 0 1]":
+  string raw_str() const
+  {
+    ostringstream s;
+    if (isQ())
+      s << "Q";
+    else
+      s << var << " " << minpoly;
+    return s.str();
+  }
+  // String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)"
+  string str() const
+  {
+    ostringstream s;
+    if (isQ())
+      s << "Q";
+    else
+      s << "Q("<<var<<") = Q[X]/(" << polynomial_string(minpoly, "X")<<")";
+    return s.str();
+  }
+  friend ostream& operator<<(ostream& s, const Field& F)
+  { s << F.raw_str();return s;}
+  friend istream& operator>>(istream& s, Field& F)
+  {
+    string var;
+    if (var=="Q")
+      F = Field();
+    else
+      {
+        ZZX f;
+        s >> var >> f;
+        F = Field(f, var);
+      }
+    return s;
+  }
 };
 
 class FieldElement {
@@ -89,7 +124,16 @@ public:
   FieldElement( const bigrational& r)
     :F(FieldQQ), val(r) {;}
 
+  // String for pretty printing, used in default <<
   string str() const;
+  // String for raw output, suitable for re-input (with Field known):
+  string raw_str() const
+  {
+    ostringstream s;
+    s << coords << " " << denom;
+    return s.str();
+  }
+
   Field* field() {return F;}
   mat_m matrix() const; // ignores denom
   ZZX charpoly() const {return ::charpoly(matrix());}
@@ -135,6 +179,13 @@ public:
   // s.t. r^2=this, with deg(r)=degree(), else 0. Here, ntries is the
   // number of squares this is multiplied by to get odd co-degree.
   int is_square(FieldElement& r, int ntries=100) const;
+
+  // x must be initialised with a Field before input to x
+  friend istream& operator>>(istream& s, FieldElement& x)
+  {
+    s >> x.coords >> x.denom;
+    return s;
+  }
 };
 
 FieldElement evaluate(const ZZX& f, const FieldElement a);
@@ -158,6 +209,17 @@ private:
 public:
   FieldModSq(){;}
   FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}) {;}
+  FieldModSq(Field* HF, vector<FieldElement>& g) :F(HF), r(g.size()), gens(g)
+  {
+    elements = {F->one()};
+    for (auto r: gens)
+      {
+        vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+        std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                       [r](const FieldElement& x){return r*x;});
+        elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+      }
+  }
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
   vector<FieldElement> elts() const {return elements;}
@@ -170,7 +232,19 @@ public:
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
   void display();
+  string str() const
+  {
+    ostringstream s;
+    s << r;
+    for (auto g:gens)
+      s << " " << g.raw_str();
+    return s.str();
+  }
 };
+
+inline ostream& operator<<(ostream& s, const FieldModSq& x)
+{ s << x.str(); return s;}
+
 
 // An instance of class Eigenvalue consists of:
 // a: FieldElement;
