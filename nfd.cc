@@ -57,7 +57,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     cout<<"done."<<endl;
 
   // Check that (scaled) charpoly(A) = fT
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(denom_abs), nf->H1->hmod);
+  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(denom_abs), to_ZZ(nf->H1->hmod));
   if (cpA != f)
     {
       cout<<endl;
@@ -97,12 +97,22 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     }
 
   // Compute character values
-  epsvec.resize(nf->eps_ops.size());
-  std::transform(nf->eps_ops.begin(), nf->eps_ops.end(), epsvec.begin(),
-                 [this](const matop& op){return (eps(op)>0?+1:-1);});
   int n2r = Quad::class_group_2_rank;
-  if (verbose && n2r)
-    cout<<"genus char values: "<<epsvec<<endl;
+  if (n2r)
+    {
+      epsvec.resize(nf->eps_ops.size());
+      std::transform(nf->eps_ops.begin(), nf->eps_ops.end(), epsvec.begin(),
+                     [this](const matop& op){return (eps(op)>0?+1:-1);});
+      if (verbose)
+        cout<<"genus char values: "<<epsvec<<endl;
+      triv_char = std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
+    }
+  else
+    triv_char=1;
+
+  bc = (nf->N.is_Galois_stable()? -1 : 0);
+  bct = -1;  // means unknown
+  cm = 1;    // means unknown
 
   // Initialise book-keeping data for eigenvalue computation
   Fmodsq = new FieldModSq(F);
@@ -153,11 +163,12 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 #endif
 }
 
-int Newform::trivial_char() // 1 iff all  unramified quadratic character values (if any) are +1
+int Newform::is_char_trivial()
 {
-  return std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
+  return triv_char;
 }
 
+// eigenvalue of a general principal operator:
 FieldElement Newform::eig(const matop& T)
 {
   nf->H1->projcoord = projcoord;
@@ -167,7 +178,7 @@ FieldElement Newform::eig(const matop& T)
   static const ZZ one(1);
   if (F->isQ())
     {
-      FieldElement ap(bigrational(apv[1], denom_abs));
+      FieldElement ap(bigrational(apv[1], to_ZZ(denom_abs)));
       //            cout << "ap = " << ap << endl;
       return ap;
     }
@@ -179,11 +190,13 @@ FieldElement Newform::eig(const matop& T)
     }
 }
 
+// eigenvalue of AutoHeckeOp(P):
 FieldElement Newform::ap(Quadprime& P)
 {
   return eig(AutoHeckeOp(P,nf->N));
 }
 
+// eigenvalue of a scalar operator
 ZZ Newform::eps(const matop& T) // T should be a scalar
 {
   //   nf->H1->projcoord = projcoord;
@@ -198,6 +211,128 @@ ZZ Newform::eps(const matop& T) // T should be a scalar
     return -one;
   cerr << "eps(" << T.name() << ") returns " << e << ", not +1 or -1" << endl;
   exit(1);
+}
+
+// eigenvalue of a (good) prime from aPmap if P is in there;
+// otherwise either raise an error (if stored_only=1) or (not yet
+// implemented) compute it.
+Eigenvalue Newform::eig(Quadprime& P, int stored_only)
+{
+  auto it = aPmap.find(P);
+  if (it!=aPmap.end())
+    return it->second;
+  if (stored_only)
+    {
+      cerr << "Eigenvalue for P="<<P<<" not yet computed" << endl;
+    }
+  return Eigenvalue();
+  // add code here to compute one eigenvalue (for trivial char case
+  // only?)
+}
+
+// Principal eigenvalue of a (good) prime P if P has trivial genus
+// class, or P^2 otherwise, from aPmap.  Assuming trivial character
+// this will be the eigenvalue of AutHeckeOp(P).
+FieldElement Newform::eigPorP2(Quadprime& P)
+{
+  Eigenvalue aP = eig(P);
+  FieldElement a = aP.coeff();
+  if (P.genus_class()==0) // then there is no sqrt factor
+    return a;
+  a = a*a*aP.root_part(); // (a_P)^2
+  ZZ p = ZZ(I2long(P.norm()));
+  return a - p;          // a_(P^2)
+}
+
+// Principal eigenvalue of a linear combination of the above:
+FieldElement Newform::eig_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs)
+{
+  FieldElement eig(F->zero());
+  auto Pi = Plist.begin();
+  auto ci = coeffs.begin();
+  while (Pi!=Plist.end())
+    {
+      scalar c = *ci++;
+      if (c!=0)
+        {
+          eig += eigPorP2(*Pi++) * to_ZZ(c);
+        }
+    }
+  return eig;
+}
+
+// Characteristic polynomial of such a linear combination:
+ZZX Newform::char_pol_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs)
+{
+  return eig_lin_comb(Plist, coeffs).charpoly();
+}
+
+//#define DEBUG_BC
+
+void Newform::check_base_change(void)
+{
+  if (bc!=-1) // already set
+    return;
+  Qideal N(nf->N);
+  if(!(N.is_Galois_stable()))
+    {
+      bc = 0;
+      // may still be bct
+    }
+  if (aPmap.empty())
+    {
+      cerr << "Cannot check for base change: no aP computed!" << endl;
+      return;
+    }
+  bc = 1;       // will set to 0 if not bc
+  bct = 1;      // will set to 0 if not bct (NB bc implies bct)
+  for (auto PaP : aPmap)
+    {
+      if (!bct)
+        break; // then alo bc==0
+      Quadprime P = PaP.first;
+      Eigenvalue aP = PaP.second;
+#ifdef DEBUG_BC
+      cout<<"P = "<<P<<" has aP="<<aP<<endl;
+#endif
+      if(P.is_Galois_stable()) // this prime is inert or ramified
+        continue;
+      if(P.divides(N))
+        continue;
+      Quadprime Pbar = P.conj();
+      if(Pbar.divides(N))
+        continue;
+      auto it = aPmap.find(Pbar);
+      if (it==aPmap.end()) // the conjugate aP is not known
+        continue;
+      Eigenvalue aPbar = it->second;
+#ifdef DEBUG_BC
+          cout<<"Pbar = "<<Pbar<<" has aPbar = "<<aPbar<<endl;
+#endif
+          if(aP!=aPbar) // aP, aP differ
+            {
+#ifdef DEBUG_BC
+              cout<<"Different -- not base-change"<<endl;
+#endif
+              bc = 0;
+              if (aP!=-aPbar) // aP, aP differ even up to sign
+                {
+#ifdef DEBUG_BC
+                  cout<<"Different up to sign -- not base-change"<<endl;
+#endif
+                  bct = 0;
+                }
+            }
+    }
+#ifdef DEBUG_BC
+  if (bc)
+    cout<<"Base-change"<<endl;
+  else if (bct)
+    cout<<"Not base-change, but base-change up to twist"<<endl;
+  else
+    cout<<"Not base-change even up to twist"<<endl;
+#endif
+  return;
 }
 
 Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
@@ -256,7 +391,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
     }
 }
 
-// compute T=T_P, trying all good P with N(P)<=maxnormP
+// compute T=T_P, trying all good P with N(P)<=maxnormP and linear combinations
 void Newspace::find_T(int maxnp, int maxc)
 {
   split_ok = 0;
@@ -271,6 +406,7 @@ void Newspace::find_T(int maxnp, int maxc)
           Quadprime P = Pi;
           if (verbose>1)
             cout << "In loop over primes, P = " << P << " with norm " << P.norm() << endl;
+          ++Pi;
           np++;
           T_op = gmatop(AutoHeckeOp(P,N));
           T_name = T_op.name();
@@ -412,7 +548,7 @@ void Newform::compute_principal_eigs(int nap, int verbose)
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs(int ntp, int verbose)
 {
-  if (trivial_char())
+  if (triv_char)
     compute_eigs_triv_char(ntp, verbose);
   else
     if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
@@ -426,7 +562,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 {
   // If the character (restricted to Cl[2]) is trivial we take chi=1
   // and use the general code:
-  if (trivial_char())
+  if (triv_char)
     {
       compute_eigs_triv_char(ntp, verbose);
       return;
@@ -452,7 +588,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   // set this flag to 1:
   Quadprime P0;
   Eigenvalue aP0, aP0_inverse;
-  int cP0;
+  int cP0=-1; // to avoid a compiler warning about not being set
   int P0_set = 0;
 
   int ip = 0;  // counts the primes used
@@ -641,7 +777,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)
 {
-  if (!trivial_char())
+  if (!triv_char)
     return;
   int nap = 0;
   Qideal N = nf->N;
@@ -844,7 +980,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
 // Fill dict eQmap *after* aPmap
 void Newform::compute_AL_eigs(int verbose)
 {
-  // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap.
+  // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap and also
+  // the entries in aPmap indexed by bad primes.
 
   // Except in the trivial char case or if all Q^e|N are principal,
   // this requires aPmap to be filled with a nonzero eigenvalue for
@@ -854,9 +991,9 @@ void Newform::compute_AL_eigs(int verbose)
   vector<Quadprime> badprimes = pdivs(N);
   if (badprimes.empty())  // nothing to do
     return;
-  int triv_char = trivial_char();
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << badprimes << endl;
+  Eigenvalue zero(F->zero(), Fmodsq), one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
   for (auto Q: badprimes)
     {
       if (verbose)
@@ -869,14 +1006,17 @@ void Newform::compute_AL_eigs(int verbose)
       //     continue;
       //   }
       Qideal Qe = Q;
-      while (--e) Qe*=Q;
+      for (int i=1; i<e; i++)
+        Qe*=Q;
 
       if (Qe.is_principal()) // direct computation
         {
           ZZ eQ = eps(AtkinLehnerQOp(Q,N));
           if (verbose)
             cout << "Direct computation gives eigenvalue " << eQ << endl;
-          eQmap[Q] = Eigenvalue(FieldElement(F, eQ), Fmodsq);
+          Eigenvalue eps(FieldElement(F, eQ), Fmodsq);
+          eQmap[Q] = eps;
+          aPmap[Q] = (e>1? zero : -eps);
           continue;
         }
 
@@ -886,7 +1026,9 @@ void Newform::compute_AL_eigs(int verbose)
           ZZ eQ = eps(AtkinLehnerQChiOp(Q,A,N));
           if (verbose)
             cout << "Indirect computation gives eigenvalue " << eQ << endl;
-          eQmap[Q] = Eigenvalue(FieldElement(F, eQ), Fmodsq);
+          Eigenvalue eps(FieldElement(F, eQ), Fmodsq);
+          eQmap[Q] = eps;
+          aPmap[Q] = (e>1? zero : -eps);
           continue;
         }
 
@@ -921,6 +1063,7 @@ void Newform::compute_AL_eigs(int verbose)
           Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), Fmodsq);
           Eigenvalue eQ = aPeQ/aP;
           eQmap[Q] = eQ;
+          aPmap[Q] = (e>1? zero : -eQ);
           if (verbose)
             {
               cout << "Product eigenvalue is " <<aPeQ
@@ -938,16 +1081,24 @@ void Newform::display(int full)
 {
   int n2r = Quad::class_group_2_rank;
   cout << "Newform #" << index << " (" << lab << ")" << endl;
-  if (n2r==1)
-    cout << " - Genus character value: " <<  (epsvec[0]>0? "+1": "-1") << endl;
-  if (n2r>1)
-    cout << " - Genus character values: " <<  epsvec << endl;
+  if (n2r>0)
+    {
+      if (n2r==1)
+        cout << " - Genus character value: " <<  (epsvec[0]>0? "+1 (trivial)": "-1");
+      else
+        {
+          cout << " - Genus character values: " <<  epsvec;
+          if (triv_char)
+            cout << " (trivial)";
+        }
+      cout <<endl;
+    }
   cout << " - Dimension: "<<d<<endl;
   cout << " - Principal Hecke field k_f = ";
   F->display();
   if (full && n2r>0)
     {
-      if (trivial_char())
+      if (triv_char)
         {
           int r = Fmodsq->rank();
           if (r==0)
@@ -1009,7 +1160,7 @@ void Newspace::display_newforms(int triv_char_only, int full) const
 {
   for ( auto F : newforms)
     {
-      if ((!triv_char_only) || F.trivial_char())
+      if ((!triv_char_only) || F.triv_char)
         {
           F.display(full);
           cout<<endl;

@@ -88,7 +88,7 @@ int main()
      if (!nnf)
        continue;
      int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),
-                                       [](Newform F){return F.trivial_char()==1;});
+                                       [](Newform F){return F.is_char_trivial()==1;});
      if (n2r)
        cout << "Of these, " << nnf_triv_char
             << (nnf_triv_char==1? " has": " have")
@@ -117,30 +117,62 @@ int main()
          int inf=1;
          for (auto F: forms.newforms)
            {
-             if (C4 || F.trivial_char())
+             if (C4 || F.is_char_trivial())
                {
                  cout << endl;
                  if (verbose)
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
-                 map<Quadprime, Eigenvalue> eigs = F.aPeigs(nap, verbose);
+                 map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
+                 map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
                  F.display(1);
                  if (F.is_self_twist()==+1)
                    cout << "*** form appears to have self-twist ***" << endl;
                  cout << endl;
-                 cout << "Eigenvalues for first " << nap << " good primes:" << endl;
-                 for (auto x: eigs)
-                   cout << x.first << ":\t" << x.second << endl;
+                 cout << "aP for first " << aP.size() << " primes:" << endl;
+                 QuadprimeLooper Pi;
+                 unsigned int ip=0;
+                 while (Pi.ok() && ip<aP.size())
+                   {
+                     Quadprime P = Pi;
+                     ++Pi;
+                     ip++;
+                     auto aP = F.eig(P);
+                     cout << P << ":\t" << aP;
+                     if (P.divides(N))
+                       cout << "\t(AL eigenvalue = " << ALeigs[P] << ")";
+                     cout << endl;
+                   }
+                 // for (auto x: eigs)
+                 //   cout << x.first << ":\t" << x.second << endl;
                  if (N.norm()>1)
                    {
                      cout << "Atkin-Lehner eigenvalues:" << endl;
-                     eigs = F.ALeigs(verbose);
-                     for (auto x: eigs)
+                     for (auto x: ALeigs)
                        cout << x.first << ":\t" << x.second << endl;
                    }
                  else
                    cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                }
              inf++;
+             if (F.is_self_twist()==+1)
+               cout << "Form appears to have self-twist" << endl;
+             switch (F.is_base_change()) {
+             case 0:
+               cout << "Form is not base-change" << endl;
+               break;
+             case 1:
+               cout << "Form is base-change" << endl;
+               break;
+             case -1:
+               cout << "Form is twisted base-change but not base-change" << endl;
+               break;
+             case 2:
+             default:
+               if (N.is_Galois_stable())
+                 cout << "Form's base-change status not determined" << endl;
+               else
+                 cout << "Form is not base-change" << endl;
+             }
            }
        }
 
@@ -151,7 +183,7 @@ int main()
 
          for (auto F: forms.newforms)
            {
-             if (F.trivial_char())
+             if (F.is_char_trivial())
                continue;
              cout << endl;
              if (verbose)
@@ -164,8 +196,6 @@ int main()
                cout
                  // << "(" << x.first.first << ") "
                  << x.first.second << ":\t" << x.second << endl;
-             if (F.is_self_twist()==+1)
-               cout << "*** form appears to have self-twist ***" << endl;
            }
        }
     }     // end of level loop
