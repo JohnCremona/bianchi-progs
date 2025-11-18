@@ -424,13 +424,13 @@ mat homspace::calcop(const gmatop& T, int cuspidal, int dual, int display)
 ZZX homspace::charpoly(const matop& T, int cuspidal)
 {
   ZZ den = to_ZZ(cuspidal? denom3: denom1);
-  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0,0)), den, hmod);
+  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0,0)), den, to_ZZ(hmod));
 }
 
 ZZX homspace::charpoly(const gmatop& T, int cuspidal)
 {
   ZZ den = to_ZZ(cuspidal? denom3: denom1);
-  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0)), den, hmod);
+  return scaled_charpoly(mat_to_mat_ZZ(calcop(T,cuspidal,0)), den, to_ZZ(hmod));
 }
 
 mat homspace::calcop_cols(const matop& T, const vec_i& jlist, int verb)
@@ -945,7 +945,7 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod)
   if (cuspidal)
     M = restrict_mat(smat(M),H->kern).as_mat();
   scalar den = (cuspidal? H->h1cdenom() :H->h1denom());
-  ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(M), to_ZZ(den), H->hmod);
+  ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(M), to_ZZ(den), to_ZZ(H->hmod));
   poly_cache[NT] = full_poly;
   if (deg(full_poly)==0)
     new_poly_cache[NT] = full_poly;
