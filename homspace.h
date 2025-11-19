@@ -129,6 +129,15 @@ public:
 
 // functions for caching homspaces, full Hecke matrices, full and new Hecke polynomials
 
+// Utiities for creating keys
+
+string Nkey(Qideal& N);
+string Nmodpkey(Qideal& N, const scalar p);
+string NPkey(Qideal& N, Qideal& P);
+string NTkey(Qideal& N, const matop& T);
+string NTkey(Qideal& N, const gmatop& T);
+string NPmodpkey(Qideal& N, Quadprime& P, scalar p);
+
 // Key is ideal_label(N)
 extern map<string,homspace*> H1_dict;
 homspace* get_homspace(const Qideal& N, scalar mod);

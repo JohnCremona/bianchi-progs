@@ -67,9 +67,11 @@ int main(void)
           cout << "Characteristic p = " << ch << endl;
           homspace* h = get_homspace_modp(N, ch);
   int dim = h->h1cuspdim();
+  int dimnew = -1;
   cout << "Cuspidal dimension = " << dim << endl;
+  ZZ_pX pol1; set(pol1); // sets to constant polynomial 1
 
-  if (dim>0)
+  if (1) // dim>0)
     {
       int ntp = 0;
       for ( auto& P : Quadprimes::list)
@@ -77,7 +79,17 @@ int main(void)
 	  if (P.divides(N) || !P.is_principal())
             continue;
           ntp++;
-          if (ntp>np) break;
+          if (ntp>np)
+            break;
+          if (dimnew==0) // just to fill the cache, so higher levels
+                         // do not have to recreate this hmomspace
+            {
+              Qideal NN=N; // copy as N is const, for alldivs()
+              Quadprime PP=P; // copy as P is const, for ideal_label
+              string NP = NPmodpkey(NN,PP,ch);
+              new_poly_modp_dict[NP] = pol1;
+              continue;
+            }
           if (show_pols)
             {
               cout << "Characteristic polynomial of T(" << P << "): "<<flush;
@@ -88,21 +100,17 @@ int main(void)
               cout << endl;
             }
           ZZ_pX newpol = get_new_poly_modp(N,P, ch);
-          int dimnew = deg(newpol);
-          if (dimnew==0)
-            {
-              cout << "Newspace is trivial" << endl;
-              break;
-            }
+          dimnew = deg(newpol);
           if (ntp==1)
+            cout << "Newspace has dimension " << dimnew << endl;
+          if (dimnew>0)
             {
-              cout << "Newspace has dimension " << dimnew << endl;
+              cout << "New characteristic polynomial of T(" << P << "): "
+                   << polynomial_string(newpol) << endl;
+              cout<<"Factors:"<<endl;
+              display_factors(newpol);
+              cout << endl;
             }
-          cout << "New characteristic polynomial of T(" << P << "): "
-               << polynomial_string(newpol) << endl;
-          cout<<"Factors:"<<endl;
-          display_factors(newpol);
-          cout << endl;
         }
     }      // end of if(dim>0)
 
