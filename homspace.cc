@@ -858,12 +858,45 @@ map<string,homspace*> H1_modp_dict;
 map<string, ZZ_pX> full_poly_modp_dict;
 map<string, ZZ_pX> new_poly_modp_dict;
 
-void show_new_poly_dict()
+void output_poly_dict(ostream& os, map<string, ZZX> D)
 {
-  for (auto NPf: new_poly_dict)
+  for (auto key_pol: D)
+    os<<key_pol.first<<" "<<key_pol.second<<endl;
+}
+
+map<string, ZZX> input_poly_dict(istream& is)
+{
+  map<string, ZZX> D;
+  string key;
+  ZZX poly;
+  while (!is.eof())
     {
-      cout<<"["<<NPf.first<<"] --> "<<NPf.second<<endl;
+      is >> key >> poly;
+      D[key] = poly;
     }
+  return D;
+}
+
+void output_poly_dict(ostream& os, map<string, ZZ_pX> D)
+{
+  for (auto key_pol: D)
+    os<<key_pol.first<<" "<<key_pol.second<<endl;
+}
+
+map<string, ZZ_pX> input_poly_dict(istream& is,  const ZZ& p)
+{
+  cout << "Reading poly dict..."<<flush;
+  ZZ_p::init(ZZ(p));
+  map<string, ZZ_pX> D;
+  string key;
+  ZZ_pX poly;
+  while (!is.eof())
+    {
+      is >> key >> poly;
+      D[key] = poly;
+    }
+  cout << "done.  Read " << D.size() << " items" << endl;
+  return D;
 }
 
 homspace* get_homspace(const Qideal& N, scalar mod)

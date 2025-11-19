@@ -143,6 +143,8 @@ extern map<string, ZZX> poly_dict;
 extern map<string, ZZX> cuspidal_poly_dict;
 ZZX get_poly(const Qideal& N,  const matop& T, int cuspidal, const scalar& mod);
 ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod);
+void output_poly_dict(ostream& os, map<string, ZZX> D);
+map<string, ZZX> input_poly_dict(istream& is);
 
 extern map<string, ZZX> new_poly_dict;
 extern map<string, ZZX> new_cuspidal_poly_dict;
@@ -159,6 +161,8 @@ homspace* get_homspace_modp(const Qideal& N, scalar p);
 // Key is ideal_label(N)-ideal_label(P)
 extern map<string, ZZ_pX> full_poly_modp_dict;
 ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p);
+void output_poly_dict(ostream& os, map<string, ZZ_pX> D);
+map<string, ZZ_pX> input_poly_dict(istream& is,  const ZZ& p);
 
 // Key is ideal_label(N)-ideal_label(P)
 extern map<string, ZZ_pX> new_poly_modp_dict;
