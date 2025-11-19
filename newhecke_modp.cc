@@ -42,7 +42,7 @@ int main(void)
   poly_dict_in.open(poly_dict_filename.c_str());
   if (poly_dict_in.is_open())
     {
-      new_poly_modp_dict = input_poly_dict(poly_dict_in, ch);
+      new_poly_modp_dict = input_poly_dict(poly_dict_in, ZZ(ch));
       poly_dict_in.close();
       cout << "Read cache of " << new_poly_modp_dict.size() << " new polynomials from " << poly_dict_filename << endl;
       //output_poly_dict(cout, new_poly_modp_dict);
