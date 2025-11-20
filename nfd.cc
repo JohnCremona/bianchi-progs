@@ -21,7 +21,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   :nf(x), index(ind)
 {
   d = deg(f);
-  string fstring = polynomial_string(f);
+  string fstring = str(f);
   if (verbose)
     cout << "Constructing Newform from factor f = "<< fstring <<" of degree "<<d<<endl;
 
@@ -62,7 +62,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     {
       cout<<endl;
       cout<<"Error: f(X) =            "<<fstring<<endl;
-      cout<<"but scaled_charpoly(A) = "<<polynomial_string(cpA)<<endl;
+      cout<<"but scaled_charpoly(A) = "<<str(cpA)<<endl;
       exit(1);
     }
 
@@ -475,7 +475,7 @@ void Newspace::find_T(int maxnp, int maxc)
   if (verbose)
     {
       cout << " New cuspidal Hecke polynomial for operator " << T_name
-           <<" is "<<polynomial_string(f)<<endl;
+           <<" is "<<str(f)<<endl;
     }
   NTL::vec_ZZX NTL_factors= SFFactor(f);
   ::sort(NTL_factors.begin(), NTL_factors.end(), poly_cmp);
@@ -486,7 +486,7 @@ void Newspace::find_T(int maxnp, int maxc)
     {
       ZZX fi = NTL_factors[i];
       if (verbose)
-        cout<<(i+1)<<":\t"<<polynomial_string(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
+        cout<<(i+1)<<":\t"<<str(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
       factors.push_back(fi);
     }
   return;
@@ -1307,7 +1307,7 @@ void Newspace::factor_T()
     {
       cout << "done (degree = "<<deg(cpT)<<").";
       if (verbose>1)
-        cout<<" scaled char poly = "<<polynomial_string(cpT);
+        cout<<" scaled char poly = "<<str(cpT);
       cout<<endl;
     }
 
@@ -1331,7 +1331,7 @@ void Newspace::factor_T()
   for(int i=0; i<nfactors; i++)
     {
       ZZX fi = NTL_factors[i].a;
-      cout<<(i+1)<<":\t"<<polynomial_string(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
+      cout<<(i+1)<<":\t"<<str(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
       factors.push_back(fi);
     }
 }

@@ -94,7 +94,7 @@ int main(void)
             {
               cout << "Characteristic polynomial of T(" << P << "): "<<flush;
               ZZ_pX charpol = get_full_poly_modp(N,P,ch);
-              cout << polynomial_string(charpol) << endl;
+              cout << str(charpol) << endl;
               cout<<"Factors:"<<endl;
               display_factors(charpol);
               cout << endl;
@@ -106,7 +106,7 @@ int main(void)
           if (dimnew>0)
             {
               cout << "New characteristic polynomial of T(" << P << "): "
-                   << polynomial_string(newpol) << endl;
+                   << str(newpol) << endl;
               cout<<"Factors:"<<endl;
               display_factors(newpol);
               cout << endl;

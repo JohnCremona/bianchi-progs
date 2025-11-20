@@ -73,7 +73,7 @@ public:
     if (isQ())
       s << "Q";
     else
-      s << "Q("<<var<<") = Q[X]/(" << polynomial_string(minpoly, "X")<<")";
+      s << "Q("<<var<<") = Q[X]/(" << ::str(minpoly, "X")<<")";
     return s.str();
   }
   friend ostream& operator<<(ostream& s, const Field& F)

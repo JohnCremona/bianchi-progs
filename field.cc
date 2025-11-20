@@ -50,7 +50,7 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
     }
   minpoly = scaled_charpoly(mat_to_mat_ZZ(A), denom);
   if (verb)
-    cout << " - min poly = " << polynomial_string(minpoly) << ", generator " << var << endl;
+    cout << " - min poly = " << ::str(minpoly) << ", generator " << var << endl;
 
 
   // Compute change of basis matrix B, with column j equal to
@@ -163,7 +163,7 @@ void Field::display_bases(ostream&s) const
 void Field::display(ostream&s, int raw)
 {
   static const ZZ one(1);
-  string fpol = polynomial_string(minpoly);
+  string fpol = ::str(minpoly);
   if (isQ() || (d==1))
     {
       s << "Q" << endl;
@@ -180,8 +180,8 @@ void Field::display(ostream&s, int raw)
         {
           FieldElement bi = element(vec_m::unit_vector(d,i), one, 1);
           s << "   #"<<i<<": "<< bi << endl;
-          s << "   (with char poly = " << polynomial_string(bi.charpoly())
-            << " and minpoly = " << polynomial_string(bi.minpoly()) << "\n";
+          s << "   (with char poly = " << ::str(bi.charpoly())
+            << " and minpoly = " << ::str(bi.minpoly()) << "\n";
         }
     }
 }
@@ -312,7 +312,7 @@ string FieldElement::str() const
       s << val;
       return s.str();
     }
-  string n = polynomial_string(coords, F->var);
+  string n = ::str(coords, F->var);
   if (denom==1)
     return n;
   s << "(" << n << ")/" << denom;
@@ -576,10 +576,10 @@ int FieldElement::is_absolute_integral_square(FieldElement& r)  const
         return 1;
       else
         {
-          cout << (*this) << " has scaled min poly " << polynomial_string(f)
-               << " whose double has factor " << polynomial_string(g)
-               << " with even part g0 = " << polynomial_string(g0)
-               << " and odd part g1 = " << polynomial_string(g1) << endl;
+          cout << (*this) << " has scaled min poly " << ::str(f)
+               << " whose double has factor " << ::str(g)
+               << " with even part g0 = " << ::str(g0)
+               << " and odd part g1 = " << ::str(g1) << endl;
           cout << "These evaluate to " << evaluate(g0,*this) << " and " << evaluate(g1,*this)
                << " with negative quotient/denom r = " << r
                << " but r*r = " << r*r << endl;

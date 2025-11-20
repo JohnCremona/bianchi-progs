@@ -1030,8 +1030,8 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& m
           else
             {
               cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
-              cout << "Dividing " << polynomial_string(new_poly) << " by " << polynomial_string(new_poly_D)
-                   << " gives quotient " << polynomial_string(quo) <<", remainder "<< polynomial_string(rem) << endl;
+              cout << "Dividing " << str(new_poly) << " by " << str(new_poly_D)
+                   << " gives quotient " << str(quo) <<", remainder "<< str(rem) << endl;
               cout << "Old multiplicities are smaller than expected."<<endl;
               cout << "This should be because a newform at a dividing level has inner twist"<<endl;
               if (Quad::class_group_2_rank==0)
@@ -1055,7 +1055,7 @@ int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod,
   if (!IsSquareFree(f_new))
     {
       if (verbose>1)
-        cout << "\n NO: new Hecke polynomial "<<polynomial_string(f_new)<<" is not squarefree" << endl;
+        cout << "\n NO: new Hecke polynomial "<<str(f_new)<<" is not squarefree" << endl;
       return 0;
     }
   ZZX f_full = get_poly(N, T, 0, mod); // cuspidal=0
@@ -1063,9 +1063,9 @@ int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod,
   if (!AreCoprime(f_new, f_old))
     {
       if (verbose>1)
-        cout << "\n NO: new Hecke polynomial "<<polynomial_string(f_new)
-             <<" is not coprime to old Hecke polynomial "<<polynomial_string(f_old)<<endl
-             <<" (full polynomial is "<<polynomial_string(f_full)<<")"<<endl;
+        cout << "\n NO: new Hecke polynomial "<<str(f_new)
+             <<" is not coprime to old Hecke polynomial "<<str(f_old)<<endl
+             <<" (full polynomial is "<<str(f_full)<<")"<<endl;
       return 0;
     }
   if (verbose>1)

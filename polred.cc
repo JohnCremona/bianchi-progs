@@ -27,7 +27,7 @@ ZZX t_POL_to_ZZX(GEN P)
   for (int i=0; i<=d; i++)
     SetCoeff(f, i, PARI_to_NTL(gel(P, i+2)));
 #ifdef DEBUG_POLY
-  cout << " Result is " << polynomial_string(f) << endl;
+  cout << " Result is " << str(f) << endl;
 #endif
   return f;
 }
@@ -35,7 +35,7 @@ ZZX t_POL_to_ZZX(GEN P)
 GEN ZZX_to_t_POL(const ZZX& f)
 {
 #ifdef DEBUG_POLY
-  cout << " Converting  ZZX " << polynomial_string(f) << " to t_POL" << endl;
+  cout << " Converting  ZZX " << str(f) << " to t_POL" << endl;
 #endif
   int d = deg(f);
   GEN P = cgetg(d+3, t_POL);
@@ -55,7 +55,7 @@ ZZX polredabs(const ZZX& f)
 {
   if (!IsIrreducible(f))
     {
-      cerr << "polredabs() called with f = " << polynomial_string(f) << " which is reducible" << endl;
+      cerr << "polredabs() called with f = " << str(f) << " which is reducible" << endl;
       return f;
     }
   pari_sp av = avma;
@@ -72,7 +72,7 @@ ZZX polredabs(const ZZX& f, ZZX& h)
 {
   if (!IsIrreducible(f))
     {
-      cerr << "polredabs() called with f = " << polynomial_string(f) << " which is reducible" << endl;
+      cerr << "polredabs() called with f = " << str(f) << " which is reducible" << endl;
       return f;
     }
   pari_sp av = avma;

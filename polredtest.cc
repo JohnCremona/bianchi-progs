@@ -21,11 +21,11 @@ int main()
           cin >> c;
           SetCoeff(f, d-i, c);
         }
-      cout << "f = " << polynomial_string(f) << endl;
+      cout << "f = " << str(f) << endl;
       GEN P = ZZX_to_t_POL(f);
       pari_printf(" -as a t_POL: %Ps\n", P);
       ZZX g = t_POL_to_ZZX(P);
-      cout << " -back to ZZX: " << polynomial_string(g) << endl;
+      cout << " -back to ZZX: " << str(g) << endl;
       if (f==g)
         cout << " OK " << endl;
       else
@@ -36,12 +36,12 @@ int main()
           cout << "Applying polredabs..." << endl;
           ZZX h;
           g = polredabs(f, h);
-          cout << "... reduced polynomial is g = " << polynomial_string(g);
+          cout << "... reduced polynomial is g = " << str(g);
           if (f==g)
             cout << " -- no change"<< endl;
           else
             cout << " -- polynomial has been reduced"<< endl;
-          cout << "A root of f is a = " << polynomial_string(h, "b") << " where g(b)=0" << endl;
+          cout << "A root of f is a = " << str(h, "b") << " where g(b)=0" << endl;
         }
     }
   exit(0);

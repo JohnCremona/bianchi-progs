@@ -85,7 +85,7 @@ int main(void)
                 {
                   charpol = get_poly(N, T, 0, modulus); // cuspidal=0
                   cout << "Full characteristic polynomial: "
-                       << polynomial_string(charpol)
+                       << str(charpol)
                        << endl;
                   if (deg(charpol)>0)
                     {
@@ -96,7 +96,7 @@ int main(void)
                 }
               charpol = get_poly(N, T, 1, modulus); // cuspidal=1
               cout << "Full cuspidal characteristic polynomial: "
-                   << polynomial_string(charpol)
+                   << str(charpol)
                    << endl;
               if (deg(charpol)>0)
                 {
@@ -117,7 +117,7 @@ int main(void)
           //         cout << "Newspace has dimension " << dimnew << endl;
           //       }
           //     cout << "New characteristic polynomial: "
-          //          << polynomial_string(charpol)
+          //          << str(charpol)
           //          << endl;
           //     if (deg(charpol)>0)
           //       {
@@ -133,7 +133,7 @@ int main(void)
               cout << "Cuspidal newspace has dimension " << dimnewcusp << endl;
             }
           cout << "New cuspidal characteristic polynomial: "
-               << polynomial_string(charpol)
+               << str(charpol)
                << endl;
           if (deg(charpol)>0)
             {
