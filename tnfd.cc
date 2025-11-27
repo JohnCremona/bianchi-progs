@@ -128,8 +128,6 @@ int main()
                  map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
                  map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
                  F.display(1);
-                 if (F.is_self_twist()==+1)
-                   cout << "*** form appears to have self-twist ***" << endl;
                  cout << endl;
                  cout << "aP for first " << aP.size() << " primes:" << endl;
                  QuadprimeLooper Pi;
@@ -157,25 +155,6 @@ int main()
                    cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                }
              inf++;
-             if (F.is_self_twist()==+1)
-               cout << "Form appears to have self-twist" << endl;
-             switch (F.is_base_change()) {
-             case 0:
-               cout << "Form is not base-change" << endl;
-               break;
-             case 1:
-               cout << "Form is base-change" << endl;
-               break;
-             case -1:
-               cout << "Form is twisted base-change but not base-change" << endl;
-               break;
-             case 2:
-             default:
-               if (N.is_Galois_stable())
-                 cout << "Form's base-change status not determined" << endl;
-               else
-                 cout << "Form is not base-change" << endl;
-             }
            }
        }
 

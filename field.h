@@ -81,12 +81,13 @@ public:
   friend istream& operator>>(istream& s, Field& F)
   {
     string var;
+    s >> var;
     if (var=="Q")
       F = Field();
     else
       {
         ZZX f;
-        s >> var >> f;
+        s >> f;
         F = Field(f, var);
       }
     return s;

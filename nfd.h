@@ -1,4 +1,4 @@
-// File NFD.H: class for newforms of any dimension
+// File NFD.H: class Newform for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
 
 #ifndef _BIANCHI_NFD_H
@@ -44,7 +44,7 @@ private:
   // on the level but may be cut down later
   vector<INT> possible_self_twists;
 
-  int self_twist_flag;
+  int self_twist_flag; // -1 for unknown, 0 for no, 1 for yes
   INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
   int bc;  // base-change code (0 for no, 1 for yes, -1 for unknown)
   int bct; // base-change twist code (0 for no, 1 for yes including 1 when bc==1, -1 for unknown)
@@ -119,6 +119,7 @@ public:
   vector<int> character() const {return epsvec;}
   int is_char_trivial(); // sets triv_char flag (1 iff unramified quadratic character values (if any) are all +1)
   int is_self_twist() const {return self_twist_flag;}
+  INT self_twist_char() const {return self_twist_flag? CMD: INT(0);}
   // return +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
   int is_base_change(void)
   {

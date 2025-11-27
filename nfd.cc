@@ -1,9 +1,5 @@
 // FILE nfd.cc: implementation of class Newspace for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
-//
-// Adapted from the similar class (over Q) in eclib
-//
-//////////////////////////////////////////////////////////////////////////
 
 #include "nfd.h"
 #include "field.h"
@@ -130,37 +126,6 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   genus_classes.resize(1,0);
   genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
-
-#if(0) // this needs more work to do anything sensible
-  if (n2r==0)
-    genus_char_disc = INT(1);
-
-  // Compute genus character discriminant. We cannot just multiply the
-  // prime discriminants for which epsvec has entry -1 since the
-  // 2-torsion in the class group has (possibly) a different basis.
-
-  // First take product over those t2ideals whose eps is -1
-  Qideal I(INT(1));
-  auto epsveci = epsvec.begin();
-  for (auto A : nf->t2ideals)
-    {
-      if (*epsveci++==-1)
-        I *= A;
-    }
-  if (verbose)
-    {
-      cout<<"genus char ideal: "<<ideal_label(I)<<endl;
-      cout<<"prime_disc_factors: "<<Quad::prime_disc_factors<<endl;
-    }
-  vector<int> genus_char = I.genus_character();
-  if (verbose)
-    cout<<"genus char: "<<genus_char<<endl;
-  genus_char_disc = discchar(genus_char);
-  if (genus_char_disc>0)
-    genus_char_disc = Quad::disc/genus_char_disc;
-  if (verbose)
-    cout<<"genus char disc: "<<genus_char_disc<<endl;
-#endif
 }
 
 int Newform::is_char_trivial()
@@ -555,6 +520,7 @@ void Newform::compute_eigs(int ntp, int verbose)
       compute_eigs_C4(ntp, verbose);
     else
       compute_principal_eigs(ntp, verbose);
+  check_base_change();
 }
 
 // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
@@ -756,12 +722,20 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 
     } // end of loop over P
 
-  if (!P0_set)
+  if (P0_set)
+    self_twist_flag = 0;
+  else
     {
-      if (verbose)
-        cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
-             << "Flagging this newform as having self-twist.\n";
-      self_twist_flag = +1;
+      if (possible_self_twists.empty())
+        cout << " *** Problem: newform cannot be self-twist but we have no nonzerp aP for P with trivial genus class!" << endl;
+      else
+        {
+          CMD = possible_self_twists[0];
+          if (verbose)
+            cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
+                 << "Flagging this newform as having self-twist by " << CMD << ".\n";
+          self_twist_flag = +1;
+        }
     }
 
   if (verbose)
@@ -945,34 +919,49 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
         }
       if (genus_classes.size() == genus_class_trivial_counter.size())
         {
-          self_twist_flag = 0;
-          if (verbose)
-            cout << "All genus classes now have a nonzero eigenvalue, so this form is *not* self-twist" << endl;
+          if (self_twist_flag!=0) // otherwise we already know it is not self-twist
+            {
+              self_twist_flag = 0;
+              if (verbose)
+                cout << "All genus classes now have a nonzero eigenvalue, so this form is *not* self-twist" << endl;
+            }
         }
-#if(0)
-      // we can possibly eliminate some of
-      // possible_self_twists now, namely those whose
-      // characters chi have chi(P)=-1, since such a
-      // newform would have to have aP=0:
-      int n_before = possible_self_twists.size();
-      // We can now eliminate any self-twist discriminants
-      // not matching the square-free part of aP^2-4*N(P):
-      int d1 = squarefree_part(aP2-4*normP);
-      possible_self_twists.erase(std::remove_if(possible_self_twists.begin(),
-                                                possible_self_twists.end(),
-                                                [&d1](INT D) { return D!=d1;}),
-                                 possible_self_twists.end());
-      int n_after = possible_self_twists.size();
-      if ((n_before>n_after) && (verbose>1))
-        cout<<" - after erasing "<<(n_before-n_after)
-            <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
-#endif
+      else
+        {
+          // we can possibly eliminate some of possible_self_twists now,
+          // namely those whose characters chi have chi(P)=-1, since such
+          // a newform would have to have aP=0:
+          int n_before = possible_self_twists.size();
+          // We can now eliminate any self-twist discriminants D
+          // such that P.genus_character(D)=-1
+          possible_self_twists.erase(std::remove_if(possible_self_twists.begin(),
+                                                    possible_self_twists.end(),
+                                                    [&P](INT D) { return P.genus_character(D)==-1;}),
+                                     possible_self_twists.end());
+          int n_after = possible_self_twists.size();
+          if ((n_before>n_after) && (verbose))
+            cout<<" - after erasing "<<(n_before-n_after)
+                <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
+        }
     } // end of primes loop
   if (self_twist_flag == -1)
     {
-      cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
-           << " genus classes have non-zero eigenvalues!\n"
-           << "Flagging this newform as having self-twist.\n";
+      if (verbose)
+        cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
+             << " genus classes have non-zero eigenvalues!\n"
+             << "Flagging this newform as having self-twist.\n";
+      int nst = possible_self_twists.size();
+      if (nst==0)
+        cout << "*** problem! all possible unramified self-twist discriminants have been eliminiated!" << endl;
+      else if (nst==1)
+        {
+          CMD = possible_self_twists[0];
+          if (verbose)
+            cout << "Self-twist discriminant is " << CMD << endl;
+        }
+      else
+        if (verbose)
+          cout << "*** Self-twist discriminant is one of " << possible_self_twists << endl;
       self_twist_flag = +1;
     }
 } // end of compute_eigs_triv_char
@@ -1081,6 +1070,7 @@ void Newform::display(int full)
 {
   int n2r = Quad::class_group_2_rank;
   cout << "Newform #" << index << " (" << lab << ")" << endl;
+
   if (n2r>0)
     {
       if (n2r==1)
@@ -1093,16 +1083,56 @@ void Newform::display(int full)
         }
       cout <<endl;
     }
+
   cout << " - Dimension: "<<d<<endl;
-  cout << " - Principal Hecke field k_f = ";
+
+  if (bct==-1)
+    {
+      if (full)
+        cout << " - Newform's base-change status not known" << endl;
+    }
+  else
+    {
+      if (bc==1)
+        cout << " - Newform is base-change" << endl;
+      else if (bct==1)
+        cout << " - Newform is twisted base-change but not base-change" << endl;
+      else if (bct==0)
+        cout << " - Newform is not base-change" << endl;
+      else
+        {
+          if (nf->N.is_Galois_stable())
+            cout << " - Newform's base-change status not known" << endl;
+          else
+            cout << " - Newform is not base-change" << endl;
+        }
+    }
+
+  if (self_twist_flag!=-1)
+    {
+      if (self_twist_flag==0)
+        cout << " - Newform is not unramified self-twist" << endl;
+      else
+        {
+          if (CMD.is_zero())
+            cout << " - Newform appears to be unramified self-twist, but discriminant not known" << endl;
+          else
+            cout << " - Newform is unramified self-twist by discriminant "<< CMD << endl;
+        }
+    }
+
+  if (n2r>0)
+    cout << " - Principal Hecke field k_f = ";
+  else
+    cout << " - Hecke field k_f = ";
   F->display();
-  if (full && n2r>0)
+  if (full && n2r>0) // display full Hecke field
     {
       if (triv_char)
         {
           int r = Fmodsq->rank();
           if (r==0)
-            cout << " - Full Hecke field is the same as the Principal Hecke field";
+            cout << " - Full Hecke field is the same as the Principal Hecke field" << endl;
           else
             {
               // If the base field is Q we output something like
@@ -1134,7 +1164,7 @@ void Newform::display(int full)
               cout << endl;
             }
         } // end of trivial char case
-      else
+      else // special case code for C4 class group
         {
           if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
             {
