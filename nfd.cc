@@ -129,6 +129,13 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
 }
 
+// Constructor which will read from file
+Newform::Newform(Newspace* x, int i, int verbose)
+  :nf(x), index(i), lab(codeletter(i-1))
+{
+  input_from_file(verbose);
+}
+
 int Newform::is_char_trivial()
 {
   return triv_char;
@@ -1284,16 +1291,16 @@ void Newform::output_to_file() const
     {
       out << " " << dimension(1);
       // Character (if class number even):
-      out << " " << character();
+      // out << " " << character();
     }
   out << endl;
 
   // Principal Hecke field:
-  out << *F;
+  out << F->str(1);
   if (n2r)
     {
   // Full Hecke field data (if class number even):
-      out << " " << *Fmodsq;
+      out << " " << Fmodsq->str();
   // Self-twist discriminant or 0 (if class number even):
       out << "\n" << CMD;
     }
@@ -1306,7 +1313,7 @@ void Newform::output_to_file() const
 
   // A-L eigenvalues
   for (auto x: eQmap)
-    out << x.first << " " << x.second << endl;
+    out << x.first << " " << x.second.str(1) << endl;
   out << endl;
 
   // aP
@@ -1319,7 +1326,115 @@ void Newform::output_to_file() const
       ip++;
       auto it = aPmap.find(P);
       if (it!=aPmap.end())
-        out << it->first << " " << it->second << endl;
+        out << it->first << " " << it->second.str(1) << endl;
+    }
+}
+
+// Input newform data (needs lab to be set to construct the filename):
+void Newform::input_from_file(int verb)
+{
+  string fname = filename();
+  if (verb)
+    cout << "Reading newform label " << lab << " from " << fname << endl;
+  ifstream fdata(fname.c_str());
+
+  // Check field, level, letter-code:
+  string dat;
+  fdata >> dat;
+  assert (dat==field_label());
+  fdata >> dat;
+  assert (dat==nf->short_label());
+  fdata >> dat;
+  assert (dat==lab);
+
+  int n2r = Quad::class_group_2_rank;
+
+  // Principal dimension and (if class number even) full dimension:
+  fdata >> d;
+  int fd = d;
+  if (n2r)
+    fdata >> fd;
+  if (verb)
+    cout << "Principal dim = " << d << " full dim = " << fd << endl;
+
+  // Principal Hecke field:
+  F = new Field();
+  fdata >> &F;
+  if (verb)
+    cout << "Principal field is " << *F << endl;
+
+  if (n2r)
+    {
+      // Full Hecke field data (if class number even)
+      int nroots;
+      fdata >> nroots;
+      if (verb) cout << "nroots = " << nroots << endl;
+      vector<FieldElement> roots(nroots, FieldElement(F));
+      for (auto& r: roots)
+        fdata >> r;
+      if (verb) cout << "roots = " << roots << endl;
+      Fmodsq = new FieldModSq(F, roots);
+
+      // Self-twist discriminant or 0 (if class number even):
+      fdata >> CMD;
+    }
+  else
+    Fmodsq = new FieldModSq(F);
+
+  // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
+  int bcc;
+  fdata >> bcc;
+  bc=bct=-1;
+  if (bcc==1)       {bc = bct = 1;}
+  else if (bcc==-1) {bc = 0; bct = 1;}
+  else if (bcc==0)  {bc = bct = 0;}
+
+  if (verb)
+    {
+      cout << "Before reading eQ and aP:" << endl;
+      display(1);
+    }
+
+  // A-L eigenvalues
+  Qideal N = nf->N;
+  vector<Quadprime> badprimes = pdivs(N);
+  for (auto Q: badprimes)
+    {
+      string Qlab = ideal_label(Q);
+      fdata >> dat;
+      assert (dat==Qlab);
+
+      FieldElement eQ(F);
+      unsigned int i;
+      int xf;
+      fdata >> eQ >> i >> xf;
+      eQmap[Q] = Eigenvalue(eQ, Fmodsq, i, xf);
+    }
+
+  if (verb)
+    {
+      cout << "After reading eQ, before reading aP:" << endl;
+      display(1);
+    }
+
+  // aP
+  QuadprimeLooper Pi;
+  while (Pi.ok() && !fdata.eof())
+    {
+      Quadprime P = Pi;
+      string Plab = ideal_label(P);
+      fdata >> dat;
+      assert (dat==Plab);
+      FieldElement aP(F);
+      unsigned int i;
+      int xf;
+      fdata >> aP >> i >> xf;
+      aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
+    }
+  if (verb)
+    {
+      cout << "After reading everything from " << fname <<":" << endl;
+      display(1);
     }
 }
 
@@ -1339,14 +1454,6 @@ void Newspace::output_to_file() const
 
   int n2r = Quad::class_group_2_rank;
 
-  // Genus characters (for even class number):
-  if (n2r)
-    {
-      for (auto f: newforms)
-        out << " " << f.epsvec;
-      out << endl;
-    }
-
   // Homological dimensions:
   vector<int> dims = dimensions(0);
   for (auto d: dims) out << " " << d;
@@ -1363,6 +1470,51 @@ void Newspace::output_to_file() const
   out.close();
   for (const auto& f: newforms)
     f.output_to_file();
+}
+
+void Newspace::input_from_file(const Qideal& level, int verb)
+{
+  N = level;
+  lab = ideal_label(N);
+  string fname = filename();
+  ifstream fdata(fname.c_str());
+  string dat;
+  fdata >> dat;
+  assert (dat==field_label());
+  fdata >> dat;
+  assert (dat==lab);
+  int nnf;
+  fdata >> nnf;
+  if (nnf==0)
+    {
+      if (verb)
+        cout << "Level "<<lab<<" has 0 newforms in "<<fname<<endl;
+      fdata.close();
+      return;
+    }
+  vector<int> pdims(nnf);
+  for (auto& d: pdims)
+    fdata >> d;
+  vector<int> fdims = pdims;
+  int n2r = Quad::class_group_2_rank;
+  if (n2r)
+    for (auto& d: fdims) fdata >> d;
+
+  // This Newform constructor will read its data from file
+  for (int i=1; i<=nnf; i++)
+    newforms.push_back(Newform(this, i, verbose));
+
+  if (verb)
+    {
+      cout << "Finished reading Newspace data with " << nnf << " newforms from " << fname << endl;
+      for (int i=0; i<nnf; i++)
+        {
+          cout << "#" << (i+1) << ": " << "dim = " << pdims[i];
+          if (n2r)
+            cout << ", full dim = " << fdims[i];
+          cout << endl;
+        }
+    }
 }
 
 // output basis for the Hecke field and character of all newforms

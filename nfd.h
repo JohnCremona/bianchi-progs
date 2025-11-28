@@ -74,9 +74,11 @@ private:
   void check_base_change(void);
 
 public:
-  // constructor from ambient Newspace using one irreducibel factor of char
+  // constructor from ambient Newspace using one irreducible factor of char
   // poly of Newspace's T_mat
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
+  // constructor from ambient Newspace (read from file)
+  Newform(Newspace* x, int i, int verbose=0);
 
   int get_index() const { return index;}
   void set_index(int i) {index = i; lab = codeletter(i-1); F->set_var(lab);}
@@ -131,8 +133,10 @@ public:
   // NB We only implement file output for newforms with trivial character
   // Filename for this Newform:
   string filename() const;
-  // Output newform dataL
+  // Output newform data:
   void output_to_file() const;
+  // Input newform data (needs lab to be set to construct the filename):
+  void input_from_file(int verb=1);
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -230,6 +234,8 @@ public:
   string filename() const;
   // output data for this Newspace and each Newform
   void output_to_file() const;
+  // Input Newspace data and newform data for each newform:
+  void input_from_file(const Qideal& level, int verb=1);
 };
 
 

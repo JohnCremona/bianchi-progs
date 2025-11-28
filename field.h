@@ -56,12 +56,11 @@ public:
   void display_bases(ostream&s = cout) const; // display powers of A and C and bases in both embeddings
   string get_var() const {return var;}
   void set_var(const string& v)  {var = v;}
-  // String for raw output, suitable for re-input, like "Q" or "i [1 0 1]":
-  string raw_str() const;
-  // String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)"
-  string str() const;
+  // String for pretty output, like "Q" or "Q(i) = Q[X]/(X^2+1)", or
+  // (if raw) raw output, suitable for re-input, like "Q" or "i [1 0 1]":
+  string str(int raw=0) const;
   friend ostream& operator<<(ostream& s, const Field& F);
-  friend istream& operator>>(istream& s, Field& F);
+  friend istream& operator>>(istream& s, Field** F);
 };
 
 class FieldElement {
@@ -95,10 +94,9 @@ public:
   FieldElement( const bigrational& r)
     :F(FieldQQ), val(r) {;}
 
-  // String for pretty printing, used in default <<
-  string str() const;
-  // String for raw output, suitable for re-input (with Field known):
-  string raw_str() const;
+  // String for pretty printing, used in default <<, or (if raw) raw
+  // output, suitable for re-input:
+  string str(int raw=0) const;
 
   Field* field() {return F;}
   mat_m matrix() const; // ignores denom
@@ -238,7 +236,10 @@ public:
   int is_zero() const {return a.is_zero();}
   int is_one() const {return a.is_one() && root_index==0 && xf==0;}
   int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
-  string str() const;
+
+  // as a pretty string, or (if raw) a raw string suitable for
+  // re-input:
+  string str(int raw=0) const;
 };
 
 inline ostream& operator<<(ostream& s, const Eigenvalue& x)

@@ -182,8 +182,13 @@ int main()
                  << x.first.second << ":\t" << x.second << endl;
            }
        }
-     //     cout << "Outputting newform data to files" << endl;
+     cout << "Outputting Newspace data to files" << endl;
      forms.output_to_file();
+     cout << "Finished outputting Newspace data, now re-reading" << endl;
+     Newspace file_forms;
+     file_forms.input_from_file(N, 1);
+     cout << "Finished re-reading, the input Newspace data is:" << endl;
+     file_forms.display_newforms();
     }     // end of level loop
   cout << endl;
   exit(0);

@@ -105,45 +105,42 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
     }
 }
 
-// String for raw output, suitable for re-input, like "Q" or "i [1 0 1]":
-string Field::raw_str() const
+// String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)" or
+// raw output, suitable for re-input, like "Q" or "i [1 0 1]":
+string Field::str(int raw) const
 {
   ostringstream s;
   if (isQ())
     s << "Q";
   else
-    s << var << " " << minpoly;
-  return s.str();
-}
-
-// String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)"
-string Field::str() const
-{
-  ostringstream s;
-  if (isQ())
-    s << "Q";
-  else
-    s << "Q("<<var<<") = Q[X]/(" << ::str(minpoly, "X")<<")";
+    {
+      if (raw)
+        s << var << " " << minpoly;
+      else
+        s << "Q("<<var<<") = Q[X]/(" << ::str(minpoly, "X")<<")";
+    }
   return s.str();
 }
 
 ostream& operator<<(ostream& s, const Field& F)
 {
-  s << F.raw_str();
+  s << F.str();
   return s;
 }
 
-istream& operator>>(istream& s, Field& F)
+istream& operator>>(istream& s, Field** F)
 {
   string var;
   s >> var;
+  cout << "Field input, var = " << var << endl;
   if (var=="Q")
-    F = Field();
+    *F = FieldQQ;
   else
     {
       ZZX f;
       s >> f;
-      F = Field(f, var);
+      cout << "Field input, f = " << ::str(f) << endl;
+      *F = new Field(f, var);
     }
   return s;
 }
@@ -345,32 +342,28 @@ int FieldElement::is_minus_one() const
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
-// String for raw output, suitable for re-input (with Field known):
-string FieldElement::raw_str() const
-{
-  ostringstream s;
-  if (F->isQ())
-    s << val;
-  else
-    s << coords << " " << denom;
-  return s.str();
-}
-
 // String for pretty printing, used in default <<
-string FieldElement::str() const
+// or for raw output, suitable for re-input (with Field known):
+string FieldElement::str(int raw) const
 {
   // cout << "In FieldElement::str() with var = " << F->var << endl;
   // cout << "coords = " << coords << ", denom = " << denom << endl;
   ostringstream s;
   if (F->isQ())
+    s << val;
+  else
     {
-      s << val;
-      return s.str();
+      if (raw)
+        s << coords << " " << denom;
+      else
+        {
+          string n = ::str(coords, F->var);
+          if (denom==1)
+            s << n;
+          else
+            s << "(" << n << ")/" << denom;
+        }
     }
-  string n = ::str(coords, F->var);
-  if (denom==1)
-    return n;
-  s << "(" << n << ")/" << denom;
   return s.str();
 }
 
@@ -711,7 +704,7 @@ string FieldModSq::str() const
   ostringstream s;
   s << r;
   for (auto g:gens)
-    s << " " << g.raw_str();
+    s << " " << g.str(1);
   return s.str();
 }
 
@@ -1147,8 +1140,15 @@ Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
   return ans;
 }
 
-string Eigenvalue::str() const
+string Eigenvalue::str(int raw) const
 {
+  ostringstream s;
+  if (raw)
+    {
+      s << a.str(1) << " " << root_index << " " << xf;
+      return s.str();
+    }
+
   if (is_zero())
     return "0";
   if (is_one())
@@ -1158,7 +1158,6 @@ string Eigenvalue::str() const
   if (root_index==0 && xf==0)
     return a.str();
 
-  ostringstream s;
   int QQ = a.F->isQ();
 
   // output the first factor
