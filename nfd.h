@@ -49,6 +49,7 @@ private:
   int bc;  // base-change code (0 for no, 1 for yes, -1 for unknown)
   int bct; // base-change twist code (0 for no, 1 for yes including 1 when bc==1, -1 for unknown)
   int cm; // CM code (see defn in newforms.h, but only 1 (not set) for now)
+  int sfe; // Sign of functional equation (minus product of AL eigs), 0 if not known
 
   // Dict of eigenvalues of principal operators (the key includes an
   // int for sorting, othewise they get sorted in alphabetical order
@@ -104,53 +105,33 @@ public:
   ZZX char_pol_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs);
 
   Field* field() const {return F;}
-  string label() const {return lab;}
+  string label_suffix() const {return lab;}
+  string short_label() const; // level_label-suffix
+  string long_label() const;  // field_label-level_label-suffix
   // output basis for the Homological Hecke field and character
   // If full, also output multiplicative basis for the full Hecke field
-  void display(int full=0);
-  int dimension(int full=1) const
-  {
-    if (full)
-      return d<<Fmodsq->rank();
-    else
-      return d;
-  }
+  void display(int full=0) const;
+  int dimension(int full=1) const;
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
   int is_char_trivial(); // sets triv_char flag (1 iff unramified quadratic character values (if any) are all +1)
   int is_self_twist() const {return self_twist_flag;}
   INT self_twist_char() const {return self_twist_flag? CMD: INT(0);}
-  // return +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
-  int is_base_change(void)
-  {
-    // try to determine bc, bct if not yet done:
-    if (bc==-1) check_base_change();
-    if (bc==1) return 1;
-    else if (bct==1) return -1;
-    else if (bct==0) return 0;
-    else return 2;
-  }
+  // return base-change code (+1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know)
+  int base_change_code(void) const;
   int cm_code() const {return cm;}
   ZZ basis_factor() const {return F->Bdet;}
-  map<Quadprime, Eigenvalue> aPeigs(int ntp=10, int verbose=0)
-  {
-    if (aPmap.empty())
-      compute_eigs(ntp, verbose);
-    return aPmap;
-  }
-  map<Quadprime, Eigenvalue> ALeigs(int verbose=0)
-  {
-    if (eQmap.empty())
-      compute_AL_eigs(verbose);
-    return eQmap;
-  }
-  map<pair<int,string>, Eigenvalue> principal_eigs(int nap=10, int verbose=0)
-  {
-    compute_principal_eigs(nap, verbose);
-    return eigmap;
-  }
-  // filename for this Newform
+  // Compute aPmap if empty and return it
+  map<Quadprime, Eigenvalue> aPeigs(int ntp=10, int verbose=0);
+  // Compute eQmap if empty and return it
+  map<Quadprime, Eigenvalue> ALeigs(int verbose=0);
+  // Compute eigmap (principal eigs) if empty and return it
+  map<pair<int,string>, Eigenvalue> principal_eigs(int nap=10, int verbose=0);
+
+  // NB We only implement file output for newforms with trivial character
+  // Filename for this Newform:
   string filename() const;
+  // Output newform dataL
   void output_to_file() const;
 };
 
@@ -191,6 +172,7 @@ private:
   int verbose;
 
   Qideal N; // the level
+  string lab; // the level's label
   vector<Qideal> Ndivs; // divisors of N
   vector<Qideal> t2ideals; // list of ideals coprime to level generating 2-torsion in class group
   vector<matop> eps_ops; // list of T(A,A) operators for A in t2ideals
@@ -233,16 +215,21 @@ public:
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
+  Qideal level() const {return N;}
+  string short_label() const {return lab;}
+  string long_label() const {return field_label() + "-" + lab;}
+
   string splitopname() const {return T_name;}
   vector<int> dimensions(int full=0) const;
   // output basis for the Hecke field and character of all newforms
   void display_newforms(int triv_char_only=0, int full=0) const;
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
+
   // filename for Newspace
-  string filename();
+  string filename() const;
   // output data for this Newspace and each Newform
-  void output_to_file();
+  void output_to_file() const;
 };
 
 

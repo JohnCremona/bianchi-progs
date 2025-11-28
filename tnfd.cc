@@ -85,11 +85,13 @@ int main()
            cout << " " << forms.dimensions()[0];
        }
      cout << endl;
-     //     cout << "Outputting newform data to files" << endl;
-     forms.output_to_file();
 
      if (!nnf)
-       continue;
+       {
+         //     cout << "Outputting newform data to files" << endl;
+         forms.output_to_file();
+         continue;
+       }
      int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),
                                        [](Newform F){return F.is_char_trivial()==1;});
      if (n2r)
@@ -98,9 +100,7 @@ int main()
             << " trivial character"<<endl<<endl;
 
      cout << "Newform data" << endl;
-     forms.display_newforms();
-
-     cout << "Hecke eigenvalues:" << endl << endl;
+     //forms.display_newforms(); // we'll display them later after we have some eigenvalues
 
      // For homological forms with trivial character we find the full
      // eigensystem with trivial character:
@@ -118,7 +118,7 @@ int main()
              cout << "Full eigensystems for forms with trivial character" << endl;
            }
          int inf=1;
-         for (auto F: forms.newforms)
+         for (auto& F: forms.newforms)
            {
              if (C4 || F.is_char_trivial())
                {
@@ -127,8 +127,20 @@ int main()
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
                  map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
                  map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
+     // display newform data
                  F.display(1);
                  cout << endl;
+     // display A-L eigenvalues
+                 if (N.norm()>1)
+                   {
+                     cout << "Atkin-Lehner eigenvalues:" << endl;
+                     for (auto x: ALeigs)
+                       cout << x.first << ":\t" << x.second << endl;
+                   }
+                 else
+                   cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
+                 cout << endl;
+     // display aP
                  cout << "aP for first " << aP.size() << " primes:" << endl;
                  QuadprimeLooper Pi;
                  unsigned int ip=0;
@@ -143,16 +155,6 @@ int main()
                        cout << "\t(AL eigenvalue = " << ALeigs[P] << ")";
                      cout << endl;
                    }
-                 // for (auto x: eigs)
-                 //   cout << x.first << ":\t" << x.second << endl;
-                 if (N.norm()>1)
-                   {
-                     cout << "Atkin-Lehner eigenvalues:" << endl;
-                     for (auto x: ALeigs)
-                       cout << x.first << ":\t" << x.second << endl;
-                   }
-                 else
-                   cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                }
              inf++;
            }
@@ -163,7 +165,7 @@ int main()
        {
          cout << "Principal eigenvalues for forms with non-trivial character" << endl;
 
-         for (auto F: forms.newforms)
+         for (auto& F: forms.newforms)
            {
              if (F.is_char_trivial())
                continue;
@@ -180,7 +182,10 @@ int main()
                  << x.first.second << ":\t" << x.second << endl;
            }
        }
+     //     cout << "Outputting newform data to files" << endl;
+     forms.output_to_file();
     }     // end of level loop
+  cout << endl;
   exit(0);
 }   // end of main()
 

@@ -109,6 +109,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   bc = (nf->N.is_Galois_stable()? -1 : 0);
   bct = -1;  // means unknown
   cm = 1;    // means unknown
+  sfe = 0;   // means unknown
 
   // Initialise book-keeping data for eigenvalue computation
   Fmodsq = new FieldModSq(F);
@@ -131,6 +132,16 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 int Newform::is_char_trivial()
 {
   return triv_char;
+}
+
+string Newform::short_label() const
+{
+  return nf->short_label() + "-" + lab;
+}
+
+string Newform::long_label() const
+{
+  return nf->long_label() + "-" + lab;
 }
 
 // eigenvalue of a general principal operator:
@@ -236,7 +247,7 @@ ZZX Newform::char_pol_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs)
 
 void Newform::check_base_change(void)
 {
-  if (bc!=-1) // already set
+  if (bct!=-1) // already set
     return;
   Qideal N(nf->N);
   if(!(N.is_Galois_stable()))
@@ -304,6 +315,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   : verbose(verb), H1(h1)
 {
   N = H1->N;
+  lab = ideal_label(N);
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
   dH = H1->h1cdenom();
@@ -966,7 +978,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     }
 } // end of compute_eigs_triv_char
 
-// Fill dict eQmap *after* aPmap
+// Fill dict eQmap *after* aPmap, and set sfe
 void Newform::compute_AL_eigs(int verbose)
 {
   // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap and also
@@ -975,6 +987,9 @@ void Newform::compute_AL_eigs(int verbose)
   // Except in the trivial char case or if all Q^e|N are principal,
   // this requires aPmap to be filled with a nonzero eigenvalue for
   // primes P in each class inverse to each [Q^e].
+
+  if (triv_char)
+    sfe = -1; // since the sign is *minus* the product of the AL eigs
 
   Qideal N = nf->N;
   vector<Quadprime> badprimes = pdivs(N);
@@ -989,35 +1004,34 @@ void Newform::compute_AL_eigs(int verbose)
         cout << "Computing W(Q) eigenvalue for Q = " << Q << endl;
       int e = val(Q,N);
       assert (e>0);
-      // if (e==0)
-      //   {
-      //     eQmap[Q] = Eigenvalue(F->one(), Fmodsq);
-      //     continue;
-      //   }
       Qideal Qe = Q;
       for (int i=1; i<e; i++)
         Qe*=Q;
 
       if (Qe.is_principal()) // direct computation
         {
-          ZZ eQ = eps(AtkinLehnerQOp(Q,N));
+          ZZ eQ_Z = eps(AtkinLehnerQOp(Q,N));
           if (verbose)
-            cout << "Direct computation gives eigenvalue " << eQ << endl;
-          Eigenvalue eps(FieldElement(F, eQ), Fmodsq);
-          eQmap[Q] = eps;
-          aPmap[Q] = (e>1? zero : -eps);
+            cout << "Direct computation gives eigenvalue " << eQ_Z << endl;
+          Eigenvalue eQ(FieldElement(F, eQ_Z), Fmodsq);
+          eQmap[Q] = eQ;
+          aPmap[Q] = (e>1? zero : -eQ);
+          if (triv_char && eQ.is_minus_one())
+            sfe = -sfe;
           continue;
         }
 
       if (Qe.has_square_class() && triv_char)
         {
           Qideal A = Qe.sqrt_coprime_to(N);
-          ZZ eQ = eps(AtkinLehnerQChiOp(Q,A,N));
+          ZZ eQ_Z = eps(AtkinLehnerQChiOp(Q,A,N));
           if (verbose)
-            cout << "Indirect computation gives eigenvalue " << eQ << endl;
-          Eigenvalue eps(FieldElement(F, eQ), Fmodsq);
-          eQmap[Q] = eps;
-          aPmap[Q] = (e>1? zero : -eps);
+            cout << "Indirect computation gives eigenvalue " << eQ_Z << endl;
+          Eigenvalue eQ(FieldElement(F, eQ_Z), Fmodsq);
+          eQmap[Q] = eQ;
+          aPmap[Q] = (e>1? zero : -eQ);
+          if (triv_char && eQ.is_minus_one())
+            sfe = -sfe;
           continue;
         }
 
@@ -1053,6 +1067,8 @@ void Newform::compute_AL_eigs(int verbose)
           Eigenvalue eQ = aPeQ/aP;
           eQmap[Q] = eQ;
           aPmap[Q] = (e>1? zero : -eQ);
+          if (triv_char && eQ.is_minus_one())
+            sfe = -sfe;
           if (verbose)
             {
               cout << "Product eigenvalue is " <<aPeQ
@@ -1066,10 +1082,12 @@ void Newform::compute_AL_eigs(int verbose)
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
-void Newform::display(int full)
+void Newform::display(int full) const
 {
   int n2r = Quad::class_group_2_rank;
-  cout << "Newform #" << index << " (" << lab << ")" << endl;
+  cout << "Newform #" << index << " (" << long_label() << ")" << endl;
+
+  // Information about the character:
 
   if (n2r>0)
     {
@@ -1084,7 +1102,11 @@ void Newform::display(int full)
       cout <<endl;
     }
 
+  // Information about the dimension (degree of principal Hecke field):
+
   cout << " - Dimension: "<<d<<endl;
+
+  // Information about base-change:
 
   if (bct==-1)
     {
@@ -1098,7 +1120,7 @@ void Newform::display(int full)
       else if (bct==1)
         cout << " - Newform is twisted base-change but not base-change" << endl;
       else if (bct==0)
-        cout << " - Newform is not base-change" << endl;
+        cout << " - Newform is not base-change or twisted base-change" << endl;
       else
         {
           if (nf->N.is_Galois_stable())
@@ -1107,6 +1129,8 @@ void Newform::display(int full)
             cout << " - Newform is not base-change" << endl;
         }
     }
+
+  // Information about unramified self-twist:
 
   if (self_twist_flag!=-1)
     {
@@ -1120,6 +1144,16 @@ void Newform::display(int full)
             cout << " - Newform is unramified self-twist by discriminant "<< CMD << endl;
         }
     }
+
+  // Information about sign of functional equation:
+
+  if (sfe!=0)
+    {
+      cout << " - Sign of functional equation = " << (sfe>0? "+1" : "-1") << endl;
+    }
+
+
+  // Information about Hecke field(s):
 
   if (n2r>0)
     cout << " - Principal Hecke field k_f = ";
@@ -1185,68 +1219,156 @@ void Newform::display(int full)
     }
 }
 
+int Newform::dimension(int full) const
+{
+  return (full? d<<Fmodsq->rank() : d);
+}
+
+// return +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
+int Newform::base_change_code(void) const
+{
+  if (bc==1) return 1;
+  else if (bct==1) return -1;
+  else if (bct==0) return 0;
+  else return 2;
+}
+
+map<Quadprime, Eigenvalue> Newform::aPeigs(int ntp, int verbose)
+{
+  if (aPmap.empty())
+    compute_eigs(ntp, verbose);
+  return aPmap;
+}
+
+map<Quadprime, Eigenvalue> Newform::ALeigs(int verbose)
+{
+  if (eQmap.empty())
+    compute_AL_eigs(verbose);
+  return eQmap;
+}
+
+map<pair<int,string>, Eigenvalue> Newform::principal_eigs(int nap, int verbose)
+{
+  if (eigmap.empty())
+    compute_principal_eigs(nap, verbose);
+  return eigmap;
+}
+
 // filename
 string Newform::filename() const
 {
   stringstream s;
-  s << newspaces_directory() << "/" << ideal_label(nf->N) << "-" << lab;
+  s << newspaces_directory() << "/" << short_label();
   return s.str();
 }
 
-string Newspace::filename()
+string Newspace::filename() const
 {
   stringstream s;
-  s << newspaces_directory() << "/" << ideal_label(N);
+  s << newspaces_directory() << "/" << lab;
   return s.str();
 }
 
 void Newform::output_to_file() const
 {
-  //  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
   out.open(filename().c_str());
+
   // Field, level, letter-code:
-  out << field_label() << " ";
-  out << ideal_label(nf->N) << " ";
-  out << lab << endl;
+  out << field_label() << " " << nf->short_label() << " " << lab << endl;
+  int n2r = Quad::class_group_2_rank;
+
+  // Principal dimension and (if class number even) full dimension:
+  out << dimension(0);
+  if (n2r)
+    {
+      out << " " << dimension(1);
+      // Character (if class number even):
+      out << " " << character();
+    }
+  out << endl;
+
   // Principal Hecke field:
-  out << *F << endl;
-  // Full Hecke field data:
-  out << *Fmodsq << endl;
+  out << *F;
+  if (n2r)
+    {
+  // Full Hecke field data (if class number even):
+      out << " " << *Fmodsq;
+  // Self-twist discriminant or 0 (if class number even):
+      out << "\n" << CMD;
+    }
+  out << endl;
+
+  // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
+  out << base_change_code() << endl;
+
+  out << endl;
+
+  // A-L eigenvalues
+  for (auto x: eQmap)
+    out << x.first << " " << x.second << endl;
+  out << endl;
+
+  // aP
+  QuadprimeLooper Pi;
+  unsigned int ip=0, np = aPmap.size();
+  while (Pi.ok() && ip<np)
+    {
+      Quadprime P = Pi;
+      ++Pi;
+      ip++;
+      auto it = aPmap.find(P);
+      if (it!=aPmap.end())
+        out << it->first << " " << it->second << endl;
+    }
 }
 
-void Newspace::output_to_file()
+void Newspace::output_to_file() const
 {
   //  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
   out.open(filename().c_str());
+
   // Field, level, number of newforms:
-  out << field_label() << " ";
-  out << ideal_label(N) << " ";
-  int nnf = newforms.size();
-  out << nnf << endl;
-  if (nnf==0)
+  out << field_label() << " " << short_label() << " " << newforms.size() << endl;
+  if (newforms.empty())
     {
       out.close();
       return;
     }
+
+  int n2r = Quad::class_group_2_rank;
+
+  // Genus characters (for even class number):
+  if (n2r)
+    {
+      for (auto f: newforms)
+        out << " " << f.epsvec;
+      out << endl;
+    }
+
   // Homological dimensions:
   vector<int> dims = dimensions(0);
   for (auto d: dims) out << " " << d;
   out << endl;
-  // Full dimensions:
-  dims = dimensions(1);
-  for (auto d: dims) out << " " << d;
-  out << endl;
+
+  // Full dimensions (for even class number):
+  if (n2r)
+    {
+      dims = dimensions(1);
+      for (auto d: dims) out << " " << d;
+      out << endl;
+    }
+
   out.close();
-  for (auto f: newforms)
+  for (const auto& f: newforms)
     f.output_to_file();
 }
 
 // output basis for the Hecke field and character of all newforms
 void Newspace::display_newforms(int triv_char_only, int full) const
 {
-  for ( auto F : newforms)
+  for ( auto& F : newforms)
     {
       if ((!triv_char_only) || F.triv_char)
         {

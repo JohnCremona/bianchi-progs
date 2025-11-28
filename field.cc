@@ -105,6 +105,49 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
     }
 }
 
+// String for raw output, suitable for re-input, like "Q" or "i [1 0 1]":
+string Field::raw_str() const
+{
+  ostringstream s;
+  if (isQ())
+    s << "Q";
+  else
+    s << var << " " << minpoly;
+  return s.str();
+}
+
+// String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)"
+string Field::str() const
+{
+  ostringstream s;
+  if (isQ())
+    s << "Q";
+  else
+    s << "Q("<<var<<") = Q[X]/(" << ::str(minpoly, "X")<<")";
+  return s.str();
+}
+
+ostream& operator<<(ostream& s, const Field& F)
+{
+  s << F.raw_str();
+  return s;
+}
+
+istream& operator>>(istream& s, Field& F)
+{
+  string var;
+  s >> var;
+  if (var=="Q")
+    F = Field();
+  else
+    {
+      ZZX f;
+      s >> f;
+      F = Field(f, var);
+    }
+  return s;
+}
+
 void Field::display_bases(ostream&s) const
 {
   if (isQ())
@@ -302,6 +345,18 @@ int FieldElement::is_minus_one() const
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
+// String for raw output, suitable for re-input (with Field known):
+string FieldElement::raw_str() const
+{
+  ostringstream s;
+  if (F->isQ())
+    s << val;
+  else
+    s << coords << " " << denom;
+  return s.str();
+}
+
+// String for pretty printing, used in default <<
 string FieldElement::str() const
 {
   // cout << "In FieldElement::str() with var = " << F->var << endl;
@@ -650,6 +705,15 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
 }
 
 //#define DEBUG_SQUARES
+
+string FieldModSq::str() const
+{
+  ostringstream s;
+  s << r;
+  for (auto g:gens)
+    s << " " << g.raw_str();
+  return s.str();
+}
 
 unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
 {

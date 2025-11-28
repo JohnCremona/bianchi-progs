@@ -57,41 +57,11 @@ public:
   string get_var() const {return var;}
   void set_var(const string& v)  {var = v;}
   // String for raw output, suitable for re-input, like "Q" or "i [1 0 1]":
-  string raw_str() const
-  {
-    ostringstream s;
-    if (isQ())
-      s << "Q";
-    else
-      s << var << " " << minpoly;
-    return s.str();
-  }
+  string raw_str() const;
   // String for prettier output, like "Q" or "Q(i) = Q[X]/(X^2+1)"
-  string str() const
-  {
-    ostringstream s;
-    if (isQ())
-      s << "Q";
-    else
-      s << "Q("<<var<<") = Q[X]/(" << ::str(minpoly, "X")<<")";
-    return s.str();
-  }
-  friend ostream& operator<<(ostream& s, const Field& F)
-  { s << F.raw_str();return s;}
-  friend istream& operator>>(istream& s, Field& F)
-  {
-    string var;
-    s >> var;
-    if (var=="Q")
-      F = Field();
-    else
-      {
-        ZZX f;
-        s >> f;
-        F = Field(f, var);
-      }
-    return s;
-  }
+  string str() const;
+  friend ostream& operator<<(ostream& s, const Field& F);
+  friend istream& operator>>(istream& s, Field& F);
 };
 
 class FieldElement {
@@ -128,12 +98,7 @@ public:
   // String for pretty printing, used in default <<
   string str() const;
   // String for raw output, suitable for re-input (with Field known):
-  string raw_str() const
-  {
-    ostringstream s;
-    s << coords << " " << denom;
-    return s.str();
-  }
+  string raw_str() const;
 
   Field* field() {return F;}
   mat_m matrix() const; // ignores denom
@@ -233,14 +198,7 @@ public:
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
   void display();
-  string str() const
-  {
-    ostringstream s;
-    s << r;
-    for (auto g:gens)
-      s << " " << g.raw_str();
-    return s.str();
-  }
+  string str() const;
 };
 
 inline ostream& operator<<(ostream& s, const FieldModSq& x)
