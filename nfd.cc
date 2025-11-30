@@ -133,6 +133,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 Newform::Newform(Newspace* x, int i, int verbose)
   :nf(x), index(i), lab(codeletter(i-1))
 {
+  cout << "Newform constructor from file, index = "<<i<<", verbose="<<verbose<<endl;
   input_from_file(verbose);
 }
 
@@ -1291,7 +1292,8 @@ void Newform::output_to_file() const
     {
       out << " " << dimension(1);
       // Character (if class number even):
-      // out << " " << character();
+      out << " ";
+      vec_out(out, epsvec, "", ""); // no pre-/post []
     }
   out << endl;
 
@@ -1335,7 +1337,7 @@ void Newform::input_from_file(int verb)
 {
   string fname = filename();
   if (verb)
-    cout << "Reading newform label " << lab << " from " << fname << endl;
+    cout << "Reading newform label " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
   ifstream fdata(fname.c_str());
 
   // Check field, level, letter-code:
@@ -1355,28 +1357,54 @@ void Newform::input_from_file(int verb)
   if (n2r)
     fdata >> fd;
   if (verb)
-    cout << "Principal dim = " << d << " full dim = " << fd << endl;
+    cout << "--> Principal dim = " << d << " full dim = " << fd << endl;
+  // character vector epsvec
+  if (n2r)
+    {
+      epsvec.resize(n2r);
+      for (auto&e: epsvec)
+        fdata >> e;
+      triv_char = std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
+      if (verb)
+        {
+          cout << "--> Character = " << epsvec;
+          if (triv_char) cout << " (trivial)";
+          cout << endl;
+        }
+    }
 
   // Principal Hecke field:
   F = new Field();
   fdata >> &F;
   if (verb)
-    cout << "Principal field is " << *F << endl;
+    cout << "--> Principal field is " << *F << endl;
 
   if (n2r)
     {
       // Full Hecke field data (if class number even)
       int nroots;
       fdata >> nroots;
-      if (verb) cout << "nroots = " << nroots << endl;
+      if (verb)
+        cout << "--> nroots = " << nroots << endl;
       vector<FieldElement> roots(nroots, FieldElement(F));
       for (auto& r: roots)
         fdata >> r;
-      if (verb) cout << "roots = " << roots << endl;
+      if (verb)
+        cout << "--> roots = " << roots << endl;
       Fmodsq = new FieldModSq(F, roots);
+      if (verb>1)
+        Fmodsq->display();
 
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;
+      self_twist_flag = (CMD<0);
+      if (verb)
+        {
+          cout << "--> CMD = " << CMD;
+          if (self_twist_flag)
+            cout << " (self-twist)";
+          cout  << endl;
+        }
     }
   else
     Fmodsq = new FieldModSq(F);
@@ -1400,8 +1428,10 @@ void Newform::input_from_file(int verb)
   vector<Quadprime> badprimes = pdivs(N);
   for (auto Q: badprimes)
     {
-      string Qlab = ideal_label(Q);
+      string Qlab = prime_label(Q);
       fdata >> dat;
+      if (dat!=Qlab)
+        cout << "!!! Q has label " << Qlab << " but read label " << dat << endl;
       assert (dat==Qlab);
 
       FieldElement eQ(F);
@@ -1421,15 +1451,23 @@ void Newform::input_from_file(int verb)
   QuadprimeLooper Pi;
   while (Pi.ok() && !fdata.eof())
     {
-      Quadprime P = Pi;
-      string Plab = ideal_label(P);
+      Quadprime P = Pi; ++Pi;
+      // if(P.divides(N))
+      //   continue;
+      string Plab = prime_label(P);
+      if (verb)
+        cout << "--> reading aP for P="<<Plab<<endl;
       fdata >> dat;
-      assert (dat==Plab);
+      if (dat!=Plab)
+        cout << "!!! P has label " << Plab << " but read label " << dat << endl;
+      // assert (dat==Plab);
       FieldElement aP(F);
       unsigned int i;
       int xf;
-      fdata >> aP >> i >> xf;
+      fdata >> aP >> i >> xf >> ws; // eat whitespace, including newline
       aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
+      if (verb)
+        cout << "--> a_"<<Plab<<" = "<<aPmap[P]<<endl;
     }
   if (verb)
     {
@@ -1476,6 +1514,9 @@ void Newspace::input_from_file(const Qideal& level, int verb)
 {
   N = level;
   lab = ideal_label(N);
+  if (verb)
+    cout << "In Newspace::input_from_file() with N="<<lab<<endl;
+
   string fname = filename();
   ifstream fdata(fname.c_str());
   string dat;
@@ -1485,24 +1526,36 @@ void Newspace::input_from_file(const Qideal& level, int verb)
   assert (dat==lab);
   int nnf;
   fdata >> nnf;
+  if (verb)
+    cout << "-> Level "<<lab<<" has 0 newforms in "<<fname<<endl;
   if (nnf==0)
     {
-      if (verb)
-        cout << "Level "<<lab<<" has 0 newforms in "<<fname<<endl;
       fdata.close();
       return;
     }
+
   vector<int> pdims(nnf);
   for (auto& d: pdims)
     fdata >> d;
+  if (verb)
+    cout << "-> dims: " << pdims <<endl;
   vector<int> fdims = pdims;
   int n2r = Quad::class_group_2_rank;
   if (n2r)
-    for (auto& d: fdims) fdata >> d;
+    {
+      for (auto& d: fdims)
+        fdata >> d;
+      if (verb)
+        cout << "-> full dims: " << fdims <<endl;
+    }
 
   // This Newform constructor will read its data from file
   for (int i=1; i<=nnf; i++)
-    newforms.push_back(Newform(this, i, verbose));
+    {
+      if (verb)
+        cout << "About to construct newform #"<<i<<endl;
+      newforms.push_back(Newform(this, i, verb));
+    }
 
   if (verb)
     {

@@ -132,14 +132,14 @@ istream& operator>>(istream& s, Field** F)
 {
   string var;
   s >> var;
-  cout << "Field input, var = " << var << endl;
+  // cout << "Field input, var = " << var << endl;
   if (var=="Q")
     *F = FieldQQ;
   else
     {
       ZZX f;
       s >> f;
-      cout << "Field input, f = " << ::str(f) << endl;
+      // cout << "Field input, f = " << ::str(f) << endl;
       *F = new Field(f, var);
     }
   return s;
@@ -366,6 +366,24 @@ string FieldElement::str(int raw) const
     }
   return s.str();
 }
+
+// x must be initialised with a Field before input to x
+istream& operator>>(istream& s, FieldElement& x)
+{
+  if (x.field()==FieldQQ)
+    s >> x.val;
+  else
+    s >> x.coords >> x.denom;
+  return s;
+}
+
+ostream& operator<<(ostream& s, const FieldElement& x)
+{
+  s << x.str();
+  return s;
+}
+
+
 
 int FieldElement::operator==(const FieldElement& b) const
 {

@@ -145,17 +145,12 @@ public:
   int is_square(FieldElement& r, int ntries=100) const;
 
   // x must be initialised with a Field before input to x
-  friend istream& operator>>(istream& s, FieldElement& x)
-  {
-    s >> x.coords >> x.denom;
-    return s;
-  }
+  friend istream& operator>>(istream& s, FieldElement& x);
 };
 
 FieldElement evaluate(const ZZX& f, const FieldElement a);
 
-inline ostream& operator<<(ostream& s, const FieldElement& x)
-{ s << x.str(); return s;}
+ostream& operator<<(ostream& s, const FieldElement& x);
 
 // Class to handle finite subgroups of (F^*)/(F^*)^2
 

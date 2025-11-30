@@ -45,7 +45,7 @@ private:
   vector<INT> possible_self_twists;
 
   int self_twist_flag; // -1 for unknown, 0 for no, 1 for yes
-  INT CMD;            // =D if this is self-twist by unramified disc D dividing Quad::disc, else 0
+  INT CMD;            // =D if this is self-twist by unramified disc D<0 dividing Quad::disc, else 0
   int bc;  // base-change code (0 for no, 1 for yes, -1 for unknown)
   int bct; // base-change twist code (0 for no, 1 for yes including 1 when bc==1, -1 for unknown)
   int cm; // CM code (see defn in newforms.h, but only 1 (not set) for now)

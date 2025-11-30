@@ -184,7 +184,7 @@ int main()
        }
      cout << "Outputting Newspace data to files" << endl;
      forms.output_to_file();
-     cout << "Finished outputting Newspace data, now re-reading" << endl;
+     cout << "Finished outputting Newspace data, now re-reading using input_from_file()"<< endl;
      Newspace file_forms;
      file_forms.input_from_file(N, 1);
      cout << "Finished re-reading, the input Newspace data is:" << endl;
