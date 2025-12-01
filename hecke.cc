@@ -320,6 +320,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
   mats.push_back(Q.AB_matrix_of_level(P, N, g));
 
 #ifdef DEBUG_HECKE
+  cout<< mats.size() << " Hecke matrices" << endl;
   cout<<" Hecke matrices are "<<mats<<endl;
 #endif
   long normP = I2long(P.norm()), normQ = I2long(Q.norm());
@@ -520,7 +521,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, const Qideal& N)
+vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
@@ -765,7 +766,7 @@ matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 // We could implement a more general version giving T(A,A)T(P)W(Q^e)
 // when [P*Q^e] is square
 
-matop HeckePALQOp(Quadprime& P, const Quadprime& Q, const Qideal& N)
+matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N)
 {
   return matop(HeckePALQ(P,Q,N), opnameT(P)+"*"+opnameW(Q));
 }

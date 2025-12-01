@@ -105,7 +105,7 @@ mat22 AtkinLehnerQ_Chi(const Quadprime& Q, const Qideal& A, const Qideal& N);
 // T(P)W(M1) at level N for P*M1 principal, P not dividing N=M1*M2
 vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2);
 // T(P)W(Q^e) at level N for P*Q^e principal, P not dividing N, Q^e||N
-vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, const Qideal& N);
+vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, Qideal& N);
 
 // Utilities for contructing names
 
@@ -247,7 +247,7 @@ matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N);
 // (We have not yet implemented a more general version giving
 // T(A,A)T(P)W(Q^e) when [P*Q^e] is square)
 
-matop HeckePALQOp(Quadprime& P, const Quadprime& Q, const Qideal& N);
+matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N);
 
 // The operator T(P)W(M1) where P does not divide N=M1*M2, M1,M2
 // coprime and P*M1 principal

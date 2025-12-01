@@ -519,7 +519,7 @@ void Newform::compute_principal_eigs(int nap, int verbose)
       int jp = 0;
       for ( auto& Q : Quadprimes::list)
         {
-          if (Q.divides(N))
+          if (Q.divides(N) || (P==Q))
             continue;
           jp++;
           if (jp>=ip)
@@ -1100,7 +1100,8 @@ void Newform::compute_AL_eigs(int verbose)
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
-void Newform::display() const
+// Optionally aP and AL data too
+void Newform::display(int aP, int AL, int principal_eigs) const
 {
   int n2r = Quad::class_group_2_rank;
   cout << "Newform #" << index << " (" << long_label() << ")" << endl;
@@ -1128,7 +1129,7 @@ void Newform::display() const
 
   if (bct==-1)
     {
-      cout << " - Newform's base-change status not known" << endl;
+      cout << " - Newform's base-change status not determined" << endl;
     }
   else
     {
@@ -1141,7 +1142,7 @@ void Newform::display() const
       else
         {
           if (nf->N.is_Galois_stable())
-            cout << " - Newform's base-change status not known" << endl;
+            cout << " - Newform's base-change status not determined" << endl;
           else
             cout << " - Newform is not base-change" << endl;
         }
@@ -1156,7 +1157,7 @@ void Newform::display() const
       else
         {
           if (CMD.is_zero())
-            cout << " - Newform appears to be unramified self-twist, but discriminant not known" << endl;
+            cout << " - Newform appears to be unramified self-twist, but discriminant not determined" << endl;
           else
             cout << " - Newform is unramified self-twist by discriminant "<< CMD << endl;
         }
@@ -1234,11 +1235,31 @@ void Newform::display() const
             }
         } // end of non-trivial char case
     }
+  if (AL)
+    {
+      cout << endl;
+      display_AL();
+    }
+  if (aP)
+    {
+      cout << endl;
+      display_aP();
+    }
+  if (principal_eigs)
+    {
+      cout << endl;
+      display_principal_eigs();
+    }
 }
 
 // Display aP data (trivial char or C4 fields)
 void Newform::display_aP() const
 {
+  if (aPmap.empty())
+    {
+      cout << "No aP known" << endl;
+      return;
+    }
   cout << "aP for first " << aPmap.size() << " primes:" << endl;
   for (auto x : aPmap)
     {
@@ -1253,15 +1274,22 @@ void Newform::display_aP() const
 // Display A-L eigenvalues (trivial char or C4 fields)
 void Newform::display_AL() const
 {
-  if (nf->N.norm()>1)
+  if (nf->N.norm()==1)
     {
-      cout << "Atkin-Lehner eigenvalues:" << endl;
-      for (auto x: eQmap)
-        cout << x.first << ":\t" << x.second << endl;
+      cout << "No Atkin-Lehner eigenvalues as level is (1)" << endl;
+      return;
     }
-  else
-    cout << "No Atkin-Lehner eigenvalues as level is (1)" << endl;
-  cout << endl;
+  cout << "Atkin-Lehner eigenvalues:" << endl;
+  for (auto x: eQmap)
+    cout << x.first << ":\t" << x.second << endl;
+}
+
+// Display principal eigenvalues
+void Newform::display_principal_eigs() const
+{
+  cout << "Eigenvalues of principal operators:" << endl;
+  for (auto x: eigmap)
+    cout << x.first.second << ":\t" << x.second << endl;
 }
 
 int Newform::dimension(int full) const
@@ -1352,7 +1380,7 @@ void Newform::output_to_file(int conj) const
 
   out << endl;
 
-  // A-L eigenvalues
+  // A-L eigenvalues (if computed, else output 0)
   vector<Quadprime> bads = nf->badprimes;
   if (conj)
     {
@@ -1361,7 +1389,9 @@ void Newform::output_to_file(int conj) const
     }
   for (auto& Q: bads)
     {
-      Eigenvalue eQ = eQmap.at(conj? Q.conj():Q);
+      Eigenvalue eQ;
+      if (!eQmap.empty())
+        eQ = eQmap.at(conj? Q.conj():Q);
       out << prime_label(Q) << " " << eQ.str(1) << endl;
     }
   out << endl;
@@ -1465,7 +1495,7 @@ void Newform::input_from_file(int verb)
       display();
     }
 
-  // A-L eigenvalues
+  // A-L eigenvalues (will read nothing if level is (1))
   Qideal N = nf->N;
   vector<Quadprime> badprimes = pdivs(N);
   for (auto Q: badprimes)
@@ -1491,6 +1521,7 @@ void Newform::input_from_file(int verb)
 
   // aP
   QuadprimeLooper Pi;
+  fdata >> ws; // so if there are no aP on file it does not try to read any
   while (Pi.ok() && !fdata.eof())
     {
       Quadprime P = Pi; ++Pi;
@@ -1615,13 +1646,13 @@ void Newspace::input_from_file(const Qideal& level, int verb)
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newspace::display_newforms(int triv_char_only) const
+void Newspace::display_newforms(int aP, int AL, int principal_eigs, int triv_char_only) const
 {
   for ( auto& F : newforms)
     {
       if ((!triv_char_only) || F.triv_char)
         {
-          F.display();
+          F.display(aP, AL, principal_eigs);
           cout<<endl;
         }
     }

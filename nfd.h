@@ -59,6 +59,7 @@ private:
   map<Quadprime, Eigenvalue> aPmap;
   // Dict of W(Q) eigenvalues of bad primes Q:
   map<Quadprime, Eigenvalue> eQmap;
+
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
   // Fill dict eigmap of eigenvalues of first ntp principal operators
@@ -114,11 +115,15 @@ public:
   string long_conj_label() const;  // field_label-conj-level_label-suffix
   // Output basis for the Homological Hecke field and character
   // If class number even, also output multiplicative basis for the full Hecke field
-  void display() const;
+  // Optionally aP and AL data too
+  void display(int aP=0, int AL=0, int principal_eigs=0) const;
   // Display aP data (trivial char or C4 fields)
   void display_aP() const;
   // Display A-L eigenvalues (trivial char or C4 fields)
   void display_AL() const;
+  // Display principal eigenvalues
+  void display_principal_eigs() const;
+
   int dimension(int full=1) const;
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
@@ -234,8 +239,9 @@ public:
 
   string splitopname() const {return T_name;}
   vector<int> dimensions(int full=0) const;
-  // output basis for the Hecke field and character of all newforms
-  void display_newforms(int triv_char_only=0) const;
+
+  // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
+  void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int triv_char_only=0) const;
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
 

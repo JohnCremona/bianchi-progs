@@ -142,13 +142,9 @@ int main()
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
                  map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
                  map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
-     // display newform data
-                 F.display();
+     // display newform data including AL and aP:
+                 F.display(1, 1, 1);
                  cout << endl;
-     // display A-L eigenvalues
-                 F.display_AL();
-     // display aP
-                 F.display_aP();
                } // end of triv_char or C4 test
              inf++;
            }
@@ -167,13 +163,13 @@ int main()
              if (verbose)
                cout << "Computing principal eigenvalues for newform #" << F.get_index() <<endl;
              map<pair<int,string>, Eigenvalue> eigs = F.principal_eigs(nap, verbose);
-             F.display();
+             F.display(0, 0, 1);
              cout << endl;
-             cout << "Principal eigenvalues involving first " << nap << " good primes:" << endl;
-             for (auto x: eigs)
-               cout
-                 // << "(" << x.first.first << ") "
-                 << x.first.second << ":\t" << x.second << endl;
+             // cout << "Principal eigenvalues involving first " << nap << " good primes:" << endl;
+             // for (auto x: eigs)
+             //   cout
+             //     // << "(" << x.first.first << ") "
+             //     << x.first.second << ":\t" << x.second << endl;
            }
        }
      cout << "Outputting Newspace data to files" << endl;
@@ -185,9 +181,9 @@ int main()
        }
      cout << "Finished outputting Newspace data, now re-reading using input_from_file()"<< endl;
      Newspace file_forms;
-     file_forms.input_from_file(N, 1);
+     file_forms.input_from_file(N, verbose);
      cout << "Finished re-reading, the input Newspace data is:" << endl;
-     file_forms.display_newforms();
+     file_forms.display_newforms(1, 1);
     }     // end of level loop
   cout << endl;
   exit(0);
