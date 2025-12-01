@@ -133,7 +133,6 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 Newform::Newform(Newspace* x, int i, int verbose)
   :nf(x), index(i), lab(codeletter(i-1))
 {
-  cout << "Newform constructor from file, index = "<<i<<", verbose="<<verbose<<endl;
   input_from_file(verbose);
 }
 
@@ -150,6 +149,16 @@ string Newform::short_label() const
 string Newform::long_label() const
 {
   return nf->long_label() + "-" + lab;
+}
+
+string Newform::conj_label() const
+{
+  return nf->conj_label() + "-" + lab;
+}
+
+string Newform::long_conj_label() const
+{
+  return nf->long_conj_label() + "-" + lab;
 }
 
 // eigenvalue of a general principal operator:
@@ -329,6 +338,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   dH = H1->h1cdenom();
   hmod = H1->hmod;
   Ndivs = alldivs(N);
+  badprimes = pdivs(N);
   possible_self_twists = N.possible_unramified_twists();
 
   if(verbose && dH>1)
@@ -498,12 +508,12 @@ void Newform::compute_principal_eigs(int nap, int verbose)
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
     {
-      if (P.divides(N))
-        continue;
       ip++;
+      nop++;
       if (ip>nap)
         break;
-      nop++;
+      if (P.divides(N))
+        continue;
       compute_one_principal_eig(nop, AutoHeckeOp(P, N), 1, verbose);
 
       int jp = 0;
@@ -577,14 +587,14 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   int cP0=-1; // to avoid a compiler warning about not being set
   int P0_set = 0;
 
-  int ip = 0;  // counts the primes used
+  int ip = 0;  // counts the primes used (including bad primes which are skipped here)
   for ( auto& P : Quadprimes::list)
     {
-      if (P.divides(N))
-        continue; // we compute AL eigs separately, later
       ip++;
       if (ip>ntp)
         break;
+      if (P.divides(N))
+        continue; // we compute AL eigs separately, later
       int cP = P.ideal_class();
       string Pname = prime_label(P);
       if (cP==0) // P principal, compute T(P) directly
@@ -768,7 +778,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 }
 
 
-// Fill aPmap, dict of eigenvalues of first ntp good primes
+// Fill aPmap, dict of eigenvalues of good primes in the first ntp primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)
 {
   if (!triv_char)
@@ -779,9 +789,9 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
     {
       Quadprime P = *pr++;
+      nap++;
       if (P.divides(N))
         continue; // compute AL eigs separately, later
-      nap++;
       Eigenvalue aP;
       long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0) // P has trivial genus class
@@ -1090,7 +1100,7 @@ void Newform::compute_AL_eigs(int verbose)
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
-void Newform::display(int full) const
+void Newform::display() const
 {
   int n2r = Quad::class_group_2_rank;
   cout << "Newform #" << index << " (" << long_label() << ")" << endl;
@@ -1118,8 +1128,7 @@ void Newform::display(int full) const
 
   if (bct==-1)
     {
-      if (full)
-        cout << " - Newform's base-change status not known" << endl;
+      cout << " - Newform's base-change status not known" << endl;
     }
   else
     {
@@ -1168,7 +1177,7 @@ void Newform::display(int full) const
   else
     cout << " - Hecke field k_f = ";
   F->display();
-  if (full && n2r>0) // display full Hecke field
+  if (n2r>0) // display full Hecke field
     {
       if (triv_char)
         {
@@ -1227,6 +1236,34 @@ void Newform::display(int full) const
     }
 }
 
+// Display aP data (trivial char or C4 fields)
+void Newform::display_aP() const
+{
+  cout << "aP for first " << aPmap.size() << " primes:" << endl;
+  for (auto x : aPmap)
+    {
+      cout << x.first << ":\t" << x.second;
+      auto it = eQmap.find(x.first);
+      if (it != eQmap.end())
+        cout << "\t(AL eigenvalue = " << it->second << ")";
+      cout << endl;
+    }
+}
+
+// Display A-L eigenvalues (trivial char or C4 fields)
+void Newform::display_AL() const
+{
+  if (nf->N.norm()>1)
+    {
+      cout << "Atkin-Lehner eigenvalues:" << endl;
+      for (auto x: eQmap)
+        cout << x.first << ":\t" << x.second << endl;
+    }
+  else
+    cout << "No Atkin-Lehner eigenvalues as level is (1)" << endl;
+  cout << endl;
+}
+
 int Newform::dimension(int full) const
 {
   return (full? d<<Fmodsq->rank() : d);
@@ -1263,27 +1300,29 @@ map<pair<int,string>, Eigenvalue> Newform::principal_eigs(int nap, int verbose)
 }
 
 // filename
-string Newform::filename() const
+string Newform::filename(int conj) const
 {
   stringstream s;
-  s << newspaces_directory() << "/" << short_label();
+  s << newspaces_directory() << "/" << (conj? conj_label():short_label());
   return s.str();
 }
 
-string Newspace::filename() const
+string Newspace::filename(int conj) const
 {
   stringstream s;
-  s << newspaces_directory() << "/" << lab;
+  s << newspaces_directory() << "/" << (conj? conj_label(): lab);
   return s.str();
 }
 
-void Newform::output_to_file() const
+void Newform::output_to_file(int conj) const
 {
   ofstream out;
-  out.open(filename().c_str());
+  out.open(filename(conj).c_str());
 
   // Field, level, letter-code:
-  out << field_label() << " " << nf->short_label() << " " << lab << endl;
+  out << field_label() << " "
+      << (conj? nf->conj_label(): nf->short_label())
+      << " " << lab << endl;
   int n2r = Quad::class_group_2_rank;
 
   // Principal dimension and (if class number even) full dimension:
@@ -1314,21 +1353,24 @@ void Newform::output_to_file() const
   out << endl;
 
   // A-L eigenvalues
-  for (auto x: eQmap)
-    out << x.first << " " << x.second.str(1) << endl;
+  vector<Quadprime> bads = nf->badprimes;
+  if (conj)
+    {
+      Qideal Nbar = (nf->N).conj();
+      bads = pdivs(Nbar);
+    }
+  for (auto& Q: bads)
+    {
+      Eigenvalue eQ = eQmap.at(conj? Q.conj():Q);
+      out << prime_label(Q) << " " << eQ.str(1) << endl;
+    }
   out << endl;
 
-  // aP
-  QuadprimeLooper Pi;
-  unsigned int ip=0, np = aPmap.size();
-  while (Pi.ok() && ip<np)
+  // aP (preserving the order of the primes in thee list)
+  for (auto x: aPmap)
     {
-      Quadprime P = Pi;
-      ++Pi;
-      ip++;
-      auto it = aPmap.find(P);
-      if (it!=aPmap.end())
-        out << it->first << " " << it->second.str(1) << endl;
+      Eigenvalue aP = (conj?  aPmap.at(x.first.conj()) : x.second);
+      out << x.first << " " << aP.str(1) << endl;
     }
 }
 
@@ -1337,7 +1379,7 @@ void Newform::input_from_file(int verb)
 {
   string fname = filename();
   if (verb)
-    cout << "Reading newform label " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
+    cout << "Reading newform " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
   ifstream fdata(fname.c_str());
 
   // Check field, level, letter-code:
@@ -1356,7 +1398,7 @@ void Newform::input_from_file(int verb)
   int fd = d;
   if (n2r)
     fdata >> fd;
-  if (verb)
+  if (verb>1)
     cout << "--> Principal dim = " << d << " full dim = " << fd << endl;
   // character vector epsvec
   if (n2r)
@@ -1365,7 +1407,7 @@ void Newform::input_from_file(int verb)
       for (auto&e: epsvec)
         fdata >> e;
       triv_char = std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
-      if (verb)
+      if (verb>1)
         {
           cout << "--> Character = " << epsvec;
           if (triv_char) cout << " (trivial)";
@@ -1376,7 +1418,7 @@ void Newform::input_from_file(int verb)
   // Principal Hecke field:
   F = new Field();
   fdata >> &F;
-  if (verb)
+  if (verb>1)
     cout << "--> Principal field is " << *F << endl;
 
   if (n2r)
@@ -1384,12 +1426,12 @@ void Newform::input_from_file(int verb)
       // Full Hecke field data (if class number even)
       int nroots;
       fdata >> nroots;
-      if (verb)
+      if (verb>1)
         cout << "--> nroots = " << nroots << endl;
       vector<FieldElement> roots(nroots, FieldElement(F));
       for (auto& r: roots)
         fdata >> r;
-      if (verb)
+      if (verb>1)
         cout << "--> roots = " << roots << endl;
       Fmodsq = new FieldModSq(F, roots);
       if (verb>1)
@@ -1398,7 +1440,7 @@ void Newform::input_from_file(int verb)
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;
       self_twist_flag = (CMD<0);
-      if (verb)
+      if (verb>1)
         {
           cout << "--> CMD = " << CMD;
           if (self_twist_flag)
@@ -1417,10 +1459,10 @@ void Newform::input_from_file(int verb)
   else if (bcc==-1) {bc = 0; bct = 1;}
   else if (bcc==0)  {bc = bct = 0;}
 
-  if (verb)
+  if (verb>1)
     {
       cout << "Before reading eQ and aP:" << endl;
-      display(1);
+      display();
     }
 
   // A-L eigenvalues
@@ -1431,7 +1473,7 @@ void Newform::input_from_file(int verb)
       string Qlab = prime_label(Q);
       fdata >> dat;
       if (dat!=Qlab)
-        cout << "!!! Q has label " << Qlab << " but read label " << dat << endl;
+        cerr << "!!! Q has label " << Qlab << " but read label " << dat << endl;
       assert (dat==Qlab);
 
       FieldElement eQ(F);
@@ -1441,10 +1483,10 @@ void Newform::input_from_file(int verb)
       eQmap[Q] = Eigenvalue(eQ, Fmodsq, i, xf);
     }
 
-  if (verb)
+  if (verb>1)
     {
       cout << "After reading eQ, before reading aP:" << endl;
-      display(1);
+      display();
     }
 
   // aP
@@ -1455,35 +1497,37 @@ void Newform::input_from_file(int verb)
       // if(P.divides(N))
       //   continue;
       string Plab = prime_label(P);
-      if (verb)
+      if (verb>1)
         cout << "--> reading aP for P="<<Plab<<endl;
       fdata >> dat;
       if (dat!=Plab)
-        cout << "!!! P has label " << Plab << " but read label " << dat << endl;
+        cerr << "!!! P has label " << Plab << " but read label " << dat << endl;
       // assert (dat==Plab);
       FieldElement aP(F);
       unsigned int i;
       int xf;
       fdata >> aP >> i >> xf >> ws; // eat whitespace, including newline
       aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
-      if (verb)
+      if (verb>1)
         cout << "--> a_"<<Plab<<" = "<<aPmap[P]<<endl;
     }
   if (verb)
     {
       cout << "After reading everything from " << fname <<":" << endl;
-      display(1);
+      display();
     }
 }
 
-void Newspace::output_to_file() const
+void Newspace::output_to_file(int conj) const
 {
   //  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
-  out.open(filename().c_str());
+  out.open(filename(conj).c_str());
 
   // Field, level, number of newforms:
-  out << field_label() << " " << short_label() << " " << newforms.size() << endl;
+  out << field_label() << " "
+      << (conj? conj_label() : short_label())
+      << " " << newforms.size() << endl;
   if (newforms.empty())
     {
       out.close();
@@ -1507,7 +1551,7 @@ void Newspace::output_to_file() const
 
   out.close();
   for (const auto& f: newforms)
-    f.output_to_file();
+    f.output_to_file(conj);
 }
 
 void Newspace::input_from_file(const Qideal& level, int verb)
@@ -1527,7 +1571,7 @@ void Newspace::input_from_file(const Qideal& level, int verb)
   int nnf;
   fdata >> nnf;
   if (verb)
-    cout << "-> Level "<<lab<<" has 0 newforms in "<<fname<<endl;
+    cout << "-> Level "<<lab<<" has " << nnf << " newforms in "<<fname<<endl;
   if (nnf==0)
     {
       fdata.close();
@@ -1537,7 +1581,7 @@ void Newspace::input_from_file(const Qideal& level, int verb)
   vector<int> pdims(nnf);
   for (auto& d: pdims)
     fdata >> d;
-  if (verb)
+  if (verb>1)
     cout << "-> dims: " << pdims <<endl;
   vector<int> fdims = pdims;
   int n2r = Quad::class_group_2_rank;
@@ -1545,7 +1589,7 @@ void Newspace::input_from_file(const Qideal& level, int verb)
     {
       for (auto& d: fdims)
         fdata >> d;
-      if (verb)
+      if (verb>1)
         cout << "-> full dims: " << fdims <<endl;
     }
 
@@ -1557,7 +1601,7 @@ void Newspace::input_from_file(const Qideal& level, int verb)
       newforms.push_back(Newform(this, i, verb));
     }
 
-  if (verb)
+  if (verb>1)
     {
       cout << "Finished reading Newspace data with " << nnf << " newforms from " << fname << endl;
       for (int i=0; i<nnf; i++)
@@ -1571,13 +1615,13 @@ void Newspace::input_from_file(const Qideal& level, int verb)
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newspace::display_newforms(int triv_char_only, int full) const
+void Newspace::display_newforms(int triv_char_only) const
 {
   for ( auto& F : newforms)
     {
       if ((!triv_char_only) || F.triv_char)
         {
-          F.display(full);
+          F.display();
           cout<<endl;
         }
     }

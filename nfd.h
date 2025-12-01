@@ -110,9 +110,15 @@ public:
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
   string long_label() const;  // field_label-level_label-suffix
-  // output basis for the Homological Hecke field and character
-  // If full, also output multiplicative basis for the full Hecke field
-  void display(int full=0) const;
+  string conj_label() const; // conj-level_label-suffix
+  string long_conj_label() const;  // field_label-conj-level_label-suffix
+  // Output basis for the Homological Hecke field and character
+  // If class number even, also output multiplicative basis for the full Hecke field
+  void display() const;
+  // Display aP data (trivial char or C4 fields)
+  void display_aP() const;
+  // Display A-L eigenvalues (trivial char or C4 fields)
+  void display_AL() const;
   int dimension(int full=1) const;
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
@@ -124,17 +130,17 @@ public:
   int cm_code() const {return cm;}
   ZZ basis_factor() const {return F->Bdet;}
   // Compute aPmap if empty and return it
-  map<Quadprime, Eigenvalue> aPeigs(int ntp=10, int verbose=0);
+  map<Quadprime, Eigenvalue> aPeigs(int ntp, int verbose=0);
   // Compute eQmap if empty and return it
   map<Quadprime, Eigenvalue> ALeigs(int verbose=0);
   // Compute eigmap (principal eigs) if empty and return it
-  map<pair<int,string>, Eigenvalue> principal_eigs(int nap=10, int verbose=0);
+  map<pair<int,string>, Eigenvalue> principal_eigs(int nap, int verbose=0);
 
   // NB We only implement file output for newforms with trivial character
-  // Filename for this Newform:
-  string filename() const;
-  // Output newform data:
-  void output_to_file() const;
+  // Filename for this Newform (or conjugate):
+  string filename(int conj=0) const;
+  // Output newform data (or data for the conjugate newform):
+  void output_to_file(int conj=0) const;
   // Input newform data (needs lab to be set to construct the filename):
   void input_from_file(int verb=1);
 };
@@ -178,6 +184,7 @@ private:
   Qideal N; // the level
   string lab; // the level's label
   vector<Qideal> Ndivs; // divisors of N
+  vector<Quadprime> badprimes; // prime divisrs of N
   vector<Qideal> t2ideals; // list of ideals coprime to level generating 2-torsion in class group
   vector<matop> eps_ops; // list of T(A,A) operators for A in t2ideals
 
@@ -222,18 +229,20 @@ public:
   Qideal level() const {return N;}
   string short_label() const {return lab;}
   string long_label() const {return field_label() + "-" + lab;}
+  string conj_label() const {Qideal Nbar = N.conj();return ideal_label(Nbar);}
+  string long_conj_label() const {return field_label() + "-" + conj_label();}
 
   string splitopname() const {return T_name;}
   vector<int> dimensions(int full=0) const;
   // output basis for the Hecke field and character of all newforms
-  void display_newforms(int triv_char_only=0, int full=0) const;
+  void display_newforms(int triv_char_only=0) const;
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
 
-  // filename for Newspace
-  string filename() const;
-  // output data for this Newspace and each Newform
-  void output_to_file() const;
+  // filename for Newspace (or conjugate)
+  string filename(int conj=0) const;
+  // output data for this Newspace (or conjugate) and each Newform
+  void output_to_file(int conj=0) const;
   // Input Newspace data and newform data for each newform:
   void input_from_file(const Qideal& level, int verb=1);
 };
