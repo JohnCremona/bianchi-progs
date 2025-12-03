@@ -296,7 +296,8 @@ int ndivs(Qideal& I) // number of ideal divisors
   return std::accumulate(ee.begin(), ee.end(), 1, [](int a, int b) {return a*(b+1);});
 }
 
-vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
+// list of all ideal divisors, excluding self if proper
+vector<Qideal> alldivs(Qideal& a, int proper)
 {
   Factorization F = a.factorization();
   int np = F.size();
@@ -314,6 +315,7 @@ vector<Qideal> alldivs(Qideal& a)    // list of all ideal divisors
 	  dlist[nd*(j+1)+k] = (P*dlist[nd*j+k]);
       nd*=(e+1);
     }
+  if (proper) dlist.pop_back(); // deletes last in list
   return dlist;
 }
 

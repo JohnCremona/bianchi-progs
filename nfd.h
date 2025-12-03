@@ -89,23 +89,23 @@ public:
   // eigenvalue of a general principal operator:
   FieldElement eig(const matop& T);
   // eigenvalue of AutoHeckeOp(P):
-  FieldElement ap(Quadprime& P);
+  FieldElement ap(const Quadprime& P);
   // eigenvalue of a scalar operator
   ZZ eps(const matop& T);
 
   // eigenvalue of a (good) prime from aPmap if P is in there;
   // otherwise either raise an error (if stored_only=1) or (not yet
   // implemented) compute it.
-  Eigenvalue eig(Quadprime& P, int stored_only=1);
+  Eigenvalue eig(const Quadprime& P, int stored_only=1);
 
   // Principal eigenvalue of a (good) prime P if P has trivial genus
   // class, or P^2 otherwise, from aPmap.  Assuming trivial character
   // this will be the eigenvalue of AutHeckeOp(P):
-  FieldElement eigPorP2(Quadprime& P);
+  FieldElement eigPorP2(const Quadprime& P);
   // Principal eigenvalue of a linear combination of the above:
-  FieldElement eig_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs);
+  FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs);
   // Characteristic polynomial of such a linear combination:
-  ZZX char_pol_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs);
+  ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs);
 
   Field* field() const {return F;}
   string label_suffix() const {return lab;}
@@ -209,11 +209,19 @@ private:
   //void find_T_manual(); // compute T (via prompts)
   //void factor_T();
 
-  // If maxc=0, find T_P whose char poly on the newspace is squarefree
-  // and coprime to its char poly on the oldspace, trying the first
-  // maxnp good primes.  If maxc>0, try similar where T is a linear
-  // combination of up to maxnp T_P with coefficients up to maxc.  Set
-  // split_ok=1 if successful else 0.
+  map<string, Newspace> oldspaces; // keys are labels of all proper divisors
+  int make_oldspaces(); // reads Newspaces for proper divisors from file, 1 iff success
+  // return full and new char polys for a linear combo of ops using old Newspace data from files
+  pair<ZZX,ZZX> full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                                   const gmatop &T);
+  // Return true iff this combo of ops has squarefree new poly coprime to its old poly
+  int valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                            const gmatop &T, ZZX& f_new);
+
+  // Find a linear combination of up to maxnp operators (T_{A,A} or
+  // T_P) with coefficients up to maxc, whose char poly on the
+  // newspace is squarefree and coprime to its char poly on the
+  // oldspace.  Set split_ok=1 if successful else 0.
   void find_T(int maxnp, int maxc);
 
 public:

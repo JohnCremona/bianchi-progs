@@ -147,7 +147,7 @@ public:
   int is_prime_power() {return Qlist.size()==1;}
   Quad solve_CRT(const vector<Quad>& v); // solution to x=v[i] mod Qlist[i]
   friend vector<Quadprime> pdivs(Qideal& n);
-  friend vector<Qideal> alldivs(Qideal& a);
+  friend vector<Qideal> alldivs(Qideal& a, int proper); // exclude self if proper=1
   friend inline ostream& operator<<(ostream& s, const Factorization& F);
   };
 
@@ -170,7 +170,7 @@ inline ostream& operator<<(ostream& s, const Factorization& F)
 }
 
 vector<Quadprime> pdivs(Qideal&);   // list of all prime divisors
-vector<Qideal> alldivs(Qideal&);    // list of all ideal divisors
+vector<Qideal> alldivs(Qideal&, int proper=0); // list of all ideal divisors, except self if proper=1
 vector<Qideal> sqdivs(Qideal&);     // list of ideal divisors whose square divides
 vector<Qideal> sqfreedivs(Qideal&); // list of square-free ideal divisors
 int ndivs(Qideal&); // number of ideal divisors

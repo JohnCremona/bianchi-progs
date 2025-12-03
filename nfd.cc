@@ -3,6 +3,7 @@
 
 #include "nfd.h"
 #include "field.h"
+#include "oldforms.h"
 
 newform_comparison newform_cmp;
 
@@ -185,9 +186,10 @@ FieldElement Newform::eig(const matop& T)
 }
 
 // eigenvalue of AutoHeckeOp(P):
-FieldElement Newform::ap(Quadprime& P)
+FieldElement Newform::ap(const Quadprime& P)
 {
-  return eig(AutoHeckeOp(P,nf->N));
+  Quadprime PP=P; // since the following cannot use a const
+  return eig(AutoHeckeOp(PP,nf->N));
 }
 
 // eigenvalue of a scalar operator
@@ -210,7 +212,7 @@ ZZ Newform::eps(const matop& T) // T should be a scalar
 // eigenvalue of a (good) prime from aPmap if P is in there;
 // otherwise either raise an error (if stored_only=1) or (not yet
 // implemented) compute it.
-Eigenvalue Newform::eig(Quadprime& P, int stored_only)
+Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
 {
   auto it = aPmap.find(P);
   if (it!=aPmap.end())
@@ -227,11 +229,12 @@ Eigenvalue Newform::eig(Quadprime& P, int stored_only)
 // Principal eigenvalue of a (good) prime P if P has trivial genus
 // class, or P^2 otherwise, from aPmap.  Assuming trivial character
 // this will be the eigenvalue of AutHeckeOp(P).
-FieldElement Newform::eigPorP2(Quadprime& P)
+FieldElement Newform::eigPorP2(const Quadprime& P)
 {
   Eigenvalue aP = eig(P);
   FieldElement a = aP.coeff();
-  if (P.genus_class()==0) // then there is no sqrt factor
+  Quadprime PP=P;
+  if (PP.genus_class()==0) // then there is no sqrt factor
     return a;
   a = a*a*aP.root_part(); // (a_P)^2
   ZZ p = ZZ(I2long(P.norm()));
@@ -239,7 +242,7 @@ FieldElement Newform::eigPorP2(Quadprime& P)
 }
 
 // Principal eigenvalue of a linear combination of the above:
-FieldElement Newform::eig_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs)
+FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs)
 {
   FieldElement eig(F->zero());
   auto Pi = Plist.begin();
@@ -256,7 +259,7 @@ FieldElement Newform::eig_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coe
 }
 
 // Characteristic polynomial of such a linear combination:
-ZZX Newform::char_pol_lin_comb(vector<Quadprime>& Plist, vector<scalar>& coeffs)
+ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs)
 {
   return eig_lin_comb(Plist, coeffs).charpoly();
 }
@@ -338,7 +341,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   cdimH = H1->h1cuspdim();
   dH = H1->h1cdenom();
   hmod = H1->hmod;
-  Ndivs = alldivs(N);
+  Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
   badprimes = N.factorization().sorted_primes();
   possible_self_twists = N.possible_unramified_twists();
 
@@ -387,82 +390,160 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
     }
 }
 
+int Newspace::make_oldspaces()
+{
+  int ok = 1;
+  for (auto D: Ndivs)
+    {
+      string Dlabel = ideal_label(D);
+      Newspace NSD;
+      if (NSD.input_from_file(D))
+        {
+          oldspaces[Dlabel] = NSD;
+          if (verbose)
+            cout << "Successfully read Newspace data for D = " << Dlabel << endl;
+        }
+      else
+        {
+          ok = 0;
+          cerr << "Cannot input Newspace data for D = " << Dlabel << endl;
+        }
+    }
+  return ok;
+}
+
+// Compute the new char poly of T using the oldspaces to obtain the
+// old factors with correct multiplicities
+pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                                           const gmatop &T)
+{
+  // This will use the caches
+  ZZX f_full = get_poly(N, T, 0, 0, H1->modulus); // cuspidal=0, triv_char=0
+  ZZX f_new = f_full;
+  for (auto D: Ndivs)
+    {
+      Newspace& NSD = oldspaces[ideal_label(D)];
+      if (NSD.nforms()==0)
+        continue;
+      Qideal M = N/D;
+      vector<Qideal> divs = alldivs(M);
+      for (auto F: NSD.newforms)
+        {
+          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs);
+          INT CMD = F.self_twist_char();
+          if (CMD.is_zero())
+            CMD=1;
+          int m = old_multiplicity(CMD,  divs);
+          for (int i=0; i<m; i++)
+            {
+              //essentially f_new /= f_D; but checking divisibility
+              ZZX quo, rem;
+              DivRem(quo, rem, f_new, f_D);
+              if (IsZero(rem))
+                f_new = quo;
+              else
+                {
+                  cout << "Problem in Newspace::full_and_new_polys(), D="<<ideal_label(D)<<endl;
+                  cout << "Dividing " << str(f_new) << " by " << str(f_D)
+                       << " gives quotient " << str(quo) <<", remainder "<< str(rem) << endl;
+                  cout << "Old multiplicities are smaller than expected."<<endl;
+                }
+            }
+        }
+    }
+  return {f_full, f_new};
+}
+
+// Return true iff this combo of ops has squarefree new poly coprime to its old poly
+// with f_new set to the new poly
+int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                                    const gmatop &T, ZZX& f_new)
+{
+  pair<ZZX,ZZX> f_full_new = full_and_new_polys(Plist, coeffs, T);
+  ZZX f_full = f_full_new.first;
+  f_new = f_full_new.second;
+  if (!IsSquareFree(f_new))
+    {
+      if (verbose>1)
+        cout << "\n NO: new Hecke polynomial "<<str(f_new)
+             << " for " << T.name() << " is not squarefree" << endl;
+      return 0;
+    }
+  ZZX f_old = f_full / f_new;
+  if (!AreCoprime(f_new, f_old))
+    {
+      if (verbose>1)
+        cout << "\n NO: new Hecke polynomial "<<str(f_new)
+             << " for " << T.name()
+             <<" is not coprime to old Hecke polynomial "<<str(f_old)<<endl
+             <<" (full polynomial is "<<str(f_full)<<")"<<endl;
+      return 0;
+    }
+  if (verbose>1)
+    cout << "\n YES: new Hecke polynomial for " << T.name()
+         << " is squarefree and coprime to old Hecke polynomial" << endl;
+  return 1;
+}
+
 // compute T=T_P, trying all good P with N(P)<=maxnormP and linear combinations
 void Newspace::find_T(int maxnp, int maxc)
 {
+  if (make_oldspaces())
+    {
+      if (verbose) cout << "Read old Newspace data OK" <<endl;
+    }
+  else
+    {
+      cerr << "Failed to read all old Newspace data" << endl;
+      exit(1);
+    }
   split_ok = 0;
+  vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
+  vector<matop> TPlist(maxnp);
+  std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
+                 [this](Quadprime P){return AutoHeckeOp(P,N);});
+  vector<matop> ops = TPlist;
+  // ops.insert(ops.end(), TPlist.begin(), TPlist.end());
+  vector<vector<int>> lincombs = all_linear_combinations(ops.size(), maxc);
+  if (verbose)
+    {
+      cout << "Trying linear combinations with coefficients up to "<<maxc
+           <<" of " << ops.size() << " operators";
+      if (verbose>1)
+        {
+          cout << " (";
+          for (auto T: ops)
+            cout << " " << T.name();
+          cout << ")";
+        }
+      cout << endl;
+    }
   gmatop T_op;
   ZZX f;
-  if (maxc==0)
+  for (auto lc: lincombs)
     {
-      int np = 0;
-      QuadprimeLooper Pi(N); // loop over primes not dividing N
-      while(np<maxnp && Pi.ok())
-        {
-          Quadprime P = Pi;
-          if (verbose>1)
-            cout << "In loop over primes, P = " << P << " with norm " << P.norm() << endl;
-          ++Pi;
-          np++;
-          T_op = gmatop(AutoHeckeOp(P,N));
-          T_name = T_op.name();
-          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose);
-          if (split_ok)
-            break; // out of loop over primes
-        }
-    } // end of simple case (using a single prime)
-  else // use a linear combination
-    {
-      vector<matop> ops = eps_ops;
-      vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
-      vector<matop> TPlist(maxnp);
-      std::transform(Plist.begin(), Plist.end(), TPlist.begin(),
-                     [this](Quadprime P){return AutoHeckeOp(P,N);});
-      ops.insert(ops.end(), TPlist.begin(), TPlist.end());
-      // NB should enhance all_linear_combinations so that the first
-      // eps_ops.size() entries are only in {0,1} as only the parity
-      // matters for involutions
-      vector<vector<int>> lincombs = all_linear_combinations(ops.size(), maxc);
+      vector<scalar> ilc(lc.size());
+      std::transform(lc.begin(), lc.end(), ilc.begin(), [](int c){return scalar(c);});
+      T_op = gmatop(ops, ilc);
+      T_name = T_op.name();
       if (verbose)
+        cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
+      split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+      if (split_ok)
         {
-          cout << "Trying linear combinations with coefficients up to "<<maxc
-               <<" of " << ops.size() << " operators";
-          if (verbose>1)
-            {
-              cout << " (";
-              // for (int i=0; i<ops.size(); i++)
-              //   cout << " " <<i<<" "<< ops[i].name();
-              for (auto T: ops)
-                cout << " " << T.name();
-              cout << ")";
-            }
-          cout << endl;
-        }
-      for (auto lc: lincombs)
-        {
-          vector<scalar> ilc(lc.size());
-          std::transform(lc.begin(), lc.end(), ilc.begin(), [](int c){return scalar(c);});
-          T_op = gmatop(ops, ilc);
-          T_name = T_op.name();
           if (verbose)
-            cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
-          split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose>1);
-          if (split_ok)
-            {
-              if (verbose)
-                cout<<"OK!"<<endl;
-              break;
-            }
-          if (verbose)
-            cout << " no good, continuing..." << endl;
+            cout<<"OK!"<<endl;
+          break;
         }
-    } // end if not-simple case
+      if (verbose)
+        cout << " no good, continuing..." << endl;
+    }
+
   if (split_ok)
     {
       if (verbose)
         cout << " OK: using operator " << T_name << " to split off newforms" << endl;
       T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
-      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
     }
   else
     return;
@@ -1607,7 +1688,7 @@ int Newspace::input_from_file(const Qideal& level, int verb)
 {
   N = level;
   lab = ideal_label(N);
-  Ndivs = alldivs(N);
+  Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
   badprimes = N.factorization().sorted_primes();
   if (verb)
     cout << "In Newspace::input_from_file() with N="<<lab<<endl;
