@@ -881,6 +881,9 @@ newforms::newforms(const Qideal& iN, scalar mod, int disp, scalar ch)
   nap = goodprimes.size(); // it may be > original nap
   if (nap!=MAXDEPTH && verbose)
     cout<<" nap changed to "<<nap<<" since goodprimes = "<<goodprimes<<endl;
+  if (verbose>1)
+    cout << "good primes used: "<<goodprimes<<endl;
+
   P0 = goodprimes[iP0];
   nP0 = scalar(I2long(P0.norm()));
 
@@ -888,11 +891,6 @@ newforms::newforms(const Qideal& iN, scalar mod, int disp, scalar ch)
 // plist, which starts with the bad primes and then the good
 // primes in order).  P0 must be principal since we have only
 // implemented maninvector() for principal primes.
-
-  if (verbose>1)
-    {
-      cout << "good primes used: "<<goodprimes<<endl;
-    }
 
   h1=0;
   of=0;

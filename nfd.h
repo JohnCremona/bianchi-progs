@@ -146,8 +146,8 @@ public:
   string filename(int conj=0) const;
   // Output newform data (or data for the conjugate newform):
   void output_to_file(int conj=0) const;
-  // Input newform data (needs lab to be set to construct the filename):
-  void input_from_file(int verb=1);
+  // Input newform data. Returns 0 if data not available, else 1.
+  int input_from_file(int verb=0);
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -249,8 +249,8 @@ public:
   string filename(int conj=0) const;
   // output data for this Newspace (or conjugate) and each Newform
   void output_to_file(int conj=0) const;
-  // Input Newspace data and newform data for each newform:
-  void input_from_file(const Qideal& level, int verb=1);
+  // Input Newspace data and newform data for each newform. Returns 0 if data missing, else 1.
+  int input_from_file(const Qideal& level, int verb=0);
 };
 
 

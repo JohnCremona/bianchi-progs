@@ -133,7 +133,8 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 Newform::Newform(Newspace* x, int i, int verbose)
   :nf(x), index(i), lab(codeletter(i-1))
 {
-  input_from_file(verbose);
+  if (!input_from_file(verbose))
+    cerr << "Unable to read Newform " << lab << endl;
 }
 
 int Newform::is_char_trivial()
@@ -338,7 +339,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   dH = H1->h1cdenom();
   hmod = H1->hmod;
   Ndivs = alldivs(N);
-  badprimes = pdivs(N);
+  badprimes = N.factorization().sorted_primes();
   possible_self_twists = N.possible_unramified_twists();
 
   if(verbose && dH>1)
@@ -461,7 +462,7 @@ void Newspace::find_T(int maxnp, int maxc)
       if (verbose)
         cout << " OK: using operator " << T_name << " to split off newforms" << endl;
       T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
-      f = get_new_poly(N, T_op, 1, H1->modulus); // cuspidal=1
+      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
     }
   else
     return;
@@ -1010,13 +1011,12 @@ void Newform::compute_AL_eigs(int verbose)
     sfe = -1; // since the sign is *minus* the product of the AL eigs
 
   Qideal N = nf->N;
-  vector<Quadprime> badprimes = pdivs(N);
-  if (badprimes.empty())  // nothing to do
+  if (nf->badprimes.empty())  // nothing to do
     return;
   if (verbose)
-    cout << "Computing W(Q) eigenvalues for Q in " << badprimes << endl;
+    cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
   Eigenvalue zero(F->zero(), Fmodsq), one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
-  for (auto Q: badprimes)
+  for (auto Q: nf->badprimes)
     {
       if (verbose)
         cout << "Computing W(Q) eigenvalue for Q = " << Q << endl;
@@ -1385,7 +1385,7 @@ void Newform::output_to_file(int conj) const
   if (conj)
     {
       Qideal Nbar = (nf->N).conj();
-      bads = pdivs(Nbar);
+      bads = Nbar.factorization().sorted_primes();
     }
   for (auto& Q: bads)
     {
@@ -1399,19 +1399,41 @@ void Newform::output_to_file(int conj) const
   // aP (preserving the order of the primes in thee list)
   for (auto x: aPmap)
     {
-      Eigenvalue aP = (conj?  aPmap.at(x.first.conj()) : x.second);
-      out << x.first << " " << aP.str(1) << endl;
+      if (conj)
+        {
+          // NB For conjugate primes which are both good or both bad,
+          // we will have made sure that if one is in the map then so
+          // is the other, but it may happen that one is bad and its
+          // conjugate is good and missing. e.g. field 17, level
+          // 106.1, nap=15.
+          auto it = aPmap.find(x.first.conj());
+          if (it!=aPmap.end())
+            {
+              Eigenvalue aP = aPmap.at(x.first.conj());
+              out << x.first << " " << aP.str(1) << endl;
+            }
+        }
+      else
+        {
+          Eigenvalue aP = x.second;
+          out << x.first << " " << aP.str(1) << endl;
+        }
     }
 }
 
-// Input newform data (needs lab to be set to construct the filename):
-void Newform::input_from_file(int verb)
+// Input newform data (needs lab to be set to construct the filename).
+// Returns 0 if data file missing, else 1
+int Newform::input_from_file(int verb)
 {
   string fname = filename();
   if (verb)
     cout << "Reading newform " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
   ifstream fdata(fname.c_str());
-
+  if (!fdata.is_open())
+    {
+      cerr << "Newform file " << fname << " missing" << endl;
+      return 0;
+    }
   // Check field, level, letter-code:
   string dat;
   fdata >> dat;
@@ -1493,15 +1515,16 @@ void Newform::input_from_file(int verb)
     {
       cout << "Before reading eQ and aP:" << endl;
       display();
+      cout << "Now reading eQ for Q in " << nf->badprimes <<endl;
     }
 
   // A-L eigenvalues (will read nothing if level is (1))
-  Qideal N = nf->N;
-  vector<Quadprime> badprimes = pdivs(N);
-  for (auto Q: badprimes)
+  for (auto Q: nf->badprimes)
     {
       string Qlab = prime_label(Q);
       fdata >> dat;
+      if (verb>1)
+        cout << "--> Q has label " << Qlab << ", file label " << dat << endl;
       if (dat!=Qlab)
         cerr << "!!! Q has label " << Qlab << " but read label " << dat << endl;
       assert (dat==Qlab);
@@ -1520,33 +1543,28 @@ void Newform::input_from_file(int verb)
     }
 
   // aP
-  QuadprimeLooper Pi;
-  fdata >> ws; // so if there are no aP on file it does not try to read any
-  while (Pi.ok() && !fdata.eof())
+  string Plab;  Quadprime P;
+  FieldElement aP(F);  unsigned int i;  int xf;
+  // read whitespace, so if there are no aP on file it does not try to read any
+  fdata >> ws;
+  // keep reading lines until end of file
+  while (!fdata.eof())
     {
-      Quadprime P = Pi; ++Pi;
-      // if(P.divides(N))
-      //   continue;
-      string Plab = prime_label(P);
-      if (verb>1)
-        cout << "--> reading aP for P="<<Plab<<endl;
-      fdata >> dat;
-      if (dat!=Plab)
-        cerr << "!!! P has label " << Plab << " but read label " << dat << endl;
-      // assert (dat==Plab);
-      FieldElement aP(F);
-      unsigned int i;
-      int xf;
-      fdata >> aP >> i >> xf >> ws; // eat whitespace, including newline
-      aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
-      if (verb>1)
-        cout << "--> a_"<<Plab<<" = "<<aPmap[P]<<endl;
+      fdata >> Plab          // prime label
+            >> aP >> i >> xf // eigenvalue data
+            >> ws;           // eat whitespace, including newline
+    P = Quadprime(Plab);
+    aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
+    if (verb>1)
+      cout << "--> P = " << Plab
+           << ": a_P = "<<aPmap[P]<<endl;
     }
   if (verb)
     {
       cout << "After reading everything from " << fname <<":" << endl;
       display();
     }
+  return 1;
 }
 
 void Newspace::output_to_file(int conj) const
@@ -1585,15 +1603,22 @@ void Newspace::output_to_file(int conj) const
     f.output_to_file(conj);
 }
 
-void Newspace::input_from_file(const Qideal& level, int verb)
+int Newspace::input_from_file(const Qideal& level, int verb)
 {
   N = level;
   lab = ideal_label(N);
+  Ndivs = alldivs(N);
+  badprimes = N.factorization().sorted_primes();
   if (verb)
     cout << "In Newspace::input_from_file() with N="<<lab<<endl;
 
   string fname = filename();
   ifstream fdata(fname.c_str());
+  if (!fdata.is_open())
+    {
+      cerr << "File " << fname << " not available for Newspace input" << endl;
+      return 0;
+    }
   string dat;
   fdata >> dat;
   assert (dat==field_label());
@@ -1606,7 +1631,7 @@ void Newspace::input_from_file(const Qideal& level, int verb)
   if (nnf==0)
     {
       fdata.close();
-      return;
+      return 1;
     }
 
   vector<int> pdims(nnf);
@@ -1643,6 +1668,8 @@ void Newspace::input_from_file(const Qideal& level, int verb)
           cout << endl;
         }
     }
+  fdata.close();
+  return 1;
 }
 
 // output basis for the Hecke field and character of all newforms

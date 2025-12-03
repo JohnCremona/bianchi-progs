@@ -214,6 +214,10 @@ rewrite_eigs.o: rewrite_eigs.cc qidloop.h qideal.h quads.h intprocs.h \
  eclib.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
+# rnfd.cc
+rnfd.o: rnfd.cc nfd.h homspace.h cusp.h mat22.h ratquads.h quads.h \
+ intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
+ geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h field.h
 # roundtest.cc
 roundtest.o: roundtest.cc intprocs.h eclib.h
 # snf_test.cc

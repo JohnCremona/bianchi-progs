@@ -69,7 +69,7 @@ int main(void)
       vector<mat_ZZ> tplist, tpqlist, wqlist, tpwqlist;
 
       // Compute trivial character subspace
-      ssubspace V = h.trivial_character_subspace();
+      ssubspace V = h.trivial_character_subspace(1);
 
       cout << "Dimension of trivial character subspace = " << dim(V) <<endl;
       pair<int,int> dd = h.trivial_character_subspace_dimensions();

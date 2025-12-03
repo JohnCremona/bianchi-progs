@@ -50,7 +50,7 @@ int main()
   Qideal N;
 #ifdef LOOPER
   long firstn, lastn;
-  cerr<<"Enter first and last norm for Quad loop: ";
+  cerr<<"Enter first and last norm for levels: ";
   cin >> firstn >> lastn;
  // This loop only covers one of each conjugate pair.  For levels not
  // Galois stable, if both_conj is true and output is true, we'll
@@ -172,18 +172,14 @@ int main()
              //     << x.first.second << ":\t" << x.second << endl;
            }
        }
-     cout << "Outputting Newspace data to files" << endl;
+     cout << "Outputting Newspace data" << endl;
      forms.output_to_file();
      if (!conjugate_level_equal)
        {
-         cout << "Outputting conjugate Newspace data to files" << endl;
+         cout << "Outputting conjugate Newspace data" << endl;
          forms.output_to_file(1);
        }
-     cout << "Finished outputting Newspace data, now re-reading using input_from_file()"<< endl;
-     Newspace file_forms;
-     file_forms.input_from_file(N, verbose);
-     cout << "Finished re-reading, the input Newspace data is:" << endl;
-     file_forms.display_newforms(1, 1);
+     cout << "Finished outputting Newspace data"<< endl;
     }     // end of level loop
   cout << endl;
   exit(0);

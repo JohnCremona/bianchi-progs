@@ -74,7 +74,7 @@ all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8 ccs9
 ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc nfd.cc field.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc field.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -121,7 +121,7 @@ include Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd rnfd rnfd_loop tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
 
 tests: sources $(TESTS)
 
@@ -326,6 +326,15 @@ tnfd_loop.o:   tnfd.cc nfd.h field.h
 
 tnfd_loop: tnfd_loop.o nfd.o field.o $(OBJS)
 	$(CC) -o tnfd_loop tnfd_loop.o nfd.o field.o $(OBJS) $(LFLAGS)
+
+rnfd: rnfd.o nfd.o field.o $(OBJS)
+	$(CC) -o rnfd rnfd.o nfd.o field.o $(OBJS) $(LFLAGS)
+
+rnfd_loop.o:   rnfd.cc nfd.h field.h
+	$(CC) -DLOOPER $(CFLAGS) rnfd.cc -o rnfd_loop.o
+
+rnfd_loop: rnfd_loop.o nfd.o field.o $(OBJS)
+	$(CC) -o rnfd_loop rnfd_loop.o nfd.o field.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)

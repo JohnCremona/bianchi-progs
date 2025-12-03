@@ -5,7 +5,8 @@
 #include <assert.h>
 
 homspace::homspace(const Qideal& I, scalar mod, int hp, int verb, scalar ch)
-  :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), modulus(mod), hmod(0)
+  :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), modulus(mod), hmod(0),
+   triv_char_subdim(-1), triv_char_dual_subdim(-1)
 {
   Quad::setup_geometry("geodata", 0); // will do nothing after the first time called
   nsymb = P1.size();
@@ -576,14 +577,14 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
  return ans;
 }
 
-// The subspace cut out by the given eigenvalues for the basis of
+// The dual subspace cut out by the given eigenvalues for the basis of
 // Quad::class_group_2_rank unramified characters:
-ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
+ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int dual)
 {
   int subdim = h1dim();
   scalar den = h1denom();
 
-  if (Quad::class_group_2_rank==0) // no characters, so return full (resp. cuspidal) space
+  if (Quad::class_group_2_rank==0) // no characters, so return full space
     return ssubspace(subdim);
 
   vector<Qideal> nulist = make_nulist(N);
@@ -591,18 +592,26 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs)
   auto ei = eigs.begin();
 
   // Compute eigenspace for first character, then compute successive
-  // dual subspaces.
+  // subspaces or dual subspaces.  In the dual case we can use
+  // calcop_restricted (more efficient), otherwise we compute each
+  // eigenspace separately and combine.
 
-  int dual = 1;
   smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
   scalar eig = (*ei++)*den;
   ssubspace s = eigenspace(m, eig, modulus);
   subdim = dim(s);
 
-  for (; nui!=nulist.end() && subdim>0; ++ei)
+  while (nui!=nulist.end() && subdim>0)
     {
-      m = s_calcop_restricted(CharOp(*nui++, N), s, dual, 0);
-      eig = (*ei)*den;
+      if (dual)
+        {
+          m = s_calcop_restricted(CharOp(*nui++, N), s, 1, 0); // dual=1, display=0
+        }
+      else
+        {
+          m = restrict_mat(s_calcop(CharOp(*nui++, N), 0, 0, 0), s); // cuspidal=0, dual=0, display=0
+        }
+      eig = (*ei++)*den;
       s = combine(s, eigenspace(m, eig, modulus));
       subdim = dim(s);
     }
@@ -615,6 +624,18 @@ pair<int,int> homspace::unramified_character_subspace_dimensions(const vector<in
   return {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
 }
 
+ssubspace homspace::trivial_character_subspace(int dual) // return triv_char_subspace, after computing if necessary
+{
+  int& subd = (dual? triv_char_dual_subdim: triv_char_subdim);
+  ssubspace& subs = (dual? triv_char_dual_subspace: triv_char_subspace);
+  if (subd==-1)
+    {
+      auto all_ones = vector<int>(Quad::class_group_2_rank, +1);
+      subs = unramified_character_subspace(all_ones, dual);
+      subd = dim(subs);
+    }
+  return subs;
+}
 
 // list of (total,cuspidal) dimensions of subspaces on which all T(A,A)
 // act trivially with self-twist by unramified quadratic char D for
@@ -636,7 +657,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
       cout<<"Finding trivial character subspace..."<<flush;
     }
 
-  ssubspace s = trivial_character_subspace();
+  ssubspace s = trivial_character_subspace(1); // 1 for dual
 
   pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
@@ -843,8 +864,10 @@ string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
 
 // cache of homspaces keyed by level
 map<string,homspace*> H1_dict;
+
 // cache of operator matrices keyed by level and opname, not restricted to cuspidal
 map<string, mat> full_mat_dict;
+
 // cache of operator charpolys keyed by level and opname, not restricted to cuspidal
 map<string, ZZX> poly_dict;
 // cache of operator charpolys keyed by level and opname, restricted to cuspidal
@@ -853,6 +876,15 @@ map<string, ZZX> cuspidal_poly_dict;
 map<string, ZZX> new_poly_dict;
 // cache of operator new charpolys keyed by level and opname, restricted to cuspidal
 map<string, ZZX> new_cuspidal_poly_dict;
+// char polys on trivial char subspace
+map<string, ZZX> tc_poly_dict;
+// char polys on trivial char cuspidal subspace
+map<string, ZZX> tc_cuspidal_poly_dict;
+// char polys on trivial char new subspace
+map<string, ZZX> tc_new_poly_dict;
+// char polys on trivial char new cuspidal subspace
+map<string, ZZX> tc_new_cuspidal_poly_dict;
+
 // mod-p versions
 map<string,homspace*> H1_modp_dict;
 map<string, ZZ_pX> full_poly_modp_dict;
@@ -959,25 +991,34 @@ mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
   return M;
 }
 
-ZZX get_poly(const Qideal& N,  const matop& T, int cuspidal, const scalar& mod)
-{
-  return get_poly(N, gmatop(T), cuspidal, mod);
-}
-
-ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod)
+ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
   string NT = NTkey(NN,T);
-  auto poly_cache = (cuspidal?cuspidal_poly_dict:poly_dict);
-  auto new_poly_cache = (cuspidal?new_cuspidal_poly_dict:new_poly_dict);
+  auto poly_cache = (cuspidal?
+                     (triv_char? tc_cuspidal_poly_dict: cuspidal_poly_dict):
+                     (triv_char? tc_poly_dict: poly_dict));
+  auto new_poly_cache = (cuspidal?
+                         (triv_char? tc_new_cuspidal_poly_dict: new_cuspidal_poly_dict):
+                         (triv_char? tc_new_poly_dict: new_poly_dict));
   if (poly_cache.find(NT) != poly_cache.end())
     return poly_cache[NT];
 
   homspace* H = get_homspace(N, mod);
   mat M = get_full_mat(N, T, mod);
-  if (cuspidal)
-    M = restrict_mat(smat(M),H->kern).as_mat();
   scalar den = (cuspidal? H->h1cdenom() :H->h1denom());
+  if (cuspidal || triv_char)
+    {
+      smat sM = smat(M);
+      if (cuspidal)
+        sM = restrict_mat(sM,H->kern);
+      if (triv_char)
+        {
+          ssubspace tcsub = H->trivial_character_subspace(0); // dual=0
+          sM = restrict_mat(sM, tcsub);
+        }
+      M = sM.as_mat();
+    }
   ZZX full_poly =  scaled_charpoly(mat_to_mat_ZZ(M), to_ZZ(den), to_ZZ(H->hmod));
   poly_cache[NT] = full_poly;
   if (deg(full_poly)==0)
@@ -985,19 +1026,14 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, const scalar& mod)
   return full_poly;
 }
 
-ZZX get_new_poly(const Qideal& N, const matop& T, int cuspidal, const scalar& mod)
-{
-  return get_new_poly(N, gmatop(T), cuspidal, mod);
-}
-
-ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& mod)
+ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
   string NT = NTkey(NN,T);
   auto new_cache = (cuspidal?new_cuspidal_poly_dict:new_poly_dict);
   if (new_cache.find(NT) != new_cache.end())
     return new_cache[NT];
-  ZZX new_poly = get_poly(N, T, cuspidal, mod);
+  ZZX new_poly = get_poly(N, T, cuspidal, triv_char, mod);
   if (deg(new_poly)==0)
     {
       new_cache[NT] = new_poly;
@@ -1008,7 +1044,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, const scalar& m
     {
       if (D==N)
         continue;
-      ZZX new_poly_D = get_new_poly(D, T, cuspidal, mod);
+      ZZX new_poly_D = get_new_poly(D, T, cuspidal, triv_char, mod);
       if (deg(new_poly_D)==0)
         continue;
       Qideal M = N/D;
@@ -1051,14 +1087,14 @@ int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod,
 {
   if (verbose)
     cout << "Testing " << T.name() << "..." << flush;
-  ZZX f_new = get_new_poly(N, T, 1, mod); // cuspidal=1
+  ZZX f_new = get_new_poly(N, T, 1, 0, mod); // cuspidal=1, triv_char=0
   if (!IsSquareFree(f_new))
     {
       if (verbose>1)
         cout << "\n NO: new Hecke polynomial "<<str(f_new)<<" is not squarefree" << endl;
       return 0;
     }
-  ZZX f_full = get_poly(N, T, 0, mod); // cuspidal=0
+  ZZX f_full = get_poly(N, T, 0, 0, mod); // cuspidal=0, triv_char=0
   ZZX f_old = f_full / f_new;
   if (!AreCoprime(f_new, f_old))
     {
