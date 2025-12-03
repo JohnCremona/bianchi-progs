@@ -122,8 +122,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 45.1 = 3[5,1+a] = (3+3a,-12+3a)
 48.1 = 4[3,1+a] = (12,4+4a)
 49.1 = 7[1,a] = (7)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 3.1 = [3,1+a] (norm 3) is not principal, generators [ 3 1+a ] with factorization P3
@@ -287,11 +286,11 @@ Ideal 25.3 = [25,3+a] (norm 25) is principal, with generator 3+a with factorizat
  with inverses:
 [ 1 -6+2a -5+a -3+a -1+a -4+a -3 -5+2a -6+a -2 2 6-a 5-2a 3 4-a 1-a 3-a 5-a 6-2a -1 ]
 AB-matrix of 25.3 is [3+a,0; 0,4-a]
-Enter an ideal label N.i : ideal is [1,a] with norm 1, index 1, and label 1.1
-Enter an ideal label N.i : ideal is [3,1+a] with norm 3, index 1, and label 3.1
-Enter an ideal label N.i : ideal is 4[1,a] with norm 16, index 1, and label 16.1
-Enter an ideal label N.i : ideal is 2[5,1+a] with norm 20, index 1, and label 20.1
-Enter an ideal label N.i : ideal is 2[5,3+a] with norm 20, index 2, and label 20.2
-Enter an ideal label N.i : ideal is [25,3+a] with norm 25, index 3, and label 25.3
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is [1,a] with norm 1, index 1, and label 1.1
+ideal is [3,1+a] with norm 3, index 1, and label 3.1
+ideal is 4[1,a] with norm 16, index 1, and label 16.1
+ideal is 2[5,1+a] with norm 20, index 1, and label 20.1
+ideal is 2[5,3+a] with norm 20, index 2, and label 20.2
+ideal is [25,3+a] with norm 25, index 3, and label 25.3
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

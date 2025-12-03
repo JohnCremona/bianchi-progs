@@ -81,7 +81,7 @@ void looptest()
     }
 
   long firstn, lastn;
-  cout<<"\nEnter first and last norm for Qideal loop: ";
+  cerr<<"\nEnter first and last norm for Qideal loop: ";
   cin >> firstn >> lastn;
   if (is_zero(lastn)) exit(0);
   int both=1, sorted=1;
@@ -120,11 +120,24 @@ void stringtest()
   string s;
   while (1)
     {
-      cout << "Enter an ideal label N.i : ";
+      cerr << "Enter an ideal label N.i or a prime label Pp or Ppa or Ppb: ";
+      Qideal I;
+      Quadprime P;
       cin >> s;
-      if (s[0]=='0') return;
-      Qideal I(s);
-      cout << "ideal is "<<I<<" with norm " << I.norm() <<", index "<<I.get_index()<<", and label "<<ideal_label(I)<<endl;
+      switch (s.front()) {
+      case '0':
+        return;
+      case 'P':
+        P = Quadprime(s);
+        cout << "prime ideal is "<<P<<" with norm " << P.norm()
+             << ", and ideal label "<<ideal_label(P)<<endl;
+        break;
+      default:
+        I = Qideal(s);
+        cout << "ideal is "<<I<<" with norm " << I.norm()
+             << ", index "<<I.get_index()
+             << ", and label "<<ideal_label(I)<<endl;
+      };
     }
 }
 

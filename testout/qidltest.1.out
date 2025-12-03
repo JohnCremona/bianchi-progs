@@ -120,8 +120,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 49.1 = 7[1,i] = (7)
 50.1 = [50,7+i] = (7+i)
 50.2 = 5[2,1+i] = (5+5i)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,i] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,i] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 2.1 = [2,1+i] (norm 2) is principal, with generator 1+i with factorization P2
@@ -257,10 +256,10 @@ Ideal 25.3 = [25,18+i] (norm 25) is principal, with generator 4+3i with factoriz
  with inverses:
 [ 1 -1+2i -1-i 1-i 3i -i -3 2i -2-i -2 2 2+i -2i 3 i -3i -1+i 1+i 1-2i -1 ]
 AB-matrix of 25.3 is [4+3i,0; 0,4-3i]
-Enter an ideal label N.i : ideal is 2[5,2+i] with norm 20, index 1, and label 20.1
-Enter an ideal label N.i : ideal is 2[5,3+i] with norm 20, index 2, and label 20.2
-Enter an ideal label N.i : ideal is [25,7+i] with norm 25, index 1, and label 25.1
-Enter an ideal label N.i : ideal is 5[1,i] with norm 25, index 2, and label 25.2
-Enter an ideal label N.i : ideal is [25,18+i] with norm 25, index 3, and label 25.3
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is 2[5,2+i] with norm 20, index 1, and label 20.1
+ideal is 2[5,3+i] with norm 20, index 2, and label 20.2
+ideal is [25,7+i] with norm 25, index 1, and label 25.1
+ideal is 5[1,i] with norm 25, index 2, and label 25.2
+ideal is [25,18+i] with norm 25, index 3, and label 25.3
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

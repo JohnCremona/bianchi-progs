@@ -259,8 +259,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 50.1 = [50,36+a] = (-14+a,-8-3a)
 50.2 = 5[2,a] = (10,5a)
 50.3 = [50,38+a] = (-12+a,-2-4a)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 2.1 = [2,a] (norm 2) is not principal, generators [ 2 a ] with factorization P2a
@@ -711,13 +710,13 @@ Ideal 25.3 = [25,13+a] (norm 25) is not principal, generators [ 1+2a -12+a ] wit
  with inverses:
 [ 1 -a 4-a -6 -4 5-a -3 1-a 3-a -2 2 -3+a -1+a 3 -5+a 4 6 -4+a a -1 ]
 AB-matrix of 25.3 is [1+2a,-3+2a; -12+a,-11-a]
-Enter an ideal label N.i : ideal is [1,a] with norm 1, index 1, and label 1.1
-Enter an ideal label N.i : ideal is [15,6+a] with norm 15, index 1, and label 15.1
-Enter an ideal label N.i : ideal is [15,3+a] with norm 15, index 2, and label 15.2
-Enter an ideal label N.i : ideal is [15,11+a] with norm 15, index 3, and label 15.3
-Enter an ideal label N.i : ideal is [15,8+a] with norm 15, index 4, and label 15.4
-Enter an ideal label N.i : ideal is [19,4+a] with norm 19, index 1, and label 19.1
-Enter an ideal label N.i : ideal is [19,14+a] with norm 19, index 2, and label 19.2
-Enter an ideal label N.i : ideal is [24,5+a] with norm 24, index 8, and label 24.8
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is [1,a] with norm 1, index 1, and label 1.1
+ideal is [15,6+a] with norm 15, index 1, and label 15.1
+ideal is [15,3+a] with norm 15, index 2, and label 15.2
+ideal is [15,11+a] with norm 15, index 3, and label 15.3
+ideal is [15,8+a] with norm 15, index 4, and label 15.4
+ideal is [19,4+a] with norm 19, index 1, and label 19.1
+ideal is [19,14+a] with norm 19, index 2, and label 19.2
+ideal is [24,5+a] with norm 24, index 8, and label 24.8
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

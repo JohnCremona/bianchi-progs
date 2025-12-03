@@ -171,8 +171,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 49.1 = [49,17+a] = (2+3a)
 49.2 = 7[1,a] = (7)
 50.1 = 5[2,1+a] = (10,-5+5a)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 2.1 = [2,1+a] (norm 2) is not principal, generators [ 2 -1+a ] with factorization P2
@@ -413,14 +412,14 @@ Ideal 25.1 = 5[1,a] (norm 25) is principal, with generator 5 with factorization 
  with inverses:
 [ 1 -2 2 -1 1-a -2+a 2+a -1-a 1-2a -2+2a 2+2a -1-2a 1+2a -2-2a 2-2a -1+2a 1+a -2-a 2-a -1+a ]
 AB-matrix of 25.1 is [5,0; 0,5]
-Enter an ideal label N.i : ideal is [7,3+a] with norm 7, index 1, and label 7.1
-Enter an ideal label N.i : ideal is [7,4+a] with norm 7, index 2, and label 7.2
-Enter an ideal label N.i : ideal is [1,a] with norm 1, index 1, and label 1.1
-Enter an ideal label N.i : ideal is 3[2,1+a] with norm 18, index 2, and label 18.2
-Enter an ideal label N.i : ideal is [18,11+a] with norm 18, index 3, and label 18.3
-Enter an ideal label N.i : ideal is [21,10+a] with norm 21, index 1, and label 21.1
-Enter an ideal label N.i : ideal is [21,4+a] with norm 21, index 2, and label 21.2
-Enter an ideal label N.i : ideal is [21,17+a] with norm 21, index 3, and label 21.3
-Enter an ideal label N.i : ideal is [21,11+a] with norm 21, index 4, and label 21.4
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is [7,3+a] with norm 7, index 1, and label 7.1
+ideal is [7,4+a] with norm 7, index 2, and label 7.2
+ideal is [1,a] with norm 1, index 1, and label 1.1
+ideal is 3[2,1+a] with norm 18, index 2, and label 18.2
+ideal is [18,11+a] with norm 18, index 3, and label 18.3
+ideal is [21,10+a] with norm 21, index 1, and label 21.1
+ideal is [21,4+a] with norm 21, index 2, and label 21.2
+ideal is [21,17+a] with norm 21, index 3, and label 21.3
+ideal is [21,11+a] with norm 21, index 4, and label 21.4
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

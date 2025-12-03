@@ -139,8 +139,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 48.1 = 4[3,1+t] = (4+4t)
 49.1 = 7[1,t] = (7)
 50.1 = 5[2,t] = (5t)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,t] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,t] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 2.1 = [2,t] (norm 2) is principal, with generator t with factorization P2
@@ -332,12 +331,12 @@ Ideal 25.1 = 5[1,t] (norm 25) is principal, with generator 5 with factorization 
  with inverses:
 [ 1 -2 2 -1 2t 2-2t 2-t -2-t -2-2t t -1+2t 1-t -1-t 1+2t -t -1-2t 1+t -1+t 1-2t -2t 2+2t 2+t -2+t -2+2t ]
 AB-matrix of 25.1 is [5,0; 0,5]
-Enter an ideal label N.i : ideal is [9,4+t] with norm 9, index 1, and label 9.1
-Enter an ideal label N.i : ideal is 3[1,t] with norm 9, index 2, and label 9.2
-Enter an ideal label N.i : ideal is [9,5+t] with norm 9, index 3, and label 9.3
-Enter an ideal label N.i : ideal is 2[6,4+t] with norm 24, index 1, and label 24.1
-Enter an ideal label N.i : ideal is 2[6,2+t] with norm 24, index 2, and label 24.2
-Enter an ideal label N.i : ideal is [19,6+t] with norm 19, index 1, and label 19.1
-Enter an ideal label N.i : ideal is [19,13+t] with norm 19, index 2, and label 19.2
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is [9,4+t] with norm 9, index 1, and label 9.1
+ideal is 3[1,t] with norm 9, index 2, and label 9.2
+ideal is [9,5+t] with norm 9, index 3, and label 9.3
+ideal is 2[6,4+t] with norm 24, index 1, and label 24.1
+ideal is 2[6,2+t] with norm 24, index 2, and label 24.2
+ideal is [19,6+t] with norm 19, index 1, and label 19.1
+ideal is [19,13+t] with norm 19, index 2, and label 19.2
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok

@@ -24,6 +24,24 @@ Quadprime::Quadprime(Qideal& I) :Qideal(I)
     }
 }
 
+Quadprime::Quadprime(const string& s) // ideal from label Pp or Ppa or Ppb
+// need to parse s to obtain p
+{
+  if (s.front() != 'P')
+    {
+      cerr << "string " << s << " is not a valid Prime label" << endl;
+    }
+  else
+    {
+      char suff = s.back();
+      int trim = ((suff=='a' || suff=='b')? 2 : 1);
+      long p;
+      stringstream(s.substr(1,s.size() - trim)) >> p;
+      int ind = (suff=='b'? 1: 0);
+      *this = Quadprimes_above(p)[ind];
+    }
+}
+
 vector<int> Quadprime::genus_character()
 {
   // cout<<"Finding genus character of P="<<(*this)<<endl;

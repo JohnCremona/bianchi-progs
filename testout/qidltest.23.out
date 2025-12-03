@@ -205,8 +205,7 @@ Ideals of norm up to 50 (sorted, only one of each conjugate pair):
 48.5 = 4[3,a] = (4a,-12)
 49.1 = 7[1,a] = (7)
 50.1 = 5[2,a] = (10,5a)
-
-Enter first and last norm for Qideal loop: Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
+Ideal 1.1 = [1,a] (norm 1) is principal, with generator 1 with factorization ()
 1 residues mod 1.1: [ 0 ]
 AB-matrix of 1.1 is [1,0; 0,1]
 Ideal 2.1 = [2,a] (norm 2) is not principal, generators [ 2 a ] with factorization P2a
@@ -538,16 +537,16 @@ Ideal 25.1 = 5[1,a] (norm 25) is principal, with generator 5 with factorization 
  with inverses:
 [ 1 -2 2 -1 1-a -1-2a -1+2a 3-2a -a -2+2a -1-a 2-a 2a 2+a 2-2a -2-a -2a -2+a 1+a -1+a a -3+2a 1-2a 1+2a ]
 AB-matrix of 25.1 is [5,0; 0,5]
-Enter an ideal label N.i : ideal is [9,3+a] with norm 9, index 1, and label 9.1
-Enter an ideal label N.i : ideal is 3[1,a] with norm 9, index 2, and label 9.2
-Enter an ideal label N.i : ideal is [9,5+a] with norm 9, index 3, and label 9.3
-Enter an ideal label N.i : ideal is [24,6+a] with norm 24, index 1, and label 24.1
-Enter an ideal label N.i : ideal is [24,14+a] with norm 24, index 2, and label 24.2
-Enter an ideal label N.i : ideal is 2[6,a] with norm 24, index 3, and label 24.3
-Enter an ideal label N.i : ideal is 2[6,2+a] with norm 24, index 4, and label 24.4
-Enter an ideal label N.i : ideal is 2[6,3+a] with norm 24, index 5, and label 24.5
-Enter an ideal label N.i : ideal is 2[6,5+a] with norm 24, index 6, and label 24.6
-Enter an ideal label N.i : ideal is [24,9+a] with norm 24, index 7, and label 24.7
-Enter an ideal label N.i : ideal is [24,17+a] with norm 24, index 8, and label 24.8
-Enter an ideal label N.i : testing labels and label parsing for all ideal of norm from 1 to 100
+ideal is [9,3+a] with norm 9, index 1, and label 9.1
+ideal is 3[1,a] with norm 9, index 2, and label 9.2
+ideal is [9,5+a] with norm 9, index 3, and label 9.3
+ideal is [24,6+a] with norm 24, index 1, and label 24.1
+ideal is [24,14+a] with norm 24, index 2, and label 24.2
+ideal is 2[6,a] with norm 24, index 3, and label 24.3
+ideal is 2[6,2+a] with norm 24, index 4, and label 24.4
+ideal is 2[6,3+a] with norm 24, index 5, and label 24.5
+ideal is 2[6,5+a] with norm 24, index 6, and label 24.6
+ideal is [24,9+a] with norm 24, index 7, and label 24.7
+ideal is [24,17+a] with norm 24, index 8, and label 24.8
+testing labels and label parsing for all ideal of norm from 1 to 100
 label test ok
