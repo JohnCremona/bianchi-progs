@@ -14,6 +14,24 @@ newform_comparison newform_cmp;
                                         // all aP for P in this class
                                         // are 0.
 
+// For class group C4 only (so far)
+// return v where v[i] is the index of ideal class c^i for one generator class c
+vector<int> C4classes()
+{
+  if (is_C4())
+    {
+      // an ideal in class c which generates the class group:
+      Qideal Pc = Quad::class_group_2_cotorsion[1];
+      // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
+      return {0, Pc.ideal_class(), (Pc*Pc).ideal_class(), Pc.conj().ideal_class()};
+    }
+  else
+    {
+      cerr << "Cannot call C4classes() unless the class group is C4" << endl;
+      return {};
+    }
+}
+
 Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   :nf(x), index(ind)
 {
@@ -226,23 +244,78 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
   // only?)
 }
 
-// Principal eigenvalue of a (good) prime P if P has trivial genus
-// class, or P^2 otherwise, from aPmap.  Assuming trivial character
-// this will be the eigenvalue of AutHeckeOp(P).
-FieldElement Newform::eigPorP2(const Quadprime& P)
+// Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
+// stored aP in aPmap.  Only implemented for trivial character
+// (where this is the eigenvalue of P or P^2) or C4 class group.
+FieldElement Newform::eigPauto(const Quadprime& P, int verb)
 {
+  if (verb)
+    cout << "In eigPauto(P) with P = " << P << endl;
   Eigenvalue aP = eig(P);
   FieldElement a = aP.coeff();
-  Quadprime PP=P;
-  if (PP.genus_class()==0) // then there is no sqrt factor
-    return a;
-  a = a*a*aP.root_part(); // (a_P)^2
-  ZZ p = ZZ(I2long(P.norm()));
-  return a - p;          // a_(P^2)
+  if (verb)
+    cout << " - stored eig for P is " << aP << endl;
+  if (triv_char)
+    {
+      Quadprime PP=P;
+      if (PP.genus_class()==0) // then there is no sqrt factor
+        {
+          if (verb)
+            cout << " - trivial genus class, returning aP = " << a << endl;
+          return a;
+        }
+      a = a*a*aP.root_part(); // (a_P)^2
+      if (verb)
+        cout << " - non-trivial genus class, aP^2 = " << a << endl;
+      ZZ p = ZZ(I2long(P.norm()));
+      if (verb)
+        cout << " - hence a_{P^2} = " << a-p << endl;
+      return a - p;          // a_(P^2)
+    }
+  else if (is_C4()) // C4 class group
+    {
+      // Character is chi_1, values on classes 0,1,2,3 are 1,i,-1,-i
+      int cP = P.ideal_class();
+      if (cP==0) // principal
+        {
+          if (verb)
+            cout << " - principal, returning aP = " << a << endl;
+          return a;
+        }
+      if (cP==2)
+        {
+          // we return the eig of T(P)T(A,A).  Here [A]^2=[P] means [A] = c or c^3 so chi(A)=
+          Qideal A = P.sqrt_coprime_to(N);
+          int cA = A.ideal_class(); // c or c^3
+          assert ((cA==ic1) || (cA==ic3));
+          if (cA==ic1)
+            a = -a;
+          return a;
+        }
+      // now cP = 1 or 3 and we return the eig of T(P^2)T(A,A)
+      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
+      int cA = A.ideal_class(); // may be ic1 or ic3
+      a = a*a;
+      if (cA.ideal_class()==ic1)
+        a = a.times(i);
+      else
+        a = a.times_minus_i();
+      ZZ p = ZZ(I2long(P.norm()));
+      if (cA!=cP)
+        p = -p;
+      return a - p;          // a_(P^2)
+
+      return FieldElement();
+    }
+  else
+    {
+      cerr << "Newform::Pauto() only implemented for forms with trivial char or class group C4" << endl;
+      return FieldElement();
+    }
 }
 
 // Principal eigenvalue of a linear combination of the above:
-FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs)
+FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb)
 {
   FieldElement eig(F->zero());
   auto Pi = Plist.begin();
@@ -250,18 +323,17 @@ FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<
   while (Pi!=Plist.end())
     {
       scalar c = *ci++;
+      Quadprime P = *Pi++;
       if (c!=0)
-        {
-          eig += eigPorP2(*Pi++) * to_ZZ(c);
-        }
+        eig += eigPauto(P, verb) * to_ZZ(c);
     }
   return eig;
 }
 
 // Characteristic polynomial of such a linear combination:
-ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs)
+ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb)
 {
-  return eig_lin_comb(Plist, coeffs).charpoly();
+  return eig_lin_comb(Plist, coeffs, verb).charpoly();
 }
 
 //#define DEBUG_BC
@@ -418,22 +490,33 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
                                            const gmatop &T)
 {
   // This will use the caches
-  ZZX f_full = get_poly(N, T, 0, 0, H1->modulus); // cuspidal=0, triv_char=0
+  if (verbose>1)
+    cout << "In full_and_new_polys() with T = " <<T.name() << endl;
+  ZZX f_full = get_poly(N, T, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
+  if (verbose>1)
+    cout << "f_full = " << str(f_full) << endl;
   ZZX f_new = f_full;
-  for (auto D: Ndivs)
+  for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
       Newspace& NSD = oldspaces[ideal_label(D)];
       if (NSD.nforms()==0)
         continue;
       Qideal M = N/D;
+      if (verbose>1)
+        cout << "Divisor D = " << ideal_label(D) << " has " << NSD.nforms() << " newforms" <<endl;
       vector<Qideal> divs = alldivs(M);
+      int m_default = divs.size();
+      if (verbose>1)
+        cout << "# divisors of N/D is " << m_default <<endl;
       for (auto F: NSD.newforms)
         {
-          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs);
+          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, verbose>1);
+          if (verbose>1)
+            cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
           INT CMD = F.self_twist_char();
-          if (CMD.is_zero())
-            CMD=1;
-          int m = old_multiplicity(CMD,  divs);
+          int m = (CMD.is_zero()? m_default : old_multiplicity(CMD,  divs));
+          if (verbose>1)
+            cout << "multiplicity m = " << m << endl;
           for (int i=0; i<m; i++)
             {
               //essentially f_new /= f_D; but checking divisibility
@@ -449,8 +532,14 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
                   cout << "Old multiplicities are smaller than expected."<<endl;
                 }
             }
+          if (verbose>1)
+            cout << "After dividing out by f_D^m, poly is " << str(f_new) << endl;
         }
+      if (verbose>1)
+        cout << "After dividing out old polys from "<<ideal_label(D)<<", poly is " << str(f_new) << endl;
     }
+  if (verbose>1)
+    cout << "After dividing out all old polys, new poly is " << str(f_new) << endl;
   return {f_full, f_new};
 }
 
@@ -527,7 +616,9 @@ void Newspace::find_T(int maxnp, int maxc)
       T_op = gmatop(ops, ilc);
       T_name = T_op.name();
       if (verbose)
-        cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
+        {
+          cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
+        }
       split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
       if (split_ok)
         {
@@ -628,7 +719,7 @@ void Newform::compute_eigs(int ntp, int verbose)
   if (triv_char)
     compute_eigs_triv_char(ntp, verbose);
   else
-    if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
+    if (is_C4())
       compute_eigs_C4(ntp, verbose);
     else
       compute_principal_eigs(ntp, verbose);
@@ -649,12 +740,10 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   // is quartic. We pick a generator c of the class group and take
   // chi(c)=+i:
   Qideal N = nf->N;
-  // an ideal in class c which generates the class group:
-  Qideal Pc = Quad::class_group_2_cotorsion[1];
+
   // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
-  int ic1 = Pc.ideal_class();
-  int ic2 = (Pc*Pc).ideal_class();
-  int ic3 = Pc.conj().ideal_class();
+  vector<int> C4C = C4classes();
+  int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
 
   FieldElement b, b1;
 
@@ -1299,7 +1388,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
         } // end of trivial char case
       else // special case code for C4 class group
         {
-          if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
+          if (is_C4())
             {
               cout << " - Full Hecke field k_f(i";
               if (Fmodsq->rank()>1)

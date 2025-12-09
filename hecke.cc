@@ -687,7 +687,7 @@ matop AtkinLehnerQChiOp(const Quadprime& Q, Qideal& A, const Qideal& N)
 
 matop HeckePOp(Quadprime& P, const Qideal& N)
 {
-  return matop(HeckeP(P), opname(P,N));
+  return matop(HeckeP(P), opname(P,N), "", P);
 }
 
 // For P prime not dividing N, [P] square with A^2*P principalm A
@@ -699,7 +699,7 @@ matop HeckePChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
   ostringstream s;
   s << opname(P,N) << " * " + opnameAA(A);
-  return matop(HeckeP_Chi(P,A,N), opnameT(P), ideal_label(A));
+  return matop(HeckeP_Chi(P,A,N), opnameT(P), ideal_label(A), P, P, A);
 }
 
 // For P prime not dividing N with P^2 principal:
@@ -710,7 +710,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 {
   ostringstream s;
   s << "T(" << P << "^2)";
-  return matop(HeckeP2(P,N), opname("T", prime_label(P) + "^2"));
+  return matop(HeckeP2(P,N), opname("T", prime_label(P) + "^2"), "", P);
 }
 
 // For P prime not dividing N and A coprime to N with (AP)^2 principal:
@@ -719,7 +719,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 
 matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
-  return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), ideal_label(A));
+  return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), ideal_label(A), P, P, A);
 }
 
 // For P,Q distinct primes not dividing N, with P*Q principal:
@@ -728,7 +728,7 @@ matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 
 matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 {
-  return matop(HeckePQ(P,Q,N), opname("T", prime_label(P)+"*"+prime_label(Q)));
+  return matop(HeckePQ(P,Q,N), opname("T", prime_label(P)+"*"+prime_label(Q)), "", P, Q);
 }
 
 // For P,Q distinct primes not dividing N, with [P*Q] square, A^2*P*Q
@@ -738,7 +738,7 @@ matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 {
-  return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), ideal_label(A));
+  return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), ideal_label(A), P, Q, A);
 }
 
 // For B squarefree principal coprime to N:

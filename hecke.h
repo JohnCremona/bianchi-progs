@@ -148,13 +148,17 @@ class matop {
   string long_name;
   string short_name;
   string char_name;
-  vector<int> genus_char; // list of chi(B)
+  // To remember the primes/ideals (not used for AL ops)
+  Quadprime P, Q;
+  Qideal A;
   matop() // default is zero
     :mats({}), short_name("O"), char_name("") {set_long_name();}
-  explicit matop(const mat22& m, const string& n="", const string& c="")
-    :mats({m}), short_name(n), char_name(c)  {set_long_name();}
-  explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="")
-    :mats(mlist), short_name(n), char_name(c) {set_long_name();}
+  explicit matop(const mat22& m, const string& n="", const string& c="",
+                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), Qideal iA=Qideal())
+    :mats({m}), short_name(n), char_name(c), P(iP), Q(iQ), A(iA)  {set_long_name();}
+  explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="",
+                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), Qideal iA=Qideal())
+    :mats(mlist), short_name(n), char_name(c), P(iP), Q(iQ), A(iA) {set_long_name();}
   void set_long_name();
   mat22 operator[](int i) const {return mats[i];}
   int length() const {return mats.size();}

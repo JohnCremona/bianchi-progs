@@ -98,14 +98,14 @@ public:
   // implemented) compute it.
   Eigenvalue eig(const Quadprime& P, int stored_only=1);
 
-  // Principal eigenvalue of a (good) prime P if P has trivial genus
-  // class, or P^2 otherwise, from aPmap.  Assuming trivial character
-  // this will be the eigenvalue of AutHeckeOp(P):
-  FieldElement eigPorP2(const Quadprime& P);
+  // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
+  // stored aP in aPmap.  Only implemented for trivial character
+  // (where this is the eigenvalue of P or P^2) or C4 class group.
+  FieldElement eigPauto(const Quadprime& P, int verb=0);
   // Principal eigenvalue of a linear combination of the above:
-  FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs);
+  FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb=0);
   // Characteristic polynomial of such a linear combination:
-  ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs);
+  ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb=0);
 
   Field* field() const {return F;}
   string label_suffix() const {return lab;}
@@ -261,5 +261,14 @@ public:
   int input_from_file(const Qideal& level, int verb=0);
 };
 
+// test whether field's class group is C4
+inline int is_C4()
+{
+  return (Quad::class_number==4) && (Quad::class_group_2_rank==1); // C4
+}
+
+// For class group C4 only (so far)
+// return v where v[i] is the index of ideal class c^i for one generator class c
+vector<int> C4classes();
 
 #endif

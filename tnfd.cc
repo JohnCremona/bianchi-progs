@@ -29,7 +29,7 @@ int main()
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
   int n2r = Quad::class_group_2_rank;
-  int C4 = ((Quad::class_number==4) && (n2r==1));
+  int C4 = is_C4();
 
   int verbose=1;
   cerr << "Verbose output? (0/1) ";
@@ -74,7 +74,10 @@ int main()
        cout << "Constructed homspace of dimension " << H1->h1dim()
             << ", cuspidal dimension " << H1->h1cuspdim()
             << ", denominator " << H1->h1cdenom() << endl;
-
+     if (H1->h1cuspdim()==0)
+       {
+         continue;
+       }
      int maxnp = 7, maxc = 2;
      Newspace forms(H1, maxnp, maxc, verbose);
      if (!forms.ok())
