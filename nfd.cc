@@ -163,11 +163,6 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 #endif
 }
 
-int Newform::is_char_trivial()
-{
-  return triv_char;
-}
-
 // eigenvalue of a general principal operator:
 FieldElement Newform::eig(const matop& T)
 {
@@ -221,7 +216,7 @@ Eigenvalue Newform::eig(Quadprime& P, int stored_only)
   auto it = aPmap.find(P);
   if (it!=aPmap.end())
     return it->second;
-  if (stored_only)
+  if (stored_only && triv_char)
     {
       cerr << "Eigenvalue for P="<<P<<" not yet computed" << endl;
     }
@@ -762,6 +757,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
         cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
              << "Flagging this newform as having self-twist.\n";
       self_twist_flag = +1;
+      CMD = possible_self_twists[0];
     }
 
   if (verbose)
@@ -970,10 +966,14 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     } // end of primes loop
   if (self_twist_flag == -1)
     {
-      cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
-           << " genus classes have non-zero eigenvalues!\n"
-           << "Flagging this newform as having self-twist.\n";
+      if (verbose)
+        cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
+             << " genus classes have non-zero eigenvalues!\n"
+             << "Flagging this newform as having self-twist.\n";
       self_twist_flag = +1;
+      CMD = possible_self_twists[0]; // NB needs code to detect which
+                                     // one if more than one, but this
+                                     // is OK for C4 class group
     }
 } // end of compute_eigs_triv_char
 
@@ -990,6 +990,8 @@ void Newform::compute_AL_eigs(int verbose)
   Qideal N = nf->N;
   vector<Quadprime> badprimes = pdivs(N);
   if (badprimes.empty())  // nothing to do
+    return;
+  if (!triv_char)  // we don't deal with pseudo-eigenvalues
     return;
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << badprimes << endl;
@@ -1020,7 +1022,7 @@ void Newform::compute_AL_eigs(int verbose)
           continue;
         }
 
-      if (Qe.has_square_class() && triv_char)
+      if (Qe.has_square_class())
         {
           Qideal A = Qe.sqrt_coprime_to(N);
           ZZ eQ = eps(AtkinLehnerQChiOp(Q,A,N));
@@ -1102,13 +1104,13 @@ void Newform::display(int full)
         {
           int r = Fmodsq->rank();
           if (r==0)
-            cout << " - Full Hecke field is the same as the Principal Hecke field";
+            cout << " - Full Hecke field is the same as the Principal Hecke field" << endl;
           else
             {
               // If the base field is Q we output something like
               // "Q(sqrt(2), sqrt(5))", otherwise something like
               // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
-              cout << " - Full Hecke Field k_F = "
+              cout << " - Full Hecke field k_F = "
                    << (F->isQ()? "Q" : "k_f")
                    << "(";
               for (int i=0; i<r; i++)
@@ -1138,7 +1140,9 @@ void Newform::display(int full)
         {
           if ((Quad::class_number==4) && (Quad::class_group_2_rank==1))
             {
-              cout << " - Full Hecke field k_f(i";
+              cout << " - Full Hecke field k_F = "
+                   << (F->isQ()? "Q" : "k_f")
+                   << "(i";
               if (Fmodsq->rank()>1)
                 cout << ", sqrt(r2)), where r2 = " << Fmodsq->gen(1);
               else

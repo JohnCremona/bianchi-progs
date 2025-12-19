@@ -97,8 +97,8 @@ int main()
             << (nnf_triv_char==1? " has": " have")
             << " trivial character"<<endl<<endl;
 
-     cout << "Newform data" << endl;
-     forms.display_newforms();
+     // cout << "Newform data" << endl;
+     // forms.display_newforms();
 
      cout << "Hecke eigenvalues:" << endl << endl;
 
@@ -120,7 +120,8 @@ int main()
          int inf=1;
          for (auto F: forms.newforms)
            {
-             if (C4 || F.is_char_trivial())
+             int triv_char = F.is_char_trivial();
+             if (C4 || triv_char)
                {
                  cout << endl;
                  if (verbose)
@@ -128,10 +129,32 @@ int main()
                  map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
                  map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
                  F.display(1);
-                 if (F.is_self_twist()==+1)
-                   cout << "*** form appears to have self-twist ***" << endl;
+                 {
+                   if (F.is_self_twist()==+1)
+                     cout << " - self-twist by " << F.self_twist_discriminant() << endl;
+                   switch (F.is_base_change()) {
+                   case 0:
+                     cout << " - not base-change" << endl;
+                     break;
+                   case 1:
+                     cout << " - base-change" << endl;
+                     break;
+                   case -1:
+                     cout << " - twisted base-change but not base-change" << endl;
+                     break;
+                   case 2:
+                   default:
+                     if (N.is_Galois_stable())
+                       cout << " - base-change status not determined" << endl;
+                     else
+                       cout << " - not base-change" << endl;
+                   }
+                 }
                  cout << endl;
-                 cout << "aP for first " << aP.size() << " primes:" << endl;
+                 cout << "aP for first " << aP.size() << " primes";
+                 if (!triv_char)
+                   cout << " (good primes only)";
+                 cout << ":" << endl;
                  QuadprimeLooper Pi;
                  unsigned int ip=0;
                  while (Pi.ok() && ip<aP.size())
@@ -139,43 +162,29 @@ int main()
                      Quadprime P = Pi;
                      ++Pi;
                      ip++;
-                     auto aP = F.eig(P);
-                     cout << P << ":\t" << aP;
-                     if (P.divides(N))
-                       cout << "\t(AL eigenvalue = " << ALeigs[P] << ")";
-                     cout << endl;
+                     int bad = P.divides(N);
+                     if (triv_char || !bad)
+                       {
+                         auto aP = F.eig(P);
+                         cout << P << ":\t" << aP;
+                         if (triv_char && bad)
+                           cout << "\t(AL eigenvalue = " << ALeigs[P] << ")";
+                         cout << endl;
+                       }
                    }
-                 // for (auto x: eigs)
-                 //   cout << x.first << ":\t" << x.second << endl;
-                 if (N.norm()>1)
+                 if (triv_char)
                    {
-                     cout << "Atkin-Lehner eigenvalues:" << endl;
-                     for (auto x: ALeigs)
-                       cout << x.first << ":\t" << x.second << endl;
+                     if (N.norm()>1)
+                       {
+                         cout << "Atkin-Lehner eigenvalues:" << endl;
+                         for (auto x: ALeigs)
+                           cout << x.first << ":\t" << x.second << endl;
+                       }
+                     else
+                       cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                    }
-                 else
-                   cout << "No Atkin-Lehner eigenvalues as level is " << Nlabel << endl;
                }
              inf++;
-             if (F.is_self_twist()==+1)
-               cout << "Form appears to have self-twist" << endl;
-             switch (F.is_base_change()) {
-             case 0:
-               cout << "Form is not base-change" << endl;
-               break;
-             case 1:
-               cout << "Form is base-change" << endl;
-               break;
-             case -1:
-               cout << "Form is twisted base-change but not base-change" << endl;
-               break;
-             case 2:
-             default:
-               if (N.is_Galois_stable())
-                 cout << "Form's base-change status not determined" << endl;
-               else
-                 cout << "Form is not base-change" << endl;
-             }
            }
        }
 

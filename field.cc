@@ -313,6 +313,8 @@ string FieldElement::str() const
       return s.str();
     }
   string n = ::str(coords, F->var);
+  if (n[0]=='+')
+    n.erase(0,1);
   if (denom==1)
     return n;
   s << "(" << n << ")/" << denom;
