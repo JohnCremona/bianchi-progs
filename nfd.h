@@ -101,7 +101,7 @@ public:
   // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
   // stored aP in aPmap.  Only implemented for trivial character
   // (where this is the eigenvalue of P or P^2) or C4 class group.
-  FieldElement eigPauto(const Quadprime& P, int verb=0);
+  FieldElement eigPauto(Quadprime& P, int verb=0);
   // Principal eigenvalue of a linear combination of the above:
   FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb=0);
   // Characteristic polynomial of such a linear combination:

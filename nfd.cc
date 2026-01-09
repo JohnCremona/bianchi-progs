@@ -156,11 +156,6 @@ Newform::Newform(Newspace* x, int i, int verbose)
     cerr << "Unable to read Newform " << lab << endl;
 }
 
-int Newform::is_char_trivial()
-{
-  return triv_char;
-}
-
 string Newform::short_label() const
 {
   return nf->short_label() + "-" + lab;
@@ -247,7 +242,7 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
 // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
 // stored aP in aPmap.  Only implemented for trivial character
 // (where this is the eigenvalue of P or P^2) or C4 class group.
-FieldElement Newform::eigPauto(const Quadprime& P, int verb)
+FieldElement Newform::eigPauto(Quadprime& P, int verb)
 {
   if (verb)
     cout << "In eigPauto(P) with P = " << P << endl;
@@ -274,6 +269,9 @@ FieldElement Newform::eigPauto(const Quadprime& P, int verb)
     }
   else if (is_C4()) // C4 class group
     {
+      // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
+      vector<int> C4C = C4classes();
+      int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
       // Character is chi_1, values on classes 0,1,2,3 are 1,i,-1,-i
       int cP = P.ideal_class();
       if (cP==0) // principal
@@ -282,10 +280,10 @@ FieldElement Newform::eigPauto(const Quadprime& P, int verb)
             cout << " - principal, returning aP = " << a << endl;
           return a;
         }
-      if (cP==2)
+      if (cP==ic2)
         {
           // we return the eig of T(P)T(A,A).  Here [A]^2=[P] means [A] = c or c^3 so chi(A)=
-          Qideal A = P.sqrt_coprime_to(N);
+          Qideal A = P.sqrt_coprime_to(nf->N);
           int cA = A.ideal_class(); // c or c^3
           assert ((cA==ic1) || (cA==ic3));
           if (cA==ic1)
@@ -293,19 +291,17 @@ FieldElement Newform::eigPauto(const Quadprime& P, int verb)
           return a;
         }
       // now cP = 1 or 3 and we return the eig of T(P^2)T(A,A)
-      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
+      Qideal A = P.equivalent_mod_2_coprime_to(nf->N,1);
       int cA = A.ideal_class(); // may be ic1 or ic3
-      a = a*a;
-      if (cA.ideal_class()==ic1)
-        a = a.times(i);
+      aP = aP*aP;
+      if (cA==ic1)
+        aP = aP.times_i();
       else
-        a = a.times_minus_i();
+        aP = aP.times_minus_i();
       ZZ p = ZZ(I2long(P.norm()));
       if (cA!=cP)
         p = -p;
-      return a - p;          // a_(P^2)
-
-      return FieldElement();
+      return aP.coeff() - p;          // a_(P^2)
     }
   else
     {
@@ -513,7 +509,7 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
           ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, verbose>1);
           if (verbose>1)
             cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
-          INT CMD = F.self_twist_char();
+          INT CMD = F.self_twist_discriminant();
           int m = (CMD.is_zero()? m_default : old_multiplicity(CMD,  divs));
           if (verbose>1)
             cout << "multiplicity m = " << m << endl;
