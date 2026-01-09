@@ -69,7 +69,7 @@ private:
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
   void compute_eigs_C4(int ntp=10, int verbose=0);
-  // Fill dict eQmap *after* aPmap
+  // Fill dict eQmap *after* aPmap, if triv_char
   void compute_AL_eigs(int verbose=0);
   // Assuming aPmap filled, set the bc and bct flags
   void check_base_change(void);
@@ -127,9 +127,9 @@ public:
   int dimension(int full=1) const;
   ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
-  int is_char_trivial(); // sets triv_char flag (1 iff unramified quadratic character values (if any) are all +1)
+  int is_char_trivial() const {return triv_char;}
   int is_self_twist() const {return self_twist_flag;}
-  INT self_twist_char() const {return self_twist_flag? CMD: INT(0);}
+  INT self_twist_discriminant() const {return CMD;}
   // return base-change code (+1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know)
   int base_change_code(void) const;
   int cm_code() const {return cm;}

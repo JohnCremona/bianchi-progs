@@ -117,8 +117,10 @@ int main()
             << (nnf_triv_char==1? " has": " have")
             << " trivial character"<<endl<<endl;
 
-     cout << "Newform data" << endl;
-     //forms.display_newforms(); // we'll display them later after we have some eigenvalues
+     // cout << "Newform data" << endl;
+     // forms.display_newforms();
+
+     cout << "Hecke eigenvalues:" << endl << endl;
 
      // For homological forms with trivial character we find the full
      // eigensystem with trivial character:
@@ -138,7 +140,8 @@ int main()
          int inf=1;
          for (auto& F: forms.newforms)
            {
-             if (C4 || F.is_char_trivial())
+             int triv_char = F.is_char_trivial();
+             if (C4 || triv_char)
                {
                  cout << endl;
                  if (verbose)

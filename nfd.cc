@@ -235,7 +235,7 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
   auto it = aPmap.find(P);
   if (it!=aPmap.end())
     return it->second;
-  if (stored_only)
+  if (stored_only && triv_char)
     {
       cerr << "Eigenvalue for P="<<P<<" not yet computed" << endl;
     }
@@ -927,16 +927,11 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
     self_twist_flag = 0;
   else
     {
-      if (possible_self_twists.empty())
-        cout << " *** Problem: newform cannot be self-twist but we have no nonzerp aP for P with trivial genus class!" << endl;
-      else
-        {
-          CMD = possible_self_twists[0];
-          if (verbose)
-            cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
-                 << "Flagging this newform as having self-twist by " << CMD << ".\n";
-          self_twist_flag = +1;
-        }
+      if (verbose)
+        cout << "All primes in the nontrivial genus class have eigenvalue 0.\n"
+             << "Flagging this newform as having self-twist.\n";
+      self_twist_flag = +1;
+      CMD = possible_self_twists[0];
     }
 
   if (verbose)
@@ -1164,6 +1159,9 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
         if (verbose)
           cout << "*** Self-twist discriminant is one of " << possible_self_twists << endl;
       self_twist_flag = +1;
+      CMD = possible_self_twists[0]; // NB needs code to detect which
+                                     // one if more than one, but this
+                                     // is OK for C4 class group
     }
 } // end of compute_eigs_triv_char
 
@@ -1182,6 +1180,8 @@ void Newform::compute_AL_eigs(int verbose)
 
   Qideal N = nf->N;
   if (nf->badprimes.empty())  // nothing to do
+    return;
+  if (!triv_char)  // we don't deal with pseudo-eigenvalues
     return;
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
@@ -1209,7 +1209,7 @@ void Newform::compute_AL_eigs(int verbose)
           continue;
         }
 
-      if (Qe.has_square_class() && triv_char)
+      if (Qe.has_square_class())
         {
           Qideal A = Qe.sqrt_coprime_to(N);
           ZZ eQ_Z = eps(AtkinLehnerQChiOp(Q,A,N));
@@ -1360,7 +1360,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
               // If the base field is Q we output something like
               // "Q(sqrt(2), sqrt(5))", otherwise something like
               // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
-              cout << " - Full Hecke Field k_F = "
+              cout << " - Full Hecke field k_F = "
                    << (F->isQ()? "Q" : "k_f")
                    << "(";
               for (int i=0; i<r; i++)
@@ -1390,7 +1390,9 @@ void Newform::display(int aP, int AL, int principal_eigs) const
         {
           if (is_C4())
             {
-              cout << " - Full Hecke field k_f(i";
+              cout << " - Full Hecke field k_F = "
+                   << (F->isQ()? "Q" : "k_f")
+                   << "(i";
               if (Fmodsq->rank()>1)
                 cout << ", sqrt(r2)), where r2 = " << Fmodsq->gen(1);
               else
