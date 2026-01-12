@@ -632,6 +632,7 @@ void Newspace::find_T(int maxnp, int maxc)
       if (verbose)
         cout << " OK: using operator " << T_name << " to split off newforms" << endl;
       T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
+      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
     }
   else
     return;
