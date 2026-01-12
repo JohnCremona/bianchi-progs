@@ -615,7 +615,8 @@ void Newspace::find_T(int maxnp, int maxc)
         {
           cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
         }
-      split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+      //split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+      split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose>1);
       if (split_ok)
         {
           if (verbose)

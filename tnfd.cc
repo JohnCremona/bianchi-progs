@@ -74,10 +74,10 @@ int main()
        cout << "Constructed homspace of dimension " << H1->h1dim()
             << ", cuspidal dimension " << H1->h1cuspdim()
             << ", denominator " << H1->h1cdenom() << endl;
-     if (H1->h1cuspdim()==0)
-       {
-         continue;
-       }
+     // if (H1->h1cuspdim()==0)
+     //   {
+     //     continue;
+     //   }
      int maxnp = 7, maxc = 2;
      Newspace forms(H1, maxnp, maxc, verbose);
      if (!forms.ok())
