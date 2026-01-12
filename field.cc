@@ -350,7 +350,10 @@ string FieldElement::str(int raw) const
   // cout << "coords = " << coords << ", denom = " << denom << endl;
   ostringstream s;
   if (F->isQ())
-    s << val;
+    {
+      s << val;
+      return s.str();
+    }
   else
     {
       if (raw)
