@@ -44,7 +44,7 @@ face_relations.o: face_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  eclib.h primes.h qideal.h homspace.h cusp.h face_relations.h \
  edge_relations.h geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h
 # field.cc
-field.o: field.cc field.h eclib.h
+field.o: field.cc field.h eclib.h polred.h
 # fieldinfo.cc
 fieldinfo.o: fieldinfo.cc primes.h qideal.h quads.h intprocs.h eclib.h
 # fix_ratios.cc
@@ -153,7 +153,7 @@ newhecke_modp.o: newhecke_modp.cc qidloop.h qideal.h quads.h intprocs.h \
 # nfd.cc
 nfd.o: nfd.cc nfd.h homspace.h cusp.h mat22.h ratquads.h quads.h \
  intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
- geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h field.h
+ geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h field.h oldforms.h
 # nflist.cc
 nflist.o: nflist.cc qidloop.h qideal.h quads.h intprocs.h eclib.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \

@@ -1305,7 +1305,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
 
   // Information about unramified self-twist:
 
-  if (self_twist_flag!=-1)
+  if ((n2r>0) && (self_twist_flag!=-1))
     {
       if (self_twist_flag==0)
         cout << " - Newform is not unramified self-twist" << endl;

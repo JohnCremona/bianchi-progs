@@ -7,6 +7,7 @@
 #include <eclib/int.h>
 #include <eclib/polys.h>
 #include <eclib/pari_init.h>
+#undef recip // pariold.h #defines recip = serreverse
 
 // conversion from ZZX to t_POL and back:
 ZZX t_POL_to_ZZX(GEN P);

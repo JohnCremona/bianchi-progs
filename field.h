@@ -19,7 +19,8 @@ class Field {
 private:
   string var;   // name of generator
   int d;        // degree
-  ZZX minpoly;  // irredicible poly of degree d
+  ZZX minpoly;  // irreducible poly of degree d
+  ZZX abspoly;  // irreducible poly of degree d (polredabs of minpoly)
   ZZ denom; // minpoly is the (integral) min poly of A/denom
   mat_m A;        // dxd matrix with scaled min.poly. minpoly
   mat_m B, Binv;  // Binv*B = Bdet*I
@@ -49,6 +50,7 @@ public:
   int degree() const {return d;}
   int isQ() const {return this==FieldQQ;}
   ZZX poly() const {return minpoly;}
+  ZZX reduced_poly() const {return abspoly;}
   mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
   ZZ basis_factor() const {return Bdet;}
   mat_m inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis

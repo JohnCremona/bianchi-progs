@@ -2,6 +2,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "field.h"
+#include "polred.h"
 
 //#define DEBUG_ARITH
 
@@ -49,9 +50,12 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
       cout << "In Field constructor" << endl;
     }
   minpoly = scaled_charpoly(mat_to_mat_ZZ(A), denom);
+  abspoly = polredabs(minpoly);
   if (verb)
-    cout << " - min poly = " << ::str(minpoly) << ", generator " << var << endl;
-
+    {
+      cout << " - min poly = " << ::str(minpoly) << ", generator " << var << endl;
+      cout << " - reduced poly = " << ::str(abspoly) << endl;
+    }
 
   // Compute change of basis matrix B, with column j equal to
   // denom^(n-j)*A^(j-1)v for j from 1 to d
@@ -209,9 +213,13 @@ void Field::display(ostream&s, int raw)
       s << "Q" << endl;
       return;
     }
-  s << "Q(" << var << ") with defining polynomial "<< fpol <<" of degree "<<d;
-  if (d==2)
-    s << ", discriminant "<<discriminant(minpoly);
+  s << "Q(" << var << ") with defining polynomial "<< fpol <<" (of degree "<<d
+    << " and discriminant " << discriminant(minpoly) << ")";
+  if (abspoly!=minpoly)
+    {
+      s << ", reduced polynomial " << ::str(abspoly)
+        << " (of discriminant " << discriminant(abspoly) << ")";
+    }
   s << endl;
   if(raw && !isQ())
     {

@@ -7,12 +7,15 @@
 #endif
 #include "nfd.h"
 #include "field.h"
+#include <eclib/pari_init.h>
 
 #define MAXPRIME 10000
 
 int main()
 {
   cout << "Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension." << endl;
+  eclib_pari_init();
+
   scalar modulus = default_modulus<scalar>();
 #if (SCALAR_OPTION==3)
   //  NextPrime(modulus, power_ZZ(to_ZZ(2),256));
