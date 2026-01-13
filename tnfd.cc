@@ -147,9 +147,9 @@ int main()
                  if (verbose)
                    cout << "Computing eigenvalues for newform #" << inf <<endl;
                  map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
-                 map<Quadprime, Eigenvalue> ALeigs = F.ALeigs(verbose);
-     // display newform data including AL and aP:
-                 F.display(1, 1, 1);
+                 map<Quadprime, int> ALeigs = F.ALeigs(verbose);
+                 // display newform data including AL and aP (and all principal eigs if verbose):
+                 F.display(1, 1, verbose);
                  cout << endl;
                } // end of triv_char or C4 test
              inf++;
@@ -178,14 +178,17 @@ int main()
              //     << x.first.second << ":\t" << x.second << endl;
            }
        }
-     cout << "Outputting Newspace data" << endl;
+     if (verbose)
+       cout << "Outputting Newspace data" << endl;
      forms.output_to_file();
      if (!conjugate_level_equal)
        {
-         cout << "Outputting conjugate Newspace data" << endl;
+         if (verbose)
+           cout << "Outputting conjugate Newspace data" << endl;
          forms.output_to_file(1);
        }
-     cout << "Finished outputting Newspace data"<< endl;
+     if (verbose)
+       cout << "Finished outputting Newspace data"<< endl;
     }     // end of level loop
   cout << endl;
   exit(0);

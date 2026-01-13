@@ -205,19 +205,18 @@ FieldElement Newform::ap(const Quadprime& P)
   return eig(AutoHeckeOp(PP,nf->N));
 }
 
-// eigenvalue of a scalar operator
-ZZ Newform::eps(const matop& T) // T should be a scalar
+// eigenvalue +-1 of a scalar involution operator
+int Newform::eps(const matop& T) // T should be a scalar +- identity
 {
   //   nf->H1->projcoord = projcoord;
   //   cout << "Matrix of "<<T.name()<<" is\n" << nf->H1->calcop_restricted(T, S, 0, 0) << endl;
   FieldElement e = eig(T);
-  static const ZZ one(1);
   //   cout << "Computed e = " << e << endl;
   //   cout << "(should be +1 or -1)" << endl;
   if (e.is_one())
-    return one;
+    return 1;
   if (e.is_minus_one())
-    return -one;
+    return -1;
   cerr << "eps(" << T.name() << ") returns " << e << ", not +1 or -1" << endl;
   exit(1);
 }
@@ -1163,27 +1162,29 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     }
 } // end of compute_eigs_triv_char
 
-// Fill dict eQmap *after* aPmap, and set sfe
+// Fill dict eQmap *after* aPmap, and set sfe, ONLY in triv_char case
 void Newform::compute_AL_eigs(int verbose)
 {
   // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap and also
   // the entries in aPmap indexed by bad primes.
 
+  if (!triv_char)  // we don't deal with pseudo-eigenvalues
+    return;
+
   // Except in the trivial char case or if all Q^e|N are principal,
   // this requires aPmap to be filled with a nonzero eigenvalue for
   // primes P in each class inverse to each [Q^e].
 
-  if (triv_char)
-    sfe = -1; // since the sign is *minus* the product of the AL eigs
+  sfe = -1; // since the sign is *minus* the product of the AL eigs
 
-  Qideal N = nf->N;
   if (nf->badprimes.empty())  // nothing to do
     return;
-  if (!triv_char)  // we don't deal with pseudo-eigenvalues
-    return;
+
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
-  Eigenvalue zero(F->zero(), Fmodsq), one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
+
+  Eigenvalue zero(F->zero(), Fmodsq); //, one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
+  Qideal N = nf->N;
   for (auto Q: nf->badprimes)
     {
       if (verbose)
@@ -1194,81 +1195,67 @@ void Newform::compute_AL_eigs(int verbose)
       for (int i=1; i<e; i++)
         Qe*=Q;
 
+      int eQ;
+
       if (Qe.is_principal()) // direct computation
         {
-          ZZ eQ_Z = eps(AtkinLehnerQOp(Q,N));
+          eQ = eps(AtkinLehnerQOp(Q,N));
           if (verbose)
-            cout << "Direct computation gives eigenvalue " << eQ_Z << endl;
-          Eigenvalue eQ(FieldElement(F, eQ_Z), Fmodsq);
-          eQmap[Q] = eQ;
-          aPmap[Q] = (e>1? zero : -eQ);
-          if (triv_char && eQ.is_minus_one())
-            sfe = -sfe;
-          continue;
-        }
-
-      if (Qe.has_square_class())
-        {
-          Qideal A = Qe.sqrt_coprime_to(N);
-          ZZ eQ_Z = eps(AtkinLehnerQChiOp(Q,A,N));
-          if (verbose)
-            cout << "Indirect computation gives eigenvalue " << eQ_Z << endl;
-          Eigenvalue eQ(FieldElement(F, eQ_Z), Fmodsq);
-          eQmap[Q] = eQ;
-          aPmap[Q] = (e>1? zero : -eQ);
-          if (triv_char && eQ.is_minus_one())
-            sfe = -sfe;
-          continue;
-        }
-
-      Quadprime P;
-      Eigenvalue aP = Eigenvalue(F->zero(), Fmodsq); // set to 0
-
-      // Use W(Q)*T(P) where P*Q is principal and a(P) is nonzero
-      for (auto Pi: Quadprimes::list)
-        {
-          if (Pi.divides(N))
-            continue;
-          if (!(Pi*Qe).is_principal())
-            continue;
-          auto it = aPmap.find(Pi);
-          if (it==aPmap.end())
-            continue;
-          P = Pi;
-          aP = it->second;   // = aPmap[P];
-          if (!aP.is_zero()) // found a good P with aP nonzero
-            break;
-        } // end of loop over P
-      if (aP.is_zero()) // then we never found a good P with aP known and nonzero
-        {
-          cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
-          eQmap[Q] = aP; // 0 as place-holder
-          continue;
+            cout << "Direct computation gives eigenvalue " << eQ << endl;
         }
       else
         {
-          if (verbose)
-            cout << "Indirect computation using T(P)W(Q) with P="<<P<<", aP = " << aP << endl;
-          Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), Fmodsq);
-          Eigenvalue eQ = aPeQ/aP;
-          eQmap[Q] = eQ;
-          aPmap[Q] = (e>1? zero : -eQ);
-          if (triv_char && eQ.is_minus_one())
-            sfe = -sfe;
-          if (verbose)
+          if (Qe.has_square_class())
             {
-              cout << "Product eigenvalue is " <<aPeQ
-                   << " so eigenvalue is " << eQ
-                   << " with square " << eQ*eQ
-                   << endl;
+              Qideal A = Qe.sqrt_coprime_to(N);
+              eQ = eps(AtkinLehnerQChiOp(Q,A,N));
+              if (verbose)
+                cout << "Indirect computation gives eigenvalue " << eQ << endl;
+            }
+          else
+            {
+              Quadprime P;
+              Eigenvalue aP = zero;
+              eQ = 0; // 0 as place-holder
+
+              // Use W(Q)*T(P) where P*Q is principal and a(P) is nonzero
+              for (auto Pi: Quadprimes::list)
+                {
+                  if (Pi.divides(N))
+                    continue;
+                  if (!(Pi*Qe).is_principal())
+                    continue;
+                  auto it = aPmap.find(Pi);
+                  if (it==aPmap.end())
+                    continue;
+                  P = Pi;
+                  aP = it->second;   // = aPmap[P];
+                  if (!aP.is_zero()) // found a good P with aP nonzero
+                    {
+                      if (verbose)
+                        cout << "Indirect computation using T(P)W(Q) with P="<<P<<", aP = " << aP << endl;
+                      Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), Fmodsq);
+                      eQ = (aPeQ==aP? 1 : -1);
+                      break;
+                    }
+                } // end of loop over P
+              if (eQ==0) // then we never found a good P with aP known and nonzero
+                cout << "Unable to compute W("<<Q<<"), need to compute more aP" << endl;
             }
         }
+      // Store the AL eigenvalue in eQmap and update sfe:
+      eQmap[Q] = eQ;
+      sfe *= eQ;
+
+      // aQ is minus the AL eigenvalue if Q||N else 0
+      aPmap[Q] = (e>1? zero: Eigenvalue(FieldElement(F, ZZ(-eQ)), Fmodsq));
+
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
 
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
-// Optionally aP and AL data too
+// Optionally aP and AL (if trivial char) data too
 void Newform::display(int aP, int AL, int principal_eigs) const
 {
   int n2r = Quad::class_group_2_rank;
@@ -1405,7 +1392,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
             }
         } // end of non-trivial char case
     }
-  if (AL)
+  if (triv_char && AL)
     {
       cout << endl;
       display_AL();
@@ -1483,7 +1470,7 @@ map<Quadprime, Eigenvalue> Newform::aPeigs(int ntp, int verbose)
   return aPmap;
 }
 
-map<Quadprime, Eigenvalue> Newform::ALeigs(int verbose)
+map<Quadprime, int> Newform::ALeigs(int verbose)
 {
   if (eQmap.empty())
     compute_AL_eigs(verbose);
@@ -1535,7 +1522,7 @@ void Newform::output_to_file(int conj) const
   out << endl;
 
   // Principal Hecke field:
-  out << F->str(1);
+  out << F->str(1);  // raw=1
   if (n2r)
     {
   // Full Hecke field data (if class number even):
@@ -1550,23 +1537,26 @@ void Newform::output_to_file(int conj) const
 
   out << endl;
 
-  // A-L eigenvalues (if computed, else output 0)
-  vector<Quadprime> bads = nf->badprimes;
-  if (conj)
+  if (triv_char)
     {
-      Qideal Nbar = (nf->N).conj();
-      bads = Nbar.factorization().sorted_primes();
+      // Output A-L eigenvalues if computed, else output nothing
+      vector<Quadprime> bads = nf->badprimes;
+      if (conj)
+        {
+          Qideal Nbar = (nf->N).conj();
+          bads = Nbar.factorization().sorted_primes();
+        }
+      for (auto& Q: bads)
+        {
+          int eQ=0;
+          if (!eQmap.empty())
+            eQ = eQmap.at(conj? Q.conj() : Q);
+          out << prime_label(Q) << " " << eQ << endl;
+        }
+      out << endl;
     }
-  for (auto& Q: bads)
-    {
-      Eigenvalue eQ;
-      if (!eQmap.empty())
-        eQ = eQmap.at(conj? Q.conj():Q);
-      out << prime_label(Q) << " " << eQ.str(1) << endl;
-    }
-  out << endl;
 
-  // aP (preserving the order of the primes in thee list)
+  // Output aP, preserving the order of the primes in thee list
   for (auto x: aPmap)
     {
       if (conj)
@@ -1683,33 +1673,40 @@ int Newform::input_from_file(int verb)
 
   if (verb>1)
     {
-      cout << "Before reading eQ and aP:" << endl;
+      cout << "Before reading eigenvalues:" << endl;
       display();
-      cout << "Now reading eQ for Q in " << nf->badprimes <<endl;
     }
 
-  // A-L eigenvalues (will read nothing if level is (1))
-  for (auto Q: nf->badprimes)
+  sfe = 0; // dummy value in case of nontrivial character
+  if (triv_char)
     {
-      string Qlab = prime_label(Q);
-      fdata >> dat;
+      sfe = -1;
+      //cout << "Now reading eQ for Q in " << nf->badprimes <<endl;
+      // A-L eigenvalues (will read nothing if level is (1))
+      for (auto Q: nf->badprimes)
+        {
+          string Qlab = prime_label(Q);
+          if (verb>1)
+            cout << "reading AL eig for Q = " << Q << " = " << Qlab << endl;
+          fdata >> dat;
+          if (verb>1)
+            cout << "--> Q has label " << Qlab << ", file label " << dat << endl;
+          if (dat!=Qlab)
+            cerr << "!!! Q has label " << Qlab << " but read label " << dat << endl;
+          assert (dat==Qlab);
+
+          int eQ;
+          fdata >> eQ;
+          eQmap[Q] = eQ;
+          sfe *= eQ;
+          if (verb>1)
+            cout << "AL eigenvalue for " << Qlab << " is " << eQ << endl;
+        }
       if (verb>1)
-        cout << "--> Q has label " << Qlab << ", file label " << dat << endl;
-      if (dat!=Qlab)
-        cerr << "!!! Q has label " << Qlab << " but read label " << dat << endl;
-      assert (dat==Qlab);
-
-      FieldElement eQ(F);
-      unsigned int i;
-      int xf;
-      fdata >> eQ >> i >> xf;
-      eQmap[Q] = Eigenvalue(eQ, Fmodsq, i, xf);
-    }
-
-  if (verb>1)
-    {
-      cout << "After reading eQ, before reading aP:" << endl;
-      display();
+        {
+          cout << "After reading eQ, before reading aP:" << endl;
+          display();
+        }
     }
 
   // aP
@@ -1723,11 +1720,14 @@ int Newform::input_from_file(int verb)
       fdata >> Plab          // prime label
             >> aP >> i >> xf // eigenvalue data
             >> ws;           // eat whitespace, including newline
-    P = Quadprime(Plab);
-    aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
-    if (verb>1)
-      cout << "--> P = " << Plab
-           << ": a_P = "<<aPmap[P]<<endl;
+      if (verb>1)
+        cout << "read prime label " << Plab << endl;
+
+      P = Quadprime(Plab);
+      aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
+      if (verb>1)
+        cout << "--> P = " << Plab
+             << ": a_P = "<<aPmap[P]<<endl;
     }
   if (verb)
     {
@@ -1823,7 +1823,7 @@ int Newspace::input_from_file(const Qideal& level, int verb)
   for (int i=1; i<=nnf; i++)
     {
       if (verb)
-        cout << "About to construct newform #"<<i<<endl;
+        cout << "About to read newform #" << i << " from file" << endl;
       newforms.push_back(Newform(this, i, verb));
     }
 

@@ -354,25 +354,18 @@ string FieldElement::str(int raw) const
       s << val;
       return s.str();
     }
+  if (raw)
+    s << coords << " " << denom;
   else
     {
-      if (raw)
-        s << coords << " " << denom;
+      string n = ::str(coords, F->var);
+      if (n[0]=='+')
+        n.erase(0,1);
+      if (denom==1)
+        s << n;
       else
-        {
-          string n = ::str(coords, F->var);
-          if (denom==1)
-            s << n;
-          else
-            s << "(" << n << ")/" << denom;
-        }
+        s << "(" << n << ")/" << denom;
     }
-  string n = ::str(coords, F->var);
-  if (n[0]=='+')
-    n.erase(0,1);
-  if (denom==1)
-    return n;
-  s << "(" << n << ")/" << denom;
   return s.str();
 }
 
@@ -391,8 +384,6 @@ ostream& operator<<(ostream& s, const FieldElement& x)
   s << x.str();
   return s;
 }
-
-
 
 int FieldElement::operator==(const FieldElement& b) const
 {

@@ -30,6 +30,7 @@ Quadprime::Quadprime(const string& s) // ideal from label Pp or Ppa or Ppb
   if (s.front() != 'P')
     {
       cerr << "string " << s << " is not a valid Prime label" << endl;
+      exit(1);
     }
   else
     {

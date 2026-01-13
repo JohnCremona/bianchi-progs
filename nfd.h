@@ -57,8 +57,8 @@ private:
   map<pair<int,string>, Eigenvalue> eigmap;
   // Dict of T(P) eigenvalues of good primes P:
   map<Quadprime, Eigenvalue> aPmap;
-  // Dict of W(Q) eigenvalues of bad primes Q:
-  map<Quadprime, Eigenvalue> eQmap;
+  // Dict of W(Q) eigenvalues in {+1,-1} of bad primes Q, triv char only:
+  map<Quadprime, int> eQmap;
 
   // Fill dict aPmap of eigenvalues of first ntp good primes
   void compute_eigs(int ntp=10, int verbose=0);
@@ -90,8 +90,8 @@ public:
   FieldElement eig(const matop& T);
   // eigenvalue of AutoHeckeOp(P):
   FieldElement ap(const Quadprime& P);
-  // eigenvalue of a scalar operator
-  ZZ eps(const matop& T);
+  // eigenvalue +-1 of a scalar involution operator
+  int eps(const matop& T);
 
   // eigenvalue of a (good) prime from aPmap if P is in there;
   // otherwise either raise an error (if stored_only=1) or (not yet
@@ -119,7 +119,7 @@ public:
   void display(int aP=0, int AL=0, int principal_eigs=0) const;
   // Display aP data (trivial char or C4 fields)
   void display_aP() const;
-  // Display A-L eigenvalues (trivial char or C4 fields)
+  // Display AL eigenvalues (trivial char or C4 fields)
   void display_AL() const;
   // Display principal eigenvalues
   void display_principal_eigs() const;
@@ -137,7 +137,7 @@ public:
   // Compute aPmap if empty and return it
   map<Quadprime, Eigenvalue> aPeigs(int ntp, int verbose=0);
   // Compute eQmap if empty and return it
-  map<Quadprime, Eigenvalue> ALeigs(int verbose=0);
+  map<Quadprime, int> ALeigs(int verbose=0);
   // Compute eigmap (principal eigs) if empty and return it
   map<pair<int,string>, Eigenvalue> principal_eigs(int nap, int verbose=0);
 
