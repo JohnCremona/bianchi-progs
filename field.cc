@@ -998,6 +998,11 @@ Eigenvalue Eigenvalue::times_minus_i() const
   return - times_i();
 }
 
+Eigenvalue Eigenvalue::conj() const // swap 1+i and 1-i factors (complex conjugation)
+{
+  return Eigenvalue(a, SqCl, root_index, -xf);
+}
+
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
 {
   if (is_zero()) return Eigenvalue(*this);

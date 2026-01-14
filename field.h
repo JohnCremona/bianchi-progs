@@ -229,6 +229,7 @@ public:
   Eigenvalue inverse() const; // raise error if zero      // inverse
   Eigenvalue times_i() const;
   Eigenvalue times_minus_i() const;
+  Eigenvalue conj() const; // swap 1+i and 1-i factors (complex conjugation)
   int operator==(const Eigenvalue& b) const;
   int operator!=(const Eigenvalue& b) const;
   int is_zero() const {return a.is_zero();}

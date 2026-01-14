@@ -526,7 +526,8 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
       cout << "f_full = " << str(f_full) << endl;
       display_factors(f_full);
     }
-  ZZX f_new = f_full;
+  ZZX f_old;
+  set(f_old); // set = 1
   for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
       Newspace* NSD = get_Newspace(D, verbose);
@@ -552,37 +553,28 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
           if (verbose>1)
             cout << "multiplicity m = " << m << endl;
           for (int i=0; i<m; i++)
-            {
-              //essentially f_new /= f_D; but checking divisibility
-              ZZX quo, rem;
-              DivRem(quo, rem, f_new, f_D);
-              if (IsZero(rem))
-                f_new = quo;
-              else
-                {
-                  cout << "Problem in Newspace::full_and_new_polys(), D="<<ideal_label(D)<<endl;
-                  cout << "Dividing " << str(f_new) << " by " << str(f_D)
-                       << " gives quotient " << str(quo) <<", remainder "<< str(rem) << endl;
-                  cout << "Old multiplicities are smaller than expected."<<endl;
-                }
-            }
-          if (verbose>1)
-            {
-              cout << "After dividing out by f_D^m, poly is " << str(f_new) << endl;
-              display_factors(f_new);
-            }
-        }
-      if (verbose>1)
-        {
-          cout << "After dividing out old polys from divisor "<<ideal_label(D)<<", poly is " << str(f_new) << endl;
-          display_factors(f_new);
+            f_old *= f_D;
         }
     }
   if (verbose>1)
     {
-      cout << "After dividing out all old polys, new poly is " << str(f_new) << endl;
-      display_factors(f_new);
+      cout << "The product of all old polys is " << str(f_old) << endl;
+      display_factors(f_old);
     }
+  //essentially f_new = f_full / f_old; but checking divisibility
+  ZZX f_new, rem;
+  DivRem(f_new, rem, f_full, f_old);
+  if (!IsZero(rem))
+    {
+      cout << "Problem in Newspace::full_and_new_polys() at level "<<level_label<<endl;
+      cout << "Operator " << T.name() << " has full poly" << endl;
+      display_factors(f_full);
+      cout << "and old poly" << endl;
+      display_factors(f_old);
+      cout << " which does not divide the full poly. " << endl;
+      exit(1);
+    }
+
   // cache this new poly
   string NT = NTkey(N,T);
   if (verbose)
@@ -939,7 +931,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           // (-b1/2)*(1-i) (3) Else b=b1^2*r and it is
           // (b1/2)*sqrt(r)*(1+i) The point of the next block is that
           // if b<0 then instead of making sqrt(b) a generator we make
-          // sqrt(b) a generator;
+          // sqrt(-b) a generator;
           if (F->isQ() && b.get_val().num()<0)
             j = 1 + Fmodsq->get_index(-b,b1); // -b = elements[j]*b1^2
           else
@@ -1309,12 +1301,11 @@ void Newform::compute_AL_eigs(int verbose)
 // Optionally aP and AL (if trivial char) data too
 void Newform::display(int aP, int AL, int principal_eigs) const
 {
-  int n2r = Quad::class_group_2_rank;
-  cout << "Newform #" << index << endl;
-  cout << " (" << long_label() << ")" << endl;
+  cout << "Newform #" << index << " (" << long_label() << ")" << endl;
 
   // Information about the character:
 
+  int n2r = Quad::class_group_2_rank;
   if (n2r>0)
     {
       if (n2r==1)
@@ -1613,15 +1604,21 @@ void Newform::output_to_file(int conj) const
     {
       if (conj)
         {
-          // NB For conjugate primes which are both good or both bad,
+          // NB1 For conjugate primes which are both good or both bad,
           // we will have made sure that if one is in the map then so
           // is the other, but it may happen that one is bad and its
           // conjugate is good and missing. e.g. field 17, level
           // 106.1, nap=15.
+
+          // NB2 We swap the eigenvalues of P and conj(P); if the
+          // character is nontrivial (then we must have C4 class
+          // group, or there would not be any a(P) anyway), we also
+          // swap the factors (1+i) and (1-i), as otherwise we would
+          // be storing a newform with character chi_3 not chi_1.
           auto it = aPmap.find(x.first.conj());
           if (it!=aPmap.end())
             {
-              Eigenvalue aP = aPmap.at(x.first.conj());
+              Eigenvalue aP = aPmap.at(x.first.conj()).conj();
               out << x.first << " " << aP.str(1) << endl;
             }
         }
@@ -1772,14 +1769,14 @@ int Newform::input_from_file(int verb)
       fdata >> Plab          // prime label
             >> aP >> i >> xf // eigenvalue data
             >> ws;           // eat whitespace, including newline
-      if (verb>1)
-        cout << "read prime label " << Plab << endl;
+      // if (verb>1)
+      //   cout << "read prime label " << Plab << endl;
 
       P = Quadprime(Plab);
       aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
-      if (verb>1)
-        cout << "--> P = " << Plab
-             << ": a_P = "<<aPmap[P]<<endl;
+      // if (verb>1)
+      //   cout << "--> P = " << Plab
+      //        << ": a_P = "<<aPmap[P]<<endl;
     }
   if (verb)
     {
@@ -1826,7 +1823,7 @@ void Newspace::output_to_file(int conj)
 }
 
 int Newspace::input_from_file(const Qideal& level, int verb)
-{verb=1;
+{
   N = level;
   level_label = ideal_label(N);
   if (verb)
