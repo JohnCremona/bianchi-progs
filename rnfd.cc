@@ -7,7 +7,6 @@
 #endif
 #include "nfd.h"
 #include "field.h"
-#include <eclib/pari_init.h>
 
 #define MAXPRIME 10000
 

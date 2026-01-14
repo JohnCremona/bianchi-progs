@@ -60,7 +60,9 @@ ZZX polredabs(const ZZX& f)
     }
   pari_sp av = avma;
   GEN G = polredabs(ZZX_to_t_POL(f));
+#ifdef DEBUG_POLY
   pari_printf("polredabs(f) returns %Ps\n", G);
+#endif
   ZZX g = t_POL_to_ZZX(G);
   avma = av;
   return g;
@@ -77,11 +79,17 @@ ZZX polredabs(const ZZX& f, ZZX& h)
     }
   pari_sp av = avma;
   GEN G_H = polredabs0(ZZX_to_t_POL(f), nf_ORIG);
+#ifdef DEBUG_POLY
   pari_printf("polredabs0(f,nf_ORIG) returns [G, H] = %Ps\n", G_H);
+#endif
   GEN G = gel(G_H,1);
+#ifdef DEBUG_POLY
   pari_printf("  G = %Ps\n", G);
+#endif
   GEN H = lift(gel(G_H,2));
+#ifdef DEBUG_POLY
   pari_printf("  H = %Ps\n", H);
+#endif
   ZZX g = t_POL_to_ZZX(G);
   h = t_POL_to_ZZX(H);
   avma = av;

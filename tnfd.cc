@@ -7,7 +7,6 @@
 #endif
 #include "nfd.h"
 #include "field.h"
-#include <eclib/pari_init.h>
 
 #define MAXPRIME 10000
 
@@ -74,7 +73,7 @@ int main()
       cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      homspace* H1 = get_homspace(N, modulus);
      if (verbose)
-       cout << "Constructed homspace of dimension " << H1->h1dim()
+       cout << "Constructed level " << Nlabel << " homspace of dimension " << H1->h1dim()
             << ", cuspidal dimension " << H1->h1cuspdim()
             << ", denominator " << H1->h1cdenom() << endl;
      // if (H1->h1cuspdim()==0)
@@ -85,7 +84,7 @@ int main()
      Newspace forms(H1, maxnp, maxc, verbose);
      if (!forms.ok())
        {
-         cout << "Failed to find a splitting operator using lnear combnations of " << maxnp
+         cout << "Failed to find a splitting operator using linear combnations of " << maxnp
               << " operators with coefficients up to" << maxc
               << endl;
          continue; // to next level
@@ -95,6 +94,7 @@ int main()
      int nnf = forms.nforms();
      cout << "Found " << nnf << " homological newform";
      if (nnf!=1) cout << "s";
+     cout << " at level " << Nlabel;
      if (nnf)
        {
          cout << " of dimension";

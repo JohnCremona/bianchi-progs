@@ -17,7 +17,7 @@ class Newform {
 private:
   Newspace* nf;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
-  string lab;    //
+  string lab;      // label suffix (a,b,c,...)
   int d;      // dim(S)
   Field* F;   // pointer to the (homological) Hecke field
   subspace S; // irreducible subspace of modular symbol space
@@ -187,7 +187,7 @@ private:
   int verbose;
 
   Qideal N; // the level
-  string lab; // the level's label
+  string level_label; // the level's label
   vector<Qideal> Ndivs; // divisors of N
   vector<Quadprime> badprimes; // prime divisrs of N
   vector<Qideal> t2ideals; // list of ideals coprime to level generating 2-torsion in class group
@@ -204,13 +204,6 @@ private:
   // list of possible self-twist discriminants depending only on the level
   vector<INT> possible_self_twists;
 
-  // Internal methods, called by constructor
-
-  //void find_T_manual(); // compute T (via prompts)
-  //void factor_T();
-
-  map<string, Newspace> oldspaces; // keys are labels of all proper divisors
-  int make_oldspaces(); // reads Newspaces for proper divisors from file, 1 iff success
   // return full and new char polys for a linear combo of ops using old Newspace data from files
   pair<ZZX,ZZX> full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const gmatop &T);
@@ -233,6 +226,9 @@ public:
   Newspace(homspace* h1, int maxnp, int maxc, int verb=1);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
+  // constructor from file
+  Newspace(const Qideal& level, int verb=0);
+
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;
   mat_m heckeop(const gmatop& T, int cuspidal=0, int dual=0) const;
@@ -240,10 +236,10 @@ public:
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
   Qideal level() const {return N;}
-  string short_label() const {return lab;}
-  string long_label() const {return field_label() + "-" + lab;}
-  string conj_label() const {Qideal Nbar = N.conj();return ideal_label(Nbar);}
-  string long_conj_label() const {return field_label() + "-" + conj_label();}
+  string short_label();
+  string long_label();
+  string conj_label() const;
+  string long_conj_label() const;
 
   string splitopname() const {return T_name;}
   vector<int> dimensions(int full=0) const;
@@ -254,12 +250,16 @@ public:
   vector<Newform> the_newforms() const {return newforms;}
 
   // filename for Newspace (or conjugate)
-  string filename(int conj=0) const;
+  string filename(int conj=0);
   // output data for this Newspace (or conjugate) and each Newform
-  void output_to_file(int conj=0) const;
+  void output_to_file(int conj=0);
   // Input Newspace data and newform data for each newform. Returns 0 if data missing, else 1.
   int input_from_file(const Qideal& level, int verb=0);
 };
+
+// dict of Newspaces read from file
+extern map<string,Newspace*> Newspace_dict;  // Key: ideal_label(N)
+Newspace* get_Newspace(const Qideal& N, int verb=0);
 
 // test whether field's class group is C4
 inline int is_C4()

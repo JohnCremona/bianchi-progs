@@ -102,7 +102,7 @@ public:
 
   Field* field() {return F;}
   mat_m matrix() const; // ignores denom
-  ZZX charpoly() const {return ::charpoly(matrix());}
+  ZZX charpoly() const;
   ZZX minpoly() const;
   int degree() const {return deg(minpoly());}
   int is_zero() const;
@@ -220,6 +220,7 @@ public:
   FieldElement coeff() const {return a;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
   string extra_factor() const {return (xf>0? "(1+i)" : (xf<0? "(1-i)" : ""));}
+  int xfac() const {return xf;}
   // When i=sqrt(-1) is the first element of SqCl normalise using sqrt(-r)*(1+i)=-sqrt(r)*(1-i) and similar
   void normalise();
   Eigenvalue operator*(Eigenvalue b) const;

@@ -595,6 +595,7 @@ matop AutoHeckeOp(Quadprime& P, Qideal& N)
       return HeckeP2Op(P, N);
     }
   Qideal A = P.equivalent_mod_2_coprime_to(N,1);
+  //  cout<<"N = "<<ideal_label(N)<<", P = "<<P<<", A = "<<ideal_label(A) << endl;
   return HeckeP2ChiOp(P, A, N);
 }
 

@@ -15,5 +15,7 @@
 #include <eclib/curvesort.h> // for letter codes
 #include <eclib/int.h>  // for INT wrapping fmpz
 #include <eclib/frat.h> // for RAT wrapping fmpq
+#include <eclib/pari_init.h>
+#undef recip // pariold.h #defines recip = serreverse
 
 #endif

@@ -14,6 +14,18 @@ newform_comparison newform_cmp;
                                         // all aP for P in this class
                                         // are 0.
 
+// When this is set, use the old spaces info read in from file, with
+// the correct multiplicities even when there are self-twist newforms
+// at lower levels, to compute the new char poly of any linear
+// combination of principal Hecke operators.
+
+// Otherwise, use recursion to find the new polys. This does not
+// always get the multiplicities right when there are self-twist
+// newforms at lower levels (which can only happen when the class
+// number is even).
+
+#define USE_OLD_SPACES
+
 // For class group C4 only (so far)
 // return v where v[i] is the index of ideal class c^i for one generator class c
 vector<int> C4classes()
@@ -156,24 +168,45 @@ Newform::Newform(Newspace* x, int i, int verbose)
     cerr << "Unable to read Newform " << lab << endl;
 }
 
+string Newspace::short_label()
+{
+  return level_label;
+}
+
 string Newform::short_label() const
 {
-  return nf->short_label() + "-" + lab;
+  return nf->short_label() + string("-") + lab;
+}
+
+string Newspace::long_label()
+{
+  return field_label() + string("-") + level_label;
 }
 
 string Newform::long_label() const
 {
-  return nf->long_label() + "-" + lab;
+  return nf->long_label() + string("-") + lab;
+}
+
+string Newspace::conj_label() const
+{
+  Qideal Nbar = N.conj();
+  return ideal_label(Nbar);
 }
 
 string Newform::conj_label() const
 {
-  return nf->conj_label() + "-" + lab;
+  return nf->conj_label() + string("-") + lab;
+}
+
+string Newspace::long_conj_label() const
+{
+  return field_label() + string("-") + conj_label();
 }
 
 string Newform::long_conj_label() const
 {
-  return nf->long_conj_label() + "-" + lab;
+  return nf->long_conj_label() + string("-") + lab;
 }
 
 // eigenvalue of a general principal operator:
@@ -243,12 +276,19 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
 // (where this is the eigenvalue of P or P^2) or C4 class group.
 FieldElement Newform::eigPauto(Quadprime& P, int verb)
 {
+  int n2r = Quad::class_group_2_rank;
   if (verb)
     cout << "In eigPauto(P) with P = " << P << endl;
   Eigenvalue aP = eig(P);
-  FieldElement a = aP.coeff();
   if (verb)
     cout << " - stored eig for P is " << aP << endl;
+  FieldElement a = aP.coeff();
+  if (n2r==0) // odd class number case is easy
+    {
+      if (verb)
+        cout << " - odd class number, returning aP = " << a << endl;
+      return a;
+    }
   if (triv_char)
     {
       Quadprime PP=P;
@@ -256,22 +296,26 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
         {
           if (verb)
             cout << " - trivial genus class, returning aP = " << a << endl;
-          return a;
         }
-      a = a*a*aP.root_part(); // (a_P)^2
-      if (verb)
-        cout << " - non-trivial genus class, aP^2 = " << a << endl;
-      ZZ p = ZZ(I2long(P.norm()));
-      if (verb)
-        cout << " - hence a_{P^2} = " << a-p << endl;
-      return a - p;          // a_(P^2)
+      else
+        {
+          ZZ p = ZZ(I2long(P.norm()));
+          a = (aP*aP).coeff(); // (a_P)^2
+          if (verb)
+            cout << " - non-trivial genus class, aP^2 = " << a << endl;
+          a = a - p;
+          if (verb)
+            cout << " - hence a_{P^2} = " << a << endl;
+        }
+      return a;
     }
-  else if (is_C4()) // C4 class group
+  if (is_C4())
+    // C4 class group, character chi_1, values on classes 0,1,2,3 are 1,i,-1,-i
+    // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
     {
-      // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
+      Qideal N(nf->N);
       vector<int> C4C = C4classes();
       int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
-      // Character is chi_1, values on classes 0,1,2,3 are 1,i,-1,-i
       int cP = P.ideal_class();
       if (cP==0) // principal
         {
@@ -279,34 +323,39 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
             cout << " - principal, returning aP = " << a << endl;
           return a;
         }
-      if (cP==ic2)
+      if (cP==ic2) // Return the eig of T(P)T(A,A)
         {
-          // we return the eig of T(P)T(A,A).  Here [A]^2=[P] means [A] = c or c^3 so chi(A)=
-          Qideal A = P.sqrt_coprime_to(nf->N);
+          Qideal A = P.sqrt_coprime_to(N);
           int cA = A.ideal_class(); // c or c^3
           assert ((cA==ic1) || (cA==ic3));
+          // Here [A]^2=[P] implies [A] = c or c^3, so chi(A)=i or -i;
+          // so the eig of T(P)T(A,A) is aP*i or -aP*i;
+          // and aP=a*i, so aP*i=-a, so we return -a or +a respectively.
           if (cA==ic1)
             a = -a;
           return a;
         }
-      // now cP = 1 or 3 and we return the eig of T(P^2)T(A,A)
-      Qideal A = P.equivalent_mod_2_coprime_to(nf->N,1);
-      int cA = A.ideal_class(); // may be ic1 or ic3
-      aP = aP*aP;
-      if (cA==ic1)
-        aP = aP.times_i();
-      else
-        aP = aP.times_minus_i();
+      // now cP = ic1 or ic3 and we return the eig of T(P^2)T(A,A)
+      assert ((cP==ic1) || (cP==ic3));
+      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
+      int cA = A.ideal_class(); // c or c^3
+      assert ((cA==ic1) || (cA==ic3));
+      // a_P     = a*sqrt(r)*(1+/-i)
+      // (a_P)^2 = +/- 2*a^2*r*i
+      a = (aP*aP).coeff(); // =  (a_P)^2/i
       ZZ p = ZZ(I2long(P.norm()));
-      if (cA!=cP)
-        p = -p;
-      return aP.coeff() - p;          // a_(P^2)
+      if (cP==ic1)
+        a -= p;
+      else
+        a += p;
+      // Now a =  a_{P^2} / i
+      if (cA==ic1)
+        a = -a;
+      // Now a = a_{P^2}*chi(A)
+      return a;
     }
-  else
-    {
-      cerr << "Newform::Pauto() only implemented for forms with trivial char or class group C4" << endl;
-      return FieldElement();
-    }
+  cerr << "Newform::eigPauto() only implemented for forms with trivial char or class group C4" << endl;
+  return FieldElement();
 }
 
 // Principal eigenvalue of a linear combination of the above:
@@ -403,7 +452,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   : verbose(verb), H1(h1)
 {
   N = H1->N;
-  lab = ideal_label(N);
+  level_label = ideal_label(N);
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
   dH = H1->h1cdenom();
@@ -457,26 +506,10 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
     }
 }
 
-int Newspace::make_oldspaces()
+// constructor from file
+Newspace::Newspace(const Qideal& level, int verb)
 {
-  int ok = 1;
-  for (auto D: Ndivs)
-    {
-      string Dlabel = ideal_label(D);
-      Newspace NSD;
-      if (NSD.input_from_file(D))
-        {
-          oldspaces[Dlabel] = NSD;
-          if (verbose)
-            cout << "Successfully read Newspace data for D = " << Dlabel << endl;
-        }
-      else
-        {
-          ok = 0;
-          cerr << "Cannot input Newspace data for D = " << Dlabel << endl;
-        }
-    }
-  return ok;
+  input_from_file(level, verb);
 }
 
 // Compute the new char poly of T using the oldspaces to obtain the
@@ -489,25 +522,31 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
     cout << "In full_and_new_polys() with T = " <<T.name() << endl;
   ZZX f_full = get_poly(N, T, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
   if (verbose>1)
-    cout << "f_full = " << str(f_full) << endl;
+    {
+      cout << "f_full = " << str(f_full) << endl;
+      display_factors(f_full);
+    }
   ZZX f_new = f_full;
   for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
-      Newspace& NSD = oldspaces[ideal_label(D)];
-      if (NSD.nforms()==0)
+      Newspace* NSD = get_Newspace(D, verbose);
+      if (NSD->nforms()==0)
         continue;
       Qideal M = N/D;
       if (verbose>1)
-        cout << "Divisor D = " << ideal_label(D) << " has " << NSD.nforms() << " newforms" <<endl;
+        cout << "Divisor D = " << ideal_label(D) << " has " << NSD->nforms() << " newforms" <<endl;
       vector<Qideal> divs = alldivs(M);
       int m_default = divs.size();
       if (verbose>1)
         cout << "# divisors of N/D is " << m_default <<endl;
-      for (auto F: NSD.newforms)
+      for (auto F: NSD->newforms)
         {
           ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, verbose>1);
           if (verbose>1)
-            cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
+            {
+              cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
+              display_factors(f_D);
+            }
           INT CMD = F.self_twist_discriminant();
           int m = (CMD.is_zero()? m_default : old_multiplicity(CMD,  divs));
           if (verbose>1)
@@ -528,13 +567,27 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
                 }
             }
           if (verbose>1)
-            cout << "After dividing out by f_D^m, poly is " << str(f_new) << endl;
+            {
+              cout << "After dividing out by f_D^m, poly is " << str(f_new) << endl;
+              display_factors(f_new);
+            }
         }
       if (verbose>1)
-        cout << "After dividing out old polys from "<<ideal_label(D)<<", poly is " << str(f_new) << endl;
+        {
+          cout << "After dividing out old polys from divisor "<<ideal_label(D)<<", poly is " << str(f_new) << endl;
+          display_factors(f_new);
+        }
     }
   if (verbose>1)
-    cout << "After dividing out all old polys, new poly is " << str(f_new) << endl;
+    {
+      cout << "After dividing out all old polys, new poly is " << str(f_new) << endl;
+      display_factors(f_new);
+    }
+  // cache this new poly
+  string NT = NTkey(N,T);
+  if (verbose)
+    cout<<"Caching new cuspidal poly for " << NT << ": " << str(f_new) << endl;
+  new_cuspidal_poly_dict[NT] = f_new;
   return {f_full, f_new};
 }
 
@@ -572,15 +625,6 @@ int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector
 // compute T=T_P, trying all good P with N(P)<=maxnormP and linear combinations
 void Newspace::find_T(int maxnp, int maxc)
 {
-  if (make_oldspaces())
-    {
-      if (verbose) cout << "Read old Newspace data OK" <<endl;
-    }
-  else
-    {
-      cerr << "Failed to read all old Newspace data" << endl;
-      exit(1);
-    }
   split_ok = 0;
   vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
   vector<matop> TPlist(maxnp);
@@ -614,8 +658,11 @@ void Newspace::find_T(int maxnp, int maxc)
         {
           cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
         }
-      //split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+#ifdef USE_OLD_SPACES
+      split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+#else
       split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose>1);
+#endif
       if (split_ok)
         {
           if (verbose)
@@ -631,7 +678,11 @@ void Newspace::find_T(int maxnp, int maxc)
       if (verbose)
         cout << " OK: using operator " << T_name << " to split off newforms" << endl;
       T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
-      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
+      if (verbose)
+        cout << " Getting new cuspidal poly for " << T_name << " from cache" << endl;
+      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0 (cached)
+      if (verbose)
+        cout << "  New cuspidal poly for " << T_name << " from cache is " << str(f) << endl;
     }
   else
     return;
@@ -673,7 +724,7 @@ Eigenvalue Newform::compute_one_principal_eig(int i, const matop& T, int store, 
 // Fill dict eigmap of eigenvalues of first ntp principal operators
 void Newform::compute_principal_eigs(int nap, int verbose)
 {
-  Qideal N = nf->N;
+  Qideal N(nf->N);
   int nop = 0; // used to index the dict
   int ip = 0;  // counts the primes used
   for ( auto& P : Quadprimes::list)
@@ -947,7 +998,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
   if (!triv_char)
     return;
   int nap = 0;
-  Qideal N = nf->N;
+  Qideal N(nf->N);
   auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
     {
@@ -1184,7 +1235,7 @@ void Newform::compute_AL_eigs(int verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
 
   Eigenvalue zero(F->zero(), Fmodsq); //, one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
-  Qideal N = nf->N;
+  Qideal N(nf->N);
   for (auto Q: nf->badprimes)
     {
       if (verbose)
@@ -1259,7 +1310,8 @@ void Newform::compute_AL_eigs(int verbose)
 void Newform::display(int aP, int AL, int principal_eigs) const
 {
   int n2r = Quad::class_group_2_rank;
-  cout << "Newform #" << index << " (" << long_label() << ")" << endl;
+  cout << "Newform #" << index << endl;
+  cout << " (" << long_label() << ")" << endl;
 
   // Information about the character:
 
@@ -1492,10 +1544,10 @@ string Newform::filename(int conj) const
   return s.str();
 }
 
-string Newspace::filename(int conj) const
+string Newspace::filename(int conj)
 {
   stringstream s;
-  s << newspaces_directory() << "/" << (conj? conj_label(): lab);
+  s << newspaces_directory() << "/" << (conj? conj_label(): short_label());
   return s.str();
 }
 
@@ -1737,7 +1789,7 @@ int Newform::input_from_file(int verb)
   return 1;
 }
 
-void Newspace::output_to_file(int conj) const
+void Newspace::output_to_file(int conj)
 {
   //  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
@@ -1774,13 +1826,13 @@ void Newspace::output_to_file(int conj) const
 }
 
 int Newspace::input_from_file(const Qideal& level, int verb)
-{
+{verb=1;
   N = level;
-  lab = ideal_label(N);
+  level_label = ideal_label(N);
+  if (verb)
+    cout << "In Newspace::input_from_file() with N="<<level_label << " = " << N << endl;
   Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
   badprimes = N.factorization().sorted_primes();
-  if (verb)
-    cout << "In Newspace::input_from_file() with N="<<lab<<endl;
 
   string fname = filename();
   ifstream fdata(fname.c_str());
@@ -1793,11 +1845,11 @@ int Newspace::input_from_file(const Qideal& level, int verb)
   fdata >> dat;
   assert (dat==field_label());
   fdata >> dat;
-  assert (dat==lab);
+  assert (dat==level_label);
   int nnf;
   fdata >> nnf;
   if (verb)
-    cout << "-> Level "<<lab<<" has " << nnf << " newforms in "<<fname<<endl;
+    cout << "-> Level "<<level_label<<" has " << nnf << " newforms in "<<fname<<endl;
   if (nnf==0)
     {
       fdata.close();
@@ -1878,90 +1930,24 @@ mat_m Newspace::heckeop(Quadprime& P, int cuspidal, int dual)
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
 }
 
-#if(0)
-// Compute T, either one T_P or a linear combination of T_P, and its
-// char poly and the irreducible factors of multiplicity 1:
-void Newspace::find_T_manual()
-{
-  Quadprime P;
-  int one_p;
-  cout << "Use just one prime (1) or a linear combination (0)? ";
-  cin >> one_p;
-  if(one_p) // Compute just one Tp:
-    {
-      cout<<"Enter a prime P (label or generator): ";
-      cin>>P;
-      // QuadprimeLooper L(N); // loop over primes not dividing N
-      // P = L; // first one
-      if (verbose)
-        cout << "Computing T_P for P = " << P << "..." << flush;
-      T_mat = heckeop(P); // not cuspidal or dual
-      if (verbose)
-        cout<<"done."<<endl;
-    }
-  else // a linear combination:
-    {
-      int nP;
-      scalar cP;
-      cout<<"Enter a linear combination of I and T_P for one or more primes P.\n";
-      cout<<"First enter the coefficient of the identity: ";
-      cin>>cP;
-      T_mat = mat::scalar_matrix(dimH, cP);
-      cout<<"Now enter the number of P: "; cin>>nP;
-      for (int iP=0; iP<nP; iP++)
-        {
-          cout<<"Enter a prime P (label or generator): ";
-          cin>>P;
-          cout<<"Enter the coefficient of "<<opname(P,N)<<": ";
-          cin>>cP;
-          if(verbose)
-            cout << "Computing "<<opname(P,N)<<" for P = " << ideal_label(P) << "..." << flush;
-          mat TP = heckeop(P); // not cuspidal or dual
-          if(verbose)
-            cout<<"done."<<endl;
-          T_mat += cP*TP;
-        }
-    }
-  factor_T();
-  return;
-}
+// dict of Newspaces read from file
+map<string,Newspace*> Newspace_dict;  // Key: ideal_label(N)
 
-void Newspace::factor_T()
+Newspace* get_Newspace(const Qideal& N, int verb)
 {
-  if (verbose)
-    cout<<"Computing charpoly(T)..."<<flush;
-  // Compute scaled char poly of T ( = char poly of T/dH, monic in ZZ[X])
-  ZZX cpT = scaled_charpoly(mat_to_mat_ZZ(T_mat), to_ZZ(dH), hmod);
-  if (verbose)
+  Qideal NN=N; // copy as N is const, for ideal_label
+  string Nlabel = ideal_label(NN);
+  if (Newspace_dict.find(Nlabel) != Newspace_dict.end())
     {
-      cout << "done (degree = "<<deg(cpT)<<").";
-      if (verbose>1)
-        cout<<" scaled char poly = "<<str(cpT);
-      cout<<endl;
+      if (verb)
+        cout << "Newspace at level " << Nlabel << " retrieved from cache" << endl;
+      return Newspace_dict[Nlabel];
     }
-
-  // factor the charpoly, just the factors of multiplicity 1:
-  vec_pair_ZZX_long factors_with_multiplicities;
-  SquareFreeDecomp(factors_with_multiplicities,cpT);
-  if(verbose>1)
-    cout<<"NTL char poly square-free factors = "<<factors_with_multiplicities<<endl;
-  if(factors_with_multiplicities[0].b>1)
-    {
-      cout<<"No factors of multiplicity 1"<<endl;
-      return;
-    }
-  factors.clear();
-  vec_pair_ZZX_long NTL_factors;
-  ZZ cont;
-  factor(cont,NTL_factors,factors_with_multiplicities[0].a);
-  ::sort(NTL_factors.begin(), NTL_factors.end(), fact_cmp);
-  nfactors = NTL_factors.length();
-  cout<<nfactors<<" irreducible factors of multiplicity 1 (may include non-cuspidal):"<<endl;
-  for(int i=0; i<nfactors; i++)
-    {
-      ZZX fi = NTL_factors[i].a;
-      cout<<(i+1)<<":\t"<<str(fi)<<"\t(degree "<<deg(fi)<<")"<<endl;
-      factors.push_back(fi);
-    }
+  if (verb)
+    cout << "Newspace at level " << Nlabel << " not in cache, reading from file..." << endl;
+  Newspace* NSP = new Newspace(N, verb);
+  Newspace_dict[Nlabel] = NSP;
+  if (verb)
+    cout << "Newspace at level " << Nlabel << " read from file and cached" << endl;
+  return NSP;
 }
-#endif

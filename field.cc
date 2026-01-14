@@ -418,6 +418,19 @@ mat_m FieldElement::matrix() const // ignores denom, not used for Q
   return lin_comb_mats(coords, F->Cpowers);
 }
 
+ZZX FieldElement::charpoly() const
+{
+  if (F->isQ())
+    {
+      ZZX cp;
+      SetX(cp);
+      SetCoeff(cp, 0, -num(val));
+      return cp;
+    }
+  ZZX f = ::scaled_charpoly(mat_to_mat_ZZ(matrix()), denom);
+  return f;
+}
+
 // the charpoly is a power of the irreducible minpoly NB This monic
 // integer polynomial is the min poly of the numerator, it ignores the
 // denominator!
