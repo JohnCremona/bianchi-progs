@@ -163,14 +163,15 @@ ostream& operator<<(ostream& s, const FieldElement& x);
 
 class FieldModSq {
 private:
-  Field* F;
+  Field* F; // this will be totally real
   unsigned int r;
   vector<FieldElement> gens;
   vector<FieldElement> elements;
+  int real_flag; // 1 unless we have included -1 as first generator
 public:
-  FieldModSq(){;}
-  FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}) {;}
-  FieldModSq(Field* HF, vector<FieldElement>& g) :F(HF), r(g.size()), gens(g)
+  FieldModSq() :F(FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
+  FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}), real_flag(1) {;}
+  FieldModSq(Field* HF, vector<FieldElement>& g, int is_real) :F(HF), r(g.size()), gens(g), real_flag(is_real)
   {
     elements = {F->one()};
     for (auto r: gens)
@@ -184,11 +185,20 @@ public:
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
   vector<FieldElement> elts() const {return elements;}
-  // Compute the index of a nonzero element. If a belongs to the
-  // current group return i and set s, where a = elements[i]*s^2. If
-  // a does not belong to the subgroup (mod squares) it is appended to
-  // gens, r is incremented, s=1 and the new r is returned.
-  unsigned int get_index(const FieldElement& a, FieldElement& s);
+  int is_real() const {return real_flag;}
+  int is_complex() const {return !real_flag;}
+
+  // Compute the index of a nonzero element.
+
+  // If a belongs to the current group return i and set s, where a =
+  // elements[i]*s^2.
+
+  // If a does not belong to the subgroup (mod squares):
+  //   if update (default):
+  //      append a to gens, increment r, set s=1 return the new r;
+  //   else:
+  //      do not change the group, return -1.
+  unsigned int get_index(const FieldElement& a, FieldElement& s, int update=1);
   string elt_str(unsigned int i) const;
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
@@ -236,8 +246,7 @@ public:
   int is_one() const {return a.is_one() && root_index==0 && xf==0;}
   int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
 
-  // as a pretty string, or (if raw) a raw string suitable for
-  // re-input:
+  // as a pretty string, or (if raw) a raw string suitable for re-input:
   string str(int raw=0) const;
 };
 

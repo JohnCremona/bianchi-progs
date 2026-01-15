@@ -101,11 +101,15 @@ public:
   // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
   // stored aP in aPmap.  Only implemented for trivial character
   // (where this is the eigenvalue of P or P^2) or C4 class group.
-  FieldElement eigPauto(Quadprime& P, int verb=0);
+  // 'biglevel' is a multiple of the current level, auxiliary ideals A
+  // must be coprime to this, not just to the current level
+  FieldElement eigPauto(Quadprime& P, const Qideal& biglevel, int verb=0);
   // Principal eigenvalue of a linear combination of the above:
-  FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb=0);
+  FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                            const Qideal& biglevel, int verb=0);
   // Characteristic polynomial of such a linear combination:
-  ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb=0);
+  ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                        const Qideal& biglevel, int verb=0);
 
   Field* field() const {return F;}
   string label_suffix() const {return lab;}

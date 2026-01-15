@@ -274,8 +274,14 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
 // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
 // stored aP in aPmap.  Only implemented for trivial character
 // (where this is the eigenvalue of P or P^2) or C4 class group.
-FieldElement Newform::eigPauto(Quadprime& P, int verb)
+// 'biglevel' is a multiple of the current level, auxiliary ideals A
+// must be coprime to this, not just to the current level
+//#define DEBUG_EIGPAUTO
+FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
 {
+#ifdef DEBUG_EIGPAUTO
+  verb = 1;
+#endif
   int n2r = Quad::class_group_2_rank;
   if (verb)
     cout << "In eigPauto(P) with P = " << P << endl;
@@ -313,8 +319,10 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
     // C4 class group, character chi_1, values on classes 0,1,2,3 are 1,i,-1,-i
     // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
     {
-      Qideal N(nf->N);
       vector<int> C4C = C4classes();
+#ifdef DEBUG_EIGPAUTO
+      cout << "classes 1,c,c^2,c^3 are " << C4C << endl;
+#endif
       int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
       int cP = P.ideal_class();
       if (cP==0) // principal
@@ -325,7 +333,7 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
         }
       if (cP==ic2) // Return the eig of T(P)T(A,A)
         {
-          Qideal A = P.sqrt_coprime_to(N);
+          Qideal A = P.sqrt_coprime_to(biglevel);
           int cA = A.ideal_class(); // c or c^3
           assert ((cA==ic1) || (cA==ic3));
           // Here [A]^2=[P] implies [A] = c or c^3, so chi(A)=i or -i;
@@ -336,21 +344,40 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
           return a;
         }
       // now cP = ic1 or ic3 and we return the eig of T(P^2)T(A,A)
+#ifdef DEBUG_EIGPAUTO
       assert ((cP==ic1) || (cP==ic3));
-      Qideal A = P.equivalent_mod_2_coprime_to(N,1);
+      cout << "[P] = "  << cP << endl;
+#endif
+      Qideal A = P.equivalent_mod_2_coprime_to(biglevel,1);
       int cA = A.ideal_class(); // c or c^3
+#ifdef DEBUG_EIGPAUTO
       assert ((cA==ic1) || (cA==ic3));
+      cout << "A = "  << A << endl;
+      cout << "[A] = "  << cA << endl;
+#endif
       // a_P     = a*sqrt(r)*(1+/-i)
       // (a_P)^2 = +/- 2*a^2*r*i
+#ifdef DEBUG_EIGPAUTO
+      cout << "(aP)^2 = "  << aP*aP << endl;
+#endif
       a = (aP*aP).coeff(); // =  (a_P)^2/i
+#ifdef DEBUG_EIGPAUTO
+      cout << "(aP)^2 / i = "  << a << endl;
+#endif
       ZZ p = ZZ(I2long(P.norm()));
       if (cP==ic1)
         a -= p;
       else
         a += p;
+#ifdef DEBUG_EIGPAUTO
+      cout << "(a_{P^2}) / i = "  << a << endl;
+#endif
       // Now a =  a_{P^2} / i
       if (cA==ic1)
         a = -a;
+#ifdef DEBUG_EIGPAUTO
+      cout << "(a_{P^2}) *chi(A) = "  << a << endl;
+#endif
       // Now a = a_{P^2}*chi(A)
       return a;
     }
@@ -359,7 +386,8 @@ FieldElement Newform::eigPauto(Quadprime& P, int verb)
 }
 
 // Principal eigenvalue of a linear combination of the above:
-FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb)
+FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                                   const Qideal& biglevel, int verb)
 {
   FieldElement eig(F->zero());
   auto Pi = Plist.begin();
@@ -369,15 +397,16 @@ FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<
       scalar c = *ci++;
       Quadprime P = *Pi++;
       if (c!=0)
-        eig += eigPauto(P, verb) * to_ZZ(c);
+        eig += eigPauto(P, biglevel, verb) * to_ZZ(c);
     }
   return eig;
 }
 
 // Characteristic polynomial of such a linear combination:
-ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs, int verb)
+ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                               const Qideal& biglevel, int verb)
 {
-  return eig_lin_comb(Plist, coeffs, verb).charpoly();
+  return eig_lin_comb(Plist, coeffs, biglevel, verb).charpoly();
 }
 
 //#define DEBUG_BC
@@ -542,7 +571,7 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
         cout << "# divisors of N/D is " << m_default <<endl;
       for (auto F: NSD->newforms)
         {
-          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, verbose>1);
+          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, N, verbose>1);
           if (verbose>1)
             {
               cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
@@ -1618,7 +1647,10 @@ void Newform::output_to_file(int conj) const
           auto it = aPmap.find(x.first.conj());
           if (it!=aPmap.end())
             {
-              Eigenvalue aP = aPmap.at(x.first.conj()).conj();
+              Eigenvalue aP = aPmap.at(x.first.conj());
+              // cout << "Conjugate of " << aP << " is ";
+              aP = aP.conj();
+              // cout << aP << endl;
               out << x.first << " " << aP.str(1) << endl;
             }
         }
@@ -1694,7 +1726,7 @@ int Newform::input_from_file(int verb)
         fdata >> r;
       if (verb>1)
         cout << "--> roots = " << roots << endl;
-      Fmodsq = new FieldModSq(F, roots);
+      Fmodsq = new FieldModSq(F, roots, triv_char); // set real flag=1 iff trivial char
       if (verb>1)
         Fmodsq->display();
 

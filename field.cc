@@ -747,7 +747,17 @@ string FieldModSq::str() const
   return s.str();
 }
 
-unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
+// Compute the index of a nonzero element.
+
+// If a belongs to the current group return i and set s, where a =
+// elements[i]*s^2.
+
+// If a does not belong to the subgroup (mod squares):
+//   if update (default):
+//      append a to gens, increment r, set s=1 return the new r;
+//   else:
+//      do not change the group, return -1.
+unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int update)
 {
   unsigned int i=0;
   for (auto x: elements)
@@ -769,9 +779,16 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
   // We get here if a (mod squares) is not in the current group.  In
   // particular, it is not a square.
 
-  // Increment the rank:
+  if (!update)
+    return -1;
+
+  // Now we update the group.  First increment the rank:
   unsigned int j = 1<<r; // This will be the new index (with a possible offset)
   r++;
+
+  // unset the real flag if a=-1
+  if (a.is_minus_one())
+    real_flag = 0;
 
   // If the field is Q we adjoin the squarefree part of a as the new generator:
   if (F->isQ())
@@ -802,7 +819,7 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s)
 #ifdef DEBUG_SQUARES
   cout << "Trying to simplify a = " << a << " mod squares" << endl;
 #endif
-  for (auto u : {-1,2,-2,3,-3,5,-5})
+  for (auto u : {-1,2,-2,3,-3,5,-5,6,-6,7,-7})
     {
 #ifdef DEBUG_SQUARES
       cout << "Trying u = " << u << endl;
@@ -998,9 +1015,41 @@ Eigenvalue Eigenvalue::times_minus_i() const
   return - times_i();
 }
 
-Eigenvalue Eigenvalue::conj() const // swap 1+i and 1-i factors (complex conjugation)
+//#define DEBUG_CONJ
+Eigenvalue Eigenvalue::conj() const
 {
-  return Eigenvalue(a, SqCl, root_index, -xf);
+  Eigenvalue ans = *this;
+#ifdef DEBUG_CONJ
+  cout << "** Conjugating " << ans << endl;
+#endif
+  if (SqCl->is_real())
+    {
+      // cout << "** field is real, returning " << ans << endl;
+      return ans;
+    }
+  // We assume that the first gen mod squares is -1, and that when xf
+  // is nonzero, root_index is even
+
+#ifdef DEBUG_CONJ
+  if (xf==0)
+    {
+      if (root_index&1)
+        cout << "** xf=0 and index is odd, returning " << -ans << endl;
+      else
+        cout << "** xf=0 and index is even, returning " << ans << endl;
+    }
+  else
+    {
+      assert(root_index%2==0);
+      cout << "** xf!=0 and index is even, returning " << Eigenvalue(a, SqCl, root_index, -xf) << endl;
+    }
+#endif
+
+  return (xf==0?
+          (root_index&1? -ans : ans) // negate a iff root_index is odd
+          :
+          Eigenvalue(a, SqCl, root_index, -xf)// flip the sign of xf
+          );
 }
 
 Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
