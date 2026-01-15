@@ -95,6 +95,10 @@ public:
   // creation from a rational (F=Q)
   FieldElement( const bigrational& r)
     :F(FieldQQ), val(r) {;}
+  // creation from a rational (general F)
+  FieldElement( Field* HF, const bigrational& r)
+    :F(HF), coords(r.num()*vec_m::unit_vector(HF->d, 1)), denom(r.den()), val(r) {;}
+
 
   // String for pretty printing, used in default <<, or (if raw) raw
   // output, suitable for re-input:
@@ -182,6 +186,7 @@ public:
         elements.insert(elements.end(), new_elements.begin(), new_elements.end());
       }
   }
+  Field* field() {return F;}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
   vector<FieldElement> elts() const {return elements;}
@@ -237,8 +242,8 @@ public:
   Eigenvalue operator/(Eigenvalue b) const;
   Eigenvalue operator-() const {return Eigenvalue(-a, SqCl, root_index, xf);}
   Eigenvalue inverse() const; // raise error if zero      // inverse
-  Eigenvalue times_i() const;
-  Eigenvalue times_minus_i() const;
+  // Eigenvalue times_i() const;
+  // Eigenvalue times_minus_i() const;
   Eigenvalue conj() const; // swap 1+i and 1-i factors (complex conjugation)
   int operator==(const Eigenvalue& b) const;
   int operator!=(const Eigenvalue& b) const;
@@ -252,5 +257,9 @@ public:
 
 inline ostream& operator<<(ostream& s, const Eigenvalue& x)
 { s << x.str(); return s;}
+
+// integer multiple of i, assuming not real
+Eigenvalue eye(FieldModSq* S, const ZZ& n = ZZ(1));
+
 
 #endif

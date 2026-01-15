@@ -952,6 +952,14 @@ Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
   return ans;
 }
 
+// integer multiple of i, assuming not real
+Eigenvalue eye(FieldModSq* S, const ZZ& n)
+{
+  assert (S->is_complex());
+  return Eigenvalue(FieldElement(S->field(), n), S, 1, 0);
+}
+
+#if(0)
 Eigenvalue Eigenvalue::times_i() const
 {
   Eigenvalue ans = *this;
@@ -1014,6 +1022,7 @@ Eigenvalue Eigenvalue::times_minus_i() const
 {
   return - times_i();
 }
+#endif
 
 //#define DEBUG_CONJ
 Eigenvalue Eigenvalue::conj() const

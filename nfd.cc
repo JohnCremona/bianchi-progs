@@ -805,26 +805,33 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       compute_eigs_triv_char(ntp, verbose);
       return;
     }
-  // Otherwise the character (restricted to Cl[2]) is non-trivial so
-  // is quartic. We pick a generator c of the class group and take
-  // chi(c)=+i:
+
   Qideal N = nf->N;
-
-  // The ideal classes are labelled 0,1,2,3 with 0 for principal but the order varies:
-  vector<int> C4C = C4classes();
-  int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
-
   FieldElement b, b1;
 
   // add -1 to the generators of F^*/(F*)^2
   int j = Fmodsq->get_index(F->minus_one(),b1); // -1 = elements[1]*b1^2
   assert (j==1);
 
+  // Otherwise the character (restricted to Cl[2]) is non-trivial so
+  // is quartic. We pick a generator c of the class group and take
+  // chi(c)=+i.  The ideal classes are labelled 0,1,2,3 with 0 for
+  // principal but the order varies:
+  vector<int> C4C = C4classes();
+  int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
+  Eigenvalue eig_1(FieldElement(F,ZZ(1)),Fmodsq);
+  Eigenvalue eig_i(FieldElement(F,ZZ(1)),Fmodsq,1);
+  vector<Eigenvalue> chi(4, eig_1), chi_inv(4, eig_1);
+  chi[ic1] = chi_inv[ic3] = eig_i;
+  chi[ic2] = chi_inv[ic2] = -eig_1;
+  chi[ic3] = chi_inv[ic1] = -eig_i;
+  // so chi(A) = chi[cA]  and 1/chi(A) = chi_inv[cA] where cA = ideal_class(A)
+
   // We will store a prime P0 in class c or c^3 with nonzero aP0 and
   // set this flag to 1:
   Quadprime P0;
   Eigenvalue aP0, aP0_inverse;
-  int cP0=-1; // to avoid a compiler warning about not being set
+  int cP0 = -1; // to avoid a compiler warning about not being set
   int P0_set = 0;
 
   int ip = 0;  // counts the primes used (including bad primes which are skipped here)
@@ -850,20 +857,15 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           assert ((cA==ic1) || (cA==ic3));
           matop T = HeckePChiOp(P, A, N);
           FieldElement aPchiP = compute_one_principal_eig(ip, T, 1, verbose).coeff();
-          if (cA==ic1)
-            aPchiP = -aPchiP;
-          Eigenvalue aP(aPchiP, Fmodsq, 1, 0); // 1 for factor of i, 0 for no factor of 1+i or 1-i
+          Eigenvalue aP = Eigenvalue(aPchiP, Fmodsq) * chi_inv[cA];
           if (verbose)
             cout << " a("<<P<<") = " << aP << endl;
           aPmap[P] = aP;
           continue;
         }
       // Now P is in class c or c^3
-      int s = (cP == ic1? +1 : (cP == ic3? -1 : 0));
-      FieldElement S(F,ZZ(s));
       if (verbose>1)
-        cout << "P = " << P << ", chi(P) = " << (s==1? "i" : "-i") << endl;
-
+        cout << "P = " << P << ", chi(P) = " << chi[cP] << endl;
 
       if (P0_set)
         {
@@ -889,39 +891,9 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           // chi(P0):
           Qideal B = P0*P; // so B is square-free and of square class
           Qideal C = B.sqrt_coprime_to(N); // so B*C^2 = P0*P*C^2 is principal
-          int iC = C.ideal_class();
           matop T = HeckeBChiOp(B, C, N);
           Eigenvalue aPaP0chiC = compute_one_principal_eig(ip, T, 1, verbose);
-          FieldElement a((C.ideal_class()==ic3? F->one() : F->minus_one()));
-          Eigenvalue aP = aPaP0chiC*aP0_inverse;
-          aP = aP.times_i(); // i.e. divide by -i, correct if C has class ic3
-          if (iC==ic1) // chi(C)=-i so multiply by i
-            aP = -aP;
-          if (verbose)
-            {
-              if (verbose>1)
-                cout << "a("<<P<<") = a("<<P<<"*"<<P0<<")*chi("<<C<<")/a("<<P0<<")*chi("<<C<<") = "
-                     << aPaP0chiC << "*("<<aP0_inverse<<")*("
-                     << (iC==ic3? "i" : "-i")
-                     << ") = "<<aP<<endl;
-              else
-                cout << " a("<<P<<") = " << aP << endl;
-            }
-          Eigenvalue b = aPaP0chiC;
-          if (iC==ic1)
-            b=b.times_minus_i();
-          else
-            b=b.times_i();
-          if (b != aP*aP0)
-            {
-              cout << "aPaP0chiC = " << aPaP0chiC << endl;
-              cout << "chiC = " << (iC==ic1? "i" : "-i") << endl;
-              cout << "quotient = " << b << endl;
-              cout << "aP = " << aP << endl;
-              cout << "aP0 = " << aP0 << endl;
-              cout << "product = " << aP*aP0 << endl;
-              assert (b == aP*aP0);
-            }
+          Eigenvalue aP = aPaP0chiC*aP0_inverse * chi_inv[C.ideal_class()];
           aPmap[P] = aP;
           continue;
         }
@@ -929,67 +901,65 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // T(P)*T(P,P) to find a(P)^2, pick a square root (if nonzero),
       // store the P in P0, aP in aP0, and set the flag.
 
-      ZZ p = ZZ(I2long(P.norm()));
+      FieldElement p(F, ZZ(I2long(P.norm())));
       matop T =  HeckeP2ChiOp(P, P, nf->N);
       FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).coeff();
       if (verbose>1)
-        cout << (s==1? "+": "-") << "a(P^2)*i = " << a << endl
-             << "a(P^2) = " << -S*a << "*i" << endl;
-      if (verbose)
-        cout << " - hence computing eigenvalue of " << Pname << "..." << endl;
-      // Now a(P^2) = a/(s*i) = -s*a*i;
-      //     a(P)^2 = a(P^2)+chi(P)*p = s*(p-a)*i with p=N(P);
-      //     a(P)   = sqrt(2*s*(p-a)) * (1+i)/2
-      b = S*(FieldElement(F,p)-a);
+        cout << "a(P^2)*chi(P) = " << a << endl;
+      // The following uses chi(P)^2=-1
+      Eigenvalue aP_2 = Eigenvalue(p-a, Fmodsq) * chi_inv[cP]; // a(P)^2
       if (verbose>1)
-        cout << "a(P)^2 = " << b << "*i" << endl;
+        {
+          Eigenvalue aP2chiP(a,Fmodsq);
+          Eigenvalue a_P2 = aP2chiP * chi_inv[cP]; // a(P^2)
+          cout << "a(P^2) = " << a_P2 << endl;
+          cout << "a(P)^2 = " << aP_2 << endl;
+        }
+      b = aP_2.coeff() * ZZ(2);
       if (b.is_zero())
         {
           if (verbose)
             cout << "a(" <<P<<") = 0"<<endl;
-          aPmap[P] = Eigenvalue(b, Fmodsq);
+          aPmap[P] = aP_2;
           continue; // without setting the flag
         }
-      else
+
+      // Now a(P)   = (1/2) * sqrt(b) * (1+i).
+      // We adjoin sqrt(b) to F(Fmodsq) if necessary.
+
+      // Case (1) If b=b1^2 with b1 in F then a(P) = (b1/2)*(1+i).
+
+      // Case (2) If b=-b1^2 with b1 in F then a(P) = (b1/2)*i*(1+i) =
+      // (-b1/2)*(1-i).
+
+      // Case (3) In general, b=b1^2*r and a(P) =
+      // (b1/2)*sqrt(r)*(1+i), where r may be a new generator.
+
+      j = Fmodsq->get_index(b,b1);      // +b = elements[j]*b1^2
+      // All cases are covered by the following: if j is odd then
+      // elements[j] involves i=sqrt(-1), so we: replace j by j-1,
+      // negate b1, and use factor 1-i instead of 1+i
+      b1 = b1/ZZ(2);
+      int xf = 1;
+      if (j&1) // absorb factor i into (1+i) factor: i*(1+i)=-(1-i)
         {
-          b *= ZZ(2);
-          // Now a(P)   = (1/2) * sqrt(b) * (1+i)
+          b1 = -b1;
+          xf = -1;
+          j -= 1;
+        }
+      Eigenvalue aP(b1, Fmodsq, j, xf);
+      aPmap[P] = aP;
+      if (verbose)
+        cout << "a(" <<P<<") = "<<aP<<endl;
 
-          // (1) If b=b1^2 with b1 in F this is just (b1/2)*(1+i) (2)
-          // If b=-b1^2 with b1 in F this is (b1/2)*i*(1+i) =
-          // (-b1/2)*(1-i) (3) Else b=b1^2*r and it is
-          // (b1/2)*sqrt(r)*(1+i) The point of the next block is that
-          // if b<0 then instead of making sqrt(b) a generator we make
-          // sqrt(-b) a generator;
-          if (F->isQ() && b.get_val().num()<0)
-            j = 1 + Fmodsq->get_index(-b,b1); // -b = elements[j]*b1^2
-          else
-            j = Fmodsq->get_index(b,b1); // b = elements[j]*b1^2
-          // If j is odd then elements[j] involves i=sqrt(-1), so we:
-          // replace j by j-1, negate b1, and use factor 1-i instead of 1+i
-          b1 = b1/ZZ(2);
-          int xf = 1;
-          if (j&1) // absorb factor i into (1+i) factor: i*(1+i)=-(1-i)
-            {
-              b1 = -b1;
-              xf = -1;
-              j -= 1;
-            }
-          Eigenvalue aP(b1, Fmodsq, j, xf);
-          aPmap[P] = aP;
-          if (verbose)
-            cout << "a(" <<P<<") = "<<aP<<endl;
-
-          // Store P and aP and set the flag:
-          P0 = P;
-          aP0 = aP;
-          aP0_inverse = aP.inverse();
-          cP0 = cP;
-          P0_set = 1;
-          if (verbose)
-            cout << "Stored eigenvalue " << aP0 << " with inverse " << aP0_inverse << " for prime " << P0 << endl;
-        } // end of b=0, b!=0 cases
-
+      // Store P and aP and set the flag:
+      P0 = P;
+      aP0 = aP;
+      aP0_inverse = aP.inverse();
+      cP0 = cP;
+      P0_set = 1;
+      if (verbose)
+        cout << "Stored eigenvalue " << aP0 << " with inverse " << aP0_inverse << " for prime " << P0 << endl;
     } // end of loop over P
 
   if (P0_set)
