@@ -1409,7 +1409,7 @@ FieldIso Field::reduction_isomorphism() const
   // denh * image of F's gen in Fred:
   FieldElement a = evaluate(h,Fred->gen()); // / Fred->rational(denh);
 #ifdef DEBUG_REDUCE
-  cout << " - image of gen is " << a << endl;
+  cout << " - image of gen is " << a << " / " << denh << endl;
 #endif
   FieldElement apow = a; // power of a
   ZZ denhpowmax = pow(denh, d-1);
