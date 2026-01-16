@@ -1358,16 +1358,22 @@ FieldElement FieldIso::operator()(const FieldElement& x) const
   if (id_flag) return x;
   if (x.field()==domain)
     {
-      FieldElement ans(codomain, isomat*x.coords, denom*x.denom);
+      FieldElement y(codomain, isomat*x.coords, denom*x.denom);
       // sanity check that the min poly has not changed
-      assert (x.charpoly()==ans.charpoly());
-      return ans;
+      if (! (x.charpoly()==y.charpoly()))
+        {
+          cout << "Error in applying field isomorphism\n" << *this << "\n to x = " << x << "\n --> y = " << y << endl;
+          cout << "x has charpoly "<< ::str(x.charpoly()) << endl;
+          cout << "y has charpoly "<< ::str(y.charpoly()) << endl;
+        }
+      return y;
     }
   cerr << "Cannot apply FieldIso\n" << *this << "\n to " << x << " in " << *(x.field()) << endl;
   return FieldElement(codomain);
 }
 
 //#define DEBUG_REDUCE
+
 FieldIso Field::reduction_isomorphism() const
 {
 #ifdef DEBUG_REDUCE
@@ -1380,8 +1386,8 @@ FieldIso Field::reduction_isomorphism() const
 #endif
       return FieldIso(this); // identity
     }
-  ZZX h;
-  ZZX g = polredabs(minpoly, h);
+  ZZX h; ZZ denh;
+  ZZX g = polredabs(minpoly, h, denh);
   if (minpoly==g)
     {
 #ifdef DEBUG_REDUCE
@@ -1400,19 +1406,35 @@ FieldIso Field::reduction_isomorphism() const
 #endif
   // construct the isomorphism matrix from F to Fred:
   mat_m M(d,d);
-  // Image of F's gen in Fred:
-  FieldElement a = evaluate(h,Fred->gen());
+  // denh * image of F's gen in Fred:
+  FieldElement a = evaluate(h,Fred->gen()); // / Fred->rational(denh);
+#ifdef DEBUG_REDUCE
+  cout << " - image of gen is " << a << endl;
+#endif
   FieldElement apow = a; // power of a
-  M.setcol(1, vec_m::unit_vector(d, 1));
-  M.setcol(2, a.get_coords());
+  ZZ denhpowmax = pow(denh, d-1);
+  ZZ denhpow = denhpowmax;
+  M.setcol(1, denhpow * vec_m::unit_vector(d, 1));
+  denhpow /= denh;
+  M.setcol(2, denhpow * a.get_coords());
   for (int i=3; i<=d; i++)
     {
+      denhpow /= denh;
       apow *= a;
-      M.setcol(i, apow.get_coords());
+      M.setcol(i, denhpow * apow.get_coords());
+    }
+  ZZ cont = gcd(M.content(), denhpowmax);
+  if (cont>1)
+    {
+      M /= cont;
+      denhpowmax /= cont;
     }
 #ifdef DEBUG_REDUCE
-  cout << " - iso matrix = \n" << M << endl;
+  cout << " - iso matrix = \n" << M;
+  if (denh>1)
+    cout << " / " << denhpowmax;
+  cout << endl;
 #endif
-  return FieldIso(this, Fred, M);
+  return FieldIso(this, Fred, M, denhpowmax, 0); // 0: not the identity
 }
 

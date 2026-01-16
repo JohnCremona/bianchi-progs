@@ -236,12 +236,13 @@ FieldElement Newform::eig(const matop& T)
     }
   else
     {
-      FieldElement ap0(F0, apv, one, 1); // raw=1
-      if (Fiso.is_identity())
-        return ap0;
-      cout << "ap0 = " << ap0 << " --> ";
-      FieldElement ap = Fiso(ap0);
-      cout << "ap = " << ap << endl;
+      FieldElement ap(F0, apv, one, 1); // raw=1
+      if (!Fiso.is_identity())
+        {
+          // cout << "ap0 = " << ap << " --> ";
+          ap = Fiso(ap);
+          // cout << "ap = " << ap << endl;
+        }
       return ap;
     }
 }
