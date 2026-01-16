@@ -14,6 +14,7 @@ class Eigenvalue;   // a FieldElement a and an index i into FieldModSq represent
 extern Field* FieldQQ;
 
 class Field {
+  friend class FieldIso;
   friend class FieldElement;
   friend class Newform;
 private:
@@ -67,6 +68,7 @@ public:
 
 class FieldElement {
   friend class Field;
+  friend class FieldIso;
   friend class FieldModSq;
   friend class Eigenvalue;
   friend FieldElement evaluate(const ZZX& f, const FieldElement a);
@@ -104,7 +106,7 @@ public:
   // output, suitable for re-input:
   string str(int raw=0) const;
 
-  Field* field() {return F;}
+  Field* field() const {return F;}
   mat_m matrix() const; // ignores denom
   ZZX charpoly() const;
   ZZX minpoly() const;
@@ -150,6 +152,9 @@ public:
   // number of squares this is multiplied by to get odd co-degree.
   int is_square(FieldElement& r, int ntries=100) const;
 
+  // return 1 and set r to the rational value if the degree is 1
+  int is_rational(bigrational& r) const;
+
   // x must be initialised with a Field before input to x
   friend istream& operator>>(istream& s, FieldElement& x);
 };
@@ -157,6 +162,29 @@ public:
 FieldElement evaluate(const ZZX& f, const FieldElement a);
 
 ostream& operator<<(ostream& s, const FieldElement& x);
+
+class FieldIso {
+  friend class Field;
+  friend class FieldElement;
+private:
+  Field* domain;
+  Field* codomain;
+  mat_m isomat;
+  ZZ denom;
+  // Constructor from a known matrix
+  FieldIso(Field* F1, Field* F2, const mat_m& M, const ZZ& d = ZZ(1))
+    :domain(F1), codomain(F2), isomat(M), denom(d) {;}
+  // Identity
+  FieldIso(Field* F1)
+    :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)) {;}
+  // inverse isomorphism
+  FieldIso inverse() const;
+  // map x in codomain to an element of the codomain
+  FieldElement operator()(const FieldElement& x) const;
+  friend ostream& operator<<(ostream& s, const FieldIso& x);
+};
+
+FieldIso ReduceField(const Field* F);
 
 // Class to handle finite subgroups of (F^*)/(F^*)^2
 

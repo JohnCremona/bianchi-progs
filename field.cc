@@ -630,6 +630,21 @@ FieldElement evaluate(const ZZX& f, const FieldElement a)
 
 }
 
+// return 1 and set r to the rational value if the degree is 1
+int FieldElement::is_rational(bigrational& r) const
+{
+  r = val;
+  if (F->isQ())
+    return 1;
+  r = bigrational(coords[1],denom);
+  for (int i=2; i <= F->d; i++)
+    {
+      if (coords[i]!=0)
+        return 0;
+    }
+  return 1;
+}
+
 // NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
 // The first function only applies when a has maximal degree:
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
@@ -736,8 +751,6 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   return 0;
 }
 
-//#define DEBUG_SQUARES
-
 string FieldModSq::str() const
 {
   ostringstream s;
@@ -746,6 +759,8 @@ string FieldModSq::str() const
     s << " " << g.str(1);
   return s.str();
 }
+
+//#define DEBUG_SQUARES
 
 // Compute the index of a nonzero element.
 
@@ -793,8 +808,16 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int u
   // If the field is Q we adjoin the squarefree part of a as the new generator:
   if (F->isQ())
     {
-      bigrational g1, s1;
-      sqfdecomp(a.val, g1, s1); // a = g1*s1^2 with g1 squarefree
+      bigrational g1, s1, ar(a.val);
+      int flip = (!real_flag && (!a.is_minus_one()) && (ar.num()<0));
+      if (flip)
+        {
+#ifdef DEBUG_SQUARES
+          cout << "Replacing " << ar << " by " << -ar << endl;
+#endif
+          ar = -ar;
+        }
+      sqfdecomp(ar, g1, s1); // a = g1*s1^2 with g1 squarefree
       s = FieldElement(s1);
 #ifdef DEBUG_SQUARES
       cout << "New generator " << g1 << " for Q^*/(Q^*)^2 from a = " << a << endl;
@@ -811,7 +834,7 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int u
 #ifdef DEBUG_SQUARES
   cout << "elements are now " << elements << endl;
 #endif
-      return j;
+      return j+flip;
     }
 
   // Test whether a small integer times an existing rep will do
@@ -821,6 +844,8 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int u
 #endif
   for (auto u : {-1,2,-2,3,-3,5,-5,6,-6,7,-7})
     {
+      if (is_complex() && u<0)
+        continue;
 #ifdef DEBUG_SQUARES
       cout << "Trying u = " << u << endl;
 #endif
@@ -856,23 +881,34 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int u
     }  // end of loop over small u
 
   // If we reach here, we failed to find a small new generator, so we use a itself
+  // (or -a in the complex case if a is rational and negative)
 #ifdef DEBUG_SQUARES
   cout << "No small u worked, so we take " << a << " as new generator" << endl;
 #endif
   s = F->one();
-  gens.push_back(a);
+  FieldElement b(a);
+  bigrational ra;
+  int flip = (is_complex() && (!b.is_minus_one()) && b.is_rational(ra) && (ra.num()<0));
+  if (flip) // adjoin -a not a if a is negative rational
+    {
+      b = -a;
 #ifdef DEBUG_SQUARES
-  cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << a << endl;
+      cout << "Replacing " << a << " by " << b << endl;
+#endif
+    }
+  gens.push_back(b);
+#ifdef DEBUG_SQUARES
+  cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << b << endl;
   cout << "elements were " << elements << endl;
 #endif
   vector<FieldElement> new_elements(elements.size(), FieldElement(F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                     [a](const FieldElement& x){return a*x;});
+                     [b](const FieldElement& x){return b*x;});
   elements.insert(elements.end(), new_elements.begin(), new_elements.end());
 #ifdef DEBUG_SQUARES
   cout << "elements are now " << elements << endl;
 #endif
-  return j;
+  return j+flip;
 }
 
 string FieldModSq::elt_str(unsigned int i) const
@@ -1290,4 +1326,36 @@ string Eigenvalue::str(int raw) const
   if (xf!=0)
     s << extra_factor();
   return s.str();
+}
+
+ostream& operator<<(ostream& s, const FieldIso& iso)
+{
+  s << "Field isomorphism from " << *iso.domain << " to " << *iso.codomain << " with matrix ";
+  s << iso.isomat;
+  if (!IsOne(iso.denom)) s << "/ "<<iso.denom;
+  return s;
+}
+
+// inverse isomorphism
+FieldIso FieldIso::inverse() const
+{
+  mat_m inversemat;
+  ZZ d = ::inverse(isomat, inversemat);
+  inversemat *= denom;
+  ZZ g = gcd(inversemat.content(), d);
+  if (!is_one(g))
+    {
+      inversemat /= g;
+      d /= g;
+    }
+  return FieldIso(codomain, domain, inversemat, d);
+}
+
+// map x in codomain to an element of the codomain
+FieldElement FieldIso::operator()(const FieldElement& x) const
+{
+  if (x.field()==domain)
+    return FieldElement(codomain, isomat*x.coords, denom*x.denom);
+  cerr << "Cannot apply FieldIso\n" << *this << "\n to " << x << " in " << *(x.field()) << endl;
+  return FieldElement(codomain);
 }

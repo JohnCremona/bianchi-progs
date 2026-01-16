@@ -907,7 +907,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       if (verbose>1)
         cout << "a(P^2)*chi(P) = " << a << endl;
       // The following uses chi(P)^2=-1
-      Eigenvalue aP_2 = Eigenvalue(p-a, Fmodsq) * chi_inv[cP]; // a(P)^2
+      Eigenvalue aP_2 = Eigenvalue(p-a, Fmodsq) * chi[cP]; // a(P)^2
       if (verbose>1)
         {
           Eigenvalue aP2chiP(a,Fmodsq);
