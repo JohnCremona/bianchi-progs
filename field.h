@@ -7,6 +7,7 @@
 #include "eclib.h"
 
 class Field;
+class FieldIso;
 class FieldElement;
 class FieldModSq;   // finite subgroups of (F^*)/(F^*)^2
 class Eigenvalue;   // a FieldElement a and an index i into FieldModSq representing a*sqrt(elt(i))
@@ -21,7 +22,6 @@ private:
   string var;   // name of generator
   int d;        // degree
   ZZX minpoly;  // irreducible poly of degree d
-  ZZX abspoly;  // irreducible poly of degree d (polredabs of minpoly)
   ZZ denom; // minpoly is the (integral) min poly of A/denom
   mat_m A;        // dxd matrix with scaled min.poly. minpoly
   mat_m B, Binv;  // Binv*B = Bdet*I
@@ -37,25 +37,24 @@ public:
   Field(); // defaults to Q
   Field(const mat_m& m, const ZZ& den = to_ZZ(1), string a="a", int verb=0);
   Field(const ZZX& p, string a="a", int verb=0);
-  FieldElement rational(const bigrational& x);
-  FieldElement rational(const ZZ& x); // {return rational(bigrational(x));}
-  FieldElement rational(long x); // {return rational(bigrational(ZZ(x)));}
-  FieldElement rational(int x); // {return rational(bigrational(ZZ(x)));}
-  FieldElement one(); // {return rational(1);}
-  FieldElement minus_one(); // {return rational(-1);}
-  FieldElement two(); // {return rational(2);}
-  FieldElement minus_two(); // {return rational(-2);}
-  FieldElement zero(); // {return rational(0);}
-  FieldElement gen();
-  FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
+  FieldElement rational(const bigrational& x) const;
+  FieldElement rational(const ZZ& x) const;
+  FieldElement rational(long x) const;
+  FieldElement rational(int x) const;
+  FieldElement one() const;
+  FieldElement minus_one() const;
+  FieldElement two() const;
+  FieldElement minus_two() const;
+  FieldElement zero() const;
+  FieldElement gen() const;
+  FieldElement element(const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0) const;
   int degree() const {return d;}
   int isQ() const {return this==FieldQQ;}
   ZZX poly() const {return minpoly;}
-  ZZX reduced_poly() const {return abspoly;}
   mat_m basis() const {return Binv;} // columns are Bfactor * coeffs of basis w.r.t. a-powers
-  ZZ basis_factor() const {return Bdet;}
+  //  ZZ basis_factor() const {return Bdet;}
   mat_m inv_basis() const {return B;} // columns are coeffs of a-powers w.r.t. basis
-  void display(ostream&s = cout, int raw=0); // if raw, also display raw basis
+  void display(ostream&s = cout, int raw=0) const; // if raw, also display raw basis
   void display_bases(ostream&s = cout) const; // display powers of A and C and bases in both embeddings
   string get_var() const {return var;}
   void set_var(const string& v)  {var = v;}
@@ -64,6 +63,12 @@ public:
   string str(int raw=0) const;
   friend ostream& operator<<(ostream& s, const Field& F);
   friend istream& operator>>(istream& s, Field** F);
+
+  // Apply polredabs to the defining polynomial, define a new field
+  // with that poly and return an isomorphism from this to that.  If
+  // the poly was already polredabsed, or if F is QQ, return the
+  // identity.
+  FieldIso reduction_isomorphism() const;
 };
 
 class FieldElement {
@@ -73,7 +78,7 @@ class FieldElement {
   friend class Eigenvalue;
   friend FieldElement evaluate(const ZZX& f, const FieldElement a);
 private:
-  Field* F;
+  const Field* F;
 
   // In general the field element is (1/denom)*coords-combination of power basis of F
   // NB On construction every element will be reduced using cancel()
@@ -87,18 +92,18 @@ private:
 public:
   FieldElement()
     :F(FieldQQ) {;}
-  FieldElement( Field* HF)
+  FieldElement(const Field* HF)
     :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {if (HF==FieldQQ) val = bigrational(0);}
   // raw means the given coords are w.r.t. the B-basis
-  FieldElement( Field* HF, const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
+  FieldElement(const Field* HF, const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
   // creation from a rational (general F)
-  FieldElement( Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1))
+  FieldElement(const Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1))
     :F(HF), coords(a*vec_m::unit_vector(HF->d, 1)), denom(d), val(bigrational(a,d)) { cancel();}
   // creation from a rational (F=Q)
-  FieldElement( const bigrational& r)
+  FieldElement(const bigrational& r)
     :F(FieldQQ), val(r) {;}
   // creation from a rational (general F)
-  FieldElement( Field* HF, const bigrational& r)
+  FieldElement(const Field* HF, const bigrational& r)
     :F(HF), coords(r.num()*vec_m::unit_vector(HF->d, 1)), denom(r.den()), val(r) {;}
 
 
@@ -106,7 +111,7 @@ public:
   // output, suitable for re-input:
   string str(int raw=0) const;
 
-  Field* field() const {return F;}
+  const Field* field() const {return F;}
   mat_m matrix() const; // ignores denom
   ZZX charpoly() const;
   ZZX minpoly() const;
@@ -116,6 +121,8 @@ public:
   int is_minus_one() const;
   int is_generator() const {return degree()==F->d;}
   bigrational get_val() const {return val;}
+  vec_m get_coords() const {return coords;}
+  ZZ get_denom() const {return denom;}
   int operator==(const FieldElement& b) const;
   int operator!=(const FieldElement& b) const;
 
@@ -167,24 +174,41 @@ class FieldIso {
   friend class Field;
   friend class FieldElement;
 private:
-  Field* domain;
-  Field* codomain;
+  const Field* domain;
+  const Field* codomain;
   mat_m isomat;
   ZZ denom;
+  int id_flag; // flags that this is the identity (domain=codomain and isomat=id)
+public:
+  // Dummy constructor
+  FieldIso()
+    :domain(FieldQQ), codomain(FieldQQ), isomat(mat_m::identity_matrix(1)), denom(ZZ(1)), id_flag(1) {;}
   // Constructor from a known matrix
-  FieldIso(Field* F1, Field* F2, const mat_m& M, const ZZ& d = ZZ(1))
-    :domain(F1), codomain(F2), isomat(M), denom(d) {;}
+  FieldIso(const Field* F1, const Field* F2, const mat_m& M, const ZZ& d = ZZ(1), int id=-1)
+    :domain(F1), codomain(F2), isomat(M), denom(d), id_flag(id)
+  {
+    if (id_flag==-1)
+      id_flag = (F1==F2) && (M==mat_m::identity_matrix(F1->d)) && is_one(d);
+  }
   // Identity
-  FieldIso(Field* F1)
-    :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)) {;}
+  FieldIso(const Field* F1)
+    :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)), id_flag(1) {;}
   // inverse isomorphism
   FieldIso inverse() const;
   // map x in codomain to an element of the codomain
   FieldElement operator()(const FieldElement& x) const;
+
+  // access data
+  int is_identity() const {return id_flag;}
+  int is_nontrivial() const {return !id_flag;}
+  const Field* dom() const {return domain;}
+  const Field* codom() const {return codomain;}
+  mat_m matrix() const {return isomat;}
+  ZZ den() const {return denom;}
+
+  // output
   friend ostream& operator<<(ostream& s, const FieldIso& x);
 };
-
-FieldIso ReduceField(const Field* F);
 
 // Class to handle finite subgroups of (F^*)/(F^*)^2
 
@@ -235,7 +259,7 @@ public:
   string elt_str(unsigned int i) const;
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
-  void display();
+  void display() const;
   string str() const;
 };
 

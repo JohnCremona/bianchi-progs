@@ -111,16 +111,27 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   // express eigenvalues w.r.t. the power basis on the roots of f)
 
   if (d==1)
-    F = FieldQQ;
+    {
+      F = F0 = FieldQQ;
+      Fiso = FieldIso(F);
+    }
   else
-    F = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
-
+    {
+      F0 = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
+      Fiso =F0->reduction_isomorphism();
+      F = (Field*)Fiso.codom();
+      if (Fiso.is_nontrivial()) // && verbose)
+        {
+          cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
+               << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
+        }
+    }
   if (verbose)
     {
       cout <<"Principal Hecke field data:" << endl;
       F->display();
-      if (verbose>1)
-        F->display_bases();
+      // if (verbose>1)
+      //   F->display_bases();
     }
 
   // Compute character values
@@ -225,8 +236,12 @@ FieldElement Newform::eig(const matop& T)
     }
   else
     {
-      FieldElement ap(F, apv, one, 1); // raw=1
-      //            cout << "ap = " << ap << endl;
+      FieldElement ap0(F0, apv, one, 1); // raw=1
+      if (Fiso.is_identity())
+        return ap0;
+      cout << "ap0 = " << ap0 << " --> ";
+      FieldElement ap = Fiso(ap0);
+      cout << "ap = " << ap << endl;
       return ap;
     }
 }
@@ -382,7 +397,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
       return a;
     }
   cerr << "Newform::eigPauto() only implemented for forms with trivial char or class group C4" << endl;
-  return FieldElement();
+  return FieldElement(F);
 }
 
 // Principal eigenvalue of a linear combination of the above:
@@ -569,15 +584,15 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
       int m_default = divs.size();
       if (verbose>1)
         cout << "# divisors of N/D is " << m_default <<endl;
-      for (auto F: NSD->newforms)
+      for (auto form: NSD->newforms)
         {
-          ZZX f_D = F.char_pol_lin_comb(Plist, coeffs, N, verbose>1);
+          ZZX f_D = form.char_pol_lin_comb(Plist, coeffs, N, verbose>1);
           if (verbose>1)
             {
-              cout << "T's poly for " << F.label_suffix() << " is f_D = " << str(f_D) << endl;
+              cout << "T's poly for " << form.label_suffix() << " is f_D = " << str(f_D) << endl;
               display_factors(f_D);
             }
-          INT CMD = F.self_twist_discriminant();
+          INT CMD = form.self_twist_discriminant();
           int m = (CMD.is_zero()? m_default : old_multiplicity(CMD,  divs));
           if (verbose>1)
             cout << "multiplicity m = " << m << endl;
@@ -807,9 +822,9 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
     }
 
   Qideal N = nf->N;
-  FieldElement b, b1;
+  FieldElement b(F), b1(F);
 
-  // add -1 to the generators of F^*/(F*)^2
+  // add -1 to the generators of F^*/(F*)^2 (b1=1 but is ignored)
   int j = Fmodsq->get_index(F->minus_one(),b1); // -1 = elements[1]*b1^2
   assert (j==1);
 
@@ -981,7 +996,6 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       cout << ")" << endl;
     }
 }
-
 
 // Fill aPmap, dict of eigenvalues of good primes in the first ntp primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)

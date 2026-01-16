@@ -19,11 +19,12 @@ private:
   int index;       // index (starting from 1) of this newforms in the list of all
   string lab;      // label suffix (a,b,c,...)
   int d;      // dim(S)
-  Field* F;   // pointer to the (homological) Hecke field
+  Field* F0;   // pointer to the (homological) Hecke field (original)
+  Field* F;    // pointer to the (homological) Hecke field (reduced)
+  FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_rel, denom_abs; // relative and absolute denominators of S
   vector<scalar> scales; // powers of denom_rel
-  //  vector<scalar> contents;
   mat projcoord; // used to computed eigenvalues of any operator
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   int triv_char;  // 1 iff all epsvec values are +1, else 0
@@ -82,7 +83,7 @@ public:
   Newform(Newspace* x, int i, int verbose=0);
 
   int get_index() const { return index;}
-  void set_index(int i) {index = i; lab = codeletter(i-1); F->set_var(lab);}
+  void set_index(int i) {index = i; lab = codeletter(i-1); F0->set_var(lab+string("0")); F->set_var(lab);}
 
   // Functions for computing eigenvalues of principal operators:
 
@@ -111,7 +112,9 @@ public:
   ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                         const Qideal& biglevel, int verb=0);
 
-  Field* field() const {return F;}
+  Field* field(int original=0) const {return (original? F0: F);}
+  int dimension(int full=1) const;
+  ZZX poly(int original=0) const {return (original? F0->poly(): F->poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
   string long_label() const;  // field_label-level_label-suffix
@@ -128,8 +131,6 @@ public:
   // Display principal eigenvalues
   void display_principal_eigs() const;
 
-  int dimension(int full=1) const;
-  ZZX poly() const {return F->poly();}
   vector<int> character() const {return epsvec;}
   int is_char_trivial() const {return triv_char;}
   int is_self_twist() const {return self_twist_flag;}
@@ -137,7 +138,8 @@ public:
   // return base-change code (+1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know)
   int base_change_code(void) const;
   int cm_code() const {return cm;}
-  ZZ basis_factor() const {return F->Bdet;}
+  //  ZZ basis_factor() const {return F->Bdet;}
+
   // Compute aPmap if empty and return it
   map<Quadprime, Eigenvalue> aPeigs(int ntp, int verbose=0);
   // Compute eQmap if empty and return it
