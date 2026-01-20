@@ -70,12 +70,12 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
   B /= Bcontent;
   Binv.init(d,d);
   Bdet = inverse(B,Binv); // so B*Binv = Bdet*identity
+  mat_m I = mat_m::identity_matrix(d);
+  assert (B*Binv == Bdet*I);
   Bdet1 = B(1,1);
   Bdet2 = Binv(1,1);
   Bdet3 = Bdet2*denom;
-  mat_m I = mat_m::identity_matrix(d);
-  assert (B*Binv == Bdet*I);
-  // Now we should have Binv*A*B = denom*Bdet * C, where C = companion
+  // Now we have Binv*A*B = denom*Bdet * C, where C = companion
   // matrix of minpoly. i.e. the B-conjugate of A can be divided by
   // denom to give the integral matrix C.
   C = (Binv*A*B) / (denom*Bdet);
@@ -234,6 +234,7 @@ FieldElement::FieldElement(const Field* HF, const vec_m& c, const ZZ& d, int raw
   // cout<<"Constructing a FieldElement in Q("<<F->var<<")\n";
   if (raw)
     {
+      cout<<"Constructing a FieldElement in Q("<<F->var<<") with raw=1\n";
       coords = F->Binv *coords;
       denom *= F->Bdet3;
     }
@@ -986,70 +987,18 @@ Eigenvalue eye(FieldModSq* S, const ZZ& n)
   return Eigenvalue(FieldElement(S->field(), n), S, 1, 0);
 }
 
-#if(0)
-Eigenvalue Eigenvalue::times_i() const
+// Return an embedding into an abdolue field
+FieldIso FieldModSq::absolute_field_embedding() const
 {
-  Eigenvalue ans = *this;
-  if (ans.xf==0)
+  FieldIso emb(F);                    // starting with the identity,
+  Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
+  for (auto r: elements)
     {
-      if (ans.root_index&1)
-        {
-          // we already have a factor i, so remove it and negate
-          ans.root_index -= 1;
-          ans.a *= ZZ(-1);
-        }
-      else
-        {
-          // we do not, so add it
-          ans.root_index += 1;
-        }
-#ifdef DEBUG_ARITH
-      cout << "times_i(" << (*this) << ") = " << ans << endl;
-#endif
-      return ans;
+      emb.postcompose(Fext->sqrt_embedding(emb(r)));
+      Fext = (Field*)emb.codom();
     }
-  // else (ans.xf==-1) // factor (1-i)
-  else if (ans.xf==1)
-    {
-      if (ans.root_index&1) // factor i
-        {
-          // we already have a factor i, so remove it and negate
-          ans.root_index -= 1;
-        }
-      else
-        {
-          // we do not, so add it: change 1+i into 1-i and negate
-          ans.xf = -ans.xf;
-        }
-      ans.a *= ZZ(-1);
-#ifdef DEBUG_ARITH
-      cout << "times_i(" << (*this) << ") = " << ans << endl;
-#endif
-      return ans;
-    }
-  // else (ans.xf==-1) // factor (1-i)
-  if (ans.root_index&1) // factor i
-    {
-      // we already have a factor i, so remove it and negate
-      ans.root_index -= 1;
-      ans.a *= ZZ(-1);
-    }
-  else
-    {
-      // we do not, so add it: change 1-i into 1+i
-      ans.xf = -ans.xf;
-    }
-#ifdef DEBUG_ARITH
-      cout << "times_i(" << (*this) << ") = " << ans << endl;
-#endif
-  return ans;
+  return emb;
 }
-
-Eigenvalue Eigenvalue::times_minus_i() const
-{
-  return - times_i();
-}
-#endif
 
 //#define DEBUG_CONJ
 Eigenvalue Eigenvalue::conj() const
@@ -1319,6 +1268,51 @@ string Eigenvalue::str(int raw) const
   return s.str();
 }
 
+void cancel_mat(mat_m& M, ZZ& d)
+{
+  if (IsOne(d))
+    return;
+  ZZ g = gcd(M.content(), d);
+  if (IsOne(g))
+    return;
+  M /= g;
+  d /= g;
+}
+
+// precompose this FieldIso with another (requires iso.codomain = domain)
+void FieldIso::precompose(const FieldIso& iso)
+{
+  if (domain==iso.codomain)
+    {
+      isomat = isomat * iso.isomat;
+      denom *= iso.denom;
+      cancel_mat(isomat,denom);
+    }
+  else
+    cerr << "Cannot precompose " << *this << " with " << iso << endl;
+}
+
+// postcompose this FieldIso with another (requires iso.domain = codomain)
+void FieldIso::postcompose(const FieldIso& iso)
+{
+  if (codomain==iso.domain)
+    {
+      isomat = iso.isomat * isomat;
+      denom *= iso.denom;
+      cancel_mat(isomat,denom);
+    }
+  else
+    cerr << "Cannot postcompose " << *this << " with " << iso << endl;
+}
+
+// return postcomposion of this and iso (requires iso.domain = codomain)
+FieldIso FieldIso::operator*(const FieldIso& iso)
+{
+  FieldIso comp(*this);
+  comp.postcompose(iso);
+  return comp;
+}
+
 ostream& operator<<(ostream& s, const FieldIso& iso)
 {
   if (iso.id_flag)
@@ -1343,12 +1337,7 @@ FieldIso FieldIso::inverse() const
   mat_m inversemat;
   ZZ d = ::inverse(isomat, inversemat);
   inversemat *= denom;
-  ZZ g = gcd(inversemat.content(), d);
-  if (!is_one(g))
-    {
-      inversemat /= g;
-      d /= g;
-    }
+  cancel_mat(inversemat, d);
   return FieldIso(codomain, domain, inversemat, d, 0); // 0: not the identity
 }
 
@@ -1423,12 +1412,7 @@ FieldIso Field::reduction_isomorphism() const
       apow *= a;
       M.setcol(i, denhpow * apow.get_coords());
     }
-  ZZ cont = gcd(M.content(), denhpowmax);
-  if (cont>1)
-    {
-      M /= cont;
-      denhpowmax /= cont;
-    }
+  cancel_mat(M, denhpowmax);
 #ifdef DEBUG_REDUCE
   cout << " - iso matrix = \n" << M;
   if (denh>1)
@@ -1438,3 +1422,97 @@ FieldIso Field::reduction_isomorphism() const
   return FieldIso(this, Fred, M, denhpowmax, 0); // 0: not the identity
 }
 
+// Return an iso from this=Q(a) to Q(b) where B is in this field and generates
+FieldIso Field::change_generator(const FieldElement& b) const
+{
+  if (b.field() != this)
+    {
+      cerr << "Cannot change generator of " << *this << " to " << b
+           << " which is in a different field " << *b.field() << endl;
+      return FieldIso(this);
+    }
+  ZZX b_pol(b.minpoly());
+  if (deg(b_pol)!=d)
+    {
+      cerr << "Cannot change generator of " << *this << " to " << b
+           << " which ony has degree " << deg(b_pol) << endl;
+      return FieldIso(this);
+    }
+
+  if ((d==1) || (b_pol==minpoly)) // then the identity will do
+    {
+      return FieldIso(this);
+    }
+
+  // Create the new field:
+  Field* b_field = new Field(b_pol, var+string("1"));
+
+  // To define the map to the new field we need to express a as a
+  // polynomial in b.  The coordinates of b^j w.r.t. a are the columns
+  // of the matrix M with first column m_1=e_1 and j'th column
+  // m_j=B*m_{j-1}.
+  mat_m B(b.matrix());
+  vec_m v(vec_m::unit_vector(d,1));
+  mat_m M(d,d);
+  M.setcol(1,v);
+  for(int i=2; i<=d; i++)
+    {
+      v = B*v;
+      M.setcol(i,v);
+    }
+  mat_m Minv(d,d);
+  ZZ da = inverse(M,Minv); // so M*Minv = da*identity
+  cancel_mat(Minv, da);
+  // The coeffs of 1,a,a^2,... as polynomials in b are the columns
+  // 1,2,3,... of M^-1.
+  return FieldIso(this, b_field, Minv, da, 0); // 0: not the identity
+}
+
+
+// Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
+// applying polredabs to the codomain
+FieldIso Field::sqrt_embedding(const FieldElement& r, int reduce) const
+{
+  if (r.field() != this)
+    {
+      cerr << "Cannot adjoin sqrt(" << r << ") to " << *this
+           << " as it is in a different field " << *r.field() << endl;
+      return FieldIso(this);
+    }
+  FieldElement sqrt_r(this);
+  if (r.is_square(sqrt_r))
+    {
+      cout << "Adjoining sqrt(" << r << ") to " << *this << " is trivial since "
+           << r << " is already a square, with root " << sqrt_r << endl;
+      return FieldIso(this);
+    }
+
+  // If r has degree < d we replace it with an equivalent element of
+  // maximal degree by multiplying by a square.  Then the sqrt field
+  // is generated by f(X^2) where f is the char poly.
+  FieldElement s = gen();
+  FieldElement rss = r*s*s;
+  while (rss.degree()<d)
+    {
+      s += ZZ(1);
+      rss = r*s*s;
+    }
+  // Now we adjoin sqrt(rss) instead
+  ZZX sqrt_r_pol = XtoX2(rss.charpoly());
+  assert (IsIrreducible(sqrt_r_pol)); // must be else r is a square
+  Field* F_sqrt_r = new Field(sqrt_r_pol, "sqrt_r");
+  // Now we embed this into the new field in three steps:
+  // Q(a) -~-> Q(r) c-> Q(sqrt(r)) -~-> Q(b)
+  // The first and last are isomorphisms, the last being polredabs.
+  FieldIso iso(change_generator(r));  // Q(a) -> Q(r)
+  const Field* Qr = iso.codomain;
+  // the images of the powers of r are the even powers of sqrt_r:
+  mat_m isomat(d, 2*d);
+  for (int j=0; j<d; j++)
+    isomat.setcol(2*j+1, vec_m::unit_vector(d,j+1));
+  FieldIso emb(Qr, F_sqrt_r, isomat, ZZ(1)); // Q(r) -> Q(sqrt(r))
+  emb.precompose(iso);
+  if (reduce)
+    emb.postcompose(F_sqrt_r->reduction_isomorphism());
+  return emb;
+}

@@ -55,35 +55,26 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   // Compute f(T); since T is scaled by dH and f(X) is not, we
   // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
   // X^i by dH^(d-i):
-  scalar dH = nf->H1->h1cdenom();
-  mat fT = to_mat(evaluate(scale_poly_up(f, to_ZZ(dH)), nf->T_mat));
   if (verbose)
-    cout << "Computed f(T), finding its kernel..."<<endl;
-  S = kernel(fT);
-  int dimS=dim(S);
-  denom_rel=denom(S);
-  denom_abs=dH*denom_rel;
-  if(dimS!=d)
+    cout << "Finding kernel of f(T)..."<<endl;
+  S = kernel(to_mat(evaluate(scale_poly_up(f, to_ZZ(nf->dH)), nf->T_mat)));
+  if(dim(S)!=d)
     {
-      cout<<"Problem: eigenspace has wrong dimension "<<dimS<<", not "<<d<<endl;
+      cout<<"Problem: eigenspace has wrong dimension "<<dim(S)<<", not "<<d<<endl;
       exit(1);
     }
-  scales.resize(d+1);
-  scales[0]=1;
-  for(int i=1; i<=d; i++)
-    scales[i]=scales[i-1]*denom_rel;
+  denom_abs=(nf->dH)*denom(S);
   if (verbose)
     {
       cout<<"Finished constructing subspace S of dimension "<<d
-          <<", denom "<<denom_rel<<", absolute denom = "<<denom_abs<<endl;
+          <<", absolute denom = "<<denom_abs<<endl;
       cout<<"Computing A, the restriction of T..." <<flush;
     }
   mat A = transpose(restrict_mat(to_mat(nf->T_mat),S));
-  mat_m mA = to_mat_m(A);
   if(verbose)
-    cout<<"done."<<endl;
+    cout<<"done. Checking its char poly..."<<endl;
 
-  // Check that (scaled) charpoly(A) = fT
+  // Check that (scaled) charpoly(A) = f
   ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(denom_abs), to_ZZ(nf->H1->hmod));
   if (cpA != f)
     {
@@ -117,7 +108,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     }
   else
     {
-      F0 = new Field(mA, to_ZZ(denom_abs), codeletter(index-1), verbose>1);
+      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), codeletter(index-1), verbose>1);
       Fiso =F0->reduction_isomorphism();
       F = (Field*)Fiso.codom();
       if (Fiso.is_nontrivial()) // && verbose)
@@ -508,11 +499,6 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
 
   if(verbose && dH>1)
     cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<dH<<endl;
-  Hscales.resize(dimH+1);
-  Hscales[0]=1;
-  for(int i=1; i<=dimH; i++) Hscales[i]=Hscales[i-1]*dH;
-  if (verbose>2)
-    cout << "Hscales = "<<Hscales<<endl;
 
   // Make the unramified quadratic character operators
   t2ideals = make_nulist(N);
@@ -1392,6 +1378,8 @@ void Newform::display(int aP, int AL, int principal_eigs) const
   F->display();
   if (n2r>0) // display full Hecke field
     {
+      FieldIso abs_emb = Fmodsq->absolute_field_embedding();
+      const Field* Fabs = abs_emb.codom();
       if (triv_char)
         {
           int r = Fmodsq->rank();
@@ -1425,7 +1413,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
                       cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
                     }
                 }
-              cout << endl;
+              cout << "\t= " << *Fabs << endl;
             }
         } // end of trivial char case
       else // special case code for C4 class group

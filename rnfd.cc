@@ -60,4 +60,3 @@ int main()
   cout << endl;
   exit(0);
 }   // end of main()
-

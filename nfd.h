@@ -23,8 +23,7 @@ private:
   Field* F;    // pointer to the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
   subspace S; // irreducible subspace of modular symbol space
-  scalar denom_rel, denom_abs; // relative and absolute denominators of S
-  vector<scalar> scales; // powers of denom_rel
+  scalar denom_abs; // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   int triv_char;  // 1 iff all epsvec values are +1, else 0
@@ -202,7 +201,6 @@ private:
   homspace* H1;  // the ambient modular symbol space at level N
   int cdimH, dimH;
   scalar hmod, dH;
-  vector<scalar> Hscales;
 
   mat_m T_mat;  // matrix of splitting operator
   string T_name;  // name of splitting operator

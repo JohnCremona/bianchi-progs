@@ -14,6 +14,9 @@ class Eigenvalue;   // a FieldElement a and an index i into FieldModSq represent
 
 extern Field* FieldQQ;
 
+// Divide through by gcd of content(M) and d
+void cancel_mat(mat_m& M, ZZ& d);
+
 class Field {
   friend class FieldIso;
   friend class FieldElement;
@@ -69,6 +72,13 @@ public:
   // the poly was already polredabsed, or if F is QQ, return the
   // identity.
   FieldIso reduction_isomorphism() const;
+
+  // Return an iso from this=Q(a) to Q(b) where B is in this field and generates
+  FieldIso change_generator(const FieldElement& b) const;
+
+  // Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
+  // applying polredabs to the codomain
+  FieldIso sqrt_embedding(const FieldElement& r, int reduce=1) const;
 };
 
 class FieldElement {
@@ -198,6 +208,12 @@ public:
   // map x in codomain to an element of the codomain
   FieldElement operator()(const FieldElement& x) const;
 
+  // precompose this FieldIso with another (requires iso.codomain = domain)
+  void precompose(const FieldIso& iso);
+  // postcompose this FieldIso with another (requires iso.domain = codomain)
+  void postcompose(const FieldIso& iso);
+  // return postcomposion of this and iso (requires iso.domain = codomain)
+  FieldIso operator*(const FieldIso& iso);
   // access data
   int is_identity() const {return id_flag;}
   int is_nontrivial() const {return !id_flag;}
@@ -261,6 +277,9 @@ public:
   int order() const {return elements.size();}
   void display() const;
   string str() const;
+
+  // Return an embedding into an abdolue field
+  FieldIso absolute_field_embedding() const;
 };
 
 inline ostream& operator<<(ostream& s, const FieldModSq& x)
