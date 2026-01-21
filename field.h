@@ -70,15 +70,17 @@ public:
   // Apply polredabs to the defining polynomial, define a new field
   // with that poly and return an isomorphism from this to that.  If
   // the poly was already polredabsed, or if F is QQ, return the
-  // identity.
-  FieldIso reduction_isomorphism() const;
+  // identity. Otherwise a new Field is created with provided variable
+  // name.
+  FieldIso reduction_isomorphism(string newvar) const;
 
   // Return an iso from this=Q(a) to Q(b) where B is in this field and generates
   FieldIso change_generator(const FieldElement& b) const;
 
   // Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
-  // applying polredabs to the codomain
-  FieldIso sqrt_embedding(const FieldElement& r, int reduce=1) const;
+  // applying polredabs to the codomain.  sqrt_r is set to sqrt(r) in
+  // the codomain, so sqrt_r^2 = image of r
+  FieldIso sqrt_embedding(const FieldElement& r, string newvar, FieldElement& sqrt_r, int reduce=1) const;
 };
 
 class FieldElement {
@@ -205,8 +207,10 @@ public:
     :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)), id_flag(1) {;}
   // inverse isomorphism
   FieldIso inverse() const;
-  // map x in codomain to an element of the codomain
+  // map x in domain to an element of the codomain
   FieldElement operator()(const FieldElement& x) const;
+  // same to all in a list of elements of the domain
+  vector<FieldElement> operator()(const vector<FieldElement>& x) const;
 
   // precompose this FieldIso with another (requires iso.codomain = domain)
   void precompose(const FieldIso& iso);
@@ -278,8 +282,10 @@ public:
   void display() const;
   string str() const;
 
-  // Return an embedding into an abdolue field
-  FieldIso absolute_field_embedding() const;
+  // Return an embedding into an absolute field (optionally
+  // polredabs'ed) together with a list of images of the gens.  If the
+  // rank is 0 return the identity.
+  FieldIso absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce=0) const;
 };
 
 inline ostream& operator<<(ostream& s, const FieldModSq& x)
@@ -303,7 +309,8 @@ public:
   Eigenvalue(const FieldElement& x, FieldModSq* S, unsigned int i=0, int f=0)
     : a(x), root_index(i), SqCl(S), xf(f)
   {;}
-  FieldElement coeff() const {return a;}
+  FieldModSq* parent() {return SqCl;}
+  FieldElement base() const {return a;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
   string extra_factor() const {return (xf>0? "(1+i)" : (xf<0? "(1-i)" : ""));}
   int xfac() const {return xf;}
@@ -332,5 +339,8 @@ inline ostream& operator<<(ostream& s, const Eigenvalue& x)
 // integer multiple of i, assuming not real
 Eigenvalue eye(FieldModSq* S, const ZZ& n = ZZ(1));
 
+// embed an Eigenvalue into the absolute field Fabs, given an
+// embedding of F into Fabs and images of the MieldModSq gens in Fabs
+FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const vector<FieldElement>& im_gens);
 
 #endif

@@ -234,7 +234,6 @@ FieldElement::FieldElement(const Field* HF, const vec_m& c, const ZZ& d, int raw
   // cout<<"Constructing a FieldElement in Q("<<F->var<<")\n";
   if (raw)
     {
-      cout<<"Constructing a FieldElement in Q("<<F->var<<") with raw=1\n";
       coords = F->Binv *coords;
       denom *= F->Bdet3;
     }
@@ -987,15 +986,92 @@ Eigenvalue eye(FieldModSq* S, const ZZ& n)
   return Eigenvalue(FieldElement(S->field(), n), S, 1, 0);
 }
 
-// Return an embedding into an abdolue field
-FieldIso FieldModSq::absolute_field_embedding() const
+// Return an embedding into an absolute field (optionally
+// polredabs'ed) together with a list of images of the gens.  If the
+// rank is 0 return the identity.
+//#define DEBUG_ABS_FIELD
+FieldIso FieldModSq::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce) const
 {
+#ifdef DEBUG_ABS_FIELD
+  cout << " - in absolute_field_embedding() for ";
+  display();
+  cout << endl;
+  cout << " : base field is " << *F << endl;
+#endif
   FieldIso emb(F);                    // starting with the identity,
-  Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
-  for (auto r: elements)
+
+  // case of trivial extension: do nothing (ignore newvar and reduce parameters)
+  if (r==0)
     {
-      emb.postcompose(Fext->sqrt_embedding(emb(r)));
-      Fext = (Field*)emb.codom();
+#ifdef DEBUG_ABS_FIELD
+      cout << " : returning trivial embedding (identity)" << endl;
+#endif
+      return emb;
+    }
+
+  Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
+  im_gens.clear();
+  int i = 0;
+  FieldElement x, sqrt_x;
+  for (auto g: gens)
+    {
+      i++;
+#ifdef DEBUG_ABS_FIELD
+      cout << i << ": adjoining sqrt(" << g << ")" << flush;
+#endif
+      x = emb(g); // = r in current field Fext
+#ifdef DEBUG_ABS_FIELD
+      cout << " = sqrt(" << x << ")" << endl;
+#endif
+      // create the next iso in the chain
+      newvar = F->get_var() + std::to_string(i);
+      FieldIso emb1(Fext->sqrt_embedding(x, newvar, sqrt_x, 0)); // no reduction now
+#ifdef DEBUG_ABS_FIELD
+      cout << " : next simple embedding is \n" << emb1 << endl;
+#endif
+      // update the field extension
+      Fext = (Field*)emb1.codom();
+#ifdef DEBUG_ABS_FIELD
+      cout << " : next field extension is " << *Fext << endl;
+#endif
+      // update the embedding of F
+      emb.postcompose(emb1);
+#ifdef DEBUG_ABS_FIELD
+      cout << " : next embedding is " << emb << endl;
+#endif
+      // map existing im_gens into new Fext
+      im_gens = emb1(im_gens);
+      //std::for_each(im_gens.begin(), im_gens.end(), [emb1](FieldElement& a){a = emb1(a);});
+      // append the new sqrt
+      im_gens.push_back(sqrt_x);
+#ifdef DEBUG_ABS_FIELD
+      cout << " : im_gens is now " << im_gens << endl;
+      cout << " in fields\n";
+      for (auto z: im_gens) cout << *z.field() << endl;
+#endif
+    }
+  // Final reduction (if requested) and seeting of variable name provided
+  if (reduce)
+    {
+      FieldIso emb1(Fext->reduction_isomorphism(newvar));
+#ifdef DEBUG_ABS_FIELD
+      cout << " : reduction iso is " << emb1 << endl;
+#endif
+      // map existing im_gens into new Fext
+      im_gens = emb1(im_gens);
+      //std::for_each(im_gens.begin(), im_gens.end(), [emb1](FieldElement& x){x = emb1(x);});
+      // update the embedding of F
+      emb.postcompose(emb1);
+#ifdef DEBUG_ABS_FIELD
+      cout << " : final embedding is " << emb << endl;
+#endif
+    }
+  else
+    {
+      Fext->set_var(newvar);
+#ifdef DEBUG_ABS_FIELD
+      cout << " : final embedding is " << emb << endl;
+#endif
     }
   return emb;
 }
@@ -1279,30 +1355,66 @@ void cancel_mat(mat_m& M, ZZ& d)
   d /= g;
 }
 
+//#define DEBUG_COMPOSE
+
 // precompose this FieldIso with another (requires iso.codomain = domain)
 void FieldIso::precompose(const FieldIso& iso)
 {
-  if (domain==iso.codomain)
+#ifdef DEBUG_COMPOSE
+  cout << " precomposing " << *this << " with " << iso << endl;
+#endif
+  if (iso.is_identity())
+    return;
+  if (is_identity())
+    {
+      *this = iso;
+      return;
+    }
+    if (domain==iso.codomain)
     {
       isomat = isomat * iso.isomat;
       denom *= iso.denom;
       cancel_mat(isomat,denom);
+      domain = iso.domain;
+#ifdef DEBUG_COMPOSE
+      cout << " after precomposing, the iso is " << *this << endl;
+#endif
     }
   else
-    cerr << "Cannot precompose " << *this << " with " << iso << endl;
+    {
+      cerr << "Cannot precompose " << *this << " with " << iso << endl;
+      exit(1);
+    }
 }
 
 // postcompose this FieldIso with another (requires iso.domain = codomain)
 void FieldIso::postcompose(const FieldIso& iso)
 {
+#ifdef DEBUG_COMPOSE
+  cout << " postcomposing " << *this << " with " << iso << endl;
+#endif
+  if (iso.is_identity())
+    return;
+  if (is_identity())
+    {
+      *this = iso;
+      return;
+    }
   if (codomain==iso.domain)
     {
       isomat = iso.isomat * isomat;
       denom *= iso.denom;
       cancel_mat(isomat,denom);
+      codomain = iso.codomain;
+#ifdef DEBUG_COMPOSE
+      cout << " after postcomposing, the iso is " << *this << endl;
+#endif
     }
   else
-    cerr << "Cannot postcompose " << *this << " with " << iso << endl;
+    {
+      cerr << "Cannot postcompose " << *this << " with " << iso << endl;
+      exit(1);
+    }
 }
 
 // return postcomposion of this and iso (requires iso.domain = codomain)
@@ -1341,29 +1453,46 @@ FieldIso FieldIso::inverse() const
   return FieldIso(codomain, domain, inversemat, d, 0); // 0: not the identity
 }
 
-// map x in codomain to an element of the codomain
+// map x in domain to an element of the codomain
 FieldElement FieldIso::operator()(const FieldElement& x) const
 {
   if (id_flag) return x;
   if (x.field()==domain)
     {
+      if (x.field()->isQ())
+        return codomain->rational(x.val);
+
       FieldElement y(codomain, isomat*x.coords, denom*x.denom);
       // sanity check that the min poly has not changed
-      if (! (x.charpoly()==y.charpoly()))
+      if (! (x.minpoly()==y.minpoly()))
         {
           cout << "Error in applying field isomorphism\n" << *this << "\n to x = " << x << "\n --> y = " << y << endl;
-          cout << "x has charpoly "<< ::str(x.charpoly()) << endl;
-          cout << "y has charpoly "<< ::str(y.charpoly()) << endl;
+          cout << "x has minpoly "<< ::str(x.minpoly()) << endl;
+          cout << "y has minpoly "<< ::str(y.minpoly()) << endl;
         }
       return y;
     }
   cerr << "Cannot apply FieldIso\n" << *this << "\n to " << x << " in " << *(x.field()) << endl;
+  exit(1);
   return FieldElement(codomain);
+}
+
+// same to all in a list of elements of the domain
+vector<FieldElement> FieldIso::operator()(const vector<FieldElement>& x) const
+{
+  vector<FieldElement> y(x.size());
+  std::transform(x.begin(), x.end(), y.begin(), [this](const FieldElement& a){return (*this)(a);});
+  return y;
 }
 
 //#define DEBUG_REDUCE
 
-FieldIso Field::reduction_isomorphism() const
+// Apply polredabs to the defining polynomial, define a new field
+// with that poly and return an isomorphism from this to that.  If
+// the poly was already polredabsed, or if F is QQ, return the
+// identity. Otherwise a new Field is created with provided variable
+// name.
+FieldIso Field::reduction_isomorphism(string newvar) const
 {
 #ifdef DEBUG_REDUCE
   cout << "In reduction_isomorphism(), minpoly = " << ::str(minpoly) << endl;
@@ -1388,7 +1517,6 @@ FieldIso Field::reduction_isomorphism() const
   cout << " - reduced minpoly = " << ::str(g) << endl;
 #endif
   // construct the reduced field:
-  string newvar = var+string("0");
   Field* Fred = new Field(g, newvar);
 #ifdef DEBUG_REDUCE
   cout << " - reduced field is\n" << *Fred << endl;
@@ -1470,16 +1598,20 @@ FieldIso Field::change_generator(const FieldElement& b) const
 
 
 // Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
-// applying polredabs to the codomain
-FieldIso Field::sqrt_embedding(const FieldElement& r, int reduce) const
+// applying polredabs to the codomain.  sqrt_r is set to sqrt(r) in
+// the codomain, so sqrt_r^2 = image of r
+//#define DEBUG_SQRT_EMBEDDING
+FieldIso Field::sqrt_embedding(const FieldElement& r, string newvar, FieldElement& sqrt_r, int reduce) const
 {
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << "In sqrt_embedding() with base field " << *this << " and r = " << r << endl;
+#endif
   if (r.field() != this)
     {
       cerr << "Cannot adjoin sqrt(" << r << ") to " << *this
            << " as it is in a different field " << *r.field() << endl;
       return FieldIso(this);
     }
-  FieldElement sqrt_r(this);
   if (r.is_square(sqrt_r))
     {
       cout << "Adjoining sqrt(" << r << ") to " << *this << " is trivial since "
@@ -1497,22 +1629,82 @@ FieldIso Field::sqrt_embedding(const FieldElement& r, int reduce) const
       s += ZZ(1);
       rss = r*s*s;
     }
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " s = " << s << ", rss = " << rss << endl;
+#endif
   // Now we adjoin sqrt(rss) instead
-  ZZX sqrt_r_pol = XtoX2(rss.charpoly());
-  assert (IsIrreducible(sqrt_r_pol)); // must be else r is a square
-  Field* F_sqrt_r = new Field(sqrt_r_pol, "sqrt_r");
+  ZZX sqrt_rss_pol = XtoX2(rss.charpoly());
+  assert (IsIrreducible(sqrt_rss_pol)); // must be else r is a square
+  Field* F_sqrt_rss = new Field(sqrt_rss_pol, newvar);
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " extended field is " << *F_sqrt_rss << endl;
+#endif
   // Now we embed this into the new field in three steps:
-  // Q(a) -~-> Q(r) c-> Q(sqrt(r)) -~-> Q(b)
-  // The first and last are isomorphisms, the last being polredabs.
-  FieldIso iso(change_generator(r));  // Q(a) -> Q(r)
-  const Field* Qr = iso.codomain;
-  // the images of the powers of r are the even powers of sqrt_r:
-  mat_m isomat(d, 2*d);
+  // Q(a) -~-> Q(rss) c-> Q(sqrt(rss)) -~-> Q(b)
+  // The first and last are isomorphisms, the last (optional) is polredabs reduction.
+  FieldIso iso(change_generator(rss));  // Q(a) -> Q(rss)
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " first map (isomorphism) is " << iso << endl;
+#endif
+  s = iso(s); // image of s in Q(rss)
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " iso(s) = " << s << endl;
+#endif
+  const Field* Qrss = iso.codomain; // Q(rss)
+  // the images of the powers of rss are the even powers of sqrt_rss:
+  mat_m isomat(2*d, d);
   for (int j=0; j<d; j++)
-    isomat.setcol(2*j+1, vec_m::unit_vector(d,j+1));
-  FieldIso emb(Qr, F_sqrt_r, isomat, ZZ(1)); // Q(r) -> Q(sqrt(r))
+    isomat.setrow(2*j+1, vec_m::unit_vector(d,j+1));
+  FieldIso emb(Qrss, F_sqrt_rss, isomat, ZZ(1)); // Q(rss) -> Q(sqrt(rss))
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " second map (embedding) is " << emb << endl;
+#endif
+  s = emb(s); // image of s in Q(sqrt(rss))
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " emb(s) = " << s << endl;
+#endif
+  sqrt_r = F_sqrt_rss->gen()/s; // sqrt(r) = sqrt(rss)/s
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " sqrt_r = " << sqrt_r << endl;
+#endif
   emb.precompose(iso);
+#ifdef DEBUG_SQRT_EMBEDDING
+      cout << " embedding (before reduction) is " << emb << endl;
+#endif
   if (reduce)
-    emb.postcompose(F_sqrt_r->reduction_isomorphism());
+    {
+#ifdef DEBUG_SQRT_EMBEDDING
+  cout << " reducing..." << endl;
+#endif
+      FieldIso red = F_sqrt_rss->reduction_isomorphism(newvar);
+#ifdef DEBUG_SQRT_EMBEDDING
+      cout << " third map (reduction isomorphism) is" << red << endl;
+#endif
+      emb.postcompose(red);
+#ifdef DEBUG_SQRT_EMBEDDING
+      cout << " final embedding is " << emb << endl;
+#endif
+      sqrt_r = red(sqrt_r);
+#ifdef DEBUG_SQRT_EMBEDDING
+      cout << " In the extension, sqrt(r) = " << sqrt_r << endl;
+#endif
+    }
   return emb;
+}
+
+// embed an Eigenvalue into the absolute field Fabs, given an
+// embedding of F into Fabs and images of the FieldModSq gens in Fabs
+FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const vector<FieldElement>& im_gens)
+{
+  FieldElement a(emb(ap.base()));
+  a *= emb(ap.root_part());
+  if (ap.xfac())
+    {
+      FieldElement one = a.field()->rational(1);
+      if (ap.xfac()==1)
+        a *= (one+im_gens[0]);
+      if (ap.xfac()==-1)
+        a *= (one-im_gens[0]);
+    }
+  return a;
 }

@@ -22,6 +22,10 @@ private:
   Field* F0;   // pointer to the (homological) Hecke field (original)
   Field* F;    // pointer to the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
+  FieldModSq* Fmodsq; // relative full Hecke field as extension of F
+  Field* Fabs;   // pointer to absolute full Hecke field
+  FieldIso abs_emb; // isomorphism from F to Fabs (possibly identity)
+  vector<FieldElement> im_gens;
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_abs; // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
@@ -30,7 +34,6 @@ private:
   INT genus_char_disc; // associated discriminant factor (1 for trivial char)
 
   // book-keeping data for eigenvalue computations
-  FieldModSq* Fmodsq;
   vector<long> genus_classes; // list of classes for which we have a nonzero eigenvalue
   vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
   vector<Eigenvalue> genus_class_aP;  // list of eigenvalues of these ideals

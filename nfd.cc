@@ -108,8 +108,9 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     }
   else
     {
-      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), codeletter(index-1), verbose>1);
-      Fiso =F0->reduction_isomorphism();
+      string var = codeletter(index-1);
+      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), var, verbose>1);
+      Fiso = F0->reduction_isomorphism(var);
       F = (Field*)Fiso.codom();
       if (Fiso.is_nontrivial()) // && verbose)
         {
@@ -219,7 +220,7 @@ FieldElement Newform::eig(const matop& T)
   vec_m apv = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
   //      cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
-  if (F->isQ())
+  if (F0->isQ())
     {
       FieldElement ap(bigrational(apv[1], to_ZZ(denom_abs)));
       //            cout << "ap = " << ap << endl;
@@ -295,7 +296,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
   Eigenvalue aP = eig(P);
   if (verb)
     cout << " - stored eig for P is " << aP << endl;
-  FieldElement a = aP.coeff();
+  FieldElement a = aP.base();
   if (n2r==0) // odd class number case is easy
     {
       if (verb)
@@ -313,7 +314,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
       else
         {
           ZZ p = ZZ(I2long(P.norm()));
-          a = (aP*aP).coeff(); // (a_P)^2
+          a = (aP*aP).base(); // (a_P)^2
           if (verb)
             cout << " - non-trivial genus class, aP^2 = " << a << endl;
           a = a - p;
@@ -367,7 +368,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
 #ifdef DEBUG_EIGPAUTO
       cout << "(aP)^2 = "  << aP*aP << endl;
 #endif
-      a = (aP*aP).coeff(); // =  (a_P)^2/i
+      a = (aP*aP).base(); // =  (a_P)^2/i
 #ifdef DEBUG_EIGPAUTO
       cout << "(aP)^2 / i = "  << a << endl;
 #endif
@@ -790,10 +791,19 @@ void Newform::compute_eigs(int ntp, int verbose)
   if (triv_char)
     compute_eigs_triv_char(ntp, verbose);
   else
-    if (is_C4())
-      compute_eigs_C4(ntp, verbose);
-    else
-      compute_principal_eigs(ntp, verbose);
+    {
+      if (is_C4())
+        compute_eigs_C4(ntp, verbose);
+      else
+        compute_principal_eigs(ntp, verbose);
+    }
+  if (Quad::class_group_2_rank)
+    {
+      string var = F->get_var() + string("1");
+      abs_emb = Fmodsq->absolute_field_embedding(im_gens, var, 1); // reduce=1
+      cout << "absolute embedding:\n" << abs_emb << endl;
+      cout << "absolute full Hecke field:\n" << *abs_emb.codom() << endl;
+    }
   check_base_change();
 }
 
@@ -858,7 +868,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           int cA = A.ideal_class(); // c or c^3
           assert ((cA==ic1) || (cA==ic3));
           matop T = HeckePChiOp(P, A, N);
-          FieldElement aPchiP = compute_one_principal_eig(ip, T, 1, verbose).coeff();
+          FieldElement aPchiP = compute_one_principal_eig(ip, T, 1, verbose).base();
           Eigenvalue aP = Eigenvalue(aPchiP, Fmodsq) * chi_inv[cA];
           if (verbose)
             cout << " a("<<P<<") = " << aP << endl;
@@ -905,7 +915,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 
       FieldElement p(F, ZZ(I2long(P.norm())));
       matop T =  HeckeP2ChiOp(P, P, nf->N);
-      FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).coeff();
+      FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).base();
       if (verbose>1)
         cout << "a(P^2)*chi(P) = " << a << endl;
       // The following uses chi(P)^2=-1
@@ -917,7 +927,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           cout << "a(P^2) = " << a_P2 << endl;
           cout << "a(P)^2 = " << aP_2 << endl;
         }
-      b = aP_2.coeff() * ZZ(2);
+      b = aP_2.base() * ZZ(2);
       if (b.is_zero())
         {
           if (verbose)
@@ -1093,12 +1103,12 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       FieldElement aP2; // not an Eigenvalue yet as we'll be adding N(P)
       if (P2.is_principal())  // compute T(P^2)
         {
-          aP2 = compute_one_principal_eig(nap, HeckeP2Op(P, N), 1, verbose).coeff();
+          aP2 = compute_one_principal_eig(nap, HeckeP2Op(P, N), 1, verbose).base();
         }
       else // T(P^2)*T(A,A) with (A*P)^2 principal
         {
           Qideal A = P.equivalent_mod_2_coprime_to(N, 1);
-          aP2 = compute_one_principal_eig(nap, HeckeP2ChiOp(P,A, N), 1, verbose).coeff();
+          aP2 = compute_one_principal_eig(nap, HeckeP2ChiOp(P,A, N), 1, verbose).base();
         }
       // Now aP2 is the eigenvalue of T(P^2)
       if (verbose)
@@ -1378,8 +1388,6 @@ void Newform::display(int aP, int AL, int principal_eigs) const
   F->display();
   if (n2r>0) // display full Hecke field
     {
-      FieldIso abs_emb = Fmodsq->absolute_field_embedding();
-      const Field* Fabs = abs_emb.codom();
       if (triv_char)
         {
           int r = Fmodsq->rank();
@@ -1413,7 +1421,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
                       cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
                     }
                 }
-              cout << "\t= " << *Fabs << endl;
+              cout << " - Absolute full Hecke field k_F = " << *Fabs <<endl;
             }
         } // end of trivial char case
       else // special case code for C4 class group
@@ -1430,6 +1438,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
               cout << endl;
               if (nf->verbose>1)
                 Fmodsq->display();
+              cout << " - Absolute full Hecke field k_F = " << *Fabs <<endl;
             }
           else
             {
@@ -1466,9 +1475,13 @@ void Newform::display_aP() const
   for (auto x : aPmap)
     {
       cout << x.first << ":\t" << x.second;
+      if (Quad::class_group_2_rank && Fmodsq->rank()>0)
+        cout << " = " << embed_eigenvalue(x.second, abs_emb, im_gens);
       auto it = eQmap.find(x.first);
       if (it != eQmap.end())
-        cout << "\t(AL eigenvalue = " << it->second << ")";
+        {
+          cout << "\t(AL eigenvalue = " << it->second << ")";
+        }
       cout << endl;
     }
 }
