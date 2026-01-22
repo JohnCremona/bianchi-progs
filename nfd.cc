@@ -801,8 +801,12 @@ void Newform::compute_eigs(int ntp, int verbose)
     {
       string var = F->get_var() + string("1");
       abs_emb = Fmodsq->absolute_field_embedding(im_gens, var, 1); // reduce=1
-      cout << "absolute embedding:\n" << abs_emb << endl;
-      cout << "absolute full Hecke field:\n" << *abs_emb.codom() << endl;
+      Fabs = (Field*)abs_emb.codom();
+      if (verbose)
+        {
+          cout << "absolute embedding:\n" << abs_emb << endl
+               << "absolute full Hecke field:\n" << *Fabs << endl <<endl;
+        }
     }
   check_base_change();
 }
@@ -1388,9 +1392,10 @@ void Newform::display(int aP, int AL, int principal_eigs) const
   F->display();
   if (n2r>0) // display full Hecke field
     {
+      int FisQ = F->isQ();
+      int r = Fmodsq->rank();
       if (triv_char)
         {
-          int r = Fmodsq->rank();
           if (r==0)
             cout << " - Full Hecke field is the same as the Principal Hecke field" << endl;
           else
@@ -1399,20 +1404,20 @@ void Newform::display(int aP, int AL, int principal_eigs) const
               // "Q(sqrt(2), sqrt(5))", otherwise something like
               // "k_f(sqrt(r1), sqrt(r2)) where r1 = ..., r2 = ...".
               cout << " - Full Hecke field k_F = "
-                   << (F->isQ()? "Q" : "k_f")
+                   << (FisQ? "Q" : "k_f")
                    << "(";
               for (int i=0; i<r; i++)
                 {
                   if (i) cout << ", ";
                   cout << "sqrt(";
-                  if (F->isQ())
+                  if (FisQ)
                     cout << Fmodsq->gen(i);
                   else
                     cout << "r" << (i+1);
                   cout << ")";
                 }
               cout << ")";
-              if (!(F->isQ()))
+              if (!(FisQ))
                 {
                   cout << " where ";
                   for (int i=0; i<r; i++)
@@ -1421,7 +1426,17 @@ void Newform::display(int aP, int AL, int principal_eigs) const
                       cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
                     }
                 }
-              cout << " - Absolute full Hecke field k_F = " << *Fabs <<endl;
+              cout << endl;
+              cout << "                        = " << *Fabs <<endl;
+              if (!FisQ)
+                {
+                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
+                  for (int i=0; i<r; i++)
+                    {
+                      cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
+                    }
+                  cout << "]" << endl;
+                }
             }
         } // end of trivial char case
       else // special case code for C4 class group
@@ -1429,7 +1444,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
           if (is_C4())
             {
               cout << " - Full Hecke field k_F = "
-                   << (F->isQ()? "Q" : "k_f")
+                   << (FisQ? "Q" : "k_f")
                    << "(i";
               if (Fmodsq->rank()>1)
                 cout << ", sqrt(r2)), where r2 = " << Fmodsq->gen(1);
@@ -1438,7 +1453,16 @@ void Newform::display(int aP, int AL, int principal_eigs) const
               cout << endl;
               if (nf->verbose>1)
                 Fmodsq->display();
-              cout << " - Absolute full Hecke field k_F = " << *Fabs <<endl;
+              cout << "                        = " << *Fabs <<endl;
+              if (!FisQ)
+                {
+                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
+                  for (int i=0; i<r; i++)
+                    {
+                      cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
+                    }
+                  cout << "]" << endl;
+                }
             }
           else
             {
@@ -1476,7 +1500,7 @@ void Newform::display_aP() const
     {
       cout << x.first << ":\t" << x.second;
       if (Quad::class_group_2_rank && Fmodsq->rank()>0)
-        cout << " = " << embed_eigenvalue(x.second, abs_emb, im_gens);
+        cout << " \t= " << embed_eigenvalue(x.second, abs_emb, im_gens);
       auto it = eQmap.find(x.first);
       if (it != eQmap.end())
         {

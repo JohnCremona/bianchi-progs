@@ -125,6 +125,9 @@ public:
 
   const Field* field() const {return F;}
   mat_m matrix() const; // ignores denom
+  // NB Since we do not have polynomials with rational coefficients,
+  // both charpoly and minpoly are scaled to be primitive rather than
+  // monic.
   ZZX charpoly() const;
   ZZX minpoly() const;
   int degree() const {return deg(minpoly());}
@@ -173,6 +176,11 @@ public:
 
   // return 1 and set r to the rational value if the degree is 1
   int is_rational(bigrational& r) const;
+  // Same with no value needed
+  int is_rational() const {bigrational r;  return is_rational(r);}
+
+  // return 1 iff this is an algebraic integer
+  int is_integral() const;
 
   // x must be initialised with a Field before input to x
   friend istream& operator>>(istream& s, FieldElement& x);
@@ -309,8 +317,9 @@ public:
   Eigenvalue(const FieldElement& x, FieldModSq* S, unsigned int i=0, int f=0)
     : a(x), root_index(i), SqCl(S), xf(f)
   {;}
-  FieldModSq* parent() {return SqCl;}
+  FieldModSq* parent() const {return SqCl;}
   FieldElement base() const {return a;}
+  unsigned int index() const {return root_index;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
   string extra_factor() const {return (xf>0? "(1+i)" : (xf<0? "(1-i)" : ""));}
   int xfac() const {return xf;}

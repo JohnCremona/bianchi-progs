@@ -49,6 +49,8 @@ Field::Field(const mat_m& m, const ZZ& den, string a, int verb)
       cout << "----------------------------"<<endl;
       cout << "In Field constructor (var = "<<a<<")"<< endl;
     }
+  // NB the assumption is that A/denom is integral, i.e. its (monic)
+  // char poly is integral and irreducible.
   minpoly = scaled_charpoly(mat_to_mat_ZZ(A), denom);
   if (verb)
     cout << " - min poly = " << ::str(minpoly) << ", generator " << var << endl;
@@ -409,34 +411,47 @@ mat_m FieldElement::matrix() const // ignores denom, not used for Q
   return lin_comb_mats(coords, F->Cpowers);
 }
 
+// NB Since we do not have polynomials with rational coefficients,
+// both charpoly and minpoly are scaled to be primitive rather than
+// monic.
+
 ZZX FieldElement::charpoly() const
 {
-  if (F->isQ())
+  ZZX cp;
+  bigrational r;
+  if (is_rational(r))
     {
-      ZZX cp;
       SetX(cp);
-      SetCoeff(cp, 0, -num(val));
+      SetCoeff(cp, 0, -num(r));
+      SetCoeff(cp, 1, den(r));
       return cp;
     }
-  ZZX f = ::scaled_charpoly(mat_to_mat_ZZ(matrix()), denom);
-  return f;
+  else
+    {
+      cp = ::charpoly(mat_to_mat_ZZ(matrix()));
+      // now replace X by denom*X and make primitive
+      ZZ dpow(denom);
+      int d = F->d;
+      for (int i=1; i<=d; i++)
+        {
+          SetCoeff(cp, i, dpow*coeff(cp, i));
+          if (i!=d)
+            dpow *= denom;
+        }
+      return PrimitivePart(cp);
+    }
 }
 
-// the charpoly is a power of the irreducible minpoly NB This monic
-// integer polynomial is the min poly of the numerator, it ignores the
-// denominator!
+// The charpoly is a power of the irreducible minpoly. NB This
+// primitive integer polynomial is only the actual minpoly if it is
+// monic.
 ZZX FieldElement::minpoly() const
 {
-  if (F->isQ())
-    {
-      ZZX mp;
-      SetX(mp);
-      SetCoeff(mp, 0, -num(val));
-      return mp;
-    }
   ZZX cp = charpoly();
-  ZZX mp = factor(cp)[0].a;
-  return mp;
+  if (is_rational())
+    return cp;
+  else
+    return factor(cp)[0].a;
 }
 
 // add b to this
@@ -636,6 +651,12 @@ int FieldElement::is_rational(bigrational& r) const
   return 1;
 }
 
+// return 1 iff this is an algebraic integer
+int FieldElement::is_integral() const
+{
+  return IsMonic(charpoly());
+}
+
 // NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
 // The first function only applies when a has maximal degree:
 // return 1 and r s.t. r^2=this, with deg(r)=degree(), else 0
@@ -690,11 +711,10 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
 #ifdef DEBUG_IS_SQUARE
   cout << "Testing whether " << (*this) << " is a square" << endl;
 #endif
+  r = *this; // sets the field, and is a default
   if (is_zero() || is_one())
-    {
-      r = *this;
-      return 1;
-    }
+    return 1;
+
   if (F->isQ())
     return (val.is_square(r.val));
 
@@ -1495,7 +1515,7 @@ vector<FieldElement> FieldIso::operator()(const vector<FieldElement>& x) const
 FieldIso Field::reduction_isomorphism(string newvar) const
 {
 #ifdef DEBUG_REDUCE
-  cout << "In reduction_isomorphism(), minpoly = " << ::str(minpoly) << endl;
+  cout << "In Field::reduction_isomorphism(), minpoly = " << ::str(minpoly) << endl;
 #endif
   if (isQ())
     {
@@ -1509,7 +1529,7 @@ FieldIso Field::reduction_isomorphism(string newvar) const
   if (minpoly==g)
     {
 #ifdef DEBUG_REDUCE
-      cout << " - " << ::str(minpoly) << " is already polredabs, so identity" << endl;
+      cout << " - " << ::str(minpoly) << " is already reduced, so identity" << endl;
 #endif
       return FieldIso(this); // identity
     }
@@ -1553,23 +1573,30 @@ FieldIso Field::reduction_isomorphism(string newvar) const
 // Return an iso from this=Q(a) to Q(b) where B is in this field and generates
 FieldIso Field::change_generator(const FieldElement& b) const
 {
+  FieldIso iso(this); // default
+
   if (b.field() != this)
     {
       cerr << "Cannot change generator of " << *this << " to " << b
            << " which is in a different field " << *b.field() << endl;
-      return FieldIso(this);
+      return iso;
     }
   ZZX b_pol(b.minpoly());
   if (deg(b_pol)!=d)
     {
       cerr << "Cannot change generator of " << *this << " to " << b
-           << " which ony has degree " << deg(b_pol) << endl;
-      return FieldIso(this);
+           << " which only has degree " << deg(b_pol) << endl;
+      return iso;
     }
-
+  if (!IsMonic(b_pol))
+    {
+      cerr << "Cannot change generator of " << *this << " to " << b
+           << " which is not integral " << endl;
+      return iso;
+    }
   if ((d==1) || (b_pol==minpoly)) // then the identity will do
     {
-      return FieldIso(this);
+      return iso;
     }
 
   // Create the new field:
@@ -1596,7 +1623,6 @@ FieldIso Field::change_generator(const FieldElement& b) const
   return FieldIso(this, b_field, Minv, da, 0); // 0: not the identity
 }
 
-
 // Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
 // applying polredabs to the codomain.  sqrt_r is set to sqrt(r) in
 // the codomain, so sqrt_r^2 = image of r
@@ -1622,12 +1648,17 @@ FieldIso Field::sqrt_embedding(const FieldElement& r, string newvar, FieldElemen
   // If r has degree < d we replace it with an equivalent element of
   // maximal degree by multiplying by a square.  Then the sqrt field
   // is generated by f(X^2) where f is the char poly.
-  FieldElement s = gen();
-  FieldElement rss = r*s*s;
-  while (rss.degree()<d)
+  FieldElement s(rational(1));
+  FieldElement rss = r;
+  if (rss.degree()<d)
     {
-      s += ZZ(1);
+      s = gen();
       rss = r*s*s;
+      while (rss.degree()<d)
+        {
+          s += ZZ(1);
+          rss = r*s*s;
+        }
     }
 #ifdef DEBUG_SQRT_EMBEDDING
   cout << " s = " << s << ", rss = " << rss << endl;
@@ -1694,17 +1725,65 @@ FieldIso Field::sqrt_embedding(const FieldElement& r, string newvar, FieldElemen
 
 // embed an Eigenvalue into the absolute field Fabs, given an
 // embedding of F into Fabs and images of the FieldModSq gens in Fabs
+//#define DEBUG_EMBED_EIGS
 FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const vector<FieldElement>& im_gens)
 {
+#ifdef DEBUG_EMBED_EIGS
+  cout << "Embedding Eigenvalue " << ap << endl;
+#endif
   FieldElement a(emb(ap.base()));
-  a *= emb(ap.root_part());
+#ifdef DEBUG_EMBED_EIGS
+  cout << "Base = " << ap.base() << " = " << a << endl;
+#endif
+  if (ap.is_zero())
+    return a;
+
+  unsigned int s = ap.parent()->order();
+  unsigned int apri = ap.index();
+  int xf = ap.xfac();
+  if ((apri==0)&&(xf==0)) // quick return when field extension is trivial or ap has no extra factors
+    {
+#ifdef DEBUG_EMBED_EIGS
+      cout << "No extra factors, returning " << a << endl;
+#endif
+      return a;
+    }
+
+  // Multiply by those im_gens for which the corresponding bit of
+  // ap.root_index is 1
+  for (unsigned int i=0; i<s; i++)
+    if (bit(apri, i))
+      {
+        a *= im_gens[i];
+#ifdef DEBUG_EMBED_EIGS
+        cout << "Multiplying by " << im_gens[i] << " gives " << a << endl;
+#endif
+      }
+#ifdef DEBUG_EMBED_EIGS
+  cout << "Multiplying by all sqrt factors gives " << a << endl;
+#endif
+
+  // multiply by 1+i or 1-1 if required
   if (ap.xfac())
     {
       FieldElement one = a.field()->rational(1);
       if (ap.xfac()==1)
-        a *= (one+im_gens[0]);
+        {
+#ifdef DEBUG_EMBED_EIGS
+          cout << "Multiplying by (1 + " << im_gens[0] << ") gives " << a << endl;
+#endif
+          a *= (one+im_gens[0]);
+        }
       if (ap.xfac()==-1)
-        a *= (one-im_gens[0]);
+        {
+          a *= (one-im_gens[0]);
+#ifdef DEBUG_EMBED_EIGS
+          cout << "Multiplying by (1 - " << im_gens[0] << ") gives " << a << endl;
+#endif
+        }
     }
+#ifdef DEBUG_EMBED_EIGS
+  cout << "Final embedded value is " << a << endl;
+#endif
   return a;
 }
