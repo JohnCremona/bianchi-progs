@@ -548,7 +548,7 @@ Newspace::Newspace(const Qideal& level, int verb)
 // old factors with correct multiplicities
 pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                            const gmatop &T)
-{verbose=2;
+{
   // This will use the caches
   if (verbose>1)
     cout << "In full_and_new_polys() with T = " <<T.name() << endl;
