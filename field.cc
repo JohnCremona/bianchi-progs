@@ -419,27 +419,28 @@ ZZX FieldElement::charpoly() const
 {
   ZZX cp;
   bigrational r;
-  if (is_rational(r))
+  if (is_rational(r)) // then charpoly = minpoly^degree
     {
-      SetX(cp);
-      SetCoeff(cp, 0, -num(r));
-      SetCoeff(cp, 1, den(r));
+      ZZX mp = minpoly();
+      cp = mp;
+      int d = field()->degree() - 1;
+      while (d--)
+        cp *= mp;
       return cp;
     }
-  else
+
+  // Now this is not rational (and the field is not QQ)
+  cp = ::charpoly(mat_to_mat_ZZ(matrix()));
+  // now replace X by denom*X and make primitive
+  ZZ dpow(denom);
+  int d = F->d;
+  for (int i=1; i<=d; i++)
     {
-      cp = ::charpoly(mat_to_mat_ZZ(matrix()));
-      // now replace X by denom*X and make primitive
-      ZZ dpow(denom);
-      int d = F->d;
-      for (int i=1; i<=d; i++)
-        {
-          SetCoeff(cp, i, dpow*coeff(cp, i));
-          if (i!=d)
-            dpow *= denom;
-        }
-      return PrimitivePart(cp);
+      SetCoeff(cp, i, dpow*coeff(cp, i));
+      if (i!=d)
+        dpow *= denom;
     }
+  return PrimitivePart(cp);
 }
 
 // The charpoly is a power of the irreducible minpoly. NB This
@@ -447,11 +448,19 @@ ZZX FieldElement::charpoly() const
 // monic.
 ZZX FieldElement::minpoly() const
 {
-  ZZX cp = charpoly();
-  if (is_rational())
-    return cp;
-  else
-    return factor(cp)[0].a;
+  ZZX cp;
+  bigrational r;
+  if (is_rational(r)) // then deg(minpoly)=1, whatever the field
+    {
+      SetX(cp);
+      SetCoeff(cp, 0, -num(r));
+      SetCoeff(cp, 1, den(r));
+      return cp;
+    }
+
+  // Now this is not rational (and the field is not QQ)
+  cp = charpoly();
+  return factor(cp)[0].a;
 }
 
 // add b to this
