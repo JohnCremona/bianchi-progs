@@ -548,7 +548,7 @@ Newspace::Newspace(const Qideal& level, int verb)
 // old factors with correct multiplicities
 pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                            const gmatop &T)
-{
+{verbose=2;
   // This will use the caches
   if (verbose>1)
     cout << "In full_and_new_polys() with T = " <<T.name() << endl;
@@ -1604,15 +1604,34 @@ void Newform::output_to_file(int conj) const
   out << endl;
 
   // Principal Hecke field:
-  out << F->str(1);  // raw=1
+  out << F->str(1) << endl;  // raw=1
+
+  // Full Hecke field (even class number only)
+
   if (n2r)
     {
-  // Full Hecke field data (if class number even):
-      out << " " << Fmodsq->str();
-  // Self-twist discriminant or 0 (if class number even):
-      out << "\n" << CMD;
+      // Multiquadratic extension data:
+      out << Fmodsq->str() << endl;
+
+      // Absolute field:
+      out << Fabs->str(1) << endl;  // raw=1
+
+      // Embedding of F into Fabs: matrix entries and denom
+      for (auto mij: abs_emb.matrix().get_entries())
+        out << mij << " ";
+      out << abs_emb.den() <<endl;
+
+      // Images of sqrt gens in Fabs:
+      if (Fmodsq->rank())
+        {
+          for (auto g: im_gens)
+            out << g.str(1) << " ";
+          out << endl;
+        }
+      // Self-twist discriminant or 0 (if class number even):
+      //      out << "CMD\n";
+      out << "\n" << CMD << endl;
     }
-  out << endl;
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
   out << base_change_code() << endl;
@@ -1724,9 +1743,10 @@ int Newform::input_from_file(int verb)
   if (verb>1)
     cout << "--> Principal field is " << *F << endl;
 
+  // Full Hecke field data (if class number even)
   if (n2r)
     {
-      // Full Hecke field data (if class number even)
+      // Multiquadratic extension data:
       int nroots;
       fdata >> nroots;
       if (verb>1)
@@ -1739,6 +1759,21 @@ int Newform::input_from_file(int verb)
       Fmodsq = new FieldModSq(F, roots, triv_char); // set real flag=1 iff trivial char
       if (verb>1)
         Fmodsq->display();
+
+      // Absolute field:
+      Fabs = new Field();
+      fdata >> &Fabs;
+
+      // Embedding of F into Fabs: matrix entries and denom
+      mat_m isomat(Fabs->degree(), F->degree());
+      ZZ isoden;
+      fdata >> isomat >> isoden;
+      abs_emb = FieldIso(F, Fabs, isomat, isoden);
+
+      // Images of sqrt gens in Fabs:
+      im_gens.resize(nroots, FieldElement(Fabs));
+      for (auto& g: im_gens)
+        fdata >> g;
 
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;
