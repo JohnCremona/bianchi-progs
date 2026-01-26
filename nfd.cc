@@ -112,7 +112,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
       F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), var, verbose>1);
       Fiso = F0->reduction_isomorphism(var);
       F = (Field*)Fiso.codom();
-      if (Fiso.is_nontrivial()) // && verbose)
+      if (Fiso.is_nontrivial() && verbose)
         {
           cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
                << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
@@ -1393,6 +1393,7 @@ void Newform::display(int aP, int AL, int principal_eigs) const
   if (n2r>0) // display full Hecke field
     {
       int FisQ = F->isQ();
+      int FisCM = Fmodsq->is_complex();
       int r = Fmodsq->rank();
       if (triv_char)
         {
@@ -1433,7 +1434,10 @@ void Newform::display(int aP, int AL, int principal_eigs) const
                   cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
                   for (int i=0; i<r; i++)
                     {
-                      cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
+                      if (FisCM && i==0)
+                        cout << ", i = " << im_gens[i];
+                      else
+                        cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
                     }
                   cout << "]" << endl;
                 }
@@ -1459,7 +1463,10 @@ void Newform::display(int aP, int AL, int principal_eigs) const
                   cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
                   for (int i=0; i<r; i++)
                     {
-                      cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
+                      if (FisCM && i==0)
+                        cout << ", i = " << im_gens[i];
+                      else
+                        cout << ", sqrt(r" << (i+1) << ") = " << im_gens[i];
                     }
                   cout << "]" << endl;
                 }

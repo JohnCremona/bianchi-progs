@@ -226,11 +226,11 @@ private:
 
 public:
   vector<Newform> newforms; // the newforms
-  Newspace(void) {;}
+  Newspace(void) :verbose(0) {;}
   // constructor from a homspace, looking for a splitting operator
   // using linear combinations of up to maxnp primes, coefficients up
   // to maxc
-  Newspace(homspace* h1, int maxnp, int maxc, int verb=1);
+  Newspace(homspace* h1, int maxnp, int maxc, int verb=0);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
   // constructor from file

@@ -1555,7 +1555,7 @@ FieldIso Field::reduction_isomorphism(string newvar) const
   // denh * image of F's gen in Fred:
   FieldElement a = evaluate(h,Fred->gen()); // / Fred->rational(denh);
 #ifdef DEBUG_REDUCE
-  cout << " - image of gen is " << a << " / " << denh << endl;
+  cout << " - image of gen is (" << a << ") / " << denh << endl;
 #endif
   FieldElement apow = a; // power of a
   ZZ denhpowmax = pow(denh, d-1);
@@ -1579,6 +1579,7 @@ FieldIso Field::reduction_isomorphism(string newvar) const
   return FieldIso(this, Fred, M, denhpowmax, 0); // 0: not the identity
 }
 
+//#define DEBUG_CHANGE_GEN
 // Return an iso from this=Q(a) to Q(b) where B is in this field and generates
 FieldIso Field::change_generator(const FieldElement& b) const
 {
@@ -1591,6 +1592,10 @@ FieldIso Field::change_generator(const FieldElement& b) const
       return iso;
     }
   ZZX b_pol(b.minpoly());
+#ifdef DEBUG_CHANGE_GEN
+  cout << "Constructing isomorphism from " << *this << " to Q(b) with b = "
+       << b << ", minpoly(b) = " << b_pol << endl;
+#endif
   if (deg(b_pol)!=d)
     {
       cerr << "Cannot change generator of " << *this << " to " << b
@@ -1613,23 +1618,63 @@ FieldIso Field::change_generator(const FieldElement& b) const
 
   // To define the map to the new field we need to express a as a
   // polynomial in b.  The coordinates of b^j w.r.t. a are the columns
-  // of the matrix M with first column m_1=e_1 and j'th column
-  // m_j=B*m_{j-1}.
-  mat_m B(b.matrix());
+  // of the matrix M with first column m_1=e_1 and j'th column m_j =
+  // (B/dB)*m_{j-1}.  Instead of multiplying M on the right by
+  // diag(1,dB,dB^2,...)^-1 (scaling its columns down) we will
+  // multiply Minv on the left by diag(1,dB,dB^2,...), (scaling its
+  // rows up).
+
+  mat_m B(b.matrix()), M(d,d),  Minv(d,d);
+  ZZ dB(b.denom);
   vec_m v(vec_m::unit_vector(d,1));
-  mat_m M(d,d);
+  // Set the volumns of M in turn, multiplying by B
   M.setcol(1,v);
-  for(int i=2; i<=d; i++)
+  for(int j=2; j<=d; j++)
     {
       v = B*v;
-      M.setcol(i,v);
+      M.setcol(j,v);
     }
-  mat_m Minv(d,d);
+#ifdef DEBUG_CHANGE_GEN
+  cout << "M = " << M << endl;
+#endif
   ZZ da = inverse(M,Minv); // so M*Minv = da*identity
+#ifdef DEBUG_CHANGE_GEN
+  cout << "Before scaling by dB = " << dB << ", Minv = " << Minv
+       << " and denom(Minv) = " << da << endl;
+#endif
+  // Multiply the rows of Minv by successive posers of dB
+  if (!IsOne(dB))
+    {
+      ZZ dBpow(dB);
+      for(int i=2; i<=d; i++)
+        {
+          Minv.multrow(i, dBpow);
+          if (i<d)
+            dBpow *= dB;
+        }
+    }
+#ifdef DEBUG_CHANGE_GEN
+  cout << "After scaling, Minv = " << Minv
+       << " and denom(Minv) = " << da << endl;
+#endif
   cancel_mat(Minv, da);
+#ifdef DEBUG_CHANGE_GEN
+  cout << "After cancelling, Minv = " << Minv
+       << " and denom(Minv) = " << da << endl;
+#endif
   // The coeffs of 1,a,a^2,... as polynomials in b are the columns
-  // 1,2,3,... of M^-1.
-  return FieldIso(this, b_field, Minv, da, 0); // 0: not the identity
+  // 1,2,3,... of Minv/da.
+  iso =  FieldIso(this, b_field, Minv, da, 0); // 0: not the identity
+  // check:
+  FieldElement isob = iso(b);
+  if (isob!=b_field->gen())
+    {
+      cerr << "Error in Field::change_generator(b) with b = " << b << "\n";
+      cerr << "b has minpoly " << ::str(b.minpoly()) << "\n";
+      cerr << "iso(b) = " << isob << " with minpoly " << ::str(isob.minpoly()) << "\n";
+      exit(1);
+    }
+  return iso;
 }
 
 // Return an iso from this=Q(a) to Q(b) where b^2=r, optionally
@@ -1709,24 +1754,24 @@ FieldIso Field::sqrt_embedding(const FieldElement& r, string newvar, FieldElemen
 #endif
   emb.precompose(iso);
 #ifdef DEBUG_SQRT_EMBEDDING
-      cout << " embedding (before reduction) is " << emb << endl;
+  cout << " embedding (before reduction) is " << emb << endl;
 #endif
   if (reduce)
     {
 #ifdef DEBUG_SQRT_EMBEDDING
   cout << " reducing..." << endl;
 #endif
-      FieldIso red = F_sqrt_rss->reduction_isomorphism(newvar);
+  FieldIso red = F_sqrt_rss->reduction_isomorphism(newvar);
 #ifdef DEBUG_SQRT_EMBEDDING
-      cout << " third map (reduction isomorphism) is" << red << endl;
+  cout << " third map (reduction isomorphism) is" << red << endl;
 #endif
-      emb.postcompose(red);
+  emb.postcompose(red);
 #ifdef DEBUG_SQRT_EMBEDDING
-      cout << " final embedding is " << emb << endl;
+  cout << " final embedding is " << emb << endl;
 #endif
-      sqrt_r = red(sqrt_r);
+  sqrt_r = red(sqrt_r);
 #ifdef DEBUG_SQRT_EMBEDDING
-      cout << " In the extension, sqrt(r) = " << sqrt_r << endl;
+  cout << " In the extension, sqrt(r) = " << sqrt_r << endl;
 #endif
     }
   return emb;
