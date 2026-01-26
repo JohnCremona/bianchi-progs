@@ -544,9 +544,9 @@ Newspace::Newspace(const Qideal& level, int verb)
   input_from_file(level, verb);
 }
 
-// Compute the new char poly of T using the oldspaces to obtain the
-// old factors with correct multiplicities
-pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+// Compute the new cuspidal char poly of T using the oldspaces to
+// obtain the old factors with correct multiplicities.
+ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                            const gmatop &T)
 {
   // This will use the caches
@@ -612,17 +612,16 @@ pair<ZZX,ZZX> Newspace::full_and_new_polys(const vector<Quadprime>& Plist, const
   if (verbose)
     cout<<"Caching new cuspidal poly for " << NT << ": " << str(f_new) << endl;
   new_cuspidal_poly_dict[NT] = f_new;
-  return {f_full, f_new};
+  return f_new;
 }
 
-// Return true iff this combo of ops has squarefree new poly coprime to its old poly
-// with f_new set to the new poly
+// Return true iff this combo of ops has new cuspidal poly which is
+// squarefree and coprime to both the old cuspidal poly and the full
+// Eisenstein poly. f_new is set to the new cuspidal poly.
 int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                     const gmatop &T, ZZX& f_new)
 {
-  pair<ZZX,ZZX> f_full_new = full_and_new_polys(Plist, coeffs, T);
-  ZZX f_full = f_full_new.first;
-  f_new = f_full_new.second;
+  f_new = new_cuspidal_poly(Plist, coeffs, T);
   if (!IsSquareFree(f_new))
     {
       if (verbose>1)
@@ -630,19 +629,20 @@ int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector
              << " for " << T.name() << " is not squarefree" << endl;
       return 0;
     }
-  ZZX f_old = f_full / f_new;
-  if (!AreCoprime(f_new, f_old))
+  ZZX f_full = get_poly(N, T, 0, 0, H1->modulus); // cuspidal=0, triv_char=0
+  ZZX f_old_or_eis = f_full / f_new;
+  if (!AreCoprime(f_new, f_old_or_eis))
     {
       if (verbose>1)
         cout << "\n NO: new Hecke polynomial "<<str(f_new)
              << " for " << T.name()
-             <<" is not coprime to old Hecke polynomial "<<str(f_old)<<endl
+             <<" is not coprime to old Hecke polynomial * Eisenstein polynomial"<<str(f_old_or_eis)<<endl
              <<" (full polynomial is "<<str(f_full)<<")"<<endl;
       return 0;
     }
   if (verbose>1)
     cout << "\n YES: new Hecke polynomial for " << T.name()
-         << " is squarefree and coprime to old Hecke polynomial" << endl;
+         << " is squarefree and coprime to old * Eisenstein Hecke polynomial" << endl;
   return 1;
 }
 

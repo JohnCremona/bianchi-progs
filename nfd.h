@@ -211,8 +211,8 @@ private:
   // list of possible self-twist discriminants depending only on the level
   vector<INT> possible_self_twists;
 
-  // return full and new char polys for a linear combo of ops using old Newspace data from files
-  pair<ZZX,ZZX> full_and_new_polys(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+  // return new cuspidal char poly for a linear combo of ops using old Newspace data from files
+  ZZX new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const gmatop &T);
   // Return true iff this combo of ops has squarefree new poly coprime to its old poly
   int valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,

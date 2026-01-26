@@ -30,6 +30,7 @@ int main()
     }
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
+  int n2r = Quad::class_group_2_rank;
 
   Quad n;
   Qideal N;
@@ -54,7 +55,9 @@ int main()
       Newspace NS;
       NS.input_from_file(N);
       int nnf = NS.nforms();
-      cout << nnf << (nnf==1? " newform" : " newforms") << endl;
+      cout << nnf << (nnf==1? " newform" : " newforms");
+      if (n2r) cout << " (up to unramified quadratic twist)";
+      cout << endl;
       NS.display_newforms(1, 1); // aP: yes;  AL: yes (principal eigs, triv_char_only: no)
     }     // end of level loop
   cout << endl;
