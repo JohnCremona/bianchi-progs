@@ -463,6 +463,28 @@ ZZX FieldElement::minpoly() const
   return factor(cp)[0].a;
 }
 
+bigrational FieldElement::norm() const
+{
+  int d = field()->degree();
+  if (d==1) return val;
+  bigrational r;
+  if (is_rational(r)) // then norm = r**degree
+    return bigrational(pow(r.num(), d), pow(r.den(), d));
+  else
+    return bigrational(matrix().determinant(), pow(denom, field()->degree()));
+}
+
+bigrational FieldElement::trace() const
+{
+  int d = field()->degree();
+  if (d==1) return val;
+  bigrational r;
+  if (is_rational(r)) // then norm = r**degree
+    return ZZ(d) * r;
+  else
+    return bigrational(matrix().trace(), denom);
+}
+
 // add b to this
 void FieldElement::operator+=(const FieldElement& b)
 {
@@ -1006,6 +1028,46 @@ Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
   assert (((*this)*ans).is_one());
 #endif
   return ans;
+}
+
+
+bigrational Eigenvalue::norm() const
+{
+  int d1 = SqCl->order(); // a power of 2
+  bigrational anorm(a.norm());
+  if (d1==1)
+    return anorm;
+  anorm = bigrational(pow(anorm.num(), d1), pow(anorm.den(), d1));
+  int half_d1 = d1/2; // only used when d1>1 so is even
+  if (root_index>1)   // then d1>1 so is even
+    {
+      bigrational rnorm((-root_part()).norm());
+      anorm *= bigrational(pow(rnorm.num(), half_d1), pow(rnorm.den(), half_d1));
+    }
+  if (xf)
+    {
+      anorm *= bigrational(pow(2,half_d1 * SqCl->field()->degree()));
+    }
+  return anorm;
+}
+
+bigrational Eigenvalue::trace() const
+{
+  bigrational atrace(a.trace());
+  if (SqCl->rank()==0)
+    return atrace;
+  atrace *= ZZ(SqCl->order());
+  bigrational zero;
+  if (xf==0)
+    {
+      return (root_index==0? atrace: zero);
+    }
+  // now xf =+-1 so there's a factor of 1+-i
+  if (root_index>1)
+    return zero;
+  if ((root_index==1) && (xf==1)) // i*(1+i)=i-1, i*(1-i)=i+1
+    atrace = -atrace;
+  return atrace;
 }
 
 // integer multiple of i, assuming not real

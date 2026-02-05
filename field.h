@@ -131,6 +131,8 @@ public:
   ZZX charpoly() const;
   ZZX minpoly() const;
   int degree() const {return deg(minpoly());}
+  bigrational norm() const;
+  bigrational trace() const;
   int is_zero() const;
   int is_one() const;
   int is_minus_one() const;
@@ -337,6 +339,8 @@ public:
   int is_zero() const {return a.is_zero();}
   int is_one() const {return a.is_one() && root_index==0 && xf==0;}
   int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
+  bigrational norm() const;
+  bigrational trace() const;
 
   // as a pretty string, or (if raw) a raw string suitable for re-input:
   string str(int raw=0) const;
