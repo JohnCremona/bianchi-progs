@@ -81,8 +81,8 @@ int main()
      //     continue;
      //   }
      int maxnp = 7, maxc = 2;
-     Newspace forms(H1, maxnp, maxc, verbose);
-     if (!forms.ok())
+     Newspace NS(H1, maxnp, maxc, verbose);
+     if (!NS.ok())
        {
          cout << "Failed to find a splitting operator using linear combnations of " << maxnp
               << " operators with coefficients up to" << maxc
@@ -90,8 +90,8 @@ int main()
          continue; // to next level
        }
      if (verbose)
-       cout << "Splitting using " << forms.splitopname() << endl;
-     int nnf = forms.nforms();
+       cout << "Splitting using " << NS.splitopname() << endl;
+     int nnf = NS.nforms();
      cout << "Found " << nnf << " homological newform";
      if (nnf!=1) cout << "s";
      cout << " at level " << Nlabel;
@@ -99,21 +99,21 @@ int main()
        {
          cout << " of dimension";
          if (nnf>1)
-           cout << "s " << forms.dimensions();
+           cout << "s " << NS.dimensions();
          else
-           cout << " " << forms.dimensions()[0];
+           cout << " " << NS.dimensions()[0];
        }
      cout << endl;
 
      if (!nnf)
        {
          //     cout << "Outputting newform data to files" << endl;
-         forms.output_to_file();
+         NS.output_to_file();
          if (!conjugate_level_equal)
-           forms.output_to_file(1);
+           NS.output_to_file(1);
          continue;
        }
-     int nnf_triv_char = std::count_if(forms.newforms.begin(), forms.newforms.end(),
+     int nnf_triv_char = std::count_if(NS.newforms.begin(), NS.newforms.end(),
                                        [](Newform F){return F.is_char_trivial()==1;});
      if (n2r)
        cout << "Of these, " << nnf_triv_char
@@ -126,7 +126,7 @@ int main()
      // eigensystem with trivial character:
 
      int inf=1;
-     for (auto& F: forms.newforms)
+     for (auto& F: NS.newforms)
        {
          if (verbose)
            cout << "Computing eigenvalues for newform #" << inf <<endl;
@@ -144,7 +144,7 @@ int main()
        {
          if (verbose)
            cout << "Resorting the newforms with trivial character using traces" << endl;
-         forms.sort_newforms();
+         NS.sort_newforms();
        }
 
      cout << "Hecke eigenvalues:" << endl << endl;
@@ -156,24 +156,48 @@ int main()
                 << " and character chi_1" << endl;
          else
            cout << "Full eigensystems for forms with trivial character" << endl;
-         for (auto& F: forms.newforms)
+         for (auto& F: NS.newforms)
            {
              F.display(1, 1, verbose, 1);
              cout << endl;
            }
        }
 
+     if (n2r)
+       {
+         cout << "About to add quadratic twists..." << endl;
+         NS.add_unram_quadratic_twists();
+         cout << "Hecke eigenvalues:" << endl << endl;
+
+         if (C4 || (nnf_triv_char > 0))
+           {
+             if (C4)
+               cout << "Full eigensystems for forms with character chi_0 (trivial)"
+                    << " and character chi_1" << endl;
+             else
+               cout << "Full eigensystems for forms with trivial character" << endl;
+             for (auto& F: NS.newforms)
+               {
+                 F.display(1, 1, verbose, 1);
+                 cout << endl;
+               }
+           }
+       }
+#if(0) // while testing quadratic twist code
+
      if (verbose)
        cout << "Outputting Newspace data" << endl;
-     forms.output_to_file();
+     NS.output_to_file();
      if (!conjugate_level_equal)
        {
          if (verbose)
            cout << "Outputting conjugate Newspace data" << endl;
-         forms.output_to_file(1);
+         NS.output_to_file(1);
        }
      if (verbose)
        cout << "Finished outputting Newspace data"<< endl;
+#endif
+
     }     // end of level loop
   cout << endl;
   exit(0);

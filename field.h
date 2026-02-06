@@ -164,6 +164,7 @@ public:
   FieldElement operator/(const ZZ& b) const {return operator/(FieldElement(F,b));} // divide
   void operator/=(const FieldElement& b);                        // divide by b
   void operator/=(const ZZ& b) { operator/=(FieldElement(F,b));} // divide by b
+  void negate(); // negate in place
 
   // NB for a in F, either [Q(sqrt(a))=Q(a)] or [Q(sqrt(a)):Q(a)]=2.
   // The first function only applies when a has maximal degree:
@@ -341,6 +342,7 @@ public:
   int is_minus_one() const {return a.is_minus_one() && root_index==0 && xf==0;}
   bigrational norm() const;
   bigrational trace() const;
+  void negate() {a.negate();} // negate in place
 
   // as a pretty string, or (if raw) a raw string suitable for re-input:
   string str(int raw=0) const;

@@ -343,6 +343,14 @@ int FieldElement::is_minus_one() const
   return IsOne(denom) && coords == -vec_m::unit_vector(F->d,1);
 }
 
+void FieldElement::negate() // negate in place
+{
+  if (F->isQ())
+    val = -val;
+  else
+    coords = -coords;
+}
+
 // String for pretty printing, used in default <<
 // or for raw output, suitable for re-input (with Field known):
 string FieldElement::str(int raw) const

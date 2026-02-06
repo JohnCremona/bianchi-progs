@@ -159,8 +159,10 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     }
   self_twist_flag = (self_twist_possible ? -1 : 0); // -1 means not yet decided
   genus_class_trivial_counter.resize(1<<n2r, 0);
-  genus_classes.resize(1,0);
+  genus_classes_nonzero.resize(1,0);
+  genus_classes_no_ext.resize(1,0);
   genus_class_ideals.resize(1,Qideal(ONE));
+  genus_class_no_ext_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
 }
 
@@ -1131,11 +1133,11 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // See if we already have an eigenvalue for this genus class
 
       if (verbose)
-        cout<<" -- P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
-      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
-      if (ci != genus_classes.end()) // P is in a known genus class
+        cout<<" -- P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes_nonzero<<endl;
+      auto ci = std::find(genus_classes_nonzero.begin(), genus_classes_nonzero.end(), c);
+      if (ci != genus_classes_nonzero.end()) // P is in a known genus class
         {
-          int i = ci - genus_classes.begin();
+          int i = ci - genus_classes_nonzero.begin();
           Qideal A = genus_class_ideals[i];
           Qideal B = A*P; // so B is square-free and of square class
           if (verbose)
@@ -1240,10 +1242,11 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       unsigned int old_order = Fmodsq->order();
       FieldElement s = F->one();
       unsigned int j = Fmodsq->get_index(aP2, s);
+      int Hecke_field_extended = j>=old_order;
       if (verbose)
         {
           cout<<" -- P="<<P<<", a(P)^2 = "<<aP2<<" is in square class #"<<j;
-          if (j>=old_order)
+          if (Hecke_field_extended)
             cout<<" (new class, rank mod squares is now " << Fmodsq->rank() << ")";
           cout << endl;
         }
@@ -1252,24 +1255,44 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       if (verbose)
         cout << " -- taking a(P) = " << aP << endl;
 
-      // update genus_classes (append binary sum of each and c)
+      // If this new genus class did not require an extension of the
+      // Hecke field, record that in genus_classes_no_ext, doubling
+      // the size of that subgroup by appending the binary sum of each
+      // element and c
+
+      if (!Hecke_field_extended)
+        {
+          long oldsize = genus_classes_no_ext.size();
+          if (verbose)
+            cout << "Doubling the size of genus_classes_no_ext from " << oldsize
+                 << " to " << 2*oldsize << endl;
+          genus_classes_no_ext.resize(2*oldsize);
+          genus_class_no_ext_ideals.resize(2*oldsize);
+          for (int i = 0; i<oldsize; i++)
+            {
+              genus_classes_no_ext[oldsize+i] = genus_classes_no_ext[i]^c;
+              genus_class_no_ext_ideals[oldsize+i] = genus_class_no_ext_ideals[i]*P;
+            }
+        }
+
+      // update genus_classes_nonzero (append binary sum of each and c)
       // update genus_class_ideals (append product of each and P)
       // update genus_class_aP (append product of each and aP)
-      long oldsize = genus_classes.size();
+      long oldsize = genus_classes_nonzero.size();
       if (verbose)
         cout<<" -- doubling number of genus classes covered by P with nonzero aP from "<<oldsize
             <<" to "<<2*oldsize<<" using P="<<P<<endl;
-      genus_classes.resize(2*oldsize);
+      genus_classes_nonzero.resize(2*oldsize);
       genus_class_ideals.resize(2*oldsize);
       genus_class_aP.resize(2*oldsize);
       genus_class_trivial_counter[c] = 0;
       for (int i = 0; i<oldsize; i++)
         {
-          genus_classes[oldsize+i] = genus_classes[i]^c;
+          genus_classes_nonzero[oldsize+i] = genus_classes_nonzero[i]^c;
           genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
           genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
         }
-      if (genus_classes.size() == genus_class_trivial_counter.size())
+      if (genus_classes_nonzero.size() == genus_class_trivial_counter.size())
         {
           if (self_twist_flag!=0) // otherwise we already know it is not self-twist
             {
@@ -1296,10 +1319,17 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
                 <<" possible self-twist discriminants, these remain: "<<possible_self_twists << endl;
         }
     } // end of primes loop
+
+  // Report on possible self-twist, if not all the genus classes have
+  // a nonzero eigenvalue:
+
+  int n2r = Quad::class_group_2_rank;
+  unsigned int ngenera = 1<<n2r;
+
   if (self_twist_flag == -1)
     {
       if (verbose)
-        cout << "Only " << genus_classes.size() << " out of " << genus_class_trivial_counter.size()
+        cout << "Only " << genus_classes_nonzero.size() << " out of " << ngenera
              << " genus classes have non-zero eigenvalues!\n"
              << "Flagging this newform as having self-twist.\n";
       int nst = possible_self_twists.size();
@@ -1319,6 +1349,18 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
                                      // one if more than one, but this
                                      // is OK for C4 class group
     }
+
+  // Report on how many genus classes have eigenvalues in the principal Hecke field
+  verbose = 1;
+  if (verbose && n2r)
+    {
+      cout << "Out of " << ngenera << " genus classes, " << genus_classes_no_ext.size()
+           << " have eigenvalues in the principal Hecke field." << endl;
+      cout << "These classes are " << genus_classes_no_ext << endl;
+      cout << "This means that the number of unramified quadratic twists of this newform is "
+           << genus_classes_no_ext.size() << endl;
+    }
+  assert (ngenera == genus_classes_no_ext.size() * Fmodsq->order());
 } // end of compute_eigs_triv_char
 
 // Fill dict eQmap *after* aPmap, and set sfe, ONLY in triv_char case
@@ -1824,6 +1866,153 @@ void Newform::output_to_file(int conj) const
     }
 }
 
+//#define DEBUG_TWIST
+
+// Construct another newform which is the unramified quadratic twist
+// of this one by D, where D is a discriminant divisor
+Newform Newform::unram_quadratic_twist(const INT& D)
+{
+  Newform f = *this; // copy
+
+  // Twist aP (change a copy then reassign):
+  auto aPmapD = aPmap;
+  for (auto x: aPmap)
+    {
+      auto P = x.first;
+      if (P.genus_character(D) == -1)
+        aPmapD[P].negate();
+    }
+  f.aPmap = aPmapD;
+
+  // Twist eQ (change a copy then reassign):
+  auto eQmapD = eQmap;
+  for (auto x: eQmap)
+    {
+      auto Q = x.first;
+      if (Q.genus_character(D) == -1)
+        eQmapD[Q] *= -1;
+    }
+  f.eQmap = eQmapD;
+
+  // Twist aM and traces:
+  Qidealooper Mloop(1, I2long(maxP), 1, 1); // 1: both conjugates; 1: sorted
+  int iM=0;
+  while (Mloop.not_finished())
+    {
+      Qideal M = Mloop.next();
+#ifdef DEBUG_TWIST
+      cout << "Ideal M = " << M << " has character " << M.genus_character(D) <<endl;
+#endif
+      if (M.genus_character(D) == -1)
+        {
+#ifdef DEBUG_TWIST
+          cout << "Before twisting, aM = " << f.aMmap[M] << " with trace " << f.trace_list[iM] << endl;
+#endif
+          f.aMmap[M].negate();
+          f.trace_list[iM] *= -1;
+#ifdef DEBUG_TWIST
+          cout << "After twisting, aM = " << f.aMmap[M] << " with trace " << f.trace_list[iM] << endl;
+#endif
+        }
+      iM++;
+    }
+  return f;
+}
+
+//#define DEBUG_UNRAM_TWISTS
+// Construct all newforms which are nontrivial unramified quadratic
+// twists of this one, up to Galois conjugacy
+vector<Newform> Newform::all_unram_quadratic_twists()
+{
+#ifdef DEBUG_UNRAM_TWISTS
+  cout << "Finding all unramified quadratic twists of one newform, up to Galois conjugacy,\n"
+       << " given genus_classes_no_ext = " << genus_classes_no_ext
+       << ", with ideals " << genus_class_no_ext_ideals << endl;
+#endif
+  // We use the subgroup H of the genus class group whose element list
+  // is genus_classes_no_ext with representative ideals in
+  // genus_class_no_ext_ideals.
+
+  vector<Newform> twisted_newforms; // will hold the result
+
+  if (!triv_char)
+    {
+#ifdef DEBUG_UNRAM_TWISTS
+      cout << "Adding unramified quadratic twists not implemented for nontrivial character" << endl;
+#endif
+      return twisted_newforms;
+    }
+
+  // Special case 1: genus_classes_no_ext = [0]. Then all unramified
+  // quadratic twists are conjugates, so we return an empty list.
+  // This will always be the case if the class number is odd, so the
+  // class group's 2-rank is 1.
+
+  int nclasses = genus_classes_no_ext.size();
+  if (nclasses == 1)
+    {
+#ifdef DEBUG_UNRAM_TWISTS
+      cout << "No nontrivial unramified quadratic twists up to Galois conjugacy" << endl;
+#endif
+    return twisted_newforms;
+    }
+  // Special case 2: genus_classes_no_ext = all genus classes. Then
+  // all unramified quadratic twists are pairwise non-conjugate, so we
+  // return all of them (except the trivial one).  This is the only
+  // other case if the class group's 2-rank is 1.
+
+  int n2 = Quad::class_group_2_torsion.size();
+  if (nclasses == n2)
+    {
+#ifdef DEBUG_UNRAM_TWISTS
+      cout << "All nontrivial unramified quadratic twists are distinct up to Galois conjugacy" << endl;
+#endif
+      for (auto& D : Quad::all_disc_factors)
+        {
+          if (!D.is_one())
+            {
+              cout << "Applying unramified quadratic twist  by " <<  D << endl;
+              twisted_newforms.push_back(unram_quadratic_twist(D));
+            }
+        }
+      return twisted_newforms;
+    }
+
+  // Now the class group's 2-rank must be at least 2.
+
+  // genus_class_no_ext_ideals is a list of ideals in the classes in
+  // genus_classes_no_ext.size().  To find a list of the twists D we
+  // need, we evaluate the genus character for D at all of these and
+  // only keep D if the list of values is new.
+  vector<vector<int>> D_values_list;
+  vector<INT> Dlist;
+  for (auto& D : Quad::all_disc_factors)
+    {
+      if (!D.is_one())
+        {
+          vector<int> D_values;
+          for (auto I: genus_class_no_ext_ideals)
+            D_values.push_back(I.genus_character(D));
+          auto it = std::find(D_values_list.begin(), D_values_list.end(), D_values);
+          if (it == D_values_list.end())
+            {
+              D_values_list.push_back(D_values);
+              Dlist.push_back(D);
+            }
+        }
+    }
+#ifdef DEBUG_UNRAM_TWISTS
+  cout << "The nontrivial unramified quadratic twists up to Galois conjugacy are "
+       << " by D in " << Dlist << endl;
+#endif
+  for (auto& D : Dlist)
+    {
+      cout << "Applying unramified quadratic twist  by " <<  D << endl;
+      twisted_newforms.push_back(unram_quadratic_twist(D));
+    }
+  return twisted_newforms;
+}
+
 // Input newform data (needs lab to be set to construct the filename).
 // Returns 0 if data file missing, else 1
 int Newform::input_from_file(int verb)
@@ -2099,6 +2288,35 @@ int Newspace::input_from_file(const Qideal& level, int verb)
     }
   fdata.close();
   return 1;
+}
+
+
+// For each newform f, create and append all its unramified
+// quadratic twists and resort.  This does nothing if the class
+// number is odd.  We only add twists which are not Galois
+// conjugates: that is, we twist by D in nontrivial cosets of a
+// subgroup of the group of all discriminant divisors.
+void Newspace::add_unram_quadratic_twists()
+{
+  if (Quad::class_group_2_rank == 0)
+    return;
+
+#ifdef DEBUG_TWIST
+  cout << "Applying unramified quadratic twists " << endl;
+#endif
+  for ( auto& F : newforms)
+    if (F.triv_char)
+      {
+        vector<Newform> extra_newforms = F.all_unram_quadratic_twists();
+#ifdef DEBUG_TWIST
+        cout << "Adding " << extra_newforms.size() << " extra newforms, ";
+#endif
+        newforms.insert(newforms.end(), extra_newforms.begin(), extra_newforms.end());
+#ifdef DEBUG_TWIST
+        cout << "number is now " << newforms.size() << endl;
+#endif
+      }
+  sort_newforms();
 }
 
 // output basis for the Hecke field and character of all newforms

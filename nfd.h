@@ -34,8 +34,10 @@ private:
   INT genus_char_disc; // associated discriminant factor (1 for trivial char)
 
   // book-keeping data for eigenvalue computations
-  vector<long> genus_classes; // list of classes for which we have a nonzero eigenvalue
+  vector<long> genus_classes_nonzero; // list of classes for which we have a nonzero eigenvalue
   vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
+  vector<long> genus_classes_no_ext; // list of classes for which we have a nonzero eigenvalue in F itself
+  vector<Qideal> genus_class_no_ext_ideals; // list of ideals in these classes
   vector<Eigenvalue> genus_class_aP;  // list of eigenvalues of these ideals
   int genus_classes_filled;  // Set to 1 when all genus classes are
                              // filled, or when half are filled if we
@@ -176,6 +178,13 @@ public:
   void output_to_file(int conj=0) const;
   // Input newform data. Returns 0 if data not available, else 1.
   int input_from_file(int verb=0);
+
+  // Construct another newform which is the unramified quadratic twist
+  // of this one by D, where D is a discriminant divisor
+  Newform unram_quadratic_twist(const INT& D);
+  // Construct all newforms which are nontrivial unramified quadratic
+  // twists of this one, up to Galois conjugacy
+  vector<Newform> all_unram_quadratic_twists();
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -297,6 +306,13 @@ public:
   void output_to_file(int conj=0);
   // Input Newspace data and newform data for each newform. Returns 0 if data missing, else 1.
   int input_from_file(const Qideal& level, int verb=0);
+
+  // For each newform f, create and append all its unramified
+  // quadratic twists and resort.  This does nothing if the class
+  // number is odd.  We only add twists which are not Galois
+  // conjugates: that is, we twist by D in nontrivial cosets of a
+  // subgroup of the group of all discriminant divisors.
+  void add_unram_quadratic_twists();
 };
 
 // dict of Newspaces read from file
