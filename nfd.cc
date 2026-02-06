@@ -4,6 +4,7 @@
 #include "nfd.h"
 #include "field.h"
 #include "oldforms.h"
+#include "qidloop.h"
 
 newform_comparison newform_cmp;
 
@@ -279,6 +280,92 @@ Eigenvalue Newform::eig(const Quadprime& P, int stored_only)
   // only?)
 }
 
+// coefficient in Fabs of integral ideal M from aMmap or computed (and
+// stored in aMmap) using multiplicative relations. Trivial character
+// only.
+FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
+{
+  if (!triv_char)
+    {
+      cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
+      return Fabs->zero();
+    }
+
+  // return cached value if we have it
+  auto it = aMmap.find(M);
+  if (it!=aMmap.end())
+    return it->second;
+
+  // otherwise compute it using multiplicative relations from
+  // precomputed prime coefficients
+  FieldElement a;
+  if (M.norm().is_one())
+    a = Fabs->one();
+  else
+    {
+      Factorization F = M.factorization();
+      if (F.is_prime_power())
+        {
+          Quadprime P = F.prime(0);
+          int good = !P.divides(nf->N);
+          int e = F.exponent(0);
+          // aPmap has the aP for bad P as well as good, from compute_AL_eigs()
+          FieldElement aP = embed_eigenvalue(aPmap[P], abs_emb, im_gens);
+          FieldElement nP = Fabs->rational(I2long(P.norm()));
+          switch (e) {
+          case 1: // prime
+            a = aP;
+            break;
+          case 2: // a(P^2) = a(P)^2+N(P)
+            a = aP*aP;
+            if (good)
+              a += nP;
+            break;
+          default: // general case a(P^e) = a(P)*a(P^(e-1)) + N(P)*a(P^(e-2))
+            Qideal MoverP = M/P;
+            a = aP*aM(MoverP);
+            if (good)
+              {
+                MoverP /= P;
+                a += nP*aM(MoverP);
+              }
+          }
+        } // end of prime power case
+      else
+        {
+          Qideal Q = F.prime_power(0);
+          Qideal MoverQ = M/Q;
+          a = aM(Q) * aM(MoverQ);
+        }
+    }
+  aMmap[M] = a;
+  return a;
+}
+
+// Assuming aPmap filled, fill aMmap (Fourier coefficients)
+void Newform::compute_coefficients(int ntp, int verbose)
+{
+  if (!triv_char && verbose)
+    {
+      cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
+      return;
+    }
+
+  if (aPmap.empty())
+    compute_eigs(ntp, verbose);
+
+  // Compute a(M) for M of norm up to maxP (the max N(P) for which we
+  // have aP).  NB trace_list[0] is the trace of a(1) which should be
+  // the absolute Hecke field degree
+  Qidealooper Iloop(1, I2long(maxP), 1, 1); // 1: both conjugates; 1: sorted
+  while (Iloop.not_finished())
+    {
+      Qideal I = Iloop.next();
+      FieldElement a = aM(I); // computes and caches aI
+      trace_list.push_back(a.trace().num()); // traces of coefficients are integral
+    }
+}
+
 // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
 // stored aP in aPmap.  Only implemented for trivial character
 // (where this is the eigenvalue of P or P^2) or C4 class group.
@@ -313,7 +400,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
         }
       else
         {
-          ZZ p = ZZ(I2long(P.norm()));
+          ZZ p(I2long(P.norm())); // stupid conversion from INT to ZZ
           a = (aP*aP).base(); // (a_P)^2
           if (verb)
             cout << " - non-trivial genus class, aP^2 = " << a << endl;
@@ -372,7 +459,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
 #ifdef DEBUG_EIGPAUTO
       cout << "(aP)^2 / i = "  << a << endl;
 #endif
-      ZZ p = ZZ(I2long(P.norm()));
+      ZZ p(I2long(P.norm())); // stupid conversion from INT to ZZ
       if (cP==ic1)
         a -= p;
       else
@@ -529,13 +616,19 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
   else
     // abort if not
     cout << "Unable to find a suitable splitting operator!" << endl;
+
+  // Sort the newforms (by character, dimension, polynomial; we have no traces yet)
+  sort_newforms();
+}
+
+// sort the list of newforms using newform_cmp
+void Newspace::sort_newforms()
+{
   // Sort the newforms (by character, dimension, polynomial)
   std::sort(newforms.begin(), newforms.end(), newform_cmp);
   int i=1;
   for (Newform& f: newforms)
-    {
-      f.set_index(i++);
-    }
+    f.set_index(i++);
 }
 
 // constructor from file
@@ -789,11 +882,14 @@ void Newform::compute_principal_eigs(int nap, int verbose)
 void Newform::compute_eigs(int ntp, int verbose)
 {
   if (triv_char)
-    compute_eigs_triv_char(ntp, verbose);
+    {
+      compute_eigs_triv_char(ntp, verbose); // a(P) for good P
+      compute_AL_eigs(ntp, verbose);        // e(Q) and a(Q) for bad Q
+    }
   else
     {
       if (is_C4())
-        compute_eigs_C4(ntp, verbose);
+        compute_eigs_C4(ntp, verbose);      // a(P) for good P
       else
         compute_principal_eigs(ntp, verbose);
     }
@@ -809,6 +905,8 @@ void Newform::compute_eigs(int ntp, int verbose)
         }
     }
   check_base_change();
+  if (triv_char) // must be done after Fabs is computed
+    compute_coefficients(ntp, verbose);   // a(M) and traces for N(M)<=max N(P)
 }
 
 // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
@@ -851,6 +949,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   int P0_set = 0;
 
   int ip = 0;  // counts the primes used (including bad primes which are skipped here)
+  maxP = INT(0);
   for ( auto& P : Quadprimes::list)
     {
       ip++;
@@ -858,6 +957,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
         break;
       if (P.divides(N))
         continue; // we compute AL eigs separately, later
+      maxP = max(maxP, P.norm());
       int cP = P.ideal_class();
       string Pname = prime_label(P);
       if (cP==0) // P principal, compute T(P) directly
@@ -917,7 +1017,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // T(P)*T(P,P) to find a(P)^2, pick a square root (if nonzero),
       // store the P in P0, aP in aP0, and set the flag.
 
-      FieldElement p(F, ZZ(I2long(P.norm())));
+      FieldElement p(F->rational(I2long(P.norm()))); // stupid conversion from INT to ZZ
       matop T =  HeckeP2ChiOp(P, P, nf->N);
       FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).base();
       if (verbose>1)
@@ -1005,6 +1105,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     return;
   int nap = 0;
   Qideal N(nf->N);
+  maxP = INT(0);
   auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
     {
@@ -1012,6 +1113,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       nap++;
       if (P.divides(N))
         continue; // compute AL eigs separately, later
+      maxP = max(maxP, P.norm());
       Eigenvalue aP;
       long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0) // P has trivial genus class
@@ -1117,7 +1219,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // Now aP2 is the eigenvalue of T(P^2)
       if (verbose)
         cout << " -- a(P^2) = " << aP2 << endl;
-      ZZ normP = to_ZZ(I2long(P.norm()));
+      ZZ normP(I2long(P.norm())); // stupid conversion from INT to ZZ
       aP2 += normP;
       // Now aP2 is the eigenvalue of T(P)^2
       if (verbose)
@@ -1220,13 +1322,16 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
 } // end of compute_eigs_triv_char
 
 // Fill dict eQmap *after* aPmap, and set sfe, ONLY in triv_char case
-void Newform::compute_AL_eigs(int verbose)
+void Newform::compute_AL_eigs(int ntp, int verbose)
 {
   // Compute AL-eigs to fill map<Quadprime, Eigenvalue> eQmap and also
   // the entries in aPmap indexed by bad primes.
 
   if (!triv_char)  // we don't deal with pseudo-eigenvalues
     return;
+
+  if (aPmap.empty())
+    compute_eigs(ntp, verbose);
 
   // Except in the trivial char case or if all Q^e|N are principal,
   // this requires aPmap to be filled with a nonzero eigenvalue for
@@ -1313,7 +1418,9 @@ void Newform::compute_AL_eigs(int verbose)
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
 // Optionally aP and AL (if trivial char) data too
-void Newform::display(int aP, int AL, int principal_eigs) const
+// Optionally traces too
+// Optionally principal eigs too
+void Newform::display(int aP, int AL, int principal_eigs, int traces) const
 {
   cout << "Newform #" << index << " (" << long_label() << ")" << endl;
 
@@ -1492,9 +1599,15 @@ void Newform::display(int aP, int AL, int principal_eigs) const
       cout << endl;
       display_principal_eigs();
     }
+  if (triv_char && traces)
+    {
+      cout << endl;
+      cout << "First " << trace_list.size() << " traces: " << trace_list << endl;
+    }
 }
 
 // Display aP data (trivial char or C4 fields)
+//#define CHECK_TRACES
 void Newform::display_aP() const
 {
   if (aPmap.empty())
@@ -1505,9 +1618,22 @@ void Newform::display_aP() const
   cout << "aP for first " << aPmap.size() << " primes:" << endl;
   for (auto x : aPmap)
     {
-      cout << x.first << ":\t" << x.second;
+      Eigenvalue aP = x.second;
+      cout << x.first << ":\t" << aP;
+#ifdef CHECK_TRACES
+      bigrational taP = aP.trace();
+      cout << " (trace = " << taP << ")";
+#endif
       if (Quad::class_group_2_rank && Fmodsq->rank()>0)
-        cout << " \t= " << embed_eigenvalue(x.second, abs_emb, im_gens);
+        {
+          FieldElement bP = embed_eigenvalue(aP, abs_emb, im_gens);
+          cout << " \t= " << bP;
+#ifdef CHECK_TRACES
+          bigrational tbP = bP.trace();
+          cout << " (trace = " << tbP << ")";
+          assert (taP==tbP);
+#endif
+        }
       auto it = eQmap.find(x.first);
       if (it != eQmap.end())
         {
@@ -1552,17 +1678,17 @@ int Newform::base_change_code(void) const
   else return 2;
 }
 
-map<Quadprime, Eigenvalue> Newform::aPeigs(int ntp, int verbose)
+map<Quadprime, Eigenvalue> Newform::TP_eigs(int ntp, int verbose)
 {
   if (aPmap.empty())
     compute_eigs(ntp, verbose);
   return aPmap;
 }
 
-map<Quadprime, int> Newform::ALeigs(int verbose)
+map<Quadprime, int> Newform::AL_eigs(int ntp, int verbose)
 {
   if (eQmap.empty())
-    compute_AL_eigs(verbose);
+    compute_AL_eigs(ntp, verbose);
   return eQmap;
 }
 

@@ -120,67 +120,49 @@ int main()
             << (nnf_triv_char==1? " has": " have")
             << " trivial character"<<endl<<endl;
 
-     // cout << "Newform data" << endl;
-     // forms.display_newforms();
-
-     cout << "Hecke eigenvalues:" << endl << endl;
+     // We compute eigenvalues, coefficients and traces and then resort
 
      // For homological forms with trivial character we find the full
      // eigensystem with trivial character:
 
+     int inf=1;
+     for (auto& F: forms.newforms)
+       {
+         if (verbose)
+           cout << "Computing eigenvalues for newform #" << inf <<endl;
+         F.compute_eigs(nap, verbose);
+         if (verbose)
+           cout << endl;
+         inf++;
+       }
+
+     // After computing eigenvalues, resort the newforms: the forms
+     // with trivial character will now be sorted by their sequence of
+     // traces.
+
+     if (nnf_triv_char > 1)
+       {
+         if (verbose)
+           cout << "Resorting the newforms with trivial character using traces" << endl;
+         forms.sort_newforms();
+       }
+
+     cout << "Hecke eigenvalues:" << endl << endl;
+
      if (C4 || (nnf_triv_char > 0))
        {
-         if (n2r>0)
-           {
-             if (C4)
-               cout << "Full eigensystems for forms with character chi_0 (trivial)"
+         if (C4)
+           cout << "Full eigensystems for forms with character chi_0 (trivial)"
                 << " and character chi_1" << endl;
-           }
          else
-           {
-             cout << "Full eigensystems for forms with trivial character" << endl;
-           }
-         int inf=1;
+           cout << "Full eigensystems for forms with trivial character" << endl;
          for (auto& F: forms.newforms)
            {
-             int triv_char = F.is_char_trivial();
-             if (C4 || triv_char)
-               {
-                 cout << endl;
-                 if (verbose)
-                   cout << "Computing eigenvalues for newform #" << inf <<endl;
-                 map<Quadprime, Eigenvalue> aP = F.aPeigs(nap, verbose);
-                 map<Quadprime, int> ALeigs = F.ALeigs(verbose);
-                 // display newform data including AL and aP (and all principal eigs if verbose):
-                 F.display(1, 1, verbose);
-                 cout << endl;
-               } // end of triv_char or C4 test
-             inf++;
+             F.display(1, 1, verbose, 1);
+             cout << endl;
            }
        }
 
-     cout<<endl;
-     if (!C4 && (nnf > nnf_triv_char))
-       {
-         cout << "Principal eigenvalues for forms with non-trivial character" << endl;
-
-         for (auto& F: forms.newforms)
-           {
-             if (F.is_char_trivial())
-               continue;
-             cout << endl;
-             if (verbose)
-               cout << "Computing principal eigenvalues for newform #" << F.get_index() <<endl;
-             map<pair<int,string>, Eigenvalue> eigs = F.principal_eigs(nap, verbose);
-             F.display(0, 0, 1);
-             cout << endl;
-             // cout << "Principal eigenvalues involving first " << nap << " good primes:" << endl;
-             // for (auto x: eigs)
-             //   cout
-             //     // << "(" << x.first.first << ") "
-             //     << x.first.second << ":\t" << x.second << endl;
-           }
-       }
      if (verbose)
        cout << "Outputting Newspace data" << endl;
      forms.output_to_file();

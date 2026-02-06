@@ -60,11 +60,15 @@ private:
   map<pair<int,string>, Eigenvalue> eigmap;
   // Dict of T(P) eigenvalues of good primes P:
   map<Quadprime, Eigenvalue> aPmap;
+  // max norm(P) for P in aPmap:
+  INT maxP;
   // Dict of W(Q) eigenvalues in {+1,-1} of bad primes Q, triv char only:
   map<Quadprime, int> eQmap;
+  // Dict of coefficients in Fabs of integral ideals M. Trivial
+  // character only.
+  map<Qideal, FieldElement> aMmap;
+  vector<ZZ> trace_list; // list of traces of sorted integral ideals
 
-  // Fill dict aPmap of eigenvalues of first ntp good primes
-  void compute_eigs(int ntp=10, int verbose=0);
   // Fill dict eigmap of eigenvalues of first ntp principal operators
   Eigenvalue compute_one_principal_eig(int, const matop& T, int store=0, int verbose=0);
   void compute_principal_eigs(int ntp=10, int verbose=0);
@@ -72,12 +76,20 @@ private:
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, class group C4 only
   void compute_eigs_C4(int ntp=10, int verbose=0);
-  // Fill dict eQmap *after* aPmap, if triv_char
-  void compute_AL_eigs(int verbose=0);
+  // Fill dict eQmap, if triv_char; if aPmap not already filled, first
+  // compute ntp aP
+  void compute_AL_eigs(int ntp=10, int verbose=0);
+
+public:
+  // Fill dict aPmap of eigenvalues of first ntp good primes; put max norm(P) into maxP
+  void compute_eigs(int ntp=10, int verbose=0);
+  // Assuming aPmap filled, fill aMmap (Fourier coefficients), and
+  // trace_list (ordered list of traces) using all P in aPmap if aPmap
+  // already filled, else first compute ntp aP.
+  void compute_coefficients(int ntp=10, int verbose=0);
   // Assuming aPmap filled, set the bc and bct flags
   void check_base_change(void);
 
-public:
   // constructor from ambient Newspace using one irreducible factor of char
   // poly of Newspace's T_mat
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
@@ -100,6 +112,11 @@ public:
   // otherwise either raise an error (if stored_only=1) or (not yet
   // implemented) compute it.
   Eigenvalue eig(const Quadprime& P, int stored_only=1);
+
+  // coefficient in Fabs of integral ideal M from aMmap or computed
+  // (and stored in aMmap) using multiplicative relations. Trivial
+  // character only.
+  FieldElement aM(Qideal& M); // not const Qideal& as we factor it
 
   // Principal eigenvalue of AutoHeckeOp(P) for a good prime P, from
   // stored aP in aPmap.  Only implemented for trivial character
@@ -125,7 +142,7 @@ public:
   // Output basis for the Homological Hecke field and character
   // If class number even, also output multiplicative basis for the full Hecke field
   // Optionally aP and AL data too
-  void display(int aP=0, int AL=0, int principal_eigs=0) const;
+  void display(int aP=0, int AL=0, int principal_eigs=0, int traces=0) const;
   // Display aP data (trivial char or C4 fields)
   void display_aP() const;
   // Display AL eigenvalues (trivial char or C4 fields)
@@ -142,12 +159,15 @@ public:
   int cm_code() const {return cm;}
   //  ZZ basis_factor() const {return F->Bdet;}
 
-  // Compute aPmap if empty and return it
-  map<Quadprime, Eigenvalue> aPeigs(int ntp, int verbose=0);
-  // Compute eQmap if empty and return it
-  map<Quadprime, int> ALeigs(int verbose=0);
+  // Compute aPmap for first ntp primes if empty, and return it
+  map<Quadprime, Eigenvalue> TP_eigs(int ntp, int verbose=0);
+  // Compute eQmap if empty and return it, first computing aPmap for
+  // first ntp primes if necessary
+  map<Quadprime, int> AL_eigs(int ntp=10, int verbose=0);
   // Compute eigmap (principal eigs) if empty and return it
   map<pair<int,string>, Eigenvalue> principal_eigs(int nap, int verbose=0);
+  // return the list of traces
+  vector<ZZ> traces() const {return trace_list;}
 
   // NB We only implement file output for newforms with trivial character
   // Filename for this Newform (or conjugate):
@@ -174,7 +194,20 @@ struct newform_comparison {
     t = char1<char2; // true if f1 has 'later' char
     if(t) return 0;
 
-    // Now sharacters are the same,  sort by dimension
+    // Sort by lists of traces; if these have not been computed yet,
+    // or if the character is nontrivial, the trace lists will be
+    // empty and we will fall through to the final tests.
+    vector<ZZ> traces1 = f1.traces(), traces2 = f2.traces();
+    t = traces1<traces2; // true e.g. if f1 has smaller absolute Hecke field degree
+    if(t) return 1;
+    t = traces1>traces2; // true e.g. if f1 has larger absolute Hecke field degree
+    if(t) return 0;
+
+    // We only get here when the traces have not been computed.
+
+    // The characters are the same, we sort by (homological)
+    // dimension. NB this is the degree of the principal Hecke field,
+    // not the degree of the full Hecke field.
     int s = f1.dimension() - f2.dimension();
     if(s) return (s<0); // true if f1 has smaller dimension
 
@@ -253,6 +286,8 @@ public:
 
   // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
   void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int triv_char_only=0) const;
+  // sort the list of newforms using newform_cmp
+  void sort_newforms();
   // return the list of newforms
   vector<Newform> the_newforms() const {return newforms;}
 
