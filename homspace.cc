@@ -6,7 +6,7 @@
 
 homspace::homspace(const Qideal& I, scalar mod, int hp, int verb, scalar ch)
   :verbose(verb), plusflag(hp), N(I), P1(I), characteristic(ch), modulus(mod), hmod(0),
-   triv_char_subdim(-1), triv_char_dual_subdim(-1)
+   triv_char_subdim(-1), triv_char_dual_subdim(-1), triv_char_cuspidal_subdim(-1)
 {
   Quad::setup_geometry("geodata", 0); // will do nothing after the first time called
   nsymb = P1.size();
@@ -478,24 +478,34 @@ smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
 {
   if(display)
     cout<<"Computing " << T.name() <<"..."<<flush;//" in s_calcop()..."<<flush;
+
+  // First compute the matrix of T on the full space (dimension x
+  // dimension).  Since smats have setrow() but not setcol() we do
+  // this by rows, giving the transpose of the actual matrix:
   smat m(dimension,dimension);
   for (int j=0; j<dimension; j++)
-    { svec colj(applyop(T,freemods[j]));
-       m.setrow(j+1,colj);
+    {
+      svec colj(applyop(T,freemods[j]));
+      m.setrow(j+1, colj);
      }
-  if(cuspidal) // as above code computes the transpose
+
+  // If we want the matrix of the restriction to the cuspidal subspace
+  // we must apply restrict_mat to the untransposed matrix:
+  if(cuspidal)
     {
       m = restrict_mat(transpose(m),kern);
-      if(dual) m = transpose(m);
+      if(dual) // then re-transpose
+        {
+          m = transpose(m);
+        }
     }
   else
-    if(!dual) {m=transpose(m);}
-  // if (display)
-  //   {
-  //     cout << "Matrix of " << T.name() << " = ";
-  //     if (dimension>1) cout << "\n";
-  //     cout<<m.as_mat();
-  //   }
+    {
+      if(!dual) // then un-transpose
+        {
+          m=transpose(m);
+        }
+    }
   if(display)
     cout<<"done."<<endl;
   return m;
@@ -541,11 +551,6 @@ smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual,
      }
   m = mult_mod_p(m,basis(s), modulus);
   if(!dual) m=transpose(m); // as above code computes the transpose
-  // if (display)
-  //   {
-  //     cout << "Matrix of " << T.name() << " = " << m.as_mat();
-  //     if (dimension>1) cout << endl;
-  //   }
   if(display)
     cout<<"done."<<endl;
   return m;
@@ -577,42 +582,50 @@ vec homspace::manintwist(const Quad& lambda, const vector<Quad>& res, vector<int
  return ans;
 }
 
-// The dual subspace cut out by the given eigenvalues for the basis of
-// Quad::class_group_2_rank unramified characters:
-ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int dual)
+// Return the (dual) subspace of the full space cut out by the given
+// eigenvalues for the basis of Quad::class_group_2_rank unramified
+// characters.  If dual=0 (only) and cuspidal=1, then return the
+// subspace of the cuspidal subspace similarly cut out.
+ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int cuspidal, int dual)
 {
-  int subdim = h1dim();
-  scalar den = h1denom();
+  if (Quad::class_group_2_rank==0) // no characters, so return cuspidal or full space
+    return (cuspidal? kern: ssubspace(dimension));
 
-  if (Quad::class_group_2_rank==0) // no characters, so return full space
-    return ssubspace(subdim);
+  if (cuspidal && dual)
+    cout << "options cuspidal=1, dual=1 invalid in unramified_character_subspace()" <<endl;
 
   vector<Qideal> nulist = make_nulist(N);
   auto nui = nulist.begin();
   auto ei = eigs.begin();
+  scalar den = denom1;
 
-  // Compute eigenspace for first character, then compute successive
-  // subspaces or dual subspaces.  In the dual case we can use
-  // calcop_restricted (more efficient), otherwise we compute each
-  // eigenspace separately and combine.
+  if (!dual) // start with the full or cuspidal subspace and compute
+             // successive eigenspaces:
+    {
+      ssubspace s = (cuspidal? kern : ssubspace(dimension));
+      int subdim = dim(s);
+      while (nui!=nulist.end() && subdim>0)
+        {
+          smat m = restrict_mat(s_calcop(CharOp(*nui++, N), 0, 0, 0), s); // cuspidal=0, dual=0, display=0
+          s = combine(s, eigenspace(m, (*ei++)*den, modulus));
+          subdim = dim(s);
+        }
+      return s;
+    }
 
-  smat m = s_calcop(CharOp(*nui++, N), /*cuspidal*/ 0, dual, /*display*/ 0);
+  // Now dual=1 and cuspidal=0.  Compute eigenspace for first
+  // character, then compute successive dual subspaces, using
+  // calcop_restricted, which is more efficient.
+
+  smat m = s_calcop(CharOp(*nui++, N), cuspidal, dual, /*display*/ 0);
   scalar eig = (*ei++)*den;
   ssubspace s = eigenspace(m, eig, modulus);
-  subdim = dim(s);
+  int subdim = dim(s);
 
   while (nui!=nulist.end() && subdim>0)
     {
-      if (dual)
-        {
-          m = s_calcop_restricted(CharOp(*nui++, N), s, 1, 0); // dual=1, display=0
-        }
-      else
-        {
-          m = restrict_mat(s_calcop(CharOp(*nui++, N), 0, 0, 0), s); // cuspidal=0, dual=0, display=0
-        }
-      eig = (*ei++)*den;
-      s = combine(s, eigenspace(m, eig, modulus));
+      m = s_calcop_restricted(CharOp(*nui++, N), s, 1, 0); // dual=1, display=0
+      s = combine(s, eigenspace(m, (*ei++)*den, modulus));
       subdim = dim(s);
     }
   return s;
@@ -620,18 +633,22 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int d
 
 pair<int,int> homspace::unramified_character_subspace_dimensions(const vector<int>& eigs)
 {
-  ssubspace s = unramified_character_subspace(eigs);
+  ssubspace s = unramified_character_subspace(eigs, 0, 1); // cuspidal=0, dual=1
   return {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
 }
 
-ssubspace homspace::trivial_character_subspace(int dual) // return triv_char_subspace, after computing if necessary
+// return triv_char_subspace, after computing if necessary
+// NB cannot have cuspidal=dual=1
+ssubspace homspace::trivial_character_subspace(int cuspidal, int dual)
 {
-  int& subd = (dual? triv_char_dual_subdim: triv_char_subdim);
-  ssubspace& subs = (dual? triv_char_dual_subspace: triv_char_subspace);
+  int& subd = (dual? triv_char_dual_subdim:
+               (cuspidal? triv_char_cuspidal_subdim: triv_char_subdim));
+  ssubspace& subs = (dual? triv_char_dual_subspace:
+                     (cuspidal? triv_char_cuspidal_subspace: triv_char_subspace));
   if (subd==-1)
     {
       auto all_ones = vector<int>(Quad::class_group_2_rank, +1);
-      subs = unramified_character_subspace(all_ones, dual);
+      subs = unramified_character_subspace(all_ones, cuspidal, dual);
       subd = dim(subs);
     }
   return subs;
@@ -657,7 +674,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
       cout<<"Finding trivial character subspace..."<<flush;
     }
 
-  ssubspace s = trivial_character_subspace(1); // 1 for dual
+  ssubspace s = trivial_character_subspace(0, 1); // cuspidal=0, dual=1
 
   pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
@@ -811,7 +828,7 @@ vector<int> homspace::trivial_character_subspace_dimensions_by_twist(int cuspida
     }
 }
 
-// test for cupidality (of a non-dual subspace only)
+// test for cuspidality (of a non-dual subspace only)
 int homspace::is_cuspidal(const subspace& s) const
 {
   return (deltamat*s.bas()).is_zero();
@@ -960,10 +977,8 @@ mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
 // Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
 {
-  //  cout<<"In get_full_mat() with T = "<<T.name()<<", coeffs "<<T.coeffs<<endl;
   Qideal NN=N; // copy as N is const, for ideal_label
   string NT = NTkey(NN,T);
-  //  cout<<"key="<<NT<<endl;
   if (full_mat_dict.find(NT) != full_mat_dict.end())
     return full_mat_dict[NT];
 
@@ -986,11 +1001,12 @@ mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
           ++Ti;
         }
     }
-  //  cout<<"final M="<<M<<endl;
   full_mat_dict[NT] = M;
   return M;
 }
 
+// from one of poly_dict, tc_poly_dict, cuspidal_poly_dict, tc_cuspidal_poly_dict
+// depending on flags cuspidal & triv_char
 ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for ideal_label
@@ -1005,17 +1021,33 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
     return poly_cache[NT];
 
   homspace* H = get_homspace(N, mod);
-  mat M = get_full_mat(N, T, mod);
+  mat M = get_full_mat(N, T, mod);  // dimension x dimension
   scalar den = (cuspidal? H->h1cdenom() :H->h1denom());
   if (cuspidal || triv_char)
     {
+      // H->kern is the subspace ker(delta) of the full space
+      // H->trivial_character_subspace(0) is the subspace on which all
+      // unrmaified characters act trivially
       smat sM = smat(M);
       if (cuspidal)
-        sM = restrict_mat(sM,H->kern);
-      if (triv_char)
         {
-          ssubspace tcsub = H->trivial_character_subspace(0); // dual=0
-          sM = restrict_mat(sM, tcsub);
+          if (Quad::class_group_2_rank && triv_char)
+            {
+              ssubspace tcsub = H->trivial_character_subspace(1, 0); // cuspidal=1, dual=0
+              sM = restrict_mat(sM, tcsub);
+            }
+          else
+            {
+              sM = restrict_mat(sM,H->kern);  // cuspidal_dimension x cuspidal_dimension
+            }
+        }
+      else // not cuspidal
+        {
+          if (Quad::class_group_2_rank && triv_char)
+            {
+              ssubspace tcsub = H->trivial_character_subspace(0, 0); // cuspidal=0, dual=0
+              sM = restrict_mat(sM, tcsub);
+            }
         }
       M = sM.as_mat();
     }
@@ -1026,17 +1058,26 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
   return full_poly;
 }
 
+// from one of new_poly_dict, tc_new_poly_dict, new_cuspidal_poly_dict, tc_new_cuspidal_poly_dict
+// depending on flags cuspidal & triv_char
+
+// NB In even class number this may raise an error when newspaces at
+// lower levels have self-twist since the effect of this on lowering
+// oldspace dimensions is ignored.
 ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
   Qideal NN=N; // copy as N is const, for alldivs()
   string NT = NTkey(NN,T);
-  auto new_cache = (cuspidal?new_cuspidal_poly_dict:new_poly_dict);
-  if (new_cache.find(NT) != new_cache.end())
-    return new_cache[NT];
+  auto new_poly_cache = (cuspidal?
+                         (triv_char? tc_new_cuspidal_poly_dict: new_cuspidal_poly_dict):
+                         (triv_char? tc_new_poly_dict: new_poly_dict));
+  if (new_poly_cache.find(NT) != new_poly_cache.end())
+    return new_poly_cache[NT];
+
   ZZX new_poly = get_poly(N, T, cuspidal, triv_char, mod);
   if (deg(new_poly)==0)
     {
-      new_cache[NT] = new_poly;
+      new_poly_cache[NT] = new_poly;
       return new_poly;
     }
   vector<Qideal> DD = alldivs(NN);
@@ -1078,7 +1119,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
       if (deg(new_poly)==0) // nothing left, new dimension must be 0
         break;
     } // end of loop over divisors
-  new_cache[NT] = new_poly;
+  new_poly_cache[NT] = new_poly;
   return new_poly;
 }
 

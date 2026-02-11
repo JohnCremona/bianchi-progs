@@ -78,14 +78,15 @@ public:
 
   vec maninvector(Quadprime& P, int proj=0);
   vec manintwist(const Quad& lambda, const vector<Quad>& res, vector<int> chitable, int proj=0);
-  // no longer used, implementation commented out:
-  // vec newhecke(const Quadprime& P, const Quad& n, const Quad& d);
-  // The (dual) subspace cut out by the given eigenvalues for the
-  // basis of Quad::class_group_2_rank unramified characters.
-  ssubspace unramified_character_subspace(const vector<int>& eigs, int dual=1);
 
-  // The dimension and cuspidal of the previous space (for when we do
-  // not need the subspace itself).
+  // Return the (dual) subspace of the full space cut out by the given
+  // eigenvalues for the basis of Quad::class_group_2_rank unramified
+  // characters.  If dual=0 (only) and cuspidal=1, then return the
+  // subspace of the cuspidal subspace similarly cut out.
+  ssubspace unramified_character_subspace(const vector<int>& eigs, int cuspidal, int dual);
+
+  // The dimension and cuspidal dimension of the previous space (for
+  // when we do not need the subspace itself).
   pair<int,int> unramified_character_subspace_dimensions(const vector<int>& eigs);
 
   // The dimension or cuspidal dimension of the previous space (for
@@ -98,11 +99,15 @@ public:
 
   // The (dual) subspace with eigenvalue +1 for all quadratic
   // unramified characters.  Value cached in triv_char_subspace.
-  int triv_char_subdim; // dimension of trivial char subspace, or -1 if not yet computed
+  int triv_char_subdim;      // dimension of trivial char subspace, or -1 if not yet computed
   int triv_char_dual_subdim; // dimension of dual trivial char subspace, or -1 if not yet computed
+  int triv_char_cuspidal_subdim; // dimension of cuspidal trivial char subspace, or -1 if not yet computed
   ssubspace triv_char_subspace;
   ssubspace triv_char_dual_subspace;
-  ssubspace trivial_character_subspace(int dual); // return triv_char_subspace, after computing if necessary
+  ssubspace triv_char_cuspidal_subspace;
+  // return triv_char_subspace or triv_char_cuspidal_subspace, after computing if necessary
+  // NB cannot have cuspidal=dual=1
+  ssubspace trivial_character_subspace(int cuspidal, int dual);
 
   // total and cuspidal dimensions of subspace on which all T(A,A) act trivially
   pair<int,int> trivial_character_subspace_dimensions()
@@ -131,15 +136,17 @@ public:
 // Return true iff T's new poly is squarefree and coprime to its old poly
 int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod, int verbose=0);
 
+///////////////////////////////////////////////////////////////////////////////////////////
 // functions for caching homspaces, full Hecke matrices, full and new Hecke polynomials
+///////////////////////////////////////////////////////////////////////////////////////////
 
-// Utiities for creating keys
+// Utilities for creating keys
 
 string Nkey(Qideal& N);
-string Nmodpkey(Qideal& N, const scalar p);
 string NPkey(Qideal& N, Qideal& P);
 string NTkey(Qideal& N, const matop& T);
 string NTkey(Qideal& N, const gmatop& T);
+string Nmodpkey(Qideal& N, const scalar p);
 string NPmodpkey(Qideal& N, Quadprime& P, scalar p);
 
 // Dicts (i.e. maps) holding various caches (declared in homspace.cc)
@@ -163,15 +170,28 @@ extern map<string,homspace*> H1_modp_dict; // Key is ideal_label(N)-mod-p
 extern map<string, ZZ_pX> full_poly_modp_dict;
 extern map<string, ZZ_pX> new_poly_modp_dict;
 
+// Functions to retrieve a value from one of these dicts given its
+// key, computing and storing it if the key is not already there:
+
+// from H1_dict
 homspace* get_homspace(const Qideal& N, scalar mod);
 
+// from full_mat_dict
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod);
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod);
 
+// from one of poly_dict, tc_poly_dict, cuspidal_poly_dict, tc_cuspidal_poly_dict
+// depending on flags cuspidal & triv_char
 ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, const scalar& mod);
 inline ZZX get_poly(const Qideal& N,  const matop& T, int cuspidal, int triv_char, const scalar& mod)
 {return get_poly(N, gmatop(T), cuspidal, triv_char, mod);}
 
+// from one of new_poly_dict, tc_new_poly_dict, new_cuspidal_poly_dict, tc_new_cuspidal_poly_dict
+// depending on flags cuspidal & triv_char
+
+// NB In even class number this may raise an error when newspaces at
+// lower levels have self-twist since the effect of this on lowering
+// oldspace dimensions is ignored.
 ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, const scalar& mod);
 inline ZZX get_new_poly(const Qideal& N, const matop& T, int cuspidal, int triv_char, const scalar& mod)
 {return get_new_poly(N, gmatop(T), cuspidal,  triv_char, mod);}

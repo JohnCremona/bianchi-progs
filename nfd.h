@@ -7,6 +7,23 @@
 #include "homspace.h"
 #include "field.h"
 
+// In principle we can compute newforms with arbitrary unramified
+// character, via homological newforms with arbitrary quadratic
+// character on Cl[2]. At present the implementation is only complete
+// for newforms with trivial character (so, all newforms over fields
+// of odd class number) and newforms with nontrivial character over
+// fields with class group C4.  With the current implementation of the
+// Eigenvalue class this could be extended to all class-groups whose
+// 2-primary component has exponent 4, but for complete generality the
+// Eigenvalue class would need to be extended to include higher order
+// 2-power roots of unity.
+
+// test whether field's class group is C4
+inline int is_C4()
+{
+  return (Quad::class_number==4) && (Quad::class_group_2_rank==1); // C4
+}
+
 class Newform;
 class Newspace;
 
@@ -34,10 +51,10 @@ private:
   INT genus_char_disc; // associated discriminant factor (1 for trivial char)
 
   // book-keeping data for eigenvalue computations
-  vector<long> genus_classes_nonzero; // list of classes for which we have a nonzero eigenvalue
-  vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
   vector<long> genus_classes_no_ext; // list of classes for which we have a nonzero eigenvalue in F itself
   vector<Qideal> genus_class_no_ext_ideals; // list of ideals in these classes
+  vector<long> genus_classes_nonzero; // list of classes for which we have a nonzero eigenvalue
+  vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
   vector<Eigenvalue> genus_class_aP;  // list of eigenvalues of these ideals
   int genus_classes_filled;  // Set to 1 when all genus classes are
                              // filled, or when half are filled if we
@@ -134,13 +151,15 @@ public:
                         const Qideal& biglevel, int verb=0);
 
   Field* field(int original=0) const {return (original? F0: F);}
-  int dimension(int full=1) const;
+  // Return the degree of the principal or full Hecke field
+  int dimension(int full=1) const {return (full? d<<Fmodsq->rank() : d);}
   ZZX poly(int original=0) const {return (original? F0->poly(): F->poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
   string long_label() const;  // field_label-level_label-suffix
   string conj_label() const; // conj-level_label-suffix
   string long_conj_label() const;  // field_label-conj-level_label-suffix
+
   // Output basis for the Homological Hecke field and character
   // If class number even, also output multiplicative basis for the full Hecke field
   // Optionally aP and AL data too
@@ -181,10 +200,10 @@ public:
 
   // Construct another newform which is the unramified quadratic twist
   // of this one by D, where D is a discriminant divisor
-  Newform unram_quadratic_twist(const INT& D);
+  Newform unram_quadratic_twist(const INT& D) const;
   // Construct all newforms which are nontrivial unramified quadratic
   // twists of this one, up to Galois conjugacy
-  vector<Newform> all_unram_quadratic_twists();
+  vector<Newform> all_unram_quadratic_twists() const;
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -253,18 +272,37 @@ private:
   // list of possible self-twist discriminants depending only on the level
   vector<INT> possible_self_twists;
 
-  // return new cuspidal char poly for a linear combo of ops using old Newspace data from files
-  ZZX new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                                   const gmatop &T);
-  // Return true iff this combo of ops has squarefree new poly coprime to its old poly
-  int valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                            const gmatop &T, ZZX& f_new);
+  // Return the char poly of T on the new cuspidal subspace using the
+  // oldspaces to obtain the old factors with correct multiplicities.
 
-  // Find a linear combination of up to maxnp operators (T_{A,A} or
+  // If triv_char=0: requires oldspace data for forms with all genus
+  // characters, so will only work over fields where this is
+  // implemented.
+
+  // If triv_char=1: only requires oldspace data for forms with
+  // trivial genus characters, so works over all fields.
+  ZZX new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                        const gmatop &T, int triv_char);
+
+
+  // Return true iff this combo of ops T has char poly on the new
+  // cuspidal subspace which is squarefree and coprime to both the old
+  // cuspidal poly and the full Eisenstein poly. f_new is set to the new
+  // cuspidal poly. If triv_char=1 then same for the char poly of T on
+  // the new cuspidal trivial-character subspace, in which case f_new
+  // must also be coprime to the char poly of T on the new cuspidal
+  // nontrivial char subspace.
+  int valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
+                            const gmatop &T, int triv_char, ZZX& f_new);
+
+  // Find a linear combination T of up to maxnp operators (T_{A,A} or
   // T_P) with coefficients up to maxc, whose char poly on the
   // newspace is squarefree and coprime to its char poly on the
-  // oldspace.  Set split_ok=1 if successful else 0.
-  void find_T(int maxnp, int maxc);
+  // oldspace.  Set split_ok=1 if successful else 0.  If
+  // triv_char_only, T must have squarefree char poly on the trivial
+  // character newspace and be coprime to both its char poly on the
+  // full oldspace and on the nontrivial char part of the newspace.
+  void find_T(int maxnp, int maxc, int triv_char_only);
 
 public:
   vector<Newform> newforms; // the newforms
@@ -272,7 +310,7 @@ public:
   // constructor from a homspace, looking for a splitting operator
   // using linear combinations of up to maxnp primes, coefficients up
   // to maxc
-  Newspace(homspace* h1, int maxnp, int maxc, int verb=0);
+  Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int verb=0);
   int split_ok; // records whether the constructor was able to find a splitting operator
 
   // constructor from file
@@ -291,6 +329,8 @@ public:
   string long_conj_label() const;
 
   string splitopname() const {return T_name;}
+
+  // Return a list of the degrees of the principal or full Hecke fields
   vector<int> dimensions(int full=0) const;
 
   // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
@@ -318,15 +358,5 @@ public:
 // dict of Newspaces read from file
 extern map<string,Newspace*> Newspace_dict;  // Key: ideal_label(N)
 Newspace* get_Newspace(const Qideal& N, int verb=0);
-
-// test whether field's class group is C4
-inline int is_C4()
-{
-  return (Quad::class_number==4) && (Quad::class_group_2_rank==1); // C4
-}
-
-// For class group C4 only (so far)
-// return v where v[i] is the index of ideal class c^i for one generator class c
-vector<int> C4classes();
 
 #endif

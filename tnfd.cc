@@ -33,6 +33,13 @@ int main()
   int n2r = Quad::class_group_2_rank;
   int C4 = is_C4();
 
+  // We only compute full newform data for forms with trivial
+  // character (which cover all newforms over fields with odd class
+  // number) except (at present) for C4 fields such as Q(sqrt(-17)).
+  int triv_char_only = n2r && !C4;
+  if (triv_char_only)
+    cout << "Only computing newforms with trivial character" <<endl;
+
   int verbose=1;
   cerr << "Verbose output? (0/1) ";
   cin >> verbose;
@@ -76,12 +83,12 @@ int main()
        cout << "Constructed level " << Nlabel << " homspace of dimension " << H1->h1dim()
             << ", cuspidal dimension " << H1->h1cuspdim()
             << ", denominator " << H1->h1cdenom() << endl;
-     // if (H1->h1cuspdim()==0)
-     //   {
-     //     continue;
-     //   }
+
+     // The Newspace constructor looks for a suitable splitting
+     // operator which is a linear combination of up to maxnp prime
+     // Hecke operators with coefficients up to maxc:
      int maxnp = 7, maxc = 2;
-     Newspace NS(H1, maxnp, maxc, verbose);
+     Newspace NS(H1, maxnp, maxc, triv_char_only, verbose);
      if (!NS.ok())
        {
          cout << "Failed to find a splitting operator using linear combnations of " << maxnp
@@ -128,11 +135,19 @@ int main()
      int inf=1;
      for (auto& F: NS.newforms)
        {
-         if (verbose)
-           cout << "Computing eigenvalues for newform #" << inf <<endl;
-         F.compute_eigs(nap, verbose);
-         if (verbose)
-           cout << endl;
+         if (C4 || F.is_char_trivial())
+           {
+             if (verbose)
+               cout << "Computing eigenvalues for newform #" << inf <<endl;
+             F.compute_eigs(nap, verbose);
+             if (verbose)
+               cout << endl;
+           }
+         else
+           {
+             if (verbose)
+               cout << "NOT computing eigenvalues for newform #" << inf << " (non-trivial character)" << endl;
+           }
          inf++;
        }
 
@@ -147,35 +162,48 @@ int main()
          NS.sort_newforms();
        }
 
-     cout << "Hecke eigenvalues:" << endl << endl;
-
      if (C4 || (nnf_triv_char > 0))
        {
          if (C4)
            cout << "Full eigensystems for forms with character chi_0 (trivial)"
-                << " and character chi_1" << endl;
+                << " and character chi_1 (up to unramified quadratic twist)"
+                << endl;
          else
-           cout << "Full eigensystems for forms with trivial character" << endl;
+           cout << "Full eigensystems for forms with trivial character (up to unramified quadratic twist)"
+                << endl;
          for (auto& F: NS.newforms)
            {
              F.display(1, 1, verbose, 1);
              cout << endl;
            }
+
+         if (verbose)
+           cout << "Outputting Newspace data" << endl;
+         NS.output_to_file();
+         if (!conjugate_level_equal)
+           {
+             if (verbose)
+               cout << "Outputting conjugate Newspace data" << endl;
+             NS.output_to_file(1);
+           }
+         if (verbose)
+           cout << "Finished outputting Newspace data"<< endl;
        }
 
      if (n2r)
        {
-         cout << "About to add quadratic twists..." << endl;
+         cout << "Adding quadratic twists..." << flush;
          NS.add_unram_quadratic_twists();
-         cout << "Hecke eigenvalues:" << endl << endl;
+         cout << "done" << endl << endl;
 
          if (C4 || (nnf_triv_char > 0))
            {
              if (C4)
                cout << "Full eigensystems for forms with character chi_0 (trivial)"
-                    << " and character chi_1" << endl;
+                    << " and character chi_1 (including unramified quadratic twist)" << endl;
              else
-               cout << "Full eigensystems for forms with trivial character" << endl;
+               cout << "Full eigensystems for forms with trivial character"
+                    << " (including unramified quadratic twist)" << endl;
              for (auto& F: NS.newforms)
                {
                  F.display(1, 1, verbose, 1);
@@ -183,21 +211,6 @@ int main()
                }
            }
        }
-#if(0) // while testing quadratic twist code
-
-     if (verbose)
-       cout << "Outputting Newspace data" << endl;
-     NS.output_to_file();
-     if (!conjugate_level_equal)
-       {
-         if (verbose)
-           cout << "Outputting conjugate Newspace data" << endl;
-         NS.output_to_file(1);
-       }
-     if (verbose)
-       cout << "Finished outputting Newspace data"<< endl;
-#endif
-
     }     // end of level loop
   cout << endl;
   exit(0);

@@ -27,8 +27,8 @@ newform_comparison newform_cmp;
 
 #define USE_OLD_SPACES
 
-// For class group C4 only (so far)
-// return v where v[i] is the index of ideal class c^i for one generator class c
+// For class group C4 only, return v where v[i] is the index of ideal
+// class c^i for one generator class c
 vector<int> C4classes()
 {
   if (is_C4())
@@ -46,7 +46,7 @@ vector<int> C4classes()
 }
 
 Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
-  :nf(x), index(ind)
+  :nf(x), index(ind), lab(codeletter(ind-1))
 {
   d = deg(f);
   string fstring = str(f);
@@ -170,6 +170,8 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 Newform::Newform(Newspace* x, int i, int verbose)
   :nf(x), index(i), lab(codeletter(i-1))
 {
+  if (verbose)
+    cout << "Constructing Newform from file data "<< endl;
   if (!input_from_file(verbose))
     cerr << "Unable to read Newform " << lab << endl;
 }
@@ -574,11 +576,13 @@ void Newform::check_base_change(void)
   return;
 }
 
-Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
+Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int verb)
   : verbose(verb), H1(h1)
 {
   N = H1->N;
   level_label = ideal_label(N);
+  if(verbose)
+    cout << "In Newspace constructor at level " << level_label << " = " << N << endl;
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
   dH = H1->h1cdenom();
@@ -602,15 +606,21 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int verb)
       cout << endl;
     }
   // Find the splitting operator
-  find_T(maxnp, maxc);
+  find_T(maxnp, maxc, triv_char_only);
   // Construct the newforms if that succeeded
   if (split_ok)
     {
-      int i=1;
-      for (auto f: factors)
+      if (verbose)
         {
-          // The index i is stored in the newform but these will
-          // change after we sort them
+          cout << "Using splitting operator T = " << T_name << endl;
+          cout << "Number of irreducuble components is " << factors.size() << endl;
+        }
+      int i=1;
+      newforms.reserve(factors.size());
+      for (const auto& f: factors)
+        {
+          // The index i is stored in the newform on construction, but
+          // these will change when we sort them
           newforms.push_back(Newform(this, i, f, verbose));
           ++i;
         }
@@ -639,19 +649,30 @@ Newspace::Newspace(const Qideal& level, int verb)
   input_from_file(level, verb);
 }
 
-// Compute the new cuspidal char poly of T using the oldspaces to
-// obtain the old factors with correct multiplicities.
+// Compute the char poly of T on the new cuspidal subspace using the
+// oldspaces to obtain the old factors with correct multiplicities.
+
+// If triv_char=0: requires oldspace data for forms with all genus
+// characters, so will only work over fields where this is
+// implemented.
+
+// If triv_char=1: only requires oldspace data for forms with
+// trivial genus characters, so works over all fields.
 ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                                           const gmatop &T)
+                                const gmatop &T, int triv_char)
 {
   // This will use the caches
   if (verbose>1)
-    cout << "In full_and_new_polys() with T = " <<T.name() << endl;
-  ZZX f_full = get_poly(N, T, 1, 0, H1->modulus); // cuspidal=1, triv_char=0
+    cout << "In new_cuspidal_poly() with T = " <<T.name()
+         << ", triv_char = " << triv_char << endl;
+
+  // Get/compute the char poly of T on the cuspidal subspace /
+  // cuspidal, trivial character, subspace
+  ZZX f_all = get_poly(N, T, 1, triv_char, H1->modulus); // cuspidal=1
   if (verbose>1)
     {
-      cout << "f_full = " << str(f_full) << endl;
-      display_factors(f_full);
+      cout << "f_all = " << str(f_all) << endl;
+      display_factors(f_all);
     }
   ZZX f_old;
   set(f_old); // set = 1
@@ -669,6 +690,8 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
         cout << "# divisors of N/D is " << m_default <<endl;
       for (auto form: NSD->newforms)
         {
+          if (form.triv_char==0 && triv_char)
+            continue;
           ZZX f_D = form.char_pol_lin_comb(Plist, coeffs, N, verbose>1);
           if (verbose>1)
             {
@@ -688,14 +711,14 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
       cout << "The product of all old polys is " << str(f_old) << endl;
       display_factors(f_old);
     }
-  //essentially f_new = f_full / f_old; but checking divisibility
+  //essentially f_new = f_all / f_old; but checking divisibility
   ZZX f_new, rem;
-  DivRem(f_new, rem, f_full, f_old);
+  DivRem(f_new, rem, f_all, f_old);
   if (!IsZero(rem))
     {
-      cout << "Problem in Newspace::full_and_new_polys() at level "<<level_label<<endl;
+      cout << "Problem in Newspace::new_cuspidal_poly() at level "<<level_label<<endl;
       cout << "Operator " << T.name() << " has full poly" << endl;
-      display_factors(f_full);
+      display_factors(f_all);
       cout << "and old poly" << endl;
       display_factors(f_old);
       cout << " which does not divide the full poly. " << endl;
@@ -706,17 +729,26 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
   string NT = NTkey(N,T);
   if (verbose)
     cout<<"Caching new cuspidal poly for " << NT << ": " << str(f_new) << endl;
-  new_cuspidal_poly_dict[NT] = f_new;
+  if (triv_char)
+    tc_new_cuspidal_poly_dict[NT] = f_new;
+  else
+    new_cuspidal_poly_dict[NT] = f_new;
   return f_new;
 }
 
-// Return true iff this combo of ops has new cuspidal poly which is
-// squarefree and coprime to both the old cuspidal poly and the full
-// Eisenstein poly. f_new is set to the new cuspidal poly.
+// Return true iff this combo of ops T has char poly on the new
+// cuspidal subspace which is squarefree and coprime to both the old
+// cuspidal poly and the full Eisenstein poly. f_new is set to the new
+// cuspidal poly. If triv_char=1 then same for the char poly of T on
+// the new cuspidal trivial-character subspace, in which case f_new
+// must also be coprime to the char poly of T on the new cuspidal
+// nontrivial char subspace.
 int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                                    const gmatop &T, ZZX& f_new)
+                                    const gmatop &T, int triv_char, ZZX& f_new)
 {
-  f_new = new_cuspidal_poly(Plist, coeffs, T);
+  // f_new is the char poly of T on either the new cuspidal subspace,
+  // or the trivial character subspace of that:
+  f_new = new_cuspidal_poly(Plist, coeffs, T, triv_char);
   if (!IsSquareFree(f_new))
     {
       if (verbose>1)
@@ -724,14 +756,21 @@ int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector
              << " for " << T.name() << " is not squarefree" << endl;
       return 0;
     }
+  // f_full is the char poly of T on the full space (not just the
+  // cuspidal subspace, or the new subspace, or (if triv_char==1) just
+  // the trivial character subspace:
   ZZX f_full = get_poly(N, T, 0, 0, H1->modulus); // cuspidal=0, triv_char=0
-  ZZX f_old_or_eis = f_full / f_new;
-  if (!AreCoprime(f_new, f_old_or_eis))
+
+  // Hence the quotient f_other is the char poly of T on the
+  // complement of the new cuspidal (or new cuspidal trivial char0
+  // subspace.  We want f_new to be coprime to this:
+  ZZX f_other = f_full / f_new;
+  if (!AreCoprime(f_new, f_other))
     {
       if (verbose>1)
         cout << "\n NO: new Hecke polynomial "<<str(f_new)
              << " for " << T.name()
-             <<" is not coprime to old Hecke polynomial * Eisenstein polynomial"<<str(f_old_or_eis)<<endl
+             <<" is not coprime to old Hecke polynomial * Eisenstein polynomial"<<str(f_other)<<endl
              <<" (full polynomial is "<<str(f_full)<<")"<<endl;
       return 0;
     }
@@ -741,8 +780,20 @@ int Newspace::valid_splitting_combo(const vector<Quadprime>& Plist, const vector
   return 1;
 }
 
-// compute T=T_P, trying all good P with N(P)<=maxnormP and linear combinations
-void Newspace::find_T(int maxnp, int maxc)
+// Find a linear combination T of up to maxnp operators (T_{A,A} or
+// T_P) with coefficients up to maxc, whose char poly on the new
+// cuspidal subspace is squarefree and coprime to its char polys on
+// the oldspace and non-cuspidal subspace.  If triv_char_only==1, T
+// must have squarefree char poly on the trivial character new
+// cuspidal subspace and also be coprime to its char poly on the
+// nontrivial char part of the newspace.
+//
+// This function manages the linear combinations, withe the validity
+// testing done by valid_splitting_combo().
+//
+// Set split_ok=1 if successful else 0.
+
+void Newspace::find_T(int maxnp, int maxc, int triv_char_only)
 {
   split_ok = 0;
   vector<Quadprime> Plist = make_goodprimes1(N, maxnp, 1); // only_one_conj=1
@@ -778,7 +829,7 @@ void Newspace::find_T(int maxnp, int maxc)
           cout << "Trying "<<lc<<": "<<T_name<<"..."<<flush;
         }
 #ifdef USE_OLD_SPACES
-      split_ok = valid_splitting_combo(Plist, ilc, T_op, f);
+      split_ok = valid_splitting_combo(Plist, ilc, T_op, triv_char_only, f);
 #else
       split_ok = test_splitting_operator(N, T_op, H1->modulus, verbose>1);
 #endif
@@ -1387,7 +1438,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
 
-  Eigenvalue zero(F->zero(), Fmodsq); //, one(F->one(), Fmodsq), minus_one(F->minus_one(), Fmodsq);
+  Eigenvalue zero(F->zero(), Fmodsq);
   Qideal N(nf->N);
   for (auto Q: nf->badprimes)
     {
@@ -1452,7 +1503,10 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
       sfe *= eQ;
 
       // aQ is minus the AL eigenvalue if Q||N else 0
-      aPmap[Q] = (e>1? zero: Eigenvalue(FieldElement(F, ZZ(-eQ)), Fmodsq));
+      if (e>1)
+        aPmap[Q] = zero;
+      else
+        aPmap[Q] = Eigenvalue(FieldElement(F, ZZ(-eQ)), Fmodsq);
 
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
@@ -1465,7 +1519,6 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
 void Newform::display(int aP, int AL, int principal_eigs, int traces) const
 {
   cout << "Newform #" << index << " (" << long_label() << ")" << endl;
-
   // Information about the character:
 
   int n2r = Quad::class_group_2_rank;
@@ -1706,11 +1759,6 @@ void Newform::display_principal_eigs() const
     cout << x.first.second << ":\t" << x.second << endl;
 }
 
-int Newform::dimension(int full) const
-{
-  return (full? d<<Fmodsq->rank() : d);
-}
-
 // return +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
 int Newform::base_change_code(void) const
 {
@@ -1756,8 +1804,12 @@ string Newspace::filename(int conj)
   return s.str();
 }
 
+// newform file output only implemented for forms with trivial
+// character or over C4 fields
 void Newform::output_to_file(int conj) const
 {
+  if (!(is_C4() || triv_char))
+    return;
   ofstream out;
   out.open(filename(conj).c_str());
 
@@ -1767,7 +1819,7 @@ void Newform::output_to_file(int conj) const
       << " " << lab << endl;
   int n2r = Quad::class_group_2_rank;
 
-  // Principal dimension and (if class number even) full dimension:
+  // Principal dimension and (if class number even) full dimension and character values:
   out << dimension(0);
   if (n2r)
     {
@@ -1870,13 +1922,16 @@ void Newform::output_to_file(int conj) const
 
 // Construct another newform which is the unramified quadratic twist
 // of this one by D, where D is a discriminant divisor
-Newform Newform::unram_quadratic_twist(const INT& D)
+Newform Newform::unram_quadratic_twist(const INT& D) const
 {
+#ifdef DEBUG_TWIST
+  cout << "About to twist one newform by " << D << endl;
+#endif
   Newform f = *this; // copy
 
   // Twist aP (change a copy then reassign):
-  auto aPmapD = aPmap;
-  for (auto x: aPmap)
+  auto aPmapD(aPmap);
+  for (const auto& x: aPmap)
     {
       auto P = x.first;
       if (P.genus_character(D) == -1)
@@ -1885,8 +1940,8 @@ Newform Newform::unram_quadratic_twist(const INT& D)
   f.aPmap = aPmapD;
 
   // Twist eQ (change a copy then reassign):
-  auto eQmapD = eQmap;
-  for (auto x: eQmap)
+  auto eQmapD(eQmap);
+  for (const auto& x: eQmap)
     {
       auto Q = x.first;
       if (Q.genus_character(D) == -1)
@@ -1922,12 +1977,12 @@ Newform Newform::unram_quadratic_twist(const INT& D)
 //#define DEBUG_UNRAM_TWISTS
 // Construct all newforms which are nontrivial unramified quadratic
 // twists of this one, up to Galois conjugacy
-vector<Newform> Newform::all_unram_quadratic_twists()
+vector<Newform> Newform::all_unram_quadratic_twists() const
 {
 #ifdef DEBUG_UNRAM_TWISTS
-  cout << "Finding all unramified quadratic twists of one newform, up to Galois conjugacy,\n"
-       << " given genus_classes_no_ext = " << genus_classes_no_ext
-       << ", with ideals " << genus_class_no_ext_ideals << endl;
+  cout << "Finding all unramified quadratic twists of one newform (" << this << ") up to Galois conjugacy" <<endl;
+  cout << "  genus_classes_no_ext =    " << genus_classes_no_ext << endl;
+  cout << "  genus_class_no_ext_ideals " << genus_class_no_ext_ideals << endl;
 #endif
   // We use the subgroup H of the genus class group whose element list
   // is genus_classes_no_ext with representative ideals in
@@ -1967,12 +2022,13 @@ vector<Newform> Newform::all_unram_quadratic_twists()
 #ifdef DEBUG_UNRAM_TWISTS
       cout << "All nontrivial unramified quadratic twists are distinct up to Galois conjugacy" << endl;
 #endif
+      twisted_newforms.reserve(Quad::all_disc_factors.size()-1);
       for (auto& D : Quad::all_disc_factors)
         {
           if (!D.is_one())
             {
-              cout << "Applying unramified quadratic twist  by " <<  D << endl;
-              twisted_newforms.push_back(unram_quadratic_twist(D));
+              Newform fD = unram_quadratic_twist(D);
+              twisted_newforms.push_back(fD);
             }
         }
       return twisted_newforms;
@@ -2005,10 +2061,12 @@ vector<Newform> Newform::all_unram_quadratic_twists()
   cout << "The nontrivial unramified quadratic twists up to Galois conjugacy are "
        << " by D in " << Dlist << endl;
 #endif
+  twisted_newforms.reserve(Dlist.size());
   for (auto& D : Dlist)
     {
       cout << "Applying unramified quadratic twist  by " <<  D << endl;
-      twisted_newforms.push_back(unram_quadratic_twist(D));
+      Newform fD = unram_quadratic_twist(D);
+      twisted_newforms.push_back(fD);
     }
   return twisted_newforms;
 }
@@ -2208,17 +2266,24 @@ void Newspace::output_to_file(int conj)
   for (auto d: dims) out << " " << d;
   out << endl;
 
-  // Full dimensions (for even class number):
+  // Full dimensions and trivial character flag (for even class number):
   if (n2r)
     {
       dims = dimensions(1);
-      for (auto d: dims) out << " " << d;
+      for (auto d: dims)
+        out << " " << d;
+      out << endl;
+      for (const auto& f: newforms)
+        out << " " << f.triv_char;
       out << endl;
     }
 
   out.close();
   for (const auto& f: newforms)
-    f.output_to_file(conj);
+    {
+      if (is_C4() || f.triv_char)
+        f.output_to_file(conj);
+    }
 }
 
 int Newspace::input_from_file(const Qideal& level, int verb)
@@ -2258,6 +2323,7 @@ int Newspace::input_from_file(const Qideal& level, int verb)
   if (verb>1)
     cout << "-> dims: " << pdims <<endl;
   vector<int> fdims = pdims;
+  vector<int> triv_char_flags(nnf);
   int n2r = Quad::class_group_2_rank;
   if (n2r)
     {
@@ -2265,14 +2331,22 @@ int Newspace::input_from_file(const Qideal& level, int verb)
         fdata >> d;
       if (verb>1)
         cout << "-> full dims: " << fdims <<endl;
+      for (auto& tc: triv_char_flags)
+        fdata >> tc;
+      if (verb>1)
+        cout << "-> trivial characater flags: " << triv_char_flags <<endl;
     }
 
   // This Newform constructor will read its data from file
+  int C4 = is_C4();
   for (int i=1; i<=nnf; i++)
     {
-      if (verb)
-        cout << "About to read newform #" << i << " from file" << endl;
-      newforms.push_back(Newform(this, i, verb));
+      if (C4 || triv_char_flags[i-1])
+        {
+          if (verb)
+            cout << "About to read newform #" << i << " from file" << endl;
+          newforms.push_back(Newform(this, i, verb));
+        }
     }
 
   if (verb>1)
@@ -2280,10 +2354,16 @@ int Newspace::input_from_file(const Qideal& level, int verb)
       cout << "Finished reading Newspace data with " << nnf << " newforms from " << fname << endl;
       for (int i=0; i<nnf; i++)
         {
-          cout << "#" << (i+1) << ": " << "dim = " << pdims[i];
-          if (n2r)
-            cout << ", full dim = " << fdims[i];
-          cout << endl;
+          int tc = triv_char_flags[i];
+          if (C4 || tc)
+            {
+              cout << "#" << (i+1) << ": " << "dim = " << pdims[i];
+              if (n2r)
+                cout << ", full dim = " << fdims[i];
+              if (C4)
+                cout << (tc? ", trivial" : ", non-trivial") << " character";
+              cout << endl;
+            }
         }
     }
   fdata.close();
@@ -2304,18 +2384,20 @@ void Newspace::add_unram_quadratic_twists()
 #ifdef DEBUG_TWIST
   cout << "Applying unramified quadratic twists " << endl;
 #endif
-  for ( auto& F : newforms)
+  vector<Newform> all_extra_newforms;
+  for ( const auto& F : newforms)
     if (F.triv_char)
       {
         vector<Newform> extra_newforms = F.all_unram_quadratic_twists();
 #ifdef DEBUG_TWIST
         cout << "Adding " << extra_newforms.size() << " extra newforms, ";
 #endif
-        newforms.insert(newforms.end(), extra_newforms.begin(), extra_newforms.end());
+        all_extra_newforms.insert(all_extra_newforms.end(), extra_newforms.begin(), extra_newforms.end());
 #ifdef DEBUG_TWIST
         cout << "number is now " << newforms.size() << endl;
 #endif
       }
+  newforms.insert(newforms.end(), all_extra_newforms.begin(), all_extra_newforms.end());
   sort_newforms();
 }
 
@@ -2332,6 +2414,7 @@ void Newspace::display_newforms(int aP, int AL, int principal_eigs, int triv_cha
     }
 }
 
+// Return a list of the degrees of the principal or full Hecke fields
 vector<int> Newspace::dimensions(int full) const
 {
   vector<int> dims(newforms.size());
