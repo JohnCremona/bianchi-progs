@@ -195,7 +195,13 @@ int main()
                 << "(up to unramified quadratic twist)"
                 << endl;
        }
-     NS.display_newforms(1, 1, verbose, triv_char_only); // aP=1, AL=1, principal_eigs=(if verbose)
+     cout << endl;
+
+     int aP = 1; // do display aP
+     int AL = 1; // do display AL
+     int traces = 1; // do display traces
+     int princ = verbose && (Quad::class_number>1); // display principal eigs if verbose and h>1
+     NS.display_newforms(aP, AL, princ, traces, triv_char_only);
 
      // Output newspace data to file, with newform data for trivial
      // char newforms (or all if C4)
@@ -220,21 +226,24 @@ int main()
 
      if (n2r)
        {
-         cout << "Adding quadratic twists..." << flush;
+         if (verbose)
+           cout << "Adding quadratic twists..." << flush;
          NS.add_unram_quadratic_twists();
-         cout << "done" << endl << endl;
+         if (verbose)
+           cout << "done" << endl << endl;
 
          if (C4)
            cout << "Full eigensystems for forms with character chi_0 (trivial)"
-                << " and character chi_1"
+                << " and character chi_1 (including unramified quadratic twists)"
                 << endl;
          else
            {
              if (nnf_triv_char > 0)
                cout << "Full eigensystems for forms with trivial character"
+                    << " (including unramified quadratic twists)"
                     << endl;
            }
-         NS.display_newforms(1, 1, verbose, triv_char_only); // aP=1, AL=1, principal_eigs=(if verbose)
+         NS.display_newforms(aP, AL, princ, traces, triv_char_only);
        }
 
     }     // end of level loop

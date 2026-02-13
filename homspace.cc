@@ -959,22 +959,32 @@ homspace* get_homspace(const Qideal& N, scalar mod)
   return H;
 }
 
+//#define DEBUG_GET_FULL_MAT
+
 // Key is label(N)-T.name()
 // Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
 {
   string NT = NTkey(N,T);
+#ifdef DEBUG_GET_FULL_MAT
   cout << "In get_full_mat() with matop key " << NT << endl;
+#endif
   if (full_mat_dict.find(NT) != full_mat_dict.end())
     {
+#ifdef DEBUG_GET_FULL_MAT
       cout << "key " << NT << " is in full_mat_dict, returning cached matrix" << endl;
+#endif
       return full_mat_dict[NT];
     }
+#ifdef DEBUG_GET_FULL_MAT
   cout << "key " << NT << " not in full_mat_dict, computing matrix" << endl;
+#endif
   homspace* H = get_homspace(N, mod);
   mat M = H->calcop(T,0,0,0); // cuspidal=0, dual=0, display=0
   full_mat_dict[NT] = M;
+#ifdef DEBUG_GET_FULL_MAT
   cout << "caching and returning matrix of " << NT << endl;
+#endif
   return M;
 }
 
@@ -983,13 +993,19 @@ mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
 {
   string NT = NTkey(N,T);
+#ifdef DEBUG_GET_FULL_MAT
   cout << "In get_full_mat() with gmatop key " << NT << endl;
+#endif
   if (full_mat_dict.find(NT) != full_mat_dict.end())
     {
+#ifdef DEBUG_GET_FULL_MAT
       cout << "key " << NT << " is in full_mat_dict, returning cached matrix" << endl;
+#endif
       return full_mat_dict[NT];
     }
+#ifdef DEBUG_GET_FULL_MAT
   cout << "key " << NT << " not in full_mat_dict, computing matrix" << endl;
+#endif
   int d = get_homspace(N, mod)->h1dim();
   mat M(d,d);
   if (d)
@@ -1013,13 +1029,16 @@ mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
   // single matop, since that will have been done in the loop.
   if (full_mat_dict.find(NT) == full_mat_dict.end())
     full_mat_dict[NT] = M;
+#ifdef DEBUG_GET_FULL_MAT
   cout << "caching and returning matrix of " << NT << endl;
+#endif
   return M;
 }
 
+//#define DEBUG_GET_POLY
+
 // from one of poly_dict, tc_poly_dict, cuspidal_poly_dict, tc_cuspidal_poly_dict
 // depending on flags cuspidal & triv_char
-#define DEBUG_GET_POLY
 ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
   string NT = NTkey(N,T);

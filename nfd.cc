@@ -627,7 +627,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
       if (verbose)
         {
           cout << "Using splitting operator T = " << T_name << endl;
-          cout << "Number of irreducuble components is " << factors.size() << endl;
+          cout << "Number of irreducible components is " << factors.size() << endl;
         }
       int i=1;
       newforms.reserve(factors.size());
@@ -1420,36 +1420,34 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
     }
 
   // Report on how many genus classes have eigenvalues in the
-  // principal Hecke field Any genus classes not in the
-  // genus_classes_nonzero list must first be appended to
-  // genus_classes_no_ext.
-  if (genus_classes_nonzero.size() < Quad::class_group_2_torsion.size())
-    {
-      // Could possibly do this using  std::set_difference()
-      int n2t = Quad::class_group_2_torsion.size();
-      for (auto i=0; i<n2t; i++)
-        {
-          auto it = std::find(genus_classes_nonzero.begin(), genus_classes_nonzero.end(), i);
-          if (it == genus_classes_nonzero.end())
-            genus_classes_no_ext.push_back(i);
-        }
-    }
-  verbose = 1;
+  // principal Hecke field
+
+  unsigned int ngenera2 = ngenera;
+  if (!CMD.is_zero())
+    ngenera2 = ngenera/2;
+
   if (verbose && n2r)
     {
-      cout << "Out of " << ngenera << " genus classes, " << genus_classes_no_ext.size()
+      cout << "Out of " << ngenera << " genus classes, ";
+      if (!CMD.is_zero())
+        cout << "of which " << ngenera2 << " have nonzero aP, ";
+      cout << genus_classes_no_ext.size()
            << " have eigenvalues in the principal Hecke field." << endl;
-      cout << "These classes are " << genus_classes_no_ext << endl;
+      cout << "These classes are " << genus_classes_no_ext
+           << ", with ideals       " << genus_class_no_ext_ideals << endl;
       cout << "This means that the number of unramified quadratic twists of this newform is "
            << genus_classes_no_ext.size() << endl;
     }
-  // if (ngenera != genus_classes_no_ext.size() * Fmodsq->order())
-  //   {
-  //     cout << "ngenera = " << ngenera << endl;
-  //     cout << "Fmodsq->order() = " << Fmodsq->order() << endl;
-  //     cout << "genus_classes_nonzero = " << genus_classes_nonzero << endl;
-  //   }
-  assert (ngenera == genus_classes_no_ext.size() * Fmodsq->order());
+  if (ngenera2 != genus_classes_no_ext.size() * Fmodsq->order())
+    {
+      cerr << "ngenera = " << ngenera << endl;
+      cerr << "ngenera2 = " << ngenera << endl;
+      cerr << "Fmodsq->order() = " << Fmodsq->order() << endl;
+      cerr << "genus_classes_no_ext = " << genus_classes_no_ext << endl;
+    }
+  assert (ngenera2 == genus_classes_no_ext.size() * Fmodsq->order());
+
+  set_unramified_twist_discriminants(); // fill the unramified_twist_discriminants listl
 } // end of compute_eigs_triv_char
 
 // Fill dict eQmap *after* aPmap, and set sfe, ONLY in triv_char case
@@ -1956,7 +1954,7 @@ void Newform::output_to_file(int conj) const
     }
 }
 
-//#define DEBUG_TWIST
+#define DEBUG_TWIST
 
 // Construct another newform which is the unramified quadratic twist
 // of this one by D, where D is a discriminant divisor
@@ -2013,28 +2011,23 @@ Newform Newform::unram_quadratic_twist(const INT& D) const
 }
 
 //#define DEBUG_UNRAM_TWISTS
-// Construct all newforms which are nontrivial unramified quadratic
-// twists of this one, up to Galois conjugacy
-vector<Newform> Newform::all_unram_quadratic_twists() const
+
+void Newform::set_unramified_twist_discriminants()
 {
+  if (Quad::class_group_2_rank==0)
+    return;
+  if (!triv_char)
+    return;
+  unramified_twist_discriminants.clear();
+
 #ifdef DEBUG_UNRAM_TWISTS
-  cout << "Finding all unramified quadratic twists of one newform (" << this << ") up to Galois conjugacy" <<endl;
+  cout << "Determining all unramified quadratic twists up to Galois conjugacy" <<endl;
   cout << "  genus_classes_no_ext =    " << genus_classes_no_ext << endl;
   cout << "  genus_class_no_ext_ideals " << genus_class_no_ext_ideals << endl;
 #endif
   // We use the subgroup H of the genus class group whose element list
   // is genus_classes_no_ext with representative ideals in
   // genus_class_no_ext_ideals.
-
-  vector<Newform> twisted_newforms; // will hold the result
-
-  if (!triv_char)
-    {
-#ifdef DEBUG_UNRAM_TWISTS
-      cout << "Adding unramified quadratic twists not implemented for nontrivial character" << endl;
-#endif
-      return twisted_newforms;
-    }
 
   // Special case 1: genus_classes_no_ext = [0]. Then all unramified
   // quadratic twists are conjugates, so we return an empty list.
@@ -2047,62 +2040,96 @@ vector<Newform> Newform::all_unram_quadratic_twists() const
 #ifdef DEBUG_UNRAM_TWISTS
       cout << "No nontrivial unramified quadratic twists up to Galois conjugacy" << endl;
 #endif
-    return twisted_newforms;
+    return;
     }
+
   // Special case 2: genus_classes_no_ext = all genus classes. Then
   // all unramified quadratic twists are pairwise non-conjugate, so we
   // return all of them (except the trivial one).  This is the only
   // other case if the class group's 2-rank is 1.
 
   int n2 = Quad::class_group_2_torsion.size();
+
   if (nclasses == n2)
     {
 #ifdef DEBUG_UNRAM_TWISTS
       cout << "All nontrivial unramified quadratic twists are distinct up to Galois conjugacy" << endl;
 #endif
-      twisted_newforms.reserve(Quad::all_disc_factors.size()-1);
-      for (auto& D : Quad::all_disc_factors)
-        {
-          if (!D.is_one())
-            {
-              Newform fD = unram_quadratic_twist(D);
-              twisted_newforms.push_back(fD);
-            }
-        }
-      return twisted_newforms;
+      unramified_twist_discriminants.reserve(Quad::all_disc_factors.size()-1);
+      std::copy(Quad::all_disc_factors.begin()+1, Quad::all_disc_factors.end(),
+                unramified_twist_discriminants.end());
+      return;
     }
 
   // Now the class group's 2-rank must be at least 2.
 
+#ifdef DEBUG_UNRAM_TWISTS
+  cout << "Finding D such that the unramified quadratic twists by D are nontrivial and distinct up to Galois conjugacy" << endl;
+#endif
   // genus_class_no_ext_ideals is a list of ideals in the classes in
   // genus_classes_no_ext.size().  To find a list of the twists D we
   // need, we evaluate the genus character for D at all of these and
   // only keep D if the list of values is new.
-  vector<vector<int>> D_values_list;
-  vector<INT> Dlist;
+  vector<vector<int>> D_values_list(1, vector<int>(genus_class_no_ext_ideals.size(), 1));
+#ifdef DEBUG_UNRAM_TWISTS
+  cout << "Initial D_values_list" << endl;
+  for (auto L: D_values_list) cout << L << endl;
+#endif
+  vector<INT> unramified_twist_discriminants;
   for (auto& D : Quad::all_disc_factors)
     {
       if (!D.is_one())
         {
+#ifdef DEBUG_UNRAM_TWISTS
+          cout << "\nTesting D = " << D << endl;
+#endif
           vector<int> D_values;
           for (auto I: genus_class_no_ext_ideals)
             D_values.push_back(I.genus_character(D));
+#ifdef DEBUG_UNRAM_TWISTS
+          cout << "D_values = [I.genus_character(D) for I in " << genus_class_no_ext_ideals << "] = "
+               << D_values << endl;
+#endif
           auto it = std::find(D_values_list.begin(), D_values_list.end(), D_values);
           if (it == D_values_list.end())
             {
+#ifdef DEBUG_UNRAM_TWISTS
+              cout << "New D_values vector, adding to list and keeping D = " << D << endl;
+#endif
               D_values_list.push_back(D_values);
-              Dlist.push_back(D);
+              unramified_twist_discriminants.push_back(D);
+#ifdef DEBUG_UNRAM_TWISTS
+              cout << "D_values_list is now" << endl;
+              for (auto L: D_values_list) cout << L << endl;
+              cout << "unramified_twist_discriminants is now " << unramified_twist_discriminants << endl;
+#endif
             }
+#ifdef DEBUG_UNRAM_TWISTS
+          else
+            cout << "Repeat D_values vector, not keeping D = " << D << endl;
+#endif
         }
     }
 #ifdef DEBUG_UNRAM_TWISTS
   cout << "The nontrivial unramified quadratic twists up to Galois conjugacy are "
-       << " by D in " << Dlist << endl;
+       << " by D in " << unramified_twist_discriminants << endl;
 #endif
-  twisted_newforms.reserve(Dlist.size());
-  for (auto& D : Dlist)
+}
+
+// Construct all newforms which are nontrivial unramified quadratic
+// twists of this one, up to Galois conjugacy
+vector<Newform> Newform::all_unram_quadratic_twists() const
+{
+  vector<Newform> twisted_newforms; // will hold the result
+  if ((Quad::class_group_2_rank==0) ||  (!triv_char))
+    return twisted_newforms;
+
+  twisted_newforms.reserve(unramified_twist_discriminants.size());
+  for (auto& D : unramified_twist_discriminants)
     {
+#ifdef DEBUG_UNRAM_TWISTS
       cout << "Applying unramified quadratic twist  by " <<  D << endl;
+#endif
       Newform fD = unram_quadratic_twist(D);
       twisted_newforms.push_back(fD);
     }
@@ -2441,13 +2468,13 @@ void Newspace::add_unram_quadratic_twists()
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newspace::display_newforms(int aP, int AL, int principal_eigs, int triv_char_only) const
+void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, int triv_char_only) const
 {
   for ( auto& F : newforms)
     {
       if ((!triv_char_only) || F.triv_char)
         {
-          F.display(aP, AL, principal_eigs);
+          F.display(aP, AL, principal_eigs, traces);
           cout<<endl;
         }
     }

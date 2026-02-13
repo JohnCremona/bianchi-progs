@@ -48,7 +48,10 @@ private:
   mat projcoord; // used to computed eigenvalues of any operator
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   int triv_char;  // 1 iff all epsvec values are +1, else 0
-  INT genus_char_disc; // associated discriminant factor (1 for trivial char)
+  // list of unramified quadratic twist discriminants, initially depends only
+  // on the level but may be cut down later
+  vector<INT> unramified_twist_discriminants;
+  void set_unramified_twist_discriminants(); // function which sets this list
 
   // book-keeping data for eigenvalue computations
   vector<long> genus_classes_no_ext; // list of classes for which we have a nonzero eigenvalue in F itself
@@ -334,7 +337,7 @@ public:
   vector<int> dimensions(int full=0) const;
 
   // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
-  void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int triv_char_only=0) const;
+  void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int traces=0, int triv_char_only=0) const;
   // sort the list of newforms using newform_cmp
   void sort_newforms();
   // return the list of newforms

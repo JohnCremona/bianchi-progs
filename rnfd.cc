@@ -53,7 +53,7 @@ int main()
       cout << nnf << (nnf==1? " newform" : " newforms");
       if (n2r) cout << " (up to unramified quadratic twist)";
       cout << endl;
-      NS.display_newforms(1, 1); // aP: yes;  AL: yes (principal eigs, triv_char_only: no)
+      NS.display_newforms(1, 1); // aP, AL: yes;  principal eigs,, traces, triv_char_only: no
     }     // end of level loop
   cout << endl;
   exit(0);
