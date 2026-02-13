@@ -263,7 +263,7 @@ private:
   vector<matop> eps_ops; // list of T(A,A) operators for A in t2ideals
 
   homspace* H1;  // the ambient modular symbol space at level N
-  int cdimH, dimH;
+  int dimH, cdimH, cdimH_tc; // full dimension, cuspidal dimension, cuspidal trivial char dimension
   scalar hmod, dH;
 
   mat_m T_mat;  // matrix of splitting operator
@@ -356,7 +356,7 @@ public:
 };
 
 // dict of Newspaces read from file
-extern map<string,Newspace*> Newspace_dict;  // Key: ideal_label(N)
+extern map<string,Newspace*> Newspace_dict;  // Key: label(N)
 Newspace* get_Newspace(const Qideal& N, int verb=0);
 
 #endif

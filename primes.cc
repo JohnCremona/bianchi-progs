@@ -43,7 +43,7 @@ Quadprime::Quadprime(const string& s) // ideal from label Pp or Ppa or Ppb
     }
 }
 
-vector<int> Quadprime::genus_character()
+vector<int> Quadprime::genus_character() const
 {
   // cout<<"Finding genus character of P="<<(*this)<<endl;
 
@@ -55,7 +55,10 @@ vector<int> Quadprime::genus_character()
 
   int r = Quad::prime_disc_factors.size()-1; // = Quad::class_group_2_rank
   vector<int> ans(1+r, 0);
-  if (r==0 || is_inert() || is_principal())
+  if (r==0)
+    return ans;
+  Quadprime P(*this); // copy as this is const
+  if (P.is_inert() || P.is_principal())
     return ans;
   // cout<<" -- not principal, even class number..."<<endl;
   int i=0, i0=-1, tot=0, k;
@@ -87,7 +90,7 @@ vector<int> Quadprime::genus_character()
   return ans;
 }
 
-int Quadprime::genus_character(const INT& D)
+int Quadprime::genus_character(const INT& D) const
 {
   if (!div_disc(D, Quad::disc))
     return 0;
@@ -98,7 +101,7 @@ int Quadprime::genus_character(const INT& D)
   return (dotmod2? -1: +1);
 }
 
-long Quadprime::genus_class(int contract)
+long Quadprime::genus_class(int contract) const
 {
   vector<int> v = genus_character();
   long c = from_bits(v);
@@ -124,7 +127,7 @@ void Quadprimes::display(ostream& s, long maxn, int show_genus)
       if (P.norm()>maxn) break;
       vector<Quad> gg = P.gens();
       Quad pi;
-      cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
+      cout << P << " = " << label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
       if (P.is_principal(pi))
         cout << " = ("<< pi <<") (principal";
       else
@@ -782,10 +785,11 @@ int Qideal::is_square()
   return std::all_of(ee.begin(), ee.end(), []( int e ) {return e%2==0;});
 }
 
-long Qideal::genus_class(int contract)
+long Qideal::genus_class(int contract) const
 {
   long c = 0;
-  vector<QuadprimePower> PP = factorization().prime_powers();
+  Qideal I(*this); // copy as factorization() is not const;
+  vector<QuadprimePower> PP = I.factorization().prime_powers();
   for ( auto& P : PP)
     {
       if ((P.second)%2==1)

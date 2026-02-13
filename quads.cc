@@ -1015,7 +1015,7 @@ vector<INT> HNF(const Quad& alpha)
 // Ideal label: formed from the Norm and HNF of the ideal (alpha)
 // (subject to change!)
 
-string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
+string old_label(const Quad& alpha)  // returns label of ideal (alpha)
 {
   vector<INT>H = HNF(alpha);
   stringstream s;
@@ -1023,7 +1023,7 @@ string old_ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
   return s.str();
 }
 
-string ideal_label(const Quad& alpha)  // returns label of ideal (alpha)
+string label(const Quad& alpha)  // returns label of ideal (alpha)
 {
   vector<INT>H = HNF(alpha);
   stringstream s;
@@ -1186,7 +1186,7 @@ string eigfile(Qideal& N, long p)    //returns filename for eigs at level N, cha
   if (Quad::class_number==1) // for backwards compatibility of data file names
     s << ideal_code(N.gen());
   else
-    s << ideal_label(N);
+    s << label(N);
   if (p)
     s << "_mod_"<<p;
   return s.str();

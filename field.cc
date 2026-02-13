@@ -360,7 +360,7 @@ string FieldElement::str(int raw) const
   ostringstream s;
   if (F->isQ())
     {
-      s << val;
+      s << val; // if val is an integer this just outputs the integer with no "/" + denominator
       return s.str();
     }
   if (raw)
@@ -499,6 +499,8 @@ void FieldElement::operator+=(const FieldElement& b)
   if (F!=b.F)
     {
       cerr << "Attempt to add elements of different fields!" << endl;
+      cerr << "In operator += with this = " << (*this) << " in field " << (*F)
+           << " and that = " << b << " in field " << *(b.F) << endl;
       exit(1);
     }
   if (b.is_zero())
@@ -1393,12 +1395,26 @@ Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
   return ans;
 }
 
+// Input from a raw string format; x's SqCl (and hence its field) must
+// be already set
+istream& operator>>(istream& s, Eigenvalue& x)
+{
+  s >> x.a;
+  if (x.SqCl->rank())
+    {
+      s >> x.root_index >> x.xf;
+    }
+  return s;
+}
+
 string Eigenvalue::str(int raw) const
 {
   ostringstream s;
   if (raw)
     {
-      s << a.str(1) << " " << root_index << " " << xf;
+      s << a.str(1);
+      if (SqCl->rank())
+        s << " " << root_index << " " << xf;
       return s.str();
     }
 

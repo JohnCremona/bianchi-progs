@@ -67,13 +67,13 @@ int main ()
   while( loop.not_finished() )
    {
      Qideal N = loop.next();
-     string level_label = ideal_label(N);
+     string level_label = label(N);
      vector<Qideal> Ndivisors = alldivs(N);
      // cout<<"Genus characters of divisors of "<<level_label<<":"<<endl;
      // cout << "\t\t"<<Quad::all_disc_factors <<endl;
      // for ( const auto& I : Ndivisors)
      //   {
-     //     cout<<ideal_label(I)<<" --> \t";
+     //     cout<<label(I)<<" --> \t";
      //     for (const auto& d : Quad::all_disc_factors)
      //       cout<<I.genus_character(d)<<" ";
      //     cout<<endl;
@@ -104,7 +104,7 @@ int main ()
              if (N==D)
                break;
              Qideal M = N/D;
-             dimcuspold += dims[ideal_label(D)] * ndivs(M);
+             dimcuspold += dims[label(D)] * ndivs(M);
            }
          dimcusp = dimcuspold + dimcuspnew;
          cout << dimcusp << "\t\t";

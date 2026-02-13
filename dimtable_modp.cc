@@ -68,7 +68,7 @@ int main ()
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
        {
 #endif
-         cout << ideal_label(N);
+         cout << label(N);
          for ( const auto& c : charlist)
            {
              scalar modulus = (c==0? default_modulus<scalar>(): c);

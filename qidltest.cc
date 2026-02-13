@@ -7,7 +7,7 @@
 
 void test1(Qideal& I)
 {
-  cout << "Ideal " << ideal_label(I) << " = " << I << " (norm " << I.norm() << ")";
+  cout << "Ideal " << label(I) << " = " << I << " (norm " << I.norm() << ")";
   if (I.is_principal())
     cout << " is principal, with generator " << I.gen();
   else
@@ -43,7 +43,7 @@ void test2(Qideal& I)
 void ABmatrixtest(Qideal& I)
 {
   mat22 M = I.AB_matrix();
-  cout<<"AB-matrix of "<<ideal_label(I)<<" is "<<M<<endl;
+  cout<<"AB-matrix of "<<label(I)<<" is "<<M<<endl;
 }
 
 void looptest()
@@ -58,7 +58,7 @@ void looptest()
     {
       Qideal I = loop_both.next();
       string g = gens_string(I);
-      cout << ideal_label(I) << " = " << I << " = " << g;
+      cout << label(I) << " = " << I << " = " << g;
       if (n2r>0)
         {
           cout <<"\t[";
@@ -77,7 +77,7 @@ void looptest()
   while( loop_one.not_finished() )
     {
       Qideal I = loop_one.next();
-      cout << ideal_label(I) << " = " << I << " = " << gens_string(I) << endl;
+      cout << label(I) << " = " << I << " = " << gens_string(I) << endl;
     }
 
   long firstn, lastn;
@@ -107,10 +107,10 @@ void labeltest()
   while( loop.not_finished() )
     {
       Qideal I = loop.next();
-      string s = ideal_label(I);
+      string s = label(I);
       Qideal J(s);
       assert (I==J);
-      assert (ideal_label(J)==s);
+      assert (label(J)==s);
     }
   cout<<"label test ok"<<endl;
 }
@@ -130,13 +130,13 @@ void stringtest()
       case 'P':
         P = Quadprime(s);
         cout << "prime ideal is "<<P<<" with norm " << P.norm()
-             << ", and ideal label "<<ideal_label(P)<<endl;
+             << ", and ideal label "<<label(P)<<endl;
         break;
       default:
         I = Qideal(s);
         cout << "ideal is "<<I<<" with norm " << I.norm()
              << ", index "<<I.get_index()
-             << ", and label "<<ideal_label(I)<<endl;
+             << ", and label "<<label(I)<<endl;
       };
     }
 }

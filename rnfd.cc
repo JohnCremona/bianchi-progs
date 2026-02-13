@@ -15,11 +15,6 @@ int main()
   cout << "Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension." << endl;
   eclib_pari_init();
 
-  scalar modulus = default_modulus<scalar>();
-#if (SCALAR_OPTION==3)
-  //  NextPrime(modulus, power_ZZ(to_ZZ(2),256));
-  NextPrime(modulus, pow(to_ZZ(2),512));
-#endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;
   cin >> d;
@@ -49,7 +44,7 @@ int main()
 #endif
       cout << endl;
 
-      string Nlabel = ideal_label(N);
+      string Nlabel = label(N);
       cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
 
       Newspace NS;

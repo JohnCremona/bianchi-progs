@@ -30,7 +30,7 @@ int main(void)
   cerr<<"Enter level (ideal label or generator): \n";
   cin>>N;
   if (verbose)
-    cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+    cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
 
   int nforms, nprimes;
   cerr<<"Enter number of newforms and number of primes to check: \n";

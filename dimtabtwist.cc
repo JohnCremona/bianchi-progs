@@ -78,7 +78,7 @@ int main(void)
   while( loop.not_finished() )
     {
       N = loop.next();
-      string Nlabel = ideal_label(N);
+      string Nlabel = label(N);
       cout << field_label() << "\t" << Nlabel << "\t"; // field, level
 
       // compute homology dimensions directly: cuspidal and trivial character cuspidal
@@ -124,7 +124,7 @@ int main(void)
             continue;
           Qideal M = N/D;
           int m = ndivs(M);
-          vector<int> dimsD = newdimlists[ideal_label(D)];
+          vector<int> dimsD = newdimlists[label(D)];
           for (int i=0; i<nchi; i++)
             {
               olddims[i] += m*dimsD[i];

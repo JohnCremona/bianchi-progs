@@ -41,7 +41,7 @@ int main(void)
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+  cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N, modulus, plusflag, 0);
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
@@ -329,7 +329,7 @@ int main(void)
               if ((P*Qe).is_principal())
                 {
                   matop op = HeckePALQOp(P,Q,N);
-                  cout<<"Computing T("<<P<<") * W("<<ideal_label(Qe)<<")..."<<flush;
+                  cout<<"Computing T("<<P<<") * W("<<label(Qe)<<")..."<<flush;
                   mat m1 = h.calcop(op,cuspidal, 0, 0);
                   tpwq = mat_to_mat_ZZ(m1);
                   cout << "done. " << endl;

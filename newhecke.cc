@@ -50,7 +50,7 @@ int main(void)
       while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
         {
 #endif
-          cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+          cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace* h = get_homspace(N, modulus);
   int dim = h->h1dim();
   int cdim = h->h1cuspdim();

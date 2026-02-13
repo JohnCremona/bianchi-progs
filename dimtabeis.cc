@@ -54,7 +54,7 @@ int main ()
    {
      Qideal N = loop.next();
      cout << "\t"<< d << "\t2\t";                  // field and weight
-     cout << ideal_label(N)<<"\t"; // level
+     cout << label(N)<<"\t"; // level
      homspace hplus(N, modulus, 1, verbose, ch);  // plusflag=1
      pair<int,int> dims = hplus.trivial_character_subspace_dimensions();
      int dimcusp = dims.second;

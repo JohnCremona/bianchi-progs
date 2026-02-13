@@ -45,10 +45,10 @@ int main(void)
 #endif
      if (!N.is_Galois_stable())
        {
-         cout << "Skipping level "<< ideal_label(N) << " as not Galois stable" << endl;
+         cout << "Skipping level "<< label(N) << " as not Galois stable" << endl;
          continue;
        }
-  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+  cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N, modulus, plusflag, 0);
   int h1dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   scalar den = (cuspidal? h.h1cdenom(): h.h1denom());
@@ -316,7 +316,7 @@ int main(void)
               Qideal Qe = *qe;
               if ((P*Qe).is_principal())
                 {
-                  cout<<"Computing T("<<P<<")W("<<ideal_label(Qe)<<")..."<<flush;
+                  cout<<"Computing T("<<P<<")W("<<label(Qe)<<")..."<<flush;
                   mat m1 = h.calcop(HeckePALQOp(P,Q,N),cuspidal, 0, 0);
                   tpwq = mat_to_mat_ZZ(m1);
                   cout << "done. " << endl;

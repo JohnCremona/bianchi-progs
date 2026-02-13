@@ -250,7 +250,7 @@ void newform::eigs_from_data()
   // start with unramified char eigs (all +1), then Tp eigs ap for
   // good p
 {
-  // cout<<"In eigs_from_data (level "<<ideal_label(nf->N)<<"), aplist = "<<aplist<<endl;
+  // cout<<"In eigs_from_data (level "<<ideal(nf->N)<<"), aplist = "<<aplist<<endl;
   scalar ch(nf->characteristic);
   if (ch == 0)      // the first n2r eigs are all +1
     eigs.resize(nf->n2r, +1);
@@ -266,7 +266,7 @@ void newform::eigs_from_data()
       long normP = I2long(P.norm());
       while ((P.divides(nf->N)) || (ch>0 && (scalar(normP)%ch==0)))
         {
-          // cout<<" - P = "<<ideal_label(P)<<": bad prime, skipping"<<endl;
+          // cout<<" - P = "<<ideal(P)<<": bad prime, skipping"<<endl;
           ++pr;
           ++api;
           P = *pr;
@@ -278,7 +278,7 @@ void newform::eigs_from_data()
           ap = ap*ap -normP;
         }
       eigs.push_back(ap);
-      //cout<<" - P = "<<ideal_label(P)<<": eig = "<<ap<<endl;
+      //cout<<" - P = "<<ideal(P)<<": eig = "<<ap<<endl;
       ++pr; ++api;
       if (pr == Quadprimes::list.end())
         break;
@@ -356,7 +356,7 @@ vector<long> newform::oldform_eigs(Qideal& M)
 
   if (nf->verbose)
     {
-      cout<<"Making oldform eigs at level "<<ideal_label(M)<<" from eigs at level "<<ideal_label(nf->N)<<endl;
+      cout<<"Making oldform eigs at level "<<label(M)<<" from eigs at level "<<label(nf->N)<<endl;
       cout<<" - input eigs: "<<eigs<<endl;
     }
   // insert eigs for central characters:
@@ -416,7 +416,7 @@ newform::newform(newforms* nfs, int ind,
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
       int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
       if (newsfe!=sfe)
-        cout<<"Problem in data on file for level "<<ideal_label(N)<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
+        cout<<"Problem in data on file for level "<<label(N)<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
     }
 
   aplist = ap;
@@ -853,7 +853,7 @@ void newforms::makeh1(void)
 newforms::newforms(const Qideal& iN, scalar mod, int disp, scalar ch)
   : N(iN), verbose(disp), n2r(Quad::class_group_2_rank), modulus(mod), characteristic(ch), have_bases(0)
 {
-  //cout<<"In newforms constructor with level = "<<ideal_label(N)<<", modulus = "<<modulus<<endl;
+  //cout<<"In newforms constructor with level = "<<label(N)<<", modulus = "<<modulus<<endl;
   nchi = 1<<n2r;
   level_is_square = N.is_square();
 
@@ -1018,7 +1018,7 @@ void newforms::find_lambdas()
 void newforms::find()
 {
   if(verbose)
-    cout<<"Constructing homspace at level "<<ideal_label(N)<<" ...\n";
+    cout<<"Constructing homspace at level "<<label(N)<<" ...\n";
   makeh1();
 
   // fill the h1matops and eigranges lists with empties; the functions
@@ -1047,7 +1047,7 @@ void newforms::find()
   if(characteristic==0)
     {
       if (verbose)
-        cout<<"Retrieving oldform data for level "<<ideal_label(N)<<"...\n";
+        cout<<"Retrieving oldform data for level "<<label(N)<<"...\n";
       of = new oldforms(this);
       if (verbose)
         of->display();
@@ -1273,7 +1273,7 @@ void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
       n1ds++;
       if (n1ds>dimtrivcuspnew)
         {
-          cout << "*** Warning: in splitting eigenspaces (level "<<ideal_label(N)<<"): apparently found more ";
+          cout << "*** Warning: in splitting eigenspaces (level "<<label(N)<<"): apparently found more ";
           cout << "1D rational newforms ("<< n1ds
                <<", possibly including fake rationals) than the total new cuspidal dimension ("
                <<dimtrivcusp<<") ***"<<endl;
@@ -1291,7 +1291,7 @@ void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
 void newforms::display(int detail)
 {
  if (n1ds==0) {cout<<"No newforms."<<endl; return;}
- cout << "\n"<<n1ds<<" newform(s) at level " << ideal_label(N) << " = " << gens_string(N);
+ cout << "\n"<<n1ds<<" newform(s) at level " << label(N) << " = " << gens_string(N);
  if (n2r>0)
    cout << " (up to twist by unramified character)";
  cout  << ":"<< endl;
@@ -1325,8 +1325,8 @@ void newform::display(void) const
 
 void newforms::list(long nap)
 {
-  //  string idlabel = (Quad::class_number==1? ideal_code(N.gen()): ideal_label(N));
-  string idlabel = ideal_label(N);
+  //  string idlabel = (Quad::class_number==1? ideal_code(N.gen()): label(N));
+  string idlabel = label(N);
   string idgens = gens_string(N), flabel = field_label();
   string s1 = flabel + " " + idlabel + " ";
   string s2 = " " + idgens + " 2 ";
@@ -1472,7 +1472,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
         {
           Qideal A = P.sqrt_coprime_to(N);
           if (verbose>1)
-            cout << "form "<<index<<", computing T("<<P<<") using T(P)*T(A,A) with A = "<<ideal_label(A)<<endl;
+            cout << "form "<<index<<", computing T("<<P<<") using T(P)*T(A,A) with A = "<<label(A)<<endl;
           return eigenvalue(HeckePChiOp(P,A,N), eigenvalue_range(P));
         }
     }
@@ -1489,8 +1489,8 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           Qideal A = genus_class_ideals[i];
           Qideal B = A*P; // so B is square-free and of square class
           if (verbose>1)
-            cout << "form "<<index<<", computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
-                 <<ideal_label(A)
+            cout << "form "<<index<<", computing T("<<P<<") using T("<<label(B)<<") = T(P)*T(A) with A = "
+                 <<label(A)
                  <<", with T(A) eigenvalue "<<factor<<endl;
           long aP;
           if (B.is_principal())               // compute T(B)
@@ -1633,7 +1633,7 @@ long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
     {
       Qideal A = Qe.sqrt_coprime_to(N);
       if (verbose)
-        cout << "computing W("<<Q<<") using W(Q)*T(A,A) with A = "<<ideal_label(A)<<endl;
+        cout << "computing W("<<Q<<") using W(Q)*T(A,A) with A = "<<label(A)<<endl;
       return eigenvalue(AtkinLehnerQChiOp(Q,A,N), {-1,1});
     }
 
@@ -1647,7 +1647,7 @@ long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
 
   if (verbose)
     cout << "computing W("<<Q<<") using W(A)*T(P) for suitable P (opposite class to Q^e="
-         <<ideal_label(Qe) <<", aP nonzero)"<<endl;
+         <<label(Qe) <<", aP nonzero)"<<endl;
   for (auto Pi = Quadprimes::list.begin(); Pi!=Quadprimes::list.end(); ++Pi)
     {
       Quadprime P = *Pi;
@@ -1745,19 +1745,19 @@ void newforms::make_bigtkernbas(void)
 void newforms::read_from_file_or_find()
 {
   if (verbose>1)
-    cout << " - reading newform data for level "<<ideal_label(N)<<endl;
+    cout << " - reading newform data for level "<<label(N)<<endl;
   int ok = read_from_file();
   if (ok)
     {
       if (verbose>1)
-        cout << " - successfully read newform data for level "<<ideal_label(N)<<endl;
+        cout << " - successfully read newform data for level "<<label(N)<<endl;
       return;
     }
   if (verbose)
-    cout << " - no newform data for level "<<ideal_label(N)<<" exists, finding newforms..."<<endl;
+    cout << " - no newform data for level "<<label(N)<<" exists, finding newforms..."<<endl;
   find();
   if (verbose)
-    cout << " - found "<<n1ds<<" newforms for level "<<ideal_label(N)<<endl;
+    cout << " - found "<<n1ds<<" newforms for level "<<label(N)<<endl;
   if (n1ds>0)
     {
       if (verbose)
@@ -1778,7 +1778,7 @@ void newforms::read_from_file_or_find()
 int newforms::read_from_file()
 {
   if(verbose)
-    cout << "Retrieving newform data for N = " << ideal_label(N) << endl;
+    cout << "Retrieving newform data for N = " << label(N) << endl;
 
 // Read newform data from file
 
@@ -1790,7 +1790,7 @@ int newforms::read_from_file()
     {
       if(verbose)
         {
-          cout << "No data file for level " << ideal_label(N);
+          cout << "No data file for level " << label(N);
           if (ch) cout << " mod " << characteristic;
           cout << endl;
         }
@@ -1895,7 +1895,7 @@ int newforms::read_from_file()
 
 // Extract number of newforms and their eigenvalues from this.
 
-  if(verbose>1) cout << " read "<<n1ds << " newforms for N = " << ideal_label(N) << endl;
+  if(verbose>1) cout << " read "<<n1ds << " newforms for N = " << label(N) << endl;
 
  // construct the newforms from this data
   for(i=0; i<n1ds; i++)

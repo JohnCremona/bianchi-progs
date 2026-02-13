@@ -46,7 +46,7 @@ int main ()
      vector<Quad> plist=pdivs(n); if(plist.size()>1) continue;
      long normn = n.norm();
      string efilename = eigfile(n);
-     cout << ">>>> Level " << ideal_label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
+     cout << ">>>> Level " << label(n) <<" = ("<<n<<"), norm = "<<normn<<" <<<<" << endl;
      newforms nf(n,verbose);
      nf.find();
      //nf.display();

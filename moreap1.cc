@@ -20,7 +20,7 @@ int main(void)
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
      string efilename = eigfile(N);
-     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N, modulus, verbose);
      nf.read_from_file();
      if (showforms) nf.display();

@@ -57,7 +57,7 @@ int main ()
    {
      Qideal N = loop.next();
      cout << d << "\t2\t";                  // field and weight
-     cout << ideal_label(N)<<"\t "<<N.norm()<<"\t"; // level and norm
+     cout << label(N)<<"\t "<<N.norm()<<"\t"; // level and norm
      if (!plusflag)
        {
          homspace h1(N, modulus, 0, 0, ch);  // plusflag=0, verbose=0, characteristic

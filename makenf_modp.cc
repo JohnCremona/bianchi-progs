@@ -52,15 +52,15 @@ int main ()
 
      INT normN = N.norm();
      string efilename = eigfile(N, I2long(ch));
-     string label = ideal_label(N);
-     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
+     string Nlabel = label(N);
+     cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<normN<<" <<<<" << endl;
      newforms nf(N, ch, verbose, ch);
      nf.find();
 #ifdef LOOPER
      int dimcusp, dimeis, dimall;
      // output lines as in dimtabeis:
      dimtab << d << "\t2\t";           // field and weight
-     dimtab << label<<"\t\t"; // level and norm
+     dimtab << Nlabel<<"\t\t"; // level and norm
      dimcusp = nf.h1->h1cuspdim();
      dimall = nf.h1->h1dim();
      dimeis = dimall-dimcusp;

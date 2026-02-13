@@ -148,8 +148,8 @@ public:
   int genus_character(const INT& D); // one unram char value in {+1,-1}
   vector<int> genus_character(); // vector of values in {0,1} of length r = #prime factors of field disc
                                  // adding to 0 mod 2
-  long genus_class(int contract=0); // integer in [0,2^r-1] whose bits are genus_character() when contract=0
-                                    // or same reduced mod 2^{r-1} when contract=1
+  long genus_class(int contract=0) const; // integer in [0,2^r-1], bits are genus_character() when contract=0
+                                          // or same reduced mod 2^{r-1} when contract=1
   int has_square_class() {return (genus_class()==0);}
 
   vector<INT> possible_unramified_twists();  // sublist of Quad::all_disc_factors() consisting of those D not 1
@@ -254,7 +254,10 @@ vector<Qideal> primitive_ideals_with_norm(INT N, int both_conj=1);
 vector<Qideal> ideals_with_norm(INT N, int both_conj=1);
 vector<Qideal> ideals_with_bounded_norm(INT maxnorm, int both_conj=1);
 
-string ideal_label(Qideal& I); // returns label of ideal I
+// This is not const since get_index() is not (as it may set I.index)
+string label(Qideal& I); // returns label of ideal I
+// Here is a const version for convenience
+inline string label(const Qideal& I) {Qideal II(I); return label(II);}
 string gens_string(Qideal& I);  // returns string of gens, of the form (x) if principal or (x,y) ideal I
 
 // Class to hold sorted lists of ideals of given norm

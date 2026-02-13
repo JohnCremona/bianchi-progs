@@ -449,7 +449,7 @@ vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
 vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckePAL(P,M1,M1) with P="<<P<<", M1="<<ideal_label(M1)<<", M2="<<ideal_label(M2)<<endl;
+  cout<<"In HeckePAL(P,M1,M1) with P="<<P<<", M1="<<label(M1)<<", M2="<<label(M2)<<endl;
 #endif
   vector<mat22> mats;
   Qideal PM1 = P*M1;
@@ -524,7 +524,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, Qideal& N)
 {
 #ifdef DEBUG_HECKE
-  cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<ideal_label(N)<<endl;
+  cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<label(N)<<endl;
 #endif
   Qideal M1(Quad::one), M2(N);
   while (Q.divides(M2))
@@ -595,7 +595,7 @@ matop AutoHeckeOp(Quadprime& P, Qideal& N)
       return HeckeP2Op(P, N);
     }
   Qideal A = P.equivalent_mod_2_coprime_to(N,1);
-  //  cout<<"N = "<<ideal_label(N)<<", P = "<<P<<", A = "<<ideal_label(A) << endl;
+  //  cout<<"N = "<<label(N)<<", P = "<<P<<", A = "<<label(A) << endl;
   return HeckeP2ChiOp(P, A, N);
 }
 
@@ -630,12 +630,12 @@ string opname(const Quadprime& P, const Qideal& N)
 
 string opname(Qideal& N)
 {
-  return opname("W", ideal_label(N));
+  return opname("W", label(N));
 }
 
 string opnameAA(Qideal& A)
 {
-  return opname("chi", ideal_label(A));
+  return opname("chi", label(A));
 }
 
 // Constructors for various matops
@@ -651,7 +651,7 @@ matop AtkinLehnerOp(const Quad& p, const Quad& n)
 
 matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
 {
-  return matop(AtkinLehner(M1,M2), opname("W", ideal_label(M1)));
+  return matop(AtkinLehner(M1,M2), opname("W", label(M1)));
 }
 
 // For [M1] square with A^2*M1 principal and M1,M2 coprime, A,N coprime:
@@ -660,7 +660,7 @@ matop AtkinLehnerOp(Qideal& M1, Qideal& M2)
 
 matop AtkinLehner_ChiOp(Qideal& M1, const Qideal& M2, Qideal& A)
 {
-  return matop(AtkinLehner_Chi(M1,M2, A), opname("W", ideal_label(M1)), ideal_label(A));
+  return matop(AtkinLehner_Chi(M1,M2, A), opname("W", label(M1)), label(A));
 }
 
 // For Q prime, Q^e||N, Q^e principal:
@@ -679,7 +679,7 @@ matop AtkinLehnerQOp(const Quadprime& Q, const Qideal& N)
 
 matop AtkinLehnerQChiOp(const Quadprime& Q, Qideal& A, const Qideal& N)
 {
-  return matop(AtkinLehnerQ_Chi(Q,A,N), opnameW(Q), ideal_label(A));
+  return matop(AtkinLehnerQ_Chi(Q,A,N), opnameW(Q), label(A));
 }
 
 // For P prime not dividing N, P principal:
@@ -700,7 +700,7 @@ matop HeckePChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
   ostringstream s;
   s << opname(P,N) << " * " + opnameAA(A);
-  return matop(HeckeP_Chi(P,A,N), opnameT(P), ideal_label(A), P, P, A);
+  return matop(HeckeP_Chi(P,A,N), opnameT(P), label(A), P, P, A);
 }
 
 // For P prime not dividing N with P^2 principal:
@@ -720,7 +720,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 
 matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 {
-  return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), ideal_label(A), P, P, A);
+  return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), label(A), P, P, A);
 }
 
 // For P,Q distinct primes not dividing N, with P*Q principal:
@@ -739,7 +739,7 @@ matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 {
-  return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), ideal_label(A), P, Q, A);
+  return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), label(A), P, Q, A);
 }
 
 // For B squarefree principal coprime to N:
@@ -748,7 +748,7 @@ matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 
 matop HeckeBOp(Qideal& B, Qideal& N)
 {
-  return matop(HeckeB(B,N), opname("T", ideal_label(B)));
+  return matop(HeckeB(B,N), opname("T", label(B)));
 }
 
 // For B squarefree coprime to N, with [B] square, A^2*B
@@ -758,7 +758,7 @@ matop HeckeBOp(Qideal& B, Qideal& N)
 
 matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 {
-  return matop(HeckeB_Chi(B,A,N), opname("T", ideal_label(B)), ideal_label(A));
+  return matop(HeckeB_Chi(B,A,N), opname("T", label(B)), label(A));
 }
 
 // The operator T(P)W(Q) where P does not divide N, Q^e||N,
@@ -778,17 +778,17 @@ matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N)
 
 matop HeckePALOp(Quadprime& P, Qideal& M1, Qideal& M2)
 {
-  return matop(HeckePAL(P,M1,M2), opnameT(P)+"*"+opname("W",ideal_label(M1)));
+  return matop(HeckePAL(P,M1,M2), opnameT(P)+"*"+opname("W",label(M1)));
 }
 
 matop FrickeOp(Qideal& N)
 {
-  return matop(Fricke(N), opname("W",ideal_label(N)));
+  return matop(Fricke(N), opname("W",label(N)));
 }
 
 matop CharOp(Qideal& A, const Qideal& N)
 {
-  return matop(Char(A,N), opname("chi", ideal_label(A)));
+  return matop(Char(A,N), opname("chi", label(A)));
 }
 
 

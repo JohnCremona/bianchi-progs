@@ -40,7 +40,7 @@ int main ()
        {
 #endif
          INT normn = N.norm();
-         cout << ">>>> Level " << ideal_label(N)
+         cout << ">>>> Level " << label(N)
               << " = " << gens_string(N)
               <<", norm = "<<normn<<" <<<<";
          if(verbose)
@@ -59,9 +59,9 @@ int main ()
              Qideal Nconj = N.conj();
              cout<<"**************************************************"<<endl;
              if (N.is_Galois_stable())
-               cout<<"Conjugation map not an isomorphism at level "<<ideal_label(N)<<"="<<N<<endl;
+               cout<<"Conjugation map not an isomorphism at level "<<label(N)<<"="<<N<<endl;
              else
-               cout<<"Inconsistency between level "<<ideal_label(N)<<"="<<N<<" and its conjugate "<<ideal_label(Nconj)<<"="<<Nconj<<endl;
+               cout<<"Inconsistency between level "<<label(N)<<"="<<N<<" and its conjugate "<<label(Nconj)<<"="<<Nconj<<endl;
              cout<<"**************************************************"<<endl;
            }
 #endif

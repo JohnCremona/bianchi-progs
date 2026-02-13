@@ -45,7 +45,7 @@ int main ()
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-     //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
+     //cout<<"Level "<<label(N)<<" = "<<N<<": "<<flush;
      newforms nf(N, modulus, 0);
      if(nf.read_from_file())
        {
@@ -55,7 +55,7 @@ int main ()
          // nf.output_to_file(efilename);
        }
      else
-       cout << "No data file for level " << ideal_label(N) << endl;
+       cout << "No data file for level " << label(N) << endl;
    }
 }
 

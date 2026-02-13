@@ -60,8 +60,8 @@ int main ()
 #endif
      cout<<endl;
      string efilename = eigfile(N);
-     string label = ideal_label(N);
-     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     string Nlabel = label(N);
+     cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N, modulus, verbose);
 #ifdef LOOPER // skip this level if we already have a newforms file
      if(nf.read_from_file())
@@ -96,8 +96,8 @@ int main ()
              if (N!=Nbar)
                {
                  string conj_efilename = eigfile(Nbar);
-                 string conj_label = ideal_label(Nbar);
-                 cout << "Conjugating data for level "<<label
+                 string conj_label = label(Nbar);
+                 cout << "Conjugating data for level "<<Nlabel
                       <<" into data for conjugate level "<<conj_label
                       <<" and resorting"<<endl;
                  newforms nfbar(nf);

@@ -199,7 +199,7 @@ string Newform::long_label() const
 string Newspace::conj_label() const
 {
   Qideal Nbar = N.conj();
-  return ideal_label(Nbar);
+  return label(Nbar);
 }
 
 string Newform::conj_label() const
@@ -247,8 +247,7 @@ FieldElement Newform::eig(const matop& T)
 // eigenvalue of AutoHeckeOp(P):
 FieldElement Newform::ap(const Quadprime& P)
 {
-  Quadprime PP=P; // since the following cannot use a const
-  return eig(AutoHeckeOp(PP,nf->N));
+  return eig(AutoHeckeOp(P,nf->N));
 }
 
 // eigenvalue +-1 of a scalar involution operator
@@ -580,11 +579,12 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
   : verbose(verb), H1(h1)
 {
   N = H1->N;
-  level_label = ideal_label(N);
+  level_label = label(N);
   if(verbose)
     cout << "In Newspace constructor at level " << level_label << " = " << N << endl;
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
+  cdimH_tc = H1->trivial_character_subspace_dimension(1); // cuspidal=1
   dH = H1->h1cdenom();
   hmod = H1->hmod;
   Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
@@ -593,6 +593,20 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
 
   if(verbose && dH>1)
     cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<dH<<endl;
+
+  if (cdimH==0)
+    {
+      if (verbose)
+        cout << "Cuspidal dimension is 0, so newspace is trivial" << endl;
+      return;
+    }
+
+  if (triv_char_only && cdimH_tc==0)
+    {
+      if (verbose)
+        cout << "Trivial character cuspidal dimension is 0, so trivial character newspace is trivial" << endl;
+      return;
+    }
 
   // Make the unramified quadratic character operators
   t2ideals = make_nulist(N);
@@ -683,7 +697,7 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
         continue;
       Qideal M = N/D;
       if (verbose>1)
-        cout << "Divisor D = " << ideal_label(D) << " has " << NSD->nforms() << " newforms" <<endl;
+        cout << "Divisor D = " << label(D) << " has " << NSD->nforms() << " newforms" <<endl;
       vector<Qideal> divs = alldivs(M);
       int m_default = divs.size();
       if (verbose>1)
@@ -850,7 +864,7 @@ void Newspace::find_T(int maxnp, int maxc, int triv_char_only)
       T_mat = heckeop(T_op, 0, 1); // not cuspidal,  dual
       if (verbose)
         cout << " Getting new cuspidal poly for " << T_name << " from cache" << endl;
-      f = get_new_poly(N, T_op, 1, 0, H1->modulus); // cuspidal=1, triv_char=0 (cached)
+      f = get_new_poly(N, T_op, 1, triv_char_only, H1->modulus); // cuspidal=1, triv_char=0 (cached)
       if (verbose)
         cout << "  New cuspidal poly for " << T_name << " from cache is " << str(f) << endl;
     }
@@ -950,12 +964,16 @@ void Newform::compute_eigs(int ntp, int verbose)
     {
       string var = F->get_var() + string("1");
       abs_emb = Fmodsq->absolute_field_embedding(im_gens, var, 1); // reduce=1
-      Fabs = (Field*)abs_emb.codom();
-      if (verbose)
-        {
-          cout << "absolute embedding:\n" << abs_emb << endl
-               << "absolute full Hecke field:\n" << *Fabs << endl <<endl;
-        }
+    }
+  else // F = Fabs and abs_emb = identity
+    {
+      abs_emb = FieldIso(F);
+    }
+  Fabs = (Field*)abs_emb.codom();
+  if (verbose && Quad::class_group_2_rank)
+    {
+      cout << "absolute embedding:\n" << abs_emb << endl
+           << "absolute full Hecke field:\n" << *Fabs << endl <<endl;
     }
   check_base_change();
   if (triv_char) // must be done after Fabs is computed
@@ -1192,8 +1210,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           Qideal A = genus_class_ideals[i];
           Qideal B = A*P; // so B is square-free and of square class
           if (verbose)
-            cout << " -- computing T("<<P<<") using T("<<ideal_label(B)<<") = T(P)*T(A) with A = "
-                 <<ideal_label(A)<<endl;
+            cout << " -- computing T("<<P<<") using T("<<label(B)<<") = T(P)*T(A) with A = "
+                 <<label(A)<<endl;
           if (B.is_principal())         // compute T(B)
             {
               Eigenvalue APeig = compute_one_principal_eig(nap, HeckeBOp(B, N), 1, verbose);
@@ -1401,7 +1419,21 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
                                      // is OK for C4 class group
     }
 
-  // Report on how many genus classes have eigenvalues in the principal Hecke field
+  // Report on how many genus classes have eigenvalues in the
+  // principal Hecke field Any genus classes not in the
+  // genus_classes_nonzero list must first be appended to
+  // genus_classes_no_ext.
+  if (genus_classes_nonzero.size() < Quad::class_group_2_torsion.size())
+    {
+      // Could possibly do this using  std::set_difference()
+      int n2t = Quad::class_group_2_torsion.size();
+      for (auto i=0; i<n2t; i++)
+        {
+          auto it = std::find(genus_classes_nonzero.begin(), genus_classes_nonzero.end(), i);
+          if (it == genus_classes_nonzero.end())
+            genus_classes_no_ext.push_back(i);
+        }
+    }
   verbose = 1;
   if (verbose && n2r)
     {
@@ -1411,6 +1443,12 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       cout << "This means that the number of unramified quadratic twists of this newform is "
            << genus_classes_no_ext.size() << endl;
     }
+  // if (ngenera != genus_classes_no_ext.size() * Fmodsq->order())
+  //   {
+  //     cout << "ngenera = " << ngenera << endl;
+  //     cout << "Fmodsq->order() = " << Fmodsq->order() << endl;
+  //     cout << "genus_classes_nonzero = " << genus_classes_nonzero << endl;
+  //   }
   assert (ngenera == genus_classes_no_ext.size() * Fmodsq->order());
 } // end of compute_eigs_triv_char
 
@@ -2216,21 +2254,22 @@ int Newform::input_from_file(int verb)
     }
 
   // aP
-  string Plab;  Quadprime P;
-  FieldElement aP(F);  unsigned int i;  int xf;
+  string Plab;
+  Quadprime P;
+  Eigenvalue aP(F, Fmodsq);
   // read whitespace, so if there are no aP on file it does not try to read any
   fdata >> ws;
   // keep reading lines until end of file
   while (!fdata.eof())
     {
-      fdata >> Plab          // prime label
-            >> aP >> i >> xf // eigenvalue data
-            >> ws;           // eat whitespace, including newline
+      fdata >> Plab // prime label
+            >> aP   // eigenvalue data
+            >> ws;  // eat whitespace, including newline
       // if (verb>1)
       //   cout << "read prime label " << Plab << endl;
 
       P = Quadprime(Plab);
-      aPmap[P] = Eigenvalue(aP, Fmodsq, i, xf);
+      aPmap[P] = aP;
       // if (verb>1)
       //   cout << "--> P = " << Plab
       //        << ": a_P = "<<aPmap[P]<<endl;
@@ -2289,7 +2328,7 @@ void Newspace::output_to_file(int conj)
 int Newspace::input_from_file(const Qideal& level, int verb)
 {
   N = level;
-  level_label = ideal_label(N);
+  level_label = label(N);
   if (verb)
     cout << "In Newspace::input_from_file() with N="<<level_label << " = " << N << endl;
   Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
@@ -2323,7 +2362,7 @@ int Newspace::input_from_file(const Qideal& level, int verb)
   if (verb>1)
     cout << "-> dims: " << pdims <<endl;
   vector<int> fdims = pdims;
-  vector<int> triv_char_flags(nnf);
+  vector<int> triv_char_flags(nnf, 1); // set all to 1 as default if !n2r
   int n2r = Quad::class_group_2_rank;
   if (n2r)
     {
@@ -2439,12 +2478,11 @@ mat_m Newspace::heckeop(Quadprime& P, int cuspidal, int dual)
 }
 
 // dict of Newspaces read from file
-map<string,Newspace*> Newspace_dict;  // Key: ideal_label(N)
+map<string,Newspace*> Newspace_dict;  // Key: label(N)
 
 Newspace* get_Newspace(const Qideal& N, int verb)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string Nlabel = ideal_label(NN);
+  string Nlabel = label(N);
   if (Newspace_dict.find(Nlabel) != Newspace_dict.end())
     {
       if (verb)

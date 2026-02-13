@@ -22,7 +22,7 @@ int main ()
  cout << "quadconj(a) = " << quadconj(a) << endl;
  cout << "norm(a) = " << a.norm() << endl;
  cout << "HNF(a) = " << HNF(a) << endl;
- cout << "ideal_label(a) = " << ideal_label(a) << endl;
+ cout << "label(a) = " << label(a) << endl;
 
   if (Quad::class_number==1)
    {
@@ -32,7 +32,7 @@ int main ()
      while((pr-quadprimes.begin() < 21) && (pr!=quadprimes.end()))
        {
          Quad p = *pr++;
-         cout << "("<<p << ") has norm "<<p.norm()<<" and label "<<ideal_label(p)<<endl;
+         cout << "("<<p << ") has norm "<<p.norm()<<" and label "<<label(p)<<endl;
        }
    }
  else
@@ -45,7 +45,7 @@ int main ()
        {
          Quadprime P = *Pi;
          vector<Quad> gg = P.gens();
-         cout << P << " = " << ideal_label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
+         cout << P << " = " << label(P) << " = " << (Qideal)P << " = (" << gg[0] <<","<<gg[1] << ")";
          if (P.is_principal())
            cout << " = ("<<gg[0]<<") (principal)";
          else

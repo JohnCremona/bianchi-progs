@@ -24,12 +24,12 @@ int main(void)
      string efilename = eigfile(N);
      cerr << "How many primes for Hecke eigenvalues? ";
      cin  >> lastp; cout << endl;
-     cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N, modulus, verbose);
      int ok = nf.read_from_file();
      if (!ok)
        {
-         cout<<"No newform data available for level "<<ideal_label(N)<<endl;
+         cout<<"No newform data available for level "<<label(N)<<endl;
          continue;
        }
      if (showforms) nf.display();

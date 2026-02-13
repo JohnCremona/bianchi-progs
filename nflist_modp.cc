@@ -51,11 +51,11 @@ int main ()
      //cout<<"Opening data file "<<datafilename<<endl;
      if(!data)
        {
-         cout<<"No data for level " << ideal_label(N) << " = "<<gens_string(N)<<", norm = "<< N.norm()<<endl;
+         cout<<"No data for level " << label(N) << " = "<<gens_string(N)<<", norm = "<< N.norm()<<endl;
        }
      else
        {
-         //cout<<"Level "<<ideal_label(N)<<" = "<<N<<": "<<flush;
+         //cout<<"Level "<<label(N)<<" = "<<N<<": "<<flush;
          newforms nf(N,0, ch);
          nf.read_from_file();
          nf.list(nap);

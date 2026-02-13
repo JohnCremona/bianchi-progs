@@ -51,7 +51,7 @@ oldforms::oldforms(const newforms* nfs)
 void oldforms::getoldclasses(Qideal& D)
 {
   if(nf->verbose)
-    cout << "\nGetting oldclasses at level "<<ideal_label(N)<<" from divisor " << ideal_label(D) << endl;
+    cout << "\nGetting oldclasses at level "<<label(N)<<" from divisor " << label(D) << endl;
 
   newforms olddata(D, nf->modulus, nf->verbose, nf->characteristic);
   olddata.read_from_file_or_find();
@@ -110,7 +110,7 @@ void oldforms::getoldclasses(Qideal& D)
   olddimall += this_olddimall;
   if(nf->verbose)
     {
-      cout<<" total oldspace dimension from divisor "<<ideal_label(D)<<" is "
+      cout<<" total oldspace dimension from divisor "<<label(D)<<" is "
           <<this_olddim1<<"+"<<this_olddim2<<"="<<this_olddimall<<endl;
       cout<<" cumulative total oldspace dimension from divisors so far is "
           <<olddim1<<"+"<<olddim2<<"="<<olddimall<<endl;

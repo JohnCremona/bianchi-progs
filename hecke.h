@@ -210,6 +210,8 @@ matop AtkinLehnerQChiOp(const Quadprime& Q, Qideal& A, const Qideal& N);
 // For principal P prime not dividing N: the operator T(P) at level N
 
 matop HeckePOp(Quadprime& P, const Qideal& N);
+inline matop HeckePOp(const Quadprime& P, const Qideal& N)
+{Quadprime PP(P); return HeckePOp(PP, N);}
 
 // For P prime not dividing N, [P] square with A^2*P principal, A
 // coprime to N: the operator T(A,A)T(P) at level N
@@ -271,6 +273,8 @@ matop CharOp(Qideal& A, const Qideal& N);
 // (3) T_{P^2} if P^2 principal, else
 // (4) T(A,A)*T(P^2); all at level N
 matop AutoHeckeOp(Quadprime& P, Qideal& N);
+inline matop AutoHeckeOp(const Quadprime& P, const Qideal& N)
+{Quadprime PP(P); Qideal NN(N); return AutoHeckeOp(PP,NN);}
 
 // constructor for one of the following, where Q is prime dividing N
 // with Q^e||N:

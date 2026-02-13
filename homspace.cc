@@ -161,31 +161,30 @@ void homspace::kernel_delta()
         cout<<"Matrix of boundary map = "<<deltamat<<endl;
     }
   if (characteristic!=0) modulus = scalar(characteristic);
-  vec_i pivs, npivs;
-  scalar d2;
+  denom2 = scalar(1);  // relative denominator of ker(delta)
   smat sdeltamat(deltamat);
   kern = kernel(sdeltamat, modulus);
+  // kern is a now subspace modulo modulus.  We now try to lift it to
+  // char 0 by lifting the basis matrix and allowing a denominator d2
+  const smat& basiskern = basis(kern);
+  // Lift basis(kern) to char 0 to get the denominator (but kern
+  // itself remains in characteristic modulus).
   if (characteristic==0)
     {
       smat sk;
-      int ok = liftmat(smat_elim(sdeltamat,modulus).kernel(npivs,pivs),modulus,sk,d2);
-      if (!ok)
+      int ok = liftmat(basiskern,modulus,sk,denom2);
+      if (ok) // replace basis(kern) by sk
+        kern = ssubspace(sk, kern.pivs(), modulus);
+      else
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
     }
-  else
-    {
-      d2 = 1;
-    }
 
-  const smat& basiskern = basis(kern);
   tkernbas = transpose(basiskern);         // dim(kern) x rank
   if(verbose>1)
     cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
 
-  cuspidal_dimension = dim(kern);
-  denom2 = d2;
-  denom3 = denom1 * denom2;
-
+  cuspidal_dimension = dim(kern); // "h1cuspdim()"
+  denom3 = denom1 * denom2; // absolute denominator of ker(delta) "h1cdenom()"
   if (verbose)
     {
       cout << "Basis of ker(delta):\n";
@@ -193,6 +192,9 @@ void homspace::kernel_delta()
       cout << "pivots: " << pivots(kern) << endl;
       for (int i=0; i<dimension; i++)
         cout << "generator "<< i << ": " << freemods[i] << endl;
+      cout << "homspace denom = " << denom1 <<endl;
+      cout << "cuspidal relative denom = " << denom2 <<endl;
+      cout << "cuspidal absolute denom = " << denom3 <<endl;
     }
 }
 
@@ -205,7 +207,7 @@ void homspace::kernel_delta()
 int homspace::check_conjugate(int verb)
 {
   Qideal Nconj = N.conj();
-  if (verb) cout<<"Constructing conjugate homspace for level "<<ideal_label(Nconj)<<"..."<<endl;
+  if (verb) cout<<"Constructing conjugate homspace for level "<<label(Nconj)<<"..."<<endl;
   homspace H1conj(Nconj, modulus, plusflag, 0);
   if (H1conj.dimension!=dimension)
     {
@@ -750,7 +752,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   if (P2.is_principal())
                     cout << " - computed "<<op.length()<<" op matrices for T(P^2)" << endl;
                   else
-                    cout << " - computed "<<op.length()<<" op matrices for T(P^2)*T(A,A) for A = " << ideal_label(A) << endl;
+                    cout << " - computed "<<op.length()<<" op matrices for T(P^2)*T(A,A) for A = " << label(A) << endl;
                 }
               smat m = s_calcop_restricted(op, sD, 1, (verbose>1)); // dual, no display
               if(verbose>1)
@@ -837,45 +839,44 @@ int homspace::is_cuspidal(const subspace& s) const
 // Functions for caching homspaces, full Hecke polynomials and new Hecke polynomials
 // Keys are strings of the form Nlabel (for homspace) or Nlabel-Plabel (for Hecke polynomials)
 
-string Nkey(Qideal& N)
+string Nkey(const Qideal& N)
 {
-  return ideal_label(N);
+  return label(N);
 }
 
-string Nmodpkey(Qideal& N, const scalar p)
+string Nmodpkey(const Qideal& N, const scalar p)
 {
   stringstream s;
-  s << ideal_label(N) << "-mod-"<<p;
-  return s.str();
-  return ideal_label(N);
-}
-
-string NPkey(Qideal& N, Qideal& P)
-{
-  stringstream s;
-  s << ideal_label(N) << "-" << ideal_label(P);
+  s << label(N) << "-mod-"<<p;
   return s.str();
 }
 
-string NTkey(Qideal& N, const matop& T)
+string NPkey(const Qideal& N, const Qideal& P)
 {
   stringstream s;
-  s << ideal_label(N) << "-" << T.name();
+  s << label(N) << "-" << label(P);
+  return s.str();
+}
+
+string NTkey(const Qideal& N, const matop& T)
+{
+  stringstream s;
+  s << label(N) << "-" << T.name();
   return s.str();
 }
 
 // identical code to previous
-string NTkey(Qideal& N, const gmatop& T)
+string NTkey(const Qideal& N, const gmatop& T)
 {
   stringstream s;
-  s << ideal_label(N) << "-" << T.name();
+  s << label(N) << "-" << T.name();
   return s.str();
 }
 
-string NPmodpkey(Qideal& N, Quadprime& P, scalar p)
+string NPmodpkey(const Qideal& N, const Quadprime& P, scalar p)
 {
   stringstream s;
-  s << ideal_label(N) << "-" << ideal_label(P) << "-mod-"<<p;
+  s << label(N) << "-" << label(P) << "-mod-"<<p;
   return s.str();
 }
 
@@ -950,8 +951,7 @@ map<string, ZZ_pX> input_poly_dict(istream& is,  const ZZ& p)
 
 homspace* get_homspace(const Qideal& N, scalar mod)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string Nlabel = ideal_label(NN);
+  string Nlabel = label(N);
   if (H1_dict.find(Nlabel) != H1_dict.end())
     return H1_dict[Nlabel];
   homspace* H = new homspace(N, mod, 1); // cuspidal=1
@@ -959,29 +959,37 @@ homspace* get_homspace(const Qideal& N, scalar mod)
   return H;
 }
 
-// Key is ideal_label(N)-T.name()
+// Key is label(N)-T.name()
 // Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string NT = NTkey(NN,T);
+  string NT = NTkey(N,T);
+  cout << "In get_full_mat() with matop key " << NT << endl;
   if (full_mat_dict.find(NT) != full_mat_dict.end())
-    return full_mat_dict[NT];
+    {
+      cout << "key " << NT << " is in full_mat_dict, returning cached matrix" << endl;
+      return full_mat_dict[NT];
+    }
+  cout << "key " << NT << " not in full_mat_dict, computing matrix" << endl;
   homspace* H = get_homspace(N, mod);
   mat M = H->calcop(T,0,0,0); // cuspidal=0, dual=0, display=0
   full_mat_dict[NT] = M;
+  cout << "caching and returning matrix of " << NT << endl;
   return M;
 }
 
-// Key is ideal_label(N)-T.name()
+// Key is label(N)-T.name()
 // Value is matrix of T on the full space (not restricted to cuspidal subspace)
 mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string NT = NTkey(NN,T);
+  string NT = NTkey(N,T);
+  cout << "In get_full_mat() with gmatop key " << NT << endl;
   if (full_mat_dict.find(NT) != full_mat_dict.end())
-    return full_mat_dict[NT];
-
+    {
+      cout << "key " << NT << " is in full_mat_dict, returning cached matrix" << endl;
+      return full_mat_dict[NT];
+    }
+  cout << "key " << NT << " not in full_mat_dict, computing matrix" << endl;
   int d = get_homspace(N, mod)->h1dim();
   mat M(d,d);
   if (d)
@@ -993,7 +1001,7 @@ mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
           scalar c = *ci++;
           if (c !=0 )
             {
-              mat Mi = get_full_mat(NN, *Ti, mod);
+              mat Mi = get_full_mat(N, *Ti, mod);
               if (c!=1)
                 Mi *= c;
               M += Mi;
@@ -1001,16 +1009,28 @@ mat get_full_mat(const Qideal& N,  const gmatop& T, const scalar& mod)
           ++Ti;
         }
     }
-  full_mat_dict[NT] = M;
+  // We do not need to add to the dict if this gmatop consist of a
+  // single matop, since that will have been done in the loop.
+  if (full_mat_dict.find(NT) == full_mat_dict.end())
+    full_mat_dict[NT] = M;
+  cout << "caching and returning matrix of " << NT << endl;
   return M;
 }
 
 // from one of poly_dict, tc_poly_dict, cuspidal_poly_dict, tc_cuspidal_poly_dict
 // depending on flags cuspidal & triv_char
+#define DEBUG_GET_POLY
 ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string NT = NTkey(NN,T);
+  string NT = NTkey(N,T);
+#ifdef DEBUG_GET_POLY
+  cout << "In get_poly(), N = " << label(N) << ", T = " << T.name()
+       << ", cuspidal = " << cuspidal
+       << ", triv_char = " << triv_char
+       << ", mod = " << mod
+       <<endl;
+  cout << "key = " << NT << endl;
+#endif
   auto poly_cache = (cuspidal?
                      (triv_char? tc_cuspidal_poly_dict: cuspidal_poly_dict):
                      (triv_char? tc_poly_dict: poly_dict));
@@ -1018,35 +1038,87 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
                          (triv_char? tc_new_cuspidal_poly_dict: new_cuspidal_poly_dict):
                          (triv_char? tc_new_poly_dict: new_poly_dict));
   if (poly_cache.find(NT) != poly_cache.end())
-    return poly_cache[NT];
+    {
+#ifdef DEBUG_GET_POLY
+      cout << "key is in cache, returning " << str(poly_cache[NT]) << endl;
+#endif
+      return poly_cache[NT];
+    }
 
   homspace* H = get_homspace(N, mod);
-  mat M = get_full_mat(N, T, mod);  // dimension x dimension
   scalar den = (cuspidal? H->h1cdenom() :H->h1denom());
+#ifdef DEBUG_GET_POLY
+  cout << "Homspace for level " << N << " obtained from get_homspace()" << endl;
+  cout << "den =  " << den << endl;
+  cout << "About to call get_full_mat()"<< endl;
+#endif
+
+  mat M = get_full_mat(N, T, mod);  // dimension x dimension
+#ifdef DEBUG_GET_POLY
+  cout << "Full matrix M of size " << M.nrows() << " obtained from get_full_mat()" << endl;
+  cout << "den =  " << den << endl;
+  //  output_flat_matrix(M);  cout << endl;
+#endif
   if (cuspidal || triv_char)
     {
       // H->kern is the subspace ker(delta) of the full space
-      // H->trivial_character_subspace(0) is the subspace on which all
+      // H->trivial_character_subspace([cuspidal]) is the [cuspidal] subspace on which all
       // unrmaified characters act trivially
       smat sM = smat(M);
       if (cuspidal)
         {
+#ifdef DEBUG_GET_POLY
+          cout << "Cuspidal case" << endl;
+#endif
           if (Quad::class_group_2_rank && triv_char)
             {
               ssubspace tcsub = H->trivial_character_subspace(1, 0); // cuspidal=1, dual=0
+              smat s;
+              scalar tcden(1);
+              int ok = liftmat(basis(tcsub),mod,s,tcden);
+              if (ok) // replace basis(tcsub) by s
+                tcsub = ssubspace(s, tcsub.pivs(), mod);
+              else
+                cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
+              den *= tcden;
               sM = restrict_mat(sM, tcsub);
+#ifdef DEBUG_GET_POLY
+              cout << "Restricted M to cuspidal trivial char subspace" << endl;
+              cout << "(which has relative denominator " << tcden
+                   << ", absolute denominator " << den << ")" << endl;
+#endif
             }
           else
             {
               sM = restrict_mat(sM,H->kern);  // cuspidal_dimension x cuspidal_dimension
+#ifdef DEBUG_GET_POLY
+              cout << "Restricted M to cuspidal subspace" << endl;
+              cout << "(which has denominator " << den << ")" << endl;
+#endif
             }
         }
       else // not cuspidal
         {
+#ifdef DEBUG_GET_POLY
+          cout << "Non-cuspidal case" << endl;
+#endif
           if (Quad::class_group_2_rank && triv_char)
             {
               ssubspace tcsub = H->trivial_character_subspace(0, 0); // cuspidal=0, dual=0
+              smat s;
+              scalar tcden(1);
+              int ok = liftmat(basis(tcsub),mod,s,tcden);
+              if (ok) // replace basis(tcsub) by s
+                tcsub = ssubspace(s, tcsub.pivs(), mod);
+              else
+                cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
+              den *= tcden;
               sM = restrict_mat(sM, tcsub);
+#ifdef DEBUG_GET_POLY
+              cout << "Restricted M to non-cuspidal trivial char subspace" << endl;
+              cout << "(which has relative denominator " << tcden
+                   << ", absolute denominator " << den << ")" << endl;
+#endif
             }
         }
       M = sM.as_mat();
@@ -1066,8 +1138,7 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
 // oldspace dimensions is ignored.
 ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, const scalar& mod)
 {
-  Qideal NN=N; // copy as N is const, for alldivs()
-  string NT = NTkey(NN,T);
+  string NT = NTkey(N,T);
   auto new_poly_cache = (cuspidal?
                          (triv_char? tc_new_cuspidal_poly_dict: new_cuspidal_poly_dict):
                          (triv_char? tc_new_poly_dict: new_poly_dict));
@@ -1080,7 +1151,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
       new_poly_cache[NT] = new_poly;
       return new_poly;
     }
-  vector<Qideal> DD = alldivs(NN);
+  vector<Qideal> DD = alldivs(N);
   for( auto D : DD)
     {
       if (D==N)
@@ -1106,7 +1177,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
             new_poly = quo;
           else
             {
-              cout << "Problem in get_new_poly("<<NT<<"), D="<<ideal_label(D)<<endl;
+              cout << "Problem in get_new_poly("<<NT<<"), D="<<label(D)<<endl;
               cout << "Dividing " << str(new_poly) << " by " << str(new_poly_D)
                    << " gives quotient " << str(quo) <<", remainder "<< str(rem) << endl;
               cout << "Old multiplicities are smaller than expected."<<endl;
@@ -1152,8 +1223,7 @@ int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod,
 
 homspace* get_homspace_modp(const Qideal& N, scalar p)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  string Nlabel = Nmodpkey(NN, p);
+  string Nlabel = Nmodpkey(N, p);
   auto res = H1_modp_dict.find(Nlabel);
   if (res==H1_modp_dict.end())
     {
@@ -1167,14 +1237,12 @@ homspace* get_homspace_modp(const Qideal& N, scalar p)
 
 ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p)
 {
-  Qideal NN=N; // copy as N is const, for ideal_label
-  Quadprime PP=P; // copy as P is const, for HeckePOp()
-  string NP = NPmodpkey(NN,PP,p);
+  string NP = NPmodpkey(N,P,p);
   auto res = full_poly_modp_dict.find(NP);
   if (res==full_poly_modp_dict.end())
     {
       homspace* H = get_homspace_modp(N, p);
-      ZZ_pX full_poly = to_ZZ_pX(H->charpoly(HeckePOp(PP, N), 1)); // 1 for cuspidal
+      ZZ_pX full_poly = to_ZZ_pX(H->charpoly(HeckePOp(P, N), 1)); // 1 for cuspidal
       full_poly_modp_dict[NP] = full_poly;
 
       if (deg(full_poly)==0)
@@ -1189,9 +1257,7 @@ ZZ_pX get_full_poly_modp(const Qideal& N,  const Quadprime& P, scalar p)
 
 ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
 {
-  Qideal NN=N; // copy as N is const, for alldivs()
-  Quadprime PP=P; // copy as P is const, for ideal_label
-  string NP = NPmodpkey(NN,PP,p);
+  string NP = NPmodpkey(N,P,p);
   auto res = new_poly_modp_dict.find(NP);
   if (res==new_poly_modp_dict.end())
     {
@@ -1201,7 +1267,7 @@ ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
           new_poly_modp_dict[NP] = new_poly;
           return new_poly;
         }
-      vector<Qideal> DD = alldivs(NN);
+      vector<Qideal> DD = alldivs(N);
       for( auto D : DD)
         {
           if (D==N)
@@ -1227,7 +1293,7 @@ ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
                 new_poly = quo;
               else
                 {
-                  cout << "Problem in get_new_poly("<<NP<<"), D="<<ideal_label(D)<<endl;
+                  cout << "Problem in get_new_poly("<<NP<<"), D="<<label(D)<<endl;
                   cout << "Dividing " << new_poly << " by " << new_poly_D
                        << " gives quotient " << quo <<", remainder "<< rem << endl;
                   cout << "Old multiplicities are smaller than expected."<<endl;

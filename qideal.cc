@@ -1020,7 +1020,8 @@ void Qideal::set_index(int ind)
   // cout<<"In set_index(), have just set index of ideal "<<(*this)<<" to "<<index<<endl;
 }
 
-string ideal_label(Qideal& I)  // returns label of ideal I
+// This is not const since get_index() is not (as it may set I.index)
+string label(Qideal& I)  // returns label of ideal I
 {
   stringstream s;
   s << I.norm() << "." << I.get_index();
@@ -1217,7 +1218,7 @@ void residuetest(Qideal& I)
     }
   vector<Quad> res = I.residues();
   assert ((long)res.size()==I.norm());
-  cout << I.norm() << " residues mod "<<ideal_label(I)<<": "<<res<<endl;
+  cout << I.norm() << " residues mod "<<label(I)<<": "<<res<<endl;
   if (I.norm().is_one()) return;
 
   Factorization F = I.factorization();
@@ -1231,7 +1232,7 @@ void residuetest(Qideal& I)
     }
 
   pair<vector<Quad>, vector<Quad>> invres = I.invertible_residues_and_inverses();
-  cout << phi << " invertible residues mod "<<ideal_label(I)<<":\n";
+  cout << phi << " invertible residues mod "<<label(I)<<":\n";
   cout<<invres.first<<endl;
   cout << " with inverses:\n";
   cout<<invres.second<<endl;

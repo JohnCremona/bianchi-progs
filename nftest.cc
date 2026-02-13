@@ -35,7 +35,7 @@ int main ()
      int nnf = nf.n1ds;
      if(verbose||nnf)
        {
-         cout << "\n>>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+         cout << "\n>>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
          nf.display();
        }
    }

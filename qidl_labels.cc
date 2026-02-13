@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
   while( loop_both.not_finished() )
     {
       Qideal I = loop_both.next();
-      cout << ideal_label(I);
+      cout << label(I);
       n++;
       if ((n < n_per_line) || (n_per_line == 0))
         cout << " ";

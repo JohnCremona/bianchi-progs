@@ -63,7 +63,7 @@ int main(void)
       while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
         {
 #endif
-          cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+          cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
           cout << "Characteristic p = " << ch << endl;
           homspace* h = get_homspace_modp(N, ch);
   int dim = h->h1cuspdim();
@@ -84,9 +84,7 @@ int main(void)
           if (dimnew==0) // just to fill the cache, so higher levels
                          // do not have to recreate this hmomspace
             {
-              Qideal NN=N; // copy as N is const, for alldivs()
-              Quadprime PP=P; // copy as P is const, for ideal_label
-              string NP = NPmodpkey(NN,PP,ch);
+              string NP = NPmodpkey(N,P,ch);
               new_poly_modp_dict[NP] = pol1;
               continue;
             }

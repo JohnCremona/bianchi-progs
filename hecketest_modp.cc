@@ -42,7 +42,7 @@ int main(void)
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-  cout << ">>>> Level " << ideal_label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+  cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
   homspace h(N, ch, plusflag,0, ch);  //level, plusflag, verbose, characteristic
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;

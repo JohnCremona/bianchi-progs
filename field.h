@@ -346,6 +346,9 @@ public:
 
   // as a pretty string, or (if raw) a raw string suitable for re-input:
   string str(int raw=0) const;
+
+  // Input (from a raw string format)
+  friend istream& operator>>(istream& s, Eigenvalue& x);
 };
 
 inline ostream& operator<<(ostream& s, const Eigenvalue& x)

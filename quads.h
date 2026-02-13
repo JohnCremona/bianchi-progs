@@ -277,8 +277,8 @@ Quad reduce_mod_zbasis(const Quad& gamma, const Quad& alpha, const Quad& beta);
 // void findminquad(const Quad&, const Quad&, Quad&);
 
 vector<INT> HNF(const Quad& alpha);  // returns HNF of ideal (alpha)
-string old_ideal_label(const Quad& alpha);  // returns old HNF label of ideal (alpha)
-string ideal_label(const Quad& alpha);  // returns new N.i label of ideal (alpha)
+string old_label(const Quad& alpha);  // returns old HNF label of ideal (alpha)
+string label(const Quad& alpha);  // returns new N.i label of ideal (alpha)
 string field_label(); // returns field label, e.g. '2.0.4.1'
 
 Quad primdiv(const Quad&);           // "First" prime divisor

@@ -142,18 +142,18 @@ int test_splitting_operator(const Qideal& N, const gmatop& T, const scalar& mod,
 
 // Utilities for creating keys
 
-string Nkey(Qideal& N);
-string NPkey(Qideal& N, Qideal& P);
-string NTkey(Qideal& N, const matop& T);
-string NTkey(Qideal& N, const gmatop& T);
-string Nmodpkey(Qideal& N, const scalar p);
-string NPmodpkey(Qideal& N, Quadprime& P, scalar p);
+string Nkey(const Qideal& N);
+string NPkey(const Qideal& N, const Qideal& P);
+string NTkey(const Qideal& N, const matop& T);
+string NTkey(const Qideal& N, const gmatop& T);
+string Nmodpkey(const Qideal& N, const scalar p);
+string NPmodpkey(const Qideal& N, const Quadprime& P, const scalar p);
 
 // Dicts (i.e. maps) holding various caches (declared in homspace.cc)
 // Keys are strings encoding level, operator label created from above utilities
 
-extern map<string,homspace*> H1_dict;  // Key: ideal_label(N)
-extern map<string, mat> full_mat_dict; // Key: ideal_label(N)-T.name(). Value: matrix of T
+extern map<string,homspace*> H1_dict;  // Key: label(N)
+extern map<string, mat> full_mat_dict; // Key: label(N)-T.name(). Value: matrix of T
                                        // on full space
 extern map<string, ZZX> poly_dict;          // char polys on full space
 extern map<string, ZZX> cuspidal_poly_dict; // char polys of restriction to cuspidal subspace
@@ -166,7 +166,7 @@ extern map<string, ZZX> tc_new_cuspidal_poly_dict;  // char polys on trivial cha
 
 // mod p version of some of the above
 
-extern map<string,homspace*> H1_modp_dict; // Key is ideal_label(N)-mod-p
+extern map<string,homspace*> H1_modp_dict; // Key is label(N)-mod-p
 extern map<string, ZZ_pX> full_poly_modp_dict;
 extern map<string, ZZ_pX> new_poly_modp_dict;
 
