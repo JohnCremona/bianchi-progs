@@ -10,7 +10,7 @@ imag(a) = 6
 quadconj(a) = 5-6i
 norm(a) = 61
 HNF(a) = [ 61 11 1 ]
-ideal_label(a) = 61.11.1
+label(a) = 61.11.1
 Here are the first 20 primes out of 167 (one per line):
 (1+i) has norm 2 and label 2.1.1
 (2+i) has norm 5 and label 5.2.1

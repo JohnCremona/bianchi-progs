@@ -10,7 +10,7 @@ imag(a) = 6
 quadconj(a) = 5-6a
 norm(a) = 817
 HNF(a) = [ 817 137 1 ]
-ideal_label(a) = 817.137.1
+label(a) = 817.137.1
 ---------------------------------------------------------------
 180 prime ideals initialised, max norm = 1000
 Here are the first 20 prime ideals:

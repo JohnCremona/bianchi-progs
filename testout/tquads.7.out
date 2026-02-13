@@ -10,7 +10,7 @@ imag(a) = 6
 quadconj(a) = 11-6a
 norm(a) = 127
 HNF(a) = [ 127 22 1 ]
-ideal_label(a) = 127.22.1
+label(a) = 127.22.1
 Here are the first 20 primes out of 169 (one per line):
 (a) has norm 2 and label 2.0.1
 (-1+a) has norm 2 and label 2.1.1
