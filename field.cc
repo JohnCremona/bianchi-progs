@@ -124,12 +124,6 @@ string Field::str(int raw) const
   return s.str();
 }
 
-ostream& operator<<(ostream& s, const Field& F)
-{
-  s << F.str();
-  return s;
-}
-
 istream& operator>>(istream& s, Field** F)
 {
   string var;
@@ -385,12 +379,6 @@ istream& operator>>(istream& s, FieldElement& x)
     s >> x.val;
   else
     s >> x.coords >> x.denom;
-  return s;
-}
-
-ostream& operator<<(ostream& s, const FieldElement& x)
-{
-  s << x.str();
   return s;
 }
 
@@ -803,13 +791,52 @@ int FieldElement::is_square(FieldElement& r, int ntries) const
   return 0;
 }
 
-string FieldModSq::str() const
+string FieldModSq::str(int raw) const
 {
   ostringstream s;
-  s << r;
-  for (auto g:gens)
-    s << " " << g.str(1);
+  if (raw)
+    {
+      s << r;
+      for (auto g:gens)
+        s << " " << g.str(1);
+    }
+  else
+    {
+      s << "FieldModSq data:\n";
+      s << "Base field  is " << F->str() << "\n";
+      s << "rank = " << r;
+      s << ", gens = " << gens << "\n";
+      s << "order = " << elements.size();
+      s << ", elements " << "\n";
+      for (unsigned int i=0; i<elements.size(); i++)
+        s << i << ": " << elt_str(i) << " = " << elements[i] << "\n";
+    }
   return s.str();
+}
+
+// from r gens make the list of 2^r elements
+void FieldModSq::make_elements()
+{
+  elements = {F->one()};
+  for (auto r: gens)
+    {
+      vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+      std::transform(elements.begin(), elements.end(), new_elements.begin(),
+                     [r](const FieldElement& x){return r*x;});
+      elements.insert(elements.end(), new_elements.begin(), new_elements.end());
+    }
+}
+
+// Input from a raw string format; x's field must be already set
+istream& operator>>(istream& s, FieldModSq& x)
+{
+  s >> x.r;
+  x.gens.resize(x.r, x.F->zero());
+  for (auto& g: x.gens)
+    s >> g;
+  x.real_flag = (x.r>0 && x.gens[0]==x.F->minus_one());
+  x.make_elements();
+  return s;
 }
 
 //#define DEBUG_SQUARES
@@ -985,21 +1012,6 @@ string FieldModSq::elt_str(unsigned int i) const
         }
     }
   return s.str();
-}
-
-void FieldModSq::display() const
-{
-  cout << "FieldModSq data:\n";
-  cout << "Field  is " <<flush;
-  F->display();
-  cout << "rank = " << r;
-  cout << ", gens = " << gens << endl;
-  cout << "order = " << elements.size();
-  cout << ", elements " << endl;
-  // cout << "[ ";
-  for (unsigned int i=0; i<elements.size(); i++)
-    cout << i << ": " << elt_str(i) << " = " << elements[i] << endl;
-  // cout << "]" << endl;
 }
 
 int Eigenvalue::operator==(const Eigenvalue& b) const
@@ -1402,7 +1414,9 @@ istream& operator>>(istream& s, Eigenvalue& x)
   s >> x.a;
   if (x.SqCl->rank())
     {
-      s >> x.root_index >> x.xf;
+      s >> x.root_index;
+      if (x.SqCl->is_complex())
+        s >> x.xf;
     }
   return s;
 }
@@ -1414,7 +1428,11 @@ string Eigenvalue::str(int raw) const
     {
       s << a.str(1);
       if (SqCl->rank())
-        s << " " << root_index << " " << xf;
+        {
+          s << " " << root_index;
+          if (SqCl->is_complex())
+            s << " " << xf;
+        }
       return s.str();
     }
 
@@ -1540,20 +1558,38 @@ FieldIso FieldIso::operator*(const FieldIso& iso)
   return comp;
 }
 
-ostream& operator<<(ostream& s, const FieldIso& iso)
+string FieldIso::str(int raw) const
 {
-  if (iso.id_flag)
-    s << "Identity automorphism of " << *iso.domain;
+  ostringstream s;
+  if (raw)
+    {
+      for (auto mij: isomat.get_entries())
+        s << mij << " ";
+      s << denom;
+    }
   else
     {
-      if (iso.domain==iso.codomain)
-        s << "Automorphism of " << *iso.codomain;
+      if (id_flag)
+        s << "Identity automorphism of " << domain->str();
       else
-        s << "Isomorphism from " << *iso.domain << " to " << *iso.codomain;
-      s << " with matrix\n" << iso.isomat;
-      if (!IsOne(iso.denom)) s << "/ "<<iso.denom;
-      s << "\n";
+        {
+          if (domain==codomain)
+            s << "Automorphism of " << domain->str();
+          else
+            s << "Isomorphism from " << domain->str() << " to " << codomain->str();
+          s << " with matrix\n" << isomat;
+          if (!IsOne(denom)) s << "/ "<< denom;
+        }
     }
+  return s.str();
+}
+
+// x must be initialised with domain and codomain, this just inputs
+// the matrix and denominator
+istream& operator>>(istream& s, FieldIso& x)
+{
+  x.isomat.init(x.codomain->degree(), x.domain->degree());
+  s >> x.isomat >> x.denom;
   return s;
 }
 

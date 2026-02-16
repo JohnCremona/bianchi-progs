@@ -64,7 +64,6 @@ public:
   // String for pretty output, like "Q" or "Q(i) = Q[X]/(X^2+1)", or
   // (if raw) raw output, suitable for re-input, like "Q" or "i [1 0 1]":
   string str(int raw=0) const;
-  friend ostream& operator<<(ostream& s, const Field& F);
   friend istream& operator>>(istream& s, Field** F);
 
   // Apply polredabs to the defining polynomial, define a new field
@@ -82,6 +81,9 @@ public:
   // the codomain, so sqrt_r^2 = image of r
   FieldIso sqrt_embedding(const FieldElement& r, string newvar, FieldElement& sqrt_r, int reduce=1) const;
 };
+
+inline ostream& operator<<(ostream& s, const Field& F)
+{ s << F.str();  return s; }
 
 class FieldElement {
   friend class Field;
@@ -189,9 +191,10 @@ public:
   friend istream& operator>>(istream& s, FieldElement& x);
 };
 
-FieldElement evaluate(const ZZX& f, const FieldElement a);
+inline ostream& operator<<(ostream& s, const FieldElement& x)
+{ s << x.str();  return s;}
 
-ostream& operator<<(ostream& s, const FieldElement& x);
+FieldElement evaluate(const ZZX& f, const FieldElement a);
 
 class FieldIso {
   friend class Field;
@@ -213,6 +216,9 @@ public:
     if (id_flag==-1)
       id_flag = (F1==F2) && (M==mat_m::identity_matrix(F1->d)) && is_one(d);
   }
+  // Partial constructor from two fields, used when inputting just the matrix and denominator
+  FieldIso(const Field* F1, const Field* F2)
+    :domain(F1), codomain(F2) {;}
   // Identity
   FieldIso(const Field* F1)
     :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)), id_flag(1) {;}
@@ -237,9 +243,17 @@ public:
   mat_m matrix() const {return isomat;}
   ZZ den() const {return denom;}
 
-  // output
-  friend ostream& operator<<(ostream& s, const FieldIso& x);
+  // String for pretty printing, used in default <<, or (if raw) raw
+  // output, suitable for re-input:
+  string str(int raw=0) const;
+
+  // x must be initialised with domain and codomain, this just inputs
+  // the matrix and denominator
+  friend istream& operator>>(istream& s, FieldIso& x);
 };
+
+inline ostream& operator<<(ostream& s, const FieldIso& x)
+{ s << x.str(); return s; }
 
 // Class to handle finite subgroups of (F^*)/(F^*)^2
 
@@ -255,19 +269,16 @@ private:
   vector<FieldElement> gens;
   vector<FieldElement> elements;
   int real_flag; // 1 unless we have included -1 as first generator
+  // from r gens make the list of 2^r elements
+  void make_elements();
 public:
   FieldModSq() :F(FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
   FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}), real_flag(1) {;}
-  FieldModSq(Field* HF, vector<FieldElement>& g, int is_real) :F(HF), r(g.size()), gens(g), real_flag(is_real)
+  FieldModSq(Field* HF, vector<FieldElement>& g)
+    :F(HF), r(g.size()), gens(g)
   {
-    elements = {F->one()};
-    for (auto r: gens)
-      {
-        vector<FieldElement> new_elements(elements.size(), FieldElement(F));
-        std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                       [r](const FieldElement& x){return r*x;});
-        elements.insert(elements.end(), new_elements.begin(), new_elements.end());
-      }
+    real_flag = (r>0 && gens[0]==F->minus_one());
+    make_elements();
   }
   Field* field() {return F;}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
@@ -290,8 +301,12 @@ public:
   string elt_str(unsigned int i) const;
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
-  void display() const;
-  string str() const;
+  // string representation, either raw (suitable for reinput using >>)
+  // or more readable for display:
+  string str(int raw=0) const;
+  // x must be initialised with field F, this inputs rank and gens and
+  // sets real_flag and elements:
+  friend istream& operator>>(istream& s, FieldModSq& x);
 
   // Return an embedding into an absolute field (optionally
   // polredabs'ed) together with a list of images of the gens.  If the

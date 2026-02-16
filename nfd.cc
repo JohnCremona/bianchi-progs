@@ -122,9 +122,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   if (verbose)
     {
       cout <<"Principal Hecke field data:" << endl;
-      F->display();
-      // if (verbose>1)
-      //   F->display_bases();
+      cout << *F << endl;
     }
 
   // Compute character values
@@ -1627,7 +1625,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
     cout << " - Principal Hecke field k_f = ";
   else
     cout << " - Hecke field k_f = ";
-  F->display();
+  cout << *F;
   if (n2r>0) // display full Hecke field
     {
       int FisQ = F->isQ();
@@ -1694,7 +1692,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
                 cout << ")";
               cout << endl;
               if (nf->verbose>1)
-                Fmodsq->display();
+                cout << *Fmodsq << endl;
               cout << "                        = " << *Fabs <<endl;
               if (!FisQ)
                 {
@@ -1874,25 +1872,19 @@ void Newform::output_to_file(int conj) const
   if (n2r)
     {
       // Multiquadratic extension data:
-      out << Fmodsq->str() << endl;
+      out << Fmodsq->str(1) << endl;  // raw=1
 
       // Absolute field:
       out << Fabs->str(1) << endl;  // raw=1
 
       // Embedding of F into Fabs: matrix entries and denom
-      for (auto mij: abs_emb.matrix().get_entries())
-        out << mij << " ";
-      out << abs_emb.den() <<endl;
+      out << abs_emb.str(1) <<endl;
 
       // Images of sqrt gens in Fabs:
-      if (Fmodsq->rank())
-        {
-          for (auto g: im_gens)
-            out << g.str(1) << " ";
-          out << endl;
-        }
+      for (auto g: im_gens)
+        out << g.str(1) << " ";
+
       // Self-twist discriminant or 0 (if class number even):
-      //      out << "CMD\n";
       out << "\n" << CMD << endl;
     }
 
@@ -1954,7 +1946,7 @@ void Newform::output_to_file(int conj) const
     }
 }
 
-#define DEBUG_TWIST
+//#define DEBUG_TWIST
 
 // Construct another newform which is the unramified quadratic twist
 // of this one by D, where D is a discriminant divisor
@@ -2189,36 +2181,32 @@ int Newform::input_from_file(int verb)
     cout << "--> Principal field is " << *F << endl;
 
   // Full Hecke field data (if class number even)
+  Fmodsq = new FieldModSq(F);
   if (n2r)
     {
       // Multiquadratic extension data:
-      int nroots;
-      fdata >> nroots;
+      fdata >> *Fmodsq;
       if (verb>1)
-        cout << "--> nroots = " << nroots << endl;
-      vector<FieldElement> roots(nroots, FieldElement(F));
-      for (auto& r: roots)
-        fdata >> r;
-      if (verb>1)
-        cout << "--> roots = " << roots << endl;
-      Fmodsq = new FieldModSq(F, roots, triv_char); // set real flag=1 iff trivial char
-      if (verb>1)
-        Fmodsq->display();
+        cout << "--> Field-mod-squares data: " << *Fmodsq << endl;
 
       // Absolute field:
       Fabs = new Field();
       fdata >> &Fabs;
+      if (verb>1)
+        cout << "--> Absolute field: " << *Fabs << endl;
 
       // Embedding of F into Fabs: matrix entries and denom
-      mat_m isomat(Fabs->degree(), F->degree());
-      ZZ isoden;
-      fdata >> isomat >> isoden;
-      abs_emb = FieldIso(F, Fabs, isomat, isoden);
+      abs_emb = FieldIso(F, Fabs);
+      fdata >> abs_emb;
+      if (verb>1)
+        cout << "--> Embedding into absolute field: " << abs_emb << endl;
 
       // Images of sqrt gens in Fabs:
-      im_gens.resize(nroots, FieldElement(Fabs));
+      im_gens.resize(Fmodsq->rank(), FieldElement(Fabs));
       for (auto& g: im_gens)
         fdata >> g;
+      if (verb>1)
+        cout << "--> sqrt gens in absolute field: " << im_gens << endl;
 
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;
@@ -2231,8 +2219,6 @@ int Newform::input_from_file(int verb)
           cout  << endl;
         }
     }
-  else
-    Fmodsq = new FieldModSq(F);
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
   int bcc;
