@@ -18,4 +18,12 @@
 #include <eclib/pari_init.h>
 #undef recip // pariold.h #defines recip = serreverse
 
+template <class T>
+inline istream& operator>>(istream& s, vector<T>& v)
+{
+  if (v.size())
+    std::copy_n(std::istream_iterator<T>(s), v.size(), v.begin());
+  return s;
+}
+
 #endif

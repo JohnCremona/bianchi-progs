@@ -118,8 +118,10 @@ public:
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
 
+  // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
-  void set_index(int i) {index = i; lab = codeletter(i-1); F0->set_var(lab+string("0")); F->set_var(lab);}
+  // Use after sorting to reset the numbers and variable names
+  void set_index(int i);
 
   // Functions for computing eigenvalues of principal operators:
 

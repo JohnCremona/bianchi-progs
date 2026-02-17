@@ -26,6 +26,8 @@ int main()
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
   int n2r = Quad::class_group_2_rank;
+  int C4 = is_C4();
+  int triv_char_only = !C4;
 
   Quad n;
   Qideal N;
@@ -48,12 +50,33 @@ int main()
       cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
 
       Newspace NS;
-      NS.input_from_file(N);
+      int verbose = 0;
+      NS.input_from_file(N, verbose);
       int nnf = NS.nforms();
       cout << nnf << (nnf==1? " newform" : " newforms");
-      if (n2r) cout << " (up to unramified quadratic twist)";
-      cout << endl;
-      NS.display_newforms(1, 1); // aP, AL: yes;  principal eigs,, traces, triv_char_only: no
+      if (n2r) cout << " up to unramified quadratic twist";
+      int nnf_triv_char = std::count_if(NS.newforms.begin(), NS.newforms.end(),
+                                       [](Newform F){return F.is_char_trivial()==1;});
+      if (n2r)
+        cout << ", of which " << nnf_triv_char
+             << (nnf_triv_char==1? " has": " have")
+             << " trivial character";
+      cout << endl <<endl ;
+
+      int show_aP = 1; // do display aP
+      int show_AL = 1; // do display AL
+      int show_princ = 0; // do not display principal eigs
+      int show_traces = 0; // do not display traces
+      NS.display_newforms(show_aP, show_AL, show_princ, show_traces, triv_char_only);
+
+      if (n2r && nnf_triv_char)
+        {
+          NS.add_unram_quadratic_twists();
+          cout << "Full eigensystems for forms with trivial character"
+               << " (including unramified quadratic twists)"
+               << endl<<endl;
+          NS.display_newforms(show_aP, show_AL, show_princ, show_traces, 1);
+        }
     }     // end of level loop
   cout << endl;
   exit(0);

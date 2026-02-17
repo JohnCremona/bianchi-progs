@@ -1625,7 +1625,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
     cout << " - Principal Hecke field k_f = ";
   else
     cout << " - Hecke field k_f = ";
-  cout << *F;
+  cout << *F << endl;
   if (n2r>0) // display full Hecke field
     {
       int FisQ = F->isQ();
@@ -1838,6 +1838,17 @@ string Newspace::filename(int conj)
   return s.str();
 }
 
+// Use after sorting to reset the numbers and variable names
+void Newform::set_index(int i)
+  {
+    index = i;
+    lab = codeletter(i-1);
+    // On creation from scratch, F0 exists and F is a polredabs
+    // isomorphic field, but after reading from a file only F is set.
+    if (F0!=NULL) F0->set_var(lab+string("0"));
+    F->set_var(lab);
+  }
+
 // newform file output only implemented for forms with trivial
 // character or over C4 fields
 void Newform::output_to_file(int conj) const
@@ -1886,8 +1897,13 @@ void Newform::output_to_file(int conj) const
       for (auto g: im_gens)
         out << g.str(1) << " ";
 
-      // Self-twist discriminant or 0 (if class number even):
-      out << "\n" << CMD << endl;
+      // Unramified self-twist discriminant or 0:
+      out << "\n" << CMD;
+
+      // Number of nontrivial unramified quadratic twists up to Galois conjugace:
+      out << "\n" << unramified_twist_discriminants.size() << " ";
+      vec_out(out, unramified_twist_discriminants, "", ""); // no pre-/post []
+      out<< endl;
     }
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
@@ -2048,10 +2064,15 @@ void Newform::set_unramified_twist_discriminants()
     {
 #ifdef DEBUG_UNRAM_TWISTS
       cout << "All nontrivial unramified quadratic twists are distinct up to Galois conjugacy" << endl;
+      cout << " - all discriminant factors: " << Quad::all_disc_factors << endl;
 #endif
-      unramified_twist_discriminants.reserve(Quad::all_disc_factors.size()-1);
+      unramified_twist_discriminants.resize(Quad::all_disc_factors.size()-1);
       std::copy(Quad::all_disc_factors.begin()+1, Quad::all_disc_factors.end(),
-                unramified_twist_discriminants.end());
+                unramified_twist_discriminants.begin());
+#ifdef DEBUG_UNRAM_TWISTS
+      cout << "The nontrivial unramified quadratic twists up to Galois conjugacy are "
+           << " by D in " << unramified_twist_discriminants << endl;
+#endif
       return;
     }
 
@@ -2069,7 +2090,6 @@ void Newform::set_unramified_twist_discriminants()
   cout << "Initial D_values_list" << endl;
   for (auto L: D_values_list) cout << L << endl;
 #endif
-  vector<INT> unramified_twist_discriminants;
   for (auto& D : Quad::all_disc_factors)
     {
       if (!D.is_one())
@@ -2223,6 +2243,14 @@ int Newform::input_from_file(int verb)
             cout << " (self-twist)";
           cout  << endl;
         }
+
+      // Number of nontrivial unramified quadratic twists up to Galois conjugace:
+      int ntw;
+      fdata >> ntw;
+      unramified_twist_discriminants.resize(ntw);
+      fdata >> unramified_twist_discriminants;
+      if (verb>1)
+        cout << ntw << " unramified twist discriminants: " << unramified_twist_discriminants << endl;
     }
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
@@ -2232,9 +2260,9 @@ int Newform::input_from_file(int verb)
   if (bcc==1)       {bc = bct = 1;}
   else if (bcc==-1) {bc = 0; bct = 1;}
   else if (bcc==0)  {bc = bct = 0;}
-
   if (verb>1)
     {
+      cout << "bc = " << bc << ", bct = " << bct << endl;
       cout << "Before reading eigenvalues:" << endl;
       display();
     }
@@ -2242,6 +2270,7 @@ int Newform::input_from_file(int verb)
   sfe = 0; // dummy value in case of nontrivial character
   if (triv_char)
     {
+      fdata >> ws;
       sfe = -1;
       //cout << "Now reading eQ for Q in " << nf->badprimes <<endl;
       // A-L eigenvalues (will read nothing if level is (1))
@@ -2249,14 +2278,14 @@ int Newform::input_from_file(int verb)
         {
           string Qlab = prime_label(Q);
           if (verb>1)
-            cout << "reading AL eig for Q = " << Q << " = " << Qlab << endl;
+            cout << "reading AL eig for Q = " << Qlab << endl;
           string lab;
-          fdata >> lab;
+          fdata >> dat;
           if (verb>1)
-            cout << "--> Q has label " << Qlab << ", file label " << lab << endl;
-          if (lab!=Qlab)
-            cerr << "!!! Q has label " << Qlab << " but read label " << lab << endl;
-          assert (lab==Qlab);
+            cout << "--> Q has label " << Qlab << ", file label is " << dat << endl;
+          if (dat!=Qlab)
+            cerr << "!!! Q has label " << Qlab << " but read label is " << dat << endl;
+          assert (dat==Qlab);
 
           int eQ;
           fdata >> eQ;
@@ -2376,26 +2405,25 @@ int Newspace::input_from_file(const Qideal& level, int verb)
     }
 
   vector<int> pdims(nnf);
-  for (auto& d: pdims)
-    fdata >> d;
+  fdata >> pdims;
   if (verb>1)
     cout << "-> dims: " << pdims <<endl;
   vector<int> fdims = pdims;
-  vector<int> triv_char_flags(nnf, 1); // set all to 1 as default if !n2r
+  vector<int> triv_char_flags(nnf, 1); // all are 1 if class number odd
   int n2r = Quad::class_group_2_rank;
   if (n2r)
     {
-      for (auto& d: fdims)
-        fdata >> d;
+      // read full hecke degrees
+      fdata >> fdims;
       if (verb>1)
         cout << "-> full dims: " << fdims <<endl;
-      for (auto& tc: triv_char_flags)
-        fdata >> tc;
+
+      // read trivial character flags
+      fdata >> triv_char_flags;
       if (verb>1)
         cout << "-> trivial characater flags: " << triv_char_flags <<endl;
     }
 
-  // This Newform constructor will read its data from file
   int C4 = is_C4();
   for (int i=1; i<=nnf; i++)
     {
@@ -2428,6 +2456,7 @@ int Newspace::input_from_file(const Qideal& level, int verb)
   return 1;
 }
 
+//#define DEBUG_TWIST
 
 // For each newform f, create and append all its unramified
 // quadratic twists and resort.  This does nothing if the class
@@ -2456,7 +2485,13 @@ void Newspace::add_unram_quadratic_twists()
 #endif
       }
   newforms.insert(newforms.end(), all_extra_newforms.begin(), all_extra_newforms.end());
+#ifdef DEBUG_TWIST
+  cout << "Resorting newforms with all the twists included..." << flush;
+#endif
   sort_newforms();
+#ifdef DEBUG_TWIST
+  cout << "done." << flush;
+#endif
 }
 
 // output basis for the Hecke field and character of all newforms

@@ -128,14 +128,12 @@ istream& operator>>(istream& s, Field** F)
 {
   string var;
   s >> var;
-  // cout << "Field input, var = " << var << endl;
   if (var=="Q")
     *F = FieldQQ;
   else
     {
       ZZX f;
       s >> f;
-      // cout << "Field input, f = " << ::str(f) << endl;
       *F = new Field(f, var);
     }
   return s;
@@ -563,7 +561,7 @@ void FieldElement::operator*=(const FieldElement& b) // multiply by b
       cerr << "Attempt to multiply elements of different fields!" << endl;
       cerr << "LHS field: "; F->display(); cerr << endl;
       cerr << "RHS field: "; b.F->display(); cerr << endl;
-      exit(1);
+      assert(F==b.F);
     }
   if (is_zero()) return;
   if (b.is_zero()) {*this = b; return;}
@@ -833,6 +831,7 @@ istream& operator>>(istream& s, FieldModSq& x)
   s >> x.r;
   // cout << "rank = " << x.r << endl;
   x.gens.resize(x.r, x.F->zero());
+  // s >> x.gens; // does not work
   for (auto& g: x.gens)
     s >> g;
   // cout << "gens = " << x.gens << endl;

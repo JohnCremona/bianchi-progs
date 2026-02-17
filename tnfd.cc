@@ -197,11 +197,11 @@ int main()
        }
      cout << endl;
 
-     int aP = 1; // do display aP
-     int AL = 1; // do display AL
-     int traces = 1; // do display traces
-     int princ = verbose && (Quad::class_number>1); // display principal eigs if verbose and h>1
-     NS.display_newforms(aP, AL, princ, traces, triv_char_only);
+     int show_aP = 1; // do display aP
+     int show_AL = 1; // do display AL
+     int show_princ = verbose && (Quad::class_number>1); // display principal eigs if verbose and h>1
+     int show_traces = 1; // do display traces
+     NS.display_newforms(show_aP, show_AL, show_princ, show_traces, triv_char_only);
 
      // Output newspace data to file, with newform data for trivial
      // char newforms (or all if C4)
@@ -224,28 +224,19 @@ int main()
      // NB Do not output the newspace after this, as the data files
      // only need newforms up to twist.
 
-     if (n2r)
+     if (n2r && nnf_triv_char)
        {
          if (verbose)
-           cout << "Adding quadratic twists..." << flush;
+           cout << "Adding quadratic twists to forms with trivial character..." << flush;
          NS.add_unram_quadratic_twists();
          if (verbose)
            cout << "done" << endl << endl;
 
-         if (C4)
-           cout << "Full eigensystems for forms with character chi_0 (trivial)"
-                << " and character chi_1 (including unramified quadratic twists)"
-                << endl;
-         else
-           {
-             if (nnf_triv_char > 0)
-               cout << "Full eigensystems for forms with trivial character"
-                    << " (including unramified quadratic twists)"
-                    << endl;
-           }
-         NS.display_newforms(aP, AL, princ, traces, triv_char_only);
+         cout << "Full eigensystems for forms with trivial character"
+              << " (including unramified quadratic twists)"
+              << endl;
+         NS.display_newforms(show_aP, show_AL, show_princ, show_traces, 1);
        }
-
     }     // end of level loop
   cout << endl;
   exit(0);
