@@ -1853,12 +1853,14 @@ void Newform::output_to_file(int conj) const
       << " " << lab << endl;
   int n2r = Quad::class_group_2_rank;
 
-  // Principal dimension and (if class number even) full dimension and character values:
+  // Principal dimension
   out << dimension(0);
+  // only if class number even..
   if (n2r)
     {
+      // full dimension:
       out << " " << dimension(1);
-      // Character (if class number even):
+      // character
       out << " ";
       vec_out(out, epsvec, "", ""); // no pre-/post []
     }
@@ -2160,11 +2162,13 @@ int Newform::input_from_file(int verb)
   if (verb>1)
     cout << "--> Principal dim = " << d << " full dim = " << fd << endl;
   // character vector epsvec
+  triv_char = 1;
+  epsvec.resize(n2r);
   if (n2r)
     {
-      epsvec.resize(n2r);
       for (auto&e: epsvec)
         fdata >> e;
+      // set triv_char flag
       triv_char = std::all_of(epsvec.cbegin(), epsvec.cend(), [](int i) { return i == +1; });
       if (verb>1)
         {
@@ -2182,6 +2186,8 @@ int Newform::input_from_file(int verb)
 
   // Full Hecke field data (if class number even)
   Fmodsq = new FieldModSq(F);
+  Fabs = new Field();
+
   if (n2r)
     {
       // Multiquadratic extension data:
@@ -2190,7 +2196,6 @@ int Newform::input_from_file(int verb)
         cout << "--> Field-mod-squares data: " << *Fmodsq << endl;
 
       // Absolute field:
-      Fabs = new Field();
       fdata >> &Fabs;
       if (verb>1)
         cout << "--> Absolute field: " << *Fabs << endl;
@@ -2245,12 +2250,13 @@ int Newform::input_from_file(int verb)
           string Qlab = prime_label(Q);
           if (verb>1)
             cout << "reading AL eig for Q = " << Q << " = " << Qlab << endl;
-          fdata >> dat;
+          string lab;
+          fdata >> lab;
           if (verb>1)
-            cout << "--> Q has label " << Qlab << ", file label " << dat << endl;
-          if (dat!=Qlab)
-            cerr << "!!! Q has label " << Qlab << " but read label " << dat << endl;
-          assert (dat==Qlab);
+            cout << "--> Q has label " << Qlab << ", file label " << lab << endl;
+          if (lab!=Qlab)
+            cerr << "!!! Q has label " << Qlab << " but read label " << lab << endl;
+          assert (lab==Qlab);
 
           int eQ;
           fdata >> eQ;
@@ -2278,14 +2284,14 @@ int Newform::input_from_file(int verb)
       fdata >> Plab // prime label
             >> aP   // eigenvalue data
             >> ws;  // eat whitespace, including newline
-      // if (verb>1)
-      //   cout << "read prime label " << Plab << endl;
+      if (verb>1)
+        cout << "read prime label " << Plab << endl;
 
       P = Quadprime(Plab);
       aPmap[P] = aP;
-      // if (verb>1)
-      //   cout << "--> P = " << Plab
-      //        << ": a_P = "<<aPmap[P]<<endl;
+      if (verb>1)
+        cout << "--> P = " << Plab
+             << ": a_P = "<<aPmap[P]<<endl;
     }
   if (verb)
     {

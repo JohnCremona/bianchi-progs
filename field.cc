@@ -802,14 +802,13 @@ string FieldModSq::str(int raw) const
     }
   else
     {
-      s << "FieldModSq data:\n";
-      s << "Base field  is " << F->str() << "\n";
-      s << "rank = " << r;
-      s << ", gens = " << gens << "\n";
-      s << "order = " << elements.size();
-      s << ", elements " << "\n";
-      for (unsigned int i=0; i<elements.size(); i++)
-        s << i << ": " << elt_str(i) << " = " << elements[i] << "\n";
+      s << "Base field " << F->str()
+        << ", rank = " << r
+        << ", gens = " << gens
+        << ", order = " << elements.size()
+        << ", elements: " << elements;
+      // for (unsigned int i=0; i<elements.size(); i++)
+      //   s << i << ": " << elt_str(i) << " = " << elements[i] << "\n";
     }
   return s.str();
 }
@@ -830,12 +829,17 @@ void FieldModSq::make_elements()
 // Input from a raw string format; x's field must be already set
 istream& operator>>(istream& s, FieldModSq& x)
 {
+  // cout << "Reading FieldModSq data, base field is " << *(x.F) << endl;
   s >> x.r;
+  // cout << "rank = " << x.r << endl;
   x.gens.resize(x.r, x.F->zero());
   for (auto& g: x.gens)
     s >> g;
-  x.real_flag = (x.r>0 && x.gens[0]==x.F->minus_one());
+  // cout << "gens = " << x.gens << endl;
+  x.real_flag = !(x.r>0 && x.gens[0]==x.F->minus_one());
+  // cout << "real flag = " << x.real_flag << endl;
   x.make_elements();
+  // cout << "elements are " << x.elements <<endl;
   return s;
 }
 
@@ -1411,13 +1415,20 @@ Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
 // be already set
 istream& operator>>(istream& s, Eigenvalue& x)
 {
+  // cout << "Reading an eigenvalue, F = " << *(x.a.field()) << ", Fmodsq = " << *(x.SqCl) << endl;
   s >> x.a;
+  // cout << "Base value = " << x.a << endl;
   if (x.SqCl->rank())
     {
       s >> x.root_index;
+      // cout << "root_index = " << x.root_index << endl;
       if (x.SqCl->is_complex())
-        s >> x.xf;
+        {
+          s >> x.xf;
+          // cout << "extra factor = " << x.xf << endl;
+        }
     }
+  // cout << "Eigenvalue read: " << x << endl;
   return s;
 }
 

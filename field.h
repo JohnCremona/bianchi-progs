@@ -277,7 +277,7 @@ public:
   FieldModSq(Field* HF, vector<FieldElement>& g)
     :F(HF), r(g.size()), gens(g)
   {
-    real_flag = (r>0 && gens[0]==F->minus_one());
+    real_flag = !(r>0 && gens[0]==F->minus_one());
     make_elements();
   }
   Field* field() {return F;}
