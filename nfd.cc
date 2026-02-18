@@ -1879,19 +1879,22 @@ void Newform::output_to_file(int conj) const
 
   // Principal Hecke field:
   out << F->str(1) << endl;  // raw=1
-
+  // cout << "Principal Hecke field output:\n" << F->str(1) << endl;  // raw=1
   // Full Hecke field (even class number only)
 
   if (n2r)
     {
       // Multiquadratic extension data:
       out << Fmodsq->str(1) << endl;  // raw=1
+      // cout << "Fmodsq output:\n" << Fmodsq->str(1) << endl;  // raw=1
 
       // Absolute field:
       out << Fabs->str(1) << endl;  // raw=1
+      // cout << "Fabs output:\n" << Fabs->str(1) << endl;  // raw=1
 
       // Embedding of F into Fabs: matrix entries and denom
       out << abs_emb.str(1) <<endl;
+      // cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
 
       // Images of sqrt gens in Fabs:
       for (auto g: im_gens)
@@ -2203,6 +2206,8 @@ int Newform::input_from_file(int verb)
   fdata >> &F;
   if (verb>1)
     cout << "--> Principal field is " << *F << endl;
+  F0 = F;
+  Fiso = FieldIso(F0);
 
   // Full Hecke field data (if class number even)
   Fmodsq = new FieldModSq(F);

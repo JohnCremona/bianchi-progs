@@ -205,6 +205,10 @@ private:
   mat_m isomat;
   ZZ denom;
   int id_flag; // flags that this is the identity (domain=codomain and isomat=id)
+  void set_id_flag()
+  {
+    id_flag = (domain==codomain) && is_one(denom) && (isomat==mat_m::identity_matrix(domain->d));
+  }
 public:
   // Dummy constructor
   FieldIso()
@@ -214,11 +218,12 @@ public:
     :domain(F1), codomain(F2), isomat(M), denom(d), id_flag(id)
   {
     if (id_flag==-1)
-      id_flag = (F1==F2) && (M==mat_m::identity_matrix(F1->d)) && is_one(d);
+      set_id_flag();
   }
-  // Partial constructor from two fields, used when inputting just the matrix and denominator
+  // Partial constructor from two fields, used when inputting just the matrix and denominator.
+  // This initializes isomat to the correct size as the 0 matrix
   FieldIso(const Field* F1, const Field* F2)
-    :domain(F1), codomain(F2) {;}
+    :domain(F1), codomain(F2), isomat(mat_m(F2->degree(),F1->degree())), denom(ZZ(1)), id_flag(0) {;}
   // Identity
   FieldIso(const Field* F1)
     :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)), id_flag(1) {;}

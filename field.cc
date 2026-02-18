@@ -1598,8 +1598,13 @@ string FieldIso::str(int raw) const
 // the matrix and denominator
 istream& operator>>(istream& s, FieldIso& x)
 {
-  x.isomat.init(x.codomain->degree(), x.domain->degree());
+  // cout << "Reading a FieldIso into " << x << endl;
+  // cout << "Domain has degree " << x.domain->degree() << endl;
+  // cout << "Codomain has degree " << x.codomain->degree() << endl;
   s >> x.isomat >> x.denom;
+  x.set_id_flag();
+  // cout << "After reading, the FieldIso is " << x << endl;
+  // cout << "Matrix = " << x.isomat << ", denominator = " << x.denom << ", id_flag = " << x.id_flag << endl;
   return s;
 }
 
@@ -1916,10 +1921,11 @@ FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const v
 {
 #ifdef DEBUG_EMBED_EIGS
   cout << "Embedding Eigenvalue " << ap << endl;
+  cout << " via embedding " << emb << endl;
 #endif
   FieldElement a(emb(ap.base()));
 #ifdef DEBUG_EMBED_EIGS
-  cout << "Base = " << ap.base() << " = " << a << endl;
+  cout << "Base = " << ap.base() << " --> " << a << endl;
 #endif
   if (ap.is_zero())
     return a;
@@ -1927,6 +1933,10 @@ FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const v
   unsigned int s = ap.parent()->order();
   unsigned int apri = ap.index();
   int xf = ap.xfac();
+#ifdef DEBUG_EMBED_EIGS
+  cout << "index = " << apri << ", root part = " << ap.root_part() << endl;
+  cout << "extra factor code = " << xf << endl;
+#endif
   if ((apri==0)&&(xf==0)) // quick return when field extension is trivial or ap has no extra factors
     {
 #ifdef DEBUG_EMBED_EIGS
@@ -1940,6 +1950,11 @@ FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const v
   for (unsigned int i=0; i<s; i++)
     if (bit(apri, i))
       {
+#ifdef DEBUG_EMBED_EIGS
+        cout << "About to multiply " << a << " in field " << *(a.field()) << "(" << a.field() << ")"
+             << " by " << im_gens[i] << " in field " << *(im_gens[i].field()) << "(" << im_gens[i].field()
+             << ")" << endl;
+#endif
         a *= im_gens[i];
 #ifdef DEBUG_EMBED_EIGS
         cout << "Multiplying by " << im_gens[i] << " gives " << a << endl;

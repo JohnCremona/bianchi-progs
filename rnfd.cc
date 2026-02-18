@@ -73,7 +73,7 @@ int main()
         {
           NS.add_unram_quadratic_twists();
           cout << "Full eigensystems for forms with trivial character"
-               << " (including unramified quadratic twists)"
+               << ", including unramified quadratic twists"
                << endl<<endl;
           NS.display_newforms(show_aP, show_AL, show_princ, show_traces, 1);
         }
