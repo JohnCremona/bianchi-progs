@@ -6,7 +6,6 @@
 #include "qidloop.h"
 #endif
 #include "nfd.h"
-#include "field.h"
 
 #define MAXPRIME 10000
 

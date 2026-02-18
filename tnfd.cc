@@ -6,7 +6,6 @@
 #include "qidloop.h"
 #endif
 #include "nfd.h"
-#include "field.h"
 
 #define MAXPRIME 10000
 
@@ -241,4 +240,3 @@ int main()
   cout << endl;
   exit(0);
 }   // end of main()
-

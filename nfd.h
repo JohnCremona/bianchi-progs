@@ -5,7 +5,7 @@
 #define _BIANCHI_NFD_H      1
 
 #include "homspace.h"
-#include "field.h"
+#include "eigenvalue.h"
 
 // In principle we can compute newforms with arbitrary unramified
 // character, via homological newforms with arbitrary quadratic
