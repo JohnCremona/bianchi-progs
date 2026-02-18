@@ -1179,7 +1179,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
       if (deg(new_poly_D)==0)
         continue;
       Qideal M = N/D;
-      int mult = alldivs(M).size();
+      int m = alldivs(M).size();
       // The actual multiplicity may be less than this.  If an
       // irreducible factor of new_poly_D corresponds to a
       // newforms with self-twist by the unramified quadratic
@@ -1187,7 +1187,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
       // is the number of divisors D1 of N/D for which chi(D1)=+1.
       // BUT here we do not know which factors are self-twist.
 
-      for (int i=0; i<mult; i++)
+      for (int i=0; i<m; i++)
         {
           //essentially new_poly /= new_poly_D // but checking divisibility
           ZZX quo, rem;
@@ -1295,7 +1295,7 @@ ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
           if (deg(new_poly_D)==0)
             continue;
           Qideal M = N/D;
-          int mult = alldivs(M).size();
+          int m = alldivs(M).size();
           // The actual multiplicity may be less than this.  If an
           // irreducible factor of new_poly_D corresponds to a
           // newforms with self-twist by the unramified quadratic
@@ -1303,7 +1303,7 @@ ZZ_pX get_new_poly_modp(const Qideal& N, const Quadprime& P, scalar p)
           // is the number of divisors D1 of N/D for which chi(D1)=+1.
           // BUT here we do not know which factors are self-twist.
 
-          for (int i=0; i<mult; i++)
+          for (int i=0; i<m; i++)
             {
               //new_poly /= new_poly_D;
               ZZ_pX quo, rem;

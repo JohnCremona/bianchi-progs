@@ -36,8 +36,8 @@ private:
 public:
   //Field(const ZZX& p);
   Field(); // defaults to Q
-  Field(const mat_m& m, const ZZ& den = to_ZZ(1), string a="a", int verb=0);
-  Field(const ZZX& p, string a="a", int verb=0);
+  explicit Field(const mat_m& m, const ZZ& den = to_ZZ(1), string a="a", int verb=0);
+  explicit Field(const ZZX& p, string a="a", int verb=0);
   FieldElement rational(const bigrational& x) const;
   FieldElement rational(const ZZ& x) const;
   FieldElement rational(long x) const;
@@ -102,7 +102,7 @@ private:
 public:
   FieldElement()
     :F(FieldQQ) {;}
-  FieldElement(const Field* HF)
+  explicit FieldElement(const Field* HF)
     :F(HF), coords(vec_m(HF->d)), denom(to_ZZ(1))  {if (HF==FieldQQ) val = bigrational(0);}
   // raw means the given coords are w.r.t. the B-basis
   FieldElement(const Field* HF, const vec_m& c, const ZZ& d=to_ZZ(1), int raw=0);
@@ -110,7 +110,7 @@ public:
   FieldElement(const Field* HF, const ZZ& a, const ZZ& d=to_ZZ(1))
     :F(HF), coords(a*vec_m::unit_vector(HF->d, 1)), denom(d), val(bigrational(a,d)) { cancel();}
   // creation from a rational (F=Q)
-  FieldElement(const bigrational& r)
+  explicit FieldElement(const bigrational& r)
     :F(FieldQQ), val(r) {;}
   // creation from a rational (general F)
   FieldElement(const Field* HF, const bigrational& r)
@@ -221,7 +221,7 @@ public:
   FieldIso(const Field* F1, const Field* F2)
     :domain(F1), codomain(F2), isomat(mat_m(F2->degree(),F1->degree())), denom(ZZ(1)), id_flag(0) {;}
   // Identity
-  FieldIso(const Field* F1)
+  explicit FieldIso(const Field* F1)
     :domain(F1), codomain(F1), isomat(mat_m::identity_matrix(F1->d)), denom(ZZ(1)), id_flag(1) {;}
   // inverse isomorphism
   FieldIso inverse() const;

@@ -205,7 +205,7 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal& A, Qideal& N)
 // Returns N(P)^2+N(P)+1 matrices representing T(P^2), when P^2 is
 // principal.
 
-vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
+vector<mat22> HeckeP2(Quadprime& P, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePSq(P,N) with P="<<P<<", N="<<N<<endl;
@@ -246,7 +246,7 @@ vector<mat22> HeckeP2(Quadprime& P, Qideal& N)
 // Returns N(P)^2+N(P)+1 matrices representing T(A,A)T(P^2) with
 // (AP)^2 principal and A coprime to N.
 
-vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
+vector<mat22> HeckeP2_Chi(const Quadprime& P, const Qideal& A, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePSq_Chi(P,N) with P="<<P<<", A="<<A<<", N="<<N<<endl;
@@ -291,7 +291,7 @@ vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N)
 // Returns (N(P)+1)(N(Q)+1) matrices representing T(PQ) when P*Q is
 // principal.
 
-vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePQ(P,Q,N) with P="<<P<<", Q="<<Q<<", N="<<N<<endl;
@@ -332,7 +332,7 @@ vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N)
 
 // Returns \psi(B) = \prod_{P|B}(N(P)+1) matrices representing T(B).
 
-vector<mat22> HeckeB(Qideal& B, Qideal& N)
+vector<mat22> HeckeB(Qideal& B, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckeB(B,N) with B="<<B<<" = "<<B.factorization()<<", N="<<N<<endl;
@@ -364,7 +364,7 @@ vector<mat22> HeckeB(Qideal& B, Qideal& N)
 // Returns (N(P)+1)(N(Q)+1) matrices representing T(A,A)T(PQ) when
 // [P*Q] is square, with A^2PQ principal, A coprime to N.
 
-vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
+vector<mat22> HeckePQ_Chi(const Quadprime& P, const Quadprime& Q, const Qideal&A, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePQ_Chi(P,Q,A,N) with P="<<P<<", Q="<<Q<<", A="<<A<<", N="<<N<<endl;
@@ -405,7 +405,7 @@ vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N)
 // Returns psi(B) matrices representing T(A,A)T(B) when
 // [B] is squarefree, with A^2*B principal, A coprime to N.
 
-vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
+vector<mat22> HeckeB_Chi(const Qideal& B, const Qideal&A, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckeB_Chi(B,A,N) with B="<<B<<" = "<<B.factorization()<<", N="<<N<<endl;
@@ -446,7 +446,7 @@ vector<mat22> HeckeB_Chi(Qideal& B, Qideal&A, Qideal& N)
 // T(A,A)T(P)W(M1) when [P*M1] is square
 
 //#define DEBUG_HECKE
-vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
+vector<mat22> HeckePAL(const Quadprime& P, const Qideal& M1, const Qideal& M2)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePAL(P,M1,M1) with P="<<P<<", M1="<<label(M1)<<", M2="<<label(M2)<<endl;
@@ -458,7 +458,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
   assert (i && "P*M1 must be principal in HeckePAL(P,M1,M2");
   i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
   assert (i && "P and M1 are coprime");
-  Qideal M3 = M2.equivalent_coprime_to(PM1, h, t, 1); // M2*M3=(h)
+  Qideal M3 = Qideal(M2).equivalent_coprime_to(PM1, h, t, 1); // M2*M3=(h)
   assert (Qideal(h) == M2*M3);
   // i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
   // assert (i && "M2*M3 is coprime to P*M1");
@@ -487,7 +487,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
   assert ((M1*M2).contains(b*g));
   assert (m.det()==g);
   mats.push_back(m);
-  vector<Quad> resmodp = P.residues();
+  vector<Quad> resmodp = Quadprime(P).residues();
   for( const auto& x : resmodp)
     {
       c = v*x+u;
@@ -521,7 +521,7 @@ vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(Q^e) when [P*Q^e] is square
 
-vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, Qideal& N)
+vector<mat22> HeckePALQ(const Quadprime& P, const Quadprime& Q, const Qideal& N)
 {
 #ifdef DEBUG_HECKE
   cout<<"In HeckePALQ() with P="<<P<<", Q="<<Q<<", N="<<label(N)<<endl;
@@ -707,7 +707,7 @@ matop HeckePChiOp(Quadprime& P, Qideal& A, Qideal& N)
 
 // The operator T(P^2) at level N
 
-matop HeckeP2Op(Quadprime& P, Qideal& N)
+matop HeckeP2Op(Quadprime& P, const Qideal& N)
 {
   ostringstream s;
   s << "T(" << P << "^2)";
@@ -718,7 +718,7 @@ matop HeckeP2Op(Quadprime& P, Qideal& N)
 
 // The operator T(A,A)*T(P^2) at level N
 
-matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
+matop HeckeP2ChiOp(Quadprime& P, Qideal& A, const Qideal& N)
 {
   return matop(HeckeP2_Chi(P,A,N), opname("T", prime_label(P) + "^2"), label(A), P, P, A);
 }
@@ -727,7 +727,7 @@ matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N)
 
 // The operator T(PQ) at level N
 
-matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
+matop HeckePQOp(Quadprime& P, Quadprime& Q, const Qideal& N)
 {
   return matop(HeckePQ(P,Q,N), opname("T", prime_label(P)+"*"+prime_label(Q)), "", P, Q);
 }
@@ -737,7 +737,7 @@ matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N)
 
 // The operator T(A,A) T(PQ) at level N
 
-matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
+matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, const Qideal& N)
 {
   return matop(HeckePQ_Chi(P,Q,A,N), opname("T", prime_label(P)+"*"+prime_label(Q)), label(A), P, Q, A);
 }
@@ -746,7 +746,7 @@ matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N)
 
 // The operator T(B) at level N
 
-matop HeckeBOp(Qideal& B, Qideal& N)
+matop HeckeBOp(Qideal& B, const Qideal& N)
 {
   return matop(HeckeB(B,N), opname("T", label(B)));
 }
@@ -756,7 +756,7 @@ matop HeckeBOp(Qideal& B, Qideal& N)
 
 // The operator T(A,A) T(B) at level N
 
-matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
+matop HeckeBChiOp(Qideal& B, Qideal& A, const Qideal& N)
 {
   return matop(HeckeB_Chi(B,A,N), opname("T", label(B)), label(A));
 }
@@ -767,7 +767,7 @@ matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N)
 // We could implement a more general version giving T(A,A)T(P)W(Q^e)
 // when [P*Q^e] is square
 
-matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N)
+matop HeckePALQOp(const Quadprime& P, const Quadprime& Q, const Qideal& N)
 {
   return matop(HeckePALQ(P,Q,N), opnameT(P)+"*"+opnameW(Q));
 }
@@ -776,7 +776,7 @@ matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N)
 
 // Later we'll implement a more general version giving T(A,A)T(P)W(M1) when [P*M1] is square
 
-matop HeckePALOp(Quadprime& P, Qideal& M1, Qideal& M2)
+matop HeckePALOp(const Quadprime& P, const Qideal& M1, const Qideal& M2)
 {
   return matop(HeckePAL(P,M1,M2), opnameT(P)+"*"+opname("W",label(M1)));
 }
@@ -797,7 +797,7 @@ matop CharOp(Qideal& A, const Qideal& N)
 // (1) W_Q^e if Q^e principal, ( and set t=0);
 // (2) W_Q^e*T_{A,A} if Q^e*A^2 principal (and set t=1 and A)
 // (3) W_Q*T_P for P  good with Q^e*P principal (and set t=2 and P)
-matop AutoALOp(Quadprime& Q, Qideal& N, int& t, Qideal& A, Quadprime& P)
+matop AutoALOp(const Quadprime& Q, const Qideal& N, int& t, Qideal& A, Quadprime& P)
 {
   t = 0;
   int e = val(Q,N);

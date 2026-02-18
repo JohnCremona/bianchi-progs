@@ -16,7 +16,7 @@ int main ()
  cout << "b = " << b << endl;
  RatQuad q(a,b, 1); // 1 for reduce
  cout << "q = a/b = " << q << endl;
- cout << "b*q==a? " << (b*q==a) << endl;
+ cout << "b*q==a? " << (b*q==RatQuad(a)) << endl;
  cout << "round(q) = " << q.round() << endl;
  cout << "translation_reduce(q) = " << q.translation_reduce() << endl;
  cout << "q==round(q)+translation_reduce(q)? " << (q==q.round() + q.translation_reduce()) << endl;

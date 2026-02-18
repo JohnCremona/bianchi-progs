@@ -9,6 +9,8 @@
 #include "qidloop.h"
 #endif
 
+scalar modulus = default_modulus<scalar>();
+
 int main ()
 {
  cout.precision(10);
@@ -35,9 +37,9 @@ int main ()
 #endif
      cout<<endl;
      string efilename = eigfile(N);
-     string label = label(N);
-     cout << ">>>> Level " << label <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-     newforms nf(N, verbose);
+     string Nlabel = label(N);
+     cout << ">>>> Level " << Nlabel <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
+     newforms nf(N, modulus, verbose);
      nf.read_from_file();
      nf.makebases();
      if (verbose)
@@ -50,7 +52,7 @@ int main ()
        continue;
      string conj_efilename = eigfile(Nbar);
      string conj_label = label(Nbar);
-     cout << "Conjugating data for level "<<label
+     cout << "Conjugating data for level "<<Nlabel
           <<" into data for conjugate level "<<conj_label
           <<" and resorting"<<endl;
      newforms nfbar(nf);

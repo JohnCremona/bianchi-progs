@@ -29,11 +29,11 @@ string FieldModSq::str(int raw) const
 void FieldModSq::make_elements()
 {
   elements = {F->one()};
-  for (auto r: gens)
+  for (auto g: gens)
     {
       vector<FieldElement> new_elements(elements.size(), FieldElement(F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                     [r](const FieldElement& x){return r*x;});
+                     [g](const FieldElement& x){return g*x;});
       elements.insert(elements.end(), new_elements.begin(), new_elements.end());
     }
 }
@@ -339,7 +339,8 @@ FieldIso FieldModSq::absolute_field_embedding(vector<FieldElement>& im_gens, str
       return emb;
     }
 
-  Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
+  // Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
+  Field* Fext = (Field*)(emb.codom());  // emb maps F to Fext
   im_gens.clear();
   int i = 0;
   FieldElement x, sqrt_x;
@@ -443,7 +444,7 @@ Eigenvalue Eigenvalue::conj() const
           );
 }
 
-Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
+Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
 {
   if (is_zero()) return Eigenvalue(*this);
   if (b.is_zero()) return b;
@@ -528,7 +529,7 @@ Eigenvalue Eigenvalue::operator*(Eigenvalue b) const
   return ans;
 }
 
-Eigenvalue Eigenvalue::operator/(Eigenvalue b) const
+Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
 {
   if (is_zero()) return Eigenvalue(*this);
 #ifdef DEBUG_ARITH

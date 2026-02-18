@@ -65,14 +65,12 @@ int main(void)
 #endif
           cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
           cout << "Characteristic p = " << ch << endl;
-          homspace* h = get_homspace_modp(N, ch);
-  int dim = h->h1cuspdim();
-  int dimnew = -1;
-  cout << "Cuspidal dimension = " << dim << endl;
-  ZZ_pX pol1; set(pol1); // sets to constant polynomial 1
+          const homspace* h = get_homspace_modp(N, ch);
+          int dim = h->h1cuspdim();
+          int dimnew = -1;
+          cout << "Cuspidal dimension = " << dim << endl;
+          ZZ_pX pol1; set(pol1); // sets to constant polynomial 1
 
-  if (1) // dim>0)
-    {
       int ntp = 0;
       for ( auto& P : Quadprimes::list)
 	{
@@ -110,7 +108,7 @@ int main(void)
               cout << endl;
             }
         }
-    }      // end of if(dim>0)
+
 
   // We output the cache after every level so we don't lose data by killing mid-level:
 

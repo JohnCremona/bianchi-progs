@@ -56,7 +56,7 @@ private:
   void add(const Quad& n, int pindex, int y, int z);
 
 public:
-  period_direct (newform* f, int db=0);
+  explicit period_direct (newform* f, int db=0);
   // Compute the period along {.,g(.)} for g in Gamma_0(N)
   REAL compute_period(const Quad& a, const Quad& b, const Quad& c, const Quad& d);
   // Compute the period along {.,g(.)} for f's stored matrix g and divide by period_multiple

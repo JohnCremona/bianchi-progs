@@ -53,7 +53,7 @@ int main(void)
     {
       ZZ_pX charpol;
       vector<mat_ZZ_p> tplist, wqlist;
-      for ( auto& Q : badprimes)
+      for ( const auto& Q : badprimes)
         {
           cout << "Computing W("<<Q<<")..." << flush;
           mat_ZZ_p wq =  mat_to_mat_ZZ_p(h.calcop(AtkinLehnerQOp(Q,N),cuspidal,0,show_mats));

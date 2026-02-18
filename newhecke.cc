@@ -51,7 +51,7 @@ int main(void)
         {
 #endif
           cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
-  homspace* h = get_homspace(N, modulus);
+  const homspace* h = get_homspace(N, modulus);
   int dim = h->h1dim();
   int cdim = h->h1cuspdim();
   cout << "Dimension = " << dim << endl;

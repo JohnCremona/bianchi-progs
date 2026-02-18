@@ -132,7 +132,7 @@ int main(void)
           badprimepowers.push_back(Qe);
         }
 
-      for ( auto& Q : squarebadprimes)
+      for ( const auto& Q : squarebadprimes)
         {
           int e = val(Q,N);
           Qideal Qe = Q;
@@ -212,7 +212,7 @@ int main(void)
             continue;
           //cout<<"P = "<<P<<" has ideal class "<< P.ideal_class() <<endl;
           matop op = AutoHeckeOp(P, N);
-          string opname = op.name();
+          string opn = op.name();
           int P_class_order = (P.has_square_class()? 1 : 2);
           if ((P_class_order==2) && (!P0_set) && (Quad::class_number==2))
             {
@@ -220,7 +220,7 @@ int main(void)
               P0_set = 1;
             }
 
-          cout << "Computing " << opname << "..." << flush;
+          cout << "Computing " << opn << "..." << flush;
           mat m = h.calcop(op,cuspidal, 0, show_mats);
           cout << "done. " << endl;
           tp = mat_to_mat_ZZ(m);
@@ -328,7 +328,7 @@ int main(void)
               Qideal Qe = *qe;
               if ((P*Qe).is_principal())
                 {
-                  matop op = HeckePALQOp(P,Q,N);
+                  op = HeckePALQOp(P,Q,N);
                   cout<<"Computing T("<<P<<") * W("<<label(Qe)<<")..."<<flush;
                   mat m1 = h.calcop(op,cuspidal, 0, 0);
                   tpwq = mat_to_mat_ZZ(m1);

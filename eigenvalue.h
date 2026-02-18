@@ -27,7 +27,7 @@ private:
   void make_elements();
 public:
   FieldModSq() :F(FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
-  FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}), real_flag(1) {;}
+  explicit FieldModSq(Field* HF) :F(HF), r(0), elements({F->one()}), real_flag(1) {;}
   FieldModSq(Field* HF, vector<FieldElement>& g)
     :F(HF), r(g.size()), gens(g)
   {
@@ -97,8 +97,8 @@ public:
   int xfac() const {return xf;}
   // When i=sqrt(-1) is the first element of SqCl normalise using sqrt(-r)*(1+i)=-sqrt(r)*(1-i) and similar
   void normalise();
-  Eigenvalue operator*(Eigenvalue b) const;
-  Eigenvalue operator/(Eigenvalue b) const;
+  Eigenvalue operator*(const Eigenvalue& b) const;
+  Eigenvalue operator/(const Eigenvalue& b) const;
   Eigenvalue operator-() const {return Eigenvalue(-a, SqCl, root_index, xf);}
   Eigenvalue inverse() const; // raise error if zero      // inverse
   // Eigenvalue times_i() const;

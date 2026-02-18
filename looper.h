@@ -9,7 +9,7 @@ class Quadlooper {
 
 public:
   // Iterator through Quads (up to units) with norms from n1 to n2 (or indefinite if n2==0)
-  Quadlooper(long n1=1, long n2=0, int conj=1)
+  explicit Quadlooper(long n1=1, long n2=0, int conj=1)
     :d(Quad::d), disc(Quad::disc), n(n1), nmax(n2), include_conjugates(conj)
     {
       setblims();

@@ -904,7 +904,7 @@ H3pointList old_triple_intersections(const CuspList& alphas, int debug)
 
     // Extend these by 8 translations:
     CuspList alphasF4X;
-    for ( auto& z : alphasF4)
+    for ( const auto& z : alphasF4)
       {
         CuspList z_nbrs = F4nbrs(z);
         alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());
@@ -1004,7 +1004,7 @@ H3pointList new_triple_intersections(const CuspList& alphas, int debug)
 
     // Extend these by 8 translations:
     CuspList alphasF4X;
-    for ( auto& z : alphasF4)
+    for ( const auto& z : alphasF4)
       {
         CuspList z_nbrs = F4nbrs(z);
         alphasF4X.insert(alphasF4X.end(), z_nbrs.begin(), z_nbrs.end());

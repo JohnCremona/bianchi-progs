@@ -723,7 +723,7 @@ H3point mat22::operator()(const H3point& P) const
   RatQuad z = P.z;
   RAT t2 = P.t2;
   RAT  n = (c*z+d).norm() + c.norm()*t2;
-  RatQuad new_z = ((a*z+b)*(c*z+d).conj() + a*c.conj()*t2) / n;
+  RatQuad new_z = ((a*z+b)*(c*z+d).conj() + a*c.conj()*RatQuad(t2)) / n;
   RAT new_t2 = t2 / (n*n);
   return {new_z, new_t2};
 }

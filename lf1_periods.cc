@@ -4,6 +4,7 @@
 //#define LOOPER
 #ifdef LOOPER
 #include "looper.h"
+#include "qidloop.h"
 #endif
 
 #define RECOMPUTE_RATIOS
@@ -13,10 +14,10 @@ scalar modulus = default_modulus<scalar>();
 int main ()
 {
  cout.precision(10);
- int d,maxpnorm=10000;
+ int fd,maxpnorm=10000;
  cout << "Enter field: " << flush;
- cin >> d;
- Quad::field(d,maxpnorm);
+ cin >> fd;
+ Quad::field(fd,maxpnorm);
  Quad n; int verbose=0;
  cout << "Verbose? ";
  cin>>verbose;
@@ -36,8 +37,8 @@ int main ()
 #else
      Qideal N;
      while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
+       {
 #endif
-   {
      cout << ">>>> Level " << label(N) <<" = "<<gens_string(N)<<", norm = "<<N.norm()<<" <<<<" << endl;
      newforms nf(N, modulus, 1);
      nf.read_from_file();
@@ -144,6 +145,7 @@ int main ()
                     << ", and the correct L/P is " << lf1chi_abs_lambda/(gcd_multiple*P0) << endl;
            }
        }
+     cout << endl;
+       }
    }
- cout << endl;
-}
+

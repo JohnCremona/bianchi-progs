@@ -14,7 +14,7 @@ int main(void)
 {
   long d, maxpnorm(MAXPRIME);
   int np, ntp;
-  Quad n; int show_mats=0, show_pols=1, show_factors=1, plusflag=1, cuspidal=1;
+  Quad n; int show_mats=0, show_pols=1, plusflag=1, cuspidal=1;
  cerr << "Enter field: " << flush;  cin >> d;
  if (!check_field(d))
    {
@@ -27,6 +27,7 @@ int main(void)
  // cerr << "Cuspidal subspace (0/1)? "; cin>>cuspidal;
  // cerr << "See the hecke matrices (0/1)? "; cin >> show_mats;
  // cerr << "See the char polys (0/1)? "; cin >> show_pols;
+ // int show_factors=0;
  // cerr << "Factor the char polys (0/1)? "; cin >> show_factors;
  Qideal N;
 #ifdef LOOPER
@@ -85,15 +86,11 @@ int main(void)
       if (show_pols)
         {
           cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-        }
-      if(show_factors)
-        {
           display_factors(charpol);
         }
       cout << endl;
 
       smat SC(C);
-      scalar modulus(default_modulus<scalar>());
       int dplus = SC.nullity(scalar(den), modulus);
       int dminus = SC.nullity(scalar(-den), modulus);
       cout << "Conjugation has eigenvalue multiplicities:\n";
@@ -116,7 +113,7 @@ int main(void)
           badprimepowers.push_back(Qe);
         }
 
-      for ( auto& Q : squarebadprimes)
+      for ( const auto& Q : squarebadprimes)
         {
           int e = val(Q,N);
           Qideal Qe = Q;
@@ -142,13 +139,10 @@ int main(void)
           if (show_mats)
             cout << "Matrix is \n" << m << "\n="<< m << endl;
 
-          ZZX charpol = scaled_charpoly(wq, Den, Hmod);
+          charpol = scaled_charpoly(wq, Den, Hmod);
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-            }
-          if(show_factors)
-            {
               display_factors(charpol);
             }
           cout << endl;
@@ -229,13 +223,10 @@ int main(void)
           ntp++;
           tplist.push_back(tp);
 
-          ZZX charpol = scaled_charpoly(tp, Den, Hmod);
+          charpol = scaled_charpoly(tp, Den, Hmod);
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-            }
-          if(show_factors)
-            {
               display_factors(charpol);
             }
           cout << endl;
@@ -283,9 +274,6 @@ int main(void)
           if (show_pols)
             {
               cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-            }
-          if(show_factors)
-            {
               display_factors(charpol);
             }
           cout << endl;
@@ -327,9 +315,6 @@ int main(void)
                   if (show_pols)
                     {
                       cout << "Coefficients of characteristic polynomial are " << charpol << endl;
-                    }
-                  if(show_factors)
-                    {
                       display_factors(charpol);
                     }
                   cout << endl;

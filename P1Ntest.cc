@@ -31,7 +31,7 @@ void multi_index_test(const vector<long>& nlist, int verbose=0)
     }
 }
 
-void P1N_test(Qideal N, int verbose=0)
+void P1N_test(const Qideal& N, int verbose=0)
 {
   P1N P1(N);
   P1.check(verbose);

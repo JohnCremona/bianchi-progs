@@ -157,13 +157,7 @@ Qideal::Qideal(const vector<Quad>& gens)       // ideal spanned by list of Quads
 
 Qideal::Qideal(const Quad& alpha) // principal ideal
 {
-  if (::is_zero(alpha.nm))
-    *this = Qideal(INT(0));
-  else
-    {
-      vector<Quad> gens(1,alpha);
-      *this = Qideal(gens);
-    }
+  *this = (::is_zero(alpha.nm)? Qideal(INT(0)) :  Qideal(vector<Quad>(1,alpha)));
   iclass=0;
   g0=makepos(alpha); g1=Quad::w*g0;
   index=-1;
@@ -347,9 +341,8 @@ void Qideal::operator*=(const Quad& alpha)
     return;
   } // this is principal
 
-  vector<Quad> gens = {alpha*Quad(a), alpha*Quad(b,ONE)}; // without the factor c
   INT fac = c;
-  *this = Qideal(gens);
+  *this = Qideal({alpha*Quad(a), alpha*Quad(b,ONE)});  // without the factor c
   c *= fac;
   ac *= fac;
   nm *= (fac*fac);
@@ -393,18 +386,11 @@ void Qideal::operator*=(Qideal f)
     }
   INT z1(1);
   Quad x1(a), x2(b,z1), y1(f.a), y2(f.b,z1);
-  vector<Quad> gens = {x1*y1, x1*y2, x2*y1, x2*y2};
-  // cout<<"operator *= with this = "<<(*this)<<" and "<<f<<endl;
-  // cout<<"primitive gens of this: "<<x1<<", "<<x2<<endl;
-  // cout<<"primitive gens of that: "<<y1<<", "<<y2<<endl;
-  // cout<<"primitive gens of product: "<<gens<<endl;
   INT fac = c*(f.c);
-  *this = Qideal(gens);
-  // cout<<" - primitive product is "<<(*this)<<endl;
+  *this = Qideal( {x1*y1, x1*y2, x2*y1, x2*y2});
   c *= fac;
   ac *= fac;
   nm *= (fac*fac);
-  // cout<<" - full product is "<<(*this)<<endl;
   iclass=index=-1;
 }
 
@@ -431,7 +417,7 @@ int Qideal::contains(const Quad& alpha) const
 }
 
 // return 1 iff this is coprime to J; if so, set r in this and s in J with r+s=1
-int Qideal::is_coprime_to(Qideal&J, Quad&r, Quad&s)
+int Qideal::is_coprime_to(const Qideal&J, Quad&r, Quad&s) const
 {
   vector<INT> v = {ac, J.ac, c*J.c*(b-J.b)}, w;
   if (vecbezout(v, w)!=1) // NB as a side-effect this fills w so that v*w=1
@@ -770,23 +756,24 @@ Qideal Qideal::intersection(const Qideal& I)
 }
 
 // with nonzero a in this, return b such that this=(a,b)
-Quad Qideal::second_generator(const Quad& a)
+Quad Qideal::second_generator(const Quad& a0)
 {
-  if (a.is_zero() or not contains(a))
+  if (a0.is_zero() or not contains(a0))
     {
-      cerr << "method second_generator(a) called with a="<<a<<" not a nonzero element of "<<(*this)<<endl;
+      cerr << "method second_generator() called with a0="<<a0<<" not a nonzero element of "<<(*this)<<endl;
       return Quad::zero;
     }
-  Quad b, d;
   // if this is principal ignore a and return a generator
-  if (is_principal(b)) return b;
-  // now a itself cannot be a generator, so (a)=I*J for some J
-  Qideal J = Qideal(a)/(*this);
-  //cout<<"second_generator() called on "<<*this<<" with a="<<a<<", quotient "<<J<<endl;
+  Quad b0;
+  if (is_principal(b0)) return b0;
+
+  // now a0 itself cannot be a generator, so (a0)=I*J for some J
+  Qideal J = Qideal(a0)/(*this);
   // find an ideal in inverse class to this, coprime to J
-  equivalent_coprime_to(J, b, d, 1); // this*J=(b) (and d=1)
-  // now (a,b) = (a)+(b) = I*(J+P) = I with I=this, P=ideal in previous line (discarded)
-  return b;
+  Quad d;
+  equivalent_coprime_to(J, b0, d, 1); // this*J=(b0) (and d=1)
+  // now (a0,b0) = (a0)+(b0) = I*(J+P) = I with I=this, P=ideal in previous line (discarded)
+  return b0;
 }
 
 // return J such that J^2 is equivalent to this (or J^2*this is
@@ -795,7 +782,7 @@ Quad Qideal::second_generator(const Quad& a)
 // primes.cc)
 Qideal Qideal::sqrt_class(int anti)
 {
-  for ( auto& A : Quad::class_group)
+  for ( const auto& A : Quad::class_group)
     {
       Qideal Asq = A*A;
       if (anti)
@@ -816,13 +803,13 @@ mat22 Qideal::AB_matrix_of_level(const Qideal&N, Quad&g)
   // find a small element of this intersection N
   Qideal L = intersection(N);
   L.fill();
-  Quad a = L.g0, b, d, r, s;
-  Qideal J = Qideal(a)/(*this); // I*J=(a)
-  Qideal P = equivalent_coprime_to(J, b, d, 1); // I*P=(b) with J+P=(1)
+  Quad a0 = L.g0, b0, d, r, s;
+  Qideal J = Qideal(a0)/(*this); // I*J=(a0)
+  Qideal P = equivalent_coprime_to(J, b0, d, 1); // I*P=(b0) with J+P=(1)
   J.is_coprime_to(P, r, s); // r+s=1, r in J, s in P
-                            // so r*b in I*J*P = (a)*P
-  g = b;
-  return mat22(b, -r*(b/a), a, s);
+                            // so r*b0 in I*J*P = (a0)*P
+  g = b0;
+  return mat22(b0, -r*(b0/a0), a0, s);
 }
 
 mat22 Qideal::AB_matrix_of_level(const Qideal&J, const Qideal&N, Quad&g)

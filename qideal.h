@@ -19,7 +19,7 @@ protected:
                 // sorting of ideals of the same norm, or -1 if not known
   Factorization *F; // pointer to the ideal's factorization (only set when needed)
   vector<Quad> the_residues;
-  void make_residues();
+  void make_residues(); // fills the residues list
 
 public:
 //constructors
@@ -123,7 +123,7 @@ public:
   // versions returning more data
 
   // return 1 iff this is coprime to J; if so, set r in this and s in J with r+s=1
-  int is_coprime_to(Qideal& J, Quad& r, Quad& s);
+  int is_coprime_to(const Qideal& J, Quad& r, Quad& s) const;
 
   // return 1 iff this is coprime to alpha; if so, set inverse so an inverse of alpha modulo this
   int is_coprime_to(const Quad& alpha, Quad& inverse);
@@ -209,9 +209,9 @@ public:
   Quad resnum(long i); // the i'the residue mod this, in standard order (0'th is 0)
   long numres(const Quad& alpha) const; // the index of a residue mod this, in standard order (0'th is 0)
   // return a list of (reduced) residues modulo this ideal:
-  vector<Quad> residues();
+  vector<Quad> residues(); // not const as it may compute and cache
   // return a list of (reduced) invertible residues modulo this ideal
-  vector<Quad> invertible_residues();
+  vector<Quad> invertible_residues(); // not const as it may compute and cache
   // return a list of (reduced) invertible residues modulo this ideal, and a list of their inverses
   pair<vector<Quad>, vector<Quad>> invertible_residues_and_inverses();
 

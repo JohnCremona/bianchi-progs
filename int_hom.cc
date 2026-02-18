@@ -17,8 +17,7 @@
 
 int main ()
 {
-  int verbose = VERBOSE;
-  int debug = DEBUG;
+  int verbose, debug;
 
   long d, f, maxpnorm=100;
   vector<long> fields = valid_field_discs();
@@ -39,9 +38,7 @@ int main ()
       if (D!=fields.front())
         cout << "-------------------------------------------" <<endl;
 
-      debug = DEBUG;
       verbose = VERBOSE;
-
       if (verbose)
         Quad::displayfield(cout);
       else

@@ -44,7 +44,7 @@ public:
                             // giving its boundary as a Z-linear combination of oriented faces
                             // (created by make_all_faces())
 
-  SwanData(int s=0) :showtimes(s), maxn(0) {;} // constructor: does no work
+  explicit SwanData(int s=0) :showtimes(s), maxn(0) {;} // constructor: does no work
 
   // clears all alphas-sigma data, polyhedra, faces
   void clear();

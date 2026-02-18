@@ -151,7 +151,7 @@ public:
   // compute aP for this newform, good P
   long eigenvalueHecke(Quadprime& P, int verbose=0);
   // compute A-L eigenvalue for this newform, for the bad prime Q
-  long eigenvalueAtkinLehner(Quadprime& Q, int verbose=0);
+  long eigenvalueAtkinLehner(const Quadprime& Q, int verbose=0);
 
   void display(void) const;
   void list(string prefix, long nap=-1);

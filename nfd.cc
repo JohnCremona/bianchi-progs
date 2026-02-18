@@ -51,13 +51,15 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   d = deg(f);
   string fstring = str(f);
   if (verbose)
-    cout << "Constructing Newform from factor f = "<< fstring <<" of degree "<<d<<endl;
+    {
+      cout << "Constructing Newform from factor f = "<< fstring <<" of degree "<<d<<endl;
 
-  // Compute f(T); since T is scaled by dH and f(X) is not, we
-  // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
-  // X^i by dH^(d-i):
-  if (verbose)
-    cout << "Finding kernel of f(T)..."<<endl;
+      // Compute f(T); since T is scaled by dH and f(X) is not, we
+      // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
+      // X^i by dH^(d-i):
+
+      cout << "Finding kernel of f(T)..."<<endl;
+    }
   S = kernel(to_mat(evaluate(scale_poly_up(f, to_ZZ(nf->dH)), nf->T_mat)));
   if(dim(S)!=d)
     {
@@ -225,20 +227,12 @@ FieldElement Newform::eig(const matop& T)
   static const ZZ one(1);
   if (F0->isQ())
     {
-      FieldElement ap(bigrational(apv[1], to_ZZ(denom_abs)));
-      //            cout << "ap = " << ap << endl;
-      return ap;
+      return FieldElement(bigrational(apv[1], to_ZZ(denom_abs)));
     }
   else
     {
-      FieldElement ap(F0, apv, one, 1); // raw=1
-      if (!Fiso.is_identity())
-        {
-          // cout << "ap0 = " << ap << " --> ";
-          ap = Fiso(ap);
-          // cout << "ap = " << ap << endl;
-        }
-      return ap;
+      FieldElement a(F0, apv, one, 1); // raw=1
+      return (Fiso.is_identity()? a : Fiso(a));
     }
 }
 
@@ -304,12 +298,12 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
     a = Fabs->one();
   else
     {
-      Factorization F = M.factorization();
-      if (F.is_prime_power())
+      Factorization Mfac = M.factorization();
+      if (Mfac.is_prime_power())
         {
-          Quadprime P = F.prime(0);
+          Quadprime P = Mfac.prime(0);
           int good = !P.divides(nf->N);
-          int e = F.exponent(0);
+          int e = Mfac.exponent(0);
           // aPmap has the aP for bad P as well as good, from compute_AL_eigs()
           FieldElement aP = embed_eigenvalue(aPmap[P], abs_emb, im_gens);
           FieldElement nP = Fabs->rational(I2long(P.norm()));
@@ -334,7 +328,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
         } // end of prime power case
       else
         {
-          Qideal Q = F.prime_power(0);
+          Qideal Q = Mfac.prime_power(0);
           Qideal MoverQ = M/Q;
           a = aM(Q) * aM(MoverQ);
         }
@@ -485,7 +479,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
 FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const Qideal& biglevel, int verb)
 {
-  FieldElement eig(F->zero());
+  FieldElement a(F->zero());
   auto Pi = Plist.begin();
   auto ci = coeffs.begin();
   while (Pi!=Plist.end())
@@ -493,9 +487,9 @@ FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<
       scalar c = *ci++;
       Quadprime P = *Pi++;
       if (c!=0)
-        eig += eigPauto(P, biglevel, verb) * to_ZZ(c);
+        a += eigPauto(P, biglevel, verb) * to_ZZ(c);
     }
-  return eig;
+  return a;
 }
 
 // Characteristic polynomial of such a linear combination:
@@ -690,7 +684,7 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
   set(f_old); // set = 1
   for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
-      Newspace* NSD = get_Newspace(D, verbose);
+      const Newspace* NSD = get_Newspace(D, verbose);
       if (NSD->nforms()==0)
         continue;
       Qideal M = N/D;
@@ -2089,42 +2083,20 @@ void Newform::set_unramified_twist_discriminants()
   // need, we evaluate the genus character for D at all of these and
   // only keep D if the list of values is new.
   vector<vector<int>> D_values_list(1, vector<int>(genus_class_no_ext_ideals.size(), 1));
-#ifdef DEBUG_UNRAM_TWISTS
-  cout << "Initial D_values_list" << endl;
-  for (auto L: D_values_list) cout << L << endl;
-#endif
   for (auto& D : Quad::all_disc_factors)
     {
       if (!D.is_one())
         {
-#ifdef DEBUG_UNRAM_TWISTS
-          cout << "\nTesting D = " << D << endl;
-#endif
-          vector<int> D_values;
-          for (auto I: genus_class_no_ext_ideals)
-            D_values.push_back(I.genus_character(D));
-#ifdef DEBUG_UNRAM_TWISTS
-          cout << "D_values = [I.genus_character(D) for I in " << genus_class_no_ext_ideals << "] = "
-               << D_values << endl;
-#endif
+          vector<int> D_values(genus_class_no_ext_ideals.size());
+          std::transform(genus_class_no_ext_ideals.begin(), genus_class_no_ext_ideals.end(),
+                      D_values.begin(),
+                      [D](Qideal& I){return I.genus_character(D);});
           auto it = std::find(D_values_list.begin(), D_values_list.end(), D_values);
           if (it == D_values_list.end())
             {
-#ifdef DEBUG_UNRAM_TWISTS
-              cout << "New D_values vector, adding to list and keeping D = " << D << endl;
-#endif
               D_values_list.push_back(D_values);
               unramified_twist_discriminants.push_back(D);
-#ifdef DEBUG_UNRAM_TWISTS
-              cout << "D_values_list is now" << endl;
-              for (auto L: D_values_list) cout << L << endl;
-              cout << "unramified_twist_discriminants is now " << unramified_twist_discriminants << endl;
-#endif
             }
-#ifdef DEBUG_UNRAM_TWISTS
-          else
-            cout << "Repeat D_values vector, not keeping D = " << D << endl;
-#endif
         }
     }
 #ifdef DEBUG_UNRAM_TWISTS
@@ -2142,7 +2114,7 @@ vector<Newform> Newform::all_unram_quadratic_twists() const
     return twisted_newforms;
 
   twisted_newforms.reserve(unramified_twist_discriminants.size());
-  for (auto& D : unramified_twist_discriminants)
+  for (const auto& D : unramified_twist_discriminants)
     {
 #ifdef DEBUG_UNRAM_TWISTS
       cout << "Applying unramified quadratic twist  by " <<  D << endl;
@@ -2284,7 +2256,6 @@ int Newform::input_from_file(int verb)
           string Qlab = prime_label(Q);
           if (verb>1)
             cout << "reading AL eig for Q = " << Qlab << endl;
-          string lab;
           fdata >> dat;
           if (verb>1)
             cout << "--> Q has label " << Qlab << ", file label is " << dat << endl;
@@ -2309,7 +2280,7 @@ int Newform::input_from_file(int verb)
   // aP
   string Plab;
   Quadprime P;
-  Eigenvalue aP(F, Fmodsq);
+  Eigenvalue aP(F->zero(), Fmodsq);
   // read whitespace, so if there are no aP on file it does not try to read any
   fdata >> ws;
   // keep reading lines until end of file

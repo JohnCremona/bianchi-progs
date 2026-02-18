@@ -9,7 +9,7 @@ class RatQuad {
 
 public:
   // constructors
-  RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
+  explicit RatQuad(const Quad& nn=Quad::zero, const Quad& d=Quad::one, int red=0);
   RatQuad(INT a, INT b, INT dd, int red=0); // (a+b*w)/dd
   RatQuad(long a, long b, long dd, int red=0); // (a+b*w)/dd
   explicit RatQuad(long a);

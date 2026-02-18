@@ -16,27 +16,24 @@ Field::Field(const ZZX& p, string a, int verb)
       // CompanionMatrix(p) returns a mat_ZZ so we do this manually.
       d = deg(p);
       mat_m m(d,d);
-      ZZ one(1);
       for(int i=1; i<d; i++)
         {
-          m(i+1,i) = one;
+          m(i+1,i) = ZZ(1);
           m(i,d) = -coeff(p, i-1);
         }
       m(d,d) = -coeff(p, d-1);
       // Finally call the other constructor
-      *this = Field(m, one, a, verb);
+      *this = Field(m, ZZ(1), a, verb);
     }
 }
 
 Field::Field() // defaults to Q
 {
   d=1;
-  ZZ one(1);
-  denom=one;
   A.init(1,1); // zero matrix
   B.init(1,1); // zero matrix
   C.init(1,1); // zero matrix
-  B(1,1) = Bdet = Bdet1 = Bdet2 = Bdet3 = one;
+  denom = B(1,1) = Bdet = Bdet1 = Bdet2 = Bdet3 = ZZ(1);
   Binv = B;
   var = ""; // will not be used anyway
 }
@@ -196,7 +193,6 @@ void Field::display_bases(ostream&s) const
 
 void Field::display(ostream&s, int raw) const
 {
-  static const ZZ one(1);
   string fpol = ::str(minpoly);
   if (isQ() || (d==1))
     {
@@ -211,7 +207,7 @@ void Field::display(ostream&s, int raw) const
       s << "   Raw basis with respect to alpha-power basis:\n";
       for(int i=1; i<=d; i++)
         {
-          FieldElement bi = element(vec_m::unit_vector(d,i), one, 1);
+          FieldElement bi = element(vec_m::unit_vector(d,i), ZZ(1), 1);
           s << "   #"<<i<<": "<< bi << endl;
           s << "   (with char poly = " << ::str(bi.charpoly())
             << " and minpoly = " << ::str(bi.minpoly()) << "\n";
@@ -985,7 +981,7 @@ FieldIso Field::reduction_isomorphism(string newvar) const
   cout << " - reduced minpoly = " << ::str(g) << endl;
 #endif
   // construct the reduced field:
-  Field* Fred = new Field(g, newvar);
+  const Field* Fred = new Field(g, newvar);
 #ifdef DEBUG_REDUCE
   cout << " - reduced field is\n" << *Fred << endl;
 #endif
@@ -1053,7 +1049,7 @@ FieldIso Field::change_generator(const FieldElement& b) const
     }
 
   // Create the new field:
-  Field* b_field = new Field(b_pol, var+string("1"));
+  const Field* b_field = new Field(b_pol, var+string("1"));
 
   // To define the map to the new field we need to express a as a
   // polynomial in b.  The coordinates of b^j w.r.t. a are the columns
@@ -1063,14 +1059,14 @@ FieldIso Field::change_generator(const FieldElement& b) const
   // multiply Minv on the left by diag(1,dB,dB^2,...), (scaling its
   // rows up).
 
-  mat_m B(b.matrix()), M(d,d),  Minv(d,d);
-  ZZ dB(b.denom);
+  mat_m bmat(b.matrix()), M(d,d),  Minv(d,d);
+  ZZ dbmat(b.denom);
   vec_m v(vec_m::unit_vector(d,1));
-  // Set the volumns of M in turn, multiplying by B
+  // Set the volumns of M in turn, multiplying by bmat
   M.setcol(1,v);
   for(int j=2; j<=d; j++)
     {
-      v = B*v;
+      v = bmat*v;
       M.setcol(j,v);
     }
 #ifdef DEBUG_CHANGE_GEN
@@ -1078,18 +1074,18 @@ FieldIso Field::change_generator(const FieldElement& b) const
 #endif
   ZZ da = inverse(M,Minv); // so M*Minv = da*identity
 #ifdef DEBUG_CHANGE_GEN
-  cout << "Before scaling by dB = " << dB << ", Minv = " << Minv
+  cout << "Before scaling by dbmat = " << dbmat << ", Minv = " << Minv
        << " and denom(Minv) = " << da << endl;
 #endif
-  // Multiply the rows of Minv by successive posers of dB
-  if (!IsOne(dB))
+  // Multiply the rows of Minv by successive posers of dbmat
+  if (!IsOne(dbmat))
     {
-      ZZ dBpow(dB);
+      ZZ dbmatpow(dbmat);
       for(int i=2; i<=d; i++)
         {
-          Minv.multrow(i, dBpow);
+          Minv.multrow(i, dbmatpow);
           if (i<d)
-            dBpow *= dB;
+            dbmatpow *= dbmat;
         }
     }
 #ifdef DEBUG_CHANGE_GEN

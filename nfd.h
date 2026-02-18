@@ -218,7 +218,7 @@ public:
 // the splitting polynomial).
 
 struct newform_comparison {
-  bool operator()(Newform& f1, Newform& f2)
+  bool operator()(const Newform& f1, const Newform& f2)
   {
     // first sort by character
     vector<int> char1 = f1.character(), char2 = f2.character();
@@ -319,7 +319,7 @@ public:
   int split_ok; // records whether the constructor was able to find a splitting operator
 
   // constructor from file
-  Newspace(const Qideal& level, int verb=0);
+  explicit Newspace(const Qideal& level, int verb=0);
 
   mat_m heckeop(Quadprime& P, int cuspidal=0, int dual=0); // not const as may add info into N
   mat_m heckeop(const matop& T, int cuspidal=0, int dual=0) const;

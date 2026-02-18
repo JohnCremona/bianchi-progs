@@ -43,13 +43,13 @@ mat22 Char(Qideal& A, const Qideal& N);
 vector<mat22> HeckeP(Quadprime& P);
 
 // T(PQ, N) for PQ principal, P,Q distinct primes not dividing N
-vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, Qideal& N);
+vector<mat22> HeckePQ(Quadprime& P, Quadprime& Q, const Qideal& N);
 
 // more general T(B, N) with B square-free
-vector<mat22> HeckeB(Qideal& B, Qideal& N);
+vector<mat22> HeckeB(Qideal& B, const Qideal& N);
 
 // T(P^2), when P^2 is principal (and P not), P not dividing N,
-vector<mat22> HeckeP2(Quadprime& P, Qideal& N);
+vector<mat22> HeckeP2(Quadprime& P, const Qideal& N);
 
 // Pure Atkin-Lehner operators
 
@@ -78,14 +78,14 @@ vector<mat22> HeckeP_Chi(Quadprime& P, Qideal&A, Qideal& N);
 
 // T(A,A)T(PQ, N) for P,Q distinct primes not dividing N with [PQ]
 // square, A coprime to N with A^2PQ principal
-vector<mat22> HeckePQ_Chi(Quadprime& P, Quadprime& Q, Qideal&A, Qideal& N);
+vector<mat22> HeckePQ_Chi(const Quadprime& P, const Quadprime& Q, const Qideal&A, const Qideal& N);
 
 // T(A,A)T(B, N) with B square-free, coprime to N, and A^2B principal
 
-vector<mat22> HeckeB_Chi(Qideal& B, Qideal& A, Qideal& N);
+vector<mat22> HeckeB_Chi(const Qideal& B, const Qideal& A, const Qideal& N);
 
 // T(A,A)T(P^2), for any prime P not dividing N, (AP)^2 principal
-vector<mat22> HeckeP2_Chi(Quadprime& P, Qideal& A, Qideal& N);
+vector<mat22> HeckeP2_Chi(const Quadprime& P, const Qideal& A, const Qideal& N);
 
 // Adjusted Atkin-Lehner operators
 
@@ -103,9 +103,9 @@ mat22 AtkinLehnerQ_Chi(const Quadprime& Q, const Qideal& A, const Qideal& N);
 // Products of Hecke and Atkin-Lehner operators
 
 // T(P)W(M1) at level N for P*M1 principal, P not dividing N=M1*M2
-vector<mat22> HeckePAL(Quadprime& P, Qideal& M1, Qideal& M2);
+vector<mat22> HeckePAL(const Quadprime& P, const Qideal& M1, const Qideal& M2);
 // T(P)W(Q^e) at level N for P*Q^e principal, P not dividing N, Q^e||N
-vector<mat22> HeckePALQ(Quadprime& P, const Quadprime& Q, Qideal& N);
+vector<mat22> HeckePALQ(const Quadprime& P, const Quadprime& Q, const Qideal& N);
 
 // Utilities for contructing names
 
@@ -154,10 +154,10 @@ class matop {
   matop() // default is zero
     :mats({}), short_name("O"), char_name("") {set_long_name();}
   explicit matop(const mat22& m, const string& n="", const string& c="",
-                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), Qideal iA=Qideal())
+                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), const Qideal& iA=Qideal())
     :mats({m}), short_name(n), char_name(c), P(iP), Q(iQ), A(iA)  {set_long_name();}
   explicit matop(const vector<mat22>& mlist, const string& n="", const string& c="",
-                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), Qideal iA=Qideal())
+                 Quadprime iP=Quadprime(), Quadprime iQ=Quadprime(), const Qideal& iA=Qideal())
     :mats(mlist), short_name(n), char_name(c), P(iP), Q(iQ), A(iA) {set_long_name();}
   void set_long_name();
   mat22 operator[](int i) const {return mats[i];}
@@ -221,31 +221,31 @@ matop HeckePChiOp(Quadprime& P, Qideal& A, Qideal& N);
 // For P prime not dividing N with P^2 principal: the operator T(P^2)
 // at level N
 
-matop HeckeP2Op(Quadprime& P, Qideal& N);
+matop HeckeP2Op(Quadprime& P, const Qideal& N);
 
 // For P prime not dividing N and A coprime to N with (AP)^2 principal:
 // The operator T(A,A)*T(P^2) at level N
 
-matop HeckeP2ChiOp(Quadprime& P, Qideal& A, Qideal& N);
+matop HeckeP2ChiOp(Quadprime& P, Qideal& A, const Qideal& N);
 
 // For P,Q distinct primes not dividing N, with P*Q principal: the
 // operator T(PQ) at level N
 
-matop HeckePQOp(Quadprime& P, Quadprime& Q, Qideal& N);
+matop HeckePQOp(Quadprime& P, Quadprime& Q, const Qideal& N);
 
 // For P,Q distinct primes not dividing N, with [P*Q] square, A^2*P*Q
 // principal with A coprime to N: the operator T(A,A) T(PQ) at level N
 
-matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, Qideal& N);
+matop HeckePQChiOp(Quadprime& P, Quadprime& Q, Qideal& A, const Qideal& N);
 
 // For squarefree principal B coprime to N: the operator T(B) at level N
 
-matop HeckeBOp(Qideal& B, Qideal& N);
+matop HeckeBOp(Qideal& B, const Qideal& N);
 
 // For B squarefree coprime to N, with [B] square, A^2*B principal
 // with A coprime to N: the operator T(A,A) T(B) at level N
 
-matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N);
+matop HeckeBChiOp(Qideal& B, Qideal& A, const Qideal& N);
 
 // The operator T(P)W(Q) where P does not divide N, Q^e||N, P*Q^e
 // principal.
@@ -253,7 +253,7 @@ matop HeckeBChiOp(Qideal& B, Qideal& A, Qideal& N);
 // (We have not yet implemented a more general version giving
 // T(A,A)T(P)W(Q^e) when [P*Q^e] is square)
 
-matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N);
+matop HeckePALQOp(const Quadprime& P, const Quadprime& Q, const Qideal& N);
 
 // The operator T(P)W(M1) where P does not divide N=M1*M2, M1,M2
 // coprime and P*M1 principal
@@ -261,7 +261,7 @@ matop HeckePALQOp(Quadprime& P, const Quadprime& Q, Qideal& N);
 // (We have not yet implemented a more general version giving
 // T(A,A)T(P)W(M1) when [P*M1] is square)
 
-matop HeckePALOp(Quadprime& P, Qideal& M1, Qideal& M2);
+matop HeckePALOp(const Quadprime& P, const Qideal& M1, const Qideal& M2);
 
 matop FrickeOp(Qideal& N);
 
@@ -281,6 +281,7 @@ inline matop AutoHeckeOp(const Quadprime& P, const Qideal& N)
 // (1) W_Q^e if Q^e principal, ( and set t=0);
 // (2) W_Q^e*T_{A,A} if Q^e*A^2 principal (and set t=1 and A)
 // (3) W_Q*T_P for P  good with Q^e*P principal (and set t=2 and P)
-matop AutoALOp(Quadprime& Q, Qideal& N, int& t, Qideal& A, Quadprime& P);
+// t, A and P may be set by this
+matop AutoALOp(const Quadprime& Q, const Qideal& N, int& t, Qideal& A, Quadprime& P);
 
 #endif

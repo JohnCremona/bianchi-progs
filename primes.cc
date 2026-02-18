@@ -36,7 +36,6 @@ Quadprime::Quadprime(const string& s) // ideal from label Pp or Ppa or Ppb
     {
       char suff = s.back();
       int trim = ((suff=='a' || suff=='b')? 2 : 1);
-      long p;
       stringstream(s.substr(1,s.size() - trim)) >> p;
       int ind = (suff=='b'? 1: 0);
       *this = Quadprimes_above(p)[ind];
@@ -787,16 +786,16 @@ int Qideal::is_square()
 
 long Qideal::genus_class(int contract) const
 {
-  long c = 0;
+  long cl = 0;
   Qideal I(*this); // copy as factorization() is not const;
   vector<QuadprimePower> PP = I.factorization().prime_powers();
   for ( auto& P : PP)
     {
       if ((P.second)%2==1)
-        c ^= (P.first).genus_class(); // binary + (exclusive or)
+        cl ^= (P.first).genus_class(); // binary + (exclusive or)
     }
-  if (contract) c %= (1<<Quad::class_group_2_rank);
-  return c;
+  if (contract) cl %= (1<<Quad::class_group_2_rank);
+  return cl;
 }
 
 int Qideal::genus_character(const INT& D) // one unram char value
@@ -820,16 +819,20 @@ vector<INT> Qideal::possible_unramified_twists()  // sublist of Quad::all_disc_f
   if (Quad::class_group_2_rank == 0)
     return discs;
   vector<QuadprimePower> Qlist = Factorization(*this).prime_powers();
-  for( const auto& D : Quad::all_disc_factors)
+  auto Qtest = [](const INT& D)
+  {
+    return [D](const QuadprimePower& Q)
     {
-      if (D==1)
-        continue;
-      int ok = 1;
-      for ( auto& Q : Qlist)
-        ok = ok && (((Q.second)%2==0) || ((Q.first).genus_character(D)==+1));
-      if (ok)
-        discs.push_back(D);
-    }
+      return (((Q.second)%2==0) || ((Q.first).genus_character(D)==+1));
+    };
+  };
+  auto Dtest = [Qlist, Qtest](const INT& D)
+  {
+    return !(D.is_one()) && (std::all_of(Qlist.begin(), Qlist.end(), Qtest(D)));
+  };
+  std::copy_if(Quad::all_disc_factors.begin(), Quad::all_disc_factors.end(),
+               std::back_inserter(discs),
+               Dtest);
   return discs;
 }
 

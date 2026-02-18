@@ -176,7 +176,7 @@ void newform::compute_AL()
 {
   aqlist.resize(nf->badprimes.size());
   std::transform(nf->badprimes.begin(), nf->badprimes.end(), aqlist.begin(),
-                 [this] ( Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
+                 [this] (const Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
   sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
 }
 
@@ -311,13 +311,13 @@ void newform::fill_in_genus_class_data()
       long aP = aplist[iP];
       if (aP==0)
         continue;
-      long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
-      if (c==0)
+      long cP = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
+      if (cP==0)
         continue;
       // if (nf->verbose)
       //   cout<<"form #"<<i<<" has eigenvalue "<<aP<<" and genus class "<<c<<endl;
       // See if we already have an eigenvalue for this genus class
-      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+      auto ci = std::find(genus_classes.begin(), genus_classes.end(), cP);
       if (ci == genus_classes.end()) // then we do not
         {
           long oldsize = genus_classes.size();
@@ -326,7 +326,7 @@ void newform::fill_in_genus_class_data()
           genus_class_aP.resize(2*oldsize);
           for (int j = 0; j<oldsize; j++)
             {
-              genus_classes[oldsize+j] = genus_classes[j]^c;
+              genus_classes[oldsize+j] = genus_classes[j]^cP;
               genus_class_ideals[oldsize+j] = genus_class_ideals[j]*P;
               genus_class_aP[oldsize+j] = genus_class_aP[j]*aP;
             }
@@ -1458,9 +1458,9 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
   Qideal N = nf->N;
   if (P.divides(N))
     return 0; // we'll deal with A-L eigs later
-  long c = P.genus_class(1);  // 1 means reduce mod Quad::class_group_2_rank
+  long cP = P.genus_class(1);  // 1 means reduce mod Quad::class_group_2_rank
   //cout << "P=" <<P<<" has genus character "<<P.genus_character()<<" and genus class "<<c<<endl;
-  if (c==0) // then P has square class, compute aP directly via T(P) or T(P)*T(A,A)
+  if (cP==0) // then P has square class, compute aP directly via T(P) or T(P)*T(A,A)
     {
       if (P.is_principal())  // compute T(P)
         {
@@ -1476,12 +1476,12 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
           return eigenvalue(HeckePChiOp(P,A,N), eigenvalue_range(P));
         }
     }
-  else // P does not have square class, its genus class is c>0
+  else // P does not have square class, its genus class is cP>0
     {
       // See if we already have an eigenvalue for this genus class
       if (verbose>1)
-        cout<<"P="<<P<<" has genus class "<<c<<", genus_classes covered so far: "<<genus_classes<<endl;
-      auto ci = std::find(genus_classes.begin(), genus_classes.end(), c);
+        cout<<"P="<<P<<" has genus class "<<cP<<", genus_classes covered so far: "<<genus_classes<<endl;
+      auto ci = std::find(genus_classes.begin(), genus_classes.end(), cP);
       if (ci != genus_classes.end()) // then we do
         {
           int i = ci - genus_classes.begin();
@@ -1513,11 +1513,11 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
            // NB 5 would not be enough for field 299, level 100.2, without checking for possible self twists.
         {
           if (verbose>1)
-            cout << "P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-          if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= genus_class_triviality_bound))
+            cout << "P=" <<P<<" has genus class "<<cP<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
+          if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[cP] >= genus_class_triviality_bound))
             {
               if (verbose>0)
-                cout << "form "<<index<<", P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
+                cout << "form "<<index<<", P = " <<P<<": genus class "<<cP<<" has "<<genus_class_trivial_counter[cP]
                      <<" zero eigenvalues, so assuming self-twist, and taking aP=0"<<endl;
               return 0;
             }
@@ -1546,7 +1546,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                 {
                   if (verbose>1)
                     cout << " - taking a(P) = " << aP << endl;
-                  // update genus_classes (append binary sum of each and c)
+                  // update genus_classes (append binary sum of each and cP)
                   // update genus_class_ideals (append product of each and P)
                   // update genus_class_aP (append product of each and aP)
                   long oldsize = genus_classes.size();
@@ -1557,10 +1557,10 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                   genus_classes.resize(2*oldsize);
                   genus_class_ideals.resize(2*oldsize);
                   genus_class_aP.resize(2*oldsize);
-                  genus_class_trivial_counter[c] = 0;
+                  genus_class_trivial_counter[cP] = 0;
                   for (int i = 0; i<oldsize; i++)
                     {
-                      genus_classes[oldsize+i] = genus_classes[i]^c;
+                      genus_classes[oldsize+i] = genus_classes[i]^cP;
                       genus_class_ideals[oldsize+i] = genus_class_ideals[i]*P;
                       genus_class_aP[oldsize+i] = genus_class_aP[i]*aP;
                     }
@@ -1594,10 +1594,10 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
                 }
               else
                 {
-                  genus_class_trivial_counter[c] +=1;
+                  genus_class_trivial_counter[cP] +=1;
                   if (verbose>1)
-                    cout << "form "<<index<<", genus_class_trivial_counter for class "<<c
-                        <<" is now "<<genus_class_trivial_counter[c]<<endl;
+                    cout << "form "<<index<<", genus_class_trivial_counter for class "<<cP
+                        <<" is now "<<genus_class_trivial_counter[cP]<<endl;
                 }
             }
           else
@@ -1614,7 +1614,7 @@ long newform::eigenvalueHecke(Quadprime& P, int verbose)
     }
 }
 
-long newform::eigenvalueAtkinLehner(Quadprime& Q, int verbose)
+long newform::eigenvalueAtkinLehner(const Quadprime& Q, int verbose)
 {
   if (fake) return 0;
   Qideal N = nf->N;
@@ -2243,7 +2243,6 @@ void newforms::output_to_file(string eigfile) const
   if(echo) cout<<n1ds<<" "<<n2ds<<endl;
   if (n2r>0)
     {
-      int nchi = 1<<n2r;
       for (int i=0; i<nchi; i++)
         out << new1dims[i] << " ";
       for (int i=0; i<nchi; i++)
@@ -2428,7 +2427,8 @@ void newforms::find_jlist()
   if(verbose>1)
     cout<<"Finding pivotal indices..."<<flush;
 
-  int i, j, ok=0; j0=0;
+  int i, j, ok=0;
+  j0=0;
 
   // First we see whether a single j works for all the newforms:
 
@@ -2487,9 +2487,9 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
 
   for (int i=0; i<n1ds; i++)
     {
-      int j0 = nflist[i].j0;
+      int nfj0 = nflist[i].j0;
       scalar fac = nflist[i].fac;
-      scalar top = images[j0][i+1];
+      scalar top = images[nfj0][i+1];
       // The eigenvalue is now top/fac (which should divide exactly)
       long ap;
       if(hmod!=0)
@@ -2501,8 +2501,8 @@ vector<long> newforms::apvec_from_images(map<int,vec> images, pair<long,long> ap
 #endif
           if (top%fac !=0)
             {
-              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<j0<<" and pivot "<<fac<<endl;
-              cout<<"\timage list = "<<images[j0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
+              cout<<"Problem in apvec: for newform #"<<(i+1)<<", with pivotal index "<<nfj0<<" and pivot "<<fac<<endl;
+              cout<<"\timage list = "<<images[nfj0]<< " has "<<(i+1)<<" entry "<<top<<" which is not divisible by pivot "<<fac<<endl;
               cout<<flush;
             }
           ap = I2long(top/fac);
@@ -2591,7 +2591,7 @@ vector<long> newforms::apvec_euclidean(Quadprime& P, pair<long,long> apbounds)
       // update(projcoord, imagej, ind, hmod), where (u1:v1) is the
       // ind'th symbol.
 
-      mat& pcd = h1->projcoord;
+      const mat& pcd = h1->projcoord;
 
       // Matrix [1,0;0,p]
       int ind = h1->ER.coords(h1->index(u,p*v));
