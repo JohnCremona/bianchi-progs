@@ -431,27 +431,21 @@ void output_alphas(const vector<vector<Quad>>& pluspairs,
       ss << "geodata_" << Quad::d << ".dat";
       geodata.open(ss.str().c_str()); //  , ios_base::app);
     }
-  int nlines=0;
 
   auto output3 = [small_denoms, to_file, to_screen, &geodata](const Quad& s, const Quad& r1, const Quad& r2)
     {
       if (std::find(small_denoms.begin(), small_denoms.end(), s) != small_denoms.end())
-        return 0;
+        return;
       string st = make_A_line(s, r1, r2);
       if (to_file)
         geodata << st <<endl;
       if (to_screen)
         cout << st << endl;
-      return 1;
     };
-  for ( const auto& rs : pluspairs)
-    nlines += output3(rs[1], rs[0], -rs[0]);
-  for ( const auto& rs : minuspairs)
-    nlines += output3(rs[1], rs[0], rs[0]);
-  for ( const auto& sr1r2 : fours)
-    nlines += output3(sr1r2[0], sr1r2[1], sr1r2[2]);
-  // if (to_file || to_screen)
-  //   cout << nlines << " A-lines output"<<endl;
+
+  for ( const auto& rs : pluspairs)  output3(rs[1],    rs[0],   -rs[0]);
+  for ( const auto& rs : minuspairs) output3(rs[1],    rs[0],    rs[0]);
+  for ( const auto& sr1r2 : fours)   output3(sr1r2[0], sr1r2[1], sr1r2[2]);
 }
 
 // Given principal cusps a1, a2, a such that the circles S_a1 and

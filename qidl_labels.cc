@@ -6,7 +6,7 @@
 #include "qidloop.h"
 #include "mat22.h"
 #include "primes.h"
-int main (int argc, char *argv[])
+int main (int argc, const char *argv[])
 {
   if ( (argc < 4) || (argc > 6) ) { puts ("Usage: qidl_labels d min_norm max_norm <n-per-line> <both_conj>"); return 0; }
   long d = atoi(argv[1]);

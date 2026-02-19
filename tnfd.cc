@@ -137,8 +137,7 @@ int main()
          continue; // to next level
        }
 
-     int nnf_triv_char = std::count_if(NS.newforms.begin(), NS.newforms.end(),
-                                       [](Newform F){return F.is_char_trivial()==1;});
+     int nnf_triv_char = NS.nforms_triv_char();
      if (n2r)
        cout << "Of these, " << nnf_triv_char
             << (nnf_triv_char==1? " has": " have")

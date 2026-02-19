@@ -327,6 +327,12 @@ public:
 
   int ok() const {return split_ok;}
   int nforms() const {return newforms.size();}
+  int nforms_triv_char() const
+  {
+    if (Quad::class_group_2_rank==0) return newforms.size();
+    else return std::count_if(newforms.begin(), newforms.end(),
+                              [](const Newform& f){return f.is_char_trivial();});
+  }
   Qideal level() const {return N;}
   string short_label();
   string long_label();

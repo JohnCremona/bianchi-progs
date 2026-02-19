@@ -790,7 +790,7 @@ void SwanData::find_corners(int debug)
 
   // Extend alistF4 by 8 translations:
   CuspList alistF4X;
-  for ( auto& z : alistF4)
+  for ( const auto& z : alistF4)
     {
       CuspList z_nbrs = F4nbrs(z);
       alistF4X.insert(alistF4X.end(), z_nbrs.begin(), z_nbrs.end());
@@ -1006,15 +1006,14 @@ void SwanData::old_find_corners(int verbose)
 // find_corners_from_one(a).
 H3pointList SwanData::find_extra_corners(const CuspList& extra_alphas)
 {
-  H3pointList extra_corners;
+  int red;
+  std::set<H3point> extras;
   for (const auto& a : extra_alphas)
     {
-      int red;
       H3pointList a_corners = find_corners_from_one(a, red);
-      for (const auto& P : a_corners)
-        if (std::find(extra_corners.begin(), extra_corners.end(), P) == extra_corners.end())
-          extra_corners.push_back(P);
+      extras.insert(a_corners.begin(), a_corners.end());
     }
+  H3pointList extra_corners(extras.begin(), extras.end());
   return extra_corners;
 }
 

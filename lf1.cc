@@ -1,7 +1,5 @@
 // lf1.cc : classes lf1 and period_direct for computing L(F,1), L(F,chi,1) and periods of newforms
 
-#include <values.h>
-#include "eclib/interface.h"
 #include "lf1.h"
 
 // If Quad::t==0 then Quad (a,b) is x+y*sqrt(-d) so re,im parts are x, y*rootd

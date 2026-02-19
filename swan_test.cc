@@ -85,7 +85,7 @@ int main ()
       if (verbose)
         {
           cout << new_alphas.size() << " covering alphas";
-          if (debug>1) cout << ": " << new_alphas || "\n";
+          if (debug>1) cout << ": " << new_alphas << "\n";
           cout << " with max dnorm = " << maxn <<endl;
         }
       tim.stop(step);

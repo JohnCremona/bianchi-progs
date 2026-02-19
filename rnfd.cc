@@ -54,8 +54,7 @@ int main()
       int nnf = NS.nforms();
       cout << nnf << (nnf==1? " newform" : " newforms");
       if (n2r) cout << " up to unramified quadratic twist";
-      int nnf_triv_char = std::count_if(NS.newforms.begin(), NS.newforms.end(),
-                                       [](const Newform& F){return F.is_char_trivial()==1;});
+      int nnf_triv_char = NS.nforms_triv_char();
       if (n2r)
         cout << ", of which " << nnf_triv_char
              << (nnf_triv_char==1? " has": " have")
