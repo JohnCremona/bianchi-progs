@@ -72,9 +72,9 @@ LFLAGS = -lpari $(FLINT_LDFLAGS) -lec -lntl -lstdc++  -L$(LIBDIR) -Wl,-rpath -Wl
 all: tests
 	@echo "Using SCALAR_OPTION = "$(SCALAR_OPTION)
 
-ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8 ccs9
+ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc field.cc eigenvalue.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc eigenvalue.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -82,14 +82,12 @@ ccs5: qideal.cc qidloop.cc primes.cc qidltest.cc qidl_labels.cc
 ccs6: hecketest_modp.cc newhecke_modp.cc dimtable_modp.cc makenf_modp.cc nflist_modp.cc rewrite_eigs.cc
 ccs7: swan_utils.cc swan_sigmas.cc swan_alphas.cc swan_tess.cc swan_hom.cc swan.cc swan_test.cc
 ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
-ccs9: polred.cc polredtest.cc
 
-Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h polred.h
+Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h eigenvalue.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
  qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h
-field_headers: field.h eigenvalue.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
-headers: Q_headers field_headers quad_headers swan_headers
+headers: Q_headers quad_headers swan_headers
 
 #####################################################################################################
 # Files which do not involve quads at all:
@@ -100,8 +98,6 @@ headers: Q_headers field_headers quad_headers swan_headers
 # pari_snf.h/cc:       Homology invariants (as INTS) via PARI
 # flint_snf.h/cc:      HF, SNF and homology invariants (as INTS) via FLINT
 # snf_test.cc:         Test program (for flint_snf)
-# polredtest.cc:       Test program (for polred)
-# field.h/cc:          classes Field, FieldElement, FIeldIso
 # eigenvalue.h/cc:     classes FieldModSq, Eigenvalue
 #####################################################################################################
 
@@ -320,23 +316,23 @@ newhecke: newhecke.o $(OBJS)
 newhecke_modp: newhecke_modp.o $(OBJS)
 	$(CC) -o newhecke_modp newhecke_modp.o $(OBJS) $(LFLAGS)
 
-tnfd: tnfd.o nfd.o field.o eigenvalue.o polred.o $(OBJS)
-	$(CC) -o tnfd tnfd.o nfd.o field.o eigenvalue.o polred.o $(OBJS) $(LFLAGS)
+tnfd: tnfd.o nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o tnfd tnfd.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-tnfd_loop.o:   tnfd.cc nfd.h field.h eigenvalue.h
+tnfd_loop.o:   tnfd.cc nfd.h eigenvalue.h
 	$(CC) -DLOOPER $(CFLAGS) tnfd.cc -o tnfd_loop.o
 
-tnfd_loop: tnfd_loop.o nfd.o field.o eigenvalue.o polred.o $(OBJS)
-	$(CC) -o tnfd_loop tnfd_loop.o nfd.o field.o eigenvalue.o polred.o $(OBJS) $(LFLAGS)
+tnfd_loop: tnfd_loop.o nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o tnfd_loop tnfd_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-rnfd: rnfd.o nfd.o field.o eigenvalue.o polred.o $(OBJS)
-	$(CC) -o rnfd rnfd.o nfd.o field.o eigenvalue.o polred.o $(OBJS) $(LFLAGS)
+rnfd: rnfd.o nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o rnfd rnfd.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-rnfd_loop.o:   rnfd.cc nfd.h field.h eigenvalue.h
+rnfd_loop.o:   rnfd.cc nfd.h eigenvalue.h
 	$(CC) -DLOOPER $(CFLAGS) rnfd.cc -o rnfd_loop.o
 
-rnfd_loop: rnfd_loop.o nfd.o field.o eigenvalue.o polred.o $(OBJS)
-	$(CC) -o rnfd_loop rnfd_loop.o nfd.o field.o eigenvalue.o polred.o $(OBJS) $(LFLAGS)
+rnfd_loop: rnfd_loop.o nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o rnfd_loop rnfd_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)
@@ -365,8 +361,10 @@ int_hom: int_hom.o $(OBJS)
 tbug: tbug.o $(OBJS)
 	$(CC) -o tbug tbug.o $(OBJS) $(LFLAGS)
 
-polredtest: polredtest.o polred.o
-	$(CC) -o polredtest polredtest.o polred.o $(LFLAGS)
+parse_int.o: parse_int.cc
+
+parse_int: parse_int.o intprocs.o
+	$(CC) -o parse_int parse_int.o $(LFLAGS)
 
 
 # Some tables

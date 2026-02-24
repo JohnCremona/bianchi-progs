@@ -2,7 +2,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "nfd.h"
-#include "field.h"
 #include "oldforms.h"
 #include "qidloop.h"
 
@@ -106,7 +105,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 
   if (d==1)
     {
-      F = F0 = FieldQQ;
+      F = F0 = (Field*)FieldQQ;
       Fiso = FieldIso(F);
     }
   else

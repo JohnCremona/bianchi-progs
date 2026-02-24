@@ -15,15 +15,9 @@
 #include <eclib/curvesort.h> // for letter codes
 #include <eclib/int.h>  // for INT wrapping fmpz
 #include <eclib/frat.h> // for RAT wrapping fmpq
+//#include <eclib/polred.h>
+#include <eclib/field.h>
 #include <eclib/pari_init.h>
 #undef recip // pariold.h #defines recip = serreverse
-
-template <class T>
-inline istream& operator>>(istream& s, vector<T>& v)
-{
-  if (v.size())
-    std::copy_n(std::istream_iterator<T>(s), v.size(), v.begin());
-  return s;
-}
 
 #endif

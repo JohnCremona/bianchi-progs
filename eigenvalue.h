@@ -4,7 +4,7 @@
 #ifndef _EIGENVALUE_H
 #define _EIGENVALUE_H      1
 
-#include "field.h"
+#include "eclib.h"
 
 class FieldModSq;   // finite subgroups of (F^*)/(F^*)^2
 class Eigenvalue;   // a FieldElement a and an index i into FieldModSq representing a*sqrt(elt(i))
@@ -18,7 +18,7 @@ class Eigenvalue;   // a FieldElement a and an index i into FieldModSq represent
 
 class FieldModSq {
 private:
-  Field* F; // this will be totally real
+  const Field* F; // this will be totally real
   unsigned int r;
   vector<FieldElement> gens;
   vector<FieldElement> elements;
@@ -34,7 +34,7 @@ public:
     real_flag = !(r>0 && gens[0]==F->minus_one());
     make_elements();
   }
-  Field* field() {return F;}
+  const Field* field() {return F;}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
   vector<FieldElement> elts() const {return elements;}
