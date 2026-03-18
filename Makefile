@@ -7,7 +7,7 @@
 # here. (2) If BOOST is installed, make sure that Makefile.local sets
 # USE_BOOST=1 in Makeifle.local.
 
-SCALAR_OPTION ?= 3
+SCALAR_OPTION ?= 4
 
 include Makefile.local
 
@@ -365,7 +365,6 @@ parse_int.o: parse_int.cc
 
 parse_int: parse_int.o intprocs.o
 	$(CC) -o parse_int parse_int.o $(LFLAGS)
-
 
 # Some tables
 

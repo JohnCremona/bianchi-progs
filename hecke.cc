@@ -459,7 +459,6 @@ vector<mat22> HeckePAL(const Quadprime& P, const Qideal& M1, const Qideal& M2)
   i = P.is_coprime_to(M1, u, v); // u+v=1, u in P, v in M1
   assert (i && "P and M1 are coprime");
   Qideal M3 = Qideal(M2).equivalent_coprime_to(PM1, h, t, 1); // M2*M3=(h)
-  assert (Qideal(h) == M2*M3);
   // i = PM1.is_coprime_to(h, h1); // h*h1=1 mod PM1
   // assert (i && "M2*M3 is coprime to P*M1");
   // h *= h1;

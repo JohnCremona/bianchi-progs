@@ -108,7 +108,7 @@ int main(void)
               for (int j=0; j<n2r; j++)
                 {
                   int s = bit(i,j);
-                  A = A * (nulist[j] + (s? -den: den)*I);
+                  A = A * (nulist[j] + (s? -Den: Den)*I);
                   sgs += (s? "-": "+");
                 }
               cout << "nu-eigenspace " << sgs << ": " << flush;

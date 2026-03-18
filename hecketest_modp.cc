@@ -18,8 +18,9 @@ int main(void)
      exit(1);
    }
  scalar ch(0);
-  cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
-  ZZ_p::init(ZZ(ch));
+ ZZ Ch = to_ZZ(ch);
+ cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
+  ZZ_p::init(Ch);
   Quad::field(d,maxpnorm);
  Quad::displayfield(cout);
  cerr << "Plus space (0/1)? "; cin>>plusflag;
@@ -46,6 +47,8 @@ int main(void)
   homspace h(N, ch, plusflag,0, ch);  //level, plusflag, verbose, characteristic
   int dim = (cuspidal? h.h1cuspdim(): h.h1dim());
   cout << (cuspidal? "Cuspidal dimension = ": "Dimension = ") << dim << endl;
+  scalar hmod = h.h1hmod();
+  ZZ Hmod = to_ZZ(hmod);
 
   vector<Quadprime> badprimes = h.N.factorization().sorted_primes();
   int nq = badprimes.size();
@@ -131,7 +134,7 @@ int main(void)
 	    {
               mat_ZZ_p tpwq = tp * wqlist[kp];
               mat_ZZ_p wqtp = wqlist[kp] * tp;
-	      if (tpwq!=wqtp)
+	      if (tpwq != wqtp)
                 {
                   cout << "Problem: T("<<P
                        <<") and W(Q) matrix #"<<kp<<" do not commute!" << "\n";

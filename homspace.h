@@ -175,6 +175,7 @@ extern map<string, ZZ_pX> new_poly_modp_dict;
 
 // from H1_dict
 homspace* get_homspace(const Qideal& N, scalar mod);
+void clear_H1_dict();
 
 // from full_mat_dict
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod);

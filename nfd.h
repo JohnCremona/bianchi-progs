@@ -117,7 +117,14 @@ public:
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
-
+  // destructor
+  ~Newform()
+  {
+    if (F!=FieldQQ) delete F;
+    if (F0!=FieldQQ) delete F0;
+    if (Fabs!=FieldQQ) delete Fabs;
+    if (Fmodsq!=NULL) delete Fmodsq;
+  }
   // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
   // Use after sorting to reset the numbers and variable names
@@ -369,5 +376,6 @@ public:
 // dict of Newspaces read from file
 extern map<string,Newspace*> Newspace_dict;  // Key: label(N)
 Newspace* get_Newspace(const Qideal& N, int verb=0);
+void clear_Newspace_dict();
 
 #endif

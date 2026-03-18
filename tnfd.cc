@@ -5,6 +5,7 @@
 #ifdef LOOPER
 #include "qidloop.h"
 #endif
+#include "homspace.h"
 #include "nfd.h"
 
 #define MAXPRIME 10000
@@ -16,9 +17,10 @@ int main()
 
   scalar modulus = default_modulus<scalar>();
 #if (SCALAR_OPTION==3)
-  //  NextPrime(modulus, pow(to_ZZ(2),256));
   NextPrime(modulus, pow(to_ZZ(2),512));
-  //  NextPrime(modulus, pow(to_ZZ(2),768));
+#endif
+#if (SCALAR_OPTION==4)
+  modulus = INT(2)<<512;
 #endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;
@@ -237,5 +239,7 @@ int main()
        }
     }     // end of level loop
   cout << endl;
+  clear_H1_dict();
+  clear_Newspace_dict();
   exit(0);
 }   // end of main()

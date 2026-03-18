@@ -285,7 +285,7 @@ bigrational Eigenvalue::norm() const
     }
   if (xf)
     {
-      anorm *= bigrational(pow(2,half_d1 * SqCl->field()->degree()));
+      anorm *= bigrational(pow(ZZ(2),half_d1 * SqCl->field()->degree()));
     }
   return anorm;
 }

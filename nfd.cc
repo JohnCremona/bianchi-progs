@@ -321,7 +321,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
             if (good)
               {
                 MoverP /= P;
-                a += nP*aM(MoverP);
+                a -= nP*aM(MoverP);
               }
           }
         } // end of prime power case
@@ -567,7 +567,7 @@ void Newform::check_base_change(void)
 }
 
 Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int verb)
-  : verbose(verb), H1(h1)
+  : verbose(verb), H1(h1), split_ok(0)
 {
   N = H1->N;
   level_label = label(N);
@@ -589,6 +589,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
     {
       if (verbose)
         cout << "Cuspidal dimension is 0, so newspace is trivial" << endl;
+      split_ok = 1;
       return;
     }
 
@@ -596,6 +597,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
     {
       if (verbose)
         cout << "Trivial character cuspidal dimension is 0, so trivial character newspace is trivial" << endl;
+      split_ok = 1;
       return;
     }
 
@@ -610,7 +612,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
       for (auto T: eps_ops) cout << T.name() << " ";
       cout << endl;
     }
-  // Find the splitting operator
+  // Find the splitting operator (sets split_ok)
   find_T(maxnp, maxc, triv_char_only);
   // Construct the newforms if that succeeded
   if (split_ok)
@@ -650,6 +652,7 @@ void Newspace::sort_newforms()
 
 // constructor from file
 Newspace::Newspace(const Qideal& level, int verb)
+  :verbose(verb), N(level)
 {
   input_from_file(level, verb);
 }
@@ -710,6 +713,7 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
           for (int i=0; i<m; i++)
             f_old *= f_D;
         }
+      delete NSD;
     }
   if (verbose>1)
     {
@@ -2350,6 +2354,7 @@ void Newspace::output_to_file(int conj)
 
 int Newspace::input_from_file(const Qideal& level, int verb)
 {
+  verbose = verb;
   N = level;
   level_label = label(N);
   if (verb)
@@ -2525,4 +2530,11 @@ Newspace* get_Newspace(const Qideal& N, int verb)
   if (verb)
     cout << "Newspace at level " << Nlabel << " read from file and cached" << endl;
   return NSP;
+}
+
+void clear_Newspace_dict()
+{
+  for (auto x: Newspace_dict)
+    delete x.second;
+  Newspace_dict.clear();
 }

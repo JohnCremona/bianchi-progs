@@ -959,6 +959,19 @@ homspace* get_homspace(const Qideal& N, scalar mod)
   return H;
 }
 
+void clear_H1_dict()
+{
+  cout << "In clear_H1_dict()" << endl;
+  // for (auto x: H1_dict)
+  //   {
+  //     cout << "Deleting the homspace pointer assocoated to key " << x.first << endl;
+  //     delete x.second;
+  //   }
+  cout << "Now clearing the H1_dict map" << endl;
+  H1_dict.clear();
+  cout << "End of clear_H1_dict()" << endl;
+}
+
 //#define DEBUG_GET_FULL_MAT
 
 // Key is label(N)-T.name()

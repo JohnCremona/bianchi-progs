@@ -20,7 +20,8 @@ int main(void)
    }
   scalar ch(0);
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
-  ZZ_p::init(ZZ(ch));
+  ZZ Ch = to_ZZ(ch);
+  ZZ_p::init(Ch);
   Quad::field(d,maxpnorm);
   Quad::displayfield(cout);
 
@@ -42,7 +43,7 @@ int main(void)
   poly_dict_in.open(poly_dict_filename.c_str());
   if (poly_dict_in.is_open())
     {
-      new_poly_modp_dict = input_poly_dict(poly_dict_in, ZZ(ch));
+      new_poly_modp_dict = input_poly_dict(poly_dict_in, Ch);
       poly_dict_in.close();
       cout << "Read cache of " << new_poly_modp_dict.size() << " new polynomials from " << poly_dict_filename << endl;
       //output_poly_dict(cout, new_poly_modp_dict);
