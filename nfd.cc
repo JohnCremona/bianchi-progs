@@ -105,25 +105,25 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 
   if (d==1)
     {
-      F = F0 = (Field*)FieldQQ;
-      Fiso = FieldIso(F);
+      F = F0 = Field();
+      Fiso = FieldIso(&F);
     }
   else
     {
       string var = codeletter(index-1);
-      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), var, verbose>1);
-      Fiso = F0->reduction_isomorphism(var);
-      F = (Field*)Fiso.codom();
+      F0 = Field(to_mat_m(A), to_ZZ(denom_abs), var, verbose>1);
+      Fiso = F0.reduction_isomorphism(var);
+      F = *Fiso.codom();
       if (Fiso.is_nontrivial() && verbose)
         {
-          cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
-               << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
+          cout << "[replacing original Hecke field with polynomial " << ::str(F0.poly())
+               << " with polredabs reduced field with polynomial " << ::str(F.poly()) << "]" << endl;
         }
     }
   if (verbose)
     {
       cout <<"Principal Hecke field data:" << endl;
-      cout << *F << endl;
+      cout << F << endl;
     }
 
   // Compute character values
@@ -146,7 +146,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   sfe = 0;   // means unknown
 
   // Initialise book-keeping data for eigenvalue computation
-  Fmodsq = new FieldModSq(F);
+  Fmodsq = FieldModSq(&F);
   possible_self_twists = nf->possible_self_twists;
   int self_twist_possible = !possible_self_twists.empty();
   if (verbose && n2r)
@@ -162,7 +162,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   genus_classes_no_ext.resize(1,0);
   genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_no_ext_ideals.resize(1,Qideal(ONE));
-  genus_class_aP.resize(1,Eigenvalue(F->one(), Fmodsq, 0));
+  genus_class_aP.resize(1,Eigenvalue(F.one(), &Fmodsq, 0));
 }
 
 // Constructor which will read from file
@@ -224,13 +224,13 @@ FieldElement Newform::eig(const matop& T)
   vec_m apv = to_vec_m(nf->H1->applyop(T, nf->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
   //      cout << "ap vector = " << apv <<endl;
   static const ZZ one(1);
-  if (F0->isQ())
+  if (F0.isQ())
     {
       return FieldElement(bigrational(apv[1], to_ZZ(denom_abs)));
     }
   else
     {
-      FieldElement a(F0, apv, one, 1); // raw=1
+      FieldElement a(&F0, apv, one, 1); // raw=1
       return (Fiso.is_identity()? a : Fiso(a));
     }
 }
@@ -282,7 +282,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
   if (!triv_char)
     {
       cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
-      return Fabs->zero();
+      return Fabs.zero();
     }
 
   // return cached value if we have it
@@ -294,7 +294,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
   // precomputed prime coefficients
   FieldElement a;
   if (M.norm().is_one())
-    a = Fabs->one();
+    a = Fabs.one();
   else
     {
       Factorization Mfac = M.factorization();
@@ -305,7 +305,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
           int e = Mfac.exponent(0);
           // aPmap has the aP for bad P as well as good, from compute_AL_eigs()
           FieldElement aP = embed_eigenvalue(aPmap[P], abs_emb, im_gens);
-          FieldElement nP = Fabs->rational(I2long(P.norm()));
+          FieldElement nP = Fabs.rational(I2long(P.norm()));
           switch (e) {
           case 1: // prime
             a = aP;
@@ -471,14 +471,14 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
       return a;
     }
   cerr << "Newform::eigPauto() only implemented for forms with trivial char or class group C4" << endl;
-  return FieldElement(F);
+  return FieldElement(&F);
 }
 
 // Principal eigenvalue of a linear combination of the above:
 FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const Qideal& biglevel, int verb)
 {
-  FieldElement a(F->zero());
+  FieldElement a(F.zero());
   auto Pi = Plist.begin();
   auto ci = coeffs.begin();
   while (Pi!=Plist.end())
@@ -892,7 +892,7 @@ Eigenvalue Newform::compute_one_principal_eig(int i, const matop& T, int store, 
   string Tname = T.name();
   if (verbose)
     cout << "Computing eigenvalue of " << Tname << "..." << flush;
-  Eigenvalue a(eig(T), Fmodsq);
+  Eigenvalue a(eig(T), &Fmodsq);
   if (store)
     eigmap[{i,Tname}] = a;
   if (verbose)
@@ -957,18 +957,18 @@ void Newform::compute_eigs(int ntp, int verbose)
     }
   if (Quad::class_group_2_rank)
     {
-      string var = F->get_var() + string("1");
-      abs_emb = Fmodsq->absolute_field_embedding(im_gens, var, 1); // reduce=1
+      string var = F.get_var() + string("1");
+      abs_emb = Fmodsq.absolute_field_embedding(im_gens, var, 1); // reduce=1
     }
   else // F = Fabs and abs_emb = identity
     {
-      abs_emb = FieldIso(F);
+      abs_emb = FieldIso(&F);
     }
-  Fabs = (Field*)abs_emb.codom();
+  Fabs = *abs_emb.codom();
   if (verbose && Quad::class_group_2_rank)
     {
       cout << "absolute embedding:\n" << abs_emb << endl
-           << "absolute full Hecke field:\n" << *Fabs << endl <<endl;
+           << "absolute full Hecke field:\n" << Fabs << endl <<endl;
     }
   check_base_change();
   if (triv_char) // must be done after Fabs is computed
@@ -987,10 +987,10 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
     }
 
   Qideal N = nf->N;
-  FieldElement b(F), b1(F);
+  FieldElement b(&F), b1(&F);
 
   // add -1 to the generators of F^*/(F*)^2 (b1=1 but is ignored)
-  int j = Fmodsq->get_index(F->minus_one(),b1); // -1 = elements[1]*b1^2
+  int j = Fmodsq.get_index(F.minus_one(),b1); // -1 = elements[1]*b1^2
   assert (j==1);
 
   // Otherwise the character (restricted to Cl[2]) is non-trivial so
@@ -999,8 +999,8 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   // principal but the order varies:
   vector<int> C4C = C4classes();
   int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
-  Eigenvalue eig_1(FieldElement(F,ZZ(1)),Fmodsq);
-  Eigenvalue eig_i(FieldElement(F,ZZ(1)),Fmodsq,1);
+  Eigenvalue eig_1(FieldElement(&F,ZZ(1)), &Fmodsq);
+  Eigenvalue eig_i(FieldElement(&F,ZZ(1)), &Fmodsq,1);
   vector<Eigenvalue> chi(4, eig_1), chi_inv(4, eig_1);
   chi[ic1] = chi_inv[ic3] = eig_i;
   chi[ic2] = chi_inv[ic2] = -eig_1;
@@ -1039,7 +1039,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           assert ((cA==ic1) || (cA==ic3));
           matop T = HeckePChiOp(P, A, N);
           FieldElement aPchiP = compute_one_principal_eig(ip, T, 1, verbose).base();
-          Eigenvalue aP = Eigenvalue(aPchiP, Fmodsq) * chi_inv[cA];
+          Eigenvalue aP = Eigenvalue(aPchiP, &Fmodsq) * chi_inv[cA];
           if (verbose)
             cout << " a("<<P<<") = " << aP << endl;
           aPmap[P] = aP;
@@ -1083,16 +1083,16 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // T(P)*T(P,P) to find a(P)^2, pick a square root (if nonzero),
       // store the P in P0, aP in aP0, and set the flag.
 
-      FieldElement p(F->rational(I2long(P.norm()))); // stupid conversion from INT to ZZ
+      FieldElement p(F.rational(I2long(P.norm()))); // stupid conversion from INT to ZZ
       matop T =  HeckeP2ChiOp(P, P, nf->N);
       FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).base();
       if (verbose>1)
         cout << "a(P^2)*chi(P) = " << a << endl;
       // The following uses chi(P)^2=-1
-      Eigenvalue aP_2 = Eigenvalue(p-a, Fmodsq) * chi[cP]; // a(P)^2
+      Eigenvalue aP_2 = Eigenvalue(p-a, &Fmodsq) * chi[cP]; // a(P)^2
       if (verbose>1)
         {
-          Eigenvalue aP2chiP(a,Fmodsq);
+          Eigenvalue aP2chiP(a, &Fmodsq);
           Eigenvalue a_P2 = aP2chiP * chi_inv[cP]; // a(P^2)
           cout << "a(P^2) = " << a_P2 << endl;
           cout << "a(P)^2 = " << aP_2 << endl;
@@ -1117,7 +1117,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // Case (3) In general, b=b1^2*r and a(P) =
       // (b1/2)*sqrt(r)*(1+i), where r may be a new generator.
 
-      j = Fmodsq->get_index(b,b1);      // +b = elements[j]*b1^2
+      j = Fmodsq.get_index(b,b1);      // +b = elements[j]*b1^2
       // All cases are covered by the following: if j is odd then
       // elements[j] involves i=sqrt(-1), so we: replace j by j-1,
       // negate b1, and use factor 1-i instead of 1+i
@@ -1129,7 +1129,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
           xf = -1;
           j -= 1;
         }
-      Eigenvalue aP(b1, Fmodsq, j, xf);
+      Eigenvalue aP(b1, &Fmodsq, j, xf);
       aPmap[P] = aP;
       if (verbose)
         cout << "a(" <<P<<") = "<<aP<<endl;
@@ -1158,8 +1158,8 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   if (verbose)
     {
       cout << "The full Hecke field is k_f(i";
-      if (Fmodsq->rank()>1)
-        cout << ", sqrt("<<Fmodsq->gen(1)<<")";
+      if (Fmodsq.rank()>1)
+        cout << ", sqrt("<<Fmodsq.gen(1)<<")";
       cout << ")" << endl;
     }
 }
@@ -1265,7 +1265,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           if (verbose)
             cout << " -- P = " <<P<<": genus class "<<c<<" has "<<genus_class_trivial_counter[c]
                  <<" zero eigenvalues, so assuming self-twist, and taking aP=0"<<endl;
-          aPmap[P] = Eigenvalue(F->zero(), Fmodsq, 0);
+          aPmap[P] = Eigenvalue(F.zero(), &Fmodsq, 0);
           continue;
         }
 
@@ -1294,7 +1294,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // Check if this eigenvalue is 0
       if (aP2.is_zero())
         {
-          aPmap[P] = Eigenvalue(aP2, Fmodsq, 0);
+          aPmap[P] = Eigenvalue(aP2, &Fmodsq, 0);
           genus_class_trivial_counter[c] +=1;
           if (verbose)
             cout << " -- genus_class_trivial_counter for class "<<c
@@ -1303,18 +1303,18 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
         }
 
       // Look up the square class of aP2 in Fmodsq to see if we need to extend the field
-      unsigned int old_order = Fmodsq->order();
-      FieldElement s = F->one();
-      unsigned int j = Fmodsq->get_index(aP2, s);
+      unsigned int old_order = Fmodsq.order();
+      FieldElement s = F.one();
+      unsigned int j = Fmodsq.get_index(aP2, s);
       int Hecke_field_extended = j>=old_order;
       if (verbose)
         {
           cout<<" -- P="<<P<<", a(P)^2 = "<<aP2<<" is in square class #"<<j;
           if (Hecke_field_extended)
-            cout<<" (new class, rank mod squares is now " << Fmodsq->rank() << ")";
+            cout<<" (new class, rank mod squares is now " << Fmodsq.rank() << ")";
           cout << endl;
         }
-      aP = Eigenvalue(s, Fmodsq, j);
+      aP = Eigenvalue(s, &Fmodsq, j);
       aPmap[P] = aP;
       if (verbose)
         cout << " -- taking a(P) = " << aP << endl;
@@ -1433,14 +1433,14 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       cout << "This means that the number of unramified quadratic twists of this newform is "
            << genus_classes_no_ext.size() << endl;
     }
-  if (ngenera2 != genus_classes_no_ext.size() * Fmodsq->order())
+  if (ngenera2 != genus_classes_no_ext.size() * Fmodsq.order())
     {
       cerr << "ngenera = " << ngenera << endl;
       cerr << "ngenera2 = " << ngenera << endl;
-      cerr << "Fmodsq->order() = " << Fmodsq->order() << endl;
+      cerr << "Fmodsq.order() = " << Fmodsq.order() << endl;
       cerr << "genus_classes_no_ext = " << genus_classes_no_ext << endl;
     }
-  assert (ngenera2 == genus_classes_no_ext.size() * Fmodsq->order());
+  assert (ngenera2 == genus_classes_no_ext.size() * Fmodsq.order());
 
   set_unramified_twist_discriminants(); // fill the unramified_twist_discriminants listl
 } // end of compute_eigs_triv_char
@@ -1469,7 +1469,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nf->badprimes << endl;
 
-  Eigenvalue zero(F->zero(), Fmodsq);
+  Eigenvalue zero(F.zero(), &Fmodsq);
   Qideal N(nf->N);
   for (auto Q: nf->badprimes)
     {
@@ -1520,7 +1520,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
                     {
                       if (verbose)
                         cout << "Indirect computation using T(P)W(Q) with P="<<P<<", aP = " << aP << endl;
-                      Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), Fmodsq);
+                      Eigenvalue aPeQ(eig(HeckePALQOp(P, Q, N)), &Fmodsq);
                       eQ = (aPeQ==aP? 1 : -1);
                       break;
                     }
@@ -1537,7 +1537,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
       if (e>1)
         aPmap[Q] = zero;
       else
-        aPmap[Q] = Eigenvalue(FieldElement(F, ZZ(-eQ)), Fmodsq);
+        aPmap[Q] = Eigenvalue(FieldElement(&F, ZZ(-eQ)), &Fmodsq);
 
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
@@ -1622,12 +1622,12 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
     cout << " - Principal Hecke field k_f = ";
   else
     cout << " - Hecke field k_f = ";
-  cout << *F << endl;
+  cout << F << endl;
   if (n2r>0) // display full Hecke field
     {
-      int FisQ = F->isQ();
-      int FisCM = Fmodsq->is_complex();
-      int r = Fmodsq->rank();
+      int FisQ = F.isQ();
+      int FisCM = Fmodsq.is_complex();
+      int r = Fmodsq.rank();
       if (triv_char)
         {
           if (r==0)
@@ -1645,7 +1645,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
                   if (i) cout << ", ";
                   cout << "sqrt(";
                   if (FisQ)
-                    cout << Fmodsq->gen(i);
+                    cout << Fmodsq.gen(i);
                   else
                     cout << "r" << (i+1);
                   cout << ")";
@@ -1657,14 +1657,14 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
                   for (int i=0; i<r; i++)
                     {
                       if (i) cout << ", ";
-                      cout << "r" << (i+1) << " = " << Fmodsq->gen(i);
+                      cout << "r" << (i+1) << " = " << Fmodsq.gen(i);
                     }
                 }
               cout << endl;
-              cout << "                        = " << *Fabs <<endl;
+              cout << "                        = " << Fabs <<endl;
               if (!FisQ)
                 {
-                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
+                  cout << "        [where " << F.gen() << " = " << abs_emb(F.gen());
                   for (int i=0; i<r; i++)
                     {
                       if (FisCM && i==0)
@@ -1683,17 +1683,17 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
               cout << " - Full Hecke field k_F = "
                    << (FisQ? "Q" : "k_f")
                    << "(i";
-              if (Fmodsq->rank()>1)
-                cout << ", sqrt(r2)), where r2 = " << Fmodsq->gen(1);
+              if (Fmodsq.rank()>1)
+                cout << ", sqrt(r2)), where r2 = " << Fmodsq.gen(1);
               else
                 cout << ")";
               cout << endl;
               if (nf->verbose>1)
-                cout << *Fmodsq << endl;
-              cout << "                        = " << *Fabs <<endl;
+                cout << Fmodsq << endl;
+              cout << "                        = " << Fabs <<endl;
               if (!FisQ)
                 {
-                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
+                  cout << "        [where " << F.gen() << " = " << abs_emb(F.gen());
                   for (int i=0; i<r; i++)
                     {
                       if (FisCM && i==0)
@@ -1750,7 +1750,7 @@ void Newform::display_aP() const
       bigrational taP = aP.trace();
       cout << " (trace = " << taP << ")";
 #endif
-      if (Quad::class_group_2_rank && Fmodsq->rank()>0)
+      if (Quad::class_group_2_rank && Fmodsq.rank()>0)
         {
           FieldElement bP = embed_eigenvalue(aP, abs_emb, im_gens);
           cout << " \t= " << bP;
@@ -1842,8 +1842,8 @@ void Newform::set_index(int i)
     lab = codeletter(i-1);
     // On creation from scratch, F0 exists and F is a polredabs
     // isomorphic field, but after reading from a file only F is set.
-    if (F0!=NULL) F0->set_var(lab+string("0"));
-    F->set_var(lab);
+    F0.set_var(lab+string("0"));
+    F.set_var(lab);
   }
 
 // newform file output only implemented for forms with trivial
@@ -1875,19 +1875,19 @@ void Newform::output_to_file(int conj) const
   out << endl;
 
   // Principal Hecke field:
-  out << F->str(1) << endl;  // raw=1
-  // cout << "Principal Hecke field output:\n" << F->str(1) << endl;  // raw=1
+  out << F.str(1) << endl;  // raw=1
+  // cout << "Principal Hecke field output:\n" << F.str(1) << endl;  // raw=1
   // Full Hecke field (even class number only)
 
   if (n2r)
     {
       // Multiquadratic extension data:
-      out << Fmodsq->str(1) << endl;  // raw=1
-      // cout << "Fmodsq output:\n" << Fmodsq->str(1) << endl;  // raw=1
+      out << Fmodsq.str(1) << endl;  // raw=1
+      // cout << "Fmodsq output:\n" << Fmodsq.str(1) << endl;  // raw=1
 
       // Absolute field:
-      out << Fabs->str(1) << endl;  // raw=1
-      // cout << "Fabs output:\n" << Fabs->str(1) << endl;  // raw=1
+      out << Fabs.str(1) << endl;  // raw=1
+      // cout << "Fabs output:\n" << Fabs.str(1) << endl;  // raw=1
 
       // Embedding of F into Fabs: matrix entries and denom
       out << abs_emb.str(1) <<endl;
@@ -2177,37 +2177,37 @@ int Newform::input_from_file(int verb)
     }
 
   // Principal Hecke field:
-  F = new Field();
+  F = Field();
   fdata >> &F;
   if (verb>1)
-    cout << "--> Principal field is " << *F << endl;
+    cout << "--> Principal field is " << F << endl;
   F0 = F;
-  Fiso = FieldIso(F0);
+  Fiso = FieldIso(&F0);
 
   // Full Hecke field data (if class number even)
-  Fmodsq = new FieldModSq(F);
-  Fabs = new Field();
+  Fmodsq = FieldModSq(&F);
+  Fabs = Field();
 
   if (n2r)
     {
       // Multiquadratic extension data:
-      fdata >> *Fmodsq;
+      fdata >> Fmodsq;
       if (verb>1)
-        cout << "--> Field-mod-squares data: " << *Fmodsq << endl;
+        cout << "--> Field-mod-squares data: " << Fmodsq << endl;
 
       // Absolute field:
       fdata >> &Fabs;
       if (verb>1)
-        cout << "--> Absolute field: " << *Fabs << endl;
+        cout << "--> Absolute field: " << Fabs << endl;
 
       // Embedding of F into Fabs: matrix entries and denom
-      abs_emb = FieldIso(F, Fabs);
+      abs_emb = FieldIso(&F, &Fabs);
       fdata >> abs_emb;
       if (verb>1)
         cout << "--> Embedding into absolute field: " << abs_emb << endl;
 
       // Images of sqrt gens in Fabs:
-      im_gens.resize(Fmodsq->rank(), FieldElement(Fabs));
+      im_gens.resize(Fmodsq.rank(), FieldElement(&Fabs));
       for (auto& g: im_gens)
         fdata >> g;
       if (verb>1)
@@ -2283,7 +2283,7 @@ int Newform::input_from_file(int verb)
   // aP
   string Plab;
   Quadprime P;
-  Eigenvalue aP(F->zero(), Fmodsq);
+  Eigenvalue aP(F.zero(), &Fmodsq);
   // read whitespace, so if there are no aP on file it does not try to read any
   fdata >> ws;
   // keep reading lines until end of file

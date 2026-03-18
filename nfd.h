@@ -36,11 +36,11 @@ private:
   int index;       // index (starting from 1) of this newforms in the list of all
   string lab;      // label suffix (a,b,c,...)
   int d;      // dim(S)
-  Field* F0;   // pointer to the (homological) Hecke field (original)
-  Field* F;    // pointer to the (homological) Hecke field (reduced)
+  Field F0;   // the (homological) Hecke field (original)
+  Field F;    // the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
-  FieldModSq* Fmodsq; // relative full Hecke field as extension of F
-  Field* Fabs;   // pointer to absolute full Hecke field
+  FieldModSq Fmodsq; // relative full Hecke field as extension of F
+  Field Fabs;   // absolute full Hecke field
   FieldIso abs_emb; // isomorphism from F to Fabs (possibly identity)
   vector<FieldElement> im_gens;
   subspace S; // irreducible subspace of modular symbol space
@@ -117,14 +117,6 @@ public:
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
-  // destructor
-  ~Newform()
-  {
-    if (F!=FieldQQ) delete F;
-    if (F0!=FieldQQ) delete F0;
-    if (Fabs!=FieldQQ) delete Fabs;
-    if (Fmodsq!=NULL) delete Fmodsq;
-  }
   // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
   // Use after sorting to reset the numbers and variable names
@@ -162,10 +154,10 @@ public:
   ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                         const Qideal& biglevel, int verb=0);
 
-  Field* field(int original=0) const {return (original? F0: F);}
+  Field field(int original=0) const {return (original? F0: F);}
   // Return the degree of the principal or full Hecke field
-  int dimension(int full=1) const {return (full? d<<Fmodsq->rank() : d);}
-  ZZX poly(int original=0) const {return (original? F0->poly(): F->poly());}
+  int dimension(int full=1) const {return (full? d<<Fmodsq.rank() : d);}
+  ZZX poly(int original=0) const {return (original? F0.poly(): F.poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
   string long_label() const;  // field_label-level_label-suffix
@@ -190,7 +182,7 @@ public:
   // return base-change code (+1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know)
   int base_change_code(void) const;
   int cm_code() const {return cm;}
-  //  ZZ basis_factor() const {return F->Bdet;}
+  //  ZZ basis_factor() const {return F.Bdet;}
 
   // Compute aPmap for first ntp primes if empty, and return it
   map<Quadprime, Eigenvalue> TP_eigs(int ntp, int verbose=0);
