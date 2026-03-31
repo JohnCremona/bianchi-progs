@@ -13,9 +13,9 @@
 // for newforms with trivial character (so, all newforms over fields
 // of odd class number) and newforms with nontrivial character over
 // fields with class group C4.  With the current implementation of the
-// Eigenvalue class this could be extended to all class-groups whose
+// FieldMQElement class this could be extended to all class-groups whose
 // 2-primary component has exponent 4, but for complete generality the
-// Eigenvalue class would need to be extended to include higher order
+// FieldMQElement class would need to be extended to include higher order
 // 2-power roots of unity.
 
 // test whether field's class group is C4
@@ -39,9 +39,9 @@ private:
   Field F0;   // the (homological) Hecke field (original)
   Field F;    // the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
-  FieldModSq Fmodsq; // relative full Hecke field as extension of F
-  Field Fabs;   // absolute full Hecke field
-  FieldIso abs_emb; // isomorphism from F to Fabs (possibly identity)
+  FieldMQExt HFrel; // relative full Hecke field as extension of F
+  Field HFabs;   // absolute full Hecke field
+  FieldIso abs_emb; // isomorphism from F to HFabs (possibly identity)
   vector<FieldElement> im_gens;
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_abs; // absolute denominator of S
@@ -58,7 +58,7 @@ private:
   vector<Qideal> genus_class_no_ext_ideals; // list of ideals in these classes
   vector<long> genus_classes_nonzero; // list of classes for which we have a nonzero eigenvalue
   vector<Qideal> genus_class_ideals; // list of squarefree ideals in these classes
-  vector<Eigenvalue> genus_class_aP;  // list of eigenvalues of these ideals
+  vector<FieldMQElement> genus_class_aP;  // list of eigenvalues of these ideals
   int genus_classes_filled;  // Set to 1 when all genus classes are
                              // filled, or when half are filled if we
                              // have detected self-twist
@@ -79,20 +79,20 @@ private:
   // Dict of eigenvalues of principal operators (the key includes an
   // int for sorting, othewise they get sorted in alphabetical order
   // of opname):
-  map<pair<int,string>, Eigenvalue> eigmap;
+  map<pair<int,string>, FieldMQElement> eigmap;
   // Dict of T(P) eigenvalues of good primes P:
-  map<Quadprime, Eigenvalue> aPmap;
+  map<Quadprime, FieldMQElement> aPmap;
   // max norm(P) for P in aPmap:
   INT maxP;
   // Dict of W(Q) eigenvalues in {+1,-1} of bad primes Q, triv char only:
   map<Quadprime, int> eQmap;
-  // Dict of coefficients in Fabs of integral ideals M. Trivial
+  // Dict of coefficients in HFabs of integral ideals M. Trivial
   // character only.
   map<Qideal, FieldElement> aMmap;
   vector<ZZ> trace_list; // list of traces of sorted integral ideals
 
   // Fill dict eigmap of eigenvalues of first ntp principal operators
-  Eigenvalue compute_one_principal_eig(int, const matop& T, int store=0, int verbose=0);
+  FieldMQElement compute_one_principal_eig(int, const matop& T, int store=0, int verbose=0);
   void compute_principal_eigs(int ntp=10, int verbose=0);
   // Fill dict aPmap of eigenvalues of first ntp good primes, trivial char case only
   void compute_eigs_triv_char(int ntp=10, int verbose=0);
@@ -134,9 +134,9 @@ public:
   // eigenvalue of a (good) prime from aPmap if P is in there;
   // otherwise either raise an error (if stored_only=1) or (not yet
   // implemented) compute it.
-  Eigenvalue eig(const Quadprime& P, int stored_only=1);
+  FieldMQElement eig(const Quadprime& P, int stored_only=1);
 
-  // coefficient in Fabs of integral ideal M from aMmap or computed
+  // coefficient in HFabs of integral ideal M from aMmap or computed
   // (and stored in aMmap) using multiplicative relations. Trivial
   // character only.
   FieldElement aM(Qideal& M); // not const Qideal& as we factor it
@@ -156,7 +156,7 @@ public:
 
   Field field(int original=0) const {return (original? F0: F);}
   // Return the degree of the principal or full Hecke field
-  int dimension(int full=1) const {return (full? d<<Fmodsq.rank() : d);}
+  int dimension(int full=1) const {return (full? d<<HFrel.rank() : d);}
   ZZX poly(int original=0) const {return (original? F0.poly(): F.poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
@@ -185,12 +185,12 @@ public:
   //  ZZ basis_factor() const {return F.Bdet;}
 
   // Compute aPmap for first ntp primes if empty, and return it
-  map<Quadprime, Eigenvalue> TP_eigs(int ntp, int verbose=0);
+  map<Quadprime, FieldMQElement> TP_eigs(int ntp, int verbose=0);
   // Compute eQmap if empty and return it, first computing aPmap for
   // first ntp primes if necessary
   map<Quadprime, int> AL_eigs(int ntp=10, int verbose=0);
   // Compute eigmap (principal eigs) if empty and return it
-  map<pair<int,string>, Eigenvalue> principal_eigs(int nap, int verbose=0);
+  map<pair<int,string>, FieldMQElement> principal_eigs(int nap, int verbose=0);
   // return the list of traces
   vector<ZZ> traces() const {return trace_list;}
 

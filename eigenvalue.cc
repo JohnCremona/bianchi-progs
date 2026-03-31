@@ -3,7 +3,7 @@
 
 #include "eigenvalue.h"
 
-string FieldModSq::str(int raw) const
+string FieldMQExt::str(int raw) const
 {
   ostringstream s;
   if (raw)
@@ -26,7 +26,7 @@ string FieldModSq::str(int raw) const
 }
 
 // from r gens make the list of 2^r elements
-void FieldModSq::make_elements()
+void FieldMQExt::make_elements()
 {
   elements = {F->one()};
   for (auto g: gens)
@@ -39,9 +39,9 @@ void FieldModSq::make_elements()
 }
 
 // Input from a raw string format; x's field must be already set
-istream& operator>>(istream& s, FieldModSq& x)
+istream& operator>>(istream& s, FieldMQExt& x)
 {
-  // cout << "Reading FieldModSq data, base field is " << *(x.F) << endl;
+  // cout << "Reading FieldMQExt data, base field is " << *(x.base()) << endl;
   s >> x.r;
   // cout << "rank = " << x.r << endl;
   x.gens.resize(x.r, x.F->zero());
@@ -56,7 +56,7 @@ istream& operator>>(istream& s, FieldModSq& x)
   return s;
 }
 
-//#define DEBUG_SQUARES
+#define DEBUG_SQUARES
 
 // Compute the index of a nonzero element.
 
@@ -68,7 +68,7 @@ istream& operator>>(istream& s, FieldModSq& x)
 //      append a to gens, increment r, set s=1 return the new r;
 //   else:
 //      do not change the group, return -1.
-unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int update)
+unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 {
   unsigned int i=0;
   for (auto x: elements)
@@ -207,7 +207,7 @@ unsigned int FieldModSq::get_index(const FieldElement& a, FieldElement& s, int u
   return j+flip;
 }
 
-string FieldModSq::elt_str(unsigned int i) const
+string FieldMQExt::elt_str(unsigned int i) const
 {
   static const string v = "r";
   ostringstream s;
@@ -231,12 +231,12 @@ string FieldModSq::elt_str(unsigned int i) const
   return s.str();
 }
 
-int Eigenvalue::operator==(const Eigenvalue& b) const
+int FieldMQElement::operator==(const FieldMQElement& b) const
 {
   return (SqCl==b.SqCl) && (root_index==b.root_index) && (xf==b.xf) && (a==b.a);
 }
 
-int Eigenvalue::operator!=(const Eigenvalue& b) const
+int FieldMQElement::operator!=(const FieldMQElement& b) const
 {
   return (SqCl!=b.SqCl) || (root_index!=b.root_index) || (xf!=b.xf) || (a!=b.a);
 }
@@ -245,7 +245,7 @@ int Eigenvalue::operator!=(const Eigenvalue& b) const
 // sqrt(-r)*(1+i)=-sqrt(r)*(1-i) and similar.
 // sqrt(-r)*(1-i)=+sqrt(r)*(1+i) and similar.
 // NB The xf field will only be non-zero when i is there.
-void Eigenvalue::normalise()
+void FieldMQElement::normalise()
 {
   if (xf && root_index&1) // true when root_index is odd and xf nonzero
     {
@@ -255,13 +255,14 @@ void Eigenvalue::normalise()
     }
 }
 
-Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
+#define DEBUG_ARITH
+FieldMQElement FieldMQElement::inverse() const // raise error if zero      // inverse
 {
   if (is_zero())
     cerr << "Attempt to invert " << *(this) << endl;
   FieldElement b = a*root_part();
   if (xf) b *= ZZ(2);
-  Eigenvalue ans(b.inverse(), SqCl, root_index, -xf);
+  FieldMQElement ans(b.inverse(), SqCl, root_index, -xf);
 #ifdef DEBUG_ARITH
   cout << "Inverse of " << (*this) << " is " << ans << endl;
   assert (((*this)*ans).is_one());
@@ -270,7 +271,7 @@ Eigenvalue Eigenvalue::inverse() const // raise error if zero      // inverse
 }
 
 
-bigrational Eigenvalue::norm() const
+bigrational FieldMQElement::norm() const
 {
   int d1 = SqCl->order(); // a power of 2
   bigrational anorm(a.norm());
@@ -285,12 +286,12 @@ bigrational Eigenvalue::norm() const
     }
   if (xf)
     {
-      anorm *= bigrational(pow(ZZ(2),half_d1 * SqCl->field()->degree()));
+      anorm *= bigrational(pow(ZZ(2),half_d1 * SqCl->base_degree()));
     }
   return anorm;
 }
 
-bigrational Eigenvalue::trace() const
+bigrational FieldMQElement::trace() const
 {
   bigrational atrace(a.trace());
   if (SqCl->rank()==0)
@@ -310,17 +311,17 @@ bigrational Eigenvalue::trace() const
 }
 
 // integer multiple of i, assuming not real
-Eigenvalue eye(FieldModSq* S, const ZZ& n)
+FieldMQElement eye(FieldMQExt* S, const ZZ& n)
 {
   assert (S->is_complex());
-  return Eigenvalue(FieldElement(S->field(), n), S, 1, 0);
+  return FieldMQElement(FieldElement(S->base(), n), S, 1, 0);
 }
 
 // Return an embedding into an absolute field (optionally
 // polredabs'ed) together with a list of images of the gens.  If the
 // rank is 0 return the identity.
 //#define DEBUG_ABS_FIELD
-FieldIso FieldModSq::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce) const
+FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce) const
 {
 #ifdef DEBUG_ABS_FIELD
   cout << " - in absolute_field_embedding() for ";
@@ -378,7 +379,7 @@ FieldIso FieldModSq::absolute_field_embedding(vector<FieldElement>& im_gens, str
 #ifdef DEBUG_ABS_FIELD
       cout << " : im_gens is now " << im_gens << endl;
       cout << " in fields\n";
-      for (auto z: im_gens) cout << *z.field() << endl;
+      for (auto z: im_gens) cout << z->base() << endl;
 #endif
     }
   // Final reduction (if requested) and seeting of variable name provided
@@ -408,9 +409,9 @@ FieldIso FieldModSq::absolute_field_embedding(vector<FieldElement>& im_gens, str
 }
 
 //#define DEBUG_CONJ
-Eigenvalue Eigenvalue::conj() const
+FieldMQElement FieldMQElement::conj() const
 {
-  Eigenvalue ans = *this;
+  FieldMQElement ans = *this;
 #ifdef DEBUG_CONJ
   cout << "** Conjugating " << ans << endl;
 #endif
@@ -433,20 +434,20 @@ Eigenvalue Eigenvalue::conj() const
   else
     {
       assert(root_index%2==0);
-      cout << "** xf!=0 and index is even, returning " << Eigenvalue(a, SqCl, root_index, -xf) << endl;
+      cout << "** xf!=0 and index is even, returning " << FieldMQElement(a, SqCl, root_index, -xf) << endl;
     }
 #endif
 
   return (xf==0?
           (root_index&1? -ans : ans) // negate a iff root_index is odd
           :
-          Eigenvalue(a, SqCl, root_index, -xf)// flip the sign of xf
+          FieldMQElement(a, SqCl, root_index, -xf)// flip the sign of xf
           );
 }
 
-Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
+FieldMQElement FieldMQElement::operator*(const FieldMQElement& b) const
 {
-  if (is_zero()) return Eigenvalue(*this);
+  if (is_zero()) return FieldMQElement(*this);
   if (b.is_zero()) return b;
 #ifdef DEBUG_ARITH
   cout << "Multiplying " << (*this) << " by " << b << endl;
@@ -463,7 +464,7 @@ Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
 #endif
 
   // Multiply the root parts:
-  FieldElement r, s(a.field()->one());
+  FieldElement r, s(a.field_ptr()->one());
   unsigned int j;
   if (root_index==0)
     j = b.root_index;
@@ -490,7 +491,7 @@ Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
 #endif
 
   // Form the product without the last factors:
-  Eigenvalue ans(c, SqCl, j); // sets ans.xf to 0
+  FieldMQElement ans(c, SqCl, j); // sets ans.xf to 0
 
 #ifdef DEBUG_ARITH
   cout << "Before setting last factor, ans = " << ans << endl;
@@ -510,9 +511,9 @@ Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
           else
             {
               if (xf==1) // b.xf=1 too, (1+i)^2=2i
-                ans = ans * Eigenvalue(a.field()->two(), SqCl, 1);
+                ans = ans * FieldMQElement(a.field_ptr()->two(), SqCl, 1);
               else // now xf=b.xf=-1, (1-i)^2=-2i
-                ans = ans * Eigenvalue(a.field()->minus_two(), SqCl, 1);
+                ans = ans * FieldMQElement(a.field_ptr()->minus_two(), SqCl, 1);
             }
         }
     }
@@ -529,9 +530,9 @@ Eigenvalue Eigenvalue::operator*(const Eigenvalue& b) const
   return ans;
 }
 
-Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
+FieldMQElement FieldMQElement::operator/(const FieldMQElement& b) const
 {
-  if (is_zero()) return Eigenvalue(*this);
+  if (is_zero()) return FieldMQElement(*this);
 #ifdef DEBUG_ARITH
   cout << "Dividing " << (*this) << " by " << b << endl;
   cout << "[" << a << "*sqrt(" << root_part() << ")*" << extra_factor() << "]";
@@ -547,7 +548,7 @@ Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
 #endif
 
   // Divide root parts
-  FieldElement r, s(a.field()->one());
+  FieldElement r, s(a.field_ptr()->one());
   unsigned int j;
   if (b.root_index==0)
     {
@@ -577,20 +578,20 @@ Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
       assert (r == s*s*SqCl->elt(j));
     }
 
-  Eigenvalue ans(c, SqCl, j);
+  FieldMQElement ans(c, SqCl, j);
 #ifdef DEBUG_ARITH
   cout << "Before adjusting last factor, ans = " << ans << endl;
 #endif
   if (b.xf==0)
-    ans = Eigenvalue(c, SqCl, j, xf);
+    ans = FieldMQElement(c, SqCl, j, xf);
   else if (xf==b.xf)
-    ans = Eigenvalue(c, SqCl, j);
+    ans = FieldMQElement(c, SqCl, j);
   else if (xf==0)
-    ans = Eigenvalue(c/ZZ(2), SqCl, j, -b.xf);
+    ans = FieldMQElement(c/ZZ(2), SqCl, j, -b.xf);
   else if (xf==1)
-    ans = Eigenvalue(c, SqCl, j) * Eigenvalue(a.field()->one(), SqCl, 1);
+    ans = FieldMQElement(c, SqCl, j) * FieldMQElement(a.field_ptr()->one(), SqCl, 1);
   else
-    ans = Eigenvalue(-c, SqCl, j) * Eigenvalue(a.field()->one(), SqCl, 1);
+    ans = FieldMQElement(-c, SqCl, j) * FieldMQElement(a.field_ptr()->one(), SqCl, 1);
 
   if (ans.xf) // else normalise does nothing
     {
@@ -600,7 +601,7 @@ Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
       ans.normalise();
     }
 #ifdef DEBUG_ARITH
-  Eigenvalue check = ans*b;
+  FieldMQElement check = ans*b;
   if (!(check == (*this)))
     {
       cerr << "**************\n"
@@ -627,9 +628,9 @@ Eigenvalue Eigenvalue::operator/(const Eigenvalue& b) const
 
 // Input from a raw string format; x's SqCl (and hence its field) must
 // be already set
-istream& operator>>(istream& s, Eigenvalue& x)
+istream& operator>>(istream& s, FieldMQElement& x)
 {
-  // cout << "Reading an eigenvalue, F = " << *(x.a.field()) << ", Fmodsq = " << *(x.SqCl) << endl;
+  // cout << "Reading an eigenvalue, F = " << *(x.a.base()) << ", HFrel = " << *(x.SqCl) << endl;
   s >> x.a;
   // cout << "Base value = " << x.a << endl;
   if (x.SqCl->rank())
@@ -642,11 +643,11 @@ istream& operator>>(istream& s, Eigenvalue& x)
           // cout << "extra factor = " << x.xf << endl;
         }
     }
-  // cout << "Eigenvalue read: " << x << endl;
+  // cout << "FieldMQElement read: " << x << endl;
   return s;
 }
 
-string Eigenvalue::str(int raw) const
+string FieldMQElement::str(int raw) const
 {
   ostringstream s;
   if (raw)
@@ -670,7 +671,7 @@ string Eigenvalue::str(int raw) const
   if (root_index==0 && xf==0)
     return a.str();
 
-  int QQ = a.field()->isQ();
+  int QQ = a.field_ptr()->isQ();
 
   // output the first factor
   if (a.is_one()) {;}
@@ -702,13 +703,13 @@ string Eigenvalue::str(int raw) const
   return s.str();
 }
 
-// embed an Eigenvalue into the absolute field Fabs, given an
-// embedding of F into Fabs and images of the FieldModSq gens in Fabs
+// embed an FieldMQElement into the absolute field HFabs, given an
+// embedding of F into HFabs and images of the FieldMQExt gens in HFabs
 //#define DEBUG_EMBED_EIGS
-FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const vector<FieldElement>& im_gens)
+FieldElement embed_eigenvalue(const FieldMQElement& ap, const FieldIso& emb, const vector<FieldElement>& im_gens)
 {
 #ifdef DEBUG_EMBED_EIGS
-  cout << "Embedding Eigenvalue " << ap << endl;
+  cout << "Embedding FieldMQElement " << ap << endl;
   cout << " via embedding " << emb << endl;
 #endif
   FieldElement a(emb(ap.base()));
@@ -739,8 +740,8 @@ FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const v
     if (bit(apri, i))
       {
 #ifdef DEBUG_EMBED_EIGS
-        cout << "About to multiply " << a << " in field " << *(a.field()) << "(" << a.field() << ")"
-             << " by " << im_gens[i] << " in field " << *(im_gens[i].field()) << "(" << im_gens[i].field()
+        cout << "About to multiply " << a << " in field " << *(a.base()) << "(" << a.base() << ")"
+             << " by " << im_gens[i] << " in field " << *(im_gens[i].base()) << "(" << im_gens[i].base()
              << ")" << endl;
 #endif
         a *= im_gens[i];
@@ -755,7 +756,7 @@ FieldElement embed_eigenvalue(const Eigenvalue& ap, const FieldIso& emb, const v
   // multiply by 1+i or 1-1 if required
   if (ap.xfac())
     {
-      FieldElement one = a.field()->rational(1);
+      FieldElement one = a.field_ptr()->one();
       if (ap.xfac()==1)
         {
 #ifdef DEBUG_EMBED_EIGS

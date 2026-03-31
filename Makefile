@@ -98,7 +98,7 @@ headers: Q_headers quad_headers swan_headers
 # pari_snf.h/cc:       Homology invariants (as INTS) via PARI
 # flint_snf.h/cc:      HF, SNF and homology invariants (as INTS) via FLINT
 # snf_test.cc:         Test program (for flint_snf)
-# eigenvalue.h/cc:     classes FieldModSq, Eigenvalue
+# eigenvalue.h/cc:     classes FieldMQExt, FieldMQElement
 #####################################################################################################
 
 # DEPENDENCIES (of *.o files)
