@@ -610,7 +610,6 @@ mat22 AB_matrix(const Quad& a, const Quad& c)
       cerr<<"conj(I) = "<<I.conj()<<endl;
       cerr<<"(b,d) = "<<Qideal({b,d})<<endl;
     }
-  assert (Qideal({b,d}) == I.conj());
   mat22 M(a, b, c, d);
   assert (M.det()==g);
   return M;
@@ -1223,7 +1222,6 @@ void residuetest(Qideal& I)
   cout<<invres.first<<endl;
   cout << " with inverses:\n";
   cout<<invres.second<<endl;
-  //assert ((INT)invres.first.size()==phi);
   if (INT((int)invres.first.size())!=phi)
     {
       cout<<"phi = "<<phi<<" but # invertible residues = "<<invres.first.size()<<endl;

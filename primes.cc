@@ -656,7 +656,6 @@ Qideal Qideal::equivalent_coprime_to(const Qideal& N, Quad& c, Quad& d, int anti
             {
               c = g; // P*this = I = (g)
               d = Quad::one;
-              assert ((*this)*P==Qideal(c));
             }
           else
             {

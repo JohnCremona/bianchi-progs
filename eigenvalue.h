@@ -31,7 +31,7 @@ private:
   void make_elements();  // from r gens make the list of 2^r elements
 public:
   // default constructor, a trivial extension of Q
-  FieldMQExt() :F(FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
+  FieldMQExt() :F(&FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
   // constructor from any field, defining the trivial extension
   explicit FieldMQExt(Field* F0) :F(F0), r(0), elements({F0->one()}), real_flag(1) {;}
   // constructor from any field, given a list of gens (assumed to be
@@ -42,7 +42,9 @@ public:
     real_flag = !(r>0 && gens[0]==F->minus_one());
     make_elements();
   }
-  const Field* base() {return F;}
+  const Field* base() const {return F;}
+  // Change the field pointer to F1 (requires F1 and F to be pointers to the same field)
+  void change_field_pointer(const Field* F1);
   int base_degree() const {return F->degree();}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
@@ -61,6 +63,7 @@ public:
   //   else:
   //      do not change the group, return -1.
   unsigned int get_index(const FieldElement& a, FieldElement& s, int update=1);
+  unsigned int get_index(const FieldElement& a, FieldElement& s) const;
   string elt_str(unsigned int i) const;
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}
@@ -91,14 +94,15 @@ class FieldMQElement {
 private:
   FieldElement a;
   unsigned int root_index;
-  FieldMQExt* SqCl;
+  const FieldMQExt* SqCl;
   int xf;
 public:
   FieldMQElement() {;}
-  FieldMQElement(const FieldElement& x, FieldMQExt* S, unsigned int i=0, int f=0)
+  FieldMQElement(const FieldElement& x, const FieldMQExt* S, unsigned int i=0, int f=0)
     : a(x), root_index(i), SqCl(S), xf(f)
   {;}
-  FieldMQExt* parent() const {return SqCl;}
+  const FieldMQExt* parent() const {return SqCl;}
+  void change_parent_pointer(const FieldMQExt* x);
   FieldElement base() const {return a;}
   unsigned int index() const {return root_index;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }

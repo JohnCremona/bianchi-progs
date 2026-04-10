@@ -3,6 +3,26 @@
 
 #include "eigenvalue.h"
 
+// Change the field pointer to F1 (requires F1 and F to be pointers
+// to the same field)
+void FieldMQExt::change_field_pointer(const Field* F1)
+{
+  if (F1==F) return;              // same pointer, no change needed
+  if (*F1==*F) // different pointer but same field
+    {
+      F = F1;
+      for (auto x: gens)
+        x.change_field_pointer(F1);
+      for (auto x: elements)
+        x.change_field_pointer(F1);
+    }
+  else
+    {
+      cerr << "Cannot change field pointer of " << *this << " from " << F << " (pointing to " << *F
+           << ") to " << F1 << " (pointing to " << *F1 << "), as these are different fields." << endl;
+    }
+}
+
 string FieldMQExt::str(int raw) const
 {
   ostringstream s;
@@ -68,6 +88,26 @@ istream& operator>>(istream& s, FieldMQExt& x)
 //      append a to gens, increment r, set s=1 return the new r;
 //   else:
 //      do not change the group, return -1.
+
+unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
+{
+  unsigned int i=0;
+  for (auto x: elements)
+    {
+      if ((a*x).is_square(s))
+        {
+          // Now a*x = s^2 so a = x*(s/x)^2 but we want a = x*s^2
+          s /= x;
+          if (F->isQ()&& s.get_val().num()<0)
+            s=-s;
+          assert (a == x*s*s);
+          return i;
+        }
+      i++;
+    }
+  return -1;
+}
+
 unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 {
   unsigned int i=0;
@@ -75,13 +115,11 @@ unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int u
     {
       if ((a*x).is_square(s))
         {
-          assert (a*elements[i] == s*s);
-          // Now a*x = s^2 so a = x*(s/x)^2
-          // but we want a = x*s^2
+          // Now a*x = s^2 so a = x*(s/x)^2 but we want a = x*s^2
           s /= x;
           if (F->isQ()&& s.get_val().num()<0)
             s=-s;
-          assert (a == elements[i]*s*s);
+          assert (a == x*s*s);
           return i;
         }
       i++;
@@ -231,6 +269,12 @@ string FieldMQExt::elt_str(unsigned int i) const
   return s.str();
 }
 
+void FieldMQElement::change_parent_pointer(const FieldMQExt* x)
+{
+  SqCl = x;
+  a.change_field_pointer(x->base());
+}
+
 int FieldMQElement::operator==(const FieldMQElement& b) const
 {
   return (SqCl==b.SqCl) && (root_index==b.root_index) && (xf==b.xf) && (a==b.a);
@@ -329,7 +373,8 @@ FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, str
   cout << endl;
   cout << " : base field is " << *F << endl;
 #endif
-  FieldIso emb(F);                    // starting with the identity,
+  FieldIso emb(F);  // starting with the identity
+  const Field* Fext = F;  // emb maps F to Fext
 
   // case of trivial extension: do nothing (ignore newvar and reduce parameters)
   if (r==0)
@@ -340,11 +385,10 @@ FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, str
       return emb;
     }
 
-  // Field* Fext = (Field*)emb.codom();  // emb maps F to Fext
-  Field* Fext = (Field*)(emb.codom());  // emb maps F to Fext
   im_gens.clear();
   int i = 0;
   FieldElement x, sqrt_x;
+
   for (auto g: gens)
     {
       i++;
@@ -362,7 +406,7 @@ FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, str
       cout << " : next simple embedding is \n" << emb1 << endl;
 #endif
       // update the field extension
-      Fext = (Field*)emb1.codom();
+      Fext = emb1.codom();
 #ifdef DEBUG_ABS_FIELD
       cout << " : next field extension is " << *Fext << endl;
 #endif
@@ -400,7 +444,6 @@ FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, str
     }
   else
     {
-      Fext->set_var(newvar);
 #ifdef DEBUG_ABS_FIELD
       cout << " : final embedding is " << emb << endl;
 #endif
@@ -650,6 +693,26 @@ istream& operator>>(istream& s, FieldMQElement& x)
 string FieldMQElement::str(int raw) const
 {
   ostringstream s;
+  if (raw>1)
+    {
+      s << "FieldMQElement data" << endl;
+      s << "Base field pointer = " << a.field_ptr() <<endl;
+      s << "Base field = " << *(a.field_ptr()) <<endl;
+      s << "Extension field pointer = " << SqCl <<endl;
+      //s << "Extension field = " << *SqCl <<endl;
+      s << "Base element = " << a.str() << endl;
+      if (SqCl->rank())
+        {
+          s << "Root index = " << root_index << endl;
+          if (SqCl->is_complex())
+            {
+              s << "Extra factor code =  " << xf <<endl;
+            }
+        }
+      s << "Pretty value = " << str(0) <<endl;
+      return s.str();
+    }
+
   if (raw)
     {
       s << a.str(1);

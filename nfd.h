@@ -32,20 +32,28 @@ class Newspace;
 class Newform {
   friend class Newspace;
 private:
-  Newspace* nf;    // pointer to "parent" class holding global info
+  Qideal N; // the level
+  Newspace* nsp;    // pointer to "parent" class holding global info
   int index;       // index (starting from 1) of this newforms in the list of all
   string lab;      // label suffix (a,b,c,...)
   int d;      // dim(S)
   Field F0;   // the (homological) Hecke field (original)
   Field F;    // the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
-  FieldMQExt HFrel; // relative full Hecke field as extension of F
+  FieldMQExt* HFrel; // pointer to relative full Hecke field as extension of F
   Field HFabs;   // absolute full Hecke field
   FieldIso abs_emb; // isomorphism from F to HFabs (possibly identity)
   vector<FieldElement> im_gens;
+
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_abs; // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
+  mat_m basis_change_matrix;
+  ZZ basis_change_denominator;
+  // To construct a field element from a 'raw' coord vector c and
+  // denominator d, replace c by basis_change_matrix*c and d by
+  // basis_change_denominator*d and cancel.
+
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   int triv_char;  // 1 iff all epsvec values are +1, else 0
   // list of unramified quadratic twist discriminants, initially depends only
@@ -117,6 +125,16 @@ public:
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
+
+  // NB We do not use automatic copy constructor and assignment since
+  // when the aP are copied they must point to the field in the new
+  // Newform not the old.
+
+  // copy constructor
+  Newform(const Newform& x);
+  // assignment
+  Newform& operator=(const Newform& x);
+
   // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
   // Use after sorting to reset the numbers and variable names
@@ -156,7 +174,7 @@ public:
 
   Field field(int original=0) const {return (original? F0: F);}
   // Return the degree of the principal or full Hecke field
-  int dimension(int full=1) const {return (full? d<<HFrel.rank() : d);}
+  int dimension(int full=1) const {return (full? d<<HFrel->rank() : d);}
   ZZX poly(int original=0) const {return (original? F0.poly(): F.poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
