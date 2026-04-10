@@ -7,14 +7,28 @@
 // to the same field)
 void FieldMQExt::change_field_pointer(const Field* F1)
 {
-  if (F1==F) return;              // same pointer, no change needed
-  if (*F1==*F) // different pointer but same field
+  if (F1==F) return; // same field pointer, no change needed
+  if (*F1==*F)       // different field pointer but same field
     {
+      cout << "changing field pointer of " << this << " from " << F << " to " << F1 << endl;
+      cout<< " elements before:" << endl;
+      for (auto x: elts())
+        cout<< x.str(2) << " in field " << x.field_ptr() << endl;
       F = F1;
-      for (auto x: gens)
+      for (auto& x: gens)
         x.change_field_pointer(F1);
-      for (auto x: elements)
-        x.change_field_pointer(F1);
+      for (auto& x: elements)
+        {
+          cout << "Changing field pointer of element " << x
+               << " from " << x.field_ptr()
+               << " to " << F1 <<endl;
+          x.change_field_pointer(F1);
+          cout << " - after changing field pointer of element " << x
+               << " it is " << x.field_ptr() <<endl;
+        }
+      cout<< " elements after:" << endl;
+      for (auto x: elts())
+        cout<< x.str(2) << " in field " << x.field_ptr() << endl;
     }
   else
     {
@@ -38,9 +52,7 @@ string FieldMQExt::str(int raw) const
         << ", rank = " << r
         << ", gens = " << gens
         << ", order = " << elements.size()
-        << ", elements: " << elements;
-      // for (unsigned int i=0; i<elements.size(); i++)
-      //   s << i << ": " << elt_str(i) << " = " << elements[i] << "\n";
+        ;//        << ", elements: " << elements;
     }
   return s.str();
 }
@@ -91,6 +103,8 @@ istream& operator>>(istream& s, FieldMQExt& x)
 
 unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
 {
+  cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
+  cout << "Base field pointer is " << F <<endl;
   unsigned int i=0;
   for (auto x: elements)
     {
@@ -110,6 +124,9 @@ unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
 
 unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 {
+  cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
+  cout << "Base field pointer is " << F <<endl;
+  cout << "elements[0] has field pointer " << elements[0].field_ptr() << endl;
   unsigned int i=0;
   for (auto x: elements)
     {
