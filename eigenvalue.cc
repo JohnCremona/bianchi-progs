@@ -11,24 +11,30 @@ void FieldMQExt::change_field_pointer(const Field* F1)
   if (*F1==*F)       // different field pointer but same field
     {
       cout << "changing field pointer of " << this << " from " << F << " to " << F1 << endl;
-      cout<< " elements before:" << endl;
-      for (auto x: elts())
-        cout<< x.str(2) << " in field " << x.field_ptr() << endl;
+      cout << gens.size() << " gens before:" << endl;
+      for (auto x: gens)
+        cout << "g = " << x << " in field " << x.field_ptr() << endl;
+      cout << elements.size() << " elements before:" << endl;
+      for (auto x: elements)
+        cout << "r = " << x << " in field " << x.field_ptr() << endl;
       F = F1;
       for (auto& x: gens)
         x.change_field_pointer(F1);
       for (auto& x: elements)
         {
-          cout << "Changing field pointer of element " << x
+          cout << "Changing field pointer of element r = " << x
                << " from " << x.field_ptr()
                << " to " << F1 <<endl;
           x.change_field_pointer(F1);
-          cout << " - after changing field pointer of element " << x
+          cout << " - after changing field pointer of element r = " << x
                << " it is " << x.field_ptr() <<endl;
         }
-      cout<< " elements after:" << endl;
-      for (auto x: elts())
-        cout<< x.str(2) << " in field " << x.field_ptr() << endl;
+      cout << gens.size() << " gens after:" << endl;
+      for (auto x: gens)
+        cout << "g = " << x << " in field " << x.field_ptr() << endl;
+      cout << elements.size() << " elements after:" << endl;
+      for (auto x: elements)
+        cout << "r = " << x << " in field " << x.field_ptr() << endl;
     }
   else
     {
@@ -52,7 +58,7 @@ string FieldMQExt::str(int raw) const
         << ", rank = " << r
         << ", gens = " << gens
         << ", order = " << elements.size()
-        ;//        << ", elements: " << elements;
+        << ", elements: " << elements;
     }
   return s.str();
 }
@@ -88,7 +94,7 @@ istream& operator>>(istream& s, FieldMQExt& x)
   return s;
 }
 
-#define DEBUG_SQUARES
+//#define DEBUG_SQUARES
 
 // Compute the index of a nonzero element.
 
@@ -101,11 +107,11 @@ istream& operator>>(istream& s, FieldMQExt& x)
 //   else:
 //      do not change the group, return -1.
 
-unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
+int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
 {
-  cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
-  cout << "Base field pointer is " << F <<endl;
-  unsigned int i=0;
+  // cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
+  // cout << "Base field pointer is " << F <<endl;
+  int i=0;
   for (auto x: elements)
     {
       if ((a*x).is_square(s))
@@ -122,25 +128,11 @@ unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
   return -1;
 }
 
-unsigned int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
+int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 {
-  cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
-  cout << "Base field pointer is " << F <<endl;
-  cout << "elements[0] has field pointer " << elements[0].field_ptr() << endl;
-  unsigned int i=0;
-  for (auto x: elements)
-    {
-      if ((a*x).is_square(s))
-        {
-          // Now a*x = s^2 so a = x*(s/x)^2 but we want a = x*s^2
-          s /= x;
-          if (F->isQ()&& s.get_val().num()<0)
-            s=-s;
-          assert (a == x*s*s);
-          return i;
-        }
-      i++;
-    }
+  int i = get_index(a,s);
+  if (i>=0)
+    return i;
 
   // We get here if a (mod squares) is not in the current group.  In
   // particular, it is not a square.
@@ -316,7 +308,7 @@ void FieldMQElement::normalise()
     }
 }
 
-#define DEBUG_ARITH
+//#define DEBUG_ARITH
 FieldMQElement FieldMQElement::inverse() const // raise error if zero      // inverse
 {
   if (is_zero())
@@ -381,17 +373,21 @@ FieldMQElement eye(FieldMQExt* S, const ZZ& n)
 // Return an embedding into an absolute field (optionally
 // polredabs'ed) together with a list of images of the gens.  If the
 // rank is 0 return the identity.
-//#define DEBUG_ABS_FIELD
+#define DEBUG_ABS_FIELD
 FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce) const
 {
 #ifdef DEBUG_ABS_FIELD
-  cout << " - in absolute_field_embedding() for ";
-  display();
-  cout << endl;
-  cout << " : base field is " << *F << endl;
+  cout << " - in absolute_field_embedding() for " << *this << endl;
+  cout << " : base field is " << F << " --> " << *F << endl;
 #endif
   FieldIso emb(F);  // starting with the identity
-  const Field* Fext = F;  // emb maps F to Fext
+  Field const* Fext = F;  // emb maps F to Fext
+#ifdef DEBUG_ABS_FIELD
+  cout << " : extension field starts as " << Fext << " --> " << *Fext << endl;
+  cout << "gens are \n";
+  for (auto g: gens)
+    cout << g << " in field " << g.field_ptr() << " ---> " << *(g.field_ptr()) << endl;
+#endif
 
   // case of trivial extension: do nothing (ignore newvar and reduce parameters)
   if (r==0)
@@ -410,37 +406,36 @@ FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, str
     {
       i++;
 #ifdef DEBUG_ABS_FIELD
-      cout << i << ": adjoining sqrt(" << g << ")" << flush;
+      cout << i << ": adjoining sqrt(g) where g = " << g << " in field " << g.field_ptr() << " ---> " << *(g.field_ptr()) << flush;
 #endif
       x = emb(g); // = r in current field Fext
 #ifdef DEBUG_ABS_FIELD
-      cout << " = sqrt(" << x << ")" << endl;
+      cout << " g embeds to x = " << x << " in field " << x.field_ptr() << endl;
 #endif
       // create the next iso in the chain
       newvar = F->get_var() + std::to_string(i);
       FieldIso emb1(Fext->sqrt_embedding(x, newvar, sqrt_x, 0)); // no reduction now
 #ifdef DEBUG_ABS_FIELD
-      cout << " : next simple embedding is \n" << emb1 << endl;
+      cout << " : next simple embedding is \n" << emb1 << " (domain " << emb1.dom() << ", codomain " << emb1.codom() << ")" << endl;
 #endif
       // update the field extension
       Fext = emb1.codom();
 #ifdef DEBUG_ABS_FIELD
-      cout << " : next field extension is " << *Fext << endl;
+      cout << " : next field extension is " << Fext << " --> " << *Fext << endl;
 #endif
       // update the embedding of F
       emb.postcompose(emb1);
 #ifdef DEBUG_ABS_FIELD
-      cout << " : next embedding is " << emb << endl;
+      cout << " : next compound embedding is \n" << emb << " (domain " << emb.dom() << ", codomain " << emb.codom() << ")" << endl;
 #endif
       // map existing im_gens into new Fext
       im_gens = emb1(im_gens);
-      //std::for_each(im_gens.begin(), im_gens.end(), [emb1](FieldElement& a){a = emb1(a);});
       // append the new sqrt
       im_gens.push_back(sqrt_x);
 #ifdef DEBUG_ABS_FIELD
       cout << " : im_gens is now " << im_gens << endl;
       cout << " in fields\n";
-      for (auto z: im_gens) cout << z->base() << endl;
+      for (auto z: im_gens) cout << z.field_ptr() << " ---> " << *(z.field_ptr()) << endl;
 #endif
     }
   // Final reduction (if requested) and seeting of variable name provided

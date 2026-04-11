@@ -110,16 +110,16 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 
   if (d==1)
     {
-      F = F0 = FieldQQ;
-      Fiso = FieldIso(&F);
-      cout << "In Newform constructor from polynomial, degree = " << d
-           << ", F0 = " << &F0 << " --> " << F0
-           << ", F = " << &F << " -->" << F << endl;
+      F = F0 = new Field(); // FieldQQ;
+      Fiso = FieldIso(F);
+      // cout << "In Newform constructor from polynomial, degree = " << d
+      //      << ", F0 = " << F0 << " --> " << *F0
+      //      << ", F = " << F << " -->" << *F << endl;
     }
   else
     {
       string var = codeletter(index-1);
-      F0 = Field(to_mat_m(A), to_ZZ(denom_abs), basis_change_matrix, basis_change_denominator, var, verbose>1);
+      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), basis_change_matrix, basis_change_denominator, var, verbose>1);
       int canonical = (d<=POLREDABS_DEGREE_UPPER_BOUND);
       if (verbose)
         {
@@ -132,16 +132,16 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
                    << POLREDABS_DEGREE_UPPER_BOUND <<endl;
             }
         }
-      Fiso = F0.reduction_isomorphism(var, canonical);
-      F = *Fiso.codom();
+      Fiso = F0->reduction_isomorphism(var, canonical);
+      F = Fiso.codom();
       if (Fiso.is_nontrivial() && verbose)
         {
-          cout << "[replacing original Hecke field with polynomial " << ::str(F0.poly())
-               << " with polredabs reduced field with polynomial " << ::str(F.poly()) << "]" << endl;
+          cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
+               << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
         }
-      cout << "In Newform constructor from polynomial, degree = " << d
-           << ", F0 = " << &F0 << " --> " << F0
-           << ", F = " << &F << " -->" << F << endl;
+      // cout << "In Newform constructor from polynomial, degree = " << d
+      //      << ", F0 = " << &F0 << " --> " << F0
+      //      << ", F = " << &F << " -->" << F << endl;
     }
   if (verbose)
     {
@@ -169,8 +169,8 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   sfe = 0;   // means unknown
 
   // Initialise book-keeping data for eigenvalue computation
-  HFrel = new FieldMQExt(&F);
-  cout << "HFrel set to " << HFrel << " with field pointer " << HFrel->base() << endl;
+  HFrel = new FieldMQExt(F);
+  // cout << "HFrel set to " << HFrel << " with field pointer " << HFrel->base() << endl;
   possible_self_twists = nsp->possible_self_twists;
   int self_twist_possible = !possible_self_twists.empty();
   if (verbose && n2r)
@@ -186,21 +186,21 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   genus_classes_no_ext.resize(1,0);
   genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_no_ext_ideals.resize(1,Qideal(ONE));
-  genus_class_aP.resize(1,FieldMQElement(F.one(), HFrel, 0));
+  genus_class_aP.resize(1,FieldMQElement(F->one(), HFrel, 0));
 
-  cout<<" size of genus_classes_nonzero is " << genus_classes_nonzero.size() << endl;
-  cout << " genus_classes_nonzero = " << genus_classes_nonzero <<endl;
-  cout << " genus_class_ideals = " << genus_class_ideals <<endl;
-  cout << " genus_class_aP = " << genus_class_aP <<endl;
+  // cout<<" size of genus_classes_nonzero is " << genus_classes_nonzero.size() << endl;
+  // cout << " genus_classes_nonzero = " << genus_classes_nonzero <<endl;
+  // cout << " genus_class_ideals = " << genus_class_ideals <<endl;
+  // cout << " genus_class_aP = " << genus_class_aP <<endl;
 
-  cout<<"After initialization:\nHFRel has pointer "<< HFrel << " with field pointer " << &F << endl;
-  cout<<"HFrel is "<< *HFrel << endl;
-  cout<< "HFrel elements:" << endl;
-  for (auto x: HFrel->elts())
-    cout<< x.str(2) << " in field " << x.field_ptr() << endl;
-  cout<< "genus_class_aP elements:" << endl;
-  for (auto gc_aP: genus_class_aP)
-    cout<< gc_aP.str(2) << endl;
+  // cout<<"After initialization:\nHFRel has pointer "<< HFrel << " with field pointer " << &F << endl;
+  // cout<<"HFrel is "<< *HFrel << endl;
+  // cout<< "HFrel elements:" << endl;
+  // for (auto x: HFrel->elts())
+  //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
+  // cout<< "genus_class_aP elements:" << endl;
+  // for (auto gc_aP: genus_class_aP)
+  //   cout<< gc_aP.str(2) << endl;
 }
 
 // Constructor which will read from file
@@ -231,19 +231,19 @@ Newform::Newform(const Newform& x)
    self_twist_flag(x.self_twist_flag), CMD(x.CMD), bc(x.bc), bct(x.bct), cm(x.cm), sfe(x.sfe),
    eigmap(x.eigmap), aPmap(x.aPmap), maxP(x.maxP), eQmap(x.eQmap), aMmap(x.aMmap), trace_list(x.trace_list)
 {
-  cout << "Copy constructor sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-  HFrel->change_field_pointer(&F);
-  cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-  cout<< "HFrel elements:" << endl;
-  for (auto y: HFrel->elts())
-    cout<< y.str(2) << " in field " << y.field_ptr() << endl;
-  Fiso.change_field_pointers(&F0, &F);
-  abs_emb.change_field_pointers(&F, &HFabs);
-  for (auto& a: im_gens) a.change_field_pointer(&HFabs);
-  for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
-  for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
-  for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
-  for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
+  // cout << "Copy constructor sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
+  //HFrel->change_field_pointer(&F);
+  // cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
+  // cout<< "HFrel elements:" << endl;
+  // for (auto y: HFrel->elts())
+  //   cout<< y.str(2) << " in field " << y.field_ptr() << endl;
+  //Fiso.change_field_pointers(&F0, &F);
+  //abs_emb.change_field_pointers(&F, &HFabs);
+  // for (auto& a: im_gens) a.change_field_pointer(&HFabs);
+  // for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
+  // for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
+  // for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
+  // for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
 }
 
 // assignment
@@ -267,16 +267,16 @@ Newform& Newform::operator=(const Newform& x)
   self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.cm; sfe=x.cm;
   eigmap = x.eigmap; aPmap = x.aPmap; maxP = x.maxP; eQmap = x.eQmap;
   aMmap = x.aMmap; trace_list = x.trace_list;
-  cout << "operator=() sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << endl;
-  HFrel->change_field_pointer(&F);
-  cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-  Fiso.change_field_pointers(&F0, &F);
-  abs_emb.change_field_pointers(&F, &HFabs);
-  for (auto& a: im_gens) a.change_field_pointer(&HFabs);
-  for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
-  for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
-  for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
-  for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
+  // cout << "operator=() sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << endl;
+  //HFrel->change_field_pointer(&F);
+  // cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
+  // Fiso.change_field_pointers(&F0, &F);
+  // abs_emb.change_field_pointers(&F, &HFabs);
+  // for (auto& a: im_gens) a.change_field_pointer(&HFabs);
+  // for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
+  // for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
+  // for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
+  // for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
   return *this;
 }
 
@@ -335,7 +335,7 @@ FieldElement Newform::eig(const matop& T)
     }
   else
     {
-      FieldElement a(&F0, basis_change_matrix * apv, basis_change_denominator);
+      FieldElement a(F0, basis_change_matrix * apv, basis_change_denominator);
       return (Fiso.is_identity()? a : Fiso(a));
     }
 }
@@ -387,7 +387,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
   if (!triv_char)
     {
       cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
-      return HFabs.zero();
+      return HFabs->zero();
     }
 
   // return cached value if we have it
@@ -399,7 +399,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
   // precomputed prime coefficients
   FieldElement a;
   if (M.norm().is_one())
-    a = HFabs.one();
+    a = HFabs->one();
   else
     {
       Factorization Mfac = M.factorization();
@@ -410,7 +410,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
           int e = Mfac.exponent(0);
           // aPmap has the aP for bad P as well as good, from compute_AL_eigs()
           FieldElement aP = embed_eigenvalue(aPmap[P], abs_emb, im_gens);
-          FieldElement nP = HFabs.rational(I2long(P.norm()));
+          FieldElement nP = HFabs->rational(I2long(P.norm()));
           switch (e) {
           case 1: // prime
             a = aP;
@@ -576,14 +576,14 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
       return a;
     }
   cerr << "Newform::eigPauto() only implemented for forms with trivial char or class group C4" << endl;
-  return FieldElement(&F);
+  return FieldElement(F);
 }
 
 // Principal eigenvalue of a linear combination of the above:
 FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const Qideal& biglevel, int verb)
 {
-  FieldElement a(F.zero());
+  FieldElement a(F->zero());
   auto Pi = Plist.begin();
   auto ci = coeffs.begin();
   while (Pi!=Plist.end())
@@ -734,11 +734,11 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
           // these will change when we sort them
           Newform nf(this, i, f, verbose);
           newforms.push_back(nf);
-          cout << "After pushing back constructed newform:\n";
-          cout << "HFrel is " << newforms.back().HFrel << " with field pointer " << newforms.back().HFrel->base() << " and field " << *(newforms.back().HFrel->base()) << endl;
-          cout<< "HFrel elements:" << endl;
-          for (auto x: newforms.back().HFrel->elts())
-            cout<< x.str(2) << " in field " << x.field_ptr() << endl;
+          // cout << "After pushing back constructed newform:\n";
+          // cout << "HFrel is " << newforms.back().HFrel << " with field pointer " << newforms.back().HFrel->base() << " and field " << *(newforms.back().HFrel->base()) << endl;
+          // cout<< "HFrel elements:" << endl;
+          // for (auto x: newforms.back().HFrel->elts())
+          //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
 
           ++i;
         }
@@ -746,22 +746,19 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
   else
     // abort if not
     cout << "Unable to find a suitable splitting operator!" << endl;
-  cout << "Before sorting, newforms.size() = " << newforms.size() << endl;
+
   // Sort the newforms (by character, dimension, polynomial; we have no traces yet)
   sort_newforms();
-  cout << "After sorting, newforms.size() = " << newforms.size() << endl;
 }
 
 // sort the list of newforms using newform_cmp
 void Newspace::sort_newforms()
 {
   // Sort the newforms (by character, dimension, polynomial)
-  cout << "Sorting newforms..." << endl;
   std::sort(newforms.begin(), newforms.end(), newform_cmp);
   int i=1;
   for (Newform& f: newforms)
     f.set_index(i++);
-  cout << "Newforms sorted." << endl;
 }
 
 // constructor from file
@@ -1069,18 +1066,18 @@ void Newform::compute_eigs(int ntp, int verbose)
     }
   if (Quad::class_group_2_rank)
     {
-      string var = F.get_var() + string("1");
+      string var = F->get_var() + string("1");
       abs_emb = HFrel->absolute_field_embedding(im_gens, var, 1); // reduce=1
     }
   else // F = HFabs and abs_emb = identity
     {
-      abs_emb = FieldIso(&F);
+      abs_emb = FieldIso(F);
     }
-  HFabs = *abs_emb.codom();
+  HFabs = abs_emb.codom();
   if (verbose && Quad::class_group_2_rank)
     {
       cout << "absolute embedding:\n" << abs_emb << endl
-           << "absolute full Hecke field:\n" << HFabs << endl <<endl;
+           << "absolute full Hecke field:\n" << *HFabs << endl <<endl;
     }
   check_base_change();
   if (triv_char) // must be done after HFabs is computed
@@ -1098,10 +1095,10 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       return;
     }
 
-  FieldElement b(&F), b1(&F);
+  FieldElement b(F), b1(F);
 
   // add -1 to the generators of F^*/(F*)^2 (b1=1 but is ignored)
-  int j = HFrel->get_index(F.minus_one(),b1); // -1 = elements[1]*b1^2
+  int j = HFrel->get_index(F->minus_one(),b1,1); // -1 = elements[1]*b1^2
   assert (j==1);
 
   // Otherwise the character (restricted to Cl[2]) is non-trivial so
@@ -1110,8 +1107,8 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
   // principal but the order varies:
   vector<int> C4C = C4classes();
   int ic1 = C4C[1], ic2 = C4C[2], ic3 = C4C[3];
-  FieldMQElement eig_1(FieldElement(&F,ZZ(1)), HFrel);
-  FieldMQElement eig_i(FieldElement(&F,ZZ(1)), HFrel, 1);
+  FieldMQElement eig_1(FieldElement(F,ZZ(1)), HFrel);
+  FieldMQElement eig_i(FieldElement(F,ZZ(1)), HFrel, 1);
   vector<FieldMQElement> chi(4, eig_1), chi_inv(4, eig_1);
   chi[ic1] = chi_inv[ic3] = eig_i;
   chi[ic2] = chi_inv[ic2] = -eig_1;
@@ -1194,7 +1191,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // T(P)*T(P,P) to find a(P)^2, pick a square root (if nonzero),
       // store the P in P0, aP in aP0, and set the flag.
 
-      FieldElement p(F.rational(to_ZZ(P.norm())));
+      FieldElement p(F->rational(to_ZZ(P.norm())));
       matop T =  HeckeP2ChiOp(P, P, N);
       FieldElement a = compute_one_principal_eig(ip, T, 1, verbose).base();
       if (verbose>1)
@@ -1228,7 +1225,7 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
       // Case (3) In general, b=b1^2*r and a(P) =
       // (b1/2)*sqrt(r)*(1+i), where r may be a new generator.
 
-      j = HFrel->get_index(b,b1);      // +b = elements[j]*b1^2
+      j = HFrel->get_index(b,b1,1);      // +b = elements[j]*b1^2
       // All cases are covered by the following: if j is odd then
       // elements[j] involves i=sqrt(-1), so we: replace j by j-1,
       // negate b1, and use factor 1-i instead of 1+i
@@ -1278,23 +1275,16 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 // Fill aPmap, dict of eigenvalues of good primes in the first ntp primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)
 {
-  cout << "In Newform::compute_eigs_triv_char()" <<endl;
-  cout << "Pointer to HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-  cout << "HFrel = " << *HFrel << endl;
-  cout<< "HFrel elements:" << endl;
-  for (auto x: HFrel->elts())
-    cout<< x.str(2) << " in field " << x.field_ptr() << endl;
+  // cout << "In Newform::compute_eigs_triv_char()" <<endl;
+  // cout << "Pointer to HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
+  // cout << "HFrel = " << *HFrel << endl;
+  // cout<< "HFrel elements:" << endl;
+  // for (auto x: HFrel->elts())
+  //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
   if (!triv_char)
     return;
   int nap = 0;
   maxP = INT(0);
-  if (verbose)
-    {
-      cout << "At start of primes loop:\n"
-           << " genus_classes_nonzero = " << genus_classes_nonzero << "\n"
-           << " genus_class_ideals = " << genus_class_ideals << "\n"
-           << " genus_class_aP = " << genus_class_aP << endl;
-    }
   auto pr = Quadprimes::list.begin();
   while((pr!=Quadprimes::list.end()) && (nap<ntp))
     {
@@ -1302,12 +1292,6 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       nap++;
       if (P.divides(N))
         continue; // compute AL eigs separately, later
-      if (verbose)
-        {
-          cout << "P = " << P << ",  genus_classes_nonzero = " << genus_classes_nonzero <<endl;
-          cout << "P = " << P << ",  genus_class_ideals = " << genus_class_ideals <<endl;
-          cout << "P = " << P << ",  genus_class_aP = " << genus_class_aP <<endl;
-        }
       maxP = max(maxP, P.norm());
       long c = P.genus_class(1); // 1 means reduce mod Quad::class_group_2_rank
       if (c==0) // P has trivial genus class
@@ -1333,9 +1317,9 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           Qideal A = genus_class_ideals[i];
           Qideal B = A*P; // so B is square-free and of square class
           FieldMQElement gc_aP = genus_class_aP[i];
-          cout << "i (index of "<<c<<" in genus_classes_nonzero) = " << i << endl;
-          cout << "genus_class_ideals[i] = " << A << endl;
-          cout << "genus_class_aP[i] = " << gc_aP << endl;
+          // cout << "i (index of "<<c<<" in genus_classes_nonzero) = " << i << endl;
+          // cout << "genus_class_ideals[i] = " << A << endl;
+          // cout << "genus_class_aP[i] = " << gc_aP << endl;
           FieldMQElement aP;
           if (verbose)
             cout << " -- computing T("<<P<<") using T("<<label(B)<<") = T(P)*T(A) with A = "
@@ -1393,7 +1377,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // is not enough for field 299, level 100.2
       if (verbose)
         cout << " -- P=" <<P<<" has genus class "<<c<<", genus_class_trivial_counter = "<<genus_class_trivial_counter<<endl;
-      FieldMQElement aP(F.zero(), HFrel);
+      FieldMQElement aP(F->zero(), HFrel);
 
       if ((possible_self_twists.size()>0) && (genus_class_trivial_counter[c] >= genus_class_triviality_bound))
         {
@@ -1438,10 +1422,9 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
         }
 
       // Look up the square class of aP2 in HFrel to see if we need to extend the field
-      unsigned int old_order = HFrel->order();
+      int old_order = HFrel->order();
       FieldElement s;
-      cout << "aP2 = " << aP2 << " in field " << aP2.field_ptr() << " --> " << *(aP2.field_ptr()) << endl;
-      unsigned int j = HFrel->get_index(aP2, s, 1); // update HFrel if necessary
+      int j = HFrel->get_index(aP2, s, 1); // update HFrel if necessary
       int Hecke_field_extended = j>=old_order;
       if (verbose)
         {
@@ -1497,11 +1480,8 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       genus_class_trivial_counter[c] = 0;
       for (int i = 0; i<oldsize; i++)
         {
-          cout << "i="<<i<<":\n";
           genus_classes_nonzero[oldsize+i] = genus_classes_nonzero[i]^c;
-          cout << "i="<<i<<":\n";
           genus_class_ideals[oldsize+i]    = genus_class_ideals[i]*P;
-          cout << "i="<<i<<": multiplying "<<genus_class_aP[i].str(2)<<" by "<<aP.str(2)<<"\n";
           genus_class_aP[oldsize+i]        = genus_class_aP[i]*aP;
         }
       if (verbose)
@@ -1623,7 +1603,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nsp->badprimes << endl;
 
-  FieldMQElement zero(F.zero(), HFrel);
+  FieldMQElement zero(F->zero(), HFrel);
   for (auto Q: nsp->badprimes)
     {
       if (verbose)
@@ -1690,7 +1670,7 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
       if (e>1)
         aPmap[Q] = zero;
       else
-        aPmap[Q] = FieldMQElement(FieldElement(&F, ZZ(-eQ)), HFrel);
+        aPmap[Q] = FieldMQElement(FieldElement(F, ZZ(-eQ)), HFrel);
 
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
@@ -1813,10 +1793,10 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
                     }
                 }
               cout << endl;
-              cout << "                        = " << HFabs <<endl;
+              cout << "                        = " << *HFabs <<endl;
               if (d!=1)
                 {
-                  cout << "        [where " << F.gen() << " = " << abs_emb(F.gen());
+                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
                   for (int i=0; i<r; i++)
                     {
                       if (FisCM && i==0)
@@ -1842,10 +1822,10 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
               cout << endl;
               if (nsp->verbose>1)
                 cout << *HFrel << endl;
-              cout << "                        = " << HFabs <<endl;
+              cout << "                        = " << *HFabs <<endl;
               if (d!=1)
                 {
-                  cout << "        [where " << F.gen() << " = " << abs_emb(F.gen());
+                  cout << "        [where " << F->gen() << " = " << abs_emb(F->gen());
                   for (int i=0; i<r; i++)
                     {
                       if (FisCM && i==0)
@@ -1994,8 +1974,8 @@ void Newform::set_index(int i)
     lab = codeletter(i-1);
     // On creation from scratch, F0 exists and F is a polredabs
     // isomorphic field, but after reading from a file only F is set.
-    F0.set_var(lab+string("0"));
-    F.set_var(lab);
+    F0->set_var(lab+string("0"));
+    F->set_var(lab);
   }
 
 // newform file output only implemented for forms with trivial
@@ -2027,8 +2007,8 @@ void Newform::output_to_file(int conj) const
   out << endl;
 
   // Principal Hecke field:
-  out << F.str(1) << endl;  // raw=1
-  // cout << "Principal Hecke field output:\n" << F.str(1) << endl;  // raw=1
+  out << F->str(1) << endl;  // raw=1
+  // cout << "Principal Hecke field output:\n" << F->str(1) << endl;  // raw=1
   // Full Hecke field (even class number only)
 
   if (n2r)
@@ -2038,8 +2018,8 @@ void Newform::output_to_file(int conj) const
       // cout << "HFrel output:\n" << HFrel->str(1) << endl;  // raw=1
 
       // Absolute field:
-      out << HFabs.str(1) << endl;  // raw=1
-      // cout << "HFabs output:\n" << HFabs.str(1) << endl;  // raw=1
+      out << HFabs->str(1) << endl;  // raw=1
+      // cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
 
       // Embedding of F into HFabs: matrix entries and denom
       out << abs_emb.str(1) <<endl;
@@ -2333,10 +2313,10 @@ int Newform::input_from_file(int verb)
   if (verb>1)
     cout << "--> Principal field is " << F << endl;
   F0 = F;
-  Fiso = FieldIso(&F0);
+  Fiso = FieldIso(F0);
 
   // Full Hecke field data (if class number even)
-  HFrel = new FieldMQExt(&F);
+  HFrel = new FieldMQExt(F);
   HFabs = Field();
 
   if (n2r)
@@ -2352,7 +2332,7 @@ int Newform::input_from_file(int verb)
         cout << "--> Absolute field: " << HFabs << endl;
 
       // Embedding of F into HFabs: matrix entries and denom
-      abs_emb = FieldIso(&F, &HFabs);
+      abs_emb = FieldIso(F, HFabs);
       fdata >> abs_emb;
       if (verb>1)
         cout << "--> Embedding into absolute field: " << abs_emb << endl;
@@ -2434,7 +2414,7 @@ int Newform::input_from_file(int verb)
   // aP
   string Plab;
   Quadprime P;
-  FieldMQElement aP(F.zero(), HFrel);
+  FieldMQElement aP(F->zero(), HFrel);
   // read whitespace, so if there are no aP on file it does not try to read any
   fdata >> ws;
   // keep reading lines until end of file
@@ -2603,10 +2583,10 @@ void Newspace::add_unram_quadratic_twists()
   cout << "Applying unramified quadratic twists " << endl;
 #endif
   vector<Newform> all_extra_newforms;
-  for ( const auto& F : newforms)
-    if (F.triv_char)
+  for ( const auto& nf : newforms)
+    if (nf.triv_char)
       {
-        vector<Newform> extra_newforms = F.all_unram_quadratic_twists();
+        vector<Newform> extra_newforms = nf.all_unram_quadratic_twists();
 #ifdef DEBUG_TWIST
         cout << "Adding " << extra_newforms.size() << " extra newforms, ";
 #endif
@@ -2630,9 +2610,9 @@ void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, 
 {
   cout << "Displaying " << newforms.size() << " newforms" << endl;
 
-  for ( auto& F : newforms)
+  for ( auto& nfF : newforms)
     {
-      if ((!triv_char_only) || F.triv_char)
+      if ((!triv_char_only) || nf.triv_char)
         {
           F.display(aP, AL, principal_eigs, traces);
           cout<<endl;
@@ -2645,7 +2625,7 @@ vector<int> Newspace::dimensions(int full) const
 {
   vector<int> dims(newforms.size());
   std::transform(newforms.begin(), newforms.end(), dims.begin(),
-                 [full](const Newform& F){return F.dimension(full);});
+                 [full](const Newform& nf){return nf.dimension(full);});
   return dims;
 }
 

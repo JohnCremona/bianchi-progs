@@ -23,7 +23,7 @@ class FieldMQElement;   // a FieldElement a and an index i into FieldMQExt repre
 
 class FieldMQExt {
 private:
-  const Field* F; // this will be totally real
+  Field const* F; // this will be totally real
   unsigned int r;
   vector<FieldElement> gens;
   vector<FieldElement> elements;
@@ -33,10 +33,10 @@ public:
   // default constructor, a trivial extension of Q
   FieldMQExt() :F(&FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
   // constructor from any field, defining the trivial extension
-  explicit FieldMQExt(Field* F0) :F(F0), r(0), elements({F0->one()}), real_flag(1) {;}
+  explicit FieldMQExt(Field const* F0) :F(F0), r(0), elements({F0->one()}), real_flag(1) {;}
   // constructor from any field, given a list of gens (assumed to be
   // multiplicatively independent modulo squares)
-  FieldMQExt(Field* F0, vector<FieldElement>& g)
+  FieldMQExt(Field const* F0, vector<FieldElement>& g)
     :F(F0), r(g.size()), gens(g)
   {
     real_flag = !(r>0 && gens[0]==F->minus_one());
@@ -62,8 +62,8 @@ public:
   //      append a to gens, increment r, set s=1 return the new r;
   //   else:
   //      do not change the group, return -1.
-  unsigned int get_index(const FieldElement& a, FieldElement& s, int update=1);
-  unsigned int get_index(const FieldElement& a, FieldElement& s) const;
+  int get_index(const FieldElement& a, FieldElement& s, int update);
+  int get_index(const FieldElement& a, FieldElement& s) const;
   string elt_str(unsigned int i) const;
   unsigned int rank() const {return r;}
   int order() const {return elements.size();}

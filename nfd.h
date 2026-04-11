@@ -37,11 +37,11 @@ private:
   int index;       // index (starting from 1) of this newforms in the list of all
   string lab;      // label suffix (a,b,c,...)
   int d;      // dim(S)
-  Field F0;   // the (homological) Hecke field (original)
-  Field F;    // the (homological) Hecke field (reduced)
+  Field* F0;   // the (homological) Hecke field (original)
+  Field* F;    // the (homological) Hecke field (reduced)
   FieldIso Fiso; // isomorphism from F0 to F (possibly identity)
   FieldMQExt* HFrel; // pointer to relative full Hecke field as extension of F
-  Field HFabs;   // absolute full Hecke field
+  Field* HFabs;   // absolute full Hecke field
   FieldIso abs_emb; // isomorphism from F to HFabs (possibly identity)
   vector<FieldElement> im_gens;
 
@@ -172,10 +172,10 @@ public:
   ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                         const Qideal& biglevel, int verb=0);
 
-  Field field(int original=0) const {return (original? F0: F);}
+  Field field(int original=0) const {return (original? *F0: *F);}
   // Return the degree of the principal or full Hecke field
   int dimension(int full=1) const {return (full? d<<HFrel->rank() : d);}
-  ZZX poly(int original=0) const {return (original? F0.poly(): F.poly());}
+  ZZX poly(int original=0) const {return (original? F0->poly(): F->poly());}
   string label_suffix() const {return lab;}
   string short_label() const; // level_label-suffix
   string long_label() const;  // field_label-level_label-suffix
@@ -200,7 +200,7 @@ public:
   // return base-change code (+1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know)
   int base_change_code(void) const;
   int cm_code() const {return cm;}
-  //  ZZ basis_factor() const {return F.Bdet;}
+  //  ZZ basis_factor() const {return F->Bdet;}
 
   // Compute aPmap for first ntp primes if empty, and return it
   map<Quadprime, FieldMQElement> TP_eigs(int ntp, int verbose=0);
