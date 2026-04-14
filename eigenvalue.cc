@@ -3,46 +3,6 @@
 
 #include "eigenvalue.h"
 
-// Change the field pointer to F1 (requires F1 and F to be pointers
-// to the same field)
-void FieldMQExt::change_field_pointer(const Field* F1)
-{
-  if (F1==F) return; // same field pointer, no change needed
-  if (*F1==*F)       // different field pointer but same field
-    {
-      cout << "changing field pointer of " << this << " from " << F << " to " << F1 << endl;
-      cout << gens.size() << " gens before:" << endl;
-      for (auto x: gens)
-        cout << "g = " << x << " in field " << x.field_ptr() << endl;
-      cout << elements.size() << " elements before:" << endl;
-      for (auto x: elements)
-        cout << "r = " << x << " in field " << x.field_ptr() << endl;
-      F = F1;
-      for (auto& x: gens)
-        x.change_field_pointer(F1);
-      for (auto& x: elements)
-        {
-          cout << "Changing field pointer of element r = " << x
-               << " from " << x.field_ptr()
-               << " to " << F1 <<endl;
-          x.change_field_pointer(F1);
-          cout << " - after changing field pointer of element r = " << x
-               << " it is " << x.field_ptr() <<endl;
-        }
-      cout << gens.size() << " gens after:" << endl;
-      for (auto x: gens)
-        cout << "g = " << x << " in field " << x.field_ptr() << endl;
-      cout << elements.size() << " elements after:" << endl;
-      for (auto x: elements)
-        cout << "r = " << x << " in field " << x.field_ptr() << endl;
-    }
-  else
-    {
-      cerr << "Cannot change field pointer of " << *this << " from " << F << " (pointing to " << *F
-           << ") to " << F1 << " (pointing to " << *F1 << "), as these are different fields." << endl;
-    }
-}
-
 string FieldMQExt::str(int raw) const
 {
   ostringstream s;
@@ -66,31 +26,29 @@ string FieldMQExt::str(int raw) const
 // from r gens make the list of 2^r elements
 void FieldMQExt::make_elements()
 {
-  elements = {F->one()};
+  elements = {(*F)(1)};
   for (auto g: gens)
     {
-      vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+      vector<FieldElement> new_elements(elements.size(), FieldElement(*F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
                      [g](const FieldElement& x){return g*x;});
       elements.insert(elements.end(), new_elements.begin(), new_elements.end());
     }
 }
 
+void FieldMQExt::read(istream& s)
+{
+  s >> r;
+  gens.resize(r, (*F)(0));
+  for (auto& g: gens) s >> g;
+  real_flag = !(r>0 && gens[0]==(*F)(-1));
+  make_elements();
+}
+
 // Input from a raw string format; x's field must be already set
 istream& operator>>(istream& s, FieldMQExt& x)
 {
-  // cout << "Reading FieldMQExt data, base field is " << *(x.base()) << endl;
-  s >> x.r;
-  // cout << "rank = " << x.r << endl;
-  x.gens.resize(x.r, x.F->zero());
-  // s >> x.gens; // does not work
-  for (auto& g: x.gens)
-    s >> g;
-  // cout << "gens = " << x.gens << endl;
-  x.real_flag = !(x.r>0 && x.gens[0]==x.F->minus_one());
-  // cout << "real flag = " << x.real_flag << endl;
-  x.make_elements();
-  // cout << "elements are " << x.elements <<endl;
+  x.read(s);
   return s;
 }
 
@@ -161,18 +119,18 @@ int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
           ar = -ar;
         }
       sqfdecomp(ar, g1, s1); // a = g1*s1^2 with g1 squarefree
-      s = FieldElement(s1);
+      s = FieldElement(*F, s1);
 #ifdef DEBUG_SQUARES
       cout << "New generator " << g1 << " for Q^*/(Q^*)^2 from a = " << a << endl;
 #endif
-      gens.push_back(FieldElement(g1));
+      gens.push_back(FieldElement(*F, g1));
 #ifdef DEBUG_SQUARES
       cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << g1 << endl;
       cout << "elements were " << elements << endl;
 #endif
-      vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+      vector<FieldElement> new_elements(elements.size(), FieldElement(*F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
-                     [g1](const FieldElement& x){return FieldElement(squarefree_product(x.get_val(),g1));});
+                     [this, g1](const FieldElement& x){return FieldElement(*F, squarefree_product(x.get_val(),g1));});
       elements.insert(elements.end(), new_elements.begin(), new_elements.end());
 #ifdef DEBUG_SQUARES
   cout << "elements are now " << elements << endl;
@@ -192,7 +150,7 @@ int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 #ifdef DEBUG_SQUARES
       cout << "Trying u = " << u << endl;
 #endif
-      FieldElement U = F->rational(u);
+      FieldElement U = (*F)(u);
       FieldElement au = a*U;
       i = 0;
       for (auto x: elements)
@@ -210,7 +168,7 @@ int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
               cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << U << endl;
               cout << "elements were " << elements << endl;
 #endif
-              vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+              vector<FieldElement> new_elements(elements.size(), FieldElement(*F));
               std::transform(elements.begin(), elements.end(), new_elements.begin(),
                              [U](const FieldElement& x){return U*x;});
               elements.insert(elements.end(), new_elements.begin(), new_elements.end());
@@ -228,7 +186,7 @@ int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
 #ifdef DEBUG_SQUARES
   cout << "No small u worked, so we take " << a << " as new generator" << endl;
 #endif
-  s = F->one();
+  s = (*F)(1);
   FieldElement b(a);
   bigrational ra;
   int flip = (is_complex() && (!b.is_minus_one()) && b.is_rational(ra) && (ra.num()<0));
@@ -244,7 +202,7 @@ int FieldMQExt::get_index(const FieldElement& a, FieldElement& s, int update)
   cout << "rank of k*/(k*)^2 grows to " << r << " after adding generator " << b << endl;
   cout << "elements were " << elements << endl;
 #endif
-  vector<FieldElement> new_elements(elements.size(), FieldElement(F));
+  vector<FieldElement> new_elements(elements.size(), FieldElement(*F));
       std::transform(elements.begin(), elements.end(), new_elements.begin(),
                      [b](const FieldElement& x){return b*x;});
   elements.insert(elements.end(), new_elements.begin(), new_elements.end());
@@ -278,12 +236,6 @@ string FieldMQExt::elt_str(unsigned int i) const
   return s.str();
 }
 
-void FieldMQElement::change_parent_pointer(const FieldMQExt* x)
-{
-  SqCl = x;
-  a.change_field_pointer(x->base());
-}
-
 int FieldMQElement::operator==(const FieldMQElement& b) const
 {
   return (SqCl==b.SqCl) && (root_index==b.root_index) && (xf==b.xf) && (a==b.a);
@@ -315,7 +267,7 @@ FieldMQElement FieldMQElement::inverse() const // raise error if zero      // in
     cerr << "Attempt to invert " << *(this) << endl;
   FieldElement b = a*root_part();
   if (xf) b *= ZZ(2);
-  FieldMQElement ans(b.inverse(), SqCl, root_index, -xf);
+  FieldMQElement ans(b.inverse(), *SqCl, root_index, -xf);
 #ifdef DEBUG_ARITH
   cout << "Inverse of " << (*this) << " is " << ans << endl;
   assert (((*this)*ans).is_one());
@@ -350,7 +302,7 @@ bigrational FieldMQElement::trace() const
   if (SqCl->rank()==0)
     return atrace;
   atrace *= ZZ(SqCl->order());
-  bigrational zero;
+  bigrational zero(0);
   if (xf==0)
     {
       return (root_index==0? atrace: zero);
@@ -363,104 +315,13 @@ bigrational FieldMQElement::trace() const
   return atrace;
 }
 
-// integer multiple of i, assuming not real
-FieldMQElement eye(FieldMQExt* S, const ZZ& n)
-{
-  assert (S->is_complex());
-  return FieldMQElement(FieldElement(S->base(), n), S, 1, 0);
-}
-
 // Return an embedding into an absolute field (optionally
 // polredabs'ed) together with a list of images of the gens.  If the
-// rank is 0 return the identity.
-#define DEBUG_ABS_FIELD
-FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce) const
+// rank is 0 return the identity map to a copy of the base field.
+
+FieldIso FieldMQExt::absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, Field& Fabs, int reduce) const
 {
-#ifdef DEBUG_ABS_FIELD
-  cout << " - in absolute_field_embedding() for " << *this << endl;
-  cout << " : base field is " << F << " --> " << *F << endl;
-#endif
-  FieldIso emb(F);  // starting with the identity
-  Field const* Fext = F;  // emb maps F to Fext
-#ifdef DEBUG_ABS_FIELD
-  cout << " : extension field starts as " << Fext << " --> " << *Fext << endl;
-  cout << "gens are \n";
-  for (auto g: gens)
-    cout << g << " in field " << g.field_ptr() << " ---> " << *(g.field_ptr()) << endl;
-#endif
-
-  // case of trivial extension: do nothing (ignore newvar and reduce parameters)
-  if (r==0)
-    {
-#ifdef DEBUG_ABS_FIELD
-      cout << " : returning trivial embedding (identity)" << endl;
-#endif
-      return emb;
-    }
-
-  im_gens.clear();
-  int i = 0;
-  FieldElement x, sqrt_x;
-
-  for (auto g: gens)
-    {
-      i++;
-#ifdef DEBUG_ABS_FIELD
-      cout << i << ": adjoining sqrt(g) where g = " << g << " in field " << g.field_ptr() << " ---> " << *(g.field_ptr()) << flush;
-#endif
-      x = emb(g); // = r in current field Fext
-#ifdef DEBUG_ABS_FIELD
-      cout << " g embeds to x = " << x << " in field " << x.field_ptr() << endl;
-#endif
-      // create the next iso in the chain
-      newvar = F->get_var() + std::to_string(i);
-      FieldIso emb1(Fext->sqrt_embedding(x, newvar, sqrt_x, 0)); // no reduction now
-#ifdef DEBUG_ABS_FIELD
-      cout << " : next simple embedding is \n" << emb1 << " (domain " << emb1.dom() << ", codomain " << emb1.codom() << ")" << endl;
-#endif
-      // update the field extension
-      Fext = emb1.codom();
-#ifdef DEBUG_ABS_FIELD
-      cout << " : next field extension is " << Fext << " --> " << *Fext << endl;
-#endif
-      // update the embedding of F
-      emb.postcompose(emb1);
-#ifdef DEBUG_ABS_FIELD
-      cout << " : next compound embedding is \n" << emb << " (domain " << emb.dom() << ", codomain " << emb.codom() << ")" << endl;
-#endif
-      // map existing im_gens into new Fext
-      im_gens = emb1(im_gens);
-      // append the new sqrt
-      im_gens.push_back(sqrt_x);
-#ifdef DEBUG_ABS_FIELD
-      cout << " : im_gens is now " << im_gens << endl;
-      cout << " in fields\n";
-      for (auto z: im_gens) cout << z.field_ptr() << " ---> " << *(z.field_ptr()) << endl;
-#endif
-    }
-  // Final reduction (if requested) and seeting of variable name provided
-  if (reduce)
-    {
-      FieldIso emb1(Fext->reduction_isomorphism(newvar));
-#ifdef DEBUG_ABS_FIELD
-      cout << " : reduction iso is " << emb1 << endl;
-#endif
-      // map existing im_gens into new Fext
-      im_gens = emb1(im_gens);
-      //std::for_each(im_gens.begin(), im_gens.end(), [emb1](FieldElement& x){x = emb1(x);});
-      // update the embedding of F
-      emb.postcompose(emb1);
-#ifdef DEBUG_ABS_FIELD
-      cout << " : final embedding is " << emb << endl;
-#endif
-    }
-  else
-    {
-#ifdef DEBUG_ABS_FIELD
-      cout << " : final embedding is " << emb << endl;
-#endif
-    }
-  return emb;
+  return F->sqrt_embedding(gens, newvar, Fabs, im_gens, reduce);
 }
 
 //#define DEBUG_CONJ
@@ -489,14 +350,14 @@ FieldMQElement FieldMQElement::conj() const
   else
     {
       assert(root_index%2==0);
-      cout << "** xf!=0 and index is even, returning " << FieldMQElement(a, SqCl, root_index, -xf) << endl;
+      cout << "** xf!=0 and index is even, returning " << FieldMQElement(a, *SqCl, root_index, -xf) << endl;
     }
 #endif
 
   return (xf==0?
           (root_index&1? -ans : ans) // negate a iff root_index is odd
           :
-          FieldMQElement(a, SqCl, root_index, -xf)// flip the sign of xf
+          FieldMQElement(a, *SqCl, root_index, -xf)// flip the sign of xf
           );
 }
 
@@ -519,7 +380,7 @@ FieldMQElement FieldMQElement::operator*(const FieldMQElement& b) const
 #endif
 
   // Multiply the root parts:
-  FieldElement r, s(a.field_ptr()->one());
+  FieldElement r, s((*a.field_ptr())(1));
   unsigned int j;
   if (root_index==0)
     j = b.root_index;
@@ -546,7 +407,7 @@ FieldMQElement FieldMQElement::operator*(const FieldMQElement& b) const
 #endif
 
   // Form the product without the last factors:
-  FieldMQElement ans(c, SqCl, j); // sets ans.xf to 0
+  FieldMQElement ans(c, *SqCl, j); // sets ans.xf to 0
 
 #ifdef DEBUG_ARITH
   cout << "Before setting last factor, ans = " << ans << endl;
@@ -565,10 +426,11 @@ FieldMQElement FieldMQElement::operator*(const FieldMQElement& b) const
             ans.a *= ZZ(2);
           else
             {
+              FieldMQElement two((*a.field_ptr())(2), *SqCl, 1);
               if (xf==1) // b.xf=1 too, (1+i)^2=2i
-                ans = ans * FieldMQElement(a.field_ptr()->two(), SqCl, 1);
+                ans = ans * two;
               else // now xf=b.xf=-1, (1-i)^2=-2i
-                ans = ans * FieldMQElement(a.field_ptr()->minus_two(), SqCl, 1);
+                ans = -ans * two;
             }
         }
     }
@@ -603,7 +465,7 @@ FieldMQElement FieldMQElement::operator/(const FieldMQElement& b) const
 #endif
 
   // Divide root parts
-  FieldElement r, s(a.field_ptr()->one());
+  FieldElement r, s((*a.field_ptr())(1));
   unsigned int j;
   if (b.root_index==0)
     {
@@ -633,20 +495,20 @@ FieldMQElement FieldMQElement::operator/(const FieldMQElement& b) const
       assert (r == s*s*SqCl->elt(j));
     }
 
-  FieldMQElement ans(c, SqCl, j);
+  FieldMQElement ans(c, *SqCl, j);
 #ifdef DEBUG_ARITH
   cout << "Before adjusting last factor, ans = " << ans << endl;
 #endif
   if (b.xf==0)
-    ans = FieldMQElement(c, SqCl, j, xf);
+    ans = FieldMQElement(c, *SqCl, j, xf);
   else if (xf==b.xf)
-    ans = FieldMQElement(c, SqCl, j);
+    ans = FieldMQElement(c, *SqCl, j);
   else if (xf==0)
-    ans = FieldMQElement(c/ZZ(2), SqCl, j, -b.xf);
+    ans = FieldMQElement(c/ZZ(2), *SqCl, j, -b.xf);
   else if (xf==1)
-    ans = FieldMQElement(c, SqCl, j) * FieldMQElement(a.field_ptr()->one(), SqCl, 1);
+    ans = FieldMQElement(c, *SqCl, j) * FieldMQElement((*a.field_ptr())(1), *SqCl, 1);
   else
-    ans = FieldMQElement(-c, SqCl, j) * FieldMQElement(a.field_ptr()->one(), SqCl, 1);
+    ans = FieldMQElement(-c, *SqCl, j) * FieldMQElement((*a.field_ptr())(1), *SqCl, 1);
 
   if (ans.xf) // else normalise does nothing
     {
@@ -683,22 +545,20 @@ FieldMQElement FieldMQElement::operator/(const FieldMQElement& b) const
 
 // Input from a raw string format; x's SqCl (and hence its field) must
 // be already set
+void FieldMQElement::read(istream& s)
+{
+  s >> a;
+  if (SqCl->rank())
+    {
+      s >> root_index;
+      if (SqCl->is_complex())
+        s >> xf;
+    }
+}
+
 istream& operator>>(istream& s, FieldMQElement& x)
 {
-  // cout << "Reading an eigenvalue, F = " << *(x.a.base()) << ", HFrel = " << *(x.SqCl) << endl;
-  s >> x.a;
-  // cout << "Base value = " << x.a << endl;
-  if (x.SqCl->rank())
-    {
-      s >> x.root_index;
-      // cout << "root_index = " << x.root_index << endl;
-      if (x.SqCl->is_complex())
-        {
-          s >> x.xf;
-          // cout << "extra factor = " << x.xf << endl;
-        }
-    }
-  // cout << "FieldMQElement read: " << x << endl;
+  x.read(s);
   return s;
 }
 
@@ -831,7 +691,7 @@ FieldElement embed_eigenvalue(const FieldMQElement& ap, const FieldIso& emb, con
   // multiply by 1+i or 1-1 if required
   if (ap.xfac())
     {
-      FieldElement one = a.field_ptr()->one();
+      FieldElement one = (*a.field_ptr())(1);
       if (ap.xfac()==1)
         {
 #ifdef DEBUG_EMBED_EIGS

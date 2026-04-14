@@ -31,20 +31,18 @@ private:
   void make_elements();  // from r gens make the list of 2^r elements
 public:
   // default constructor, a trivial extension of Q
-  FieldMQExt() :F(&FieldQQ), r(0), elements({F->one()}), real_flag(1) {;}
+  FieldMQExt() {;}
   // constructor from any field, defining the trivial extension
-  explicit FieldMQExt(Field const* F0) :F(F0), r(0), elements({F0->one()}), real_flag(1) {;}
+  explicit FieldMQExt(const Field& F0) :F(&F0), r(0), elements({F0(1)}), real_flag(1) {;}
   // constructor from any field, given a list of gens (assumed to be
   // multiplicatively independent modulo squares)
-  FieldMQExt(Field const* F0, vector<FieldElement>& g)
-    :F(F0), r(g.size()), gens(g)
+  FieldMQExt(const Field& F0, vector<FieldElement>& g)
+    :F(&F0), r(g.size()), gens(g)
   {
-    real_flag = !(r>0 && gens[0]==F->minus_one());
+    real_flag = !(r>0 && gens[0]==F0(-1));
     make_elements();
   }
   const Field* base() const {return F;}
-  // Change the field pointer to F1 (requires F1 and F to be pointers to the same field)
-  void change_field_pointer(const Field* F1);
   int base_degree() const {return F->degree();}
   FieldElement gen(unsigned int i) const {return gens.at(i);}
   FieldElement elt(unsigned int i) const {return elements.at(i);}
@@ -72,12 +70,13 @@ public:
   string str(int raw=0) const;
   // x must be initialised with field F, this inputs rank and gens and
   // sets real_flag and elements:
+  void read(istream& s);
   friend istream& operator>>(istream& s, FieldMQExt& x);
 
   // Return an embedding into an absolute field (optionally
   // polredabs'ed) together with a list of images of the gens.  If the
-  // rank is 0 return the identity.
-  FieldIso absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, int reduce=0) const;
+  // rank is 0 return the identity map to a copy of the base field.
+  FieldIso absolute_field_embedding(vector<FieldElement>& im_gens, string newvar, Field& Fabs, int reduce=0) const;
 };
 
 inline ostream& operator<<(ostream& s, const FieldMQExt& x)
@@ -94,15 +93,14 @@ class FieldMQElement {
 private:
   FieldElement a;
   unsigned int root_index;
-  const FieldMQExt* SqCl;
+  FieldMQExt const* SqCl;
   int xf;
 public:
   FieldMQElement() {;}
-  FieldMQElement(const FieldElement& x, const FieldMQExt* S, unsigned int i=0, int f=0)
-    : a(x), root_index(i), SqCl(S), xf(f)
+  FieldMQElement(const FieldElement& x, const FieldMQExt& S, unsigned int i=0, int f=0)
+    : a(x), root_index(i), SqCl(&S), xf(f)
   {;}
   const FieldMQExt* parent() const {return SqCl;}
-  void change_parent_pointer(const FieldMQExt* x);
   FieldElement base() const {return a;}
   unsigned int index() const {return root_index;}
   FieldElement root_part() const  { return SqCl->elt(root_index); }
@@ -112,10 +110,8 @@ public:
   void normalise();
   FieldMQElement operator*(const FieldMQElement& b) const;
   FieldMQElement operator/(const FieldMQElement& b) const;
-  FieldMQElement operator-() const {return FieldMQElement(-a, SqCl, root_index, xf);}
+  FieldMQElement operator-() const {return FieldMQElement(-a, *SqCl, root_index, xf);}
   FieldMQElement inverse() const; // raise error if zero      // inverse
-  // FieldMQElement times_i() const;
-  // FieldMQElement times_minus_i() const;
   FieldMQElement conj() const; // swap 1+i and 1-i factors (complex conjugation)
   int operator==(const FieldMQElement& b) const;
   int operator!=(const FieldMQElement& b) const;
@@ -130,14 +126,12 @@ public:
   string str(int raw=0) const;
 
   // Input (from a raw string format)
+  void read(istream& s);
   friend istream& operator>>(istream& s, FieldMQElement& x);
 };
 
 inline ostream& operator<<(ostream& s, const FieldMQElement& x)
 { s << x.str(); return s;}
-
-// integer multiple of i, assuming not real
-FieldMQElement eye(FieldMQExt* S, const ZZ& n = ZZ(1));
 
 // embed an FieldMQElement into the absolute field HFabs, given an
 // embedding of F into HFabs and images of the MieldModSq gens in HFabs
