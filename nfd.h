@@ -126,14 +126,20 @@ public:
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
 
-  // // NB We do not use automatic copy constructor and assignment since
-  // // when the aP are copied they must point to the field in the new
-  // // Newform not the old.
+  // NB We do not use automatic copy constructor and assignment.
 
-  // // copy constructor
-  // Newform(const Newform& x);
-  // // assignment
-  // Newform& operator=(const Newform& x);
+  // copy constructor
+  Newform(const Newform& x);
+  // assignment
+  Newform& operator=(const Newform& x);
+  // destructor
+  ~Newform() {;}
+  // {
+  //   delete F0;
+  //   delete F;
+  //   if (Quad::class_group_2_rank)
+  //     delete HFabs;
+  // }
 
   // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
@@ -386,6 +392,5 @@ public:
 // dict of Newspaces read from file
 extern map<string,Newspace*> Newspace_dict;  // Key: label(N)
 Newspace* get_Newspace(const Qideal& N, int verb=0);
-void clear_Newspace_dict();
 
 #endif

@@ -36,11 +36,9 @@ int main()
   // We only compute full newform data for forms with trivial
   // character (which cover all newforms over fields with odd class
   // number) except (at present) for C4 fields such as Q(sqrt(-17)).
-  int n2r = Quad::class_group_2_rank;
+  int even_class_no = Quad::class_group_2_rank;
   int C4 = is_C4();
-  int triv_char_only = !C4;
-  int triv_char_only_even = n2r && triv_char_only;
-  if (triv_char_only_even)
+  if (even_class_no && !C4)
     cout << "Only computing newforms with trivial character" <<endl;
 
   int verbose=1;
@@ -84,14 +82,14 @@ int main()
       homspace* H1 = get_homspace(N, modulus);
       int cdim = H1->h1cuspdim();
       int cdim_tc = cdim;
-      if (n2r)
+      if (even_class_no)
         cdim_tc = H1->trivial_character_subspace_dimension(1); // cuspidal=1
       if (verbose)
         {
           cout << "Constructed level " << Nlabel << " homspace of dimension " << H1->h1dim()
                << ", cuspidal dimension " << cdim
                << ", denominator " << H1->h1cdenom() << endl;
-          if (n2r)
+          if (even_class_no)
             cout << "Trivial character cuspidal dimension " << cdim_tc << endl;
         }
 
@@ -99,7 +97,7 @@ int main()
       // operator which is a linear combination of up to maxnp prime
       // Hecke operators with coefficients up to maxc:
       int maxnp = 7, maxc = 2;
-      Newspace NS(H1, maxnp, maxc, triv_char_only, verbose);
+      Newspace NS(H1, maxnp, maxc, !C4, verbose); // trivial char only unless C4
       if (!NS.ok())
         {
           cout << "Failed to find a splitting operator using linear combnations of " << maxnp
@@ -112,7 +110,7 @@ int main()
         cout << "Splitting using " << NS.splitopname() << endl;
       cout << "Found " << nnf << " homological newform";
       if (nnf!=1) cout << "s";
-      if (triv_char_only_even)
+      if (even_class_no && !C4)
         cout << " with trivial character";
       cout << " at level " << Nlabel;
       if (nnf)
@@ -140,7 +138,7 @@ int main()
        }
 
      int nnf_triv_char = NS.nforms_triv_char();
-     if (n2r)
+     if (even_class_no)
        cout << "Of these, " << nnf_triv_char
             << (nnf_triv_char==1? " has": " have")
             << " trivial character"<<endl<<endl;
@@ -201,7 +199,7 @@ int main()
      int show_AL = 1; // do display AL
      int show_princ = verbose && (Quad::class_number>1); // display principal eigs if verbose and h>1
      int show_traces = 1; // do display traces
-     NS.display_newforms(show_aP, show_AL, show_princ, show_traces, triv_char_only);
+     NS.display_newforms(show_aP, show_AL, show_princ, show_traces, !C4); // trivial char only unless C4
 
      // Output newspace data to file, with newform data for trivial
      // char newforms (or all if C4)
@@ -224,7 +222,7 @@ int main()
      // NB Do not output the newspace after this, as the data files
      // only need newforms up to twist.
 
-     if (n2r && nnf_triv_char)
+     if (even_class_no && nnf_triv_char)
        {
          if (verbose)
            cout << "Adding quadratic twists to forms with trivial character..." << flush;
@@ -239,7 +237,10 @@ int main()
        }
     }     // end of level loop
   cout << endl;
-  clear_H1_dict();
-  clear_Newspace_dict();
+  cout << "End of program, exiting..." << endl;
+  clear_all_homspace_dicts();
+  // new_cuspidal_poly_dict.clear();
+  // tc_new_cuspidal_poly_dict.cear();
+  Newspace_dict.clear();
   exit(0);
 }   // end of main()

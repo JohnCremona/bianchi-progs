@@ -110,11 +110,9 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 
   if (d==1)
     {
-      F = F0 = new Field(); // FieldQQ;
-      Fiso = FieldIso(*F);
-      // cout << "In Newform constructor from polynomial, degree = " << d
-      //      << ", F0 = " << F0 << " --> " << *F0
-      //      << ", F = " << F << " -->" << *F << endl;
+      F0 = new Field(); // FieldQQ;
+      F  = new Field(); // FieldQQ;
+      Fiso = FieldIso(*F0, *F, mat_m::identity_matrix(d));
     }
   else
     {
@@ -139,9 +137,6 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
           cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
                << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
         }
-      // cout << "In Newform constructor from polynomial, degree = " << d
-      //      << ", F0 = " << &F0 << " --> " << F0
-      //      << ", F = " << &F << " -->" << F << endl;
     }
   if (verbose)
     {
@@ -187,20 +182,6 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   genus_class_ideals.resize(1,Qideal(ONE));
   genus_class_no_ext_ideals.resize(1,Qideal(ONE));
   genus_class_aP.resize(1,FieldMQElement((*F)(1), *HFrel, 0));
-
-  // cout<<" size of genus_classes_nonzero is " << genus_classes_nonzero.size() << endl;
-  // cout << " genus_classes_nonzero = " << genus_classes_nonzero <<endl;
-  // cout << " genus_class_ideals = " << genus_class_ideals <<endl;
-  // cout << " genus_class_aP = " << genus_class_aP <<endl;
-
-  // cout<<"After initialization:\nHFRel has pointer "<< HFrel << " with field pointer " << &F << endl;
-  // cout<<"HFrel is "<< *HFrel << endl;
-  // cout<< "HFrel elements:" << endl;
-  // for (auto x: HFrel->elts())
-  //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
-  // cout<< "genus_class_aP elements:" << endl;
-  // for (auto gc_aP: genus_class_aP)
-  //   cout<< gc_aP.str(2) << endl;
 }
 
 // Constructor which will read from file
@@ -213,72 +194,50 @@ Newform::Newform(Newspace* x, int i, int verbose)
     cerr << "Unable to read Newform " << lab << endl;
 }
 
-// // NB We do not use automatic copy constructor and assignment since
-// // when the aP are copied they must point to the field in the new
-// // Newform not the old.
+// NB We do not use automatic copy constructor and assignment since
+// when the aP are copied they must point to the field in the new
+// Newform not the old.
 
-// Newform::Newform(const Newform& x)
-//   :N(x.N), nsp(x.nsp), index(x.index), lab(x.lab), d(x.d),
-//    F0(x.F0), F(x.F), Fiso(x.Fiso), HFrel(x.HFrel), HFabs(x.HFabs), abs_emb(x.abs_emb), im_gens(x.im_gens),
-//    S(x.S), denom_abs(x.denom_abs), projcoord(x.projcoord), //key_symbol(x.key_symbol),
-//    basis_change_matrix(x.basis_change_matrix), basis_change_denominator(x.basis_change_denominator),
-//    epsvec(x.epsvec), triv_char(x.triv_char),
-//    unramified_twist_discriminants(x.unramified_twist_discriminants),
-//    genus_classes_no_ext(x.genus_classes_no_ext), genus_class_no_ext_ideals(x.genus_class_no_ext_ideals),
-//    genus_classes_nonzero(x.genus_classes_nonzero), genus_class_ideals(x.genus_class_ideals),
-//    genus_class_aP(x.genus_class_aP), genus_classes_filled(x.genus_classes_filled),
-//    genus_class_trivial_counter(x.genus_class_trivial_counter), possible_self_twists(x.possible_self_twists),
-//    self_twist_flag(x.self_twist_flag), CMD(x.CMD), bc(x.bc), bct(x.bct), cm(x.cm), sfe(x.sfe),
-//    eigmap(x.eigmap), aPmap(x.aPmap), maxP(x.maxP), eQmap(x.eQmap), aMmap(x.aMmap), trace_list(x.trace_list)
-// {
-//   // cout << "Copy constructor sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-//   //HFrel->change_field_pointer(&F);
-//   // cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-//   // cout<< "HFrel elements:" << endl;
-//   // for (auto y: HFrel->elts())
-//   //   cout<< y.str(2) << " in field " << y.field_ptr() << endl;
-//   //Fiso.change_field_pointers(&F0, &F);
-//   //abs_emb.change_field_pointers(&F, &HFabs);
-//   // for (auto& a: im_gens) a.change_field_pointer(&HFabs);
-//   // for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
-//   // for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
-//   // for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
-//   // for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
-// }
+Newform::Newform(const Newform& x)
+  :N(x.N), nsp(x.nsp), index(x.index), lab(x.lab), d(x.d),
+   F0(x.F0), F(x.F), Fiso(x.Fiso), HFrel(x.HFrel), HFabs(x.HFabs), abs_emb(x.abs_emb), im_gens(x.im_gens),
+   S(x.S), denom_abs(x.denom_abs), projcoord(x.projcoord), //key_symbol(x.key_symbol),
+   basis_change_matrix(x.basis_change_matrix), basis_change_denominator(x.basis_change_denominator),
+   epsvec(x.epsvec), triv_char(x.triv_char),
+   unramified_twist_discriminants(x.unramified_twist_discriminants),
+   genus_classes_no_ext(x.genus_classes_no_ext), genus_class_no_ext_ideals(x.genus_class_no_ext_ideals),
+   genus_classes_nonzero(x.genus_classes_nonzero), genus_class_ideals(x.genus_class_ideals),
+   genus_class_aP(x.genus_class_aP), genus_classes_filled(x.genus_classes_filled),
+   genus_class_trivial_counter(x.genus_class_trivial_counter), possible_self_twists(x.possible_self_twists),
+   self_twist_flag(x.self_twist_flag), CMD(x.CMD), bc(x.bc), bct(x.bct), cm(x.cm), sfe(x.sfe),
+   eigmap(x.eigmap), aPmap(x.aPmap), maxP(x.maxP), eQmap(x.eQmap), aMmap(x.aMmap), trace_list(x.trace_list)
+{
+  ;
+}
 
-// // assignment
-// Newform& Newform::operator=(const Newform& x)
-// {
-//   N = x.N; nsp = x.nsp; index = x.index; lab = x.lab; d = x.d;
-//   F0 = x.F0; F = x.F; Fiso = x.Fiso; HFrel = x.HFrel; HFabs = x.HFabs; abs_emb = x.abs_emb;
-//   im_gens = x.im_gens;
-//   S = x.S; denom_abs = x.denom_abs; projcoord = x.projcoord;// key_symbol = x.key_symbol;
-//   basis_change_matrix = x.basis_change_matrix;  basis_change_denominator = x.basis_change_denominator;
-//   epsvec = x.epsvec; triv_char = x.triv_char;
-//   unramified_twist_discriminants = x.unramified_twist_discriminants;
-//   genus_classes_no_ext = x.genus_classes_no_ext;
-//   genus_class_no_ext_ideals = x.genus_class_no_ext_ideals;
-//   genus_classes_nonzero = x.genus_classes_nonzero;
-//   genus_class_ideals = x.genus_class_ideals;
-//   genus_class_aP = x.genus_class_aP;
-//   genus_classes_filled = x.genus_classes_filled;
-//   genus_class_trivial_counter = x.genus_class_trivial_counter;
-//   possible_self_twists = x.possible_self_twists;
-//   self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.cm; sfe=x.cm;
-//   eigmap = x.eigmap; aPmap = x.aPmap; maxP = x.maxP; eQmap = x.eQmap;
-//   aMmap = x.aMmap; trace_list = x.trace_list;
-//   // cout << "operator=() sets HFrel = " << HFrel << " with field pointer " << HFrel->base() << endl;
-//   //HFrel->change_field_pointer(&F);
-//   // cout << "After changing field pointer to " << &F <<",  HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-//   // Fiso.change_field_pointers(&F0, &F);
-//   // abs_emb.change_field_pointers(&F, &HFabs);
-//   // for (auto& a: im_gens) a.change_field_pointer(&HFabs);
-//   // for (auto& item: aMmap) item.second.change_field_pointer(&HFabs);
-//   // for (auto& item: aPmap) item.second.change_parent_pointer(HFrel);
-//   // for (auto& item: eigmap) item.second.change_parent_pointer(HFrel);
-//   // for (auto& a: genus_class_aP) a.change_parent_pointer(HFrel);
-//   return *this;
-// }
+// assignment
+Newform& Newform::operator=(const Newform& x)
+{
+  N = x.N; nsp = x.nsp; index = x.index; lab = x.lab; d = x.d;
+  F0 = x.F0; F = x.F; Fiso = x.Fiso; HFrel = x.HFrel; HFabs = x.HFabs; abs_emb = x.abs_emb;
+  im_gens = x.im_gens;
+  S = x.S; denom_abs = x.denom_abs; projcoord = x.projcoord;// key_symbol = x.key_symbol;
+  basis_change_matrix = x.basis_change_matrix;  basis_change_denominator = x.basis_change_denominator;
+  epsvec = x.epsvec; triv_char = x.triv_char;
+  unramified_twist_discriminants = x.unramified_twist_discriminants;
+  genus_classes_no_ext = x.genus_classes_no_ext;
+  genus_class_no_ext_ideals = x.genus_class_no_ext_ideals;
+  genus_classes_nonzero = x.genus_classes_nonzero;
+  genus_class_ideals = x.genus_class_ideals;
+  genus_class_aP = x.genus_class_aP;
+  genus_classes_filled = x.genus_classes_filled;
+  genus_class_trivial_counter = x.genus_class_trivial_counter;
+  possible_self_twists = x.possible_self_twists;
+  self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.cm; cm=x.cm;
+  eigmap = x.eigmap; aPmap = x.aPmap; maxP = x.maxP; eQmap = x.eQmap;
+  aMmap = x.aMmap; trace_list = x.trace_list;
+  return *this;
+}
 
 string Newspace::short_label()
 {
@@ -732,14 +691,7 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
         {
           // The index i is stored in the newform on construction, but
           // these will change when we sort them
-          Newform nf(this, i, f, verbose);
-          newforms.push_back(nf);
-          // cout << "After pushing back constructed newform:\n";
-          // cout << "HFrel is " << newforms.back().HFrel << " with field pointer " << newforms.back().HFrel->base() << " and field " << *(newforms.back().HFrel->base()) << endl;
-          // cout<< "HFrel elements:" << endl;
-          // for (auto x: newforms.back().HFrel->elts())
-          //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
-
+          newforms.push_back(Newform(this, i, f, verbose));
           ++i;
         }
     }
@@ -847,12 +799,13 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
 
   // cache this new poly
   string NT = NTkey(N,T);
-  if (verbose)
-    cout<<"Caching new cuspidal poly for " << NT << ": " << str(f_new) << endl;
+  // if (verbose)
+  cout<<"Caching new cuspidal poly [triv_char=" << triv_char << "] for " << NT << ": " << str(f_new) << endl;
   if (triv_char)
     tc_new_cuspidal_poly_dict[NT] = f_new;
   else
     new_cuspidal_poly_dict[NT] = f_new;
+
   return f_new;
 }
 
@@ -2311,8 +2264,9 @@ int Newform::input_from_file(int verb)
   F->read(fdata);
   if (verb>1)
     cout << "--> Principal field is " << *F << endl;
-  F0 = F; // same pointer
-  Fiso = FieldIso(*F0); // identity
+  F0 = new Field();
+  *F0 = *F; // different pointer, same field data
+  Fiso = FieldIso(*F0, *F, mat_m::identity_matrix(d));
 
   // Full Hecke field data (if class number even)
   HFrel = new FieldMQExt(*F);
@@ -2662,11 +2616,4 @@ Newspace* get_Newspace(const Qideal& N, int verb)
   if (verb)
     cout << "Newspace at level " << Nlabel << " read from file and cached" << endl;
   return NSP;
-}
-
-void clear_Newspace_dict()
-{
-  for (auto x: Newspace_dict)
-    delete x.second;
-  Newspace_dict.clear();
 }

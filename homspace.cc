@@ -908,6 +908,26 @@ map<string,homspace*> H1_modp_dict;
 map<string, ZZ_pX> full_poly_modp_dict;
 map<string, ZZ_pX> new_poly_modp_dict;
 
+// function to clear all dicts declared in homspace.h
+
+void clear_all_homspace_dicts()
+{
+  H1_dict.clear();
+  full_mat_dict.clear();
+  poly_dict.clear();
+  cuspidal_poly_dict.clear();
+  new_poly_dict.clear();
+  new_cuspidal_poly_dict.clear();
+  tc_poly_dict.clear();
+  tc_cuspidal_poly_dict.clear();
+  tc_new_poly_dict.clear();
+  tc_new_cuspidal_poly_dict.clear();
+  H1_modp_dict.clear();
+  full_poly_modp_dict.clear();
+  new_poly_modp_dict.clear();
+}
+
+
 void output_poly_dict(ostream& os, map<string, ZZX> D)
 {
   for (auto key_pol: D)
@@ -957,19 +977,6 @@ homspace* get_homspace(const Qideal& N, scalar mod)
   homspace* H = new homspace(N, mod, 1); // cuspidal=1
   H1_dict[Nlabel] = H;
   return H;
-}
-
-void clear_H1_dict()
-{
-  cout << "In clear_H1_dict()" << endl;
-  // for (auto x: H1_dict)
-  //   {
-  //     cout << "Deleting the homspace pointer assocoated to key " << x.first << endl;
-  //     delete x.second;
-  //   }
-  cout << "Now clearing the H1_dict map" << endl;
-  H1_dict.clear();
-  cout << "End of clear_H1_dict()" << endl;
 }
 
 //#define DEBUG_GET_FULL_MAT
@@ -1180,7 +1187,7 @@ ZZX get_new_poly(const Qideal& N, const gmatop& T, int cuspidal, int triv_char, 
   ZZX new_poly = get_poly(N, T, cuspidal, triv_char, mod);
   if (deg(new_poly)==0)
     {
-      new_poly_cache[NT] = new_poly;
+      //      new_poly_cache[NT] = new_poly;
       return new_poly;
     }
   vector<Qideal> DD = alldivs(N);

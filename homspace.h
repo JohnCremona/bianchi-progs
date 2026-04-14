@@ -170,12 +170,15 @@ extern map<string,homspace*> H1_modp_dict; // Key is label(N)-mod-p
 extern map<string, ZZ_pX> full_poly_modp_dict;
 extern map<string, ZZ_pX> new_poly_modp_dict;
 
+// function to clear all dicts declared in homspace.h
+
+void clear_all_homspace_dicts();
+
 // Functions to retrieve a value from one of these dicts given its
 // key, computing and storing it if the key is not already there:
 
 // from H1_dict
 homspace* get_homspace(const Qideal& N, scalar mod);
-void clear_H1_dict();
 
 // from full_mat_dict
 mat get_full_mat(const Qideal& N,  const matop& T, const scalar& mod);
