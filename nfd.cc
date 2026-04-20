@@ -717,7 +717,11 @@ void Newspace::sort_newforms()
 Newspace::Newspace(const Qideal& level, int verb)
   :verbose(verb), N(level)
 {
+  if (verb)
+    cout << "In Newspace constructor, about to read from file..." << flush;
   input_from_file(level, verb);
+  if (verb)
+    cout << "done. Newspace read from file" << endl;
 }
 
 // Compute the char poly of T on the new cuspidal subspace using the
@@ -749,7 +753,9 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
   set(f_old); // set = 1
   for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
-      const Newspace* NSD = get_Newspace(D, verbose);
+      Newspace* NSD = get_Newspace(D, verbose);
+      if (verbose>1)
+        cout << "Newspace at level " << D << " (pointer " << NSD << ") loaded from cache or file" << endl;
       if (NSD->nforms()==0)
         continue;
       Qideal M = N/D;
@@ -799,8 +805,8 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
 
   // cache this new poly
   string NT = NTkey(N,T);
-  // if (verbose)
-  cout<<"Caching new cuspidal poly [triv_char=" << triv_char << "] for " << NT << ": " << str(f_new) << endl;
+  if (verbose)
+    cout<<"Caching new cuspidal poly [triv_char=" << triv_char << "] for " << NT << ": " << str(f_new) << endl;
   if (triv_char)
     tc_new_cuspidal_poly_dict[NT] = f_new;
   else
@@ -2602,18 +2608,26 @@ map<string,Newspace*> Newspace_dict;  // Key: label(N)
 
 Newspace* get_Newspace(const Qideal& N, int verb)
 {
-  string Nlabel = label(N);
-  if (Newspace_dict.find(Nlabel) != Newspace_dict.end())
-    {
-      if (verb)
-        cout << "Newspace at level " << Nlabel << " retrieved from cache" << endl;
-      return Newspace_dict[Nlabel];
-    }
-  if (verb)
-    cout << "Newspace at level " << Nlabel << " not in cache, reading from file..." << endl;
-  Newspace* NSP = new Newspace(N, verb);
-  Newspace_dict[Nlabel] = NSP;
-  if (verb)
-    cout << "Newspace at level " << Nlabel << " read from file and cached" << endl;
-  return NSP;
+  return new Newspace(N, verb);
+  // verb=1;
+  // string Nlabel = label(N);
+  // if (Newspace_dict.find(Nlabel) != Newspace_dict.end())
+  //   {
+  //     if (verb)
+  //       cout << "Newspace at level " << Nlabel << " (pointer " << Newspace_dict[Nlabel] << ") retrieved from cache" << endl;
+  //     return Newspace_dict[Nlabel];
+  //   }
+  // if (verb)
+  //   cout << "Newspace at level " << Nlabel << " not in cache, reading from file..." << endl;
+  // Newspace* NSP = new Newspace(N, verb);
+  // Newspace_dict[Nlabel] = NSP;
+  // if (verb)
+  //   {
+  //     cout << "Newspace at level " << Nlabel << " read from file (pointer = " << NSP << ") and cached" << endl;
+  //     NSP->display_newforms();
+  //     cout << "Current contents of Newspace cache:\n";
+  //     for (auto x : Newspace_dict)
+  //       cout << "Level " << x.first << ": Newspace pointer " << x.second << endl;
+  //   }
+  // return NSP;
 }

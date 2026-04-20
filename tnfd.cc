@@ -20,7 +20,7 @@ int main()
   NextPrime(modulus, pow(to_ZZ(2),512));
 #endif
 #if (SCALAR_OPTION==4)
-  modulus = INT(2)<<512;
+  modulus = NextPrime(INT(2)<<512);
 #endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;
@@ -242,5 +242,6 @@ int main()
   // new_cuspidal_poly_dict.clear();
   // tc_new_cuspidal_poly_dict.cear();
   Newspace_dict.clear();
+  flint_cleanup_master();
   exit(0);
 }   // end of main()

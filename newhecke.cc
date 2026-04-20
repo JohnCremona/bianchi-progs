@@ -14,7 +14,7 @@ int main(void)
   NextPrime(modulus, pow(to_ZZ(2),512));
 #endif
 #if (SCALAR_OPTION==4)
-  modulus = INT(2)<<512;
+  modulus = NextPrime(INT(2)<<512);
 #endif
   long d, maxpnorm(MAXPRIME);
   cerr << "Enter field: " << flush;

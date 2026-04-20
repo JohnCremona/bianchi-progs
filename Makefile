@@ -5,7 +5,7 @@
 # /usr/local, or to use a different version, set ECLIB_BASE to where
 # it is in the (host-dependent) file Makefile.local, which is included
 # here. (2) If BOOST is installed, make sure that Makefile.local sets
-# USE_BOOST=1 in Makeifle.local.
+# USE_BOOST=1 in Makefile.local.
 
 SCALAR_OPTION ?= 4
 

@@ -77,5 +77,6 @@ int main()
         }
     }     // end of level loop
   cout << endl;
+  flint_cleanup_master();
   exit(0);
 }   // end of main()
