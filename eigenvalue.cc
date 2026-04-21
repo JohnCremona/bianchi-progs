@@ -67,8 +67,6 @@ istream& operator>>(istream& s, FieldMQExt& x)
 
 int FieldMQExt::get_index(const FieldElement& a, FieldElement& s) const
 {
-  // cout << "In get_index() with a = " << a << " in Field " << a.field_ptr() << endl;
-  // cout << "Base field pointer is " << F <<endl;
   int i=0;
   for (auto x: elements)
     {
@@ -568,10 +566,8 @@ string FieldMQElement::str(int raw) const
   if (raw>1)
     {
       s << "FieldMQElement data" << endl;
-      s << "Base field pointer = " << a.field_ptr() <<endl;
       s << "Base field = " << *(a.field_ptr()) <<endl;
-      s << "Extension field pointer = " << SqCl <<endl;
-      //s << "Extension field = " << *SqCl <<endl;
+      s << "Extension field = " << *SqCl <<endl;
       s << "Base element = " << a.str() << endl;
       if (SqCl->rank())
         {

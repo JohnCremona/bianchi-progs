@@ -239,9 +239,6 @@ int main()
   cout << endl;
   cout << "End of program, exiting..." << endl;
   clear_all_homspace_dicts();
-  // new_cuspidal_poly_dict.clear();
-  // tc_new_cuspidal_poly_dict.cear();
-  Newspace_dict.clear();
   flint_cleanup_master();
   exit(0);
 }   // end of main()

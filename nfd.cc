@@ -71,10 +71,12 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
       exit(1);
     }
   denom_abs=(nsp->dH)*denom(S);
+  key_symbol = nsp->H1->freemods[pivots(S)[1] -1];
   if (verbose)
     {
       cout<<"Finished constructing subspace S of dimension "<<d
           <<", absolute denom = "<<denom_abs<<endl;
+      cout << "key_symbol = " << key_symbol << endl;
       cout<<"Computing A, the restriction of T..." <<flush;
     }
   mat A = transpose(restrict_mat(to_mat(nsp->T_mat),S));
@@ -201,7 +203,7 @@ Newform::Newform(Newspace* x, int i, int verbose)
 Newform::Newform(const Newform& x)
   :N(x.N), nsp(x.nsp), index(x.index), lab(x.lab), d(x.d),
    F0(x.F0), F(x.F), Fiso(x.Fiso), HFrel(x.HFrel), HFabs(x.HFabs), abs_emb(x.abs_emb), im_gens(x.im_gens),
-   S(x.S), denom_abs(x.denom_abs), projcoord(x.projcoord), //key_symbol(x.key_symbol),
+   S(x.S), denom_abs(x.denom_abs), projcoord(x.projcoord), key_symbol(x.key_symbol),
    basis_change_matrix(x.basis_change_matrix), basis_change_denominator(x.basis_change_denominator),
    epsvec(x.epsvec), triv_char(x.triv_char),
    unramified_twist_discriminants(x.unramified_twist_discriminants),
@@ -221,7 +223,7 @@ Newform& Newform::operator=(const Newform& x)
   N = x.N; nsp = x.nsp; index = x.index; lab = x.lab; d = x.d;
   F0 = x.F0; F = x.F; Fiso = x.Fiso; HFrel = x.HFrel; HFabs = x.HFabs; abs_emb = x.abs_emb;
   im_gens = x.im_gens;
-  S = x.S; denom_abs = x.denom_abs; projcoord = x.projcoord;// key_symbol = x.key_symbol;
+  S = x.S; denom_abs = x.denom_abs; projcoord = x.projcoord; key_symbol = x.key_symbol;
   basis_change_matrix = x.basis_change_matrix;  basis_change_denominator = x.basis_change_denominator;
   epsvec = x.epsvec; triv_char = x.triv_char;
   unramified_twist_discriminants = x.unramified_twist_discriminants;
@@ -233,7 +235,7 @@ Newform& Newform::operator=(const Newform& x)
   genus_classes_filled = x.genus_classes_filled;
   genus_class_trivial_counter = x.genus_class_trivial_counter;
   possible_self_twists = x.possible_self_twists;
-  self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.cm; cm=x.cm;
+  self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.sfe; cm=x.cm;
   eigmap = x.eigmap; aPmap = x.aPmap; maxP = x.maxP; eQmap = x.eQmap;
   aMmap = x.aMmap; trace_list = x.trace_list;
   return *this;
@@ -281,13 +283,10 @@ string Newform::long_conj_label() const
 }
 
 // eigenvalue of a general principal operator:
-FieldElement Newform::eig(const matop& T)
+FieldElement Newform::eig(const matop& T) const
 {
   nsp->H1->projcoord = projcoord;
-  //      cout << "Matrix of "<<T.name()<<" is\n" << nsp->H1->calcop_restricted(T, S, 0, 0) << endl;
-  vec_m apv = to_vec_m(nsp->H1->applyop(T, nsp->H1->freemods[pivots(S)[1] -1], 1)); // 1: proj to S
-  //      cout << "ap vector = " << apv <<endl;
-  static const ZZ one(1);
+  vec_m apv = to_vec_m(nsp->H1->applyop(T, key_symbol, 1)); // 1: proj to S using projcoord
   if (d==1)
     {
       return FieldElement(*F0, bigrational(apv[1], to_ZZ(denom_abs)));
@@ -300,19 +299,15 @@ FieldElement Newform::eig(const matop& T)
 }
 
 // eigenvalue of AutoHeckeOp(P):
-FieldElement Newform::ap(const Quadprime& P)
+FieldElement Newform::ap(const Quadprime& P) const
 {
   return eig(AutoHeckeOp(P,N));
 }
 
 // eigenvalue +-1 of a scalar involution operator
-int Newform::eps(const matop& T) // T should be a scalar +- identity
+int Newform::eps(const matop& T) const // T should be a scalar +- identity
 {
-  //   nsp->H1->projcoord = projcoord;
-  //   cout << "Matrix of "<<T.name()<<" is\n" << nsp->H1->calcop_restricted(T, S, 0, 0) << endl;
   FieldElement e = eig(T);
-  //   cout << "Computed e = " << e << endl;
-  //   cout << "(should be +1 or -1)" << endl;
   if (e.is_one())
     return 1;
   if (e.is_minus_one())
@@ -322,20 +317,15 @@ int Newform::eps(const matop& T) // T should be a scalar +- identity
 }
 
 // eigenvalue of a (good) prime from aPmap if P is in there;
-// otherwise either raise an error (if stored_only=1) or (not yet
-// implemented) compute it.
-FieldMQElement Newform::eig(const Quadprime& P, int stored_only)
+// otherwise either raise an error.
+FieldMQElement Newform::eig(const Quadprime& P) const
 {
   auto it = aPmap.find(P);
   if (it!=aPmap.end())
     return it->second;
-  if (stored_only && triv_char)
-    {
-      cerr << "FieldMQElement for P="<<P<<" not yet computed" << endl;
-    }
+  if (triv_char)
+    cerr << "FieldMQElement for P="<<P<<" not yet computed" << endl;
   return FieldMQElement();
-  // add code here to compute one eigenvalue (for trivial char case
-  // only?)
 }
 
 // coefficient in HFabs of integral ideal M from aMmap or computed (and
@@ -430,7 +420,7 @@ void Newform::compute_coefficients(int ntp, int verbose)
 // 'biglevel' is a multiple of the current level, auxiliary ideals A
 // must be coprime to this, not just to the current level
 //#define DEBUG_EIGPAUTO
-FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
+FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb) const
 {
 #ifdef DEBUG_EIGPAUTO
   verb = 1;
@@ -540,7 +530,7 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb)
 
 // Principal eigenvalue of a linear combination of the above:
 FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                                   const Qideal& biglevel, int verb)
+                                   const Qideal& biglevel, int verb) const
 {
   FieldElement a((*F)(0));
   auto Pi = Plist.begin();
@@ -557,7 +547,7 @@ FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<
 
 // Characteristic polynomial of such a linear combination:
 ZZX Newform::char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                               const Qideal& biglevel, int verb)
+                               const Qideal& biglevel, int verb) const
 {
   return eig_lin_comb(Plist, coeffs, biglevel, verb).charpoly();
 }
@@ -719,9 +709,11 @@ Newspace::Newspace(const Qideal& level, int verb)
 {
   if (verb)
     cout << "In Newspace constructor, about to read from file..." << flush;
-  input_from_file(level, verb);
-  if (verb)
+  int input_ok = input_from_file(level, verb);
+  if (verb && input_ok)
     cout << "done. Newspace read from file" << endl;
+  if (!input_ok)
+    cout << "No file found for Newspace at level " << level << endl;
 }
 
 // Compute the char poly of T on the new cuspidal subspace using the
@@ -751,21 +743,24 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
     }
   ZZX f_old;
   set(f_old); // set = 1
+  if (verbose>1)
+    cout << "Reading oldform data for properly dividing levels " << Ndivs << endl;
+
   for (auto D: Ndivs) // Ndivs contains all *proper* D|N
     {
-      Newspace* NSD = get_Newspace(D, verbose);
+      Newspace NSD(D, verbose>1); // will read from file
+      int nnfD = NSD.nforms();
       if (verbose>1)
-        cout << "Newspace at level " << D << " (pointer " << NSD << ") loaded from cache or file" << endl;
-      if (NSD->nforms()==0)
+        cout << "Newspace at level " << label(D) << " read from file: "
+             << nnfD << " newforms" <<endl;
+      if (nnfD==0)
         continue;
       Qideal M = N/D;
-      if (verbose>1)
-        cout << "Divisor D = " << label(D) << " has " << NSD->nforms() << " newforms" <<endl;
       vector<Qideal> divs = alldivs(M);
       int m_default = divs.size();
       if (verbose>1)
         cout << "# divisors of N/D is " << m_default <<endl;
-      for (auto form: NSD->newforms)
+      for (const auto& form: NSD.newforms)
         {
           if (form.triv_char==0 && triv_char)
             continue;
@@ -782,7 +777,6 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
           for (int i=0; i<m; i++)
             f_old *= f_D;
         }
-      delete NSD;
     }
   if (verbose>1)
     {
@@ -1235,12 +1229,6 @@ void Newform::compute_eigs_C4(int ntp, int verbose)
 // Fill aPmap, dict of eigenvalues of good primes in the first ntp primes
 void Newform::compute_eigs_triv_char(int ntp, int verbose)
 {
-  // cout << "In Newform::compute_eigs_triv_char()" <<endl;
-  // cout << "Pointer to HFrel = " << HFrel << " with field pointer " << HFrel->base() << " and field " << *(HFrel->base()) << endl;
-  // cout << "HFrel = " << *HFrel << endl;
-  // cout<< "HFrel elements:" << endl;
-  // for (auto x: HFrel->elts())
-  //   cout<< x.str(2) << " in field " << x.field_ptr() << endl;
   if (!triv_char)
     return;
   int nap = 0;
@@ -1432,7 +1420,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
           cout << "Before, genus_class_ideals = " << genus_class_ideals <<endl;
           cout << "Before, genus_class_aP = " << genus_class_aP <<endl;
           for (auto gc_aP: genus_class_aP)
-            cout << gc_aP.str(2) <<endl;
+            cout << gc_aP.str() <<endl;
         }
       genus_classes_nonzero.resize(2*oldsize);
       genus_class_ideals.resize(2*oldsize);
@@ -1712,7 +1700,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
     cout << " - Principal Hecke field k_f = ";
   else
     cout << " - Hecke field k_f = ";
-  cout << F << endl;
+  cout << *F << endl;
   if (n2r>0) // display full Hecke field
     {
       int FisCM = HFrel->is_complex();
@@ -2567,8 +2555,6 @@ void Newspace::add_unram_quadratic_twists()
 // output basis for the Hecke field and character of all newforms
 void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, int triv_char_only) const
 {
-  cout << "Displaying " << newforms.size() << " newforms" << endl;
-
   for ( auto& nf : newforms)
     {
       if ((!triv_char_only) || nf.triv_char)
@@ -2601,33 +2587,4 @@ mat_m Newspace::heckeop(const matop& T, int cuspidal, int dual) const
 mat_m Newspace::heckeop(Quadprime& P, int cuspidal, int dual)
 {
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
-}
-
-// dict of Newspaces read from file
-map<string,Newspace*> Newspace_dict;  // Key: label(N)
-
-Newspace* get_Newspace(const Qideal& N, int verb)
-{
-  return new Newspace(N, verb);
-  // verb=1;
-  // string Nlabel = label(N);
-  // if (Newspace_dict.find(Nlabel) != Newspace_dict.end())
-  //   {
-  //     if (verb)
-  //       cout << "Newspace at level " << Nlabel << " (pointer " << Newspace_dict[Nlabel] << ") retrieved from cache" << endl;
-  //     return Newspace_dict[Nlabel];
-  //   }
-  // if (verb)
-  //   cout << "Newspace at level " << Nlabel << " not in cache, reading from file..." << endl;
-  // Newspace* NSP = new Newspace(N, verb);
-  // Newspace_dict[Nlabel] = NSP;
-  // if (verb)
-  //   {
-  //     cout << "Newspace at level " << Nlabel << " read from file (pointer = " << NSP << ") and cached" << endl;
-  //     NSP->display_newforms();
-  //     cout << "Current contents of Newspace cache:\n";
-  //     for (auto x : Newspace_dict)
-  //       cout << "Level " << x.first << ": Newspace pointer " << x.second << endl;
-  //   }
-  // return NSP;
 }

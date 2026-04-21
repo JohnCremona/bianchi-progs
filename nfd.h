@@ -48,6 +48,7 @@ private:
   subspace S; // irreducible subspace of modular symbol space
   scalar denom_abs; // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
+  modsym key_symbol; // nsp->H1->freemods[pivots(S)[1] -1]
   mat_m basis_change_matrix;
   ZZ basis_change_denominator;
   // To construct a field element from a 'raw' coord vector c and
@@ -149,16 +150,15 @@ public:
   // Functions for computing eigenvalues of principal operators:
 
   // eigenvalue of a general principal operator:
-  FieldElement eig(const matop& T);
+  FieldElement eig(const matop& T) const;
   // eigenvalue of AutoHeckeOp(P):
-  FieldElement ap(const Quadprime& P);
+  FieldElement ap(const Quadprime& P) const;
   // eigenvalue +-1 of a scalar involution operator
-  int eps(const matop& T);
+  int eps(const matop& T) const;
 
   // eigenvalue of a (good) prime from aPmap if P is in there;
-  // otherwise either raise an error (if stored_only=1) or (not yet
-  // implemented) compute it.
-  FieldMQElement eig(const Quadprime& P, int stored_only=1);
+  // otherwise either raise an error.
+  FieldMQElement eig(const Quadprime& P) const;
 
   // coefficient in HFabs of integral ideal M from aMmap or computed
   // (and stored in aMmap) using multiplicative relations. Trivial
@@ -170,13 +170,13 @@ public:
   // (where this is the eigenvalue of P or P^2) or C4 class group.
   // 'biglevel' is a multiple of the current level, auxiliary ideals A
   // must be coprime to this, not just to the current level
-  FieldElement eigPauto(Quadprime& P, const Qideal& biglevel, int verb=0);
+  FieldElement eigPauto(Quadprime& P, const Qideal& biglevel, int verb=0) const;
   // Principal eigenvalue of a linear combination of the above:
   FieldElement eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                            const Qideal& biglevel, int verb=0);
+                            const Qideal& biglevel, int verb=0) const;
   // Characteristic polynomial of such a linear combination:
   ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
-                        const Qideal& biglevel, int verb=0);
+                        const Qideal& biglevel, int verb=0) const;
 
   Field field(int original=0) const {return (original? *F0: *F);}
   // Return the degree of the principal or full Hecke field
@@ -388,9 +388,5 @@ public:
   // subgroup of the group of all discriminant divisors.
   void add_unram_quadratic_twists();
 };
-
-// dict of Newspaces read from file
-extern map<string,Newspace*> Newspace_dict;  // Key: label(N)
-Newspace* get_Newspace(const Qideal& N, int verb=0);
 
 #endif
