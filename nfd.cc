@@ -57,34 +57,32 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   if (verbose)
     {
       cout << "Constructing Newform from factor f = "<< fstring <<" of degree "<<d<<endl;
-
-      // Compute f(T); since T is scaled by dH and f(X) is not, we
-      // evaluate dH^d*f(X/dH) at T; that is, we scale the coefficient of
-      // X^i by dH^(d-i):
-
       cout << "Finding kernel of f(T)..."<<endl;
     }
-  S = kernel(to_mat(evaluate(scale_poly_up(f, to_ZZ(nsp->dH)), nsp->T_mat)));
+  // In computing f(T), since T is scaled by Hden and f(X) is not,
+  // we evaluate Hden^d * f(X/Hden) at T.
+
+  S = kernel(to_mat(evaluate(scale_poly_up(f, nsp->Hden), nsp->T_mat)));
   if(dim(S)!=d)
     {
       cout<<"Problem: eigenspace has wrong dimension "<<dim(S)<<", not "<<d<<endl;
       exit(1);
     }
-  denom_abs=(nsp->dH)*denom(S);
+  Sdenom = (nsp->Hden) * to_ZZ(denom(S));
   key_symbol = nsp->H1->freemods[pivots(S)[1] -1];
   if (verbose)
     {
       cout<<"Finished constructing subspace S of dimension "<<d
-          <<", absolute denom = "<<denom_abs<<endl;
+          <<", absolute denom = "<<Sdenom<<endl;
       cout << "key_symbol = " << key_symbol << endl;
       cout<<"Computing A, the restriction of T..." <<flush;
     }
-  mat A = transpose(restrict_mat(to_mat(nsp->T_mat),S));
+  Qmat A = Qmat(to_mat_m(transpose(restrict_mat(to_mat(nsp->T_mat),S))), Sdenom);
   if(verbose)
     cout<<"done. Checking its char poly..."<<endl;
 
   // Check that (scaled) charpoly(A) = f
-  ZZX cpA = scaled_charpoly(mat_to_mat_ZZ(A), to_ZZ(denom_abs), to_ZZ(nsp->H1->hmod));
+  ZZX cpA = reduce_poly(A.charpoly(), nsp->Hmod);
   if (cpA != f)
     {
       cout<<endl;
@@ -96,11 +94,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   if(verbose)
     {
       cout<<"done."<<endl;
-      cout<<"A (the matrix of T restricted to S) = ";
-      output_flat_matrix(A);
-      if(denom_abs>1)
-        cout<<" / " << denom_abs;
-      cout<<endl;
+      cout<<"A (the matrix of T restricted to S) = \n" << A <<endl;
       cout<<"f(X) is the min poly of A"<<endl;
     }
 
@@ -119,7 +113,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   else
     {
       string var = codeletter(index-1);
-      F0 = new Field(to_mat_m(A), to_ZZ(denom_abs), basis_change_matrix, basis_change_denominator, var, verbose>1);
+      F0 = new Field(A, bcMi, bcM, var, verbose>1);
       int canonical = (d<=POLREDABS_DEGREE_UPPER_BOUND);
       if (verbose)
         {
@@ -203,8 +197,8 @@ Newform::Newform(Newspace* x, int i, int verbose)
 Newform::Newform(const Newform& x)
   :N(x.N), nsp(x.nsp), index(x.index), lab(x.lab), d(x.d),
    F0(x.F0), F(x.F), Fiso(x.Fiso), HFrel(x.HFrel), HFabs(x.HFabs), abs_emb(x.abs_emb), im_gens(x.im_gens),
-   S(x.S), denom_abs(x.denom_abs), projcoord(x.projcoord), key_symbol(x.key_symbol),
-   basis_change_matrix(x.basis_change_matrix), basis_change_denominator(x.basis_change_denominator),
+   S(x.S), Sdenom(x.Sdenom), projcoord(x.projcoord), key_symbol(x.key_symbol),
+   bcM(x.bcM), bcMi(x.bcMi),
    epsvec(x.epsvec), triv_char(x.triv_char),
    unramified_twist_discriminants(x.unramified_twist_discriminants),
    genus_classes_no_ext(x.genus_classes_no_ext), genus_class_no_ext_ideals(x.genus_class_no_ext_ideals),
@@ -223,8 +217,8 @@ Newform& Newform::operator=(const Newform& x)
   N = x.N; nsp = x.nsp; index = x.index; lab = x.lab; d = x.d;
   F0 = x.F0; F = x.F; Fiso = x.Fiso; HFrel = x.HFrel; HFabs = x.HFabs; abs_emb = x.abs_emb;
   im_gens = x.im_gens;
-  S = x.S; denom_abs = x.denom_abs; projcoord = x.projcoord; key_symbol = x.key_symbol;
-  basis_change_matrix = x.basis_change_matrix;  basis_change_denominator = x.basis_change_denominator;
+  S = x.S; Sdenom = x.Sdenom; projcoord = x.projcoord; key_symbol = x.key_symbol;
+  bcM = x.bcM;  bcMi = x.bcMi;
   epsvec = x.epsvec; triv_char = x.triv_char;
   unramified_twist_discriminants = x.unramified_twist_discriminants;
   genus_classes_no_ext = x.genus_classes_no_ext;
@@ -289,12 +283,12 @@ FieldElement Newform::eig(const matop& T) const
   vec_m apv = to_vec_m(nsp->H1->applyop(T, key_symbol, 1)); // 1: proj to S using projcoord
   if (d==1)
     {
-      return FieldElement(*F0, bigrational(apv[1], to_ZZ(denom_abs)));
+      return FieldElement(*F0, bigrational(apv[1], Sdenom));
     }
   else
     {
-      FieldElement a(*F0, basis_change_matrix * apv, basis_change_denominator);
-      return (Fiso.is_identity()? a : Fiso(a));
+      FieldElement a(*F0, bcM * Qvec(apv, Sdenom));
+      return Fiso(a);
     }
 }
 
@@ -629,14 +623,14 @@ Newspace::Newspace(homspace* h1, int maxnp, int maxc, int triv_char_only, int ve
   dimH = H1->h1dim();
   cdimH = H1->h1cuspdim();
   cdimH_tc = H1->trivial_character_subspace_dimension(1); // cuspidal=1
-  dH = H1->h1cdenom();
-  hmod = H1->hmod;
+  Hden = to_ZZ(H1->h1cdenom());
+  Hmod = to_ZZ(H1->hmod);
   Ndivs = alldivs(N, 1); // 1 for proper, i.e. excude N itself
   badprimes = N.factorization().sorted_primes();
   possible_self_twists = N.possible_unramified_twists();
 
-  if(verbose && dH>1)
-    cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<dH<<endl;
+  if(verbose && Hden>1)
+    cout<<"H has dimension "<<dimH<<", cuspidal dimension "<<cdimH<<", denominator "<<Hden<<endl;
 
   if (cdimH==0)
     {

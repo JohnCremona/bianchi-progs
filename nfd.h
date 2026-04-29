@@ -46,14 +46,12 @@ private:
   vector<FieldElement> im_gens;
 
   subspace S; // irreducible subspace of modular symbol space
-  scalar denom_abs; // absolute denominator of S
+  ZZ Sdenom;  // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
   modsym key_symbol; // nsp->H1->freemods[pivots(S)[1] -1]
-  mat_m basis_change_matrix;
-  ZZ basis_change_denominator;
-  // To construct a field element from a 'raw' coord vector c and
-  // denominator d, replace c by basis_change_matrix*c and d by
-  // basis_change_denominator*d and cancel.
+  Qmat bcM, bcMi;
+  // To construct a field element from v = Qvec(c,d), use
+  // bcM*Qvec(c,d).
 
   vector<int> epsvec;  // list of unramified quadratic character values (+1,-1) on S
   int triv_char;  // 1 iff all epsvec values are +1, else 0
@@ -292,7 +290,7 @@ private:
 
   homspace* H1;  // the ambient modular symbol space at level N
   int dimH, cdimH, cdimH_tc; // full dimension, cuspidal dimension, cuspidal trivial char dimension
-  scalar hmod, dH;
+  ZZ Hmod, Hden;
 
   mat_m T_mat;  // matrix of splitting operator
   string T_name;  // name of splitting operator
