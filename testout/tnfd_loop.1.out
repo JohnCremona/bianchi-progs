@@ -1,0 +1,315 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-1))	discriminant = -4	min poly(i) = i^2+1.
+Euclidean
+1232 primes initialised, max norm = 10000
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms at level 1.1
+
+>>>> Level 2.1 = (1+i), norm = 2 <<<<
+Found 0 homological newforms at level 2.1
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+Found 0 homological newforms at level 4.1
+
+>>>> Level 5.1 = (2+i), norm = 5 <<<<
+Found 0 homological newforms at level 5.1
+
+>>>> Level 8.1 = (2+2i), norm = 8 <<<<
+Found 0 homological newforms at level 8.1
+
+>>>> Level 9.1 = (3), norm = 9 <<<<
+Found 0 homological newforms at level 9.1
+
+>>>> Level 10.1 = (1+3i), norm = 10 <<<<
+Found 0 homological newforms at level 10.1
+
+>>>> Level 13.1 = (2+3i), norm = 13 <<<<
+Found 0 homological newforms at level 13.1
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+Found 0 homological newforms at level 16.1
+
+>>>> Level 17.1 = (4+i), norm = 17 <<<<
+Found 0 homological newforms at level 17.1
+
+>>>> Level 18.1 = (3+3i), norm = 18 <<<<
+Found 0 homological newforms at level 18.1
+
+>>>> Level 20.1 = (4+2i), norm = 20 <<<<
+Found 0 homological newforms at level 20.1
+
+>>>> Level 25.1 = (3+4i), norm = 25 <<<<
+Found 0 homological newforms at level 25.1
+
+>>>> Level 25.2 = (5), norm = 25 <<<<
+Found 0 homological newforms at level 25.2
+
+>>>> Level 26.1 = (5+i), norm = 26 <<<<
+Found 0 homological newforms at level 26.1
+
+>>>> Level 29.1 = (2+5i), norm = 29 <<<<
+Found 0 homological newforms at level 29.1
+
+>>>> Level 32.1 = (4+4i), norm = 32 <<<<
+Found 0 homological newforms at level 32.1
+
+>>>> Level 34.1 = (3+5i), norm = 34 <<<<
+Found 0 homological newforms at level 34.1
+
+>>>> Level 36.1 = (6), norm = 36 <<<<
+Found 0 homological newforms at level 36.1
+
+>>>> Level 37.1 = (6+i), norm = 37 <<<<
+Found 0 homological newforms at level 37.1
+
+>>>> Level 40.1 = (2+6i), norm = 40 <<<<
+Found 0 homological newforms at level 40.1
+
+>>>> Level 41.1 = (4+5i), norm = 41 <<<<
+Found 0 homological newforms at level 41.1
+
+>>>> Level 45.1 = (6+3i), norm = 45 <<<<
+Found 0 homological newforms at level 45.1
+
+>>>> Level 49.1 = (7), norm = 49 <<<<
+Found 0 homological newforms at level 49.1
+
+>>>> Level 50.1 = (7+i), norm = 50 <<<<
+Found 0 homological newforms at level 50.1
+
+>>>> Level 50.2 = (5+5i), norm = 50 <<<<
+Found 0 homological newforms at level 50.2
+
+>>>> Level 52.1 = (4+6i), norm = 52 <<<<
+Found 0 homological newforms at level 52.1
+
+>>>> Level 53.1 = (2+7i), norm = 53 <<<<
+Found 0 homological newforms at level 53.1
+
+>>>> Level 58.1 = (7+3i), norm = 58 <<<<
+Found 0 homological newforms at level 58.1
+
+>>>> Level 61.1 = (5+6i), norm = 61 <<<<
+Found 0 homological newforms at level 61.1
+
+>>>> Level 64.1 = (8), norm = 64 <<<<
+Found 0 homological newforms at level 64.1
+
+>>>> Level 65.1 = (1+8i), norm = 65 <<<<
+Found 0 homological newforms at level 65.1
+
+>>>> Level 65.2 = (4+7i), norm = 65 <<<<
+Found 1 homological newform at level 65.2 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.4.1-65.2-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P5a:	1
+P13b:	-1
+
+aP for first 25 primes:
+P2:	0
+P5a:	-1	(AL eigenvalue = 1)
+P5b:	0
+P3:	-2
+P13a:	-4
+P13b:	1	(AL eigenvalue = -1)
+P17a:	6
+P17b:	0
+P29a:	-6
+P29b:	6
+P37a:	2
+P37b:	2
+P41a:	0
+P41b:	6
+P7:	-4
+P53a:	-6
+P53b:	6
+P61a:	-10
+P61b:	-10
+P73a:	2
+P73b:	2
+P89a:	6
+P89b:	6
+P97a:	8
+P97b:	-10
+
+First 75 traces: [ 1 0 2 -1 0 0 -2 0 0 -4 1 -4 6 0 0 -2 -2 1 1 5 0 0 -6 6 0 0 0 -4 2 2 0 0 0 6 2 2 -4 0 0 0 -8 -8 -6 6 0 0 -10 -10 8 4 4 0 0 12 12 0 2 2 0 0 4 4 13 0 0 -6 -6 0 0 6 6 0 0 8 -10 ]
+
+
+>>>> Level 68.1 = (8+2i), norm = 68 <<<<
+Found 0 homological newforms at level 68.1
+
+>>>> Level 72.1 = (6+6i), norm = 72 <<<<
+Found 1 homological newform at level 72.1 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.4.1-72.1-a)
+ - Dimension: 1
+ - Newform is base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P3:	-1
+
+aP for first 25 primes:
+P2:	0	(AL eigenvalue = 1)
+P5a:	-2
+P5b:	-2
+P3:	1	(AL eigenvalue = -1)
+P13a:	-2
+P13b:	-2
+P17a:	2
+P17b:	2
+P29a:	6
+P29b:	6
+P37a:	6
+P37b:	6
+P41a:	-6
+P41b:	-6
+P7:	-14
+P53a:	-2
+P53b:	-2
+P61a:	-2
+P61b:	-2
+P73a:	10
+P73b:	10
+P89a:	-6
+P89b:	-6
+P97a:	2
+P97b:	2
+
+First 75 traces: [ 1 0 0 -2 -2 0 1 0 0 -2 -2 0 2 2 0 0 0 9 4 9 0 0 6 6 0 0 0 0 6 6 0 0 -6 -6 -2 -2 -14 0 0 0 0 0 -2 -2 0 0 -2 -2 0 4 4 4 4 0 0 0 10 10 0 0 0 0 1 0 0 -4 -4 -4 -4 -6 -6 0 0 2 2 ]
+
+
+>>>> Level 73.1 = (8+3i), norm = 73 <<<<
+Found 0 homological newforms at level 73.1
+
+>>>> Level 74.1 = (5+7i), norm = 74 <<<<
+Found 0 homological newforms at level 74.1
+
+>>>> Level 80.1 = (8+4i), norm = 80 <<<<
+Found 0 homological newforms at level 80.1
+
+>>>> Level 81.1 = (9), norm = 81 <<<<
+Found 0 homological newforms at level 81.1
+
+>>>> Level 82.1 = (9+i), norm = 82 <<<<
+Found 0 homological newforms at level 82.1
+
+>>>> Level 85.1 = (7+6i), norm = 85 <<<<
+Found 0 homological newforms at level 85.1
+
+>>>> Level 85.2 = (9+2i), norm = 85 <<<<
+Found 0 homological newforms at level 85.2
+
+>>>> Level 89.1 = (5+8i), norm = 89 <<<<
+Found 0 homological newforms at level 89.1
+
+>>>> Level 90.1 = (3+9i), norm = 90 <<<<
+Found 0 homological newforms at level 90.1
+
+>>>> Level 97.1 = (4+9i), norm = 97 <<<<
+Found 0 homological newforms at level 97.1
+
+>>>> Level 98.1 = (7+7i), norm = 98 <<<<
+Found 1 homological newform at level 98.1 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.4.1-98.1-a)
+ - Dimension: 1
+ - Newform is base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P7:	-1
+
+aP for first 25 primes:
+P2:	-1	(AL eigenvalue = 1)
+P5a:	0
+P5b:	0
+P3:	-2
+P13a:	-4
+P13b:	-4
+P17a:	6
+P17b:	6
+P29a:	-6
+P29b:	-6
+P37a:	2
+P37b:	2
+P41a:	6
+P41b:	6
+P7:	1	(AL eigenvalue = -1)
+P53a:	6
+P53b:	6
+P61a:	8
+P61b:	8
+P73a:	2
+P73b:	2
+P89a:	-6
+P89b:	-6
+P97a:	-10
+P97b:	-10
+
+First 75 traces: [ 1 -1 1 0 0 -1 -2 0 0 -4 -4 1 6 6 2 0 0 5 0 5 4 4 -6 -6 -1 -6 -6 -2 2 2 0 0 6 6 0 0 1 -5 -5 -5 -4 -4 6 6 6 6 8 8 1 0 0 0 0 6 6 2 2 2 -2 -2 0 0 13 -6 -6 0 0 0 0 -6 -6 0 0 -10 -10 ]
+
+
+>>>> Level 100.1 = (6+8i), norm = 100 <<<<
+Found 0 homological newforms at level 100.1
+
+>>>> Level 100.2 = (10), norm = 100 <<<<
+Found 1 homological newform at level 100.2 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.4.1-100.2-a)
+ - Dimension: 1
+ - Newform is base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P5a:	1
+P5b:	1
+
+aP for first 25 primes:
+P2:	0	(AL eigenvalue = -1)
+P5a:	-1	(AL eigenvalue = 1)
+P5b:	-1	(AL eigenvalue = 1)
+P3:	-2
+P13a:	2
+P13b:	2
+P17a:	-6
+P17b:	-6
+P29a:	6
+P29b:	6
+P37a:	2
+P37b:	2
+P41a:	6
+P41b:	6
+P7:	-10
+P53a:	-6
+P53b:	-6
+P61a:	2
+P61b:	2
+P73a:	2
+P73b:	2
+P89a:	-6
+P89b:	-6
+P97a:	2
+P97b:	2
+
+First 75 traces: [ 1 0 0 -1 -1 0 -2 0 0 2 2 0 -6 -6 0 0 0 1 1 1 0 0 6 6 0 0 0 0 2 2 0 0 6 6 2 2 -10 0 0 0 0 0 -6 -6 0 0 2 2 0 -2 -2 -2 -2 0 0 0 2 2 0 0 0 0 13 0 0 6 6 6 6 -6 -6 0 0 2 2 ]
+
+
+End of program, exiting...

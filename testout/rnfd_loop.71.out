@@ -1,0 +1,375 @@
+Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension.
+Q(sqrt(-71))	discriminant = -71	min poly(a) = a^2-a+18.
+Class number 7
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [4,1+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+0 newforms
+
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+0 newforms
+
+
+>>>> Level 2.2 = (2,-1+a), norm = 2 <<<<
+0 newforms
+
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+0 newforms
+
+
+>>>> Level 3.2 = (3,-1+a), norm = 3 <<<<
+0 newforms
+
+
+>>>> Level 4.1 = (4,-2+a), norm = 4 <<<<
+0 newforms
+
+
+>>>> Level 4.2 = (2), norm = 4 <<<<
+0 newforms
+
+
+>>>> Level 4.3 = (4,1+a), norm = 4 <<<<
+0 newforms
+
+
+>>>> Level 5.1 = (1+a,-5), norm = 5 <<<<
+0 newforms
+
+
+>>>> Level 5.2 = (-2+a,-5), norm = 5 <<<<
+0 newforms
+
+
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+0 newforms
+
+
+>>>> Level 6.2 = (2+a,-4+a), norm = 6 <<<<
+0 newforms
+
+
+>>>> Level 6.3 = (-3+a,-3-a), norm = 6 <<<<
+0 newforms
+
+
+>>>> Level 6.4 = (-1+a,-6), norm = 6 <<<<
+0 newforms
+
+
+>>>> Level 8.1 = (2+a,-6+a), norm = 8 <<<<
+0 newforms
+
+
+>>>> Level 8.2 = (4,2a), norm = 8 <<<<
+0 newforms
+
+
+>>>> Level 8.3 = (4,-2+2a), norm = 8 <<<<
+0 newforms
+
+
+>>>> Level 8.4 = (-3+a,-5-a), norm = 8 <<<<
+0 newforms
+
+
+>>>> Level 9.1 = (a,-9), norm = 9 <<<<
+0 newforms
+
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+0 newforms
+
+
+>>>> Level 9.3 = (-1+a,-9), norm = 9 <<<<
+0 newforms
+
+
+>>>> Level 10.1 = (-4+a,-6-a), norm = 10 <<<<
+0 newforms
+
+
+>>>> Level 10.2 = (-2+a,-8-a), norm = 10 <<<<
+0 newforms
+
+
+>>>> Level 10.3 = (1+a,-9+a), norm = 10 <<<<
+0 newforms
+
+
+>>>> Level 10.4 = (3+a,-7+a), norm = 10 <<<<
+0 newforms
+
+
+>>>> Level 12.1 = (-6+a,-6-a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 12.2 = (2+a,-10+a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 12.3 = (6,2a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 12.4 = (6,-2+2a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 12.5 = (-3+a,-9-a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 12.6 = (5+a,-7+a), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 15.1 = (6+a,-3+2a), norm = 15 <<<<
+0 newforms
+
+
+>>>> Level 15.2 = (3+a,-9+2a), norm = 15 <<<<
+0 newforms
+
+
+>>>> Level 15.3 = (-4+a,-7-2a), norm = 15 <<<<
+0 newforms
+
+
+>>>> Level 15.4 = (-7+a,-1-2a), norm = 15 <<<<
+0 newforms
+
+
+>>>> Level 16.1 = (-6+a,-4-2a), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 16.2 = (8,-4+2a), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 16.3 = (4), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 16.4 = (8,2+2a), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 16.5 = (5+a,-6+2a), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 18.1 = (a), norm = 18 <<<<
+1 newform
+
+Newform #1 (2.0.71.1-18.1-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2a:	1
+P3a:	-1
+
+aP for first 26 primes:
+P2a:	-1	(AL eigenvalue = 1)
+P2b:	-2
+P3a:	0	(AL eigenvalue = -1)
+P3b:	-1
+P5a:	-2
+P5b:	-3
+P19a:	-1
+P19b:	-6
+P29a:	-4
+P29b:	-1
+P37a:	-8
+P37b:	2
+P43a:	-6
+P43b:	-11
+P7:	4
+P71:	-5
+P73a:	-4
+P73b:	-4
+P79a:	-14
+P79b:	16
+P83a:	11
+P83b:	-11
+P89a:	0
+P89b:	-15
+P101a:	-3
+P101b:	-12
+
+
+>>>> Level 18.2 = (6,3a), norm = 18 <<<<
+0 newforms
+
+
+>>>> Level 18.3 = (-2+2a,-8-a), norm = 18 <<<<
+0 newforms
+
+
+>>>> Level 18.4 = (2a,-9+a), norm = 18 <<<<
+0 newforms
+
+
+>>>> Level 18.5 = (6,-3+3a), norm = 18 <<<<
+0 newforms
+
+
+>>>> Level 18.6 = (-1+a), norm = 18 <<<<
+1 newform
+
+Newform #1 (2.0.71.1-18.6-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2b:	1
+P3b:	-1
+
+aP for first 26 primes:
+P2a:	-2
+P2b:	-1	(AL eigenvalue = 1)
+P3a:	-1
+P3b:	0	(AL eigenvalue = -1)
+P5a:	-3
+P5b:	-2
+P19a:	-6
+P19b:	-1
+P29a:	-1
+P29b:	-4
+P37a:	2
+P37b:	-8
+P43a:	-11
+P43b:	-6
+P7:	4
+P71:	-5
+P73a:	-4
+P73b:	-4
+P79a:	16
+P79b:	-14
+P83a:	-11
+P83b:	11
+P89a:	-15
+P89b:	0
+P101a:	-12
+P101b:	-3
+
+
+>>>> Level 19.1 = (4+a,-11+2a), norm = 19 <<<<
+0 newforms
+
+
+>>>> Level 19.2 = (-5+a,-9-2a), norm = 19 <<<<
+0 newforms
+
+
+>>>> Level 20.1 = (6+a,-8+2a), norm = 20 <<<<
+0 newforms
+
+
+>>>> Level 20.2 = (-2+a), norm = 20 <<<<
+0 newforms
+
+
+>>>> Level 20.3 = (2+2a,-10), norm = 20 <<<<
+1 newform
+
+Newform #1 (2.0.71.1-20.3-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = -1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2a:	-1
+P2b:	-1
+P5a:	1
+
+aP for first 26 primes:
+P2a:	1	(AL eigenvalue = -1)
+P2b:	1	(AL eigenvalue = -1)
+P3a:	-3
+P3b:	1
+P5a:	-1	(AL eigenvalue = 1)
+P5b:	-2
+P19a:	3
+P19b:	-5
+P29a:	-8
+P29b:	0
+P37a:	-8
+P37b:	0
+P43a:	-9
+P43b:	11
+P7:	-1
+P71:	12
+P73a:	-7
+P73b:	5
+P79a:	-12
+P79b:	-16
+P83a:	4
+P83b:	-12
+P89a:	-7
+P89b:	9
+P101a:	-10
+P101b:	-6
+
+
+>>>> Level 20.4 = (-4+2a,-10), norm = 20 <<<<
+1 newform
+
+Newform #1 (2.0.71.1-20.4-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = -1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2a:	-1
+P2b:	-1
+P5b:	1
+
+aP for first 26 primes:
+P2a:	1	(AL eigenvalue = -1)
+P2b:	1	(AL eigenvalue = -1)
+P3a:	1
+P3b:	-3
+P5a:	-2
+P5b:	-1	(AL eigenvalue = 1)
+P19a:	-5
+P19b:	3
+P29a:	0
+P29b:	-8
+P37a:	0
+P37b:	-8
+P43a:	11
+P43b:	-9
+P7:	-1
+P71:	12
+P73a:	5
+P73b:	-7
+P79a:	-16
+P79b:	-12
+P83a:	-12
+P83b:	4
+P89a:	9
+P89b:	-7
+P101a:	-6
+P101b:	-10
+
+
+>>>> Level 20.5 = (1+a), norm = 20 <<<<
+0 newforms
+
+
+>>>> Level 20.6 = (-7+a,-6-2a), norm = 20 <<<<
+0 newforms
+
+

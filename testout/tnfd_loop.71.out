@@ -1,0 +1,178 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-71))	discriminant = -71	min poly(a) = a^2-a+18.
+Class number 7
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,2+a] [4,1+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms at level 1.1
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+Found 0 homological newforms at level 2.1
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+Found 0 homological newforms at level 3.1
+
+>>>> Level 4.1 = (4,-2+a), norm = 4 <<<<
+Found 0 homological newforms at level 4.1
+
+>>>> Level 4.2 = (2), norm = 4 <<<<
+Found 0 homological newforms at level 4.2
+
+>>>> Level 5.1 = (1+a,-5), norm = 5 <<<<
+Found 0 homological newforms at level 5.1
+
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+Found 0 homological newforms at level 6.1
+
+>>>> Level 6.2 = (2+a,-4+a), norm = 6 <<<<
+Found 0 homological newforms at level 6.2
+
+>>>> Level 8.1 = (2+a,-6+a), norm = 8 <<<<
+Found 0 homological newforms at level 8.1
+
+>>>> Level 8.2 = (4,2a), norm = 8 <<<<
+Found 0 homological newforms at level 8.2
+
+>>>> Level 9.1 = (a,-9), norm = 9 <<<<
+Found 0 homological newforms at level 9.1
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+Found 0 homological newforms at level 9.2
+
+>>>> Level 10.1 = (-4+a,-6-a), norm = 10 <<<<
+Found 0 homological newforms at level 10.1
+
+>>>> Level 10.2 = (-2+a,-8-a), norm = 10 <<<<
+Found 0 homological newforms at level 10.2
+
+>>>> Level 12.1 = (-6+a,-6-a), norm = 12 <<<<
+Found 0 homological newforms at level 12.1
+
+>>>> Level 12.2 = (2+a,-10+a), norm = 12 <<<<
+Found 0 homological newforms at level 12.2
+
+>>>> Level 12.3 = (6,2a), norm = 12 <<<<
+Found 0 homological newforms at level 12.3
+
+>>>> Level 15.1 = (6+a,-3+2a), norm = 15 <<<<
+Found 0 homological newforms at level 15.1
+
+>>>> Level 15.2 = (3+a,-9+2a), norm = 15 <<<<
+Found 0 homological newforms at level 15.2
+
+>>>> Level 16.1 = (-6+a,-4-2a), norm = 16 <<<<
+Found 0 homological newforms at level 16.1
+
+>>>> Level 16.2 = (8,-4+2a), norm = 16 <<<<
+Found 0 homological newforms at level 16.2
+
+>>>> Level 16.3 = (4), norm = 16 <<<<
+Found 0 homological newforms at level 16.3
+
+>>>> Level 18.1 = (a), norm = 18 <<<<
+Found 1 homological newform at level 18.1 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.71.1-18.1-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2a:	1
+P3a:	-1
+
+aP for first 26 primes:
+P2a:	-1	(AL eigenvalue = 1)
+P2b:	-2
+P3a:	0	(AL eigenvalue = -1)
+P3b:	-1
+P5a:	-2
+P5b:	-3
+P19a:	-1
+P19b:	-6
+P29a:	-4
+P29b:	-1
+P37a:	-8
+P37b:	2
+P43a:	-6
+P43b:	-11
+P7:	4
+P71:	-5
+P73a:	-4
+P73b:	-4
+P79a:	-14
+P79b:	16
+P83a:	11
+P83b:	-11
+P89a:	0
+P89b:	-15
+P101a:	-3
+P101b:	-12
+
+First 269 traces: [ 1 -1 -2 0 -1 1 2 6 -2 -3 0 0 0 0 -1 -2 -1 2 0 0 4 2 2 4 4 0 0 0 0 0 0 0 0 2 2 1 2 1 1 0 0 0 0 0 0 0 -1 -6 -2 -2 -4 -4 -2 -2 0 0 0 0 0 0 0 0 9 4 14 0 0 0 0 -4 -1 0 0 0 0 0 0 0 0 -1 -2 -1 -1 -1 0 0 0 0 0 0 0 0 0 0 -8 2 1 1 2 2 2 2 4 4 2 2 2 2 -6 -11 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 -9 -9 -9 -18 -18 -18 0 0 0 0 0 0 0 0 0 0 1 1 4 4 8 8 0 0 0 0 0 0 0 0 0 0 0 0 1 2 1 1 1 1 0 -5 0 0 0 0 0 0 0 0 0 0 0 0 -4 -4 8 8 16 16 0 0 0 -9 -9 -9 -1 -1 -2 -2 -1 -1 -14 16 -2 -2 -4 -4 -2 -2 -2 -2 -2 -2 0 0 0 0 0 11 -11 6 6 12 12 0 0 4 4 0 -15 0 0 0 0 0 0 0 0 0 0 0 0 2 2 3 3 0 0 0 0 0 0 0 0 0 0 0 0 -4 -8 9 9 9 18 18 18 9 9 9 -3 -12 ]
+
+
+>>>> Level 18.2 = (6,3a), norm = 18 <<<<
+Found 0 homological newforms at level 18.2
+
+>>>> Level 18.3 = (-2+2a,-8-a), norm = 18 <<<<
+Found 0 homological newforms at level 18.3
+
+>>>> Level 19.1 = (4+a,-11+2a), norm = 19 <<<<
+Found 0 homological newforms at level 19.1
+
+>>>> Level 20.1 = (6+a,-8+2a), norm = 20 <<<<
+Found 0 homological newforms at level 20.1
+
+>>>> Level 20.2 = (-2+a), norm = 20 <<<<
+Found 0 homological newforms at level 20.2
+
+>>>> Level 20.3 = (2+2a,-10), norm = 20 <<<<
+Found 1 homological newform at level 20.3 of dimension 1
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.71.1-20.3-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = -1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P2a:	-1
+P2b:	-1
+P5a:	1
+
+aP for first 26 primes:
+P2a:	1	(AL eigenvalue = -1)
+P2b:	1	(AL eigenvalue = -1)
+P3a:	-3
+P3b:	1
+P5a:	-1	(AL eigenvalue = 1)
+P5b:	-2
+P19a:	3
+P19b:	-5
+P29a:	-8
+P29b:	0
+P37a:	-8
+P37b:	0
+P43a:	-9
+P43b:	11
+P7:	-1
+P71:	12
+P73a:	-7
+P73b:	5
+P79a:	-12
+P79b:	-16
+P83a:	4
+P83b:	-12
+P89a:	-7
+P89b:	9
+P101a:	-10
+P101b:	-6
+
+First 269 traces: [ 1 1 1 -3 1 1 1 1 -1 -2 -3 -3 -3 -3 1 1 1 1 12 9 4 -1 -1 -1 -1 -3 -3 -3 -3 -3 -3 3 3 -1 -1 1 1 1 1 1 12 12 12 12 12 12 3 -5 -1 -1 -1 -1 -1 -1 -3 -3 -3 -3 -3 -3 -3 -3 1 1 9 -27 -36 -36 21 -8 0 3 3 3 3 3 3 3 3 1 1 1 1 1 1 12 12 12 12 12 12 12 12 12 -8 0 3 3 3 3 -1 -1 -1 -1 -1 -1 -1 -1 -9 11 -12 -12 -9 -9 -12 -12 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -1 1 1 1 1 1 1 -27 -27 -27 -27 -27 -27 -27 -27 -9 -9 3 3 -8 -8 -8 -8 3 3 3 3 3 3 3 3 3 3 3 3 1 1 1 1 1 1 1 12 12 12 12 12 12 12 12 12 12 12 12 12 -7 5 -8 -8 -8 -8 -3 -3 -3 1 1 1 3 3 3 3 3 3 -12 -16 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 45 81 144 81 -63 4 -12 -9 -9 -9 -9 24 24 -8 -8 -7 9 -12 -12 -12 -12 -12 -12 -12 -12 -12 -12 -12 -12 -3 -3 -6 -6 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -1 -1 1 1 1 1 1 1 1 1 1 -10 -6 ]
+
+
+End of program, exiting...

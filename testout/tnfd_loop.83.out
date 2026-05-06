@@ -1,0 +1,76 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-83))	discriminant = -83	min poly(a) = a^2-a+21.
+Class number 3
+Ideal class group representatives: [ [1,a] [3,a] [3,2+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms at level 1.1
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+Found 0 homological newforms at level 3.1
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+Found 0 homological newforms at level 4.1
+
+>>>> Level 7.1 = (a,-7), norm = 7 <<<<
+Found 0 homological newforms at level 7.1
+
+>>>> Level 9.1 = (-3+a,-6-a), norm = 9 <<<<
+Found 1 homological newform at level 9.1 of dimension 2
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.83.1-9.1-a)
+ - Dimension: 2
+ - Newform is twisted base-change but not base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q(a) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+
+aP for first 25 primes:
+P3a:	0	(AL eigenvalue = -1)
+P3b:	-a+1
+P2:	-a+1
+P7a:	a+1
+P7b:	a+1
+P11a:	-a+3
+P11b:	a-3
+P17a:	-2*a+1
+P17b:	2*a-1
+P23a:	-4*a
+P23b:	4*a
+P5:	-2*a
+P29a:	-2*a+3
+P29b:	2*a-3
+P31a:	3*a+3
+P31b:	3*a+3
+P37a:	2*a+7
+P37b:	2*a+7
+P41a:	-2*a-4
+P41b:	2*a+4
+P59a:	a+5
+P59b:	-a-5
+P61a:	4*a+3
+P61b:	4*a+3
+P83:	0
+
+First 84 traces: [ 2 0 2 2 2 2 0 0 12 6 -6 6 6 14 2 -2 0 0 -2 -2 0 0 0 0 0 0 -6 -2 -2 6 -6 6 6 0 0 10 10 0 0 0 14 14 -8 8 10 10 22 22 20 6 20 0 0 10 10 10 -10 6 6 0 0 0 0 0 0 14 10 10 0 0 16 16 0 8 2 2 2 2 0 0 0 0 0 0 ]
+
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+Found 0 homological newforms at level 9.2
+
+>>>> Level 11.1 = (3+a,-8+a), norm = 11 <<<<
+Found 0 homological newforms at level 11.1
+
+>>>> Level 12.1 = (6,2a), norm = 12 <<<<
+Found 0 homological newforms at level 12.1
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+Found 0 homological newforms at level 16.1
+
+>>>> Level 17.1 = (5+a,-7+2a), norm = 17 <<<<
+Found 0 homological newforms at level 17.1
+
+End of program, exiting...

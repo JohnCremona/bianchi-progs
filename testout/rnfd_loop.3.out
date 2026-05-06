@@ -1,0 +1,358 @@
+Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension.
+Q(sqrt(-3))	discriminant = -3	min poly(w) = w^2-w+1.
+Euclidean
+1236 primes initialised, max norm = 10000
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+0 newforms
+
+
+>>>> Level 3.1 = (1+w), norm = 3 <<<<
+0 newforms
+
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+0 newforms
+
+
+>>>> Level 7.1 = (2+w), norm = 7 <<<<
+0 newforms
+
+
+>>>> Level 7.2 = (1+2w), norm = 7 <<<<
+0 newforms
+
+
+>>>> Level 9.1 = (3), norm = 9 <<<<
+0 newforms
+
+
+>>>> Level 12.1 = (2+2w), norm = 12 <<<<
+0 newforms
+
+
+>>>> Level 13.1 = (3+w), norm = 13 <<<<
+0 newforms
+
+
+>>>> Level 13.2 = (1+3w), norm = 13 <<<<
+0 newforms
+
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+0 newforms
+
+
+>>>> Level 19.1 = (2+3w), norm = 19 <<<<
+0 newforms
+
+
+>>>> Level 19.2 = (3+2w), norm = 19 <<<<
+0 newforms
+
+
+>>>> Level 21.1 = (1+4w), norm = 21 <<<<
+0 newforms
+
+
+>>>> Level 21.2 = (4+w), norm = 21 <<<<
+0 newforms
+
+
+>>>> Level 25.1 = (5), norm = 25 <<<<
+0 newforms
+
+
+>>>> Level 27.1 = (3+3w), norm = 27 <<<<
+0 newforms
+
+
+>>>> Level 28.1 = (4+2w), norm = 28 <<<<
+0 newforms
+
+
+>>>> Level 28.2 = (2+4w), norm = 28 <<<<
+0 newforms
+
+
+>>>> Level 31.1 = (5+w), norm = 31 <<<<
+0 newforms
+
+
+>>>> Level 31.2 = (1+5w), norm = 31 <<<<
+0 newforms
+
+
+>>>> Level 36.1 = (6), norm = 36 <<<<
+0 newforms
+
+
+>>>> Level 37.1 = (3+4w), norm = 37 <<<<
+0 newforms
+
+
+>>>> Level 37.2 = (4+3w), norm = 37 <<<<
+0 newforms
+
+
+>>>> Level 39.1 = (2+5w), norm = 39 <<<<
+0 newforms
+
+
+>>>> Level 39.2 = (5+2w), norm = 39 <<<<
+0 newforms
+
+
+>>>> Level 43.1 = (6+w), norm = 43 <<<<
+0 newforms
+
+
+>>>> Level 43.2 = (1+6w), norm = 43 <<<<
+0 newforms
+
+
+>>>> Level 48.1 = (4+4w), norm = 48 <<<<
+0 newforms
+
+
+>>>> Level 49.1 = (3+5w), norm = 49 <<<<
+0 newforms
+
+
+>>>> Level 49.2 = (7), norm = 49 <<<<
+0 newforms
+
+
+>>>> Level 49.3 = (5+3w), norm = 49 <<<<
+0 newforms
+
+
+>>>> Level 52.1 = (6+2w), norm = 52 <<<<
+0 newforms
+
+
+>>>> Level 52.2 = (2+6w), norm = 52 <<<<
+0 newforms
+
+
+>>>> Level 57.1 = (7+w), norm = 57 <<<<
+0 newforms
+
+
+>>>> Level 57.2 = (1+7w), norm = 57 <<<<
+0 newforms
+
+
+>>>> Level 61.1 = (4+5w), norm = 61 <<<<
+0 newforms
+
+
+>>>> Level 61.2 = (5+4w), norm = 61 <<<<
+0 newforms
+
+
+>>>> Level 63.1 = (6+3w), norm = 63 <<<<
+0 newforms
+
+
+>>>> Level 63.2 = (3+6w), norm = 63 <<<<
+0 newforms
+
+
+>>>> Level 64.1 = (8), norm = 64 <<<<
+0 newforms
+
+
+>>>> Level 67.1 = (2+7w), norm = 67 <<<<
+0 newforms
+
+
+>>>> Level 67.2 = (7+2w), norm = 67 <<<<
+0 newforms
+
+
+>>>> Level 73.1 = (8+w), norm = 73 <<<<
+1 newform
+
+Newform #1 (2.0.3.1-73.1-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P73a:	-1
+
+aP for first 25 primes:
+P3:	-2
+P2:	-1
+P7a:	-4
+P7b:	2
+P13a:	2
+P13b:	2
+P19a:	2
+P19b:	2
+P5:	2
+P31a:	-4
+P31b:	-10
+P37a:	2
+P37b:	2
+P43a:	-4
+P43b:	2
+P61a:	2
+P61b:	-10
+P67a:	8
+P67b:	-4
+P73a:	1	(AL eigenvalue = -1)
+P73b:	2
+P79a:	14
+P79b:	-10
+P97a:	14
+P97b:	2
+
+
+>>>> Level 73.2 = (1+8w), norm = 73 <<<<
+1 newform
+
+Newform #1 (2.0.3.1-73.2-a)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P73b:	-1
+
+aP for first 25 primes:
+P3:	-2
+P2:	-1
+P7a:	2
+P7b:	-4
+P13a:	2
+P13b:	2
+P19a:	2
+P19b:	2
+P5:	2
+P31a:	-10
+P31b:	-4
+P37a:	2
+P37b:	2
+P43a:	2
+P43b:	-4
+P61a:	-10
+P61b:	2
+P67a:	-4
+P67b:	8
+P73a:	2
+P73b:	1	(AL eigenvalue = -1)
+P79a:	-10
+P79b:	14
+P97a:	2
+P97b:	14
+
+
+>>>> Level 75.1 = (5+5w), norm = 75 <<<<
+1 newform
+
+Newform #1 (2.0.3.1-75.1-a)
+ - Dimension: 1
+ - Newform is base-change
+ - Sign of functional equation = +1
+ - Hecke field k_f = Q
+
+Atkin-Lehner eigenvalues:
+P3:	1
+P5:	-1
+
+aP for first 25 primes:
+P3:	-1	(AL eigenvalue = 1)
+P2:	-3
+P7a:	0
+P7b:	0
+P13a:	-2
+P13b:	-2
+P19a:	4
+P19b:	4
+P5:	1	(AL eigenvalue = -1)
+P31a:	0
+P31b:	0
+P37a:	-10
+P37b:	-10
+P43a:	4
+P43b:	4
+P61a:	-2
+P61b:	-2
+P67a:	12
+P67b:	12
+P73a:	10
+P73b:	10
+P79a:	0
+P79b:	0
+P97a:	2
+P97b:	2
+
+
+>>>> Level 76.1 = (4+6w), norm = 76 <<<<
+0 newforms
+
+
+>>>> Level 76.2 = (6+4w), norm = 76 <<<<
+0 newforms
+
+
+>>>> Level 79.1 = (3+7w), norm = 79 <<<<
+0 newforms
+
+
+>>>> Level 79.2 = (7+3w), norm = 79 <<<<
+0 newforms
+
+
+>>>> Level 81.1 = (9), norm = 81 <<<<
+0 newforms
+
+
+>>>> Level 84.1 = (2+8w), norm = 84 <<<<
+0 newforms
+
+
+>>>> Level 84.2 = (8+2w), norm = 84 <<<<
+0 newforms
+
+
+>>>> Level 91.1 = (5+6w), norm = 91 <<<<
+0 newforms
+
+
+>>>> Level 91.2 = (9+w), norm = 91 <<<<
+0 newforms
+
+
+>>>> Level 91.3 = (1+9w), norm = 91 <<<<
+0 newforms
+
+
+>>>> Level 91.4 = (6+5w), norm = 91 <<<<
+0 newforms
+
+
+>>>> Level 93.1 = (4+7w), norm = 93 <<<<
+0 newforms
+
+
+>>>> Level 93.2 = (7+4w), norm = 93 <<<<
+0 newforms
+
+
+>>>> Level 97.1 = (8+3w), norm = 97 <<<<
+0 newforms
+
+
+>>>> Level 97.2 = (3+8w), norm = 97 <<<<
+0 newforms
+
+
+>>>> Level 100.1 = (10), norm = 100 <<<<
+0 newforms
+
+
