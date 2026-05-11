@@ -242,7 +242,7 @@ string Newspace::short_label()
 
 string Newform::short_label() const
 {
-  return nsp->short_label() + string("-") + lab;
+  return nsp->short_label() + lab;
 }
 
 string Newspace::long_label()
@@ -252,7 +252,7 @@ string Newspace::long_label()
 
 string Newform::long_label() const
 {
-  return nsp->long_label() + string("-") + lab;
+  return nsp->long_label() + lab;
 }
 
 string Newspace::conj_label() const
@@ -263,7 +263,7 @@ string Newspace::conj_label() const
 
 string Newform::conj_label() const
 {
-  return nsp->conj_label() + string("-") + lab;
+  return nsp->conj_label() + lab;
 }
 
 string Newspace::long_conj_label() const
@@ -273,7 +273,7 @@ string Newspace::long_conj_label() const
 
 string Newform::long_conj_label() const
 {
-  return nsp->long_conj_label() + string("-") + lab;
+  return nsp->long_conj_label() + lab;
 }
 
 // eigenvalue of a general principal operator:
@@ -2206,6 +2206,7 @@ int Newform::input_from_file(int verb)
   string fname = filename();
   if (verb)
     cout << "Reading newform " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
+
   ifstream fdata(fname.c_str());
   if (!fdata.is_open())
     {
@@ -2274,14 +2275,20 @@ int Newform::input_from_file(int verb)
 
       // Embedding of F into HFabs: matrix entries and denom
       abs_emb = FieldIso(*F, *HFabs);
-      fdata >> abs_emb;
+      fdata >> abs_emb; // just reads the matrix
       if (verb>1)
         cout << "--> Embedding into absolute field: " << abs_emb << endl;
 
       // Images of sqrt gens in HFabs:
-      im_gens.resize(HFrel->rank(), FieldElement(*HFabs));
-      for (auto& g: im_gens)
-        fdata >> g;
+      int HFrel_rk = HFrel->rank();
+      if (verb>1)
+        cout << "--> # sqrt generators =  " << HFrel_rk << endl;
+      if (HFrel_rk)
+        {
+          im_gens.resize(HFrel_rk, FieldElement(*HFabs));
+          for (auto& g: im_gens)
+            fdata >> g;
+        }
       if (verb>1)
         cout << "--> sqrt gens in absolute field: " << im_gens << endl;
 

@@ -130,7 +130,7 @@ Euclidean
 >>>> Level 28.2 = (-2+4a), norm = 28 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-28.2-a)
+Newform #1 (2.0.7.1-28.2a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = +1
@@ -244,7 +244,7 @@ P107b:	12
 >>>> Level 44.3 = (-6+4a), norm = 44 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-44.3-a)
+Newform #1 (2.0.7.1-44.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -286,7 +286,7 @@ P107b:	0
 >>>> Level 44.4 = (2+4a), norm = 44 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-44.4-a)
+Newform #1 (2.0.7.1-44.4a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -340,7 +340,7 @@ P107b:	-12
 >>>> Level 46.2 = (-4+5a), norm = 46 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-46.2-a)
+Newform #1 (2.0.7.1-46.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -381,7 +381,7 @@ P107b:	4
 >>>> Level 46.3 = (-1+5a), norm = 46 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-46.3-a)
+Newform #1 (2.0.7.1-46.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -478,7 +478,7 @@ P107b:	12
 >>>> Level 63.1 = (-3+6a), norm = 63 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-63.1-a)
+Newform #1 (2.0.7.1-63.1a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = +1
@@ -615,7 +615,7 @@ P107b:	4
 >>>> Level 86.1 = (4+5a), norm = 86 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-86.1-a)
+Newform #1 (2.0.7.1-86.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -656,7 +656,7 @@ P107b:	0
 >>>> Level 86.2 = (-4+7a), norm = 86 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-86.2-a)
+Newform #1 (2.0.7.1-86.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -697,7 +697,7 @@ P107b:	-8
 >>>> Level 86.3 = (-3+7a), norm = 86 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-86.3-a)
+Newform #1 (2.0.7.1-86.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -738,7 +738,7 @@ P107b:	-20
 >>>> Level 86.4 = (-9+5a), norm = 86 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-86.4-a)
+Newform #1 (2.0.7.1-86.4a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -779,7 +779,7 @@ P107b:	0
 >>>> Level 88.1 = (-10+3a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.1-a)
+Newform #1 (2.0.7.1-88.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -820,7 +820,7 @@ P107b:	16
 >>>> Level 88.2 = (-2+7a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.2-a)
+Newform #1 (2.0.7.1-88.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -865,7 +865,7 @@ P107b:	-12
 >>>> Level 88.4 = (-8+6a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.4-a)
+Newform #1 (2.0.7.1-88.4a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -907,7 +907,7 @@ P107b:	12
 >>>> Level 88.5 = (2+6a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.5-a)
+Newform #1 (2.0.7.1-88.5a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -953,7 +953,7 @@ P107b:	18
 >>>> Level 88.7 = (-5+7a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.7-a)
+Newform #1 (2.0.7.1-88.7a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -994,7 +994,7 @@ P107b:	-12
 >>>> Level 88.8 = (7+3a), norm = 88 <<<<
 1 newform
 
-Newform #1 (2.0.7.1-88.8-a)
+Newform #1 (2.0.7.1-88.8a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1

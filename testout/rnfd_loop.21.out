@@ -1,0 +1,434 @@
+Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension.
+Q(sqrt(-21))	discriminant = -84	min poly(a) = a^2+21.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,1+a] [3,a] [5,2+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 2.1 = (2,-1+a), norm = 2 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.84.1-3.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(6))
+                        = Q(a1) = Q[X]/(X^2-6)
+
+Atkin-Lehner eigenvalues:
+P3:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0
+P3:	1 	= 1	(AL eigenvalue = -1)
+P5a:	sqrt(6) 	= a1
+P5b:	-sqrt(6) 	= -a1
+P7:	2 	= 2
+P11a:	-sqrt(6) 	= -a1
+P11b:	sqrt(6) 	= a1
+P17a:	-sqrt(6) 	= -a1
+P17b:	sqrt(6) 	= a1
+P19a:	2 	= 2
+P19b:	2 	= 2
+P23a:	-3*sqrt(6) 	= -3*a1
+P23b:	3*sqrt(6) 	= 3*a1
+P31a:	8 	= 8
+P31b:	8 	= 8
+P37a:	-4 	= -4
+P37b:	-4 	= -4
+P41a:	3*sqrt(6) 	= 3*a1
+P41b:	-3*sqrt(6) 	= -3*a1
+P71a:	5*sqrt(6) 	= 5*a1
+P71b:	-5*sqrt(6) 	= -5*a1
+P89a:	-5*sqrt(6) 	= -5*a1
+P89b:	5*sqrt(6) 	= 5*a1
+P101a:	-sqrt(6) 	= -a1
+P101b:	sqrt(6) 	= a1
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.84.1-3.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(6))
+                        = Q(a1) = Q[X]/(X^2-6)
+
+Atkin-Lehner eigenvalues:
+P3:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0
+P3:	1 	= 1	(AL eigenvalue = -1)
+P5a:	sqrt(6) 	= a1
+P5b:	-sqrt(6) 	= -a1
+P7:	2 	= 2
+P11a:	-sqrt(6) 	= -a1
+P11b:	sqrt(6) 	= a1
+P17a:	-sqrt(6) 	= -a1
+P17b:	sqrt(6) 	= a1
+P19a:	2 	= 2
+P19b:	2 	= 2
+P23a:	-3*sqrt(6) 	= -3*a1
+P23b:	3*sqrt(6) 	= 3*a1
+P31a:	8 	= 8
+P31b:	8 	= 8
+P37a:	-4 	= -4
+P37b:	-4 	= -4
+P41a:	3*sqrt(6) 	= 3*a1
+P41b:	-3*sqrt(6) 	= -3*a1
+P71a:	5*sqrt(6) 	= 5*a1
+P71b:	-5*sqrt(6) 	= -5*a1
+P89a:	-5*sqrt(6) 	= -5*a1
+P89b:	5*sqrt(6) 	= 5*a1
+P101a:	-sqrt(6) 	= -a1
+P101b:	sqrt(6) 	= a1
+
+Newform #2 (2.0.84.1-3.1b)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(6))
+                        = Q(a1) = Q[X]/(X^2-6)
+
+Atkin-Lehner eigenvalues:
+P3:	1
+
+aP for first 25 primes:
+P2:	0 	= 0
+P3:	-1 	= -1	(AL eigenvalue = 1)
+P5a:	sqrt(6) 	= a1
+P5b:	-sqrt(6) 	= -a1
+P7:	-2 	= -2
+P11a:	sqrt(6) 	= a1
+P11b:	-sqrt(6) 	= -a1
+P17a:	-sqrt(6) 	= -a1
+P17b:	sqrt(6) 	= a1
+P19a:	-2 	= -2
+P19b:	-2 	= -2
+P23a:	3*sqrt(6) 	= 3*a1
+P23b:	-3*sqrt(6) 	= -3*a1
+P31a:	-8 	= -8
+P31b:	-8 	= -8
+P37a:	-4 	= -4
+P37b:	-4 	= -4
+P41a:	3*sqrt(6) 	= 3*a1
+P41b:	-3*sqrt(6) 	= -3*a1
+P71a:	-5*sqrt(6) 	= -5*a1
+P71b:	5*sqrt(6) 	= 5*a1
+P89a:	-5*sqrt(6) 	= -5*a1
+P89b:	5*sqrt(6) 	= 5*a1
+P101a:	-sqrt(6) 	= -a1
+P101b:	sqrt(6) 	= a1
+
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.84.1-4.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3:	2 	= 2
+P5a:	2*sqrt(3) 	= 2*a1
+P5b:	-2*sqrt(3) 	= -2*a1
+P7:	4 	= 4
+P11a:	-2*sqrt(3) 	= -2*a1
+P11b:	2*sqrt(3) 	= 2*a1
+P17a:	0 	= 0
+P17b:	0 	= 0
+P19a:	-2 	= -2
+P19b:	-2 	= -2
+P23a:	2*sqrt(3) 	= 2*a1
+P23b:	-2*sqrt(3) 	= -2*a1
+P31a:	-8 	= -8
+P31b:	-8 	= -8
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	2*sqrt(3) 	= 2*a1
+P71b:	-2*sqrt(3) 	= -2*a1
+P89a:	4*sqrt(3) 	= 4*a1
+P89b:	-4*sqrt(3) 	= -4*a1
+P101a:	-6*sqrt(3) 	= -6*a1
+P101b:	6*sqrt(3) 	= 6*a1
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.84.1-4.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3:	2 	= 2
+P5a:	2*sqrt(3) 	= 2*a1
+P5b:	-2*sqrt(3) 	= -2*a1
+P7:	4 	= 4
+P11a:	-2*sqrt(3) 	= -2*a1
+P11b:	2*sqrt(3) 	= 2*a1
+P17a:	0 	= 0
+P17b:	0 	= 0
+P19a:	-2 	= -2
+P19b:	-2 	= -2
+P23a:	2*sqrt(3) 	= 2*a1
+P23b:	-2*sqrt(3) 	= -2*a1
+P31a:	-8 	= -8
+P31b:	-8 	= -8
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	2*sqrt(3) 	= 2*a1
+P71b:	-2*sqrt(3) 	= -2*a1
+P89a:	4*sqrt(3) 	= 4*a1
+P89b:	-4*sqrt(3) 	= -4*a1
+P101a:	-6*sqrt(3) 	= -6*a1
+P101b:	6*sqrt(3) 	= 6*a1
+
+Newform #2 (2.0.84.1-4.1b)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = 1)
+P3:	-2 	= -2
+P5a:	2*sqrt(3) 	= 2*a1
+P5b:	-2*sqrt(3) 	= -2*a1
+P7:	-4 	= -4
+P11a:	2*sqrt(3) 	= 2*a1
+P11b:	-2*sqrt(3) 	= -2*a1
+P17a:	0 	= 0
+P17b:	0 	= 0
+P19a:	2 	= 2
+P19b:	2 	= 2
+P23a:	-2*sqrt(3) 	= -2*a1
+P23b:	2*sqrt(3) 	= 2*a1
+P31a:	8 	= 8
+P31b:	8 	= 8
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	-2*sqrt(3) 	= -2*a1
+P71b:	2*sqrt(3) 	= 2*a1
+P89a:	4*sqrt(3) 	= 4*a1
+P89b:	-4*sqrt(3) 	= -4*a1
+P101a:	-6*sqrt(3) 	= -6*a1
+P101b:	6*sqrt(3) 	= 6*a1
+
+
+>>>> Level 5.1 = (5,2+a), norm = 5 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 5.2 = (5,-2+a), norm = 5 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.1 = (-3+a,-3-a), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 7.1 = (a,-7), norm = 7 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.1 = (3), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 10.1 = (-3+a,-7-a), norm = 10 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 10.2 = (3+a,-7+a), norm = 10 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 11.1 = (1+a,-11), norm = 11 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 11.2 = (-1+a,-10-a), norm = 11 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.1 = (6,2a), norm = 12 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.84.1-12.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P3:	1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3:	-1 	= -1	(AL eigenvalue = 1)
+P5a:	0 	= 0
+P5b:	0 	= 0
+P7:	4 	= 4
+P11a:	2*sqrt(3) 	= 2*a1
+P11b:	-2*sqrt(3) 	= -2*a1
+P17a:	-4*sqrt(3) 	= -4*a1
+P17b:	4*sqrt(3) 	= 4*a1
+P19a:	4 	= 4
+P19b:	4 	= 4
+P23a:	2*sqrt(3) 	= 2*a1
+P23b:	-2*sqrt(3) 	= -2*a1
+P31a:	4 	= 4
+P31b:	4 	= 4
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	6*sqrt(3) 	= 6*a1
+P71b:	-6*sqrt(3) 	= -6*a1
+P89a:	-4*sqrt(3) 	= -4*a1
+P89b:	4*sqrt(3) 	= 4*a1
+P101a:	8*sqrt(3) 	= 8*a1
+P101b:	-8*sqrt(3) 	= -8*a1
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.84.1-12.1a)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P3:	1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3:	-1 	= -1	(AL eigenvalue = 1)
+P5a:	0 	= 0
+P5b:	0 	= 0
+P7:	4 	= 4
+P11a:	2*sqrt(3) 	= 2*a1
+P11b:	-2*sqrt(3) 	= -2*a1
+P17a:	-4*sqrt(3) 	= -4*a1
+P17b:	4*sqrt(3) 	= 4*a1
+P19a:	4 	= 4
+P19b:	4 	= 4
+P23a:	2*sqrt(3) 	= 2*a1
+P23b:	-2*sqrt(3) 	= -2*a1
+P31a:	4 	= 4
+P31b:	4 	= 4
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	6*sqrt(3) 	= 6*a1
+P71b:	-6*sqrt(3) 	= -6*a1
+P89a:	-4*sqrt(3) 	= -4*a1
+P89b:	4*sqrt(3) 	= 4*a1
+P101a:	8*sqrt(3) 	= 8*a1
+P101b:	-8*sqrt(3) 	= -8*a1
+
+Newform #2 (2.0.84.1-12.1b)
+ - Genus character values: [ 1 1 ] (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(3))
+                        = Q(a1) = Q[X]/(X^2-3)
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P3:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = 1)
+P3:	1 	= 1	(AL eigenvalue = -1)
+P5a:	0 	= 0
+P5b:	0 	= 0
+P7:	-4 	= -4
+P11a:	-2*sqrt(3) 	= -2*a1
+P11b:	2*sqrt(3) 	= 2*a1
+P17a:	-4*sqrt(3) 	= -4*a1
+P17b:	4*sqrt(3) 	= 4*a1
+P19a:	-4 	= -4
+P19b:	-4 	= -4
+P23a:	-2*sqrt(3) 	= -2*a1
+P23b:	2*sqrt(3) 	= 2*a1
+P31a:	-4 	= -4
+P31b:	-4 	= -4
+P37a:	2 	= 2
+P37b:	2 	= 2
+P41a:	-4*sqrt(3) 	= -4*a1
+P41b:	4*sqrt(3) 	= 4*a1
+P71a:	-6*sqrt(3) 	= -6*a1
+P71b:	6*sqrt(3) 	= 6*a1
+P89a:	-4*sqrt(3) 	= -4*a1
+P89b:	4*sqrt(3) 	= 4*a1
+P101a:	8*sqrt(3) 	= 8*a1
+P101b:	-8*sqrt(3) 	= -8*a1
+
+

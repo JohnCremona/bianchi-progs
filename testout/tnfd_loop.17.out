@@ -1,0 +1,891 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-17))	discriminant = -68	min poly(a) = a^2+17.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,1+a] [3,1+a] [3,2+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms at level 1.1
+
+>>>> Level 2.1 = (2,-1+a), norm = 2 <<<<
+Found 1 homological newform at level 2.1 of dimension 1
+Of these, 1 has trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-2.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	1 	= 1	(AL eigenvalue = -1)
+P3a:	2*sqrt(2) 	= 2*a1
+P3b:	-2*sqrt(2) 	= -2*a1
+P7a:	0 	= 0
+P7b:	0 	= 0
+P11a:	2*sqrt(2) 	= 2*a1
+P11b:	-2*sqrt(2) 	= -2*a1
+P13a:	-2 	= -2
+P13b:	-2 	= -2
+P17:	-6 	= -6
+P23a:	-4*sqrt(2) 	= -4*a1
+P23b:	4*sqrt(2) 	= 4*a1
+P5:	2 	= 2
+P31a:	0 	= 0
+P31b:	0 	= 0
+P53a:	6 	= 6
+P53b:	6 	= 6
+P71a:	4*sqrt(2) 	= 4*a1
+P71b:	-4*sqrt(2) 	= -4*a1
+P79a:	12*sqrt(2) 	= 12*a1
+P79b:	-12*sqrt(2) 	= -12*a1
+P89a:	-6 	= -6
+P89b:	-6 	= -6
+P101a:	6 	= 6
+P101b:	6 	= 6
+
+First 158 traces: [ 2 2 0 0 2 0 0 0 0 2 22 16 22 0 0 0 0 -4 -4 0 0 2 -12 22 22 22 0 0 0 0 0 0 0 0 0 0 4 -4 -4 0 0 0 0 0 0 0 0 2 16 16 -16 -16 -12 22 22 22 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 14 4 0 0 -4 -4 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 16 16 16 16 -12 -32 -32 32 32 0 0 22 22 22 0 0 0 0 0 0 0 0 0 0 0 0 62 128 242 128 -194 0 0 0 0 0 0 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 14 14 14 0 0 0 0 0 0 4 12 12 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.68.1-2.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	1 	= 1	(AL eigenvalue = -1)
+P3a:	2*sqrt(2) 	= 2*a1
+P3b:	-2*sqrt(2) 	= -2*a1
+P7a:	0 	= 0
+P7b:	0 	= 0
+P11a:	2*sqrt(2) 	= 2*a1
+P11b:	-2*sqrt(2) 	= -2*a1
+P13a:	-2 	= -2
+P13b:	-2 	= -2
+P17:	-6 	= -6
+P23a:	-4*sqrt(2) 	= -4*a1
+P23b:	4*sqrt(2) 	= 4*a1
+P5:	2 	= 2
+P31a:	0 	= 0
+P31b:	0 	= 0
+P53a:	6 	= 6
+P53b:	6 	= 6
+P71a:	4*sqrt(2) 	= 4*a1
+P71b:	-4*sqrt(2) 	= -4*a1
+P79a:	12*sqrt(2) 	= 12*a1
+P79b:	-12*sqrt(2) 	= -12*a1
+P89a:	-6 	= -6
+P89b:	-6 	= -6
+P101a:	6 	= 6
+P101b:	6 	= 6
+
+First 158 traces: [ 2 2 0 0 2 0 0 0 0 2 22 16 22 0 0 0 0 -4 -4 0 0 2 -12 22 22 22 0 0 0 0 0 0 0 0 0 0 4 -4 -4 0 0 0 0 0 0 0 0 2 16 16 -16 -16 -12 22 22 22 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 14 4 0 0 -4 -4 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 16 16 16 16 -12 -32 -32 32 32 0 0 22 22 22 0 0 0 0 0 0 0 0 0 0 0 0 62 128 242 128 -194 0 0 0 0 0 0 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 14 14 14 0 0 0 0 0 0 4 12 12 ]
+
+
+>>>> Level 3.1 = (3,1+a), norm = 3 <<<<
+Found 0 homological newforms at level 3.1
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+Found 1 homological newform at level 4.1 of dimension 1
+Of these, 1 has trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-4.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3a:	sqrt(2) 	= a1
+P3b:	-sqrt(2) 	= -a1
+P7a:	-3*sqrt(2) 	= -3*a1
+P7b:	3*sqrt(2) 	= 3*a1
+P11a:	sqrt(2) 	= a1
+P11b:	-sqrt(2) 	= -a1
+P13a:	4 	= 4
+P13b:	4 	= 4
+P17:	6 	= 6
+P23a:	sqrt(2) 	= a1
+P23b:	-sqrt(2) 	= -a1
+P5:	2 	= 2
+P31a:	3*sqrt(2) 	= 3*a1
+P31b:	-3*sqrt(2) 	= -3*a1
+P53a:	-6 	= -6
+P53b:	-6 	= -6
+P71a:	5*sqrt(2) 	= 5*a1
+P71b:	-5*sqrt(2) 	= -5*a1
+P79a:	-3*sqrt(2) 	= -3*a1
+P79b:	3*sqrt(2) 	= 3*a1
+P89a:	-12 	= -12
+P89b:	-12 	= -12
+P101a:	-12 	= -12
+P101b:	-12 	= -12
+
+First 158 traces: [ 2 0 0 0 0 0 0 0 0 0 10 4 10 0 0 0 0 8 8 0 0 0 12 0 0 0 -12 -12 12 12 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 50 36 50 0 0 0 0 0 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 -12 -12 12 12 0 0 0 0 0 0 -22 8 50 8 -38 0 0 0 0 0 0 -24 -24 0 0 0 0 0 0 12 12 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 -24 -24 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.68.1-4.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = -1)
+P3a:	sqrt(2) 	= a1
+P3b:	-sqrt(2) 	= -a1
+P7a:	-3*sqrt(2) 	= -3*a1
+P7b:	3*sqrt(2) 	= 3*a1
+P11a:	sqrt(2) 	= a1
+P11b:	-sqrt(2) 	= -a1
+P13a:	4 	= 4
+P13b:	4 	= 4
+P17:	6 	= 6
+P23a:	sqrt(2) 	= a1
+P23b:	-sqrt(2) 	= -a1
+P5:	2 	= 2
+P31a:	3*sqrt(2) 	= 3*a1
+P31b:	-3*sqrt(2) 	= -3*a1
+P53a:	-6 	= -6
+P53b:	-6 	= -6
+P71a:	5*sqrt(2) 	= 5*a1
+P71b:	-5*sqrt(2) 	= -5*a1
+P79a:	-3*sqrt(2) 	= -3*a1
+P79b:	3*sqrt(2) 	= 3*a1
+P89a:	-12 	= -12
+P89b:	-12 	= -12
+P101a:	-12 	= -12
+P101b:	-12 	= -12
+
+First 158 traces: [ 2 0 0 0 0 0 0 0 0 0 10 4 10 0 0 0 0 8 8 0 0 0 12 0 0 0 -12 -12 12 12 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 50 36 50 0 0 0 0 0 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 -12 -12 12 12 0 0 0 0 0 0 -22 8 50 8 -38 0 0 0 0 0 0 -24 -24 0 0 0 0 0 0 12 12 -12 -12 0 0 0 0 0 0 0 0 0 0 0 0 -24 -24 ]
+
+
+>>>> Level 6.1 = (1+a,-6), norm = 6 <<<<
+Found 0 homological newforms at level 6.1
+
+>>>> Level 7.1 = (2+a,-5+a), norm = 7 <<<<
+Found 1 homological newform at level 7.1 of dimension 1
+Of these, 1 has trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-7.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P7a:	-1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	2
+P3b:	2
+P7a:	1	(AL eigenvalue = -1)
+P7b:	0
+P11a:	-2
+P11b:	6
+P13a:	6
+P13b:	-2
+P17:	-2
+P23a:	-8
+P23b:	0
+P5:	-2
+P31a:	-4
+P31b:	4
+P53a:	6
+P53b:	6
+P71a:	8
+P71b:	0
+P79a:	-4
+P79b:	4
+P89a:	10
+P89b:	-6
+P101a:	-18
+P101b:	-10
+
+First 158 traces: [ 1 -1 2 2 3 -2 -2 1 0 -1 7 4 7 -2 6 6 6 6 -2 -1 -1 -5 -2 -7 -7 -7 2 2 2 2 2 2 -8 0 -2 -2 -2 -6 -6 8 14 14 8 3 3 -4 4 7 -4 -4 -4 -4 2 21 21 21 12 12 12 12 -2 -2 -2 -2 -6 -6 8 8 -10 -10 1 1 7 2 -4 -4 18 18 6 6 -8 -8 -8 -8 -1 -1 4 4 7 7 4 4 7 7 3 4 4 4 4 -6 -16 -16 -16 -16 8 0 -7 -7 -7 -4 -4 -2 -2 0 0 -12 -12 -12 -12 -4 4 -5 16 49 16 -5 6 6 6 6 2 2 10 -6 6 6 0 0 -24 -24 -8 -8 -8 -8 14 14 -1 -1 -1 -14 -14 -8 -8 -14 -14 -6 -18 -10 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.68.1-7.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P7a:	1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	-2
+P3b:	-2
+P7a:	-1	(AL eigenvalue = 1)
+P7b:	0
+P11a:	2
+P11b:	-6
+P13a:	6
+P13b:	-2
+P17:	-2
+P23a:	8
+P23b:	0
+P5:	-2
+P31a:	4
+P31b:	-4
+P53a:	6
+P53b:	6
+P71a:	-8
+P71b:	0
+P79a:	4
+P79b:	-4
+P89a:	10
+P89b:	-6
+P101a:	-18
+P101b:	-10
+
+First 158 traces: [ 1 -1 -2 -2 3 2 2 -1 0 -1 7 4 7 2 -6 -6 -6 6 -2 1 1 -5 -2 -7 -7 -7 2 2 2 2 -2 -2 8 0 2 2 -2 -6 -6 -8 -14 -14 -8 -3 -3 4 -4 7 -4 -4 -4 -4 2 21 21 21 -12 -12 -12 -12 -2 -2 -2 -2 6 6 -8 -8 10 10 1 1 7 2 4 4 18 18 6 6 8 8 8 8 1 1 -4 -4 -7 -7 -4 -4 -7 -7 3 4 4 4 4 -6 -16 -16 -16 -16 -8 0 -7 -7 -7 4 4 -2 -2 0 0 12 12 12 12 4 -4 -5 16 49 16 -5 6 6 6 6 -2 -2 10 -6 -6 -6 0 0 24 24 -8 -8 -8 -8 -14 -14 -1 -1 -1 14 14 8 8 14 14 -6 -18 -10 ]
+
+Newform #2 (2.0.68.1-7.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P7a:	-1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	2
+P3b:	2
+P7a:	1	(AL eigenvalue = -1)
+P7b:	0
+P11a:	-2
+P11b:	6
+P13a:	6
+P13b:	-2
+P17:	-2
+P23a:	-8
+P23b:	0
+P5:	-2
+P31a:	-4
+P31b:	4
+P53a:	6
+P53b:	6
+P71a:	8
+P71b:	0
+P79a:	-4
+P79b:	4
+P89a:	10
+P89b:	-6
+P101a:	-18
+P101b:	-10
+
+First 158 traces: [ 1 -1 2 2 3 -2 -2 1 0 -1 7 4 7 -2 6 6 6 6 -2 -1 -1 -5 -2 -7 -7 -7 2 2 2 2 2 2 -8 0 -2 -2 -2 -6 -6 8 14 14 8 3 3 -4 4 7 -4 -4 -4 -4 2 21 21 21 12 12 12 12 -2 -2 -2 -2 -6 -6 8 8 -10 -10 1 1 7 2 -4 -4 18 18 6 6 -8 -8 -8 -8 -1 -1 4 4 7 7 4 4 7 7 3 4 4 4 4 -6 -16 -16 -16 -16 8 0 -7 -7 -7 -4 -4 -2 -2 0 0 -12 -12 -12 -12 -4 4 -5 16 49 16 -5 6 6 6 6 2 2 10 -6 6 6 0 0 -24 -24 -8 -8 -8 -8 14 14 -1 -1 -1 -14 -14 -8 -8 -14 -14 -6 -18 -10 ]
+
+
+>>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
+Found 2 homological newforms at level 8.1 of dimensions [ 1 1 ]
+Of these, 2 have trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-8.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	-2
+P7a:	2
+P7b:	-2
+P11a:	-2
+P11b:	2
+P13a:	2
+P13b:	2
+P17:	2
+P23a:	6
+P23b:	-6
+P5:	10
+P31a:	-6
+P31b:	6
+P53a:	6
+P53b:	6
+P71a:	-6
+P71b:	6
+P79a:	-2
+P79b:	2
+P89a:	14
+P89b:	14
+P101a:	10
+P101b:	10
+
+First 158 traces: [ 1 0 2 -2 0 0 0 2 -2 0 7 4 7 -2 2 0 0 2 2 0 0 0 2 0 0 0 4 4 -4 -4 0 0 6 -6 0 0 10 0 0 8 14 14 -20 0 0 -6 6 0 -4 -4 4 4 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 11 4 11 0 4 -4 0 0 6 6 0 0 0 0 0 0 0 0 14 14 8 8 14 14 0 0 0 0 0 0 12 12 -12 -12 -6 6 0 0 0 20 -20 -4 -4 4 4 0 0 0 0 -2 2 -5 16 49 16 -37 0 0 0 0 0 0 14 14 4 4 -4 -4 0 0 -12 -12 12 12 0 0 0 0 0 -14 -14 -8 -8 -14 -14 0 10 10 ]
+
+Newform #2 (2.0.68.1-8.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(b1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = 1)
+P3a:	0 	= 0
+P3b:	0 	= 0
+P7a:	2*sqrt(2) 	= 2*b1
+P7b:	-2*sqrt(2) 	= -2*b1
+P11a:	4*sqrt(2) 	= 4*b1
+P11b:	-4*sqrt(2) 	= -4*b1
+P13a:	-2 	= -2
+P13b:	-2 	= -2
+P17:	-6 	= -6
+P23a:	2*sqrt(2) 	= 2*b1
+P23b:	-2*sqrt(2) 	= -2*b1
+P5:	2 	= 2
+P31a:	2*sqrt(2) 	= 2*b1
+P31b:	-2*sqrt(2) 	= -2*b1
+P53a:	-10 	= -10
+P53b:	-10 	= -10
+P71a:	6*sqrt(2) 	= 6*b1
+P71b:	-6*sqrt(2) 	= -6*b1
+P79a:	-6*sqrt(2) 	= -6*b1
+P79b:	6*sqrt(2) 	= 6*b1
+P89a:	2 	= 2
+P89b:	2 	= 2
+P101a:	6 	= 6
+P101b:	6 	= 6
+
+First 158 traces: [ 2 0 0 0 0 0 0 0 0 0 6 0 6 0 0 0 0 -4 -4 0 0 0 -12 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 30 16 30 0 0 0 0 0 -20 -20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 32 -32 -32 0 0 0 0 0 0 -18 0 18 0 -18 0 0 0 0 0 0 4 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 12 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.68.1-8.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	-2
+P3b:	2
+P7a:	-2
+P7b:	2
+P11a:	2
+P11b:	-2
+P13a:	2
+P13b:	2
+P17:	2
+P23a:	-6
+P23b:	6
+P5:	10
+P31a:	6
+P31b:	-6
+P53a:	6
+P53b:	6
+P71a:	6
+P71b:	-6
+P79a:	2
+P79b:	-2
+P89a:	14
+P89b:	14
+P101a:	10
+P101b:	10
+
+First 158 traces: [ 1 0 -2 2 0 0 0 -2 2 0 7 4 7 2 -2 0 0 2 2 0 0 0 2 0 0 0 4 4 -4 -4 0 0 -6 6 0 0 10 0 0 -8 -14 -14 20 0 0 6 -6 0 -4 -4 4 4 0 0 0 0 -4 -4 4 4 0 0 0 0 0 0 0 0 0 0 11 4 11 0 -4 4 0 0 6 6 0 0 0 0 0 0 0 0 -14 -14 -8 -8 -14 -14 0 0 0 0 0 0 12 12 -12 -12 6 -6 0 0 0 -20 20 -4 -4 4 4 0 0 0 0 2 -2 -5 16 49 16 -37 0 0 0 0 0 0 14 14 -4 -4 4 4 0 0 -12 -12 12 12 0 0 0 0 0 14 14 8 8 14 14 0 10 10 ]
+
+Newform #2 (2.0.68.1-8.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 25 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	-2
+P7a:	2
+P7b:	-2
+P11a:	-2
+P11b:	2
+P13a:	2
+P13b:	2
+P17:	2
+P23a:	6
+P23b:	-6
+P5:	10
+P31a:	-6
+P31b:	6
+P53a:	6
+P53b:	6
+P71a:	-6
+P71b:	6
+P79a:	-2
+P79b:	2
+P89a:	14
+P89b:	14
+P101a:	10
+P101b:	10
+
+First 158 traces: [ 1 0 2 -2 0 0 0 2 -2 0 7 4 7 -2 2 0 0 2 2 0 0 0 2 0 0 0 4 4 -4 -4 0 0 6 -6 0 0 10 0 0 8 14 14 -20 0 0 -6 6 0 -4 -4 4 4 0 0 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 11 4 11 0 4 -4 0 0 6 6 0 0 0 0 0 0 0 0 14 14 8 8 14 14 0 0 0 0 0 0 12 12 -12 -12 -6 6 0 0 0 20 -20 -4 -4 4 4 0 0 0 0 -2 2 -5 16 49 16 -37 0 0 0 0 0 0 14 14 4 4 -4 -4 0 0 -12 -12 12 12 0 0 0 0 0 -14 -14 -8 -8 -14 -14 0 10 10 ]
+
+Newform #3 (2.0.68.1-8.1c)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(b1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P2:	1
+
+aP for first 25 primes:
+P2:	0 	= 0	(AL eigenvalue = 1)
+P3a:	0 	= 0
+P3b:	0 	= 0
+P7a:	2*sqrt(2) 	= 2*b1
+P7b:	-2*sqrt(2) 	= -2*b1
+P11a:	4*sqrt(2) 	= 4*b1
+P11b:	-4*sqrt(2) 	= -4*b1
+P13a:	-2 	= -2
+P13b:	-2 	= -2
+P17:	-6 	= -6
+P23a:	2*sqrt(2) 	= 2*b1
+P23b:	-2*sqrt(2) 	= -2*b1
+P5:	2 	= 2
+P31a:	2*sqrt(2) 	= 2*b1
+P31b:	-2*sqrt(2) 	= -2*b1
+P53a:	-10 	= -10
+P53b:	-10 	= -10
+P71a:	6*sqrt(2) 	= 6*b1
+P71b:	-6*sqrt(2) 	= -6*b1
+P79a:	-6*sqrt(2) 	= -6*b1
+P79b:	6*sqrt(2) 	= 6*b1
+P89a:	2 	= 2
+P89b:	2 	= 2
+P101a:	6 	= 6
+P101b:	6 	= 6
+
+First 158 traces: [ 2 0 0 0 0 0 0 0 0 0 6 0 6 0 0 0 0 -4 -4 0 0 0 -12 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 30 16 30 0 0 0 0 0 -20 -20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 32 -32 -32 0 0 0 0 0 0 -18 0 18 0 -18 0 0 0 0 0 0 4 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 12 ]
+
+
+>>>> Level 9.1 = (1+a,-9), norm = 9 <<<<
+Found 1 homological newform at level 9.1 of dimension 1
+Of these, 0 have trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-9.1a)
+ - Genus character value: -1
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(i)
+                        = Q(a1) = Q[X]/(X^2+1)
+
+aP for first 24 primes:
+P2:	i 	= a1
+P3b:	-(1-i) 	= a1-1
+P7a:	2*(1+i) 	= 2*a1+2
+P7b:	2*(1-i) 	= -2*a1+2
+P11a:	3*(1-i) 	= -3*a1+3
+P11b:	-3*(1+i) 	= -3*a1-3
+P13a:	-2*i 	= -2*a1
+P13b:	2*i 	= 2*a1
+P17:	0 	= 0
+P23a:	-2*(1-i) 	= 2*a1-2
+P23b:	2*(1+i) 	= 2*a1+2
+P5:	4 	= 4
+P31a:	0 	= 0
+P31b:	0 	= 0
+P53a:	2 	= 2
+P53b:	-2 	= -2
+P71a:	-2*(1+i) 	= -2*a1-2
+P71b:	2*(1-i) 	= -2*a1+2
+P79a:	-8*(1-i) 	= 8*a1-8
+P79b:	-8*(1+i) 	= -8*a1-8
+P89a:	6*i 	= 6*a1
+P89b:	6*i 	= 6*a1
+P101a:	-14*i 	= -14*a1
+P101b:	-14*i 	= -14*a1
+
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+Found 2 homological newforms at level 9.2 of dimensions [ 1 1 ]
+Of these, 2 have trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-9.2a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	1
+P3b:	-1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	-1	(AL eigenvalue = 1)
+P3b:	1	(AL eigenvalue = -1)
+P7a:	4
+P7b:	-4
+P11a:	4
+P11b:	-4
+P13a:	-2
+P13b:	-2
+P17:	2
+P23a:	-4
+P23b:	4
+P5:	10
+P31a:	4
+P31b:	-4
+P53a:	6
+P53b:	6
+P71a:	-12
+P71b:	12
+P79a:	-4
+P79b:	4
+P89a:	10
+P89b:	10
+P101a:	6
+P101b:	6
+
+First 158 traces: [ 1 -1 -1 1 3 1 1 4 -4 -1 1 1 1 4 -4 -3 -3 -2 -2 -4 -4 -5 2 -1 -1 -1 -4 -4 4 4 -4 -4 -4 4 1 1 10 2 2 -1 -1 -1 1 12 12 4 -4 7 -4 -4 4 4 -2 3 3 3 2 2 -2 -2 4 4 4 4 12 12 4 4 5 5 23 16 23 -10 -2 2 -6 -6 6 6 1 1 1 1 -4 -4 -4 -4 4 4 4 4 4 4 3 4 4 4 4 6 4 4 -4 -4 -12 12 -1 -1 -1 -10 10 16 16 -16 -16 -2 -2 -2 -2 -4 4 1 1 1 1 -1 -12 -12 -12 -12 -4 -4 10 10 -8 -8 8 8 -12 -12 -4 -4 4 4 -7 -7 -23 -23 -23 4 4 4 4 4 4 30 6 6 ]
+
+Newform #2 (2.0.68.1-9.2b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+P3b:	1
+
+aP for first 25 primes:
+P2:	2
+P3a:	1	(AL eigenvalue = -1)
+P3b:	-1	(AL eigenvalue = 1)
+P7a:	2
+P7b:	-2
+P11a:	5
+P11b:	-5
+P13a:	1
+P13b:	1
+P17:	8
+P23a:	1
+P23b:	-1
+P5:	1
+P31a:	-10
+P31b:	10
+P53a:	-6
+P53b:	-6
+P71a:	0
+P71b:	0
+P79a:	4
+P79b:	-4
+P89a:	10
+P89b:	10
+P101a:	-12
+P101b:	-12
+
+First 158 traces: [ 1 2 1 -1 6 2 2 2 -2 8 1 1 1 5 -5 6 6 1 1 4 4 4 8 2 2 2 2 2 -2 -2 10 10 1 -1 8 8 1 2 2 1 1 1 -1 12 12 -10 10 -8 5 5 -5 -5 16 6 6 6 1 1 -1 -1 4 4 4 4 30 30 2 2 4 4 11 4 11 2 8 -8 6 6 -6 -6 2 2 2 2 16 16 -20 -20 2 2 2 2 2 2 -24 10 10 10 10 48 1 1 -1 -1 0 0 8 8 8 1 -1 10 10 -10 -10 2 2 2 2 4 -4 1 1 1 1 -1 12 12 12 12 40 40 10 10 2 2 -2 -2 6 6 -10 -10 10 10 -8 -8 22 22 22 5 5 5 5 5 5 6 -12 -12 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.68.1-9.2a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	1
+P3b:	-1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	-1	(AL eigenvalue = 1)
+P3b:	1	(AL eigenvalue = -1)
+P7a:	4
+P7b:	-4
+P11a:	4
+P11b:	-4
+P13a:	-2
+P13b:	-2
+P17:	2
+P23a:	-4
+P23b:	4
+P5:	10
+P31a:	4
+P31b:	-4
+P53a:	6
+P53b:	6
+P71a:	-12
+P71b:	12
+P79a:	-4
+P79b:	4
+P89a:	10
+P89b:	10
+P101a:	6
+P101b:	6
+
+First 158 traces: [ 1 -1 -1 1 3 1 1 4 -4 -1 1 1 1 4 -4 -3 -3 -2 -2 -4 -4 -5 2 -1 -1 -1 -4 -4 4 4 -4 -4 -4 4 1 1 10 2 2 -1 -1 -1 1 12 12 4 -4 7 -4 -4 4 4 -2 3 3 3 2 2 -2 -2 4 4 4 4 12 12 4 4 5 5 23 16 23 -10 -2 2 -6 -6 6 6 1 1 1 1 -4 -4 -4 -4 4 4 4 4 4 4 3 4 4 4 4 6 4 4 -4 -4 -12 12 -1 -1 -1 -10 10 16 16 -16 -16 -2 -2 -2 -2 -4 4 1 1 1 1 -1 -12 -12 -12 -12 -4 -4 10 10 -8 -8 8 8 -12 -12 -4 -4 4 4 -7 -7 -23 -23 -23 4 4 4 4 4 4 30 6 6 ]
+
+Newform #2 (2.0.68.1-9.2b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+P3b:	1
+
+aP for first 25 primes:
+P2:	-1
+P3a:	1	(AL eigenvalue = -1)
+P3b:	-1	(AL eigenvalue = 1)
+P7a:	-4
+P7b:	4
+P11a:	-4
+P11b:	4
+P13a:	-2
+P13b:	-2
+P17:	2
+P23a:	4
+P23b:	-4
+P5:	10
+P31a:	-4
+P31b:	4
+P53a:	6
+P53b:	6
+P71a:	12
+P71b:	-12
+P79a:	4
+P79b:	-4
+P89a:	10
+P89b:	10
+P101a:	6
+P101b:	6
+
+First 158 traces: [ 1 -1 1 -1 3 -1 -1 -4 4 -1 1 1 1 -4 4 3 3 -2 -2 4 4 -5 2 -1 -1 -1 -4 -4 4 4 4 4 4 -4 -1 -1 10 2 2 1 1 1 -1 -12 -12 -4 4 7 -4 -4 4 4 -2 3 3 3 -2 -2 2 2 4 4 4 4 -12 -12 -4 -4 -5 -5 23 16 23 -10 2 -2 -6 -6 6 6 -1 -1 -1 -1 4 4 4 4 -4 -4 -4 -4 -4 -4 3 4 4 4 4 6 4 4 -4 -4 12 -12 -1 -1 -1 10 -10 16 16 -16 -16 2 2 2 2 4 -4 1 1 1 1 -1 -12 -12 -12 -12 4 4 10 10 8 8 -8 -8 12 12 -4 -4 4 4 7 7 -23 -23 -23 -4 -4 -4 -4 -4 -4 30 6 6 ]
+
+Newform #3 (2.0.68.1-9.2c)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	1
+P3b:	-1
+
+aP for first 25 primes:
+P2:	2
+P3a:	-1	(AL eigenvalue = 1)
+P3b:	1	(AL eigenvalue = -1)
+P7a:	-2
+P7b:	2
+P11a:	-5
+P11b:	5
+P13a:	1
+P13b:	1
+P17:	8
+P23a:	-1
+P23b:	1
+P5:	1
+P31a:	10
+P31b:	-10
+P53a:	-6
+P53b:	-6
+P71a:	0
+P71b:	0
+P79a:	-4
+P79b:	4
+P89a:	10
+P89b:	10
+P101a:	-12
+P101b:	-12
+
+First 158 traces: [ 1 2 -1 1 6 -2 -2 -2 2 8 1 1 1 -5 5 -6 -6 1 1 -4 -4 4 8 2 2 2 2 2 -2 -2 -10 -10 -1 1 -8 -8 1 2 2 -1 -1 -1 1 -12 -12 10 -10 -8 5 5 -5 -5 16 6 6 6 -1 -1 1 1 4 4 4 4 -30 -30 -2 -2 -4 -4 11 4 11 2 -8 8 6 6 -6 -6 -2 -2 -2 -2 -16 -16 20 20 -2 -2 -2 -2 -2 -2 -24 10 10 10 10 48 1 1 -1 -1 0 0 8 8 8 -1 1 10 10 -10 -10 -2 -2 -2 -2 -4 4 1 1 1 1 -1 12 12 12 12 -40 -40 10 10 -2 -2 2 2 -6 -6 -10 -10 10 10 8 8 22 22 22 -5 -5 -5 -5 -5 -5 6 -12 -12 ]
+
+Newform #4 (2.0.68.1-9.2d)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+P3b:	1
+
+aP for first 25 primes:
+P2:	2
+P3a:	1	(AL eigenvalue = -1)
+P3b:	-1	(AL eigenvalue = 1)
+P7a:	2
+P7b:	-2
+P11a:	5
+P11b:	-5
+P13a:	1
+P13b:	1
+P17:	8
+P23a:	1
+P23b:	-1
+P5:	1
+P31a:	-10
+P31b:	10
+P53a:	-6
+P53b:	-6
+P71a:	0
+P71b:	0
+P79a:	4
+P79b:	-4
+P89a:	10
+P89b:	10
+P101a:	-12
+P101b:	-12
+
+First 158 traces: [ 1 2 1 -1 6 2 2 2 -2 8 1 1 1 5 -5 6 6 1 1 4 4 4 8 2 2 2 2 2 -2 -2 10 10 1 -1 8 8 1 2 2 1 1 1 -1 12 12 -10 10 -8 5 5 -5 -5 16 6 6 6 1 1 -1 -1 4 4 4 4 30 30 2 2 4 4 11 4 11 2 8 -8 6 6 -6 -6 2 2 2 2 16 16 -20 -20 2 2 2 2 2 2 -24 10 10 10 10 48 1 1 -1 -1 0 0 8 8 8 1 -1 10 10 -10 -10 2 2 2 2 4 -4 1 1 1 1 -1 12 12 12 12 40 40 10 10 2 2 -2 -2 6 6 -10 -10 10 10 -8 -8 22 22 22 5 5 5 5 5 5 6 -12 -12 ]
+
+
+>>>> Level 11.1 = (4+a,-7+a), norm = 11 <<<<
+Found 0 homological newforms at level 11.1
+
+>>>> Level 12.1 = (6,2+2a), norm = 12 <<<<
+Found 1 homological newform at level 12.1 of dimension 1
+Of these, 0 have trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.68.1-12.1a)
+ - Genus character value: -1
+ - Dimension: 1
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(i, sqrt(r2)), where r2 = 2
+                        = Q(a1) = Q[X]/(X^4+16)
+
+aP for first 23 primes:
+P3b:	0 	= 0
+P7a:	sqrt(2)*(1+i) 	= a1
+P7b:	-sqrt(2)*(1-i) 	= (a1^3)/4
+P11a:	2*sqrt(2)*(1-i) 	= (-a1^3)/2
+P11b:	0 	= 0
+P13a:	-6*i 	= (-3*a1^2)/2
+P13b:	-2*i 	= (-a1^2)/2
+P17:	2 	= 2
+P23a:	sqrt(2)*(1-i) 	= (-a1^3)/4
+P23b:	3*sqrt(2)*(1+i) 	= 3*a1
+P5:	-2 	= -2
+P31a:	5*sqrt(2)*(1+i) 	= 5*a1
+P31b:	-sqrt(2)*(1-i) 	= (a1^3)/4
+P53a:	2 	= 2
+P53b:	-6 	= -6
+P71a:	-7*sqrt(2)*(1+i) 	= -7*a1
+P71b:	-5*sqrt(2)*(1-i) 	= (5*a1^3)/4
+P79a:	-sqrt(2)*(1-i) 	= (a1^3)/4
+P79b:	5*sqrt(2)*(1+i) 	= 5*a1
+P89a:	-10*i 	= (-5*a1^2)/2
+P89b:	-6*i 	= (-3*a1^2)/2
+P101a:	14*i 	= (7*a1^2)/2
+P101b:	-14*i 	= (-7*a1^2)/2
+
+
+End of program, exiting...

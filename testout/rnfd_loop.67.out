@@ -22,7 +22,7 @@ Non-Euclidean, class number 1
 >>>> Level 17.1 = (a), norm = 17 <<<<
 1 newform
 
-Newform #1 (2.0.67.1-17.1-a)
+Newform #1 (2.0.67.1-17.1a)
  - Dimension: 3
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -62,7 +62,7 @@ P83b:	3*a^2+4*a-16
 >>>> Level 17.2 = (-1+a), norm = 17 <<<<
 1 newform
 
-Newform #1 (2.0.67.1-17.2-a)
+Newform #1 (2.0.67.1-17.2a)
  - Dimension: 3
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -166,7 +166,7 @@ P83b:	a^2-4*a
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
 3 newforms
 
-Newform #1 (2.0.67.1-67.1-a)
+Newform #1 (2.0.67.1-67.1a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = +1
@@ -202,7 +202,7 @@ P73b:	-7
 P83a:	4
 P83b:	4
 
-Newform #2 (2.0.67.1-67.1-b)
+Newform #2 (2.0.67.1-67.1b)
  - Dimension: 2
  - Newform is base-change
  - Sign of functional equation = +1
@@ -238,7 +238,7 @@ P73b:	8
 P83a:	3*b+5
 P83b:	3*b+5
 
-Newform #3 (2.0.67.1-67.1-c)
+Newform #3 (2.0.67.1-67.1c)
  - Dimension: 2
  - Newform is base-change
  - Sign of functional equation = -1
@@ -310,7 +310,7 @@ P83b:	-7*c-4
 >>>> Level 81.1 = (9), norm = 81 <<<<
 2 newforms
 
-Newform #1 (2.0.67.1-81.1-a)
+Newform #1 (2.0.67.1-81.1a)
  - Dimension: 10
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -346,7 +346,7 @@ P73b:	(3618516903*a^9-14287879588*a^8-186531932624*a^7+516560368829*a^6+30030713
 P83a:	(5939689681*a^9-23104184757*a^8-307614335535*a^7+829949156822*a^6+4983378006846*a^5-7859393197194*a^4-22690806215751*a^3+25260827118659*a^2+3982133022893*a-479538324496)/20460361234
 P83b:	(-5939689681*a^9+23104184757*a^8+307614335535*a^7-829949156822*a^6-4983378006846*a^5+7859393197194*a^4+22690806215751*a^3-25260827118659*a^2-3982133022893*a+479538324496)/20460361234
 
-Newform #2 (2.0.67.1-81.1-b)
+Newform #2 (2.0.67.1-81.1b)
  - Dimension: 10
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1

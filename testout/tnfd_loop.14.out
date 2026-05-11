@@ -1,0 +1,209 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-14))	discriminant = -56	min poly(a) = a^2+14.
+Class number 4
+Ideal class group representatives: [ [1,a] [2,a] [3,1+a] [3,2+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms at level 1.1
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+Found 0 homological newforms at level 2.1
+
+>>>> Level 3.1 = (3,1+a), norm = 3 <<<<
+Found 0 homological newforms at level 3.1
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+Found 0 homological newforms at level 4.1
+
+>>>> Level 5.1 = (1+a,-5), norm = 5 <<<<
+Found 0 homological newforms at level 5.1
+
+>>>> Level 6.1 = (-2+a,-4-a), norm = 6 <<<<
+Found 0 homological newforms at level 6.1
+
+>>>> Level 7.1 = (a,-7), norm = 7 <<<<
+Found 2 homological newforms at level 7.1 of dimensions [ 1 2 ]
+Of these, 2 have trivial character
+
+Full eigensystems for forms with character chi_0 (trivial) and character chi_1 (up to unramified quadratic twist)
+
+Newform #1 (2.0.56.1-7.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P7:	1
+
+aP for first 26 primes:
+P2:	0 	= 0
+P3a:	sqrt(2) 	= a1
+P3b:	-sqrt(2) 	= -a1
+P5a:	sqrt(2) 	= a1
+P5b:	-sqrt(2) 	= -a1
+P7:	-1 	= -1	(AL eigenvalue = 1)
+P13a:	-3*sqrt(2) 	= -3*a1
+P13b:	3*sqrt(2) 	= 3*a1
+P19a:	3*sqrt(2) 	= 3*a1
+P19b:	-3*sqrt(2) 	= -3*a1
+P23a:	-6 	= -6
+P23b:	-6 	= -6
+P59a:	-sqrt(2) 	= -a1
+P59b:	sqrt(2) 	= a1
+P61a:	-9*sqrt(2) 	= -9*a1
+P61b:	9*sqrt(2) 	= 9*a1
+P71a:	0 	= 0
+P71b:	0 	= 0
+P79a:	-8 	= -8
+P79b:	-8 	= -8
+P83a:	11*sqrt(2) 	= 11*a1
+P83b:	-11*sqrt(2) 	= -11*a1
+P101a:	-7*sqrt(2) 	= -7*a1
+P101b:	7*sqrt(2) 	= 7*a1
+P113a:	12 	= 12
+P113b:	12 	= 12
+
+First 181 traces: [ 2 0 0 0 4 0 0 0 0 -2 0 10 4 10 0 0 0 0 0 0 0 4 4 -4 -4 -8 0 0 0 0 0 0 0 0 0 -12 -12 0 0 14 4 14 0 0 0 0 0 0 -4 0 0 0 0 0 0 0 20 20 20 0 0 -12 -12 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 12 12 -12 -12 0 0 8 8 8 8 0 0 -10 -4 -10 16 -12 -12 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -16 -16 0 0 -22 8 50 8 -38 0 0 0 0 0 0 0 0 0 0 0 0 -24 -24 12 12 -12 -12 0 0 0 28 28 28 0 0 0 0 -4 -4 4 4 0 0 0 0 8 24 24 ]
+
+Newform #2 (2.0.56.1-7.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q(b) = Q[X]/(X^2-X-4)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = -2*b+6
+                        = Q(b1) = Q[X]/(X^4-10*X^2+8)
+        [where b = (-b1^2+6)/2, sqrt(r1) = b1]
+
+Atkin-Lehner eigenvalues:
+P7:	-1
+
+aP for first 26 primes:
+P2:	b 	= (-b1^2+6)/2
+P3a:	sqrt(r1) 	= b1
+P3b:	-sqrt(r1) 	= -b1
+P5a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P5b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P7:	1 	= 1	(AL eigenvalue = -1)
+P13a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P13b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P19a:	-sqrt(r1) 	= -b1
+P19b:	sqrt(r1) 	= b1
+P23a:	-2*b+2 	= b1^2-4
+P23b:	-2*b+2 	= b1^2-4
+P59a:	(2*b+3)*sqrt(r1) 	= -b1^3+9*b1
+P59b:	(-2*b-3)*sqrt(r1) 	= b1^3-9*b1
+P61a:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P61b:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P71a:	8 	= 8
+P71b:	8 	= 8
+P79a:	0 	= 0
+P79b:	0 	= 0
+P83a:	(-2*b-5)*sqrt(r1) 	= b1^3-11*b1
+P83b:	(2*b+5)*sqrt(r1) 	= -b1^3+11*b1
+P101a:	(-b-5)*sqrt(r1) 	= (b1^3-16*b1)/2
+P101b:	(b+5)*sqrt(r1) 	= (-b1^3+16*b1)/2
+P113a:	-2*b-8 	= b1^2-14
+P113b:	-2*b-8 	= b1^2-14
+
+First 181 traces: [ 4 2 0 0 26 0 0 0 0 4 26 32 20 32 0 0 0 0 0 0 2 4 4 -4 -4 46 -18 -18 -18 0 0 0 0 0 0 4 4 0 0 48 28 48 0 0 0 0 0 0 26 -32 -32 -32 -32 90 0 0 174 174 174 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 -32 -32 0 0 4 58 58 58 0 0 0 0 0 0 26 -20 -20 20 20 0 0 -8 -8 -8 -8 0 0 32 20 32 38 28 28 -28 -28 0 0 0 0 0 0 32 32 38 38 38 0 0 0 0 0 0 0 0 -32 -32 -32 -32 0 0 0 0 72 168 324 168 -264 0 0 0 0 0 0 0 0 0 0 0 0 -8 -8 -4 -4 4 4 0 0 2 346 346 346 0 0 0 0 4 4 -4 -4 0 0 0 0 46 -36 -36 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.56.1-7.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field k_F = Q(sqrt(2))
+                        = Q(a1) = Q[X]/(X^2-2)
+
+Atkin-Lehner eigenvalues:
+P7:	1
+
+aP for first 26 primes:
+P2:	0 	= 0
+P3a:	sqrt(2) 	= a1
+P3b:	-sqrt(2) 	= -a1
+P5a:	sqrt(2) 	= a1
+P5b:	-sqrt(2) 	= -a1
+P7:	-1 	= -1	(AL eigenvalue = 1)
+P13a:	-3*sqrt(2) 	= -3*a1
+P13b:	3*sqrt(2) 	= 3*a1
+P19a:	3*sqrt(2) 	= 3*a1
+P19b:	-3*sqrt(2) 	= -3*a1
+P23a:	-6 	= -6
+P23b:	-6 	= -6
+P59a:	-sqrt(2) 	= -a1
+P59b:	sqrt(2) 	= a1
+P61a:	-9*sqrt(2) 	= -9*a1
+P61b:	9*sqrt(2) 	= 9*a1
+P71a:	0 	= 0
+P71b:	0 	= 0
+P79a:	-8 	= -8
+P79b:	-8 	= -8
+P83a:	11*sqrt(2) 	= 11*a1
+P83b:	-11*sqrt(2) 	= -11*a1
+P101a:	-7*sqrt(2) 	= -7*a1
+P101b:	7*sqrt(2) 	= 7*a1
+P113a:	12 	= 12
+P113b:	12 	= 12
+
+First 181 traces: [ 2 0 0 0 4 0 0 0 0 -2 0 10 4 10 0 0 0 0 0 0 0 4 4 -4 -4 -8 0 0 0 0 0 0 0 0 0 -12 -12 0 0 14 4 14 0 0 0 0 0 0 -4 0 0 0 0 0 0 0 20 20 20 0 0 -12 -12 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 12 12 -12 -12 0 0 8 8 8 8 0 0 -10 -4 -10 16 -12 -12 12 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -16 -16 0 0 -22 8 50 8 -38 0 0 0 0 0 0 0 0 0 0 0 0 -24 -24 12 12 -12 -12 0 0 0 28 28 28 0 0 0 0 -4 -4 4 4 0 0 0 0 8 24 24 ]
+
+Newform #2 (2.0.56.1-7.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q(b) = Q[X]/(X^2-X-4)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = -2*b+6
+                        = Q(b1) = Q[X]/(X^4-10*X^2+8)
+        [where b = (-b1^2+6)/2, sqrt(r1) = b1]
+
+Atkin-Lehner eigenvalues:
+P7:	-1
+
+aP for first 26 primes:
+P2:	b 	= (-b1^2+6)/2
+P3a:	sqrt(r1) 	= b1
+P3b:	-sqrt(r1) 	= -b1
+P5a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P5b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P7:	1 	= 1	(AL eigenvalue = -1)
+P13a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P13b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P19a:	-sqrt(r1) 	= -b1
+P19b:	sqrt(r1) 	= b1
+P23a:	-2*b+2 	= b1^2-4
+P23b:	-2*b+2 	= b1^2-4
+P59a:	(2*b+3)*sqrt(r1) 	= -b1^3+9*b1
+P59b:	(-2*b-3)*sqrt(r1) 	= b1^3-9*b1
+P61a:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
+P61b:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
+P71a:	8 	= 8
+P71b:	8 	= 8
+P79a:	0 	= 0
+P79b:	0 	= 0
+P83a:	(-2*b-5)*sqrt(r1) 	= b1^3-11*b1
+P83b:	(2*b+5)*sqrt(r1) 	= -b1^3+11*b1
+P101a:	(-b-5)*sqrt(r1) 	= (b1^3-16*b1)/2
+P101b:	(b+5)*sqrt(r1) 	= (-b1^3+16*b1)/2
+P113a:	-2*b-8 	= b1^2-14
+P113b:	-2*b-8 	= b1^2-14
+
+First 181 traces: [ 4 2 0 0 26 0 0 0 0 4 26 32 20 32 0 0 0 0 0 0 2 4 4 -4 -4 46 -18 -18 -18 0 0 0 0 0 0 4 4 0 0 48 28 48 0 0 0 0 0 0 26 -32 -32 -32 -32 90 0 0 174 174 174 0 0 4 4 -4 -4 0 0 0 0 0 0 0 0 0 0 -32 -32 0 0 4 58 58 58 0 0 0 0 0 0 26 -20 -20 20 20 0 0 -8 -8 -8 -8 0 0 32 20 32 38 28 28 -28 -28 0 0 0 0 0 0 32 32 38 38 38 0 0 0 0 0 0 0 0 -32 -32 -32 -32 0 0 0 0 72 168 324 168 -264 0 0 0 0 0 0 0 0 0 0 0 0 -8 -8 -4 -4 4 4 0 0 2 346 346 346 0 0 0 0 4 4 -4 -4 0 0 0 0 46 -36 -36 ]
+
+
+>>>> Level 8.1 = (4,2a), norm = 8 <<<<
+Found 0 homological newforms at level 8.1
+
+End of program, exiting...

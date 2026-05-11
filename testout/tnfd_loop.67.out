@@ -19,7 +19,7 @@ Found 0 homological newforms at level 16.1
 Found 1 homological newform at level 17.1 of dimension 3
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.67.1-17.1-a)
+Newform #1 (2.0.67.1-17.1a)
  - Dimension: 3
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -92,7 +92,7 @@ Found 0 homological newforms at level 64.1
 Found 3 homological newforms at level 67.1 of dimensions [ 1 2 2 ]
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.67.1-67.1-a)
+Newform #1 (2.0.67.1-67.1a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = +1
@@ -130,7 +130,7 @@ P83b:	4
 
 First 34 traces: [ 1 0 -2 4 3 3 7 7 9 9 -6 -5 -5 0 -1 -1 -1 -1 -10 9 9 0 1 0 0 0 0 -7 -7 0 0 13 4 4 ]
 
-Newform #2 (2.0.67.1-67.1-b)
+Newform #2 (2.0.67.1-67.1b)
  - Dimension: 2
  - Newform is base-change
  - Sign of functional equation = +1
@@ -168,7 +168,7 @@ P83b:	3*b+5
 
 First 34 traces: [ 2 -5 -9 23 6 6 -11 -11 -2 -2 -2 10 10 20 3 3 -7 -7 -25 -12 -12 -50 2 -10 -10 0 0 16 16 25 25 61 13 13 ]
 
-Newform #3 (2.0.67.1-67.1-c)
+Newform #3 (2.0.67.1-67.1c)
  - Dimension: 2
  - Newform is base-change
  - Sign of functional equation = -1
@@ -223,7 +223,7 @@ Found 0 homological newforms at level 76.1
 Found 2 homological newforms at level 81.1 of dimensions [ 10 10 ]
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.67.1-81.1-a)
+Newform #1 (2.0.67.1-81.1a)
  - Dimension: 10
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -261,7 +261,7 @@ P83b:	(-5939689681*a^9+23104184757*a^8+307614335535*a^7-829949156822*a^6-4983378
 
 First 34 traces: [ 10 -14 0 114 0 0 -12 -12 0 0 -52 0 0 0 -12 -12 0 0 46 0 0 -188 -32 0 0 0 0 -2 -2 -34 -34 0 0 0 ]
 
-Newform #2 (2.0.67.1-81.1-b)
+Newform #2 (2.0.67.1-81.1b)
  - Dimension: 10
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1

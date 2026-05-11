@@ -34,7 +34,7 @@ Non-Euclidean, class number 1
 >>>> Level 16.1 = (4), norm = 16 <<<<
 1 newform
 
-Newform #1 (2.0.43.1-16.1-a)
+Newform #1 (2.0.43.1-16.1a)
  - Dimension: 2
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -102,7 +102,7 @@ P67b:	-6*a+1
 >>>> Level 36.1 = (6), norm = 36 <<<<
 1 newform
 
-Newform #1 (2.0.43.1-36.1-a)
+Newform #1 (2.0.43.1-36.1a)
  - Dimension: 2
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -151,7 +151,7 @@ P67b:	-4*a+10
 >>>> Level 43.1 = (-1+2a), norm = 43 <<<<
 3 newforms
 
-Newform #1 (2.0.43.1-43.1-a)
+Newform #1 (2.0.43.1-43.1a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = -1
@@ -187,7 +187,7 @@ P59b:	-12
 P67a:	-3
 P67b:	-3
 
-Newform #2 (2.0.43.1-43.1-b)
+Newform #2 (2.0.43.1-43.1b)
  - Dimension: 2
  - Newform is base-change
  - Sign of functional equation = +1
@@ -223,7 +223,7 @@ P59b:	-2*b-2
 P67a:	-6*b+1
 P67b:	-6*b+1
 
-Newform #3 (2.0.43.1-43.1-c)
+Newform #3 (2.0.43.1-43.1c)
  - Dimension: 2
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -335,7 +335,7 @@ P67b:	-2*c-7
 >>>> Level 81.1 = (9), norm = 81 <<<<
 2 newforms
 
-Newform #1 (2.0.43.1-81.1-a)
+Newform #1 (2.0.43.1-81.1a)
  - Dimension: 6
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -371,7 +371,7 @@ P59b:	(-a^5+7*a^3-3*a^2-6*a+11)/2
 P67a:	a^3-a^2-5*a+4
 P67b:	a^3-a^2-5*a+4
 
-Newform #2 (2.0.43.1-81.1-b)
+Newform #2 (2.0.43.1-81.1b)
  - Dimension: 6
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
@@ -443,7 +443,7 @@ P67b:	5*b^4-29*b^2+26
 >>>> Level 100.1 = (10), norm = 100 <<<<
 1 newform
 
-Newform #1 (2.0.43.1-100.1-a)
+Newform #1 (2.0.43.1-100.1a)
  - Dimension: 2
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1

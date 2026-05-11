@@ -66,7 +66,7 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 >>>> Level 10.1 = (-4+a,-2-2a), norm = 10 <<<<
 1 newform
 
-Newform #1 (2.0.31.1-10.1-a)
+Newform #1 (2.0.31.1-10.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -116,7 +116,7 @@ P103b:	8
 >>>> Level 10.4 = (3+a,-4+2a), norm = 10 <<<<
 1 newform
 
-Newform #1 (2.0.31.1-10.4-a)
+Newform #1 (2.0.31.1-10.4a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -162,7 +162,7 @@ P103b:	0
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 1 newform
 
-Newform #1 (2.0.31.1-14.2-a)
+Newform #1 (2.0.31.1-14.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -204,7 +204,7 @@ P103b:	14
 >>>> Level 14.3 = (-5+a,-4-2a), norm = 14 <<<<
 1 newform
 
-Newform #1 (2.0.31.1-14.3-a)
+Newform #1 (2.0.31.1-14.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -294,7 +294,7 @@ P103b:	-4
 >>>> Level 20.3 = (2+2a,-8+2a), norm = 20 <<<<
 2 newforms
 
-Newform #1 (2.0.31.1-20.3-a)
+Newform #1 (2.0.31.1-20.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -333,7 +333,7 @@ P101b:	0
 P103a:	8
 P103b:	8
 
-Newform #2 (2.0.31.1-20.3-b)
+Newform #2 (2.0.31.1-20.3b)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -376,7 +376,7 @@ P103b:	-16
 >>>> Level 20.4 = (-4+2a,-6-2a), norm = 20 <<<<
 2 newforms
 
-Newform #1 (2.0.31.1-20.4-a)
+Newform #1 (2.0.31.1-20.4a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -415,7 +415,7 @@ P101b:	-18
 P103a:	8
 P103b:	8
 
-Newform #2 (2.0.31.1-20.4-b)
+Newform #2 (2.0.31.1-20.4b)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1

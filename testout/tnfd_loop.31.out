@@ -34,7 +34,7 @@ Found 0 homological newforms at level 9.1
 Found 1 homological newform at level 10.1 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.31.1-10.1-a)
+Newform #1 (2.0.31.1-10.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -85,7 +85,7 @@ Found 0 homological newforms at level 14.1
 Found 1 homological newform at level 14.2 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.31.1-14.2-a)
+Newform #1 (2.0.31.1-14.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -151,7 +151,7 @@ Found 0 homological newforms at level 20.2
 Found 2 homological newforms at level 20.3 of dimensions [ 1 1 ]
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.31.1-20.3-a)
+Newform #1 (2.0.31.1-20.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -192,7 +192,7 @@ P103b:	8
 
 First 179 traces: [ 1 -1 -1 1 1 1 -1 0 2 -4 -1 -1 -1 -1 -2 1 1 1 1 -2 -2 -2 -2 1 1 1 1 1 2 2 2 -4 -1 -1 -1 -1 -1 -1 1 1 5 2 2 2 2 2 2 -4 -1 -1 -1 -1 -1 -1 -2 -2 0 0 -2 -2 -2 -2 -2 -2 -2 1 1 1 1 1 1 1 1 0 -12 2 2 0 6 11 4 23 -1 -1 -1 -1 -1 -1 -2 -2 -2 -2 -2 -2 -2 -2 -12 -12 4 4 -4 -4 1 1 1 1 1 1 1 -4 2 2 2 2 2 2 2 2 2 12 -12 2 2 2 2 2 2 2 2 2 2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 13 0 0 0 0 -2 -2 -2 -2 0 0 0 0 -2 -2 0 0 -10 8 -11 -11 -11 -11 -11 -11 1 1 1 1 1 1 1 1 1 -18 0 8 8 ]
 
-Newform #2 (2.0.31.1-20.3-b)
+Newform #2 (2.0.31.1-20.3b)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1

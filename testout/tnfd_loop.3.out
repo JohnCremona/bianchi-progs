@@ -88,7 +88,7 @@ Found 0 homological newforms at level 67.1
 Found 1 homological newform at level 73.1 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.3.1-73.1-a)
+Newform #1 (2.0.3.1-73.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -131,7 +131,7 @@ First 60 traces: [ 1 -2 -1 -4 2 7 2 2 2 5 2 2 8 8 2 -8 4 4 -4 -10 -7 2 2 -4 -4 -
 Found 1 homological newform at level 75.1 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.3.1-75.1-a)
+Newform #1 (2.0.3.1-75.1a)
  - Dimension: 1
  - Newform is base-change
  - Sign of functional equation = +1

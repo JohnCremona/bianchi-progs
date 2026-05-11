@@ -107,7 +107,7 @@ headers: Q_headers quad_headers swan_headers
 sources: ccs headers Makefile.deps
 	chmod a+r *.h *.cc
 
-# This target dows not work
+# This target does not work
 Makefile.deps:
 	for f in *.cc; do echo "# "${f}; g++ -MM -std=c++11 ${f}; done > Makefile.deps
 # recreate with
@@ -147,6 +147,9 @@ FIELDS_hom=$(FIELDS_nf)
 FIELDS=$(FIELDS_hom)
 #FIELDS=
 
+# Higher-dimensional newspaces:
+FIELDS_newspaces = $(FIELDS_full) 17
+
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = tquads tratquad looptest qidltest
 #BASIC_TESTS =
@@ -159,7 +162,9 @@ FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
 #GLOBAL_TESTS =
-ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS)
+NEWSPACE_TESTS = tnfd_loop rnfd_loop
+#NEWSPACE_TESTS =
+ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS) $(NEWSPACE_TESTS)
 
 test_input_dir = testin
 test_output_dir = testout
@@ -169,11 +174,14 @@ TIMES := $(shell mktemp)
 check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o $(TIMES) -f "%Us" ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully in " `cat $(TIMES)`;  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
 
 export NF_DIR:=nftmp
+export NSP_DIR:=nsptmp
 check: $(ALL_TESTS)
 	 @echo Test setup: create temporary directories
 	 rm -f t
 	 rm -rf $(NF_DIR)
 	 mkdir $(NF_DIR)
+	 rm -rf $(NSP_DIR)
+	 mkdir $(NSP_DIR)
 	 for d in $(DISCS); do mkdir $(NF_DIR)/2.0.$$d.1; done
 	 @echo
 	 @echo running global tests...
@@ -196,8 +204,13 @@ check: $(ALL_TESTS)
 	 @echo
 	 @for d in $(FIELDS_full); do for prog in $(FULL_TESTS); do $(check_run); done; echo; done
 	 @echo
+	 @echo running newspace tests on fields $(FIELDS_newspaces)...
+	 @echo
+	 @for d in $(FIELDS_newspaces); do for prog in $(NEWSPACE_TESTS); do $(check_run); done; echo; done
+	 @echo
 	 @echo Tidy up: remove temporary directories and output test files
 	 rm -rf $(NF_DIR)
+	 rm -rf $(NSP_DIR)
 	 rm -f *.out
 	 @echo Tests completed
 

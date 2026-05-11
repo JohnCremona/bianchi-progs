@@ -1,0 +1,922 @@
+Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension.
+Q(sqrt(-5))	discriminant = -20	min poly(a) = a^2+5.
+Class number 2
+Ideal class group representatives: [ [1,a] [2,1+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 2.1 = (2,-1+a), norm = 2 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 3.1 = (1+a,-3), norm = 3 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 3.2 = (-1+a,-2-a), norm = 3 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 4.1 = (2), norm = 4 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 5.1 = (a), norm = 5 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.1 = (1+a), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.2 = (-1+a), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 7.1 = (3+a,-4+a), norm = 7 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 7.2 = (-3+a,-1-2a), norm = 7 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.1 = (-2+a), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.3 = (2+a), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 10.1 = (2a,-5-a), norm = 10 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.1 = (2+2a,-6), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.2 = (-2+2a,-4-2a), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 14.1 = (3+a), norm = 14 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 14.2 = (-3+a), norm = 14 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 15.1 = (-5+a,-3a), norm = 15 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 15.2 = (5+a,-5+2a), norm = 15 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 16.1 = (4), norm = 16 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.20.1-16.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	-2
+P5:	2
+P7a:	2
+P7b:	-2
+P23a:	2
+P23b:	-2
+P29a:	-2
+P29b:	-2
+P41a:	-2
+P41b:	-2
+P43a:	-6
+P43b:	6
+P47a:	6
+P47b:	-6
+P61a:	10
+P61b:	10
+P67a:	14
+P67b:	-14
+P83a:	-2
+P83b:	2
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.20.1-16.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	-2
+P5:	2
+P7a:	2
+P7b:	-2
+P23a:	2
+P23b:	-2
+P29a:	-2
+P29b:	-2
+P41a:	-2
+P41b:	-2
+P43a:	-6
+P43b:	6
+P47a:	6
+P47b:	-6
+P61a:	10
+P61b:	10
+P67a:	14
+P67b:	-14
+P83a:	-2
+P83b:	2
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Newform #2 (2.0.20.1-16.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is twisted base-change but not base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = 1)
+P3a:	-2
+P3b:	2
+P5:	2
+P7a:	-2
+P7b:	2
+P23a:	-2
+P23b:	2
+P29a:	-2
+P29b:	-2
+P41a:	-2
+P41b:	-2
+P43a:	6
+P43b:	-6
+P47a:	-6
+P47b:	6
+P61a:	10
+P61b:	10
+P67a:	-14
+P67b:	14
+P83a:	2
+P83b:	-2
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+
+>>>> Level 18.1 = (-4+2a,-3-3a), norm = 18 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 18.2 = (6,-3+3a), norm = 18 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 18.3 = (4+2a,-7+a), norm = 18 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 20.1 = (2a), norm = 20 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.20.1-20.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P5:	1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	2
+P5:	-1	(AL eigenvalue = 1)
+P7a:	-2
+P7b:	-2
+P23a:	-6
+P23b:	-6
+P29a:	6
+P29b:	6
+P41a:	6
+P41b:	6
+P43a:	10
+P43b:	10
+P47a:	6
+P47b:	6
+P61a:	2
+P61b:	2
+P67a:	-2
+P67b:	-2
+P83a:	-6
+P83b:	-6
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.20.1-20.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P5:	1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	2
+P3b:	2
+P5:	-1	(AL eigenvalue = 1)
+P7a:	-2
+P7b:	-2
+P23a:	-6
+P23b:	-6
+P29a:	6
+P29b:	6
+P41a:	6
+P41b:	6
+P43a:	10
+P43b:	10
+P47a:	6
+P47b:	6
+P61a:	2
+P61b:	2
+P67a:	-2
+P67b:	-2
+P83a:	-6
+P83b:	-6
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Newform #2 (2.0.20.1-20.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P5:	1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = 1)
+P3a:	-2
+P3b:	-2
+P5:	-1	(AL eigenvalue = 1)
+P7a:	2
+P7b:	2
+P23a:	6
+P23b:	6
+P29a:	6
+P29b:	6
+P41a:	6
+P41b:	6
+P43a:	-10
+P43b:	-10
+P47a:	-6
+P47b:	-6
+P61a:	2
+P61b:	2
+P67a:	2
+P67b:	2
+P83a:	6
+P83b:	6
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+
+>>>> Level 21.1 = (-1+2a), norm = 21 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 21.2 = (4+a), norm = 21 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 21.3 = (-4+a), norm = 21 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 21.4 = (1+2a), norm = 21 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 23.1 = (1+3a,-8-a), norm = 23 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 23.2 = (-1+3a,-7-2a), norm = 23 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 24.1 = (2+2a), norm = 24 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 24.2 = (-2+2a), norm = 24 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 25.1 = (5), norm = 25 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 27.1 = (7+a,-6+3a), norm = 27 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 27.2 = (3+3a,-9), norm = 27 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 27.3 = (-3+3a,-6-3a), norm = 27 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 27.4 = (-7+a,1-4a), norm = 27 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 28.2 = (-6+2a,-2-4a), norm = 28 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 29.1 = (-3+2a), norm = 29 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 29.2 = (3+2a), norm = 29 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 30.1 = (-5+a), norm = 30 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 30.2 = (5+a), norm = 30 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 32.1 = (8,-4+4a), norm = 32 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 35.1 = (-5+3a,-5-4a), norm = 35 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 35.2 = (5+3a,-10+a), norm = 35 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 36.1 = (-4+2a), norm = 36 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 36.2 = (6), norm = 36 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 36.3 = (4+2a), norm = 36 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 40.1 = (4a,-10-2a), norm = 40 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.20.1-40.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P5:	-1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = 1)
+P3a:	0
+P3b:	0
+P5:	1	(AL eigenvalue = -1)
+P7a:	4
+P7b:	4
+P23a:	-4
+P23b:	-4
+P29a:	-2
+P29b:	-2
+P41a:	-6
+P41b:	-6
+P43a:	8
+P43b:	8
+P47a:	-4
+P47b:	-4
+P61a:	-2
+P61b:	-2
+P67a:	-8
+P67b:	-8
+P83a:	16
+P83b:	16
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.20.1-40.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P5:	-1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = 1)
+P3a:	0
+P3b:	0
+P5:	1	(AL eigenvalue = -1)
+P7a:	4
+P7b:	4
+P23a:	-4
+P23b:	-4
+P29a:	-2
+P29b:	-2
+P41a:	-6
+P41b:	-6
+P43a:	8
+P43b:	8
+P47a:	-4
+P47b:	-4
+P61a:	-2
+P61b:	-2
+P67a:	-8
+P67b:	-8
+P83a:	16
+P83b:	16
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Newform #2 (2.0.20.1-40.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P5:	-1
+
+aP for first 26 primes:
+P2:	0	(AL eigenvalue = -1)
+P3a:	0
+P3b:	0
+P5:	1	(AL eigenvalue = -1)
+P7a:	-4
+P7b:	-4
+P23a:	4
+P23b:	4
+P29a:	-2
+P29b:	-2
+P41a:	-6
+P41b:	-6
+P43a:	-8
+P43b:	-8
+P47a:	4
+P47b:	4
+P61a:	-2
+P61b:	-2
+P67a:	8
+P67b:	8
+P83a:	-16
+P83b:	-16
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+
+>>>> Level 41.1 = (6+a), norm = 41 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 41.2 = (-6+a), norm = 41 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 42.1 = (-2+4a,-9-3a), norm = 42 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 42.2 = (8+2a,-9+3a), norm = 42 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 42.3 = (-8+2a,-1-5a), norm = 42 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 42.4 = (2+4a,-11-a), norm = 42 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 43.1 = (9+a,-7+4a), norm = 43 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 43.2 = (-9+a,2-5a), norm = 43 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 45.1 = (5+2a), norm = 45 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 45.2 = (3a), norm = 45 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.20.1-45.2a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+P3b:	-1
+P5:	-1
+
+aP for first 26 primes:
+P2:	1
+P3a:	1	(AL eigenvalue = -1)
+P3b:	1	(AL eigenvalue = -1)
+P5:	1	(AL eigenvalue = -1)
+P7a:	0
+P7b:	0
+P23a:	0
+P23b:	0
+P29a:	-2
+P29b:	-2
+P41a:	10
+P41b:	10
+P43a:	-4
+P43b:	-4
+P47a:	-8
+P47b:	-8
+P61a:	-2
+P61b:	-2
+P67a:	-12
+P67b:	-12
+P83a:	-12
+P83b:	-12
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.20.1-45.2a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	-1
+P3b:	-1
+P5:	-1
+
+aP for first 26 primes:
+P2:	1
+P3a:	1	(AL eigenvalue = -1)
+P3b:	1	(AL eigenvalue = -1)
+P5:	1	(AL eigenvalue = -1)
+P7a:	0
+P7b:	0
+P23a:	0
+P23b:	0
+P29a:	-2
+P29b:	-2
+P41a:	10
+P41b:	10
+P43a:	-4
+P43b:	-4
+P47a:	-8
+P47b:	-8
+P61a:	-2
+P61b:	-2
+P67a:	-12
+P67b:	-12
+P83a:	-12
+P83b:	-12
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+Newform #2 (2.0.20.1-45.2b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P3a:	1
+P3b:	1
+P5:	-1
+
+aP for first 26 primes:
+P2:	-1
+P3a:	-1	(AL eigenvalue = 1)
+P3b:	-1	(AL eigenvalue = 1)
+P5:	1	(AL eigenvalue = -1)
+P7a:	0
+P7b:	0
+P23a:	0
+P23b:	0
+P29a:	-2
+P29b:	-2
+P41a:	10
+P41b:	10
+P43a:	4
+P43b:	4
+P47a:	8
+P47b:	8
+P61a:	-2
+P61b:	-2
+P67a:	12
+P67b:	12
+P83a:	12
+P83b:	12
+P89a:	-6
+P89b:	-6
+P101a:	6
+P101b:	6
+
+
+>>>> Level 45.3 = (-5+2a), norm = 45 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 46.1 = (1+3a), norm = 46 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 46.2 = (-1+3a), norm = 46 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 47.1 = (7+3a,-11+2a), norm = 47 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 47.2 = (-7+3a,-4-5a), norm = 47 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 48.1 = (4+4a,-12), norm = 48 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 48.2 = (-4+4a,-8-4a), norm = 48 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 49.1 = (2+3a), norm = 49 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 49.2 = (7), norm = 49 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 49.3 = (-2+3a), norm = 49 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 50.1 = (10,-5+5a), norm = 50 <<<<
+1 newform up to unramified quadratic twist, of which 1 has trivial character
+
+Newform #1 (2.0.20.1-50.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P5:	-1
+
+aP for first 26 primes:
+P2:	-1	(AL eigenvalue = 1)
+P3a:	1
+P3b:	1
+P5:	0	(AL eigenvalue = -1)
+P7a:	2
+P7b:	2
+P23a:	6
+P23b:	6
+P29a:	0
+P29b:	0
+P41a:	-3
+P41b:	-3
+P43a:	-4
+P43b:	-4
+P47a:	12
+P47b:	12
+P61a:	2
+P61b:	2
+P67a:	-13
+P67b:	-13
+P83a:	-9
+P83b:	-9
+P89a:	15
+P89b:	15
+P101a:	-18
+P101b:	-18
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.20.1-50.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	1
+P5:	-1
+
+aP for first 26 primes:
+P2:	-1	(AL eigenvalue = 1)
+P3a:	1
+P3b:	1
+P5:	0	(AL eigenvalue = -1)
+P7a:	2
+P7b:	2
+P23a:	6
+P23b:	6
+P29a:	0
+P29b:	0
+P41a:	-3
+P41b:	-3
+P43a:	-4
+P43b:	-4
+P47a:	12
+P47b:	12
+P61a:	2
+P61b:	2
+P67a:	-13
+P67b:	-13
+P83a:	-9
+P83b:	-9
+P89a:	15
+P89b:	15
+P101a:	-18
+P101b:	-18
+
+Newform #2 (2.0.20.1-50.1b)
+ - Genus character value: +1 (trivial)
+ - Dimension: 1
+ - Newform is base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = +1
+ - Principal Hecke field k_f = Q
+ - Full Hecke field is the same as the Principal Hecke field
+
+Atkin-Lehner eigenvalues:
+P2:	-1
+P5:	-1
+
+aP for first 26 primes:
+P2:	1	(AL eigenvalue = -1)
+P3a:	-1
+P3b:	-1
+P5:	0	(AL eigenvalue = -1)
+P7a:	-2
+P7b:	-2
+P23a:	-6
+P23b:	-6
+P29a:	0
+P29b:	0
+P41a:	-3
+P41b:	-3
+P43a:	4
+P43b:	4
+P47a:	-12
+P47b:	-12
+P61a:	2
+P61b:	2
+P67a:	13
+P67b:	13
+P83a:	9
+P83b:	9
+P89a:	15
+P89b:	15
+P101a:	-18
+P101b:	-18
+
+

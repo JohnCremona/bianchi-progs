@@ -22,7 +22,7 @@ Found 0 homological newforms at level 7.1
 Found 1 homological newform at level 9.1 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.59.1-9.1-a)
+Newform #1 (2.0.59.1-9.1a)
  - Dimension: 1
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
@@ -80,7 +80,7 @@ Found 0 homological newforms at level 16.1
 Found 1 homological newform at level 17.1 of dimension 1
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.59.1-17.1-a)
+Newform #1 (2.0.59.1-17.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -144,7 +144,7 @@ Found 0 homological newforms at level 27.1
 Found 3 homological newforms at level 27.2 of dimensions [ 1 2 3 ]
 Full eigensystems for forms with trivial character(up to unramified quadratic twist)
 
-Newform #1 (2.0.59.1-27.2-a)
+Newform #1 (2.0.59.1-27.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -183,7 +183,7 @@ P11:	-2
 
 First 144 traces: [ 1 0 1 1 4 2 0 0 0 0 1 1 1 0 0 4 4 5 -2 -4 4 -8 4 4 0 0 0 0 21 16 9 0 0 0 0 0 0 6 0 0 0 0 0 0 0 0 -4 -2 0 0 0 0 0 0 5 5 7 0 7 0 0 -2 -2 12 -6 0 0 4 4 -6 4 4 4 4 0 0 0 0 0 0 1 -2 -2 6 -6 0 0 0 21 21 21 4 4 4 16 20 20 0 0 0 0 0 0 0 0 0 -8 -8 -4 -4 0 0 6 6 16 16 8 8 21 21 21 0 0 0 0 0 0 0 0 -2 14 0 0 0 0 0 0 6 6 0 0 0 0 -2 ]
 
-Newform #2 (2.0.59.1-27.2-b)
+Newform #2 (2.0.59.1-27.2b)
  - Dimension: 2
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -222,7 +222,7 @@ P11:	-6*b-5
 
 First 144 traces: [ 2 0 2 -1 2 -2 -3 -3 0 0 2 -1 -1 0 0 2 2 19 -1 1 -7 -7 -1 -1 0 0 -3 -3 12 2 12 0 0 0 0 -9 -9 9 -9 -3 -3 3 3 0 0 0 7 -7 0 0 0 0 0 0 19 19 29 15 29 0 0 -1 -1 -6 6 0 0 -7 -7 0 -1 -1 -1 -1 0 0 0 0 0 0 -16 32 32 -12 12 0 0 0 12 12 12 14 14 -16 -16 19 19 0 0 0 0 0 -9 -9 -9 -9 -1 -1 1 1 0 0 9 9 -7 -7 7 7 -6 -6 -6 0 0 0 0 -3 -3 -3 -3 -1 1 0 0 0 0 -18 -18 -15 -15 -30 -30 -30 -30 -16 ]
 
-Newform #3 (2.0.59.1-27.2-c)
+Newform #3 (2.0.59.1-27.2c)
  - Dimension: 3
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1

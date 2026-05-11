@@ -38,7 +38,7 @@ Ideal class group representatives: [ [1,a] [3,a] [3,2+a] ]
 >>>> Level 9.1 = (3+a,-6+a), norm = 9 <<<<
 1 newform
 
-Newform #1 (2.0.59.1-9.1-a)
+Newform #1 (2.0.59.1-9.1a)
  - Dimension: 1
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
@@ -82,7 +82,7 @@ P11:	-2
 >>>> Level 9.3 = (-4+a,-5-a), norm = 9 <<<<
 1 newform
 
-Newform #1 (2.0.59.1-9.3-a)
+Newform #1 (2.0.59.1-9.3a)
  - Dimension: 1
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
@@ -150,7 +150,7 @@ P11:	-2
 >>>> Level 17.1 = (1+a), norm = 17 <<<<
 1 newform
 
-Newform #1 (2.0.59.1-17.1-a)
+Newform #1 (2.0.59.1-17.1a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -190,7 +190,7 @@ P11:	-10
 >>>> Level 17.2 = (-2+a), norm = 17 <<<<
 1 newform
 
-Newform #1 (2.0.59.1-17.2-a)
+Newform #1 (2.0.59.1-17.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = -1
@@ -278,7 +278,7 @@ P11:	-10
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
 3 newforms
 
-Newform #1 (2.0.59.1-27.2-a)
+Newform #1 (2.0.59.1-27.2a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -315,7 +315,7 @@ P107a:	-2
 P107b:	14
 P11:	-2
 
-Newform #2 (2.0.59.1-27.2-b)
+Newform #2 (2.0.59.1-27.2b)
  - Dimension: 2
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -352,7 +352,7 @@ P107a:	7*b-4
 P107b:	-7*b+4
 P11:	-6*b-5
 
-Newform #3 (2.0.59.1-27.2-c)
+Newform #3 (2.0.59.1-27.2c)
  - Dimension: 3
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
@@ -393,7 +393,7 @@ P11:	c^2+c-14
 >>>> Level 27.3 = (9,-3+3a), norm = 27 <<<<
 3 newforms
 
-Newform #1 (2.0.59.1-27.3-a)
+Newform #1 (2.0.59.1-27.3a)
  - Dimension: 1
  - Newform is not base-change or twisted base-change
  - Sign of functional equation = +1
@@ -430,7 +430,7 @@ P107a:	14
 P107b:	-2
 P11:	-2
 
-Newform #2 (2.0.59.1-27.3-b)
+Newform #2 (2.0.59.1-27.3b)
  - Dimension: 2
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
@@ -467,7 +467,7 @@ P107a:	-7*b+4
 P107b:	7*b-4
 P11:	-6*b-5
 
-Newform #3 (2.0.59.1-27.3-c)
+Newform #3 (2.0.59.1-27.3c)
  - Dimension: 3
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1

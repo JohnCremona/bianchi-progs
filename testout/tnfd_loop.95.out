@@ -1,0 +1,155 @@
+Program tnfd: constructing Bianchi newforms of arbitrary dimension.
+Q(sqrt(-95))	discriminant = -95	min poly(a) = a^2-a+24.
+Class number 8
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [5,2+a] ]
+Only computing newforms with trivial character
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+Found 0 homological newforms with trivial character at level 1.1
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+Found 0 homological newforms with trivial character at level 2.1
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+Found 0 homological newforms with trivial character at level 3.1
+
+>>>> Level 4.1 = (4,a), norm = 4 <<<<
+Found 0 homological newforms with trivial character at level 4.1
+
+>>>> Level 4.2 = (2), norm = 4 <<<<
+Found 0 homological newforms with trivial character at level 4.2
+
+>>>> Level 5.1 = (5,2+a), norm = 5 <<<<
+Found 1 homological newform with trivial character at level 5.1 of dimension 2
+Of these, 1 has trivial character
+
+Full eigensystems for forms with trivial character(up to unramified quadratic twist)
+
+Newform #1 (2.0.95.1-5.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q(a) = Q[X]/(X^2-3)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = 2
+                        = Q(a1) = Q[X]/(X^4-16*X^2+16)
+        [where a = (a1^2-8)/4, sqrt(r1) = (a1^3-12*a1)/8]
+
+Atkin-Lehner eigenvalues:
+P5:	1
+
+aP for first 25 primes:
+P2a:	((a+1)/2)*sqrt(r1) 	= (a1)/2
+P2b:	((a-1)/2)*sqrt(r1) 	= (-a1^3+16*a1)/8
+P3a:	sqrt(r1) 	= (a1^3-12*a1)/8
+P3b:	-sqrt(r1) 	= (-a1^3+12*a1)/8
+P5:	-1 	= -1	(AL eigenvalue = 1)
+P11a:	2*a 	= (a1^2-8)/2
+P11b:	-2*a 	= (-a1^2+8)/2
+P13a:	(-a)*sqrt(r1) 	= (a1^3-20*a1)/8
+P13b:	(-a)*sqrt(r1) 	= (a1^3-20*a1)/8
+P19:	-4 	= -4
+P37a:	(a)*sqrt(r1) 	= (-a1^3+20*a1)/8
+P37b:	(a)*sqrt(r1) 	= (-a1^3+20*a1)/8
+P7:	2 	= 2
+P53a:	(a+4)*sqrt(r1) 	= (3*a1^3-28*a1)/8
+P53b:	(a-4)*sqrt(r1) 	= (-5*a1^3+68*a1)/8
+P61a:	4*a+4 	= a1^2-4
+P61b:	-4*a+4 	= -a1^2+12
+P67a:	(-4*a-3)*sqrt(r1) 	= (a1^3-44*a1)/8
+P67b:	(-4*a+3)*sqrt(r1) 	= (7*a1^3-116*a1)/8
+P97a:	(-a+6)*sqrt(r1) 	= (7*a1^3-92*a1)/8
+P97b:	(-a-6)*sqrt(r1) 	= (-5*a1^3+52*a1)/8
+P101a:	-4*a-12 	= -a1^2-4
+P101b:	4*a-12 	= a1^2-20
+P103a:	(6*a-3)*sqrt(r1) 	= (-9*a1^3+156*a1)/8
+P103b:	(6*a+3)*sqrt(r1) 	= (-3*a1^3+84*a1)/8
+
+First 257 traces: [ 4 0 0 0 0 16 4 16 -4 4 4 -4 -4 0 0 0 0 20 8 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 76 36 -32 0 0 0 0 0 0 -16 -16 -4 -16 0 0 0 0 36 36 -4 -4 28 28 36 36 4 -12 -12 -12 -12 0 0 0 0 -4 -4 4 4 0 0 0 0 0 0 0 0 0 0 80 80 80 20 20 20 80 80 80 0 0 0 0 0 0 0 0 0 0 0 0 24 24 0 0 24 24 -20 -8 -20 0 0 0 0 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 0 0 8 8 8 8 -8 -8 -8 -8 0 0 0 0 0 0 0 0 0 0 16 16 -24 4 64 216 64 -16 -4 0 0 24 24 24 24 24 24 24 24 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 12 12 12 0 0 -64 -16 -64 0 0 0 0 0 0 0 0 -4 0 -76 -36 -4 -44 16 100 16 -76 0 0 0 0 0 0 0 0 0 0 0 0 0 0 16 -20 -20 44 44 180 180 180 180 52 52 -20 -20 0 0 0 0 0 0 0 0 0 0 16 4 16 -48 -48 0 0 ]
+
+Full eigensystems for forms with trivial character (including unramified quadratic twists)
+Newform #1 (2.0.95.1-5.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q(a) = Q[X]/(X^2-3)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = 2
+                        = Q(a1) = Q[X]/(X^4-16*X^2+16)
+        [where a = (a1^2-8)/4, sqrt(r1) = (a1^3-12*a1)/8]
+
+Atkin-Lehner eigenvalues:
+P5:	1
+
+aP for first 25 primes:
+P2a:	((a+1)/2)*sqrt(r1) 	= (a1)/2
+P2b:	((a-1)/2)*sqrt(r1) 	= (-a1^3+16*a1)/8
+P3a:	sqrt(r1) 	= (a1^3-12*a1)/8
+P3b:	-sqrt(r1) 	= (-a1^3+12*a1)/8
+P5:	-1 	= -1	(AL eigenvalue = 1)
+P11a:	2*a 	= (a1^2-8)/2
+P11b:	-2*a 	= (-a1^2+8)/2
+P13a:	(-a)*sqrt(r1) 	= (a1^3-20*a1)/8
+P13b:	(-a)*sqrt(r1) 	= (a1^3-20*a1)/8
+P19:	-4 	= -4
+P37a:	(a)*sqrt(r1) 	= (-a1^3+20*a1)/8
+P37b:	(a)*sqrt(r1) 	= (-a1^3+20*a1)/8
+P7:	2 	= 2
+P53a:	(a+4)*sqrt(r1) 	= (3*a1^3-28*a1)/8
+P53b:	(a-4)*sqrt(r1) 	= (-5*a1^3+68*a1)/8
+P61a:	4*a+4 	= a1^2-4
+P61b:	-4*a+4 	= -a1^2+12
+P67a:	(-4*a-3)*sqrt(r1) 	= (a1^3-44*a1)/8
+P67b:	(-4*a+3)*sqrt(r1) 	= (7*a1^3-116*a1)/8
+P97a:	(-a+6)*sqrt(r1) 	= (7*a1^3-92*a1)/8
+P97b:	(-a-6)*sqrt(r1) 	= (-5*a1^3+52*a1)/8
+P101a:	-4*a-12 	= -a1^2-4
+P101b:	4*a-12 	= a1^2-20
+P103a:	(6*a-3)*sqrt(r1) 	= (-9*a1^3+156*a1)/8
+P103b:	(6*a+3)*sqrt(r1) 	= (-3*a1^3+84*a1)/8
+
+First 257 traces: [ 4 0 0 0 0 16 4 16 -4 4 4 -4 -4 0 0 0 0 20 8 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 76 36 -32 0 0 0 0 0 0 -16 -16 -4 -16 0 0 0 0 36 36 -4 -4 28 28 36 36 4 -12 -12 -12 -12 0 0 0 0 -4 -4 4 4 0 0 0 0 0 0 0 0 0 0 80 80 80 20 20 20 80 80 80 0 0 0 0 0 0 0 0 0 0 0 0 24 24 0 0 24 24 -20 -8 -20 0 0 0 0 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 0 0 8 8 8 8 -8 -8 -8 -8 0 0 0 0 0 0 0 0 0 0 16 16 -24 4 64 216 64 -16 -4 0 0 24 24 24 24 24 24 24 24 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 12 12 12 0 0 -64 -16 -64 0 0 0 0 0 0 0 0 -4 0 -76 -36 -4 -44 16 100 16 -76 0 0 0 0 0 0 0 0 0 0 0 0 0 0 16 -20 -20 44 44 180 180 180 180 52 52 -20 -20 0 0 0 0 0 0 0 0 0 0 16 4 16 -48 -48 0 0 ]
+
+
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+Found 0 homological newforms with trivial character at level 6.1
+
+>>>> Level 6.2 = (2+a,-4+a), norm = 6 <<<<
+Found 0 homological newforms with trivial character at level 6.2
+
+>>>> Level 8.1 = (a,-8), norm = 8 <<<<
+Found 0 homological newforms with trivial character at level 8.1
+
+>>>> Level 8.2 = (4,2a), norm = 8 <<<<
+Found 0 homological newforms with trivial character at level 8.2
+
+>>>> Level 9.1 = (3+a,-6+a), norm = 9 <<<<
+Found 0 homological newforms with trivial character at level 9.1
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+Found 0 homological newforms with trivial character at level 9.2
+
+>>>> Level 10.1 = (2+a,-8+a), norm = 10 <<<<
+Found 0 homological newforms with trivial character at level 10.1
+
+>>>> Level 11.1 = (4+a,-7+a), norm = 11 <<<<
+Found 0 homological newforms with trivial character at level 11.1
+
+>>>> Level 12.1 = (a,-12), norm = 12 <<<<
+Found 0 homological newforms with trivial character at level 12.1
+
+>>>> Level 12.2 = (-4+a,-8-a), norm = 12 <<<<
+Found 0 homological newforms with trivial character at level 12.2
+
+>>>> Level 12.3 = (6,2a), norm = 12 <<<<
+Found 0 homological newforms with trivial character at level 12.3
+
+>>>> Level 13.1 = (1+a,-12+a), norm = 13 <<<<
+Found 0 homological newforms with trivial character at level 13.1
+
+>>>> Level 15.1 = (-3+a,-12-a), norm = 15 <<<<
+Found 0 homological newforms with trivial character at level 15.1
+
+End of program, exiting...
