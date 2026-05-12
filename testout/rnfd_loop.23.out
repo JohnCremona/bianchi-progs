@@ -36,7 +36,7 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] ]
 
 
 >>>> Level 6.1 = (a), norm = 6 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-6.1a)
  - Dimension: 1
@@ -85,7 +85,7 @@ P101b:	-10
 
 
 >>>> Level 6.4 = (-1+a), norm = 6 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-6.4a)
  - Dimension: 1
@@ -230,7 +230,7 @@ P101b:	18
 
 
 >>>> Level 23.1 = (-1+2a), norm = 23 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.23.1-23.1a)
  - Dimension: 2
@@ -306,7 +306,7 @@ P101b:	4*a-2
 
 
 >>>> Level 26.1 = (4+a), norm = 26 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-26.1a)
  - Dimension: 1
@@ -355,7 +355,7 @@ P101b:	12
 
 
 >>>> Level 26.4 = (-5+a), norm = 26 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-26.4a)
  - Dimension: 1
@@ -400,7 +400,7 @@ P101b:	-6
 
 
 >>>> Level 27.2 = (3a,-9), norm = 27 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-27.2a)
  - Dimension: 1
@@ -441,7 +441,7 @@ P101b:	6
 
 
 >>>> Level 27.3 = (-3+3a,-9), norm = 27 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-27.3a)
  - Dimension: 1
@@ -510,7 +510,7 @@ P101b:	-6
 
 
 >>>> Level 32.3 = (8,4a), norm = 32 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-32.3a)
  - Dimension: 1
@@ -551,7 +551,7 @@ P101b:	-6
 
 
 >>>> Level 32.4 = (8,-4+4a), norm = 32 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-32.4a)
  - Dimension: 1
@@ -612,7 +612,7 @@ P101b:	10
 
 
 >>>> Level 36.4 = (6+2a,-6+4a), norm = 36 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-36.4a)
  - Dimension: 1
@@ -658,7 +658,7 @@ P101b:	-6
 
 
 >>>> Level 36.6 = (-8+2a,-2-4a), norm = 36 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-36.6a)
  - Dimension: 1
@@ -760,7 +760,7 @@ P101b:	-18
 
 
 >>>> Level 48.3 = (4a,-12+2a), norm = 48 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-48.3a)
  - Dimension: 1
@@ -818,7 +818,7 @@ P101b:	6
 
 
 >>>> Level 48.8 = (-4+4a,-10-2a), norm = 48 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.23.1-48.8a)
  - Dimension: 1

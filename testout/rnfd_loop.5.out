@@ -88,7 +88,7 @@ Ideal class group representatives: [ [1,a] [2,1+a] ]
 
 
 >>>> Level 16.1 = (4), norm = 16 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 1 ], of which 1 has trivial character
 
 Newform #1 (2.0.20.1-16.1a)
  - Genus character value: +1 (trivial)
@@ -226,7 +226,7 @@ P101b:	6
 
 
 >>>> Level 20.1 = (2a), norm = 20 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 1 ], of which 1 has trivial character
 
 Newform #1 (2.0.20.1-20.1a)
  - Genus character value: +1 (trivial)
@@ -455,7 +455,7 @@ P101b:	6
 
 
 >>>> Level 40.1 = (4a,-10-2a), norm = 40 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 1 ], of which 1 has trivial character
 
 Newform #1 (2.0.20.1-40.1a)
  - Genus character value: +1 (trivial)
@@ -620,7 +620,7 @@ P101b:	6
 
 
 >>>> Level 45.2 = (3a), norm = 45 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 1 ], of which 1 has trivial character
 
 Newform #1 (2.0.20.1-45.2a)
  - Genus character value: +1 (trivial)
@@ -792,7 +792,7 @@ P101b:	6
 
 
 >>>> Level 50.1 = (10,-5+5a), norm = 50 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 1 ], of which 1 has trivial character
 
 Newform #1 (2.0.20.1-50.1a)
  - Genus character value: +1 (trivial)

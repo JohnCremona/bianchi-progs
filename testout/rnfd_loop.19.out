@@ -52,7 +52,7 @@ Non-Euclidean, class number 1
 
 
 >>>> Level 19.1 = (-1+2a), norm = 19 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-19.1a)
  - Dimension: 1
@@ -92,7 +92,7 @@ P101b:	6
 
 
 >>>> Level 20.1 = (2a), norm = 20 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-20.1a)
  - Dimension: 1
@@ -133,7 +133,7 @@ P101b:	12
 
 
 >>>> Level 20.2 = (-2+2a), norm = 20 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-20.2a)
  - Dimension: 1
@@ -230,7 +230,7 @@ P101b:	-6
 
 
 >>>> Level 44.1 = (4+2a), norm = 44 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-44.1a)
  - Dimension: 1
@@ -271,7 +271,7 @@ P101b:	0
 
 
 >>>> Level 44.2 = (-6+2a), norm = 44 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-44.2a)
  - Dimension: 1
@@ -392,7 +392,7 @@ P101b:	12
 
 
 >>>> Level 76.1 = (-2+4a), norm = 76 <<<<
-2 newforms
+2 newforms of dimension [ 1 1 ]
 
 Newform #1 (2.0.19.1-76.1a)
  - Dimension: 1
@@ -470,7 +470,7 @@ P101b:	18
 
 
 >>>> Level 77.1 = (-3+4a), norm = 77 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.19.1-77.1a)
  - Dimension: 2
@@ -519,7 +519,7 @@ P101b:	4*a-2
 
 
 >>>> Level 77.4 = (-1+4a), norm = 77 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.19.1-77.4a)
  - Dimension: 2
@@ -568,7 +568,7 @@ P101b:	-3*a+3
 
 
 >>>> Level 81.1 = (9), norm = 81 <<<<
-2 newforms
+2 newforms of dimension [ 2 2 ]
 
 Newform #1 (2.0.19.1-81.1a)
  - Dimension: 2
@@ -656,7 +656,7 @@ P101b:	-b
 
 
 >>>> Level 85.2 = (5+3a), norm = 85 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-85.2a)
  - Dimension: 1
@@ -697,7 +697,7 @@ P101b:	-6
 
 
 >>>> Level 85.3 = (-8+3a), norm = 85 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-85.3a)
  - Dimension: 1
@@ -766,7 +766,7 @@ P101b:	6
 
 
 >>>> Level 100.1 = (-10+2a), norm = 100 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-100.1a)
  - Dimension: 1
@@ -811,7 +811,7 @@ P101b:	-12
 
 
 >>>> Level 100.3 = (8+2a), norm = 100 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.19.1-100.3a)
  - Dimension: 1

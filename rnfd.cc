@@ -54,6 +54,11 @@ int main()
       int nnf = NS.nforms();
       cout << nnf << (nnf==1? " newform" : " newforms");
       if (n2r) cout << " up to unramified quadratic twist";
+      if (nnf)
+        {
+          vector<int> dims = NS.dimensions(1); // full, not just principal
+          cout << " of dimension " << dims;
+        }
       int nnf_triv_char = NS.nforms_triv_char();
       if (n2r)
         cout << ", of which " << nnf_triv_char

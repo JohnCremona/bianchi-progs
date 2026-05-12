@@ -40,7 +40,7 @@ Ideal class group representatives: [ [1,a] [2,a] [3,1+a] [3,2+a] ]
 
 
 >>>> Level 7.1 = (a,-7), norm = 7 <<<<
-2 newforms up to unramified quadratic twist, of which 2 have trivial character
+2 newforms up to unramified quadratic twist of dimension [ 2 4 ], of which 2 have trivial character
 
 Newform #1 (2.0.56.1-7.1a)
  - Genus character value: +1 (trivial)

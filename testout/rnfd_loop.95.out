@@ -36,7 +36,7 @@ Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,
 
 
 >>>> Level 5.1 = (5,2+a), norm = 5 <<<<
-1 newform up to unramified quadratic twist, of which 1 has trivial character
+1 newform up to unramified quadratic twist of dimension [ 4 ], of which 1 has trivial character
 
 Newform #1 (2.0.95.1-5.1a)
  - Genus character value: +1 (trivial)

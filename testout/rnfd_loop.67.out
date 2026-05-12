@@ -20,7 +20,7 @@ Non-Euclidean, class number 1
 
 
 >>>> Level 17.1 = (a), norm = 17 <<<<
-1 newform
+1 newform of dimension [ 3 ]
 
 Newform #1 (2.0.67.1-17.1a)
  - Dimension: 3
@@ -60,7 +60,7 @@ P83b:	3*a^2+4*a-16
 
 
 >>>> Level 17.2 = (-1+a), norm = 17 <<<<
-1 newform
+1 newform of dimension [ 3 ]
 
 Newform #1 (2.0.67.1-17.2a)
  - Dimension: 3
@@ -164,7 +164,7 @@ P83b:	a^2-4*a
 
 
 >>>> Level 67.1 = (-1+2a), norm = 67 <<<<
-3 newforms
+3 newforms of dimension [ 1 2 2 ]
 
 Newform #1 (2.0.67.1-67.1a)
  - Dimension: 1
@@ -308,7 +308,7 @@ P83b:	-7*c-4
 
 
 >>>> Level 81.1 = (9), norm = 81 <<<<
-2 newforms
+2 newforms of dimension [ 10 10 ]
 
 Newform #1 (2.0.67.1-81.1a)
  - Dimension: 10

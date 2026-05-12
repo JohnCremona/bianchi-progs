@@ -36,7 +36,7 @@ Ideal class group representatives: [ [1,a] [3,a] [3,2+a] ]
 
 
 >>>> Level 9.1 = (3+a,-6+a), norm = 9 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.59.1-9.1a)
  - Dimension: 1
@@ -80,7 +80,7 @@ P11:	-2
 
 
 >>>> Level 9.3 = (-4+a,-5-a), norm = 9 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.59.1-9.3a)
  - Dimension: 1
@@ -148,7 +148,7 @@ P11:	-2
 
 
 >>>> Level 17.1 = (1+a), norm = 17 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.59.1-17.1a)
  - Dimension: 1
@@ -188,7 +188,7 @@ P11:	-10
 
 
 >>>> Level 17.2 = (-2+a), norm = 17 <<<<
-1 newform
+1 newform of dimension [ 1 ]
 
 Newform #1 (2.0.59.1-17.2a)
  - Dimension: 1
@@ -276,7 +276,7 @@ P11:	-10
 
 
 >>>> Level 27.2 = (9,3a), norm = 27 <<<<
-3 newforms
+3 newforms of dimension [ 1 2 3 ]
 
 Newform #1 (2.0.59.1-27.2a)
  - Dimension: 1
@@ -391,7 +391,7 @@ P11:	c^2+c-14
 
 
 >>>> Level 27.3 = (9,-3+3a), norm = 27 <<<<
-3 newforms
+3 newforms of dimension [ 1 2 3 ]
 
 Newform #1 (2.0.59.1-27.3a)
  - Dimension: 1

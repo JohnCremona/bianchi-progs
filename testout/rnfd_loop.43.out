@@ -32,7 +32,7 @@ Non-Euclidean, class number 1
 
 
 >>>> Level 16.1 = (4), norm = 16 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.43.1-16.1a)
  - Dimension: 2
@@ -100,7 +100,7 @@ P67b:	-6*a+1
 
 
 >>>> Level 36.1 = (6), norm = 36 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.43.1-36.1a)
  - Dimension: 2
@@ -149,7 +149,7 @@ P67b:	-4*a+10
 
 
 >>>> Level 43.1 = (-1+2a), norm = 43 <<<<
-3 newforms
+3 newforms of dimension [ 1 2 2 ]
 
 Newform #1 (2.0.43.1-43.1a)
  - Dimension: 1
@@ -333,7 +333,7 @@ P67b:	-2*c-7
 
 
 >>>> Level 81.1 = (9), norm = 81 <<<<
-2 newforms
+2 newforms of dimension [ 6 6 ]
 
 Newform #1 (2.0.43.1-81.1a)
  - Dimension: 6
@@ -441,7 +441,7 @@ P67b:	5*b^4-29*b^2+26
 
 
 >>>> Level 100.1 = (10), norm = 100 <<<<
-1 newform
+1 newform of dimension [ 2 ]
 
 Newform #1 (2.0.43.1-100.1a)
  - Dimension: 2
