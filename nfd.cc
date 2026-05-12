@@ -1956,17 +1956,21 @@ void Newform::output_to_file(int conj) const
       out << HFrel->str(1) << endl;  // raw=1
       // cout << "HFrel output:\n" << HFrel->str(1) << endl;  // raw=1
 
-      // Absolute field:
-      out << HFabs->str(1) << endl;  // raw=1
-      // cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
+      int r = HFrel->rank();
+      if (r)
+        {
+          // Absolute field:
+          out << HFabs->str(1) << endl;  // raw=1
+          // cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
 
-      // Embedding of F into HFabs: matrix entries and denom
-      out << abs_emb.str(1) <<endl;
-      // cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
+          // Embedding of F into HFabs: matrix entries and denom
+          out << abs_emb.str(1) <<endl;
+          // cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
 
-      // Images of sqrt gens in HFabs:
-      for (auto g: im_gens)
-        out << g.str(1) << " ";
+          // Images of sqrt gens in HFabs:
+          for (auto g: im_gens)
+            out << g.str(1) << " ";
+        }
 
       // Unramified self-twist discriminant or 0:
       out << "\n" << CMD;
@@ -2267,30 +2271,31 @@ int Newform::input_from_file(int verb)
       HFrel->read(fdata);
       if (verb>1)
         cout << "--> Field-mod-squares data: " << *HFrel << endl;
-
-      // Absolute field:
-      HFabs->read(fdata);
-      if (verb>1)
-        cout << "--> Absolute field: " << *HFabs << endl;
-
-      // Embedding of F into HFabs: matrix entries and denom
-      abs_emb = FieldIso(*F, *HFabs);
-      fdata >> abs_emb; // just reads the matrix
-      if (verb>1)
-        cout << "--> Embedding into absolute field: " << abs_emb << endl;
-
-      // Images of sqrt gens in HFabs:
       int HFrel_rk = HFrel->rank();
-      if (verb>1)
-        cout << "--> # sqrt generators =  " << HFrel_rk << endl;
+
       if (HFrel_rk)
         {
+
+          // Absolute field:
+          HFabs->read(fdata);
+          if (verb>1)
+            cout << "--> Absolute field: " << *HFabs << endl;
+
+          // Embedding of F into HFabs: matrix entries and denom
+          abs_emb = FieldIso(*F, *HFabs);
+          fdata >> abs_emb; // just reads the matrix
+          if (verb>1)
+            cout << "--> Embedding into absolute field: " << abs_emb << endl;
+
+          // Images of sqrt gens in HFabs:
+          if (verb>1)
+            cout << "--> # sqrt generators =  " << HFrel_rk << endl;
           im_gens.resize(HFrel_rk, FieldElement(*HFabs));
           for (auto& g: im_gens)
             fdata >> g;
+          if (verb>1)
+            cout << "--> sqrt gens in absolute field: " << im_gens << endl;
         }
-      if (verb>1)
-        cout << "--> sqrt gens in absolute field: " << im_gens << endl;
 
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;

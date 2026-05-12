@@ -32,10 +32,11 @@ Newform data file for each homological newform
 - Principal Hecke field k (degree d).
 - If n2r>0:
   - Full Hecke field K via k mod squares data of rank r.
-  - Full Hecke field K as absolute field (degree d*2^r).
-  - Embedding of k into K: rational nxn matrix, n=2^r*d.
-  - Images in K of the r relative generators (sqrts of the r
-    elements in the field-mod-squares data).
+    If r>0:
+    - Full Hecke field K as absolute field (degree d*2^r).
+    - Embedding of k into K: rational nxd matrix, n=2^r*d.
+    - Images in K of the r relative generators (sqrts of the r
+      elements in the field-mod-squares data).
   - D (self-twist discriminant dividing field discriminant, or 0).
   - ntw (number of nontrivial unramified quadratic twists up
     to Galois conjugation, at most 2^n2r-1).
