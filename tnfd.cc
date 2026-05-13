@@ -10,6 +10,12 @@
 
 #define MAXPRIME 10000
 
+// switch on//off different formats for eigenvalue display
+
+const int SHOW_AP_RELATIVE = 1;
+const int SHOW_AP_ABSOLUTE = 1;
+const int SHOW_AP_INT_COORDS = 1;
+
 int main()
 {
   cout << "Program tnfd: constructing Bianchi newforms of arbitrary dimension." << endl;
@@ -195,11 +201,13 @@ int main()
        }
      cout << endl;
 
-     int show_aP = 1; // do display aP
-     int show_AL = 1; // do display AL
+     int show_aP =  // display aP ( sum of 1 for relative, 2 for absolute, 4 for integral)
+       SHOW_AP_RELATIVE + 2*SHOW_AP_ABSOLUTE + 4*SHOW_AP_INT_COORDS ;
+     int show_AL = 1; // display AL
      int show_princ = verbose && (Quad::class_number>1); // display principal eigs if verbose and h>1
      int show_traces = 1; // do display traces
-     NS.display_newforms(show_aP, show_AL, show_princ, show_traces, !C4); // trivial char only unless C4
+     int tc_only = !C4;  // trivial char only unless C4
+     NS.display_newforms(show_aP, show_AL, show_princ, show_traces, tc_only);
 
      // Output newspace data to file, with newform data for trivial
      // char newforms (or all if C4)

@@ -62,7 +62,7 @@ Format for field-mod-squares data defining K as a polyquadratic
 extension of k: r (rank, >=0) then r elements of k (nonzero and
 multiplicatively linearly independent modulo squares).
 
-Format for a rational nxn matrix: n^2+1 integers, the entries (by
+Format for a rational mxn matrix: m*n+1 integers, the entries (by
 rows) and common denominator.
 
 Format for eigenvalues:

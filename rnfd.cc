@@ -9,6 +9,12 @@
 
 #define MAXPRIME 10000
 
+// switch on//off different formats for eigenvalue display
+
+const int SHOW_AP_RELATIVE = 0;
+const int SHOW_AP_ABSOLUTE = 0;
+const int SHOW_AP_INT_COORDS = 1;
+
 int main()
 {
   cout << "Program rnfd: read and display precomputed Bianchi newforms of arbitrary dimension." << endl;
@@ -66,7 +72,9 @@ int main()
              << " trivial character";
       cout << endl <<endl ;
 
-      int show_aP = 1; // do display aP
+      int show_aP =  // display aP ( sum of 1 for relative, 2 for absolute, 4 for integral)
+        SHOW_AP_RELATIVE + 2*SHOW_AP_ABSOLUTE + 4*SHOW_AP_INT_COORDS ;
+
       int show_AL = 1; // do display AL
       int show_princ = 0; // do not display principal eigs
       int show_traces = 0; // do not display traces

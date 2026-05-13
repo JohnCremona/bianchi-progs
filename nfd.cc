@@ -190,51 +190,6 @@ Newform::Newform(Newspace* x, int i, int verbose)
     cerr << "Unable to read Newform " << lab << endl;
 }
 
-// NB We do not use automatic copy constructor and assignment since
-// when the aP are copied they must point to the field in the new
-// Newform not the old.
-
-Newform::Newform(const Newform& x)
-  :N(x.N), nsp(x.nsp), index(x.index), lab(x.lab), d(x.d),
-   F0(x.F0), F(x.F), Fiso(x.Fiso), HFrel(x.HFrel), HFabs(x.HFabs), abs_emb(x.abs_emb), im_gens(x.im_gens),
-   S(x.S), Sdenom(x.Sdenom), projcoord(x.projcoord), key_symbol(x.key_symbol),
-   bcM(x.bcM), bcMi(x.bcMi),
-   epsvec(x.epsvec), triv_char(x.triv_char),
-   unramified_twist_discriminants(x.unramified_twist_discriminants),
-   genus_classes_no_ext(x.genus_classes_no_ext), genus_class_no_ext_ideals(x.genus_class_no_ext_ideals),
-   genus_classes_nonzero(x.genus_classes_nonzero), genus_class_ideals(x.genus_class_ideals),
-   genus_class_aP(x.genus_class_aP), genus_classes_filled(x.genus_classes_filled),
-   genus_class_trivial_counter(x.genus_class_trivial_counter), possible_self_twists(x.possible_self_twists),
-   self_twist_flag(x.self_twist_flag), CMD(x.CMD), bc(x.bc), bct(x.bct), cm(x.cm), sfe(x.sfe),
-   eigmap(x.eigmap), aPmap(x.aPmap), maxP(x.maxP), eQmap(x.eQmap), aMmap(x.aMmap), trace_list(x.trace_list)
-{
-  ;
-}
-
-// assignment
-Newform& Newform::operator=(const Newform& x)
-{
-  N = x.N; nsp = x.nsp; index = x.index; lab = x.lab; d = x.d;
-  F0 = x.F0; F = x.F; Fiso = x.Fiso; HFrel = x.HFrel; HFabs = x.HFabs; abs_emb = x.abs_emb;
-  im_gens = x.im_gens;
-  S = x.S; Sdenom = x.Sdenom; projcoord = x.projcoord; key_symbol = x.key_symbol;
-  bcM = x.bcM;  bcMi = x.bcMi;
-  epsvec = x.epsvec; triv_char = x.triv_char;
-  unramified_twist_discriminants = x.unramified_twist_discriminants;
-  genus_classes_no_ext = x.genus_classes_no_ext;
-  genus_class_no_ext_ideals = x.genus_class_no_ext_ideals;
-  genus_classes_nonzero = x.genus_classes_nonzero;
-  genus_class_ideals = x.genus_class_ideals;
-  genus_class_aP = x.genus_class_aP;
-  genus_classes_filled = x.genus_classes_filled;
-  genus_class_trivial_counter = x.genus_class_trivial_counter;
-  possible_self_twists = x.possible_self_twists;
-  self_twist_flag = x.self_twist_flag; CMD = x.CMD; bc = x.bc; bct = x.bct; sfe=x.sfe; cm=x.cm;
-  eigmap = x.eigmap; aPmap = x.aPmap; maxP = x.maxP; eQmap = x.eQmap;
-  aMmap = x.aMmap; trace_list = x.trace_list;
-  return *this;
-}
-
 string Newspace::short_label()
 {
   return level_label;
@@ -352,7 +307,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
           int good = !P.divides(N);
           int e = Mfac.exponent(0);
           // aPmap has the aP for bad P as well as good, from compute_AL_eigs()
-          FieldElement aP = embed_eigenvalue(aPmap[P], abs_emb, im_gens);
+          FieldElement aP = aPmap_abs[P];
           FieldElement nP = (*HFabs)(to_ZZ(P.norm()));
           switch (e) {
           case 1: // prime
@@ -996,6 +951,22 @@ void Newform::compute_principal_eigs(int nap, int verbose)
     } // end of prime loop
 }
 
+// store transformed aP values in abs and int_coords dicts.  This can
+// only be done *after* we have computed them as FieldMQElements, as
+// only after that do we know the full Hecke field.
+void Newform::store_aP_data()
+{
+  for (auto x : aPmap)
+    {
+      Quadprime P = x.first;
+      FieldMQElement aP = x.second;
+      FieldElement aP_abs = embed_eigenvalue(aP, abs_emb, im_gens);
+      aPmap_abs[P] = aP_abs;
+      vec_m aP_coords = HFabs->integral_coords(aP_abs);
+      aPmap_int_coords[P] = aP_coords;
+    }
+}
+
 // Fill aPmap, dict of eigenvalues of first ntp good primes
 void Newform::compute_eigs(int ntp, int verbose)
 {
@@ -1027,6 +998,10 @@ void Newform::compute_eigs(int ntp, int verbose)
       cout << "absolute embedding:\n" << abs_emb << endl
            << "absolute full Hecke field:\n" << *HFabs << endl <<endl;
     }
+
+  HFabs->make_integral_basis();
+  store_aP_data(); // stores abs embeddings and integral coords
+
   check_base_change();
   if (triv_char) // must be done after HFabs is computed
     compute_coefficients(ntp, verbose);   // a(M) and traces for N(M)<=max N(P)
@@ -1355,7 +1330,7 @@ void Newform::compute_eigs_triv_char(int ntp, int verbose)
       // Check if this eigenvalue is 0
       if (aP2.is_zero())
         {
-          aPmap[P] = aP; // still 0
+          aPmap[P] = aP; // aP is still 0
           genus_class_trivial_counter[c] +=1;
           if (verbose)
             cout << " -- genus_class_trivial_counter for class "<<c
@@ -1789,7 +1764,7 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
   if (aP)
     {
       cout << endl;
-      display_aP();
+      display_aP(aP);
     }
   if (principal_eigs)
     {
@@ -1805,37 +1780,74 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
 
 // Display aP data (trivial char or C4 fields)
 //#define CHECK_TRACES
-void Newform::display_aP() const
+void Newform::display_aP(int aP) const
 {
   if (aPmap.empty())
     {
       cout << "No aP known" << endl;
       return;
     }
+  if (aP==0) // no format sepcified!
+    return;
+
+  int aPrel = aP&1, aPabs = aP&2, aPcoords = aP&4;
+
+  int abs_deg = HFabs->degree();
+
+  if (abs_deg>1 && aPcoords)
+    {
+      FieldElement gen = HFabs->gen(), gen_power = (*HFabs)(1);
+      cout << "Integral coordinates of power basis of Hecke field (index of Z["<<gen<<"] is "
+           << HFabs->get_order_index()<<"):\n";
+      for (int i=0; i<abs_deg; i++)
+        {
+          cout << gen_power << "\t = "
+               << HFabs->integral_coords(gen_power) << endl;
+          if (i < abs_deg-1) gen_power *= gen;
+        }
+      cout << endl;
+    }
+
   cout << "aP for first " << aPmap.size() << " primes:" << endl;
   for (auto x : aPmap)
     {
-      FieldMQElement aP = x.second;
-      cout << x.first << ":\t" << aP;
-#ifdef CHECK_TRACES
-      bigrational taP = aP.trace();
-      cout << " (trace = " << taP << ")";
-#endif
-      if (Quad::class_group_2_rank && HFrel->rank()>0)
+      const Quadprime P = x.first;
+      const FieldMQElement aP = x.second;
+      cout << P << ":\t";
+
+      int nf = 0; // counts how many forms have been shown
+      // Show eigs in relative format if aPrel
+      if (aPrel)
         {
-          FieldElement bP = embed_eigenvalue(aP, abs_emb, im_gens);
-          cout << " \t= " << bP;
-#ifdef CHECK_TRACES
-          bigrational tbP = bP.trace();
-          cout << " (trace = " << tbP << ")";
-          assert (taP==tbP);
-#endif
+          cout << aP;
+          nf ++;
         }
-      auto it = eQmap.find(x.first);
+
+      // Show eigs in absolute format if aPabs and relevant
+      if (Quad::class_group_2_rank && HFrel->rank()>0 && aPabs)
+        {
+          if (nf)
+            cout << " \t= ";
+          cout << aPmap_abs.at(P);
+          nf++;
+        }
+
+      // Show eigs as integer vectors if aPcoords
+      if (aPcoords && ( (abs_deg>1) || (nf==0) ) )
+        {
+          if (nf)
+            cout << " \t= ";
+          vec_m v = aPmap_int_coords.at(P);
+          if (abs_deg==1)
+            cout << v[1];
+          else
+            cout << v;
+        }
+
+      auto it = eQmap.find(P);
       if (it != eQmap.end())
-        {
-          cout << "\t(AL eigenvalue = " << it->second << ")";
-        }
+        cout << "\t(AL eigenvalue = " << it->second << ")";
+
       cout << endl;
     }
 }
@@ -1929,7 +1941,7 @@ void Newform::output_to_file(int conj) const
   // Field, level, letter-code:
   out << field_label() << " "
       << (conj? nsp->conj_label(): nsp->short_label())
-      << " " << lab << endl;
+      << " " << lab << "\n";
   int n2r = Quad::class_group_2_rank;
 
   // Principal dimension
@@ -1943,48 +1955,56 @@ void Newform::output_to_file(int conj) const
       out << " ";
       vec_out(out, epsvec, "", ""); // no pre-/post []
     }
-  out << endl;
+  out << "\n";
 
   // Principal Hecke field:
-  out << F->str(1) << endl;  // raw=1
-  // cout << "Principal Hecke field output:\n" << F->str(1) << endl;  // raw=1
+  out << F->str(1) << "\n";  // raw=1
+  // cout << "Principal Hecke field output:\n" << F->str(1) << "\n";  // raw=1
   // Full Hecke field (even class number only)
 
+  int r = HFrel->rank();
   if (n2r)
     {
       // Multiquadratic extension data:
-      out << HFrel->str(1) << endl;  // raw=1
+      out << HFrel->str(1) << "\n";  // raw=1
       // cout << "HFrel output:\n" << HFrel->str(1) << endl;  // raw=1
 
-      int r = HFrel->rank();
       if (r)
         {
           // Absolute field:
-          out << HFabs->str(1) << endl;  // raw=1
-          // cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
+          out << HFabs->str(1) << "\n";  // raw=1
+          //cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
 
           // Embedding of F into HFabs: matrix entries and denom
-          out << abs_emb.str(1) <<endl;
-          // cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
+          out << abs_emb.str(1) <<"\n";
+          //cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
 
           // Images of sqrt gens in HFabs:
           for (auto g: im_gens)
-            out << g.str(1) << " ";
+            {
+              out << g.str(1) << " ";
+              //cout << g.str(1) << endl;
+            }
+          out << "\n";
         }
 
       // Unramified self-twist discriminant or 0:
-      out << "\n" << CMD;
+      out << CMD << "\n" ;
 
       // Number of nontrivial unramified quadratic twists up to Galois conjugace:
-      out << "\n" << unramified_twist_discriminants.size() << " ";
+      out << unramified_twist_discriminants.size() << " ";
       vec_out(out, unramified_twist_discriminants, "", ""); // no pre-/post []
-      out<< endl;
+      out<< "\n";
     }
+  out<< "\n";
+
+  // Output integral basis data for absolute Hecke field
+  out << HFabs->get_order_index() << " ";
+  vec_out(out, HFabs->get_bcm().get_entries(), " ", " ", " ");
+  out << "\n\n";
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
-  out << base_change_code() << endl;
-
-  out << endl;
+  out << base_change_code() << "\n\n";
 
   if (triv_char)
     {
@@ -2000,9 +2020,9 @@ void Newform::output_to_file(int conj) const
           int eQ=0;
           if (!eQmap.empty())
             eQ = eQmap.at(conj? Q.conj() : Q);
-          out << prime_label(Q) << " " << eQ << endl;
+          out << prime_label(Q) << " " << eQ << "\n";
         }
-      out << endl;
+      out << "\n";
     }
 
   // Output aP, preserving the order of the primes in thee list
@@ -2028,13 +2048,13 @@ void Newform::output_to_file(int conj) const
               // cout << "Conjugate of " << aP << " is ";
               aP = aP.conj();
               // cout << aP << endl;
-              out << x.first << " " << aP.str(1) << endl;
+              out << x.first << " " << aP.str(1) << "\n";
             }
         }
       else
         {
           FieldMQElement aP = x.second;
-          out << x.first << " " << aP.str(1) << endl;
+          out << x.first << " " << aP.str(1) << "\n";
         }
     }
 }
@@ -2207,6 +2227,7 @@ vector<Newform> Newform::all_unram_quadratic_twists() const
 // Returns 0 if data file missing, else 1
 int Newform::input_from_file(int verb)
 {
+  //  verb=2; // for debugging
   string fname = filename();
   if (verb)
     cout << "Reading newform " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
@@ -2296,6 +2317,11 @@ int Newform::input_from_file(int verb)
           if (verb>1)
             cout << "--> sqrt gens in absolute field: " << im_gens << endl;
         }
+      else
+        {
+          HFabs = F;
+          abs_emb = FieldIso(*F); // identity
+        }
 
       // Self-twist discriminant or 0 (if class number even):
       fdata >> CMD;
@@ -2316,7 +2342,25 @@ int Newform::input_from_file(int verb)
       if (verb>1)
         cout << ntw << " unramified twist discriminants: " << unramified_twist_discriminants << endl;
     }
+  else
+    {
+      HFabs = F;
+      abs_emb = FieldIso(*F); // identity
+    }
 
+  // read integral basis info for HFabs
+
+  ZZ ib;
+  mat_m bcm(fd,fd);
+  fdata >>ib; // the index of the equation order
+  fdata >> bcm;
+  HFabs->set_integral_basis(ib,bcm);
+  if (verb>1)
+    {
+      cout << "Equation order has index " << ib << ", bcm = ";
+      bcm.output_flat();
+      cout << endl;
+    }
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
   int bcc;
   fdata >> bcc;
@@ -2327,8 +2371,6 @@ int Newform::input_from_file(int verb)
   if (verb>1)
     {
       cout << "bc = " << bc << ", bct = " << bct << endl;
-      cout << "Before reading eigenvalues:" << endl;
-      display();
     }
 
   sfe = 0; // dummy value in case of nontrivial character
@@ -2357,11 +2399,6 @@ int Newform::input_from_file(int verb)
           if (verb>1)
             cout << "AL eigenvalue for " << Qlab << " is " << eQ << endl;
         }
-      if (verb>1)
-        {
-          cout << "After reading eQ, before reading aP:" << endl;
-          display();
-        }
     }
 
   // aP
@@ -2385,6 +2422,7 @@ int Newform::input_from_file(int verb)
         cout << "--> P = " << Plab
              << ": a_P = "<<aPmap[P]<<endl;
     }
+  store_aP_data(); // transform and store aP values in the abs and int dicts
   if (verb)
     {
       cout << "After reading everything from " << fname <<":" << endl;

@@ -55,33 +55,37 @@ Newform #1 (2.0.56.1-7.1a)
 Atkin-Lehner eigenvalues:
 P7:	1
 
+Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
+1	 = [1,0]
+a1	 = [0,1]
+
 aP for first 26 primes:
-P2:	0 	= 0
-P3a:	sqrt(2) 	= a1
-P3b:	-sqrt(2) 	= -a1
-P5a:	sqrt(2) 	= a1
-P5b:	-sqrt(2) 	= -a1
-P7:	-1 	= -1	(AL eigenvalue = 1)
-P13a:	-3*sqrt(2) 	= -3*a1
-P13b:	3*sqrt(2) 	= 3*a1
-P19a:	3*sqrt(2) 	= 3*a1
-P19b:	-3*sqrt(2) 	= -3*a1
-P23a:	-6 	= -6
-P23b:	-6 	= -6
-P59a:	-sqrt(2) 	= -a1
-P59b:	sqrt(2) 	= a1
-P61a:	-9*sqrt(2) 	= -9*a1
-P61b:	9*sqrt(2) 	= 9*a1
-P71a:	0 	= 0
-P71b:	0 	= 0
-P79a:	-8 	= -8
-P79b:	-8 	= -8
-P83a:	11*sqrt(2) 	= 11*a1
-P83b:	-11*sqrt(2) 	= -11*a1
-P101a:	-7*sqrt(2) 	= -7*a1
-P101b:	7*sqrt(2) 	= 7*a1
-P113a:	12 	= 12
-P113b:	12 	= 12
+P2:	[0,0]
+P3a:	[0,1]
+P3b:	[0,-1]
+P5a:	[0,1]
+P5b:	[0,-1]
+P7:	[-1,0]	(AL eigenvalue = 1)
+P13a:	[0,-3]
+P13b:	[0,3]
+P19a:	[0,3]
+P19b:	[0,-3]
+P23a:	[-6,0]
+P23b:	[-6,0]
+P59a:	[0,-1]
+P59b:	[0,1]
+P61a:	[0,-9]
+P61b:	[0,9]
+P71a:	[0,0]
+P71b:	[0,0]
+P79a:	[-8,0]
+P79b:	[-8,0]
+P83a:	[0,11]
+P83b:	[0,-11]
+P101a:	[0,-7]
+P101b:	[0,7]
+P113a:	[12,0]
+P113b:	[12,0]
 
 Newform #2 (2.0.56.1-7.1b)
  - Genus character value: +1 (trivial)
@@ -97,33 +101,39 @@ Newform #2 (2.0.56.1-7.1b)
 Atkin-Lehner eigenvalues:
 P7:	-1
 
+Integral coordinates of power basis of Hecke field (index of Z[b1] is 8):
+1	 = [1,0,0,0]
+b1	 = [0,-1,1,0]
+b1^2	 = [4,0,0,2]
+b1^3	 = [0,-6,10,0]
+
 aP for first 26 primes:
-P2:	b 	= (-b1^2+6)/2
-P3a:	sqrt(r1) 	= b1
-P3b:	-sqrt(r1) 	= -b1
-P5a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P5b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P7:	1 	= 1	(AL eigenvalue = -1)
-P13a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P13b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P19a:	-sqrt(r1) 	= -b1
-P19b:	sqrt(r1) 	= b1
-P23a:	-2*b+2 	= b1^2-4
-P23b:	-2*b+2 	= b1^2-4
-P59a:	(2*b+3)*sqrt(r1) 	= -b1^3+9*b1
-P59b:	(-2*b-3)*sqrt(r1) 	= b1^3-9*b1
-P61a:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P61b:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P71a:	8 	= 8
-P71b:	8 	= 8
-P79a:	0 	= 0
-P79b:	0 	= 0
-P83a:	(-2*b-5)*sqrt(r1) 	= b1^3-11*b1
-P83b:	(2*b+5)*sqrt(r1) 	= -b1^3+11*b1
-P101a:	(-b-5)*sqrt(r1) 	= (b1^3-16*b1)/2
-P101b:	(b+5)*sqrt(r1) 	= (-b1^3+16*b1)/2
-P113a:	-2*b-8 	= b1^2-14
-P113b:	-2*b-8 	= b1^2-14
+P2:	[1,0,0,-1]
+P3a:	[0,-1,1,0]
+P3b:	[0,1,-1,0]
+P5a:	[0,1,1,0]
+P5b:	[0,-1,-1,0]
+P7:	[1,0,0,0]	(AL eigenvalue = -1)
+P13a:	[0,1,1,0]
+P13b:	[0,-1,-1,0]
+P19a:	[0,1,-1,0]
+P19b:	[0,-1,1,0]
+P23a:	[0,0,0,2]
+P23b:	[0,0,0,2]
+P59a:	[0,-3,-1,0]
+P59b:	[0,3,1,0]
+P61a:	[0,-1,-1,0]
+P61b:	[0,1,1,0]
+P71a:	[8,0,0,0]
+P71b:	[8,0,0,0]
+P79a:	[0,0,0,0]
+P79b:	[0,0,0,0]
+P83a:	[0,5,-1,0]
+P83b:	[0,-5,1,0]
+P101a:	[0,5,-3,0]
+P101b:	[0,-5,3,0]
+P113a:	[-10,0,0,2]
+P113b:	[-10,0,0,2]
 
 Full eigensystems for forms with trivial character, including unramified quadratic twists
 
@@ -140,33 +150,37 @@ Newform #1 (2.0.56.1-7.1a)
 Atkin-Lehner eigenvalues:
 P7:	1
 
+Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
+1	 = [1,0]
+a1	 = [0,1]
+
 aP for first 26 primes:
-P2:	0 	= 0
-P3a:	sqrt(2) 	= a1
-P3b:	-sqrt(2) 	= -a1
-P5a:	sqrt(2) 	= a1
-P5b:	-sqrt(2) 	= -a1
-P7:	-1 	= -1	(AL eigenvalue = 1)
-P13a:	-3*sqrt(2) 	= -3*a1
-P13b:	3*sqrt(2) 	= 3*a1
-P19a:	3*sqrt(2) 	= 3*a1
-P19b:	-3*sqrt(2) 	= -3*a1
-P23a:	-6 	= -6
-P23b:	-6 	= -6
-P59a:	-sqrt(2) 	= -a1
-P59b:	sqrt(2) 	= a1
-P61a:	-9*sqrt(2) 	= -9*a1
-P61b:	9*sqrt(2) 	= 9*a1
-P71a:	0 	= 0
-P71b:	0 	= 0
-P79a:	-8 	= -8
-P79b:	-8 	= -8
-P83a:	11*sqrt(2) 	= 11*a1
-P83b:	-11*sqrt(2) 	= -11*a1
-P101a:	-7*sqrt(2) 	= -7*a1
-P101b:	7*sqrt(2) 	= 7*a1
-P113a:	12 	= 12
-P113b:	12 	= 12
+P2:	[0,0]
+P3a:	[0,1]
+P3b:	[0,-1]
+P5a:	[0,1]
+P5b:	[0,-1]
+P7:	[-1,0]	(AL eigenvalue = 1)
+P13a:	[0,-3]
+P13b:	[0,3]
+P19a:	[0,3]
+P19b:	[0,-3]
+P23a:	[-6,0]
+P23b:	[-6,0]
+P59a:	[0,-1]
+P59b:	[0,1]
+P61a:	[0,-9]
+P61b:	[0,9]
+P71a:	[0,0]
+P71b:	[0,0]
+P79a:	[-8,0]
+P79b:	[-8,0]
+P83a:	[0,11]
+P83b:	[0,-11]
+P101a:	[0,-7]
+P101b:	[0,7]
+P113a:	[12,0]
+P113b:	[12,0]
 
 Newform #2 (2.0.56.1-7.1b)
  - Genus character value: +1 (trivial)
@@ -182,33 +196,39 @@ Newform #2 (2.0.56.1-7.1b)
 Atkin-Lehner eigenvalues:
 P7:	-1
 
+Integral coordinates of power basis of Hecke field (index of Z[b1] is 8):
+1	 = [1,0,0,0]
+b1	 = [0,-1,1,0]
+b1^2	 = [4,0,0,2]
+b1^3	 = [0,-6,10,0]
+
 aP for first 26 primes:
-P2:	b 	= (-b1^2+6)/2
-P3a:	sqrt(r1) 	= b1
-P3b:	-sqrt(r1) 	= -b1
-P5a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P5b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P7:	1 	= 1	(AL eigenvalue = -1)
-P13a:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P13b:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P19a:	-sqrt(r1) 	= -b1
-P19b:	sqrt(r1) 	= b1
-P23a:	-2*b+2 	= b1^2-4
-P23b:	-2*b+2 	= b1^2-4
-P59a:	(2*b+3)*sqrt(r1) 	= -b1^3+9*b1
-P59b:	(-2*b-3)*sqrt(r1) 	= b1^3-9*b1
-P61a:	(b+1)*sqrt(r1) 	= (-b1^3+8*b1)/2
-P61b:	(-b-1)*sqrt(r1) 	= (b1^3-8*b1)/2
-P71a:	8 	= 8
-P71b:	8 	= 8
-P79a:	0 	= 0
-P79b:	0 	= 0
-P83a:	(-2*b-5)*sqrt(r1) 	= b1^3-11*b1
-P83b:	(2*b+5)*sqrt(r1) 	= -b1^3+11*b1
-P101a:	(-b-5)*sqrt(r1) 	= (b1^3-16*b1)/2
-P101b:	(b+5)*sqrt(r1) 	= (-b1^3+16*b1)/2
-P113a:	-2*b-8 	= b1^2-14
-P113b:	-2*b-8 	= b1^2-14
+P2:	[1,0,0,-1]
+P3a:	[0,-1,1,0]
+P3b:	[0,1,-1,0]
+P5a:	[0,1,1,0]
+P5b:	[0,-1,-1,0]
+P7:	[1,0,0,0]	(AL eigenvalue = -1)
+P13a:	[0,1,1,0]
+P13b:	[0,-1,-1,0]
+P19a:	[0,1,-1,0]
+P19b:	[0,-1,1,0]
+P23a:	[0,0,0,2]
+P23b:	[0,0,0,2]
+P59a:	[0,-3,-1,0]
+P59b:	[0,3,1,0]
+P61a:	[0,-1,-1,0]
+P61b:	[0,1,1,0]
+P71a:	[8,0,0,0]
+P71b:	[8,0,0,0]
+P79a:	[0,0,0,0]
+P79b:	[0,0,0,0]
+P83a:	[0,5,-1,0]
+P83b:	[0,-5,1,0]
+P101a:	[0,5,-3,0]
+P101b:	[0,-5,3,0]
+P113a:	[-10,0,0,2]
+P113b:	[-10,0,0,2]
 
 
 >>>> Level 8.1 = (4,2a), norm = 8 <<<<

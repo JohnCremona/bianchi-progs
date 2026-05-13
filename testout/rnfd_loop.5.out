@@ -186,27 +186,27 @@ P2:	1
 
 aP for first 26 primes:
 P2:	0	(AL eigenvalue = 1)
-P3a:	-2
-P3b:	2
+P3a:	2
+P3b:	-2
 P5:	2
-P7a:	-2
-P7b:	2
-P23a:	-2
-P23b:	2
+P7a:	2
+P7b:	-2
+P23a:	2
+P23b:	-2
 P29a:	-2
 P29b:	-2
 P41a:	-2
 P41b:	-2
-P43a:	6
-P43b:	-6
-P47a:	-6
-P47b:	6
+P43a:	-6
+P43b:	6
+P47a:	6
+P47b:	-6
 P61a:	10
 P61b:	10
-P67a:	-14
-P67b:	14
-P83a:	2
-P83b:	-2
+P67a:	14
+P67b:	-14
+P83a:	-2
+P83b:	2
 P89a:	-6
 P89b:	-6
 P101a:	6
@@ -327,27 +327,27 @@ P5:	1
 
 aP for first 26 primes:
 P2:	0	(AL eigenvalue = 1)
-P3a:	-2
-P3b:	-2
+P3a:	2
+P3b:	2
 P5:	-1	(AL eigenvalue = 1)
-P7a:	2
-P7b:	2
-P23a:	6
-P23b:	6
+P7a:	-2
+P7b:	-2
+P23a:	-6
+P23b:	-6
 P29a:	6
 P29b:	6
 P41a:	6
 P41b:	6
-P43a:	-10
-P43b:	-10
-P47a:	-6
-P47b:	-6
+P43a:	10
+P43b:	10
+P47a:	6
+P47b:	6
 P61a:	2
 P61b:	2
-P67a:	2
-P67b:	2
-P83a:	6
-P83b:	6
+P67a:	-2
+P67b:	-2
+P83a:	-6
+P83b:	-6
 P89a:	-6
 P89b:	-6
 P101a:	6
@@ -559,24 +559,24 @@ P2:	0	(AL eigenvalue = -1)
 P3a:	0
 P3b:	0
 P5:	1	(AL eigenvalue = -1)
-P7a:	-4
-P7b:	-4
-P23a:	4
-P23b:	4
+P7a:	4
+P7b:	4
+P23a:	-4
+P23b:	-4
 P29a:	-2
 P29b:	-2
 P41a:	-6
 P41b:	-6
-P43a:	-8
-P43b:	-8
-P47a:	4
-P47b:	4
+P43a:	8
+P43b:	8
+P47a:	-4
+P47b:	-4
 P61a:	-2
 P61b:	-2
-P67a:	8
-P67b:	8
-P83a:	-16
-P83b:	-16
+P67a:	-8
+P67b:	-8
+P83a:	16
+P83b:	16
 P89a:	-6
 P89b:	-6
 P101a:	6
@@ -723,9 +723,9 @@ P3b:	1
 P5:	-1
 
 aP for first 26 primes:
-P2:	-1
-P3a:	-1	(AL eigenvalue = 1)
-P3b:	-1	(AL eigenvalue = 1)
+P2:	1
+P3a:	1	(AL eigenvalue = 1)
+P3b:	1	(AL eigenvalue = 1)
 P5:	1	(AL eigenvalue = -1)
 P7a:	0
 P7b:	0
@@ -735,16 +735,16 @@ P29a:	-2
 P29b:	-2
 P41a:	10
 P41b:	10
-P43a:	4
-P43b:	4
-P47a:	8
-P47b:	8
+P43a:	-4
+P43b:	-4
+P47a:	-8
+P47b:	-8
 P61a:	-2
 P61b:	-2
-P67a:	12
-P67b:	12
-P83a:	12
-P83b:	12
+P67a:	-12
+P67b:	-12
+P83a:	-12
+P83b:	-12
 P89a:	-6
 P89b:	-6
 P101a:	6
@@ -892,28 +892,28 @@ P2:	-1
 P5:	-1
 
 aP for first 26 primes:
-P2:	1	(AL eigenvalue = -1)
-P3a:	-1
-P3b:	-1
+P2:	-1	(AL eigenvalue = -1)
+P3a:	1
+P3b:	1
 P5:	0	(AL eigenvalue = -1)
-P7a:	-2
-P7b:	-2
-P23a:	-6
-P23b:	-6
+P7a:	2
+P7b:	2
+P23a:	6
+P23b:	6
 P29a:	0
 P29b:	0
 P41a:	-3
 P41b:	-3
-P43a:	4
-P43b:	4
-P47a:	-12
-P47b:	-12
+P43a:	-4
+P43b:	-4
+P47a:	12
+P47b:	12
 P61a:	2
 P61b:	2
-P67a:	13
-P67b:	13
-P83a:	9
-P83b:	9
+P67a:	-13
+P67b:	-13
+P83a:	-9
+P83b:	-9
 P89a:	15
 P89b:	15
 P101a:	-18

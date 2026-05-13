@@ -241,32 +241,36 @@ Newform #1 (2.0.23.1-23.1a)
 Atkin-Lehner eigenvalues:
 P23:	-1
 
+Integral coordinates of power basis of Hecke field (index of Z[a] is 1):
+1	 = [1,0]
+a	 = [0,1]
+
 aP for first 25 primes:
-P2a:	a-1
-P2b:	a-1
-P3a:	-2*a+1
-P3b:	-2*a+1
-P13a:	3
-P13b:	3
-P23:	1	(AL eigenvalue = -1)
-P5:	-4*a-2
-P29a:	-3
-P29b:	-3
-P31a:	6*a-3
-P31b:	6*a-3
-P41a:	-4*a+3
-P41b:	-4*a+3
-P47a:	-2*a+1
-P47b:	-2*a+1
-P7:	4*a-10
-P59a:	4*a
-P59b:	4*a
-P71a:	2*a+9
-P71b:	2*a+9
-P73a:	-4*a+13
-P73b:	-4*a+13
-P101a:	4*a-2
-P101b:	4*a-2
+P2a:	[-1,1]
+P2b:	[-1,1]
+P3a:	[1,-2]
+P3b:	[1,-2]
+P13a:	[3,0]
+P13b:	[3,0]
+P23:	[1,0]	(AL eigenvalue = -1)
+P5:	[-2,-4]
+P29a:	[-3,0]
+P29b:	[-3,0]
+P31a:	[-3,6]
+P31b:	[-3,6]
+P41a:	[3,-4]
+P41b:	[3,-4]
+P47a:	[1,-2]
+P47b:	[1,-2]
+P7:	[-10,4]
+P59a:	[0,4]
+P59b:	[0,4]
+P71a:	[9,2]
+P71b:	[9,2]
+P73a:	[13,-4]
+P73b:	[13,-4]
+P101a:	[-2,4]
+P101b:	[-2,4]
 
 
 >>>> Level 24.1 = (6+a,-6+3a), norm = 24 <<<<

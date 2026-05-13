@@ -87,10 +87,17 @@ private:
   // int for sorting, othewise they get sorted in alphabetical order
   // of opname):
   map<pair<int,string>, FieldMQElement> eigmap;
-  // Dict of T(P) eigenvalues of good primes P:
+  // Dict of T(P) eigenvalues of good primes P as FieldMQElements:
   map<Quadprime, FieldMQElement> aPmap;
+  // Dict of T(P) eigenvalues of good primes P as FieldELements in HFabs:
+  map<Quadprime, FieldElement> aPmap_abs;
+  // Dict of T(P) eigenvalues of good primes P as integral coordinates in HFabs:
+  map<Quadprime, vec_m> aPmap_int_coords;
+  // transform and store aP values in the abs and int dicts:
+  void store_aP_data();
   // max norm(P) for P in aPmap:
   INT maxP;
+
   // Dict of W(Q) eigenvalues in {+1,-1} of bad primes Q, triv char only:
   map<Quadprime, int> eQmap;
   // Dict of coefficients in HFabs of integral ideals M. Trivial
@@ -124,21 +131,6 @@ public:
   Newform(Newspace* x, int ind, const ZZX& f, int verbose=0);
   // constructor from ambient Newspace (read from file)
   Newform(Newspace* x, int i, int verbose=0);
-
-  // NB We do not use automatic copy constructor and assignment.
-
-  // copy constructor
-  Newform(const Newform& x);
-  // assignment
-  Newform& operator=(const Newform& x);
-  // destructor
-  ~Newform() {;}
-  // {
-  //   delete F0;
-  //   delete F;
-  //   if (Quad::class_group_2_rank)
-  //     delete HFabs;
-  // }
 
   // Return the number of this newform (counting from 1)
   int get_index() const { return index;}
@@ -188,10 +180,22 @@ public:
 
   // Output basis for the Homological Hecke field and character
   // If class number even, also output multiplicative basis for the full Hecke field
-  // Optionally aP and AL data too
+  // Optionally aP, AL, princ eigs and traces. For aP code see display_aP()
   void display(int aP=0, int AL=0, int principal_eigs=0, int traces=0) const;
-  // Display aP data (trivial char or C4 fields)
-  void display_aP() const;
+
+  // Display aP data (trivial char or C4 fields) in up to 3 formats
+
+  // - if relative (aP&1), output eigs in relative format
+  // - (ignores unless class number is even and the full Hecke field
+  // - is larger than the principal field)
+
+  // - if absolute (aP&2), output eigs in abolute format (as
+  // - polynomials in the generator of the full Hecke field)
+
+  // - if coords (aP&4), output eigs as integral vectors of
+  // - coordinates w.r.t. integral basis
+  void display_aP(int aP) const;
+
   // Display AL eigenvalues (trivial char or C4 fields)
   void display_AL() const;
   // Display principal eigenvalues
@@ -366,6 +370,7 @@ public:
   vector<int> dimensions(int full=0) const;
 
   // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
+  // - for  aP code see Newform::display()
   void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int traces=0, int triv_char_only=0) const;
   // sort the list of newforms using newform_cmp
   void sort_newforms();
