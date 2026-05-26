@@ -320,14 +320,11 @@ Newform #2 (2.0.59.1-27.2b)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
  - Hecke field k_f = Q(b) = Q[X]/(X^2-X-5)
+ - Hecke order is equation order Z[b] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P3a:	-1
 P3b:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[b] is 1):
-1	 = [1,0]
-b	 = [0,1]
 
 aP for first 25 primes:
 P3a:	[0,0]	(AL eigenvalue = -1)
@@ -361,42 +358,43 @@ Newform #3 (2.0.59.1-27.2c)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
  - Hecke field k_f = Q(c) = Q[X]/(X^3-X^2-7*X+8)
+ - Hecke order is equation order Z[c] but with non-standard basis.
 
 Atkin-Lehner eigenvalues:
 P3a:	-1
 P3b:	1
 
-Integral coordinates of power basis of Hecke field (index of Z[c] is 1):
-1	 = [1,0,0]
+Coordinates of power basis in Hecke order:
+1	 = [0,0,1]
 c	 = [0,1,0]
-c^2	 = [5,0,1]
+c^2	 = [1,0,5]
 
 aP for first 25 primes:
 P3a:	[0,0,0]	(AL eigenvalue = -1)
-P3b:	[-1,0,0]	(AL eigenvalue = 1)
-P2:	[0,0,-1]
-P5a:	[-1,1,1]
-P5b:	[1,-1,-1]
+P3b:	[0,0,-1]	(AL eigenvalue = 1)
+P2:	[-1,0,0]
+P5a:	[1,1,-1]
+P5b:	[-1,-1,1]
 P7a:	[0,1,0]
 P7b:	[0,1,0]
-P17a:	[-1,0,1]
-P17b:	[1,0,-1]
+P17a:	[1,0,-1]
+P17b:	[-1,0,1]
 P19a:	[1,2,1]
 P19b:	[1,2,1]
-P29a:	[0,1,2]
-P29b:	[0,-1,-2]
-P41a:	[-4,-1,-2]
-P41b:	[4,1,2]
-P53a:	[-1,-3,1]
-P53b:	[1,3,-1]
+P29a:	[2,1,0]
+P29b:	[-2,-1,0]
+P41a:	[-2,-1,-4]
+P41b:	[2,1,4]
+P53a:	[1,-3,-1]
+P53b:	[-1,3,1]
 P59:	[0,0,0]
 P71a:	[-1,5,-1]
 P71b:	[1,-5,1]
-P79a:	[5,-3,1]
-P79b:	[5,-3,1]
-P107a:	[-3,4,1]
-P107b:	[3,-4,-1]
-P11:	[-9,1,1]
+P79a:	[1,-3,5]
+P79b:	[1,-3,5]
+P107a:	[1,4,-3]
+P107b:	[-1,-4,3]
+P11:	[1,1,-9]
 
 
 >>>> Level 27.3 = (9,-3+3a), norm = 27 <<<<
@@ -444,14 +442,11 @@ Newform #2 (2.0.59.1-27.3b)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = -1
  - Hecke field k_f = Q(b) = Q[X]/(X^2-X-5)
+ - Hecke order is equation order Z[b] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P3a:	-1
 P3b:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[b] is 1):
-1	 = [1,0]
-b	 = [0,1]
 
 aP for first 25 primes:
 P3a:	[1,0]	(AL eigenvalue = -1)
@@ -485,42 +480,43 @@ Newform #3 (2.0.59.1-27.3c)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
  - Hecke field k_f = Q(c) = Q[X]/(X^3-X^2-7*X+8)
+ - Hecke order is equation order Z[c] but with non-standard basis.
 
 Atkin-Lehner eigenvalues:
 P3a:	1
 P3b:	-1
 
-Integral coordinates of power basis of Hecke field (index of Z[c] is 1):
-1	 = [1,0,0]
+Coordinates of power basis in Hecke order:
+1	 = [0,0,1]
 c	 = [0,1,0]
-c^2	 = [5,0,1]
+c^2	 = [1,0,5]
 
 aP for first 25 primes:
-P3a:	[-1,0,0]	(AL eigenvalue = 1)
+P3a:	[0,0,-1]	(AL eigenvalue = 1)
 P3b:	[0,0,0]	(AL eigenvalue = -1)
-P2:	[0,0,-1]
-P5a:	[1,-1,-1]
-P5b:	[-1,1,1]
+P2:	[-1,0,0]
+P5a:	[-1,-1,1]
+P5b:	[1,1,-1]
 P7a:	[0,1,0]
 P7b:	[0,1,0]
-P17a:	[1,0,-1]
-P17b:	[-1,0,1]
+P17a:	[-1,0,1]
+P17b:	[1,0,-1]
 P19a:	[1,2,1]
 P19b:	[1,2,1]
-P29a:	[0,-1,-2]
-P29b:	[0,1,2]
-P41a:	[4,1,2]
-P41b:	[-4,-1,-2]
-P53a:	[1,3,-1]
-P53b:	[-1,-3,1]
+P29a:	[-2,-1,0]
+P29b:	[2,1,0]
+P41a:	[2,1,4]
+P41b:	[-2,-1,-4]
+P53a:	[-1,3,1]
+P53b:	[1,-3,-1]
 P59:	[0,0,0]
 P71a:	[1,-5,1]
 P71b:	[-1,5,-1]
-P79a:	[5,-3,1]
-P79b:	[5,-3,1]
-P107a:	[3,-4,-1]
-P107b:	[-3,4,1]
-P11:	[-9,1,1]
+P79a:	[1,-3,5]
+P79b:	[1,-3,5]
+P107a:	[-1,-4,3]
+P107b:	[1,4,-3]
+P11:	[1,1,-9]
 
 
 >>>> Level 27.4 = (-4+a), norm = 27 <<<<

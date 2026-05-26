@@ -1,4 +1,4 @@
-// File NFD.H: class Newform for newforms of any dimension
+// File NFD.H: classes Newspace and Newform for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
 
 #ifndef _BIANCHI_NFD_H
@@ -43,8 +43,9 @@ private:
   FieldMQExt* HFrel; // pointer to relative full Hecke field as extension of F
   Field* HFabs;   // absolute full Hecke field
   FieldIso abs_emb; // isomorphism from F to HFabs (possibly identity)
+  int abs_deg;
   vector<FieldElement> im_gens;
-
+  Order HO;       // Hecke order (contains equation order of HFabs, contained in its max order)
   subspace S; // irreducible subspace of modular symbol space
   ZZ Sdenom;  // absolute denominator of S
   mat projcoord; // used to computed eigenvalues of any operator
@@ -93,8 +94,12 @@ private:
   map<Quadprime, FieldElement> aPmap_abs;
   // Dict of T(P) eigenvalues of good primes P as integral coordinates in HFabs:
   map<Quadprime, vec_m> aPmap_int_coords;
-  // transform and store aP values in the abs and int dicts:
+  // transform and store aP values in the abs and int dicts (first
+  // time, when Hecke order not yet known):
   void store_aP_data();
+  // transform and store aP values in the abs and int dicts (after
+  // reading from file, so Hecke order is known):
+  void restore_aP_data();
   // max norm(P) for P in aPmap:
   INT maxP;
 

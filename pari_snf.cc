@@ -16,12 +16,6 @@ using PARI::ZM_hnfall;
 using PARI::RgM_dimensions;
 using PARI::rowslice;
 
-// Convert a pari t_INT to an INT
-INT PARI_to_INT(GEN n)
-{
-  return INT(*PARI_to_FLINT(n));
-}
-
 vector<INT> invariants(const vector<vector<int>>& M)
 {
   eclib_pari_init();
@@ -39,7 +33,7 @@ vector<INT> invariants(const vector<vector<int>>& M)
   for (int i=0; i<s; i++)
     {
       GEN e = gel(S,s-i); // reversing order
-      INT d = PARI_to_INT(e);
+      INT d = to_INT(e);
       if (!is_one(d))
         invs.push_back(INT(d));
     }
@@ -108,7 +102,7 @@ vector<INT> homology_invariants_via_pari(const vector<vector<int>>& M10, const v
   for (int i=0; i<s; i++)
     {
       GEN e = gel(S,s-i); // reversing order
-      INT d = PARI_to_INT(e);
+      INT d = to_INT(e);
       if (!is_one(d))
         invs.push_back(INT(d));
     }
@@ -134,10 +128,10 @@ vector<INT> hnf_invariants(const vector<vector<int>>& M)
   GEN H = ZM_hnf(A);
   // cout << "computed H"<<endl;
   vector<INT> invs = {
-    PARI_to_INT(gcoeff(H,1,1)),
-    PARI_to_INT(gcoeff(H,1,2)),
-    PARI_to_INT(gcoeff(H,2,1)),
-    PARI_to_INT(gcoeff(H,2,2))};
+    to_INT(gcoeff(H,1,1)),
+    to_INT(gcoeff(H,1,2)),
+    to_INT(gcoeff(H,2,1)),
+    to_INT(gcoeff(H,2,2))};
   avma=av;
   return invs;
 }

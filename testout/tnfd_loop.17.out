@@ -21,13 +21,10 @@ Newform #1 (2.0.68.1-2.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 25 primes:
 P2:	1 	= 1 	= [1,0]	(AL eigenvalue = -1)
@@ -68,13 +65,10 @@ Newform #1 (2.0.68.1-2.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 25 primes:
 P2:	1 	= 1 	= [1,0]	(AL eigenvalue = -1)
@@ -124,13 +118,10 @@ Newform #1 (2.0.68.1-4.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 25 primes:
 P2:	0 	= 0 	= [0,0]	(AL eigenvalue = -1)
@@ -171,13 +162,10 @@ Newform #1 (2.0.68.1-4.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	-1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 25 primes:
 P2:	0 	= 0 	= [0,0]	(AL eigenvalue = -1)
@@ -399,13 +387,10 @@ Newform #2 (2.0.68.1-8.1b)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(b1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[b1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	1
-
-Integral coordinates of power basis of Hecke field (index of Z[b1] is 1):
-1	 = [1,0]
-b1	 = [0,1]
 
 aP for first 25 primes:
 P2:	0 	= 0 	= [0,0]	(AL eigenvalue = 1)
@@ -528,13 +513,10 @@ Newform #3 (2.0.68.1-8.1c)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(b1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[b1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	1
-
-Integral coordinates of power basis of Hecke field (index of Z[b1] is 1):
-1	 = [1,0]
-b1	 = [0,1]
 
 aP for first 25 primes:
 P2:	0 	= 0 	= [0,0]	(AL eigenvalue = 1)
@@ -580,10 +562,7 @@ Newform #1 (2.0.68.1-9.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(i)
                         = Q(a1) = Q[X]/(X^2+1)
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
+ - Hecke order is equation order Z[a1] with standard basis.
 
 aP for first 24 primes:
 P2:	i 	= a1 	= [0,1]
@@ -889,37 +868,38 @@ Newform #1 (2.0.68.1-12.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(i, sqrt(r2)), where r2 = 2
                         = Q(a1) = Q[X]/(X^4+16)
+ - Hecke order contains equation order Z[a1] with index 64.
 
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 64):
+Coordinates of power basis in Hecke order:
 1	 = [1,0,0,0]
-a1	 = [0,0,-2,0]
-a1^2	 = [0,4,0,0]
-a1^3	 = [0,0,0,8]
+a1	 = [0,0,2,0]
+a1^2	 = [0,0,0,4]
+a1^3	 = [0,8,0,0]
 
 aP for first 23 primes:
 P3b:	0 	= 0 	= [0,0,0,0]
-P7a:	sqrt(2)*(1+i) 	= a1 	= [0,0,-2,0]
-P7b:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,0,0,2]
-P11a:	2*sqrt(2)*(1-i) 	= (-a1^3)/2 	= [0,0,0,-4]
+P7a:	sqrt(2)*(1+i) 	= a1 	= [0,0,2,0]
+P7b:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,2,0,0]
+P11a:	2*sqrt(2)*(1-i) 	= (-a1^3)/2 	= [0,-4,0,0]
 P11b:	0 	= 0 	= [0,0,0,0]
-P13a:	-6*i 	= (-3*a1^2)/2 	= [0,-6,0,0]
-P13b:	-2*i 	= (-a1^2)/2 	= [0,-2,0,0]
+P13a:	-6*i 	= (-3*a1^2)/2 	= [0,0,0,-6]
+P13b:	-2*i 	= (-a1^2)/2 	= [0,0,0,-2]
 P17:	2 	= 2 	= [2,0,0,0]
-P23a:	sqrt(2)*(1-i) 	= (-a1^3)/4 	= [0,0,0,-2]
-P23b:	3*sqrt(2)*(1+i) 	= 3*a1 	= [0,0,-6,0]
+P23a:	sqrt(2)*(1-i) 	= (-a1^3)/4 	= [0,-2,0,0]
+P23b:	3*sqrt(2)*(1+i) 	= 3*a1 	= [0,0,6,0]
 P5:	-2 	= -2 	= [-2,0,0,0]
-P31a:	5*sqrt(2)*(1+i) 	= 5*a1 	= [0,0,-10,0]
-P31b:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,0,0,2]
+P31a:	5*sqrt(2)*(1+i) 	= 5*a1 	= [0,0,10,0]
+P31b:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,2,0,0]
 P53a:	2 	= 2 	= [2,0,0,0]
 P53b:	-6 	= -6 	= [-6,0,0,0]
-P71a:	-7*sqrt(2)*(1+i) 	= -7*a1 	= [0,0,14,0]
-P71b:	-5*sqrt(2)*(1-i) 	= (5*a1^3)/4 	= [0,0,0,10]
-P79a:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,0,0,2]
-P79b:	5*sqrt(2)*(1+i) 	= 5*a1 	= [0,0,-10,0]
-P89a:	-10*i 	= (-5*a1^2)/2 	= [0,-10,0,0]
-P89b:	-6*i 	= (-3*a1^2)/2 	= [0,-6,0,0]
-P101a:	14*i 	= (7*a1^2)/2 	= [0,14,0,0]
-P101b:	-14*i 	= (-7*a1^2)/2 	= [0,-14,0,0]
+P71a:	-7*sqrt(2)*(1+i) 	= -7*a1 	= [0,0,-14,0]
+P71b:	-5*sqrt(2)*(1-i) 	= (5*a1^3)/4 	= [0,10,0,0]
+P79a:	-sqrt(2)*(1-i) 	= (a1^3)/4 	= [0,2,0,0]
+P79b:	5*sqrt(2)*(1+i) 	= 5*a1 	= [0,0,10,0]
+P89a:	-10*i 	= (-5*a1^2)/2 	= [0,0,0,-10]
+P89b:	-6*i 	= (-3*a1^2)/2 	= [0,0,0,-6]
+P101a:	14*i 	= (7*a1^2)/2 	= [0,0,0,14]
+P101b:	-14*i 	= (-7*a1^2)/2 	= [0,0,0,-14]
 
 
 End of program, exiting...

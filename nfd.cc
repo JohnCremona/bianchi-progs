@@ -1,4 +1,4 @@
-// FILE nfd.cc: implementation of class Newspace for newforms of any dimension
+// FILE nfd.cc: implementation of classes Newspace and Newform for newforms of any dimension
 //////////////////////////////////////////////////////////////////////////
 
 #include "nfd.h"
@@ -17,7 +17,7 @@ newform_comparison newform_cmp;
 // Degree bound: fields of degree up to this will be reduced via
 // polredabs (giving a canonical defining polynomial); above this only
 // polredbest will be used.
-const int POLREDABS_DEGREE_UPPER_BOUND = 15;
+const int POLREDABS_DEGREE_UPPER_BOUND = 20;
 
 // When this is set, use the old spaces info read in from file, with
 // the correct multiplicities even when there are self-twist newforms
@@ -951,19 +951,71 @@ void Newform::compute_principal_eigs(int nap, int verbose)
     } // end of prime loop
 }
 
-// store transformed aP values in abs and int_coords dicts.  This can
-// only be done *after* we have computed them as FieldMQElements, as
-// only after that do we know the full Hecke field.
+// store transformed aP values in abs and int_coords dicts (first
+// time, when Hecke order not yet known).  This can only be done
+// *after* we have computed them as FieldMQElements, as only after
+// that do we know the full Hecke field.
 void Newform::store_aP_data()
 {
+  int verbose = nsp->verbose;
+  // First pass: embed relative aP into HFabs , store in aPmap_abs, and
+  // expand Hecke order if necessary
   for (auto x : aPmap)
     {
       Quadprime P = x.first;
       FieldMQElement aP = x.second;
       FieldElement aP_abs = embed_eigenvalue(aP, abs_emb, im_gens);
       aPmap_abs[P] = aP_abs;
-      vec_m aP_coords = HFabs->integral_coords(aP_abs);
-      aPmap_int_coords[P] = aP_coords;
+      // extend Hecke order if necessary:
+      if (abs_deg==1)
+        continue;
+      if (!HO.contains(aP_abs))
+        continue;
+      if (verbose)
+        cout << "a_P not in current Hecke order (denominator " << HO.denom(aP_abs)
+             << "), extending..." << endl;
+      ZZ rel_index = HO.extend_by(aP_abs, 0); // 0: no need to check that aP_abs is integral
+      if (verbose)
+        {
+          cout << "Hecke order grows by index " << rel_index << endl;
+          if (verbose>1)
+            {
+              cout << "New basis is\n";
+              for (auto b: HO.get_basis()) cout << b << " = " << b.coords() << endl;
+            }
+        }
+    }
+  if (abs_deg==1)
+    return;
+
+  if (verbose) cout << "absolute aP computed, now LLL-reducing Hecke order..." << flush;
+  // Get list of ap
+  vector<FieldElement> aplist(aPmap_abs.size());
+  std::transform(aPmap_abs.begin(), aPmap_abs.end(), aplist.begin(),
+                 [](const auto& pap){return pap.second;});
+  HO.LLL_reduce(aplist);
+  if (verbose) cout << "done." << endl;
+
+  // Second pass: compute and store integral coords in reduced Hecke order:
+  if (verbose) cout << "computing and storing reduced integral coords of aP..." << flush;
+  for (auto x : aPmap_abs)
+    aPmap_int_coords[x.first] = HO.integral_coords(x.second);
+
+  if (verbose) cout << "done." << endl;
+}
+
+// transform and store aP values in the abs and int dicts (after
+// reading from file, so Hecke order is known):
+void Newform::restore_aP_data()
+{
+  // embed relative aP into HFabs, store in aPmap_abs, and store Hecke
+  // order integral coords in aPmap_int_coords
+  for (auto x : aPmap)
+    {
+      Quadprime P = x.first;
+      FieldElement aP_abs = embed_eigenvalue(x.second, abs_emb, im_gens);
+      aPmap_abs[P] = aP_abs;
+      aPmap_int_coords[P] = HO.integral_coords(aP_abs);
     }
 }
 
@@ -987,11 +1039,13 @@ void Newform::compute_eigs(int ntp, int verbose)
       HFabs = new Field();
       string var = F->get_var() + string("1");
       abs_emb = HFrel->absolute_field_embedding(im_gens, var, *HFabs, 1); // reduce=1
+      abs_deg = HFabs->degree();
     }
   else // F = HFabs and abs_emb = identity
     {
       HFabs = F; // same pointer
-      abs_emb = FieldIso(*F); //, *HFabs, mat_m::identity_matrix(d));
+      abs_emb = FieldIso(*F);
+      abs_deg = d;
     }
   if (verbose && Quad::class_group_2_rank)
     {
@@ -999,7 +1053,17 @@ void Newform::compute_eigs(int ntp, int verbose)
            << "absolute full Hecke field:\n" << *HFabs << endl <<endl;
     }
 
-  HFabs->make_integral_basis();
+  ZZ bound(0);
+  if (d>POLREDABS_DEGREE_UPPER_BOUND) bound = ZZ(100000000);
+  HO = MaximalOrder(HFabs, bound); // initialise with maximal order (or approximation)
+  if (d>1 && verbose)
+    {
+      cout << "Hecke order initialised to " << HO << endl;
+      ZZ ind = HO.get_order_index();
+      if (!is_one(ind))
+        cout << "(which contains the equation order with index " << ind << ")" << endl;
+    }
+
   store_aP_data(); // stores abs embeddings and integral coords
 
   check_base_change();
@@ -1756,6 +1820,27 @@ void Newform::display(int aP, int AL, int principal_eigs, int traces) const
             }
         } // end of non-trivial char case
     }
+  // Display Hecke order
+  ZZ ind = (abs_deg==1? ZZ(1) : HO.get_order_index());
+  int is_eqn_order = HO.is_equation_order(); // not just index=1: basis must be standard
+  FieldElement gen = HFabs->gen();
+  // cout << "abs_deg = " <<abs_deg << endl;
+  // cout << "is_eqn_order = " << is_eqn_order << endl;
+  if (abs_deg>1)
+    {
+      if (is_eqn_order)
+        {
+          cout << " - Hecke order is equation order Z[" << gen <<"] with standard basis.";
+        }
+      else
+        {
+          if (is_one(ind))
+            cout << " - Hecke order is equation order Z[" << gen <<"] but with non-standard basis.";
+          else
+            cout << " - Hecke order contains equation order Z[" << gen <<"] with index " << ind <<".";
+        }
+      cout << endl;
+    }
   if (triv_char && AL)
     {
       cout << endl;
@@ -1791,21 +1876,23 @@ void Newform::display_aP(int aP) const
     return;
 
   int aPrel = aP&1, aPabs = aP&2, aPcoords = aP&4;
-
-  int abs_deg = HFabs->degree();
+  ZZ ind = (d==1? ZZ(1) : HO.get_order_index());
+  int is_eqn_order = HO.is_equation_order(); // not just index=1: basis must be standard
 
   if (abs_deg>1 && aPcoords)
     {
-      FieldElement gen = HFabs->gen(), gen_power = (*HFabs)(1);
-      cout << "Integral coordinates of power basis of Hecke field (index of Z["<<gen<<"] is "
-           << HFabs->get_order_index()<<"):\n";
-      for (int i=0; i<abs_deg; i++)
+      if (!is_eqn_order)
         {
-          cout << gen_power << "\t = "
-               << HFabs->integral_coords(gen_power) << endl;
-          if (i < abs_deg-1) gen_power *= gen;
+          FieldElement gen = HFabs->gen(), gen_power = (*HFabs)(1);
+          cout << "Coordinates of power basis in Hecke order:\n";
+          for (int i=0; i<abs_deg; i++)
+            {
+              cout << gen_power << "\t = "
+                   << HO.integral_coords(gen_power) << endl;
+              if (i < abs_deg-1) gen_power *= gen;
+            }
+          cout << endl;
         }
-      cout << endl;
     }
 
   cout << "aP for first " << aPmap.size() << " primes:" << endl;
@@ -1998,9 +2085,9 @@ void Newform::output_to_file(int conj) const
     }
   out<< "\n";
 
-  // Output integral basis data for absolute Hecke field
-  out << HFabs->get_order_index() << " ";
-  vec_out(out, HFabs->get_bcm().get_entries(), " ", " ", " ");
+  // Output Hecke order (integral basis data for absolute Hecke field)
+  out << HO.get_order_index() << " ";
+  vec_out(out, HO.get_pcm().get_entries(), " ", " ", " ");
   out << "\n\n";
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
@@ -2227,7 +2314,7 @@ vector<Newform> Newform::all_unram_quadratic_twists() const
 // Returns 0 if data file missing, else 1
 int Newform::input_from_file(int verb)
 {
-  //  verb=2; // for debugging
+  // verb=2; // for debugging
   string fname = filename();
   if (verb)
     cout << "Reading newform " << lab << " from " << fname << " (verb="<<verb<<")"<<endl;
@@ -2251,11 +2338,11 @@ int Newform::input_from_file(int verb)
 
   // Principal dimension and (if class number even) full dimension:
   fdata >> d;
-  int fd = d;
+  abs_deg = d;
   if (n2r)
-    fdata >> fd;
+    fdata >> abs_deg;
   if (verb>1)
-    cout << "--> Principal dim = " << d << " full dim = " << fd << endl;
+    cout << "--> Principal dim = " << d << " full dim = " << abs_deg << endl;
   // character vector epsvec
   triv_char = 1;
   epsvec.resize(n2r);
@@ -2346,21 +2433,26 @@ int Newform::input_from_file(int verb)
     {
       HFabs = F;
       abs_emb = FieldIso(*F); // identity
+      // cout << "--> Absolute field: " << *HFabs << endl;
+      // cout << "--> Embedding into absolute field: " << abs_emb << endl;
     }
 
   // read integral basis info for HFabs
 
   ZZ ib;
-  mat_m bcm(fd,fd);
-  fdata >>ib; // the index of the equation order
+  fdata >>ib; // the index of the Hecke order
+  // cout << "Read order index = " << ib << endl;
+  mat_m bcm(abs_deg,abs_deg);
   fdata >> bcm;
-  HFabs->set_integral_basis(ib,bcm);
+  // cout << "Read bcm = \n" << bcm << endl;
+  HO = Order(*HFabs,ib,bcm);
   if (verb>1)
     {
-      cout << "Equation order has index " << ib << ", bcm = ";
-      bcm.output_flat();
-      cout << endl;
+      cout << "Hecke order: " << HO << endl;
+      cout << "with power coords matrix " << HO.get_pcm() << endl;
+      cout << "and basis matrix " << HO.get_bm() << endl;
     }
+
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
   int bcc;
   fdata >> bcc;
@@ -2420,9 +2512,11 @@ int Newform::input_from_file(int verb)
       aPmap[P] = aP;
       if (verb>1)
         cout << "--> P = " << Plab
-             << ": a_P = "<<aPmap[P]<<endl;
+             << ": a_P = " << aP
+          // << " (coords: " << aP
+             << endl;
     }
-  store_aP_data(); // transform and store aP values in the abs and int dicts
+  restore_aP_data(); // transform and store aP values in the abs and int dicts
   if (verb)
     {
       cout << "After reading everything from " << fname <<":" << endl;

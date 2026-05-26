@@ -35,39 +35,40 @@ Newform #1 (2.0.83.1-9.1a)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
  - Hecke field k_f = Q(a) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a] but with non-standard basis.
 
 Atkin-Lehner eigenvalues:
 P3a:	-1
 
-Integral coordinates of power basis of Hecke field (index of Z[a] is 1):
-1	 = [1,0]
-a	 = [0,1]
+Coordinates of power basis in Hecke order:
+1	 = [0,1]
+a	 = [1,-1]
 
 aP for first 25 primes:
 P3a:	[0,0]	(AL eigenvalue = -1)
-P3b:	[1,-1]
-P2:	[1,-1]
-P7a:	[1,1]
-P7b:	[1,1]
-P11a:	[3,-1]
-P11b:	[-3,1]
-P17a:	[1,-2]
-P17b:	[-1,2]
-P23a:	[0,-4]
-P23b:	[0,4]
-P5:	[0,-2]
-P29a:	[3,-2]
-P29b:	[-3,2]
-P31a:	[3,3]
-P31b:	[3,3]
-P37a:	[7,2]
-P37b:	[7,2]
-P41a:	[-4,-2]
-P41b:	[4,2]
-P59a:	[5,1]
-P59b:	[-5,-1]
-P61a:	[3,4]
-P61b:	[3,4]
+P3b:	[-1,2]
+P2:	[-1,2]
+P7a:	[1,0]
+P7b:	[1,0]
+P11a:	[-1,4]
+P11b:	[1,-4]
+P17a:	[-2,3]
+P17b:	[2,-3]
+P23a:	[-4,4]
+P23b:	[4,-4]
+P5:	[-2,2]
+P29a:	[-2,5]
+P29b:	[2,-5]
+P31a:	[3,0]
+P31b:	[3,0]
+P37a:	[2,5]
+P37b:	[2,5]
+P41a:	[-2,-2]
+P41b:	[2,2]
+P59a:	[1,4]
+P59b:	[-1,-4]
+P61a:	[4,-1]
+P61b:	[4,-1]
 P83:	[0,0]
 
 
@@ -83,39 +84,40 @@ Newform #1 (2.0.83.1-9.3a)
  - Newform is twisted base-change but not base-change
  - Sign of functional equation = +1
  - Hecke field k_f = Q(a) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a] but with non-standard basis.
 
 Atkin-Lehner eigenvalues:
 P3b:	-1
 
-Integral coordinates of power basis of Hecke field (index of Z[a] is 1):
-1	 = [1,0]
-a	 = [0,1]
+Coordinates of power basis in Hecke order:
+1	 = [0,1]
+a	 = [1,-1]
 
 aP for first 25 primes:
-P3a:	[1,-1]
+P3a:	[-1,2]
 P3b:	[0,0]	(AL eigenvalue = -1)
-P2:	[1,-1]
-P7a:	[1,1]
-P7b:	[1,1]
-P11a:	[-3,1]
-P11b:	[3,-1]
-P17a:	[-1,2]
-P17b:	[1,-2]
-P23a:	[0,4]
-P23b:	[0,-4]
-P5:	[0,-2]
-P29a:	[-3,2]
-P29b:	[3,-2]
-P31a:	[3,3]
-P31b:	[3,3]
-P37a:	[7,2]
-P37b:	[7,2]
-P41a:	[4,2]
-P41b:	[-4,-2]
-P59a:	[-5,-1]
-P59b:	[5,1]
-P61a:	[3,4]
-P61b:	[3,4]
+P2:	[-1,2]
+P7a:	[1,0]
+P7b:	[1,0]
+P11a:	[1,-4]
+P11b:	[-1,4]
+P17a:	[2,-3]
+P17b:	[-2,3]
+P23a:	[4,-4]
+P23b:	[-4,4]
+P5:	[-2,2]
+P29a:	[2,-5]
+P29b:	[-2,5]
+P31a:	[3,0]
+P31b:	[3,0]
+P37a:	[2,5]
+P37b:	[2,5]
+P41a:	[2,2]
+P41b:	[-2,-2]
+P59a:	[-1,-4]
+P59b:	[1,4]
+P61a:	[4,-1]
+P61b:	[4,-1]
 P83:	[0,0]
 
 

@@ -51,13 +51,10 @@ Newform #1 (2.0.56.1-7.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P7:	1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 26 primes:
 P2:	[0,0]
@@ -97,43 +94,44 @@ Newform #2 (2.0.56.1-7.1b)
  - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = -2*b+6
                         = Q(b1) = Q[X]/(X^4-10*X^2+8)
         [where b = (-b1^2+6)/2, sqrt(r1) = b1]
+ - Hecke order contains equation order Z[b1] with index 8.
 
 Atkin-Lehner eigenvalues:
 P7:	-1
 
-Integral coordinates of power basis of Hecke field (index of Z[b1] is 8):
-1	 = [1,0,0,0]
-b1	 = [0,-1,1,0]
-b1^2	 = [4,0,0,2]
-b1^3	 = [0,-6,10,0]
+Coordinates of power basis in Hecke order:
+1	 = [0,0,0,1]
+b1	 = [0,1,0,0]
+b1^2	 = [2,0,0,8]
+b1^3	 = [0,10,4,0]
 
 aP for first 26 primes:
-P2:	[1,0,0,-1]
-P3a:	[0,-1,1,0]
-P3b:	[0,1,-1,0]
-P5a:	[0,1,1,0]
-P5b:	[0,-1,-1,0]
-P7:	[1,0,0,0]	(AL eigenvalue = -1)
-P13a:	[0,1,1,0]
-P13b:	[0,-1,-1,0]
-P19a:	[0,1,-1,0]
-P19b:	[0,-1,1,0]
-P23a:	[0,0,0,2]
-P23b:	[0,0,0,2]
-P59a:	[0,-3,-1,0]
-P59b:	[0,3,1,0]
-P61a:	[0,-1,-1,0]
-P61b:	[0,1,1,0]
-P71a:	[8,0,0,0]
-P71b:	[8,0,0,0]
+P2:	[-1,0,0,-1]
+P3a:	[0,1,0,0]
+P3b:	[0,-1,0,0]
+P5a:	[0,1,2,0]
+P5b:	[0,-1,-2,0]
+P7:	[0,0,0,1]	(AL eigenvalue = -1)
+P13a:	[0,1,2,0]
+P13b:	[0,-1,-2,0]
+P19a:	[0,-1,0,0]
+P19b:	[0,1,0,0]
+P23a:	[2,0,0,4]
+P23b:	[2,0,0,4]
+P59a:	[0,-1,-4,0]
+P59b:	[0,1,4,0]
+P61a:	[0,-1,-2,0]
+P61b:	[0,1,2,0]
+P71a:	[0,0,0,8]
+P71b:	[0,0,0,8]
 P79a:	[0,0,0,0]
 P79b:	[0,0,0,0]
-P83a:	[0,5,-1,0]
-P83b:	[0,-5,1,0]
-P101a:	[0,5,-3,0]
-P101b:	[0,-5,3,0]
-P113a:	[-10,0,0,2]
-P113b:	[-10,0,0,2]
+P83a:	[0,-1,4,0]
+P83b:	[0,1,-4,0]
+P101a:	[0,-3,2,0]
+P101b:	[0,3,-2,0]
+P113a:	[2,0,0,-6]
+P113b:	[2,0,0,-6]
 
 Full eigensystems for forms with trivial character, including unramified quadratic twists
 
@@ -146,13 +144,10 @@ Newform #1 (2.0.56.1-7.1a)
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
                         = Q(a1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[a1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P7:	1
-
-Integral coordinates of power basis of Hecke field (index of Z[a1] is 1):
-1	 = [1,0]
-a1	 = [0,1]
 
 aP for first 26 primes:
 P2:	[0,0]
@@ -192,43 +187,44 @@ Newform #2 (2.0.56.1-7.1b)
  - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = -2*b+6
                         = Q(b1) = Q[X]/(X^4-10*X^2+8)
         [where b = (-b1^2+6)/2, sqrt(r1) = b1]
+ - Hecke order contains equation order Z[b1] with index 8.
 
 Atkin-Lehner eigenvalues:
 P7:	-1
 
-Integral coordinates of power basis of Hecke field (index of Z[b1] is 8):
-1	 = [1,0,0,0]
-b1	 = [0,-1,1,0]
-b1^2	 = [4,0,0,2]
-b1^3	 = [0,-6,10,0]
+Coordinates of power basis in Hecke order:
+1	 = [0,0,0,1]
+b1	 = [0,1,0,0]
+b1^2	 = [2,0,0,8]
+b1^3	 = [0,10,4,0]
 
 aP for first 26 primes:
-P2:	[1,0,0,-1]
-P3a:	[0,-1,1,0]
-P3b:	[0,1,-1,0]
-P5a:	[0,1,1,0]
-P5b:	[0,-1,-1,0]
-P7:	[1,0,0,0]	(AL eigenvalue = -1)
-P13a:	[0,1,1,0]
-P13b:	[0,-1,-1,0]
-P19a:	[0,1,-1,0]
-P19b:	[0,-1,1,0]
-P23a:	[0,0,0,2]
-P23b:	[0,0,0,2]
-P59a:	[0,-3,-1,0]
-P59b:	[0,3,1,0]
-P61a:	[0,-1,-1,0]
-P61b:	[0,1,1,0]
-P71a:	[8,0,0,0]
-P71b:	[8,0,0,0]
+P2:	[-1,0,0,-1]
+P3a:	[0,1,0,0]
+P3b:	[0,-1,0,0]
+P5a:	[0,1,2,0]
+P5b:	[0,-1,-2,0]
+P7:	[0,0,0,1]	(AL eigenvalue = -1)
+P13a:	[0,1,2,0]
+P13b:	[0,-1,-2,0]
+P19a:	[0,-1,0,0]
+P19b:	[0,1,0,0]
+P23a:	[2,0,0,4]
+P23b:	[2,0,0,4]
+P59a:	[0,-1,-4,0]
+P59b:	[0,1,4,0]
+P61a:	[0,-1,-2,0]
+P61b:	[0,1,2,0]
+P71a:	[0,0,0,8]
+P71b:	[0,0,0,8]
 P79a:	[0,0,0,0]
 P79b:	[0,0,0,0]
-P83a:	[0,5,-1,0]
-P83b:	[0,-5,1,0]
-P101a:	[0,5,-3,0]
-P101b:	[0,-5,3,0]
-P113a:	[-10,0,0,2]
-P113b:	[-10,0,0,2]
+P83a:	[0,-1,4,0]
+P83b:	[0,1,-4,0]
+P101a:	[0,-3,2,0]
+P101b:	[0,3,-2,0]
+P113a:	[2,0,0,-6]
+P113b:	[2,0,0,-6]
 
 
 >>>> Level 8.1 = (4,2a), norm = 8 <<<<
