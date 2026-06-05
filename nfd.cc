@@ -62,7 +62,10 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
   // In computing f(T), since T is scaled by Hden and f(X) is not,
   // we evaluate Hden^d * f(X/Hden) at T.
 
-  S = kernel(to_mat(evaluate(scale_poly_up(f, nsp->Hden), nsp->T_mat)));
+  auto fT = to_mat_I(evaluate(scale_poly_up(f, nsp->Hden), nsp->T_mat));
+  // cout << "fT =\n" << fT << endl;
+  S = kernel(fT, 3);
+  // cout << "ker(fT) has basis\n" << S.bas() << endl;
   if(dim(S)!=d)
     {
       cout<<"Problem: eigenspace has wrong dimension "<<dim(S)<<", not "<<d<<endl;
@@ -974,7 +977,7 @@ void Newform::store_aP_data()
       if (verbose)
         cout << "a_P not in current Hecke order (denominator " << HO.denom(aP_abs)
              << "), extending..." << endl;
-      ZZ rel_index = HO.extend_by(aP_abs, 0); // 0: no need to check that aP_abs is integral
+      ZZ rel_index = HO.extend_by_one(aP_abs, 0); // 0: no need to check that aP_abs is integral
       if (verbose)
         {
           cout << "Hecke order grows by index " << rel_index << endl;
