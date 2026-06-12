@@ -72,7 +72,7 @@ int main(void)
       // Compute trivial character subspace
       ssubspace V = h.trivial_character_subspace(0, 1); // cuspidal=0, dual=1
 
-      cout << "Dimension of trivial character subspace = " << dim(V) <<endl;
+      cout << "Dimension of trivial character subspace = " << V.dim() <<endl;
       pair<int,int> dd = h.trivial_character_subspace_dimensions();
       cout << "Dimension of trivial character subspaces: total = " << dd.first <<", cuspidal = " <<dd.second <<endl;
 
@@ -368,14 +368,15 @@ exit(0);
 
 mat galois_conjugate_matrix(homspace& h, const ssubspace& s, int dual, int display)
 {
-  long d=dim(s);
+  long d = s.dim();
   smat sm(d, h.h1dim());
+  auto spivs = s.pivs();
   for (long j=0; j<d; j++)
      {
-       long jj = pivots(s)[j+1]-1;
+       long jj = spivs[j+1]-1;
        sm.setrow(j+1,svec(h.chain(h.freemods[jj].conj())));
      }
-  mat m = mult_mod_p(sm,basis(s), default_modulus<scalar>()).as_mat();
+  mat m = mult_mod_p(sm, s.bas(), default_modulus<scalar>()).as_mat();
   if(!dual) m=transpose(m); // as above code computes the transpose
 
   if (display)

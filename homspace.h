@@ -44,7 +44,7 @@ public:
   int coords(const Quad& c, const Quad& d);
   int index(const Quad& c, const Quad& d) {return P1.index(c, d);}
 
-  vec cuspidalpart(const vec& v) const {return v[pivots(kern)];}
+  vec cuspidalpart(const vec& v) const {return v[kern.pivs()];}
   int is_cuspidal(const subspace& s) const; // test for cupidality (of a non-dual subspace only)
 
   int h1cuspdim() const {return cuspidal_dimension;}

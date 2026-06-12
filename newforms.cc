@@ -1738,7 +1738,7 @@ void newforms::make_bigtkernbas(void)
   //cout<<" *** computed tcoord: "<<tcoord<<endl;
   smat bigdeltamat(matmulmodp(h1->deltamat, tcoord, modulus));
   //cout<<" *** computed bigdeltamat: "<<bigdeltamat<<endl;
-  h1->bigtkernbas = transpose(basis(kernel(bigdeltamat, modulus)));
+  h1->bigtkernbas = transpose(kernel(bigdeltamat, modulus).bas());
 }
 
 // try to read from file, and if no data file exists, finds from scratch and stores

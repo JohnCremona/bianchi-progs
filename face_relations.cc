@@ -717,7 +717,7 @@ void face_relations::solve_relations()
         {
           vec_i pcols, npcols;
           long rk_modp, ny_modp;
-          echmodp_uptri(M, pcols, npcols, rk_modp, ny_modp, characteristic);
+          ref_mod_p(M, characteristic, pcols, npcols, rk_modp, ny_modp);
           cout<<"rank_mod_p(relmat) = "<<rk_modp;
         }
       else

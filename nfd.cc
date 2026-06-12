@@ -17,7 +17,7 @@ newform_comparison newform_cmp;
 // Degree bound: fields of degree up to this will be reduced via
 // polredabs (giving a canonical defining polynomial); above this only
 // polredbest will be used.
-const int POLREDABS_DEGREE_UPPER_BOUND = 20;
+const int POLREDABS_DEGREE_UPPER_BOUND = 10;
 
 // When this is set, use the old spaces info read in from file, with
 // the correct multiplicities even when there are self-twist newforms
@@ -64,15 +64,15 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
 
   auto fT = to_mat_I(evaluate(scale_poly_up(f, nsp->Hden), nsp->T_mat));
   // cout << "fT =\n" << fT << endl;
-  S = kernel(fT, 3);
+  S = kernel(fT);
   // cout << "ker(fT) has basis\n" << S.bas() << endl;
-  if(dim(S)!=d)
+  if(S.dim()!=d)
     {
-      cout<<"Problem: eigenspace has wrong dimension "<<dim(S)<<", not "<<d<<endl;
+      cout<<"Problem: eigenspace has wrong dimension "<<S.dim()<<", not "<<d<<endl;
       exit(1);
     }
-  Sdenom = (nsp->Hden) * to_ZZ(denom(S));
-  key_symbol = nsp->H1->freemods[pivots(S)[1] -1];
+  Sdenom = (nsp->Hden) * to_ZZ(S.den());
+  key_symbol = nsp->H1->freemods[S.pivs()[1] -1];
   if (verbose)
     {
       cout<<"Finished constructing subspace S of dimension "<<d
@@ -102,7 +102,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
     }
 
   // compute projcoord, precomputed projections the basis of S
-  projcoord = nsp->H1->FR.get_coord() * basis(S);
+  projcoord = nsp->H1->FR.get_coord() * S.bas();
 
   // Compute Hecke field basis (expressing the basis on which we will
   // express eigenvalues w.r.t. the power basis on the roots of f)
@@ -122,7 +122,7 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
         {
           cout << "Applying "
                << (canonical? "polredabs": "polredbest")
-               << " to field " << F0 << endl;
+               << " to field " << *F0 << endl;
           if (!canonical)
             {
               cout << "Not applying polredabs as degree is greater than "
@@ -134,7 +134,9 @@ Newform::Newform(Newspace* x, int ind, const ZZX& f, int verbose)
       if (Fiso.is_nontrivial() && verbose)
         {
           cout << "[replacing original Hecke field with polynomial " << ::str(F0->poly())
-               << " with polredabs reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
+               << "\n with "
+               << (canonical? "polredabs": "polredbest")
+               << " reduced field with polynomial " << ::str(F->poly()) << "]" << endl;
         }
     }
   if (verbose)
@@ -371,7 +373,9 @@ void Newform::compute_coefficients(int ntp, int verbose)
 // (where this is the eigenvalue of P or P^2) or C4 class group.
 // 'biglevel' is a multiple of the current level, auxiliary ideals A
 // must be coprime to this, not just to the current level
+
 //#define DEBUG_EIGPAUTO
+
 FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb) const
 {
 #ifdef DEBUG_EIGPAUTO
@@ -484,16 +488,30 @@ FieldElement Newform::eigPauto(Quadprime& P, const Qideal& biglevel, int verb) c
 FieldElement Newform::eig_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                                    const Qideal& biglevel, int verb) const
 {
+#ifdef DEBUG_EIGPAUTO
+  cout << "In eig_lin_comb() with\n Plist = "  << Plist
+       << "\ncoeffs = " << coeffs << endl;
+#endif
   FieldElement a((*F)(0));
   auto Pi = Plist.begin();
   auto ci = coeffs.begin();
   while (Pi!=Plist.end())
     {
-      scalar c = *ci++;
+      ZZ c = to_ZZ(*ci++);
       Quadprime P = *Pi++;
       if (c!=0)
-        a += eigPauto(P, biglevel, verb) * to_ZZ(c);
+        {
+          auto aP = eigPauto(P, biglevel, verb);
+          a += aP * c;
+#ifdef DEBUG_EIGPAUTO
+          cout << " - adding " << c << "*" << aP << " = " << aP*c << endl;
+          cout << " - sum is now " << a << endl;
+#endif
+        }
     }
+#ifdef DEBUG_EIGPAUTO
+  cout << "eig_lin_comb() = "  << a << endl;
+#endif
   return a;
 }
 
@@ -719,7 +737,8 @@ ZZX Newspace::new_cuspidal_poly(const vector<Quadprime>& Plist, const vector<sca
           ZZX f_D = form.char_pol_lin_comb(Plist, coeffs, N, verbose>1);
           if (verbose>1)
             {
-              cout << "T's poly for " << form.label_suffix() << " is f_D = " << str(f_D) << endl;
+              cout << "char poly for oldform " << form.label_suffix()
+                   << " is f_D = " << str(f_D) << endl;
               display_factors(f_D);
             }
           INT CMD = form.self_twist_discriminant();

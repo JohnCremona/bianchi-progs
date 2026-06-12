@@ -166,14 +166,14 @@ void homspace::kernel_delta()
   kern = kernel(sdeltamat, modulus);
   // kern is a now subspace modulo modulus.  We now try to lift it to
   // char 0 by lifting the basis matrix and allowing a denominator d2
-  const smat& basiskern = basis(kern);
-  // Lift basis(kern) to char 0 to get the denominator (but kern
+  const smat& basiskern = kern.bas();
+  // Lift basis of kern to char 0 to get the denominator (but kern
   // itself remains in characteristic modulus).
   if (characteristic==0)
     {
       smat sk;
       int ok = liftmat(basiskern,modulus,sk,denom2);
-      if (ok) // replace basis(kern) by sk
+      if (ok) // replace basis of kern by sk
         kern = ssubspace(sk, kern.pivs(), modulus);
       else
         cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
@@ -183,13 +183,13 @@ void homspace::kernel_delta()
   if(verbose>1)
     cout<<"tkernbas = "<<tkernbas.as_mat()<<endl;
 
-  cuspidal_dimension = dim(kern); // "h1cuspdim()"
+  cuspidal_dimension = kern.dim(); // "h1cuspdim()"
   denom3 = denom1 * denom2; // absolute denominator of ker(delta) "h1cdenom()"
   if (verbose)
     {
       cout << "Basis of ker(delta):\n";
       cout << basiskern.as_mat();
-      cout << "pivots: " << pivots(kern) << endl;
+      cout << "pivots: " << kern.pivs() << endl;
       for (int i=0; i<dimension; i++)
         cout << "generator "<< i << ": " << freemods[i] << endl;
       cout << "homspace denom = " << denom1 <<endl;
@@ -515,21 +515,22 @@ smat homspace::s_calcop(const matop& T, int cuspidal, int dual, int display)
 
 mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int display)
 {
-  int d=dim(s);
+  int d = s.dim();
   if(display)
     cout<<"Computing " << T.name()
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   mat m(d,dimension);
+  auto spivs = s.pivs();
   for (int j=0; j<d; j++)
      {
-       int jj = pivots(s)[j+1]-1;
+       int jj = spivs[j+1]-1;
        vec colj = applyop(T,freemods[jj]);
        m.setrow(j+1,colj);
      }
   if(hmod!=0)
-    m = matmulmodp(m,basis(s),hmod);
+    m = matmulmodp(m, s.bas(),hmod);
   else
-    m = m*basis(s);
+    m = m * s.bas();
   if(!dual) m=transpose(m); // as above code computes the transpose
   // if (display) cout << "Matrix of " << T.name() << " = " << m;
   // if (display && (dimension>1)) cout << endl;
@@ -540,18 +541,19 @@ mat homspace::calcop_restricted(const matop& T, const subspace& s, int dual, int
 
 smat homspace::s_calcop_restricted(const matop& T, const ssubspace& s, int dual, int display)
 {
-  int d=dim(s);
+  int d = s.dim();
   if(display)
     cout<<"Computing " << T.name()// <<" in s_calcop_restricted()"
         <<" restricted to subspace of dimension "<<d<<" ..."<<flush;
   smat m(d,dimension);
+  auto spivs = s.pivs();
   for (int j=1; j<=d; j++)
      {
-       int jj = pivots(s)[j];
+       int jj = spivs[j];
        svec colj(applyop(T,freemods[jj-1]));
        m.setrow(j,colj);
      }
-  m = mult_mod_p(m,basis(s), modulus);
+  m = mult_mod_p(m, s.bas(), modulus);
   if(!dual) m=transpose(m); // as above code computes the transpose
   if(display)
     cout<<"done."<<endl;
@@ -605,12 +607,12 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
              // successive eigenspaces:
     {
       ssubspace s = (cuspidal? kern : ssubspace(dimension));
-      int subdim = dim(s);
+      int subdim = s.dim();
       while (nui!=nulist.end() && subdim>0)
         {
           smat m = restrict_mat(s_calcop(CharOp(*nui++, N), 0, 0, 0), s); // cuspidal=0, dual=0, display=0
           s = combine(s, eigenspace(m, (*ei++)*den, modulus));
-          subdim = dim(s);
+          subdim = s.dim();
         }
       return s;
     }
@@ -622,13 +624,13 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
   smat m = s_calcop(CharOp(*nui++, N), cuspidal, dual, /*display*/ 0);
   scalar eig = (*ei++)*den;
   ssubspace s = eigenspace(m, eig, modulus);
-  int subdim = dim(s);
+  int subdim = s.dim();
 
   while (nui!=nulist.end() && subdim>0)
     {
       m = s_calcop_restricted(CharOp(*nui++, N), s, 1, 0); // dual=1, display=0
       s = combine(s, eigenspace(m, (*ei++)*den, modulus));
-      subdim = dim(s);
+      subdim = s.dim();
     }
   return s;
 }
@@ -636,7 +638,7 @@ ssubspace homspace::unramified_character_subspace(const vector<int>& eigs, int c
 pair<int,int> homspace::unramified_character_subspace_dimensions(const vector<int>& eigs)
 {
   ssubspace s = unramified_character_subspace(eigs, 0, 1); // cuspidal=0, dual=1
-  return {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
+  return {s.dim(), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
 }
 
 // return triv_char_subspace, after computing if necessary
@@ -651,7 +653,7 @@ ssubspace homspace::trivial_character_subspace(int cuspidal, int dual)
     {
       auto all_ones = vector<int>(Quad::class_group_2_rank, +1);
       subs = unramified_character_subspace(all_ones, cuspidal, dual);
-      subd = dim(subs);
+      subd = subs.dim();
     }
   return subs;
 }
@@ -678,7 +680,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
 
   ssubspace s = trivial_character_subspace(0, 1); // cuspidal=0, dual=1
 
-  pair<int,int> subdims0 = {dim(s), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
+  pair<int,int> subdims0 = {s.dim(), (mult_mod_p(tkernbas, s.bas(), modulus)).rank(modulus)};
   // we'll subtract dimensions of nontrivial self-twist spaces from dimlist[0]
   dimlist.push_back(subdims0);
 
@@ -734,7 +736,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
           if (P.genus_character(D) == -1)
             {
               if(verbose>1)
-                cout<<"Forcing aP=0 for P = "<<P<<": current dimension is "<<dim(sD)<<endl;
+                cout<<"Forcing aP=0 for P = "<<P<<": current dimension is "<<sD.dim()<<endl;
               ip++;
               long Pnorm = I2long(P.norm());
               scalar eig = -den*Pnorm;
@@ -761,7 +763,7 @@ vector<pair<int,int>> homspace::trivial_character_subspace_dimensions_by_twist(i
                   cout << " - computing subeigenspace for eigenvalue " << eig << endl;
                 }
               ssubspace newsD = combine(sD, eigenspace(m, eig, modulus));
-              int newsubdim = dim(newsD);
+              int newsubdim = newsD.dim();
               if(verbose>1)
                 {
                   cout << " - subeigenspace has dimension " << newsubdim << ": ";
@@ -1114,8 +1116,8 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
               ssubspace tcsub = H->trivial_character_subspace(1, 0); // cuspidal=1, dual=0
               smat s;
               scalar tcden(1);
-              int ok = liftmat(basis(tcsub),mod,s,tcden);
-              if (ok) // replace basis(tcsub) by s
+              int ok = liftmat(tcsub.bas(),mod,s,tcden);
+              if (ok) // replace basis of tcsub by s
                 tcsub = ssubspace(s, tcsub.pivs(), mod);
               else
                 cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
@@ -1146,8 +1148,8 @@ ZZX get_poly(const Qideal& N,  const gmatop& T, int cuspidal, int triv_char, con
               ssubspace tcsub = H->trivial_character_subspace(0, 0); // cuspidal=0, dual=0
               smat s;
               scalar tcden(1);
-              int ok = liftmat(basis(tcsub),mod,s,tcden);
-              if (ok) // replace basis(tcsub) by s
+              int ok = liftmat(tcsub.bas(),mod,s,tcden);
+              if (ok) // replace basis of tcsub by s
                 tcsub = ssubspace(s, tcsub.pivs(), mod);
               else
                 cout << "**!!!** failed to lift modular kernel to char 0\n" << endl;
