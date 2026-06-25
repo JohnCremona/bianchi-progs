@@ -991,7 +991,7 @@ void Newform::store_aP_data()
       // extend Hecke order if necessary:
       if (abs_deg==1)
         continue;
-      if (!HO.contains(aP_abs))
+      if (HO.contains(aP_abs))
         continue;
       if (verbose)
         cout << "a_P not in current Hecke order (denominator " << HO.denom(aP_abs)
