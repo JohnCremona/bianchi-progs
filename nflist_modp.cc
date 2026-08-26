@@ -1,12 +1,12 @@
 #include "qidloop.h"
 #include "newforms.h"   // which includes quads.h & moddata.h & etc.
-#define LOOPER
+//#define LOOPER
 
 int main ()
 {
   long d, maxnorm(10000);
   cerr << "Enter field: " << flush;  cin >> d;
-  long ch=0;
+  scalar ch(0);
   cerr << "Enter characteristic p (prime): " << flush;  cin >> ch;
 
   Quad n;
@@ -31,14 +31,13 @@ int main ()
 #else
  if (Quad::class_number==1)
    {
-     auto pr=Quadprimes::list.begin();
-     long np=0;
-     cout << "Primes: "<<endl;
-     while(np<nap)
+     cout << "Primes: ";
+     long np=(nap>0?nap:25);
+     for (auto P: Quadprimes::list)
        {
-         Quadprime p = *pr++;
-         np ++;
-         cout << p.gen() << ", ";
+         np--;
+         cout << P << ", ";
+         if (np==0) break;
        }
      cout << "..." << endl;
    }
@@ -46,7 +45,7 @@ int main ()
  while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
    {
 #endif
-     string datafilename = eigfile(N, ch);
+     string datafilename = eigfile(N, I2long(ch));
      ifstream data(datafilename.c_str());
      //cout<<"Opening data file "<<datafilename<<endl;
      if(!data)
@@ -56,7 +55,7 @@ int main ()
      else
        {
          //cout<<"Level "<<label(N)<<" = "<<N<<": "<<flush;
-         newforms nf(N,0, ch);
+         newforms nf(N, ch, 0, ch);
          nf.read_from_file();
          nf.list(nap);
        }

@@ -148,10 +148,11 @@ newform::newform(newforms* nfs, const vec& v, const vector<long>& eigs)
   // face-relations) to coords w.r.t. edge-gens:
   basis = nf->lengthen_basis(v);
 
-  if (nf->verbose)
+  if (nf->verbose > 1)
   {
     cout << "denom = " << nf->h1->denom1 << endl;
     cout << "short newform basis = "<<v<<endl;
+    if (nf->verbose > 2)
     cout << "long  newform basis = "<<basis<<endl;
   }
 
@@ -605,6 +606,7 @@ int newform::is_base_change_twist(void)
 int newform::base_change_discriminant(void)
 {
   if (is_base_change()==0) return 0;
+  if (nf->characteristic>0) return 0;
   int bcd = 1;
   Qideal N(nf->N);
   auto api = aplist.begin();
@@ -1203,23 +1205,27 @@ void newforms::fill_in_newform_data(int AL, int CF, int LP, int M)
   cout << "proj   of mvp    is " << mvp << endl;
 #endif
   aP0 = apvec(P0);                         // vector of ap for first good principal prime
-  if (verbose>1) cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
+  if (verbose>1)
+    {
+      cout << "found eigenvalues for P0="<<P0<<": "<<aP0<<endl;
+      cout << "Filling in newform data for " << n1ds << " newforms" << endl;
+    }
   // Fill in data for each newform.
   for (int j=0; j<n1ds; j++)
     {
       newform& nfj = nflist[j];
       nfj.index = j+1;
-
-      // compute A-L eigenvalues now in odd class number, else they are
-      // computed in getap()
+      if (verbose>1)
+        cout << "Filling in newform data for newform #" << j << endl;
+      // compute A-L eigenvalues if class number is odd (else they are
+      // computed in getap())
       if (AL && Quad::class_group_2_rank==0)
-        nfj.compute_AL();
+        {
+          nfj.compute_AL();
+        }
 
-      if (characteristic>0)
-        return;
-
-      // compute cusidalfactor
-      if (CF)
+      // compute cusidalfactor (char 0 only)
+      if (CF && characteristic==0)
         {
           nfj.compute_cuspidalfactor();
 
@@ -2050,7 +2056,9 @@ void newforms::getap(int first, int last, int verbose)
           if (std::find(nonsquarebadprimes.begin(), nonsquarebadprimes.end(), k) == nonsquarebadprimes.end())
             {
               for (int j=0; j<n1ds; j++)
-                apv.push_back(nflist[j].aqlist[k]);
+                {
+                  apv.push_back(nflist[j].aqlist[k]);
+                }
             }
           else // we don't know the eigenvalues yet
             {
