@@ -1046,7 +1046,7 @@ void newforms::find()
   int mindepth, olddim1, olddim2;
 
   // find oldform dimensions (all, rational, non-rational) and their split by characters:
-  if(characteristic==0)
+  if(1) // characteristic==0)
     {
       if (verbose)
         cout<<"Retrieving oldform data for level "<<label(N)<<"...\n";
@@ -1128,7 +1128,13 @@ void newforms::find()
       if(verbose)
         cout<<"Finding rational newforms...\n";
       use_nf_number=-1; // flags to use() that the nfs found are new
-      form_finder ff(this,modulus,1,maxdepth,mindepth,1,0,verbose);
+      form_finder ff(this,modulus,1,
+                     maxdepth,
+                     mindepth,
+                     characteristic==0, // lift to Z iff char 0
+                     1, // dual
+                     0, // relative
+                     verbose);
       ff.find();
      }
   n2ds=dimtrivcuspnew-n1ds; // dimension of new, non-rational forms
@@ -1934,7 +1940,13 @@ void newforms::makebases(int extra_data)
       h1matops.push_back(matop());
       eigranges.push_back(vector<long>());
     }
-  form_finder splitspace(this, modulus, 1, maxdepth, 0, 1, 0, verbose);
+  form_finder splitspace(this, modulus, 1,
+                         maxdepth,
+                         0, // mindepth
+                         1, // lift to Z
+                         1, // dual
+                         0, // relative
+                         verbose);
   if(verbose) cout<<"About to recover "<<n1ds<<" newform bases (nap="<<nap<<")"<<endl;
   for (use_nf_number=0; use_nf_number<n1ds; use_nf_number++)
     {

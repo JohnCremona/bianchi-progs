@@ -119,8 +119,9 @@ void oldforms::getoldclasses(Qideal& D)
 
 long oldforms::dimoldpart(vector<long> aplist)
 {
+  //cout << "In dimoldpart(), aplist = " << aplist << ", noldclasses = " << noldclasses << endl;
   if (noldclasses==0) return 0;          // no oldforms
-  if (nf->characteristic!=0) return 0;   // until we work out how to compute this
+  //if (nf->characteristic!=0) return 0;   // until we work out how to compute this
   if (aplist.size()==0) return 0;        // all lists "start with" a null list!
 
   int debug=0;
