@@ -141,6 +141,8 @@ public:
   int get_index() const { return index;}
   // Use after sorting to reset the numbers and variable names
   void set_index(int i);
+  // Use to reset the variable names to batch the label 'lab'
+  void set_vars();
 
   // Functions for computing eigenvalues of principal operators:
 
@@ -187,6 +189,9 @@ public:
   // If class number even, also output multiplicative basis for the full Hecke field
   // Optionally aP, AL, princ eigs and traces. For aP code see display_aP()
   void display(int aP=0, int AL=0, int principal_eigs=0, int traces=0) const;
+
+  // One-line string of newform data
+  string one_line() const;
 
   // Display aP data (trivial char or C4 fields) in up to 3 formats
 
@@ -377,6 +382,8 @@ public:
   // output all newforms: Dimension, Character, Hecke field; optionally aP and AL data
   // - for  aP code see Newform::display()
   void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int traces=0, int triv_char_only=0) const;
+  // compact listing of newforms
+  void list_newforms(int triv_char_only=0) const;
   // sort the list of newforms using newform_cmp
   void sort_newforms();
   // return the list of newforms

@@ -26,7 +26,7 @@ LIBDIR = $(ECLIB_BASE)/lib
 #  is much slower: e.g. with level (128), field 1 it takes 20m instead
 #  of <1s.
 
-GCC=g++ -std=c++17 -fmax-errors=1
+GCC=ccache g++ -std=c++17 -fmax-errors=1
 CC = $(GCC)
 
 # to disable checking of assert() use the following:
@@ -74,7 +74,7 @@ all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc eigenvalue.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc nsplist.cc eigenvalue.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -119,7 +119,7 @@ include Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd rnfd rnfd_loop tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd rnfd rnfd_loop tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods # nsplist
 
 tests: sources $(TESTS)
 
@@ -152,16 +152,16 @@ FIELDS_newspaces = $(FIELDS_full) 17
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = tquads tratquad looptest qidltest
-#BASIC_TESTS =
+BASIC_TESTS =
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-#HOM_TESTS =
+HOM_TESTS =
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
-#NF_TESTS =
+NF_TESTS =
 FULL_TESTS = modularity modularity_modp  #makenf_modp
-#FULL_TESTS =
+FULL_TESTS =
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
-#GLOBAL_TESTS =
+GLOBAL_TESTS =
 NEWSPACE_TESTS = tnfd_loop rnfd_loop
 #NEWSPACE_TESTS =
 ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS) $(NEWSPACE_TESTS)
@@ -233,6 +233,12 @@ makenf_loop.o: makenf.cc
 nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
+nsplist_loop.o: nsplist.cc
+	$(CC) -DLOOPER $(CFLAGS) nsplist.cc -o nsplist_loop.o
+
+nsplist.o: nsplist.cc
+	$(CC) $(CFLAGS) nsplist.cc -o nsplist.o
+
 tquads: tquads.o $(OBJS)
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
 
@@ -271,6 +277,12 @@ nflist_loop: nflist_loop.o $(OBJS)
 
 nflist_modp: nflist_modp.o $(OBJS)
 	$(CC) -o nflist_modp nflist_modp.o $(OBJS) $(LFLAGS)
+
+nsplist: nsplist.o  nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o nsplist nsplist.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+
+nsplist_loop: nsplist_loop.o  nfd.o eigenvalue.o $(OBJS)
+	$(CC) -o nsplist_loop nsplist_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)

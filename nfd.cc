@@ -1675,6 +1675,41 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
 
+// compact output of one newform (to match output of 1D newforms as in newforms.cc)
+string Newform::one_line() const
+{
+  string idlabel = nsp->level_label,  idgens = gens_string(nsp->N), flabel = field_label();
+  ostringstream line;
+  line <<  flabel << " " << idlabel << " " << lab << " " << idgens << " 2 ";
+  line << bct << " "; // base-change code
+  line << "? ";         // CM code, not yet computed
+  line << sfe << " "; // sign of functional equation
+  line << "? ";        // L/P, not yet computed
+  int first = 1;
+  line << "[";     // comma-separated list of AL eigenvalues
+  for (auto x: eQmap)
+    {
+      if (!first) line <<  ",";
+      first = 0;
+      line << x.second;
+    }
+  line << "] ";
+  if (d==1)
+    line <<"x ";
+  else
+    line << ::str(HFabs->poly(), "x") << " ";  // Hecke field defining polynomial ('x' for Q)
+  first = 1;
+  line << "[";     // comma-separated list of AL eigenvalues
+  for (auto x: aPmap_abs)
+    {
+      if (!first) line <<  ",";
+      first = 0;
+      line << x.second;
+    }
+  line << "]";     // comma-separated list of aP eigenvalues
+  return line.str();
+}
+
 // output basis for the Principal Hecke field and character of one newform
 // If full, also output multiplicative basis for the full Hecke field
 // Optionally aP and AL (if trivial char) data too
@@ -2027,15 +2062,21 @@ string Newspace::filename(int conj)
   return s.str();
 }
 
+// Use to reset the variable names to batch the label 'lab'
+void Newform::set_vars()
+  {
+    F0->set_var(lab+string("0"));
+    F->set_var(lab);
+    if (HFrel->rank())
+      HFabs->set_var(lab+string("1"));
+  }
+
 // Use after sorting to reset the numbers and variable names
 void Newform::set_index(int i)
   {
     index = i;
     lab = codeletter(i-1);
-    // On creation from scratch, F0 exists and F is a polredabs
-    // isomorphic field, but after reading from a file only F is set.
-    F0->set_var(lab+string("0"));
-    F->set_var(lab);
+    set_vars();
   }
 
 // newform file output only implemented for forms with trivial
@@ -2721,6 +2762,18 @@ void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, 
         {
           nf.display(aP, AL, principal_eigs, traces);
           cout<<endl;
+        }
+    }
+}
+
+// compact output of all newforms
+void Newspace::list_newforms(int triv_char_only) const
+{
+  for ( auto& nf : newforms)
+    {
+      if ((!triv_char_only) || nf.triv_char)
+        {
+          cout << nf.one_line() << endl;
         }
     }
 }
