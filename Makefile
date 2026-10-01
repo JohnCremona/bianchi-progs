@@ -74,7 +74,7 @@ all: tests
 
 ccs: ccs0 ccs1 ccs2 ccs3 ccs4 ccs5 ccs6 ccs7 ccs8
 ccs0: intprocs.cc quads.cc mat22.cc fieldinfo.cc cusp.cc homtest.cc hecketest.cc newhecke.cc
-ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc tnfd.cc rnfd.cc nfd.cc nsplist.cc eigenvalue.cc
+ccs1: lf1.cc looper.cc looptest.cc geometry.cc basechange.cc make_nsp.cc display_nsp.cc newspace.cc list_nsp.cc eigenvalue.cc
 ccs2: P1N.cc newforms.cc oldforms.cc homspace.cc edge_relations.cc face_relations.cc hecke.cc
 ccs3: lf1_periods.cc makenf.cc pmanin.cc tquads.cc tratquad.cc dimtable.cc dimtabeis.cc dimtabnew.cc dimtabtwist.cc dimtable_all.cc
 ccs4: nftest.cc nflist.cc moreap.cc moreap1.cc moreap_loop.cc modularity.cc modularity_modp.cc
@@ -85,7 +85,7 @@ ccs8: swan_hom_test.cc make_geodata.cc int_hom.cc pari_snf.cc flint_snf.cc
 
 Q_headers: eclib.h real.h intprocs.h pari_snf.h flint_snf.h eigenvalue.h
 quad_headers: cusp.h homspace.h lf1.h looper.h P1N.h newforms.h oldforms.h quads.h ratquads.h\
- qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h nfd.h
+ qideal.h primes.h qidloop.h mat22.h hecke.h geometry.h newspace.h
 swan_headers: swan_utils.h swan_sigmas.h swan_alphas.h swan_tess.h swan_hom.h swan.h
 headers: Q_headers quad_headers swan_headers
 
@@ -119,7 +119,7 @@ include Makefile.deps
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp tnfd rnfd rnfd_loop tnfd_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods # nsplist
+TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke newhecke_modp make_nsp display_nsp display_nsp_loop make_nsp_loop basechange makenf moreap moreap1 nftest nflist dimtable dimtable_all dimtabeis dimtabnew dimtabtwist modularity modularity_modp P1Ntest dimtable_modp hecketest_modp makenf_modp makenf_loop nflist_loop rewrite_eigs qidl_labels swan_test swan_hom_test make_geodata int_hom lf1_periods # list_nsp
 
 tests: sources $(TESTS)
 
@@ -162,7 +162,7 @@ FULL_TESTS = modularity modularity_modp  #makenf_modp
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
 #GLOBAL_TESTS =
-NEWSPACE_TESTS = tnfd_loop rnfd_loop
+NEWSPACE_TESTS = make_nsp_loop display_nsp_loop
 #NEWSPACE_TESTS =
 ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS) $(NEWSPACE_TESTS)
 
@@ -233,11 +233,11 @@ makenf_loop.o: makenf.cc
 nflist_loop.o: nflist.cc
 	$(CC) -DLOOPER $(CFLAGS) nflist.cc -o nflist_loop.o
 
-nsplist_loop.o: nsplist.cc
-	$(CC) -DLOOPER $(CFLAGS) nsplist.cc -o nsplist_loop.o
+list_nsp_loop.o: list_nsp.cc
+	$(CC) -DLOOPER $(CFLAGS) list_nsp.cc -o list_nsp_loop.o
 
-nsplist.o: nsplist.cc
-	$(CC) $(CFLAGS) nsplist.cc -o nsplist.o
+list_nsp.o: list_nsp.cc
+	$(CC) $(CFLAGS) list_nsp.cc -o list_nsp.o
 
 tquads: tquads.o $(OBJS)
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
@@ -278,11 +278,11 @@ nflist_loop: nflist_loop.o $(OBJS)
 nflist_modp: nflist_modp.o $(OBJS)
 	$(CC) -o nflist_modp nflist_modp.o $(OBJS) $(LFLAGS)
 
-nsplist: nsplist.o  nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o nsplist nsplist.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+list_nsp: list_nsp.o  newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o list_nsp list_nsp.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-nsplist_loop: nsplist_loop.o  nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o nsplist_loop nsplist_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+list_nsp_loop: list_nsp_loop.o  newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o list_nsp_loop list_nsp_loop.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)
@@ -341,23 +341,23 @@ newhecke: newhecke.o $(OBJS)
 newhecke_modp: newhecke_modp.o $(OBJS)
 	$(CC) -o newhecke_modp newhecke_modp.o $(OBJS) $(LFLAGS)
 
-tnfd: tnfd.o nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o tnfd tnfd.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+make_nsp: make_nsp.o newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o make_nsp make_nsp.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-tnfd_loop.o:   tnfd.cc nfd.h eigenvalue.h
-	$(CC) -DLOOPER $(CFLAGS) tnfd.cc -o tnfd_loop.o
+make_nsp_loop.o:   make_nsp.cc newspace.h eigenvalue.h
+	$(CC) -DLOOPER $(CFLAGS) make_nsp.cc -o make_nsp_loop.o
 
-tnfd_loop: tnfd_loop.o nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o tnfd_loop tnfd_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+make_nsp_loop: make_nsp_loop.o newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o make_nsp_loop make_nsp_loop.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-rnfd: rnfd.o nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o rnfd rnfd.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+display_nsp: display_nsp.o newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o display_nsp display_nsp.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
-rnfd_loop.o:   rnfd.cc nfd.h eigenvalue.h
-	$(CC) -DLOOPER $(CFLAGS) rnfd.cc -o rnfd_loop.o
+display_nsp_loop.o:   display_nsp.cc newspace.h eigenvalue.h
+	$(CC) -DLOOPER $(CFLAGS) display_nsp.cc -o display_nsp_loop.o
 
-rnfd_loop: rnfd_loop.o nfd.o eigenvalue.o $(OBJS)
-	$(CC) -o rnfd_loop rnfd_loop.o nfd.o eigenvalue.o $(OBJS) $(LFLAGS)
+display_nsp_loop: display_nsp_loop.o newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o display_nsp_loop display_nsp_loop.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
 roundtest: roundtest.o intprocs.o flint_snf.o
 	$(CC) -o roundtest roundtest.o intprocs.o flint_snf.o $(LFLAGS)

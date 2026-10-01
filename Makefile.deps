@@ -32,6 +32,11 @@ dimtabtwist.o: dimtabtwist.cc qidloop.h qideal.h quads.h intprocs.h \
  eclib.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
+# display_nsp.cc
+display_nsp.o: display_nsp.cc newspace.h homspace.h cusp.h mat22.h \
+ ratquads.h quads.h intprocs.h eclib.h primes.h qideal.h face_relations.h \
+ edge_relations.h geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h \
+ eigenvalue.h
 # edge_relations.cc
 edge_relations.o: edge_relations.cc mat22.h ratquads.h quads.h intprocs.h \
  eclib.h primes.h qideal.h homspace.h cusp.h face_relations.h \
@@ -92,6 +97,11 @@ lf1_periods.o: lf1_periods.cc newforms.h ratquads.h quads.h intprocs.h \
  eclib.h oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h swan.h swan_utils.h \
  looper.h hecke.h lf1.h real.h
+# list_nsp.cc
+list_nsp.o: list_nsp.cc newspace.h homspace.h cusp.h mat22.h ratquads.h \
+ quads.h intprocs.h eclib.h primes.h qideal.h face_relations.h \
+ edge_relations.h geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h \
+ eigenvalue.h
 # looper.cc
 looper.o: looper.cc looper.h quads.h intprocs.h eclib.h
 # looptest.cc
@@ -109,6 +119,11 @@ makenf_modp.o: makenf_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  eclib.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
+# make_nsp.cc
+make_nsp.o: make_nsp.cc homspace.h cusp.h mat22.h ratquads.h quads.h \
+ intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
+ geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h newspace.h \
+ eigenvalue.h
 # mat22.cc
 mat22.o: mat22.cc primes.h qideal.h quads.h intprocs.h eclib.h mat22.h \
  ratquads.h
@@ -150,11 +165,11 @@ newhecke_modp.o: newhecke_modp.cc qidloop.h qideal.h quads.h intprocs.h \
  eclib.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
-# nfd.cc
-nfd.o: nfd.cc nfd.h homspace.h cusp.h mat22.h ratquads.h quads.h \
- intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
- geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h eigenvalue.h \
- oldforms.h qidloop.h
+# newspace.cc
+newspace.o: newspace.cc newspace.h homspace.h cusp.h mat22.h ratquads.h \
+ quads.h intprocs.h eclib.h primes.h qideal.h face_relations.h \
+ edge_relations.h geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h \
+ eigenvalue.h oldforms.h qidloop.h
 # nflist.cc
 nflist.o: nflist.cc qidloop.h qideal.h quads.h intprocs.h eclib.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
@@ -170,10 +185,6 @@ nftest.o: nftest.cc qidloop.h qideal.h quads.h intprocs.h eclib.h \
  newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h mat22.h \
  face_relations.h edge_relations.h geometry.h P1N.h swan.h swan_utils.h \
  looper.h hecke.h
-# nsplist.cc
-nsplist.o: nsplist.cc nfd.h homspace.h cusp.h mat22.h ratquads.h quads.h \
- intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
- geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h eigenvalue.h
 # oldforms.cc
 oldforms.o: oldforms.cc newforms.h ratquads.h quads.h intprocs.h eclib.h \
  oldforms.h primes.h qideal.h homspace.h cusp.h mat22.h face_relations.h \
@@ -215,10 +226,6 @@ rewrite_eigs.o: rewrite_eigs.cc qidloop.h qideal.h quads.h intprocs.h \
  eclib.h newforms.h ratquads.h oldforms.h primes.h homspace.h cusp.h \
  mat22.h face_relations.h edge_relations.h geometry.h P1N.h swan.h \
  swan_utils.h looper.h hecke.h
-# rnfd.cc
-rnfd.o: rnfd.cc nfd.h homspace.h cusp.h mat22.h ratquads.h quads.h \
- intprocs.h eclib.h primes.h qideal.h face_relations.h edge_relations.h \
- geometry.h P1N.h swan.h swan_utils.h looper.h hecke.h eigenvalue.h
 # roundtest.cc
 roundtest.o: roundtest.cc intprocs.h eclib.h
 # snf_test.cc
@@ -254,10 +261,6 @@ swan_test.o: swan_test.cc swan_sigmas.h swan_utils.h mat22.h ratquads.h \
 # swan_utils.cc
 swan_utils.o: swan_utils.cc swan_utils.h mat22.h ratquads.h quads.h \
  intprocs.h eclib.h primes.h qideal.h geometry.h looper.h
-# tnfd.cc
-tnfd.o: tnfd.cc homspace.h cusp.h mat22.h ratquads.h quads.h intprocs.h \
- eclib.h primes.h qideal.h face_relations.h edge_relations.h geometry.h \
- P1N.h swan.h swan_utils.h looper.h hecke.h nfd.h eigenvalue.h
 # tquads.cc
 tquads.o: tquads.cc looper.h quads.h intprocs.h eclib.h swan.h \
  swan_utils.h mat22.h ratquads.h primes.h qideal.h geometry.h

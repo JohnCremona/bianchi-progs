@@ -1,0 +1,239 @@
+Program display_nsp: read and display precomputed Bianchi newspaces and newforms of arbitrary dimension.
+Q(sqrt(-95))	discriminant = -95	min poly(a) = a^2-a+24.
+Class number 8
+Ideal class group representatives: [ [1,a] [2,a] [2,1+a] [3,a] [3,2+a] [4,a] [4,3+a] [5,2+a] ]
+
+>>>> Level 1.1 = (1), norm = 1 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 2.1 = (2,a), norm = 2 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 2.2 = (2,-1+a), norm = 2 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 3.1 = (3,a), norm = 3 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 3.2 = (3,-1+a), norm = 3 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 4.1 = (4,a), norm = 4 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 4.2 = (2), norm = 4 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 4.3 = (4,-1+a), norm = 4 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 5.1 = (5,2+a), norm = 5 <<<<
+1 newform up to unramified quadratic twist of dimension [ 4 ], of which 1 has trivial character
+
+Newform #1 (2.0.95.1-5.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q(a) = Q[X]/(X^2-3)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = 2
+                        = Q(a1) = Q[X]/(X^4-16*X^2+16)
+        [where a = (a1^2-8)/4, sqrt(r1) = (a1^3-12*a1)/8]
+ - Hecke order contains equation order Z[a1] with index 64.
+
+Atkin-Lehner eigenvalues:
+P5:	1
+
+Coordinates of power basis in Hecke order:
+1	 = [0,0,0,1]
+a1	 = [0,0,2,0]
+a1^2	 = [4,0,0,8]
+a1^3	 = [0,8,32,0]
+
+aP for first 25 primes:
+P2a:	[0,0,1,0]
+P2b:	[0,-1,0,0]
+P3a:	[0,1,1,0]
+P3b:	[0,-1,-1,0]
+P5:	[0,0,0,-1]	(AL eigenvalue = 1)
+P11a:	[2,0,0,0]
+P11b:	[-2,0,0,0]
+P13a:	[0,1,-1,0]
+P13b:	[0,1,-1,0]
+P19:	[0,0,0,-4]
+P37a:	[0,-1,1,0]
+P37b:	[0,-1,1,0]
+P7:	[0,0,0,2]
+P53a:	[0,3,5,0]
+P53b:	[0,-5,-3,0]
+P61a:	[4,0,0,4]
+P61b:	[-4,0,0,4]
+P67a:	[0,1,-7,0]
+P67b:	[0,7,-1,0]
+P97a:	[0,7,5,0]
+P97b:	[0,-5,-7,0]
+P101a:	[-4,0,0,-12]
+P101b:	[4,0,0,-12]
+P103a:	[0,-9,3,0]
+P103b:	[0,-3,9,0]
+
+Full eigensystems for forms with trivial character, including unramified quadratic twists
+
+Newform #1 (2.0.95.1-5.1a)
+ - Genus character value: +1 (trivial)
+ - Dimension: 2
+ - Newform is not base-change or twisted base-change
+ - Newform is not unramified self-twist
+ - Sign of functional equation = -1
+ - Principal Hecke field k_f = Q(a) = Q[X]/(X^2-3)
+ - Full Hecke field k_F = k_f(sqrt(r1)) where r1 = 2
+                        = Q(a1) = Q[X]/(X^4-16*X^2+16)
+        [where a = (a1^2-8)/4, sqrt(r1) = (a1^3-12*a1)/8]
+ - Hecke order contains equation order Z[a1] with index 64.
+
+Atkin-Lehner eigenvalues:
+P5:	1
+
+Coordinates of power basis in Hecke order:
+1	 = [0,0,0,1]
+a1	 = [0,0,2,0]
+a1^2	 = [4,0,0,8]
+a1^3	 = [0,8,32,0]
+
+aP for first 25 primes:
+P2a:	[0,0,1,0]
+P2b:	[0,-1,0,0]
+P3a:	[0,1,1,0]
+P3b:	[0,-1,-1,0]
+P5:	[0,0,0,-1]	(AL eigenvalue = 1)
+P11a:	[2,0,0,0]
+P11b:	[-2,0,0,0]
+P13a:	[0,1,-1,0]
+P13b:	[0,1,-1,0]
+P19:	[0,0,0,-4]
+P37a:	[0,-1,1,0]
+P37b:	[0,-1,1,0]
+P7:	[0,0,0,2]
+P53a:	[0,3,5,0]
+P53b:	[0,-5,-3,0]
+P61a:	[4,0,0,4]
+P61b:	[-4,0,0,4]
+P67a:	[0,1,-7,0]
+P67b:	[0,7,-1,0]
+P97a:	[0,7,5,0]
+P97b:	[0,-5,-7,0]
+P101a:	[-4,0,0,-12]
+P101b:	[4,0,0,-12]
+P103a:	[0,-9,3,0]
+P103b:	[0,-3,9,0]
+
+
+>>>> Level 6.1 = (a,-6), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.2 = (2+a,-4+a), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.3 = (-3+a,-6), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 6.4 = (-1+a,-6), norm = 6 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.1 = (a,-8), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.2 = (4,2a), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.3 = (4,-2+2a), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 8.4 = (-1+a,-8), norm = 8 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.1 = (3+a,-6+a), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.2 = (3), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 9.3 = (-4+a,-5-a), norm = 9 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 10.1 = (2+a,-8+a), norm = 10 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 10.2 = (-3+a,-7-a), norm = 10 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 11.1 = (4+a,-7+a), norm = 11 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 11.2 = (-5+a,-6-a), norm = 11 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.1 = (a,-12), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.2 = (-4+a,-8-a), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.3 = (6,2a), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.4 = (6,-2+2a), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.5 = (3+a,-9+a), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 12.6 = (-1+a,-12), norm = 12 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 13.1 = (1+a,-12+a), norm = 13 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 13.2 = (-2+a,-11-a), norm = 13 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 15.1 = (-3+a,-12-a), norm = 15 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
+>>>> Level 15.2 = (2+a,-13+a), norm = 15 <<<<
+0 newforms up to unramified quadratic twist, of which 0 have trivial character
+
+
