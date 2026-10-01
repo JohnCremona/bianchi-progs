@@ -2062,7 +2062,7 @@ string Newspace::filename(int conj)
   return s.str();
 }
 
-// Use to reset the variable names to batch the label 'lab'
+// Use to reset the variable names to match the label 'lab'
 void Newform::set_vars()
   {
     F0->set_var(lab+string("0"));
@@ -2754,12 +2754,17 @@ void Newspace::add_unram_quadratic_twists()
 }
 
 // output basis for the Hecke field and character of all newforms
-void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, int triv_char_only) const
+
+// NB This is not const, since unramified quadratic twists share
+// Hecke field pointers but we want to output them with different
+// field variable names to match their labels.
+void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, int triv_char_only)
 {
   for ( auto& nf : newforms)
     {
       if ((!triv_char_only) || nf.triv_char)
         {
+          nf.set_vars();
           nf.display(aP, AL, principal_eigs, traces);
           cout<<endl;
         }
@@ -2767,12 +2772,13 @@ void Newspace::display_newforms(int aP, int AL, int principal_eigs, int traces, 
 }
 
 // compact output of all newforms
-void Newspace::list_newforms(int triv_char_only) const
+void Newspace::list_newforms(int triv_char_only)
 {
   for ( auto& nf : newforms)
     {
       if ((!triv_char_only) || nf.triv_char)
         {
+          nf.set_vars();
           cout << nf.one_line() << endl;
         }
     }

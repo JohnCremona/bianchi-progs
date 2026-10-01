@@ -152,16 +152,16 @@ FIELDS_newspaces = $(FIELDS_full) 17
 
 # modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
 BASIC_TESTS = tquads tratquad looptest qidltest
-BASIC_TESTS =
+#BASIC_TESTS =
 HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-HOM_TESTS =
+#HOM_TESTS =
 NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
-NF_TESTS =
+#NF_TESTS =
 FULL_TESTS = modularity modularity_modp  #makenf_modp
-FULL_TESTS =
+#FULL_TESTS =
 # global tests are universal, not per field
 GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
-GLOBAL_TESTS =
+#GLOBAL_TESTS =
 NEWSPACE_TESTS = tnfd_loop rnfd_loop
 #NEWSPACE_TESTS =
 ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS) $(NEWSPACE_TESTS)

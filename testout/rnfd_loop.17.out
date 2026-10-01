@@ -616,8 +616,8 @@ Newform #3 (2.0.68.1-8.1c)
  - Sign of functional equation = -1
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
-                        = Q(b1) = Q[X]/(X^2-2)
- - Hecke order is equation order Z[b1] with standard basis.
+                        = Q(c1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[c1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	1

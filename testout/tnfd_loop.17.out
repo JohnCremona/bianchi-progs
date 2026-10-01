@@ -512,8 +512,8 @@ Newform #3 (2.0.68.1-8.1c)
  - Sign of functional equation = -1
  - Principal Hecke field k_f = Q
  - Full Hecke field k_F = Q(sqrt(2))
-                        = Q(b1) = Q[X]/(X^2-2)
- - Hecke order is equation order Z[b1] with standard basis.
+                        = Q(c1) = Q[X]/(X^2-2)
+ - Hecke order is equation order Z[c1] with standard basis.
 
 Atkin-Lehner eigenvalues:
 P2:	1
@@ -522,24 +522,24 @@ aP for first 25 primes:
 P2:	0 	= 0 	= [0,0]	(AL eigenvalue = 1)
 P3a:	0 	= 0 	= [0,0]
 P3b:	0 	= 0 	= [0,0]
-P7a:	2*sqrt(2) 	= 2*b1 	= [0,2]
-P7b:	-2*sqrt(2) 	= -2*b1 	= [0,-2]
-P11a:	4*sqrt(2) 	= 4*b1 	= [0,4]
-P11b:	-4*sqrt(2) 	= -4*b1 	= [0,-4]
+P7a:	2*sqrt(2) 	= 2*c1 	= [0,2]
+P7b:	-2*sqrt(2) 	= -2*c1 	= [0,-2]
+P11a:	4*sqrt(2) 	= 4*c1 	= [0,4]
+P11b:	-4*sqrt(2) 	= -4*c1 	= [0,-4]
 P13a:	-2 	= -2 	= [-2,0]
 P13b:	-2 	= -2 	= [-2,0]
 P17:	-6 	= -6 	= [-6,0]
-P23a:	2*sqrt(2) 	= 2*b1 	= [0,2]
-P23b:	-2*sqrt(2) 	= -2*b1 	= [0,-2]
+P23a:	2*sqrt(2) 	= 2*c1 	= [0,2]
+P23b:	-2*sqrt(2) 	= -2*c1 	= [0,-2]
 P5:	2 	= 2 	= [2,0]
-P31a:	2*sqrt(2) 	= 2*b1 	= [0,2]
-P31b:	-2*sqrt(2) 	= -2*b1 	= [0,-2]
+P31a:	2*sqrt(2) 	= 2*c1 	= [0,2]
+P31b:	-2*sqrt(2) 	= -2*c1 	= [0,-2]
 P53a:	-10 	= -10 	= [-10,0]
 P53b:	-10 	= -10 	= [-10,0]
-P71a:	6*sqrt(2) 	= 6*b1 	= [0,6]
-P71b:	-6*sqrt(2) 	= -6*b1 	= [0,-6]
-P79a:	-6*sqrt(2) 	= -6*b1 	= [0,-6]
-P79b:	6*sqrt(2) 	= 6*b1 	= [0,6]
+P71a:	6*sqrt(2) 	= 6*c1 	= [0,6]
+P71b:	-6*sqrt(2) 	= -6*c1 	= [0,-6]
+P79a:	-6*sqrt(2) 	= -6*c1 	= [0,-6]
+P79b:	6*sqrt(2) 	= 6*c1 	= [0,6]
 P89a:	2 	= 2 	= [2,0]
 P89b:	2 	= 2 	= [2,0]
 P101a:	6 	= 6 	= [6,0]
