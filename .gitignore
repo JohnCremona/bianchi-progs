@@ -15,10 +15,17 @@
 # Emacs backup files
 *~
 
+# local Makefile indlude
+Makefile.local
+
 # link to data directory:
 newforms
+newspaces
+bianchi-data
 
 # test progams:
+newhecke
+newhecke_modp
 hecketest
 homtest
 looptest
@@ -62,12 +69,13 @@ basechange
 int_hom
 make_geodata
 testlf1
-tnfd
-tnfd_loop
-rnfd
-rnfd_loop
+make_nsp
+make_nsp_loop
+display_nsp
+display_nsp_loop
 fix_ratios
 fix_ratios_loop
+lf1_periods
 
 # temporary test output files
 *.testout
