@@ -1,0 +1,67 @@
+test_tratquad: test_tratquad_1 test_tratquad_2 test_tratquad_3 test_tratquad_7 test_tratquad_11 test_tratquad_19 test_tratquad_43 test_tratquad_67 test_tratquad_163 test_tratquad_23 test_tratquad_31 test_tratquad_47 test_tratquad_59 test_tratquad_71 test_tratquad_79 test_tratquad_83 test_tratquad_5 test_tratquad_14 test_tratquad_21 test_tratquad_95 test_tratquad_6 test_tratquad_10 test_tratquad_13 test_tratquad_15 test_tratquad_17 test_tratquad_22 test_tratquad_35 test_tratquad_39 test_tratquad_42 test_tratquad_51 test_tratquad_55 test_tratquad_87 test_tratquad_91
+test_tratquad_1: tratquad
+	@d=1; prog=tratquad; $(check_run)
+test_tratquad_2: tratquad
+	@d=2; prog=tratquad; $(check_run)
+test_tratquad_3: tratquad
+	@d=3; prog=tratquad; $(check_run)
+test_tratquad_7: tratquad
+	@d=7; prog=tratquad; $(check_run)
+test_tratquad_11: tratquad
+	@d=11; prog=tratquad; $(check_run)
+test_tratquad_19: tratquad
+	@d=19; prog=tratquad; $(check_run)
+test_tratquad_43: tratquad
+	@d=43; prog=tratquad; $(check_run)
+test_tratquad_67: tratquad
+	@d=67; prog=tratquad; $(check_run)
+test_tratquad_163: tratquad
+	@d=163; prog=tratquad; $(check_run)
+test_tratquad_23: tratquad
+	@d=23; prog=tratquad; $(check_run)
+test_tratquad_31: tratquad
+	@d=31; prog=tratquad; $(check_run)
+test_tratquad_47: tratquad
+	@d=47; prog=tratquad; $(check_run)
+test_tratquad_59: tratquad
+	@d=59; prog=tratquad; $(check_run)
+test_tratquad_71: tratquad
+	@d=71; prog=tratquad; $(check_run)
+test_tratquad_79: tratquad
+	@d=79; prog=tratquad; $(check_run)
+test_tratquad_83: tratquad
+	@d=83; prog=tratquad; $(check_run)
+test_tratquad_5: tratquad
+	@d=5; prog=tratquad; $(check_run)
+test_tratquad_14: tratquad
+	@d=14; prog=tratquad; $(check_run)
+test_tratquad_21: tratquad
+	@d=21; prog=tratquad; $(check_run)
+test_tratquad_95: tratquad
+	@d=95; prog=tratquad; $(check_run)
+test_tratquad_6: tratquad
+	@d=6; prog=tratquad; $(check_run)
+test_tratquad_10: tratquad
+	@d=10; prog=tratquad; $(check_run)
+test_tratquad_13: tratquad
+	@d=13; prog=tratquad; $(check_run)
+test_tratquad_15: tratquad
+	@d=15; prog=tratquad; $(check_run)
+test_tratquad_17: tratquad
+	@d=17; prog=tratquad; $(check_run)
+test_tratquad_22: tratquad
+	@d=22; prog=tratquad; $(check_run)
+test_tratquad_35: tratquad
+	@d=35; prog=tratquad; $(check_run)
+test_tratquad_39: tratquad
+	@d=39; prog=tratquad; $(check_run)
+test_tratquad_42: tratquad
+	@d=42; prog=tratquad; $(check_run)
+test_tratquad_51: tratquad
+	@d=51; prog=tratquad; $(check_run)
+test_tratquad_55: tratquad
+	@d=55; prog=tratquad; $(check_run)
+test_tratquad_87: tratquad
+	@d=87; prog=tratquad; $(check_run)
+test_tratquad_91: tratquad
+	@d=91; prog=tratquad; $(check_run)

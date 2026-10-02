@@ -1,0 +1,67 @@
+test_tquads: test_tquads_1 test_tquads_2 test_tquads_3 test_tquads_7 test_tquads_11 test_tquads_19 test_tquads_43 test_tquads_67 test_tquads_163 test_tquads_23 test_tquads_31 test_tquads_47 test_tquads_59 test_tquads_71 test_tquads_79 test_tquads_83 test_tquads_5 test_tquads_14 test_tquads_21 test_tquads_95 test_tquads_6 test_tquads_10 test_tquads_13 test_tquads_15 test_tquads_17 test_tquads_22 test_tquads_35 test_tquads_39 test_tquads_42 test_tquads_51 test_tquads_55 test_tquads_87 test_tquads_91
+test_tquads_1: tquads
+	@d=1; prog=tquads; $(check_run)
+test_tquads_2: tquads
+	@d=2; prog=tquads; $(check_run)
+test_tquads_3: tquads
+	@d=3; prog=tquads; $(check_run)
+test_tquads_7: tquads
+	@d=7; prog=tquads; $(check_run)
+test_tquads_11: tquads
+	@d=11; prog=tquads; $(check_run)
+test_tquads_19: tquads
+	@d=19; prog=tquads; $(check_run)
+test_tquads_43: tquads
+	@d=43; prog=tquads; $(check_run)
+test_tquads_67: tquads
+	@d=67; prog=tquads; $(check_run)
+test_tquads_163: tquads
+	@d=163; prog=tquads; $(check_run)
+test_tquads_23: tquads
+	@d=23; prog=tquads; $(check_run)
+test_tquads_31: tquads
+	@d=31; prog=tquads; $(check_run)
+test_tquads_47: tquads
+	@d=47; prog=tquads; $(check_run)
+test_tquads_59: tquads
+	@d=59; prog=tquads; $(check_run)
+test_tquads_71: tquads
+	@d=71; prog=tquads; $(check_run)
+test_tquads_79: tquads
+	@d=79; prog=tquads; $(check_run)
+test_tquads_83: tquads
+	@d=83; prog=tquads; $(check_run)
+test_tquads_5: tquads
+	@d=5; prog=tquads; $(check_run)
+test_tquads_14: tquads
+	@d=14; prog=tquads; $(check_run)
+test_tquads_21: tquads
+	@d=21; prog=tquads; $(check_run)
+test_tquads_95: tquads
+	@d=95; prog=tquads; $(check_run)
+test_tquads_6: tquads
+	@d=6; prog=tquads; $(check_run)
+test_tquads_10: tquads
+	@d=10; prog=tquads; $(check_run)
+test_tquads_13: tquads
+	@d=13; prog=tquads; $(check_run)
+test_tquads_15: tquads
+	@d=15; prog=tquads; $(check_run)
+test_tquads_17: tquads
+	@d=17; prog=tquads; $(check_run)
+test_tquads_22: tquads
+	@d=22; prog=tquads; $(check_run)
+test_tquads_35: tquads
+	@d=35; prog=tquads; $(check_run)
+test_tquads_39: tquads
+	@d=39; prog=tquads; $(check_run)
+test_tquads_42: tquads
+	@d=42; prog=tquads; $(check_run)
+test_tquads_51: tquads
+	@d=51; prog=tquads; $(check_run)
+test_tquads_55: tquads
+	@d=55; prog=tquads; $(check_run)
+test_tquads_87: tquads
+	@d=87; prog=tquads; $(check_run)
+test_tquads_91: tquads
+	@d=91; prog=tquads; $(check_run)

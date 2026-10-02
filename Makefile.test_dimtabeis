@@ -1,0 +1,67 @@
+test_dimtabeis: test_dimtabeis_1 test_dimtabeis_2 test_dimtabeis_3 test_dimtabeis_7 test_dimtabeis_11 test_dimtabeis_19 test_dimtabeis_43 test_dimtabeis_67 test_dimtabeis_163 test_dimtabeis_23 test_dimtabeis_31 test_dimtabeis_47 test_dimtabeis_59 test_dimtabeis_71 test_dimtabeis_79 test_dimtabeis_83 test_dimtabeis_5 test_dimtabeis_14 test_dimtabeis_21 test_dimtabeis_95 test_dimtabeis_6 test_dimtabeis_10 test_dimtabeis_13 test_dimtabeis_15 test_dimtabeis_17 test_dimtabeis_22 test_dimtabeis_35 test_dimtabeis_39 test_dimtabeis_42 test_dimtabeis_51 test_dimtabeis_55 test_dimtabeis_87 test_dimtabeis_91
+test_dimtabeis_1: dimtabeis
+	@d=1; prog=dimtabeis; $(check_run)
+test_dimtabeis_2: dimtabeis
+	@d=2; prog=dimtabeis; $(check_run)
+test_dimtabeis_3: dimtabeis
+	@d=3; prog=dimtabeis; $(check_run)
+test_dimtabeis_7: dimtabeis
+	@d=7; prog=dimtabeis; $(check_run)
+test_dimtabeis_11: dimtabeis
+	@d=11; prog=dimtabeis; $(check_run)
+test_dimtabeis_19: dimtabeis
+	@d=19; prog=dimtabeis; $(check_run)
+test_dimtabeis_43: dimtabeis
+	@d=43; prog=dimtabeis; $(check_run)
+test_dimtabeis_67: dimtabeis
+	@d=67; prog=dimtabeis; $(check_run)
+test_dimtabeis_163: dimtabeis
+	@d=163; prog=dimtabeis; $(check_run)
+test_dimtabeis_23: dimtabeis
+	@d=23; prog=dimtabeis; $(check_run)
+test_dimtabeis_31: dimtabeis
+	@d=31; prog=dimtabeis; $(check_run)
+test_dimtabeis_47: dimtabeis
+	@d=47; prog=dimtabeis; $(check_run)
+test_dimtabeis_59: dimtabeis
+	@d=59; prog=dimtabeis; $(check_run)
+test_dimtabeis_71: dimtabeis
+	@d=71; prog=dimtabeis; $(check_run)
+test_dimtabeis_79: dimtabeis
+	@d=79; prog=dimtabeis; $(check_run)
+test_dimtabeis_83: dimtabeis
+	@d=83; prog=dimtabeis; $(check_run)
+test_dimtabeis_5: dimtabeis
+	@d=5; prog=dimtabeis; $(check_run)
+test_dimtabeis_14: dimtabeis
+	@d=14; prog=dimtabeis; $(check_run)
+test_dimtabeis_21: dimtabeis
+	@d=21; prog=dimtabeis; $(check_run)
+test_dimtabeis_95: dimtabeis
+	@d=95; prog=dimtabeis; $(check_run)
+test_dimtabeis_6: dimtabeis
+	@d=6; prog=dimtabeis; $(check_run)
+test_dimtabeis_10: dimtabeis
+	@d=10; prog=dimtabeis; $(check_run)
+test_dimtabeis_13: dimtabeis
+	@d=13; prog=dimtabeis; $(check_run)
+test_dimtabeis_15: dimtabeis
+	@d=15; prog=dimtabeis; $(check_run)
+test_dimtabeis_17: dimtabeis
+	@d=17; prog=dimtabeis; $(check_run)
+test_dimtabeis_22: dimtabeis
+	@d=22; prog=dimtabeis; $(check_run)
+test_dimtabeis_35: dimtabeis
+	@d=35; prog=dimtabeis; $(check_run)
+test_dimtabeis_39: dimtabeis
+	@d=39; prog=dimtabeis; $(check_run)
+test_dimtabeis_42: dimtabeis
+	@d=42; prog=dimtabeis; $(check_run)
+test_dimtabeis_51: dimtabeis
+	@d=51; prog=dimtabeis; $(check_run)
+test_dimtabeis_55: dimtabeis
+	@d=55; prog=dimtabeis; $(check_run)
+test_dimtabeis_87: dimtabeis
+	@d=87; prog=dimtabeis; $(check_run)
+test_dimtabeis_91: dimtabeis
+	@d=91; prog=dimtabeis; $(check_run)

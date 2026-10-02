@@ -1,0 +1,128 @@
+test_nsp: test_nsp_1 test_nsp_2 test_nsp_3 test_nsp_7 test_nsp_11 test_nsp_19 test_nsp_43 test_nsp_67 test_nsp_163 test_nsp_23 test_nsp_31 test_nsp_47 test_nsp_59 test_nsp_71 test_nsp_79 test_nsp_83 test_nsp_5 test_nsp_14 test_nsp_21 test_nsp_95 test_nsp_17
+	@echo "test_nsp finished"
+
+test_nsp_1: make_nsp_loop display_nsp_loop
+	@d=4; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=1; prog=make_nsp_loop; $(check_run)
+	@d=1; prog=display_nsp_loop; $(check_run)
+	@d=4; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_2: make_nsp_loop display_nsp_loop
+	@d=8; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=2; prog=make_nsp_loop; $(check_run)
+	@d=2; prog=display_nsp_loop; $(check_run)
+	@d=8; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_3: make_nsp_loop display_nsp_loop
+	@d=3; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=3; prog=make_nsp_loop; $(check_run)
+	@d=3; prog=display_nsp_loop; $(check_run)
+	@d=3; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_7: make_nsp_loop display_nsp_loop
+	@d=7; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=7; prog=make_nsp_loop; $(check_run)
+	@d=7; prog=display_nsp_loop; $(check_run)
+	@d=7; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_11: make_nsp_loop display_nsp_loop
+	@d=11; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=11; prog=make_nsp_loop; $(check_run)
+	@d=11; prog=display_nsp_loop; $(check_run)
+	@d=11; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_19: make_nsp_loop display_nsp_loop
+	@d=19; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=19; prog=make_nsp_loop; $(check_run)
+	@d=19; prog=display_nsp_loop; $(check_run)
+	@d=19; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_43: make_nsp_loop display_nsp_loop
+	@d=43; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=43; prog=make_nsp_loop; $(check_run)
+	@d=43; prog=display_nsp_loop; $(check_run)
+	@d=43; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_67: make_nsp_loop display_nsp_loop
+	@d=67; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=67; prog=make_nsp_loop; $(check_run)
+	@d=67; prog=display_nsp_loop; $(check_run)
+	@d=67; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_163: make_nsp_loop display_nsp_loop
+	@d=163; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=163; prog=make_nsp_loop; $(check_run)
+	@d=163; prog=display_nsp_loop; $(check_run)
+	@d=163; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_23: make_nsp_loop display_nsp_loop
+	@d=23; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=23; prog=make_nsp_loop; $(check_run)
+	@d=23; prog=display_nsp_loop; $(check_run)
+	@d=23; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_31: make_nsp_loop display_nsp_loop
+	@d=31; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=31; prog=make_nsp_loop; $(check_run)
+	@d=31; prog=display_nsp_loop; $(check_run)
+	@d=31; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_47: make_nsp_loop display_nsp_loop
+	@d=47; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=47; prog=make_nsp_loop; $(check_run)
+	@d=47; prog=display_nsp_loop; $(check_run)
+	@d=47; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_59: make_nsp_loop display_nsp_loop
+	@d=59; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=59; prog=make_nsp_loop; $(check_run)
+	@d=59; prog=display_nsp_loop; $(check_run)
+	@d=59; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_71: make_nsp_loop display_nsp_loop
+	@d=71; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=71; prog=make_nsp_loop; $(check_run)
+	@d=71; prog=display_nsp_loop; $(check_run)
+	@d=71; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_79: make_nsp_loop display_nsp_loop
+	@d=79; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=79; prog=make_nsp_loop; $(check_run)
+	@d=79; prog=display_nsp_loop; $(check_run)
+	@d=79; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_83: make_nsp_loop display_nsp_loop
+	@d=83; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=83; prog=make_nsp_loop; $(check_run)
+	@d=83; prog=display_nsp_loop; $(check_run)
+	@d=83; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_5: make_nsp_loop display_nsp_loop
+	@d=20; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=5; prog=make_nsp_loop; $(check_run)
+	@d=5; prog=display_nsp_loop; $(check_run)
+	@d=20; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_14: make_nsp_loop display_nsp_loop
+	@d=56; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=14; prog=make_nsp_loop; $(check_run)
+	@d=14; prog=display_nsp_loop; $(check_run)
+	@d=56; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_21: make_nsp_loop display_nsp_loop
+	@d=84; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=21; prog=make_nsp_loop; $(check_run)
+	@d=21; prog=display_nsp_loop; $(check_run)
+	@d=84; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_95: make_nsp_loop display_nsp_loop
+	@d=95; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=95; prog=make_nsp_loop; $(check_run)
+	@d=95; prog=display_nsp_loop; $(check_run)
+	@d=95; rm -rf $(NSP_DIR)/2.0.$${d}.1
+
+test_nsp_17: make_nsp_loop display_nsp_loop
+	@d=68; mkdir -p $(NSP_DIR)/2.0.$${d}.1
+	@d=17; prog=make_nsp_loop; $(check_run)
+	@d=17; prog=display_nsp_loop; $(check_run)
+	@d=68; rm -rf $(NSP_DIR)/2.0.$${d}.1

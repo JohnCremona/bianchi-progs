@@ -123,100 +123,50 @@ TESTS = fieldinfo tquads qidltest tratquad looptest homtest hecketest newhecke n
 
 tests: sources $(TESTS)
 
-# These are for creation of temporary newforms directories for tests:
-DISCS9=3 4 7 8 11 19 43 67 163
-DISCSXodd=15 23 31 35 39 47 51 55 59 71 79 83 87 91 95
-DISCSXeven=20 24 40 42 52 56 68 84 88 168
-DISCS=$(DISCS9) $(DISCSXodd) $(DISCSXeven)
-
-# These control which tests run on which fields:
-
-# All tests: basic arithmetic, homology dimensions, newforms, modularity
-FIELDS_full=1 2 3 7 11 19 43 67 163 23 31 47 59 71 79 83 5 14 21 95
-#FIELDS_full=
-
-# Basic arithmetic, homology dimensions, newforms
-FIELDS_nf=$(FIELDS_full) 6 10 13 15 17 22 35 39 42 51 55 87 91
-#FIELDS_nf=$(FIELDS_full)
-
-# Basic arithmetic, homology dimensions
-FIELDS_hom=$(FIELDS_nf)
-#FIELDS_hom=
-
-# Only basic arithmetic
-FIELDS=$(FIELDS_hom)
-#FIELDS=
-
-# Higher-dimensional newspaces:
-FIELDS_newspaces = $(FIELDS_full) 17
-
-# modtest and symbtest no longer maintained as classes moddata, symbdata are obsolete
-BASIC_TESTS = tquads tratquad looptest qidltest
-#BASIC_TESTS =
-HOM_TESTS = homtest dimtable dimtabeis hecketest #dimtable_modp hecketest_modp nflist_modp
-#HOM_TESTS =
-NF_TESTS = makenf_loop makenf nftest nflist nflist_loop dimtabnew dimtabtwist moreap moreap1
-#NF_TESTS =
-FULL_TESTS = modularity modularity_modp  #makenf_modp
-#FULL_TESTS =
-# global tests are universal, not per field
-GLOBAL_TESTS = fieldinfo dimtable_all P1Ntest
-#GLOBAL_TESTS =
-NEWSPACE_TESTS = make_nsp_loop display_nsp_loop
-#NEWSPACE_TESTS =
-ALL_TESTS = sources $(BASIC_TESTS) $(HOM_TESTS) $(NF_TESTS) $(FULL_TESTS) $(GLOBAL_TESTS) $(NEWSPACE_TESTS)
-
 test_input_dir = testin
 test_output_dir = testout
 
-TIMES := $(shell mktemp)
+export NF_DIR:=nftmp
+export NSP_DIR:=nsptmp
+export TIMES := $(shell mktemp)
 
 check_run = echo -n "Testing $${prog} for d=$${d}..."; time -o $(TIMES) -f "%Us" ./$${prog} < $(test_input_dir)/$${prog}.$${d}.in > $${prog}.$${d}.out 2>/dev/null && if diff -q $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; then echo "$${prog} for d=$${d} completed successfully in " `cat $(TIMES)`;  else echo " ! $${prog} for d=$${d} failed"; diff $${prog}.$${d}.out $(test_output_dir)/$${prog}.$${d}.out; fi || exit $$?
 
-export NF_DIR:=nftmp
-export NSP_DIR:=nsptmp
-check: $(ALL_TESTS)
-	 @echo Test setup: create temporary directories
-	 rm -f t
-	 rm -rf $(NF_DIR)
-	 mkdir $(NF_DIR)
-	 rm -rf $(NSP_DIR)
-	 mkdir $(NSP_DIR)
-	 for d in $(DISCS); do mkdir $(NF_DIR)/2.0.$$d.1; done
-	 @echo
-	 @echo running global tests...
-	 @echo
-	 @for d in all; do for prog in $(GLOBAL_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo running basic tests on fields $(FIELDS)...
-	 @echo
-	 @for d in $(FIELDS); do for prog in $(BASIC_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo running basic homspace tests on fields $(FIELDS_hom)...
-	 @echo
-	 @for d in $(FIELDS_hom); do for prog in $(HOM_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo running newform tests on fields $(FIELDS_nf)...
-	 @echo
-	 @for d in $(FIELDS_nf); do for prog in $(NF_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo running full tests on fields $(FIELDS_full)...
-	 @echo
-	 @for d in $(FIELDS_full); do for prog in $(FULL_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo running newspace tests on fields $(FIELDS_newspaces)...
-	 @echo
-	 @for d in $(FIELDS_newspaces); do for prog in $(NEWSPACE_TESTS); do $(check_run); done; echo; done
-	 @echo
-	 @echo Tidy up: remove temporary directories and output test files
-	 rm -rf $(NF_DIR)
-	 rm -rf $(NSP_DIR)
-	 rm -f *.out
-	 @echo Tests completed
+test_global: test_fieldinfo test_dimtable_all test_P1Ntest
+test_fieldinfo: fieldinfo
+	@d=all; prog=fieldinfo; $(check_run)
+test_dimtable_all: dimtable_all
+	@d=all; prog=dimtable_all; $(check_run)
+test_P1Ntest: P1Ntest
+	@d=all; prog=P1Ntest; $(check_run)
+
+test_basic: test_tquads test_tratquad test_looptest test_qidltest
+include Makefile.test_tquads
+include Makefile.test_tratquad
+include Makefile.test_looptest
+include Makefile.test_qidltest
+
+test_hom: test_homtest test_dimtable test_dimtabeis test_hecketest
+#         test_dimtable_modp test_hecketest_modp test_nflist_modp
+include Makefile.test_homtest
+include Makefile.test_dimtable
+include Makefile.test_dimtabeis
+include Makefile.test_hecketest
+
+test_newspace: test_nsp
+include Makefile.test_nsp
+
+test_newform: test_nf
+include Makefile.test_nf
+
+check: tests test_global test_basic test_hom test_newspace test_newform
+	@rm -f *.out
 
 clean:
-	rm -f $(TESTS)
-	rm -f *.o *~ *.testout
+	@rm -f $(TESTS)
+	@rm -f *.o *~ *.out
+	@rm -rf $(NF_DIR)
+	@rm -rf $(NSP_DIR)
 
 Q_OBJS = intprocs.o
 QUAD_OBJS = quads.o looper.o homspace.o \

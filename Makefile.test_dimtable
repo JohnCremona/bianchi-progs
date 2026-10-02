@@ -1,0 +1,67 @@
+test_dimtable: test_dimtable_1 test_dimtable_2 test_dimtable_3 test_dimtable_7 test_dimtable_11 test_dimtable_19 test_dimtable_43 test_dimtable_67 test_dimtable_163 test_dimtable_23 test_dimtable_31 test_dimtable_47 test_dimtable_59 test_dimtable_71 test_dimtable_79 test_dimtable_83 test_dimtable_5 test_dimtable_14 test_dimtable_21 test_dimtable_95 test_dimtable_6 test_dimtable_10 test_dimtable_13 test_dimtable_15 test_dimtable_17 test_dimtable_22 test_dimtable_35 test_dimtable_39 test_dimtable_42 test_dimtable_51 test_dimtable_55 test_dimtable_87 test_dimtable_91
+test_dimtable_1: dimtable
+	@d=1; prog=dimtable; $(check_run)
+test_dimtable_2: dimtable
+	@d=2; prog=dimtable; $(check_run)
+test_dimtable_3: dimtable
+	@d=3; prog=dimtable; $(check_run)
+test_dimtable_7: dimtable
+	@d=7; prog=dimtable; $(check_run)
+test_dimtable_11: dimtable
+	@d=11; prog=dimtable; $(check_run)
+test_dimtable_19: dimtable
+	@d=19; prog=dimtable; $(check_run)
+test_dimtable_43: dimtable
+	@d=43; prog=dimtable; $(check_run)
+test_dimtable_67: dimtable
+	@d=67; prog=dimtable; $(check_run)
+test_dimtable_163: dimtable
+	@d=163; prog=dimtable; $(check_run)
+test_dimtable_23: dimtable
+	@d=23; prog=dimtable; $(check_run)
+test_dimtable_31: dimtable
+	@d=31; prog=dimtable; $(check_run)
+test_dimtable_47: dimtable
+	@d=47; prog=dimtable; $(check_run)
+test_dimtable_59: dimtable
+	@d=59; prog=dimtable; $(check_run)
+test_dimtable_71: dimtable
+	@d=71; prog=dimtable; $(check_run)
+test_dimtable_79: dimtable
+	@d=79; prog=dimtable; $(check_run)
+test_dimtable_83: dimtable
+	@d=83; prog=dimtable; $(check_run)
+test_dimtable_5: dimtable
+	@d=5; prog=dimtable; $(check_run)
+test_dimtable_14: dimtable
+	@d=14; prog=dimtable; $(check_run)
+test_dimtable_21: dimtable
+	@d=21; prog=dimtable; $(check_run)
+test_dimtable_95: dimtable
+	@d=95; prog=dimtable; $(check_run)
+test_dimtable_6: dimtable
+	@d=6; prog=dimtable; $(check_run)
+test_dimtable_10: dimtable
+	@d=10; prog=dimtable; $(check_run)
+test_dimtable_13: dimtable
+	@d=13; prog=dimtable; $(check_run)
+test_dimtable_15: dimtable
+	@d=15; prog=dimtable; $(check_run)
+test_dimtable_17: dimtable
+	@d=17; prog=dimtable; $(check_run)
+test_dimtable_22: dimtable
+	@d=22; prog=dimtable; $(check_run)
+test_dimtable_35: dimtable
+	@d=35; prog=dimtable; $(check_run)
+test_dimtable_39: dimtable
+	@d=39; prog=dimtable; $(check_run)
+test_dimtable_42: dimtable
+	@d=42; prog=dimtable; $(check_run)
+test_dimtable_51: dimtable
+	@d=51; prog=dimtable; $(check_run)
+test_dimtable_55: dimtable
+	@d=55; prog=dimtable; $(check_run)
+test_dimtable_87: dimtable
+	@d=87; prog=dimtable; $(check_run)
+test_dimtable_91: dimtable
+	@d=91; prog=dimtable; $(check_run)

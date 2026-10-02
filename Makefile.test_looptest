@@ -1,0 +1,67 @@
+test_looptest: test_looptest_1 test_looptest_2 test_looptest_3 test_looptest_7 test_looptest_11 test_looptest_19 test_looptest_43 test_looptest_67 test_looptest_163 test_looptest_23 test_looptest_31 test_looptest_47 test_looptest_59 test_looptest_71 test_looptest_79 test_looptest_83 test_looptest_5 test_looptest_14 test_looptest_21 test_looptest_95 test_looptest_6 test_looptest_10 test_looptest_13 test_looptest_15 test_looptest_17 test_looptest_22 test_looptest_35 test_looptest_39 test_looptest_42 test_looptest_51 test_looptest_55 test_looptest_87 test_looptest_91
+test_looptest_1: looptest
+	@d=1; prog=looptest; $(check_run)
+test_looptest_2: looptest
+	@d=2; prog=looptest; $(check_run)
+test_looptest_3: looptest
+	@d=3; prog=looptest; $(check_run)
+test_looptest_7: looptest
+	@d=7; prog=looptest; $(check_run)
+test_looptest_11: looptest
+	@d=11; prog=looptest; $(check_run)
+test_looptest_19: looptest
+	@d=19; prog=looptest; $(check_run)
+test_looptest_43: looptest
+	@d=43; prog=looptest; $(check_run)
+test_looptest_67: looptest
+	@d=67; prog=looptest; $(check_run)
+test_looptest_163: looptest
+	@d=163; prog=looptest; $(check_run)
+test_looptest_23: looptest
+	@d=23; prog=looptest; $(check_run)
+test_looptest_31: looptest
+	@d=31; prog=looptest; $(check_run)
+test_looptest_47: looptest
+	@d=47; prog=looptest; $(check_run)
+test_looptest_59: looptest
+	@d=59; prog=looptest; $(check_run)
+test_looptest_71: looptest
+	@d=71; prog=looptest; $(check_run)
+test_looptest_79: looptest
+	@d=79; prog=looptest; $(check_run)
+test_looptest_83: looptest
+	@d=83; prog=looptest; $(check_run)
+test_looptest_5: looptest
+	@d=5; prog=looptest; $(check_run)
+test_looptest_14: looptest
+	@d=14; prog=looptest; $(check_run)
+test_looptest_21: looptest
+	@d=21; prog=looptest; $(check_run)
+test_looptest_95: looptest
+	@d=95; prog=looptest; $(check_run)
+test_looptest_6: looptest
+	@d=6; prog=looptest; $(check_run)
+test_looptest_10: looptest
+	@d=10; prog=looptest; $(check_run)
+test_looptest_13: looptest
+	@d=13; prog=looptest; $(check_run)
+test_looptest_15: looptest
+	@d=15; prog=looptest; $(check_run)
+test_looptest_17: looptest
+	@d=17; prog=looptest; $(check_run)
+test_looptest_22: looptest
+	@d=22; prog=looptest; $(check_run)
+test_looptest_35: looptest
+	@d=35; prog=looptest; $(check_run)
+test_looptest_39: looptest
+	@d=39; prog=looptest; $(check_run)
+test_looptest_42: looptest
+	@d=42; prog=looptest; $(check_run)
+test_looptest_51: looptest
+	@d=51; prog=looptest; $(check_run)
+test_looptest_55: looptest
+	@d=55; prog=looptest; $(check_run)
+test_looptest_87: looptest
+	@d=87; prog=looptest; $(check_run)
+test_looptest_91: looptest
+	@d=91; prog=looptest; $(check_run)

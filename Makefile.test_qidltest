@@ -1,0 +1,67 @@
+test_qidltest: test_qidltest_1 test_qidltest_2 test_qidltest_3 test_qidltest_7 test_qidltest_11 test_qidltest_19 test_qidltest_43 test_qidltest_67 test_qidltest_163 test_qidltest_23 test_qidltest_31 test_qidltest_47 test_qidltest_59 test_qidltest_71 test_qidltest_79 test_qidltest_83 test_qidltest_5 test_qidltest_14 test_qidltest_21 test_qidltest_95 test_qidltest_6 test_qidltest_10 test_qidltest_13 test_qidltest_15 test_qidltest_17 test_qidltest_22 test_qidltest_35 test_qidltest_39 test_qidltest_42 test_qidltest_51 test_qidltest_55 test_qidltest_87 test_qidltest_91
+test_qidltest_1: qidltest
+	@d=1; prog=qidltest; $(check_run)
+test_qidltest_2: qidltest
+	@d=2; prog=qidltest; $(check_run)
+test_qidltest_3: qidltest
+	@d=3; prog=qidltest; $(check_run)
+test_qidltest_7: qidltest
+	@d=7; prog=qidltest; $(check_run)
+test_qidltest_11: qidltest
+	@d=11; prog=qidltest; $(check_run)
+test_qidltest_19: qidltest
+	@d=19; prog=qidltest; $(check_run)
+test_qidltest_43: qidltest
+	@d=43; prog=qidltest; $(check_run)
+test_qidltest_67: qidltest
+	@d=67; prog=qidltest; $(check_run)
+test_qidltest_163: qidltest
+	@d=163; prog=qidltest; $(check_run)
+test_qidltest_23: qidltest
+	@d=23; prog=qidltest; $(check_run)
+test_qidltest_31: qidltest
+	@d=31; prog=qidltest; $(check_run)
+test_qidltest_47: qidltest
+	@d=47; prog=qidltest; $(check_run)
+test_qidltest_59: qidltest
+	@d=59; prog=qidltest; $(check_run)
+test_qidltest_71: qidltest
+	@d=71; prog=qidltest; $(check_run)
+test_qidltest_79: qidltest
+	@d=79; prog=qidltest; $(check_run)
+test_qidltest_83: qidltest
+	@d=83; prog=qidltest; $(check_run)
+test_qidltest_5: qidltest
+	@d=5; prog=qidltest; $(check_run)
+test_qidltest_14: qidltest
+	@d=14; prog=qidltest; $(check_run)
+test_qidltest_21: qidltest
+	@d=21; prog=qidltest; $(check_run)
+test_qidltest_95: qidltest
+	@d=95; prog=qidltest; $(check_run)
+test_qidltest_6: qidltest
+	@d=6; prog=qidltest; $(check_run)
+test_qidltest_10: qidltest
+	@d=10; prog=qidltest; $(check_run)
+test_qidltest_13: qidltest
+	@d=13; prog=qidltest; $(check_run)
+test_qidltest_15: qidltest
+	@d=15; prog=qidltest; $(check_run)
+test_qidltest_17: qidltest
+	@d=17; prog=qidltest; $(check_run)
+test_qidltest_22: qidltest
+	@d=22; prog=qidltest; $(check_run)
+test_qidltest_35: qidltest
+	@d=35; prog=qidltest; $(check_run)
+test_qidltest_39: qidltest
+	@d=39; prog=qidltest; $(check_run)
+test_qidltest_42: qidltest
+	@d=42; prog=qidltest; $(check_run)
+test_qidltest_51: qidltest
+	@d=51; prog=qidltest; $(check_run)
+test_qidltest_55: qidltest
+	@d=55; prog=qidltest; $(check_run)
+test_qidltest_87: qidltest
+	@d=87; prog=qidltest; $(check_run)
+test_qidltest_91: qidltest
+	@d=91; prog=qidltest; $(check_run)

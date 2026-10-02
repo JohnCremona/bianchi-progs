@@ -1,0 +1,68 @@
+test_hecketest: test_hecketest_1 test_hecketest_2 test_hecketest_3 test_hecketest_7 test_hecketest_11 test_hecketest_19 test_hecketest_43 test_hecketest_67 test_hecketest_163 test_hecketest_23 test_hecketest_31 test_hecketest_47 test_hecketest_59 test_hecketest_71 test_hecketest_79 test_hecketest_83 test_hecketest_5 test_hecketest_14 test_hecketest_21 test_hecketest_95 test_hecketest_6 test_hecketest_10 test_hecketest_13 test_hecketest_15 test_hecketest_17 test_hecketest_22 test_hecketest_35 test_hecketest_39 test_hecketest_42 test_hecketest_51 test_hecketest_55 test_hecketest_87 test_hecketest_91
+	@echo "test_hecketest finished"
+test_hecketest_1: hecketest
+	@d=1; prog=hecketest; $(check_run)
+test_hecketest_2: hecketest
+	@d=2; prog=hecketest; $(check_run)
+test_hecketest_3: hecketest
+	@d=3; prog=hecketest; $(check_run)
+test_hecketest_7: hecketest
+	@d=7; prog=hecketest; $(check_run)
+test_hecketest_11: hecketest
+	@d=11; prog=hecketest; $(check_run)
+test_hecketest_19: hecketest
+	@d=19; prog=hecketest; $(check_run)
+test_hecketest_43: hecketest
+	@d=43; prog=hecketest; $(check_run)
+test_hecketest_67: hecketest
+	@d=67; prog=hecketest; $(check_run)
+test_hecketest_163: hecketest
+	@d=163; prog=hecketest; $(check_run)
+test_hecketest_23: hecketest
+	@d=23; prog=hecketest; $(check_run)
+test_hecketest_31: hecketest
+	@d=31; prog=hecketest; $(check_run)
+test_hecketest_47: hecketest
+	@d=47; prog=hecketest; $(check_run)
+test_hecketest_59: hecketest
+	@d=59; prog=hecketest; $(check_run)
+test_hecketest_71: hecketest
+	@d=71; prog=hecketest; $(check_run)
+test_hecketest_79: hecketest
+	@d=79; prog=hecketest; $(check_run)
+test_hecketest_83: hecketest
+	@d=83; prog=hecketest; $(check_run)
+test_hecketest_5: hecketest
+	@d=5; prog=hecketest; $(check_run)
+test_hecketest_14: hecketest
+	@d=14; prog=hecketest; $(check_run)
+test_hecketest_21: hecketest
+	@d=21; prog=hecketest; $(check_run)
+test_hecketest_95: hecketest
+	@d=95; prog=hecketest; $(check_run)
+test_hecketest_6: hecketest
+	@d=6; prog=hecketest; $(check_run)
+test_hecketest_10: hecketest
+	@d=10; prog=hecketest; $(check_run)
+test_hecketest_13: hecketest
+	@d=13; prog=hecketest; $(check_run)
+test_hecketest_15: hecketest
+	@d=15; prog=hecketest; $(check_run)
+test_hecketest_17: hecketest
+	@d=17; prog=hecketest; $(check_run)
+test_hecketest_22: hecketest
+	@d=22; prog=hecketest; $(check_run)
+test_hecketest_35: hecketest
+	@d=35; prog=hecketest; $(check_run)
+test_hecketest_39: hecketest
+	@d=39; prog=hecketest; $(check_run)
+test_hecketest_42: hecketest
+	@d=42; prog=hecketest; $(check_run)
+test_hecketest_51: hecketest
+	@d=51; prog=hecketest; $(check_run)
+test_hecketest_55: hecketest
+	@d=55; prog=hecketest; $(check_run)
+test_hecketest_87: hecketest
+	@d=87; prog=hecketest; $(check_run)
+test_hecketest_91: hecketest
+	@d=91; prog=hecketest; $(check_run)

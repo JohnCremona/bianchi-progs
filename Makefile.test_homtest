@@ -1,0 +1,67 @@
+test_homtest: test_homtest_1 test_homtest_2 test_homtest_3 test_homtest_7 test_homtest_11 test_homtest_19 test_homtest_43 test_homtest_67 test_homtest_163 test_homtest_23 test_homtest_31 test_homtest_47 test_homtest_59 test_homtest_71 test_homtest_79 test_homtest_83 test_homtest_5 test_homtest_14 test_homtest_21 test_homtest_95 test_homtest_6 test_homtest_10 test_homtest_13 test_homtest_15 test_homtest_17 test_homtest_22 test_homtest_35 test_homtest_39 test_homtest_42 test_homtest_51 test_homtest_55 test_homtest_87 test_homtest_91
+test_homtest_1: homtest
+	@d=1; prog=homtest; $(check_run)
+test_homtest_2: homtest
+	@d=2; prog=homtest; $(check_run)
+test_homtest_3: homtest
+	@d=3; prog=homtest; $(check_run)
+test_homtest_7: homtest
+	@d=7; prog=homtest; $(check_run)
+test_homtest_11: homtest
+	@d=11; prog=homtest; $(check_run)
+test_homtest_19: homtest
+	@d=19; prog=homtest; $(check_run)
+test_homtest_43: homtest
+	@d=43; prog=homtest; $(check_run)
+test_homtest_67: homtest
+	@d=67; prog=homtest; $(check_run)
+test_homtest_163: homtest
+	@d=163; prog=homtest; $(check_run)
+test_homtest_23: homtest
+	@d=23; prog=homtest; $(check_run)
+test_homtest_31: homtest
+	@d=31; prog=homtest; $(check_run)
+test_homtest_47: homtest
+	@d=47; prog=homtest; $(check_run)
+test_homtest_59: homtest
+	@d=59; prog=homtest; $(check_run)
+test_homtest_71: homtest
+	@d=71; prog=homtest; $(check_run)
+test_homtest_79: homtest
+	@d=79; prog=homtest; $(check_run)
+test_homtest_83: homtest
+	@d=83; prog=homtest; $(check_run)
+test_homtest_5: homtest
+	@d=5; prog=homtest; $(check_run)
+test_homtest_14: homtest
+	@d=14; prog=homtest; $(check_run)
+test_homtest_21: homtest
+	@d=21; prog=homtest; $(check_run)
+test_homtest_95: homtest
+	@d=95; prog=homtest; $(check_run)
+test_homtest_6: homtest
+	@d=6; prog=homtest; $(check_run)
+test_homtest_10: homtest
+	@d=10; prog=homtest; $(check_run)
+test_homtest_13: homtest
+	@d=13; prog=homtest; $(check_run)
+test_homtest_15: homtest
+	@d=15; prog=homtest; $(check_run)
+test_homtest_17: homtest
+	@d=17; prog=homtest; $(check_run)
+test_homtest_22: homtest
+	@d=22; prog=homtest; $(check_run)
+test_homtest_35: homtest
+	@d=35; prog=homtest; $(check_run)
+test_homtest_39: homtest
+	@d=39; prog=homtest; $(check_run)
+test_homtest_42: homtest
+	@d=42; prog=homtest; $(check_run)
+test_homtest_51: homtest
+	@d=51; prog=homtest; $(check_run)
+test_homtest_55: homtest
+	@d=55; prog=homtest; $(check_run)
+test_homtest_87: homtest
+	@d=87; prog=homtest; $(check_run)
+test_homtest_91: homtest
+	@d=91; prog=homtest; $(check_run)
