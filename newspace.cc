@@ -1682,11 +1682,11 @@ string Newform::one_line() const
   ostringstream line;
   line <<  flabel << " " << idlabel << " " << lab << " " << idgens << " 2 ";
   line << bct << " "; // base-change code
-  line << "? ";         // CM code, not yet computed
+  line << CMD << " "; // CM code
   line << sfe << " "; // sign of functional equation
-  line << "? ";        // L/P, not yet computed
+  line << "? ";       // L/P, not yet computed
   int first = 1;
-  line << "[";     // comma-separated list of AL eigenvalues
+  line << "[";     // comma-separated list of AL eigenvalues (+1 or -1)
   for (auto x: eQmap)
     {
       if (!first) line <<  ",";
@@ -1694,17 +1694,29 @@ string Newform::one_line() const
       line << x.second;
     }
   line << "] ";
-  if (d==1)
-    line <<"x ";
+  if (abs_deg==1)
+    line <<"[0,1] ";  // Hecke field defining polynomial coeffs ('[0,1]' for Q)
   else
-    line << ::str(HFabs->poly(), "x") << " ";  // Hecke field defining polynomial ('x' for Q)
+    {
+      // line << ::str(HFabs->poly()) << "=";
+      vec_out(line, coeffs(HFabs->poly()), 0, "[", "]", ",");
+      line << " ";
+    }
   first = 1;
   line << "[";     // comma-separated list of AL eigenvalues
   for (auto x: aPmap_abs)
     {
       if (!first) line <<  ",";
       first = 0;
-      line << x.second;
+      if (abs_deg==1)
+        line << x.second;
+      else
+        {
+          const auto& aPc = x.second.coords();
+          vec_out(line, aPc.get_numerator().get_entries(), 0, "[", "]", ",");
+          const auto& aPd = aPc.get_denom();
+          if (aPd>1) line << "/" << aPd;
+        }
     }
   line << "]";     // comma-separated list of aP eigenvalues
   return line.str();
