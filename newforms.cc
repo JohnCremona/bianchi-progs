@@ -1397,10 +1397,10 @@ void newform::list(string prefix, long nap)
         }
       cout << "] ";
     }
-  // The x here is essentially a place-holder representing the Hecke
-  // field defining polynomial so that the output here will be
-  // consistent with newforms whose Hecke field has degree >1
-  cout << "x ";
+  // The "1 [0,1]" here encode the Hecke field degree and defining
+  // polynomial coefficients, so that the output here is consistent
+  // with newforms whose Hecke field has degree >1
+  cout << "1 [0,1] ";
   cout << "[";
   int n = 0;
   for ( const auto& ap : aplist)

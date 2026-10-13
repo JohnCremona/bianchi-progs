@@ -20,11 +20,9 @@ const int SHOW_AP_INT_COORDS = 1;
 
 int main()
 {
-  cout << "Program list_nsp";
-  #ifdef LOOPER
-  cout << "_loop";
+#ifndef LOOPER
+  cout << "Program list_nsp: read and list precomputed Bianchi newforms of arbitrary dimension." << endl;
 #endif
-  cout << ": read and list precomputed Bianchi newforms of arbitrary dimension." << endl;
   eclib_pari_init();
 
   long d, maxpnorm(MAXPRIME);
@@ -36,13 +34,14 @@ int main()
       exit(0);
     }
   Quad::field(d,maxpnorm);
-  Quad::displayfield(cout);
+
   //  int C4 = is_C4();
   int triv_char_only = 1;
   // cerr << "Newspaces with trivial character only? \n(Otherwise -- for C4 class group only -- also include newspaces with unramified character.  Hence ignored except for C4 fields)" <<endl;
   // cin >> triv_char_only;
   Quad n;
   Qideal N;
+
 #ifdef LOOPER
   long firstn, lastn;
   cerr<<"Enter first and last norm for levels: ";
@@ -53,6 +52,7 @@ int main()
     {
       N = loop.next();
 #else
+  Quad::displayfield(cout);
   while(cerr<<"Enter level (ideal label or generator): ", cin>>N, !N.is_zero())
     {
 #endif

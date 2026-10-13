@@ -539,7 +539,7 @@ void Newform::check_base_change(void)
       return;
     }
   bc = 1;       // will set to 0 if not bc
-  bct = 1;      // will set to 0 if not bct (NB bc implies bct)
+  bct = 1;      // will set to 0 if not bct (NB bc=1 implies bct=1 by convention)
   for (auto PaP : aPmap)
     {
       if (!bct)
@@ -1680,13 +1680,21 @@ string Newform::one_line() const
 {
   string idlabel = nsp->level_label,  idgens = gens_string(nsp->N), flabel = field_label();
   ostringstream line;
-  line <<  flabel << " " << idlabel << " " << lab << " " << idgens << " 2 ";
-  line << bct << " "; // base-change code
-  line << CMD << " "; // CM code
-  line << sfe << " "; // sign of functional equation
-  line << "? ";       // L/P, not yet computed
+
+  line << flabel << " "             // field label
+       << idlabel << " "            // level label
+       << lab << " "                // newform label suffix
+       << idgens                    // level ideal gens
+       << " 2 "                     // weight
+       << base_change_code() << " " // base-change code
+       << CMD << " "                // CM code (only detects unramified at present)
+       << sfe << " "                // sign of functional equation
+       << "? ";                     // L/P, not yet computed
+
+  // Atkin-Lehner eigenvalues (comma-separated list of +1 or -1)
+
   int first = 1;
-  line << "[";     // comma-separated list of AL eigenvalues (+1 or -1)
+  line << "[";
   for (auto x: eQmap)
     {
       if (!first) line <<  ",";
@@ -1694,16 +1702,20 @@ string Newform::one_line() const
       line << x.second;
     }
   line << "] ";
+
+  // Polynomial defining absolute Hecke field (list of coeffs, [0,1]' for Q)
+
+  line << abs_deg << " ";
+
   if (abs_deg==1)
-    line <<"[0,1] ";  // Hecke field defining polynomial coeffs ('[0,1]' for Q)
+    line << "[0,1] ";
   else
-    {
-      // line << ::str(HFabs->poly()) << "=";
-      vec_out(line, coeffs(HFabs->poly()), 0, "[", "]", ",");
-      line << " ";
-    }
+    vec_out(line, coeffs(HFabs->poly()), 0, "[", "] ", ",");
+
+  // aP eigenvalues (comma-separated list of coeffs w.r.t. power basis of field)
+
   first = 1;
-  line << "[";     // comma-separated list of AL eigenvalues
+  line << "[";     // comma-separated list of aP eigenvalues
   for (auto x: aPmap_abs)
     {
       if (!first) line <<  ",";
@@ -1718,7 +1730,29 @@ string Newform::one_line() const
           if (aPd>1) line << "/" << aPd;
         }
     }
+  line << "] ";
+
+  // Hecke order matrix of corrds of power basis (comma-separated list of comma separated lists)
+
+  transpose(HO.get_pcm()).output_flat(line);
+
+  // aP eigenvalues (comma-separated list of coeffs w.r.t. order basis)
+
+  first = 1;
+  line << " [";     // comma-separated list of aP eigenvalues
+  for (auto x: aPmap_int_coords)
+    {
+      if (!first) line <<  ",";
+      first = 0;
+      if (abs_deg==1)
+        line << x.second[1];
+      else
+        {
+          vec_out(line, x.second.get_entries(), 0, "[", "]", ",");
+        }
+    }
   line << "]";     // comma-separated list of aP eigenvalues
+
   return line.str();
 }
 
@@ -1961,6 +1995,7 @@ void Newform::display_aP(int aP) const
               if (i < abs_deg-1) gen_power *= gen;
             }
           cout << endl;
+          // cout << "H0.get_pcm()^t = \n" << transpose(HO.get_pcm()) << endl;
         }
     }
 

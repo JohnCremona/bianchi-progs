@@ -12,7 +12,7 @@ DIM_DIR = os.path.join(DATA_DIR, "dims")
 FORM_DIR = os.path.join(DATA_DIR, "newforms")
 
 Qx = PolynomialRing(QQ,'x')
-
+Qa = PolynomialRing(QQ,'a')
 
 def split(line):
     return whitespace.split(line.strip())
@@ -244,7 +244,7 @@ def parse_newforms_line(line, K):
 
     Sample input line:
 
-    2.0.4.1 65.18.1 a (7+4i) 2 0 ? 1 1 [1,-1] x [0,0,-1,-2,1,-4,0,6,6,-6,2,2,6,0,-4,6,-6,-10,-10,2,2,6,6,-10,8]
+    2.0.4.1 65.18.1 a (7+4i) 2 0 ? 1 1 [1,-1] 1 [0,1] [0,0,-1,-2,1,-4,0,6,6,-6,2,2,6,0,-4,6,-6,-10,-10,2,2,6,6,-10,8]
 
     NB We expect 3-component HNF-style labels for ideals (N.c.d) but will convert to LMFDB labels N.i on input.
     """
@@ -254,40 +254,70 @@ def parse_newforms_line(line, K):
     field_disc = - int(field_label.split(".")[2])
     field_deg = 2
     field_bad_primes = ZZ(field_disc).support()
-    # Hecke field degree (=dimension)
-    hecke_poly = data[10]
-    dimension = 1 if hecke_poly == 'x' else int(Qx(hecke_poly).degree())
+
     # level
     N = ideal_from_IQF_label(K, data[1])
     level_label = ideal_label(N)
     level_norm = int(level_label.split(".")[0])
-    level_ideal = data[3]
-    level_gen =  level_ideal[1:-1] # strip (,)
-    level_bad_primes = ZZ(level_norm).support()
+
     label_suffix = data[2]
     label_nsuffix = numerify_iso_label(label_suffix)
-    if dimension>1:
-        label_suffix = label_suffix+str(dimension)
     short_label = '-'.join([level_label, label_suffix])
     label = '-'.join([field_label, short_label])
 
+    level_ideal = data[3]
+    level_gen =  level_ideal[1:-1] # strip (,)
+    level_bad_primes = ZZ(level_norm).support()
+
     weight = int(data[4])
     assert weight == 2
+
     bc = data[5]
-    if bc!='?': bc=int(bc)
+    if bc!='?':
+        bc=int(bc)
+
     cm = data[6]
-    if cm!='?': cm=int(cm)
+    if cm!='?':
+        cm=int(cm)
+
     sfe = data[7] # sign
-    if sfe!='?': sfe = int(sfe) # sign
-    Lratio = data[8]   # string representing rational number
-    try:
-        AL_eigs = [int(x) for x in data[9][1:-1].split(",")]
-    except ValueError:
-        AL_eigs = [x for x in data[9][1:-1].split(",")]
-    try:
-        hecke_eigs = [int(x) for x in data[11][1:-1].split(",")]
-    except ValueError:
-        hecke_eigs = [x for x in data[11][1:-1].split(",")]
+    if sfe!='?':
+        sfe = int(sfe) # sign
+
+    Lratio = data[8]   # string representing rational number or "?"
+
+    AL_eigs = [x for x in data[9][1:-1].split(",")]
+
+    # Hecke field degree (=dimension)
+    old_format = data[10]=="x" # old format encodes dim 1 newforms only
+    if old_format:
+        dimension = 1
+        hecke_poly_coeffs = [0,1]
+        aPcol = 11
+    else:
+        dimension = int(data[10])
+        hecke_poly_coeffs = [int(x) for x in data[11][1:-1].split(",")]
+        aPcol = 12
+    hecke_poly = Qx(hecke_poly_coeffs)
+
+    raw_aP = [int(x) for x in data[aPcol][1:-1].split(",")]
+
+    if dimension==1:
+        hecke_eigs = [int(x) for x in raw_aP]
+    else:
+        hecke_eigs = [Qa([int(api) for api in x]) for x in raw_aP]
+
+    try: # to read Hecke order basis (matrix of power basis in terms of integral basis)
+        pbm = data[aPcol+1][2,-2].split("],[")
+        power_basis_matrix = [[int(mij) for mij in mi.split(",")] for mi in pbm]
+
+        aP = data[aPcol+1][2,-2].split("],[")
+        aPintlist = [[int(aPij) for aPij in aPi.split(",")] for aPi in aP]
+
+    except: # will only be in dimension 1
+        assert dimension==1
+        power_basis_matrix = [[1]]
+        aPintlist = hecke_eigs
 
     return label, {
         'label': label,
@@ -303,6 +333,7 @@ def parse_newforms_line(line, K):
         'short_label': short_label,
         'dimension': dimension,
         'hecke_poly': hecke_poly,
+        'hecke_poly_coeffs': hecke_poly_coeffs,
         'weight': weight,
         'sfe': sfe,
         'Lratio': Lratio,
@@ -310,6 +341,8 @@ def parse_newforms_line(line, K):
         'CM': cm,
         'AL_eigs': AL_eigs,
         'hecke_eigs': hecke_eigs,
+        'power_basis_matrix': power_basis_matrix,
+        'aPintlist': aPintlist,
         'field_bad_primes': field_bad_primes,
         'level_bad_primes': level_bad_primes,
         'curve_status': get_curve_status(label) # see missing_curves.py

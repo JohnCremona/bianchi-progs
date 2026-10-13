@@ -2,7 +2,7 @@ test_nf: test_nf_1 test_nf_2 test_nf_3 test_nf_7 test_nf_11 test_nf_19 test_nf_4
 	@echo "test_nf finished"
 
 test_nf_1: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=4; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=4; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=1; prog=makenf_loop; $(check_run)
 	@d=1; prog=makenf; $(check_run)
 	@d=1; prog=nftest; $(check_run)
@@ -17,7 +17,7 @@ test_nf_1: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=4; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_2: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=8; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=8; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=2; prog=makenf_loop; $(check_run)
 	@d=2; prog=makenf; $(check_run)
 	@d=2; prog=nftest; $(check_run)
@@ -32,7 +32,7 @@ test_nf_2: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=8; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_3: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=3; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=3; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=3; prog=makenf_loop; $(check_run)
 	@d=3; prog=makenf; $(check_run)
 	@d=3; prog=nftest; $(check_run)
@@ -47,7 +47,7 @@ test_nf_3: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=3; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_7: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=7; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=7; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=7; prog=makenf_loop; $(check_run)
 	@d=7; prog=makenf; $(check_run)
 	@d=7; prog=nftest; $(check_run)
@@ -62,7 +62,7 @@ test_nf_7: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=7; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_11: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=11; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=11; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=11; prog=makenf_loop; $(check_run)
 	@d=11; prog=makenf; $(check_run)
 	@d=11; prog=nftest; $(check_run)
@@ -77,7 +77,7 @@ test_nf_11: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=11; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_19: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=19; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=19; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=19; prog=makenf_loop; $(check_run)
 	@d=19; prog=makenf; $(check_run)
 	@d=19; prog=nftest; $(check_run)
@@ -92,7 +92,7 @@ test_nf_19: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=19; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_43: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=43; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=43; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=43; prog=makenf_loop; $(check_run)
 	@d=43; prog=makenf; $(check_run)
 	@d=43; prog=nftest; $(check_run)
@@ -107,7 +107,7 @@ test_nf_43: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=43; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_67: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=67; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=67; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=67; prog=makenf_loop; $(check_run)
 	@d=67; prog=makenf; $(check_run)
 	@d=67; prog=nftest; $(check_run)
@@ -122,7 +122,7 @@ test_nf_67: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=67; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_163: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=163; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=163; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=163; prog=makenf_loop; $(check_run)
 	@d=163; prog=makenf; $(check_run)
 	@d=163; prog=nftest; $(check_run)
@@ -137,7 +137,7 @@ test_nf_163: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap morea
 	@d=163; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_23: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=23; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=23; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=23; prog=makenf_loop; $(check_run)
 	@d=23; prog=makenf; $(check_run)
 	@d=23; prog=nftest; $(check_run)
@@ -152,7 +152,7 @@ test_nf_23: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=23; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_31: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=31; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=31; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=31; prog=makenf_loop; $(check_run)
 	@d=31; prog=makenf; $(check_run)
 	@d=31; prog=nftest; $(check_run)
@@ -167,7 +167,7 @@ test_nf_31: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=31; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_47: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=47; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=47; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=47; prog=makenf_loop; $(check_run)
 	@d=47; prog=makenf; $(check_run)
 	@d=47; prog=nftest; $(check_run)
@@ -182,7 +182,7 @@ test_nf_47: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=47; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_59: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=59; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=59; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=59; prog=makenf_loop; $(check_run)
 	@d=59; prog=makenf; $(check_run)
 	@d=59; prog=nftest; $(check_run)
@@ -197,7 +197,7 @@ test_nf_59: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=59; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_71: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=71; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=71; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=71; prog=makenf_loop; $(check_run)
 	@d=71; prog=makenf; $(check_run)
 	@d=71; prog=nftest; $(check_run)
@@ -212,7 +212,7 @@ test_nf_71: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=71; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_79: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=79; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=79; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=79; prog=makenf_loop; $(check_run)
 	@d=79; prog=makenf; $(check_run)
 	@d=79; prog=nftest; $(check_run)
@@ -227,7 +227,7 @@ test_nf_79: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=79; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_83: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=83; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=83; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=83; prog=makenf_loop; $(check_run)
 	@d=83; prog=makenf; $(check_run)
 	@d=83; prog=nftest; $(check_run)
@@ -242,7 +242,7 @@ test_nf_83: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=83; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_5: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=20; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=20; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=5; prog=makenf_loop; $(check_run)
 	@d=5; prog=makenf; $(check_run)
 	@d=5; prog=nftest; $(check_run)
@@ -257,7 +257,7 @@ test_nf_5: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=20; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_14: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=56; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=56; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=14; prog=makenf_loop; $(check_run)
 	@d=14; prog=makenf; $(check_run)
 	@d=14; prog=nftest; $(check_run)
@@ -272,7 +272,7 @@ test_nf_14: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=56; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_21: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=84; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=84; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=21; prog=makenf_loop; $(check_run)
 	@d=21; prog=makenf; $(check_run)
 	@d=21; prog=nftest; $(check_run)
@@ -287,7 +287,7 @@ test_nf_21: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=84; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_95: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1 modularity modularity_modp
-	@d=95; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=95; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=95; prog=makenf_loop; $(check_run)
 	@d=95; prog=makenf; $(check_run)
 	@d=95; prog=nftest; $(check_run)
@@ -302,7 +302,7 @@ test_nf_95: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=95; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_6: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=24; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=24; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=6; prog=makenf_loop; $(check_run)
 	@d=6; prog=makenf; $(check_run)
 	@d=6; prog=nftest; $(check_run)
@@ -315,7 +315,7 @@ test_nf_6: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
 	@d=24; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_10: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=40; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=40; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=10; prog=makenf_loop; $(check_run)
 	@d=10; prog=makenf; $(check_run)
 	@d=10; prog=nftest; $(check_run)
@@ -328,7 +328,7 @@ test_nf_10: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=40; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_13: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=52; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=52; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=13; prog=makenf_loop; $(check_run)
 	@d=13; prog=makenf; $(check_run)
 	@d=13; prog=nftest; $(check_run)
@@ -341,7 +341,7 @@ test_nf_13: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=52; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_15: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=15; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=15; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=15; prog=makenf_loop; $(check_run)
 	@d=15; prog=makenf; $(check_run)
 	@d=15; prog=nftest; $(check_run)
@@ -354,7 +354,7 @@ test_nf_15: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=15; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_17: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=68; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=68; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=17; prog=makenf_loop; $(check_run)
 	@d=17; prog=makenf; $(check_run)
 	@d=17; prog=nftest; $(check_run)
@@ -367,7 +367,7 @@ test_nf_17: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=68; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_22: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=88; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=88; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=22; prog=makenf_loop; $(check_run)
 	@d=22; prog=makenf; $(check_run)
 	@d=22; prog=nftest; $(check_run)
@@ -380,7 +380,7 @@ test_nf_22: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=88; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_35: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=35; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=35; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=35; prog=makenf_loop; $(check_run)
 	@d=35; prog=makenf; $(check_run)
 	@d=35; prog=nftest; $(check_run)
@@ -393,7 +393,7 @@ test_nf_35: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=35; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_39: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=39; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=39; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=39; prog=makenf_loop; $(check_run)
 	@d=39; prog=makenf; $(check_run)
 	@d=39; prog=nftest; $(check_run)
@@ -406,7 +406,7 @@ test_nf_39: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=39; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_42: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=168; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=168; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=42; prog=makenf_loop; $(check_run)
 	@d=42; prog=makenf; $(check_run)
 	@d=42; prog=nftest; $(check_run)
@@ -419,7 +419,7 @@ test_nf_42: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=168; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_51: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=51; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=51; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=51; prog=makenf_loop; $(check_run)
 	@d=51; prog=makenf; $(check_run)
 	@d=51; prog=nftest; $(check_run)
@@ -432,7 +432,7 @@ test_nf_51: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=51; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_55: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=55; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=55; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=55; prog=makenf_loop; $(check_run)
 	@d=55; prog=makenf; $(check_run)
 	@d=55; prog=nftest; $(check_run)
@@ -445,7 +445,7 @@ test_nf_55: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=55; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_87: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=87; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=87; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=87; prog=makenf_loop; $(check_run)
 	@d=87; prog=makenf; $(check_run)
 	@d=87; prog=nftest; $(check_run)
@@ -458,7 +458,7 @@ test_nf_87: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap
 	@d=87; rm -rf $(NF_DIR)/2.0.$${d}.1
 
 test_nf_91: makenf_loop makenf nftest nflist nflist_loop dimtabnew moreap moreap1
-	@d=91; mkdir -p $(NF_DIR)/2.0.$${d}.1
+	@d=91; rm -rf $(NF_DIR)/2.0.$${d}.1; mkdir -p $(NF_DIR)/2.0.$${d}.1
 	@d=91; prog=makenf_loop; $(check_run)
 	@d=91; prog=makenf; $(check_run)
 	@d=91; prog=nftest; $(check_run)
