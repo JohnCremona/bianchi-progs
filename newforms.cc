@@ -1275,7 +1275,7 @@ vec newforms::lengthen_basis(const vec& sbasis)
 // newform from its short basis vector and eigenvalues; otherwise we
 // just update the newform's basis vector.
 
-void newforms::use(const vec& b1, const vec&, const vector<long> eigs)
+void newforms::use(const vec& b1, const vec&, const vector<long>& eigs)
 {
   if (use_nf_number==-1)
     {

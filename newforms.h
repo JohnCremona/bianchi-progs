@@ -212,7 +212,7 @@ private:
   // cached list of previous
   vector<vector<long>> eigranges;
 
-  long dimoldpart(const vector<long> l)
+  long dimoldpart(const vector<long>& l) override
   //{return (characteristic==0?of->dimoldpart(l):0);}
   {return of->dimoldpart(l);}
 
@@ -298,7 +298,7 @@ private:
   // add newform with basis b1, eiglist eigs to current list (b2 not used)
   // if use_nf_number=-1;  if >=0 just store eigs and basis in that preexisting nf
   int use_nf_number;
-  void use(const vec& b1, const vec& b2, const vector<long> eigs);
+  void use(const vec& b1, const vec& b2, const vector<long>& eigs) override;
 
  public:
 
