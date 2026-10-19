@@ -595,32 +595,32 @@ P3a:	1
 P3b:	-1
 
 aP for first 26 primes:
-P2a:	1
-P2b:	-1
+P2a:	-2
+P2b:	2
 P3a:	-1	(AL eigenvalue = 1)
 P3b:	0	(AL eigenvalue = -1)
-P7a:	0
-P7b:	0
-P17a:	2
-P17b:	-2
-P5:	-2
-P37a:	2
-P37b:	2
+P7a:	3
+P7b:	3
+P17a:	-4
+P17b:	4
+P5:	7
+P37a:	5
+P37b:	5
 P47:	0
-P53a:	10
-P53b:	-10
-P59a:	-12
-P59b:	12
-P61a:	10
-P61b:	10
-P71a:	-8
-P71b:	8
-P79a:	16
-P79b:	16
-P83a:	12
-P83b:	-12
-P89a:	6
-P89b:	-6
+P53a:	4
+P53b:	-4
+P59a:	0
+P59b:	0
+P61a:	-2
+P61b:	-2
+P71a:	4
+P71b:	-4
+P79a:	-5
+P79b:	-5
+P83a:	-12
+P83b:	12
+P89a:	12
+P89b:	-12
 
 Newform #2 (2.0.47.1-27.3b)
  - Dimension: 1
@@ -671,32 +671,32 @@ P3a:	1
 P3b:	-1
 
 aP for first 26 primes:
-P2a:	-2
-P2b:	2
+P2a:	1
+P2b:	-1
 P3a:	-1	(AL eigenvalue = 1)
 P3b:	0	(AL eigenvalue = -1)
-P7a:	3
-P7b:	3
-P17a:	-4
-P17b:	4
-P5:	7
-P37a:	5
-P37b:	5
+P7a:	0
+P7b:	0
+P17a:	2
+P17b:	-2
+P5:	-2
+P37a:	2
+P37b:	2
 P47:	0
-P53a:	4
-P53b:	-4
-P59a:	0
-P59b:	0
-P61a:	-2
-P61b:	-2
-P71a:	4
-P71b:	-4
-P79a:	-5
-P79b:	-5
-P83a:	-12
-P83b:	12
-P89a:	12
-P89b:	-12
+P53a:	10
+P53b:	-10
+P59a:	-12
+P59b:	12
+P61a:	10
+P61b:	10
+P71a:	-8
+P71b:	8
+P79a:	16
+P79b:	16
+P83a:	12
+P83b:	-12
+P89a:	6
+P89b:	-6
 
 
 >>>> Level 27.4 = (-7+a,-6-3a), norm = 27 <<<<

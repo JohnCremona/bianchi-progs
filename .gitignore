@@ -73,6 +73,10 @@ make_nsp
 make_nsp_loop
 display_nsp
 display_nsp_loop
+list_nsp
+list_nsp_loop
+compare_dim1_nf
+compare_dim1_nf_loop
 fix_ratios
 fix_ratios_loop
 lf1_periods

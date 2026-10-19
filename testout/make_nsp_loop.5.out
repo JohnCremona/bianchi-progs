@@ -12,6 +12,8 @@ Found 0 homological newforms with trivial character at level 2.1
 
 >>>> Level 3.1 = (1+a,-3), norm = 3 <<<<
 Found 0 homological newforms with trivial character at level 3.1
+Conjugating data for level 3.1 into data for conjugate level 3.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 4.1 = (2), norm = 4 <<<<
 Found 0 homological newforms with trivial character at level 4.1
@@ -21,15 +23,21 @@ Found 0 homological newforms with trivial character at level 5.1
 
 >>>> Level 6.1 = (1+a), norm = 6 <<<<
 Found 0 homological newforms with trivial character at level 6.1
+Conjugating data for level 6.1 into data for conjugate level 6.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 7.1 = (3+a,-4+a), norm = 7 <<<<
 Found 0 homological newforms with trivial character at level 7.1
+Conjugating data for level 7.1 into data for conjugate level 7.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 8.1 = (4,-2+2a), norm = 8 <<<<
 Found 0 homological newforms with trivial character at level 8.1
 
 >>>> Level 9.1 = (-2+a), norm = 9 <<<<
 Found 0 homological newforms with trivial character at level 9.1
+Conjugating data for level 9.1 into data for conjugate level 9.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 9.2 = (3), norm = 9 <<<<
 Found 0 homological newforms with trivial character at level 9.2
@@ -39,12 +47,18 @@ Found 0 homological newforms with trivial character at level 10.1
 
 >>>> Level 12.1 = (2+2a,-6), norm = 12 <<<<
 Found 0 homological newforms with trivial character at level 12.1
+Conjugating data for level 12.1 into data for conjugate level 12.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 14.1 = (3+a), norm = 14 <<<<
 Found 0 homological newforms with trivial character at level 14.1
+Conjugating data for level 14.1 into data for conjugate level 14.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 15.1 = (-5+a,-3a), norm = 15 <<<<
 Found 0 homological newforms with trivial character at level 15.1
+Conjugating data for level 15.1 into data for conjugate level 15.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 16.1 = (4), norm = 16 <<<<
 Found 1 homological newform with trivial character at level 16.1 of dimension 1
@@ -182,6 +196,8 @@ First 142 traces: [ 1 0 2 -2 0 2 0 0 2 -2 0 7 4 7 0 0 0 0 0 4 -4 0 0 0 0 0 4 4 -
 
 >>>> Level 18.1 = (-4+2a,-3-3a), norm = 18 <<<<
 Found 0 homological newforms with trivial character at level 18.1
+Conjugating data for level 18.1 into data for conjugate level 18.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 18.2 = (6,-3+3a), norm = 18 <<<<
 Found 0 homological newforms with trivial character at level 18.2
@@ -325,42 +341,64 @@ First 142 traces: [ 1 0 2 2 0 -1 0 0 -2 -2 0 7 4 7 0 0 0 0 0 -2 -2 0 0 0 0 0 -4 
 
 >>>> Level 21.1 = (-1+2a), norm = 21 <<<<
 Found 0 homological newforms with trivial character at level 21.1
+Conjugating data for level 21.1 into data for conjugate level 21.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 21.2 = (4+a), norm = 21 <<<<
 Found 0 homological newforms with trivial character at level 21.2
+Conjugating data for level 21.2 into data for conjugate level 21.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 23.1 = (1+3a,-8-a), norm = 23 <<<<
 Found 0 homological newforms with trivial character at level 23.1
+Conjugating data for level 23.1 into data for conjugate level 23.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 24.1 = (2+2a), norm = 24 <<<<
 Found 0 homological newforms with trivial character at level 24.1
+Conjugating data for level 24.1 into data for conjugate level 24.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 25.1 = (5), norm = 25 <<<<
 Found 0 homological newforms with trivial character at level 25.1
 
 >>>> Level 27.1 = (7+a,-6+3a), norm = 27 <<<<
 Found 0 homological newforms with trivial character at level 27.1
+Conjugating data for level 27.1 into data for conjugate level 27.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 27.2 = (3+3a,-9), norm = 27 <<<<
 Found 0 homological newforms with trivial character at level 27.2
+Conjugating data for level 27.2 into data for conjugate level 27.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 28.1 = (6+2a,-8+2a), norm = 28 <<<<
 Found 0 homological newforms with trivial character at level 28.1
+Conjugating data for level 28.1 into data for conjugate level 28.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 29.1 = (-3+2a), norm = 29 <<<<
 Found 0 homological newforms with trivial character at level 29.1
+Conjugating data for level 29.1 into data for conjugate level 29.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 30.1 = (-5+a), norm = 30 <<<<
 Found 0 homological newforms with trivial character at level 30.1
+Conjugating data for level 30.1 into data for conjugate level 30.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 32.1 = (8,-4+4a), norm = 32 <<<<
 Found 0 homological newforms with trivial character at level 32.1
 
 >>>> Level 35.1 = (-5+3a,-5-4a), norm = 35 <<<<
 Found 0 homological newforms with trivial character at level 35.1
+Conjugating data for level 35.1 into data for conjugate level 35.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 36.1 = (-4+2a), norm = 36 <<<<
 Found 0 homological newforms with trivial character at level 36.1
+Conjugating data for level 36.1 into data for conjugate level 36.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 36.2 = (6), norm = 36 <<<<
 Found 0 homological newforms with trivial character at level 36.2
@@ -504,18 +542,28 @@ First 142 traces: [ 1 0 0 0 0 1 0 0 4 4 0 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 
 >>>> Level 41.1 = (6+a), norm = 41 <<<<
 Found 0 homological newforms with trivial character at level 41.1
+Conjugating data for level 41.1 into data for conjugate level 41.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 42.1 = (-2+4a,-9-3a), norm = 42 <<<<
 Found 0 homological newforms with trivial character at level 42.1
+Conjugating data for level 42.1 into data for conjugate level 42.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 42.2 = (8+2a,-9+3a), norm = 42 <<<<
 Found 0 homological newforms with trivial character at level 42.2
+Conjugating data for level 42.2 into data for conjugate level 42.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 43.1 = (9+a,-7+4a), norm = 43 <<<<
 Found 0 homological newforms with trivial character at level 43.1
+Conjugating data for level 43.1 into data for conjugate level 43.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 45.1 = (5+2a), norm = 45 <<<<
 Found 0 homological newforms with trivial character at level 45.1
+Conjugating data for level 45.1 into data for conjugate level 45.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 45.2 = (3a), norm = 45 <<<<
 Found 1 homological newform with trivial character at level 45.2 of dimension 1
@@ -659,15 +707,23 @@ First 142 traces: [ 1 1 1 1 3 1 1 1 0 0 1 1 1 1 1 3 3 0 0 1 1 -5 1 1 1 3 0 0 0 0
 
 >>>> Level 46.1 = (1+3a), norm = 46 <<<<
 Found 0 homological newforms with trivial character at level 46.1
+Conjugating data for level 46.1 into data for conjugate level 46.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 47.1 = (7+3a,-11+2a), norm = 47 <<<<
 Found 0 homological newforms with trivial character at level 47.1
+Conjugating data for level 47.1 into data for conjugate level 47.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 48.1 = (4+4a,-12), norm = 48 <<<<
 Found 0 homological newforms with trivial character at level 48.1
+Conjugating data for level 48.1 into data for conjugate level 48.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 49.1 = (2+3a), norm = 49 <<<<
 Found 0 homological newforms with trivial character at level 49.1
+Conjugating data for level 49.1 into data for conjugate level 49.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 49.2 = (7), norm = 49 <<<<
 Found 0 homological newforms with trivial character at level 49.2

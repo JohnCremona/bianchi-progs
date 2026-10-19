@@ -663,8 +663,9 @@ Newform #1 (2.0.68.1-9.1a)
                         = Q(a1) = Q[X]/(X^2+1)
  - Hecke order is equation order Z[a1] with standard basis.
 
-aP for first 24 primes:
+aP for first 25 primes:
 P2:	[0,1]
+P3a:	[0,0]	(no AL eigenvalue, aP not determined)
 P3b:	[-1,1]
 P7a:	[2,2]
 P7b:	[2,-2]
@@ -949,29 +950,31 @@ Newform #1 (2.0.68.1-9.3a)
                         = Q(a1) = Q[X]/(X^2+1)
  - Hecke order is equation order Z[a1] with standard basis.
 
-aP for first 23 primes:
-P2:	[0,-1]
-P7a:	[2,2]
-P7b:	[2,-2]
-P11a:	[-3,3]
-P11b:	[3,3]
-P13a:	[0,-2]
-P13b:	[0,2]
+aP for first 25 primes:
+P2:	[0,1]
+P3a:	[-1,1]
+P3b:	[0,0]	(no AL eigenvalue, aP not determined)
+P7a:	[2,-2]
+P7b:	[2,2]
+P11a:	[-3,-3]
+P11b:	[3,-3]
+P13a:	[0,2]
+P13b:	[0,-2]
 P17:	[0,0]
-P23a:	[2,-2]
-P23b:	[-2,-2]
+P23a:	[2,2]
+P23b:	[-2,2]
 P5:	[4,0]
 P31a:	[0,0]
 P31b:	[0,0]
 P53a:	[-2,0]
 P53b:	[2,0]
-P71a:	[2,2]
-P71b:	[-2,2]
-P79a:	[-8,8]
-P79b:	[-8,-8]
-P89a:	[0,-6]
-P89b:	[0,-6]
-P101a:	[0,14]
-P101b:	[0,14]
+P71a:	[2,-2]
+P71b:	[-2,-2]
+P79a:	[-8,-8]
+P79b:	[-8,8]
+P89a:	[0,6]
+P89b:	[0,6]
+P101a:	[0,-14]
+P101b:	[0,-14]
 
 

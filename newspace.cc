@@ -277,8 +277,7 @@ FieldMQElement Newform::eig(const Quadprime& P) const
   auto it = aPmap.find(P);
   if (it!=aPmap.end())
     return it->second;
-  if (triv_char)
-    cerr << "FieldMQElement for P="<<P<<" not yet computed" << endl;
+  cerr << "aP for P="<<P<<" not yet computed" << endl;
   return FieldMQElement();
 }
 
@@ -287,7 +286,7 @@ FieldMQElement Newform::eig(const Quadprime& P) const
 // only.
 FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
 {
-  if (!triv_char)
+  if (!(is_C4() ||triv_char))
     {
       cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
       return (*HFabs)(0);
@@ -347,7 +346,7 @@ FieldElement Newform::aM(Qideal& M) // not const Qideal& as we factor it
 // Assuming aPmap filled, fill aMmap (Fourier coefficients)
 void Newform::compute_coefficients(int ntp, int verbose)
 {
-  if (!triv_char && verbose)
+  if (!(is_C4() || triv_char) && verbose)
     {
       cout << "General Fourier coefficients only implemented for forms with trivial character!" << endl;
       return;
@@ -1052,7 +1051,10 @@ void Newform::compute_eigs(int ntp, int verbose)
   else
     {
       if (is_C4())
-        compute_eigs_C4(ntp, verbose);      // a(P) for good P
+        {
+          compute_eigs_C4(ntp, verbose);      // a(P) for good P
+          compute_AL_eigs(ntp, verbose);        // no e(Q) but sets  a(Q)=0 for bad Q
+        }
       else
         compute_principal_eigs(ntp, verbose);
     }
@@ -1588,8 +1590,14 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   // Compute AL-eigs to fill map<Quadprime, FieldMQElement> eQmap and also
   // the entries in aPmap indexed by bad primes.
 
-  if (!triv_char)  // we don't deal with pseudo-eigenvalues
-    return;
+  FieldMQElement zero((*F)(0), *HFrel);
+
+  if (!triv_char)  // we don't deal with pseudo-eigenvalues, but still want to set aP for bad P.  For now we just set it to 0
+    {
+      for (auto Q: nsp->badprimes)
+        aPmap[Q] = zero;
+      return;
+    }
 
   if (aPmap.empty())
     compute_eigs(ntp, verbose);
@@ -1606,7 +1614,6 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   if (verbose)
     cout << "Computing W(Q) eigenvalues for Q in " << nsp->badprimes << endl;
 
-  FieldMQElement zero((*F)(0), *HFrel);
   for (auto Q: nsp->badprimes)
     {
       if (verbose)
@@ -2035,9 +2042,22 @@ void Newform::display_aP(int aP) const
             cout << v;
         }
 
-      auto it = eQmap.find(P);
-      if (it != eQmap.end())
-        cout << "\t(AL eigenvalue = " << it->second << ")";
+      int Pbad = std::find(nsp->badprimes.begin(), nsp->badprimes.end(), P) != nsp->badprimes.end();
+      if (Pbad) // P divides the level
+        {
+          auto it = eQmap.find(P); // do we have the AL eigenvalue?
+          if (it != eQmap.end()) // yes
+            {
+              cout << "\t(AL eigenvalue = " << it->second << ")";
+            }
+          else // no AL eigenvalue
+            {
+              cout << "\t(no AL eigenvalue";
+              if (!triv_char)
+                cout << ", aP not determined";
+              cout << ")";
+            }
+        }
 
       cout << endl;
     }
@@ -2094,18 +2114,38 @@ map<pair<int,string>, FieldMQElement> Newform::principal_eigs(int nap, int verbo
   return eigmap;
 }
 
+
+
+// List of T(P) values with P in standard order
+vector<FieldElement> Newform::aPlist() const
+{
+  vector<FieldElement> aP(aPmap_abs.size());
+  std::transform( aPmap_abs.begin(), aPmap_abs.end(), aP.begin(),
+                  [](auto&  x){return x.second;} );
+  return aP;
+}
+
+// List of W(Q) values with Q in standard order
+vector<int> Newform::eQlist() const
+{
+  vector<int> aQ(eQmap.size());
+  std::transform( eQmap.begin(), eQmap.end(), aQ.begin(),
+                  [](auto&  x){return x.second;} );
+  return aQ;
+}
+
 // filename
-string Newform::filename(int conj) const
+string Newform::filename() const
 {
   stringstream s;
-  s << newspaces_directory() << "/" << (conj? conj_label():short_label());
+  s << newspaces_directory() << "/" << short_label();
   return s.str();
 }
 
-string Newspace::filename(int conj)
+string Newspace::filename()
 {
   stringstream s;
-  s << newspaces_directory() << "/" << (conj? conj_label(): short_label());
+  s << newspaces_directory() << "/" << short_label();
   return s.str();
 }
 
@@ -2128,17 +2168,18 @@ void Newform::set_index(int i)
 
 // newform file output only implemented for forms with trivial
 // character or over C4 fields
-void Newform::output_to_file(int conj) const
+void Newform::output_to_file() const
 {
   if (!(is_C4() || triv_char))
     return;
   ofstream out;
-  out.open(filename(conj).c_str());
+  out.open(filename().c_str());
 
   // Field, level, letter-code:
   out << field_label() << " "
-      << (conj? nsp->conj_label(): nsp->short_label())
-      << " " << lab << "\n";
+      << nsp->short_label() << " "
+      << lab << endl;
+
   int n2r = Quad::class_group_2_rank;
 
   // Principal dimension
@@ -2152,109 +2193,71 @@ void Newform::output_to_file(int conj) const
       out << " ";
       vec_out(out, epsvec, "", ""); // no pre-/post []
     }
-  out << "\n";
+  out << endl;
 
   // Principal Hecke field:
-  out << F->str(1) << "\n";  // raw=1
-  // cout << "Principal Hecke field output:\n" << F->str(1) << "\n";  // raw=1
+  out << F->str(1) << endl;  // raw=1
+
   // Full Hecke field (even class number only)
 
   int r = HFrel->rank();
   if (n2r)
     {
       // Multiquadratic extension data:
-      out << HFrel->str(1) << "\n";  // raw=1
-      // cout << "HFrel output:\n" << HFrel->str(1) << endl;  // raw=1
+      out << HFrel->str(1) << endl;  // raw=1
 
       if (r)
         {
           // Absolute field:
-          out << HFabs->str(1) << "\n";  // raw=1
-          //cout << "HFabs output:\n" << HFabs->str(1) << endl;  // raw=1
+          out << HFabs->str(1) << endl;  // raw=1
 
           // Embedding of F into HFabs: matrix entries and denom
-          out << abs_emb.str(1) <<"\n";
-          //cout << "abs_emb output:\n" << abs_emb.str(1) << endl;  // raw=1
+          out << abs_emb.str(1) << endl;
 
           // Images of sqrt gens in HFabs:
           for (auto g: im_gens)
             {
               out << g.str(1) << " ";
-              //cout << g.str(1) << endl;
             }
-          out << "\n";
+          out << endl;
         }
 
       // Unramified self-twist discriminant or 0:
-      out << CMD << "\n" ;
+      out << CMD << endl ;
 
       // Number of nontrivial unramified quadratic twists up to Galois conjugace:
       out << unramified_twist_discriminants.size() << " ";
       vec_out(out, unramified_twist_discriminants, "", ""); // no pre-/post []
-      out<< "\n";
+      out<< endl;
     }
-  out<< "\n";
+  out<< endl;
 
   // Output Hecke order (integral basis data for absolute Hecke field)
   out << HO.get_order_index() << " ";
   vec_out(out, HO.get_pcm().get_entries(), " ", " ", " ");
-  out << "\n\n";
+  out << endl<<endl;
 
   // Base-change code  +1 for base-change, -1 for twisted bc, 0 for neither, 2 for don't know
-  out << base_change_code() << "\n\n";
+  out << base_change_code() << endl<<endl;
 
   if (triv_char)
     {
       // Output A-L eigenvalues if computed, else output nothing
       vector<Quadprime> bads = nsp->badprimes;
-      if (conj)
-        {
-          Qideal Nbar = N.conj();
-          bads = Nbar.factorization().sorted_primes();
-        }
       for (auto& Q: bads)
         {
-          int eQ=0;
-          if (!eQmap.empty())
-            eQ = eQmap.at(conj? Q.conj() : Q);
-          out << prime_label(Q) << " " << eQ << "\n";
+          int eQ = (eQmap.empty()? 0 : eQmap.at(Q));
+          out << prime_label(Q) << " " << eQ << endl;
         }
-      out << "\n";
+      out << endl;
     }
 
-  // Output aP, preserving the order of the primes in thee list
-  for (auto x: aPmap)
+  // Output aP, preserving the order of the primes in the list
+  for (const auto& x: aPmap)
     {
-      if (conj)
-        {
-          // NB1 For conjugate primes which are both good or both bad,
-          // we will have made sure that if one is in the map then so
-          // is the other, but it may happen that one is bad and its
-          // conjugate is good and missing. e.g. field 17, level
-          // 106.1, nap=15.
-
-          // NB2 We swap the eigenvalues of P and conj(P); if the
-          // character is nontrivial (then we must have C4 class
-          // group, or there would not be any a(P) anyway), we also
-          // swap the factors (1+i) and (1-i), as otherwise we would
-          // be storing a newform with character chi_3 not chi_1.
-          auto it = aPmap.find(x.first.conj());
-          if (it!=aPmap.end())
-            {
-              FieldMQElement aP = aPmap.at(x.first.conj());
-              // cout << "Conjugate of " << aP << " is ";
-              aP = aP.conj();
-              // cout << aP << endl;
-              out << x.first << " " << aP.str(1) << "\n";
-            }
-        }
-      else
-        {
-          FieldMQElement aP = x.second;
-          out << x.first << " " << aP.str(1) << "\n";
-        }
+      out << x.first << " " << flush << x.second.str(1) << endl;
     }
-}
+} // end of Newform::output_to_file()
 
 //#define DEBUG_TWIST
 
@@ -2612,19 +2615,20 @@ int Newform::input_from_file(int verb)
   // keep reading lines until end of file
   while (!fdata.eof())
     {
-      fdata >> Plab // prime label
-            >> aP   // eigenvalue data
-            >> ws;  // eat whitespace, including newline
+      fdata >> Plab; // prime label
       if (verb>1)
-        cout << "read prime label " << Plab << endl;
+        cout << "read prime label " << Plab << flush;
 
       P = Quadprime(Plab);
+      if (verb>1)
+        cout << "--> P = " << P  << flush;
+
+      fdata >> aP;
       aPmap[P] = aP;
       if (verb>1)
-        cout << "--> P = " << Plab
-             << ": a_P = " << aP
-          // << " (coords: " << aP
-             << endl;
+        cout << ": a_P = " << aP  << endl;
+
+      fdata >> ws;  // eat whitespace, including newline
     }
   restore_aP_data(); // transform and store aP values in the abs and int dicts
   if (verb)
@@ -2635,16 +2639,15 @@ int Newform::input_from_file(int verb)
   return 1;
 }
 
-void Newspace::output_to_file(int conj)
+void Newspace::output_to_file()
 {
-  //  int echo=0; // Set to 1 to echo what is written to the file for debugging
   ofstream out;
-  out.open(filename(conj).c_str());
+  out.open(filename().c_str());
 
   // Field, level, number of newforms:
   out << field_label() << " "
-      << (conj? conj_label() : short_label())
-      << " " << newforms.size() << endl;
+      <<  short_label()  << " "
+      << newforms.size() << endl;
   if (newforms.empty())
     {
       out.close();
@@ -2674,9 +2677,9 @@ void Newspace::output_to_file(int conj)
   for (const auto& f: newforms)
     {
       if (is_C4() || f.triv_char)
-        f.output_to_file(conj);
+        f.output_to_file();
     }
-}
+} // end of Newspace::output_to_file
 
 int Newspace::input_from_file(const Qideal& level, int verb)
 {
@@ -2853,4 +2856,182 @@ mat_m Newspace::heckeop(const matop& T, int cuspidal, int dual) const
 mat_m Newspace::heckeop(Quadprime& P, int cuspidal, int dual)
 {
   return heckeop(AutoHeckeOp(P, N), cuspidal, dual);
+}
+
+// Conjugate Newspace data: NB this *only* conjugates data needed for
+// output_to_file(), not everything!  Call this on a copy of the Newspace.
+void Newspace::conjugate(int debug)
+{
+  if (debug)
+    cout << "Conjugating newspace data for level = " << N << " with bad primes " << badprimes << endl;
+
+  // Conjugate the level:
+  Qideal Nbar = N.conj();
+  if (N==Nbar) //   nothing more to do
+    return;
+
+  N = Nbar;
+  level_label = label(N);
+
+  // Conjugate the bad primes list and sort:
+  vector<Quadprime> badprimes_conj(badprimes.size());
+  std::transform(badprimes.begin(), badprimes.end(), badprimes_conj.begin(), [](const Quadprime& Q){return Q.conj();});
+  std::sort(badprimes_conj.begin(), badprimes_conj.end());
+  badprimes = badprimes_conj;
+
+  if (debug)
+    {
+      cout << "Conjugate level = " << N << " with bad primes " << badprimes << endl;
+      cout << "Now conjugating individual newforms"<<endl;
+    }
+
+  // Conjugate aq and ap (and traces for sorting if trivial character) for each newform:
+
+  for (auto f = newforms.begin(); f!=newforms.end(); f++)
+    {
+      f->nsp=this;
+      f->conjugate(debug);
+    }
+
+  // Resort the list of conjugated newforms
+
+  if (debug)
+    cout<<"Finished conjugating individual newforms, now resorting"<<endl;
+  sort_newforms();
+  if (debug)
+    cout<<"Finished sorting newforms"<<endl;
+}
+
+// Conjugate Newform data: NB this *only* conjugates data needed for
+// output_to_file(), not everything!  Before calling this the ambient
+// Newspace's conjugate() method should have conjugates the level and
+// list of bad primes
+void Newform::conjugate(int debug)
+{
+  N = nsp->N;
+
+  if (debug)
+    cout << "Conjugating data for Newform " << index << " at conjugate) level " << N << endl;
+
+  // Conjugate AL eigs:
+
+  if (debug)
+    {
+      cout << "Before conjugation, bad primes: " << nsp->badprimes << endl;
+      cout << "AL eigenvaluesL\n";
+      for (auto QeQ: eQmap)
+        {
+          cout<<QeQ.first<<": "<<QeQ.second<<endl;
+        }
+    }
+
+  map<Quadprime, int> eQmap_conj;
+  for (const auto& Q:  nsp->badprimes)
+    eQmap_conj[Q] = eQmap[Q.conj()];
+  eQmap = eQmap_conj;
+
+  if (debug)
+    {
+      cout << "After conjugation, bad primes: " << nsp->badprimes << endl;
+      cout << "AL eigenvaluesL\n";
+      for (auto QeQ: eQmap)
+        {
+          cout<<QeQ.first<<": "<<QeQ.second<<endl;
+        }
+      cout << "Conjugate eQ values:  " << eQlist() << endl;
+    }
+
+  // Conjugate aP coeffs (for all P, not just good P, both as
+  // FieldElement-s in aPmap_abs and as integral coefficients in
+  // aPmap_int_coords:
+
+  map<Quadprime, FieldMQElement> aPmap_conj;
+  map<Quadprime, FieldElement> aPmap_abs_conj;
+  map<Quadprime, vec_m> aPmap_int_coords_conj;
+  for ( auto PaP: aPmap) // just to get all the primes, in order
+    {
+      const auto& P = PaP.first;
+      const auto& P_conj = P.conj();
+      const auto& it = aPmap.find(P_conj);
+      assert (it!=aPmap.end());
+
+      aPmap_conj[P] = it->second;
+      aPmap_abs_conj[P] = aPmap_abs.at(P_conj);
+      if (abs_deg>1) // else we have not filled aPmap_int_coords
+        aPmap_int_coords_conj[P] = aPmap_int_coords.at(P_conj);
+   }
+
+  aPmap = aPmap_conj;
+  aPmap_abs = aPmap_abs_conj;
+  if (abs_deg>1) // else we have not filled aPmap_int_coords
+    aPmap_int_coords = aPmap_int_coords_conj;
+  if (debug)
+    {
+      cout << "Conjugate aP values:  " << endl;
+      for (auto PaP: aPmap) cout<<PaP.first<<": "<<PaP.second<<endl;
+    }
+
+  // For newforms with trivial character, recompute the coefficients
+  // aM and traces, so that sorting works
+  if (triv_char || is_C4())
+    {
+      aMmap.clear();
+      trace_list.clear();
+      compute_coefficients();
+    }
+}
+
+// function to compare compatibility between a newform and a (dimension 1) Newform
+
+int compare_dim1_newforms(const newform& f, const Newform& F, int verbose)
+{
+  string label = F.long_label();
+  int ok = 1;
+
+  // check that the labels agree (implying that the fields and levels are equal as well as the suffix)
+  if (label != f.long_label())
+    {
+      if (verbose) cout << "F has label " << label << ", but f has " << f.long_label() << endl;
+      ok = 0;
+    }
+  // check that F has dim 1
+  if (F.dimension() != 1)
+    {
+      if (verbose) cout << label << ": F has dimension " << F.dimension() << ", not 1 " << endl;
+      ok = 0;
+    }
+  // check W-eigenvalues:
+  if (F.eQlist() != f.aqlist)
+    {
+      if (verbose) cout << label << ": F has AL-eigenvalues\n" << F.eQlist() << ", but f has\n" << f.aqlist << endl;
+      ok = 0;
+    }
+  // check signs:
+  if (F.get_sfe() != f.sfe)
+    {
+      if (verbose) cout << label << ": F has sign " << F.get_sfe() << ", but f has " << f.sfe << endl;
+      ok = 0;
+    }
+  // check T-eigenvalues:
+  vector<FieldElement> FaP = F.aPlist();
+  vector<long> faP = f.aplist;
+  if (FaP.size() > faP.size())
+    {
+      if (verbose) cout << label << ": reducing F's aP list from " << FaP.size() << " to " << faP.size() << " entries" << endl;
+      FaP.resize(faP.size());
+    }
+  else
+    if (faP.size() > FaP.size())
+      {
+        if (verbose) cout << label << ": reducing f's aP list from " << faP.size() << " to " << FaP.size() << " entries" << endl;
+        faP.resize(FaP.size());
+      }
+  vector<long> Fap(FaP.size());
+  std::transform(FaP.begin(), FaP.end(), Fap.begin(), [](auto& x){return I2long(num(x.get_val()));});
+  if (faP!=Fap)
+    {
+      if (verbose) cout << label << ": F has aP\n" << Fap << ", but f has\n" << faP << endl;
+      ok = 0;
+    }
+  return ok;
 }

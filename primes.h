@@ -87,11 +87,11 @@ public:
   static void init(long maxn=1000);     //  sets the list up
   static void display(ostream& s = cout, long maxn=0, int show_genus=0);
   Quadprime operator[](int i) {return list[i];}
-  static int index(const Quadprime& P)
+  static int index(const Quadprime& P) // index of P in the list
   {
     return std::find(list.begin(), list.end(), P) - list.begin();
   }
-  static int conjugate_index(int i)
+  static int conjugate_index(int i) // index of conj(P) in the list
   {
     return std::find(list.begin(), list.end(), list[i].conj()) - list.begin();
   }

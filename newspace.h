@@ -6,6 +6,7 @@
 
 #include "homspace.h"
 #include "eigenvalue.h"
+#include "newforms.h" // to compare with dim1 newform
 
 // In principle we can compute newforms with arbitrary unramified
 // character, via homological newforms with arbitrary quadratic
@@ -105,6 +106,7 @@ private:
 
   // Dict of W(Q) eigenvalues in {+1,-1} of bad primes Q, triv char only:
   map<Quadprime, int> eQmap;
+
   // Dict of coefficients in HFabs of integral ideals M. Trivial
   // character only.
   map<Qideal, FieldElement> aMmap;
@@ -144,6 +146,12 @@ public:
   // Use to reset the variable names to match the label 'lab'
   void set_vars();
 
+  int get_sfe() const {return sfe;}
+  // List of T(P) values with P in standard order
+  vector<FieldElement> aPlist() const;
+  // List of W(Q) values with Q in standard order
+  vector<int> eQlist() const;
+
   // Functions for computing eigenvalues of principal operators:
 
   // eigenvalue of a general principal operator:
@@ -175,6 +183,7 @@ public:
   ZZX char_pol_lin_comb(const vector<Quadprime>& Plist, const vector<scalar>& coeffs,
                         const Qideal& biglevel, int verb=0) const;
 
+  const Qideal& level() const {return N;}
   Field field(int original=0) const {return (original? *F0: *F);}
   // Return the degree of the principal or full Hecke field
   int dimension(int full=1) const {return (full? d<<HFrel->rank() : d);}
@@ -231,10 +240,10 @@ public:
   vector<ZZ> traces() const {return trace_list;}
 
   // NB We only implement file output for newforms with trivial character
-  // Filename for this Newform (or conjugate):
-  string filename(int conj=0) const;
-  // Output newform data (or data for the conjugate newform):
-  void output_to_file(int conj=0) const;
+  // Filename for this Newform:
+  string filename() const;
+  // Output newform data:
+  void output_to_file() const;
   // Input newform data. Returns 0 if data not available, else 1.
   int input_from_file(int verb=0);
 
@@ -244,6 +253,11 @@ public:
   // Construct all newforms which are nontrivial unramified quadratic
   // twists of this one, up to Galois conjugacy
   vector<Newform> all_unram_quadratic_twists() const;
+
+  // Conjugate data: NB this *only* conjugates data needed for
+  // output_to_file(), not everything!
+  void conjugate(int debug=0);
+
 };
 
 // function to sort newforms of the same level, by (1) character
@@ -298,7 +312,7 @@ private:
   Qideal N; // the level
   string level_label; // the level's label
   vector<Qideal> Ndivs; // divisors of N
-  vector<Quadprime> badprimes; // prime divisrs of N
+  vector<Quadprime> badprimes; // prime divisors of N
   vector<Qideal> t2ideals; // list of ideals coprime to level generating 2-torsion in class group
   vector<matop> eps_ops; // list of T(A,A) operators for A in t2ideals
 
@@ -386,20 +400,22 @@ public:
   // Hecke field pointers but we want to output them with different
   // field variable names to match their labels.
 
+  // detailed output of newforms
   void display_newforms(int aP=0, int AL=0, int principal_eigs=0, int traces=0, int triv_char_only=0);
-  // compact listing of newforms
 
+  // compact listing of newforms
   void list_newforms(int triv_char_only=0);
 
   // sort the list of newforms using newform_cmp
   void sort_newforms();
-  // return the list of newforms
-  vector<Newform> the_newforms() const {return newforms;}
 
-  // filename for Newspace (or conjugate)
-  string filename(int conj=0);
+  // return the list of newforms
+  const vector<Newform>& the_newforms() const {return newforms;}
+
+  // filename for Newspace
+  string filename();
   // output data for this Newspace (or conjugate) and each Newform
-  void output_to_file(int conj=0);
+  void output_to_file();
   // Input Newspace data and newform data for each newform. Returns 0 if data missing, else 1.
   int input_from_file(const Qideal& level, int verb=0);
 
@@ -409,6 +425,12 @@ public:
   // conjugates: that is, we twist by D in nontrivial cosets of a
   // subgroup of the group of all discriminant divisors.
   void add_unram_quadratic_twists();
+
+  // Conjugate data: NB this *only* conjugates data needed for
+  // output_to_file(), not everything!
+  void conjugate(int debug=0);
 };
+
+int compare_dim1_newforms(const newform& f, const Newform& F, int verbose=0);
 
 #endif

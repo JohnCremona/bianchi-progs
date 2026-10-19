@@ -178,7 +178,7 @@ void newform::compute_AL()
   aqlist.resize(nf->badprimes.size());
   std::transform(nf->badprimes.begin(), nf->badprimes.end(), aqlist.begin(),
                  [this] (const Quadprime& Q ) {return eigenvalueAtkinLehner(Q);});
-  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+  sfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<int>());
 }
 
 // Compute cuspidalfactor (needs long basis and bigtkernbas)
@@ -388,7 +388,7 @@ vector<long> newform::oldform_eigs(Qideal& M)
 
 newform::newform(newforms* nfs, int ind,
                  const vector<int>& intdata, const vector<Quad>& Quaddata,
-                 const vector<long>& aq, const vector<long>& ap)
+                 const vector<int>& aq, const vector<long>& ap)
 {
   nf=nfs;
   index = ind;
@@ -415,7 +415,7 @@ newform::newform(newforms* nfs, int ind,
       CMD = intdata[8];
       aqlist = aq;
       // Recompute sign of functional equation = minus product of all A-L eigenvalues
-      int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<long>());
+      int newsfe = std::accumulate(aqlist.begin(),aqlist.end(),-1,std::multiplies<int>());
       if (newsfe!=sfe)
         cout<<"Problem in data on file for level "<<label(N)<<": sfe = "<<sfe<<" and aqlist = "<<aqlist<<", but minus product of latter is "<<newsfe<<endl;
     }
@@ -1315,6 +1315,10 @@ void newforms::display(int detail)
      }
 }
 
+string newform::label_suffix() const {return codeletter(index-1);}
+string newform::short_label() const {return label(level())+label_suffix();}
+string newform::long_label() const {return field_label()+"-"+short_label();}
+
 void newform::display(void) const
 {
   cout << "basis = " << basis;
@@ -1832,7 +1836,8 @@ int newforms::read_from_file()
   if (n1ds==0)
     return 1;
 
-  vector<vector<long> > aqs(n1ds), aps(n1ds), eigs(n1ds);
+  vector<vector<int> > aqs(n1ds);
+  vector<vector<long> > aps(n1ds), eigs(n1ds);
   vector<vector<int> > intdata(n1ds);   // sfe, pdot, dp0, cuspidalfactor, lambdadot, matdot
   vector<vector<Quad> > Quaddata(n1ds); // lambda, a, b, c, d
 
@@ -2015,13 +2020,13 @@ void newforms::getap(int first, int last, int verbose)
               if (aq[0]==0)
                 nonsquarebadprimes.push_back(Qi-badprimes.begin());
               for (int j=0; j<n1ds; j++)
-                nflist[j].aqlist.push_back(aq[j]);
+                nflist[j].aqlist.push_back((int)aq[j]);
             }
           // Sign of functional equation = minus product of all A-L eigenvalues
           if (characteristic==0 && nonsquarebadprimes.empty())
             for (int j=0; j<n1ds; j++)
               {
-                nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
+                nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<int>());
               }
           else
             if (verbose)
@@ -2126,7 +2131,7 @@ void newforms::getap(int first, int last, int verbose)
           for (int j=0; j<n1ds; j++)
             {
               //long aq = aqv[j]; //nflist[j].eigenvalueAtkinLehner(Q, verbose);
-              long aq = nflist[j].eigenvalueAtkinLehner(Q, verbose);
+              int aq = nflist[j].eigenvalueAtkinLehner(Q, verbose);
               nflist[j].aqlist[*i] = aq;
               int k = std::find(Quadprimes::list.begin(), Quadprimes::list.end(), Q) - Quadprimes::list.begin();
               nflist[j].aplist[k] = (e>1? 0: -aq);
@@ -2136,7 +2141,7 @@ void newforms::getap(int first, int last, int verbose)
       if (characteristic==0)
         for (int j=0; j<n1ds; j++)
           {
-            nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<long>());
+            nflist[j].sfe = std::accumulate(nflist[j].aqlist.begin(),nflist[j].aqlist.end(),-1,std::multiplies<int>());
         }
     }
 
@@ -2841,18 +2846,16 @@ void newforms::conjugate(int debug)
   // Conjugate badprimes:
 
   if (debug)
-    cout<<"Original bad primes = "<<badprimes<<endl;
-  vector<Quadprime> conj_badprimes = Nbar.factorization().sorted_primes();
-  for (int i=0; i<(int)badprimes.size(); i++)
-    {
-      bad_prime_conjugation_permutation.push_back(std::find(badprimes.begin(), badprimes.end(), conj_badprimes[i].conj()) - badprimes.begin());
-    }
+    cout<<"Original level's bad primes = "<<badprimes<<endl;
+  vector<Quadprime> conj_badprimes(badprimes.size());
+  std::transform(badprimes.begin(), badprimes.end(), conj_badprimes.begin(),
+                 [](const Quadprime& Q){return Q.conj();});
+  std::sort(conj_badprimes.begin(), conj_badprimes.end());
+  badprimes = conj_badprimes;
   if (debug)
     {
-    cout<<"Conjugation permutation of bad primes = "<<bad_prime_conjugation_permutation<<endl;
-
-    cout<<"Before conjugating individual newforms:"<<endl;
-    display();
+      cout<<"Conjugate level's bad primes: "<<badprimes<<endl;
+      cout<<"Now conjugating individual newforms:"<<endl;
     }
 
   // Conjugate aq and ap for each newform:
@@ -2863,10 +2866,7 @@ void newforms::conjugate(int debug)
       f->conjugate(debug);
     }
   if (debug)
-    {
-      cout<<"After conjugating individual newforms:"<<endl;
-      display();
-    }
+    cout<<"Finished conjugating individual newforms:"<<endl;
 }
 
 // Conjugate newform data: NB this *only* conjugates data needed for
@@ -2878,7 +2878,7 @@ void newform::conjugate(int debug)
 
   // Conjugate AL eigs:
 
-  vector<long> conj_aqlist; // temporary for permuted values
+  vector<int> conj_aqlist; // temporary for permuted values
   for (int i=0; i<(int)aqlist.size(); i++)
     {
       conj_aqlist.push_back(aqlist[nf->bad_prime_conjugation_permutation[i]]);
@@ -2905,5 +2905,7 @@ void newform::conjugate(int debug)
   c = a.conj();
   d = a.conj();
 }
+
+const Qideal& newform::level() const {return nf->level();}
 
 //end of newforms.cc

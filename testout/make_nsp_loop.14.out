@@ -11,15 +11,21 @@ Found 0 homological newforms at level 2.1
 
 >>>> Level 3.1 = (3,1+a), norm = 3 <<<<
 Found 0 homological newforms at level 3.1
+Conjugating data for level 3.1 into data for conjugate level 3.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 4.1 = (2), norm = 4 <<<<
 Found 0 homological newforms at level 4.1
 
 >>>> Level 5.1 = (1+a,-5), norm = 5 <<<<
 Found 0 homological newforms at level 5.1
+Conjugating data for level 5.1 into data for conjugate level 5.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 6.1 = (-2+a,-4-a), norm = 6 <<<<
 Found 0 homological newforms at level 6.1
+Conjugating data for level 6.1 into data for conjugate level 6.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 7.1 = (a,-7), norm = 7 <<<<
 Found 2 homological newforms at level 7.1 of dimensions [ 1 2 ]

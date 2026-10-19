@@ -64,7 +64,7 @@ public:
   vec basis;
   vector<long> eigs;   // list of eigenvalues which split off this 1D subspace
   vector<long> aplist; // list of Fourier coefficients, all primes in standard order
-  vector<long> aqlist; // list of W-eigenvalues, bad primes in standard order
+  vector<int> aqlist; // list of W-eigenvalues, bad primes in standard order
   scalar dp0;               // 1+N(p0)-a_p0, newforms::p0 = small good principal prime
   scalar pdot;              // Manin vector's projection factor
   rational loverp;       // = pdot/(dp0*nunuits)
@@ -108,7 +108,7 @@ public:
   // constructor to use when data read from file:
   newform(newforms* nfs, int ind,
           const vector<int>& intdata, const vector<Quad>& Quaddata,
-          const vector<long>& aq, const vector<long>& ap);
+          const vector<int>& aq, const vector<long>& ap);
 
   // After finding all newforms using the basic constructor and
   // setting h1's projcoord and bigtkernbas, fill in the rest of the
@@ -153,6 +153,10 @@ public:
   // compute A-L eigenvalue for this newform, for the bad prime Q
   long eigenvalueAtkinLehner(const Quadprime& Q, int verbose=0);
 
+  string label_suffix() const; //
+  string short_label() const; // level_label-suffix
+  string long_label() const;  // field_label-level_label-suffix
+
   void display(void) const;
   void list(string prefix, long nap=-1);
 
@@ -174,6 +178,8 @@ public:
   // Conjugate data: NB this *only* conjugates data needed for
   // output_to_file(), not everything!
   void conjugate(int debug=0);
+
+  const Qideal& level() const;
 };
 
 class newforms :public splitter_base<scalar> {
@@ -266,6 +272,7 @@ public:
     if(h1!=NULL)delete h1;
     if(of!=NULL)delete of;
   }
+  const vector<newform>& the_newforms() const {return nflist;}
   void display(int detail=1);
   // List newforms in a fixed format. NB In even class number, each
   // element from nflist gives rise to 2**n2r (or 2**(n2r-1) in case
@@ -294,6 +301,8 @@ private:
   void use(const vec& b1, const vec& b2, const vector<long> eigs);
 
  public:
+
+  const Qideal& level() const {return N;}
 
   // methods for computing Hecke eigenvalues
 

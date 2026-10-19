@@ -11,21 +11,29 @@ Found 0 homological newforms at level 4.1
 
 >>>> Level 5.1 = (a), norm = 5 <<<<
 Found 0 homological newforms at level 5.1
+Conjugating data for level 5.1 into data for conjugate level 5.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 7.1 = (1+a), norm = 7 <<<<
 Found 0 homological newforms at level 7.1
+Conjugating data for level 7.1 into data for conjugate level 7.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 9.1 = (3), norm = 9 <<<<
 Found 0 homological newforms at level 9.1
 
 >>>> Level 11.1 = (2+a), norm = 11 <<<<
 Found 0 homological newforms at level 11.1
+Conjugating data for level 11.1 into data for conjugate level 11.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 16.1 = (4), norm = 16 <<<<
 Found 0 homological newforms at level 16.1
 
 >>>> Level 17.1 = (3+a), norm = 17 <<<<
 Found 0 homological newforms at level 17.1
+Conjugating data for level 17.1 into data for conjugate level 17.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 19.1 = (-1+2a), norm = 19 <<<<
 Found 1 homological newform at level 19.1 of dimension 1
@@ -113,30 +121,44 @@ P101b:	12
 
 First 76 traces: [ 1 1 -1 0 -1 -1 1 0 6 1 3 -3 2 -1 -1 -3 -3 1 1 5 -1 -1 1 1 0 0 1 -10 8 0 0 -1 -1 0 -12 8 1 8 0 0 0 0 8 -10 -1 -1 1 3 3 -7 11 2 0 0 0 0 -1 -1 10 12 12 -3 -3 0 0 -3 -3 -2 0 0 0 1 1 1 -6 12 ]
 
+Conjugating data for level 20.1 into data for conjugate level 20.2 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.19.1/20.2...done.
 
 >>>> Level 23.1 = (-3+2a), norm = 23 <<<<
 Found 0 homological newforms at level 23.1
+Conjugating data for level 23.1 into data for conjugate level 23.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 25.1 = (-5+a), norm = 25 <<<<
 Found 0 homological newforms at level 25.1
+Conjugating data for level 25.1 into data for conjugate level 25.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 25.2 = (5), norm = 25 <<<<
 Found 0 homological newforms at level 25.2
 
 >>>> Level 28.1 = (2+2a), norm = 28 <<<<
 Found 0 homological newforms at level 28.1
+Conjugating data for level 28.1 into data for conjugate level 28.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 35.1 = (-5+2a), norm = 35 <<<<
 Found 0 homological newforms at level 35.1
+Conjugating data for level 35.1 into data for conjugate level 35.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 35.2 = (5+a), norm = 35 <<<<
 Found 0 homological newforms at level 35.2
+Conjugating data for level 35.2 into data for conjugate level 35.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 36.1 = (6), norm = 36 <<<<
 Found 0 homological newforms at level 36.1
 
 >>>> Level 43.1 = (-1+3a), norm = 43 <<<<
 Found 0 homological newforms at level 43.1
+Conjugating data for level 43.1 into data for conjugate level 43.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 44.1 = (4+2a), norm = 44 <<<<
 Found 1 homological newform at level 44.1 of dimension 1
@@ -181,39 +203,59 @@ P101b:	0
 
 First 76 traces: [ 1 -1 0 -2 1 -5 1 -1 2 1 1 -5 -4 0 0 -1 -5 5 0 9 -1 -1 0 0 -2 -2 -1 -4 8 1 1 0 0 -4 8 8 1 32 0 0 2 2 -8 2 1 1 -1 -1 -1 -3 15 4 -1 -1 5 5 0 0 10 6 0 0 0 -2 -2 1 1 0 8 -1 -1 -5 -5 -5 12 0 ]
 
+Conjugating data for level 44.1 into data for conjugate level 44.2 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.19.1/44.2...done.
 
 >>>> Level 45.1 = (3a), norm = 45 <<<<
 Found 0 homological newforms at level 45.1
+Conjugating data for level 45.1 into data for conjugate level 45.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 47.1 = (6+a), norm = 47 <<<<
 Found 0 homological newforms at level 47.1
+Conjugating data for level 47.1 into data for conjugate level 47.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 49.1 = (-4+3a), norm = 49 <<<<
 Found 0 homological newforms at level 49.1
+Conjugating data for level 49.1 into data for conjugate level 49.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 49.2 = (7), norm = 49 <<<<
 Found 0 homological newforms at level 49.2
 
 >>>> Level 55.1 = (-5+3a), norm = 55 <<<<
 Found 0 homological newforms at level 55.1
+Conjugating data for level 55.1 into data for conjugate level 55.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 55.2 = (5+2a), norm = 55 <<<<
 Found 0 homological newforms at level 55.2
+Conjugating data for level 55.2 into data for conjugate level 55.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 61.1 = (7+a), norm = 61 <<<<
 Found 0 homological newforms at level 61.1
+Conjugating data for level 61.1 into data for conjugate level 61.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 63.1 = (3+3a), norm = 63 <<<<
 Found 0 homological newforms at level 63.1
+Conjugating data for level 63.1 into data for conjugate level 63.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 64.1 = (8), norm = 64 <<<<
 Found 0 homological newforms at level 64.1
 
 >>>> Level 68.1 = (6+2a), norm = 68 <<<<
 Found 0 homological newforms at level 68.1
+Conjugating data for level 68.1 into data for conjugate level 68.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 73.1 = (-7+3a), norm = 73 <<<<
 Found 0 homological newforms at level 73.1
+Conjugating data for level 73.1 into data for conjugate level 73.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 76.1 = (-2+4a), norm = 76 <<<<
 Found 2 homological newforms at level 76.1 of dimensions [ 1 1 ]
@@ -342,12 +384,18 @@ P101b:	4*a-2 	= [-2,4]
 
 First 76 traces: [ 2 4 0 3 2 4 2 -2 -3 16 9 -3 -8 0 0 -9 -3 10 0 25 4 4 0 0 3 3 4 -8 -5 -4 -4 0 0 6 9 2 2 22 0 0 -3 -3 -2 4 2 2 16 18 18 1 -5 -16 -2 -2 -4 -4 0 0 62 12 0 0 0 24 24 -18 -18 0 -12 -2 -2 20 20 20 3 0 ]
 
+Conjugating data for level 77.1 into data for conjugate level 77.4 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.19.1/77.4...done.
 
 >>>> Level 77.2 = (8+a), norm = 77 <<<<
 Found 0 homological newforms at level 77.2
+Conjugating data for level 77.2 into data for conjugate level 77.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 80.1 = (4a), norm = 80 <<<<
 Found 0 homological newforms at level 80.1
+Conjugating data for level 80.1 into data for conjugate level 80.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 81.1 = (9), norm = 81 <<<<
 Found 2 homological newforms at level 81.1 of dimensions [ 2 2 ]
@@ -438,9 +486,13 @@ First 76 traces: [ 2 2 0 0 4 4 0 0 0 10 0 0 12 0 0 0 0 14 4 14 4 4 0 0 0 0 0 8 8
 
 >>>> Level 83.1 = (-9+2a), norm = 83 <<<<
 Found 0 homological newforms at level 83.1
+Conjugating data for level 83.1 into data for conjugate level 83.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 85.1 = (-5+4a), norm = 85 <<<<
 Found 0 homological newforms at level 85.1
+Conjugating data for level 85.1 into data for conjugate level 85.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 85.2 = (5+3a), norm = 85 <<<<
 Found 1 homological newform at level 85.2 of dimension 1
@@ -485,15 +537,23 @@ P101b:	-6
 
 First 76 traces: [ 1 3 -1 2 2 0 2 -6 0 13 -6 1 6 -3 -3 -2 -4 1 1 9 6 6 -2 -2 4 4 6 6 2 -18 -18 -2 -2 6 -2 11 4 7 6 6 -12 -12 2 -10 4 4 27 -18 -18 10 -10 18 -12 -12 0 0 -13 -13 13 12 4 6 6 -12 -12 -6 -6 -6 12 -12 -12 3 3 3 6 -6 ]
 
+Conjugating data for level 85.2 into data for conjugate level 85.3 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.19.1/85.3...done.
 
 >>>> Level 92.1 = (-6+4a), norm = 92 <<<<
 Found 0 homological newforms at level 92.1
+Conjugating data for level 92.1 into data for conjugate level 92.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 95.1 = (-10+a), norm = 95 <<<<
 Found 0 homological newforms at level 95.1
+Conjugating data for level 95.1 into data for conjugate level 95.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 99.1 = (6+3a), norm = 99 <<<<
 Found 0 homological newforms at level 99.1
+Conjugating data for level 99.1 into data for conjugate level 99.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 100.1 = (-10+2a), norm = 100 <<<<
 Found 1 homological newform at level 100.1 of dimension 1
@@ -538,6 +598,8 @@ P101b:	-12
 
 First 76 traces: [ 1 -1 0 0 -1 1 -1 0 -6 1 -3 -3 2 0 0 3 -3 0 0 5 1 1 0 0 0 0 1 -10 -8 0 0 0 0 0 12 8 1 8 0 0 0 0 -8 10 1 1 -1 3 3 7 11 -2 0 0 0 0 0 0 10 12 -12 0 0 0 0 -3 -3 0 0 0 0 0 0 0 6 -12 ]
 
+Conjugating data for level 100.1 into data for conjugate level 100.3 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.19.1/100.3...done.
 
 >>>> Level 100.2 = (10), norm = 100 <<<<
 Found 0 homological newforms at level 100.2

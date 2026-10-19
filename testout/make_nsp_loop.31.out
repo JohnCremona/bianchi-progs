@@ -8,24 +8,36 @@ Found 0 homological newforms at level 1.1
 
 >>>> Level 2.1 = (2,a), norm = 2 <<<<
 Found 0 homological newforms at level 2.1
+Conjugating data for level 2.1 into data for conjugate level 2.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 4.1 = (a,-4), norm = 4 <<<<
 Found 0 homological newforms at level 4.1
+Conjugating data for level 4.1 into data for conjugate level 4.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 4.2 = (2), norm = 4 <<<<
 Found 0 homological newforms at level 4.2
 
 >>>> Level 5.1 = (1+a,-4+a), norm = 5 <<<<
 Found 0 homological newforms at level 5.1
+Conjugating data for level 5.1 into data for conjugate level 5.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 7.1 = (2+a,-5+a), norm = 7 <<<<
 Found 0 homological newforms at level 7.1
+Conjugating data for level 7.1 into data for conjugate level 7.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 8.1 = (a), norm = 8 <<<<
 Found 0 homological newforms at level 8.1
+Conjugating data for level 8.1 into data for conjugate level 8.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 8.2 = (4,2a), norm = 8 <<<<
 Found 0 homological newforms at level 8.2
+Conjugating data for level 8.2 into data for conjugate level 8.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 9.1 = (3), norm = 9 <<<<
 Found 0 homological newforms at level 9.1
@@ -74,12 +86,18 @@ P103b:	8
 
 First 179 traces: [ 1 1 1 1 1 3 -1 0 4 2 1 1 1 -1 -4 -1 -1 -1 -1 4 4 4 4 1 1 1 1 -1 -4 -4 -6 0 -1 -1 -1 -1 -1 -1 1 1 5 4 4 4 4 4 4 4 1 1 1 1 1 -1 -4 -4 0 0 -4 -4 -4 -6 -6 -6 -6 -1 -1 -1 -1 -1 -1 -1 -1 -2 2 4 4 6 -8 23 16 11 1 1 1 1 1 1 4 4 4 4 4 4 4 4 -4 0 4 4 -16 -16 1 1 1 1 1 1 -1 12 -2 -4 -4 -4 -4 -4 -4 -4 -4 -8 -8 -4 -4 -4 -4 -6 -6 -6 -6 -6 -6 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 25 -2 -2 -2 -2 4 4 4 4 6 6 6 6 6 6 0 0 16 -2 23 23 23 23 23 23 1 1 1 1 1 1 1 1 1 10 0 0 8 ]
 
+Conjugating data for level 10.1 into data for conjugate level 10.4 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.31.1/10.4...done.
 
 >>>> Level 10.2 = (-2+a), norm = 10 <<<<
 Found 0 homological newforms at level 10.2
+Conjugating data for level 10.2 into data for conjugate level 10.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 14.1 = (2+a), norm = 14 <<<<
 Found 0 homological newforms at level 14.1
+Conjugating data for level 14.1 into data for conjugate level 14.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 14.2 = (4+a,-6+2a), norm = 14 <<<<
 Found 1 homological newform at level 14.2 of dimension 1
@@ -125,27 +143,41 @@ P103b:	14
 
 First 179 traces: [ 1 -1 0 1 0 2 0 3 -1 1 -1 0 -1 0 1 0 0 0 0 1 1 0 0 1 0 1 1 -2 -1 0 2 2 0 0 0 0 0 0 5 0 14 -1 -1 0 0 -1 -1 5 -1 0 -1 -1 -1 2 0 0 -3 -3 1 0 1 -2 -2 0 0 0 0 0 0 0 0 0 0 9 -6 0 0 -6 12 8 1 1 -5 -5 -5 0 0 0 1 1 0 0 1 1 1 1 3 -9 -5 0 -1 -1 1 0 1 1 1 1 -2 14 -13 0 0 0 0 0 0 0 0 3 6 -1 0 -1 -1 2 2 0 0 2 2 0 0 0 0 0 0 0 0 0 0 10 -9 -9 0 0 0 0 0 0 6 6 0 0 0 0 6 6 8 -10 -8 -8 -8 0 0 0 5 5 5 0 0 0 5 5 5 -9 6 -4 14 ]
 
+Conjugating data for level 14.2 into data for conjugate level 14.3 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.31.1/14.3...done.
 
 >>>> Level 16.1 = (2a,-8+a), norm = 16 <<<<
 Found 0 homological newforms at level 16.1
+Conjugating data for level 16.1 into data for conjugate level 16.5
+Outputting conjugate Newspace data...done.
 
 >>>> Level 16.2 = (2a,-8), norm = 16 <<<<
 Found 0 homological newforms at level 16.2
+Conjugating data for level 16.2 into data for conjugate level 16.4
+Outputting conjugate Newspace data...done.
 
 >>>> Level 16.3 = (4), norm = 16 <<<<
 Found 0 homological newforms at level 16.3
 
 >>>> Level 18.1 = (6,3a), norm = 18 <<<<
 Found 0 homological newforms at level 18.1
+Conjugating data for level 18.1 into data for conjugate level 18.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 19.1 = (5+a,-4+3a), norm = 19 <<<<
 Found 0 homological newforms at level 19.1
+Conjugating data for level 19.1 into data for conjugate level 19.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 20.1 = (-4+a), norm = 20 <<<<
 Found 0 homological newforms at level 20.1
+Conjugating data for level 20.1 into data for conjugate level 20.6
+Outputting conjugate Newspace data...done.
 
 >>>> Level 20.2 = (-4+2a,-8-a), norm = 20 <<<<
 Found 0 homological newforms at level 20.2
+Conjugating data for level 20.2 into data for conjugate level 20.5
+Outputting conjugate Newspace data...done.
 
 >>>> Level 20.3 = (2+2a,-8+2a), norm = 20 <<<<
 Found 2 homological newforms at level 20.3 of dimensions [ 1 1 ]
@@ -233,20 +265,30 @@ P103b:	-16
 
 First 179 traces: [ 1 1 -1 1 -1 1 -1 0 -4 2 1 -1 1 -1 4 -1 -1 1 1 -4 -4 4 4 1 -1 1 1 -1 4 -4 2 8 -1 -1 1 1 -1 -1 1 1 5 -4 -4 4 4 -4 -4 -4 1 -1 1 1 1 -1 4 4 0 0 4 -4 4 2 2 -2 -2 -1 -1 1 1 -1 -1 -1 -1 6 -6 -4 -4 6 0 23 16 11 1 1 1 -1 -1 -1 -4 -4 4 4 -4 -4 -4 -4 12 0 -4 4 -16 -16 1 -1 1 1 1 1 -1 -4 -10 4 4 4 4 -4 -4 -4 -4 0 0 4 -4 4 4 2 2 -2 -2 2 2 -1 -1 1 1 -1 -1 -1 -1 -1 -1 25 6 6 -6 -6 -4 -4 4 4 6 6 -6 -6 -2 -2 0 0 8 -10 23 23 23 -23 -23 -23 1 1 1 -1 -1 -1 1 1 1 -6 0 -16 -16 ]
 
+Conjugating data for level 20.3 into data for conjugate level 20.4 and resorting
+Outputting conjugate Newspace data to newspaces/2.0.31.1/20.4...done.
 
 >>>> Level 25.1 = (6+a,-7+3a), norm = 25 <<<<
 Found 0 homological newforms at level 25.1
+Conjugating data for level 25.1 into data for conjugate level 25.3
+Outputting conjugate Newspace data...done.
 
 >>>> Level 25.2 = (5), norm = 25 <<<<
 Found 0 homological newforms at level 25.2
 
 >>>> Level 28.1 = (4+2a,-8+3a), norm = 28 <<<<
 Found 0 homological newforms at level 28.1
+Conjugating data for level 28.1 into data for conjugate level 28.6
+Outputting conjugate Newspace data...done.
 
 >>>> Level 28.2 = (4+a), norm = 28 <<<<
 Found 0 homological newforms at level 28.2
+Conjugating data for level 28.2 into data for conjugate level 28.5
+Outputting conjugate Newspace data...done.
 
 >>>> Level 28.3 = (4+2a,-10+2a), norm = 28 <<<<
 Found 0 homological newforms at level 28.3
+Conjugating data for level 28.3 into data for conjugate level 28.4
+Outputting conjugate Newspace data...done.
 
 End of program, exiting...

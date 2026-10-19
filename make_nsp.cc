@@ -68,9 +68,10 @@ int main()
   long firstn, lastn;
   cerr<<"Enter first and last norm for levels: ";
   cin >> firstn >> lastn;
- // This loop only covers one of each conjugate pair.  For levels not
- // Galois stable, if both_conj is true and output is true, we'll
- // output the conjugate data too.
+
+  // This loop only covers one of each conjugate pair.  For levels not
+ // Galois stable, if output is true, we output the conjugate data too.
+
   Qidealooper loop(firstn, lastn, 0, 1); // 0 = not both conjugates; 1 = sorted within norm
   while( loop.not_finished() )
     {
@@ -129,16 +130,21 @@ int main()
         }
       cout << endl;
 
-     if (!nnf)
+      if (!nnf) // no Newforms at this level
        {
          if (verbose)
            cout << "Outputting newspace data for level " << Nlabel << endl;
          NS.output_to_file();
          if (!conjugate_level_equal)
            {
-             if (verbose)
-               cout << "Outputting newspace data for conjugate level " << Nbarlabel << endl;
-             NS.output_to_file(1);
+                 cout << "Conjugating data for level " << Nlabel
+                      << " into data for conjugate level " << Nbarlabel
+                      << endl;
+                 Newspace NSbar(NS);
+                 NSbar.conjugate(); // just conjugates the level
+                 cout << "Outputting conjugate Newspace data..."<<flush;
+                 NSbar.output_to_file();
+                 cout << "done." << endl;
            }
          continue; // to next level
        }
@@ -213,13 +219,19 @@ int main()
      // char newforms (or all if C4)
 
      if (verbose)
-       cout << "Outputting Newspace data for level " << Nlabel << endl;
+       cout << "Outputting Newspace data for level " << Nlabel << " to " << NS.filename() << endl;
      NS.output_to_file();
      if (!conjugate_level_equal)
        {
-         if (verbose)
-           cout << "Outputting Newspace data for conjugate level " << Nbarlabel << endl;
-         NS.output_to_file(1);
+         cout << "Conjugating data for level " << Nlabel
+              << " into data for conjugate level " << Nbarlabel
+              << " and resorting" << endl;
+         Newspace NSbar(NS);
+         NSbar.conjugate(/*debug*/ 0); // also resorts the Newforms
+         //NSbar.display_newforms(show_aP, show_AL, show_princ, show_traces, tc_only);
+         cout << "Outputting conjugate Newspace data to " << NSbar.filename() << "..."<<flush;
+         NSbar.output_to_file();
+         cout << "done." << endl;
        }
      if (verbose)
        cout << "Finished outputting Newspace data"<< endl;

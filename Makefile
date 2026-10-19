@@ -160,7 +160,8 @@ test_newform: test_nf
 include Makefile.test_nf
 
 check: tests test_global test_basic test_hom test_newspace test_newform
-	@rm -f *.out
+	echo "tests finished, now deleting test output files..."
+	rm -f *.out
 
 clean:
 	@rm -f $(TESTS)
@@ -188,6 +189,12 @@ list_nsp_loop.o: list_nsp.cc
 
 list_nsp.o: list_nsp.cc
 	$(CC) $(CFLAGS) list_nsp.cc -o list_nsp.o
+
+compare_dim1_nf_loop.o: compare_dim1_nf.cc
+	$(CC) -DLOOPER $(CFLAGS) compare_dim1_nf.cc -o compare_dim1_nf_loop.o
+
+compare_dim1_nf.o: compare_dim1_nf.cc
+	$(CC) $(CFLAGS) compare_dim1_nf.cc -o compare_dim1_nf.o
 
 tquads: tquads.o $(OBJS)
 	$(CC) -o tquads tquads.o $(OBJS) $(LFLAGS)
@@ -233,6 +240,12 @@ list_nsp: list_nsp.o  newspace.o eigenvalue.o $(OBJS)
 
 list_nsp_loop: list_nsp_loop.o  newspace.o eigenvalue.o $(OBJS)
 	$(CC) -o list_nsp_loop list_nsp_loop.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
+
+compare_dim1_nf: compare_dim1_nf.o  newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o compare_dim1_nf compare_dim1_nf.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
+
+compare_dim1_nf_loop: compare_dim1_nf_loop.o  newspace.o eigenvalue.o $(OBJS)
+	$(CC) -o compare_dim1_nf_loop compare_dim1_nf_loop.o newspace.o eigenvalue.o $(OBJS) $(LFLAGS)
 
 moreap: moreap.o $(OBJS)
 	$(CC) -o moreap moreap.o $(OBJS) $(LFLAGS)

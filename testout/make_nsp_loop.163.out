@@ -23,12 +23,18 @@ Found 0 homological newforms at level 36.1
 
 >>>> Level 41.1 = (a), norm = 41 <<<<
 Found 0 homological newforms at level 41.1
+Conjugating data for level 41.1 into data for conjugate level 41.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 43.1 = (1+a), norm = 43 <<<<
 Found 0 homological newforms at level 43.1
+Conjugating data for level 43.1 into data for conjugate level 43.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 47.1 = (2+a), norm = 47 <<<<
 Found 0 homological newforms at level 47.1
+Conjugating data for level 47.1 into data for conjugate level 47.2
+Outputting conjugate Newspace data...done.
 
 >>>> Level 49.1 = (7), norm = 49 <<<<
 Found 1 homological newform at level 49.1 of dimension 2
