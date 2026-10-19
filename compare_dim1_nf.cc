@@ -29,7 +29,6 @@ int main()
     }
   Quad::field(d,maxpnorm);
 
-  int triv_char_only = 1;
   Quad n;
   Qideal N;
 

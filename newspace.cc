@@ -1595,7 +1595,10 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
   if (!triv_char)  // we don't deal with pseudo-eigenvalues, but still want to set aP for bad P.  For now we just set it to 0
     {
       for (auto Q: nsp->badprimes)
-        aPmap[Q] = zero;
+        {
+          if (Q.norm() <= maxP)
+            aPmap[Q] = zero;
+        }
       return;
     }
 
@@ -1677,7 +1680,8 @@ void Newform::compute_AL_eigs(int ntp, int verbose)
       sfe *= eQ;
 
       // aQ is minus the AL eigenvalue if Q||N else 0
-      aPmap[Q] = (e>1? zero: FieldMQElement((*F)(-eQ), *HFrel));
+      if (Q.norm() <= maxP)
+        aPmap[Q] = (e>1? zero: FieldMQElement((*F)(-eQ), *HFrel));
 
     } // end of loop over bad primes Q
 } // end of Newform::compute_AL_eigs()
